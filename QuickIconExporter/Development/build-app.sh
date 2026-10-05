@@ -6,7 +6,7 @@ app_dir="$project_dir/outputs/QuickIconExporter.app"
 contents_dir="$app_dir/Contents"
 
 cd "$project_dir"
-UPDATER_ROOT="$project_dir/../Shared/Updater"
+UPDATER_ROOT="$project_dir/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 build_stage=$(mktemp -d /private/tmp/quickicon-build.XXXXXX)
 trap 'rm -rf "$build_stage"' EXIT
@@ -34,7 +34,7 @@ cp "Resources/Info.plist" "$contents_dir/Info.plist"
 cp "Resources/IconDrop.icns" "$contents_dir/Resources/IconDrop.icns"
 chmod +x "$contents_dir/MacOS/QuickIconExporter"
 
-cp "$project_dir/../QuickIcon Exporter/Assets/QuickIconExporter-Mustard.icns" "$contents_dir/Resources/QuickIconExporter-Mustard.icns"
+cp "$project_dir/../Assets/QuickIconExporter-Mustard.icns" "$contents_dir/Resources/QuickIconExporter-Mustard.icns"
 /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile QuickIconExporter-Mustard" "$contents_dir/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleName QuickIconExporter" "$contents_dir/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName QuickIconExporter" "$contents_dir/Info.plist"
@@ -46,6 +46,6 @@ ditto -c -k --sequesterRsrc --keepParent "$app_dir" "$project_dir/outputs/QuickI
 
 codesign --verify --deep --strict "$app_dir"
 if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
-    python3 "$project_dir/../Shared/BuildTools/publish_latest.py" "$app_dir"
+    python3 "$project_dir/../../Shared/BuildTools/publish_latest.py" "$app_dir"
 fi
 echo "$app_dir"

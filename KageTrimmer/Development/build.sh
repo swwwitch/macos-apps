@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 ROOT="${0:A:h}"
-UPDATER_ROOT="$ROOT/../Shared/Updater"
+UPDATER_ROOT="$ROOT/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 BUILD=$(mktemp -d /private/tmp/kagetrimmer-build.XXXXXX)
 trap 'rm -rf "$BUILD"' EXIT
@@ -24,7 +24,7 @@ embed_updates "$APP"
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"
-python3 "$ROOT/../Shared/BuildTools/publish_latest.py" "$APP"
+python3 "$ROOT/../../Shared/BuildTools/publish_latest.py" "$APP"
 mkdir -p "$ROOT/build"
 ditto --norsrc --noextattr "$APP" "$ROOT/build/KageTrimmer.app"
 xattr -cr "$ROOT/build/KageTrimmer.app"

@@ -5,11 +5,11 @@
 | アプリ | ソース | ビルドコマンド | 検証版 |
 |---|---|---|---|
 | BrowserSwitcher | `BrowserSwitcher/Source` | `zsh BrowserSwitcher/build.sh` | 1.6.8 (19) |
-| ExtLink | `DutiGUI/Sources/DutiGUI` | `bash DutiGUI/build.sh` | 0.2.2 (7) |
+| ExtLink | `ExtLink/Development/Sources/DutiGUI` | `bash ExtLink/Development/build.sh` | 0.2.2 (7) |
 | FolderHopper | `FolderHopper/Development/Source` | `zsh FolderHopper/Development/build.sh` | 0.1.65 (71) |
-| KageTrimmer | `SoftShadow/Sources` | `zsh SoftShadow/build.sh` | 1.0 (28) |
-| PodiumFlight | `Toki/Development/Sources/Toki` | `bash Toki/Development/build-app.sh` | 3.1.7 (14) |
-| QuickIconExporter | `mac-png/Sources/IconDrop` | `zsh mac-png/build-app.sh` | 1.0 (7) |
+| KageTrimmer | `KageTrimmer/Development/Sources` | `zsh KageTrimmer/Development/build.sh` | 1.0 (28) |
+| PodiumFlight | `PodiumFlight/Development/Sources/Toki` | `bash PodiumFlight/Development/build-app.sh` | 3.1.7 (14) |
+| QuickIconExporter | `QuickIconExporter/Development/Sources/IconDrop` | `zsh QuickIconExporter/Development/build-app.sh` | 1.0 (7) |
 
 macOS、Xcodeのコマンドラインツール（Swift 6以降）、Python 3が必要です。Apple Silicon上で検証しました。BrowserSwitcher / ExtLink / FolderHopper / PodiumFlightはmacOS 13以降、KageTrimmer / QuickIconExporterはmacOS 14以降が対象です。古いOSでの実機検証は未実施です。
 
@@ -23,7 +23,7 @@ Sparkleの標準画面を使う更新機能を組み込みましたが、**更�
 
 [更新配布の設定・検証手順](Shared/Updater/README.md)をご覧ください。ソースの公開と、更新バイナリ／appcastの公開は別作業です。旧公開版にこの機能は入っていないため、初回は更新機能を設定済みの版を手動導入する必要があります。
 
-既存のApp Store申請向けXcodeプロジェクト・証明書・プロファイル・ローカル設定はこの公開ソースに含めていません。`mac-png/build-app-store.sh` は自身の署名情報を環境変数で指定する従来の補助スクリプトです。そのビルド入力にはSparkleを含めませんが、App Storeの署名・審査・提出は本リポジトリの検証対象外です。
+既存のApp Store申請向けXcodeプロジェクト・証明書・プロファイル・ローカル設定はこの公開ソースに含めていません。`QuickIconExporter/Development/build-app-store.sh` は自身の署名情報を環境変数で指定する従来の補助スクリプトです。そのビルド入力にはSparkleを含めませんが、App Storeの署名・審査・提出は本リポジトリの検証対象外です。
 
 ## 検証
 
@@ -32,3 +32,8 @@ Sparkleの標準画面を使う更新機能を組み込みましたが、**更�
 ## 権利表記
 
 アプリソースについて新しいライセンスは付与していません。公開されていることだけをもって再利用条件を追加するものではありません。既存の権利表記を保持しています。Sparkleは別ライセンスです。[第三者ソフトウェア](Shared/Updater/THIRD-PARTY-NOTICES.txt)をご覧ください。
+
+
+## アプリ単位のディレクトリ
+
+名称変更時はアプリ単位のディレクトリも同時に揃えます。ルールは [AGENTS.md](AGENTS.md)。Bundle ID・設定保存先・内部ターゲット名は互換性のため維持しています。

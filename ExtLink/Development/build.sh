@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")"
-UPDATER_ROOT="$PWD/../Shared/Updater"
+UPDATER_ROOT="$PWD/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp}/dutigui-build.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT
@@ -32,14 +32,15 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </dict></plist>
 PLIST
 # All required resources are versioned; a previously built app is unnecessary.
-cp ../ExtLink/Assets/ExtLink-Mustard.icns "$APP/Contents/Resources/ExtLink-Mustard.icns"
+cp ../Assets/ExtLink-Mustard.icns "$APP/Contents/Resources/ExtLink-Mustard.icns"
 cp -R Localizations/*.lproj "$APP/Contents/Resources/"
 embed_updates "$APP"
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"
-ditto "$APP" ../ExtLink/ExtLink.app
-python3 ../Shared/BuildTools/publish_latest.py "$APP"
-codesign --verify --deep --strict ../ExtLink/ExtLink.app
-codesign --verify --deep --strict "../Latest Builds/ExtLink.app"
-printf 'Built: %s\n' "../ExtLink/ExtLink.app"
+ditto --noextattr --norsrc "$APP" ../ExtLink.app
+xattr -cr ../ExtLink.app
+python3 ../../Shared/BuildTools/publish_latest.py "$APP"
+codesign --verify --deep --strict ../ExtLink.app
+codesign --verify --deep --strict "../../Latest Builds/ExtLink.app"
+printf 'Built: %s\n' "../ExtLink.app"

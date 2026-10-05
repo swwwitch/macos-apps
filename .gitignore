@@ -25,4 +25,4 @@ Shared/Updater/vendor/
 # Legacy local Xcode packaging projects depend on private signing setup.
 **/*.xcodeproj/
 # Generated icon (source PNGs and the ICNS generator are versioned).
-mac-png/Resources/IconDrop.icns
+QuickIconExporter/Development/Resources/IconDrop.icns
