@@ -1,0 +1,8 @@
+*.app/
+Backups/
+Verification/
+Assets/*.iconset/
+.DS_Store
+*.zip
+*.dmg
+release/
