@@ -1,0 +1,28 @@
+.DS_Store
+**/.build/
+**/build/
+**/outputs/
+**/Backups/
+**/Previous Builds/
+**/*.app/
+**/*.dSYM/
+**/__pycache__/
+**/*.pyc
+*.zip
+*.dmg
+*.pkg
+Latest Builds/
+Shared/BuildBackups/
+Shared/Updater/vendor/
+*.p12
+*.p8
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile
+.env
+.env.*
+# Legacy local Xcode packaging projects depend on private signing setup.
+**/*.xcodeproj/
+# Generated icon (source PNGs and the ICNS generator are versioned).
+mac-png/Resources/IconDrop.icns
