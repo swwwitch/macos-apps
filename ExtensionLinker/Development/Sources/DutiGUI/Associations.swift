@@ -268,7 +268,7 @@ final class AssociationStore: ObservableObject {
         panel.title = L("プリセットを保存")
         panel.message = L("一覧の関連付けを保存します。変更予定のアプリも含まれます。")
         panel.allowedContentTypes = [.plainText]
-        panel.nameFieldStringValue = "ExtLink-preset.txt"
+        panel.nameFieldStringValue = "ExtensionLinker-preset.txt"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let file = PresetFile(name: url.deletingPathExtension().lastPathComponent, associations: entries)

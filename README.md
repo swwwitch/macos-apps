@@ -5,14 +5,14 @@
 | アプリ | ソース | ビルドコマンド | 検証版 |
 |---|---|---|---|
 | BrowserSwitcher | `BrowserSwitcher/Source` | `zsh BrowserSwitcher/build.sh` | 1.6.8 (19) |
-| ExtLink | `ExtLink/Development/Sources/DutiGUI` | `bash ExtLink/Development/build.sh` | 0.2.2 (7) |
+| ExtensionLinker | `ExtensionLinker/Development/Sources/DutiGUI` | `bash ExtensionLinker/Development/build.sh` | 0.2.2 (7) |
 | FolderMover | `FolderMover/Source` | `zsh FolderMover/build.sh` | 1.0.0 (5) |
 | FolderHopper | `FolderHopper/Development/Source` | `zsh FolderHopper/Development/build.sh` | 0.1.65 (71) |
 | KageTrimmer | `KageTrimmer/Development/Sources` | `zsh KageTrimmer/Development/build.sh` | 1.0 (28) |
 | PodiumFlight | `PodiumFlight/Development/Sources/Toki` | `bash PodiumFlight/Development/build-app.sh` | 3.1.7 (14) |
 | QuickIconExporter | `QuickIconExporter/Development/Sources/IconDrop` | `zsh QuickIconExporter/Development/build-app.sh` | 1.0 (7) |
 
-macOS、Xcodeのコマンドラインツール（Swift 6以降）、Python 3が必要です。Apple Silicon上で検証しました。FolderMover / BrowserSwitcher / ExtLink / FolderHopper / PodiumFlightはmacOS 13以降、KageTrimmer / QuickIconExporterはmacOS 14以降が対象です。古いOSでの実機検証は未実施です。
+macOS、Xcodeのコマンドラインツール（Swift 6以降）、Python 3が必要です。Apple Silicon上で検証しました。FolderMover / BrowserSwitcher / ExtensionLinker / FolderHopper / PodiumFlightはmacOS 13以降、KageTrimmer / QuickIconExporterはmacOS 14以降が対象です。古いOSでの実機検証は未実施です。
 
 リポジトリのルートで上のコマンドを実行してください。初回ビルド時に公式のSparkle 2.10.0をダウンロードし、固定SHA-256を照合します。ローカルに取得済みの同一アーカイブは `SPARKLE_ARCHIVE` 環境変数で指定できます。SDKとビルド生成物はGit管理しません。
 

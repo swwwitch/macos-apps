@@ -80,7 +80,7 @@ final class DutiEnvironment: ObservableObject {
         printf 'インストーラーを取得できませんでした。\n'
     fi
     if [ "$result" -eq 0 ]; then
-        printf '\nHomebrewのインストールが完了しました。ExtLinkに戻り「再確認」を押してください。\n'
+        printf '\nHomebrewのインストールが完了しました。ExtensionLinkerに戻り「再確認」を押してください。\n'
     else
         printf '\nインストールは完了していません。上のメッセージを確認してください。\n'
     fi

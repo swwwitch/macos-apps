@@ -51,7 +51,7 @@ struct PresetFile {
         return PresetFile(name: name, associations: entries)
     }
     func encoded() throws -> Data {
-        var lines = ["# ExtLink preset", ""]
+        var lines = ["# ExtensionLinker preset", ""]
         var previousID: String?
         // Keep each application's commands together, with an optional comment heading.
         for entry in associations.sorted(by: { ($0.bundleID, $0.ext) < ($1.bundleID, $1.ext) }) {

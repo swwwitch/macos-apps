@@ -5,7 +5,7 @@
 | アプリ | 確認した既存版 | 更新機能組込版 | コンパイル／ZIP展開後署名検証 |
 |---|---|---|---|
 | BrowserSwitcher | 1.6.8 (18) | 1.6.8 (19) | 成功 |
-| ExtLink | 0.2.2 (6) | 0.2.2 (7) | 成功 |
+| ExtensionLinker | 0.2.2 (6) | 0.2.2 (7) | 成功 |
 | FolderHopper | 0.1.65 (70) | 0.1.65 (71) | 成功 |
 | KageTrimmer | 1.0 (27) | 1.0 (28) | 成功 |
 | PodiumFlight | 3.1.7 (13) | 3.1.7 (14) | 成功 |
@@ -20,7 +20,7 @@
 - 設定の拒否テスト5件（HTTP・認証情報入りURL・ダミーURL・欠落キー・不正公開鍵・セキュリティ設定上書きなどのケースを含む）。
 - 共通Swiftコードの未設定時の起動拒否、手動メニューの利用可否、自動チェックが無効のままであること。
 - BrowserSwitcherの検証専用Bundle IDを使った実機UI確認。手動確認メニューと「更新配布の準備中」ダイアログが表示され、自動確認は無効でした。
-- ExtLinkの既存18テスト、QuickIconExporterの既存4テスト。
+- ExtensionLinkerの既存18テスト、QuickIconExporterの既存4テスト。
 - FolderHopperの起動方針・移動/コピー/衝突/シンボリックリンク/部分失敗の既存テスト。
 - PodiumFlightの時刻連動・カウントダウン・期限・シリアライズ・選択プリセットの既存テスト。
 - QuickIconExporterを `APP_STORE_BUILD=1` で再ビルドし、Sparkleのリンクとフレームワークが存在しないこと。

@@ -1,4 +1,4 @@
-# ExtLink
+# ExtensionLinker
 
 このフォルダで `bash build.sh` を実行して通常配布版をビルドします。ソースと必要なリソースを同梱しています。
 

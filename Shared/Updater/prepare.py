@@ -9,7 +9,7 @@ import urllib.request
 VERSION = '2.10.0'
 SHA256 = 'c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c'
 ROOT = Path(__file__).resolve().parent
-TARGETS = ['BrowserSwitcher/Source', 'ExtLink/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop']
+TARGETS = ['BrowserSwitcher/Source', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop']
 
 def prepare():
     for target in TARGETS:
