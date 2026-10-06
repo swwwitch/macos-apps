@@ -21,5 +21,8 @@ Privacy and updates
 No network communication. File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not automatically deleted; remove unneeded journals in Finder. Preferences use UserDefaults. This local build has no configured update feed, update verification key or notarization.
 Support: the Codex chat that created this app.
 
+Finder tag colors
+Folder icons reflect Finder's primary label color, as in FolderHopper. Custom icons are preserved. Return to FolderMover to refresh changes made in Finder.
+
 Display settings
 Settings → Display → Shorten Dropbox paths shows /Dropbox-shared/… on both cards. Enabled by default. Hover for the full path. Confirmation and history retain full paths.

@@ -21,5 +21,8 @@ FolderMover — 批量移动文件夹内容
 没有网络通信。路径记录在 ~/Library/Application Support/FolderMover/History，不保存文件内容。记录不会自动删除，可在访达中删除。设置使用UserDefaults保存。本地版本未配置更新源、更新验证密钥或公证。
 支持：创建此应用的Codex对话。
 
+Finder标签颜色
+文件夹图标显示Finder的主要标签颜色，与FolderHopper相同。保留自定义图标。在Finder中修改后，返回FolderMover即可刷新。
+
 显示设置
 设置→显示→简化 Dropbox 路径会将两张卡片的路径显示为 /Dropbox-shared/…。默认开启。悬停可查看完整路径，确认对话框与记录保留完整路径。

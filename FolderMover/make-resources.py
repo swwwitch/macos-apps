@@ -133,12 +133,19 @@ macOS 단축어에서 “앱 열기 → FolderMover”을 만들고 세부사항
 외부 통신을 하지 않습니다. 파일 내용이 아닌 경로를 ~/Library/Application Support/FolderMover/History에 저장합니다. 기록은 자동 삭제하지 않으며 Finder에서 삭제할 수 있습니다. 설정은 UserDefaults를 사용합니다. 로컬 빌드에 업데이트 주소, 검증 키, 공증이 설정되지 않았습니다.
 지원: 이 앱을 만든 Codex 채팅.'''
 ]
+tag_help = [
+    "Finderのタグ色\n選択したフォルダーのタグ色をアイコンに反映します（FolderHopperと同じ方式）。複数タグはFinderの代表ラベル色を使用し、独自のアイコンは保持します。Finderで色を変更した後はFolderMoverに戻ると再読込します。",
+    "Finder tag colors\nFolder icons reflect Finder's primary label color, as in FolderHopper. Custom icons are preserved. Return to FolderMover to refresh changes made in Finder.",
+    "Finder标签颜色\n文件夹图标显示Finder的主要标签颜色，与FolderHopper相同。保留自定义图标。在Finder中修改后，返回FolderMover即可刷新。",
+    "Finder 태그 색상\nFolderHopper와 같은 방식으로 Finder의 대표 태그 색상을 폴더 아이콘에 반영합니다. 사용자 지정 아이콘은 유지합니다. Finder에서 변경한 뒤 FolderMover로 돌아오면 갱신됩니다."
+]
+helptexts = [text + '\n\n' + tag for text, tag in zip(helptexts, tag_help)]
 for idx,lang in enumerate(['ja','en','zh-Hans','ko']):
     folder=root/'Resources'/f'{lang}.lproj'; folder.mkdir(parents=True,exist_ok=True)
     values={r[0]:r[idx+1] for r in rows}; values['helpContent']=helptexts[idx] + '\n\n' + path_help[idx]
     (folder/'Localizable.strings').write_text('\n'.join(json.dumps(k,ensure_ascii=False)+' = '+json.dumps(v,ensure_ascii=False)+';' for k,v in values.items())+'\n')
     (folder/'Help.txt').write_text(helptexts[idx] + '\n\n' + path_help[idx])
-info={'CFBundleName':'FolderMover','CFBundleDisplayName':'FolderMover','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FolderMover','CFBundlePackageType':'APPL','CFBundleShortVersionString':'1.0.0','CFBundleVersion':'5','CFBundleIconFile':'FolderMover.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication'}
+info={'CFBundleName':'FolderMover','CFBundleDisplayName':'FolderMover','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FolderMover','CFBundlePackageType':'APPL','CFBundleShortVersionString':'1.0.0','CFBundleVersion':'6','CFBundleIconFile':'FolderMover.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication','LSApplicationCategoryType':'public.app-category.utilities'}
 (root/'Info.plist').write_bytes(plistlib.dumps(info))
 p=root/'Source/LoginAtLaunch.swift';s=p.read_text()
 for literal,key in [('ログイン時に起動','login'),('ログイン項目を開く','loginOpen'),('Macへのログイン時に自動起動します。','loginOn'),('システム設定のログイン項目で許可してください。','loginApproval'),('アプリをアプリケーションフォルダに移動して再起動してください。','loginMissing'),('自動起動はOFFです。','loginOff')]:

@@ -15,6 +15,9 @@ final class Model: ObservableObject {
     @Published var stopping = false
     var cancel = Cancellation()
     init() {
+        #if APP_STORE
+        _ = FolderAccess.shared
+        #endif
         source = UserDefaults.standard.string(forKey: "source").map { URL(fileURLWithPath: $0) }
         destination = UserDefaults.standard.string(forKey: "destination").map { URL(fileURLWithPath: $0) }
     }
@@ -26,11 +29,17 @@ final class Model: ObservableObject {
     }
     func assign(_ url: URL, _ isSource: Bool) {
         guard !busy else { return }
+        #if APP_STORE
+        do { try FolderAccess.shared.remember(url) } catch { status = error.localizedDescription; return }
+        #endif
         guard (try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey])).map({ $0.isDirectory == true && $0.isPackage != true }) == true else { status = L("invalidFolder"); return }
         if isSource { source = url } else { destination = url }
     }
     func start() {
         guard !busy, let s = source, let d = destination else { return }
+        #if APP_STORE
+        do { guard try FolderAccess.shared.authorize([s, d]) else { return } } catch { status = error.localizedDescription; return }
+        #endif
         busy = true; stopping = false; cancel = Cancellation(); progress = MoveProgress(); status = L("scanning")
         let token = cancel
         let hidden = UserDefaults.standard.bool(forKey: "hidden")
@@ -81,7 +90,7 @@ struct FolderCard: View {
             Text(L(isSource ? "source" : "destination")).font(.system(size: 15, weight: .semibold)).foregroundColor(.secondary)
             Button { model.choose(isSource) } label: {
                 VStack(spacing: 10) {
-                    Image(nsImage: url.map { NSWorkspace.shared.icon(forFile: $0.path) } ?? NSWorkspace.shared.icon(for: .folder))
+                    Image(nsImage: url.map { folderIcon(for: $0) } ?? NSWorkspace.shared.icon(for: .folder))
                         .resizable().scaledToFit().frame(width: 64, height: 64).accessibilityHidden(true)
                     Text(url?.lastPathComponent ?? L("chooseFolder")).font(.system(size: 17, weight: .medium)).lineLimit(1)
                     Text(url.map { PathDisplay.string($0, shortenDropbox: shortenDropboxPaths) } ?? L("dropFolder")).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(2).truncationMode(.middle).frame(height: 30)
@@ -181,7 +190,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         func submenu(_ name: String) -> NSMenu { let item = NSMenuItem(); let menu = NSMenu(title: name); item.submenu = menu; bar.addItem(item); return menu }
         func add(_ m: NSMenu, _ title: String, _ sel: Selector, _ key: String = "", _ target: AnyObject? = nil) { let i = m.addItem(withTitle: title, action: sel, keyEquivalent: key); i.target = target ?? self }
         let app = submenu("FolderMover")
-        add(app, L("about"), #selector(about)); add(app, L("updates"), #selector(updates)); app.addItem(.separator())
+        add(app, L("about"), #selector(about))
+        #if !APP_STORE
+        add(app, L("updates"), #selector(updates))
+        #endif
+        app.addItem(.separator())
         add(app, L("settings"), #selector(showSettings), ","); app.addItem(.separator())
         add(app, L("quit"), #selector(NSApplication.terminate(_:)), "q", NSApp)
         let file = submenu(L("file")); add(file, L("showWindow"), #selector(showMain), "0"); add(file, L("close"), #selector(NSWindow.performClose(_:)), "w", nil); file.items.last?.target = nil
@@ -191,7 +204,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
-    func applicationDidBecomeActive(_ notification: Notification) { if mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
+    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func windowWillClose(_ notification: Notification) {
         if notification.object as? NSWindow === mainWindow, !UserDefaults.standard.bool(forKey: "resident"), !model.busy { NSApp.terminate(nil) }

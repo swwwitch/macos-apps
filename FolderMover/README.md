@@ -2,7 +2,7 @@
 
 ![FolderMoverアイコン](Assets/FolderMover.png)
 
-[ダウンロード（1.0.0 build 5・試用版）](https://github.com/swwwitch/macos-apps/releases/tag/FolderMover-v1.0.0-build5)
+[ダウンロード（1.0.0 build 6・試用版）](https://github.com/swwwitch/macos-apps/releases/tag/FolderMover-v1.0.0-build6)
 
 画面の「コピー先」は移動先の指定欄です。本アプリは移動専用で、元ファイルを残すコピーではありません。
 
@@ -42,3 +42,9 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 2,000項目の一括移動、同名ファイル/ディレクトリ、空白・日本語・引用符・改行・シェル風の名前、壊れたシンボリックリンク、128件後の中断、移動元/先の置換検知を一時フォルダで検証。
 
 ログインし直し、OS側のログイン項目解除、スリープ復帰、別ディスク/ネットワークディスク、容量不足、強制終了からの復元は未確認です。
+
+Finderのタグ色をフォルダーアイコンに反映（カスタムアイコンは保持）。アプリへ戻ると再読込します。
+
+![タグ色を反映した画面](Docs/main.png)
+
+[App Store公開準備と未完了項目](AppStore/README.md)
