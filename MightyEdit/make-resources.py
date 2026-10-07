@@ -240,7 +240,7 @@ palette.initFailed|ホットキーの初期化に失敗しました（%@）。|C
 palette.bringToFront|パレットを前面に出す|Bring palette to front|将面板置于前面|팔레트를 앞으로 가져오기
 palette.shortcutTitle|パレット呼び出し|Show palette|调出面板|팔레트 호출
 palette.shortcutNote|MightyEditが常駐している間、ほかのアプリからパレットを呼び出せます。未起動のアプリを起動する機能ではありません。機能実行用ホットキーの無効化・一時停止とは別に動作します。|While MightyEdit is running, you can bring up the palette from any app. This does not launch MightyEdit when it is not running. It works independently of disabling or pausing the action hotkeys.|MightyEdit 在后台运行时，可从其他应用调出面板。此功能不会启动未运行的应用，并且与停用或暂停功能快捷键无关。|MightyEdit가 실행 중인 동안 다른 앱에서 팔레트를 불러올 수 있습니다. 실행 중이 아닌 앱을 실행하는 기능은 아닙니다. 기능 단축키의 비활성화·일시 정지와는 별도로 작동합니다.
-palette.resetShortcut|初期値（⌃⌥⌘U）に戻す|Reset to Default (⌃⌥⌘U)|恢复默认值（⌃⌥⌘U）|기본값(⌃⌥⌘U)으로 재설정
+palette.resetShortcut|初期値（⌃⌥⌘E）に戻す|Reset to Default (⌃⌥⌘E)|恢复默认值（⌃⌥⌘E）|기본값(⌃⌥⌘E)으로 재설정
 palette.resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
 palette.residentNote|パレットを閉じてもMightyEditを終了せず、メニューバーから再表示できます。オフのときは閉じるボタンで終了します。|Closing the palette keeps MightyEdit running; show it again from the menu bar. When off, the close button quits MightyEdit.|关闭面板后 MightyEdit 不会退出，可从菜单栏再次显示。关闭此选项时，点击关闭按钮会退出。|팔레트를 닫아도 MightyEdit는 종료되지 않으며 메뉴 막대에서 다시 표시할 수 있습니다. 끄면 닫기 버튼으로 종료합니다.
 status.disabled|無効|Disabled|已停用|비활성화됨

@@ -47,8 +47,9 @@ for lang, table in tables.items():
     assert structure == headings['ja'], (lang, 'Help.txt heading structure differs from ja'); checks += 1
     assert '----' not in lines and any(l.startswith('- ') for l in lines), (lang, 'Help.txt bullets'); checks += 1
     assert tables[lang]['menu.appHelp'] in help_text and tables[lang]['menu.help'] in help_text, (lang, 'help names the status menu Help submenu'); checks += 1
-    for shortcut in ['⌘D', '⌃⌘D', '⌃⌘E', '⌃E', '⌃⇧⌘D', '⌃⌥⌘S', '⌘,', '⌘M', '⌘Q']:
+    for shortcut in ['⌘D', '⌃⌘D', '⌃⌘E', '⌃E', '⌃⇧⌘D', '⌃⌥⌘S', '⌘,', '⌘Q']:
         assert shortcut in help_text, (lang, 'help shortcut', shortcut)
+    assert '⌘M' not in help_text, (lang, 'Minimize has no key equivalent')
     checks += 1
 for lang in ['en', 'zh-Hans', 'ko']:
     same = [k for k, v in tables[lang].items() if v == tables['ja'][k] and re.search('[ぁ-んァ-ヶ一-龥]', v)]

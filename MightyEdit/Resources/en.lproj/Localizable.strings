@@ -220,7 +220,7 @@
 "palette.bringToFront" = "Bring palette to front";
 "palette.shortcutTitle" = "Show palette";
 "palette.shortcutNote" = "While MightyEdit is running, you can bring up the palette from any app. This does not launch MightyEdit when it is not running. It works independently of disabling or pausing the action hotkeys.";
-"palette.resetShortcut" = "Reset to Default (⌃⌥⌘U)";
+"palette.resetShortcut" = "Reset to Default (⌃⌥⌘E)";
 "palette.resident" = "Keep running after closing";
 "palette.residentNote" = "Closing the palette keeps MightyEdit running; show it again from the menu bar. When off, the close button quits MightyEdit.";
 "status.disabled" = "Disabled";

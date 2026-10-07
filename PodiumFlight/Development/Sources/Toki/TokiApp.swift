@@ -205,7 +205,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     private func prepareWindow() {
         guard controlsWindow == nil else { return }
         let size = NSSize(width: 420, height: 750)
-        // Miniaturizable so the yellow button and Window > Minimize (⌘M) work; full screen stays off.
+        // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = ""
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -929,7 +929,7 @@ struct SettingsView: View {
 private func addStandardWindowMenu(to mainMenu: NSMenu) {
     let root = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
     let menu = NSMenu(title: L("ウインドウ"))
-    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "")
     menu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
     menu.addItem(.separator())
     menu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")

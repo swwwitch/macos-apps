@@ -6,6 +6,8 @@ struct OutputFormat: Identifiable, Equatable {
     let ext: String
     static let all = [
         OutputFormat(id:"pdf", name:"PDF", ext:"pdf"),
+        OutputFormat(id:"image", name:NSLocalizedString("rasterImage", comment:""), ext:"png"),
+        OutputFormat(id:"svg", name:"SVG", ext:"svg"),
         OutputFormat(id:"plain", name:"Plain text", ext:"txt"),
         OutputFormat(id:"idml", name:"InDesign (IDML)", ext:"idml"),
         OutputFormat(id:"html5", name:"HTML", ext:"html"),
@@ -18,6 +20,10 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"latex", name:"LaTeX", ext:"tex"),
         OutputFormat(id:"odt", name:"OpenDocument", ext:"odt")]
     static var defaultFormat: OutputFormat { all.first { $0.id == "docx" }! }
+    /// Shown under the name in the format list.
+    var extLabel: String { id == "image" ? ".png / .jpg" : "." + ext }
+    /// Image outputs come only from Illustrator, Photoshop and PDF files (ImageConversion.swift).
+    var isImage: Bool { id == "image" || id == "svg" }
     var supportsTOC: Bool { ["docx","html5","epub3","odt","rtf","latex","pdf"].contains(id) }
     var supportsNumbers: Bool { ["html5","latex","pdf"].contains(id) }
 }
@@ -37,6 +43,12 @@ struct ConversionOptions {
     var aiMethod = "simple"
     var aiPreset = ""
     var illustratorApp: URL?
+    var raster = RasterOptions()
+    var svg = SVGOptions()
+    var naming = FileNaming()
+    /// .psd input: "simple" reads the composite image with ImageIO; "photoshop" saves a copy through Photoshop.
+    var psdMethod = "simple"
+    var photoshopApp: URL?
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
         if format.id == "pdf" {
@@ -62,7 +74,7 @@ final class ConversionRunner: @unchecked Sendable {
     /// Non-fatal notes for the finished conversion (e.g. an .ai saved without PDF compatibility).
     private var notes: [String] = []
     var warnings: [String] { lock.lock(); defer { lock.unlock() }; return notes }
-    private func addWarning(_ text: String) { lock.lock(); notes.append(text); lock.unlock() }
+    func addWarning(_ text: String) { lock.lock(); notes.append(text); lock.unlock() }
     func cancel() {
         lock.lock(); cancelled = true; let p = process; lock.unlock()
         if let p, p.isRunning { p.terminate() }

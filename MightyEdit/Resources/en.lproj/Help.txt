@@ -5,7 +5,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 2. Click a button on the palette, or press its hotkey.
 - After a conversion MightyEdit selects the replaced text again, in fields that allow their selection to be changed. If you move to another app or field while processing, the selection is not restored.
 - With Copy Without Replacing in the menu, only the converted result is copied to the clipboard.
-- The palette shortcut is **⌃⌥⌘U** by default. Change it, turn it off or reset it on the Startup & Background tab of Settings. It works while MightyEdit is running.
+- The palette shortcut is **⌃⌥⌘E** by default. Change it, turn it off or reset it on the Startup & Background tab of Settings. It works while MightyEdit is running.
 - The gear “Settings…” button at the top of the palette opens Settings, and the Help button next to it shows this help. Both are available without scrolling.
 
 ## The Palette
@@ -121,13 +121,13 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 ## Keyboard Shortcuts
 ### App Commands (While MightyEdit Is Active)
 - **⌘0**: Open Main Window (the palette; shows it again after closing)
-- **⌘M**: Minimize the palette (Window menu; bring it back from the list in the Window menu)
+- Choose Minimize in the Window menu to minimize the palette (no keyboard shortcut; bring it back from the list in the Window menu)
 - **⌘,**: Settings
 - **⌘?**: MightyEdit Help
 - **⌘Q**: Quit
 - **⌘Z** / **⇧⌘Z**: Undo / Redo in MightyEdit’s text fields (Cut, Copy, Paste and Select All are in the Edit menu too)
 ### Default Hotkeys
-- **⌃⌥⌘U**: Show the palette
+- **⌃⌥⌘E**: Show the palette
 - **⌃⌥⌘D**: Switch Button Style (Icon and Text → Icon Only → Text Only; does not change any text)
 - **⌃1**: Numbered List
 - **⌃3**: Circled Numbers

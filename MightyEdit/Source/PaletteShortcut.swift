@@ -45,10 +45,19 @@ final class PaletteShortcut: NSObject {
             }
             defaults.set(true, forKey: prefix + "defaultControlU20261007")
         }
+        // 0.2.8: the default moved from ⌃⌥⌘U to ⌃⌥⌘E. Only settings still on the old default move, once.
+        if !defaults.bool(forKey: prefix + "defaultControlE20261008") {
+            if defaults.object(forKey: prefix + "binding") == nil,
+               ((defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1) == 1,
+               (defaults.string(forKey: prefix + "key") ?? "U") == "U" {
+                defaults.set(1, forKey: prefix + "modifiers"); defaults.set("E", forKey: prefix + "key")
+            }
+            defaults.set(true, forKey: prefix + "defaultControlE20261008")
+        }
         let combination = (defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1
         modifiers.selectItem(at: combinations.indices.contains(combination) ? combination : 1)
-        key.selectItem(withTitle: defaults.string(forKey: prefix + "key") ?? "U")
-        if key.indexOfSelectedItem < 0 { key.selectItem(withTitle: "U") }
+        key.selectItem(withTitle: defaults.string(forKey: prefix + "key") ?? "E")
+        if key.indexOfSelectedItem < 0 { key.selectItem(withTitle: "E") }
         for control in [enabled as NSControl, modifiers, key] { control.target = self; control.action = #selector(changed) }
         var types = [EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
                      EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased))]
@@ -137,7 +146,7 @@ final class PaletteShortcut: NSObject {
     }
     @objc private func resetDefault() {
         UserDefaults.standard.removeObject(forKey: prefix + "binding")
-        enabled.state = .on; modifiers.selectItem(at: 1); key.selectItem(withTitle: "U"); changed(); editor?.load(currentBinding)
+        enabled.state = .on; modifiers.selectItem(at: 1); key.selectItem(withTitle: "E"); changed(); editor?.load(currentBinding)
     }
     private func register() {
         if let reference { UnregisterEventHotKey(reference) }; reference = nil

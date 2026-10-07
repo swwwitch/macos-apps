@@ -2,6 +2,7 @@ import AppKit
 
 /// Official .ai → PDF: Illustrator exports the document as PDF with an Adobe PDF preset
 /// (Resources/Illustrator/SaveAsPDF.jsx, after sttk3's exportPDF), driven through osascript `do javascript`.
+/// .ai → PNG / SVG goes through ExportImages.jsx the same way. PhotoshopBridge shares the plumbing.
 enum IllustratorBridge {
     static let bundleID = "com.adobe.illustrator"
 
@@ -14,7 +15,7 @@ enum IllustratorBridge {
     }
 
     /// Installed Illustrators, newest release first (Beta/Prerelease last).
-    static func installations() -> [Installation] {
+    static func installations(bundleID: String = bundleID) -> [Installation] {
         let urls: [URL]
         if #available(macOS 12.0, *) { urls = NSWorkspace.shared.urlsForApplications(withBundleIdentifier: bundleID) }
         else { urls = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID).map { [$0] } ?? [] }
@@ -34,9 +35,9 @@ enum IllustratorBridge {
     /// Tests point this at Resources/Illustrator; the app reads the bundled copies.
     nonisolated(unsafe) static var scriptsDirectory: URL?
 
-    private static func script(_ name: String) throws -> String {
-        if let directory = scriptsDirectory { return try String(contentsOf: directory.appendingPathComponent(name + ".jsx"), encoding: .utf8) }
-        guard let url = Bundle.main.url(forResource: name, withExtension: "jsx", subdirectory: "Illustrator")
+    static func script(_ name: String, subdirectory: String = "Illustrator") throws -> String {
+        if let directory = scriptsDirectory { return try String(contentsOf: directory.appendingPathComponent(subdirectory).appendingPathComponent(name + ".jsx"), encoding: .utf8) }
+        guard let url = Bundle.main.url(forResource: name, withExtension: "jsx", subdirectory: subdirectory)
                 ?? Bundle.main.url(forResource: name, withExtension: "jsx") else { throw error("illustratorScriptMissing") }
         return try String(contentsOf: url, encoding: .utf8)
     }
@@ -45,15 +46,15 @@ enum IllustratorBridge {
         NSError(domain: "PandocDesk.Illustrator", code: 1, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, comment: "") + detail])
     }
 
-    /// Runs JSX in the given Illustrator with arguments; returns the script's result text.
-    static func run(_ jsx: String, arguments: [String], in app: URL, isCancelled: () -> Bool = { false }) throws -> String {
+    /// Runs JSX in the given Illustrator (or Photoshop, with its `terms` ID) with arguments; returns the script's result text.
+    static func run(_ jsx: String, arguments: [String], in app: URL, terms: String = bundleID, isCancelled: () -> Bool = { false }) throws -> String {
         let runner = """
         on run argv
             set appPath to item 1 of argv
             set jsx to item 2 of argv
             set args to {}
             if (count of argv) > 2 then set args to items 3 thru -1 of argv
-            using terms from application id "com.adobe.illustrator"
+            using terms from application id "\(terms)"
                 with timeout of 3600 seconds
                     tell application appPath
                         return do javascript jsx with arguments args
@@ -74,9 +75,10 @@ enum IllustratorBridge {
         if isCancelled() { throw CancellationError() }
         guard process.terminationStatus == 0 else {
             let message = String(decoding: errData, as: UTF8.self)
-            if message.contains("(-1743)") || message.contains("(-1744)") { throw error("illustratorDenied") }
-            if message.contains("(-1712)") { throw error("illustratorTimeout") }
-            throw error("illustratorFailed", message.trimmingCharacters(in: .whitespacesAndNewlines))
+            let prefix = terms == bundleID ? "illustrator" : "photoshop"
+            if message.contains("(-1743)") || message.contains("(-1744)") { throw error(prefix + "Denied") }
+            if message.contains("(-1712)") { throw error(prefix + "Timeout") }
+            throw error(prefix + "Failed", message.trimmingCharacters(in: .whitespacesAndNewlines))
         }
         return String(decoding: outData, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -105,5 +107,51 @@ enum IllustratorBridge {
         try? fm.removeItem(at: output)
         try fm.moveItem(at: produced, to: output)
         return result.components(separatedBy: "\t").dropFirst().compactMap(Note.init(rawValue:))
+    }
+
+    /// One exported artboard: its 1-based number, name, and the file Illustrator wrote.
+    struct ExportedArtboard { let number: Int; let name: String; let file: URL; let total: Int }
+
+    /// .ai → PNG (at `ppi`) or SVG, one file per artboard in `range`, all inside `folder` (a scratch folder).
+    static func exportImages(from input: URL, into folder: URL, kind: String, range: String, ppi: Int, transparent: Bool,
+                             svg: SVGOptions, app: URL, isCancelled: () -> Bool) throws -> (artboards: [ExportedArtboard], notes: [Note]) {
+        let arguments = [input.path, folder.path, kind, range, String(ppi), transparent ? "1" : "0",
+                         svg.css, svg.font, svg.images, String(svg.precision), svg.idType, svg.minify ? "1" : "0", svg.responsive ? "1" : "0"]
+        let result = try run(script("ExportImages"), arguments: arguments, in: app, isCancelled: isCancelled)
+        if result == "ERROR:tooOld" { throw error("illustratorTooOld") }
+        if result == "ERROR:range" { throw PageRange.invalid(range) }
+        if result.hasPrefix("ERROR:rangeOut") { throw PageRange.outOfRange(range, Int(result.components(separatedBy: "\t").last ?? "") ?? 0) }
+        if result.hasPrefix("ERROR:") { throw error("illustratorFailed", String(result.dropFirst(6))) }
+        let lines = result.components(separatedBy: "\n")
+        let notes = (lines.first ?? "").components(separatedBy: "\t").dropFirst().compactMap(Note.init(rawValue:))
+        let rows = lines.dropFirst().map { $0.components(separatedBy: "\t") }.filter { $0.count >= 3 && $0[0] == "AB" }
+        // Numbers stay as in Illustrator even with a range; `total` is the document's artboard count.
+        let total = lines.first { $0.hasPrefix("COUNT\t") }.flatMap { Int($0.dropFirst(6)) } ?? rows.count
+        let ext = kind == "svg" ? "svg" : "png"
+        let artboards = try rows.map { row -> ExportedArtboard in
+            let number = Int(row[1]) ?? 0
+            let sub = folder.appendingPathComponent("ab\(number)", isDirectory: true)
+            guard let file = (try? FileManager.default.contentsOfDirectory(at: sub, includingPropertiesForKeys: nil))?.first(where: { $0.pathExtension.lowercased() == ext })
+            else { throw error("illustratorFailed") }
+            return ExportedArtboard(number: number, name: row[2...].joined(separator: "\t"), file: file, total: total)
+        }
+        guard !artboards.isEmpty else { throw error("illustratorFailed") }
+        return (artboards, Array(notes))
+    }
+}
+
+/// .psd → PNG / PDF through Photoshop (Resources/Photoshop/SaveCopy.jsx), the same way as IllustratorBridge.
+enum PhotoshopBridge {
+    static let bundleID = "com.adobe.Photoshop"
+    static func installations() -> [IllustratorBridge.Installation] { IllustratorBridge.installations(bundleID: bundleID) }
+    static func defaultInstallation() -> IllustratorBridge.Installation? { installations().first }
+
+    /// Saves a copy as PNG (`kind` "png") or PDF ("pdf") at `output`.
+    static func saveCopy(from input: URL, to output: URL, kind: String, app: URL, isCancelled: () -> Bool) throws -> [IllustratorBridge.Note] {
+        let result = try IllustratorBridge.run(IllustratorBridge.script("SaveCopy", subdirectory: "Photoshop"), arguments: [input.path, output.path, kind],
+                                               in: app, terms: bundleID, isCancelled: isCancelled)
+        if result.hasPrefix("ERROR:") { throw IllustratorBridge.error("photoshopFailed", String(result.dropFirst(6))) }
+        guard FileManager.default.fileExists(atPath: output.path) else { throw IllustratorBridge.error("photoshopFailed") }
+        return result.components(separatedBy: "\t").dropFirst().compactMap(IllustratorBridge.Note.init(rawValue:))
     }
 }

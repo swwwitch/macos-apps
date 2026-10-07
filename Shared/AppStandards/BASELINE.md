@@ -138,6 +138,6 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 - **英語**：Open Main Window／Close Window／Hide （App）／Hide Others／Show All／Services／（App） Help／Open the note Article。
 
 - **編集**には「取り消す」⌘Zの次に「やり直す」⇧⌘Z（redo:）を置く（全アプリ）。
-- **ウインドウ**メニュー（ヘルプの前）：「しまう」⌘M（performMiniaturize:）を置き、`NSApp.windowsMenu` に設定してウインドウの一覧を表示する（SwiftUIは標準のウインドウメニュー）。主画面は●●●の黄色ボタンでしまえるようにし、miniaturizableを外さない。
+- **ウインドウ**メニュー（ヘルプの前）：「しまう」（performMiniaturize:、キーは設定しない＝⌘Mを割り当てない）・「拡大／縮小」・「すべてを手前に移動」を置き、`NSApp.windowsMenu` に設定してウインドウの一覧を表示する。SwiftUIは標準のウインドウメニューの「しまう」から⌘Mを外す（`CommandGroup(replacing: .windowSize)` でキーなしの項目に置き換える）。主画面は●●●の黄色ボタンでしまえるようにし、miniaturizableを外さない。
 - **アップデートを確認…**：全アプリに共通の更新機能（Shared/Updater、Sparkle）を組み込み、アプリメニューに「アップデートを確認…」「アップデートを自動確認」を置く。配信先と署名鍵が未設定の間は準備中と表示し、通信しない（B18）。App Store版には含めない。
 - **メニューバーアイコン**：全アプリに共通部品MenuBarPresenceを組み込み、アプリメニューの「メニューバー設定…」と常駐メニューを用意する。表示の既定はアプリの従来の動作を保つ（独自アイコンを持つアプリは表示、持たないアプリは利用者が選んだときだけ表示）。

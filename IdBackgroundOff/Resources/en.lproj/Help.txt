@@ -15,7 +15,7 @@ After updating InDesign
 An update or reinstall can remove the file and turn background export back on. Each autumn's major version installs into a new folder (for example Adobe InDesign 2027), so turn it off again for the new version. The list is re-read when you return to the app, or with ⌘R.
 
 Quitting and shortcuts
-The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), ⌘M minimizes, ⇧⌘Z redoes, and ⌘? opens this help. There is no settings window.
+The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), ⇧⌘Z redoes, and ⌘? opens this help. There is no settings window.
 
 Menu bar
 Turn on Add to Menu Bar in Menu Bar Settings… in the app menu to show an icon in the menu bar (off by default). Its menu offers Open Main Window, Help (IdBackgroundOff Help / Open the note Article) and Quit IdBackgroundOff. While the icon is shown, closing the window does not quit the app; reopen it from the icon or with ⌘0.

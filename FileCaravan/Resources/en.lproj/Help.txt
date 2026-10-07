@@ -33,7 +33,6 @@
 - **⌘,**: Settings
 - **⌘0**: Open Main Window
 - **⌘W**: Close the window
-- **⌘M**: Minimize
 - **⇧⌘Z**: Redo
 - **⌘?**: Help
 - **⌘Q**: Quit

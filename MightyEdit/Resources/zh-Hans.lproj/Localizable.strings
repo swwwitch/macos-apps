@@ -220,7 +220,7 @@
 "palette.bringToFront" = "将面板置于前面";
 "palette.shortcutTitle" = "调出面板";
 "palette.shortcutNote" = "MightyEdit 在后台运行时，可从其他应用调出面板。此功能不会启动未运行的应用，并且与停用或暂停功能快捷键无关。";
-"palette.resetShortcut" = "恢复默认值（⌃⌥⌘U）";
+"palette.resetShortcut" = "恢复默认值（⌃⌥⌘E）";
 "palette.resident" = "关闭窗口后继续运行";
 "palette.residentNote" = "关闭面板后 MightyEdit 不会退出，可从菜单栏再次显示。关闭此选项时，点击关闭按钮会退出。";
 "status.disabled" = "已停用";

@@ -31,7 +31,6 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - **⌘O**: Choose Files
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
-- **⌘M**: Minimize the main window
 - **⌘W**: Close Window
 - **⌘Q**: Quit QuickIconExporter
 

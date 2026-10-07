@@ -34,7 +34,6 @@ Open **Settings…** from the app menu (⌘,).
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window (also after closing it)
-- **⌘M**: Minimize the window to the Dock
 - **⌘R**: Reload current settings
 - **⌘,**: Settings
 - **⌘?**: Help

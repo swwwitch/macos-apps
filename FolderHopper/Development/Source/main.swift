@@ -278,7 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         // Window menu (before Help, which LocalHelp appends later): BASELINE「メニューの共通構成」.
         let windowRoot = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
         let windowMenu = NSMenu(title: L("ウインドウ")); windowRoot.submenu = windowMenu; menu.addItem(windowRoot)
-        windowMenu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "")
         windowMenu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
         windowMenu.addItem(.separator())
         windowMenu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")

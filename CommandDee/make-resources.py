@@ -112,7 +112,6 @@ help_texts = {
 - **⌘0**：メインウインドウを開く
 - **⌘,**：設定
 - **⌘W**：ウインドウを閉じる
-- **⌘M**：ウインドウをしまう
 - **⌘Q**：CommandDeeを終了（このアプリの画面で）
 
 ## 例
@@ -171,7 +170,6 @@ help_texts = {
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
-- **⌘M**: Minimize
 - **⌘Q**: Quit CommandDee (in this app's window)
 
 ## Examples
@@ -230,7 +228,6 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌘0**：打开主窗口
 - **⌘,**：设置
 - **⌘W**：关闭窗口
-- **⌘M**：最小化
 - **⌘Q**：退出 CommandDee（在本应用的窗口中）
 
 ## 示例
@@ -289,7 +286,6 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌘0**: 메인 윈도우 열기
 - **⌘,**: 설정
 - **⌘W**: 윈도우 닫기
-- **⌘M**: 최소화
 - **⌘Q**: CommandDee 종료(이 앱의 윈도우에서)
 
 ## 예

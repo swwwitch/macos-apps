@@ -226,7 +226,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let edit = submenu(L("edit"))
         for (key, selector, letter) in [("undo", "undo:", "z"), ("redo", "redo:", "Z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil; if key == "redo" { edit.addItem(.separator()) } }
         let window = submenu(L("window"))
-        for (key, selector, letter) in [("minimize", "performMiniaturize:", "m"), ("zoom", "performZoom:", "")] { window.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter).target = nil }
+        for (key, selector, letter) in [("minimize", "performMiniaturize:", ""), ("zoom", "performZoom:", "")] { window.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter).target = nil }
         window.addItem(.separator())
         window.addItem(withTitle: L("bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "").target = NSApp
         NSApp.windowsMenu = window

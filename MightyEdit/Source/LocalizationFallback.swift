@@ -224,7 +224,7 @@ enum LocalizationFallback {
         "palette.bringToFront": "パレットを前面に出す",
         "palette.shortcutTitle": "パレット呼び出し",
         "palette.shortcutNote": "MightyEditが常駐している間、ほかのアプリからパレットを呼び出せます。未起動のアプリを起動する機能ではありません。機能実行用ホットキーの無効化・一時停止とは別に動作します。",
-        "palette.resetShortcut": "初期値（⌃⌥⌘U）に戻す",
+        "palette.resetShortcut": "初期値（⌃⌥⌘E）に戻す",
         "palette.resident": "ウインドウを閉じても常駐",
         "palette.residentNote": "パレットを閉じてもMightyEditを終了せず、メニューバーから再表示できます。オフのときは閉じるボタンで終了します。",
         "status.disabled": "無効",

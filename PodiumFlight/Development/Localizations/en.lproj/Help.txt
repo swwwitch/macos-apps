@@ -50,7 +50,6 @@ Open Settings with the Settings… button in the main window or with ⌘,. Click
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
-- **⌘M**: Minimize the window
 - **⌘?**: PodiumFlight Help
 - **⌘Q**: Quit PodiumFlight (the Quit PodiumFlight button in the main window)
 - **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)

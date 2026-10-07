@@ -72,7 +72,7 @@ InDesignのアプリ内は管理者の権限で保護されているため、変
 InDesignのアップデートや再インストールでファイルが消え、「オン」に戻ることがあります。毎年秋のメジャーバージョンは別のフォルダ（例：Adobe InDesign 2027）にインストールされるため、新しいバージョンは改めてオフにしてください。アプリに戻ると状態を読み直します。⌘Rでも再読み込みできます。
 
 終了とショートカット
-常駐はしません。ウインドウを閉じる（⌘W）か⌘Qで終了します。⌘Rで再読み込み、⌘Oで「InDesignを追加…」、⌘0で「メインウインドウを開く」、⌘Mで「しまう」、⇧⌘Zで「やり直す」、⌘?でこのヘルプを開きます。設定画面はありません。
+常駐はしません。ウインドウを閉じる（⌘W）か⌘Qで終了します。⌘Rで再読み込み、⌘Oで「InDesignを追加…」、⌘0で「メインウインドウを開く」、⇧⌘Zで「やり直す」、⌘?でこのヘルプを開きます。設定画面はありません。
 
 メニューバー
 アプリメニューの「メニューバー設定…」で「メニューバーに追加」をオンにすると、メニューバーにアイコンを表示します（初期値はオフ）。アイコンのメニューから「メインウインドウを開く」「ヘルプ」（IdBackgroundOffヘルプ／note記事を開く）「IdBackgroundOffを終了」を選べます。アイコンを表示している間は、ウインドウを閉じても終了せず、アイコンや⌘0から再表示できます。
@@ -103,7 +103,7 @@ After updating InDesign
 An update or reinstall can remove the file and turn background export back on. Each autumn's major version installs into a new folder (for example Adobe InDesign 2027), so turn it off again for the new version. The list is re-read when you return to the app, or with ⌘R.
 
 Quitting and shortcuts
-The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), ⌘M minimizes, ⇧⌘Z redoes, and ⌘? opens this help. There is no settings window.
+The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), ⇧⌘Z redoes, and ⌘? opens this help. There is no settings window.
 
 Menu bar
 Turn on Add to Menu Bar in Menu Bar Settings… in the app menu to show an icon in the menu bar (off by default). Its menu offers Open Main Window, Help (IdBackgroundOff Help / Open the note Article) and Quit IdBackgroundOff. While the icon is shown, closing the window does not quit the app; reopen it from the icon or with ⌘0.
@@ -134,7 +134,7 @@ InDesign 应用内部受到保护，因此更改时 macOS 会要求输入管理�
 更新或重新安装可能会删除该文件并恢复为开启。每年秋季的大版本会安装到新的文件夹（例如 Adobe InDesign 2027），请为新版本再次关闭。返回本应用或按 ⌘R 时会重新读取状态。
 
 退出与快捷键
-本应用不驻留。关闭窗口（⌘W）或按 ⌘Q 即退出。⌘R 重新载入，⌘O 添加 InDesign，⌘0 打开主窗口，⌘M 最小化，⇧⌘Z 重做，⌘? 打开本帮助。没有设置窗口。
+本应用不驻留。关闭窗口（⌘W）或按 ⌘Q 即退出。⌘R 重新载入，⌘O 添加 InDesign，⌘0 打开主窗口，⇧⌘Z 重做，⌘? 打开本帮助。没有设置窗口。
 
 菜单栏
 在应用菜单的“菜单栏设置…”中开启“添加到菜单栏”后，会在菜单栏显示图标（默认关闭）。图标菜单提供“打开主窗口”“帮助”（IdBackgroundOff 帮助／打开 note 文章）和“退出 IdBackgroundOff”。显示图标期间，关闭窗口不会退出，可从图标或用 ⌘0 重新打开。
@@ -165,7 +165,7 @@ InDesign 업데이트 후
 업데이트나 재설치로 파일이 사라져 켬으로 돌아갈 수 있습니다. 매년 가을의 메이저 버전은 새 폴더(예: Adobe InDesign 2027)에 설치되므로 새 버전에서 다시 끄세요. 앱으로 돌아오거나 ⌘R을 누르면 상태를 다시 읽습니다.
 
 종료와 단축키
-상주하지 않습니다. 창을 닫거나(⌘W) ⌘Q를 누르면 종료합니다. ⌘R은 새로 고침, ⌘O는 InDesign 추가, ⌘0은 메인 윈도우 열기, ⌘M은 최소화, ⇧⌘Z는 실행 복귀, ⌘?는 이 도움말입니다. 설정 창은 없습니다.
+상주하지 않습니다. 창을 닫거나(⌘W) ⌘Q를 누르면 종료합니다. ⌘R은 새로 고침, ⌘O는 InDesign 추가, ⌘0은 메인 윈도우 열기, ⇧⌘Z는 실행 복귀, ⌘?는 이 도움말입니다. 설정 창은 없습니다.
 
 메뉴 막대
 앱 메뉴의 메뉴 막대 설정…에서 메뉴 막대에 추가를 켜면 메뉴 막대에 아이콘을 표시합니다(기본값은 꺼짐). 아이콘 메뉴에서 메인 윈도우 열기, 도움말(IdBackgroundOff 도움말 / note 글 열기), IdBackgroundOff 종료를 선택할 수 있습니다. 아이콘을 표시하는 동안에는 창을 닫아도 종료하지 않으며 아이콘이나 ⌘0으로 다시 열 수 있습니다.

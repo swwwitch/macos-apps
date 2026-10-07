@@ -16,7 +16,6 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
-- **⌘M**: Minimize
 - **⌘Q**: Quit CommandDee (in this app's window)
 
 ## Examples

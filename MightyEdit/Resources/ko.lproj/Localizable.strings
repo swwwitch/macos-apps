@@ -220,7 +220,7 @@
 "palette.bringToFront" = "팔레트를 앞으로 가져오기";
 "palette.shortcutTitle" = "팔레트 호출";
 "palette.shortcutNote" = "MightyEdit가 실행 중인 동안 다른 앱에서 팔레트를 불러올 수 있습니다. 실행 중이 아닌 앱을 실행하는 기능은 아닙니다. 기능 단축키의 비활성화·일시 정지와는 별도로 작동합니다.";
-"palette.resetShortcut" = "기본값(⌃⌥⌘U)으로 재설정";
+"palette.resetShortcut" = "기본값(⌃⌥⌘E)으로 재설정";
 "palette.resident" = "창을 닫아도 계속 실행";
 "palette.residentNote" = "팔레트를 닫아도 MightyEdit는 종료되지 않으며 메뉴 막대에서 다시 표시할 수 있습니다. 끄면 닫기 버튼으로 종료합니다.";
 "status.disabled" = "비활성화됨";

@@ -58,6 +58,11 @@ struct IconDropApp: App {
                 Button(L("ウインドウを閉じる")) { NSApp.keyWindow?.performClose(nil) }
                     .keyboardShortcut("w", modifiers: .command)
             }
+            // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
+            CommandGroup(replacing: .windowSize) {
+                Button(L("しまう")) { NSApp.keyWindow?.performMiniaturize(nil) }
+                Button(L("拡大／縮小")) { NSApp.keyWindow?.performZoom(nil) }
+            }
         }
 
         Settings {
@@ -104,7 +109,7 @@ private struct UtilityWindowChrome: NSViewRepresentable {
             if isMain { MainWindow.current = window }
             window.title = windowTitle
             if isMain {
-                // The main window can be minimized (yellow button, Window > Minimize ⌘M).
+                // The main window can be minimized (yellow button, Window > しまう, no key equivalent).
                 window.styleMask.insert(.miniaturizable)
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             } else {

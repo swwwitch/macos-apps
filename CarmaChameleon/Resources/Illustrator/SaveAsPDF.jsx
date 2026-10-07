@@ -12,18 +12,18 @@
     for (var p = 0; p < presets.length && !found; p++) found = presets[p] == preset;
     if (!found) return "ERROR:presetMissing";
 
-    var doc = null, opened = false;
-    for (var i = 0; i < app.documents.length; i++) {
-        try { if (app.documents[i].fullName.fsName == input.fsName) { doc = app.documents[i]; break; } } catch (e) {}
-    }
-    var notes = [];
-    if (doc) { notes.push("open"); if (!doc.saved) notes.push("unsaved"); }
+    var doc = null, opened = false, notes = [];
 
     var prefs = app.preferences, folderKey = "plugin/SmartExportUI/CreateFoldersPreference";
     var level = app.userInteractionLevel, createFolders = prefs.getBooleanPreference(folderKey);
     app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS; // missing fonts / links must not block
     try {
-        if (!doc) { doc = app.open(input); opened = true; }
+        // Opening a file that is already open only brings it to the front; the document count tells which it was
+        // (comparing paths can miss with Japanese names and would close the user's document unsaved).
+        var countBefore = app.documents.length;
+        doc = app.open(input);
+        opened = app.documents.length > countBefore;
+        if (!opened) { notes.push("open"); if (!doc.saved) notes.push("unsaved"); }
         for (var k = 0; k < doc.placedItems.length; k++) {
             try { doc.placedItems[k].file; } catch (e) { notes.push("links"); break; }
         }

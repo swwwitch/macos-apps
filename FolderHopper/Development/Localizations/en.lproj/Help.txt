@@ -51,7 +51,6 @@ Show the app with ⌃⌥⌘M by default. Available while the app is running.
 - **Esc**: Close window
 - **⌘0**: Open Main Window (also after closing it)
 - **⌘W**: Close window (or Settings)
-- **⌘M**: Minimize the window (Window menu)
 - **⌘,**: Settings
 - **⌘?**: Help
 - **⌘Q**: Quit

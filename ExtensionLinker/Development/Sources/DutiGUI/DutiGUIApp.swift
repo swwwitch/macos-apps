@@ -426,6 +426,12 @@ private struct MainWindowCommands: Commands {
             }
             .keyboardShortcut("w", modifiers: .command)
         }
+        // Window menu per BASELINE「メニューの共通構成」: replacing .windowSize drops SwiftUI's
+        // standard Minimize (⌘M); 「しまう」 stays in the menu with no key equivalent.
+        CommandGroup(replacing: .windowSize) {
+            Button(L("しまう")) { NSApp.keyWindow?.performMiniaturize(nil) }
+            Button(L("拡大／縮小")) { NSApp.keyWindow?.performZoom(nil) }
+        }
     }
 }
 
@@ -462,7 +468,7 @@ private struct UtilityWindowChrome: NSViewRepresentable {
         func apply() {
             guard let window else { return }
             window.title = windowTitle
-            // Keep .miniaturizable so ⌘M and the yellow button work (BASELINE「メニューの共通構成」);
+            // Keep .miniaturizable so Window > しまう and the yellow button work (BASELINE「メニューの共通構成」);
             // only zoom and full screen stay disabled.
             window.styleMask.insert(.miniaturizable)
             window.standardWindowButton(.miniaturizeButton)?.isHidden = false

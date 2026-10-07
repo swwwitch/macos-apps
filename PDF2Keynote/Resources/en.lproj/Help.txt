@@ -31,7 +31,6 @@ While it keeps running, reopen it from the Dock or the menu bar icon.
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
-- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit

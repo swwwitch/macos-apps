@@ -89,7 +89,6 @@ HELP = {
 - **Esc**：変換をキャンセル
 - **⌘0**：メインウインドウを開く（閉じた後も再表示できます）
 - **⌘W**：ウインドウを閉じる
-- **⌘M**：ウインドウをしまう（ウインドウメニュー）
 - **⌘,**：設定
 - **⌘?**：ヘルプ
 - **⌘Q**：終了（変換中は終了できません。完了を待つかキャンセルしてください）
@@ -200,7 +199,6 @@ HELP = {
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
-- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit (not during a conversion — wait for it or cancel first)
@@ -311,7 +309,6 @@ HELP = {
 - **Esc**：取消转换
 - **⌘0**：打开主窗口（关闭后也可重新显示）
 - **⌘W**：关闭窗口
-- **⌘M**：最小化窗口（“窗口”菜单）
 - **⌘,**：设置
 - **⌘?**：帮助
 - **⌘Q**：退出（转换期间无法退出，请等待完成或先取消）
@@ -422,7 +419,6 @@ HELP = {
 - **Esc**: 변환 취소
 - **⌘0**: 메인 윈도우 열기(닫은 후에도 다시 표시)
 - **⌘W**: 윈도우 닫기
-- **⌘M**: 윈도우 최소화(윈도우 메뉴)
 - **⌘,**: 설정
 - **⌘?**: 도움말
 - **⌘Q**: 종료(변환 중에는 종료할 수 없습니다. 완료를 기다리거나 먼저 취소하세요)

@@ -87,7 +87,6 @@
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
-- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit (not during a conversion — wait for it or cancel first)

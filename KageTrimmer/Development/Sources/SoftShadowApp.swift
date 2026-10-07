@@ -22,7 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installMainMenu()
         shortcut.action = { [weak self] in self?.performShortcut() }
         shortcut.restore()
-        // Miniaturizable so the yellow button and Window > Minimize (⌘M) work; full screen stays off.
+        // Miniaturizable so the yellow button and Window > Minimize work (no key equivalent); full screen stays off.
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 540, height: 455), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = ""
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -476,7 +476,7 @@ private final class AdaptiveBackgroundView: NSView {
 private func addStandardWindowMenu(to mainMenu: NSMenu) {
     let root = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
     let menu = NSMenu(title: L("ウインドウ"))
-    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "")
     menu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
     menu.addItem(.separator())
     menu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")

@@ -545,7 +545,7 @@ struct FormatSettingsView: View {
         for (key,action,shortcut) in [("undo","undo:","z"),("redo","redo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { edit.addItem(withTitle:L(key),action:Selector(action),keyEquivalent:shortcut) }
         edit.item(at:1)?.keyEquivalentModifierMask = [.command,.shift]   // やり直す ⇧⌘Z
         let win = NSMenu(title:L("windowMenu")); let wi = NSMenuItem(title:L("windowMenu"),action:nil,keyEquivalent:""); wi.submenu = win; bar.addItem(wi)
-        win.addItem(withTitle:L("minimize"),action:#selector(NSWindow.performMiniaturize(_:)),keyEquivalent:"m")
+        win.addItem(withTitle:L("minimize"),action:#selector(NSWindow.performMiniaturize(_:)),keyEquivalent:"")
         win.addItem(withTitle:L("zoom"),action:#selector(NSWindow.performZoom(_:)),keyEquivalent:"")
         win.addItem(.separator())
         win.addItem(withTitle:L("bringAllToFront"),action:#selector(NSApplication.arrangeInFront(_:)),keyEquivalent:"")

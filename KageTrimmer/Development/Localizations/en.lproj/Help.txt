@@ -35,7 +35,6 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **⌘,**: Settings
 - **⌘?**: Help
 - **⌘W**: Close Window
-- **⌘M**: Minimize the window
 - **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)
 - **⌘Q**: Quit KageTrimmer
 - **⌃⌥⌘U** (default): Show the KageTrimmer window (works while you are using other apps)
