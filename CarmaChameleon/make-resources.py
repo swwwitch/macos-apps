@@ -1,0 +1,218 @@
+from pathlib import Path
+import json, plistlib
+root=Path(__file__).parent
+# Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
+rows='''heading|文書の形式を変換|Convert your documents|转换文档格式|문서 형식 변환
+subtitle|ファイルを選んで、形式とオプションを指定。|Choose files, a format, and conversion options.|选择文件、格式和转换选项。|파일, 형식, 변환 옵션을 선택하세요.
+input|入力ファイル|Input files|输入文件|입력 파일
+drop|ここにファイルをドロップ|Drop files here|将文件拖到此处|파일을 여기에 드롭
+inputHint|Markdown・Word・Excel・CSV・HTML・IDML など|Markdown, Word, Excel, CSV, HTML, IDML and more|Markdown、Word、Excel、CSV、HTML、IDML 等|Markdown, Word, Excel, CSV, HTML, IDML 등
+chooseFiles|ファイルを選択…|Choose files…|选择文件…|파일 선택…
+remove|ファイルを外す|Remove file|移除文件|파일 제거
+files|ファイル|files|个文件|개 파일
+clear|すべて外す|Clear all|全部移除|모두 제거
+format|変換形式|Output format|输出格式|출력 형식
+options|変換オプション|Options|转换选项|변환 옵션
+readAs|入力形式|Input format|输入格式|입력 형식
+auto|自動|Automatic|自动|자동
+standalone|完全な文書として出力|Standalone document|输出完整文档|완전한 문서로 출력
+toc|目次を付ける|Table of contents|添加目录|목차 추가
+numbers|見出しに番号を付ける|Number sections|章节编号|제목 번호 추가
+wrap|テキストの折り返し|Text wrapping|文本换行|텍스트 줄 바꿈
+preserve|元の改行を保持|Preserve wrapping|保留换行|기존 줄 바꿈 유지
+none|折り返さない|No wrapping|不换行|줄 바꿈 없음
+pdfEngine|PDFエンジン|PDF engine|PDF 引擎|PDF 엔진
+pdfReady|PDFエンジンを利用できます。|PDF engine is available.|PDF 引擎可用。|PDF 엔진을 사용할 수 있습니다.
+pdfMissing|選択したPDFエンジンがありません。設定から導入できます。|The selected PDF engine is missing. Install one in Settings.|找不到所选 PDF 引擎。请在设置中安装。|선택한 PDF 엔진이 없습니다. 설정에서 설치하세요.
+output|保存先|Output folder|保存位置|저장 위치
+chooseOnConvert|変換時に保存先を選択|Choose a folder when converting|转换时选择保存位置|변환할 때 저장 위치 선택
+selectFolder|保存先を選択…|Choose output folder…|选择保存位置…|저장 위치 선택…
+preserveOriginal|原本は変更しません。同名ファイルには連番を付けます。|Originals stay intact. Existing filenames get a number.|保留原文件。同名文件会添加编号。|원본은 변경하지 않습니다. 같은 이름에는 번호를 붙입니다.
+ready|ファイルを追加して変換してください。|Add files to begin.|添加文件以开始转换。|파일을 추가하여 변환하세요.
+reveal|Finderで表示|Show in Finder|在 Finder 中显示|Finder에서 보기
+cancel|キャンセル|Cancel|取消|취소
+convert|変換|Convert|转换|변환
+selected|選択済み|Selected|已选择|선택됨
+unsupported|対応しないファイルやフォルダは追加されませんでした。|Unsupported files or folders were not added.|未添加不支持的文件或文件夹。|지원하지 않는 파일 또는 폴더는 추가되지 않았습니다.
+engineMissing|pandocが見つかりません。設定でインストールしてください。|Pandoc is missing. Install it in Settings.|找不到 pandoc。请在设置中安装。|pandoc이 없습니다. 설정에서 설치하세요.
+working|変換中…|Converting…|正在转换…|변환 중…
+cancelling|中止しています…|Cancelling…|正在取消…|취소 중…
+cancelled|中止しました（完成済みの出力は保持）|Cancelled (completed outputs kept)|已取消（保留已完成的输出）|취소됨(완료된 출력 유지)
+success|変換が完了しました|Conversion complete|转换完成|변환 완료
+failed|変換に失敗しました|Conversion failed|转换失败|변환 실패
+partial|一部の変換に失敗しました|Some conversions failed|部分转换失败|일부 변환 실패
+resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
+residentDetail|閉じた後もメニューバーやDockから再表示できます。|Reopen from the menu bar or Dock.|可从菜单栏或 Dock 再次打开。|메뉴 막대 또는 Dock에서 다시 열 수 있습니다.
+launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
+openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기
+shortcutDetail|「アプリを開く」でCarmaChameleonを指定し、キーを設定してください。未起動時も使えます。|Create an Open App shortcut for CarmaChameleon and assign a key. It also works when the app is not running.|创建打开 CarmaChameleon 的快捷指令并分配按键，应用未运行时也可使用。|CarmaChameleon를 여는 단축어를 만들고 키를 지정하세요. 앱이 실행 중이 아니어도 사용할 수 있습니다.
+engine|pandoc|pandoc|pandoc|pandoc
+bundled|pandocを同梱しています。|Pandoc is bundled.|已内置 pandoc。|pandoc이 포함되어 있습니다.
+customPath|独自のpandocのパス（任意）|Custom pandoc path (optional)|自定义 pandoc 路径（可选）|사용자 pandoc 경로(선택)
+browse|選択…|Browse…|选择…|선택…
+useBundled|同梱版に戻す|Use bundled version|恢复内置版本|포함된 버전 사용
+show|メインウインドウを表示|Show main window|显示主窗口|메인 윈도우 표시
+settings|設定…|Settings…|设置…|설정…
+settingsWindow|設定|Settings|设置|설정
+help|CarmaChameleon ヘルプ|CarmaChameleon Help|CarmaChameleon 帮助|CarmaChameleon 도움말
+quit|CarmaChameleonを終了|Quit CarmaChameleon|退出 CarmaChameleon|CarmaChameleon 종료
+quitBusy|変換が進行中です。完了を待つか、メイン画面でキャンセルしてから終了してください。|Wait for conversion, or cancel in the main window before quitting.|请等待转换完成，或在主窗口取消后退出。|변환을 기다리거나 메인 윈도우에서 취소한 후 종료하세요.
+ok|OK|OK|好|확인
+about|CarmaChameleonについて|About CarmaChameleon|关于 CarmaChameleon|CarmaChameleon 정보
+updates|アップデートを確認…|Check for Updates…|检查更新…|업데이트 확인…
+updatePending|アプリの更新配布は準備中です|App updates are not configured|应用更新尚未配置|앱 업데이트가 구성되지 않았습니다
+updateDetail|更新配信先と署名鍵は未設定です。pandoc本体は設定から更新できます。|App update feed and signing key are not configured. Update pandoc from Settings.|尚未配置应用更新源和签名密钥。可在设置中更新 pandoc。|앱 업데이트 주소와 서명 키가 설정되지 않았습니다. pandoc은 설정에서 업데이트하세요.
+aboutDetail|ローカル文書変換ツール。pandocの非公式GUI。サポート：同梱README.md。|Local document converter. Unofficial pandoc GUI. Support: bundled README.md.|本地文档转换工具。非官方 pandoc GUI。支持：内置 README.md。|로컬 문서 변환 도구. 비공식 pandoc GUI. 지원: 포함된 README.md.
+fileMenu|ファイル|File|文件|파일
+editMenu|編集|Edit|编辑|편집
+close|閉じる|Close|关闭|닫기
+undo|取り消す|Undo|撤销|실행 취소
+cut|カット|Cut|剪切|잘라내기
+copy|コピー|Copy|复制|복사
+paste|ペースト|Paste|粘贴|붙여넣기
+selectAll|すべて選択|Select All|全选|모두 선택
+login|ログイン時に起動|Launch at login|登录时启动|로그인 시 실행
+loginOpen|ログイン項目を開く|Open Login Items|打开登录项|로그인 항목 열기
+loginOn|ログイン時に自動起動します。|Launches automatically at login.|登录时自动启动。|로그인 시 자동 실행합니다.
+loginApproval|システム設定で許可してください。|Approve in System Settings.|请在系统设置中允许。|시스템 설정에서 허용하세요.
+loginMissing|アプリケーションフォルダから起動してください。|Launch from Applications.|请从应用程序文件夹启动。|응용 프로그램 폴더에서 실행하세요.
+loginOff|自動起動はオフです。|Launch at login is off.|登录启动已关闭。|자동 실행이 꺼져 있습니다.
+loginError|変更できませんでした：|Could not change setting: |无法更改设置：|설정 변경 실패: 
+notInstalled|未インストール|Not installed|未安装|설치되지 않음
+notChecked|最新版は未確認|Latest version not checked|尚未检查最新版本|최신 버전 미확인
+updateAvailable|更新があります|Update available|有可用更新|업데이트 있음
+upToDate|更新は不要です|Up to date|无需更新|최신 버전
+engineInvalid|pandocを実行できません。パスを確認してください。|Could not run pandoc. Check its path.|无法运行 pandoc。请检查路径。|pandoc을 실행할 수 없습니다. 경로를 확인하세요.
+checking|最新版を確認中…|Checking latest version…|正在检查最新版本…|최신 버전 확인 중…
+checked|公式リリースを確認しました。|Checked the official release.|已检查官方发布版本。|공식 릴리스를 확인했습니다.
+checkFailed|更新を確認できませんでした：|Could not check updates: |无法检查更新：|업데이트 확인 실패: 
+networkError|通信に失敗しました。時間をおいて再試行してください。|Network request failed. Try again later.|网络请求失败，请稍后重试。|네트워크 요청 실패. 나중에 다시 시도하세요.
+noVerifiedAsset|検証可能な公式配布ファイルが見つかりません。|No verifiable official download is available.|找不到可验证的官方下载。|검증 가능한 공식 다운로드가 없습니다.
+installing|pandocをインストール中…|Installing pandoc…|正在安装 pandoc…|pandoc 설치 중…
+hashMismatch|配布ファイルの検証に失敗しました。|Download integrity check failed.|下载文件完整性验证失败。|다운로드 무결성 검사 실패.
+extractFailed|展開に失敗しました。|Could not extract download.|无法解压下载文件。|다운로드 압축 해제 실패.
+installed|インストール完了。新しいpandocを使用します。|Installed. The new pandoc is now selected.|安装完成。将使用新版 pandoc。|설치 완료. 새 pandoc을 사용합니다.
+installFailed|インストールできませんでした：|Could not install: |无法安装：|설치 실패: 
+latest|最新バージョン：|Latest version: |最新版本：|최신 버전: 
+refresh|状態を再確認|Refresh status|刷新状态|상태 새로 고침
+checkLatest|最新版を確認|Check latest version|检查最新版本|최신 버전 확인
+install|インストール|Install|安装|설치
+installUpdate|最新版をインストール|Install latest version|安装最新版本|최신 버전 설치
+installDetail|公式GitHubから取得し、SHA-256を検証してユーザー領域に保存します。管理者権限は不要です。|Downloads from official GitHub, verifies SHA-256, and installs for this user without administrator privileges.|从官方 GitHub 下载并验证 SHA-256，安装到用户目录，无需管理员权限。|공식 GitHub에서 다운로드하고 SHA-256을 확인한 후 사용자 영역에 설치합니다. 관리자 권한은 필요하지 않습니다.
+waitInstall|処理が完了してから終了してください。|Wait for this operation to finish before quitting.|请等待操作完成后退出。|작업 완료 후 종료하세요.'''
+rows += """
+pdfEngineGroup|PDFエンジン（Typst）|PDF engine (Typst)|PDF 引擎（Typst）|PDF 엔진(Typst)
+pdfEngineInvalid|Typstを実行できません。再インストールしてください。|Could not run Typst. Reinstall it.|无法运行 Typst。请重新安装。|Typst를 실행할 수 없습니다. 다시 설치하세요.
+pdfInstalling|PDFエンジンをインストール中…|Installing PDF engine…|正在安装 PDF 引擎…|PDF 엔진 설치 중…
+pdfInstalled|Typstをインストールしました。PDF変換に使用できます。|Typst installed. Ready for PDF conversion.|Typst 已安装，可用于 PDF 转换。|Typst가 설치되었습니다. PDF 변환에 사용할 수 있습니다.
+pdfInstallDetail|「最新版を確認」→「インストール」で導入できます。公式Typstを取得し、SHA-256検証後にユーザー領域へ保存します。管理者権限は不要です。導入後はPDFエンジンにTypstを選択します。|Check latest version, then Install. Downloads official Typst, verifies SHA-256, and installs for this user without administrator privileges. Typst is selected after installation.|先检查最新版本再安装。从官方源下载 Typst，验证 SHA-256 后安装到用户目录，无需管理员权限。安装后选择 Typst。|최신 버전 확인 후 설치하세요. 공식 Typst의 SHA-256을 검증한 후 관리자 권한 없이 사용자 영역에 설치합니다. 설치 후 Typst가 선택됩니다.
+texAlternative|既存のTeX環境も利用できます。MacTeXの導入は公式インストーラで行ってください。導入後は状態を再確認します。|Existing TeX engines also work. Install MacTeX using its official installer, then refresh status.|也可使用已有 TeX 环境。请通过官方安装程序安装 MacTeX，然后刷新状态。|기존 TeX 엔진도 사용할 수 있습니다. 공식 설치 프로그램으로 MacTeX를 설치한 후 상태를 새로 고침하세요.
+detected|検出済み|Detected|已检测到|감지됨
+openMacTeX|MacTeXの公式ダウンロードを開く|Open official MacTeX download|打开 MacTeX 官方下载|MacTeX 공식 다운로드 열기
+pdfSetup|PDFエンジンを設定…|Set up PDF engine…|设置 PDF 引擎…|PDF 엔진 설정…"""
+rows += """
+idmlLimit|IDMLはテキスト中心の変換です。ストーリーの収録順で読み込み、ページ配置・画像・組版は再現しません。|IDML import focuses on text in packaged story order. Page layout, images and typesetting are not reproduced.|IDML 按故事收录顺序提取文本，不重现页面布局、图像和排版。|IDML은 수록된 스토리 순서로 텍스트를 가져옵니다. 페이지 레이아웃, 이미지 및 조판은 재현하지 않습니다.
+idmlInvalid|IDMLの構造を読み取れません。InDesignからIDMLを書き出し直してください。|Could not read the IDML structure. Export it again from InDesign.|无法读取 IDML 结构。请从 InDesign 重新导出。|IDML 구조를 읽을 수 없습니다. InDesign에서 다시 내보내세요.
+idmlTooLarge|IDMLのテキストデータが上限（20MB）を超えています。文書を分割してください。|IDML text data exceeds 20 MB. Split the document.|IDML 文本超过 20MB，请拆分文档。|IDML 텍스트가 20MB를 초과합니다. 문서를 나누세요.
+idmlNoText|IDMLに変換できる本文が見つかりません。|No convertible text was found in IDML.|IDML 中没有可转换的文本。|IDML에서 변환할 텍스트를 찾을 수 없습니다."""
+rows += """
+pdfInputHint|PDFは本文を抽出します。文字がないページは日本語・英語のOCRを使用します。段組み・画像・組版は再現せず、OCRは誤認識する場合があります。|Extracts PDF text; pages without text use Japanese/English OCR. Layout and images are not reproduced. OCR may make mistakes.|提取 PDF 文本，无文本页使用日语/英语 OCR。不重现布局和图像，OCR 可能出错。|PDF 본문을 추출하며 텍스트가 없는 페이지는 일본어/영어 OCR을 사용합니다. 레이아웃과 이미지는 재현하지 않으며 OCR 오류가 있을 수 있습니다.
+pdfInputInvalid|PDFを読み込めません。|Could not read PDF.|无法读取 PDF。|PDF를 읽을 수 없습니다.
+pdfInputLocked|保護されたPDFです。パスワード解除・コピー許可済みのPDFを指定してください。|This PDF is protected. Choose an unlocked PDF with copying allowed.|PDF 受保护。请选择已解锁且允许复制的 PDF。|보호된 PDF입니다. 잠금 해제 및 복사 허용된 PDF를 선택하세요.
+pdfInputLimit|PDFは500ページ・抽出テキスト20MBまでです。|PDF is limited to 500 pages and 20 MB of extracted text.|PDF 上限为 500 页和 20MB 提取文本。|PDF는 500페이지, 추출 텍스트 20MB까지 지원합니다.
+pdfInputNoText|次のページから文字を読み取れませんでした。空白ページを除くか、原本を確認してください。|No text could be read from this page. Remove blank pages or check the original.|无法从此页读取文字。请删除空白页或检查原件。|해당 페이지에서 텍스트를 읽을 수 없습니다. 빈 페이지를 제거하거나 원본을 확인하세요.
+idmlExportFailed|IDMLを書き出せませんでした。保存先を確認してください。|Could not write IDML. Check the output folder.|无法写入 IDML。请检查保存位置。|IDML을 저장할 수 없습니다. 저장 위치를 확인하세요.
+idmlOutputHint|IDMLはA4・本文のみの編集可能なテキストとして出力します。元の書式・表構造・画像・ページ配置は再現しません。|Exports editable text on A4 pages. Original formatting, table structure, images and page layout are not reproduced.|导出为 A4 页面上的可编辑文本，不重现原格式、表结构、图像和页面布局。|A4 페이지의 편집 가능한 텍스트로 내보냅니다. 원래 서식, 표 구조, 이미지 및 페이지 배치는 재현하지 않습니다.
+sameFolder|元の文書と同じ|Same as source document|与原文档相同|원본 문서와 동일
+specifiedFolder|指定|Choose a folder|指定|지정
+openAfterConversion|変換後にファイルを開く|Open files after conversion|转换后打开文件|변환 후 파일 열기"""
+rows += """
+htmlFormatting|HTMLの整形|HTML formatting|HTML 格式|HTML 서식
+htmlStandard|標準|Standard|标准|기본
+htmlFormattingHint|minify：タグの余分な空白・改行を削減。beautify：ブロックタグを改行・字下げ。本文・コード・CSS・JavaScriptは保持します。|minify reduces tag spacing and block separators. beautify indents block tags. Text, code, CSS and JavaScript are preserved.|minify 减少标签空白和块间换行；beautify 缩进块标签。保留文本、代码、CSS 和 JavaScript。|minify는 태그 공백을 줄이고 beautify는 블록 태그를 들여씁니다. 본문, 코드, CSS, JavaScript를 보존합니다."""
+rows += """
+matchPDF|PDFに合わせる（長辺1920）|Match PDF (long edge 1920)|与 PDF 一致（长边 1920）|PDF에 맞춤(긴 변 1920)
+slideSize|スライドサイズ|Slide size|幻灯片尺寸|슬라이드 크기
+placement|配置|Placement|放置方式|배치
+fit|ページ全体を収める|Fit entire page|完整显示页面|페이지 전체 맞춤
+fill|スライドを埋める|Fill slide|填满幻灯片|슬라이드 채우기
+fillHint|はみ出した部分はスライドの外に残ります。Keynoteで位置を調整できます。|Overflow stays outside the slide. Adjust it in Keynote.|超出部分保留在幻灯片外，可在 Keynote 中调整。|넘치는 부분은 슬라이드 밖에 남습니다. Keynote에서 조정할 수 있습니다.
+box|使用する枠|Page box|页面框|페이지 상자
+box.crop|トリミング（CropBox）|Crop box|裁剪框 (CropBox)|재단 상자(CropBox)
+box.trim|仕上がり（TrimBox）|Trim box|成品框 (TrimBox)|마감 상자(TrimBox)
+box.bleed|裁ち落とし（BleedBox）|Bleed box|出血框 (BleedBox)|도련 상자(BleedBox)
+box.media|メディア（MediaBox）|Media box|媒体框 (MediaBox)|미디어 상자(MediaBox)
+box.art|アート（ArtBox）|Art box|作品框 (ArtBox)|아트 상자(ArtBox)
+keynoteHint|PDFの各ページをベクターのまま1枚ずつスライドに配置します（Keynoteが必要）。PDF以外の文書は選択中のPDFエンジンで一度PDFにしてから変換します。「変換後にファイルを開く」がオンならKeynoteで開いたままにします。|Each PDF page is placed on its own slide as vector artwork (requires Keynote). Other documents are first typeset to PDF with the selected PDF engine. With Open files after conversion on, the presentation stays open in Keynote.|PDF 每页以矢量图放到单独的幻灯片上（需要 Keynote）。其他文档先用所选 PDF 引擎生成 PDF。开启“转换后打开文件”时在 Keynote 中保持打开。|PDF 각 페이지를 벡터 그대로 슬라이드에 배치합니다(Keynote 필요). 다른 문서는 선택한 PDF 엔진으로 먼저 PDF로 만듭니다. "변환 후 파일 열기"가 켜져 있으면 Keynote에서 열어 둡니다.
+keynoteNeedsPDF|PDF以外の文書をKeynoteにするにはPDFエンジンが必要です。設定から導入できます。|A PDF engine is needed to turn non-PDF documents into Keynote. Install one in Settings.|将非 PDF 文档转为 Keynote 需要 PDF 引擎。请在设置中安装。|PDF가 아닌 문서를 Keynote로 만들려면 PDF 엔진이 필요합니다. 설정에서 설치하세요.
+keynoteMissing|Keynoteが見つかりません。App StoreからKeynoteをインストールしてください。|Keynote is not installed. Install it from the App Store.|未找到 Keynote。请从 App Store 安装。|Keynote가 없습니다. App Store에서 설치하세요.
+automationDenied|Keynoteの操作が許可されていません。システム設定の「オートメーション」でCarmaChameleonのKeynoteをオンにしてください。|CarmaChameleon is not allowed to control Keynote. Turn on Keynote for CarmaChameleon in Automation settings.|CarmaChameleon 未被允许控制 Keynote。请在“自动化”设置中打开。|CarmaChameleon가 Keynote를 제어하도록 허용되지 않았습니다. 자동화 설정에서 켜세요.
+locked|パスワードで保護されたPDFは変換できません。|Password-protected PDFs cannot be converted.|无法转换受密码保护的 PDF。|암호로 보호된 PDF는 변환할 수 없습니다.
+unreadable|PDFを読み込めませんでした。|The PDF could not be read.|无法读取 PDF。|PDF를 읽을 수 없습니다.
+emptyRange|指定したページ範囲にページがありません。|No pages in the chosen range.|所选范围内没有页面。|지정한 범위에 페이지가 없습니다.
+writePage|ページを書き出せませんでした。|A page could not be written.|无法写出页面。|페이지를 쓸 수 없습니다.
+timeout|Keynoteが応答しません。Keynoteでダイアログボックスが開いていないか確認してください。|Keynote did not respond. Check for an open dialog in Keynote.|Keynote 无响应。请检查 Keynote 中是否有打开的对话框。|Keynote가 응답하지 않습니다. Keynote에 열린 대화상자가 있는지 확인하세요.
+keynoteError|Keynoteでエラーが発生しました：|Keynote reported an error: |Keynote 报告错误：|Keynote 오류: 
+permission|Keynoteの操作|Keynote control|控制 Keynote|Keynote 제어
+permissionWhy|Keynote形式で書き出すとき、Keynoteに新しいプレゼンテーションを作らせるため、オートメーション（Apple Events）の許可が必要です。ほかの形式には不要です。|Exporting to Keynote needs Automation (Apple Events) permission so CarmaChameleon can create the presentation in Keynote. Other formats do not need it.|导出为 Keynote 时需要自动化（Apple Events）权限，以便在 Keynote 中创建演示文稿。其他格式不需要。|Keynote로 내보낼 때 Keynote에서 프레젠테이션을 만들기 위해 자동화(Apple Events) 권한이 필요합니다. 다른 형식에는 필요하지 않습니다.
+permAllowed|許可済み|Allowed|已允许|허용됨
+permDenied|未許可|Not allowed|未允许|허용 안 됨
+permUnknown|未確認（Keynoteの起動中に確認できます）|Unknown (checked while Keynote is running)|未确认（Keynote 运行时可确认）|확인 안 됨(Keynote 실행 중 확인 가능)
+permAsk|許可を確認|Check permission|检查权限|권한 확인
+permOpen|オートメーション設定を開く|Open Automation Settings|打开自动化设置|자동화 설정 열기"""
+rows += """
+keepStructure|構造を保持|Keep structure|保留结构|구조 유지
+keepStructureHint|見出し・箇条書き・リンク・表などの構造を、記号や字下げで読みやすく残します（Markdown以外はいったんMarkdownにしてから変換）。|Keeps headings, lists, links and tables readable with marks and indents (non-Markdown input is converted to Markdown first).|用符号和缩进保留标题、列表、链接和表格等结构（非 Markdown 输入会先转换为 Markdown）。|제목, 목록, 링크, 표 등의 구조를 기호와 들여쓰기로 읽기 쉽게 유지합니다(Markdown이 아닌 입력은 먼저 Markdown으로 변환).
+mtLinks|リンク|Links|链接|링크
+mtLinkText|テキストのみ|Text only|仅文本|텍스트만
+mtLinkAngle|テキスト <URL>|Text <URL>|文本 <URL>|텍스트 <URL>
+mtLinkParen|テキスト (URL)|Text (URL)|文本 (URL)|텍스트 (URL)
+mtLinkBelow|段落・リストのリンクを下にまとめる|Collect links below paragraphs and list items|将段落和列表中的链接汇总到下方|문단·목록의 링크를 아래에 모으기
+mtListMarker|行頭記号|Bullet|项目符号|글머리 기호
+mtNumbers|番号リスト|Numbered lists|编号列表|번호 목록
+mtNumKeep|元の番号を残す|Keep numbers|保留原编号|원래 번호 유지
+mtNumRenumber|連番を振り直す|Renumber|重新编号|번호 다시 매기기
+mtNumMarker|記号にする|Use the bullet|改为符号|기호로 바꾸기
+mtZenkakuIndent|ネストのインデントを全角スペースに|Indent nested items with full-width spaces|用全角空格缩进嵌套项|중첩 들여쓰기를 전각 공백으로
+mtHeadings|見出しの記号|Heading marks|标题符号|제목 기호
+mtBold|太字|Bold|粗体|굵게
+mtBoldNone|記号を削除|Remove marks|删除符号|기호 삭제
+mtBoldBracket|【太字】で囲む|Wrap in 【】|用【】括起|【】로 감싸기
+mtTables|表|Tables|表格|표
+mtTableTab|タブ区切り|Tab-separated|制表符分隔|탭 구분
+mtTableAscii|罫線付き|With borders|带边框|테두리 포함
+mtImages|画像|Images|图像|이미지
+mtImageText|代替テキストを残す|Keep alt text|保留替代文本|대체 텍스트 유지
+mtImageIgnore|削除|Remove|删除|삭제
+mtBlockGap|ブロック間|Between blocks|块之间|블록 사이
+mtGap0|空行なし|No blank line|无空行|빈 줄 없음
+mtGap1|空行1行|1 blank line|1 个空行|빈 줄 1개
+mtGap2|空行2行|2 blank lines|2 个空行|빈 줄 2개
+mtCollapseBlank|空行が続く場合は1つに|Collapse repeated blank lines|合并连续空行|연속 빈 줄을 하나로
+mtTrimLeading|行頭のスペースを削除|Remove leading spaces|删除行首空格|줄 앞 공백 삭제
+mtStripHTML|HTMLタグを処理|Process HTML tags|处理 HTML 标签|HTML 태그 처리"""
+rows += """
+xlsxInvalid|Excelファイルを読み込めませんでした。.xlsx 形式か確認してください（旧形式の .xls には対応しません）。|The Excel file could not be read. Make sure it is an .xlsx file (the older .xls format is not supported).|无法读取 Excel 文件。请确认是 .xlsx 格式（不支持旧的 .xls 格式）。|Excel 파일을 읽을 수 없습니다. .xlsx 형식인지 확인하세요(이전 .xls 형식은 지원하지 않음).
+xlsxTooLarge|Excelファイルが大きすぎます（読み込むXMLは合計20MBまで）。|The Excel file is too large (up to 20 MB of XML).|Excel 文件过大（XML 合计上限 20MB）。|Excel 파일이 너무 큽니다(XML 합계 20MB까지).
+xlsxEmpty|Excelファイルに読み込めるシートがありません。|The Excel file has no sheets with data.|Excel 文件中没有包含数据的工作表。|Excel 파일에 데이터가 있는 시트가 없습니다."""
+rows += """
+formatsTitle|変換形式の表示と順番|Output formats shown and their order|显示的输出格式及顺序|표시할 출력 형식과 순서
+formatsHint|チェックした形式だけをメインウインドウの「変換形式」に表示します。ドラッグまたは↑↓で順番を変えられます。少なくとも1つは表示されます。|Only checked formats appear in the main window. Drag or use ↑↓ to change the order. At least one stays visible.|主窗口只显示勾选的格式。拖动或使用 ↑↓ 更改顺序。至少保留一个。|선택한 형식만 메인 윈도우에 표시됩니다. 드래그하거나 ↑↓로 순서를 바꿀 수 있습니다. 최소 1개는 표시됩니다.
+moveUp|上へ移動|Move up|上移|위로 이동
+moveDown|下へ移動|Move down|下移|아래로 이동
+resetFormats|初期状態に戻す|Restore defaults|恢复默认|기본값으로 복원
+enginesTab|エンジン|Engines|引擎|엔진"""
+table=[line.split('|') for line in rows.splitlines()]
+assert all(len(r)==5 for r in table)
+assert len({r[0] for r in table})==len(table), 'duplicate key'
+for i,lang in enumerate(['ja','en','zh-Hans','ko'],1):
+ p=root/'Resources'/f'{lang}.lproj';p.mkdir(parents=True,exist_ok=True)
+ (p/'Localizable.strings').write_text('\n'.join(f'{json.dumps(r[0])} = {json.dumps(r[i],ensure_ascii=False)};' for r in table)+'\n')
+# Help text lives in help_text.py (markup rendered by Shared/AppStandards/HelpDocument.swift).
+from help_text import HELP
+helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
+for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
+for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すとき、Keynoteに新しいプレゼンテーションを作成させます。', 'CarmaChameleon asks Keynote to create a presentation when you export to Keynote.', '导出为 Keynote 时，CarmaChameleon 会让 Keynote 创建演示文稿。', 'Keynote로 내보낼 때 CarmaChameleon가 Keynote에 프레젠테이션을 만들도록 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.5.0',CFBundleVersion='17',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='PandocDesk asks Keynote to create a presentation when you export to Keynote.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet'])])
+info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml']))
+with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

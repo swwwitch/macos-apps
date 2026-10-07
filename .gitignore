@@ -27,7 +27,7 @@ Unsorted/
 # 第三者バイナリ・大容量ファイル（ビルド時に各自取得）
 Shared/Updater/vendor/
 **/Vendor/
-PandocDesk/Resources/pandoc-*-source.tar.gz
+**/pandoc-*-source.tar.gz
 # 生成物・キャッシュ
 **/outputs/
 **/work/

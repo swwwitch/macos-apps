@@ -3,7 +3,7 @@ import Carbon
 import PDFKit
 import SwiftUI
 
-// Shared PDF → Keynote export (PDF2Keynote, PandocDesk).
+// Shared PDF → Keynote export (PDF2Keynote, CarmaChameleon).
 // Each PDF page is written as a one-page PDF and placed on its own slide by Keynote,
 // so pages stay vector. Requires Keynote.scpt (compiled from Keynote.applescript) in
 // the app bundle, NSAppleEventsUsageDescription, and these localized keys in the app:

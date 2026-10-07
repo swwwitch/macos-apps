@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown → テキスト変換</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background: #f4f5f7;
+    color: #2d3436;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  header { max-width: 1200px; margin: 0 auto 20px; }
+  h1 { font-size: 20px; font-weight: 600; }
+  .sub { font-size: 13px; color: #636e72; margin-top: 4px; }
+  .toolbar {
+    max-width: 1200px; margin: 0 auto 12px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  button {
+    font-size: 13px; padding: 7px 14px; border: 1px solid #d0d4d8;
+    background: #fff; border-radius: 6px; cursor: pointer; color: #2d3436;
+  }
+  button:hover { background: #eef0f2; }
+  button.primary { background: #0984e3; color: #fff; border-color: #0984e3; }
+  button.primary:hover { background: #0771c2; }
+  .pane-wrap {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .pane { display: flex; flex-direction: column; }
+  .pane label { font-size: 12px; font-weight: 600; color: #636e72; margin-bottom: 6px; }
+  textarea {
+    width: 100%; height: 65vh; resize: vertical;
+    padding: 14px; font-size: 14px; line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "Courier New", monospace;
+    border: 1px solid #d0d4d8; border-radius: 8px; background: #fff;
+    outline: none; white-space: pre-wrap;
+  }
+  textarea:focus { border-color: #0984e3; }
+  textarea[readonly] {
+    background: #fbfbfc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  }
+  .settings {
+    max-width: 1200px; margin: 0 auto 16px;
+    background: #fff; border: 1px solid #e4e7ea; border-radius: 10px;
+    padding: 4px 16px 14px;
+  }
+  .settings-head {
+    font-size: 13px; font-weight: 700; color: #2d3436;
+    padding: 12px 0 4px; border-bottom: 1px solid #eef0f2; margin-bottom: 10px;
+  }
+  .settings-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px;
+  }
+  .settings-col { display: flex; flex-direction: column; }
+  .zone {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+  }
+  .settings-col .zone + .zone { border-top: 1px dashed #eef0f2; }
+  .zone-label {
+    font-size: 12px; font-weight: 600; color: #636e72;
+    width: 76px; flex-shrink: 0; padding-top: 4px;
+  }
+  .zone-items { display: flex; flex-direction: column; gap: 7px; }
+  .settings label { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .fld { display: inline-block; width: 88px; flex-shrink: 0; color: #2d3436; }
+  .zone-note { font-size: 11px; color: #a0a4a8; }
+  .settings select, .settings input[type="text"] {
+    padding: 4px 6px; border: 1px solid #d0d4d8; border-radius: 4px; font-size: 13px;
+  }
+  .settings select { min-width: 168px; }
+  .settings select.hmode { min-width: 86px; }
+  .settings input[type="text"] { width: 64px; }
+  @media (max-width: 760px) {
+    .settings-grid { grid-template-columns: 1fr; gap: 0; }
+    .pane-wrap { grid-template-columns: 1fr; }
+    textarea { height: 40vh; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Markdown → テキスト変換</h1>
+  <div class="sub">左にMarkdownをペーストすると、右にプレーンテキストが表示されます。</div>
+</header>
+
+<div class="toolbar">
+  <button class="primary" id="copyBtn">結果をコピー</button>
+  <button id="downloadBtn">.txt でダウンロード</button>
+  <button id="clearBtn">クリア</button>
+</div>
+
+<div class="settings">
+  <div class="settings-head">設定</div>
+
+  <div class="settings-grid">
+  <div class="settings-col">
+
+  <div class="zone">
+    <span class="zone-label">リンク</span>
+    <div class="zone-items">
+      <label><span class="fld">形式：</span>
+        <select id="linkMode">
+          <option value="text">テキストのみ</option>
+          <option value="angle" selected>テキスト &lt;URL&gt;</option>
+          <option value="paren">テキスト (URL)</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="optLinkBelow" checked> 段落・リストのリンクを下にまとめる</label>
+    </div>
+  </div>
+
+  <div class="zone">
+    <span class="zone-label">リスト</span>
+    <div class="zone-items">
+      <label><span class="fld">行頭記号：</span><input type="text" id="listMarker" value="・" style="width:44px;"></label>
+      <label><span class="fld">番号リスト：</span>
+        <select id="numMode">
+          <option value="keep">元の番号を残す</option>
+          <option value="renumber">連番を振り直す</option>
+          <option value="marker">記号にする</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="optZenkakuIndent" checked> ネストのインデントを全角スペースに</label>
+    </div>
+  </div>
+
+  <div class="zone">
+    <span class="zone-label">スペース</span>
+    <div class="zone-items">
+      <label><input type="checkbox" id="optTrimBlank" checked> スペースだけの行はスペースを削除</label>
+      <label><input type="checkbox" id="optTrimLeading" checked> 行頭のスペースを削除</label>
+      <label><input type="checkbox" id="optCollapseBlank" checked> 空行が続く場合、1つに</label>
+      <label><span class="fld">ブロック間：</span>
+        <select id="blockGap">
+          <option value="0">空行 0行（詰める）</option>
+          <option value="1" selected>空行 1行</option>
+          <option value="2">空行 2行</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="zone">
+    <span class="zone-label">その他</span>
+    <div class="zone-items">
+      <label><span class="fld">太字：</span>
+        <select id="boldMode">
+          <option value="none">何もしない（記号を削除）</option>
+          <option value="bracket">【太字】で囲む</option>
+        </select>
+      </label>
+      <label><span class="fld">テーブル：</span>
+        <select id="tableMode">
+          <option value="tab">タブ区切り</option>
+          <option value="ascii">罫線付き（枠線整形）</option>
+        </select>
+      </label>
+      <label><span class="fld">画像(alt)：</span>
+        <select id="imgMode">
+          <option value="text" selected>テキスト化（altを残す）</option>
+          <option value="ignore">無視（削除）</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="stripHtml" checked> HTMLタグを処理</label>
+    </div>
+  </div>
+
+  </div><!-- /settings-col left -->
+
+  <div class="settings-col">
+  <div class="zone" style="align-items:flex-start;">
+    <span class="zone-label">見出し</span>
+    <div class="zone-items">
+      <label><span class="fld">見出し1：</span>
+        <select id="h1m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h1p" value="">
+      </label>
+      <label><span class="fld">見出し2：</span>
+        <select id="h2m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h2p" value="■">
+      </label>
+      <label><span class="fld">見出し3：</span>
+        <select id="h3m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h3p" value="●">
+      </label>
+      <label><span class="fld">見出し4：</span>
+        <select id="h4m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h4p" value="◇">
+      </label>
+      <label><span class="fld">見出し5：</span>
+        <select id="h5m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h5p" value="">
+      </label>
+      <label><span class="fld">見出し6：</span>
+        <select id="h6m" class="hmode"><option value="prefix">記号</option><option value="rule">ケイ線</option></select>
+        <input type="text" id="h6p" value="">
+      </label>
+      <span class="zone-note">「記号」＝右の欄の文字を行頭に付与／「ケイ線」＝レベルごとの枠線で囲む</span>
+    </div>
+  </div>
+  </div><!-- /settings-col right -->
+  </div><!-- /settings-grid -->
+</div>
+
+<div class="pane-wrap">
+  <div class="pane">
+    <label>Markdown（入力）　<span style="font-weight:400; color:#a0a4a8;">.md ファイルをドロップでも読み込めます</span></label>
+    <textarea id="input" placeholder="# 見出し&#10;&#10;**太字** や *斜体*、[リンク](https://example.com)、&#96;コード&#96; などをペースト...&#10;&#10;&lt;h1&gt;HTML&lt;/h1&gt; が混じっていても処理します。"></textarea>
+  </div>
+  <div class="pane">
+    <label>テキスト（出力）</label>
+    <textarea id="output" readonly placeholder="変換結果がここに表示されます"></textarea>
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const linkMode = document.getElementById('linkMode');
+const boldMode = document.getElementById('boldMode');
+const tableMode = document.getElementById('tableMode');
+const stripHtml = document.getElementById('stripHtml');
+const hp = [1,2,3,4,5,6].map(i => document.getElementById('h' + i + 'p'));
+const hm = [1,2,3,4,5,6].map(i => document.getElementById('h' + i + 'm'));
+const optTrimBlank = document.getElementById('optTrimBlank');
+const optTrimLeading = document.getElementById('optTrimLeading');
+const optCollapseBlank = document.getElementById('optCollapseBlank');
+const optZenkakuIndent = document.getElementById('optZenkakuIndent');
+const optLinkBelow = document.getElementById('optLinkBelow');
+const listMarker = document.getElementById('listMarker');
+const numMode = document.getElementById('numMode');
+const blockGap = document.getElementById('blockGap');
+const imgMode = document.getElementById('imgMode');
+
+// レベルごとの罫線パターン。text=見出し本文, w=本文の表示幅
+// 返り値は複数行の文字列。
+function ruledHeading(level, text, w) {
+  const bar = (ch, n) => ch.repeat(n);
+  switch (level) {
+    case 1: // 上下を太めに囲む
+      return '◤' + bar('￣', w + 1) + '\n　' + text + '\n' + bar('＿', w + 1) + '◢';
+    case 2: // 指定の囲み枠
+      return '◤' + bar('￣', w + 1) + '\n　' + text + '\n' + bar('＿', w + 1) + '◢';
+    case 3: // 下線のみ
+      return text + '\n' + bar('￣', w);
+    case 4:
+      return text + '\n' + bar('＿', w);
+    case 5:
+      return '■ ' + text;
+    default:
+      return '□ ' + text;
+  }
+}
+
+// HTML → Markdown 相当に変換（コードブロック内はそのまま残す）
+function htmlToMarkdown(src) {
+  // コードブロック ``` ``` を退避
+  const fences = [];
+  src = src.replace(/```[\s\S]*?```/g, (m) => {
+    fences.push(m);
+    return '\u0000FENCE' + (fences.length - 1) + '\u0000';
+  });
+  // インラインコード `...` も退避
+  const inlines = [];
+  src = src.replace(/`[^`\n]+`/g, (m) => {
+    inlines.push(m);
+    return '\u0000INL' + (inlines.length - 1) + '\u0000';
+  });
+
+  // HTMLらしさが無ければそのまま返す
+  if (!/<[a-zA-Z!/][^>]*>/.test(src)) {
+    src = src.replace(/\u0000INL(\d+)\u0000/g, (m, i) => inlines[+i]);
+    src = src.replace(/\u0000FENCE(\d+)\u0000/g, (m, i) => fences[+i]);
+    return src;
+  }
+
+  const doc = new DOMParser().parseFromString(src, 'text/html');
+
+  const esc = (s) => s;
+  function walk(node) {
+    let out = '';
+    node.childNodes.forEach((n) => {
+      if (n.nodeType === 3) { // テキスト
+        // 改行は保持（緩いMarkdownの行構造を壊さない）。空白・タブのみ圧縮。
+        out += n.nodeValue.replace(/[ \t\f\v]+/g, ' ');
+        return;
+      }
+      if (n.nodeType !== 1) return;
+      const tag = n.tagName.toLowerCase();
+      const inner = walk(n);
+      switch (tag) {
+        case 'h1': out += '\n\n# ' + inner.trim() + '\n\n'; break;
+        case 'h2': out += '\n\n## ' + inner.trim() + '\n\n'; break;
+        case 'h3': out += '\n\n### ' + inner.trim() + '\n\n'; break;
+        case 'h4': out += '\n\n#### ' + inner.trim() + '\n\n'; break;
+        case 'h5': out += '\n\n##### ' + inner.trim() + '\n\n'; break;
+        case 'h6': out += '\n\n###### ' + inner.trim() + '\n\n'; break;
+        case 'p': case 'div': case 'section': case 'article':
+          out += '\n\n' + inner.trim() + '\n\n'; break;
+        case 'br': out += '\n'; break;
+        case 'hr': out += '\n\n---\n\n'; break;
+        case 'strong': case 'b': out += '**' + inner.trim() + '**'; break;
+        case 'em': case 'i': out += '*' + inner.trim() + '*'; break;
+        case 'del': case 's': case 'strike': out += '~~' + inner.trim() + '~~'; break;
+        case 'code': out += '`' + inner.trim() + '`'; break;
+        case 'pre': out += '\n\n```\n' + n.textContent.replace(/\n+$/, '') + '\n```\n\n'; break;
+        case 'blockquote':
+          out += '\n\n' + inner.trim().split('\n').map(l => '> ' + l).join('\n') + '\n\n'; break;
+        case 'a': {
+          const href = n.getAttribute('href') || '';
+          out += href ? '[' + inner.trim() + '](' + href + ')' : inner;
+          break;
+        }
+        case 'img': {
+          const alt = n.getAttribute('alt') || '';
+          const s = n.getAttribute('src') || '';
+          out += '![' + alt + '](' + s + ')';
+          break;
+        }
+        case 'ul': case 'ol': {
+          out += '\n\n';
+          let i = 1;
+          n.querySelectorAll(':scope > li').forEach((li) => {
+            const mark = tag === 'ol' ? (i++ + '. ') : '- ';
+            out += mark + walk(li).trim() + '\n';
+          });
+          out += '\n';
+          break;
+        }
+        case 'li': out += inner; break;
+        case 'table': {
+          out += '\n\n';
+          n.querySelectorAll('tr').forEach((tr, ri) => {
+            const cells = [...tr.children].map(c => walk(c).trim());
+            out += '| ' + cells.join(' | ') + ' |\n';
+            if (ri === 0) out += '| ' + cells.map(() => '---').join(' | ') + ' |\n';
+          });
+          out += '\n';
+          break;
+        }
+        case 'script': case 'style': case 'head': break;
+        default: out += inner;
+      }
+    });
+    return out;
+  }
+
+  let md = walk(doc.body);
+  md = md.replace(/\n{3,}/g, '\n\n');
+
+  // 退避したコードを戻す
+  md = md.replace(/\u0000INL(\d+)\u0000/g, (m, i) => inlines[+i]);
+  md = md.replace(/\u0000FENCE(\d+)\u0000/g, (m, i) => fences[+i]);
+  return md.trim();
+}
+
+// 全角文字を2、半角を1として表示幅を計算
+function dispWidth(s) {
+  let w = 0;
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    w += (c > 0xFF && !(c >= 0xFF61 && c <= 0xFF9F)) ? 2 : 1;
+  }
+  return w;
+}
+function padTo(s, width) {
+  return s + ' '.repeat(Math.max(0, width - dispWidth(s)));
+}
+
+// Markdownテーブルをタブ区切り or 罫線付きに整形
+function formatTables(text) {
+  const lines = text.split('\n');
+  const out = [];
+  let i = 0;
+  const isRow = (l) => /^\s*\|.*\|\s*$/.test(l);
+  const isSep = (l) => /^\s*\|?[\s:|-]+\|?\s*$/.test(l) && /-/.test(l) && !/[a-zA-Z0-9ぁ-んァ-ヶ一-龠]/.test(l);
+
+  while (i < lines.length) {
+    if (isRow(lines[i])) {
+      const block = [];
+      while (i < lines.length && isRow(lines[i])) { block.push(lines[i]); i++; }
+      // セル分解（区切り行は除外）
+      const rows = block
+        .filter(l => !isSep(l))
+        .map(l => l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim()));
+
+      if (tableMode.value === 'ascii' && rows.length) {
+        const cols = Math.max(...rows.map(r => r.length));
+        const widths = [];
+        for (let c = 0; c < cols; c++) {
+          widths[c] = Math.max(1, ...rows.map(r => dispWidth(r[c] || '')));
+        }
+        const border = '+' + widths.map(w => '-'.repeat(w + 2)).join('+') + '+';
+        out.push(border);
+        rows.forEach((r, ri) => {
+          const cells = widths.map((w, c) => ' ' + padTo(r[c] || '', w) + ' ');
+          out.push('|' + cells.join('|') + '|');
+          if (ri === 0) out.push(border);
+        });
+        out.push(border);
+      } else {
+        rows.forEach(r => out.push(r.join('\t')));
+      }
+    } else {
+      out.push(lines[i]); i++;
+    }
+  }
+  return out.join('\n');
+}
+
+function convert(md) {
+  let t = md;
+
+  // オートリンク <https://...> → URL（DOMParserがタグと誤認する前に処理）
+  t = t.replace(/<(https?:\/\/[^>\s]+)>/g, '$1');
+  t = t.replace(/<([^>\s@]+@[^>\s]+\.[^>\s]+)>/g, '$1'); // <mail@example.com>
+
+  // HTMLが混じっている場合はまずMarkdown相当へ
+  if (stripHtml.checked) t = htmlToMarkdown(t);
+
+  // 改行を統一
+  t = t.replace(/\r\n?/g, '\n');
+
+  // エスケープ文字 \* \_ など：構文処理から保護し、最後に素の文字へ戻す
+  const escapes = [];
+  t = t.replace(/\\([\\`*_{}\[\]()#+\-.!>~|])/g, (m, ch) => {
+    escapes.push(ch);
+    return '\u0004' + (escapes.length - 1) + '\u0004';
+  });
+
+  // コードブロック ``` ``` の中身を保持（フェンス記号だけ除去）
+  t = t.replace(/^```[^\n]*\n([\s\S]*?)^```[ \t]*$/gm, (m, code) => code);
+
+  // Setext見出し（下線式）を # 形式に正規化して、見出し設定を適用できるようにする
+  // text\n====  → # text  ／ text\n----  → ## text
+  t = t.replace(/^(?![ \t]*$)(?![ \t]*(?:[-*+][ \t]|\d+\.[ \t]|#|>|\|))(.+)\n=+[ \t]*$/gm, '# $1');
+  t = t.replace(/^(?![ \t]*$)(?![ \t]*(?:[-*+][ \t]|\d+\.[ \t]|#|>|\|))(.+)\n-+[ \t]*$/gm, '## $1');
+
+  // 参照形式リンク：定義 [id]: url を収集して本文の [text][id] を [text](url) に展開
+  {
+    const defs = {};
+    t = t.replace(/^[ \t]*\[([^\]^]+)\]:[ \t]+(\S+)[^\n]*$/gm, (m, id, url) => {
+      defs[id.toLowerCase()] = url;
+      return '\u0003'; // 定義行の削除マーカー（後で行ごと除去）
+    });
+    t = t.replace(/\[([^\]]+)\]\[([^\]]*)\]/g, (m, text, id) => {
+      const key = (id || text).toLowerCase();
+      return defs[key] ? '[' + text + '](' + defs[key] + ')' : m;
+    });
+    t = t.replace(/^\u0003$/gm, '').replace(/\u0003/g, '');
+  }
+
+  // 脚注：[^id] → ※id、定義行 [^id]: 本文 → ※id 本文
+  t = t.replace(/^[ \t]*\[\^([^\]]+)\]:[ \t]*/gm, '※$1 ');
+  t = t.replace(/\[\^([^\]]+)\]/g, '※$1');
+
+  // 見出し # を接頭辞 or 罫線に変換（レベルごとに設定）。見出しの後には空行を入れる。
+  // \u0001 は「見出し直後の空行」を保護するためのセンチネル（最後に空行へ変換）。
+  t = t.replace(/^(#{1,6})[ \t]+(.*)$/gm, (m, hashes, text) => {
+    const lv = hashes.length;
+    text = text.trim();
+    if (hm[lv - 1].value === 'rule') {
+      return '\n' + ruledHeading(lv, text, dispWidth(text)) + '\n\u0001';
+    }
+    const prefix = hp[lv - 1].value;
+    return (prefix ? prefix + ' ' + text : text) + '\n\u0001';
+  });
+
+  // 水平線
+  t = t.replace(/^[ \t]*([-*_])[ \t]*(?:\1[ \t]*){2,}$/gm, '');
+
+  // 引用 >
+  t = t.replace(/^>\s?/gm, '');
+
+  // リスト（箇条書き・番号付き）を整形
+  {
+    const marker = listMarker.value || '・';
+    const zenkaku = (indent) => {
+      if (!optZenkakuIndent.checked) return indent;
+      const level = Math.floor(indent.replace(/\t/g, '  ').length / 2);
+      return '\u3000'.repeat(level);
+    };
+    // 番号振り直し用のレベル別カウンタ
+    const counters = {};
+    let prevWasList = false;
+    t = t.split('\n').map((line) => {
+      const bullet = line.match(/^([ \t]*)[-*+][ \t]+(.*)$/);
+      const numbered = line.match(/^([ \t]*)(\d+)\.[ \t]+(.*)$/);
+      if (bullet) {
+        prevWasList = true;
+        let body = bullet[2];
+        // タスクリスト - [ ] / - [x]
+        const task = body.match(/^\[( |x|X)\][ \t]+(.*)$/);
+        if (task) {
+          const box = task[1] === ' ' ? '□' : '■';
+          return zenkaku(bullet[1]) + marker + box + ' ' + task[2];
+        }
+        return zenkaku(bullet[1]) + marker + body;
+      }
+      if (numbered) {
+        const rawIndent = numbered[1];
+        const depth = rawIndent.replace(/\t/g, '  ').length;
+        const body = numbered[3];
+        const ind = zenkaku(rawIndent);
+        if (numMode.value === 'marker') {
+          prevWasList = true;
+          return ind + marker + body;
+        }
+        if (numMode.value === 'renumber') {
+          if (!prevWasList) for (const k in counters) delete counters[k];
+          counters[depth] = (counters[depth] || 0) + 1;
+          // より深い階層のカウンタはリセット
+          for (const k in counters) if (+k > depth) delete counters[k];
+          prevWasList = true;
+          return ind + counters[depth] + '. ' + body;
+        }
+        prevWasList = true;
+        return ind + numbered[2] + '. ' + body; // keep
+      }
+      // 空行はリストの区切りとみなし、連番をリセット
+      if (line.trim() === '') {
+        for (const k in counters) delete counters[k];
+        prevWasList = false;
+        return line;
+      }
+      if (line.trim() !== '') prevWasList = false;
+      return line;
+    }).join('\n');
+  }
+
+  // 画像 ![alt](url) → alt or 削除
+  if (imgMode.value === 'ignore') {
+    // 画像だけの行は行ごと削除、それ以外はインラインで除去
+    t = t.replace(/^[ \t]*!\[[^\]]*\]\([^)]*\)[ \t]*$/gm, '');
+    t = t.replace(/[ \t]?!\[[^\]]*\]\([^)]*\)[ \t]?/g, ' ');
+  } else {
+    t = t.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1');
+  }
+
+  // リンクを段落・li の下にまとめる（オプション）
+  if (optLinkBelow.checked) {
+    const marker = listMarker.value || '・';
+    const fmtLink = (text, url) => {
+      if (linkMode.value === 'paren') return text + ' (' + url + ')';
+      return text + ' <' + url + '>';
+    };
+    const src = t.split('\n');
+    const res = [];
+    const linkRe = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const markerEsc = marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const isLi = (l) => new RegExp('^[\\u3000 \\t]*(' + markerEsc + '|\\d+\\.[ \\t])').test(l);
+    const isBlank = (l) => l.replace(/\u0001/g, '').trim() === '';
+    let i = 0;
+    while (i < src.length) {
+      const line = src[i];
+      if (isBlank(line)) { res.push(line); i++; continue; }
+
+      if (isLi(line)) {
+        // li の内容がリンクだけなら、下にまとめずインライン形式に任せる
+        const bodyOnly = line.replace(new RegExp('^[\\u3000 \\t]*(' + markerEsc + '|\\d+\\.[ \\t]+)'), '');
+        if (bodyOnly.replace(linkRe, '').trim() === '') {
+          res.push(line);
+          i++;
+          continue;
+        }
+        // li 1行を処理し、その下にリンクを追加
+        const urls = [];
+        const indentMatch = line.match(/^[\u3000 \t]*/);
+        const indent = indentMatch ? indentMatch[0] : '';
+        const replaced = line.replace(linkRe, (m, text, url) => { urls.push([text, url]); return text; });
+        res.push(replaced);
+        urls.forEach(([text, url]) => res.push(indent + '\u3000' + fmtLink(text, url)));
+        i++;
+        continue;
+      }
+
+      // 段落＝空行・li が来るまでの連続行
+      const para = [];
+      while (i < src.length && !isBlank(src[i]) && !isLi(src[i])) { para.push(src[i]); i++; }
+      // 段落の内容がリンクだけなら、下にまとめずインライン形式に任せる
+      if (para.join(' ').replace(linkRe, '').trim() === '') {
+        res.push(...para);
+        continue;
+      }
+      const urls = [];
+      const replaced = para.map(l => l.replace(linkRe, (m, text, url) => { urls.push([text, url]); return text; }));
+      res.push(...replaced);
+      urls.forEach(([text, url]) => res.push(fmtLink(text, url)));
+    }
+    t = res.join('\n');
+  }
+
+  // リンク [text](url)
+  t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+    const mode = linkMode.value;
+    if (mode === 'angle') return text + ' <' + url + '>';
+    if (mode === 'paren') return text + ' (' + url + ')';
+    return text;
+  });
+
+  // 太字（モード選択）
+  if (boldMode.value === 'bracket') {
+    t = t.replace(/(\*\*|__)(.*?)\1/g, '【$2】');
+  } else {
+    t = t.replace(/(\*\*|__)(.*?)\1/g, '$2');
+  }
+  // 斜体
+  t = t.replace(/(\*|_)(.*?)\1/g, '$2');
+  t = t.replace(/~~(.*?)~~/g, '$1');
+
+  // インラインコード `code`
+  t = t.replace(/`([^`]+)`/g, '$1');
+
+  // テーブル整形（連続する | 行をブロックとして処理）
+  t = formatTables(t);
+
+  // 連続する空行を2つまでに
+  t = t.replace(/\n{3,}/g, '\n\n');
+
+  // オプション処理
+  if (optTrimBlank.checked) {
+    // スペース（全角含む）だけの行を空行に
+    t = t.replace(/^[ \t\u3000]+$/gm, '');
+  }
+  if (optTrimLeading.checked) {
+    // 行頭の半角スペース・タブを削除（全角スペースのインデントは保持）
+    t = t.replace(/^[ \t]+/gm, '');
+  }
+  if (optCollapseBlank.checked) {
+    // 空行が続く場合は1つに
+    t = t.replace(/\n{2,}/g, '\n\n');
+  }
+
+  // ブロック間の空行数（0/1/2）
+  const gap = parseInt(blockGap.value, 10);
+  if (!isNaN(gap)) {
+    const sep = '\n'.repeat(gap + 1);
+    // センチネルを一時退避してからブロック間空行を調整
+    t = t.replace(/\n{2,}/g, sep);
+  }
+
+  // 見出し直後のセンチネル → 必ず空行1つ（blockGap=0 でも維持）
+  // センチネル行とその前後の余分な改行を、改行2つ（＝空行1つ）に正規化。
+  t = t.replace(/\n*\u0001\n*/g, '\n\n');
+  t = t.replace(/\u0001/g, ''); // 取りこぼし保険
+
+  // エスケープしていた文字を素の文字に戻す
+  t = t.replace(/\u0004(\d+)\u0004/g, (m, i) => escapes[+i]);
+
+  return t.trimEnd();
+}
+
+function update() {
+  output.value = convert(input.value);
+  saveSettings();
+}
+
+// --- 設定の保存・復元（localStorage、対応環境のみ動作） ---
+const SETTINGS_KEY = 'md2text-settings-v1';
+const settingEls = {
+  linkMode, boldMode, tableMode, stripHtml,
+  optTrimBlank, optTrimLeading, optCollapseBlank, optZenkakuIndent, optLinkBelow,
+  listMarker, numMode, blockGap, imgMode,
+  h1p: hp[0], h2p: hp[1], h3p: hp[2], h4p: hp[3], h5p: hp[4], h6p: hp[5],
+  h1m: hm[0], h2m: hm[1], h3m: hm[2], h4m: hm[3], h5m: hm[4], h6m: hm[5],
+};
+function saveSettings() {
+  try {
+    const data = {};
+    for (const [k, el] of Object.entries(settingEls)) {
+      data[k] = el.type === 'checkbox' ? el.checked : el.value;
+    }
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+  } catch {}
+}
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    for (const [k, el] of Object.entries(settingEls)) {
+      if (!(k in data)) continue;
+      if (el.type === 'checkbox') el.checked = data[k];
+      else el.value = data[k];
+    }
+  } catch {}
+}
+loadSettings();
+
+input.addEventListener('input', update);
+function syncHeadingInputs() {
+  hm.forEach((sel, idx) => {
+    const isRule = sel.value === 'rule';
+    hp[idx].disabled = isRule;
+    hp[idx].style.opacity = isRule ? '0.4' : '1';
+  });
+}
+hm.forEach(sel => sel.addEventListener('change', syncHeadingInputs));
+syncHeadingInputs();
+[linkMode, boldMode, tableMode, stripHtml, optTrimBlank, optTrimLeading, optCollapseBlank, optZenkakuIndent, optLinkBelow, numMode, blockGap, imgMode, ...hm]
+  .forEach(el => el.addEventListener('change', update));
+[...hp, listMarker].forEach(el => el.addEventListener('input', update));
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(output.value);
+    const b = document.getElementById('copyBtn');
+    const o = b.textContent; b.textContent = 'コピーしました';
+    setTimeout(() => b.textContent = o, 1200);
+  } catch { output.select(); document.execCommand('copy'); }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const blob = new Blob([output.value], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'converted.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = ''; output.value = ''; input.focus();
+});
+
+// --- .md ファイルのドラッグ&ドロップ読み込み ---
+['dragover', 'dragenter'].forEach(ev =>
+  input.addEventListener(ev, (e) => {
+    e.preventDefault();
+    input.style.borderColor = '#0984e3';
+  }));
+['dragleave', 'drop'].forEach(ev =>
+  input.addEventListener(ev, (e) => {
+    e.preventDefault();
+    input.style.borderColor = '';
+  }));
+input.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { input.value = reader.result; update(); };
+  reader.readAsText(file, 'utf-8');
+});
+
+// 復元した設定を初期反映
+update();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+[
+ {"name":"defaults"},
+ {"name":"paren-ascii-bracket-renumber","linkMode":"paren","tableMode":"ascii","boldMode":"bracket","numMode":"renumber","blockGap":"2"},
+ {"name":"text-nolinkbelow-marker-rules","linkMode":"text","optLinkBelow":false,"numMode":"marker","listMarker":"-","optZenkakuIndent":false,"imgMode":"ignore","blockGap":"0","h1m":"rule","h2m":"rule","h3m":"rule","h4m":"rule","h5m":"rule","h6m":"rule"},
+ {"name":"no-trims","optTrimBlank":false,"optTrimLeading":false,"optCollapseBlank":false,"h2p":"◆","h3p":""}
+]

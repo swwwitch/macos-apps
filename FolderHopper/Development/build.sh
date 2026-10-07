@@ -19,6 +19,18 @@ embed_updates "$bundle"
 xattr -cr "$bundle"
 codesign --force --sign - "$bundle"
 codesign --verify --deep --strict "$bundle"
+if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
+    mkdir -p StoreBuild
+    if [[ -d StoreBuild/FolderHopper.app ]]; then
+        backup="../Backups/store-before-build-$(date +%Y%m%d-%H%M%S)-$$"
+        mkdir -p "$backup"
+        mv StoreBuild/FolderHopper.app "$backup/"
+    fi
+    ditto "$bundle" StoreBuild/FolderHopper.app
+    codesign --verify --deep --strict StoreBuild/FolderHopper.app
+    printf 'Built App Store candidate: StoreBuild/FolderHopper.app\n'
+    exit 0
+fi
 python3 ../../Shared/BuildTools/publish_latest.py "$bundle"
 backup="../Backups/before-build-$(date +%Y%m%d-%H%M%S)-$$"
 mkdir -p "$backup"

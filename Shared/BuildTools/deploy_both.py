@@ -48,7 +48,8 @@ def main():
     bundle_id, version, build = meta['CFBundleIdentifier'], str(meta['CFBundleShortVersionString']), str(meta['CFBundleVersion'])
     verify(source)
     executable = meta['CFBundleExecutable']
-    running = subprocess.run(['pgrep', '-f', f'/{source.name}/Contents/MacOS/{executable}'], capture_output=True)
+    # Match only processes whose command line starts with the executable path (not shells mentioning it).
+    running = subprocess.run(['pgrep', '-f', '^[^ ]*/' + re.escape(source.name) + '/Contents/MacOS/' + re.escape(executable) + '( |$)'], capture_output=True)
     if running.returncode == 0:
         sys.exit(f'{source.stem} is running; quit it before deployment.')
     destinations = {'Applications': Path('/Applications') / source.name, 'LatestBuilds': ROOT / 'Latest Builds' / source.name}

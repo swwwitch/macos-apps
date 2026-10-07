@@ -16,7 +16,7 @@
 | KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
 | MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) |
 | PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) |
-| PandocDesk | 文書形式の変換 | [Source](PandocDesk/Source/) | [build.sh](PandocDesk/build.sh) |
+| CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
 | PodiumFlight | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumFlight/Development/Sources/Toki/) | [Development/build-app.sh](PodiumFlight/Development/build-app.sh) |
 | QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) |
 

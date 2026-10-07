@@ -14,7 +14,7 @@
 | [KakkoReplace](KakkoReplace.app) | 0.3.5 | 25 | `jp.local.SuperKakkoEdit` |
 | [MightyEdit](MightyEdit.app) | 0.2.2 | 75 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.0.7 | 8 | `jp.local.PDF2Keynote` |
-| [PandocDesk](PandocDesk.app) | 0.3.4 | 13 | `jp.local.PandocDesk` |
+| [CarmaChameleon](CarmaChameleon.app) | 0.5.0 | 17 | `jp.local.PandocDesk` |
 | [PodiumFlight](PodiumFlight.app) | 3.2.9 | 32 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.6 | 20 | `jp.dtp-transit.quickiconexporter` |
 
