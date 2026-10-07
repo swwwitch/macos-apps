@@ -42,6 +42,35 @@
 - Cancel closes the unfinished presentation without saving.
 
 ## Notes on input formats
+### Images (raster image, SVG)
+- Raster image writes PNG, JPEG, HEIC or AVIF (AVIF on supported macOS versions) from .ai, .psd, .indd, PDF and image files (PNG, JPEG, TIFF, HEIC, WebP, GIF, BMP): one image per artboard for .ai, per page for PDF and .indd, the flattened image of a .psd, and one image per image file.
+- The size is a resolution (ppi; used for .ai, .indd and PDF, while .psd files and images keep their pixels) or a width / height in pixels (resizes every input). Quality (JPEG, HEIC, AVIF), a transparent background (all but JPEG) and a range (e.g. 1,3-5; empty for all) can also be set. JPEG has a white background.
+- Photos are turned upright by their EXIF orientation. WebP can be read but not written.
+- SVG is exported only from .ai files, per artboard, with Illustrator's Export for Screens (Illustrator required). Styling, font, images, object IDs, decimal places, Minify and Responsive can be chosen.
+- File names combine the source file name, artboard number (PDF, InDesign: page number) and artboard name (InDesign: page name), with a separator (- _ space) and optional padding (01). An example is shown. With a single image you can keep just the source file name.
+- Turn on "Several images: put them in a folder named after the source" to collect two or more images in such a folder.
+- Image files become one PDF each, or one PDF in the order added with "Combine images into one PDF".
+- With the Simple method, images of an .ai are made from the PDF content stored in it (no artboard names).
+
+### Inputs and output formats
+- Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV. Only .ai files can become SVG.
+
+### InDesign (.indd)
+- .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
+- In Settings › InDesign, choose which InDesign to use and the PDF preset (list them with Load PDF presets from InDesign).
+- Files already open in InDesign are exported as they are and stay open (unsaved changes are included, with a notice). The PNG export settings are restored after converting. The first run asks for Automation permission to control InDesign.
+
+### Subtitles (.srt) → CSV
+- CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
+- Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
+- The separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+
+### Photoshop (.psd)
+- .psd files can be converted to PDF or a raster image.
+- **Simple (no Photoshop)**: uses the composite image stored in the .psd. Files saved without "Maximize Compatibility" may not convert correctly.
+- **Export with Photoshop (full)**: choose it in Settings › Photoshop or in the options shown when .psd files are added. Photoshop opens the file and saves a copy, so the original is not changed. Files already open in Photoshop are exported as they are and stay open (unsaved changes are included, with a notice). The first run asks for Automation permission to control Photoshop.
+
 ### Illustrator (.ai)
 - .ai files can be converted to PDF (simple version, no Illustrator needed). With PDF as the output format, the PDF content stored in the .ai becomes the PDF as is. Illustrator's editing data is left out, so the PDF is smaller than the .ai.
 - With Keynote, each artboard becomes a slide; other formats extract the text.

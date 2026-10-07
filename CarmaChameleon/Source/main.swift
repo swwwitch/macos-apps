@@ -38,7 +38,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     }
     func add(_ urls: [URL]) {
         guard !busy else { return }
-        let allowed = Set(["md","markdown","txt","html","htm","docx","odt","rtf","epub","tex","rst","org","ipynb","json","csv","tsv","xlsx","pptx","typ","wiki","xml","idml","pdf","ai"])
+        let allowed = Set(["md","markdown","txt","html","htm","docx","odt","rtf","epub","tex","rst","org","ipynb","json","csv","tsv","xlsx","pptx","typ","wiki","xml","idml","pdf","ai","psd","indd","srt"]).union(OutputFormat.rasterInputs)
         var rejected = false
         for url in urls {
             guard url.isFileURL, (try? url.resourceValues(forKeys:[.isRegularFileKey]).isRegularFile) == true, allowed.contains(url.pathExtension.lowercased()) else { rejected = true; continue }
@@ -59,8 +59,10 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     }
     func start() {
         guard !busy, !files.isEmpty else { return }
+        if let reason = format.unsupportedReason(for:files) { status = L(reason); return }
         guard let engine = ConversionRunner.engine() else { status = L("engineMissing"); return }
-        if formatID == "pdf", !ConversionRunner.pdfAvailable(pdfEngine) { status = L("pdfMissing"); return }
+        // .ai / .psd → PDF never typesets, so only other inputs need a PDF engine.
+        if formatID == "pdf", files.contains(where: { !OutputFormat.imageOnlyInputs.union(["ai"]).contains($0.pathExtension.lowercased()) }), !ConversionRunner.pdfAvailable(pdfEngine) { status = L("pdfMissing"); return }
         if formatID == "keynote" {
             guard KeynoteBridge.isInstalled else { status = L("keynoteMissing"); return }
             if files.contains(where: { !ConversionRunner.isPDF($0) }), !ConversionRunner.pdfAvailable(pdfEngine) { status = L("keynoteNeedsPDF"); return }
@@ -77,16 +79,30 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         opts.aiMethod = defaults.string(forKey:"aiMethod") ?? "simple"
         opts.aiPreset = defaults.string(forKey:"aiPDFPreset") ?? ""
         if let path = defaults.string(forKey:"illustratorPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { opts.illustratorApp = URL(fileURLWithPath:path) }
-        if opts.aiMethod == "illustrator", files.contains(where: { $0.pathExtension.lowercased() == "ai" }), opts.illustratorApp == nil, IllustratorBridge.defaultInstallation() == nil {
+        if opts.aiMethod == "illustrator" || formatID == "svg", files.contains(where: { $0.pathExtension.lowercased() == "ai" }), opts.illustratorApp == nil, IllustratorBridge.defaultInstallation() == nil {
             status = L("illustratorMissing"); return
         }
+        opts.loadImageSettings()
+        if opts.psdMethod == "photoshop", files.contains(where: { $0.pathExtension.lowercased() == "psd" }), opts.photoshopApp == nil, PhotoshopBridge.defaultInstallation() == nil {
+            status = L("photoshopMissing"); return
+        }
+        if files.contains(where: { $0.pathExtension.lowercased() == "indd" }), opts.indesignApp == nil, InDesignBridge.defaultInstallation() == nil {
+            status = L("indesignMissing"); return
+        }
+        // 「1つのPDFにまとめる」: all raster images become the pages of one PDF.
+        let combine = formatID == "pdf" && defaults.bool(forKey:"pdfCombineImages") && files.count > 1 && files.allSatisfy { OutputFormat.rasterInputs.contains($0.pathExtension.lowercased()) }
         opts.keynote = KeynoteOptions(slideSize:keynoteSlideSize, placement:keynotePlacement, box:keynoteBox, pageRange:nil, openAfter:shouldOpen)
         let worker = ConversionRunner(); runner = worker; busy = true; completed = 0; results = []; details = ""; showAutomationHelp = false; status = L("working")
         DispatchQueue.global(qos:.userInitiated).async {
-            var outputs: [URL] = []; var errors: [String] = []; var denied = false
-            for (index,input) in inputs.enumerated() {
+            var outputs: [URL] = []; var errors: [String] = []; var denied = false; var succeeded = 0
+            if combine {
+                do { outputs.append(try worker.combineImagesToPDF(inputs, folder:customFolder ?? inputs[0].deletingLastPathComponent())); succeeded = inputs.count }
+                catch is CancellationError {}
+                catch { errors.append(error.localizedDescription) }
+            }
+            for (index,input) in inputs.enumerated() where !combine {
                 if worker.isCancelled { break }
-                do { outputs.append(try worker.convert(engine:engine,input:input,folder:customFolder ?? input.deletingLastPathComponent(),options:opts)) }
+                do { outputs += try worker.convertFiles(engine:engine,input:input,folder:customFolder ?? input.deletingLastPathComponent(),options:opts); succeeded += 1 }
                 catch is CancellationError { break }
                 catch {
                     errors.append(input.lastPathComponent + ": " + error.localizedDescription)
@@ -94,12 +110,12 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
                 }
                 DispatchQueue.main.async { self.completed = index + 1 }
             }
-            let finalOutputs = outputs; let finalErrors = errors; let finalWarnings = worker.warnings; let finalDenied = denied
+            let finalOutputs = outputs; let finalErrors = errors; let finalWarnings = worker.warnings; let finalDenied = denied; let finalSucceeded = succeeded
             DispatchQueue.main.async {
                 self.busy = false; self.runner = nil; self.results = finalOutputs
                 self.details = (finalErrors + finalWarnings).joined(separator:"\n\n")
                 let key = worker.isCancelled ? "cancelled" : finalErrors.isEmpty ? "success" : finalOutputs.isEmpty ? "failed" : "partial"
-                self.status = L(key) + " · \(finalOutputs.count)/\(inputs.count)"
+                self.status = L(key) + " · \(finalSucceeded)/\(inputs.count)" + (finalOutputs.count > finalSucceeded ? " · " + String(format:L("filesWritten"), finalOutputs.count) : "")
                 self.showAutomationHelp = finalDenied
                 if shouldOpen && !worker.isCancelled {
                     for url in finalOutputs where url.pathExtension.lowercased() != "key" { NSWorkspace.shared.open(url) }
@@ -184,10 +200,16 @@ struct MainView: View {
                     ScrollView {
                         VStack(spacing:6) {
                             ForEach(formats.visible) { format in
+                                // Formats the added files cannot become are dimmed; the tooltip gives the reason.
+                                let reason = format.unsupportedReason(for:model.files)
+                                let selected = model.formatID == format.id
                                 Button { model.formatID = format.id } label: {
-                                    HStack { VStack(alignment:.leading,spacing:2) { Text(format.name).fontWeight(.medium); Text("." + format.ext).font(.caption).foregroundStyle(.secondary) }; Spacer(); Image(systemName:model.formatID == format.id ? "checkmark.circle.fill" : "circle").foregroundColor(model.formatID == format.id ? .accentColor : .gray.opacity(0.4)) }
-                                    .padding(.horizontal,12).padding(.vertical,8).background(model.formatID == format.id ? Color.accentColor.opacity(0.12) : Color(nsColor:.textBackgroundColor)).cornerRadius(7)
-                                }.buttonStyle(.plain).accessibilityLabel(format.name).accessibilityValue(model.formatID == format.id ? L("selected") : "")
+                                    HStack { VStack(alignment:.leading,spacing:2) { Text(format.name).fontWeight(.medium); Text(format.extLabel).font(.caption).foregroundStyle(.secondary) }; Spacer()
+                                        Image(systemName:selected && reason != nil ? "exclamationmark.triangle.fill" : selected ? "checkmark.circle.fill" : "circle").foregroundColor(selected && reason != nil ? .orange : selected ? .accentColor : .gray.opacity(0.4)) }
+                                    .padding(.horizontal,12).padding(.vertical,8).background(selected ? Color.accentColor.opacity(0.12) : Color(nsColor:.textBackgroundColor)).cornerRadius(7)
+                                    .opacity(reason == nil || selected ? 1 : 0.4)
+                                }.buttonStyle(.plain).disabled(reason != nil && !selected).help(reason.map(L) ?? "")
+                                .accessibilityLabel(format.name).accessibilityValue(selected ? L("selected") : reason.map(L) ?? "")
                             }
                         }
                     }
@@ -197,6 +219,20 @@ struct MainView: View {
                     heading("03",L("options"))
                     ScrollView {
                         VStack(alignment:.leading,spacing:16) {
+                            if let reason = model.format.unsupportedReason(for:model.files) {
+                                Label(L(reason),systemImage:"exclamationmark.triangle").font(.caption).foregroundColor(.orange).fixedSize(horizontal:false,vertical:true)
+                            }
+                            if model.formatID == "csv" {
+                                CSVOptionsView()
+                                Divider()
+                            } else if model.format.isImage {
+                                // Image outputs: pandoc's reader and document options do not apply.
+                                if model.formatID == "image" { RasterOptionsView() } else { SVGOptionsView() }
+                                Divider()
+                                FileNamingView(svg:model.formatID == "svg")
+                                Text(L(model.formatID == "svg" ? "svgHint" : "imageHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+                                Divider()
+                            } else {
                             Text(L("readAs")).fontWeight(.medium)
                             Picker("",selection:$model.reader) {
                                 Text(L("auto")).tag("auto")
@@ -206,6 +242,7 @@ struct MainView: View {
                             Toggle(L("standalone"),isOn:$model.standalone)
                             Toggle(L("toc"),isOn:$model.toc).disabled(!model.format.supportsTOC)
                             Toggle(L("numbers"),isOn:$model.numbers).disabled(!model.format.supportsNumbers)
+                            }
                             if model.formatID == "plain" {
                                 Toggle(L("keepStructure"),isOn:$model.keepStructure)
                                 Text(L("keepStructureHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
@@ -222,7 +259,10 @@ struct MainView: View {
                                 }.pickerStyle(.radioGroup)
                                 Text(L("htmlFormattingHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                             }
-                            if model.files.contains(where: { $0.pathExtension.lowercased() == "ai" }) { AIOptionsView() }
+                            if model.files.contains(where: { $0.pathExtension.lowercased() == "ai" }) && model.formatID != "svg" { AIOptionsView() }
+                            if model.files.contains(where: { $0.pathExtension.lowercased() == "psd" }) { PSDOptionsView() }
+                            if model.files.contains(where: { $0.pathExtension.lowercased() == "indd" }) { InDesignOptionsView(showPreset:model.formatID == "pdf") }
+                            if model.formatID == "pdf", model.files.filter({ OutputFormat.rasterInputs.contains($0.pathExtension.lowercased()) }).count > 1 { CombineImagesView() }
                             if model.formatID == "keynote" {
                                 Picker(L("slideSize"),selection:$model.keynoteSlideSize) { ForEach(KeynoteSlideSize.allCases) { Text($0.label).tag($0) } }
                                 Picker(L("placement"),selection:$model.keynotePlacement) { Text(L("fit")).tag(KeynotePlacement.fit); Text(L("fill")).tag(KeynotePlacement.fill) }.pickerStyle(.radioGroup)
@@ -230,7 +270,7 @@ struct MainView: View {
                                 Picker(L("box"),selection:$model.keynoteBox) { ForEach(KeynotePageBox.allCases) { Text($0.label).tag($0) } }
                                 Text(L("keynoteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                             }
-                            if model.formatID == "pdf" || (model.formatID == "keynote" && model.files.contains(where: { !ConversionRunner.isPDF($0) })) {
+                            if (model.formatID == "pdf" && model.files.contains(where: { !OutputFormat.imageOnlyInputs.union(["ai"]).contains($0.pathExtension.lowercased()) })) || (model.formatID == "keynote" && model.files.contains(where: { !ConversionRunner.isPDF($0) })) {
                                 Picker(L("pdfEngine"),selection:$model.pdfEngine) { Text("Typst").tag("typst"); Text("XeLaTeX").tag("xelatex"); Text("LuaLaTeX").tag("lualatex") }
                                 Label(L(ConversionRunner.pdfAvailable(model.pdfEngine) ? "pdfReady" : "pdfMissing"),systemImage:"info.circle").font(.caption).foregroundColor(.secondary)
                                 Button(L("pdfSetup")) { (NSApp.delegate as? Delegate)?.showSettings() }
@@ -247,7 +287,7 @@ struct MainView: View {
                             }
                             Toggle(L("openAfterConversion"),isOn:$model.openAfterConversion)
                             if model.files.contains(where: { $0.pathExtension.lowercased() == "idml" }) || model.reader == "idml" { Text(L("idmlLimit")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
-                            if model.formatID != "keynote", model.files.contains(where: { $0.pathExtension.lowercased() == "pdf" }) || model.reader == "pdf" { Text(L("pdfInputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
+                            if model.formatID != "keynote", !model.format.isImage, model.files.contains(where: { $0.pathExtension.lowercased() == "pdf" }) || model.reader == "pdf" { Text(L("pdfInputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             if model.formatID == "idml" { Text(L("idmlOutputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             Text(L("preserveOriginal")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                         }
@@ -359,6 +399,8 @@ struct SettingsView: View {
             })),
             (L("format"), AnyView(SettingsSection(L("formatsTitle")) { FormatSettingsView() })),
             ("Illustrator", AnyView(SettingsSection(L("aiTitle")) { IllustratorSettingsView() })),
+            ("Photoshop", AnyView(SettingsSection(L("psdTitle")) { PhotoshopSettingsView() })),
+            ("InDesign", AnyView(SettingsSection(L("inddTitle")) { InDesignSettingsView() })),
             (L("enginesTab"), AnyView(VStack(spacing:16) {
                 SettingsSection(L("engine")) { EngineSettingsView() }
                 SettingsSection(L("pdfEngineGroup")) { PDFEngineSettingsView() }
@@ -445,7 +487,7 @@ struct FormatSettingsView: View {
                 ForEach(formats.ordered) { format in
                     HStack(spacing:10) {
                         Toggle(isOn:Binding(get:{ !formats.hidden.contains(format.id) },set:{ formats.setVisible(format.id,$0) })) {
-                            HStack(spacing:6) { Text(format.name); Text("." + format.ext).font(.caption).foregroundColor(.secondary) }
+                            HStack(spacing:6) { Text(format.name); Text(format.extLabel).font(.caption).foregroundColor(.secondary) }
                         }
                         .disabled(!formats.hidden.contains(format.id) && formats.visible.count == 1)
                         Spacer()

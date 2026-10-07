@@ -25,12 +25,16 @@
 				<string>public.tab-separated-values-text</string>
 				<string>org.openxmlformats.spreadsheetml.sheet</string>
 				<string>com.adobe.illustrator.ai-image</string>
+				<string>com.adobe.photoshop-image</string>
+				<string>public.image</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>idml</string>
+				<string>indd</string>
+				<string>srt</string>
 			</array>
 			<key>CFBundleTypeName</key>
 			<string>InDesign Markup</string>
@@ -58,15 +62,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.7.7</string>
+	<string>0.8.0</string>
 	<key>CFBundleVersion</key>
-	<string>26</string>
+	<string>27</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.</string>
+	<string>CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>SWNoteArticleURL</key>

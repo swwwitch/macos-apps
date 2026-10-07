@@ -1,1 +1,1 @@
-"NSAppleEventsUsageDescription" = "CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.";
+"NSAppleEventsUsageDescription" = "CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.";

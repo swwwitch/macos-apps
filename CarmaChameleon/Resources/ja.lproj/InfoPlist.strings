@@ -1,1 +1,1 @@
-"NSAppleEventsUsageDescription" = "Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに作業を依頼します。";
+"NSAppleEventsUsageDescription" = "Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。";

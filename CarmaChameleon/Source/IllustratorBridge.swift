@@ -48,6 +48,8 @@ enum IllustratorBridge {
 
     /// Runs JSX in the given Illustrator (or Photoshop, with its `terms` ID) with arguments; returns the script's result text.
     static func run(_ jsx: String, arguments: [String], in app: URL, terms: String = bundleID, isCancelled: () -> Bool = { false }) throws -> String {
+        // InDesign runs JavaScript with "do script … language javascript"; Illustrator and Photoshop with "do javascript".
+        let command = terms == InDesignBridge.bundleID ? "do script jsx language javascript with arguments args" : "do javascript jsx with arguments args"
         let runner = """
         on run argv
             set appPath to item 1 of argv
@@ -57,7 +59,7 @@ enum IllustratorBridge {
             using terms from application id "\(terms)"
                 with timeout of 3600 seconds
                     tell application appPath
-                        return do javascript jsx with arguments args
+                        return \(command)
                     end tell
                 end timeout
             end using terms from
@@ -75,7 +77,7 @@ enum IllustratorBridge {
         if isCancelled() { throw CancellationError() }
         guard process.terminationStatus == 0 else {
             let message = String(decoding: errData, as: UTF8.self)
-            let prefix = terms == bundleID ? "illustrator" : "photoshop"
+            let prefix = terms == bundleID ? "illustrator" : terms == InDesignBridge.bundleID ? "indesign" : "photoshop"
             if message.contains("(-1743)") || message.contains("(-1744)") { throw error(prefix + "Denied") }
             if message.contains("(-1712)") { throw error(prefix + "Timeout") }
             throw error(prefix + "Failed", message.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -113,10 +115,12 @@ enum IllustratorBridge {
     struct ExportedArtboard { let number: Int; let name: String; let file: URL; let total: Int }
 
     /// .ai → PNG (at `ppi`) or SVG, one file per artboard in `range`, all inside `folder` (a scratch folder).
-    static func exportImages(from input: URL, into folder: URL, kind: String, range: String, ppi: Int, transparent: Bool,
+    static func exportImages(from input: URL, into folder: URL, kind: String, raster: RasterOptions, transparent: Bool,
                              svg: SVGOptions, app: URL, isCancelled: () -> Bool) throws -> (artboards: [ExportedArtboard], notes: [Note]) {
-        let arguments = [input.path, folder.path, kind, range, String(ppi), transparent ? "1" : "0",
-                         svg.css, svg.font, svg.images, String(svg.precision), svg.idType, svg.minify ? "1" : "0", svg.responsive ? "1" : "0"]
+        let size = raster.sizeMode == "width" ? raster.width : raster.sizeMode == "height" ? raster.height : raster.ppi
+        let range = raster.range
+        let arguments = [input.path, folder.path, kind, range, String(size), transparent ? "1" : "0",
+                         svg.css, svg.font, svg.images, String(svg.precision), svg.idType, svg.minify ? "1" : "0", svg.responsive ? "1" : "0", raster.sizeMode]
         let result = try run(script("ExportImages"), arguments: arguments, in: app, isCancelled: isCancelled)
         if result == "ERROR:tooOld" { throw error("illustratorTooOld") }
         if result == "ERROR:range" { throw PageRange.invalid(range) }
@@ -153,5 +157,45 @@ enum PhotoshopBridge {
         if result.hasPrefix("ERROR:") { throw IllustratorBridge.error("photoshopFailed", String(result.dropFirst(6))) }
         guard FileManager.default.fileExists(atPath: output.path) else { throw IllustratorBridge.error("photoshopFailed") }
         return result.components(separatedBy: "\t").dropFirst().compactMap(IllustratorBridge.Note.init(rawValue:))
+    }
+}
+
+/// .indd → PDF / PNG through InDesign (Resources/InDesign/ExportPages.jsx), the same way as IllustratorBridge.
+enum InDesignBridge {
+    static let bundleID = "com.adobe.InDesign"
+    static func installations() -> [IllustratorBridge.Installation] { IllustratorBridge.installations(bundleID: bundleID) }
+    static func defaultInstallation() -> IllustratorBridge.Installation? { installations().first }
+
+    static func presets(in app: URL) throws -> [String] {
+        try IllustratorBridge.run(IllustratorBridge.script("ListPDFPresets", subdirectory: "InDesign"), arguments: [], in: app, terms: bundleID)
+            .components(separatedBy: "\n").filter { !$0.isEmpty }
+    }
+
+    /// One exported page: absolute 1-based number, page name ("1", "A-3"…), the file, and the page count.
+    typealias ExportedPage = IllustratorBridge.ExportedArtboard
+
+    /// PDF (`kind` "pdf", written to folder/result.pdf, no pages returned) or PNG per page in `raster.range`.
+    static func export(from input: URL, into folder: URL, kind: String, raster: RasterOptions, transparent: Bool, preset: String,
+                       app: URL, isCancelled: () -> Bool) throws -> (pages: [ExportedPage], notes: [IllustratorBridge.Note]) {
+        let size = raster.sizeMode == "width" ? raster.width : raster.sizeMode == "height" ? raster.height : raster.ppi
+        let arguments = [input.path, folder.path, kind, raster.range, raster.sizeMode, String(size), transparent ? "1" : "0", preset]
+        let result = try IllustratorBridge.run(IllustratorBridge.script("ExportPages", subdirectory: "InDesign"), arguments: arguments,
+                                               in: app, terms: bundleID, isCancelled: isCancelled)
+        if result == "ERROR:presetMissing" { throw IllustratorBridge.error("indesignPresetMissing", " " + preset) }
+        if result == "ERROR:range" { throw PageRange.invalid(raster.range) }
+        if result.hasPrefix("ERROR:rangeOut") { throw PageRange.outOfRange(raster.range, Int(result.components(separatedBy: "\t").last ?? "") ?? 0) }
+        if result.hasPrefix("ERROR:") { throw IllustratorBridge.error("indesignFailed", String(result.dropFirst(6))) }
+        let lines = result.components(separatedBy: "\n")
+        let notes = (lines.first ?? "").components(separatedBy: "\t").dropFirst().compactMap(IllustratorBridge.Note.init(rawValue:))
+        let total = lines.first { $0.hasPrefix("COUNT\t") }.flatMap { Int($0.dropFirst(6)) } ?? 0
+        let pages = try lines.dropFirst().map { $0.components(separatedBy: "\t") }.filter { $0.count >= 3 && $0[0] == "PG" }.map { row -> ExportedPage in
+            let number = Int(row[1]) ?? 0
+            let file = folder.appendingPathComponent("p\(number)/page.png")
+            guard FileManager.default.fileExists(atPath: file.path) else { throw IllustratorBridge.error("indesignFailed") }
+            return ExportedPage(number: number, name: row[2...].joined(separator: "\t"), file: file, total: total)
+        }
+        if kind == "pdf" { guard FileManager.default.fileExists(atPath: folder.appendingPathComponent("result.pdf").path) else { throw IllustratorBridge.error("indesignFailed") } }
+        else if pages.isEmpty { throw IllustratorBridge.error("indesignFailed") }
+        return (pages, Array(notes))
     }
 }

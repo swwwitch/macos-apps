@@ -1,1 +1,1 @@
-"NSAppleEventsUsageDescription" = "CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에 작업을 요청합니다.";
+"NSAppleEventsUsageDescription" = "CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.";

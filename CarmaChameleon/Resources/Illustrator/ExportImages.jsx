@@ -2,7 +2,8 @@
 // Each artboard goes into its own subfolder "ab<number>" so the app can pair every file with its artboard.
 // Like SaveAsPDF.jsx, exporting never changes the document's file, so a document already open stays open.
 // arguments: [inputPath, outputFolder, kind ("png" | "svg"), range ("" = all, "1,3-5"), ppi, transparent ("1" | "0"),
-//             css, font, images, precision, idType, minify ("1" | "0"), responsive ("1" | "0")]
+//             css, font, images, precision, idType, minify ("1" | "0"), responsive ("1" | "0"), sizeMode ("ppi" | "width" | "height")]
+// The 5th argument is the ppi, or the width / height in pixels for those size modes.
 // Returns "OK" plus tab-separated notes ("open", "unsaved", "links"), then one line per artboard
 // "AB\t<number>\t<name>" (after "COUNT\t<artboards in the document>"), or "ERROR:<reason>" (tooOld, range, rangeOut\t<count>, or a message).
 (function (args) {
@@ -19,7 +20,9 @@
             if (tokens[t] === "") continue;
             var m = tokens[t].match(/^(\d+)(?:-(\d*))?$/);
             if (!m) throw "range";
-            var a = Number(m[1]), b = (m[2] === undefined || m[2] === "") ? (tokens[t].indexOf("-") > 0 ? count : a) : Number(m[2]);
+            var a = Number(m[1]), b = a;                          // no nested ?: (ExtendScript gets it wrong)
+            if (m[2] !== undefined && m[2] !== "") b = Number(m[2]);
+            else if (tokens[t].indexOf("-") > 0) b = count;       // "3-" = to the end
             if (a > b) throw "range";
             if (a < 1 || b > count) throw "rangeOut";
             for (n = a; n <= b; n++) {
@@ -63,7 +66,10 @@
             type = ExportForScreensType.SE_SVG;
         } else {
             options = new ExportForScreensOptionsPNG24();
-            options.scaleType = ExportForScreensScaleType.SCALEBYRESOLUTION;
+            // if/else, not a nested ?: — ExtendScript evaluates "a ? X : b ? Y : Z" wrongly (gives Y when a is true).
+            if (args[13] === "width") options.scaleType = ExportForScreensScaleType.SCALEBYWIDTH;
+            else if (args[13] === "height") options.scaleType = ExportForScreensScaleType.SCALEBYHEIGHT;
+            else options.scaleType = ExportForScreensScaleType.SCALEBYRESOLUTION;
             options.scaleTypeValue = Number(args[4]);
             options.transparency = args[5] === "1";
             type = ExportForScreensType.SE_PNG24;

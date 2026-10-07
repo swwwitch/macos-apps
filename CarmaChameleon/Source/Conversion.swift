@@ -8,6 +8,7 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"pdf", name:"PDF", ext:"pdf"),
         OutputFormat(id:"image", name:NSLocalizedString("rasterImage", comment:""), ext:"png"),
         OutputFormat(id:"svg", name:"SVG", ext:"svg"),
+        OutputFormat(id:"csv", name:"CSV", ext:"csv"),
         OutputFormat(id:"plain", name:"Plain text", ext:"txt"),
         OutputFormat(id:"idml", name:"InDesign (IDML)", ext:"idml"),
         OutputFormat(id:"html5", name:"HTML", ext:"html"),
@@ -21,9 +22,26 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"odt", name:"OpenDocument", ext:"odt")]
     static var defaultFormat: OutputFormat { all.first { $0.id == "docx" }! }
     /// Shown under the name in the format list.
-    var extLabel: String { id == "image" ? ".png / .jpg" : "." + ext }
+    var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv" : "." + ext }
     /// Image outputs come only from Illustrator, Photoshop and PDF files (ImageConversion.swift).
     var isImage: Bool { id == "image" || id == "svg" }
+    /// Inputs that only image / PDF outputs accept (no text conversion through pandoc).
+    static let rasterInputs: Set<String> = ["png","jpg","jpeg","tif","tiff","heic","heif","webp","gif","bmp"]
+    static let imageOnlyInputs: Set<String> = rasterInputs.union(["psd","indd"])
+    /// nil when every input can be converted to this format; otherwise the localization key of the reason.
+    func unsupportedReason(for inputs: [URL]) -> String? {
+        let exts = Set(inputs.map { $0.pathExtension.lowercased() })
+        if exts.isEmpty { return nil }
+        switch id {
+        case "svg": return exts == ["ai"] ? nil : "svgInputUnsupported"
+        case "image": return exts.subtracting(Self.imageOnlyInputs.union(["ai","pdf"])).isEmpty ? nil : "imageInputUnsupported"
+        case "csv": return exts == ["srt"] ? nil : "csvInputUnsupported"
+        default:
+            if exts.contains("srt") { return "srtFormatUnsupported" }
+            if id == "pdf" { return nil }
+            return exts.isDisjoint(with:Self.imageOnlyInputs) ? nil : "documentFormatUnsupported"
+        }
+    }
     var supportsTOC: Bool { ["docx","html5","epub3","odt","rtf","latex","pdf"].contains(id) }
     var supportsNumbers: Bool { ["html5","latex","pdf"].contains(id) }
 }
@@ -49,6 +67,11 @@ struct ConversionOptions {
     /// .psd input: "simple" reads the composite image with ImageIO; "photoshop" saves a copy through Photoshop.
     var psdMethod = "simple"
     var photoshopApp: URL?
+    /// .indd input (InDesign only): PDF export preset ("" = InDesign's current settings).
+    var indesignApp: URL?
+    var indesignPreset = ""
+    /// CSV output from .srt: "," or "\t" (the latter writes .tsv).
+    var csvDelimiter = ","
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
         if format.id == "pdf" {

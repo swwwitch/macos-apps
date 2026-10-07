@@ -1,6 +1,7 @@
 import Foundation
 import PDFKit
 import CoreText
+import ImageIO
 setbuf(stdout, nil)
 func L(_ key: String) -> String { key }
 let fm = FileManager.default
@@ -13,7 +14,7 @@ let original = "# 日本語タイトル\n\nHello **world**.\n\n## Second\n\n- Fi
 try original.write(to:input,atomically:true,encoding:.utf8)
 func check(_ value:Bool,_ message:String) { if !value { fatalError(message) }; print("PASS: " + message) }
 var options = ConversionOptions()
-for format in OutputFormat.all where !["pdf","keynote"].contains(format.id) {
+for format in OutputFormat.all where !["pdf","keynote","csv"].contains(format.id) && !format.isImage {
     options.format = format
     let output = try ConversionRunner().convert(engine:engine,input:input,folder:root,options:options)
     check(fm.fileExists(atPath:output.path),"output \(format.id)")
@@ -63,7 +64,7 @@ let aiText = try String(contentsOf:try ConversionRunner().convert(engine:engine,
 check(aiText.contains("Artwork sample"),".ai → Markdown via the embedded PDF text")
 // Opt-in: official .ai → PDF through Illustrator (CARMA_ILLUSTRATOR_TEST=1; launches Illustrator).
 if ProcessInfo.processInfo.environment["CARMA_ILLUSTRATOR_TEST"] == "1", let app = IllustratorBridge.defaultInstallation() {
-    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources/Illustrator")
+    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")
     let presets = try IllustratorBridge.presets(in:app.url)
     print("INFO: \(app.name) \(app.version) presets:", presets.joined(separator:" / "))
     check(!presets.isEmpty,"Illustrator PDF presets listed")
@@ -78,6 +79,173 @@ if ProcessInfo.processInfo.environment["CARMA_ILLUSTRATOR_TEST"] == "1", let app
     let openOut = try openRunner.convert(engine:engine,input:copy,folder:root,options:official)
     let stillOpen = try IllustratorBridge.run("var r='no'; for (var i=0;i<app.documents.length;i++) { if (app.documents[i].fullName.fsName==new File(arguments[0]).fsName) { r='yes'; app.documents[i].close(SaveOptions.DONOTSAVECHANGES); break; } } r", arguments:[copy.path], in:app.url)
     check((PDFDocument(url:openOut)?.pageCount ?? 0) > 0 && stillOpen == "yes" && openRunner.warnings.count == 1,"open Illustrator document exported, kept open, with a notice")
+}
+// Image outputs: file naming, ranges, PDF → PNG / JPEG, simple .ai and .psd (no Adobe apps needed).
+do {
+    var n = FileNaming()
+    check(n.name(stem:"a", index:2, total:3, label:"Cover") == "a-2","naming: file + number")
+    check(n.name(stem:"a", index:1, total:1, label:"Cover") == "a","naming: single image keeps the file name")
+    n.useLabel = true; n.padNumber = true; n.delimiter = "_"
+    check(n.name(stem:"a", index:2, total:12, label:"Cover/表紙") == "a_02_Cover_表紙","naming: number, padding, artboard name, sanitized")
+    n.useNumber = false; n.useFileName = false
+    check(n.name(stem:"a", index:2, total:3, label:"Cover") == "Cover","naming: artboard name only")
+    check(n.name(stem:"a", index:2, total:3, label:nil) == "02","naming: falls back to the number without a name")
+    check(try PageRange.parse("", count:3) == [1,2,3] && (try PageRange.parse(" 3, 1-2，2 ", count:5)) == [3,1,2] && (try PageRange.parse("4-", count:6)) == [4,5,6],"range parsing")
+    check((try? PageRange.parse("5", count:3)) == nil && (try? PageRange.parse("2-1", count:3)) == nil && (try? PageRange.parse("a", count:3)) == nil,"invalid ranges rejected")
+}
+func makePDF(_ name: String, pages: [CGSize]) -> URL {
+    let url = root.appendingPathComponent(name)
+    let ctx = CGContext(url as CFURL, mediaBox:nil, nil)!
+    for size in pages {
+        var box = CGRect(origin:.zero, size:size)
+        ctx.beginPage(mediaBox:&box)
+        ctx.setFillColor(CGColor(red:1, green:0, blue:0, alpha:1)); ctx.fill(CGRect(x:10, y:10, width:20, height:20))
+        ctx.endPage()
+    }
+    ctx.closePDF()
+    return url
+}
+func imageInfo(_ url: URL) -> (w: Int, h: Int, dpi: Double, alpha: Bool) {
+    let src = CGImageSourceCreateWithURL(url as CFURL, nil)!
+    let p = CGImageSourceCopyPropertiesAtIndex(src, 0, nil) as! [CFString: Any]
+    let img = CGImageSourceCreateImageAtIndex(src, 0, nil)!
+    return ((p[kCGImagePropertyPixelWidth] as! NSNumber).intValue, (p[kCGImagePropertyPixelHeight] as! NSNumber).intValue,
+            (p[kCGImagePropertyDPIWidth] as? NSNumber)?.doubleValue ?? 0, ![.none, .noneSkipFirst, .noneSkipLast].contains(img.alphaInfo))
+}
+let imageFolder = root.appendingPathComponent("images"); try fm.createDirectory(at:imageFolder, withIntermediateDirectories:true)
+let threePages = makePDF("pages.pdf", pages:[CGSize(width:100, height:50), CGSize(width:200, height:100), CGSize(width:72, height:72)])
+var raster = ConversionOptions(); raster.format = OutputFormat.all.first { $0.id == "image" }!; raster.raster.ppi = 144
+let pngs = try ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:raster)
+check(pngs.map(\.lastPathComponent) == ["pages-1.png","pages-2.png","pages-3.png"],"PDF → one PNG per page")
+let first = imageInfo(pngs[0]); check(first.w == 200 && first.h == 100 && first.dpi == 144 && first.alpha,"PNG at 144 ppi, transparent, resolution recorded")
+raster.raster.type = "jpeg"; raster.raster.range = "2"; raster.naming.padNumber = true
+let jpgs = try ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:raster)
+let second = imageInfo(jpgs[0]); check(jpgs.map(\.lastPathComponent) == ["pages-02.jpg"] && second.w == 400 && !second.alpha,"PDF page range → JPEG on white, padded number")
+check(((try? ConversionRunner().convertFiles(engine:engine, input:input, folder:imageFolder, options:raster)) == nil),"Markdown → raster image is refused")
+var svgOut = ConversionOptions(); svgOut.format = OutputFormat.all.first { $0.id == "svg" }!
+check(((try? ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:svgOut)) == nil),"PDF → SVG is refused")
+raster.raster = RasterOptions(); raster.naming = FileNaming()
+let aiPNG = try ConversionRunner().convertFiles(engine:engine, input:artwork, folder:imageFolder, options:raster)
+check(aiPNG.map(\.lastPathComponent) == ["artwork.png"] && imageInfo(aiPNG[0]).w == 1800,".ai (simple) → PNG from the embedded PDF")
+let psd = root.appendingPathComponent("sample.psd"); try fm.copyItem(at:fixtures.appendingPathComponent("sample.psd"), to:psd)
+let psdPNG = try ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:raster)
+let psdInfo = imageInfo(psdPNG[0]); check(psdPNG.map(\.lastPathComponent) == ["sample.png"] && psdInfo.w == 300 && psdInfo.dpi == 150 && psdInfo.alpha,".psd (simple) → PNG keeps pixels, resolution and transparency")
+let psdPDF = try ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:pdfOut)
+let psdBox = PDFDocument(url:psdPDF[0])!.page(at:0)!.bounds(for:.mediaBox)
+check(psdBox.width == 144 && psdBox.height == 96,".psd (simple) → PDF at its physical size")
+check(((try? ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:gfm)) == nil),".psd → Markdown is refused")
+// Size by width / height, HEIC / AVIF, grouping into a folder.
+var sized = ConversionOptions(); sized.format = OutputFormat.all.first { $0.id == "image" }!
+sized.raster.sizeMode = "width"; sized.raster.width = 300
+let widthPNG = try ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:{ var o = sized; o.raster.range = "2"; return o }())
+check(imageInfo(widthPNG[0]).w == 300 && imageInfo(widthPNG[0]).h == 150 && imageInfo(widthPNG[0]).dpi == 72,"PDF → PNG by width (300 px)")
+sized.raster.sizeMode = "height"; sized.raster.height = 60; sized.naming.groupInFolder = true
+let grouped = try ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:sized)
+check(grouped.count == 3 && grouped.allSatisfy { $0.deletingLastPathComponent().lastPathComponent == "pages" } && imageInfo(grouped[0]).h == 60,"several images grouped in a folder named after the source, by height")
+let single = try ConversionRunner().convertFiles(engine:engine, input:artwork, folder:imageFolder, options:sized)
+check(single[0].deletingLastPathComponent().path == imageFolder.path,"a single image is not put in a folder")
+for type in RasterOptions.availableTypes where type.id != "png" {
+    var o = ConversionOptions(); o.format = sized.format; o.raster.type = type.id; o.raster.range = "1"
+    let out = try ConversionRunner().convertFiles(engine:engine, input:threePages, folder:imageFolder, options:o)
+    check(out[0].pathExtension == type.ext && imageInfo(out[0]).w == 200,"PDF → \(type.name)")
+}
+// Raster image inputs: format change and resize, upright by EXIF orientation; images → PDF, one or combined.
+func makeJPEG(_ name: String, width: Int, height: Int, orientation: Int) -> URL {
+    let url = root.appendingPathComponent(name)
+    let ctx = CGContext(data:nil, width:width, height:height, bitsPerComponent:8, bytesPerRow:0, space:CGColorSpace(name:CGColorSpace.sRGB)!, bitmapInfo:CGImageAlphaInfo.noneSkipLast.rawValue)!
+    ctx.setFillColor(CGColor(red:0, green:0, blue:1, alpha:1)); ctx.fill(CGRect(x:0, y:0, width:width, height:height))
+    let dest = CGImageDestinationCreateWithURL(url as CFURL, "public.jpeg" as CFString, 1, nil)!
+    CGImageDestinationAddImage(dest, ctx.makeImage()!, [kCGImagePropertyOrientation: orientation, kCGImagePropertyDPIWidth: 300, kCGImagePropertyDPIHeight: 300] as CFDictionary)
+    CGImageDestinationFinalize(dest)
+    return url
+}
+let photo = makeJPEG("photo.jpg", width:400, height:200, orientation:6)   // stored landscape, shown portrait
+var toPNG = ConversionOptions(); toPNG.format = sized.format
+let photoPNG = try ConversionRunner().convertFiles(engine:engine, input:photo, folder:imageFolder, options:toPNG)
+let photoInfo = imageInfo(photoPNG[0]); check(photoPNG[0].lastPathComponent == "photo.png" && photoInfo.w == 200 && photoInfo.h == 400 && photoInfo.dpi == 300,"JPEG → PNG upright, pixels and resolution kept")
+toPNG.raster.sizeMode = "width"; toPNG.raster.width = 100
+check(imageInfo(try ConversionRunner().convertFiles(engine:engine, input:photo, folder:imageFolder, options:toPNG)[0]).h == 200,"image resized by width")
+let photo2 = makeJPEG("photo2.jpg", width:600, height:300, orientation:1)
+let onePDF = try ConversionRunner().convertFiles(engine:engine, input:photo2, folder:imageFolder, options:pdfOut)
+check(PDFDocument(url:onePDF[0])!.page(at:0)!.bounds(for:.mediaBox).width == 144,"image → PDF at its physical size")
+let combined = try ConversionRunner().combineImagesToPDF([photo2, photo], folder:imageFolder)
+check(combined.lastPathComponent == "photo2 (1).pdf" && PDFDocument(url:combined)?.pageCount == 2 && PDFDocument(url:combined)!.page(at:1)!.bounds(for:.mediaBox).height == 96,"images combined into one PDF in order")
+// Which formats each input can become.
+let fmt = { (id: String) in OutputFormat.all.first { $0.id == id }! }
+check(fmt("docx").unsupportedReason(for:[photo]) == "documentFormatUnsupported" && fmt("pdf").unsupportedReason(for:[photo, psd]) == nil && fmt("image").unsupportedReason(for:[photo, input]) == "imageInputUnsupported" && fmt("svg").unsupportedReason(for:[artwork]) == nil && fmt("svg").unsupportedReason(for:[psd]) == "svgInputUnsupported" && fmt("docx").unsupportedReason(for:[input]) == nil,"format compatibility by input")
+// Subtitles → CSV / TSV.
+let srt = root.appendingPathComponent("chat.srt")
+try "\u{FEFF}1\r\n00:00:05,120 --> 00:00:07,000\r\nalice: hello, world\r\n\r\n2\r\n01:02:03,000 --> 01:02:04,000\r\nbob: a: b\r\nsecond line\r\n\r\n3\r\n00:10:00,000 --> 00:10:01,000\r\nno handle here\r\n".write(to:srt, atomically:true, encoding:.utf8)
+var csvOut = ConversionOptions(); csvOut.format = fmt("csv")
+let csv = try String(contentsOf:try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0], encoding:.utf8)
+check(csv == "#,srtTime,srtHandle,srtComment\n1,00:00:05,alice,\"hello, world\"\n2,01:02:03,bob,a: b second line\n3,00:10:00,,no handle here\n","SRT → CSV (quoted, handle at the first \": \", multi-line joined)")
+csvOut.csvDelimiter = "\t"
+let tsv = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0]
+check(try tsv.pathExtension == "tsv" && (String(contentsOf:tsv, encoding:.utf8)).contains("1\t00:00:05\talice\thello, world"),"SRT → TSV")
+check(fmt("docx").unsupportedReason(for:[srt]) == "srtFormatUnsupported" && fmt("csv").unsupportedReason(for:[input]) == "csvInputUnsupported","SRT only to CSV")
+// Opt-in: InDesign pages → PNG / PDF (CARMA_INDESIGN_TEST=1; launches InDesign).
+if ProcessInfo.processInfo.environment["CARMA_INDESIGN_TEST"] == "1", let app = InDesignBridge.defaultInstallation() {
+    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")
+    let indd = root.appendingPathComponent("ページ.indd")
+    _ = try IllustratorBridge.run("""
+    var level = app.scriptPreferences.userInteractionLevel; app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
+    var unit = app.scriptPreferences.measurementUnit; app.scriptPreferences.measurementUnit = MeasurementUnits.POINTS;
+    var d = app.documents.add(false); d.documentPreferences.facingPages = false; d.documentPreferences.pagesPerDocument = 3;
+    d.documentPreferences.pageWidth = 200; d.documentPreferences.pageHeight = 300;
+    var r = d.pages[1].rectangles.add(); r.geometricBounds = [10, 10, 50, 50]; r.fillColor = d.swatches.itemByName("Black");
+    d.save(new File(arguments[0])); d.close(SaveOptions.NO);
+    app.scriptPreferences.userInteractionLevel = level; app.scriptPreferences.measurementUnit = unit; 'OK'
+    """, arguments:[indd.path], in:app.url, terms:InDesignBridge.bundleID)
+    let presets = try InDesignBridge.presets(in:app.url)
+    check(!presets.isEmpty,"InDesign PDF presets listed")
+    var o = ConversionOptions(); o.format = fmt("image"); o.indesignApp = app.url; o.raster.ppi = 144; o.raster.range = "2-3"
+    let pages = try ConversionRunner().convertFiles(engine:engine, input:indd, folder:imageFolder, options:o)
+    check(pages.map(\.lastPathComponent) == ["ページ-2.png","ページ-3.png"] && imageInfo(pages[0]).w == 400 && imageInfo(pages[0]).h == 600,"InDesign → PNG per page at 144 ppi")
+    o.raster.type = "jpeg"; o.raster.sizeMode = "width"; o.raster.width = 100; o.raster.range = "1"
+    let jpg = try ConversionRunner().convertFiles(engine:engine, input:indd, folder:imageFolder, options:o)
+    check(jpg[0].pathExtension == "jpg" && abs(imageInfo(jpg[0]).w - 100) <= 1,"InDesign → JPEG by width")
+    var p = ConversionOptions(); p.format = pdfOut.format; p.indesignApp = app.url; p.indesignPreset = presets[0]
+    let pdf = try ConversionRunner().convertFiles(engine:engine, input:indd, folder:imageFolder, options:p)
+    check(PDFDocument(url:pdf[0])?.pageCount == 3,"InDesign → PDF with preset \(presets[0])")
+}
+// Opt-in: Illustrator per-artboard PNG / JPEG / SVG (CARMA_ILLUSTRATOR_TEST=1; launches Illustrator).
+if ProcessInfo.processInfo.environment["CARMA_ILLUSTRATOR_TEST"] == "1", let app = IllustratorBridge.defaultInstallation() {
+    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")
+    let boards = root.appendingPathComponent("アートボード.ai")
+    _ = try IllustratorBridge.run("""
+    var level = app.userInteractionLevel; app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+    var d = app.documents.add(DocumentColorSpace.RGB, 200, 100); d.artboards.add([300, 0, 400, -50]); d.artboards.add([500, 0, 600, -100]);
+    d.artboards[0].name = "Cover/表紙"; d.artboards[1].name = "Back"; d.artboards[2].name = "Third";
+    d.pathItems.rectangle(-10, 10, 50, 50); d.textFrames.pointText([310, -30]).contents = "Text";
+    d.saveAs(new File(arguments[0]), new IllustratorSaveOptions()); d.close(SaveOptions.DONOTSAVECHANGES); app.userInteractionLevel = level; 'OK'
+    """, arguments:[boards.path], in:app.url)
+    var official = raster; official.aiMethod = "illustrator"; official.illustratorApp = app.url; official.raster.ppi = 144
+    official.naming.useLabel = true
+    let out = try ConversionRunner().convertFiles(engine:engine, input:boards, folder:imageFolder, options:official)
+    check(out.map(\.lastPathComponent) == ["アートボード-1-Cover_表紙.png","アートボード-2-Back.png","アートボード-3-Third.png"],"Illustrator → PNG per artboard with names: \(out.map(\.lastPathComponent))")
+    let b2 = imageInfo(out[1]); check(b2.w == 200 && b2.h == 100 && b2.dpi == 144 && b2.alpha,"Illustrator PNG at 144 ppi, transparent")
+    official.raster.type = "jpeg"; official.raster.range = "3,1"; official.raster.quality = 60
+    let jpeg = try ConversionRunner().convertFiles(engine:engine, input:boards, folder:imageFolder, options:official)
+    check(jpeg.map(\.lastPathComponent) == ["アートボード-3-Third.jpg","アートボード-1-Cover_表紙.jpg"] && !imageInfo(jpeg[0]).alpha && imageInfo(jpeg[0]).dpi == 144,"Illustrator → JPEG in range order, on white")
+    var byWidth = official; byWidth.raster.type = "png"; byWidth.raster.sizeMode = "width"; byWidth.raster.width = 300; byWidth.raster.range = "1"; byWidth.naming.groupInFolder = true
+    let widthOut = try ConversionRunner().convertFiles(engine:engine, input:boards, folder:imageFolder, options:byWidth)
+    check(imageInfo(widthOut[0]).w == 300 && imageInfo(widthOut[0]).h == 150 && widthOut[0].deletingLastPathComponent().path == imageFolder.path,"Illustrator → PNG by width (300 px), single image not grouped")
+    official.raster.range = "9"
+    check(((try? ConversionRunner().convertFiles(engine:engine, input:boards, folder:imageFolder, options:official)) == nil),"Illustrator range beyond the artboards is refused")
+    var svgAI = official; svgAI.format = OutputFormat.all.first { $0.id == "svg" }!; svgAI.raster.range = "2"; svgAI.svg.font = "OUTLINEFONT"; svgAI.naming.useLabel = false
+    let svgs = try ConversionRunner().convertFiles(engine:engine, input:boards, folder:imageFolder, options:svgAI)
+    let svgText = try String(contentsOf:svgs[0], encoding:.utf8)
+    check(svgs.map(\.lastPathComponent) == ["アートボード-2.svg"] && svgText.contains("<svg") && !svgText.contains("<text"),"Illustrator → SVG of one artboard, text outlined")
+}
+// Opt-in: Photoshop copy as PNG / PDF (CARMA_PHOTOSHOP_TEST=1; launches Photoshop).
+if ProcessInfo.processInfo.environment["CARMA_PHOTOSHOP_TEST"] == "1", let app = PhotoshopBridge.defaultInstallation() {
+    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")
+    var official = raster; official.psdMethod = "photoshop"; official.photoshopApp = app.url
+    let png = try ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:official)
+    let info = imageInfo(png[0]); check(info.w == 300 && info.dpi == 150 && info.alpha,"Photoshop → PNG")
+    official.format = pdfOut.format
+    let pdf = try ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:official)
+    check((PDFDocument(url:pdf[0])?.pageCount ?? 0) == 1,"Photoshop → PDF")
 }
 // Real Illustrator sample (Adobe's bundled script samples), when installed.
 let adobeSample = URL(fileURLWithPath:"/Applications/Adobe Illustrator (Beta)/Scripting.localized/Sample Scripts.localized/AppleScript.localized/Analyze Documents.localized/Documents to Analyze.localized/PlacedItemTest.ai")

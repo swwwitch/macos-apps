@@ -6,7 +6,7 @@ rows='''heading|文書の形式を変換|Convert your documents|转换文档格�
 subtitle|ファイルを選んで、形式とオプションを指定。|Choose files, a format, and conversion options.|选择文件、格式和转换选项。|파일, 형식, 변환 옵션을 선택하세요.
 input|入力ファイル|Input files|输入文件|입력 파일
 drop|ここにファイルをドロップ|Drop files here|将文件拖到此处|파일을 여기에 드롭
-inputHint|Markdown・Word・Excel・Illustrator・HTML・IDML など|Markdown, Word, Excel, Illustrator, HTML, IDML and more|Markdown、Word、Excel、Illustrator、HTML、IDML 等|Markdown, Word, Excel, Illustrator, HTML, IDML 등
+inputHint|Markdown・Word・Excel・Illustrator・Photoshop・InDesign・PDF・画像・字幕（SRT）など|Markdown, Word, Excel, Illustrator, Photoshop, InDesign, PDF, images, subtitles (SRT) and more|Markdown、Word、Excel、Illustrator、Photoshop、InDesign、PDF、图像、字幕（SRT）等|Markdown, Word, Excel, Illustrator, Photoshop, InDesign, PDF, 이미지, 자막(SRT) 등
 chooseFiles|ファイルを選択…|Choose files…|选择文件…|파일 선택…
 remove|ファイルを外す|Remove file|移除文件|파일 제거
 files|ファイル|files|个文件|개 파일
@@ -219,7 +219,7 @@ aiMethod|変換方法|Method|转换方法|변환 방법
 aiSimple|簡易（Illustrator不要）|Simple (no Illustrator)|简易（无需 Illustrator）|간이(Illustrator 불필요)
 aiIllustrator|Illustratorで書き出す（正式）|Export with Illustrator (full)|用 Illustrator 导出（正式）|Illustrator로 내보내기(정식)
 aiSimpleHint|.ai に入っているPDF用の内容を使います。「PDF互換ファイルを作成」をオフで保存した .ai は正しく変換できません。|Uses the PDF content stored in the .ai. Files saved without "Create PDF Compatible File" cannot be converted correctly.|使用 .ai 中保存的 PDF 内容。未勾选“创建 PDF 兼容文件”保存的 .ai 无法正确转换。|.ai에 저장된 PDF용 내용을 사용합니다. "PDF 호환 파일 만들기"를 끄고 저장한 .ai는 올바르게 변환되지 않습니다.
-aiIllustratorHint|Illustratorでファイルを開き、選んだPDFプリセットで保存します。変換中はIllustratorが起動します。Illustratorで開いているファイルは変換しません。|Illustrator opens the file and saves it with the chosen PDF preset. Illustrator runs during conversion. Files already open in Illustrator are skipped.|由 Illustrator 打开文件并用所选 PDF 预设保存。转换期间会启动 Illustrator。不转换已在 Illustrator 中打开的文件。|Illustrator가 파일을 열어 선택한 PDF 사전 설정으로 저장합니다. 변환 중 Illustrator가 실행됩니다. Illustrator에서 열려 있는 파일은 변환하지 않습니다.
+aiIllustratorHint|Illustratorでファイルを開いて書き出します（PDFは選んだPDFプリセット、画像はアートボードごと）。変換中はIllustratorが起動します。Illustratorで開いているファイルは、開いたまま書き出します。|Illustrator opens the file and exports it (PDF with the chosen preset, images per artboard). Illustrator runs during conversion. Files already open in Illustrator are exported as they are and stay open.|由 Illustrator 打开文件并导出（PDF 使用所选预设，图像按画板）。转换期间会启动 Illustrator。已在 Illustrator 中打开的文件会直接导出并保持打开。|Illustrator가 파일을 열어 내보냅니다(PDF는 선택한 사전 설정, 이미지는 대지별). 변환 중 Illustrator가 실행됩니다. Illustrator에서 열려 있는 파일은 연 상태 그대로 내보냅니다.
 aiPreset|PDFプリセット|PDF preset|PDF 预设|PDF 사전 설정
 aiPresetDefault|Illustratorの初期設定|Illustrator default|Illustrator 默认|Illustrator 기본값
 aiApp|使用するIllustrator|Illustrator to use|使用的 Illustrator|사용할 Illustrator
@@ -237,7 +237,104 @@ illustratorTooOld|Illustrator CC 2018以降が必要です。|Illustrator CC 201
 illustratorPresetMissing|IllustratorにPDFプリセットがありません：|Illustrator does not have the PDF preset: |Illustrator 中没有此 PDF 预设：|Illustrator에 PDF 사전 설정이 없습니다: 
 aiExportedOpen|Illustratorで開いているドキュメントから書き出しました。|Exported from the document open in Illustrator.|已从 Illustrator 中打开的文档导出。|Illustrator에서 열려 있는 문서에서 내보냈습니다.
 aiExportedUnsaved|Illustratorで開いているドキュメントから書き出しました。未保存の変更も含まれます。|Exported from the document open in Illustrator, including unsaved changes.|已从 Illustrator 中打开的文档导出，包含未保存的更改。|Illustrator에서 열려 있는 문서에서 내보냈습니다. 저장하지 않은 변경 사항도 포함됩니다.
-aiBrokenLinks|リンク切れの画像があります。PDFでは画像が欠けている可能性があります。|Some linked images are missing; they may be absent from the PDF.|有缺失的链接图像，PDF 中可能缺少这些图像。|링크가 끊어진 이미지가 있습니다. PDF에서 이미지가 빠졌을 수 있습니다."""
+aiBrokenLinks|リンク切れの画像があります。PDFでは画像が欠けている可能性があります。|Some linked images are missing; they may be absent from the PDF.|有缺失的链接图像，PDF 中可能缺少这些图像。|링크가 끊어진 이미지가 있습니다. PDF에서 이미지가 빠졌을 수 있습니다.
+rasterImage|ラスター画像|Raster image|位图图像|래스터 이미지
+filesWritten|%d個のファイル|%d files|%d 个文件|파일 %d개
+rasterType|画像の形式|Image format|图像格式|이미지 형식
+rasterPPI|解像度|Resolution|分辨率|해상도
+rasterPPIPresets|よく使う解像度|Common resolutions|常用分辨率|자주 쓰는 해상도
+rasterQuality|画質|Quality|品质|품질
+rasterTransparent|背景を透明にする|Transparent background|透明背景|배경을 투명하게
+rasterRange|範囲|Range|范围|범위
+rasterRangeAll|すべて|All|全部|모두
+rasterRangeHint|アートボード（PDF・InDesignはページ）の番号。例：1,3-5。空欄ならすべて。解像度は .ai・.indd・PDF に使い、.psd と画像は元の画素数のままです（幅・高さを指定すると拡大・縮小します）。JPEGの背景は白です。|Artboard (PDF, InDesign: page) numbers, e.g. 1,3-5. Leave empty for all. Resolution applies to .ai, .indd and PDF; .psd files and images keep their pixels (a width or height resizes them). JPEG has a white background.|画板（PDF、InDesign 为页）编号，例如 1,3-5。留空表示全部。分辨率用于 .ai、.indd 和 PDF，.psd 和图像保持原像素（指定宽度或高度时会缩放）。JPEG 背景为白色。|대지(PDF, InDesign은 페이지) 번호. 예: 1,3-5. 비워 두면 모두. 해상도는 .ai, .indd, PDF에 적용되며 .psd와 이미지는 원래 픽셀 수를 유지합니다(너비·높이를 지정하면 크기를 바꿉니다). JPEG 배경은 흰색입니다.
+svgCSS|スタイル|Styling|样式|스타일
+svgCSSAttributes|インラインスタイル|Inline Style|内联样式|인라인 스타일
+svgCSSElements|内部CSS|Internal CSS|内部 CSS|내부 CSS
+svgCSSPresentation|プレゼンテーション属性|Presentation Attributes|演示文稿属性|프레젠테이션 속성
+svgCSSEntities|スタイル属性（実体参照）|Style Attributes (Entity References)|样式属性（实体引用）|스타일 속성(엔티티 참조)
+svgFont|フォント|Font|字体|글꼴
+svgFontText|SVG（テキストのまま）|SVG (keep text)|SVG（保留文字）|SVG(텍스트 유지)
+svgFontOutline|アウトラインに変換|Convert to Outlines|转换为轮廓|윤곽선으로 변환
+svgImages|画像|Images|图像|이미지
+svgImagesPreserve|保持|Preserve|保留|유지
+svgImagesEmbed|埋め込み|Embed|嵌入|포함
+svgImagesLink|リンク|Link|链接|링크
+svgID|オブジェクトID|Object IDs|对象 ID|오브젝트 ID
+svgIDRegular|レイヤー名|Layer Names|图层名称|레이어 이름
+svgIDMinimal|最小|Minimal|最小|최소
+svgIDUnique|一意|Unique|唯一|고유
+svgPrecision|小数点以下の桁数|Decimal places|小数位数|소수점 이하 자릿수
+svgMinify|縮小|Minify|缩小|축소
+svgResponsive|レスポンシブ|Responsive|响应|반응형
+svgRangeHint|アートボードの番号。例：1,3-5。空欄ならすべて。|Artboard numbers, e.g. 1,3-5. Leave empty for all.|画板编号，例如 1,3-5。留空表示全部。|대지 번호. 예: 1,3-5. 비워 두면 모두.
+svgHint|SVGは .ai から、Illustratorの「スクリーン用に書き出し」でアートボードごとに書き出します（Illustratorが必要）。|SVG is exported from .ai files per artboard with Illustrator's Export for Screens (Illustrator required).|SVG 由 .ai 文件通过 Illustrator 的“导出为多种屏幕所用格式”按画板导出（需要 Illustrator）。|SVG는 .ai에서 Illustrator의 "화면용 내보내기"로 대지별로 내보냅니다(Illustrator 필요).
+imageHint|.ai はアートボードごと、PDF・.indd はページごとに1枚ずつ書き出します。.psd は統合した画像、画像ファイルはそのまま1枚にします。|.ai files give one image per artboard, PDF and .indd files one per page. A .psd gives its flattened image, an image file one image.|.ai 按画板、PDF 和 .indd 按页各导出一张。.psd 导出合并图像，图像文件导出一张。|.ai는 대지별, PDF와 .indd는 페이지별로 한 장씩 내보냅니다. .psd는 병합한 이미지, 이미지 파일은 한 장입니다.
+nameTitle|ファイル名|File name|文件名|파일 이름
+nameFile|元のファイル名|Source file name|源文件名|원본 파일 이름
+nameNumber|アートボード番号（PDFはページ番号）|Artboard number (PDF: page number)|画板编号（PDF 为页码）|대지 번호(PDF는 페이지 번호)
+nameLabel|アートボード名（InDesignはページ名）|Artboard name (InDesign: page name)|画板名称（InDesign 为页面名称）|대지 이름(InDesign은 페이지 이름)
+nameDelimiter|区切り|Separator|分隔符|구분 문자
+nameSpace|スペース|Space|空格|공백
+namePad|番号を2桁以上にそろえる（01）|Pad numbers (01)|编号补零（01）|번호를 두 자리 이상으로(01)
+nameSingle|1枚だけのときは元のファイル名のみ|Only one image: source file name only|只有一张时仅用源文件名|한 장뿐이면 원본 파일 이름만
+nameSampleFile|ファイル|file|文件|파일
+nameSampleArtboard|表紙|Cover|封面|표지
+namePreview|例：%@|Example: %@|示例：%@|예: %@
+nameHint|アートボード名はIllustratorで書き出すとき、ページ名はInDesignのときだけ使えます。同名のファイルには連番を付けます。|Artboard names are available when exporting with Illustrator, page names with InDesign. Existing names get a number.|仅在用 Illustrator 导出时可使用画板名称，用 InDesign 时可使用页面名称。同名文件会添加编号。|대지 이름은 Illustrator로, 페이지 이름은 InDesign으로 내보낼 때만 사용할 수 있습니다. 같은 이름에는 번호를 붙입니다.
+psdTitle|Photoshop（.psd）の変換|Photoshop (.psd) conversion|Photoshop（.psd）转换|Photoshop(.psd) 변환
+psdMethod|変換方法|Method|转换方法|변환 방법
+psdSimple|簡易（Photoshop不要）|Simple (no Photoshop)|简易（无需 Photoshop）|간이(Photoshop 불필요)
+psdPhotoshop|Photoshopで書き出す（正式）|Export with Photoshop (full)|用 Photoshop 导出（正式）|Photoshop으로 내보내기(정식)
+psdSimpleHint|.psd に入っている統合画像を使います。「互換性を優先」をオフで保存した .psd は正しく変換できないことがあります。|Uses the composite image stored in the .psd. Files saved without "Maximize Compatibility" may not convert correctly.|使用 .psd 中保存的合并图像。未勾选“最大兼容”保存的 .psd 可能无法正确转换。|.psd에 저장된 병합 이미지를 사용합니다. "호환성 최대화"를 끄고 저장한 .psd는 올바르게 변환되지 않을 수 있습니다.
+psdPhotoshopHint|Photoshopでファイルを開き、コピーを保存します。変換中はPhotoshopが起動します。Photoshopで開いているファイルは、開いたまま書き出します。|Photoshop opens the file and saves a copy. Photoshop runs during conversion. Files already open in Photoshop are exported as they are and stay open.|由 Photoshop 打开文件并存储副本。转换期间会启动 Photoshop。已在 Photoshop 中打开的文件会直接导出并保持打开。|Photoshop이 파일을 열어 사본을 저장합니다. 변환 중 Photoshop이 실행됩니다. Photoshop에서 열려 있는 파일은 연 상태 그대로 내보냅니다.
+psdApp|使用するPhotoshop|Photoshop to use|使用的 Photoshop|사용할 Photoshop
+photoshopMissing|Photoshopが見つかりません。「簡易」で変換するか、Photoshopをインストールしてください。|Photoshop is not installed. Use Simple, or install Photoshop.|未找到 Photoshop。请使用“简易”方式或安装 Photoshop。|Photoshop이 없습니다. 간이 방식을 사용하거나 Photoshop을 설치하세요.
+photoshopDenied|Photoshopの操作が許可されていません。システム設定の「オートメーション」でCarmaChameleonのAdobe Photoshopをオンにしてください。|CarmaChameleon is not allowed to control Photoshop. Turn on Adobe Photoshop for CarmaChameleon in Automation settings.|CarmaChameleon 未被允许控制 Photoshop。请在“自动化”设置中打开 Adobe Photoshop。|CarmaChameleon가 Photoshop을 제어하도록 허용되지 않았습니다. 자동화 설정에서 Adobe Photoshop을 켜세요.
+photoshopTimeout|Photoshopが応答しません。Photoshopでダイアログボックスが開いていないか確認してください。|Photoshop did not respond. Check for an open dialog in Photoshop.|Photoshop 无响应。请检查 Photoshop 中是否有打开的对话框。|Photoshop이 응답하지 않습니다. Photoshop에 열린 대화상자가 있는지 확인하세요.
+photoshopFailed|Photoshopで書き出せませんでした：|Photoshop could not export: |Photoshop 无法导出：|Photoshop에서 내보내지 못했습니다: 
+psdExportedOpen|Photoshopで開いているドキュメントから書き出しました。|Exported from the document open in Photoshop.|已从 Photoshop 中打开的文档导出。|Photoshop에서 열려 있는 문서에서 내보냈습니다.
+psdExportedUnsaved|Photoshopで開いているドキュメントから書き出しました。未保存の変更も含まれます。|Exported from the document open in Photoshop, including unsaved changes.|已从 Photoshop 中打开的文档导出，包含未保存的更改。|Photoshop에서 열려 있는 문서에서 내보냈습니다. 저장하지 않은 변경 사항도 포함됩니다.
+aiBrokenLinksImage|リンク切れの画像があります。書き出した画像では欠けている可能性があります。|Some linked images are missing; they may be absent from the output.|有缺失的链接图像，输出中可能缺少这些图像。|링크가 끊어진 이미지가 있습니다. 출력에서 이미지가 빠졌을 수 있습니다.
+svgInputUnsupported|SVGに書き出せるのは .ai だけです。|Only .ai files can be exported as SVG.|只有 .ai 文件可以导出为 SVG。|SVG로 내보낼 수 있는 것은 .ai뿐입니다.
+imageInputUnsupported|ラスター画像に書き出せるのは .ai・.psd・.indd・PDF・画像ファイルだけです。|Only .ai, .psd, .indd, PDF and image files can be exported as raster images.|只有 .ai、.psd、.indd、PDF 和图像文件可以导出为位图图像。|래스터 이미지로 내보낼 수 있는 것은 .ai, .psd, .indd, PDF, 이미지 파일뿐입니다.
+imageRenderFailed|画像を作成できませんでした。|The image could not be created.|无法创建图像。|이미지를 만들 수 없습니다.
+imageTooLarge|画像が大きすぎます。解像度を下げてください。|The image is too large. Lower the resolution.|图像过大。请降低分辨率。|이미지가 너무 큽니다. 해상도를 낮추세요.
+imageWriteFailed|画像を保存できませんでした。|The image could not be saved.|无法保存图像。|이미지를 저장할 수 없습니다.
+psdInvalid|画像を読み込めませんでした。|The image could not be read.|无法读取图像。|이미지를 읽을 수 없습니다.
+rangeInvalid|範囲の指定を読み取れません：|The range cannot be read:|无法识别范围：|범위를 읽을 수 없습니다:
+rangeOutOfBounds|範囲「%@」がありません（全%d）。|The range "%@" does not exist (%d in total).|范围“%@”不存在（共 %d）。|범위 "%@"가 없습니다(총 %d).
+rasterSize|サイズ|Size|尺寸|크기
+rasterWidth|幅|Width|宽度|너비
+rasterHeight|高さ|Height|高度|높이
+nameGroupFolder|複数のときは元のファイル名のフォルダーにまとめる|Several images: put them in a folder named after the source|多张时放入以源文件名命名的文件夹|여러 장이면 원본 파일 이름의 폴더에 모으기
+csvDelimiter|区切り|Separator|分隔符|구분 문자
+csvComma|カンマ（.csv）|Comma (.csv)|逗号（.csv）|쉼표(.csv)
+csvTab|タブ（.tsv）|Tab (.tsv)|制表符（.tsv）|탭(.tsv)
+csvHint|字幕（.srt）を「番号・時刻・ハンドル・コメント」の表にします。「ハンドル: コメント」の形の字幕は最初の「: 」で分け、それ以外はコメントだけにします。時刻は開始時刻（時:分:秒）です。|Turns subtitles (.srt) into a table of number, time, handle and comment. Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. The time is the start time (h:m:s).|将字幕（.srt）转为“编号、时间、昵称、评论”表格。“昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。时间为开始时间（时:分:秒）。|자막(.srt)을 "번호·시각·핸들·코멘트" 표로 만듭니다. "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 시각은 시작 시각(시:분:초)입니다.
+srtTime|時刻|Time|时间|시각
+srtHandle|ハンドル|Handle|昵称|핸들
+srtComment|コメント|Comment|评论|코멘트
+srtInvalid|字幕（SRT）として読み込めませんでした。|The file could not be read as subtitles (SRT).|无法作为字幕（SRT）读取。|자막(SRT)으로 읽을 수 없습니다.
+csvInputUnsupported|CSVに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as CSV.|只有字幕（.srt）可以导出为 CSV。|CSV로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
+srtFormatUnsupported|字幕（.srt）はCSVにだけ変換できます。|Subtitles (.srt) can be converted only to CSV.|字幕（.srt）只能转换为 CSV。|자막(.srt)은 CSV로만 변환할 수 있습니다.
+documentFormatUnsupported|.psd・.indd・画像ファイルは、PDF・ラスター画像にだけ変換できます。|.psd, .indd and image files can be converted only to PDF or a raster image.|.psd、.indd 和图像文件只能转换为 PDF 或位图图像。|.psd, .indd, 이미지 파일은 PDF 또는 래스터 이미지로만 변환할 수 있습니다.
+pdfCombineImages|画像を1つのPDFにまとめる|Combine images into one PDF|将图像合并为一个 PDF|이미지를 하나의 PDF로 합치기
+pdfCombineImagesHint|追加した順に1枚ずつページにし、最初のファイルの名前で保存します。オフなら画像ごとにPDFを作ります。|Each image becomes a page in the order added; the PDF is named after the first file. When off, each image gets its own PDF.|按添加顺序每张图像为一页，以第一个文件的名称保存。关闭时每张图像各生成一个 PDF。|추가한 순서대로 한 장씩 페이지로 만들고 첫 번째 파일 이름으로 저장합니다. 끄면 이미지마다 PDF를 만듭니다.
+inddTitle|InDesign（.indd）の変換|InDesign (.indd) conversion|InDesign（.indd）转换|InDesign(.indd) 변환
+inddPresetDefault|InDesignの現在の書き出し設定|InDesign's current export settings|InDesign 当前的导出设置|InDesign의 현재 내보내기 설정
+inddHint|InDesignでファイルを開いて書き出します（InDesignが必要）。PDFは選んだPDFプリセット、画像はページごとです。InDesignで開いているファイルは、開いたまま書き出します。|InDesign opens the file and exports it (InDesign required): PDF with the chosen preset, images per page. Files already open in InDesign are exported as they are and stay open.|由 InDesign 打开文件并导出（需要 InDesign）：PDF 使用所选预设，图像按页。已在 InDesign 中打开的文件会直接导出并保持打开。|InDesign이 파일을 열어 내보냅니다(InDesign 필요). PDF는 선택한 사전 설정, 이미지는 페이지별입니다. InDesign에서 열려 있는 파일은 연 상태 그대로 내보냅니다.
+inddApp|使用するInDesign|InDesign to use|使用的 InDesign|사용할 InDesign
+inddLoadPresets|InDesignからPDFプリセットを読み込む|Load PDF presets from InDesign|从 InDesign 读取 PDF 预设|InDesign에서 PDF 사전 설정 불러오기
+inddLoadPresetsHint|InDesignを起動して、使えるPDFプリセットの一覧を取得します。|Launches InDesign and reads the available PDF presets.|启动 InDesign 并读取可用的 PDF 预设。|InDesign을 실행하여 사용할 수 있는 PDF 사전 설정을 가져옵니다.
+inddLoadingPresets|InDesignから読み込んでいます…|Reading from InDesign…|正在从 InDesign 读取…|InDesign에서 불러오는 중…
+indesignMissing|InDesignが見つかりません。.indd の変換にはInDesignが必要です。|InDesign is not installed. Converting .indd files requires InDesign.|未找到 InDesign。转换 .indd 需要 InDesign。|InDesign이 없습니다. .indd 변환에는 InDesign이 필요합니다.
+indesignDenied|InDesignの操作が許可されていません。システム設定の「オートメーション」でCarmaChameleonのAdobe InDesignをオンにしてください。|CarmaChameleon is not allowed to control InDesign. Turn on Adobe InDesign for CarmaChameleon in Automation settings.|CarmaChameleon 未被允许控制 InDesign。请在“自动化”设置中打开 Adobe InDesign。|CarmaChameleon가 InDesign을 제어하도록 허용되지 않았습니다. 자동화 설정에서 Adobe InDesign을 켜세요.
+indesignTimeout|InDesignが応答しません。InDesignでダイアログボックスが開いていないか確認してください。|InDesign did not respond. Check for an open dialog in InDesign.|InDesign 无响应。请检查 InDesign 中是否有打开的对话框。|InDesign이 응답하지 않습니다. InDesign에 열린 대화상자가 있는지 확인하세요.
+indesignFailed|InDesignで書き出せませんでした：|InDesign could not export: |InDesign 无法导出：|InDesign에서 내보내지 못했습니다: 
+indesignPresetMissing|InDesignにPDFプリセットがありません：|InDesign does not have the PDF preset: |InDesign 中没有此 PDF 预设：|InDesign에 PDF 사전 설정이 없습니다: 
+indesignExportedOpen|InDesignで開いているドキュメントから書き出しました。|Exported from the document open in InDesign.|已从 InDesign 中打开的文档导出。|InDesign에서 열려 있는 문서에서 내보냈습니다.
+indesignExportedUnsaved|InDesignで開いているドキュメントから書き出しました。未保存の変更も含まれます。|Exported from the document open in InDesign, including unsaved changes.|已从 InDesign 中打开的文档导出，包含未保存的更改。|InDesign에서 열려 있는 문서에서 내보냈습니다. 저장하지 않은 변경 사항도 포함됩니다."""
 table=[line.split('|') for line in rows.splitlines()]
 assert all(len(r)==5 for r in table)
 assert len({r[0] for r in table})==len(table), 'duplicate key'
@@ -248,7 +345,7 @@ for i,lang in enumerate(['ja','en','zh-Hans','ko'],1):
 from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
-for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 保存为 PDF。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.7.7',CFBundleVersion='26',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image'])])
-info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml']))
+for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 导出，在用 Photoshop 转换 .psd 时让 Photoshop 导出，在转换 .indd 时让 InDesign 导出。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.8.0',CFBundleVersion='27',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
+info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml','indd','srt']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

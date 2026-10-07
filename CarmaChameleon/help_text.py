@@ -44,6 +44,35 @@ HELP = {
 - キャンセルすると、作成中のプレゼンテーションは保存せずに閉じます。
 
 ## 入力形式の補足
+### 画像（ラスター画像・SVG）
+- 出力形式の「ラスター画像」で PNG・JPEG・HEIC・AVIF を書き出せます（AVIF は対応する macOS のみ）。入力は .ai・.psd・.indd・PDF・画像ファイル（PNG・JPEG・TIFF・HEIC・WebP・GIF・BMP）です。.ai はアートボードごと、PDF・.indd はページごとに1枚ずつ、.psd は統合した画像、画像ファイルは1枚にします。
+- サイズは「解像度」（ppi。.ai・.indd・PDF に使い、.psd と画像は元の画素数のまま）か、「幅」「高さ」（px。すべての入力で拡大・縮小）で指定します。ほかに画質（JPEG・HEIC・AVIF）、背景の透明（JPEG 以外）、範囲（例：1,3-5。空欄ならすべて）を選べます。JPEG の背景は白です。
+- 写真の向き（EXIF の回転情報）は正しい向きに直して書き出します。WebP は読み込みだけで、書き出しはできません。
+- 「SVG」は .ai からだけ、Illustrator の「スクリーン用に書き出し」でアートボードごとに書き出します（Illustrator が必要）。スタイル・フォント・画像・オブジェクトID・小数点以下の桁数・縮小・レスポンシブを選べます。
+- ファイル名は「元のファイル名」「アートボード番号（PDF・InDesign はページ番号）」「アートボード名（InDesign はページ名）」を組み合わせ、区切り（- _ スペース）と番号の桁そろえ（01）を選べます。例が画面に表示されます。1枚だけのときは元のファイル名だけにすることもできます。
+- 「複数のときは元のファイル名のフォルダーにまとめる」をオンにすると、2枚以上の画像を元のファイル名のフォルダーに入れます。
+- 画像ファイルを PDF にするときは、1枚ずつ PDF にするか、「画像を1つのPDFにまとめる」で追加した順に1つの PDF にできます。
+- .ai を「簡易」で変換すると、.ai に入っている PDF 用の内容から画像を作ります（アートボード名は使えません）。
+
+### 入力と変換形式の組み合わせ
+- 追加したファイルから作れない形式は、変換形式の一覧で薄く表示され、選べません。ポインターを合わせると理由が表示されます。
+- .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV にだけ変換できます。SVG にできるのは .ai だけです。
+
+### InDesign（.indd）
+- .indd を PDF・ラスター画像に変換できます（InDesign が必要）。PDF は選んだ PDF プリセット（初期値は InDesign の現在の書き出し設定）、画像はページごとに書き出します。
+- 設定の「InDesign」タブで、使う InDesign と PDF プリセット（「InDesignからPDFプリセットを読み込む」で一覧を取得）を選びます。
+- InDesign で開いているファイルは開いたまま書き出します（未保存の変更も含まれ、注意を表示します）。PNG の書き出し設定は変換の後で元に戻します。初回は InDesign の操作（オートメーション）の許可を求められます。
+
+### 字幕（.srt）→ CSV
+- 出力形式の「CSV」で、字幕を「#・時刻・ハンドル・コメント」の表にします。時刻は開始時刻（時:分:秒）です。
+- 「ハンドル: コメント」の形の字幕は最初の「: 」で分けます。それ以外はコメントだけにします。2行以上の字幕は1行につなげます。
+- 区切りはカンマ（.csv）かタブ（.tsv）を選べます。カンマや「"」を含むコメントは「"」で囲みます。
+
+### Photoshop（.psd）
+- .psd を PDF・ラスター画像に変換できます。
+- **簡易（Photoshop不要）**：.psd に入っている統合画像を使います。「互換性を優先」をオフで保存した .psd は正しく変換できないことがあります。
+- **Photoshopで書き出す（正式）**：設定の「Photoshop」タブか、.psd を追加したときの変換オプションで選びます。Photoshop でファイルを開いてコピーを保存するので、元のファイルは変わりません。Photoshop で開いているファイルは開いたまま書き出します（未保存の変更も含まれ、注意を表示します）。初回は Photoshop の操作（オートメーション）の許可を求められます。
+
 ### Illustrator（.ai）
 - .ai をPDFに変換できます（簡易版、Illustratorは不要）。出力形式で「PDF」を選ぶと、.ai に入っているPDF用の内容をそのままPDFにします。Illustratorの編集用データは含めないので、元の .ai より小さくなります。
 - 「Keynote」を選ぶとアートボードを1枚ずつスライドに、ほかの形式では文字を取り出して変換します。
@@ -154,6 +183,35 @@ HELP = {
 - Cancel closes the unfinished presentation without saving.
 
 ## Notes on input formats
+### Images (raster image, SVG)
+- Raster image writes PNG, JPEG, HEIC or AVIF (AVIF on supported macOS versions) from .ai, .psd, .indd, PDF and image files (PNG, JPEG, TIFF, HEIC, WebP, GIF, BMP): one image per artboard for .ai, per page for PDF and .indd, the flattened image of a .psd, and one image per image file.
+- The size is a resolution (ppi; used for .ai, .indd and PDF, while .psd files and images keep their pixels) or a width / height in pixels (resizes every input). Quality (JPEG, HEIC, AVIF), a transparent background (all but JPEG) and a range (e.g. 1,3-5; empty for all) can also be set. JPEG has a white background.
+- Photos are turned upright by their EXIF orientation. WebP can be read but not written.
+- SVG is exported only from .ai files, per artboard, with Illustrator's Export for Screens (Illustrator required). Styling, font, images, object IDs, decimal places, Minify and Responsive can be chosen.
+- File names combine the source file name, artboard number (PDF, InDesign: page number) and artboard name (InDesign: page name), with a separator (- _ space) and optional padding (01). An example is shown. With a single image you can keep just the source file name.
+- Turn on "Several images: put them in a folder named after the source" to collect two or more images in such a folder.
+- Image files become one PDF each, or one PDF in the order added with "Combine images into one PDF".
+- With the Simple method, images of an .ai are made from the PDF content stored in it (no artboard names).
+
+### Inputs and output formats
+- Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV. Only .ai files can become SVG.
+
+### InDesign (.indd)
+- .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
+- In Settings › InDesign, choose which InDesign to use and the PDF preset (list them with Load PDF presets from InDesign).
+- Files already open in InDesign are exported as they are and stay open (unsaved changes are included, with a notice). The PNG export settings are restored after converting. The first run asks for Automation permission to control InDesign.
+
+### Subtitles (.srt) → CSV
+- CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
+- Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
+- The separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+
+### Photoshop (.psd)
+- .psd files can be converted to PDF or a raster image.
+- **Simple (no Photoshop)**: uses the composite image stored in the .psd. Files saved without "Maximize Compatibility" may not convert correctly.
+- **Export with Photoshop (full)**: choose it in Settings › Photoshop or in the options shown when .psd files are added. Photoshop opens the file and saves a copy, so the original is not changed. Files already open in Photoshop are exported as they are and stay open (unsaved changes are included, with a notice). The first run asks for Automation permission to control Photoshop.
+
 ### Illustrator (.ai)
 - .ai files can be converted to PDF (simple version, no Illustrator needed). With PDF as the output format, the PDF content stored in the .ai becomes the PDF as is. Illustrator's editing data is left out, so the PDF is smaller than the .ai.
 - With Keynote, each artboard becomes a slide; other formats extract the text.
@@ -264,6 +322,35 @@ HELP = {
 - 取消时不保存未完成的演示文稿并将其关闭。
 
 ## 输入格式说明
+### 图像（位图图像、SVG）
+- “位图图像”可从 .ai、.psd、.indd、PDF 和图像文件（PNG、JPEG、TIFF、HEIC、WebP、GIF、BMP）导出 PNG、JPEG、HEIC 或 AVIF（AVIF 需受支持的 macOS）：.ai 按画板、PDF 和 .indd 按页各一张，.psd 为合并图像，图像文件各一张。
+- 尺寸可用分辨率（ppi，用于 .ai、.indd 和 PDF，.psd 和图像保持原像素）或宽度／高度（px，所有输入都会缩放）指定。还可设置品质（JPEG、HEIC、AVIF）、透明背景（JPEG 以外）和范围（例如 1,3-5，留空表示全部）。JPEG 背景为白色。
+- 照片会按 EXIF 方向信息转正。WebP 只能读取，不能导出。
+- “SVG”仅从 .ai 文件按画板导出，使用 Illustrator 的“导出为多种屏幕所用格式”（需要 Illustrator）。可选择样式、字体、图像、对象 ID、小数位数、缩小和响应。
+- 文件名可组合源文件名、画板编号（PDF、InDesign 为页码）和画板名称（InDesign 为页面名称），并选择分隔符（- _ 空格）和编号补零（01），画面上会显示示例。只有一张时可仅用源文件名。
+- 打开“多张时放入以源文件名命名的文件夹”后，两张以上的图像会放入该文件夹。
+- 图像文件可各自生成 PDF，或用“将图像合并为一个 PDF”按添加顺序合并为一个 PDF。
+- 以“简易”方式转换 .ai 时，从 .ai 中保存的 PDF 内容生成图像（不能使用画板名称）。
+
+### 输入与输出格式的组合
+- 无法由已添加文件生成的格式会在格式列表中变淡且无法选择，将指针悬停可查看原因。
+- .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV。只有 .ai 可以转换为 SVG。
+
+### InDesign（.indd）
+- 可将 .indd 转换为 PDF 或位图图像（需要 InDesign）：PDF 使用所选 PDF 预设（默认为 InDesign 当前的导出设置），图像按页导出。
+- 在设置的“InDesign”标签中选择使用的 InDesign 和 PDF 预设（用“从 InDesign 读取 PDF 预设”获取列表）。
+- 已在 InDesign 中打开的文件按当前状态导出并保持打开（包含未保存的更改，并显示提示）。转换后会恢复 PNG 导出设置。首次使用会请求控制 InDesign 的自动化权限。
+
+### 字幕（.srt）→ CSV
+- “CSV”将字幕转为“#、时间、昵称、评论”表格。时间为开始时间（时:分:秒）。
+- “昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。多行字幕合并为一行。
+- 分隔符可选逗号（.csv）或制表符（.tsv）。包含逗号或引号的评论会加引号。
+
+### Photoshop（.psd）
+- 可将 .psd 转换为 PDF 或位图图像。
+- **简易（无需 Photoshop）**：使用 .psd 中保存的合并图像。未勾选“最大兼容”保存的 .psd 可能无法正确转换。
+- **用 Photoshop 导出（正式）**：在设置的“Photoshop”标签或添加 .psd 时的转换选项中选择。由 Photoshop 打开文件并存储副本，不改变原文件。已在 Photoshop 中打开的文件按当前状态导出并保持打开（包含未保存的更改，并显示提示）。首次使用会请求控制 Photoshop 的自动化权限。
+
 ### Illustrator（.ai）
 - 可将 .ai 转换为 PDF（简易版，无需 Illustrator）。输出格式选择“PDF”时，直接将 .ai 中保存的 PDF 内容生成 PDF。不包含 Illustrator 的编辑数据，因此比原 .ai 小。
 - 选择“Keynote”时每个画板成为一张幻灯片；其他格式提取文字后转换。
@@ -374,6 +461,35 @@ HELP = {
 - 취소하면 만드는 중인 프레젠테이션을 저장하지 않고 닫습니다.
 
 ## 입력 형식 참고
+### 이미지(래스터 이미지, SVG)
+- "래스터 이미지"로 .ai, .psd, .indd, PDF, 이미지 파일(PNG, JPEG, TIFF, HEIC, WebP, GIF, BMP)에서 PNG, JPEG, HEIC, AVIF(AVIF는 지원하는 macOS만)를 내보냅니다. .ai는 대지별, PDF와 .indd는 페이지별로 한 장씩, .psd는 병합한 이미지, 이미지 파일은 한 장입니다.
+- 크기는 해상도(ppi. .ai, .indd, PDF에 적용, .psd와 이미지는 원래 픽셀 수 유지) 또는 너비/높이(px. 모든 입력의 크기를 바꿈)로 지정합니다. 품질(JPEG, HEIC, AVIF), 투명 배경(JPEG 외), 범위(예: 1,3-5. 비워 두면 모두)도 선택할 수 있습니다. JPEG 배경은 흰색입니다.
+- 사진은 EXIF 방향 정보에 따라 바로 세웁니다. WebP는 읽기만 가능하고 내보낼 수 없습니다.
+- "SVG"는 .ai에서만 Illustrator의 "화면용 내보내기"로 대지별로 내보냅니다(Illustrator 필요). 스타일, 글꼴, 이미지, 오브젝트 ID, 소수점 이하 자릿수, 축소, 반응형을 선택할 수 있습니다.
+- 파일 이름은 원본 파일 이름, 대지 번호(PDF, InDesign은 페이지 번호), 대지 이름(InDesign은 페이지 이름)을 조합하고 구분 문자(- _ 공백)와 번호 자릿수 맞춤(01)을 선택할 수 있습니다. 화면에 예가 표시됩니다. 한 장뿐이면 원본 파일 이름만 쓸 수도 있습니다.
+- "여러 장이면 원본 파일 이름의 폴더에 모으기"를 켜면 두 장 이상의 이미지를 그 폴더에 넣습니다.
+- 이미지 파일은 한 장씩 PDF로 만들거나, "이미지를 하나의 PDF로 합치기"로 추가한 순서대로 하나의 PDF로 만들 수 있습니다.
+- .ai를 "간이"로 변환하면 .ai에 저장된 PDF용 내용으로 이미지를 만듭니다(대지 이름은 사용할 수 없음).
+
+### 입력과 출력 형식의 조합
+- 추가한 파일로 만들 수 없는 형식은 형식 목록에서 흐리게 표시되어 선택할 수 없습니다. 포인터를 올리면 이유가 표시됩니다.
+- .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
+
+### InDesign(.indd)
+- .indd를 PDF 또는 래스터 이미지로 변환할 수 있습니다(InDesign 필요). PDF는 선택한 PDF 사전 설정(기본값은 InDesign의 현재 내보내기 설정), 이미지는 페이지별로 내보냅니다.
+- 설정의 "InDesign" 탭에서 사용할 InDesign과 PDF 사전 설정("InDesign에서 PDF 사전 설정 불러오기"로 목록을 가져옴)을 선택합니다.
+- InDesign에서 열려 있는 파일은 현재 상태 그대로 내보내며 닫지 않습니다(저장하지 않은 변경 사항도 포함되며 안내를 표시합니다). PNG 내보내기 설정은 변환 후 원래대로 되돌립니다. 처음에는 InDesign 제어(자동화) 허용을 요청합니다.
+
+### 자막(.srt) → CSV
+- "CSV"는 자막을 "#·시각·핸들·코멘트" 표로 만듭니다. 시각은 시작 시각(시:분:초)입니다.
+- "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 여러 줄 자막은 한 줄로 잇습니다.
+- 구분 문자는 쉼표(.csv) 또는 탭(.tsv)을 선택할 수 있습니다. 쉼표나 따옴표를 포함한 코멘트는 따옴표로 묶습니다.
+
+### Photoshop(.psd)
+- .psd를 PDF 또는 래스터 이미지로 변환할 수 있습니다.
+- **간이(Photoshop 불필요)**: .psd에 저장된 병합 이미지를 사용합니다. "호환성 최대화"를 끄고 저장한 .psd는 올바르게 변환되지 않을 수 있습니다.
+- **Photoshop으로 내보내기(정식)**: 설정의 "Photoshop" 탭이나 .psd를 추가했을 때의 변환 옵션에서 선택합니다. Photoshop이 파일을 열어 사본을 저장하므로 원본은 바뀌지 않습니다. Photoshop에서 열려 있는 파일은 현재 상태 그대로 내보내며 닫지 않습니다(저장하지 않은 변경 사항도 포함되며 안내를 표시합니다). 처음에는 Photoshop 제어(자동화) 허용을 요청합니다.
+
 ### Illustrator(.ai)
 - .ai를 PDF로 변환할 수 있습니다(간이 버전, Illustrator 불필요). 출력 형식에서 "PDF"를 선택하면 .ai에 저장된 PDF용 내용을 그대로 PDF로 만듭니다. Illustrator 편집 데이터는 포함하지 않으므로 원래 .ai보다 작아집니다.
 - "Keynote"를 선택하면 아트보드마다 슬라이드가 되고, 다른 형식은 텍스트를 추출해 변환합니다.
