@@ -2,7 +2,7 @@
 
 <img src="Assets/CommandDee.png" width="128" alt="CommandDeeアイコン">
 
-[ダウンロード（プレリリース）](https://github.com/swwwitch/CommandDee/releases) · macOS 13以降 / Apple Silicon
+[ダウンロード（プレリリース）](https://github.com/swwwitch/macos-apps/releases?q=CommandDee) · macOS 13以降 / Apple Silicon
 
 現時点ではDeveloper ID署名・公証を行っていない検証用ビルドです。Finder／Path Finderでのホットキー実動作と再ログイン時の自動起動は未検証です。
 
@@ -117,8 +117,8 @@ Macのローカル日付（グレゴリオ暦）を `-YYYYMMDD` 形式で拡張�
 Xcode Command Line Toolsが必要です。外部パッケージへの依存はありません。
 
 ```sh
-git clone https://github.com/swwwitch/CommandDee.git
-cd CommandDee
+git clone https://github.com/swwwitch/macos-apps.git
+cd macos-apps/CommandDee
 ./test.sh
 ./build.sh
 ```
@@ -165,3 +165,5 @@ Finder／Path Finderで同じフォルダの2項目を選び、⌃⌥⌘Sを押�
 ## メニューバーへの追加
 
 初回案内で「メニューバーに追加」を選ぶとモノクロアイコンを表示します。「追加しない」「あとで」も選べます。後からアプリメニューの「メニューバー設定…」で変更できます。ログイン起動とは独立した設定です。アイコンを非表示にしてもアプリは終了しません。
+
+※ 単体リポジトリ swwwitch/CommandDee は2026-10-07にこのリポジトリ（swwwitch/macos-apps）へ統合しました。履歴とリリース（CommandDee-v1.5.0／CommandDee-v1.5.1）も移しています。
