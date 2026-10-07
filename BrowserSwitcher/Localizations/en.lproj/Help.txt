@@ -1,0 +1,52 @@
+Changes your default web browser (the browser that opens links).
+
+## Basic Use
+1. Select a browser in the list.
+2. Click **Switch**. You can also press ⌘Return, ⌘-click, or double-click.
+3. If macOS shows a confirmation dialog, allow it to use the browser you chose.
+
+- Both HTTP and HTTPS are switched, and the result is shown.
+- A normal click, Tab, and ↑↓ only select a browser; they do not switch.
+- The current default browser is marked “— Current” and cannot be selected.
+
+## Settings
+Open **Settings…** from the app menu (⌘,) or with the **Settings…** button in the window. Changes are saved automatically. Click **Done** to close Settings.
+
+### Startup & Background Tab
+- Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
+- **Show app shortcut**: select modifier keys (⌃⌥⇧⌘) and a key, then click **Apply**.
+- At least one of ⌃, ⌥ or ⌘ is required, and combinations that conflict with standard shortcuts cannot be used.
+- **Restore Defaults** returns to ⌃⌥Q.
+
+### Display Tab
+- Browsers checked under **Browsers to Exclude** are hidden from the list.
+
+## Keyboard Shortcuts
+By default, show the app by pressing ⌃⌥Q twice (within 0.4 seconds). Hold Control and Option and press Q twice. A custom shortcut also works with a double press.
+
+- **Tab / ↑↓**: Select
+- **⌘Return**: Switch
+- **Esc / ⌘W**: Hide window (⌘W closes Settings when it is open)
+- **⌘,**: Settings
+- **⌘?**: Help
+- **⌘Q**: Quit
+
+## Running in the Background and Quitting
+- Closing or hiding the window does not quit the app. Show it again with the shortcut or the Dock icon.
+- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- To quit, press ⌘Q or choose **Quit BrowserSwitcher** from the app menu.
+
+## Permissions
+No special permissions such as Accessibility are required. macOS may show a confirmation dialog when the default browser is changed.
+
+## Troubleshooting
+- The list is reloaded when the window is shown and when you return to the app. If a newly installed browser does not appear, hide the window and show it again. Also check that it is not excluded in the Display tab.
+- If “Could not verify the change” appears, check whether a macOS confirmation dialog is still open, then switch again.
+- If the shortcut cannot be registered, choose a combination that no other app uses in the Startup & Background tab.
+- Homebrew and defaultbrowser are not required for switching.
+- Choose **Open the note Article** from the Help menu to open the guide article on note in your browser.
+
+## Uninstalling
+1. Turn off **Open at login**.
+2. Quit the app.
+3. Move the app to the Trash.

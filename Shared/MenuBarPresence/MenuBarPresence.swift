@@ -19,17 +19,13 @@ final class MenuBarPresence: NSObject {
     private var promptShown = false
     private var defaultEnabled = false
 
-    private func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
-        let language = Locale.preferredLanguages.first ?? "en"
-        if language.hasPrefix("ja") { return ja }
-        if language.hasPrefix("zh") { return zh }
-        if language.hasPrefix("ko") { return ko }
-        return en
-    }
+    // Same language rule as the rest of the settings window (Japanese-only apps stay Japanese).
+    private func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String { StartupWindow.text(ja, en, zh, ko) }
     var enabled: Bool {
         UserDefaults.standard.object(forKey: Self.enabledKey) == nil ? defaultEnabled : UserDefaults.standard.bool(forKey: Self.enabledKey)
     }
-    func install(name: String, symbol: String, existing: NSStatusItem? = nil,
+    /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumFlight's clock-on-screen icon).
+    func install(name: String, symbol: String, existing: NSStatusItem? = nil, keepExistingImage: Bool = false,
                  show: @escaping () -> Void, settings: @escaping () -> Void, help: @escaping () -> Void) {
         guard !installed else { return }
         installed = true
@@ -37,10 +33,12 @@ final class MenuBarPresence: NSObject {
         defaultEnabled = existing != nil
         item = existing ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if existing == nil { item?.menu = makeMenu() }
-        let image = NSImage(systemSymbolName: symbol, accessibilityDescription: name)
-        image?.isTemplate = true
-        image?.size = NSSize(width: 18, height: 18)
-        item?.button?.image = image
+        if !(keepExistingImage && existing?.button?.image != nil) {
+            let image = NSImage(systemSymbolName: symbol, accessibilityDescription: name)
+            image?.isTemplate = true
+            image?.size = NSSize(width: 18, height: 18)
+            item?.button?.image = image
+        }
         item?.button?.toolTip = name
         // PodiumFlight's live timer title remains unchanged.
         if name == "CommandDee" { item?.button?.title = ""; item?.length = NSStatusItem.squareLength }
@@ -57,7 +55,7 @@ final class MenuBarPresence: NSObject {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
         menu.addItem(withTitle: text("ウインドウを表示", "Show Window", "显示窗口", "윈도우 보기"), action: #selector(show), keyEquivalent: "").target = self
-        menu.addItem(withTitle: text("環境設定…", "Settings…", "设置…", "설정…"), action: #selector(showPreferences), keyEquivalent: "").target = self
+        menu.addItem(withTitle: text("設定…", "Settings…", "设置…", "설정…"), action: #selector(showPreferences), keyEquivalent: "").target = self
         menu.addItem(withTitle: text("ヘルプ", "Help", "帮助", "도움말"), action: #selector(showHelp), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: text("メニューバー設定…", "Menu Bar Settings…", "菜单栏设置…", "메뉴 막대 설정…"), action: #selector(showSettings), keyEquivalent: "").target = self

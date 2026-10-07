@@ -7,6 +7,11 @@ struct Preset {
     let name: String
     let bundleID: String
     static let all: [Preset] = [
+        .init(ext: "ppt", name: "PowerPoint", bundleID: "com.microsoft.Powerpoint"),
+        .init(ext: "psd", name: "Photoshop", bundleID: "com.adobe.Photoshop"),
+        .init(ext: "indd", name: "InDesign", bundleID: "com.adobe.InDesign"),
+        .init(ext: "json", name: "VS Code", bundleID: "com.microsoft.VSCode"),
+        .init(ext: "ts", name: "VS Code", bundleID: "com.microsoft.VSCode"),
         .init(ext: "csv", name: "Excel", bundleID: "com.microsoft.Excel"),
         .init(ext: "xlsx", name: "Excel", bundleID: "com.microsoft.Excel"),
         .init(ext: "xls", name: "Excel", bundleID: "com.microsoft.Excel"),
@@ -80,11 +85,17 @@ struct Association: Identifiable {
 }
 
 enum AssociationService {
+    static func extensionPrecedes(_ lhs: String, _ rhs: String) -> Bool {
+        let left = lhs == "svg" ? "ai~" : lhs == "indd" ? "eps~" : lhs == "xls" ? "csv~" : lhs
+        let right = rhs == "svg" ? "ai~" : rhs == "indd" ? "eps~" : rhs == "xls" ? "csv~" : rhs
+        return left < right
+    }
+
     static func canonicalExtension(_ ext: String) -> String {
-        switch ext { case "jpeg": return "jpg"; case "htm": return "html"; case "tiff": return "tif"; default: return ext }
+        switch ext { case "jpeg": return "jpg"; case "htm": return "html"; case "tiff": return "tif"; case "xlsx": return "xls"; case "markdown": return "md"; case "jsx": return "js"; case "docx": return "doc"; case "pptx": return "ppt"; case "tsx": return "ts"; default: return ext }
     }
     static func aliases(for ext: String) -> [String] {
-        switch canonicalExtension(ext) { case "jpg": return ["jpg", "jpeg"]; case "html": return ["html", "htm"]; case "tif": return ["tif", "tiff"]; default: return [ext] }
+        switch canonicalExtension(ext) { case "jpg": return ["jpg", "jpeg"]; case "html": return ["html", "htm"]; case "tif": return ["tif", "tiff"]; case "xls": return ["xls", "xlsx"]; case "md": return ["md", "markdown"]; case "js": return ["js", "jsx"]; case "doc": return ["doc", "docx"]; case "ppt": return ["ppt", "pptx"]; case "ts": return ["ts", "tsx"]; default: return [ext] }
     }
     static func current(for type: UTType) -> Application? {
         guard let id = LSCopyDefaultRoleHandlerForContentType(type.identifier as CFString, .all)?.takeRetainedValue() as String? else { return nil }
@@ -120,6 +131,8 @@ enum AssociationService {
     }
 }
 
+enum AssociationSortColumn { case fileExtension, application }
+
 @MainActor
 final class AssociationStore: ObservableObject {
     @Published var rows: [Association] = []
@@ -128,6 +141,8 @@ final class AssociationStore: ObservableObject {
     @Published var applying = false
     @Published var onlyChanges = false
     @Published var selectedCategory: AssociationCategory = .all
+    @Published var sortColumn: AssociationSortColumn?
+    @Published var sortAscending = true
     @Published var presetError: String?
     private let savedKey = "additionalExtensions"
     private let removedKey = "removedExtensions"
@@ -137,7 +152,7 @@ final class AssociationStore: ObservableObject {
         self.defaults = defaults
         let extra = defaults.stringArray(forKey: savedKey) ?? []
         let removed = Set(defaults.stringArray(forKey: removedKey) ?? [])
-        let extensions = Array(Set((Preset.all.map(\.ext) + extra).map(AssociationService.canonicalExtension)).subtracting(removed)).sorted()
+        let extensions = Array(Set((Preset.all.map(\.ext) + extra).map(AssociationService.canonicalExtension)).subtracting(removed)).sorted(by: AssociationService.extensionPrecedes)
         rows = extensions.map { ext in
             var row = Association(ext: ext)
             row.reloadCurrent()
@@ -145,11 +160,27 @@ final class AssociationStore: ObservableObject {
         }
         status = L("現在の設定を読み込みました。")
     }
+    func sort(by column: AssociationSortColumn) {
+        if sortColumn == column { sortAscending.toggle() }
+        else { sortColumn = column; sortAscending = true }
+    }
     var visible: [Association] {
-        rows.filter { row in
+        let filtered = rows.filter { row in
             (selectedCategory == .all || AssociationCategory.category(for: row.ext) == selectedCategory) &&
             (!onlyChanges || row.changed || row.unavailable != nil || row.error != nil) &&
             (query.isEmpty || ("\(row.extensionLabel) \(row.displayName) \(row.current?.name ?? "")").localizedCaseInsensitiveContains(query))
+        }
+        guard let sortColumn else { return filtered }
+        return filtered.sorted { lhs, rhs in
+            let comparison: ComparisonResult
+            switch sortColumn {
+            case .fileExtension:
+                comparison = lhs.ext.localizedStandardCompare(rhs.ext)
+            case .application:
+                let names = lhs.displayName.localizedStandardCompare(rhs.displayName)
+                comparison = names == .orderedSame ? lhs.ext.localizedStandardCompare(rhs.ext) : names
+            }
+            return sortAscending ? comparison == .orderedAscending : comparison == .orderedDescending
         }
     }
     var pending: Int { rows.filter(\.changed).count }
@@ -194,7 +225,7 @@ final class AssociationStore: ObservableObject {
         guard !rows.contains(where: { $0.ext == ext }), let type = UTType(filenameExtension: ext) else { return false }
         rows.append(Association(ext: ext, current: AssociationService.current(for: type)))
         rows[rows.count - 1].reloadCurrent()
-        rows.sort { $0.ext < $1.ext }
+        rows.sort { AssociationService.extensionPrecedes($0.ext, $1.ext) }
         persistExtensions()
         query = ext
         onlyChanges = false
@@ -235,7 +266,7 @@ final class AssociationStore: ObservableObject {
             rows[i].unavailableBundleID = app == nil ? entry.bundleID : nil
             rows[i].error = nil
         }
-        rows.sort { $0.ext < $1.ext }
+        rows.sort { AssociationService.extensionPrecedes($0.ext, $1.ext) }
         persistExtensions()
         query = ""
         onlyChanges = false

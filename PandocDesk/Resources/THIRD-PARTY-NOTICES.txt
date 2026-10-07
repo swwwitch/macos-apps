@@ -1,0 +1,7 @@
+pandoc 3.12 - Copyright John MacFarlane and contributors
+GPL-2.0-or-later. See COPYING-pandoc.md and bundled pandoc-3.12-source.tar.gz.
+Official source: https://github.com/jgm/pandoc/tree/3.12
+Official binary: https://github.com/jgm/pandoc/releases/download/3.12/pandoc-3.12-arm64-macOS.zip
+ZIP SHA-256: f148ca09c9f36594db527a9fc988ad736290ce428f79594c50208cd1ec58b3c0
+Build instructions and dependency declarations are in the source archive.
+PandocDesk is an unofficial GUI and is not endorsed by the pandoc project.

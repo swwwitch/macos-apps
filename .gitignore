@@ -1,28 +1,38 @@
 .DS_Store
+
+# ローカルの署名証明書
+*.p12
+*.pfx
+
+# ローカルのビルド成果物・退避データ
+*.app/
 **/.build/
 **/build/
-**/outputs/
 **/Backups/
-**/Previous Builds/
-**/*.app/
-**/*.dSYM/
-**/__pycache__/
-**/*.pyc
-*.zip
-*.dmg
-*.pkg
-Latest Builds/
-Shared/BuildBackups/
+Shared/Backups/Build/
+Shared/Backups/HIG/
+Shared/Backups/WindowChrome/
+Shared/Certificates/
+Shared/DistributionArchive/
+**/ReleaseArchive/
+
+# 公開リポジトリに含めないもの（2026-10-07）
+# 申請資料・個人用の記録・未公開原稿
+Shared/AppStore/
+Shared/SubmissionPreparation-*/
+Shared/OrganizationLogs/
+Shared/NoteDrafts/
+Unsorted/
+*/Publication/
+# 第三者バイナリ・大容量ファイル（ビルド時に各自取得）
 Shared/Updater/vendor/
-*.p12
-*.p8
-*.pem
-*.key
-*.mobileprovision
-*.provisionprofile
-.env
-.env.*
-# Legacy local Xcode packaging projects depend on private signing setup.
-**/*.xcodeproj/
-# Generated icon (source PNGs and the ICNS generator are versioned).
-QuickIconExporter/Development/Resources/IconDrop.icns
+**/Vendor/
+PandocDesk/Resources/pandoc-*-source.tar.gz
+# 生成物・キャッシュ
+**/outputs/
+**/work/
+*.pcm
+*.zip
+*.pkg
+*.dmg
+*.dSYM/

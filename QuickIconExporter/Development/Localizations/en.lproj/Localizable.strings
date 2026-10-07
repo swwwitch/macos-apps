@@ -35,7 +35,7 @@
 "環境設定" = "Settings";
 "アイコンを書き出す" = "Export Icons";
 "ファイルのアイコンを最大サイズのPNGに" = "Save file icons as full-size PNGs";
-"設定" = "Set";
+"設定" = "Settings";
 "Finderで表示" = "Show in Finder";
 "アプリやファイルをここにドロップ" = "Drop Apps or Files Here";
 "複数のファイルもまとめて書き出せます" = "Export multiple files together";
@@ -47,3 +47,11 @@
 "変更…" = "Change…";
 "アイコンを書き出すファイルを選択" = "Choose Files to Export Icons";
 "ファイルを読み取れませんでした。" = "Could not read the file.";
+"ウインドウを表示" = "Show Window";
+"終了" = "Quit";
+"ファイルを選択してください。" = "Please choose files.";
+"ヘルプ" = "Help";
+"QuickIconExporterヘルプ" = "QuickIconExporter Help";
+"書き出し後、Finderで表示" = "Show in Finder after export";
+"書き出し後、アプリを隠す" = "Hide app after export";
+"Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。" = "In Finder, select files, then Control-click → Services → アイコンを書き出す（QuickIconExporter）. Change the shortcut in System Settings → Keyboard → Keyboard Shortcuts → Services.";

@@ -11,6 +11,25 @@ final class CategoryTests: XCTestCase {
     }
 
     @MainActor
+    func testColumnSortToggleAndFiltering() {
+        let store = AssociationStore()
+        store.rows = [Association(ext: "svg", unavailable: "Zebra"),
+                      Association(ext: "ai", unavailable: "Alpha"),
+                      Association(ext: "png", unavailable: "Alpha")]
+        store.sort(by: .fileExtension)
+        XCTAssertEqual(store.visible.map(\.ext), ["ai", "png", "svg"])
+        store.sort(by: .fileExtension)
+        XCTAssertEqual(store.visible.map(\.ext), ["svg", "png", "ai"])
+        store.sort(by: .application)
+        XCTAssertEqual(store.visible.map(\.ext), ["ai", "png", "svg"])
+        store.sort(by: .application)
+        XCTAssertEqual(store.visible.map(\.ext), ["svg", "png", "ai"])
+        store.query = "Alpha"
+        XCTAssertEqual(store.visible.map(\.ext), ["png", "ai"])
+        XCTAssertEqual(store.rows.map(\.ext), ["svg", "ai", "png"])
+    }
+
+    @MainActor
     func testFiltersComposeAndDoNotDiscardHiddenChanges() {
         let name = "DutiGUI.CategoryTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: name)!

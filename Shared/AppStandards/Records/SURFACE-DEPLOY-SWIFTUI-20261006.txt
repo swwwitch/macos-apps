@@ -1,0 +1,4 @@
+ExtLink: 0.2.11 / 22 verified
+QuickIconExporter: 1.0 / 11 verified
+PodiumFlight: 3.2.3 / 23 verified
+Backup: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/setup2026/sw_app/Shared/BuildBackups/surface-applications-20261006-132858

@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
+import Carbon
 
 enum TokiMenuIcon {
     static func make() -> NSImage {
@@ -61,15 +62,25 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     private let settings = MacSettings()
     private let presets = PresetStore()
     private var timer: Timer?
+    private var refreshTimer: Timer?
+    private var observers = Set<AnyCancellable>()
     private let navigation = SettingsNavigation()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        defer { DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            MenuBarPresence.shared.install(name: "PodiumFlight", symbol: "clock", existing: self.item, keepExistingImage: true,
+                show: { [weak self] in self?.revealWindow() },
+                settings: { [weak self] in self?.showPreferences() },
+                help: { [weak self] in LocalHelp.shared.show() })
+        } }
+        DispatchQueue.main.async { LocalHelp.shared.install() }
         NSApp.setActivationPolicy(.accessory)
         let menu = NSMenu()
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: L("PodiumFlightについて"), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
-        let preferences = appMenu.addItem(withTitle: L("環境設定…"), action: #selector(showPreferences), keyEquivalent: ",")
+        let preferences = appMenu.addItem(withTitle: L("設定…"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
         appMenu.addItem(.separator())
         #if DIRECT_UPDATES && !APP_STORE
@@ -83,6 +94,10 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let file = NSMenu(title: L("ファイル")); fileRoot.submenu = file; menu.addItem(fileRoot)
         file.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("編集"))
+        edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: L("やり直す"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        edit.addItem(.separator())
         edit.addItem(withTitle: L("切り取り"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         edit.addItem(withTitle: L("コピー"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         edit.addItem(withTitle: L("ペースト"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
@@ -101,11 +116,46 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
             button.action = #selector(togglePopover)
         }
         tick()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.tick() }
+        // The 1-second tick only drives the countdown display; run it only while a countdown exists.
+        countdown.$running.receive(on: DispatchQueue.main).sink { [weak self] _ in
+            MainActor.assumeIsolated { self?.updateCountdownTimer() }
+        }.store(in: &observers)
+        let loginLaunch = Self.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
+        if !loginLaunch && !StartupWindow.hidden { DispatchQueue.main.async { self.showControls() } }
+    }
+
+    /// Login launches stay quiet in the menu bar, like PandocDesk's LaunchPolicy.
+    private static func isLoginLaunch(_ event: NSAppleEventDescriptor?) -> Bool {
+        guard let event, event.eventClass == AEEventClass(kCoreEventClass), event.eventID == AEEventID(kAEOpenApplication) else { return false }
+        return event.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
+    }
+
+    private func updateCountdownTimer() {
+        tick()
+        if countdown.running == nil {
+            timer?.invalidate(); timer = nil
+        } else if timer == nil {
+            let repeating = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.tick() }
+            }
+            RunLoop.main.add(repeating, forMode: .common)
+            timer = repeating
         }
-        RunLoop.main.add(timer!, forMode: .common)
-        DispatchQueue.main.async { self.showControls() }
+    }
+
+    /// Re-reads system settings every 2 seconds only while the window is on screen.
+    @objc private func windowOcclusionChanged() {
+        guard let window = controlsWindow, window.isVisible, window.occlusionState.contains(.visible) else {
+            refreshTimer?.invalidate(); refreshTimer = nil
+            return
+        }
+        guard refreshTimer == nil else { return }
+        settings.refresh()
+        let repeating = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.settings.refresh() }
+        }
+        RunLoop.main.add(repeating, forMode: .common)
+        refreshTimer = repeating
     }
 
     private func tick() {
@@ -122,7 +172,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         guard controlsWindow == nil else { return }
         let size = NSSize(width: 420, height: 750)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        window.title = L("セミナー・キャプチャ準備")
+        window.title = ""
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
@@ -144,6 +194,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         window.setContentSize(size)
         if !restored || invalidFrame { window.center() }
         controlsWindow = window
+        NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
 
     private func revealWindow() {
@@ -164,7 +215,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     @objc private func showPreferences() {
         prepareWindow()
         navigation.preferencesShown = true
-        controlsWindow?.title = L("環境設定")
+        controlsWindow?.title = L("設定")
         revealWindow()
     }
 
@@ -251,21 +302,44 @@ struct Preset: Codable, Identifiable {
     var notificationsOff: Bool? = nil
     var timerMinutes: Int? = nil
     var timerEnabled: Bool? = nil
+    var quitApps: Bool? = nil
+    var launchApps: [QuitAppTarget]? = nil
+    var quitAppTargets: [QuitAppTarget]? = nil
+
+    mutating func migrateAppTargets(legacyQuitTargets: [QuitAppTarget]) {
+        if quitApps == true && quitAppTargets == nil { quitAppTargets = legacyQuitTargets }
+        quitApps = nil
+    }
 }
 
 @MainActor
 final class PresetStore: ObservableObject {
     @Published var items: [Preset] = []
-    init() {
-        if let data = UserDefaults.standard.data(forKey: "presets"), let saved = try? JSONDecoder().decode([Preset].self, from: data) { items = saved }
+    private let defaults: UserDefaults
+    var rememberedPreset: Preset? {
+        guard let id = defaults.string(forKey: "selectedPresetID") else { return nil }
+        return items.first { $0.id.uuidString == id }
+    }
+    func remember(_ id: UUID?) { defaults.set(id?.uuidString, forKey: "selectedPresetID") }
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: "presets"), let saved = try? JSONDecoder().decode([Preset].self, from: data) {
+            items = saved.map { value in
+                var preset = value
+                preset.migrateAppTargets(legacyQuitTargets: QuitAppsStore.shared.targets)
+                return preset
+            }
+            persist()
+        }
     }
     func save(_ preset: Preset) {
         if let i = items.firstIndex(where: { $0.id == preset.id }) { items[i] = preset } else { items.append(preset) }
+        remember(preset.id)
         persist()
     }
-    func remove(_ id: UUID) { items.removeAll { $0.id == id }; persist() }
+    func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
     private func persist() {
-        if let data = try? JSONEncoder().encode(items) { UserDefaults.standard.set(data, forKey: "presets") }
+        if let data = try? JSONEncoder().encode(items) { defaults.set(data, forKey: "presets") }
     }
 }
 
@@ -282,7 +356,7 @@ struct SettingsRoot: View {
     let openPreferences: () -> Void
     let goBack: () -> Void
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             SettingsView(settings: settings, countdown: countdown, presets: presets, openPreferences: openPreferences)
                 .frame(width: 420, height: 700)
                 .opacity(navigation.preferencesShown ? 0 : 1)
@@ -293,7 +367,7 @@ struct SettingsRoot: View {
                 .opacity(navigation.preferencesShown ? 1 : 0)
                 .allowsHitTesting(navigation.preferencesShown)
                 .accessibilityHidden(!navigation.preferencesShown)
-        }.frame(width: 420, height: 750)
+        }.frame(width: 420, height: 750).background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
     }
 }
 
@@ -307,7 +381,7 @@ struct PreferencesContainer: View {
             HStack {
                 Button(action: goBack) { Label(L("設定一覧に戻る"), systemImage: "chevron.left") }
                 Spacer()
-            }.padding(.horizontal, 20).padding(.top, 14)
+            }.padding(.horizontal, 20).padding(.top, 6)
             PreferencesView(countdown: countdown, settings: settings, presets: presets)
         }
     }
@@ -318,10 +392,13 @@ struct PreferencesView: View {
     @ObservedObject var settings: MacSettings
     @ObservedObject var presets: PresetStore
     var body: some View {
-        TabView {
-            TimerPreferences(countdown: countdown).tabItem { Text(L("タイマー")) }
-            PresetPreferences(settings: settings, countdown: countdown, presets: presets).tabItem { Text(L("プリセット")) }
-        }.padding(18)
+        SettingsTabs(sections: [
+            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() })),
+            (L("アプリ起動"), AnyView(LaunchAppsPreferences())),
+            (L("アプリ終了"), AnyView(QuitAppsPreferences())),
+            (L("タイマー"), AnyView(TimerPreferences(countdown: countdown))),
+            (L("プリセット"), AnyView(PresetPreferences(settings: settings, countdown: countdown, presets: presets)))
+        ]).padding(.horizontal, 12).padding(.bottom, 10)
     }
 }
 
@@ -365,6 +442,8 @@ struct TimerPreferences: View {
 
 @MainActor
 final class PresetDraft: ObservableObject {
+    @Published var editingApps = false
+    @Published var editingLaunchApps = true
     @Published var draft = Preset()
     @Published var status = ""
 }
@@ -375,13 +454,13 @@ struct PresetPreferences: View {
     @ObservedObject var presets: PresetStore
     @StateObject private var editor = PresetDraft()
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(L("いつもの設定を保存")).font(.title2.bold())
             HStack {
-                Menu(L("保存済みから選択")) {
-                    ForEach(presets.items) { item in Button(item.name) { editor.draft = item; editor.status = "" } }
+                Menu(presets.items.first(where: { $0.id == editor.draft.id })?.name ?? L("保存済みから選択")) {
+                    ForEach(presets.items) { item in Button(item.name) { editor.draft = item; presets.remember(item.id); editor.status = "" } }
                 }.disabled(presets.items.isEmpty)
-                Button(L("新規")) { editor.draft = Preset(); editor.status = "" }
+                Button(L("新規")) { editor.draft = Preset(); presets.remember(nil); editor.status = "" }
             }
             TextField(L("プリセット名"), text: $editor.draft.name)
             Text(L("チェックした項目だけを一括変更します。"))
@@ -394,17 +473,27 @@ struct PresetPreferences: View {
                 .disabled(editor.draft.clock ?? settings.analog)
                 .opacity((editor.draft.clock ?? settings.analog) ? 0.4 : 1)
             presetRow(L("外観"), value: $editor.draft.dark, off: L("ライト"), on: L("ダーク"), current: settings.dark)
-            presetRow(L("Dockを隠す"), value: $editor.draft.hideDock, off: "OFF", on: "ON", current: settings.dockHidden)
-            presetRow(L("Dockを殺す"), value: $editor.draft.killDock, off: "OFF", on: "ON", current: settings.dockKilled)
-            presetRow(L("デスクトップ非表示"), value: $editor.draft.hideDesktop, off: "OFF", on: "ON", current: settings.desktopHidden)
-            presetRow(L("通知をOFF"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
-            presetRow(L("タイマーを使う"), value: $editor.draft.timerEnabled, off: "OFF", on: "ON", current: countdown.enabled)
+            presetRow(L("Dockを隠す"), value: $editor.draft.hideDock, off: L("オフ"), on: L("オン"), current: settings.dockHidden)
+            presetRow(L("Dockを殺す"), value: $editor.draft.killDock, off: L("オフ"), on: L("オン"), current: settings.dockKilled)
+            presetRow(L("デスクトップ非表示"), value: $editor.draft.hideDesktop, off: L("オフ"), on: L("オン"), current: settings.desktopHidden)
+            presetRow(L("通知をオフ"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
+            presetRow(L("タイマーを使う"), value: $editor.draft.timerEnabled, off: L("オフ"), on: L("オン"), current: countdown.enabled)
             HStack {
                 Toggle(L("タイマー所要時間"), isOn: Binding(get: { editor.draft.timerMinutes != nil }, set: { editor.draft.timerMinutes = $0 ? countdown.plan.minutes : nil }))
                 Spacer()
                 TextField(L("分"), value: Binding(get: { editor.draft.timerMinutes ?? 30 }, set: { editor.draft.timerMinutes = $0 }), format: .number.grouping(.never))
                     .frame(width: 55).disabled(editor.draft.timerMinutes == nil)
                 Text(L("分"))
+            }
+            HStack {
+                Button(L("起動アプリを編集…")) { editor.editingLaunchApps = true; editor.editingApps = true }
+                Spacer()
+                Text("\(editor.draft.launchApps?.count ?? 0)")
+            }
+            HStack {
+                Button(L("終了アプリを編集…")) { editor.editingLaunchApps = false; editor.editingApps = true }
+                Spacer()
+                Text("\(editor.draft.quitAppTargets?.count ?? 0)")
             }
             Text(L("タイマーは所要時間を設定します。開始／予約は別操作です。"))
                 .font(.caption).foregroundStyle(.secondary)
@@ -416,14 +505,27 @@ struct PresetPreferences: View {
                     .disabled(!presets.items.contains(where: { $0.id == editor.draft.id }))
                 Spacer()
                 Button(L("適用")) { settings.apply(editor.draft, countdown: countdown) }.disabled(settings.busy || !valid)
-                Button(L("保存")) { presets.save(editor.draft); editor.status = L("「%@」を保存しました。", String(describing: editor.draft.name)) }
+                Button(L(isExisting ? "上書き保存" : "新規保存")) {
+                    let overwriting = isExisting
+                    editor.draft.name = editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                    presets.save(editor.draft)
+                    editor.status = L(overwriting ? "「%@」を上書き保存しました。" : "「%@」を保存しました。", editor.draft.name)
+                }
                     .buttonStyle(.borderedProminent).disabled(!valid)
             }
-        }.padding(20)
+        }.padding(.horizontal, 20).padding(.vertical, 10)
+        .onAppear { if let saved = presets.rememberedPreset { editor.draft = saved } }
+        .sheet(isPresented: $editor.editingApps) {
+            PresetAppListEditor(title: L(editor.editingLaunchApps ? "起動アプリを編集…" : "終了アプリを編集…"),
+                targets: Binding(get: { editor.editingLaunchApps ? (editor.draft.launchApps ?? []) : (editor.draft.quitAppTargets ?? []) },
+                                 set: { if editor.editingLaunchApps { editor.draft.launchApps = $0 } else { editor.draft.quitAppTargets = $0 } }),
+                done: { editor.editingApps = false })
+        }
     }
+    private var isExisting: Bool { presets.items.contains { $0.id == editor.draft.id } }
     private var valid: Bool {
-        let hasSelection = editor.draft.showWeekday != nil || editor.draft.showDate != nil || editor.draft.clock != nil || editor.draft.dark != nil || editor.draft.hideDock != nil || editor.draft.killDock != nil || editor.draft.hideDesktop != nil || editor.draft.notificationsOff != nil || editor.draft.timerMinutes != nil || editor.draft.timerEnabled != nil
-        return hasSelection && !editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (editor.draft.timerMinutes == nil || (1...10080).contains(editor.draft.timerMinutes!))
+        let hasSelection = !(editor.draft.launchApps ?? []).isEmpty || !(editor.draft.quitAppTargets ?? []).isEmpty || editor.draft.showWeekday != nil || editor.draft.showDate != nil || editor.draft.clock != nil || editor.draft.dark != nil || editor.draft.hideDock != nil || editor.draft.killDock != nil || editor.draft.hideDesktop != nil || editor.draft.notificationsOff != nil || editor.draft.timerMinutes != nil || editor.draft.timerEnabled != nil
+        return (hasSelection || isExisting) && !editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (editor.draft.timerMinutes == nil || (1...10080).contains(editor.draft.timerMinutes!))
     }
     private func presetRow(_ title: String, value: Binding<Bool?>, off: String, on: String, current: Bool) -> some View {
         HStack {
@@ -478,7 +580,7 @@ final class MacSettings: ObservableObject {
             let saved = (CFPreferencesCopyAppValue("IsAnalog" as CFString, clockDomain) as? NSNumber)?.boolValue ?? false
             guard saved == value else { throw SettingsError(L("時計の設定を保存できませんでした。")) }
             analog = saved
-            message = L("時計を%@に変更しました。", String(describing: value ? "アナログ" : "デジタル"))
+            message = L("時計を%@に変更しました。", value ? L("アナログ") : L("デジタル"))
         } catch {
             self.error = true
             message = error.localizedDescription
@@ -535,11 +637,11 @@ final class MacSettings: ObservableObject {
             if code == -1743 {
                 message = L("外観の変更には、システム設定 → プライバシーとセキュリティ → オートメーションで、PodiumFlightのSystem Events操作を許可してください。")
             } else {
-                message = L("外観を変更できませんでした：%@", String(describing: details[NSAppleScript.errorMessage] ?? "不明なエラー"))
+                message = L("外観を変更できませんでした：%@", String(describing: details[NSAppleScript.errorMessage] ?? L("不明なエラー")))
             }
         } else if let result, result.booleanValue == value {
             dark = value
-            message = L("Macの外観を%@に変更しました。", String(describing: value ? "ダーク" : "ライト"))
+            message = L("Macの外観を%@に変更しました。", value ? L("ダーク") : L("ライト"))
         } else {
             error = true
             message = L("外観の変更を確認できませんでした。")
@@ -610,6 +712,8 @@ final class MacSettings: ObservableObject {
         if let value = preset.hideDesktop, value != desktopHidden { setDesktopHidden(value); if error { return } }
         if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
         if let value = preset.timerEnabled { countdown.enabled = value }
+        if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
+        if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
         if let value = preset.notificationsOff { setNotificationsOff(value) }
         else { message = L("「%@」を適用しました。", String(describing: preset.name)) }
     }
@@ -663,13 +767,18 @@ struct SettingsView: View {
     @ObservedObject var countdown: Countdown
     @ObservedObject var presets: PresetStore
     let openPreferences: () -> Void
-    private let timer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            LoginAtLaunchView().frame(height: 80)
             VStack(alignment: .leading, spacing: 5) {
-                Text(L("セミナー・キャプチャ準備")).font(.system(size: 22, weight: .semibold))
+                HStack(spacing: 12) {
+                    Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                        .frame(width: 44, height: 44).accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(L("セミナー・キャプチャ準備")).font(.system(size: 20, weight: .bold))
+                        Text(L("時計・通知・タイマーをまとめて設定。")).font(.system(size: 12)).foregroundStyle(.secondary)
+                    }
+                }
             }
             VStack(spacing: 20) {
                 settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
@@ -703,7 +812,7 @@ struct SettingsView: View {
                 Toggle(L("タイマーを使う"), isOn: $countdown.enabled)
                 Spacer()
                 Text(countdown.remaining).monospacedDigit()
-                Button(L("環境設定…"), action: openPreferences)
+                Button(L("設定…"), action: openPreferences)
             }.font(.system(size: 12))
             Toggle(L("Dockを隠す（自動非表示）"), isOn: Binding(get: { settings.dockHidden }, set: settings.setDockHidden))
                 .font(.system(size: 12))
@@ -714,16 +823,17 @@ struct SettingsView: View {
             HStack {
                 Label(L("通知"), systemImage: "bell.slash")
                 Spacer()
-                Button("OFF") { settings.setNotificationsOff(true) }
-                Button("ON") { settings.setNotificationsOff(false) }
+                Button(L("オフ")) { settings.setNotificationsOff(true) }
+                Button(L("オン")) { settings.setNotificationsOff(false) }
             }.font(.system(size: 12)).disabled(settings.busy)
-            Text(L("通知OFFは、おやすみモードを有効にします。"))
+            Text(L("通知オフは、おやすみモードを有効にします。"))
                 .font(.system(size: 10)).foregroundStyle(.secondary)
+            Button(L("指定アプリを終了する")) { QuitAppsStore.shared.quit() }
             Menu(L("プリセットを適用")) {
                 ForEach(presets.items) { preset in
                     Button(preset.name) { settings.apply(preset, countdown: countdown) }
                 }
-                if presets.items.isEmpty { Text(L("環境設定でプリセットを保存できます")) }
+                if presets.items.isEmpty { Text(L("設定でプリセットを保存できます")) }
             }.disabled(settings.busy)
             Text(settings.message)
                 .font(.system(size: 11))
@@ -735,13 +845,19 @@ struct SettingsView: View {
             HStack {
                 Text("PodiumFlight").font(.system(size: 11)).foregroundStyle(.secondary)
                 Spacer()
+                // The main menu is hidden for this menu bar app, so help is reachable here by mouse.
+                Menu(L("ヘルプ")) {
+                    Button(L("PodiumFlightヘルプ")) { LocalHelp.shared.show() }
+                    Divider()
+                    Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
+                }
+                .fixedSize()
                 Button(L("終了")) { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
             }
         }
         .padding(18)
         .onAppear { settings.refresh() }
-        .onReceive(timer) { _ in settings.refresh() }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.refresh() }
     }
 
@@ -815,4 +931,31 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+    let icon = NSImageView(image: currentAppIcon())
+    icon.imageScaling = .scaleProportionallyUpOrDown
+    icon.setAccessibilityElement(false)
+    icon.widthAnchor.constraint(equalToConstant: size).isActive = true
+    icon.heightAnchor.constraint(equalToConstant: size).isActive = true
+    let label = NSTextField(labelWithString: title)
+    label.font = .systemFont(ofSize: size == 44 ? 20 : 15, weight: .semibold)
+    let detail = NSTextField(wrappingLabelWithString: subtitle)
+    detail.font = .systemFont(ofSize: size == 44 ? 12 : 11)
+    detail.textColor = .secondaryLabelColor
+    let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
+    text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
+    let row = NSStackView(views: [icon, text])
+    row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
+    return row
 }

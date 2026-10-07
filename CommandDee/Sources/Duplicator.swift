@@ -68,25 +68,25 @@ enum Duplicator {
         func invalid(_ message: String) -> NSError {
             NSError(domain: "CommandDee", code: 5, userInfo: [NSLocalizedDescriptionKey: message])
         }
-        guard sources.count == 2 else { throw invalid("名前の入れ替えは、同じフォルダーの2項目を選択してください。") }
+        guard sources.count == 2 else { throw invalid(L("error.swapCount")) }
         let a = sources[0].standardizedFileURL
         let b = sources[1].standardizedFileURL
         guard a != b, a.deletingLastPathComponent().resolvingSymlinksInPath() == b.deletingLastPathComponent().resolvingSymlinksInPath() else {
-            throw invalid("同じフォルダーにある、異なる2項目を選択してください。")
+            throw invalid(L("error.swapDistinct"))
         }
         var first = stat(), second = stat()
         guard lstat(a.path, &first) == 0, lstat(b.path, &second) == 0 else {
             throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
         }
         guard first.st_dev != second.st_dev || first.st_ino != second.st_ino else {
-            throw invalid("同じ実体を指す2項目は入れ替えできません。")
+            throw invalid(L("error.swapSameItem"))
         }
         guard (first.st_mode & S_IFMT) == (second.st_mode & S_IFMT) else {
-            throw invalid("同じ種類の2項目を選択してください（ファイル同士、フォルダー同士）。")
+            throw invalid(L("error.swapKind"))
         }
         guard renameatx_np(AT_FDCWD, a.path, AT_FDCWD, b.path, UInt32(RENAME_SWAP)) == 0 else {
             let failure = NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
-            throw invalid("名前を入れ替えできませんでした。変更は行っていません。\n" + failure.localizedDescription)
+            throw invalid(L("error.swapFailed") + "\n" + failure.localizedDescription)
         }
         return [b, a]
     }
@@ -110,7 +110,7 @@ enum Duplicator {
         }
         let parentName = namingParent.lastPathComponent
         guard !parentName.isEmpty, parentName != "/" else {
-            throw NSError(domain: "CommandDee", code: 3, userInfo: [NSLocalizedDescriptionKey: "親フォルダー名を取得できません。"])
+            throw NSError(domain: "CommandDee", code: 3, userInfo: [NSLocalizedDescriptionKey: L("error.noParentName")])
         }
         let tag = "-" + parentName
         // A dotted parent name must not become the extension of a suffix-only filename.
@@ -119,7 +119,7 @@ enum Duplicator {
         let stem = removesFullSuffix ? String(fullName.dropLast(tag.count))
             : (parts.stem.hasSuffix(tag) ? String(parts.stem.dropLast(tag.count)) : parts.stem + tag)
         guard !stem.isEmpty, stem != ".", stem != ".." else {
-            throw NSError(domain: "CommandDee", code: 4, userInfo: [NSLocalizedDescriptionKey: "親フォルダー名を外すとファイル名が空になるため、処理できません。"])
+            throw NSError(domain: "CommandDee", code: 4, userInfo: [NSLocalizedDescriptionKey: L("error.emptyName")])
         }
         return parent.appendingPathComponent(stem + (removesFullSuffix ? "" : parts.suffix))
     }
@@ -128,7 +128,7 @@ enum Duplicator {
         let destination = try parentToggleDestination(source, skipping: skippedName)
         func collision() -> NSError {
             NSError(domain: "CommandDee", code: 2, userInfo: [NSLocalizedDescriptionKey:
-                "「\(destination.lastPathComponent)」がすでに存在するため名前を変更しませんでした。既存ファイルは上書きしていません。"])
+                L("error.renameExists", destination.lastPathComponent)])
         }
         if (try? manager.attributesOfItem(atPath: destination.path)) != nil { throw collision() }
         do { try manager.moveItem(at: source, to: destination) }
@@ -143,7 +143,7 @@ enum Duplicator {
                                               manager: FileManager) throws -> URL {
         func collision() -> NSError {
             NSError(domain: "CommandDee", code: 2, userInfo: [NSLocalizedDescriptionKey:
-                "「\(destination.lastPathComponent)」がすでに存在するため複製しませんでした。既存ファイルは上書きしていません。"])
+                L("error.copyExists", destination.lastPathComponent)])
         }
         if (try? manager.attributesOfItem(atPath: destination.path)) != nil { throw collision() }
         do { try manager.copyItem(at: source, to: destination) }
@@ -201,12 +201,12 @@ enum Duplicator {
                 guard sibling.base == parsed.base, sibling.date == parsed.date,
                       sibling.edited == parsed.edited, let digits = sibling.version else { continue }
                 guard let number = Int(digits), number < Int.max else {
-                    throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: "バージョン番号が大きすぎるため、次の番号を作成できません。"])
+                    throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionTooLarge")])
                 }
                 maximum = max(maximum, number)
             }
             guard maximum < Int.max else {
-                throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: "次のバージョン番号を作成できません。"])
+                throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionNext")])
             }
             let version = maximum + 1
             parsed.version = String(version)

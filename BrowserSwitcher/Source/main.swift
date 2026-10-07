@@ -92,6 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     var shortcutKey = UInt32(kVK_ANSI_Q)
     var shortcutModifiers = UInt32(controlKey | optionKey)
     var shortcutSerial: UInt32 = 1
+    var shortcutTap = ShortcutDoubleTap()
     var shortcutKeyMenu: NSPopUpButton?
     var shortcutModifierButtons: [NSButton] = []
     var shortcutStatus: NSTextField?
@@ -118,14 +119,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        defer { DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            MenuBarPresence.shared.install(name: "BrowserSwitcher", symbol: "globe", existing: nil,
+                show: { [weak self] in self?.showMainWindow() },
+                settings: { [weak self] in self?.showPreferences() },
+                help: { [weak self] in LocalHelp.shared.show() })
+        } }
+        DispatchQueue.main.async { LocalHelp.shared.install() }
         let menu = NSMenu()
         let root = NSMenuItem()
         menu.addItem(root)
         let appMenu = NSMenu()
-        let about = appMenu.addItem(withTitle: L("ブラウザー切り換えについて"), action: #selector(showAbout), keyEquivalent: "")
+        let about = appMenu.addItem(withTitle: L("ブラウザー切り替えについて"), action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         appMenu.addItem(.separator())
-        let preferences = appMenu.addItem(withTitle: L("環境設定…"), action: #selector(showPreferences), keyEquivalent: ",")
+        let preferences = appMenu.addItem(withTitle: L("設定…"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
         appMenu.addItem(.separator())
         #if DIRECT_UPDATES && !APP_STORE
@@ -151,12 +160,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             self?.table.moveSelection(direction)
         }
         window.delegate = self
-        window.title = L("ブラウザー切り換え")
+        window.title = ""
+        window.titleVisibility = .hidden
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
         let content = window.contentView!
+        AppSurface.install(in: content)
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 12
@@ -169,12 +180,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         ])
         refresh()
         window.center()
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        if !StartupWindow.hidden { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         registerGlobalShortcut()
     }
     var shortcutName: String {
-        modifierChoices.filter { shortcutModifiers & $0.1 != 0 }.map { $0.0 }.joined() + (shortcutKeys.first { $0.1 == shortcutKey }?.0 ?? "Q")
+        let keys = modifierChoices.filter { shortcutModifiers & $0.1 != 0 }.map { $0.0 }.joined() + (shortcutKeys.first { $0.1 == shortcutKey }?.0 ?? "Q")
+        return L("%@（2回押す）", keys)
     }
     func registerGlobalShortcut() {
         if let saved = UserDefaults.standard.dictionary(forKey: "callShortcut"),
@@ -184,7 +195,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             shortcutKey = code.uint32Value
             shortcutModifiers = modifiers.uint32Value
         }
-        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        var eventTypes = [
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased))
+        ]
         let context = Unmanaged.passUnretained(self).toOpaque()
         let installed = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
             guard let event = event, let context = context else { return OSStatus(eventNotHandledErr) }
@@ -192,9 +206,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             let result = GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &identifier)
             guard result == noErr, identifier.signature == 0x42535754 else { return OSStatus(eventNotHandledErr) }
             let owner = Unmanaged<AppDelegate>.fromOpaque(context).takeUnretainedValue()
-            owner.showMainWindow()
+            guard identifier.id == owner.shortcutSerial else { return noErr }
+            if owner.shortcutTap.handle(pressed: GetEventKind(event) == UInt32(kEventHotKeyPressed), time: ProcessInfo.processInfo.systemUptime) {
+                owner.showMainWindow()
+            }
             return noErr
-        }, 1, &eventType, context, &hotKeyHandler)
+        }, 2, &eventTypes, context, &hotKeyHandler)
         let registered: OSStatus
         if installed == noErr {
             registered = RegisterEventHotKey(shortcutKey, shortcutModifiers, EventHotKeyID(signature: 0x42535754, id: 1), GetApplicationEventTarget(), 0, &hotKey)
@@ -203,7 +220,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         if registered != noErr {
             let alert = NSAlert()
-            alert.messageText = L("ショートカットを登録できませんでした")
+            alert.messageText = L("ホットキーを登録できませんでした")
             alert.informativeText = L("%@ がほかのアプリで使われていないか確認してください。アプリのアイコンからは引き続き開けます。（エラー：%@）", String(describing: shortcutName), String(describing: registered))
             alert.beginSheetModal(for: window)
         }
@@ -244,12 +261,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         for view in stack.arrangedSubviews { stack.removeArrangedSubview(view); view.removeFromSuperview() }
         items = browsers().filter { !excludedIDs.contains($0.id.lowercased()) }
         let current = handler("https")
-        let title = NSTextField(labelWithString: L("既定のブラウザーを選択"))
-        title.font = .boldSystemFont(ofSize: 20)
+        let title = appHeader(L("既定のブラウザーを選択"), subtitle: L("リンクを開くブラウザーを切り替えます。"))
         stack.addArrangedSubview(title)
-        let subtitle = NSTextField(wrappingLabelWithString: L("リンクを開くブラウザーを切り換えます。"))
-        subtitle.textColor = .secondaryLabelColor
-        stack.addArrangedSubview(subtitle)
         let available = switchingAvailable
         currentID = current?.lowercased()
         table.delegate = nil
@@ -285,7 +298,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         stack.addArrangedSubview(scroll)
         scroll.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         scroll.heightAnchor.constraint(equalToConstant: CGFloat(max(1, min(items.count, 6)) * 80 + 2)).isActive = true
-        status.stringValue = message ?? (items.isEmpty ? L("表示するブラウザーがありません。環境設定で除外を解除できます。") : L("Tab・↑↓で選択、Escで隠す。\n⌘＋Return／⌘＋クリック／ダブルクリックで実行。"))
+        status.stringValue = message ?? (items.isEmpty ? L("表示するブラウザーがありません。設定で除外を解除できます。") : L("Tab・↑↓で選択、Escで隠す。\n⌘＋Return／⌘＋クリック／ダブルクリックで実行。"))
         status.textColor = .secondaryLabelColor
         status.font = .systemFont(ofSize: 12)
         stack.addArrangedSubview(status)
@@ -293,14 +306,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let actions = NSStackView()
         actions.orientation = .horizontal
         actions.spacing = 12
-        let preferences = NSButton(title: L("環境設定…"), target: self, action: #selector(showPreferences))
+        let preferences = NSButton(title: L("設定…"), target: self, action: #selector(showPreferences))
         preferences.bezelStyle = .rounded
         preferences.isEnabled = !busy
         actions.addArrangedSubview(preferences)
         let spacer = NSView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         actions.addArrangedSubview(spacer)
-        let change = NSButton(title: L("切り換える"), target: self, action: #selector(performSwitch))
+        let change = NSButton(title: L("切り替える"), target: self, action: #selector(performSwitch))
         change.bezelStyle = .rounded
         change.keyEquivalent = "\r"
         change.keyEquivalentModifierMask = [.command]
@@ -347,6 +360,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             shortcutKey = key
             shortcutModifiers = modifiers
         }
+        shortcutTap = ShortcutDoubleTap()
         UserDefaults.standard.set(["key": Int(key), "modifiers": Int(modifiers)], forKey: "callShortcut")
         for button in shortcutModifierButtons { button.state = modifiers & modifierChoices[button.tag].1 != 0 ? .on : .off }
         shortcutKeyMenu?.selectItem(at: shortcutKeys.firstIndex { $0.1 == key } ?? 16)
@@ -356,7 +370,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
         NSApp.orderFrontStandardAboutPanel(options: [
-            .applicationName: L("ブラウザー切り換え"),
+            .applicationName: L("ブラウザー切り替え"),
             .applicationVersion: version,
             .version: build
         ])
@@ -368,26 +382,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             return
         }
         preferenceBrowsers = browsers()
-        let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 400 + min(2, max(1, preferenceBrowsers.count)) * 44), styleMask: [.titled], backing: .buffered, defer: false)
-        panel.title = L("環境設定")
+        let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 465 + 44 + min(2, max(1, preferenceBrowsers.count)) * 44), styleMask: [.titled], backing: .buffered, defer: false)
+        panel.title = L("設定")
         panel.isReleasedWhenClosed = false
         preferencesWindow = panel
         let content = panel.contentView!
-        let layout = NSStackView()
-        layout.orientation = .vertical
-        layout.alignment = .leading
-        layout.spacing = 16
-        layout.translatesAutoresizingMaskIntoConstraints = false
-        content.addSubview(layout)
-        NSLayoutConstraint.activate([
-            layout.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            layout.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            layout.topAnchor.constraint(equalTo: content.topAnchor, constant: 24)
-        ])
-        layout.addArrangedSubview(MainActor.assumeIsolated { LoginAtLaunchControl() })
-        let shortcutTitle = NSTextField(labelWithString: L("呼び出しショートカット"))
-        shortcutTitle.font = .boldSystemFont(ofSize: 17)
-        layout.addArrangedSubview(shortcutTitle)
+        let launch = NSStackView(); launch.orientation = .vertical; launch.alignment = .leading; launch.spacing = 10
+        launch.addArrangedSubview(MainActor.assumeIsolated { LoginAtLaunchControl() })
+
+        launch.addArrangedSubview(MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() })
+        let shortcutTitle = NSTextField(labelWithString: SettingsUI.shortcutTitle)
+        shortcutTitle.font = .systemFont(ofSize: 13, weight: .semibold)
+        launch.addArrangedSubview(shortcutTitle)
         let shortcutRow = NSStackView()
         shortcutRow.orientation = .horizontal
         shortcutRow.spacing = 8
@@ -408,7 +414,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let apply = NSButton(title: L("適用"), target: self, action: #selector(applyShortcut))
         apply.bezelStyle = .rounded
         shortcutRow.addArrangedSubview(apply)
-        layout.addArrangedSubview(shortcutRow)
+        launch.addArrangedSubview(shortcutRow)
         let infoRow = NSStackView()
         infoRow.orientation = .horizontal
         infoRow.spacing = 8
@@ -421,14 +427,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let reset = NSButton(title: L("初期値に戻す"), target: self, action: #selector(resetShortcut))
         reset.bezelStyle = .rounded
         infoRow.addArrangedSubview(reset)
-        layout.addArrangedSubview(infoRow)
+        launch.addArrangedSubview(infoRow)
+        let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [launch]) }
         let title = NSTextField(labelWithString: L("一覧から除外するブラウザー"))
         title.font = .boldSystemFont(ofSize: 17)
-        layout.addArrangedSubview(title)
         let help = NSTextField(wrappingLabelWithString: L("チェックしたブラウザーを非表示にします。変更は自動保存されます。"))
         help.textColor = .secondaryLabelColor
-        layout.addArrangedSubview(help)
-        help.widthAnchor.constraint(equalTo: layout.widthAnchor).isActive = true
         let list = NSStackView()
         list.orientation = .vertical
         list.alignment = .leading
@@ -450,13 +454,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         list.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor).isActive = true
         list.topAnchor.constraint(equalTo: scroll.contentView.topAnchor).isActive = true
         list.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor).isActive = true
-        layout.addArrangedSubview(scroll)
-        scroll.widthAnchor.constraint(equalTo: layout.widthAnchor).isActive = true
+        let browsersGroup = MainActor.assumeIsolated { SettingsUI.group(title.stringValue, [help, scroll]) }
         scroll.heightAnchor.constraint(equalToConstant: CGFloat(min(2, max(1, preferenceBrowsers.count)) * 44 + 16)).isActive = true
+        // The sheet has no close button, so 完了 sits outside the tabs and is shown on every tab.
         let done = NSButton(title: L("完了"), target: self, action: #selector(closePreferences))
         done.bezelStyle = .rounded
         done.keyEquivalent = "\r"
-        layout.addArrangedSubview(done)
+        done.sizeToFit(); done.frame.size.width = max(done.frame.width, 88)
+        done.frame.origin = NSPoint(x: content.bounds.width - done.frame.width - 20, y: 16)
+        done.autoresizingMask = [.minXMargin, .maxYMargin]
+        content.addSubview(done)
+        let tabArea = NSView(frame: NSRect(x: 0, y: 52, width: content.bounds.width, height: content.bounds.height - 52))
+        tabArea.autoresizingMask = [.width, .height]
+        content.addSubview(tabArea)
+        MainActor.assumeIsolated { SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsUI.displayTitle, browsersGroup)], in: tabArea) }
         window.beginSheet(panel)
     }
     @objc func toggleExclusion(_ sender: NSButton) {
@@ -520,7 +531,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         guard !busy, let selectedID = selectedID, let browser = items.first(where: { $0.id == selectedID }) else { return }
         guard handler("https")?.lowercased() != browser.id.lowercased() || handler("http")?.lowercased() != browser.id.lowercased() else { return }
         busy = true
-        refresh(message: L("%@ に切り換え中…\nmacOSの確認が表示されたら許可してください。", String(describing: browser.name)))
+        refresh(message: L("%@ に切り替え中…\nmacOSの確認が表示されたら許可してください。", String(describing: browser.name)))
         Task { @MainActor in
             do {
                 // HTTP is the default-browser entry point; HTTPS may follow the same change.
@@ -530,10 +541,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 }
                 busy = false
                 let matches = handler("https")?.lowercased() == browser.id.lowercased() && handler("http")?.lowercased() == browser.id.lowercased()
-                refresh(message: matches ? L("%@ に切り換えました。", String(describing: browser.name)) : L("切り換えを確認できませんでした。macOSの確認ダイアログをご確認ください。"))
+                refresh(message: matches ? L("%@ に切り替えました。", String(describing: browser.name)) : L("切り替えを確認できませんでした。macOSの確認ダイアログボックスをご確認ください。"))
             } catch {
                 busy = false
-                refresh(message: L("切り換えを完了できませんでした：%@", String(describing: error.localizedDescription)))
+                refresh(message: L("切り替えを完了できませんでした：%@", String(describing: error.localizedDescription)))
             }
         }
 
@@ -598,4 +609,31 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+    let icon = NSImageView(image: currentAppIcon())
+    icon.imageScaling = .scaleProportionallyUpOrDown
+    icon.setAccessibilityElement(false)
+    icon.widthAnchor.constraint(equalToConstant: size).isActive = true
+    icon.heightAnchor.constraint(equalToConstant: size).isActive = true
+    let label = NSTextField(labelWithString: title)
+    label.font = .systemFont(ofSize: size == 44 ? 20 : 15, weight: .semibold)
+    let detail = NSTextField(wrappingLabelWithString: subtitle)
+    detail.font = .systemFont(ofSize: size == 44 ? 12 : 11)
+    detail.textColor = .secondaryLabelColor
+    let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
+    text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
+    let row = NSStackView(views: [icon, text])
+    row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
+    return row
 }

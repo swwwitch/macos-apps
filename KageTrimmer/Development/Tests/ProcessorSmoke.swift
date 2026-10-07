@@ -47,12 +47,16 @@ struct ProcessorSmoke {
         print("PASS shadow removal and shadowless skip")
         let result = try ShadowProcessor.process(url: input, addBorderWhenMissing: true)
         guard result.hadShadow, FileManager.default.fileExists(atPath: result.output.path) else { throw NSError(domain: "Smoke", code: 2) }
-        for (size, suffix) in [(10, "-xs"), (27, "-s"), (112, "-l")] {
+        let firstOutput = try Data(contentsOf: result.output)
+        // The default size is S, so "-s.png" already exists: the second S output must get a number.
+        for (size, name) in [(10, "smoke-input-xs.png"), (27, "smoke-input-s 2.png"), (112, "smoke-input-l.png"), (27, "smoke-input-s 3.png")] {
             let sized = try ShadowProcessor.process(url: input, addBorderWhenMissing: true, shadowSize: size)
-            guard sized.output.lastPathComponent == "smoke-input" + suffix + ".png",
+            guard sized.output.lastPathComponent == name,
                   FileManager.default.fileExists(atPath: sized.output.path) else { throw NSError(domain: "Smoke", code: 8) }
-            print("PASS suffix \(suffix)")
+            print("PASS output \(name)")
         }
+        guard try Data(contentsOf: result.output) == firstOutput else { throw NSError(domain: "Smoke", code: 9, userInfo: [NSLocalizedDescriptionKey: "Existing output was replaced"]) }
+        print("PASS existing output kept")
         let outputSource = CGImageSourceCreateWithURL(result.output as CFURL, nil)!
         let outputProperties = CGImageSourceCopyPropertiesAtIndex(outputSource, 0, nil) as! [CFString: Any]
         guard (outputProperties[kCGImagePropertyDPIWidth] as? NSNumber)?.intValue == 144,

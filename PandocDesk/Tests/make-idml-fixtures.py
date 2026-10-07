@@ -1,0 +1,11 @@
+from pathlib import Path
+from zipfile import ZipFile,ZIP_DEFLATED
+root=Path(__file__).parent/'Fixtures';root.mkdir(exist_ok=True)
+mapxml='''<Document xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"><idPkg:Story src="Stories/Story_B.xml"/><idPkg:Story src="Stories/Story_A.xml"/></Document>'''
+first='''<idPkg:Story xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"><Story Self="B"><ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Heading 1"><CharacterStyleRange><Content>IDML 日本語見出し</Content><Br/></CharacterStyleRange></ParagraphStyleRange><ParagraphStyleRange><CharacterStyleRange FontStyle="Bold"><Content>最初の段落 &amp; &lt;安全&gt;</Content><Br/><Content>次の段落</Content><Br/></CharacterStyleRange></ParagraphStyleRange><ParagraphStyleRange><CharacterStyleRange><Table><Cell Name="1:0"><ParagraphStyleRange><CharacterStyleRange><Content>右</Content></CharacterStyleRange></ParagraphStyleRange></Cell><Cell Name="0:0"><ParagraphStyleRange><CharacterStyleRange><Content>左</Content></CharacterStyleRange></ParagraphStyleRange></Cell><Cell Name="0:1" ColumnSpan="2"><ParagraphStyleRange><CharacterStyleRange><Content>結合セル</Content></CharacterStyleRange></ParagraphStyleRange></Cell></Table></CharacterStyleRange></ParagraphStyleRange></Story></idPkg:Story>'''
+second='''<idPkg:Story xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"><Story Self="A"><ParagraphStyleRange><CharacterStyleRange FontStyle="Italic"><Content>最後のストーリー</Content></CharacterStyleRange></ParagraphStyleRange></Story></idPkg:Story>'''
+with ZipFile(root/'sample.idml','w',ZIP_DEFLATED) as z:
+ z.writestr('mimetype','application/vnd.adobe.indesign-idml-package');z.writestr('designmap.xml',mapxml);z.writestr('Stories/Story_A.xml',second);z.writestr('Stories/Story_B.xml',first)
+with ZipFile(root/'invalid.idml','w') as z:z.writestr('designmap.xml',mapxml.replace('Stories/Story_B.xml','Stories/../../outside.xml'))
+with ZipFile(root/'empty.idml','w') as z:
+ z.writestr('designmap.xml','<Document xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"><idPkg:Story src="Stories/empty.xml"/></Document>');z.writestr('Stories/empty.xml','<Story><ParagraphStyleRange><CharacterStyleRange><Content/></CharacterStyleRange></ParagraphStyleRange></Story>')

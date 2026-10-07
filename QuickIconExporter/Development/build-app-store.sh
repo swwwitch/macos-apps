@@ -14,7 +14,8 @@ cd "$project_dir"
 APP_STORE_BUILD=1 ./build-app.sh
 
 mkdir -p "$export_dir"
-ditto "$project_dir/outputs/QuickIconExporter.app" "$app_path"
+rm -rf "$app_path"
+ditto "$export_dir/build/QuickIconExporter.app" "$app_path"
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $APP_BUNDLE_ID" "$app_path/Contents/Info.plist"
 

@@ -1,0 +1,53 @@
+# PDF2Keynote
+
+PDFの各ページをKeynoteのスライドに1枚ずつ配置するSwiftUI/AppKitアプリ。Apple Silicon / macOS 13以降。Keynoteが必要。
+
+PDFKitで1ページずつのPDFに分け、共通部品のAppleScript（`../Shared/KeynoteExport/Keynote.applescript`、ビルド時に`Keynote.scpt`へコンパイル）を`osascript`経由で実行し、Keynoteに新規プレゼンテーションを作らせて画像として配置する。ページはPDFのまま埋め込まれるためベクターを保持する。Keynoteのファイル形式は直接書かない。
+
+- スライドサイズ：PDFに合わせる（長辺1920）／1920×1080／1024×768／1280×720／1680×1050
+- 配置：全体を収める／スライドを埋める（はみ出しはスライド外）
+- 使用する枠：CropBox（既定）／TrimBox／BleedBox／MediaBox／ArtBox
+- ページ範囲、保存先（PDFと同じ／デスクトップ／指定）、変換後にKeynoteで開いたままにする
+- 原本は変更しない。同名は「名前 2.key」で回避。キャンセル時は作成中の書類を保存せず閉じる
+
+権限：Keynoteへのオートメーション（Apple Events）のみ。アクセシビリティ・フルディスクアクセスは不要。外部通信なし、診断ログなし。
+
+旧「PDF to Keynote」（net.clawpaws.PDFtoKeynote）は構造の調査のみ行い、そのコード・テンプレートは使用していない。
+
+ビルド：`./build.sh`（`make-resources.py`で4言語のリソースを生成）。テスト：`./test.sh`（`./test.sh --keynote`でKeynote実機の結合テストも実行）。配置：`python3 deploy.py`。
+
+アプリの配信更新・Developer ID署名・公証は未設定。ローカル用ad-hoc署名。サポート：この開発フォルダのREADMEとBASELINE-CHECKLIST。公開問い合わせ先は未設定。
+
+## 1.0.7 / build 8
+
+キー操作の割り当ての呼び名を「ホットキー」に統一（「アプリ起動のホットキー」、ヘルプの見出し）。ショートカットAppに関する記述はそのまま。
+
+## 1.0.6 / build 7
+
+ヘルプを見出し・箇条書き付きで読みやすく表示（共通部品 HelpDocument）。ヘルプ本文を4言語とも章立てし直した（help_text.py）。ヘルプメニューに「note記事を開く」を追加（Info.plistのSWNoteArticleURL）。
+
+## 1.0.5 / build 6
+
+「環境設定」を「設定」に変更（macOS 13以降の表記）。メニューは「設定…」、ウインドウのタイトルは「設定」。
+
+## 1.0.4 / build 5
+
+変換処理を共通部品 `Shared/KeynoteExport/` へ移し、PandocDeskのKeynote出力と共有（動作の変更なし）。単体テスト・Keynote実機の結合テストとも合格。
+
+## 1.0.3 / build 4
+
+修正：一度も登録していないアプリはログイン項目の状態が「見つからない」になり、/Applicationsにあっても「アプリケーションフォルダに移動して」と表示していた。実際にアプリケーションフォルダの外にあるときだけ表示する。
+
+## 1.0.2 / build 3
+
+環境設定の「起動・常駐」を共通部品 LaunchPresenceSection に置き換え（表示内容・順序・設定値は変更なし）。共通部品には常駐とショートカットの間に置く任意の欄（presenceExtra）を追加し、メニューバー表示をそこに入れた。既存の呼び出し（FolderMover）はそのまま使える。
+
+## 1.0.1 / build 2
+
+保存先に「デスクトップ」を追加（元のPDFと同じフォルダ／デスクトップ／指定したフォルダ）。選択は保持。同名は従来どおり連番で回避。
+
+修正：osascriptが実行後にコンパイル済みスクリプトを書き戻し、バンドル内の`Keynote.scpt`が変わって署名が無効になっていた。起動ごとに一時フォルダへ複製して実行し、終了時に削除する。
+
+## 1.0.0 / build 1
+
+初版。

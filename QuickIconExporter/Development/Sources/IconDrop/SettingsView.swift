@@ -4,16 +4,10 @@ struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
-        Form {
-            Section {
-                Toggle("書き出し後、Finderで表示", isOn: $settings.revealsInFinder)
-                Toggle("書き出し後、アプリを隠す", isOn: $settings.hidesAfterExport)
-                Text("Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ショートカットはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。")
-                    .font(.caption)
-            }
-
-            Section { LoginAtLaunchView().frame(height: 80) }
-            Section(L("書き出し")) {
+        SettingsTabs(sections: [
+            (SettingsUI.launchTitle, AnyView(Form { Section(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() 
+            } }.formStyle(.grouped))),
+            (L("書き出し"), AnyView(Form { Section(L("書き出し")) {
                 LabeledContent(L("保存先")) {
                     Text(settings.outputDirectory.path(percentEncoded: false))
                         .lineLimit(1)
@@ -31,18 +25,13 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 }
-            }
-
-            Section(L("完了時")) {
-                Toggle(L("通知を表示"), isOn: $settings.showsCompletionNotification)
-                Toggle(L("効果音を鳴らす"), isOn: $settings.playsCompletionSound)
-
-                Text(L("通知を初めて使用するときは、macOSから許可を求められます。"))
+            
+                Text(L("PNGは透過を保ったまま、取得できる最大のピクセルサイズで保存されます。同名ファイルがある場合は番号を付けて保存します。"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-
-            Section(L("ファイル名")) {
+            
+            } }.formStyle(.grouped))),
+            (L("ファイル名"), AnyView(Form { Section(L("ファイル名")) {
                 LabeledContent(L("icon部分")) {
                     TextField("", text: $settings.filenamePrefix)
                         .textFieldStyle(.roundedBorder)
@@ -95,16 +84,22 @@ struct SettingsView: View {
                         settings.restoreFilenameDefaults()
                     }
                 }
-            }
+            
+            } }.formStyle(.grouped))),
+            (L("完了時"), AnyView(Form { Section(L("完了時")) {
+                Toggle(L("書き出し後、Finderで表示"), isOn: $settings.revealsInFinder)
+                Toggle(L("書き出し後、アプリを隠す"), isOn: $settings.hidesAfterExport)
+                Toggle(L("通知を表示"), isOn: $settings.showsCompletionNotification)
+                Toggle(L("効果音を鳴らす"), isOn: $settings.playsCompletionSound)
+                Text(L("通知を初めて使用するときは、macOSから許可を求められます。"))
+                    .font(.caption).foregroundStyle(.secondary)
 
-            Section {
-                Text(L("PNGは透過を保ったまま、取得できる最大のピクセルサイズで保存されます。同名ファイルがある場合は番号を付けて保存します。"))
+            
+            } }.formStyle(.grouped))),
+            (StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키"), AnyView(Form { Section(StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키")) {                Text(L("Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .formStyle(.grouped)
-        .padding(.vertical, 8)
+            } }.formStyle(.grouped)))
+        ]).padding(12)
     }
 
     private var filenamePreview: String {

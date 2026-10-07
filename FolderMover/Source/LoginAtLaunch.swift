@@ -23,6 +23,7 @@ final class LoginAtLaunchControl: NSStackView {
         addArrangedSubview(toggle)
         addArrangedSubview(statusLabel)
         addArrangedSubview(settingsButton)
+        addArrangedSubview(StartupWindowControl())
         activationObserver = NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
         }

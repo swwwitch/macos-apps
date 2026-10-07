@@ -24,8 +24,8 @@ enum Browser {
         if let error {
             let code = error[NSAppleScript.errorNumber] as? Int ?? -1
             let message = code == -1743
-                ? "システム設定 → プライバシーとセキュリティ → オートメーションで、CommandDeeによるFinder／Path Finderの操作を許可してください。"
-                : String(describing: error[NSAppleScript.errorMessage] ?? "選択ファイルを取得できませんでした。")
+                ? L("error.automation")
+                : String(describing: error[NSAppleScript.errorMessage] ?? L("error.selection"))
             throw NSError(domain: "CommandDee.AppleScript", code: code, userInfo: [NSLocalizedDescriptionKey: message])
         }
         guard result.numberOfItems > 0 else { return [] }

@@ -56,6 +56,8 @@ struct FilenameRules {
 
 @MainActor
 final class AppSettings: ObservableObject {
+    /// One instance for the window, Settings, Dock drops and Services so changes apply immediately.
+    static let shared = AppSettings()
     private static let outputDirectoryKey = "outputDirectory"
     private static let outputDirectoryBookmarkKey = "outputDirectoryBookmark"
     private static let filenamePrefixKey = "filenamePrefix"

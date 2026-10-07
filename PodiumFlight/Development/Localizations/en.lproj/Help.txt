@@ -1,0 +1,86 @@
+A menu bar app that controls your Mac’s display settings and a timer, for seminars and screen recordings. It does not appear in the Dock.
+
+## How to Use
+Click the “screen + clock” icon in the menu bar to open the main window (Seminar & Capture Preparation). You can switch the following:
+
+### Display
+- **Clock**: switch the menu bar clock between Digital and Analog. You can also show or hide the Date and Day of Week (for the digital clock).
+- **Appearance**: switch the whole Mac between Light and Dark.
+
+### Dock and Desktop
+- **Hide Dock (Automatically)**: turn Dock auto-hide on or off.
+- **Suppress Dock (Minimum Size and Delay)**: sets the Dock to size 1 with a 3,000,000-second appearance delay. Turning it off restores the settings from just before you turned it on.
+- **Hide Desktop Icons**: hides the file icons on the desktop. Files are not deleted.
+
+### Notifications, Apps and Presets
+- **Notifications**: OFF turns on Do Not Disturb; ON turns it off. Allowed notifications may still arrive.
+- **Quit Selected Apps**: asks the apps registered in the Quit Apps tab of Settings to quit.
+- **Apply Preset**: applies a saved preset’s settings all at once.
+
+※ Changes to system settings remain after you quit PodiumFlight.
+
+## Timer
+1. In the Timer tab of Settings, set the Start Time, Duration, and End Time (Start Time + Duration = End Time).
+2. Click Start / Schedule to run it.
+3. Click Stop to stop it.
+
+- Changing the start time or duration updates the end time; changing the end time updates the duration. The duration can be 1 to 10,080 minutes.
+- Before the start, the menu bar shows “Starts in” and the time until the start; after the start, it shows the remaining time and stops at 00:00 when the timer ends.
+- If you change the values while the timer is running, click Apply Settings and Restart.
+- The timer resumes after the app restarts, and time keeps counting while the Mac is asleep.
+- Turning off Use Timer stops it and leaves only the icon in the menu bar.
+
+## Presets
+1. In the Presets tab of Settings, enter a Preset Name.
+2. Check the items to change and choose their values. Unchecked items are not changed.
+3. Click Save New (or Overwrite while editing a saved preset).
+
+- The only timer item in a preset is the duration. Starting or scheduling the timer is a separate action, so applying a preset never starts the timer.
+- Use Edit Launch Apps… and Edit Quit Apps… to edit app lists that belong to the preset; click Done and then save the preset. Other presets are not affected.
+- The lists in the Launch Apps and Quit Apps tabs are for manual actions.
+
+## Settings
+Open Settings with the Settings… button in the main window or with ⌘,. Click Back to Settings to return to the main window.
+- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Launch Apps**: add or remove the apps that Launch Selected Apps opens. Apps that are already running are not opened again.
+- **Quit Apps**: add or remove the apps that Quit Selected Apps quits. Apps are not force quit; if there are unsaved documents, save them when the app asks.
+- **Timer**, **Presets**: see above
+
+## Keyboard Shortcuts
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: PodiumFlight Help
+- **⌘Q**: Quit PodiumFlight (the Quit button in the main window)
+- **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)
+
+## Permissions and Notifications
+### Changing the Appearance (System Events)
+Changing the appearance uses System Events. Allow it when you are asked the first time. If you didn’t, allow PodiumFlight to control System Events in System Settings → Privacy & Security → Automation. PodiumFlight does not need Accessibility permission.
+
+### Switching Notifications (Shortcuts)
+PodiumFlight uses these two shortcuts in the Shortcuts app on your Mac. Create them with exactly these names.
+- **Toki Notifications Off**: turns Do Not Disturb on
+- **Toki Notifications On**: turns Do Not Disturb off
+
+※ You need these two shortcuts on every Mac where you use this feature.
+
+## Opening and Quitting
+- Closing the window does not quit the app; it stays in the menu bar. Click the menu bar icon to show the main window again.
+- When opened at login, or when Hide main window at startup is on, the app starts without opening the main window.
+- Turning off Show in menu bar does not quit the app. Open PodiumFlight again to show the main window.
+- To quit, click the Quit button in the main window (⌘Q). The menu bar display disappears, but the system settings you changed stay as they are.
+
+## Troubleshooting
+- PodiumFlight may restart the Dock or Finder to apply Dock and desktop settings.
+- If notifications don’t switch, make sure the Shortcuts app contains “Toki Notifications Off” and “Toki Notifications On” with exactly these names.
+- If the appearance doesn’t change, check the Automation permission described above.
+- The clock and Dock settings use internal macOS settings, so their behavior may change with macOS updates.
+
+## Help and the note Article
+- To open this help, choose PodiumFlight Help from the Help menu at the bottom of the main window (or press ⌘?).
+- Choose Open the note Article in the same menu to read the article on note in your browser.
+
+## Removing the App
+1. If needed, restore your Dock settings and desktop icons.
+2. Turn off Open at login.
+3. Quit with the Quit button in the main window, and then move PodiumFlight to the Trash.

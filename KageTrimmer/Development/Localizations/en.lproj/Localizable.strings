@@ -1,8 +1,8 @@
-"環境設定" = "Settings";
+"設定" = "Settings";
 "処理する画像を選択" = "Choose Images to Process";
 "選択" = "Choose";
 "KageTrimmerについて" = "About KageTrimmer";
-"環境設定…" = "Settings…";
+"設定…" = "Settings…";
 "ファイル" = "File";
 "画像を選択…" = "Choose Images…";
 "ウインドウを閉じる" = "Close Window";
@@ -32,14 +32,14 @@
 "− %@：影がないためスキップ" = "− %@: Skipped (no shadow)";
 "画像ファイルをここにドロップ" = "Drop Images Here";
 "複数画像・アプリアイコンへのドロップにも対応" = "Supports multiple images and drops onto the app icon";
-"キーボードショートカットを有効にする" = "Enable keyboard shortcut";
-"キーボードショートカット" = "Keyboard Shortcut";
+"ホットキーを有効にする" = "Enable keyboard shortcut";
+"ホットキー" = "Keyboard Shortcut";
 "KageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。" = "Show the KageTrimmer window. Available after closing the window until you quit the app.";
 "デフォルトに戻す" = "Restore Defaults";
 "デフォルト：⌃⌥⌘U（control + option + command + U）" = "Default: ⌃⌥⌘U (Control + Option + Command + U)";
 "登録できませんでした。別のキーの組み合わせを選択してください。" = "Could not register the shortcut. Choose another combination.";
 "保存しました。変更はすぐに反映されます。" = "Saved. Changes take effect immediately.";
-"ショートカットを無効にしました。" = "Keyboard shortcut disabled.";
+"ホットキーを無効にしました。" = "Keyboard shortcut disabled.";
 "この組み合わせは登録できません。以前の設定を保持しています。" = "Could not register this combination. The previous setting is unchanged.";
 "サービス" = "Services";
 "%@を隠す" = "Hide %@";
@@ -50,3 +50,8 @@
 "画像を読み込めませんでした" = "Could not read the image";
 "画像を処理できませんでした" = "Could not process the image";
 "画像を書き出せませんでした" = "Could not export the image";
+"ヘルプ" = "Help";
+"KageTrimmerヘルプ" = "KageTrimmer Help";
+"画像の処理中は終了できません" = "Can’t Quit While Processing Images";
+"処理が終わってから、もう一度終了してください。" = "Quit again after processing has finished.";
+"OK" = "OK";

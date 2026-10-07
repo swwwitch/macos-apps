@@ -57,7 +57,7 @@ def main():
             raise RuntimeError('Copy verification failed; existing app was not replaced.')
         if destination.exists() or destination.is_symlink():
             stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
-            backup = ROOT / 'Shared/BuildBackups' / stamp / source.name
+            backup = ROOT / 'Shared/Backups/Build' / stamp / source.name
             backup.parent.mkdir(parents=True)
             destination.rename(backup)
         try:

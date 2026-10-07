@@ -1,0 +1,200 @@
+MightyEdit converts text you select in other apps: removing line breaks, numbering, bullet lists and much more. The button labels are translated, but the text MightyEdit inserts follows the original Japanese conventions (for example ・ bullets, ①, 「。」 and 合計：).
+
+## Basic Use
+1. Select editable text in another app.
+2. Click a button on the palette, or press its hotkey.
+- After a conversion MightyEdit selects the replaced text again, in fields that allow their selection to be changed. If you move to another app or field while processing, the selection is not restored.
+- With Copy Without Replacing in the menu, only the converted result is copied to the clipboard.
+- The palette shortcut is **⌃⌥⌘U** by default. Change it, turn it off or reset it on the Startup & Background tab of Settings. It works while MightyEdit is running.
+- The gear “Settings…” button at the top of the palette opens Settings, and the Help button next to it shows this help. Both are available without scrolling.
+
+## The Palette
+### Button Modes
+- Switch between Minimal, Simple and Full at the top of the palette.
+- On the Display tab of Settings, choose the mode to configure and then select its categories and buttons. Choosing the mode to configure does not change the palette’s mode. Changes to the mode in use apply immediately.
+- The button style, the mode and each mode’s selections are saved. Full keeps your earlier display settings. Hiding a category keeps the individual button choices.
+- Even with everything hidden you can switch to another mode at the top of the palette.
+### Button Style
+- Choose Icon and Text, Icon Only or Text Only at the top of the palette or under Button Style in the menu bar menu. The setting is saved.
+- With Icon Only, hover over a button to see its name. The palette becomes narrower and labels use up to two lines.
+### Size and Appearance
+- Drag the window edges to resize the palette; the number of button columns follows the width. The size and position are saved.
+- If the categories do not fit, scroll inside the palette.
+- When MightyEdit can tell that the focus is somewhere that cannot be edited, the palette is dimmed. It returns to normal when you go back to a text field. Custom editors that cannot be identified keep the normal appearance. The buttons work even while dimmed.
+
+## Lists
+### Lists Group
+- The Lists group contains Numbered List, Bulleted List, Circled Numbers, Letter List (A.), Markdown List and Remove List Markers. The list buttons wrap into as many columns as the window width allows.
+- List actions remove existing numbers and bullet markers before adding new ones. Blank lines and indentation are kept.
+- Markdown List adds “- ” to each line.
+- Circled Numbers adds ① to ㊿ (from 51 on, the (51) form). Letter List (A.) adds A. to Z., then AA., AB.…
+- Remove List Markers removes only the numbers and bullet markers at the start of lines and keeps the text, blank lines and indentation.
+### Bracketed Lists
+- **⌃⌥1**: ［1］ バナナ
+- **⌃⌥4**: ［A］ バナナ
+- Existing list markers are replaced. Switching back to the normal style and Remove List Markers also work.
+### More Lists
+1. Choose “More Lists” in the Lists group to open a separate window.
+2. Click a list style to apply it immediately. Apply to Selected Text applies it again.
+- The chosen style is saved. The preview is only a sample; the style is applied to the text currently selected in the target app.
+- Supported styles: black circled numbers (❶–⓴), kanji numerals (一、二、三、), formal kanji (壱 弐 参, with 拾 for ten), circled letters (Ⓐ–Ⓩ), Roman numerals (I. / i.), ✓, □, ✅ and Markdown task lists (- [ ]).
+- Blank lines and indentation are kept and existing list markers are replaced. Checked Markdown items are replaced with unchecked ones.
+- From 21 for black circled numbers, from 27 for circled letters and from 4000 for Roman numerals, the (21) number form is used. Kanji numerals use 十, 百, 千, 万, 億 and 兆.
+
+## Lines
+### Line Breaks and Blank Lines
+- Remove Line Breaks keeps blank lines as separators and joins only the lines within paragraphs, without inserting spaces.
+- Remove All Line Breaks removes every line break, including blank lines.
+- Line Breaks to Spaces keeps blank lines as separators and joins lines with one half-width space. Spaces or tabs at the join become one space.
+- Remove Blank Lines also removes lines that contain only spaces or tabs.
+- Blank Line Between Lines tidies existing blank lines and puts one blank line between lines. Pressing it again does not add more blank lines. One trailing line break is kept.
+### Sorting, Duplicates and Shuffling
+- Sort Lines sorts lines in ascending order, comparing numbers by value (item2 → item10). An already ascending selection is sorted in descending order, so pressing it again while the result is still selected toggles the order. Blank lines are sorted too.
+- Remove Duplicate Lines keeps the first of each set of identical lines and keeps the order. Leading or trailing spaces and differences in case make lines different.
+- Shuffle Lines puts the selected lines in random order. Line contents, duplicate lines and blank lines are kept; by chance the order may stay the same.
+### Wrap at Character Count
+1. Choose Wrap at Character Count to open a small window.
+2. Choose the count, adjust it one character at a time with ▲▼ (1–10,000, default 40), and apply.
+- The count is saved. Each line is wrapped at the count; existing line breaks and blank lines are kept.
+- Emoji and combined characters count as one character. English words may be split at the count.
+### Line Edit Group
+- The Lines group also includes Trim Spaces at Line Edges, Sort by Length, Count Characters and Lines, and Add to Start/End of Lines.
+- Sort by Length puts shorter lines first, or longer lines first if they are already sorted; lines of the same length keep their order.
+- Counting shows the result in a separate window and does not change the text.
+- Add to Start/End of Lines adds the text you enter to every line, including blank lines. A trailing line break is kept.
+
+## Character Formatting
+### Width and Spacing
+- Full-width Letters/Digits to Half-width converts only full-width A–Z, a–z and 0–9; symbols, full-width spaces and kana are kept.
+- Half-width Kana to Full-width combines voiced sound marks and also converts half-width kana punctuation and brackets. Letters and digits are kept.
+- Remove Japanese–Latin Spaces and Add Japanese–Latin Spaces work on the boundary between Japanese (kanji and kana) and half-width letters or digits. Adding uses exactly one half-width space. Spaces between English words or between Japanese words, line breaks and tabs are kept.
+### Latin Text
+- Letters/Symbols to Full-width and Letters/Symbols to Half-width convert letters, digits, symbols and spaces; kana, Japanese text, line breaks and tabs are kept.
+- Capitalize Words capitalizes the first letter of each English word and lowercases the rest: the art of design → The Art Of Design.
+- Title Case capitalizes the first, last and major words of each line and lowercases articles, conjunctions and common prepositions in between, as in The Art of Design.
+- camelCase (lowercase first) turns hello world into helloWorld. Half-width letters and digits are joined after removing spaces, tabs, hyphens and underscores between words. HelloWorld and XMLHttpRequest become helloWorld and xmlHttpRequest. Line breaks, indentation, Japanese text and other symbols are kept.
+- These are fixed rules for half-width letters. Abbreviations and proper nouns are not treated specially, so NASA becomes Nasa.
+### Batch Formatting
+- Character Formatting → Batch Formatting lets you choose any of eight items and apply them together. The checkboxes are saved and a sample shows the result. Nothing can be applied while every item is off.
+- Punctuation and brackets are made full-width first, then spaces and periods are tidied.
+- Half- and full-width spaces and tabs just inside brackets are removed; line breaks are kept.
+- In times, only a full-width colon between valid numbers (0–23 hours, 0–59 minutes and seconds) becomes half-width.
+- 本文。（補足）。 becomes 本文（補足）。 (matching round brackets on the same line).
+- Long vowel marks follow the regular expression (?<=([ァ-ヶ]))[-‐‑–—―−ｰ─] and become ー.
+- Half-width ｡､()｢｣ become 。、（）「」, while English . and , are kept. Half-width kana conversion in Batch Formatting affects kana only; punctuation and brackets have their own checkbox.
+
+## Source Code
+- Beautify (HTML) adds line breaks and 2-space indentation between HTML block elements. Inline text, attributes, comments and the contents of pre, script, style and similar elements are kept. It does not restore omitted tags or removed comments.
+- Minify (Whitespace) removes ordinary HTML comments and the whitespace and line breaks between block elements, and collapses runs of spaces in text to one. One space is kept between inline elements.
+- Minify also removes quotes from safe attribute values, shortens boolean attributes and removes end tags where the omission rules can be checked. br tags, character references and full-width spaces are kept.
+- The contents of pre, textarea, script, style, SVG, MathML and similar elements, conditional comments and license comments are protected.
+- CSS changes to white-space or display are not analyzed, so check the result. Input that cannot be interpreted safely, such as XML, server-side templates or incomplete tags, may be returned unchanged.
+
+## Dates
+### 年月日 ↔ yyyy-mm-dd
+- Converts between yyyy年mm月dd日 and yyyy-mm-dd in the selection, with two-digit months and days (2026年1月2日 → 2026-01-02).
+- Several dates and mixed formats are converted at once. Surrounding text and line breaks are kept, and dates that do not exist are not changed.
+- Half-width digits and years 0001–9999 are supported; slash formats, Japanese era years and full-width digits are not converted.
+### Other Date Actions
+- The Dates group also has yyyy-mm-dd Format, yyyy年mm月dd日 Format, yyyymmdd Format, Remove Zero Padding, To Japanese Era, To Western Year, Remove Year, Add Current Year, Add Weekday (火) and Add Weekday (火曜日).
+- yyyymmdd Format converts 2026年10月7日, 2026-10-07 and 令和8年10月7日 to 20261007 and also removes a following weekday such as （水） or （水曜日）. Dates without a year and dates that do not exist are kept.
+- Remove Zero Padding removes leading zeros from the month and day. The year and weekday are kept, and it does not apply to 8-digit yyyymmdd dates.
+- Japanese eras Meiji, Taisho, Showa, Heisei and Reiwa are supported, including the dates of each era change and the 元年 (first year) notation. Dates before Meiji 6 (the old calendar) are not converted. Dates that do not exist, or era years that do not match the era change dates, are left unchanged.
+- Remove Year removes only the year. Add Current Year adds this year to dates without a year, such as 10月6日 or 10-06.
+- The current year and weekdays are determined in Japan time. Add Weekday treats a date without a year as this year. An existing weekday is replaced, not duplicated. Half-width letters and digits are supported.
+
+## Numbers and Periods
+### Digit Grouping
+- **⌃,**: Add Commas
+- **⌃⌥,**: Remove Commas
+- Converts between 1234567.89 and 1,234,567.89. Only the integer part of half-width numbers is affected; signs, decimals, surrounding text and line breaks are kept.
+- Commas in sentences and sequences such as 1,2,3 are not changed. CSV parsing and full-width digits are not supported.
+- Numbers that are clearly years, such as 2026年, 2026-10-06, 2026/10/6 or 西暦2026, are skipped. A standalone 2026 or 2026円 is treated as an ordinary number.
+### Sum Numbers
+- Sum Numbers picks up half- and full-width numbers in the selection, understands decimals, signs and thousands separators, and adds them up.
+- The original text is kept, and a blank line and 合計：… are added below it. If there are no numbers, or too many digits to add exactly, the text is not changed and a message is shown.
+- Item numbers, dates and an earlier total in the selection are also added, so select only the range you want to total. Unit conversion and formulas are not supported.
+### Periods at Line End
+- Add “。” at Line End adds 。 to the end of every line except blank lines. Lines that already end with 。 are not changed.
+- Remove “。” at Line End removes 。 at the end of each line. 。 within sentences and trailing spaces are kept.
+
+## Keyboard Shortcuts
+### App Commands (While MightyEdit Is Active)
+- **⌘,**: Settings
+- **⌘?**: MightyEdit Help
+- **⌘Q**: Quit
+- **⌘Z** / **⇧⌘Z**: Undo / Redo in MightyEdit’s text fields (Cut, Copy, Paste and Select All are in the Edit menu too)
+### Default Hotkeys
+- **⌃⌥⌘U**: Show the palette
+- **⌃⌥⌘D**: Switch Button Style (Icon and Text → Icon Only → Text Only; does not change any text)
+- **⌃1**: Numbered List
+- **⌃3**: Circled Numbers
+- **⌃4**: Letter List (A.)
+- **⌃6**: Bulleted List
+- **⌃7**: Markdown List
+- **⌃⌥1**: ［1］ bracketed list
+- **⌃⌥4**: ［A］ bracketed list
+- **⌃,**: Add Commas
+- **⌃⌥,**: Remove Commas
+- **⌃⌘-**: Remove Line Breaks
+- **⌃⌥⌘-**: Remove All Line Breaks
+- **⌃⌥⇧⌘-**: Minify
+- **⌃⌘=**: Sum Numbers (on JIS keyboards, also press Shift to type =)
+### Using Hotkeys
+- Select text in the target app, then press and release the key. With the default scope “All Apps”, hotkeys work even while the palette is hidden.
+- Each hotkey has a scope. On the Hotkeys tab of Settings, choose “All Apps” (default) or “Only While Palette Is Shown” in the pop-up menu below the action name; it is saved immediately (no need to click Apply). You can also choose it in each action’s submenu under Hotkeys in the menu bar, where palette-only actions are marked “(Only While Palette Is Shown)”.
+- Palette-only keys are not registered while the palette is hidden or closed, so the key does its usual job in the front app. They are registered when the palette is shown, and nothing happens if the palette is hidden by the time you release the key.
+- Enabling or disabling all hotkeys, pausing, turning off single actions and excluded apps work the same regardless of scope. Duplicate keys are detected even while the palette is hidden. “Reset to Default Assignments” also resets the scope to “All Apps”.
+### Changing Hotkeys
+1. Open Settings… in the menu bar, or press **⌘,** while MightyEdit is the active app.
+2. On the Hotkeys tab, check ⌃, ⌥, ⇧ or ⌘ for an action and choose a letter, digit, symbol, F1–F20, arrow, navigation or keypad key.
+3. Click Apply.
+- Choose None and apply to remove a hotkey. Pausing and resetting to the defaults are also available. Existing assignments are kept. Registration errors appear under the action.
+- Switch Button Style is at the top of the Hotkeys tab. The hotkeys for Wrap at Character Count and Batch Formatting open their windows.
+- Hotkeys in the menu bar lets you switch to Control+number, Control+, or Control+Option+,, turn off single actions, enable or disable all hotkeys, pause, and reset assignments. Settings are saved; a pause is cleared when MightyEdit relaunches.
+- ⌘A, ⌘Z, ⌘X, ⌘C, ⌘V, ⌘W, ⌘, and ⌘Q with ⌘ alone cannot be assigned as hotkeys.
+- If registration fails, the menu shows an error. If macOS (for example Mission Control) uses the same key, choose another one. Not every conflict with other apps can be detected.
+
+## Settings
+- Settings has six tabs: Startup & Background, Hotkeys, Display, Special, Auto Show and Excluded Apps.
+### Display
+- Hide categories and individual buttons; hidden actions still work with hotkeys. Even if everything is hidden, you can open Settings from the menu bar and restore them.
+### Special
+- Turn each More Lists style on or off and choose the Batch Formatting items. Styles that are turned off do not appear in the More Lists window, and their hotkeys stop working.
+- The Batch Formatting choices are shared with the checkboxes in its window. Settings are kept after relaunching.
+### Auto Show
+- Add one or more apps and turn on “Enable auto show”; the palette appears when one of those apps comes to the front. It is off by default.
+- Add apps with the app chooser or from the list of running apps; removing an app from the list does not affect the app itself. The apps and the on/off setting are saved.
+- A closed palette reappears the next time you switch to a chosen app, and hides when you switch to another app. Showing the palette in another app makes that app the new target.
+- The palette appears without taking focus and does not convert text. This works only while MightyEdit is running; it does not launch MightyEdit when it is not running or at login.
+### Excluded Apps
+- Choose apps where MightyEdit should never act. Click Add… to choose apps in /Applications, select rows and click Remove from List to remove them.
+- The list shows each app’s icon, name and bundle ID. Apps are identified by bundle ID; the same app twice and MightyEdit itself cannot be added (a reason is shown). The list is saved and kept after relaunching and updating. If an app has been deleted, “App not found” and its bundle ID are shown. Removing an app from the list does not affect the app itself.
+- While an excluded app is in front, the action hotkeys and the palette shortcut are released so keystrokes go straight to that app. The same happens while MightyEdit itself, for example its Settings, is in front. Switching to another app turns them back on.
+- Right before converting (when you release a key, click a button or before sending Paste), MightyEdit checks the front app again. If it is excluded, MightyEdit neither reads the selection nor pastes, and the palette shows “Not run because this app is excluded”.
+- If you show the palette from the menu bar over an excluded app, the same reason appears and the palette is dimmed. Auto show never shows the palette in excluded apps.
+
+## Running in the Background and Quitting
+- When “Keep running after closing” is on (default) on the Startup & Background tab, the close button hides the palette; show it again or quit from the menu bar. When it is off, the close button quits MightyEdit. The window position is saved.
+- If you open MightyEdit a second time, the running MightyEdit comes to the front and the new copy quits.
+- Quit MightyEdit from its menu bar menu or the app menu (**⌘Q** while MightyEdit is active).
+- About MightyEdit in the app menu shows the version and build.
+
+## Accessibility Permission
+- Check the permission status under Accessibility on the Startup & Background tab of Settings. “Ask for Permission…” shows the macOS prompt; the permission itself is granted in System Settings. MightyEdit does not ask at launch.
+### First-Time Permission
+1. Open Accessibility settings from the MightyEdit menu bar menu.
+2. Allow MightyEdit in System Settings.
+3. Return to MightyEdit. The status is checked again automatically.
+- Clicking a button without permission does not keep opening the permission dialog. You can open Settings with the palette’s Settings button.
+
+## Troubleshooting
+- If the permission does not take effect, quit MightyEdit and open it again from the same location.
+- If MightyEdit is turned on in the list but still not allowed, remove the old MightyEdit entry and add the currently running app again with the + button. “Show App to Allow in Finder” in the menu shows which app to add.
+- Read-only text, password fields and custom canvases may not be supported. Replacement normally pastes plain text, so formatting within the selection may be lost.
+- “Sent Paste to …” only means the paste was sent. Check the result in the target app.
+
+## Removing and Support
+- To remove MightyEdit, turn off Open at login, quit, delete the app and remove MightyEdit from Accessibility in System Settings.
+- Support: see the README.
+- Help → Open the note Article opens Swwwitch’s note support magazine.

@@ -97,9 +97,14 @@ final class FavoriteButton: NSButton {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuItemValidation, NSTextFieldDelegate, UNUserNotificationCenterDelegate {
-    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 580), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 680), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
     let table = NSTableView()
     var favoriteButtons: [NSButton] = []
+    /// 「フォルダを選択…」 in the 指定 section; part of the ←/→ cycle before the favorites.
+    weak var chooserButton: FavoriteButton?
+    static let chooserTag = -1
+    /// 指定 first, then the favorites, in on-screen order.
+    var selectableButtons: [NSButton] { (chooserButton.map { [$0 as NSButton] } ?? []) + favoriteButtons }
     var selectedFavoriteIndex: Int?
     var selectedSourceID: String?
     let operationHint = NSTextField(labelWithString: "")
@@ -109,9 +114,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let status = NSTextField(wrappingLabelWithString: "")
     let shortenDropbox = NSButton(checkboxWithTitle: L("Dropboxのパスを簡易表示"), target: nil, action: nil)
     let showFavorites = NSButton(checkboxWithTitle: L("お気に入りセクションを表示"), target: nil, action: nil)
+    let showChooser = NSButton(checkboxWithTitle: L("「指定」セクションを表示"), target: nil, action: nil)
     var preferencesWindow: NSWindow?
     let globalShortcut = GlobalShortcut()
-    let shortcutEnabled = NSButton(checkboxWithTitle: L("ショートカットでウインドウを表示"), target: nil, action: nil)
+    let shortcutEnabled = NSButton(checkboxWithTitle: L("ホットキーでウインドウを表示"), target: nil, action: nil)
     let shortcutModifiers = NSPopUpButton()
     let shortcutKey = NSPopUpButton()
     let shortcutStatus = NSTextField(wrappingLabelWithString: "")
@@ -132,11 +138,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     var uiReady = false
     var pendingOpenFiles: [URL]?
     var activationRefresh: DispatchWorkItem?
-    enum Row { case heading(String), folder(Destination), favorites }
+    enum Row { case heading(String), folder(Destination), favorites, choose }
     var chosen: BrowserState? {
         states.first { $0.id == selectedSourceID }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        defer { DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            MenuBarPresence.shared.install(name: "FolderHopper", symbol: "folder", existing: nil,
+                show: { [weak self] in self?.window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) },
+                settings: { [weak self] in self?.showPreferences() },
+                help: { [weak self] in LocalHelp.shared.show() })
+        } }
+        DispatchQueue.main.async { LocalHelp.shared.install() }
         #if APP_STORE
         _ = FolderAccess.shared
         #endif
@@ -150,7 +164,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         UNUserNotificationCenter.current().setNotificationCategories([])
         buildUI()
         setupShortcut()
-        UserDefaults.standard.register(defaults: ["showFavorites": true])
+        UserDefaults.standard.register(defaults: ["showFavorites": true, "showChooser": true])
+        showChooser.state = UserDefaults.standard.bool(forKey: "showChooser") ? .on : .off
+        showChooser.target = self; showChooser.action = #selector(chooserVisibilityChanged)
         showFavorites.state = UserDefaults.standard.bool(forKey: "showFavorites") ? .on : .off
         showFavorites.target = self; showFavorites.action = #selector(favoritesVisibilityChanged)
         loginEnabled.target = self; loginEnabled.action = #selector(loginChanged)
@@ -166,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         closeAfterOperation.target = self; closeAfterOperation.action = #selector(closeAfterChanged)
         updateLoginStatus()
         window.center()
-        if !LaunchPolicy.shouldStayInBackground(loginLaunch: loginLaunch, enabled: loginInBackground.state == .on, hasFiles: pendingOpenFiles != nil) {
+        if (!StartupWindow.hidden || pendingOpenFiles != nil) && !LaunchPolicy.shouldStayInBackground(loginLaunch: loginLaunch, enabled: loginInBackground.state == .on, hasFiles: pendingOpenFiles != nil) {
             requestTransfer()
         }
     }
@@ -181,7 +197,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         if !busy { requestTransfer() }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if busy { NSSound.beep(); return .terminateCancel }
+        if busy {
+            let alert = NSAlert(); alert.messageText = L("処理中のため終了できません"); alert.informativeText = L("ファイルの移動・複製・リンク作成が終わってから、もう一度終了してください。"); alert.addButton(withTitle: L("OK"))
+            alert.runModal()
+            return .terminateCancel
+        }
         return .terminateNow
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -219,7 +239,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         return true
     }
     func buildUI() {
-        window.title = L("選択したファイルを移動")
+        window.title = ""
+        window.titleVisibility = .hidden
         window.minSize = NSSize(width: 540, height: 420)
         window.isReleasedWhenClosed = false
         window.backgroundColor = AppColors.window
@@ -233,7 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let aboutItem = appMenu.addItem(withTitle: L("FolderHopperについて"), action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         appMenu.addItem(.separator())
-        let preferencesItem = appMenu.addItem(withTitle: L("環境設定…"), action: #selector(showPreferences), keyEquivalent: ",")
+        let preferencesItem = appMenu.addItem(withTitle: L("設定…"), action: #selector(showPreferences), keyEquivalent: ",")
         preferencesItem.target = self
         appMenu.addItem(.separator())
         #if DIRECT_UPDATES && !APP_STORE
@@ -249,10 +270,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             edit.addItem(withTitle: title, action: Selector(selector), keyEquivalent: key)
         }
         NSApp.mainMenu = menu
+        AppSurface.install(in: window.contentView!)
         let root = NSStackView(); root.orientation = .vertical; root.alignment = .leading; root.spacing = 12
         root.translatesAutoresizingMaskIntoConstraints = false
         window.contentView!.addSubview(root)
         NSLayoutConstraint.activate([root.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor, constant: 20), root.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor, constant: -20), root.topAnchor.constraint(equalTo: window.contentView!.topAnchor, constant: 20), root.bottomAnchor.constraint(equalTo: window.contentView!.bottomAnchor, constant: -16)])
+        root.addArrangedSubview(appHeader(L("選択したファイルを移動"), subtitle: L("移動先を選んで、移動・複製・リンク作成。")))
         summary.lineBreakMode = .byTruncatingMiddle
         let selectionRow = NSStackView(views: [summary, NSView(), symbolicLinks, copies])
         selectionRow.spacing = 12
@@ -273,13 +296,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         scroll.documentView = table; root.addArrangedSubview(scroll)
         symbolicLinks.target = self; symbolicLinks.action = #selector(operationChanged)
         copies.target = self; copies.action = #selector(operationChanged)
-        copies.toolTip = L("元のファイルを残し、選んだフォルダーに複製します。")
-        symbolicLinks.toolTip = L("元のファイルを残し、選んだフォルダーにシンボリックリンクを作成します。")
+        copies.toolTip = L("元のファイルを残し、選んだフォルダに複製します。")
+        symbolicLinks.toolTip = L("元のファイルを残し、選んだフォルダにシンボリックリンクを作成します。")
         let hint = operationHint
         operationChanged()
         hint.font = .systemFont(ofSize: 11); hint.textColor = .secondaryLabelColor; root.addArrangedSubview(hint)
         status.font = .systemFont(ofSize: 12); root.addArrangedSubview(status)
-        let preferences = NSButton(title: L("環境設定…"), target: self, action: #selector(showPreferences))
+        let preferences = NSButton(title: L("設定…"), target: self, action: #selector(showPreferences))
         let footer = NSStackView(views: [NSView(), preferences]); footer.spacing = 12
         root.addArrangedSubview(footer)
         footer.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
@@ -300,6 +323,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             }
             if event.keyCode == 53 && !self.busy { self.window.orderOut(nil); return nil }
             if (event.keyCode == 36 || event.keyCode == 76), self.window.attachedSheet == nil {
+                if self.selectedFavoriteIndex == Self.chooserTag, let chooser = self.chooserButton, chooser.isEnabled {
+                    self.chooseDestination(chooser)
+                    return nil
+                }
                 if let index = self.selectedFavoriteIndex, let url = self.favoriteURL(index) {
                     self.move(to: Destination(url: url, origin: L("お気に入り")), bringForward: modifiers.contains(.command), copying: modifiers.contains(.option), linking: modifiers.contains(.control))
                     return nil
@@ -323,43 +350,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             .applicationName: "FolderHopper",
             .applicationVersion: version,
             .version: build,
-            .credits: NSAttributedString(string: L("開いているフォルダーへ、ファイルをすばやく移動。"))
+            .credits: NSAttributedString(string: L("開いているフォルダへ、ファイルをすばやく移動。"))
         ])
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc func showPreferences() {
         if preferencesWindow == nil {
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 700),
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
                                  styleMask: [.titled, .closable], backing: .buffered, defer: false)
             panel.title = L("環境設定")
             panel.isReleasedWhenClosed = false
             panel.backgroundColor = AppColors.window
-            let stack = NSStackView()
-            stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            panel.contentView!.addSubview(stack)
+            var sections: [(String, NSView)] = []
             func group(_ title: String, _ controls: [NSView]) {
-                let box = NSBox(); box.title = title
-                box.titleFont = .systemFont(ofSize: 13, weight: .semibold)
-                box.contentViewMargins = NSSize(width: 12, height: 10)
-                let contents = NSStackView(views: controls)
-                contents.orientation = .vertical; contents.alignment = .leading; contents.spacing = 8
-                contents.translatesAutoresizingMaskIntoConstraints = false
-                box.contentView!.addSubview(contents)
-                NSLayoutConstraint.activate([
-                    contents.leadingAnchor.constraint(equalTo: box.contentView!.leadingAnchor),
-                    contents.trailingAnchor.constraint(equalTo: box.contentView!.trailingAnchor),
-                    contents.topAnchor.constraint(equalTo: box.contentView!.topAnchor),
-                    contents.bottomAnchor.constraint(equalTo: box.contentView!.bottomAnchor)
-                ])
-                stack.addArrangedSubview(box)
-                box.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-                for text in controls.compactMap({ $0 as? NSTextField }) where !text.isEditable {
-                    text.widthAnchor.constraint(equalTo: contents.widthAnchor).isActive = true
-                }
+                sections.append((title, MainActor.assumeIsolated { SettingsUI.group(title, controls) }))
             }
             loginStatus.font = .systemFont(ofSize: 12); loginStatus.textColor = .secondaryLabelColor
-            group(L("表示・起動"), [shortenDropbox, showFavorites, loginEnabled, loginInBackground, loginStatus])
+            let keys = NSStackView(views: [shortcutModifiers, shortcutKey]); keys.spacing = 8
+            shortcutStatus.font = .systemFont(ofSize: 12); shortcutStatus.textColor = .secondaryLabelColor
+            group(SettingsUI.launchTitle, [loginEnabled, loginInBackground, loginStatus, MainActor.assumeIsolated { StartupWindowControl() }, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutEnabled, keys, shortcutStatus])
+            group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites])
             let conflictLabel = NSTextField(labelWithString: L("移動先に同名のファイルがあるとき"))
             group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation])
             let limitRow = NSStackView(views: [NSTextField(labelWithString: L("最近使ったウインドウの数")), historyLimit, NSTextField(labelWithString: L("件（0＝すべて）"))])
@@ -367,17 +377,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             historyLimit.widthAnchor.constraint(equalToConstant: 64).isActive = true
             let clear = NSButton(title: L("最近使ったウインドウをクリア"), target: self, action: #selector(clearRecentWindows))
             let restore = NSButton(title: L("再表示"), target: self, action: #selector(restoreRecentWindows))
-            let historyHelp = NSTextField(wrappingLabelWithString: L("このアプリの一覧だけをクリアします。Finder／Path Finderの履歴は保持され、新しいフォルダーは引き続き表示されます。"))
+            let historyHelp = NSTextField(wrappingLabelWithString: L("このアプリの一覧だけをクリアします。Finder／Path Finderの履歴は保持され、新しいフォルダは引き続き表示されます。"))
             historyHelp.font = .systemFont(ofSize: 12); historyHelp.textColor = .secondaryLabelColor
             group(L("履歴"), [limitRow, NSStackView(views: [clear, restore]), historyHelp])
-            let keys = NSStackView(views: [shortcutModifiers, shortcutKey]); keys.spacing = 8
-            shortcutStatus.font = .systemFont(ofSize: 12); shortcutStatus.textColor = .secondaryLabelColor
-            group(L("キーボードショートカット"), [shortcutEnabled, keys, shortcutStatus])
-            NSLayoutConstraint.activate([
-                stack.leadingAnchor.constraint(equalTo: panel.contentView!.leadingAnchor, constant: 20),
-                stack.trailingAnchor.constraint(equalTo: panel.contentView!.trailingAnchor, constant: -20),
-                stack.topAnchor.constraint(equalTo: panel.contentView!.topAnchor, constant: 20)
-            ])
+
+            MainActor.assumeIsolated { SettingsUI.tabs(sections, in: panel.contentView!) }
             panel.center()
             preferencesWindow = panel
         }
@@ -416,6 +420,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     @objc func closeAfterChanged() {
         UserDefaults.standard.set(closeAfterOperation.state == .on, forKey: "closeAfterOperation")
     }
+    @objc func chooserVisibilityChanged() {
+        UserDefaults.standard.set(showChooser.state == .on, forKey: "showChooser")
+        filterRows()
+    }
     @objc func favoritesVisibilityChanged() {
         UserDefaults.standard.set(showFavorites.state == .on, forKey: "showFavorites")
         filterRows()
@@ -445,8 +453,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12])
         shortcutModifiers.addItems(withTitles: GlobalShortcut.modifiers.map { $0.0 })
         shortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
-        shortcutModifiers.setAccessibilityLabel(L("ショートカットの修飾キー"))
-        shortcutKey.setAccessibilityLabel(L("ショートカットのキー"))
+        shortcutModifiers.setAccessibilityLabel(L("ホットキーの修飾キー"))
+        shortcutKey.setAccessibilityLabel(L("ホットキーのキー"))
         for control in [shortcutEnabled as NSControl, shortcutModifiers, shortcutKey] {
             control.target = self; control.action = #selector(shortcutChanged)
         }
@@ -579,10 +587,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 guard disabledReason(destination) == nil else { continue }
                 if section == L("現在開いているウインドウ") { openRows.append(index) }
                 if section == L("最近使ったウインドウ") { recentRows.append(index) }
-            case .favorites: break
+            case .favorites, .choose: break
             }
         }
-        for button in favoriteButtons { button.state = .off }
+        for button in selectableButtons { button.state = .off }
         let target = openRows.contains(table.selectedRow) ? recentRows : openRows
         window.makeFirstResponder(table)
         guard let first = target.first else { NSSound.beep(); return }
@@ -613,6 +621,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         rows = [.heading(L("現在開いているウインドウ"))]
         rows += filtered(current).map(Row.folder)
+        if showChooser.state == .on { rows += [.heading(L("指定")), .choose] }
         if showFavorites.state == .on { rows += [.heading(L("お気に入り")), .favorites] }
         rows += [.heading(L("最近使ったウインドウ"))]
         let recent = filtered(history.filter { !hiddenHistory.contains($0.url.standardizedFileURL.path) })
@@ -623,7 +632,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     func numberOfRows(in tableView: NSTableView) -> Int { rows.count }
     func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
         if case .heading = rows[row] { return 30 }
-        if case .favorites = rows[row] { return 138 }
+        if case .favorites = rows[row] { return 122 }
+        if case .choose = rows[row] { return 72 }
         return 48
     }
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
@@ -634,7 +644,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         var folderIndex = 0
         for entry in rows.prefix(row) {
             switch entry {
-            case .heading, .favorites: folderIndex = 0
+            case .heading, .favorites, .choose: folderIndex = 0
             case .folder: folderIndex += 1
             }
         }
@@ -645,11 +655,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         return rowView
     }
+    /// True when Finder/Path Finder (or Open With) supplied at least one item to move.
+    var hasSelection: Bool { !(chosen?.files.isEmpty ?? true) }
+    static let noSelectionReason = L("Finder／Path Finderで項目を選択すると指定できます")
     func disabledReason(_ destination: Destination) -> String? {
         if busy { return L("処理中です") }
+        // Without a selection every destination is dimmed (the reason is shown only as a tooltip).
+        guard hasSelection else { return Self.noSelectionReason }
         #if APP_STORE
         let files = chosen?.files ?? []
-        guard !files.isEmpty else { return L("指定されていません。") }
         if files.contains(where: { $0.deletingLastPathComponent().standardizedFileURL == destination.url.standardizedFileURL }) {
             return L("選択中のファイルがあるフォルダ")
         }
@@ -663,6 +677,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         switch rows[row] {
         case .favorites:
             return favoritesView()
+        case .choose:
+            return chooserView()
         case .heading(let label):
             let text = NSTextField(labelWithString: label); text.font = .systemFont(ofSize: 12, weight: .semibold); text.textColor = .secondaryLabelColor
             text.frame = NSRect(x: 10, y: 4, width: 460, height: 18); view.addSubview(text)
@@ -692,14 +708,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             view.toolTip = displayPath(destination.url, abbreviateHome: false)
             #if APP_STORE
             if !FolderAccess.shared.covers(destination.url) {
-                view.toolTip = L("初回の操作時にフォルダーへのアクセスを許可してください。\n") + displayPath(destination.url, abbreviateHome: false)
+                view.toolTip = L("初回の操作時にフォルダへのアクセスを許可してください。\n") + displayPath(destination.url, abbreviateHome: false)
             }
             #endif
             if let reason = disabledReason(destination) {
                 icon.alphaValue = 0.4
                 label.textColor = .disabledControlTextColor
                 detail.textColor = .disabledControlTextColor
-                detail.stringValue = "\(reason) · \(path)"
+                detail.stringValue = reason == Self.noSelectionReason ? path : "\(reason) · \(path)"
                 view.toolTip = "\(reason)\n\(displayPath(destination.url, abbreviateHome: false))"
                 view.setAccessibilityEnabled(false)
             }
@@ -749,7 +765,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             if url == nil { button.image = NSImage(named: NSImage.folderName); button.alphaValue = 0.3 }
             let name = index == 0 ? L("アプリケーション") : (url?.lastPathComponent ?? L("お気に入りを追加"))
             button.setAccessibilityLabel(url == nil ? L("お気に入り%@：未設定", String(describing: index)) : L("%@へ", String(describing: name)) + (symbolicLinks.state == .on ? L("リンクを作成") : L("移動")))
-            button.toolTip = url.map { displayPath($0) } ?? L("下の「指定…」ボタンでフォルダーを指定")
+            button.toolTip = url.map { displayPath($0) } ?? L("下の「指定…」ボタンでフォルダを指定")
             button.isEnabled = !busy && url != nil
             if let url {
                 let destination = Destination(url: url, origin: L("お気に入り"))
@@ -759,8 +775,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 }
             }
             cell.addArrangedSubview(button)
-            button.widthAnchor.constraint(equalToConstant: 64).isActive = true
-            button.heightAnchor.constraint(equalToConstant: 64).isActive = true
+            button.widthAnchor.constraint(equalToConstant: 52).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 52).isActive = true
             let label = NSTextField(labelWithString: name)
             label.font = .systemFont(ofSize: 12, weight: .medium); label.alignment = .center
             label.lineBreakMode = .byTruncatingMiddle
@@ -770,13 +786,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 let parent = displayPath($0.deletingLastPathComponent())
                 return parent.hasSuffix("/") ? parent : parent + "/"
             } ?? L("未設定"))
-            if let url, let reason = disabledReason(Destination(url: url, origin: L("お気に入り"))), !busy {
+            if let url, let reason = disabledReason(Destination(url: url, origin: L("お気に入り"))), !busy, hasSelection {
                 detail.stringValue += "\n" + reason
                 detail.maximumNumberOfLines = 2
                 detail.toolTip = reason + "\n" + displayPath(url)
             }
             detail.font = .systemFont(ofSize: 10); detail.textColor = .secondaryLabelColor
             detail.alignment = .center; detail.lineBreakMode = .byTruncatingMiddle
+            if url != nil, !button.isEnabled {
+                // Dim the name and path together with the icon.
+                label.textColor = .disabledControlTextColor; detail.textColor = .disabledControlTextColor
+            }
             cell.addArrangedSubview(detail)
             if index > 0 {
                 let change = FavoriteConfigurationButton(title: url == nil ? L("指定…") : L("変更…"), target: self, action: #selector(chooseFavorite(_:)))
@@ -804,16 +824,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         activationRefresh?.cancel(); activationRefresh = nil
         table.deselectAll(nil)
         selectedFavoriteIndex = sender.tag
-        for button in favoriteButtons { button.state = button === sender ? .on : .off }
+        for button in selectableButtons { button.state = button === sender ? .on : .off }
         window.makeFirstResponder(sender)
     }
     func stepFavorite(_ direction: Int) {
-        guard !busy, showFavorites.state == .on else { return }
-        if let row = rows.firstIndex(where: { if case .favorites = $0 { return true }; return false }) {
-            table.scrollRowToVisible(row)
+        guard !busy, showFavorites.state == .on || showChooser.state == .on else { return }
+        let sectionRows = rows.indices.filter { switch rows[$0] { case .choose, .favorites: return true; default: return false } }
+        if let first = sectionRows.first, let last = sectionRows.last {
+            table.scrollRowToVisible(last); table.scrollRowToVisible(first)
             table.layoutSubtreeIfNeeded()
         }
-        let buttons = favoriteButtons.filter { $0.isEnabled && $0.window != nil }
+        let buttons = selectableButtons.filter { $0.isEnabled && $0.window != nil }
         guard !buttons.isEmpty else { return }
         let current = buttons.firstIndex { $0 === window.firstResponder }
         let next = current.map { ($0 + direction + buttons.count) % buttons.count } ?? (direction > 0 ? 0 : buttons.count - 1)
@@ -830,15 +851,83 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         selectedFavoriteIndex = nil
         activationRefresh?.cancel()
         activationRefresh = nil
-        for button in favoriteButtons { button.state = .off }
+        for button in selectableButtons { button.state = .off }
         window.makeFirstResponder(table)
+    }
+    /// 「指定」: a folder icon with two lines of text, centered; clicking anywhere on it asks for a destination.
+    func chooserView() -> NSView {
+        let view = NSView()
+        let ready = !busy && hasSelection
+        let button = FavoriteButton(title: "", target: self, action: #selector(chooseDestination(_:)))
+        button.isBordered = false; button.imagePosition = .imageOnly; button.imageScaling = .scaleProportionallyUpOrDown
+        button.image = NSImage(named: NSImage.folderName)
+        button.setButtonType(.toggle)
+        button.tag = Self.chooserTag
+        button.isEnabled = ready
+        // Without a Finder/Path Finder selection the whole row (icon and both lines) is dimmed.
+        button.alphaValue = ready ? 1 : 0.35
+        button.setAccessibilityLabel(L("フォルダを選択…"))
+        button.toolTip = ready ? L("クリックして移動先を指定") : L("Finder／Path Finderで項目を選択すると指定できます")
+        button.widthAnchor.constraint(equalToConstant: 48).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        let label = NSTextField(labelWithString: L("フォルダを選択…"))
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = ready ? .labelColor : .tertiaryLabelColor
+        let detail = NSTextField(labelWithString: L("クリックして移動先を指定"))
+        detail.font = .systemFont(ofSize: 11); detail.textColor = ready ? .secondaryLabelColor : .quaternaryLabelColor
+        let texts = NSStackView(views: [label, detail]); texts.orientation = .vertical; texts.alignment = .leading; texts.spacing = 2
+        let row = FavoriteSelectionView(views: [button, texts]); row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 10
+        row.edgeInsets = NSEdgeInsets(top: 4, left: 10, bottom: 4, right: 14)
+        row.wantsLayer = true; row.layer?.cornerRadius = 8
+        button.selectionPanel = row
+        button.state = ready && selectedFavoriteIndex == Self.chooserTag ? .on : .off
+        chooserButton = button
+        row.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(row)
+        NSLayoutConstraint.activate([
+            row.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            row.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -2)
+        ])
+        if ready {
+            let click = NSClickGestureRecognizer(target: self, action: #selector(chooserAreaClicked(_:)))
+            row.addGestureRecognizer(click)
+        }
+        return view
+    }
+    @objc func chooserAreaClicked(_ sender: NSClickGestureRecognizer) {
+        guard let button = (sender.view as? NSStackView)?.arrangedSubviews.first as? NSButton, button.isEnabled else { return }
+        chooseDestination(button)
+    }
+    @objc func chooseDestination(_ sender: NSButton) {
+        guard !busy, window.attachedSheet == nil, !(chosen?.files.isEmpty ?? true) else { return }
+        // Mouse or Return: show it as the current choice, like a favorite.
+        if let chooser = sender as? FavoriteButton, chooser.tag == Self.chooserTag { selectFavorite(chooser) }
+        let bringForward = NSApp.currentEvent?.modifierFlags.contains(.command) == true
+        let panel = NSOpenPanel()
+        panel.title = L("移動先のフォルダを指定")
+        panel.prompt = copies.state == .on ? L("複製") : (symbolicLinks.state == .on ? L("リンクを作成") : L("移動"))
+        panel.canChooseFiles = false; panel.canChooseDirectories = true; panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false; panel.treatsFilePackagesAsDirectories = false
+        panel.directoryURL = UserDefaults.standard.string(forKey: "lastChosenDestination").map { URL(fileURLWithPath: $0, isDirectory: true) }
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard response == .OK, let url = panel.url, let self else { return }
+            UserDefaults.standard.set(url.standardizedFileURL.path, forKey: "lastChosenDestination")
+            #if APP_STORE
+            do { try FolderAccess.shared.remember(url) }
+            catch { self.showError(error.localizedDescription); return }
+            #endif
+            let destination = Destination(url: url, origin: L("指定"))
+            if let reason = self.disabledReason(destination) { self.showError(reason); return }
+            // Run after the sheet has fully detached; move() refuses while a sheet is attached.
+            DispatchQueue.main.async { self.move(to: destination, bringForward: bringForward) }
+        }
     }
     @objc func chooseFavorite(_ sender: NSButton) {
         guard sender is FavoriteConfigurationButton, NSApp.currentEvent?.type != .keyDown else { return }
         let index = sender.tag
         guard !busy, (1...2).contains(index), window.attachedSheet == nil else { return }
         let panel = NSOpenPanel()
-        panel.title = L("お気に入り%@のフォルダーを指定", String(describing: index))
+        panel.title = L("お気に入り%@のフォルダを指定", String(describing: index))
         panel.prompt = L("設定"); panel.canChooseFiles = false; panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false; panel.treatsFilePackagesAsDirectories = false
         panel.directoryURL = favoriteURL(index)
@@ -1013,4 +1102,31 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+    let icon = NSImageView(image: currentAppIcon())
+    icon.imageScaling = .scaleProportionallyUpOrDown
+    icon.setAccessibilityElement(false)
+    icon.widthAnchor.constraint(equalToConstant: size).isActive = true
+    icon.heightAnchor.constraint(equalToConstant: size).isActive = true
+    let label = NSTextField(labelWithString: title)
+    label.font = .systemFont(ofSize: size == 44 ? 20 : 15, weight: .semibold)
+    let detail = NSTextField(wrappingLabelWithString: subtitle)
+    detail.font = .systemFont(ofSize: size == 44 ? 12 : 11)
+    detail.textColor = .secondaryLabelColor
+    let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
+    text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
+    let row = NSStackView(views: [icon, text])
+    row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
+    return row
 }

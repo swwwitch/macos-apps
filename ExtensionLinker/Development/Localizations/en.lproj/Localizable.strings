@@ -1,5 +1,5 @@
 "設定を再読み込み" = "Reload Settings";
-"環境設定" = "Settings";
+"設定" = "Settings";
 "拡張子へのアプリ関連付け" = "Default Apps by Extension";
 "アプリをドロップして関連付け。" = "Drop an app to assign it.";
 "現在の設定を再読み込み（⌘R）" = "Reload current settings (⌘R)";
@@ -98,7 +98,7 @@
 "Homebrewをインストール…" = "Install Homebrew…";
 "Homebrewの導入ページを開く ↗" = "Open Homebrew Installation Page ↗";
 "拡張子一覧" = "Extensions";
-"メインウィンドウに表示する拡張子を管理します。" = "Manage the extensions shown in the main window.";
+"メインウインドウに表示する拡張子を管理します。" = "Manage the extensions shown in the main window.";
 "追加する拡張子（例: rtf）" = "Extension to add (e.g. rtf)";
 "選択を削除" = "Remove Selected";
 "削除してもmacOSの関連付けは変わりません。別名をまとめた行は一緒に削除します。" = "Removing entries does not change macOS associations. Grouped aliases are removed together.";
@@ -107,3 +107,12 @@
 "ビジネス" = "Business";
 "開発" = "Development";
 "その他" = "Other";
+
+"テキスト" = "Text";
+
+"昇順" = "Ascending";
+"降順" = "Descending";
+
+"%@ヘルプ" = "%@ Help";
+"dutiとHomebrewのインストール" = "Install duti and Homebrew";
+"ヘルプ" = "Help";

@@ -23,9 +23,9 @@ enum MoveEngine {
             if !FileManager.default.fileExists(atPath: volume.path) { return L("ボリューム「%@」が未接続です", String(describing: components[2])) }
         }
         guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey]) else {
-            return L("フォルダーが見つからないか、アクセスできません")
+            return L("フォルダが見つからないか、アクセスできません")
         }
-        guard values.isDirectory == true, values.isPackage != true else { return L("移動先として使えるフォルダーではありません") }
+        guard values.isDirectory == true, values.isPackage != true else { return L("移動先として使えるフォルダではありません") }
         if !FileManager.default.isWritableFile(atPath: url.path) { return L("書き込み権限がありません") }
         return nil
     }

@@ -1,0 +1,46 @@
+// !$*UTF8*$!
+{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
+ACCE551B1111111111111111 = {isa = PBXBuildFile; fileRef = ACCE551B2222222222222222; };
+ACCE551B2222222222222222 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Source/AccessibilityPermission.swift; sourceTree = SOURCE_ROOT; };
+
+91CB8C5B3F202FA2A5A5AA4B = { isa = PBXFileReference; lastKnownFileType = folder; path = "Localizations/zh-Hans.lproj"; sourceTree = "<group>"; };
+0AC82A522BDD6DF26F30022C = { isa = PBXBuildFile; fileRef = 91CB8C5B3F202FA2A5A5AA4B; };
+D2C3D9967814BBAF10FB8D6B = { isa = PBXFileReference; lastKnownFileType = folder; path = "Localizations/ko.lproj"; sourceTree = "<group>"; };
+8C66525042F291E4E9899507 = { isa = PBXBuildFile; fileRef = D2C3D9967814BBAF10FB8D6B; };
+5E8D8319DE5301AECC1DDEA2 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/Localization.swift"; sourceTree = "<group>"; };
+94D6044EB7AFDA903887DF58 = { isa = PBXBuildFile; fileRef = 5E8D8319DE5301AECC1DDEA2; };
+5016B5827E29D8A0BBEF7B8D = { isa = PBXFileReference; lastKnownFileType = folder; path = "Localizations/ja.lproj"; sourceTree = "<group>"; };
+E82322DBF9730DC8F2996BA1 = { isa = PBXBuildFile; fileRef = 5016B5827E29D8A0BBEF7B8D; };
+5CF182CA58A15ADCB8ECB294 = { isa = PBXFileReference; lastKnownFileType = folder; path = "Localizations/en.lproj"; sourceTree = "<group>"; };
+950E3548E7F456962DFA4219 = { isa = PBXBuildFile; fileRef = 5CF182CA58A15ADCB8ECB294; };
+4E9CCAD6732924FBAF890F6A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/LaunchPolicy.swift"; sourceTree = "<group>"; };
+A7D392B665356E5D36F3AD47 = { isa = PBXBuildFile; fileRef = 4E9CCAD6732924FBAF890F6A; };
+352E0B543012300DC7797038 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/GlobalShortcut.swift"; sourceTree = "<group>"; };
+0E0391B051B21A7BD81352A3 = { isa = PBXBuildFile; fileRef = 352E0B543012300DC7797038; };
+6B99B1243C4D02443F7394B4 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/History.swift"; sourceTree = "<group>"; };
+59B7366B1FA5E8EA11269D89 = { isa = PBXBuildFile; fileRef = 6B99B1243C4D02443F7394B4; };
+15F958EA7582AA29F854FEAA = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/MoveEngine.swift"; sourceTree = "<group>"; };
+0CA6D74A594856F29D827A1F = { isa = PBXBuildFile; fileRef = 15F958EA7582AA29F854FEAA; };
+978EB48343651A360AA0CA90 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/Browser.swift"; sourceTree = "<group>"; };
+6F9E87AE34E16253D480A295 = { isa = PBXBuildFile; fileRef = 978EB48343651A360AA0CA90; };
+CBC28E0280F2C72312C18163 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/FolderAccess.swift"; sourceTree = "<group>"; };
+1F7EDE98474EACDD5C9193EF = { isa = PBXBuildFile; fileRef = CBC28E0280F2C72312C18163; };
+812E2A61FF56A10254C0B016 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Source/main.swift"; sourceTree = "<group>"; };
+7BB094BFB5823F49264BA441 = { isa = PBXBuildFile; fileRef = 812E2A61FF56A10254C0B016; };
+F8995BA5891B07E328C60D6B = { isa = PBXFileReference; lastKnownFileType = image.icns; path = Assets/FolderMover.icns; sourceTree = "<group>"; };
+74C2431FE30C4A47C8443B80 = { isa = PBXBuildFile; fileRef = F8995BA5891B07E328C60D6B; };
+38A007151ABE87CC01A5B6E9 = { isa = PBXFileReference; explicitFileType = wrapper.application; path = FolderHopper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+FBDC4F23F93125BBEEAE800C = { isa = PBXGroup; children = (38A007151ABE87CC01A5B6E9,); name = Products; sourceTree = "<group>"; };
+64292B1C2B2E13EAD8788FC8 = { isa = PBXGroup; children = (91CB8C5B3F202FA2A5A5AA4B,D2C3D9967814BBAF10FB8D6B,5E8D8319DE5301AECC1DDEA2,5016B5827E29D8A0BBEF7B8D,5CF182CA58A15ADCB8ECB294,4E9CCAD6732924FBAF890F6A,352E0B543012300DC7797038,6B99B1243C4D02443F7394B4,15F958EA7582AA29F854FEAA,978EB48343651A360AA0CA90,CBC28E0280F2C72312C18163,812E2A61FF56A10254C0B016,F8995BA5891B07E328C60D6B,FBDC4F23F93125BBEEAE800C,); sourceTree = "<group>"; };
+BCE16DD0260827ECF338C787 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (ACCE551B1111111111111111,94D6044EB7AFDA903887DF58,A7D392B665356E5D36F3AD47,0E0391B051B21A7BD81352A3,59B7366B1FA5E8EA11269D89,0CA6D74A594856F29D827A1F,6F9E87AE34E16253D480A295,1F7EDE98474EACDD5C9193EF,7BB094BFB5823F49264BA441,); runOnlyForDeploymentPostprocessing = 0; };
+0189424A5A60FED329FA868E = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (8C66525042F291E4E9899507,0AC82A522BDD6DF26F30022C,950E3548E7F456962DFA4219,E82322DBF9730DC8F2996BA1,74C2431FE30C4A47C8443B80,); runOnlyForDeploymentPostprocessing = 0; };
+7561BFB015D8F536760CB671 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+89E1FD6268CC0F221A2BE178 = { isa = XCBuildConfiguration; name = Debug; buildSettings = { SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES; }; };
+7082CC0B6FC1282FCEABD07A = { isa = XCBuildConfiguration; name = Debug; buildSettings = { PRODUCT_NAME = "FolderHopper"; PRODUCT_BUNDLE_IDENTIFIER = "jp.local.FolderMover"; EXECUTABLE_NAME = "FolderMover"; INFOPLIST_FILE = "Store-Info.plist"; CODE_SIGN_ENTITLEMENTS = "../App-Store/Configuration/FileMover.entitlements"; CODE_SIGN_STYLE = "Automatic"; DEVELOPMENT_TEAM = "PL9S9PXX96"; ENABLE_APP_SANDBOX = "YES"; ENABLE_HARDENED_RUNTIME = "YES"; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "APP_STORE"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; ARCHS = "$(ARCHS_STANDARD)"; ONLY_ACTIVE_ARCH = "YES"; COMBINE_HIDPI_IMAGES = "YES"; }; };
+E6DE6C99132752C914FEF632 = { isa = XCBuildConfiguration; name = Release; buildSettings = { SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES; }; };
+639A7CA24D39909E713B47F7 = { isa = XCBuildConfiguration; name = Release; buildSettings = { PRODUCT_NAME = "FolderHopper"; PRODUCT_BUNDLE_IDENTIFIER = "jp.local.FolderMover"; EXECUTABLE_NAME = "FolderMover"; INFOPLIST_FILE = "Store-Info.plist"; CODE_SIGN_ENTITLEMENTS = "../App-Store/Configuration/FileMover.entitlements"; CODE_SIGN_STYLE = "Automatic"; DEVELOPMENT_TEAM = "PL9S9PXX96"; ENABLE_APP_SANDBOX = "YES"; ENABLE_HARDENED_RUNTIME = "YES"; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "APP_STORE"; SWIFT_OPTIMIZATION_LEVEL = "-O"; ARCHS = "$(ARCHS_STANDARD)"; ONLY_ACTIVE_ARCH = "NO"; COMBINE_HIDPI_IMAGES = "YES"; }; };
+01DF1D3A7F02866ECA6BB742 = { isa = XCConfigurationList; buildConfigurations = (89E1FD6268CC0F221A2BE178,E6DE6C99132752C914FEF632,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+8D8B67C81BE4F695571BC034 = { isa = XCConfigurationList; buildConfigurations = (7082CC0B6FC1282FCEABD07A,639A7CA24D39909E713B47F7,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+0E8A3AD980EC179856012B7E = { isa = PBXNativeTarget; buildConfigurationList = 8D8B67C81BE4F695571BC034; buildPhases = (BCE16DD0260827ECF338C787,7561BFB015D8F536760CB671,0189424A5A60FED329FA868E,); buildRules = (); dependencies = (); name = FolderHopper; productName = FolderHopper; productReference = 38A007151ABE87CC01A5B6E9; productType = "com.apple.product-type.application"; };
+98F54143AB4E86B28C3AFEE0 = { isa = PBXProject; attributes = { LastUpgradeCheck = 2700; }; buildConfigurationList = 01DF1D3A7F02866ECA6BB742; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (ja,en,"zh-Hans",ko,Base,); mainGroup = 64292B1C2B2E13EAD8788FC8; productRefGroup = FBDC4F23F93125BBEEAE800C; projectDirPath = ""; projectRoot = ""; targets = (0E8A3AD980EC179856012B7E,); };
+}; rootObject = 98F54143AB4E86B28C3AFEE0; }

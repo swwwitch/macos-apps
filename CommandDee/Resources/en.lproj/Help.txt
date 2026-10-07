@@ -1,0 +1,53 @@
+A menu bar app that duplicates or renames the files and folders selected in Finder / Path Finder, adding a version number or date.
+
+## Basic Use
+1. Select files or folders in Finder / Path Finder. Multiple items and folders are supported.
+2. Press one of the shortcuts below.
+
+### Duplicate and Rename
+- **⌘D**: duplicate with the next version (the highest version number in the folder + 1)
+- **⌃⌘D**: duplicate, adding or updating today's date at the end
+- **⌃⌘E**: duplicate, adding -edited- and today's date at the end
+- **⌃E**: rename by adding or removing -parent folder name at the end
+- **⌃⇧⌘D**: rename to the highest number + 1 without duplicating
+- **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
+
+### App Commands
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘Q**: Quit CommandDee (in this app's window)
+
+## Examples
+- **⌘D**: v2 and v5 exist → v6 (gaps are ignored)
+- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
+
+## Duplicate and Rename Rules
+- Extensions are kept, and neither the original nor existing copies are overwritten.
+- A trailing 6- or 8-digit date is recognized and updated to 8 digits.
+- Items already dated today are skipped (adding "edited" still runs).
+- If another item with the same name exists, nothing is changed and you are notified.
+
+### Swapping Names
+- Works between 2 files or 2 folders.
+- The full names (including extensions) are exchanged, while each item keeps its contents and modification date.
+- There is no automatic decision based on the highest number or modification date.
+- To undo, select the same 2 items and run it again.
+
+## Settings
+Choose Settings… (⌘,) from the menu bar icon.
+- **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
+- **Action Shortcuts**: click a button and type a modifier key with a character key to change it. Press Esc to cancel. A combination that is already in use cannot be assigned twice.
+- **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
+
+## Permissions
+- On first use, allow Accessibility. Click Open Accessibility Settings in this window to open the settings.
+- You also need to allow control of Finder / Path Finder when macOS asks.
+
+## Running in the Background and Quitting
+- CommandDee stays in the menu bar after you close the window.
+- To quit, press ⌘Q in this app's window, or choose Quit CommandDee from the menu bar icon.
+
+## Help and the note Article
+- To open this help, choose CommandDee Help… from the menu bar icon.
+- Choose Open the note Article in the same menu to read the article on note in your browser.

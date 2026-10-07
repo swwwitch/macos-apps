@@ -1,0 +1,78 @@
+Moves or duplicates the files and folders selected in the Finder or Path Finder to another folder, or creates symbolic links to them.
+
+## Basic Use
+1. Select files or folders in the Finder or Path Finder.
+2. Bring up FolderHopper (⌃⌥⌘M by default). The number of selected items appears at the top.
+3. Select a destination folder in the list and press Return, or double-click it. A single click only selects.
+
+- To copy, turn on **Duplicate**; to create links, turn on **Create symbolic links** before running. You can also press ⌥Return to duplicate or ⌃Return to create symbolic links.
+- Hold ⌘ while running to bring the destination to the front when it finishes.
+- Places that cannot be used as a destination, such as the folder containing the selected files, are dimmed with the reason shown.
+- Right-click an item in the Finder or Path Finder and choose FolderHopper from **Open With** to use it as Received files.
+
+## Destinations
+- **Finder Windows**: The locations of windows open in the Finder or Path Finder.
+- **Choose**: Click the folder icon and select a destination folder to run the current mode (move, duplicate, or create links) right away. ⌘-click to bring the destination to the front when it finishes. The next time, the panel opens at the last folder you chose.
+- **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run.
+- **Recent Folders**: The recent-folder history saved by the Finder and Path Finder.
+
+## Settings
+Open **Settings…** from the app menu (⌘,) or with the **Settings…** button in the window.
+
+### Startup & Background Tab
+- **Launch at login**
+- **Launch in the background at login**
+- **Hide main window at startup**
+- **Show in menu bar**
+- **Show window with a keyboard shortcut** (choose the modifier keys and key)
+
+### Display Tab
+- **Shorten Dropbox paths**
+- **Show Choose section**
+- **Show Favorites section**
+
+### File Operations Tab
+- **When a file with the same name exists**: choose Keep both by adding a number or Stop without overwriting.
+- You can also set **Close window after completion (keep running)**.
+
+### History Tab
+- Set **Number of recent folders** (0 = all).
+- Tidy the list with **Clear Recent Folders** and **Restore**. Clearing affects only this app’s list; the Finder and Path Finder history is not changed.
+
+## Keyboard Shortcuts
+Show the app with ⌃⌥⌘M by default. Available while the app is running.
+
+- **Return**: Execute
+- **⌥Return**: Duplicate
+- **⌃Return**: Create symbolic links
+- **Add ⌘**: Bring the destination to the front when finished
+- **Tab**: Switch between Finder Windows and Recent Folders
+- **←→**: Select a favorite
+- **Esc**: Close window
+- **⌘W**: Close window (or Settings)
+- **⌘,**: Settings
+- **⌘?**: Help
+- **⌘Q**: Quit
+
+## Running in the Background and Quitting
+- Closing the window does not quit the app. Show it again with the shortcut, the Dock icon, or Open With.
+- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- To quit, press ⌘Q or choose **Quit FolderHopper** from the app menu. You cannot quit while files are being moved or duplicated.
+
+## Permissions
+- The first time, the app needs Automation permission to control the Finder and Path Finder. Check it in System Settings → Privacy & Security → Automation.
+- To see completion notifications, allow notifications. Accessibility permission is not required.
+- In the App Store version, you allow access to folders the first time you use them.
+
+## Troubleshooting
+- If the selection or list is out of date, select the items again in the Finder or Path Finder and return to FolderHopper. The app reloads when you return to it.
+- If “Permission to control … was denied” appears, allow FolderHopper to control the Finder or Path Finder under Automation.
+- Items cannot be moved to the same location, or into the folder itself or a folder inside it. Existing items are never overwritten or merged.
+- If an operation stops partway, check the number of processed items and the error. Processed items stay in the destination.
+- Virtual folders such as search results, background tabs, and inactive Path Finder panes do not appear in the destination list.
+- Choose **Open the note Article** from the Help menu to open the guide article on note in your browser.
+
+## Uninstalling
+1. Turn off **Launch at login**.
+2. Quit the app.
+3. Move the app to the Trash.

@@ -5,12 +5,14 @@ import SwiftUI
 struct IconDropApp: App {
     init() { SingleInstanceLaunch.enforce() }
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @StateObject private var settings = AppSettings()
+    @StateObject private var settings = AppSettings.shared
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: MainWindow.sceneID) {
             ContentView()
-                .background(UtilityWindowChrome(title: ""))
+                .background(StartupWindowGate())
+                .background(UtilityWindowChrome(title: "", isMain: true))
+                .background(MainWindowOpenerCapture())
                 .environmentObject(settings)
                 .frame(minWidth: 420, minHeight: 320)
         }
@@ -18,6 +20,11 @@ struct IconDropApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 480, height: 380)
         .commands {
+            CommandGroup(replacing: .help) {
+                Button(L("QuickIconExporterヘルプ")) { LocalHelp.shared.show() }
+                Divider()
+                Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
+            }
             #if DIRECT_UPDATES && !APP_STORE
             UpdateCommands()
             #endif
@@ -32,24 +39,45 @@ struct IconDropApp: App {
         Settings {
             SettingsView()
                 .background(UtilityWindowChrome(title: L("環境設定")))
+                .background(MainWindowOpenerCapture())
                 .environmentObject(settings)
                 .frame(width: 520, height: 650)
         }
     }
 }
 
+/// Tracks the drop window so "Show Window" never picks Settings, Help or other utility windows.
+@MainActor
+enum MainWindow {
+    static let sceneID = "main"
+    static weak var current: NSWindow?
+    /// Captured SwiftUI openWindow action, used when the main window was closed.
+    static var open: (() -> Void)?
+}
+
+private struct MainWindowOpenerCapture: View {
+    @Environment(\.openWindow) private var openWindow
+    var body: some View {
+        Color.clear.frame(width: 0, height: 0)
+            .onAppear { MainWindow.open = { openWindow(id: MainWindow.sceneID) } }
+    }
+}
+
 // Configure the actual SwiftUI window once it joins the view hierarchy.
 private struct UtilityWindowChrome: NSViewRepresentable {
     let title: String
-    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title) }
+    var isMain = false
+    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title, isMain: isMain) }
     func updateNSView(_ view: ChromeView, context: Context) { view.windowTitle = title; view.apply() }
     final class ChromeView: NSView {
         var windowTitle: String
-        init(title: String) { windowTitle = title; super.init(frame: .zero) }
+        let isMain: Bool
+        init(title: String, isMain: Bool) { windowTitle = title; self.isMain = isMain; super.init(frame: .zero) }
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
         override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); apply() }
         func apply() {
             guard let window else { return }
+            if isMain { MainWindow.current = window }
             window.title = windowTitle
             window.styleMask.remove(.miniaturizable)
             window.standardWindowButton(.miniaturizeButton)?.isHidden = true

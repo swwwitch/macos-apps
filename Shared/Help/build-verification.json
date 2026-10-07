@@ -1,0 +1,50 @@
+[
+  {
+    "app": "BrowserSwitcher/BrowserSwitcher.app",
+    "signatureOK": true,
+    "version": "1.6.8",
+    "build": "19"
+  },
+  {
+    "app": "ExtLink/ExtLink.app",
+    "signatureOK": true,
+    "version": "0.2.2",
+    "build": "7"
+  },
+  {
+    "app": "FolderHopper/FolderHopper.app",
+    "signatureOK": true,
+    "version": "0.1.65",
+    "build": "71"
+  },
+  {
+    "app": "SoftShadow/build/KageTrimmer.app",
+    "signatureOK": true,
+    "version": "1.0",
+    "build": "28"
+  },
+  {
+    "app": "mac-png/outputs/QuickIconExporter.app",
+    "signatureOK": true,
+    "version": "1.0",
+    "build": "7"
+  },
+  {
+    "app": "Toki/PodiumFlight.app",
+    "signatureOK": true,
+    "version": "3.1.7",
+    "build": "14"
+  },
+  {
+    "app": "TextPalette/TextPalette.app",
+    "signatureOK": true,
+    "version": "0.1.2",
+    "build": "3"
+  },
+  {
+    "app": "CommandDee/CommandDee.app",
+    "signatureOK": true,
+    "version": "1.5.0",
+    "build": "9"
+  }
+]

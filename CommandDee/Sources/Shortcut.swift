@@ -13,7 +13,13 @@ struct Shortcut: Codable, Equatable {
         Shortcut(keyCode: 2, modifiers: NSEvent.ModifierFlags([.control, .shift, .command]).rawValue, label: "⌃⇧⌘D"),
         Shortcut(keyCode: 1, modifiers: NSEvent.ModifierFlags([.control, .option, .command]).rawValue, label: "⌃⌥⌘S")
     ]
-    static let titles = ["連番で複製", "日付付きで複製", "edited付きで複製", "親フォルダー名を付け外し", "連番だけ更新（名前変更）", "2項目の名前を入れ替え"]
+    static var titles: [String] {
+        [L("shortcut.version"), L("shortcut.date"), L("shortcut.edited"), L("shortcut.parent"), L("shortcut.renameVersion"), L("shortcut.swapNames")]
+    }
+    /// Stored placeholder for a shortcut that could not be migrated (kept as persisted data).
+    static let unsetLabel = "未設定"
+    /// Button text: the unset placeholder follows the UI language; real key labels are shown as-is.
+    var displayLabel: String { keyCode == UInt16.max || label == Self.unsetLabel ? L("shortcut.unset") : label }
     static let modes: [Duplicator.Mode] = [.version, .date, .edited, .parent, .renameVersion, .swapNames]
     static func load(defaults: UserDefaults = .standard) -> [Shortcut] {
         guard let data = defaults.data(forKey: "keyboardShortcuts"),
@@ -21,7 +27,7 @@ struct Shortcut: Codable, Equatable {
         var migrated = values
         for added in Self.defaults.dropFirst(values.count) {
             let conflicts = migrated.contains { $0.keyCode == added.keyCode && $0.modifiers == added.modifiers }
-            migrated.append(conflicts ? Shortcut(keyCode: UInt16.max, modifiers: 0, label: "未設定") : added)
+            migrated.append(conflicts ? Shortcut(keyCode: UInt16.max, modifiers: 0, label: Self.unsetLabel) : added)
         }
         return migrated
     }

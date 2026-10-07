@@ -1,3 +1,7 @@
+"openDestinationAfterMove" = "Open destination after moving";
+"openDestinationFailed" = "Could not open the destination. Open it in Finder.";
+"clear" = "Clear";
+"clearHelp" = "Clear the folder selection. Files are not deleted.";
 "displayGroup" = "Display";
 "shortenDropbox" = "Shorten Dropbox paths";
 "shortenDropboxDetail" = "Hide the prefix before Dropbox-shared. Hover to see the full path.";
@@ -9,7 +13,7 @@
 "dropFolder" = "Click to choose, or drop a folder";
 "missing" = "Folder not found";
 "ready" = "Choose folders to begin. Existing items are never overwritten.";
-"includeFolders" = "Include folders";
+"includeFolders" = "Include subfolders";
 "includeHidden" = "Include hidden items";
 "swap" = "Swap folders";
 "move" = "Move";
@@ -36,7 +40,7 @@
 "changedFolder" = "A folder changed or disconnected. Check the connection and history.";
 "journalError" = "Move did not start because history could not be saved.";
 "launchGroup" = "Launch & presence";
-"resident" = "Keep running";
+"resident" = "Keep running after closing";
 "residentDetail" = "Keep running after closing the window. Reopen from the Dock.";
 "launchShortcut" = "App launch keyboard shortcut";
 "systemSettings" = "Configure in Shortcuts…";
@@ -46,6 +50,7 @@
 "about" = "About FolderMover";
 "updates" = "Check for Updates…";
 "settings" = "Settings…";
+"settingsTitle" = "Settings";
 "quit" = "Quit FolderMover";
 "file" = "File";
 "showWindow" = "Show Window";
@@ -62,7 +67,7 @@
 "continue" = "Continue";
 "updatesPending" = "Updates are not configured";
 "updatesDetail" = "An update feed and verification key have not been configured. Automatic updates are unavailable.";
-"support" = "Support: the Codex chat that created this app";
+"support" = "Support: see the bundled README.md";
 "login" = "Launch at login";
 "loginOpen" = "Open Login Items";
 "loginOn" = "Launches automatically when you log in.";
@@ -70,4 +75,4 @@
 "loginMissing" = "Login launch is not registered. Turn it on to register.";
 "loginOff" = "Launch at login is off.";
 "loginError" = "Could not change the setting: ";
-"helpContent" = "FolderMover — Move folder contents in bulk\n\nOperation\nClick or drop a folder on each card. Choose Move and confirm the count and destination. Only immediate children of the source are selected. Included folders move with all their contents. Existing names are skipped; folders are never merged or overwritten.\n\nLarge moves and stopping\n/bin/mv -n runs in batches of up to 128 items and about 64 KB of arguments. Progress counts top-level items, not bytes or nested files. Stop or Esc waits for the active batch to finish. A large file or cross-volume copy may take time to stop. Do not force quit or disconnect drives during a move.\n\nSettings and shortcuts\n⌘, opens settings; login launch defaults to off. Keep running lets ⌘W close the window while the app remains available in the Dock. ⌘0 reopens it, ⌘Q quits. During a move, stop first and quit again afterward. With Keep running off, closing the main window quits when idle. Login launch stays in the background.\nFor a launch shortcut, create an Open App action for FolderMover in macOS Shortcuts and assign a keyboard shortcut in its details. Edit or remove it there. The app does not monitor global keys.\n\nPermissions and troubleshooting\nAccessibility access is not needed. Selected folders need read/write access. If denied, inspect Finder Get Info permissions, System Settings → Privacy & Security → Files and Folders, and drive connections, then select again. Full Disk Access is not requested. Items replaced since scanning are reported as failed. Wait for other apps or sync operations to stop changing these folders before moving them.\n\nResults and recovery\nMoved, skipped, failed and remaining counts are shown. Result history opens a local JSONL journal. moved means verified movement, skipped means an existing item was left alone, failed/changed needs attention, and attempt lists a batch about to run. After an unexpected exit, check both folders for unfinished attempts. A failed cross-volume move may leave a partial copy at the destination; keep the original and compare both before acting.\nAutomatic Undo is unavailable. To restore, use Finder to return only items recorded as moved to their original paths. Never overwrite a conflict. Do not reverse-move the entire destination folder, which may include unrelated files.\n\nPrivacy and updates\nNo network communication. File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not automatically deleted; remove unneeded journals in Finder. Preferences use UserDefaults. This local build has no configured update feed, update verification key or notarization.\nSupport: the Codex chat that created this app.\n\nFinder tag colors\nFolder icons reflect Finder's primary label color, as in FolderHopper. Custom icons are preserved. Return to FolderMover to refresh changes made in Finder.\n\nDisplay settings\nSettings → Display → Shorten Dropbox paths shows /Dropbox-shared/… on both cards. Enabled by default. Hover for the full path. Confirmation and history retain full paths.";
+"helpContent" = "## Basic Operation\n1. Click or drop a folder on the left card (Source) and the right card (Destination).\n2. Choose Move, confirm the count and destination, and run it.\n- Only the immediate children of the source are moved, not the source folder itself. Included folders move with all their contents.\n- Items with existing names are skipped. Nothing is overwritten and folders are never merged.\n- Enable Open destination after moving to open the destination after successful completion, including skipped conflicts. Off by default; your choice is saved. Cancellation, errors and empty plans do not open it.\n- Use Clear above either folder to remove its selection and saved path. Files and move history are kept. Clear is unavailable during a move.\n\n## Large Moves and Stopping\n- /bin/mv -n runs in batches of up to 128 items and about 64 KB of arguments.\n- Progress counts top-level items, not bytes or nested files.\n- **Esc** or Stop prevents the next batch and waits for the active mv to finish. A large file or cross-volume move may take time to stop.\n- Do not force quit or disconnect drives during a move.\n\n## Display\n### Dropbox Paths\n- Settings → Display → Shorten Dropbox paths shows /Dropbox-shared/… on both cards. Enabled by default.\n- Hover to see the full path. The confirmation and history keep full paths.\n### Finder Tag Colors\n- Folder icons reflect the folder's Finder tag color, as in FolderHopper. With several tags, Finder's primary label color is used. Custom icons are preserved.\n- After changing colors in Finder, return to FolderMover to refresh.\n\n## Launch, Keep Running and Quitting\n- Launch at login is off by default. A login launch does not show the window.\n- With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.\n- With it off, closing the window quits the app when no move is running.\n- ⌘Q quits. During a move you cannot quit; choose Stop first, then quit again.\n\n## Keyboard Shortcuts\n- **⌘,**: Settings\n- **⌘0**: Show Window\n- **⌘W**: Close the window\n- **⌘?**: Help\n- **⌘Q**: Quit\n- **Esc**: Stop a move\n### App Launch Keyboard Shortcut\n1. In macOS Shortcuts, create an Open App action for FolderMover.\n2. Assign a keyboard shortcut in its details.\n- Edit or remove it there. The app does not monitor global keys.\n\n## Permissions\n- Accessibility access is not needed.\n- The selected folders need read/write access. Full Disk Access is not requested.\n\n## Troubleshooting\n### When Access Is Denied\n1. Check the permissions in Finder's Get Info.\n2. Allow access in System Settings → Privacy & Security → Files and Folders.\n3. Check that external drives are connected, then select the folder again.\n### When the Source Changes\n- Items replaced after the confirmation are reported as failed.\n- Wait for other apps or sync operations to stop changing these folders before moving them.\n\n## Results and Recovery\n- Moved, skipped, failed and remaining counts are shown. Show result history opens the local JSONL journal.\n- moved means verified movement, skipped means an existing item was left alone, failed/changed needs attention, and attempt lists a batch about to run.\n- After an unexpected exit, if only attempt remains, compare both folders in Finder.\n- A failed cross-volume move may leave a partial copy at the destination. Keep the original and check both before acting.\n### Restoring\n- Automatic Undo is unavailable. Use Finder to return only the items recorded as moved to their original folder.\n- Never overwrite a conflict; keep it under another name.\n- Do not reverse-move the entire destination folder, which may include unrelated files.\n\n## Privacy and Updates\n- No network communication.\n- File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not deleted automatically; remove journals in Finder.\n- Preferences are stored in UserDefaults.\n- This local build has no configured update feed, update verification key or notarization.\n\n## Support\n- See the bundled README.md (Contents/Resources/README.md in the app).\n- Help → Open the note Article opens the note article introducing FolderMover.";

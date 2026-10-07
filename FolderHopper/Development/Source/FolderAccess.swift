@@ -46,7 +46,7 @@ final class FolderAccess {
             let scoped = try URL(resolvingBookmarkData: data, options: .withSecurityScope,
                                  relativeTo: nil, bookmarkDataIsStale: &stale)
             guard scoped.startAccessingSecurityScopedResource() else {
-                throw MoveFailure(message: L("フォルダーのアクセス許可を保持できませんでした。"))
+                throw MoveFailure(message: L("フォルダのアクセス許可を保持できませんでした。"))
             }
             active.append(scoped)
             bookmarks[url.standardizedFileURL.path] = data
@@ -62,8 +62,8 @@ final class FolderAccess {
         for folder in folders where seen.insert(folder.standardizedFileURL.path).inserted {
             if covers(folder) { continue }
             let panel = NSOpenPanel()
-            panel.title = L("フォルダーへのアクセスを許可")
-            panel.message = L("ファイル操作と取り消しのため、次のフォルダーを選択してください。\n") + folder.path
+            panel.title = L("フォルダへのアクセスを許可")
+            panel.message = L("ファイル操作と取り消しのため、次のフォルダを選択してください。\n") + folder.path
             panel.prompt = L("許可")
             panel.canChooseFiles = false; panel.canChooseDirectories = true
             panel.allowsMultipleSelection = false; panel.canCreateDirectories = false
@@ -71,7 +71,7 @@ final class FolderAccess {
             guard panel.runModal() == .OK, let selected = panel.url else { return false }
             // Do not silently act on a different folder if the panel selection changed.
             guard selected.resolvingSymlinksInPath().standardizedFileURL == folder.resolvingSymlinksInPath().standardizedFileURL else {
-                throw MoveFailure(message: L("指定されたフォルダーが異なるため、操作を中止しました。"))
+                throw MoveFailure(message: L("指定されたフォルダが異なるため、操作を中止しました。"))
             }
             try remember(selected)
         }

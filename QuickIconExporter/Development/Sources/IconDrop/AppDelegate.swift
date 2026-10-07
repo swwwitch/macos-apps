@@ -2,23 +2,34 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private lazy var settings = AppSettings()
+    private var settings: AppSettings { .shared }
     private var lastExportError: String?
     private var statusItem: NSStatusItem?
     private var pendingURLs: [URL] = []
     private var isProcessingExternalOpen = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        defer { DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            MenuBarPresence.shared.install(name: "QuickIconExporter", symbol: "square.and.arrow.up", existing: self.statusItem,
+                show: { [weak self] in self?.showWindow() },
+                settings: { [weak self] in NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) },
+                help: { [weak self] in LocalHelp.shared.show() })
+        } }
         NSApp.setActivationPolicy(.accessory)
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.image = NSImage(systemSymbolName: "square.and.arrow.up", accessibilityDescription: "QuickIconExporter")
         let menu = NSMenu()
-        menu.addItem(withTitle: "ファイルを選択…", action: #selector(selectFiles), keyEquivalent: "o").target = self
-        menu.addItem(withTitle: "ウインドウを表示", action: #selector(showWindow), keyEquivalent: "").target = self
+        menu.addItem(withTitle: L("ファイルを選択…"), action: #selector(selectFiles), keyEquivalent: "o").target = self
+        menu.addItem(withTitle: L("ウインドウを表示"), action: #selector(showWindow), keyEquivalent: "").target = self
+        // The main menu (and its Help menu) is hidden for this menu bar app, so help lives here too.
         menu.addItem(.separator())
-        menu.addItem(withTitle: "終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: L("QuickIconExporterヘルプ"), action: #selector(LocalHelp.show), keyEquivalent: "").target = LocalHelp.shared
+        HelpLinks.addNoteItem(to: menu)
+        menu.addItem(.separator())
+        menu.addItem(withTitle: L("終了"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         #if DIRECT_UPDATES && !APP_STORE
         AppUpdates.shared.addMenuItems(to: menu)
         #endif
@@ -28,10 +39,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         showWindow()
-        return true
+        // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
+        return false
     }
     @objc private func showWindow() {
-        NSApp.windows.first(where: { !$0.isSheet })?.makeKeyAndOrderFront(nil)
+        // Pick the main window explicitly, not Settings, Help or another utility window.
+        if let window = MainWindow.current {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            MainWindow.open?()
+        }
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc private func selectFiles() {
@@ -45,7 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if urls.isEmpty, let paths = pasteboard.propertyList(forType: NSPasteboard.PasteboardType("NSFilenamesPboardType")) as? [String] {
             urls = paths.map { URL(fileURLWithPath: $0) }
         }
-        guard !urls.isEmpty else { error.pointee = "ファイルを選択してください。"; return }
+        guard !urls.isEmpty else { error.pointee = L("ファイルを選択してください。") as NSString; return }
         application(NSApp, open: urls)
         if let message = lastExportError { error.pointee = message as NSString }
     }

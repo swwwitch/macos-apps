@@ -14,13 +14,25 @@ struct DutiGUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(store: store)
+                .background(StartupWindowGate())
                 .background(UtilityWindowChrome(title: ""))
                 .frame(minWidth: 520, minHeight: 580)
-                .onAppear { NSApp.setActivationPolicy(.regular); NSApp.activate(ignoringOtherApps: true) }
+                .onAppear {
+                    NSApp.setActivationPolicy(.regular); if !StartupWindow.hidden { NSApp.activate(ignoringOtherApps: true) }
+                    MenuBarPresence.shared.install(name: "ExtensionLinker", symbol: "link", show: {
+                        NSApp.windows.first(where: { $0.canBecomeMain && !$0.isSheet })?.makeKeyAndOrderFront(nil)
+                        NSApp.activate(ignoringOtherApps: true)
+                    }, settings: { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }, help: { LocalHelp.shared.show() })
+                }
         }
         .defaultSize(width: 620, height: 740)
         .windowStyle(.hiddenTitleBar)
         .commands {
+            CommandGroup(replacing: .help) {
+                Button(L("%@ヘルプ", "ExtensionLinker")) { LocalHelp.shared.show() }.keyboardShortcut("?", modifiers: .command)
+                Divider()
+                Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
+            }
             #if DIRECT_UPDATES && !APP_STORE
             UpdateCommands()
             #endif
@@ -28,7 +40,7 @@ struct DutiGUIApp: App {
                 Button(L("設定を再読み込み")) { store.refresh() }.keyboardShortcut("r")
             }
         }
-        Settings { EnvironmentView(store: store).frame(width: 540).background(UtilityWindowChrome(title: L("環境設定"))) }
+        Settings { EnvironmentView(store: store).frame(width: 540).background(UtilityWindowChrome(title: L("設定"))) }
     }
 }
 
@@ -41,16 +53,29 @@ struct ContentView: View {
     @State private var windowDropTargeted = false
     @State private var windowDropError: String?
 
+    private func sortHeader(_ title: String, column: AssociationSortColumn) -> some View {
+        Button { store.sort(by: column) } label: {
+            HStack(spacing: 4) {
+                Text(L(title))
+                if store.sortColumn == column {
+                    Image(systemName: store.sortAscending ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 9, weight: .semibold))
+                }
+            }.contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(L(title))
+        .accessibilityValue(store.sortColumn == column ? L(store.sortAscending ? "昇順" : "降順") : "")
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: 16) {
-                Image(systemName: "arrow.triangle.swap")
-                    .font(.system(size: 22, weight: .medium)).foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
-                    .background(.blue.gradient, in: RoundedRectangle(cornerRadius: 14))
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(L("拡張子へのアプリ関連付け")).font(.system(size: 20, weight: .bold))
-                    Text(L("アプリをドロップして関連付け。")).font(.caption).foregroundStyle(.secondary)
+            HStack(alignment: .center, spacing: 12) {
+                Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                    .frame(width: 44, height: 44).accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L("拡張子へのアプリ関連付け")).font(.system(size: 20, weight: .semibold))
+                    Text(L("アプリをドロップして関連付け。")).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Button { store.refresh() } label: { Image(systemName: "arrow.clockwise") }
@@ -78,8 +103,8 @@ struct ContentView: View {
             }.padding(.horizontal, 20).padding(.bottom, 8)
 
             HStack {
-                Text(L("拡張子")).frame(width: 145, alignment: .leading)
-                Text(L("対応アプリ"))
+                sortHeader("拡張子", column: .fileExtension).frame(width: 145, alignment: .leading)
+                sortHeader("対応アプリ", column: .application)
                 Spacer()
                 Text(L("%@ 種類", String(describing: store.visible.count))).fontWeight(.regular)
             }.font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
@@ -91,7 +116,14 @@ struct ContentView: View {
                         HStack(spacing: 0) {
                             HStack(spacing: 10) {
                                 Image(systemName: "doc").foregroundStyle(.secondary)
-                                Text(row.extensionLabel).font(.system(size: row.aliases.count > 1 ? 13 : 15, weight: .semibold, design: .monospaced))
+                                VStack(alignment: .leading, spacing: 3) {
+                                    ForEach(row.aliases, id: \.self) { ext in
+                                        Text("." + ext)
+                                    }
+                                }
+                                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                                .accessibilityElement(children: .ignore)
+                                .accessibilityLabel(row.extensionLabel)
                             }.frame(width: 145, alignment: .leading)
                             Button { selected = row } label: {
                                 HStack(spacing: 12) {
@@ -119,7 +151,7 @@ struct ContentView: View {
                                 }.contentShape(Rectangle())
                             }.buttonStyle(.plain).help(L("⌘／Control＋クリック、またはダブルクリックで .%@ のアプリを選択", String(describing: row.ext)))
                             .accessibilityLabel(L(".%@ の対応アプリ: %@", String(describing: row.ext), String(describing: row.displayName)))
-                        }.padding(.horizontal, 24).frame(minHeight: 46)
+                        }.padding(.horizontal, 24).frame(minHeight: row.aliases.count > 1 ? 58 : 46)
                             .background(index.isMultiple(of: 2) ? Color.primary.opacity(0.06) : .clear)
                             .modifier(ApplicationDropZone(clicked: { selected = row }, dragSource: row.unavailable == nil ? row.proposed ?? row.current : nil, requiredClickCount: 2) { app in store.choose(app, for: row.ext) })
                         Divider().padding(.leading, 24)
@@ -156,6 +188,7 @@ struct ContentView: View {
                 }
             }.padding(.horizontal, 20).padding(.vertical, 18)
         }
+        .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
         .disabled(store.applying)
         .overlay {
             RoundedRectangle(cornerRadius: 10)
@@ -396,4 +429,14 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
 }

@@ -5,6 +5,9 @@ if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
     SPARKLE_DIR=$(python3 "$UPDATER_ROOT/prepare.py")
     UPDATE_SWIFT_FLAGS=(-D DIRECT_UPDATES -F "$SPARKLE_DIR" -framework Sparkle -Xlinker -rpath -Xlinker @executable_path/../Frameworks)
     UPDATE_SPM_FLAGS=(-Xswiftc -DDIRECT_UPDATES -Xswiftc -F -Xswiftc "$SPARKLE_DIR" -Xlinker -rpath -Xlinker @executable_path/../Frameworks)
+else
+    UPDATE_SWIFT_FLAGS=(-D APP_STORE)
+    UPDATE_SPM_FLAGS=(-Xswiftc -DAPP_STORE)
 fi
 embed_updates() {
     if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then

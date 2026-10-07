@@ -1,0 +1,329 @@
+#!/usr/bin/env python3
+"""Generate CommandDee's ja / en / zh-Hans / ko resources from one table.
+
+Output: Resources/<lang>.lproj/{Localizable.strings, InfoPlist.strings, Help.txt}
+Columns: key | Japanese | English | Simplified Chinese | Korean
+Japanese is the original UI wording and must stay unchanged.
+"""
+from pathlib import Path
+import json
+
+root = Path(__file__).resolve().parent
+LANGS = ['ja', 'en', 'zh-Hans', 'ko']
+
+rows = '''\
+menu.about|CommandDeeについて|About CommandDee|关于 CommandDee|CommandDee 정보
+menu.settings|設定…|Settings…|设置…|설정…
+menu.hide|CommandDeeを隠す|Hide CommandDee|隐藏 CommandDee|CommandDee 가리기
+menu.quit|CommandDeeを終了|Quit CommandDee|退出 CommandDee|CommandDee 종료
+menu.window|ウインドウ|Window|窗口|윈도우
+menu.closeWindow|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
+menu.edit|編集|Edit|编辑|편집
+menu.undo|取り消す|Undo|撤销|실행 취소
+menu.cut|カット|Cut|剪切|잘라내기
+menu.copy|コピー|Copy|拷贝|복사하기
+menu.paste|ペースト|Paste|粘贴|붙여넣기
+menu.selectAll|すべてを選択|Select All|全选|전체 선택
+menu.help|ヘルプ|Help|帮助|도움말
+menu.appHelp|CommandDeeヘルプ|CommandDee Help|CommandDee 帮助|CommandDee 도움말
+menu.appHelpEllipsis|CommandDeeヘルプ…|CommandDee Help…|CommandDee 帮助…|CommandDee 도움말…
+menu.enableShortcuts|ホットキーを有効にする|Enable Shortcuts|启用快捷键|단축키 활성화
+status.initial|ファイル／フォルダを選択して ⌘D|Select files or folders and press ⌘D|选择文件或文件夹后按 ⌘D|파일 또는 폴더를 선택하고 ⌘D를 누르세요
+status.tooltip|CommandDee — バージョン・日付付きで複製|CommandDee — Duplicate with a version or date|CommandDee — 添加版本号或日期并复制|CommandDee — 버전 또는 날짜를 붙여 복제
+status.noSelection|ファイル／フォルダが選択されていません|No files or folders are selected|未选择文件或文件夹|선택된 파일 또는 폴더가 없습니다
+status.selectionFailed|選択の取得に失敗しました|Could not get the selection|无法获取所选项目|선택 항목을 가져오지 못했습니다
+status.needsAccessibility|アクセシビリティの許可が必要です|Accessibility permission is required|需要辅助功能权限|손쉬운 사용 권한이 필요합니다
+status.enabled|ホットキー有効|Shortcuts enabled|快捷键已启用|단축키 활성화됨
+status.paused|一時停止中|Paused|已暂停|일시 정지됨
+progress.duplicate|%d項目を複製中…|Duplicating %d items…|正在复制 %d 个项目…|%d개 항목 복제 중…
+progress.rename|%d項目を名前変更中…|Renaming %d items…|正在重命名 %d 个项目…|%d개 항목 이름 변경 중…
+progress.swap|%d項目を名前入れ替え中…|Swapping the names of %d items…|正在交换 %d 个项目的名称…|%d개 항목 이름 교환 중…
+done.duplicate|%d項目を複製しました|Duplicated %d items|已复制 %d 个项目|%d개 항목을 복제했습니다
+done.rename|%d項目を名前変更しました|Renamed %d items|已重命名 %d 个项目|%d개 항목의 이름을 변경했습니다
+done.swap|%d項目を名前入れ替えしました|Swapped the names of %d items|已交换 %d 个项目的名称|%d개 항목의 이름을 교환했습니다
+done.skipped|・%d項目は今日の日付のためスキップ|; skipped %d items already dated today|；已跳过 %d 个带有今天日期的项目| · 오늘 날짜가 붙은 %d개 항목은 건너뜀
+partial.duplicate|%1$d項目を複製・%2$d項目でエラー|Duplicated %1$d items; %2$d failed|已复制 %1$d 个项目，%2$d 个项目出错|%1$d개 항목 복제, %2$d개 항목 오류
+partial.rename|%1$d項目を名前変更・%2$d項目でエラー|Renamed %1$d items; %2$d failed|已重命名 %1$d 个项目，%2$d 个项目出错|%1$d개 항목 이름 변경, %2$d개 항목 오류
+partial.swap|%1$d項目を名前入れ替え・%2$d項目でエラー|Swapped the names of %1$d items; %2$d failed|已交换 %1$d 个项目的名称，%2$d 个项目出错|%1$d개 항목 이름 교환, %2$d개 항목 오류
+alert.busyQuit|処理中です。完了してから終了してください。|Processing is in progress. Quit after it finishes.|正在处理。请在完成后再退出。|처리 중입니다. 완료된 후 종료하세요.
+alert.failed|処理を完了できませんでした|The operation could not be completed|无法完成操作|작업을 완료할 수 없습니다
+help.heading|ファイルの複製と名前変更|Duplicate and Rename Files|复制和重命名文件|파일 복제 및 이름 변경
+help.subtitle|選択した項目にバージョン番号や日付を付ける。|Add a version number or date to the selected items.|为所选项目添加版本号或日期。|선택한 항목에 버전 번호나 날짜를 붙입니다.
+help.openAccessibility|アクセシビリティ設定を開く|Open Accessibility Settings|打开辅助功能设置|손쉬운 사용 설정 열기
+settings.title|設定|Settings|设置|설정
+settings.hotkeys|ホットキー|Hotkeys|快捷键|단축키
+settings.fileNames|ファイル名|File Names|文件名|파일 이름
+settings.actionShortcuts|機能のホットキー|Action Shortcuts|功能快捷键|기능 단축키
+settings.keyboardShortcuts|ホットキー|Keyboard Shortcuts|键盘快捷键|키보드 단축키
+settings.suffixOrder|接尾辞の並び順|Suffix order|后缀顺序|접미사 순서
+settings.skipFolder|読み飛ばす親フォルダ名|Parent folder name to skip|要跳过的父文件夹名称|건너뛸 상위 폴더 이름
+settings.skipFolderPlaceholder|空欄の場合は、直上の親フォルダ名を使用|If empty, the name of the immediate parent folder is used|留空时使用直接上级文件夹的名称|비워 두면 바로 위 상위 폴더 이름을 사용
+settings.resetSkipFolder|ログインユーザー名に戻す|Reset to Login User Name|恢复为登录用户名|로그인 사용자 이름으로 재설정
+settings.resetShortcuts|ホットキーを初期値に戻す|Restore Default Shortcuts|恢复默认快捷键|기본 단축키로 복원
+settings.recordShortcut|キーを入力（Escでキャンセル）|Type a shortcut (Esc to cancel)|按下快捷键（按 Esc 取消）|키 입력(Esc로 취소)
+shortcut.unset|未設定|Not Set|未设置|설정 안 됨
+shortcut.version|連番で複製|Duplicate with next version|复制并递增版本号|다음 버전으로 복제
+shortcut.date|日付付きで複製|Duplicate with date|复制并添加日期|날짜를 붙여 복제
+shortcut.edited|edited付きで複製|Duplicate with “edited”|复制并添加 edited|edited를 붙여 복제
+shortcut.parent|親フォルダ名を付け外し|Add/remove parent folder name|添加/移除父文件夹名称|상위 폴더 이름 추가/제거
+shortcut.renameVersion|連番だけ更新（名前変更）|Increment version only (rename)|仅递增版本号（重命名）|버전 번호만 올리기(이름 변경)
+shortcut.swapNames|2項目の名前を入れ替え|Swap names of 2 items|交换 2 个项目的名称|두 항목의 이름 교환
+error.automation|システム設定 → プライバシーとセキュリティ → オートメーションで、CommandDeeによるFinder／Path Finderの操作を許可してください。|In System Settings → Privacy & Security → Automation, allow CommandDee to control Finder / Path Finder.|请在“系统设置”→“隐私与安全性”→“自动化”中允许 CommandDee 控制 Finder／Path Finder。|시스템 설정 → 개인정보 보호 및 보안 → 자동화에서 CommandDee가 Finder／Path Finder를 제어하도록 허용하세요.
+error.selection|選択ファイルを取得できませんでした。|Could not get the selected files.|无法获取所选文件。|선택한 파일을 가져올 수 없습니다.
+error.swapCount|名前の入れ替えは、同じフォルダの2項目を選択してください。|To swap names, select 2 items in the same folder.|要交换名称，请选择同一文件夹中的 2 个项目。|이름을 교환하려면 같은 폴더에 있는 두 항목을 선택하세요.
+error.swapDistinct|同じフォルダにある、異なる2項目を選択してください。|Select 2 different items in the same folder.|请选择同一文件夹中的 2 个不同项目。|같은 폴더에 있는 서로 다른 두 항목을 선택하세요.
+error.swapSameItem|同じ実体を指す2項目は入れ替えできません。|Two items that refer to the same file cannot be swapped.|指向同一实体的 2 个项目无法交换。|같은 실체를 가리키는 두 항목은 교환할 수 없습니다.
+error.swapKind|同じ種類の2項目を選択してください（ファイル同士、フォルダ同士）。|Select 2 items of the same kind (2 files or 2 folders).|请选择 2 个同类项目（均为文件或均为文件夹）。|같은 종류의 두 항목을 선택하세요(파일끼리 또는 폴더끼리).
+error.swapFailed|名前を入れ替えできませんでした。変更は行っていません。|Could not swap the names. Nothing was changed.|无法交换名称。未做任何更改。|이름을 교환할 수 없습니다. 아무것도 변경하지 않았습니다.
+error.noParentName|親フォルダ名を取得できません。|Could not get the parent folder name.|无法获取父文件夹名称。|상위 폴더 이름을 가져올 수 없습니다.
+error.emptyName|親フォルダ名を外すとファイル名が空になるため、処理できません。|Removing the parent folder name would leave an empty file name, so the item was not processed.|移除父文件夹名称后文件名将为空，因此无法处理。|상위 폴더 이름을 제거하면 파일 이름이 비게 되므로 처리할 수 없습니다.
+error.renameExists|「%@」がすでに存在するため名前を変更しませんでした。既存ファイルは上書きしていません。|“%@” already exists, so the item was not renamed. The existing file was not overwritten.|“%@”已存在，因此未重命名。未覆盖现有文件。|“%@” 항목이 이미 있어 이름을 변경하지 않았습니다. 기존 파일은 덮어쓰지 않았습니다.
+error.copyExists|「%@」がすでに存在するため複製しませんでした。既存ファイルは上書きしていません。|“%@” already exists, so the item was not duplicated. The existing file was not overwritten.|“%@”已存在，因此未复制。未覆盖现有文件。|“%@” 항목이 이미 있어 복제하지 않았습니다. 기존 파일은 덮어쓰지 않았습니다.
+error.versionTooLarge|バージョン番号が大きすぎるため、次の番号を作成できません。|The version number is too large to create the next one.|版本号过大，无法创建下一个版本号。|버전 번호가 너무 커서 다음 번호를 만들 수 없습니다.
+error.versionNext|次のバージョン番号を作成できません。|Could not create the next version number.|无法创建下一个版本号。|다음 버전 번호를 만들 수 없습니다.
+'''
+
+# Help.txt: one document rendered by HelpDocument (## section, ### subsection, - bullets, **bold**, ※ note).
+# Every language keeps the same ## / ### structure (test.sh checks the counts).
+help_texts = {
+'ja': '''Finder／Path Finderで選択したファイルやフォルダに、バージョン番号や日付を付けて複製・名前変更するメニューバー常駐アプリです。
+
+## 基本操作
+1. Finder／Path Finderでファイルやフォルダを選択します。複数選択・フォルダにも対応します。
+2. 次のホットキーを押します。
+
+### 複製と名前変更
+- **⌘D**：連番で複製（同じフォルダの最大バージョン番号＋1）
+- **⌃⌘D**：末尾に今日の日付を追加・更新して複製
+- **⌃⌘E**：末尾に -edited- と今日の日付を追加して複製
+- **⌃E**：末尾の -親フォルダ名 を付け外しして名前変更
+- **⌃⇧⌘D**：複製せず、最大番号＋1に名前変更
+- **⌃⌥⌘S**：同じフォルダで選んだ2項目の名前を入れ替え
+
+### アプリの操作
+- **⌘,**：設定
+- **⌘W**：ウインドウを閉じる
+- **⌘Q**：CommandDeeを終了（このアプリの画面で）
+
+## 例
+- **⌘D**：v2・v5 がある場合 → v6（欠番は無視）
+- **⌃⌘D**：aaa.txt → aaa-YYYYMMDD.txt
+- **⌃⌘E**：aaa.txt → aaa-edited-YYYYMMDD.txt
+
+## 複製と名前変更のルール
+- 拡張子を維持し、元ファイルや既存のコピーは上書きしません。
+- 末尾の日付は6桁・8桁とも認識し、8桁に更新します。
+- 今日の日付が付いた項目はスキップします（editedの新規付与は実行）。
+- 別の同名項目がある場合は処理せず、お知らせします。
+
+### 名前の入れ替え
+- ファイル同士・フォルダ同士で実行します。
+- 名前全体（拡張子を含む）を交換し、内容と更新日時は各項目に保持します。
+- 最大番号や更新日時での自動判定はしません。
+- 戻すには、同じ2項目を選んで再実行します。
+
+## 設定
+メニューバーのアイコンから「設定…」（⌘,）を選びます。
+- **接尾辞の並び順**：v番号・edited・日付の順番を選べます。既存の名前も読み取り、次の操作から指定順で出力します。
+- **機能のホットキー**：ボタンを押して、修飾キーと文字キーを入力すると変更できます。Escでキャンセル。同じ組み合わせは重複して登録できません。
+- **読み飛ばす親フォルダ名**：完全一致で上の階層を参照します。空欄で無効化できます。
+
+## アクセス許可
+- 初回はアクセシビリティを許可してください。このウインドウの「アクセシビリティ設定を開く」から設定を開けます。
+- 操作時に表示される、Finder／Path Finderの操作許可も必要です。
+
+## 常駐と終了
+- ウインドウを閉じても、メニューバーに常駐します。
+- 終了するには、このアプリの画面で⌘Qを押すか、メニューバーのアイコンから「CommandDeeを終了」を選びます。
+
+## ヘルプとnote記事
+- このヘルプは、メニューバーのアイコンから「CommandDeeヘルプ…」を選ぶと開きます。
+- 同じメニューの「note記事を開く」で、noteの解説記事をブラウザで開きます。''',
+'en': '''A menu bar app that duplicates or renames the files and folders selected in Finder / Path Finder, adding a version number or date.
+
+## Basic Use
+1. Select files or folders in Finder / Path Finder. Multiple items and folders are supported.
+2. Press one of the shortcuts below.
+
+### Duplicate and Rename
+- **⌘D**: duplicate with the next version (the highest version number in the folder + 1)
+- **⌃⌘D**: duplicate, adding or updating today's date at the end
+- **⌃⌘E**: duplicate, adding -edited- and today's date at the end
+- **⌃E**: rename by adding or removing -parent folder name at the end
+- **⌃⇧⌘D**: rename to the highest number + 1 without duplicating
+- **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
+
+### App Commands
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘Q**: Quit CommandDee (in this app's window)
+
+## Examples
+- **⌘D**: v2 and v5 exist → v6 (gaps are ignored)
+- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
+
+## Duplicate and Rename Rules
+- Extensions are kept, and neither the original nor existing copies are overwritten.
+- A trailing 6- or 8-digit date is recognized and updated to 8 digits.
+- Items already dated today are skipped (adding "edited" still runs).
+- If another item with the same name exists, nothing is changed and you are notified.
+
+### Swapping Names
+- Works between 2 files or 2 folders.
+- The full names (including extensions) are exchanged, while each item keeps its contents and modification date.
+- There is no automatic decision based on the highest number or modification date.
+- To undo, select the same 2 items and run it again.
+
+## Settings
+Choose Settings… (⌘,) from the menu bar icon.
+- **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
+- **Action Shortcuts**: click a button and type a modifier key with a character key to change it. Press Esc to cancel. A combination that is already in use cannot be assigned twice.
+- **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
+
+## Permissions
+- On first use, allow Accessibility. Click Open Accessibility Settings in this window to open the settings.
+- You also need to allow control of Finder / Path Finder when macOS asks.
+
+## Running in the Background and Quitting
+- CommandDee stays in the menu bar after you close the window.
+- To quit, press ⌘Q in this app's window, or choose Quit CommandDee from the menu bar icon.
+
+## Help and the note Article
+- To open this help, choose CommandDee Help… from the menu bar icon.
+- Choose Open the note Article in the same menu to read the article on note in your browser.''',
+'zh-Hans': '''一款常驻菜单栏的应用，可为在 Finder／Path Finder 中选择的文件和文件夹添加版本号或日期并复制或重命名。
+
+## 基本操作
+1. 在 Finder／Path Finder 中选择文件或文件夹。支持多选和文件夹。
+2. 按下以下快捷键。
+
+### 复制与重命名
+- **⌘D**：复制并递增版本号（同一文件夹中最大的版本号 + 1）
+- **⌃⌘D**：在末尾添加或更新今天的日期并复制
+- **⌃⌘E**：在末尾添加 -edited- 和今天的日期并复制
+- **⌃E**：添加或移除末尾的 -父文件夹名称 并重命名
+- **⌃⇧⌘D**：不复制，直接重命名为最大版本号 + 1
+- **⌃⌥⌘S**：交换在同一文件夹中所选 2 个项目的名称
+
+### 应用操作
+- **⌘,**：设置
+- **⌘W**：关闭窗口
+- **⌘Q**：退出 CommandDee（在本应用的窗口中）
+
+## 示例
+- **⌘D**：已有 v2 和 v5 → v6（忽略缺号）
+- **⌃⌘D**：aaa.txt → aaa-YYYYMMDD.txt
+- **⌃⌘E**：aaa.txt → aaa-edited-YYYYMMDD.txt
+
+## 复制与重命名规则
+- 保留扩展名，不覆盖原文件或已有的副本。
+- 末尾的 6 位和 8 位日期均可识别，并更新为 8 位。
+- 已带有今天日期的项目会被跳过（仍会新添加 edited）。
+- 如果已有其他同名项目，则不处理并给出提示。
+
+### 交换名称
+- 适用于 2 个文件或 2 个文件夹之间。
+- 交换完整名称（包括扩展名），各项目的内容和修改日期保持不变。
+- 不会根据最大版本号或修改日期自动判断。
+- 要恢复，请选择相同的 2 个项目再次执行。
+
+## 设置
+在菜单栏图标中选择“设置…”（⌘,）。
+- **后缀顺序**：可选择版本号、edited 和日期的顺序。也会读取现有名称，从下一次操作起按指定顺序输出。
+- **功能快捷键**：点击按钮，然后按下修饰键和字符键即可更改。按 Esc 取消。不能重复登记相同的组合。
+- **要跳过的父文件夹名称**：按完全一致匹配并参照上一级文件夹。留空即可停用。
+
+## 权限
+- 首次使用时请允许辅助功能权限。可点击本窗口中的“打开辅助功能设置”打开设置。
+- 操作时 macOS 询问的 Finder／Path Finder 控制权限也需要允许。
+
+## 后台运行与退出
+- 关闭窗口后，应用仍常驻菜单栏。
+- 要退出，请在本应用的窗口中按 ⌘Q，或在菜单栏图标中选择“退出 CommandDee”。
+
+## 帮助与 note 文章
+- 在菜单栏图标中选择“CommandDee 帮助…”即可打开本帮助。
+- 在同一菜单中选择“打开 note 文章”，即可在浏览器中阅读 note 上的介绍文章。''',
+'ko': '''Finder／Path Finder에서 선택한 파일과 폴더에 버전 번호나 날짜를 붙여 복제하거나 이름을 변경하는 메뉴 막대 앱입니다.
+
+## 기본 조작
+1. Finder／Path Finder에서 파일이나 폴더를 선택합니다. 여러 항목 선택과 폴더도 지원합니다.
+2. 다음 단축키를 누릅니다.
+
+### 복제와 이름 변경
+- **⌘D**: 다음 버전으로 복제(같은 폴더의 가장 큰 버전 번호 + 1)
+- **⌃⌘D**: 끝에 오늘 날짜를 추가 또는 갱신하여 복제
+- **⌃⌘E**: 끝에 -edited-와 오늘 날짜를 추가하여 복제
+- **⌃E**: 끝의 -상위 폴더 이름을 추가하거나 제거하여 이름 변경
+- **⌃⇧⌘D**: 복제하지 않고 가장 큰 번호 + 1로 이름 변경
+- **⌃⌥⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
+
+### 앱 조작
+- **⌘,**: 설정
+- **⌘W**: 윈도우 닫기
+- **⌘Q**: CommandDee 종료(이 앱의 윈도우에서)
+
+## 예
+- **⌘D**: v2와 v5가 있는 경우 → v6(빠진 번호는 무시)
+- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
+
+## 복제와 이름 변경 규칙
+- 확장자를 유지하며 원본 파일이나 기존 사본을 덮어쓰지 않습니다.
+- 끝의 6자리·8자리 날짜를 모두 인식하고 8자리로 갱신합니다.
+- 오늘 날짜가 붙은 항목은 건너뜁니다(edited의 새 추가는 실행).
+- 같은 이름의 다른 항목이 있으면 처리하지 않고 알려 줍니다.
+
+### 이름 교환
+- 파일끼리 또는 폴더끼리 실행합니다.
+- 전체 이름(확장자 포함)을 교환하며 내용과 수정일은 각 항목에 그대로 유지합니다.
+- 가장 큰 번호나 수정일로 자동 판단하지 않습니다.
+- 되돌리려면 같은 두 항목을 선택하고 다시 실행합니다.
+
+## 설정
+메뉴 막대 아이콘에서 ‘설정…’(⌘,)을 선택합니다.
+- **접미사 순서**: 버전 번호, edited, 날짜의 순서를 선택할 수 있습니다. 기존 이름도 읽어 다음 작업부터 지정한 순서로 출력합니다.
+- **기능 단축키**: 버튼을 누른 후 보조 키와 문자 키를 입력하면 변경할 수 있습니다. Esc로 취소합니다. 같은 조합은 중복 등록할 수 없습니다.
+- **건너뛸 상위 폴더 이름**: 완전히 일치할 때 위 단계의 폴더를 참조합니다. 비워 두면 사용하지 않습니다.
+
+## 권한
+- 처음 사용할 때 손쉬운 사용 권한을 허용하세요. 이 윈도우의 ‘손쉬운 사용 설정 열기’로 설정을 열 수 있습니다.
+- 작업 시 표시되는 Finder／Path Finder 제어 허용도 필요합니다.
+
+## 백그라운드 실행과 종료
+- 윈도우를 닫아도 메뉴 막대에 상주합니다.
+- 종료하려면 이 앱의 윈도우에서 ⌘Q를 누르거나 메뉴 막대 아이콘에서 ‘CommandDee 종료’를 선택합니다.
+
+## 도움말과 note 글
+- 메뉴 막대 아이콘에서 ‘CommandDee 도움말…’을 선택하면 이 도움말이 열립니다.
+- 같은 메뉴의 ‘note 글 열기’를 선택하면 note의 소개 글을 브라우저에서 엽니다.''',
+}
+
+info_plist = {
+    'NSAppleEventsUsageDescription': [
+        'Finder／Path Finderで選択したファイルやフォルダを取得し、複製または名前変更します。',
+        'CommandDee gets the files and folders selected in Finder / Path Finder to duplicate or rename them.',
+        'CommandDee 获取在 Finder／Path Finder 中选择的文件和文件夹，以便复制或重命名。',
+        'CommandDee가 Finder／Path Finder에서 선택한 파일과 폴더를 가져와 복제하거나 이름을 변경합니다.',
+    ],
+}
+
+table = [line.split('|') for line in rows.splitlines() if line.strip()]
+assert all(len(r) == 5 for r in table), [r for r in table if len(r) != 5]
+assert len({r[0] for r in table}) == len(table), 'duplicate key'
+assert all(len(v) == 4 for v in info_plist.values())
+assert len({tuple(l.split(' ', 1)[0] for l in t.splitlines() if l.startswith('#')) for t in help_texts.values()}) == 1, 'Help.txt heading structure differs'
+assert not any(l.startswith('# ') for t in help_texts.values() for l in t.splitlines()), 'no # title line'
+
+
+def strings_line(key, value):
+    return f'{json.dumps(key)} = {json.dumps(value, ensure_ascii=False)};'
+
+
+for i, lang in enumerate(LANGS, 1):
+    folder = root / 'Resources' / f'{lang}.lproj'
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / 'Localizable.strings').write_text('\n'.join(strings_line(r[0], r[i]) for r in table) + '\n', encoding='utf-8')
+    (folder / 'InfoPlist.strings').write_text('\n'.join(strings_line(k, v[i - 1]) for k, v in info_plist.items()) + '\n', encoding='utf-8')
+    (folder / 'Help.txt').write_text(help_texts[lang] + '\n', encoding='utf-8')

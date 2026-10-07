@@ -1,28 +1,72 @@
-FolderMover — Move folder contents in bulk
+## Basic Operation
+1. Click or drop a folder on the left card (Source) and the right card (Destination).
+2. Choose Move, confirm the count and destination, and run it.
+- Only the immediate children of the source are moved, not the source folder itself. Included folders move with all their contents.
+- Items with existing names are skipped. Nothing is overwritten and folders are never merged.
+- Enable Open destination after moving to open the destination after successful completion, including skipped conflicts. Off by default; your choice is saved. Cancellation, errors and empty plans do not open it.
+- Use Clear above either folder to remove its selection and saved path. Files and move history are kept. Clear is unavailable during a move.
 
-Operation
-Click or drop a folder on each card. Choose Move and confirm the count and destination. Only immediate children of the source are selected. Included folders move with all their contents. Existing names are skipped; folders are never merged or overwritten.
+## Large Moves and Stopping
+- /bin/mv -n runs in batches of up to 128 items and about 64 KB of arguments.
+- Progress counts top-level items, not bytes or nested files.
+- **Esc** or Stop prevents the next batch and waits for the active mv to finish. A large file or cross-volume move may take time to stop.
+- Do not force quit or disconnect drives during a move.
 
-Large moves and stopping
-/bin/mv -n runs in batches of up to 128 items and about 64 KB of arguments. Progress counts top-level items, not bytes or nested files. Stop or Esc waits for the active batch to finish. A large file or cross-volume copy may take time to stop. Do not force quit or disconnect drives during a move.
+## Display
+### Dropbox Paths
+- Settings → Display → Shorten Dropbox paths shows /Dropbox-shared/… on both cards. Enabled by default.
+- Hover to see the full path. The confirmation and history keep full paths.
+### Finder Tag Colors
+- Folder icons reflect the folder's Finder tag color, as in FolderHopper. With several tags, Finder's primary label color is used. Custom icons are preserved.
+- After changing colors in Finder, return to FolderMover to refresh.
 
-Settings and shortcuts
-⌘, opens settings; login launch defaults to off. Keep running lets ⌘W close the window while the app remains available in the Dock. ⌘0 reopens it, ⌘Q quits. During a move, stop first and quit again afterward. With Keep running off, closing the main window quits when idle. Login launch stays in the background.
-For a launch shortcut, create an Open App action for FolderMover in macOS Shortcuts and assign a keyboard shortcut in its details. Edit or remove it there. The app does not monitor global keys.
+## Launch, Keep Running and Quitting
+- Launch at login is off by default. A login launch does not show the window.
+- With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.
+- With it off, closing the window quits the app when no move is running.
+- ⌘Q quits. During a move you cannot quit; choose Stop first, then quit again.
 
-Permissions and troubleshooting
-Accessibility access is not needed. Selected folders need read/write access. If denied, inspect Finder Get Info permissions, System Settings → Privacy & Security → Files and Folders, and drive connections, then select again. Full Disk Access is not requested. Items replaced since scanning are reported as failed. Wait for other apps or sync operations to stop changing these folders before moving them.
+## Keyboard Shortcuts
+- **⌘,**: Settings
+- **⌘0**: Show Window
+- **⌘W**: Close the window
+- **⌘?**: Help
+- **⌘Q**: Quit
+- **Esc**: Stop a move
+### App Launch Keyboard Shortcut
+1. In macOS Shortcuts, create an Open App action for FolderMover.
+2. Assign a keyboard shortcut in its details.
+- Edit or remove it there. The app does not monitor global keys.
 
-Results and recovery
-Moved, skipped, failed and remaining counts are shown. Result history opens a local JSONL journal. moved means verified movement, skipped means an existing item was left alone, failed/changed needs attention, and attempt lists a batch about to run. After an unexpected exit, check both folders for unfinished attempts. A failed cross-volume move may leave a partial copy at the destination; keep the original and compare both before acting.
-Automatic Undo is unavailable. To restore, use Finder to return only items recorded as moved to their original paths. Never overwrite a conflict. Do not reverse-move the entire destination folder, which may include unrelated files.
+## Permissions
+- Accessibility access is not needed.
+- The selected folders need read/write access. Full Disk Access is not requested.
 
-Privacy and updates
-No network communication. File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not automatically deleted; remove unneeded journals in Finder. Preferences use UserDefaults. This local build has no configured update feed, update verification key or notarization.
-Support: the Codex chat that created this app.
+## Troubleshooting
+### When Access Is Denied
+1. Check the permissions in Finder's Get Info.
+2. Allow access in System Settings → Privacy & Security → Files and Folders.
+3. Check that external drives are connected, then select the folder again.
+### When the Source Changes
+- Items replaced after the confirmation are reported as failed.
+- Wait for other apps or sync operations to stop changing these folders before moving them.
 
-Finder tag colors
-Folder icons reflect Finder's primary label color, as in FolderHopper. Custom icons are preserved. Return to FolderMover to refresh changes made in Finder.
+## Results and Recovery
+- Moved, skipped, failed and remaining counts are shown. Show result history opens the local JSONL journal.
+- moved means verified movement, skipped means an existing item was left alone, failed/changed needs attention, and attempt lists a batch about to run.
+- After an unexpected exit, if only attempt remains, compare both folders in Finder.
+- A failed cross-volume move may leave a partial copy at the destination. Keep the original and check both before acting.
+### Restoring
+- Automatic Undo is unavailable. Use Finder to return only the items recorded as moved to their original folder.
+- Never overwrite a conflict; keep it under another name.
+- Do not reverse-move the entire destination folder, which may include unrelated files.
 
-Display settings
-Settings → Display → Shorten Dropbox paths shows /Dropbox-shared/… on both cards. Enabled by default. Hover for the full path. Confirmation and history retain full paths.
+## Privacy and Updates
+- No network communication.
+- File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not deleted automatically; remove journals in Finder.
+- Preferences are stored in UserDefaults.
+- This local build has no configured update feed, update verification key or notarization.
+
+## Support
+- See the bundled README.md (Contents/Resources/README.md in the app).
+- Help → Open the note Article opens the note article introducing FolderMover.

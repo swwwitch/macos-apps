@@ -10,6 +10,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var pendingOpenURLs: [URL] = []
     private var quitAfterPendingOpen = false
     func applicationDidFinishLaunching(_ notification: Notification) {
+        defer { DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            MenuBarPresence.shared.install(name: "KageTrimmer", symbol: "photo", existing: nil,
+                show: { [weak self] in self?.showMainWindow() },
+                settings: { [weak self] in self?.showSettings() },
+                help: { [weak self] in LocalHelp.shared.show() })
+        } }
+        DispatchQueue.main.async { LocalHelp.shared.install() }
+        let loginLaunch = Self.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         installMainMenu()
         shortcut.action = { [weak self] in self?.performShortcut() }
         shortcut.restore()
@@ -22,8 +31,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let controller = MainViewController()
         mainViewController = controller
         window.contentViewController = controller
-        window.center(); window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        window.center()
+        // A login launch stays quiet; files handed over at launch still show the window.
+        if (!StartupWindow.hidden && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         if !pendingOpenURLs.isEmpty {
             let urls = pendingOpenURLs
             let shouldQuit = quitAfterPendingOpen
@@ -37,8 +47,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if mainViewController?.isProcessing == true { NSSound.beep(); return .terminateCancel }
-        return .terminateNow
+        guard mainViewController?.isProcessing == true else { return .terminateNow }
+        let alert = NSAlert(); alert.messageText = L("画像の処理中は終了できません"); alert.informativeText = L("処理が終わってから、もう一度終了してください。"); alert.addButton(withTitle: L("OK"))
+        alert.runModal()
+        return .terminateCancel
+    }
+    private static func isLoginLaunch(_ event: NSAppleEventDescriptor?) -> Bool {
+        guard let event, event.eventClass == AEEventClass(kCoreEventClass), event.eventID == AEEventID(kAEOpenApplication) else { return false }
+        return event.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
@@ -55,8 +71,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func showSettings() {
         if settingsWindow == nil {
             let controller = ShortcutSettingsController(shortcut: shortcut)
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 360), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-            panel.title = L("環境設定")
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            panel.title = L("設定")
             panel.isReleasedWhenClosed = false
             panel.contentViewController = controller
             panel.center()
@@ -73,10 +89,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
         let urls = filenames.map { URL(fileURLWithPath: $0) }
         if let mainViewController {
-            mainViewController.process(urls) { NSApp.terminate(nil) }
+            // Already running (Dock drop / Open With into the resident app): keep running after processing.
+            mainViewController.process(urls)
             window?.makeKeyAndOrderFront(nil)
             sender.activate(ignoringOtherApps: true)
         } else {
+            // Launched just to open these files: quit after processing.
             pendingOpenURLs.append(contentsOf: urls)
             quitAfterPendingOpen = true
         }
@@ -104,7 +122,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu(title: "KageTrimmer")
         appMenu.addItem(withTitle: L("KageTrimmerについて"), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
-        let settingsItem = NSMenuItem(title: L("環境設定…"), action: #selector(showSettings), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: L("設定…"), action: #selector(showSettings), keyEquivalent: ",")
         settingsItem.target = self
         appMenu.addItem(settingsItem)
         appMenu.addItem(.separator())
@@ -193,8 +211,8 @@ final class MainViewController: NSViewController {
         }
         if !choices.map(\.1).contains(shadowSize) { shadowSize = 27 }
         updateOutputDescription()
-        view = AdaptiveBackgroundView(frame: NSRect(x: 0, y: 0, width: 540, height: 455), color: .windowBackgroundColor)
-        let icon = NSImageView(image: NSApp.applicationIconImage); icon.imageScaling = .scaleProportionallyUpOrDown
+        view = AdaptiveBackgroundView(frame: NSRect(x: 0, y: 0, width: 540, height: 455), color: NSColor(srgbRed: 236.0 / 255, green: 236.0 / 255, blue: 236.0 / 255, alpha: 1), isMainBackground: true)
+        let icon = NSImageView(image: currentAppIcon()); icon.imageScaling = .scaleProportionallyUpOrDown
         let title = NSTextField(labelWithString: L("画像の影を調整")); title.font = .boldSystemFont(ofSize: 18)
         let subtitle = NSTextField(labelWithString: L("スクリーンショットの影をコンパクトに")); subtitle.font = .systemFont(ofSize: 11); subtitle.textColor = .secondaryLabelColor
         let titleStack = NSStackView(views: [title, subtitle]); titleStack.orientation = .vertical; titleStack.alignment = .leading; titleStack.spacing = 2
@@ -212,7 +230,7 @@ final class MainViewController: NSViewController {
         updateOutputDescription()
         dropView.onDrop = { [weak self] urls in self?.process(urls) }
         status.textColor = .secondaryLabelColor; status.font = .systemFont(ofSize: 11); status.maximumNumberOfLines = 3; status.lineBreakMode = .byWordWrapping; status.alignment = .center
-        let headerPanel = AdaptiveBackgroundView(frame: .zero, color: .controlBackgroundColor)
+        let headerPanel = AppSurfaceView(frame: .zero)
         headerPanel.translatesAutoresizingMaskIntoConstraints = false; header.translatesAutoresizingMaskIntoConstraints = false
         optionsStack.translatesAutoresizingMaskIntoConstraints = false; dropView.translatesAutoresizingMaskIntoConstraints = false; status.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(headerPanel); headerPanel.addSubview(header); view.addSubview(optionsStack); view.addSubview(dropView); view.addSubview(status)
@@ -375,16 +393,16 @@ final class KageShortcut {
 
 final class ShortcutSettingsController: NSViewController {
     private let shortcut: KageShortcut
-    private let enabled = NSButton(checkboxWithTitle: L("キーボードショートカットを有効にする"), target: nil, action: nil)
+    private let enabled = NSButton(checkboxWithTitle: L("ホットキーを有効にする"), target: nil, action: nil)
     private let modifiers = NSPopUpButton()
     private let key = NSPopUpButton()
     private let message = NSTextField(wrappingLabelWithString: "")
     init(shortcut: KageShortcut) { self.shortcut = shortcut; super.init(nibName: nil, bundle: nil) }
     required init?(coder: NSCoder) { fatalError() }
     override func loadView() {
-        view = NSView(frame: NSRect(x: 0, y: 0, width: 480, height: 360))
-        let title = NSTextField(labelWithString: L("キーボードショートカット"))
-        title.font = .boldSystemFont(ofSize: 15)
+        view = NSView(frame: NSRect(x: 0, y: 0, width: 520, height: 560))
+        let title = NSTextField(labelWithString: SettingsUI.shortcutTitle)
+        title.font = .systemFont(ofSize: 13, weight: .semibold)
         let help = NSTextField(wrappingLabelWithString: L("KageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
         help.textColor = .secondaryLabelColor
         modifiers.addItems(withTitles: KageShortcut.modifiers.map { $0.0 })
@@ -394,17 +412,8 @@ final class ShortcutSettingsController: NSViewController {
         let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetShortcut))
         let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
         message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
-        let stack = NSStackView(views: [LoginAtLaunchControl(), title, help, enabled, row, message])
-        stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 14
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            stack.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),
-            help.widthAnchor.constraint(equalTo: stack.widthAnchor),
-            message.widthAnchor.constraint(equalTo: stack.widthAnchor)
-        ])
+        let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup)], in: view)
         refresh()
         message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：⌃⌥⌘U（control + option + command + U）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
     }
@@ -422,7 +431,7 @@ final class ShortcutSettingsController: NSViewController {
     }
     private func apply(enabled: Bool, key: UInt32, flags: UInt32) {
         if shortcut.save(enabled: enabled, key: key, flags: flags) {
-            message.stringValue = enabled ? L("保存しました。変更はすぐに反映されます。") : L("ショートカットを無効にしました。")
+            message.stringValue = enabled ? L("保存しました。変更はすぐに反映されます。") : L("ホットキーを無効にしました。")
         } else {
             message.stringValue = L("この組み合わせは登録できません。以前の設定を保持しています。")
         }
@@ -432,9 +441,19 @@ final class ShortcutSettingsController: NSViewController {
 
 private final class AdaptiveBackgroundView: NSView {
     let color: NSColor
-    init(frame: NSRect, color: NSColor) { self.color = color; super.init(frame: frame) }
+    let isMainBackground: Bool
+    init(frame: NSRect, color: NSColor, isMainBackground: Bool = false) {
+        self.color = color; self.isMainBackground = isMainBackground
+        super.init(frame: frame)
+        clipsToBounds = true
+    }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    override func draw(_ dirtyRect: NSRect) { color.setFill(); dirtyRect.fill() }
+    override var isOpaque: Bool { true }
+    override func draw(_ dirtyRect: NSRect) {
+        let dark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let fill = isMainBackground && dark ? NSColor(srgbRed: 0.16, green: 0.16, blue: 0.16, alpha: 1) : color
+        fill.setFill(); bounds.intersection(dirtyRect).fill()
+    }
     override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); needsDisplay = true }
 }
 
@@ -483,4 +502,31 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+    let icon = NSImageView(image: currentAppIcon())
+    icon.imageScaling = .scaleProportionallyUpOrDown
+    icon.setAccessibilityElement(false)
+    icon.widthAnchor.constraint(equalToConstant: size).isActive = true
+    icon.heightAnchor.constraint(equalToConstant: size).isActive = true
+    let label = NSTextField(labelWithString: title)
+    label.font = .systemFont(ofSize: size == 44 ? 20 : 15, weight: .semibold)
+    let detail = NSTextField(wrappingLabelWithString: subtitle)
+    detail.font = .systemFont(ofSize: size == 44 ? 12 : 11)
+    detail.textColor = .secondaryLabelColor
+    let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
+    text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
+    let row = NSStackView(views: [icon, text])
+    row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
+    return row
 }

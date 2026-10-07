@@ -5,7 +5,7 @@ import SwiftUI
 enum SettingsUI {
     static var launchTitle: String { StartupWindow.text("起動・常駐", "Startup & Background", "启动与后台", "시작 및 백그라운드") }
     static var displayTitle: String { StartupWindow.text("表示", "Display", "显示", "표시") }
-    static var shortcutTitle: String { StartupWindow.text("アプリを呼び出すショートカット", "Show app shortcut", "显示应用快捷键", "앱 표시 단축키") }
+    static var shortcutTitle: String { StartupWindow.text("アプリを呼び出すホットキー", "Show app shortcut", "显示应用快捷键", "앱 표시 단축키") }
     @MainActor static func tabs(_ sections: [(String, NSView)], in container: NSView) {
         let tabs = NSTabView(frame: container.bounds.insetBy(dx: 12, dy: 12))
         tabs.autoresizingMask = [.width, .height]

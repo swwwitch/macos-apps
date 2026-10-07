@@ -1,0 +1,53 @@
+## Basics
+1. Drop PDFs on the left, or choose Choose PDFs… (Command-O). You can add several PDFs.
+2. On the right, choose slide size, placement, page box, page range and where to save (same folder as the PDF, Desktop, or a chosen folder).
+3. Click Convert (Command-Return). Each PDF becomes one Keynote presentation (.key).
+4. Show in Finder reveals the saved files.
+
+## How it works
+Each page is split into a one-page PDF. PDF2Keynote asks Keynote to create a presentation and places one page per slide as an image. Pages stay vector, so text and lines remain sharp at any size, but they are not editable text. The theme is Keynote's default (Basic White). Keynote opens and shows the presentation while it is being built.
+
+## Options
+- **Slide size**: Match PDF uses the first page's proportions with a long edge of 1920. Fixed 16:9 and 4:3 sizes are available.
+- **Placement**: Fit shows the whole page. Fill enlarges the page to cover the slide; overflow stays outside the slide.
+- **Page box**: Usually Crop box. Use Trim box to drop crop marks from print PDFs.
+- **Page range**: Applies to every PDF.
+- **Keep open in Keynote**: When off, the presentation is closed after saving.
+
+## Originals and saving
+The original PDF is never changed. Existing names get a number ("name 2.key"); nothing is overwritten. Cancel closes the unfinished presentation without saving and keeps finished files. There is no Undo; remove files in Finder.
+
+## Settings and shortcuts
+Settings (Command-comma) › Startup & Background:
+- Open at login (off by default)
+- Hide main window at startup
+- Keep running after closing
+- Show in menu bar
+- App launch keyboard shortcut
+While it keeps running, reopen it from the Dock or the menu bar icon.
+### Keyboard shortcuts
+- **Command-O**: choose PDFs
+- **Command-Return**: convert
+- **Escape**: cancel the conversion
+- **Command-W**: close the window
+- **Command-comma**: Settings
+- **Command-?**: Help
+- **Command-Q**: quit
+※ Quitting is blocked during a conversion; wait for it or cancel first.
+
+## Permission
+On the first conversion macOS asks to allow PDF2Keynote to control Keynote. Choose Allow. If you declined, turn on Keynote for PDF2Keynote in System Settings › Privacy & Security › Automation. Settings and the error message have a button to open it. Accessibility and Full Disk Access are not needed.
+
+## Privacy
+Everything runs on this Mac. PDFs are not uploaded, the app makes no network connections (Open the note Article opens your browser), and no diagnostic log is saved. Temporary files are deleted after conversion.
+
+## Troubleshooting
+- **Keynote is not installed**: install it from the App Store.
+- **Keynote did not respond**: close any open dialog in Keynote and try again.
+- Password-protected PDFs cannot be converted.
+- **Blank or shifted pages**: try another page box.
+- App updates and notarization are not configured. Apple Silicon, macOS 13 or later.
+- Help › Open the note Article opens the article with usage notes and support information.
+
+## Removing
+Turn off Open at login, quit, then move the app to the Trash. Preferences identifier: jp.local.PDF2Keynote.

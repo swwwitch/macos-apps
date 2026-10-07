@@ -1,0 +1,2 @@
+"NSAppleEventsUsageDescription" = "PDFの各ページをスライドとして配置するため、Keynoteに新しいプレゼンテーションを作成させます。";
+"CFBundleDisplayName" = "PDF2Keynote";

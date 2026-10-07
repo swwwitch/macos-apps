@@ -1,0 +1,41 @@
+# Microsoft Excel
+duti -s com.microsoft.Excel        .csv   all
+duti -s com.microsoft.Excel        .xlsx  all
+duti -s com.microsoft.Excel        .xls   all
+
+# Microsoft Word
+duti -s com.microsoft.Word         .doc   all
+
+# Adobe Illustrator
+duti -s com.adobe.illustrator       .ai    all
+duti -s com.adobe.illustrator       .svg   all
+duti -s com.adobe.illustrator       .ai    all
+
+# Adobe Photoshop
+duti -s com.adobe.Photoshop         .eps   all
+duti -s com.adobe.Photoshop         .gif   all
+duti -s com.adobe.Photoshop         .jpg   all
+duti -s com.adobe.Photoshop         .jpeg  all
+duti -s com.adobe.Photoshop         .png   all
+duti -s com.adobe.Photoshop         .webp  all
+duti -s com.adobe.Photoshop         .tif   all
+duti -s com.adobe.Photoshop         .tiff  all
+
+# Mozilla Firefox
+duti -s org.mozilla.firefox         .html  all
+duti -s org.mozilla.firefox         .htm   all
+
+# Visual Studio Code
+duti -s com.microsoft.VSCode        .jsx   all
+duti -s com.microsoft.VSCode        .js    all
+duti -s com.microsoft.VSCode        .css   all
+
+# Adobe Acrobat Pro
+duti -s com.adobe.Acrobat.Pro        .pdf   all
+
+# Jedit Pro
+duti -s jp.co.artman21.Jedit-Pro     .txt   all
+duti -s jp.co.artman21.Jedit-Pro     .rtf   all
+
+# MacDown
+duti -s com.uranusjr.macdown         .md    all

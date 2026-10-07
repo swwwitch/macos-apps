@@ -1,0 +1,65 @@
+Tests/main.swift:19:11: warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 17 |     check((try fm.attributesOfItem(atPath:output.path)[.size] as! NSNumber).intValue > 0,"nonempty \(format.id)")
+ 18 | }
+ 19 | check(try String(contentsOf:input) == original,"source remains intact")
+    |           `- warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 20 | options.format = OutputFormat.all.first { $0.id == "html5" }!
+ 21 | let conflict = root.appendingPathComponent("日本語 sample.html")
+
+Tests/main.swift:45:11: warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 43 | let word = root.appendingPathComponent("日本語 sample.docx")
+ 44 | let roundtrip = try ConversionRunner().convert(engine:engine,input:word,folder:root,options:options)
+ 45 | check(try String(contentsOf:roundtrip).contains("日本語タイトル"),"Japanese DOCX roundtrip")
+    |           `- warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 46 | print("All conversion tests passed.")
+ 47 | 
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+PASS: output docx
+PASS: nonempty docx
+PASS: output gfm
+PASS: nonempty gfm
+PASS: output html5
+PASS: nonempty html5
+PASS: output epub3
+PASS: nonempty epub3
+PASS: output odt
+PASS: nonempty odt
+PASS: output rtf
+PASS: nonempty rtf
+PASS: output latex
+PASS: nonempty latex
+PASS: output plain
+PASS: nonempty plain
+PASS: output pptx
+PASS: nonempty pptx
+PASS: source remains intact
+PASS: collision numbering
+PASS: existing output remains intact
+PASS: invalid input fails
+PASS: temporary output removed after failure
+PASS: prelaunch cancellation
+PASS: active cancellation
+PASS: cancel returns promptly
+PASS: cancel cleanup
+PASS: Japanese DOCX roundtrip
+All conversion tests passed.
+PASS: managed Typst path selected
+PASS: unknown PDF engine rejected
+PASS: Typst produced PDF pages
+PASS: Japanese text survives PDF conversion
+PASS: PDF body retained
+PASS: stale managed path is ignored
+PASS: IDML heading
+PASS: IDML bold and XML escaping
+PASS: IDML designmap story order
+PASS: IDML table cell order
+PASS: IDML merged cell span
+PASS: IDML table has valid block nesting
+PASS: rejected invalid.idml
+PASS: rejected empty.idml
+PASS: IDML to Markdown end to end
+PASS: IDML to DOCX preserves table text
+PASS: IDML to Japanese PDF
+PASS: IDML original unchanged
+PASS: localization key parity and literal UI keys

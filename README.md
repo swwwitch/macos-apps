@@ -1,44 +1,39 @@
-# macOS utilities
+# Macアプリ開発ワークスペース
 
-7本のmacOSユーティリティのソースです。通常配布版の再現に必要なSwiftソース、アイコン、ローカライズ、ビルドスクリプトを収録しています。
+各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、保管用の現行ビルドは [Latest Builds](Latest%20Builds/) を使用します。開発フォルダ内の `.app` はビルド出力です。
 
-| アプリ | ソース | ビルドコマンド | 検証版 |
-|---|---|---|---|
-| BrowserSwitcher | `BrowserSwitcher/Source` | `zsh BrowserSwitcher/build.sh` | 1.6.8 (19) |
-| ExtensionLinker | `ExtensionLinker/Development/Sources/DutiGUI` | `bash ExtensionLinker/Development/build.sh` | 0.2.2 (7) |
-| FolderMover | `FolderMover/Source` | `zsh FolderMover/build.sh` | 1.0.0 (5) |
-| FolderHopper | `FolderHopper/Development/Source` | `zsh FolderHopper/Development/build.sh` | 0.1.65 (71) |
-| KageTrimmer | `KageTrimmer/Development/Sources` | `zsh KageTrimmer/Development/build.sh` | 1.0 (28) |
-| PodiumFlight | `PodiumFlight/Development/Sources/Toki` | `bash PodiumFlight/Development/build-app.sh` | 3.1.7 (14) |
-| QuickIconExporter | `QuickIconExporter/Development/Sources/IconDrop` | `zsh QuickIconExporter/Development/build-app.sh` | 1.0 (7) |
+## アプリ一覧
 
-macOS、Xcodeのコマンドラインツール（Swift 6以降）、Python 3が必要です。Apple Silicon上で検証しました。FolderMover / BrowserSwitcher / ExtensionLinker / FolderHopper / PodiumFlightはmacOS 13以降、KageTrimmer / QuickIconExporterはmacOS 14以降が対象です。古いOSでの実機検証は未実施です。
+| アプリ | 用途 | ソース | ビルド |
+| --- | --- | --- | --- |
+| BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) |
+| CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
+| ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
+| FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) |
+| FolderMover | 大量のファイルをまとめて移動 | [Source](FolderMover/Source/) | [build.sh](FolderMover/build.sh) |
+| IdBackgroundOff | InDesignの「バックグラウンド書き出し／保存」をオフ | [Source](IdBackgroundOff/Source/) | [build.sh](IdBackgroundOff/build.sh) |
+| KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) |
+| KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
+| MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) |
+| PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) |
+| PandocDesk | 文書形式の変換 | [Source](PandocDesk/Source/) | [build.sh](PandocDesk/build.sh) |
+| PodiumFlight | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumFlight/Development/Sources/Toki/) | [Development/build-app.sh](PodiumFlight/Development/build-app.sh) |
+| QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) |
 
-リポジトリのルートで上のコマンドを実行してください。初回ビルド時に公式のSparkle 2.10.0をダウンロードし、固定SHA-256を照合します。ローカルに取得済みの同一アーカイブは `SPARKLE_ARCHIVE` 環境変数で指定できます。SDKとビルド生成物はGit管理しません。
+## ファイルの置き場所
 
-成功した通常ビルドは `Latest Builds/` にコピーされます。同じBundle IDの古いビルドへの逆戻りを拒否し、置き換える前のアプリを `Shared/BuildBackups/` に保存します。スクリプトが生成するアプリはアドホック署名です。Developer ID署名・公証済みの一般配布物ではありません。
+- 各アプリ直下：README、ビルド入口、ソース・素材・テスト。既存のビルド経路を保持。
+- `Latest Builds/`：現在保管している13本のアプリ。バージョン一覧は同フォルダのREADME。
+- 各アプリの `Backups/` と `Shared/Backups/Build/`：置換前のバックアップ。ソースとして編集しない。
+- 各アプリの `ReleaseArchive/` と `Shared/DistributionArchive/`：過去のZIP・DMG。現行アプリと区別する。
+- 各アプリの `Docs/Verification/`：検証記録・スクリーンショット。既存のVerificationやRecheckフォルダは保持。
+- `Shared/`：[共通部品・申請資料の案内](Shared/README.md)。
+- `Unsorted/`：所属未確認の画像・録画。内容を推測して振り分けない。
 
-## 更新機能の状態
+## 開発と整理のルール
 
-Sparkleの標準画面を使う更新機能を組み込みましたが、**更新先・署名公開鍵は未設定で、自動更新の実運用は開始していません**。手動の「アップデートを確認…」は未設定を案内し、自動チェックは利用できません。架空の配布先には接続しません。
+[AGENTS.md](AGENTS.md)、[共通仕様](Shared/AppStandards/BASELINE.md)、[確認表テンプレート](Shared/AppStandards/CHECKLIST-TEMPLATE.md)を参照してください。新規アプリにも共通仕様を適用します。正式アプリ名のディレクトリを使い、名称整合だけでBundle IDや設定保存先を変更しません。
 
-[更新配布の設定・検証手順](Shared/Updater/README.md)をご覧ください。ソースの公開と、更新バイナリ／appcastの公開は別作業です。旧公開版にこの機能は入っていないため、初回は更新機能を設定済みの版を手動導入する必要があります。
+アプリ名単位のフォルダはビルドスクリプトが参照するため、そのまま使用します。旧版は削除せず退避し、移動前後のSHA-256を確認します。今回の移動履歴は [organization-20261007.json](Shared/OrganizationLogs/organization-20261007.json)。
 
-既存のApp Store申請向けXcodeプロジェクト・証明書・プロファイル・ローカル設定はこの公開ソースに含めていません。`QuickIconExporter/Development/build-app-store.sh` は自身の署名情報を環境変数で指定する従来の補助スクリプトです。そのビルド入力にはSparkleを含めませんが、App Storeの署名・審査・提出は本リポジトリの検証対象外です。
-
-## 検証
-
-`bash Shared/Updater/test.sh` で更新設定の拒否テストと、未設定時の起動・メニュー状態のテストを実行できます。その他の既存テストは各ソース内にあります。検証結果と未検証事項は [検証記録](VERIFICATION.md) を参照してください。
-
-## 権利表記
-
-アプリソースについて新しいライセンスは付与していません。公開されていることだけをもって再利用条件を追加するものではありません。既存の権利表記を保持しています。Sparkleは別ライセンスです。[第三者ソフトウェア](Shared/Updater/THIRD-PARTY-NOTICES.txt)をご覧ください。
-
-
-## アプリ単位のディレクトリ
-
-名称変更時はアプリ単位のディレクトリも同時に揃えます。ルールは [AGENTS.md](AGENTS.md)。Bundle ID・設定保存先・内部ターゲット名は互換性のため維持しています。
-
-## FolderMover
-
-フォルダからフォルダへ大量のファイルを移動するアプリです。[使い方と制限](FolderMover/README.md)。FolderMoverのビルド出力は `FolderMover/build/FolderMover.app` です。移動処理はmacOS標準の `/bin/mv -n` を使用し、Sparkleは使用しません。
+CommandDeeは親Gitへ統合済み。整理作業ではコミット・pushを行っていません。

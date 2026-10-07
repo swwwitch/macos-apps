@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")"
+python3 ../../Shared/MenuBarPresence/sync.py
+python3 "../../Shared/AppStandards/sync-surface.py"
+python3 check-localization.py
 UPDATER_ROOT="$PWD/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp}/dutigui-build.XXXXXX")
@@ -21,25 +24,31 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>7</string>
-<key>CFBundleShortVersionString</key><string>0.2.2</string>
+<key>CFBundleVersion</key><string>30</string>
+<key>CFBundleShortVersionString</key><string>0.2.16</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSPrincipalClass</key><string>NSApplication</string>
+<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
 </dict></plist>
 PLIST
 # All required resources are versioned; a previously built app is unnecessary.
 cp ../Assets/ExtensionLinker-Mustard.icns "$APP/Contents/Resources/ExtensionLinker-Mustard.icns"
 cp -R Localizations/*.lproj "$APP/Contents/Resources/"
+python3 check-localization.py "$APP"
 embed_updates "$APP"
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"
+backup="../Backups/before-help-build-$(date +%Y%m%d-%H%M%S)-$$"
+if [[ -d ../ExtensionLinker.app ]]; then
+    mkdir -p "$backup"
+    mv ../ExtensionLinker.app "$backup/"
+fi
 ditto --noextattr --norsrc "$APP" ../ExtensionLinker.app
-xattr -cr ../ExtensionLinker.app
 python3 ../../Shared/BuildTools/publish_latest.py "$APP"
 codesign --verify --deep --strict ../ExtensionLinker.app
 codesign --verify --deep --strict "../../Latest Builds/ExtensionLinker.app"

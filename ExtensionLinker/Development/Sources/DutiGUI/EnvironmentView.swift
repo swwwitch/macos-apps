@@ -129,21 +129,22 @@ final class DutiEnvironment: ObservableObject {
 #if APP_STORE
 struct EnvironmentView: View {
     @ObservedObject var store: AssociationStore
-    var body: some View { ExtensionSettingsView(store: store).padding(12) }
+    var body: some View { SettingsTabs(sections: [(SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true) })), (L("拡張子"), AnyView(ExtensionSettingsView(store: store)))]).padding(12) }
 }
 #else
 struct EnvironmentView: View {
     @ObservedObject var store: AssociationStore
     @StateObject private var environment = DutiEnvironment()
     var body: some View {
-        TabView {
-            environmentBody.tabItem { Label(L("インストール"), systemImage: "shippingbox") }
-            ExtensionSettingsView(store: store).tabItem { Label(L("拡張子"), systemImage: "list.bullet") }
-        }.padding(12)
+        SettingsTabs(sections: [
+            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() })),
+            (L("インストール"), AnyView(environmentBody)),
+            (L("拡張子"), AnyView(ExtensionSettingsView(store: store)))
+        ]).padding(12)
     }
     private var environmentBody: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Label(L("環境設定"), systemImage: "gearshape").font(.title2.bold())
+            Label(L("dutiとHomebrewのインストール"), systemImage: "shippingbox").font(.title2.bold())
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("duti").font(.headline)
@@ -206,9 +207,8 @@ struct ExtensionSettingsView: View {
     @State private var error: String?
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            LoginAtLaunchView().frame(height: 80)
             Text(L("拡張子一覧")).font(.title2.bold())
-            Text(L("メインウィンドウに表示する拡張子を管理します。"))
+            Text(L("メインウインドウに表示する拡張子を管理します。"))
                 .font(.callout).foregroundStyle(.secondary)
             List(selection: $selection) {
                 ForEach(store.rows) { row in

@@ -21,15 +21,14 @@ struct ContentView: View {
                 .padding(18)
             footer
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
         .onReceive(NotificationCenter.default.publisher(for: .init("QuickIconExporterChooseFiles"))) { _ in chooseFiles() }
     }
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(systemName: "app.dashed")
-                .font(.system(size: 28, weight: .medium))
-                .foregroundStyle(.tint)
+            Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                .frame(width: 44, height: 44).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(L("アイコンを書き出す"))
                     .font(.title2.weight(.semibold))
@@ -45,7 +44,7 @@ struct ContentView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
-        .background(.bar)
+        .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
     }
 
     private var dropZone: some View {
@@ -216,4 +215,14 @@ struct ContentView: View {
         if let string = item as? String { return URL(string: string) }
         return nil
     }
+}
+
+
+// Main-window header uses the same icon resource as the distributed app.
+@MainActor private func currentAppIcon() -> NSImage {
+    let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String ?? "AppIcon"
+    let filename = name.hasSuffix(".icns") ? name : name + ".icns"
+    if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
+       let image = NSImage(contentsOf: url) { return image }
+    return NSApp.applicationIconImage
 }

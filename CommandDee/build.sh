@@ -3,6 +3,7 @@ set -eu
 cd "${0:A:h}"
 python3 ../Shared/MenuBarPresence/sync.py
 python3 "../Shared/AppStandards/sync-surface.py"
+python3 make-resources.py
 STAGING=$(mktemp -d "${TMPDIR:-/tmp}/commanddee-build.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/CommandDee.app"
@@ -12,22 +13,26 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
+<key>CFBundleDevelopmentRegion</key><string>en</string>
+<key>CFBundleLocalizations</key><array><string>ja</string><string>en</string><string>zh-Hans</string><string>ko</string></array>
 <key>CFBundleExecutable</key><string>CommandDee</string>
 <key>CFBundleIdentifier</key><string>jp.local.CommandDee</string>
 <key>CFBundleIconFile</key><string>CommandDee</string>
 <key>CFBundleName</key><string>CommandDee</string>
 <key>CFBundleDisplayName</key><string>CommandDee</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.7.0</string>
-<key>CFBundleVersion</key><string>21</string>
+<key>CFBundleShortVersionString</key><string>1.8.2</string>
+<key>CFBundleVersion</key><string>29</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>NSHighResolutionCapable</key><true/>
-<key>NSAppleEventsUsageDescription</key><string>Finder／Path Finderで選択したファイルやフォルダーを取得し、複製または名前変更します。</string>
+<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+<key>NSAppleEventsUsageDescription</key><string>Finder／Path Finderで選択したファイルやフォルダを取得し、複製または名前変更します。</string>
 </dict></plist>
 PLIST
 cp Assets/CommandDee.icns "$APP/Contents/Resources/CommandDee.icns"
+for lproj in Resources/*.lproj; do ditto "$lproj" "$APP/Contents/Resources/${lproj:t}"; done
 xattr -cr "$APP"
 codesign --force --sign - "$APP"
 codesign --verify --deep --strict "$APP"

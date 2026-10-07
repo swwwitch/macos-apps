@@ -1,0 +1,10 @@
+BrowserSwitcher: 1.6.10 / 27 verified
+CommandDee: 1.7.0 / 18 verified
+ExtLink: 0.2.11 / 22 verified
+FolderHopper: 0.1.65 / 76 verified
+KageTrimmer: 1.0 / 34 verified
+QuickIconExporter: 1.0 / 11 verified
+PodiumFlight: 3.2.3 / 23 verified
+MightyEdit: 0.1.32 / 36 verified
+SuperKakkoReplace: 0.3.0 / 14 verified
+Backup: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/setup2026/sw_app/Shared/BuildBackups/surface-applications-20261006-124146

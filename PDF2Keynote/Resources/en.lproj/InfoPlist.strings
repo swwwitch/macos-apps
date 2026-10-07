@@ -1,0 +1,2 @@
+"NSAppleEventsUsageDescription" = "PDF2Keynote asks Keynote to create a presentation and place each PDF page on a slide.";
+"CFBundleDisplayName" = "PDF2Keynote";

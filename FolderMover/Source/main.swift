@@ -35,6 +35,11 @@ final class Model: ObservableObject {
         guard (try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey])).map({ $0.isDirectory == true && $0.isPackage != true }) == true else { status = L("invalidFolder"); return }
         if isSource { source = url } else { destination = url }
     }
+    func clear(_ isSource: Bool) {
+        guard !busy else { return }
+        if isSource { source = nil; sourceTargeted = false }
+        else { destination = nil; destinationTargeted = false }
+    }
     func start() {
         guard !busy, let s = source, let d = destination else { return }
         #if APP_STORE
@@ -60,6 +65,7 @@ final class Model: ObservableObject {
         guard alert.runModal() == .alertFirstButtonReturn else { busy = false; status = L("cancelled"); return }
         status = L("moving"); progress.total = plan.items.count
         let token = cancel
+        let openDestination = UserDefaults.standard.bool(forKey: "openDestinationAfterMove")
         let journal = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("FolderMover/History")
         DispatchQueue.global(qos: .userInitiated).async {
             let result = MoveEngine.run(plan, cancel: token, journalDirectory: journal) { update in
@@ -69,6 +75,9 @@ final class Model: ObservableObject {
                 self.progress = result; self.busy = false; self.stopping = false
                 self.status = L(result.error != nil || result.failed > 0 ? "partial" : result.cancelled ? "cancelled" : result.skipped > 0 ? "completedSkipped" : "completed")
                 if let error = result.error { self.status += "\n" + error }
+                if openDestination && !result.cancelled && result.error == nil && result.failed == 0 {
+                    if !NSWorkspace.shared.open(plan.destination) { self.status += "\n" + L("openDestinationFailed") }
+                }
             }
         }
     }
@@ -77,6 +86,12 @@ final class Model: ObservableObject {
 struct Header: NSViewRepresentable {
     func makeNSView(context: Context) -> NSStackView { appHeader(L("headline"), subtitle: L("subtitle")) }
     func updateNSView(_ v: NSStackView, context: Context) {}
+}
+private enum FolderCenterAlignment: AlignmentID {
+    static func defaultValue(in dimensions: ViewDimensions) -> CGFloat { dimensions[VerticalAlignment.center] }
+}
+extension VerticalAlignment {
+    fileprivate static let folderCenter = VerticalAlignment(FolderCenterAlignment.self)
 }
 struct FolderCard: View {
     @AppStorage("shortenDropboxPaths") var shortenDropboxPaths = true
@@ -87,7 +102,15 @@ struct FolderCard: View {
     var url: URL? { isSource ? model.source : model.destination }
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(L(isSource ? "source" : "destination")).font(.system(size: 15, weight: .semibold)).foregroundColor(.secondary)
+            HStack {
+                Text(L(isSource ? "source" : "destination")).font(.system(size: 15, weight: .semibold)).foregroundColor(.secondary)
+                Spacer()
+                Button(L("clear")) { model.clear(isSource) }
+                    .controlSize(.small)
+                    .disabled(model.busy || url == nil)
+                    .help(L("clearHelp"))
+                    .accessibilityLabel(L(isSource ? "source" : "destination") + ": " + L("clear"))
+            }
             Button { model.choose(isSource) } label: {
                 VStack(spacing: 10) {
                     Image(nsImage: url.map { folderIcon(for: $0) } ?? NSWorkspace.shared.icon(for: .folder))
@@ -102,7 +125,9 @@ struct FolderCard: View {
                 .background(RoundedRectangle(cornerRadius: 12).fill(Color(nsColor: .controlBackgroundColor).opacity(0.65)))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(targeted ? Color.accentColor : Color.secondary.opacity(0.16), lineWidth: targeted ? 3 : 1))
                 .contentShape(RoundedRectangle(cornerRadius: 12))
-            }.buttonStyle(.plain).disabled(model.busy).help(url?.path ?? L("chooseFolder"))
+            }.buttonStyle(.plain)
+            .alignmentGuide(.folderCenter) { $0[VerticalAlignment.center] }
+            .disabled(model.busy).help(url?.path ?? L("chooseFolder"))
             .accessibilityLabel(L(isSource ? "source" : "destination") + ": " + (url?.path ?? L("chooseFolder")))
             .onDrop(of: [.fileURL], isTargeted: targetBinding) { providers in
                 guard !model.busy, providers.count == 1, let p = providers.first else { return false }
@@ -116,13 +141,15 @@ struct ContentView: View {
     @ObservedObject var model: Model
     @AppStorage("hidden") var hidden = false
     @AppStorage("folders") var folders = true
+    @AppStorage("openDestinationAfterMove") var openDestinationAfterMove = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Header().frame(height: 48)
-            HStack(spacing: 18) { FolderCard(model: model, isSource: true); Image(systemName: "arrow.right").foregroundColor(.secondary); FolderCard(model: model, isSource: false) }
+            HStack(alignment: .folderCenter, spacing: 18) { FolderCard(model: model, isSource: true); Image(systemName: "arrow.right").font(.system(size: 30, weight: .semibold)).foregroundColor(.secondary).frame(width: 40); FolderCard(model: model, isSource: false) }
             HStack(spacing: 24) {
                 Toggle(L("includeFolders"), isOn: $folders)
                 Toggle(L("includeHidden"), isOn: $hidden)
+                Toggle(L("openDestinationAfterMove"), isOn: $openDestinationAfterMove)
                 Spacer()
                 Button { swap(&model.source, &model.destination) } label: { Image(systemName: "arrow.left.arrow.right") }.help(L("swap"))
             }.disabled(model.busy)
@@ -151,19 +178,21 @@ struct SettingsView: View {
     @AppStorage("shortenDropboxPaths") var shortenDropboxPaths = true
     @AppStorage("resident") var resident = true
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        SettingsTabs(sections: [
+            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
             LaunchPresenceSection(title: L("launchGroup"), loginControl: LoginAtLaunchView(), residentTitle: L("resident"), residentDetail: L("residentDetail"), resident: $resident, shortcutTitle: L("launchShortcut"), shortcutButton: L("systemSettings"), shortcutDetail: L("shortcutDetail")) {
                 NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app"))
             }
-            Divider()
-            Text(L("displayGroup")).font(.headline)
+            })),
+            (L("displayGroup"), AnyView(SettingsSection(L("displayGroup")) {
             Toggle(L("shortenDropbox"), isOn: $shortenDropboxPaths)
             Text(L("shortenDropboxDetail")).font(.caption).foregroundColor(.secondary)
-            Divider()
-            Text(L("privacy")).font(.headline)
+            })),
+            (L("privacy"), AnyView(SettingsSection(L("privacy")) {
             Text(L("privacyDetail")).font(.caption).foregroundColor(.secondary)
             Button(L("historyFolder")) { delegate.openHistory() }
-        }.padding(24).frame(width: 500)
+            }))
+        ]).padding(12).frame(width: 620, height: 500)
     }
 }
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -183,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if !UserDefaults.standard.bool(forKey: "compactLayoutV2") { mainWindow.setContentSize(NSSize(width: 780, height: 440)); UserDefaults.standard.set(true, forKey: "compactLayoutV2") }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        if !login { showMain() }
+        if !login && !StartupWindow.hidden { showMain() }
     }
     func installMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
@@ -200,11 +229,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let file = submenu(L("file")); add(file, L("showWindow"), #selector(showMain), "0"); add(file, L("close"), #selector(NSWindow.performClose(_:)), "w", nil); file.items.last?.target = nil
         let edit = submenu(L("edit"))
         for (key, selector, letter) in [("undo","undo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil }
-        let help = submenu(L("help")); add(help, L("help"), #selector(showHelp), "?"); NSApp.helpMenu = help
+        let help = submenu(L("help")); add(help, L("help"), #selector(showHelp), "?"); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: help) }; NSApp.helpMenu = help
     }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
-    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
+    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if !StartupWindow.hidden && mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func windowWillClose(_ notification: Notification) {
         if notification.object as? NSWindow === mainWindow, !UserDefaults.standard.bool(forKey: "resident"), !model.busy { NSApp.terminate(nil) }
@@ -216,16 +245,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         return .terminateCancel
     }
     @objc func showSettings() {
-        if settings == nil { let w = NSWindow(contentRect: .zero, styleMask: [.titled,.closable], backing: .buffered, defer: false); w.title = L("settings"); w.isReleasedWhenClosed = false; w.contentView = NSHostingView(rootView: SettingsView()); w.center(); settings = w }
+        if settings == nil { let w = NSWindow(contentRect: .zero, styleMask: [.titled,.closable], backing: .buffered, defer: false); w.title = L("settingsTitle"); w.isReleasedWhenClosed = false; w.contentView = NSHostingView(rootView: SettingsView()); w.center(); settings = w }
         settings?.makeKeyAndOrderFront(nil)
     }
     @objc func showHelp() {
-        if helpWindow == nil {
-            let w = NSWindow(contentRect: NSRect(x: 0,y: 0,width: 680,height: 580), styleMask: [.titled,.closable,.resizable], backing: .buffered, defer: false); w.title = "FolderMover — " + L("help"); w.isReleasedWhenClosed = false
-            let scroll = NSScrollView(frame: w.contentView!.bounds); scroll.autoresizingMask = [.width,.height]; scroll.hasVerticalScroller = true
-            let text = NSTextView(frame: scroll.bounds); text.isEditable = false; text.isVerticallyResizable = true; text.autoresizingMask = [.width]; text.textContainer?.widthTracksTextView = true; text.textContainerInset = NSSize(width: 24,height: 24); text.font = .systemFont(ofSize: 14); text.string = L("helpContent")
-            scroll.documentView = text; w.contentView = scroll; w.center(); helpWindow = w
-        }
+        if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "FolderMover — " + L("help"), text: L("helpContent")) } }
+        NSApp.activate(ignoringOtherApps: true)
         helpWindow?.makeKeyAndOrderFront(nil)
     }
     @objc func about() { NSApp.orderFrontStandardAboutPanel(options: [.credits: NSAttributedString(string: L("support"))]) }

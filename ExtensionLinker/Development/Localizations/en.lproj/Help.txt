@@ -1,0 +1,62 @@
+Sets the default app that opens files for each extension.
+
+## Basic Use
+1. Find an extension with the categories (All, Design, Business, Text, Development, Other) or **Search extensions or apps**.
+2. Double-click a row (or ⌘/Control-click it) to choose an app, or drag an .app from Applications in the Finder onto the row. The row becomes a Pending Change; choosing an app does not apply it yet.
+3. Click **Apply N Changes** and confirm with **Apply Changes** to apply the pending changes in all categories at once.
+
+- **Undo Changes** discards changes that have not been applied.
+- Turn on **Changes Only** to show only rows with pending changes.
+- macOS assigns apps by file type, so other extensions of the same type (for example, .jpg and .jpeg) change too.
+- Drop a single .app on an empty area of the window to choose several extensions for that app at once.
+- Use the + button at the top right to add an extension that is not listed.
+
+## Presets
+- In the **Presets** menu, **Save Current Associations…** saves the listed associations to a text file.
+- **Load…** reads a file as pending changes; click **Apply Changes** to apply them.
+- **Load Default Preset** stages the bundled default preset as pending changes.
+
+Each preset line has the form “duti -s app-ID .extension all”. Lines that start with # are comments. Loaded content is never run as a command.
+
+## Settings
+Open **Settings…** from the app menu (⌘,).
+
+### Startup & Background Tab
+- Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
+
+### Install Tab
+- Check whether duti and Homebrew are installed, and install them.
+- The app changes associations with macOS itself, so duti is not required. Use it if you want to make the same settings in Terminal.
+
+### Extension Tab
+- Add or remove the extensions shown in the main window.
+- Removing an extension from the list does not change its macOS association.
+
+## Keyboard Shortcuts
+- **⌘R**: Reload current settings
+- **⌘,**: Settings
+- **⌘?**: Help
+- **⌘W**: Close window
+- **⌘Q**: Quit
+
+## Running in the Background and Quitting
+- Closing the window does not quit the app. Click the Dock icon to show the window again.
+- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- To quit, press ⌘Q or choose **Quit ExtensionLinker** from the app menu.
+
+## Permissions
+No permissions such as Accessibility are required. Homebrew is installed in Terminal and may ask for an administrator password.
+
+## Troubleshooting
+- If applying fails, an error appears on the row. Press ⌘R to reload and check the current associations.
+- Rows marked “Not installed · Choose another app” are skipped because the specified app is not on this Mac. Choose an installed app instead.
+- If “Aliases have different settings” appears, choose an app to unify the settings of the alias extensions.
+- To revert an applied change, choose the original app again and apply. **Undo Changes** only discards changes that have not been applied.
+- Choose **Open the note Article** from the Help menu to open the guide article on note in your browser.
+
+## Uninstalling
+1. Turn off **Open at login**.
+2. Quit the app.
+3. Move the app to the Trash.
+
+The associations you set remain in macOS.

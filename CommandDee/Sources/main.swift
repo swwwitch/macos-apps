@@ -19,9 +19,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private var shortcuts = Shortcut.load()
     private var shortcutButtons: [NSButton] = []
     private var recordingShortcut: Int?
-    private var lastResult = "ファイル／フォルダーを選択して ⌘D"
+    private var lastResult = L("status.initial")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AccessibilityText.neededOverride = [
+            "Finder／Path Finderの選択項目の取得とホットキー操作に使用します。",
+            "Used to get the selected items in Finder / Path Finder and to handle keyboard shortcuts.",
+            "用于获取 Finder／Path Finder 中选中的项目以及处理快捷键操作。",
+            "Finder／Path Finder에서 선택한 항목을 가져오고 단축키를 처리하는 데 사용합니다."]
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "CommandDee", symbol: "doc.on.doc", existing: self.item,
@@ -61,7 +66,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         }
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.title = "⌘D"
-        item.button?.toolTip = "CommandDee — バージョン・日付付きで複製"
+        item.button?.toolTip = L("status.tooltip")
         let menu = NSMenu()
         menu.delegate = self
         item.menu = menu
@@ -81,7 +86,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if busy {
-            showError("処理中です。完了してから終了してください。")
+            showError(L("alert.busyQuit"))
             return .terminateCancel
         }
         return .terminateNow
@@ -98,29 +103,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let main = NSMenu()
         let root = NSMenuItem()
         let application = NSMenu(title: "CommandDee")
-        let about = application.addItem(withTitle: "CommandDeeについて", action: #selector(showAbout), keyEquivalent: "")
+        let about = application.addItem(withTitle: L("menu.about"), action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         application.addItem(.separator())
-        let preferences = application.addItem(withTitle: "環境設定…", action: #selector(showPreferences), keyEquivalent: ",")
+        let preferences = application.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
         application.addItem(.separator())
-        application.addItem(withTitle: "CommandDeeを隠す", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
-        application.addItem(withTitle: "CommandDeeを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        application.addItem(withTitle: L("menu.hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        application.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         root.submenu = application
         main.addItem(root)
+        let windowRoot = NSMenuItem(title: L("menu.window"), action: nil, keyEquivalent: "")
+        let windowMenu = NSMenu(title: L("menu.window"))
+        windowMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        windowRoot.submenu = windowMenu
+        main.addItem(windowRoot)
         let editRoot = NSMenuItem()
-        let edit = NSMenu(title: "編集")
-        edit.addItem(withTitle: "取り消す", action: Selector(("undo:")), keyEquivalent: "z")
-        edit.addItem(withTitle: "カット", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        edit.addItem(withTitle: "コピー", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        edit.addItem(withTitle: "ペースト", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        edit.addItem(withTitle: "すべてを選択", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let edit = NSMenu(title: L("menu.edit"))
+        edit.addItem(withTitle: L("menu.undo"), action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: L("menu.cut"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: L("menu.copy"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: L("menu.paste"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: L("menu.selectAll"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editRoot.submenu = edit
         main.addItem(editRoot)
         let helpRoot = NSMenuItem()
-        let helpMenu = NSMenu(title: "ヘルプ")
-        let help = helpMenu.addItem(withTitle: "CommandDeeヘルプ", action: #selector(showHelp), keyEquivalent: "?")
+        let helpMenu = NSMenu(title: L("menu.help"))
+        let help = helpMenu.addItem(withTitle: L("menu.appHelp"), action: #selector(showHelp), keyEquivalent: "?")
         help.target = self
+        MainActor.assumeIsolated { HelpLinks.addNoteItem(to: helpMenu) }
         helpRoot.submenu = helpMenu
         main.addItem(helpRoot)
         NSApp.helpMenu = helpMenu
@@ -197,9 +208,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { busy = false; return }
         do {
             let files = try Browser.selection(from: id)
-            guard !files.isEmpty else { busy = false; lastResult = "ファイル／フォルダーが選択されていません"; NSSound.beep(); return }
-            let action = mode == .swapNames ? "名前入れ替え" : ((mode == .parent || mode == .renameVersion) ? "名前変更" : "複製")
-            lastResult = "\(files.count)項目を\(action)中…"
+            guard !files.isEmpty else { busy = false; lastResult = L("status.noSelection"); NSSound.beep(); return }
+            let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameVersion) ? "rename" : "duplicate")
+            lastResult = L("progress." + action, files.count)
             updateStatus()
             // Use one date for the whole selection, including batches crossing midnight.
             let batchDate = Date()
@@ -229,19 +240,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                     }
                     catch { failures.append("\(file.lastPathComponent): \(error.localizedDescription)") }
                 }
-                let result = copies.count == 1 ? copies[0].lastPathComponent : "\(copies.count)項目を\(action)しました"
-                let summary = result + (skipped > 0 ? "・\(skipped)項目は今日の日付のためスキップ" : "")
+                let result = copies.count == 1 ? copies[0].lastPathComponent : L("done." + action, copies.count)
+                let summary = result + (skipped > 0 ? L("done.skipped", skipped) : "")
                 let errors = failures.joined(separator: "\n")
                 DispatchQueue.main.async {
                     self.busy = false
-                    self.lastResult = failures.isEmpty ? summary : "\(copies.count)項目を\(action)・\(failures.count)項目でエラー"
+                    self.lastResult = failures.isEmpty ? summary : L("partial." + action, copies.count, failures.count)
                     self.updateStatus()
                     if !errors.isEmpty { self.showError(errors) }
                 }
             }
         } catch {
             busy = false
-            lastResult = "選択の取得に失敗しました"
+            lastResult = L("status.selectionFailed")
             showError(error.localizedDescription)
         }
     }
@@ -249,7 +260,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private func showError(_ message: String) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "処理を完了できませんでした"
+        alert.messageText = L("alert.failed")
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.runModal()
@@ -262,15 +273,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let status = menu.addItem(withTitle: lastResult, action: nil, keyEquivalent: "")
         status.isEnabled = false
         menu.addItem(.separator())
-        let toggle = menu.addItem(withTitle: "ショートカットを有効にする", action: #selector(toggleEnabled), keyEquivalent: "")
+        let toggle = menu.addItem(withTitle: L("menu.enableShortcuts"), action: #selector(toggleEnabled), keyEquivalent: "")
         toggle.target = self
         toggle.state = enabled ? .on : .off
-        let preferences = menu.addItem(withTitle: "環境設定…", action: #selector(showPreferences), keyEquivalent: ",")
+        let preferences = menu.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
-        let settings = menu.addItem(withTitle: "CommandDeeヘルプ…", action: #selector(showHelp), keyEquivalent: "")
+        let settings = menu.addItem(withTitle: L("menu.appHelpEllipsis"), action: #selector(showHelp), keyEquivalent: "")
         settings.target = self
+        HelpLinks.addNoteItem(to: menu)
         menu.addItem(.separator())
-        menu.addItem(withTitle: "CommandDeeを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
     @objc private func toggleEnabled() {
@@ -281,38 +293,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     private func updateStatus() {
         let ready = AXIsProcessTrusted() && tap.map { CGEvent.tapIsEnabled(tap: $0) } == true
-        statusLabel.stringValue = !ready ? "アクセシビリティの許可が必要です" : (enabled ? "ショートカット有効" : "一時停止中")
+        statusLabel.stringValue = !ready ? L("status.needsAccessibility") : (enabled ? L("status.enabled") : L("status.paused"))
         item.button?.appearsDisabled = !enabled || !ready
         item.button?.toolTip = "CommandDee\n\(statusLabel.stringValue)\n\(lastResult)"
     }
 
     @objc private func showHelp() {
         if window == nil {
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 800), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 760), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             panel.title = ""
+            panel.minSize = NSSize(width: 480, height: 420)
             AppSurface.install(in: panel.contentView!)
             panel.isReleasedWhenClosed = false
-            let heading = appHeader("ファイルの複製と名前変更", subtitle: "選択した項目にバージョン番号や日付を付ける。")
-            let detail = NSTextField(wrappingLabelWithString: "Finder／Path Finderでファイルやフォルダーを選択します。\n⌘D：同じフォルダの最大バージョン番号＋1\n⌃⌘D：末尾に今日の日付を追加・更新\n⌃⌘E：末尾に -edited- と今日の日付を追加\n⌃E：末尾の -親フォルダー名 を付け外しして名前変更\n⌃⇧⌘D：複製せず、最大番号＋1に名前変更\n⌃⌥⌘S：同じフォルダーで選んだ2項目の名前を入れ替え")
-            let example = NSTextField(wrappingLabelWithString: "⌘D：v2・v5 がある場合 → v6（欠番は無視）\n⌃⌘D：aaa.txt → aaa-YYYYMMDD.txt\n⌃⌘E：aaa.txt → aaa-edited-YYYYMMDD.txt")
-            example.font = .monospacedSystemFont(ofSize: 15, weight: .medium)
-            let note = NSTextField(wrappingLabelWithString: "拡張子を維持し、元ファイルや既存のコピーは上書きしません。複数選択・フォルダにも対応します。\n末尾の日付は6桁・8桁とも認識し、8桁に更新します。\n今日の日付が付いた項目はスキップします（editedの新規付与は実行）。別の同名項目がある場合は処理せず、お知らせします。\n環境設定で v番号・edited・日付の順番を選べます。既存の名前も読み取り、次の操作から指定順で出力します。\n名前入れ替えはファイル同士・フォルダー同士で実行します。名前全体（拡張子を含む）を交換し、内容と更新日時は各項目に保持します。最大番号や更新日時での自動判定はしません。戻すには同じ2項目を選んで再実行します。\n\n環境設定のショートカットボタンを押して、修飾キーと文字キーを入力すると変更できます。Escで取消、同じ組み合わせの重複は登録できません。\n親フォルダー名の除外は完全一致で上の階層を参照します。空欄で無効化できます。\nウインドウを閉じても常駐します。終了はこのアプリの画面で⌘Q。\n\n初回はアクセシビリティを許可してください。操作時に表示されるFinder／Path Finderの操作許可も必要です。")
-            note.textColor = .secondaryLabelColor
-            let button = NSButton(title: "アクセシビリティ設定を開く", target: self, action: #selector(openAccessibility))
-            let preferencesButton = NSButton(title: "環境設定…", target: self, action: #selector(showPreferences))
+            let heading = appHeader(L("help.heading"), subtitle: L("help.subtitle"))
+            let document = MainActor.assumeIsolated { HelpDocument.makeScrollView(helpText(), title: nil) }
+            document.borderType = .lineBorder
+            document.setContentHuggingPriority(.defaultLow, for: .vertical)
+            let button = NSButton(title: L("help.openAccessibility"), target: self, action: #selector(openAccessibility))
+            let preferencesButton = NSButton(title: L("menu.settings"), target: self, action: #selector(showPreferences))
             let buttons = NSStackView(views: [button, preferencesButton])
             buttons.spacing = 12
-            let stack = NSStackView(views: [heading, detail, example, note, statusLabel, buttons])
+            let stack = NSStackView(views: [heading, document, statusLabel, buttons])
             stack.orientation = .vertical
             stack.alignment = .leading
-            stack.spacing = 18
+            stack.spacing = 16
             stack.translatesAutoresizingMaskIntoConstraints = false
             panel.contentView!.addSubview(stack)
             NSLayoutConstraint.activate([
                 stack.leadingAnchor.constraint(equalTo: panel.contentView!.leadingAnchor, constant: 26),
                 stack.trailingAnchor.constraint(equalTo: panel.contentView!.trailingAnchor, constant: -26),
                 stack.topAnchor.constraint(equalTo: panel.contentView!.topAnchor, constant: 26),
-                stack.bottomAnchor.constraint(lessThanOrEqualTo: panel.contentView!.bottomAnchor, constant: -24)
+                stack.bottomAnchor.constraint(equalTo: panel.contentView!.bottomAnchor, constant: -24),
+                document.widthAnchor.constraint(equalTo: stack.widthAnchor)
             ])
             panel.center()
             window = panel
@@ -326,16 +338,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 620),
                                  styleMask: [.titled, .closable], backing: .buffered, defer: false)
-            panel.title = "CommandDee — 環境設定"
+            panel.title = L("settings.title")
             panel.isReleasedWhenClosed = false
-            let title = NSTextField(labelWithString: "読み飛ばす親フォルダー名")
+            let title = NSTextField(labelWithString: L("settings.skipFolder"))
             title.font = .systemFont(ofSize: 17, weight: .semibold)
             skippedFolderField.delegate = self
-            skippedFolderField.placeholderString = "空欄の場合は、直上の親フォルダー名を使用"
-            skippedFolderField.setAccessibilityLabel("読み飛ばす親フォルダー名")
-            let reset = NSButton(title: "ログインユーザー名に戻す", target: self, action: #selector(resetSkippedFolder))
+            skippedFolderField.placeholderString = L("settings.skipFolderPlaceholder")
+            skippedFolderField.setAccessibilityLabel(L("settings.skipFolder"))
+            let reset = NSButton(title: L("settings.resetSkipFolder"), target: self, action: #selector(resetSkippedFolder))
             let login = MainActor.assumeIsolated { LoginAtLaunchControl() }
-            let keysTitle = NSTextField(labelWithString: "キーボードショートカット")
+            let keysTitle = NSTextField(labelWithString: L("settings.keyboardShortcuts"))
             keysTitle.font = .systemFont(ofSize: 17, weight: .semibold)
             let keyRows = NSStackView()
             keyRows.orientation = .vertical
@@ -344,30 +356,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             for index in shortcuts.indices {
                 let label = NSTextField(labelWithString: Shortcut.titles[index])
                 label.widthAnchor.constraint(equalToConstant: 235).isActive = true
-                let button = NSButton(title: shortcuts[index].label, target: self, action: #selector(recordShortcut(_:)))
+                let button = NSButton(title: shortcuts[index].displayLabel, target: self, action: #selector(recordShortcut(_:)))
                 button.tag = index
                 button.widthAnchor.constraint(equalToConstant: 200).isActive = true
                 shortcutButtons.append(button)
                 keyRows.addArrangedSubview(NSStackView(views: [label, button]))
             }
-            let orderTitle = NSTextField(labelWithString: "接尾辞の並び順")
+            let orderTitle = NSTextField(labelWithString: L("settings.suffixOrder"))
             orderTitle.font = .systemFont(ofSize: 17, weight: .semibold)
             orderPopup.addItems(withTitles: NamingSettings.orders.map(NamingSettings.label))
-            orderPopup.setAccessibilityLabel("接尾辞の並び順")
+            orderPopup.setAccessibilityLabel(L("settings.suffixOrder"))
             orderPopup.target = self
             orderPopup.action = #selector(changeSuffixOrder)
-            let resetKeys = NSButton(title: "ショートカットを初期値に戻す", target: self, action: #selector(resetShortcuts))
-            let helpButton = NSButton(title: "ヘルプ", target: self, action: #selector(showHelp))
+            let resetKeys = NSButton(title: L("settings.resetShortcuts"), target: self, action: #selector(resetShortcuts))
+            let helpButton = NSButton(title: L("menu.help"), target: self, action: #selector(showHelp))
             let access = AccessibilityPermissionControl(required: true)
             let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [login, MenuBarPresence.shared.settingsControl()]) }
-            let keyGroup = MainActor.assumeIsolated { SettingsUI.group("機能のショートカット", [keyRows, resetKeys]) }
-            let nameGroup = MainActor.assumeIsolated { SettingsUI.group("ファイル名", [orderTitle, orderPopup, title, skippedFolderField, reset]) }
-            let accessPage = NSStackView(views: [access, helpButton])
+            let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, resetKeys]) }
+            let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [orderTitle, orderPopup, title, skippedFolderField, reset]) }
+            let accessPage = NSStackView(views: [launchGroup, access, helpButton])
             accessPage.orientation = .vertical; accessPage.alignment = .leading; accessPage.spacing = 16
             access.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
+            launchGroup.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
             MainActor.assumeIsolated { SettingsUI.tabs([
-                (SettingsUI.launchTitle, launchGroup), ("ホットキー", keyGroup),
-                ("ファイル名", nameGroup), (AccessibilityText.text("title"), accessPage)
+                (SettingsUI.launchTitle, accessPage), (L("settings.hotkeys"), keyGroup),
+                (L("settings.fileNames"), nameGroup)
             ], in: panel.contentView!) }
             panel.center()
             preferencesWindow = panel
@@ -391,7 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     private func refreshShortcutButtons() {
         for (index, button) in shortcutButtons.enumerated() {
-            button.title = recordingShortcut == index ? "キーを入力（Escで取消）" : shortcuts[index].label
+            button.title = recordingShortcut == index ? L("settings.recordShortcut") : shortcuts[index].displayLabel
         }
     }
 

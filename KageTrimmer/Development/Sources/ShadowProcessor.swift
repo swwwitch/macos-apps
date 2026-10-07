@@ -67,8 +67,7 @@ enum ShadowProcessor {
         guard let rendered = render(contentImage, border: !detection.hadShadow && addBorderWhenMissing, shadowSize: shadowSize) else {
             throw ShadowError.cannotRender
         }
-        let base = url.deletingPathExtension().lastPathComponent
-        let output = url.deletingLastPathComponent().appendingPathComponent(base + outputSuffix(shadowSize: shadowSize) + ".png")
+        var output = availableOutput(for: url, suffix: outputSuffix(shadowSize: shadowSize))
         var outputProperties: [CFString: Any] = [kCGImagePropertyPNGDictionary: [:] as CFDictionary]
         // Preserve Retina/DPI metadata exactly. Rendering is always 1:1 in pixel dimensions;
         // only transparent shadow padding is added, so no source pixels are resampled.
@@ -88,15 +87,33 @@ enum ShadowProcessor {
         CGImageDestinationAddImage(destination, rendered, outputProperties as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { throw ShadowError.cannotWrite }
         var writeError: Error?
-        coordinator.coordinate(writingItemAt: output, options: [], error: &coordinationError) { coordinatedOutput in
-            // Encode before touching an existing output. The folder grant permits
-            // an atomic replacement without exposing a partially written PNG.
-            do { try (pngData as Data).write(to: coordinatedOutput, options: .atomic) }
-            catch { writeError = error }
+        // Never replace an existing file: if the free name was taken in the meantime, try the next number.
+        for _ in 0..<100 {
+            writeError = nil
+            coordinator.coordinate(writingItemAt: output, options: [], error: &coordinationError) { coordinatedOutput in
+                // Encoded above, so only complete PNG data is written.
+                do { try (pngData as Data).write(to: coordinatedOutput, options: .withoutOverwriting) }
+                catch { writeError = error }
+            }
+            if let coordinationError { throw coordinationError }
+            guard let error = writeError as NSError?, error.domain == NSCocoaErrorDomain, error.code == NSFileWriteFileExistsError else { break }
+            output = availableOutput(for: url, suffix: outputSuffix(shadowSize: shadowSize))
         }
-        if let coordinationError { throw coordinationError }
         if let writeError { throw writeError }
         return ProcessingResult(output: output, hadShadow: detection.hadShadow)
+    }
+
+    /// "name-s.png", then "name-s 2.png", "name-s 3.png"… beside the source. Never an existing item.
+    static func availableOutput(for url: URL, suffix: String) -> URL {
+        let folder = url.deletingLastPathComponent()
+        let base = url.deletingPathExtension().lastPathComponent + suffix
+        var candidate = folder.appendingPathComponent(base + ".png")
+        var number = 2
+        while FileManager.default.fileExists(atPath: candidate.path) || candidate.standardizedFileURL == url.standardizedFileURL {
+            candidate = folder.appendingPathComponent("\(base) \(number).png")
+            number += 1
+        }
+        return candidate
     }
 
     /// Keeps the original opaque pixels and their nearby antialiasing fringe exactly as-is.

@@ -1,0 +1,1 @@
+1efe07ccb364ebedab6bd262eb16b902315dea37be8353ac9296b133532104c6  FolderMover-1.0.0-build5-arm64.dmg
