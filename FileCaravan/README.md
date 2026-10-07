@@ -1,4 +1,4 @@
-# FolderMover
+# FileCaravan
 
 macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカードでフォルダを選択し、移動元の直下にある項目を `/bin/mv -n` でまとめて移動します。
 
@@ -20,7 +20,7 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 ./test.sh
 ```
 
-`build/FolderMover.app` に生成します。日本語/英語/簡体字中国語/韓国語リソースは `make-resources.py` から再生成できます。アイコンは `Assets/GenerateIcon.swift` から作成したオリジナルです。共有のAppHeader/AppSurface/LaunchPresenceSectionをビルド時に参照し、LoginAtLaunchControlとLaunchPolicyは既存実装から転用してローカライズしています。
+`build/FileCaravan.app` に生成します。日本語/英語/簡体字中国語/韓国語リソースは `make-resources.py` から再生成できます。アイコンは `Assets/GenerateIcon.swift` から作成したオリジナルです。共有のAppHeader/AppSurface/LaunchPresenceSectionをビルド時に参照し、LoginAtLaunchControlとLaunchPolicyは既存実装から転用してローカライズしています。
 
 ## 制限・復元
 
@@ -40,7 +40,7 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 
 ## App Store準備
 
-`APP_STORE_BUILD=1 ./build.sh` で別の `StoreBuild/FolderMover.app` を生成。詳細と未完了の検証は [AppStore/README.md](AppStore/README.md)。配布用署名と審査提出は未完了です。
+`APP_STORE_BUILD=1 ./build.sh` で別の `StoreBuild/FileCaravan.app` を生成。詳細と未完了の検証は [AppStore/README.md](AppStore/README.md)。配布用署名と審査提出は未完了です。
 
 ## 更新履歴
 
@@ -63,5 +63,5 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 ### 1.0.1（build 16）
 
 - 共通部品（起動時にメインウインドウを表示しない・見出し・設定UI）を最新版でビルドし、表示言語の規則をほかのアプリと統一しました。ログイン起動はこのアプリ独自の4言語対応版のままです。メニューバー常駐・アクセシビリティの共通部品は使っていないため適用外です。
-- 「FolderMoverについて」とヘルプのサポート案内を「同梱のREADME.md」に改め、README.mdをアプリ内（Contents/Resources）に同梱しました。
+- 「FileCaravanについて」とヘルプのサポート案内を「同梱のREADME.md」に改め、README.mdをアプリ内（Contents/Resources）に同梱しました。
 - `make-resources.py`で再生成したときに、Info.plistのバージョン・buildが古い値（build 12）へ戻る問題を修正しました。バージョン・buildは既存のInfo.plistの値を引き継ぎます。

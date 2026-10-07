@@ -218,7 +218,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let bar = NSMenu(); NSApp.mainMenu = bar
         func submenu(_ name: String) -> NSMenu { let item = NSMenuItem(); let menu = NSMenu(title: name); item.submenu = menu; bar.addItem(item); return menu }
         func add(_ m: NSMenu, _ title: String, _ sel: Selector, _ key: String = "", _ target: AnyObject? = nil) { let i = m.addItem(withTitle: title, action: sel, keyEquivalent: key); i.target = target ?? self }
-        let app = submenu("FolderMover")
+        let app = submenu("FileCaravan")
         add(app, L("about"), #selector(about))
         #if !APP_STORE
         add(app, L("updates"), #selector(updates))
@@ -249,7 +249,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         settings?.makeKeyAndOrderFront(nil)
     }
     @objc func showHelp() {
-        if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "FolderMover — " + L("help"), text: L("helpContent")) } }
+        if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "FileCaravan — " + L("help"), text: L("helpContent")) } }
         NSApp.activate(ignoringOtherApps: true)
         helpWindow?.makeKeyAndOrderFront(nil)
     }

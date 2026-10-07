@@ -18,7 +18,7 @@
 - Hover to see the full path. The confirmation and history keep full paths.
 ### Finder Tag Colors
 - Folder icons reflect the folder's Finder tag color, as in FolderHopper. With several tags, Finder's primary label color is used. Custom icons are preserved.
-- After changing colors in Finder, return to FolderMover to refresh.
+- After changing colors in Finder, return to FileCaravan to refresh.
 
 ## Launch, Keep Running and Quitting
 - Launch at login is off by default. A login launch does not show the window.
@@ -34,7 +34,7 @@
 - **⌘Q**: Quit
 - **Esc**: Stop a move
 ### App Launch Keyboard Shortcut
-1. In macOS Shortcuts, create an Open App action for FolderMover.
+1. In macOS Shortcuts, create an Open App action for FileCaravan.
 2. Assign a keyboard shortcut in its details.
 - Edit or remove it there. The app does not monitor global keys.
 
@@ -69,4 +69,4 @@
 
 ## Support
 - See the bundled README.md (Contents/Resources/README.md in the app).
-- Help → Open the note Article opens the note article introducing FolderMover.
+- Help → Open the note Article opens the note article introducing FileCaravan.

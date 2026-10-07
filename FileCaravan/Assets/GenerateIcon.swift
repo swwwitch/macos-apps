@@ -19,4 +19,4 @@ NSColor(srgbRed:1,green:0.985,blue:0.95,alpha:1).setFill();folder.fill();brown.s
 let arrow=NSBezierPath();arrow.move(to:NSPoint(x:365,y:400));arrow.line(to:NSPoint(x:650,y:400));arrow.move(to:NSPoint(x:585,y:465));arrow.line(to:NSPoint(x:650,y:400));arrow.line(to:NSPoint(x:585,y:335));arrow.lineWidth=45;arrow.lineCapStyle = .round;arrow.lineJoinStyle = .round;brown.setStroke();arrow.stroke()
 image.unlockFocus()
 let rep=NSBitmapImageRep(data:image.tiffRepresentation!)!
-try rep.representation(using:.png,properties:[:])!.write(to:root.appendingPathComponent("FolderMover.png"))
+try rep.representation(using:.png,properties:[:])!.write(to:root.appendingPathComponent("FileCaravan.png"))

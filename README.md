@@ -10,7 +10,7 @@
 | CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
 | ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
 | FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) |
-| FolderMover | 大量のファイルをまとめて移動 | [Source](FolderMover/Source/) | [build.sh](FolderMover/build.sh) |
+| FileCaravan | 大量のファイルをまとめて移動 | [Source](FileCaravan/Source/) | [build.sh](FileCaravan/build.sh) |
 | IdBackgroundOff | InDesignの「バックグラウンド書き出し／保存」をオフ | [Source](IdBackgroundOff/Source/) | [build.sh](IdBackgroundOff/build.sh) |
 | KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) |
 | KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |

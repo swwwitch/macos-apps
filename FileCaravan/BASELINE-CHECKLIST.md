@@ -1,6 +1,6 @@
 # 共通仕様の実装と確認
 
-アプリ名：FolderMover
+アプリ名：FileCaravan
 バージョン/build：1.0.1 / 16
 確認OS/CPU：macOS 26.7.1 / arm64
 確認日：2026-10-07
@@ -91,3 +91,9 @@ B08/B14/B15: 完了後に移動先を開くオプション（初期OFF、保存�
 ## build 16（2026-10-07）
 
 B15/B16: About・ヘルプのサポート案内を4言語とも「同梱のREADME.md」に変更し、README.mdをContents/Resourcesへ同梱。make-resources.pyはInfo.plistのversion/buildを引き継ぐよう修正し、再生成でbuildが戻らないことを確認。ビルド成功、test.sh成功、strict署名を確認。B18: Applications／Latest Buildsへの配置・実機確認は未実施。
+
+## FileCaravan名称変更（2026-10-07）
+
+- 現行ソースは FileCaravan/。Bundle ID local.takano.FolderMover、履歴 FolderMover/History、ウインドウ位置キー FolderMoverMain は互換性のため保持。
+- メニュー・4言語ヘルプ・アイコン資産名・ビルド経路・申請原稿を変更。旧版・過去の検証記録は履歴として保持。
+- 配布と起動の検証結果は Rename-20261007.md を参照。

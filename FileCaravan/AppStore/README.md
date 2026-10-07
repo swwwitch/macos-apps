@@ -2,8 +2,8 @@
 
 ## 準備済み
 
-- Bundle ID `local.takano.FolderMover`、version 1.0.0 / build 6を保持。カテゴリUtilities。
-- `APP_STORE_BUILD=1 ./build.sh` で `StoreBuild/FolderMover.app` に別途生成。通常版やLatest Buildsへは自動配置しない。
+- Bundle ID `local.takano.FolderMover`、version 1.0.6 / build 21を保持。カテゴリUtilities。
+- `APP_STORE_BUILD=1 ./build.sh` で `StoreBuild/FileCaravan.app` に別途生成。通常版やLatest Buildsへは自動配置しない。
 - App Sandbox、ユーザーが選択したフォルダーへの読み書き、app-scoped bookmarksのentitlements。
 - FolderHopperのFolderAccess実装を流用。選択・ドロップ時にブックマーク保存、次回起動時の復元、実行前の再許可。許可範囲外のパスだけでは実行しない。
 - Store構成から独自更新メニューを除外。PrivacyInfo.xcprivacyにUserDefaultsの用途CA92.1、データ収集なし／追跡なしを記載。

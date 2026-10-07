@@ -9,7 +9,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(source)
 
 startup = Path(__file__).with_name("StartupWindow.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumFlight/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'FolderMover/Source']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumFlight/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'FileCaravan/Source']:
     target = root / relative / 'StartupWindow.swift'
     if not target.parent.is_dir():
         continue
@@ -17,7 +17,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(startup)
 
 settings = Path(__file__).with_name("SettingsSection.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumFlight/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'FolderMover/Source']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumFlight/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'FileCaravan/Source']:
     target = root / relative / "SettingsSection.swift"
     if not target.parent.is_dir():
         continue

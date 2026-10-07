@@ -1,13 +1,13 @@
 # App Store日本語メタデータ案
 
-名称: FolderMover
+名称: FileCaravan
 サブタイトル: 大量のファイルをまとめて移動
 カテゴリ: ユーティリティ
 キーワード: ファイル,フォルダー,移動,整理,一括,Finder,タグ,Dropbox
 
 ## 説明
 
-フォルダーからフォルダーへ、大量のファイルをまとめて移動。FolderMoverは、Macの標準mvコマンドを使うシンプルなファイル移動アプリです。
+フォルダーからフォルダーへ、大量のファイルをまとめて移動。FileCaravanは、Macの標準mvコマンドを使うシンプルなファイル移動アプリです。
 
 ソースと移動先を選んで「移動する」をクリック。対象件数とパスを確認してから実行します。移動した項目は元の場所からなくなります。
 
@@ -31,5 +31,5 @@
 ※ Sandboxでのmvと再起動後の許可復元の検証を完了後、この説明と実動作を最終照合する。未検証のまま提出しない。
 
 サポートURL候補: https://github.com/swwwitch/macos-apps/issues
-プライバシーURL候補: https://github.com/swwwitch/macos-apps/blob/main/FolderMover/AppStore/privacy.md
+プライバシーURL候補: https://github.com/swwwitch/macos-apps/blob/main/FileCaravan/AppStore/privacy.md
 価格・地域・審査担当連絡先・著作権表記: 未確定

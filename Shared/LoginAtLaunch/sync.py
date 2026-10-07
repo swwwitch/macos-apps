@@ -1,5 +1,5 @@
 """Copy the canonical LoginAtLaunch.swift and AccessibilityPermission.swift into apps that keep local copies.
-FolderMover, CarmaChameleon and PDF2Keynote keep their own localized (L()-based) LoginAtLaunch and are not touched."""
+FileCaravan, CarmaChameleon and PDF2Keynote keep their own localized (L()-based) LoginAtLaunch and are not touched."""
 from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 copies = {

@@ -18,7 +18,7 @@
 - 悬停可查看完整路径。确认对话框与记录保留完整路径。
 ### Finder 标签颜色
 - 文件夹图标显示 Finder 的标签颜色，与 FolderHopper 相同。有多个标签时使用 Finder 的主要标签颜色。保留自定义图标。
-- 在 Finder 中修改颜色后，返回 FolderMover 即可刷新。
+- 在 Finder 中修改颜色后，返回 FileCaravan 即可刷新。
 
 ## 启动、保持运行与退出
 - “登录时启动”默认关闭。登录启动时不显示窗口。
@@ -34,7 +34,7 @@
 - **⌘Q**：退出
 - **Esc**：停止移动
 ### 应用启动键盘快捷键
-1. 在 macOS 快捷指令中创建“打开 App → FolderMover”。
+1. 在 macOS 快捷指令中创建“打开 App → FileCaravan”。
 2. 在详情中分配键盘快捷键。
 - 也在那里修改或删除。本应用不监听全局按键。
 
@@ -69,4 +69,4 @@
 
 ## 支持
 - 请参阅随附的 README.md（应用内 Contents/Resources/README.md）。
-- 帮助菜单中的“打开 note 文章”会打开介绍 FolderMover 的 note 文章。
+- 帮助菜单中的“打开 note 文章”会打开介绍 FileCaravan 的 note 文章。

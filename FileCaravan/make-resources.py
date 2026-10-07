@@ -33,10 +33,10 @@ rows=[
 ('changedFolder','フォルダが変更・切断されました。接続と履歴を確認してください。','A folder changed or disconnected. Check the connection and history.','文件夹已更改或断开连接。请检查连接和记录。','폴더가 변경되거나 연결이 끊어졌습니다. 연결과 기록을 확인하세요.'),
 ('journalError','履歴を保存できないため、移動を開始しませんでした。','Move did not start because history could not be saved.','无法保存记录，因此未开始移动。','기록을 저장할 수 없어 이동하지 않았습니다.'),
 ('launchGroup','起動・常駐','Launch & presence','启动与驻留','실행 및 상주'),('resident','ウインドウを閉じても常駐','Keep running after closing','保持运行','계속 실행'),('residentDetail','ウインドウを閉じても動作を続けます。Dockから再表示できます。','Keep running after closing the window. Reopen from the Dock.','关闭窗口后继续运行。可从 Dock 重新打开。','창을 닫아도 실행합니다. Dock에서 다시 열 수 있습니다.'),
-('launchShortcut','アプリ起動のホットキー','App launch keyboard shortcut','应用启动键盘快捷键','앱 실행 키보드 단축키'),('systemSettings','システムで設定…','Configure in Shortcuts…','在快捷指令中设置…','단축어에서 설정…'),
-('shortcutDetail','「ショートカット」で「アプリを開く → FolderMover」を作成し、ホットキーを割り当てます。未起動時も使えます。','In Shortcuts, create “Open App → FolderMover” and assign a keyboard shortcut. This also launches the app when it is not running.','在快捷指令中创建“打开 App → FolderMover”并分配键盘快捷键。未运行时也可启动。','단축어에서 “앱 열기 → FolderMover”을 만들고 키보드 단축키를 지정하세요. 앱이 꺼져 있어도 실행할 수 있습니다.'),
+('launchShortcut','アプリ起動のキーボードショートカット','App launch keyboard shortcut','应用启动键盘快捷键','앱 실행 키보드 단축키'),('systemSettings','システムで設定…','Configure in Shortcuts…','在快捷指令中设置…','단축어에서 설정…'),
+('shortcutDetail','「ショートカット」で「アプリを開く → FileCaravan」を作成し、キーボードショートカットを割り当てます。未起動時も使えます。','In Shortcuts, create “Open App → FileCaravan” and assign a keyboard shortcut. This also launches the app when it is not running.','在快捷指令中创建“打开 App → FileCaravan”并分配键盘快捷键。未运行时也可启动。','단축어에서 “앱 열기 → FileCaravan”을 만들고 키보드 단축키를 지정하세요. 앱이 꺼져 있어도 실행할 수 있습니다.'),
 ('privacy','プライバシー・履歴','Privacy & history','隐私与记录','개인정보 및 기록'),('privacyDetail','外部通信なし。履歴には移動したファイルのパスを保存します。不要な履歴はFinderで削除できます。','No network access. History stores file paths locally. Delete unneeded history in Finder.','无网络通信。记录在本地保存文件路径。可在访达删除不需要的记录。','네트워크 통신을 하지 않습니다. 기록에 파일 경로를 로컬로 저장합니다. Finder에서 불필요한 기록을 삭제할 수 있습니다.'),
-('about','FolderMoverについて','About FolderMover','关于 FolderMover','FolderMover 정보'),('updates','アップデートを確認…','Check for Updates…','检查更新…','업데이트 확인…'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FolderMoverを終了','Quit FolderMover','退出 FolderMover','FolderMover 종료'),('file','ファイル','File','文件','파일'),('showWindow','ウインドウを表示','Show Window','显示窗口','윈도우 보기'),('close','閉じる','Close','关闭','닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('cut','カット','Cut','剪切','잘라내기'),('copy','コピー','Copy','复制','복사'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
+('about','FileCaravanについて','About FileCaravan','关于 FileCaravan','FileCaravan 정보'),('updates','アップデートを確認…','Check for Updates…','检查更新…','업데이트 확인…'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FileCaravanを終了','Quit FileCaravan','退出 FileCaravan','FileCaravan 종료'),('file','ファイル','File','文件','파일'),('showWindow','ウインドウを表示','Show Window','显示窗口','윈도우 보기'),('close','閉じる','Close','关闭','닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('cut','カット','Cut','剪切','잘라내기'),('copy','コピー','Copy','复制','복사'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
 ('busyQuit','移動処理中は終了できません。','A move is still in progress.','正在移动，无法退出。','이동 중에는 종료할 수 없습니다.'),('busyQuitDetail','「停止」で現在の処理を安全に終えてから、もう一度終了してください。','Choose Stop to finish the current batch safely, then quit again.','点击停止以安全完成当前批次，然后再次退出。','중지를 눌러 현재 배치를 안전하게 끝낸 뒤 다시 종료하세요.'),('continue','続ける','Continue','继续','계속'),('updatesPending','更新配布の準備中','Updates are not configured','更新尚未配置','업데이트가 설정되지 않았습니다'),('updatesDetail','更新先と検証用公開鍵は未設定です。自動更新は利用できません。','An update feed and verification key have not been configured. Automatic updates are unavailable.','尚未配置更新源和验证公钥，无法自动更新。','업데이트 주소와 검증 키가 설정되지 않아 자동 업데이트를 사용할 수 없습니다.'),('support','サポート：同梱のREADME.md','Support: see the bundled README.md','支持：请参阅随附的 README.md','지원: 함께 제공된 README.md 참조'),
 ('login','ログイン時に起動','Launch at login','登录时启动','로그인 시 실행'),('loginOpen','ログイン項目を開く','Open Login Items','打开登录项','로그인 항목 열기'),('loginOn','Macへのログイン時に自動起動します。','Launches automatically when you log in.','登录时自动启动。','로그인 시 자동 실행합니다.'),('loginApproval','システム設定のログイン項目で許可してください。','Allow the app in System Settings → Login Items.','请在系统设置的登录项中允许此应用。','시스템 설정의 로그인 항목에서 허용하세요.'),('loginMissing','ログイン起動は未登録です。オンにすると登録します。','Login launch is not registered. Turn it on to register.','登录启动尚未注册。开启后即可注册。','로그인 실행이 등록되지 않았습니다. 켜면 등록됩니다.'),('loginOff','自動起動はオフです。','Launch at login is off.','登录时启动已关闭。','로그인 시 실행이 꺼져 있습니다.'),('loginError','設定を変更できませんでした：','Could not change the setting: ','无法更改设置：','설정을 변경할 수 없습니다: '),
 ]
@@ -62,7 +62,7 @@ helptexts=[
 - ポインタを重ねると完全なパスを確認できます。移動の確認画面と履歴は完全なパスを保持します。
 ### Finderのタグ色
 - 選択したフォルダのタグ色をアイコンに反映します（FolderHopperと同じ方式）。複数タグはFinderの代表ラベル色を使い、独自のアイコンは保持します。
-- Finderで色を変更した後は、FolderMoverに戻ると再読込します。
+- Finderで色を変更した後は、FileCaravanに戻ると再読込します。
 
 ## 起動・常駐と終了
 - 「ログイン時に起動」の初期値はオフです。ログイン起動ではウインドウを表示しません。
@@ -70,16 +70,16 @@ helptexts=[
 - 常駐オフでは、処理中でなければウインドウを閉じると終了します。
 - ⌘Qで終了します。移動中は終了できないため、「停止」した後でもう一度終了してください。
 
-## ホットキー
+## キーボードショートカット
 - **⌘,**：設定
 - **⌘0**：ウインドウを表示
 - **⌘W**：ウインドウを閉じる
 - **⌘?**：ヘルプ
 - **⌘Q**：終了
 - **Esc**：移動を停止
-### アプリ起動のホットキー
-1. macOSの「ショートカット」で「アプリを開く」アクションを作り、対象をFolderMoverにします。
-2. 詳細でホットキーを登録します。
+### アプリ起動のキーボードショートカット
+1. macOSの「ショートカット」で「アプリを開く」アクションを作り、対象をFileCaravanにします。
+2. 詳細でキーボードショートカットを登録します。
 - 変更・解除も同じ場所で行います。アプリ独自のグローバルキー監視はありません。
 
 ## 権限
@@ -113,7 +113,7 @@ helptexts=[
 
 ## サポート
 - 同梱のREADME.md（アプリ内 Contents/Resources/README.md）を参照してください。
-- ヘルプメニューの「note記事を開く」で、FolderMoverを紹介するnote記事を開きます。''',
+- ヘルプメニューの「note記事を開く」で、FileCaravanを紹介するnote記事を開きます。''',
 '''## Basic Operation
 1. Click or drop a folder on the left card (Source) and the right card (Destination).
 2. Choose Move, confirm the count and destination, and run it.
@@ -134,7 +134,7 @@ helptexts=[
 - Hover to see the full path. The confirmation and history keep full paths.
 ### Finder Tag Colors
 - Folder icons reflect the folder's Finder tag color, as in FolderHopper. With several tags, Finder's primary label color is used. Custom icons are preserved.
-- After changing colors in Finder, return to FolderMover to refresh.
+- After changing colors in Finder, return to FileCaravan to refresh.
 
 ## Launch, Keep Running and Quitting
 - Launch at login is off by default. A login launch does not show the window.
@@ -150,7 +150,7 @@ helptexts=[
 - **⌘Q**: Quit
 - **Esc**: Stop a move
 ### App Launch Keyboard Shortcut
-1. In macOS Shortcuts, create an Open App action for FolderMover.
+1. In macOS Shortcuts, create an Open App action for FileCaravan.
 2. Assign a keyboard shortcut in its details.
 - Edit or remove it there. The app does not monitor global keys.
 
@@ -185,7 +185,7 @@ helptexts=[
 
 ## Support
 - See the bundled README.md (Contents/Resources/README.md in the app).
-- Help → Open the note Article opens the note article introducing FolderMover.''',
+- Help → Open the note Article opens the note article introducing FileCaravan.''',
 '''## 基本操作
 1. 点击左侧卡片（源文件夹）和右侧卡片（目标文件夹），或拖放文件夹。
 2. 点击“移动”，确认数量和目标后执行。
@@ -206,7 +206,7 @@ helptexts=[
 - 悬停可查看完整路径。确认对话框与记录保留完整路径。
 ### Finder 标签颜色
 - 文件夹图标显示 Finder 的标签颜色，与 FolderHopper 相同。有多个标签时使用 Finder 的主要标签颜色。保留自定义图标。
-- 在 Finder 中修改颜色后，返回 FolderMover 即可刷新。
+- 在 Finder 中修改颜色后，返回 FileCaravan 即可刷新。
 
 ## 启动、保持运行与退出
 - “登录时启动”默认关闭。登录启动时不显示窗口。
@@ -222,7 +222,7 @@ helptexts=[
 - **⌘Q**：退出
 - **Esc**：停止移动
 ### 应用启动键盘快捷键
-1. 在 macOS 快捷指令中创建“打开 App → FolderMover”。
+1. 在 macOS 快捷指令中创建“打开 App → FileCaravan”。
 2. 在详情中分配键盘快捷键。
 - 也在那里修改或删除。本应用不监听全局按键。
 
@@ -257,7 +257,7 @@ helptexts=[
 
 ## 支持
 - 请参阅随附的 README.md（应用内 Contents/Resources/README.md）。
-- 帮助菜单中的“打开 note 文章”会打开介绍 FolderMover 的 note 文章。''',
+- 帮助菜单中的“打开 note 文章”会打开介绍 FileCaravan 的 note 文章。''',
 '''## 기본 사용법
 1. 왼쪽 카드(원본)와 오른쪽 카드(대상)를 클릭하거나 폴더를 드롭하세요.
 2. 이동을 누르고 항목 수와 대상을 확인한 뒤 실행합니다.
@@ -278,7 +278,7 @@ helptexts=[
 - 포인터를 올리면 전체 경로가 표시됩니다. 확인 화면과 기록에는 전체 경로를 유지합니다.
 ### Finder 태그 색상
 - FolderHopper와 같은 방식으로 Finder의 태그 색상을 폴더 아이콘에 반영합니다. 태그가 여러 개면 Finder의 대표 색상을 사용합니다. 사용자 지정 아이콘은 유지합니다.
-- Finder에서 색상을 변경한 뒤 FolderMover로 돌아오면 갱신됩니다.
+- Finder에서 색상을 변경한 뒤 FileCaravan로 돌아오면 갱신됩니다.
 
 ## 실행, 계속 실행과 종료
 - 로그인 시 실행은 기본적으로 꺼져 있습니다. 로그인 실행 시 창을 표시하지 않습니다.
@@ -294,7 +294,7 @@ helptexts=[
 - **⌘Q**: 종료
 - **Esc**: 이동 중지
 ### 앱 실행 키보드 단축키
-1. macOS 단축어에서 “앱 열기 → FolderMover”를 만듭니다.
+1. macOS 단축어에서 “앱 열기 → FileCaravan”를 만듭니다.
 2. 세부사항에서 키보드 단축키를 지정합니다.
 - 같은 곳에서 변경하거나 삭제합니다. 앱은 전역 키를 감시하지 않습니다.
 
@@ -329,14 +329,14 @@ helptexts=[
 
 ## 지원
 - 함께 제공된 README.md(앱 내부 Contents/Resources/README.md)를 참조하세요.
-- 도움말 메뉴의 note 글 열기로 FolderMover를 소개하는 note 글을 엽니다.'''
+- 도움말 메뉴의 note 글 열기로 FileCaravan를 소개하는 note 글을 엽니다.'''
 ]
 for idx,lang in enumerate(['ja','en','zh-Hans','ko']):
     folder=root/'Resources'/f'{lang}.lproj'; folder.mkdir(parents=True,exist_ok=True)
     values={r[0]:r[idx+1] for r in rows}; values['helpContent']=helptexts[idx]
     (folder/'Localizable.strings').write_text('\n'.join(json.dumps(k,ensure_ascii=False)+' = '+json.dumps(v,ensure_ascii=False)+';' for k,v in values.items())+'\n')
     (folder/'Help.txt').write_text(helptexts[idx] + '\n')
-info={'CFBundleName':'FolderMover','CFBundleDisplayName':'FolderMover','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FolderMover','CFBundlePackageType':'APPL','CFBundleIconFile':'FolderMover.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication','LSApplicationCategoryType':'public.app-category.utilities','SWNoteArticleURL':'https://note.com/swwwitch/n/n3b88097a8bf4'}
+info={'CFBundleName':'FileCaravan','CFBundleDisplayName':'FileCaravan','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FileCaravan','CFBundlePackageType':'APPL','CFBundleIconFile':'FileCaravan.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication','LSApplicationCategoryType':'public.app-category.utilities','SWNoteArticleURL':'https://note.com/swwwitch/n/n3b88097a8bf4'}
 # Version and build come only from the existing Info.plist, so regeneration never reverts them.
 plist_path=root/'Info.plist'; current=plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
 info.update({k:current[k] for k in ('CFBundleShortVersionString','CFBundleVersion') if k in current})
