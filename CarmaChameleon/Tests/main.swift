@@ -1,5 +1,6 @@
 import Foundation
 import PDFKit
+import CoreText
 setbuf(stdout, nil)
 func L(_ key: String) -> String { key }
 let fm = FileManager.default
@@ -37,6 +38,56 @@ for name in ["sample.csv","sample.tsv","sample.xlsx"] {
         check(boxed.contains("+--") && boxed.contains("| りんご"),"xlsx → structured text with bordered table")
     }
 }
+// Illustrator (.ai), simple version: the embedded PDF is rewritten; a notice page (no PDF compatibility) gives a warning.
+func makeAI(_ name: String, text: String) -> URL {
+    let url = root.appendingPathComponent(name)
+    var box = CGRect(x:0,y:0,width:900,height:300)
+    let ctx = CGContext(url as CFURL, mediaBox:&box, nil)!
+    ctx.beginPDFPage(nil)
+    let line = CTLineCreateWithAttributedString(NSAttributedString(string:text, attributes:[NSAttributedString.Key(kCTFontAttributeName as String):CTFontCreateWithName("Helvetica" as CFString, 18, nil)]))
+    ctx.textPosition = CGPoint(x:20,y:150); CTLineDraw(line, ctx)
+    ctx.endPDFPage(); ctx.closePDF()
+    return url
+}
+var pdfOut = ConversionOptions(); pdfOut.format = OutputFormat.all.first { $0.id == "pdf" }!
+let artwork = makeAI("artwork.ai", text:"Artwork sample")
+let aiRunner = ConversionRunner()
+let aiPDF = try aiRunner.convert(engine:engine,input:artwork,folder:root,options:pdfOut)
+check(aiPDF.lastPathComponent == "artwork.pdf" && PDFDocument(url:aiPDF)?.string?.contains("Artwork sample") == true,".ai → PDF keeps the artwork (not re-typeset)")
+check(aiRunner.warnings.isEmpty,"PDF-compatible .ai has no warning")
+let notice = makeAI("notice.ai", text:"This is an Adobe Illustrator File that was saved without PDF Content.")
+let noticeRunner = ConversionRunner()
+_ = try noticeRunner.convert(engine:engine,input:notice,folder:root,options:pdfOut)
+check(noticeRunner.warnings.count == 1 && noticeRunner.warnings[0].hasPrefix("notice.ai"),".ai without PDF compatibility is converted with a warning")
+let aiText = try String(contentsOf:try ConversionRunner().convert(engine:engine,input:artwork,folder:root,options:gfm),encoding:.utf8)
+check(aiText.contains("Artwork sample"),".ai → Markdown via the embedded PDF text")
+// Opt-in: official .ai → PDF through Illustrator (CARMA_ILLUSTRATOR_TEST=1; launches Illustrator).
+if ProcessInfo.processInfo.environment["CARMA_ILLUSTRATOR_TEST"] == "1", let app = IllustratorBridge.defaultInstallation() {
+    IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources/Illustrator")
+    let presets = try IllustratorBridge.presets(in:app.url)
+    print("INFO: \(app.name) \(app.version) presets:", presets.joined(separator:" / "))
+    check(!presets.isEmpty,"Illustrator PDF presets listed")
+    let sample = URL(fileURLWithPath:"/Applications/Adobe Illustrator (Beta)/Scripting.localized/Sample Scripts.localized/AppleScript.localized/Analyze Documents.localized/Documents to Analyze.localized/GradientTestFile.ai")
+    let copy = root.appendingPathComponent("IllustratorExport.ai"); try? fm.removeItem(at:copy); try fm.copyItem(at:sample,to:copy)
+    var official = pdfOut; official.aiMethod = "illustrator"; official.aiPreset = presets.last!; official.illustratorApp = app.url
+    let out = try ConversionRunner().convert(engine:engine,input:copy,folder:root,options:official)
+    check(out.lastPathComponent == "IllustratorExport.pdf" && (PDFDocument(url:out)?.pageCount ?? 0) > 0,"Illustrator saved the .ai as PDF with preset \(presets.last!)")
+    // A document already open in Illustrator is exported as it is, stays open, and gives a notice.
+    _ = try IllustratorBridge.run("app.open(new File(arguments[0])); 'OK'", arguments:[copy.path], in:app.url)
+    let openRunner = ConversionRunner()
+    let openOut = try openRunner.convert(engine:engine,input:copy,folder:root,options:official)
+    let stillOpen = try IllustratorBridge.run("var r='no'; for (var i=0;i<app.documents.length;i++) { if (app.documents[i].fullName.fsName==new File(arguments[0]).fsName) { r='yes'; app.documents[i].close(SaveOptions.DONOTSAVECHANGES); break; } } r", arguments:[copy.path], in:app.url)
+    check((PDFDocument(url:openOut)?.pageCount ?? 0) > 0 && stillOpen == "yes" && openRunner.warnings.count == 1,"open Illustrator document exported, kept open, with a notice")
+}
+// Real Illustrator sample (Adobe's bundled script samples), when installed.
+let adobeSample = URL(fileURLWithPath:"/Applications/Adobe Illustrator (Beta)/Scripting.localized/Sample Scripts.localized/AppleScript.localized/Analyze Documents.localized/Documents to Analyze.localized/PlacedItemTest.ai")
+if fm.fileExists(atPath:adobeSample.path) {
+    let copy = root.appendingPathComponent("PlacedItemTest.ai"); try? fm.removeItem(at:copy); try fm.copyItem(at:adobeSample,to:copy)
+    let out = try ConversionRunner().convert(engine:engine,input:copy,folder:root,options:pdfOut)
+    let data = try Data(contentsOf:out)
+    let original = try Data(contentsOf:copy)
+    check(data.range(of:Data("AIPrivateData".utf8)) == nil && data.count < original.count,"real .ai → PDF without Illustrator private data")
+} else { print("SKIP: Adobe sample .ai not installed") }
 // 「構造を保持」: Markdown goes straight through MarkdownToText; other input via pandoc → gfm.
 var structured = ConversionOptions(); structured.format = OutputFormat.all.first { $0.id == "plain" }!; structured.markdownText = MarkdownTextOptions()
 let structuredText = try String(contentsOf:try ConversionRunner().convert(engine:engine,input:input,folder:root,options:structured),encoding:.utf8)

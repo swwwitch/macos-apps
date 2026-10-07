@@ -34,6 +34,7 @@ rows = [
 ('updates', 'アップデートを確認…', 'Check for Updates…', '检查更新…', '업데이트 확인…'),
 ('quit', 'IdBackgroundOffを終了', 'Quit IdBackgroundOff', '退出 IdBackgroundOff', 'IdBackgroundOff 종료'),
 ('file', 'ファイル', 'File', '文件', '파일'),
+('openMainWindow', 'メインウインドウを開く', 'Open Main Window', '打开主窗口', '메인 윈도우 열기'),
 ('close', '閉じる', 'Close', '关闭', '닫기'),
 ('edit', '編集', 'Edit', '编辑', '편집'),
 ('undo', '取り消す', 'Undo', '撤销', '실행 취소'),
@@ -65,7 +66,7 @@ InDesignのアプリ内は管理者の権限で保護されているため、変
 InDesignのアップデートや再インストールでファイルが消え、「オン」に戻ることがあります。毎年秋のメジャーバージョンは別のフォルダ（例：Adobe InDesign 2027）にインストールされるため、新しいバージョンは改めてオフにしてください。アプリに戻ると状態を読み直します。⌘Rでも再読み込みできます。
 
 終了とショートカット
-常駐はしません。ウインドウを閉じる（⌘W）か⌘Qで終了します。⌘Rで再読み込み、⌘Oで「InDesignを追加…」、⌘?でこのヘルプを開きます。設定項目はありません。
+常駐はしません。ウインドウを閉じる（⌘W）か⌘Qで終了します。⌘Rで再読み込み、⌘Oで「InDesignを追加…」、⌘0で「メインウインドウを開く」、⌘?でこのヘルプを開きます。設定項目はありません。
 
 困ったとき・元に戻す方法
 「状態を確認できません」は、同じ名前のフォルダやリンクがある場合です。このアプリは変更しないので、Finderで確認してください。
@@ -93,7 +94,7 @@ After updating InDesign
 An update or reinstall can remove the file and turn background export back on. Each autumn's major version installs into a new folder (for example Adobe InDesign 2027), so turn it off again for the new version. The list is re-read when you return to the app, or with ⌘R.
 
 Quitting and shortcuts
-The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, and ⌘? opens this help. There are no settings.
+The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), and ⌘? opens this help. There are no settings.
 
 Troubleshooting and manual restore
 Status unavailable means a folder or link with the same name exists. The app leaves it alone; check it in Finder.
@@ -121,7 +122,7 @@ InDesign 应用内部受到保护，因此更改时 macOS 会要求输入管理�
 更新或重新安装可能会删除该文件并恢复为开启。每年秋季的大版本会安装到新的文件夹（例如 Adobe InDesign 2027），请为新版本再次关闭。返回本应用或按 ⌘R 时会重新读取状态。
 
 退出与快捷键
-本应用不驻留。关闭窗口（⌘W）或按 ⌘Q 即退出。⌘R 重新载入，⌘O 添加 InDesign，⌘? 打开本帮助。没有设置项目。
+本应用不驻留。关闭窗口（⌘W）或按 ⌘Q 即退出。⌘R 重新载入，⌘O 添加 InDesign，⌘0 打开主窗口，⌘? 打开本帮助。没有设置项目。
 
 故障排除与手动恢复
 “无法确认状态”表示存在同名的文件夹或链接。本应用不会更改它，请在访达中确认。
@@ -149,7 +150,7 @@ InDesign 업데이트 후
 업데이트나 재설치로 파일이 사라져 켬으로 돌아갈 수 있습니다. 매년 가을의 메이저 버전은 새 폴더(예: Adobe InDesign 2027)에 설치되므로 새 버전에서 다시 끄세요. 앱으로 돌아오거나 ⌘R을 누르면 상태를 다시 읽습니다.
 
 종료와 단축키
-상주하지 않습니다. 창을 닫거나(⌘W) ⌘Q를 누르면 종료합니다. ⌘R은 새로 고침, ⌘O는 InDesign 추가, ⌘?는 이 도움말입니다. 설정 항목은 없습니다.
+상주하지 않습니다. 창을 닫거나(⌘W) ⌘Q를 누르면 종료합니다. ⌘R은 새로 고침, ⌘O는 InDesign 추가, ⌘0은 메인 윈도우 열기, ⌘?는 이 도움말입니다. 설정 항목은 없습니다.
 
 문제 해결과 수동 복원
 상태를 확인할 수 없음은 같은 이름의 폴더나 링크가 있는 경우입니다. 앱은 이를 변경하지 않으니 Finder에서 확인하세요.

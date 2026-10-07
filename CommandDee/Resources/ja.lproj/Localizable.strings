@@ -2,6 +2,8 @@
 "menu.settings" = "設定…";
 "menu.hide" = "CommandDeeを隠す";
 "menu.quit" = "CommandDeeを終了";
+"menu.file" = "ファイル";
+"menu.openMainWindow" = "メインウインドウを開く";
 "menu.window" = "ウインドウ";
 "menu.closeWindow" = "ウインドウを閉じる";
 "menu.edit" = "編集";

@@ -87,3 +87,23 @@ UI文言の表記統一：環境設定ウインドウのタイトルから「…
 ## 0.5.0 / build 17
 
 設定をタブに分類：「起動・常駐」（ログイン起動・常駐・アプリ起動のホットキー・Keynoteの操作）、「変換形式」（メインウインドウに表示する形式と順番。チェックで表示／非表示、ドラッグか↑↓で並べ替え、初期状態に戻す）、「エンジン」（pandoc・PDFエンジン）。非表示にした形式が選択中なら、表示中の先頭の形式に切り替える。少なくとも1つは表示。起動・常駐は共通部品 LaunchPresenceSection を使用。
+
+## 0.6.0 / build 18
+
+入力に Illustrator（.ai）を追加（簡易版）。.ai に入っている PDF 用の内容を PDFKit で読み、PDF 出力ではそのまま PDF にする（Illustrator の編集用データ AIPrivateData は含めない）。Keynote などほかの出力は PDF 入力として扱う。「PDF互換ファイルを作成」オフの .ai は止めずに変換し、案内ページになったことを注意として表示（Source/AIImporter.swift）。
+
+## 0.7.0 / build 19
+
+.ai の正式版「Illustratorで書き出す」を追加。Illustrator でファイルを開き、選んだ PDF プリセットで保存する（Resources/Illustrator/SaveAsPDF.jsx、Adobe のサンプル「ドキュメントを PDF として保存.jsx」をもとに作成、osascript の do javascript で実行）。設定に「Illustrator」タブ（変換方法・使用する Illustrator・PDF プリセットの読み込み）。変換中だけ警告を出さない設定にし、Illustrator で開いているファイルは変換しない。Illustrator 2026（30.8.2）で、プリセット一覧の取得と [高品質印刷] での書き出しを確認（CARMA_ILLUSTRATOR_TEST=1 ./test.sh <typst>）。
+
+## 0.7.1 / build 20
+
+設定の「Illustrator」タブで見出しが二重に表示されていたのを修正。
+
+## 0.7.2 / build 21
+
+ファイルメニューに「メインウインドウを開く」（⌘0）を追加。ウインドウを閉じた後でも主画面を再表示できる。
+
+## 0.7.3 / build 22
+
+「Illustratorで書き出す」を sttk3 の exportPDF（exportForScreens ＋ ExportForScreensPDFOptions.pdfPreset）にならって書き直し。別名保存（saveAs）と違ってドキュメントのファイルや保存先を変えないため、Illustrator で開いている .ai も開いた状態のまま書き出し、閉じない（未保存の変更を含むときは注意を表示）。これまでは開いているファイルを変換しなかった。書き出し中だけ「サブフォルダを作成」をオフにして元に戻す。指定した PDF プリセットが Illustrator に無いとき・CC 2018 より前のときはエラー、リンク切れの画像があるときは注意を表示。

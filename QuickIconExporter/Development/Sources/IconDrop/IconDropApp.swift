@@ -28,6 +28,11 @@ struct IconDropApp: App {
             #if DIRECT_UPDATES && !APP_STORE
             UpdateCommands()
             #endif
+            CommandGroup(before: .newItem) {
+                // Stays available with no windows open; reuses the reopen routine.
+                Button(L("メインウインドウを開く")) { appDelegate.showWindow() }
+                    .keyboardShortcut("0", modifiers: .command)
+            }
             CommandGroup(after: .newItem) {
                 Button(L("ファイルを選択…")) {
                     NotificationCenter.default.post(name: .init("QuickIconExporterChooseFiles"), object: nil)

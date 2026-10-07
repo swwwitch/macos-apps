@@ -29,6 +29,7 @@ While it keeps running, reopen it from the Dock or the menu bar icon.
 - **Command-O**: choose PDFs
 - **Command-Return**: convert
 - **Escape**: cancel the conversion
+- **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
 - **Command-comma**: Settings
 - **Command-?**: Help

@@ -38,7 +38,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     }
     func add(_ urls: [URL]) {
         guard !busy else { return }
-        let allowed = Set(["md","markdown","txt","html","htm","docx","odt","rtf","epub","tex","rst","org","ipynb","json","csv","tsv","xlsx","pptx","typ","wiki","xml","idml","pdf"])
+        let allowed = Set(["md","markdown","txt","html","htm","docx","odt","rtf","epub","tex","rst","org","ipynb","json","csv","tsv","xlsx","pptx","typ","wiki","xml","idml","pdf","ai"])
         var rejected = false
         for url in urls {
             guard url.isFileURL, (try? url.resourceValues(forKeys:[.isRegularFileKey]).isRegularFile) == true, allowed.contains(url.pathExtension.lowercased()) else { rejected = true; continue }
@@ -73,6 +73,13 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         var opts = ConversionOptions(format:format,reader:reader,standalone:standalone,toc:toc,numbers:numbers,wrap:wrap,pdfEngine:pdfEngine,htmlFormatting:htmlFormatting)
         // Keynote keeps the finished presentation open instead of reopening the saved file.
         if formatID == "plain" && keepStructure { opts.markdownText = textOptions }
+        let defaults = UserDefaults.standard
+        opts.aiMethod = defaults.string(forKey:"aiMethod") ?? "simple"
+        opts.aiPreset = defaults.string(forKey:"aiPDFPreset") ?? ""
+        if let path = defaults.string(forKey:"illustratorPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { opts.illustratorApp = URL(fileURLWithPath:path) }
+        if opts.aiMethod == "illustrator", files.contains(where: { $0.pathExtension.lowercased() == "ai" }), opts.illustratorApp == nil, IllustratorBridge.defaultInstallation() == nil {
+            status = L("illustratorMissing"); return
+        }
         opts.keynote = KeynoteOptions(slideSize:keynoteSlideSize, placement:keynotePlacement, box:keynoteBox, pageRange:nil, openAfter:shouldOpen)
         let worker = ConversionRunner(); runner = worker; busy = true; completed = 0; results = []; details = ""; showAutomationHelp = false; status = L("working")
         DispatchQueue.global(qos:.userInitiated).async {
@@ -87,10 +94,10 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
                 }
                 DispatchQueue.main.async { self.completed = index + 1 }
             }
-            let finalOutputs = outputs; let finalErrors = errors; let finalDenied = denied
+            let finalOutputs = outputs; let finalErrors = errors; let finalWarnings = worker.warnings; let finalDenied = denied
             DispatchQueue.main.async {
                 self.busy = false; self.runner = nil; self.results = finalOutputs
-                self.details = finalErrors.joined(separator:"\n\n")
+                self.details = (finalErrors + finalWarnings).joined(separator:"\n\n")
                 let key = worker.isCancelled ? "cancelled" : finalErrors.isEmpty ? "success" : finalOutputs.isEmpty ? "failed" : "partial"
                 self.status = L(key) + " · \(finalOutputs.count)/\(inputs.count)"
                 self.showAutomationHelp = finalDenied
@@ -215,6 +222,7 @@ struct MainView: View {
                                 }.pickerStyle(.radioGroup)
                                 Text(L("htmlFormattingHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                             }
+                            if model.files.contains(where: { $0.pathExtension.lowercased() == "ai" }) { AIOptionsView() }
                             if model.formatID == "keynote" {
                                 Picker(L("slideSize"),selection:$model.keynoteSlideSize) { ForEach(KeynoteSlideSize.allCases) { Text($0.label).tag($0) } }
                                 Picker(L("placement"),selection:$model.keynotePlacement) { Text(L("fit")).tag(KeynotePlacement.fit); Text(L("fill")).tag(KeynotePlacement.fill) }.pickerStyle(.radioGroup)
@@ -350,11 +358,80 @@ struct SettingsView: View {
                 SettingsSection(L("permission")) { KeynotePermissionView() }
             })),
             (L("format"), AnyView(SettingsSection(L("formatsTitle")) { FormatSettingsView() })),
+            ("Illustrator", AnyView(SettingsSection(L("aiTitle")) { IllustratorSettingsView() })),
             (L("enginesTab"), AnyView(VStack(spacing:16) {
                 SettingsSection(L("engine")) { EngineSettingsView() }
                 SettingsSection(L("pdfEngineGroup")) { PDFEngineSettingsView() }
             })),
         ]).frame(width:620,height:640)
+    }
+}
+
+/// .ai conversion method and PDF preset (shared by the main window and Settings › Illustrator).
+struct AIOptionsView: View {
+    @AppStorage("aiMethod") var method = "simple"
+    @AppStorage("aiPDFPreset") var preset = ""
+    @AppStorage("aiPDFPresetList") var presetList = ""
+    var compact = true
+    var body: some View {
+        VStack(alignment:.leading,spacing:8) {
+            if compact { Text(L("aiTitle")).fontWeight(.medium) }   // Settings already shows it as the section title
+            Picker(L("aiMethod"),selection:$method) {
+                Text(L("aiSimple")).tag("simple")
+                Text(L("aiIllustrator")).tag("illustrator")
+            }.pickerStyle(.radioGroup).labelsHidden()
+            if method == "illustrator" {
+                Picker(L("aiPreset"),selection:$preset) {
+                    Text(L("aiPresetDefault")).tag("")
+                    ForEach(presetList.components(separatedBy:"\n").filter { !$0.isEmpty },id:\.self) { Text($0).tag($0) }
+                    if !preset.isEmpty && !presetList.components(separatedBy:"\n").contains(preset) { Text(preset).tag(preset) }
+                }
+            }
+            Text(L(method == "illustrator" ? "aiIllustratorHint" : "aiSimpleHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+        }
+    }
+}
+
+/// Settings › Illustrator: method, which Illustrator, PDF preset (loaded from Illustrator).
+struct IllustratorSettingsView: View {
+    @AppStorage("illustratorPath") var path = ""
+    @AppStorage("aiPDFPresetList") var presetList = ""
+    @State private var loading = false
+    @State private var message = ""
+    private let installations = IllustratorBridge.installations()
+    var body: some View {
+        VStack(alignment:.leading,spacing:12) {
+            AIOptionsView(compact:false)
+            Divider()
+            if installations.isEmpty {
+                Label(L("illustratorMissing"),systemImage:"exclamationmark.triangle").foregroundColor(.secondary)
+            } else {
+                Picker(L("aiApp"),selection:$path) {
+                    Text(L("aiAppNewest") + " (" + (installations.first?.name ?? "") + ")").tag("")
+                    ForEach(installations) { Text($0.name + "  " + $0.version).tag($0.url.path) }
+                }
+                HStack {
+                    Button(L("aiLoadPresets")) { loadPresets() }.disabled(loading)
+                    if loading { ProgressView().controlSize(.small) }
+                }
+                Text(message.isEmpty ? L("aiLoadPresetsHint") : message).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+            }
+        }
+    }
+    private func loadPresets() {
+        let app = path.isEmpty ? installations.first?.url : URL(fileURLWithPath:path)
+        guard let app else { return }
+        loading = true; message = L("aiLoadingPresets")
+        DispatchQueue.global(qos:.userInitiated).async {
+            let result = Result { try IllustratorBridge.presets(in:app) }
+            DispatchQueue.main.async {
+                loading = false
+                switch result {
+                case .success(let names): presetList = names.joined(separator:"\n"); message = String(format:L("aiPresetsLoaded"), names.count)
+                case .failure(let error): message = error.localizedDescription
+                }
+            }
+        }
     }
 }
 
@@ -414,7 +491,7 @@ struct FormatSettingsView: View {
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !model.files.isEmpty || (!login && !StartupWindow.hidden) { show() }
     }
-    @objc func show() { window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true) }
+    @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps:true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { show(); return true }
     func application(_ sender:NSApplication,open urls:[URL]) {
         if isDuplicate, let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier:id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }), let app = other.bundleURL { NSWorkspace.shared.open(urls,withApplicationAt:app,configuration:NSWorkspace.OpenConfiguration()); return }
@@ -452,7 +529,7 @@ struct FormatSettingsView: View {
         let bar = NSMenu(); NSApp.mainMenu = bar
         let app = NSMenu(); let root = NSMenuItem(); root.submenu = app; bar.addItem(root)
         add(app,L("about"),#selector(about),""); add(app,L("updates"),#selector(updates),""); app.addItem(.separator()); add(app,L("settings"),#selector(showSettings),","); app.addItem(.separator()); add(app,L("quit"),#selector(quit),"q")
-        let file = NSMenu(title:L("fileMenu")); let f = NSMenuItem(title:L("fileMenu"),action:nil,keyEquivalent:""); f.submenu = file; bar.addItem(f); add(file,L("chooseFiles"),#selector(choose),"o"); file.addItem(withTitle:L("close"),action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w")
+        let file = NSMenu(title:L("fileMenu")); let f = NSMenuItem(title:L("fileMenu"),action:nil,keyEquivalent:""); f.submenu = file; bar.addItem(f); add(file,L("openMainWindow"),#selector(show),"0"); file.addItem(.separator()); add(file,L("chooseFiles"),#selector(choose),"o"); file.addItem(withTitle:L("close"),action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w")
         let edit = NSMenu(title:L("editMenu")); let e = NSMenuItem(title:L("editMenu"),action:nil,keyEquivalent:""); e.submenu = edit; bar.addItem(e)
         for (key,action,shortcut) in [("undo","undo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { edit.addItem(withTitle:L(key),action:Selector(action),keyEquivalent:shortcut) }
         let h = NSMenu(title:L("help")); let hi = NSMenuItem(title:L("help"),action:nil,keyEquivalent:""); hi.submenu = h; bar.addItem(hi); add(h,L("help"),#selector(showHelp),"?"); HelpLinks.addNoteItem(to:h); NSApp.helpMenu = h

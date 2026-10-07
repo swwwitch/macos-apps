@@ -10,6 +10,8 @@
 "menu.buttonDisplay" = "Button Style";
 "menu.hotkeys" = "Hotkeys";
 "menu.about" = "About MightyEdit";
+"menu.file" = "File";
+"menu.openMainWindow" = "Open Main Window";
 "menu.edit" = "Edit";
 "menu.undo" = "Undo";
 "menu.redo" = "Redo";

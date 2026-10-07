@@ -74,6 +74,7 @@
 "loginOff" = "로그인 시 실행 안 함.";
 "loginError" = "설정을 변경할 수 없습니다:";
 "show" = "메인 윈도우 보기";
+"openMainWindow" = "메인 윈도우 열기";
 "settings" = "설정…";
 "settingsWindow" = "설정";
 "help" = "PDF2Keynote 도움말";

@@ -28,7 +28,7 @@
 
 ## Keyboard Shortcuts
 - **⌘,**: Settings
-- **⌘0**: Show Window
+- **⌘0**: Open Main Window
 - **⌘W**: Close the window
 - **⌘?**: Help
 - **⌘Q**: Quit

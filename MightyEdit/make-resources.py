@@ -30,6 +30,8 @@ menu.help|MightyEditヘルプ|MightyEdit Help|MightyEdit 帮助|MightyEdit 도�
 menu.buttonDisplay|ボタンの表示|Button Style|按钮样式|버튼 스타일
 menu.hotkeys|ホットキー|Hotkeys|快捷键|단축키
 menu.about|MightyEditについて|About MightyEdit|关于 MightyEdit|MightyEdit에 관하여
+menu.file|ファイル|File|文件|파일
+menu.openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 menu.edit|編集|Edit|编辑|편집
 menu.undo|取り消す|Undo|撤销|실행 취소
 menu.redo|やり直す|Redo|重做|실행 복귀

@@ -240,6 +240,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         add(appMenu, L("about"), #selector(about))
         add(appMenu, L("settings"), #selector(showPreferences), ",")
         add(appMenu, L("quit"), #selector(quit), "q")
+        let fileRoot = NSMenuItem(); let fileMenu = NSMenu(title: L("file")); fileRoot.submenu = fileMenu; main.addItem(fileRoot)
+        add(fileMenu, L("openMainWindow"), #selector(openMainWindow), "0"); fileMenu.items.last?.keyEquivalentModifierMask = .command
         let editRoot = NSMenuItem(); let editMenu = NSMenu(title: L("edit")); editRoot.submenu = editMenu; main.addItem(editRoot)
         for (key, selector, equivalent) in [("undo", Selector(("undo:")), "z"), ("cut", #selector(NSText.cut(_:)), "x"), ("copy", #selector(NSText.copy(_:)), "c"), ("paste", #selector(NSText.paste(_:)), "v"), ("selectAll", #selector(NSText.selectAll(_:)), "a")] {
             editMenu.addItem(withTitle: L(key), action: selector, keyEquivalent: equivalent)
@@ -283,6 +285,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         }
     }
     func applicationWillTerminate(_ notification: Notification) { model?.stop() }
+    @objc func openMainWindow() { showPrimaryWindow() }
     func showPrimaryWindow() { if model.paletteMode || CommandLine.arguments.contains("--palette") { showPalette() } else { showPreferences() } }
     @objc func hidePalette() { palette?.performClose(nil) }
     @objc func showPreferences() {

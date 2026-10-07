@@ -1,1 +1,1 @@
-"NSAppleEventsUsageDescription" = "Keynote形式で書き出すとき、Keynoteに新しいプレゼンテーションを作成させます。";
+"NSAppleEventsUsageDescription" = "Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに作業を依頼します。";

@@ -74,6 +74,7 @@
 "loginOff" = "登录时不启动。";
 "loginError" = "无法更改设置：";
 "show" = "显示主窗口";
+"openMainWindow" = "打开主窗口";
 "settings" = "设置…";
 "settingsWindow" = "设置";
 "help" = "PDF2Keynote 帮助";

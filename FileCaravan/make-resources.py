@@ -36,7 +36,7 @@ rows=[
 ('launchShortcut','アプリ起動のキーボードショートカット','App launch keyboard shortcut','应用启动键盘快捷键','앱 실행 키보드 단축키'),('systemSettings','システムで設定…','Configure in Shortcuts…','在快捷指令中设置…','단축어에서 설정…'),
 ('shortcutDetail','「ショートカット」で「アプリを開く → FileCaravan」を作成し、キーボードショートカットを割り当てます。未起動時も使えます。','In Shortcuts, create “Open App → FileCaravan” and assign a keyboard shortcut. This also launches the app when it is not running.','在快捷指令中创建“打开 App → FileCaravan”并分配键盘快捷键。未运行时也可启动。','단축어에서 “앱 열기 → FileCaravan”을 만들고 키보드 단축키를 지정하세요. 앱이 꺼져 있어도 실행할 수 있습니다.'),
 ('privacy','プライバシー・履歴','Privacy & history','隐私与记录','개인정보 및 기록'),('privacyDetail','外部通信なし。履歴には移動したファイルのパスを保存します。不要な履歴はFinderで削除できます。','No network access. History stores file paths locally. Delete unneeded history in Finder.','无网络通信。记录在本地保存文件路径。可在访达删除不需要的记录。','네트워크 통신을 하지 않습니다. 기록에 파일 경로를 로컬로 저장합니다. Finder에서 불필요한 기록을 삭제할 수 있습니다.'),
-('about','FileCaravanについて','About FileCaravan','关于 FileCaravan','FileCaravan 정보'),('updates','アップデートを確認…','Check for Updates…','检查更新…','업데이트 확인…'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FileCaravanを終了','Quit FileCaravan','退出 FileCaravan','FileCaravan 종료'),('file','ファイル','File','文件','파일'),('showWindow','ウインドウを表示','Show Window','显示窗口','윈도우 보기'),('close','閉じる','Close','关闭','닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('cut','カット','Cut','剪切','잘라내기'),('copy','コピー','Copy','复制','복사'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
+('about','FileCaravanについて','About FileCaravan','关于 FileCaravan','FileCaravan 정보'),('updates','アップデートを確認…','Check for Updates…','检查更新…','업데이트 확인…'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FileCaravanを終了','Quit FileCaravan','退出 FileCaravan','FileCaravan 종료'),('file','ファイル','File','文件','파일'),('showWindow','メインウインドウを開く','Open Main Window','打开主窗口','메인 윈도우 열기'),('close','閉じる','Close','关闭','닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('cut','カット','Cut','剪切','잘라내기'),('copy','コピー','Copy','复制','복사'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
 ('busyQuit','移動処理中は終了できません。','A move is still in progress.','正在移动，无法退出。','이동 중에는 종료할 수 없습니다.'),('busyQuitDetail','「停止」で現在の処理を安全に終えてから、もう一度終了してください。','Choose Stop to finish the current batch safely, then quit again.','点击停止以安全完成当前批次，然后再次退出。','중지를 눌러 현재 배치를 안전하게 끝낸 뒤 다시 종료하세요.'),('continue','続ける','Continue','继续','계속'),('updatesPending','更新配布の準備中','Updates are not configured','更新尚未配置','업데이트가 설정되지 않았습니다'),('updatesDetail','更新先と検証用公開鍵は未設定です。自動更新は利用できません。','An update feed and verification key have not been configured. Automatic updates are unavailable.','尚未配置更新源和验证公钥，无法自动更新。','업데이트 주소와 검증 키가 설정되지 않아 자동 업데이트를 사용할 수 없습니다.'),('support','サポート：同梱のREADME.md','Support: see the bundled README.md','支持：请参阅随附的 README.md','지원: 함께 제공된 README.md 참조'),
 ('login','ログイン時に起動','Launch at login','登录时启动','로그인 시 실행'),('loginOpen','ログイン項目を開く','Open Login Items','打开登录项','로그인 항목 열기'),('loginOn','Macへのログイン時に自動起動します。','Launches automatically when you log in.','登录时自动启动。','로그인 시 자동 실행합니다.'),('loginApproval','システム設定のログイン項目で許可してください。','Allow the app in System Settings → Login Items.','请在系统设置的登录项中允许此应用。','시스템 설정의 로그인 항목에서 허용하세요.'),('loginMissing','ログイン起動は未登録です。オンにすると登録します。','Login launch is not registered. Turn it on to register.','登录启动尚未注册。开启后即可注册。','로그인 실행이 등록되지 않았습니다. 켜면 등록됩니다.'),('loginOff','自動起動はオフです。','Launch at login is off.','登录时启动已关闭。','로그인 시 실행이 꺼져 있습니다.'),('loginError','設定を変更できませんでした：','Could not change the setting: ','无法更改设置：','설정을 변경할 수 없습니다: '),
 ]
@@ -72,7 +72,7 @@ helptexts=[
 
 ## キーボードショートカット
 - **⌘,**：設定
-- **⌘0**：ウインドウを表示
+- **⌘0**：メインウインドウを開く
 - **⌘W**：ウインドウを閉じる
 - **⌘?**：ヘルプ
 - **⌘Q**：終了
@@ -144,7 +144,7 @@ helptexts=[
 
 ## Keyboard Shortcuts
 - **⌘,**: Settings
-- **⌘0**: Show Window
+- **⌘0**: Open Main Window
 - **⌘W**: Close the window
 - **⌘?**: Help
 - **⌘Q**: Quit
@@ -216,7 +216,7 @@ helptexts=[
 
 ## 键盘快捷键
 - **⌘,**：设置
-- **⌘0**：显示窗口
+- **⌘0**：打开主窗口
 - **⌘W**：关闭窗口
 - **⌘?**：帮助
 - **⌘Q**：退出
@@ -288,7 +288,7 @@ helptexts=[
 
 ## 키보드 단축키
 - **⌘,**: 설정
-- **⌘0**: 윈도우 보기
+- **⌘0**: 메인 윈도우 열기
 - **⌘W**: 창 닫기
 - **⌘?**: 도움말
 - **⌘Q**: 종료

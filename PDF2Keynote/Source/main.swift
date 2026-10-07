@@ -259,7 +259,7 @@ struct SettingsView: View {
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !model.files.isEmpty || (!login && !StartupWindow.hidden) { show() }
     }
-    @objc func show() { window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
+    @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool { show(); return true }
     func application(_ sender: NSApplication, open urls: [URL]) {
         if isDuplicate, let id = Bundle.main.bundleIdentifier, let other = otherInstance(id), let app = other.bundleURL {
@@ -312,6 +312,7 @@ struct SettingsView: View {
         app.addItem(withTitle: L("hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         app.addItem(.separator()); add(app, L("quit"), #selector(quit), "q")
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
+        add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("chooseFiles"), #selector(choose), "o")
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("editMenu")); let editItem = NSMenuItem(title: L("editMenu"), action: nil, keyEquivalent: ""); editItem.submenu = edit; bar.addItem(editItem)

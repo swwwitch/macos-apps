@@ -78,6 +78,7 @@ loginMissing|アプリをアプリケーションフォルダに移動して再�
 loginOff|自動起動はオフです。|Not opening at login.|登录时不启动。|로그인 시 실행 안 함.
 loginError|設定を変更できませんでした：|Could not change the setting: |无法更改设置：|설정을 변경할 수 없습니다:
 show|メインウインドウを表示|Show Main Window|显示主窗口|메인 윈도우 보기
+openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
 help|PDF2Keynote ヘルプ|PDF2Keynote Help|PDF2Keynote 帮助|PDF2Keynote 도움말

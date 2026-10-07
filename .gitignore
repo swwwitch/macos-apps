@@ -36,3 +36,5 @@ Shared/Updater/vendor/
 *.pkg
 *.dmg
 *.dSYM/
+Shared/BuildBackups/
+*競合コピー*

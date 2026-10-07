@@ -16,6 +16,8 @@ menu.about|CommandDeeについて|About CommandDee|关于 CommandDee|CommandDee 
 menu.settings|設定…|Settings…|设置…|설정…
 menu.hide|CommandDeeを隠す|Hide CommandDee|隐藏 CommandDee|CommandDee 가리기
 menu.quit|CommandDeeを終了|Quit CommandDee|退出 CommandDee|CommandDee 종료
+menu.file|ファイル|File|文件|파일
+menu.openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 menu.window|ウインドウ|Window|窗口|윈도우
 menu.closeWindow|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
 menu.edit|編集|Edit|编辑|편집
@@ -101,6 +103,7 @@ help_texts = {
 - **⌃⌥⌘S**：同じフォルダで選んだ2項目の名前を入れ替え
 
 ### アプリの操作
+- **⌘0**：メインウインドウを開く
 - **⌘,**：設定
 - **⌘W**：ウインドウを閉じる
 - **⌘Q**：CommandDeeを終了（このアプリの画面で）
@@ -154,6 +157,7 @@ help_texts = {
 - **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
 
 ### App Commands
+- **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
 - **⌘Q**: Quit CommandDee (in this app's window)
@@ -207,6 +211,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃⌥⌘S**：交换在同一文件夹中所选 2 个项目的名称
 
 ### 应用操作
+- **⌘0**：打开主窗口
 - **⌘,**：设置
 - **⌘W**：关闭窗口
 - **⌘Q**：退出 CommandDee（在本应用的窗口中）
@@ -260,6 +265,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃⌥⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
 
 ### 앱 조작
+- **⌘0**: 메인 윈도우 열기
 - **⌘,**: 설정
 - **⌘W**: 윈도우 닫기
 - **⌘Q**: CommandDee 종료(이 앱의 윈도우에서)

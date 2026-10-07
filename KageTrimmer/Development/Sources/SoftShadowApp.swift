@@ -68,6 +68,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    @objc private func openMainWindowFromMenu(_ sender: Any?) {
+        showMainWindow()
+    }
+
     @objc private func showSettings() {
         if settingsWindow == nil {
             let controller = ShortcutSettingsController(shortcut: shortcut)
@@ -135,6 +139,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let fileMenuItem = NSMenuItem(title: L("ファイル"), action: nil, keyEquivalent: "")
         let fileMenu = NSMenu(title: L("ファイル"))
+        let showMain = fileMenu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(openMainWindowFromMenu(_:)), keyEquivalent: "0")
+        showMain.keyEquivalentModifierMask = [.command]
+        showMain.target = self
         let open = fileMenu.addItem(withTitle: L("画像を選択…"), action: #selector(chooseImages), keyEquivalent: "o")
         open.target = self
         fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")

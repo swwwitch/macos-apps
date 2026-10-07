@@ -120,6 +120,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 
 ## Keyboard Shortcuts
 ### App Commands (While MightyEdit Is Active)
+- **⌘0**: Open Main Window (the palette; shows it again after closing)
 - **⌘,**: Settings
 - **⌘?**: MightyEdit Help
 - **⌘Q**: Quit

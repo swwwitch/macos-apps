@@ -74,6 +74,7 @@
 "loginOff" = "自動起動はオフです。";
 "loginError" = "設定を変更できませんでした：";
 "show" = "メインウインドウを表示";
+"openMainWindow" = "メインウインドウを開く";
 "settings" = "設定…";
 "settingsWindow" = "設定";
 "help" = "PDF2Keynote ヘルプ";

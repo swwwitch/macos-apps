@@ -127,3 +127,4 @@
 "ヘルプ" = "Help";
 "%@ヘルプ" = "%@ Help";
 "Finder／Path Finderで項目を選択すると指定できます" = "Select items in Finder or Path Finder to choose a destination";
+"メインウインドウを開く" = "Open Main Window";

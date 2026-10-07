@@ -42,6 +42,14 @@
 - Cancel closes the unfinished presentation without saving.
 
 ## Notes on input formats
+### Illustrator (.ai)
+- .ai files can be converted to PDF (simple version, no Illustrator needed). With PDF as the output format, the PDF content stored in the .ai becomes the PDF as is. Illustrator's editing data is left out, so the PDF is smaller than the .ai.
+- With Keynote, each artboard becomes a slide; other formats extract the text.
+- This works for .ai files saved with "Create PDF Compatible File" on. Files saved with it off produce Adobe's notice page instead of the artwork, and a warning is shown.
+- **Full version (Export with Illustrator)**: choose it in Settings › Illustrator or in the options shown when .ai files are added. Illustrator exports each file with the chosen PDF preset (the same way as Export for Screens; the original file and its save location are not changed). .ai files saved without PDF compatibility work too.
+- Use Load PDF presets from Illustrator to list the presets, then pick one. You can also choose which Illustrator to use (newest by default).
+- Illustrator runs during conversion; font and link alerts are suppressed only while converting. Files already open in Illustrator are exported as they are and stay open (unsaved changes are included, with a notice). Missing linked images also give a notice. The first run asks for Automation permission to control Illustrator.
+
 ### Tables (CSV, TSV, Excel)
 - CSV (.csv), TSV (.tsv) and Excel (.xlsx) files are read as tables and converted to tables in Word, HTML, Markdown, PDF and other formats.
 - Each sheet of an Excel workbook becomes a table in order. Formulas give their calculated values; formatting, merged cells, charts and images are not reproduced. The older .xls format is not supported.
@@ -76,6 +84,7 @@
 - **Command-O**: choose files
 - **Command-Return**: convert
 - **Escape**: cancel the conversion
+- **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
 - **Command-comma**: Settings
 - **Command-?**: Help

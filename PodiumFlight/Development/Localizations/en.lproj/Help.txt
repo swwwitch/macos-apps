@@ -47,6 +47,7 @@ Open Settings with the Settings… button in the main window or with ⌘,. Click
 - **Timer**, **Presets**: see above
 
 ## Keyboard Shortcuts
+- **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
 - **⌘?**: PodiumFlight Help

@@ -49,6 +49,7 @@ Show the app with ⌃⌥⌘M by default. Available while the app is running.
 - **Tab**: Switch between Finder Windows and Recent Folders
 - **←→**: Select a favorite
 - **Esc**: Close window
+- **⌘0**: Open Main Window (also after closing it)
 - **⌘W**: Close window (or Settings)
 - **⌘,**: Settings
 - **⌘?**: Help

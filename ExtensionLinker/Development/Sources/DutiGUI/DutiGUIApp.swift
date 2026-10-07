@@ -12,16 +12,16 @@ struct DutiGUIApp: App {
     }
     @StateObject private var store = AssociationStore()
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: MainWindow.sceneID) {
             ContentView(store: store)
                 .background(StartupWindowGate())
+                .background(MainWindowMarker())
                 .background(UtilityWindowChrome(title: ""))
                 .frame(minWidth: 520, minHeight: 580)
                 .onAppear {
                     NSApp.setActivationPolicy(.regular); if !StartupWindow.hidden { NSApp.activate(ignoringOtherApps: true) }
                     MenuBarPresence.shared.install(name: "ExtensionLinker", symbol: "link", show: {
-                        NSApp.windows.first(where: { $0.canBecomeMain && !$0.isSheet })?.makeKeyAndOrderFront(nil)
-                        NSApp.activate(ignoringOtherApps: true)
+                        MainWindow.show()
                     }, settings: { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }, help: { LocalHelp.shared.show() })
                 }
         }
@@ -36,6 +36,7 @@ struct DutiGUIApp: App {
             #if DIRECT_UPDATES && !APP_STORE
             UpdateCommands()
             #endif
+            MainWindowCommands()
             CommandGroup(after: .newItem) {
                 Button(L("設定を再読み込み")) { store.refresh() }.keyboardShortcut("r")
             }
@@ -374,6 +375,57 @@ struct AddExtensionView: View {
                 Button(L("追加")) { if store.add(ext) { dismiss() } else { error = true } }.keyboardShortcut(.defaultAction)
             }
         }.padding(24).frame(width: 400)
+    }
+}
+
+// One routine shows the main window from the File menu (⌘0) and the menu bar item.
+// A closed WindowGroup window is gone, so the scene is reopened through openWindow.
+@MainActor
+enum MainWindow {
+    static let sceneID = "main"
+    fileprivate static weak var window: NSWindow?
+    fileprivate static var opener: OpenWindowAction?
+    static func show(_ open: OpenWindowAction? = nil) {
+        if let open { opener = open }
+        NSApp.setActivationPolicy(.regular)
+        NSApp.unhide(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        if let window {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            window.makeKeyAndOrderFront(nil)
+        } else if let opener {
+            opener(id: sceneID)
+        }
+    }
+}
+
+private struct MainWindowCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
+    var body: some Commands {
+        CommandGroup(before: .newItem) {
+            Button(L("メインウインドウを開く")) { MainWindow.show(openWindow) }
+                .keyboardShortcut("0", modifiers: .command)
+        }
+    }
+}
+
+// Remembers the live main window; cleared when it closes so ⌘0 reopens the scene.
+private struct MainWindowMarker: NSViewRepresentable {
+    @Environment(\.openWindow) private var openWindow
+    func makeNSView(context: Context) -> MarkerView { MarkerView() }
+    func updateNSView(_ view: MarkerView, context: Context) { MainWindow.opener = openWindow }
+    final class MarkerView: NSView {
+        private var observer: NSObjectProtocol?
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else { return }
+            MainWindow.window = window
+            if let observer { NotificationCenter.default.removeObserver(observer) }
+            observer = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { [weak window] _ in
+                Task { @MainActor in if MainWindow.window === window { MainWindow.window = nil } }
+            }
+        }
+        deinit { if let observer { NotificationCenter.default.removeObserver(observer) } }
     }
 }
 

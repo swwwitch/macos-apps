@@ -44,6 +44,14 @@ HELP = {
 - キャンセルすると、作成中のプレゼンテーションは保存せずに閉じます。
 
 ## 入力形式の補足
+### Illustrator（.ai）
+- .ai をPDFに変換できます（簡易版、Illustratorは不要）。出力形式で「PDF」を選ぶと、.ai に入っているPDF用の内容をそのままPDFにします。Illustratorの編集用データは含めないので、元の .ai より小さくなります。
+- 「Keynote」を選ぶとアートボードを1枚ずつスライドに、ほかの形式では文字を取り出して変換します。
+- Illustratorで「PDF互換ファイルを作成」をオンにして保存した .ai が対象です。オフで保存した .ai は、アートワークの代わりにAdobeの案内ページが変換されるため、注意を表示します。
+- **正式版（Illustratorで書き出す）**：設定の「Illustrator」タブか、.ai を追加したときの変換オプションで「Illustratorで書き出す」を選ぶと、Illustratorで選んだPDFプリセットを使って書き出します（「スクリーン用に書き出し」と同じ方法で、元のファイルや保存先は変わりません）。PDF互換なしで保存された .ai も変換できます。
+- PDFプリセットは「IllustratorからPDFプリセットを読み込む」で一覧を取得して選びます。使うIllustratorのバージョンも選べます（初期値は最新版）。
+- 変換中はIllustratorが起動します。フォントやリンクの警告は変換中だけ表示しません。Illustratorで開いているファイルは、開いている状態のまま書き出し、閉じません（未保存の変更も含まれます。そのときは注意を表示します）。リンク切れの画像があるときも注意を表示します。初回はIllustratorの操作（オートメーション）の許可を求められます。
+
 ### 表（CSV・TSV・Excel）
 - CSV（.csv）、TSV（.tsv）、Excel（.xlsx）を読み込めます。表として取り込み、Word・HTML・Markdown・PDFなどの表に変換します。
 - Excelはブックのシートを順に表として読み込みます。数式は計算結果の値、書式・結合セル・グラフ・画像は再現しません。旧形式の .xls には対応しません。
@@ -78,6 +86,7 @@ HELP = {
 - **⌘O**：ファイルを選択
 - **⌘Return**：変換
 - **Esc**：変換をキャンセル
+- **⌘0**：メインウインドウを開く（閉じた後も再表示できます）
 - **⌘W**：ウインドウを閉じる
 - **⌘,**：設定
 - **⌘?**：ヘルプ
@@ -144,6 +153,14 @@ HELP = {
 - Cancel closes the unfinished presentation without saving.
 
 ## Notes on input formats
+### Illustrator (.ai)
+- .ai files can be converted to PDF (simple version, no Illustrator needed). With PDF as the output format, the PDF content stored in the .ai becomes the PDF as is. Illustrator's editing data is left out, so the PDF is smaller than the .ai.
+- With Keynote, each artboard becomes a slide; other formats extract the text.
+- This works for .ai files saved with "Create PDF Compatible File" on. Files saved with it off produce Adobe's notice page instead of the artwork, and a warning is shown.
+- **Full version (Export with Illustrator)**: choose it in Settings › Illustrator or in the options shown when .ai files are added. Illustrator exports each file with the chosen PDF preset (the same way as Export for Screens; the original file and its save location are not changed). .ai files saved without PDF compatibility work too.
+- Use Load PDF presets from Illustrator to list the presets, then pick one. You can also choose which Illustrator to use (newest by default).
+- Illustrator runs during conversion; font and link alerts are suppressed only while converting. Files already open in Illustrator are exported as they are and stay open (unsaved changes are included, with a notice). Missing linked images also give a notice. The first run asks for Automation permission to control Illustrator.
+
 ### Tables (CSV, TSV, Excel)
 - CSV (.csv), TSV (.tsv) and Excel (.xlsx) files are read as tables and converted to tables in Word, HTML, Markdown, PDF and other formats.
 - Each sheet of an Excel workbook becomes a table in order. Formulas give their calculated values; formatting, merged cells, charts and images are not reproduced. The older .xls format is not supported.
@@ -178,6 +195,7 @@ HELP = {
 - **Command-O**: choose files
 - **Command-Return**: convert
 - **Escape**: cancel the conversion
+- **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
 - **Command-comma**: Settings
 - **Command-?**: Help
@@ -244,6 +262,14 @@ HELP = {
 - 取消时不保存未完成的演示文稿并将其关闭。
 
 ## 输入格式说明
+### Illustrator（.ai）
+- 可将 .ai 转换为 PDF（简易版，无需 Illustrator）。输出格式选择“PDF”时，直接将 .ai 中保存的 PDF 内容生成 PDF。不包含 Illustrator 的编辑数据，因此比原 .ai 小。
+- 选择“Keynote”时每个画板成为一张幻灯片；其他格式提取文字后转换。
+- 适用于勾选“创建 PDF 兼容文件”保存的 .ai。未勾选保存的文件会转换为 Adobe 的提示页而非图稿，并显示提醒。
+- **正式版（用 Illustrator 导出）**：在设置的“Illustrator”标签或添加 .ai 时的转换选项中选择后，由 Illustrator 用所选 PDF 预设导出（与“导出为多种屏幕所用格式”相同，不改变原文件及其保存位置）。未勾选 PDF 兼容的 .ai 也能转换。
+- 用“从 Illustrator 读取 PDF 预设”获取列表后选择预设。也可选择使用哪个版本的 Illustrator（默认最新）。
+- 转换期间会启动 Illustrator，仅在转换时不显示字体和链接警告。已在 Illustrator 中打开的文件按当前状态导出，不会关闭（包含未保存的更改，并显示提示）。有缺失的链接图像时也会显示提示。首次使用会请求控制 Illustrator 的自动化权限。
+
 ### 表格（CSV、TSV、Excel）
 - 可读取 CSV（.csv）、TSV（.tsv）和 Excel（.xlsx），作为表格转换为 Word、HTML、Markdown、PDF 等格式的表格。
 - Excel 工作簿的各工作表按顺序转换为表格。公式取计算结果；不重现格式、合并单元格、图表和图像。不支持旧的 .xls 格式。
@@ -278,6 +304,7 @@ HELP = {
 - **⌘O**：选择文件
 - **⌘Return**：转换
 - **Esc**：取消转换
+- **⌘0**：打开主窗口（关闭后也可重新显示）
 - **⌘W**：关闭窗口
 - **⌘,**：设置
 - **⌘?**：帮助
@@ -344,6 +371,14 @@ HELP = {
 - 취소하면 만드는 중인 프레젠테이션을 저장하지 않고 닫습니다.
 
 ## 입력 형식 참고
+### Illustrator(.ai)
+- .ai를 PDF로 변환할 수 있습니다(간이 버전, Illustrator 불필요). 출력 형식에서 "PDF"를 선택하면 .ai에 저장된 PDF용 내용을 그대로 PDF로 만듭니다. Illustrator 편집 데이터는 포함하지 않으므로 원래 .ai보다 작아집니다.
+- "Keynote"를 선택하면 아트보드마다 슬라이드가 되고, 다른 형식은 텍스트를 추출해 변환합니다.
+- "PDF 호환 파일 만들기"를 켜고 저장한 .ai가 대상입니다. 끄고 저장한 파일은 아트워크 대신 Adobe 안내 페이지가 변환되며 주의를 표시합니다.
+- **정식 버전(Illustrator로 내보내기)**: 설정의 "Illustrator" 탭이나 .ai를 추가했을 때의 변환 옵션에서 선택하면 Illustrator가 선택한 PDF 사전 설정으로 내보냅니다("화면용으로 내보내기"와 같은 방식이며 원본 파일과 저장 위치는 바뀌지 않습니다). PDF 호환 없이 저장된 .ai도 변환할 수 있습니다.
+- "Illustrator에서 PDF 사전 설정 불러오기"로 목록을 가져와 선택합니다. 사용할 Illustrator 버전도 고를 수 있습니다(기본값은 최신).
+- 변환 중에는 Illustrator가 실행되며 글꼴·링크 경고는 변환 중에만 표시하지 않습니다. Illustrator에서 열려 있는 파일은 현재 상태 그대로 내보내며 닫지 않습니다(저장하지 않은 변경 사항도 포함되며 안내를 표시합니다). 링크가 끊어진 이미지가 있을 때도 안내를 표시합니다. 처음에는 Illustrator 제어(자동화) 허용을 요청합니다.
+
 ### 표(CSV, TSV, Excel)
 - CSV(.csv), TSV(.tsv), Excel(.xlsx)을 표로 읽어 Word, HTML, Markdown, PDF 등의 표로 변환합니다.
 - Excel 통합 문서의 각 시트를 순서대로 표로 읽습니다. 수식은 계산 결과 값을 사용하며 서식, 병합 셀, 차트, 이미지는 재현하지 않습니다. 이전 .xls 형식은 지원하지 않습니다.
@@ -378,6 +413,7 @@ HELP = {
 - **⌘O**: 파일 선택
 - **⌘Return**: 변환
 - **Esc**: 변환 취소
+- **⌘0**: 메인 윈도우 열기(닫은 후에도 다시 표시)
 - **⌘W**: 윈도우 닫기
 - **⌘,**: 설정
 - **⌘?**: 도움말

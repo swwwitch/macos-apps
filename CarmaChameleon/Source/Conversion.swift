@@ -33,6 +33,10 @@ struct ConversionOptions {
     var keynote = KeynoteOptions()
     /// Plain text with 「構造を保持」: converted by MarkdownToText instead of pandoc's plain writer.
     var markdownText: MarkdownTextOptions?
+    /// .ai input: "simple" reads the embedded PDF; "illustrator" saves through Illustrator with a PDF preset.
+    var aiMethod = "simple"
+    var aiPreset = ""
+    var illustratorApp: URL?
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
         if format.id == "pdf" {
@@ -55,6 +59,10 @@ final class ConversionRunner: @unchecked Sendable {
     private var cancelled = false
     /// Replaceable for tests; the app uses the bundled Keynote.scpt.
     var keynoteBridge = KeynoteBridge()
+    /// Non-fatal notes for the finished conversion (e.g. an .ai saved without PDF compatibility).
+    private var notes: [String] = []
+    var warnings: [String] { lock.lock(); defer { lock.unlock() }; return notes }
+    private func addWarning(_ text: String) { lock.lock(); notes.append(text); lock.unlock() }
     func cancel() {
         lock.lock(); cancelled = true; let p = process; lock.unlock()
         if let p, p.isRunning { p.terminate() }
@@ -90,6 +98,33 @@ final class ConversionRunner: @unchecked Sendable {
         }
         let stem = input.deletingPathExtension().lastPathComponent
         return try KeynoteExporter.export(pdf:pdf, destination:{ Self.unusedURL(folder:folder, stem:stem, ext:"key") ?? folder.appendingPathComponent(UUID().uuidString + ".key") }, options:options.keynote, bridge:keynoteBridge, isCancelled:{ self.isCancelled })
+    }
+    /// .ai (simple version): the embedded PDF becomes the input. PDF output is that PDF itself
+    /// (not re-typeset); other formats continue as if a PDF had been given.
+    private func convertIllustrator(engine: URL, input: URL, folder: URL, options: ConversionOptions) throws -> URL {
+        let fm = FileManager.default
+        let temp = fm.temporaryDirectory.appendingPathComponent("PandocDesk-ai-" + UUID().uuidString, isDirectory:true)
+        try fm.createDirectory(at:temp, withIntermediateDirectories:true)
+        defer { try? fm.removeItem(at:temp) }
+        let stem = input.deletingPathExtension().lastPathComponent
+        let pdf = temp.appendingPathComponent(stem + ".pdf")
+        if options.aiMethod == "illustrator" {
+            guard let app = options.illustratorApp ?? IllustratorBridge.defaultInstallation()?.url else { throw IllustratorBridge.error("illustratorMissing") }
+            let notes = try IllustratorBridge.exportPDF(from:input, to:pdf, preset:options.aiPreset, app:app, isCancelled:{ self.isCancelled })
+            if notes.contains(.unsaved) { addWarning(input.lastPathComponent + ": " + NSLocalizedString("aiExportedUnsaved", comment:"")) }
+            else if notes.contains(.open) { addWarning(input.lastPathComponent + ": " + NSLocalizedString("aiExportedOpen", comment:"")) }
+            if notes.contains(.links) { addWarning(input.lastPathComponent + ": " + NSLocalizedString("aiBrokenLinks", comment:"")) }
+        } else {
+            let result = try AIImporter.writePDF(from:input, to:pdf, cancelled:{ self.isCancelled })
+            if result.withoutPDFContent { addWarning(input.lastPathComponent + ": " + NSLocalizedString("aiWithoutPDF", comment:"")) }
+        }
+        if isCancelled { throw CancellationError() }
+        guard options.format.id == "pdf" else { return try convert(engine:engine, input:pdf, folder:folder, options:options) }
+        guard let destination = Self.unusedURL(folder:folder, stem:stem, ext:"pdf") else {
+            throw NSError(domain:"PandocDesk",code:1,userInfo:[NSLocalizedDescriptionKey:"No unused output filename"])
+        }
+        try fm.copyItem(at:pdf, to:destination)
+        return destination
     }
     static let markdownExtensions: Set<String> = ["md","markdown","mdown","mkd","txt"]
     /// 「構造を保持」: Markdown is read as is; other documents go through pandoc → GitHub Markdown first.
@@ -127,6 +162,7 @@ final class ConversionRunner: @unchecked Sendable {
     }
     func convert(engine: URL, input: URL, folder: URL, options: ConversionOptions) throws -> URL {
         if isCancelled { throw CancellationError() }
+        if input.pathExtension.lowercased() == "ai" { return try convertIllustrator(engine:engine, input:input, folder:folder, options:options) }
         if options.format.id == "keynote" { return try convertToKeynote(engine:engine, input:input, folder:folder, options:options) }
         if options.format.id == "plain", let textOptions = options.markdownText { return try convertStructuredText(engine:engine, input:input, folder:folder, options:options, textOptions:textOptions) }
         let fm = FileManager.default

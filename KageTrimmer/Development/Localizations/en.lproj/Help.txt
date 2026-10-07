@@ -30,6 +30,7 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **Show app shortcut**: shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. Click **Restore Defaults** to go back to the default.
 
 ## Keyboard Shortcuts
+- **⌘0**: Open Main Window
 - **⌘O**: Choose Images
 - **⌘,**: Settings
 - **⌘?**: Help

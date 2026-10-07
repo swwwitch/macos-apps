@@ -14,6 +14,8 @@ enum LocalizationFallback {
         "menu.buttonDisplay": "ボタンの表示",
         "menu.hotkeys": "ホットキー",
         "menu.about": "MightyEditについて",
+        "menu.file": "ファイル",
+        "menu.openMainWindow": "メインウインドウを開く",
         "menu.edit": "編集",
         "menu.undo": "取り消す",
         "menu.redo": "やり直す",

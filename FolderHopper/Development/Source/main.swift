@@ -263,6 +263,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         addStandardApplicationCommands(to: appMenu, name: "FolderHopper")
         let fileItem = NSMenuItem(title: L("ファイル"), action: nil, keyEquivalent: ""); menu.addItem(fileItem)
         let fileMenu = NSMenu(title: L("ファイル")); fileItem.submenu = fileMenu
+        let showMainItem = fileMenu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(showMainWindow), keyEquivalent: "0")
+        showMainItem.target = self
+        fileMenu.addItem(.separator())
         fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let editItem = NSMenuItem(title: L("編集"), action: nil, keyEquivalent: ""); menu.addItem(editItem)
         let edit = NSMenu(title: L("編集")); editItem.submenu = edit
@@ -490,6 +493,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         shortcutModifiers.isEnabled = shortcutEnabled.state == .on
         shortcutKey.isEnabled = shortcutEnabled.state == .on
+    }
+    /// File menu ⌘0: same path as reopening from the Dock. The window is kept (isReleasedWhenClosed = false).
+    @objc func showMainWindow() {
+        NSApp.unhide(nil)
+        if busy || window.attachedSheet != nil { presentDestinations() } else { requestTransfer() }
     }
     func presentDestinations() {
         window.deminiaturize(nil)

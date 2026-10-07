@@ -202,6 +202,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         app.addItem(.separator())
         add(app, L("quit"), #selector(NSApplication.terminate(_:)), "q", NSApp)
         let file = submenu(L("file"))
+        add(file, L("openMainWindow"), #selector(showMain), "0")
+        file.addItem(.separator())
         add(file, L("reload"), #selector(reload), "r")
         add(file, L("addApp"), #selector(addApp), "o")
         file.addItem(.separator())

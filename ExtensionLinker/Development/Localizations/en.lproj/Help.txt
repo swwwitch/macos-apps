@@ -33,6 +33,7 @@ Open **Settings…** from the app menu (⌘,).
 - Removing an extension from the list does not change its macOS association.
 
 ## Keyboard Shortcuts
+- **⌘0**: Open Main Window (also after closing it)
 - **⌘R**: Reload current settings
 - **⌘,**: Settings
 - **⌘?**: Help

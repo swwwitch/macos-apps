@@ -2,6 +2,8 @@
 "menu.settings" = "설정…";
 "menu.hide" = "CommandDee 가리기";
 "menu.quit" = "CommandDee 종료";
+"menu.file" = "파일";
+"menu.openMainWindow" = "메인 윈도우 열기";
 "menu.window" = "윈도우";
 "menu.closeWindow" = "윈도우 닫기";
 "menu.edit" = "편집";

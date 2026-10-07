@@ -2,6 +2,8 @@
 "menu.settings" = "Settings…";
 "menu.hide" = "Hide CommandDee";
 "menu.quit" = "Quit CommandDee";
+"menu.file" = "File";
+"menu.openMainWindow" = "Open Main Window";
 "menu.window" = "Window";
 "menu.closeWindow" = "Close Window";
 "menu.edit" = "Edit";

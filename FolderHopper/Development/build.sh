@@ -17,7 +17,11 @@ cp -R Localizations/*.lproj "$bundle/Contents/Resources/"
 python3 check-localization.py "$bundle"
 embed_updates "$bundle"
 xattr -cr "$bundle"
-codesign --force --sign - "$bundle"
+if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
+    codesign --force --sign - --entitlements FolderHopper-AppStore.entitlements "$bundle"
+else
+    codesign --force --sign - "$bundle"
+fi
 codesign --verify --deep --strict "$bundle"
 if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
     mkdir -p StoreBuild

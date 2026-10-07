@@ -24,6 +24,7 @@
 				<string>public.comma-separated-values-text</string>
 				<string>public.tab-separated-values-text</string>
 				<string>org.openxmlformats.spreadsheetml.sheet</string>
+				<string>com.adobe.illustrator.ai-image</string>
 			</array>
 		</dict>
 		<dict>
@@ -57,15 +58,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.0</string>
+	<string>0.7.3</string>
 	<key>CFBundleVersion</key>
-	<string>17</string>
+	<string>22</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>PandocDesk asks Keynote to create a presentation when you export to Keynote.</string>
+	<string>CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>SWNoteArticleURL</key>

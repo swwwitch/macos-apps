@@ -6,7 +6,7 @@ rows='''heading|文書の形式を変換|Convert your documents|转换文档格�
 subtitle|ファイルを選んで、形式とオプションを指定。|Choose files, a format, and conversion options.|选择文件、格式和转换选项。|파일, 형식, 변환 옵션을 선택하세요.
 input|入力ファイル|Input files|输入文件|입력 파일
 drop|ここにファイルをドロップ|Drop files here|将文件拖到此处|파일을 여기에 드롭
-inputHint|Markdown・Word・Excel・CSV・HTML・IDML など|Markdown, Word, Excel, CSV, HTML, IDML and more|Markdown、Word、Excel、CSV、HTML、IDML 等|Markdown, Word, Excel, CSV, HTML, IDML 등
+inputHint|Markdown・Word・Excel・Illustrator・HTML・IDML など|Markdown, Word, Excel, Illustrator, HTML, IDML and more|Markdown、Word、Excel、Illustrator、HTML、IDML 等|Markdown, Word, Excel, Illustrator, HTML, IDML 등
 chooseFiles|ファイルを選択…|Choose files…|选择文件…|파일 선택…
 remove|ファイルを外す|Remove file|移除文件|파일 제거
 files|ファイル|files|个文件|개 파일
@@ -52,6 +52,7 @@ customPath|独自のpandocのパス（任意）|Custom pandoc path (optional)|�
 browse|選択…|Browse…|选择…|선택…
 useBundled|同梱版に戻す|Use bundled version|恢复内置版本|포함된 버전 사용
 show|メインウインドウを表示|Show main window|显示主窗口|메인 윈도우 표시
+openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
 help|CarmaChameleon ヘルプ|CarmaChameleon Help|CarmaChameleon 帮助|CarmaChameleon 도움말
@@ -202,6 +203,35 @@ moveUp|上へ移動|Move up|上移|위로 이동
 moveDown|下へ移動|Move down|下移|아래로 이동
 resetFormats|初期状態に戻す|Restore defaults|恢复默认|기본값으로 복원
 enginesTab|エンジン|Engines|引擎|엔진"""
+rows += """
+aiInvalid|Illustratorファイルを読み込めませんでした。|The Illustrator file could not be read.|无法读取 Illustrator 文件。|Illustrator 파일을 읽을 수 없습니다.
+aiWriteFailed|PDFを書き出せませんでした。|The PDF could not be written.|无法写出 PDF。|PDF를 쓸 수 없습니다.
+aiWithoutPDF|「PDF互換ファイルを作成」をオフにして保存された .ai です。アートワークの代わりにAdobeの案内ページを変換しました。Illustratorで「PDF互換ファイルを作成」をオンにして保存し直してください。|This .ai was saved without "Create PDF Compatible File", so Adobe's notice page was converted instead of the artwork. Re-save it in Illustrator with "Create PDF Compatible File" turned on.|此 .ai 保存时未勾选“创建 PDF 兼容文件”，因此转换的是 Adobe 的提示页而非图稿。请在 Illustrator 中勾选“创建 PDF 兼容文件”后重新保存。|이 .ai는 "PDF 호환 파일 만들기"를 끄고 저장되어 아트워크 대신 Adobe 안내 페이지가 변환되었습니다. Illustrator에서 "PDF 호환 파일 만들기"를 켜고 다시 저장하세요."""
+rows += """
+aiTitle|Illustrator（.ai）の変換|Illustrator (.ai) conversion|Illustrator（.ai）转换|Illustrator(.ai) 변환
+aiMethod|変換方法|Method|转换方法|변환 방법
+aiSimple|簡易（Illustrator不要）|Simple (no Illustrator)|简易（无需 Illustrator）|간이(Illustrator 불필요)
+aiIllustrator|Illustratorで書き出す（正式）|Export with Illustrator (full)|用 Illustrator 导出（正式）|Illustrator로 내보내기(정식)
+aiSimpleHint|.ai に入っているPDF用の内容を使います。「PDF互換ファイルを作成」をオフで保存した .ai は正しく変換できません。|Uses the PDF content stored in the .ai. Files saved without "Create PDF Compatible File" cannot be converted correctly.|使用 .ai 中保存的 PDF 内容。未勾选“创建 PDF 兼容文件”保存的 .ai 无法正确转换。|.ai에 저장된 PDF용 내용을 사용합니다. "PDF 호환 파일 만들기"를 끄고 저장한 .ai는 올바르게 변환되지 않습니다.
+aiIllustratorHint|Illustratorでファイルを開き、選んだPDFプリセットで保存します。変換中はIllustratorが起動します。Illustratorで開いているファイルは変換しません。|Illustrator opens the file and saves it with the chosen PDF preset. Illustrator runs during conversion. Files already open in Illustrator are skipped.|由 Illustrator 打开文件并用所选 PDF 预设保存。转换期间会启动 Illustrator。不转换已在 Illustrator 中打开的文件。|Illustrator가 파일을 열어 선택한 PDF 사전 설정으로 저장합니다. 변환 중 Illustrator가 실행됩니다. Illustrator에서 열려 있는 파일은 변환하지 않습니다.
+aiPreset|PDFプリセット|PDF preset|PDF 预设|PDF 사전 설정
+aiPresetDefault|Illustratorの初期設定|Illustrator default|Illustrator 默认|Illustrator 기본값
+aiApp|使用するIllustrator|Illustrator to use|使用的 Illustrator|사용할 Illustrator
+aiAppNewest|最新版|Newest|最新版本|최신 버전
+aiLoadPresets|IllustratorからPDFプリセットを読み込む|Load PDF presets from Illustrator|从 Illustrator 读取 PDF 预设|Illustrator에서 PDF 사전 설정 불러오기
+aiLoadPresetsHint|Illustratorを起動して、使えるPDFプリセットの一覧を取得します。|Launches Illustrator and reads the available PDF presets.|启动 Illustrator 并读取可用的 PDF 预设。|Illustrator를 실행하여 사용할 수 있는 PDF 사전 설정을 가져옵니다.
+aiLoadingPresets|Illustratorから読み込んでいます…|Reading from Illustrator…|正在从 Illustrator 读取…|Illustrator에서 불러오는 중…
+aiPresetsLoaded|%d個のPDFプリセットを読み込みました。|Loaded %d PDF presets.|已读取 %d 个 PDF 预设。|PDF 사전 설정 %d개를 불러왔습니다.
+illustratorMissing|Illustratorが見つかりません。「簡易」で変換するか、Illustratorをインストールしてください。|Illustrator is not installed. Use Simple, or install Illustrator.|未找到 Illustrator。请使用“简易”方式或安装 Illustrator。|Illustrator가 없습니다. 간이 방식을 사용하거나 Illustrator를 설치하세요.
+illustratorScriptMissing|Illustrator用のスクリプトが見つかりません。アプリを入れ直してください。|The Illustrator script is missing. Reinstall the app.|找不到 Illustrator 脚本。请重新安装应用。|Illustrator 스크립트가 없습니다. 앱을 다시 설치하세요.
+illustratorDenied|Illustratorの操作が許可されていません。システム設定の「オートメーション」でCarmaChameleonのAdobe Illustratorをオンにしてください。|CarmaChameleon is not allowed to control Illustrator. Turn on Adobe Illustrator for CarmaChameleon in Automation settings.|CarmaChameleon 未被允许控制 Illustrator。请在“自动化”设置中打开 Adobe Illustrator。|CarmaChameleon가 Illustrator를 제어하도록 허용되지 않았습니다. 자동화 설정에서 Adobe Illustrator를 켜세요.
+illustratorTimeout|Illustratorが応答しません。Illustratorでダイアログボックスが開いていないか確認してください。|Illustrator did not respond. Check for an open dialog in Illustrator.|Illustrator 无响应。请检查 Illustrator 中是否有打开的对话框。|Illustrator가 응답하지 않습니다. Illustrator에 열린 대화상자가 있는지 확인하세요.
+illustratorFailed|Illustratorで書き出せませんでした：|Illustrator could not export: |Illustrator 无法导出：|Illustrator에서 내보내지 못했습니다: 
+illustratorTooOld|Illustrator CC 2018以降が必要です。|Illustrator CC 2018 or later is required.|需要 Illustrator CC 2018 或更高版本。|Illustrator CC 2018 이상이 필요합니다.
+illustratorPresetMissing|IllustratorにPDFプリセットがありません：|Illustrator does not have the PDF preset: |Illustrator 中没有此 PDF 预设：|Illustrator에 PDF 사전 설정이 없습니다: 
+aiExportedOpen|Illustratorで開いているドキュメントから書き出しました。|Exported from the document open in Illustrator.|已从 Illustrator 中打开的文档导出。|Illustrator에서 열려 있는 문서에서 내보냈습니다.
+aiExportedUnsaved|Illustratorで開いているドキュメントから書き出しました。未保存の変更も含まれます。|Exported from the document open in Illustrator, including unsaved changes.|已从 Illustrator 中打开的文档导出，包含未保存的更改。|Illustrator에서 열려 있는 문서에서 내보냈습니다. 저장하지 않은 변경 사항도 포함됩니다.
+aiBrokenLinks|リンク切れの画像があります。PDFでは画像が欠けている可能性があります。|Some linked images are missing; they may be absent from the PDF.|有缺失的链接图像，PDF 中可能缺少这些图像。|링크가 끊어진 이미지가 있습니다. PDF에서 이미지가 빠졌을 수 있습니다."""
 table=[line.split('|') for line in rows.splitlines()]
 assert all(len(r)==5 for r in table)
 assert len({r[0] for r in table})==len(table), 'duplicate key'
@@ -212,7 +242,7 @@ for i,lang in enumerate(['ja','en','zh-Hans','ko'],1):
 from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
-for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すとき、Keynoteに新しいプレゼンテーションを作成させます。', 'CarmaChameleon asks Keynote to create a presentation when you export to Keynote.', '导出为 Keynote 时，CarmaChameleon 会让 Keynote 创建演示文稿。', 'Keynote로 내보낼 때 CarmaChameleon가 Keynote에 프레젠테이션을 만들도록 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.5.0',CFBundleVersion='17',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='PandocDesk asks Keynote to create a presentation when you export to Keynote.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet'])])
+for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 保存为 PDF。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.7.3',CFBundleVersion='22',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

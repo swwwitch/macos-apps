@@ -13,6 +13,7 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 - **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
 
 ### App Commands
+- **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
 - **⌘Q**: Quit CommandDee (in this app's window)

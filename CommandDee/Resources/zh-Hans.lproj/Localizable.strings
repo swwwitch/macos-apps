@@ -2,6 +2,8 @@
 "menu.settings" = "设置…";
 "menu.hide" = "隐藏 CommandDee";
 "menu.quit" = "退出 CommandDee";
+"menu.file" = "文件";
+"menu.openMainWindow" = "打开主窗口";
 "menu.window" = "窗口";
 "menu.closeWindow" = "关闭窗口";
 "menu.edit" = "编辑";

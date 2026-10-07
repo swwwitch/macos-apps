@@ -29,6 +29,7 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 
 ## Keyboard Shortcuts
 - **⌘O**: Choose Files
+- **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
 - **⌘Q**: Quit QuickIconExporter

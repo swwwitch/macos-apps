@@ -1,1 +1,1 @@
-"NSAppleEventsUsageDescription" = "导出为 Keynote 时，CarmaChameleon 会让 Keynote 创建演示文稿。";
+"NSAppleEventsUsageDescription" = "CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 保存为 PDF。";

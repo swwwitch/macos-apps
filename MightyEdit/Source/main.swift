@@ -127,6 +127,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         quitItem.target = self
         applicationItem.submenu = applicationMenu
         mainMenu.insertItem(applicationItem, at: 0)
+        // File menu: reopen the palette (main window) even after it was closed.
+        let fileItem = NSMenuItem(title: L("menu.file"), action: nil, keyEquivalent: "")
+        let fileMenu = NSMenu(title: L("menu.file"))
+        let openMain = fileMenu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPalette), keyEquivalent: "0")
+        openMain.keyEquivalentModifierMask = [.command]
+        openMain.target = self
+        fileItem.submenu = fileMenu
+        mainMenu.insertItem(fileItem, at: 1)
         // Standard edit commands for text fields such as the line-tools panel.
         let editItem = NSMenuItem(title: L("menu.edit"), action: nil, keyEquivalent: "")
         let editMenu = NSMenu(title: L("menu.edit"))
@@ -138,7 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         editMenu.addItem(withTitle: L("menu.paste"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: L("menu.selectAll"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editItem.submenu = editMenu
-        mainMenu.insertItem(editItem, at: 1)
+        mainMenu.insertItem(editItem, at: 2)
         let windowItem = NSMenuItem(title: L("menu.window"), action: nil, keyEquivalent: "")
         let windowMenu = NSMenu(title: L("menu.window"))
         windowMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")

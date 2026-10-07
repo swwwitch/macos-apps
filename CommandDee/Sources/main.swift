@@ -113,6 +113,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         application.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         root.submenu = application
         main.addItem(root)
+        let fileRoot = NSMenuItem(title: L("menu.file"), action: nil, keyEquivalent: "")
+        let fileMenu = NSMenu(title: L("menu.file"))
+        let openMain = fileMenu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPreferences), keyEquivalent: "0")
+        openMain.keyEquivalentModifierMask = .command
+        openMain.target = self
+        fileRoot.submenu = fileMenu
+        main.addItem(fileRoot)
         let windowRoot = NSMenuItem(title: L("menu.window"), action: nil, keyEquivalent: "")
         let windowMenu = NSMenu(title: L("menu.window"))
         windowMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")

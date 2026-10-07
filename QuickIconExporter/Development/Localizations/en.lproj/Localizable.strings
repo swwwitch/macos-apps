@@ -48,6 +48,7 @@
 "アイコンを書き出すファイルを選択" = "Choose Files to Export Icons";
 "ファイルを読み取れませんでした。" = "Could not read the file.";
 "ウインドウを表示" = "Show Window";
+"メインウインドウを開く" = "Open Main Window";
 "終了" = "Quit";
 "ファイルを選択してください。" = "Please choose files.";
 "ヘルプ" = "Help";

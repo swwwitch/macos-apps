@@ -42,7 +42,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
     }
-    @objc private func showWindow() {
+    /// Shows the main window, reopening the SwiftUI scene when it was closed (status menu, reopen, ⌘0).
+    @objc func showWindow() {
         // Pick the main window explicitly, not Settings, Help or another utility window.
         if let window = MainWindow.current {
             window.makeKeyAndOrderFront(nil)

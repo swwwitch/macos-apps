@@ -92,6 +92,9 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         menu.addItem(appItem)
         let fileRoot = NSMenuItem(title: L("ファイル"), action: nil, keyEquivalent: "")
         let file = NSMenu(title: L("ファイル")); fileRoot.submenu = file; menu.addItem(fileRoot)
+        let showMain = file.addItem(withTitle: L("メインウインドウを開く"), action: #selector(openMainWindowFromMenu(_:)), keyEquivalent: "0")
+        showMain.keyEquivalentModifierMask = [.command]
+        showMain.target = self
         file.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("編集"))
         edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
@@ -202,6 +205,10 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         if controlsWindow?.isMiniaturized == true { controlsWindow?.deminiaturize(nil) }
         controlsWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    @objc private func openMainWindowFromMenu(_ sender: Any?) {
+        revealWindow()
     }
 
     private func showControls() {

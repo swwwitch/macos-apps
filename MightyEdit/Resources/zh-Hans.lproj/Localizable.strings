@@ -10,6 +10,8 @@
 "menu.buttonDisplay" = "按钮样式";
 "menu.hotkeys" = "快捷键";
 "menu.about" = "关于 MightyEdit";
+"menu.file" = "文件";
+"menu.openMainWindow" = "打开主窗口";
 "menu.edit" = "编辑";
 "menu.undo" = "撤销";
 "menu.redo" = "重做";

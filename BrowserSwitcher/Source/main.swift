@@ -145,6 +145,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         NSApp.mainMenu = menu
         let fileRoot = NSMenuItem()
         let fileMenu = NSMenu(title: L("ファイル"))
+        let openMain = fileMenu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(showMainWindow), keyEquivalent: "0")
+        openMain.keyEquivalentModifierMask = [.command]
+        openMain.target = self
+        fileMenu.addItem(.separator())
         let close = fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(closeWindow), keyEquivalent: "w")
         close.keyEquivalentModifierMask = [.command]
         close.target = self
