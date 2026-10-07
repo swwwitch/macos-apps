@@ -46,6 +46,12 @@
 "ファイル" = "File";
 "ウインドウを閉じる" = "Close Window";
 "編集" = "Edit";
+"取り消す" = "Undo";
+"やり直す" = "Redo";
+"ウインドウ" = "Window";
+"しまう" = "Minimize";
+"拡大／縮小" = "Zoom";
+"すべてを手前に移動" = "Bring All to Front";
 "カット" = "Cut";
 "コピー" = "Copy";
 "ペースト" = "Paste";

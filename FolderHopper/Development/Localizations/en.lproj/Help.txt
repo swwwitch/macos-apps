@@ -32,7 +32,7 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 - **Show Favorites section**
 
 ### File Operations Tab
-- **When a file with the same name exists**: choose Keep both by adding a number or Stop without overwriting.
+- **When a file with the same name exists**: choose Keep both by adding a number or Stop without overwriting. When creating symbolic links in the Applications folder, an existing symbolic link with the same name is replaced without adding a number (apps and files with the same name are never replaced).
 - You can also set **Close window after completion (keep running)**.
 
 ### History Tab
@@ -51,13 +51,14 @@ Show the app with ⌃⌥⌘M by default. Available while the app is running.
 - **Esc**: Close window
 - **⌘0**: Open Main Window (also after closing it)
 - **⌘W**: Close window (or Settings)
+- **⌘M**: Minimize the window (Window menu)
 - **⌘,**: Settings
 - **⌘?**: Help
 - **⌘Q**: Quit
 
 ## Running in the Background and Quitting
 - Closing the window does not quit the app. Show it again with the shortcut, the Dock icon, or Open With.
-- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- When **Show in menu bar** is on, the menu bar icon offers **Open Main Window**, **Settings…**, **Help** (**FolderHopper Help** / **Open the note Article**), **Menu Bar Settings…**, and **Quit FolderHopper**.
 - To quit, press ⌘Q or choose **Quit FolderHopper** from the app menu. You cannot quit while files are being moved or duplicated.
 
 ## Permissions

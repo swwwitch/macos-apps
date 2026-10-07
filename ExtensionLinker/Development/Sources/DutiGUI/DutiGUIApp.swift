@@ -11,6 +11,9 @@ struct DutiGUIApp: App {
         #endif
     }
     @StateObject private var store = AssociationStore()
+    #if DIRECT_UPDATES && !APP_STORE
+    @ObservedObject private var updates = AppUpdates.shared
+    #endif
     var body: some Scene {
         WindowGroup(id: MainWindow.sceneID) {
             ContentView(store: store)
@@ -34,12 +37,18 @@ struct DutiGUIApp: App {
                 Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
             }
             #if DIRECT_UPDATES && !APP_STORE
-            UpdateCommands()
-            #endif
-            MainWindowCommands()
-            CommandGroup(after: .newItem) {
-                Button(L("設定を再読み込み")) { store.refresh() }.keyboardShortcut("r")
+            // After 設定… (BASELINE order), not the shared UpdateCommands' after-About slot,
+            // so the menu-bar settings entry inserted below About stays next to 設定….
+            CommandGroup(after: .appSettings) {
+                Divider()
+                Button(AppUpdates.shared.text("アップデートを確認…", "Check for Updates…", "检查更新…", "업데이트 확인…")) { AppUpdates.shared.checkForUpdates() }
+                    .disabled(!updates.canCheck)
+                Toggle(AppUpdates.shared.text("アップデートを自動確認", "Automatically Check for Updates", "自动检查更新", "자동으로 업데이트 확인"), isOn: Binding(
+                    get: { updates.automaticChecks }, set: { _ in updates.toggleAutomaticChecks() }))
+                    .disabled(!updates.isConfigured)
             }
+            #endif
+            MainWindowCommands(reload: { store.refresh() })
         }
         Settings { EnvironmentView(store: store).frame(width: 540).background(UtilityWindowChrome(title: L("設定"))) }
     }
@@ -399,12 +408,23 @@ enum MainWindow {
     }
 }
 
+// File menu per BASELINE「メニューの共通構成」: replacing .newItem drops SwiftUI's
+// 「新規ウインドウ」⌘N; replacing .saveItem (which holds SwiftUI's 「閉じる」) renames ⌘W.
 private struct MainWindowCommands: Commands {
     @Environment(\.openWindow) private var openWindow
+    let reload: () -> Void
     var body: some Commands {
-        CommandGroup(before: .newItem) {
+        CommandGroup(replacing: .newItem) {
             Button(L("メインウインドウを開く")) { MainWindow.show(openWindow) }
                 .keyboardShortcut("0", modifiers: .command)
+            Divider()
+            Button(L("設定を再読み込み")) { reload() }.keyboardShortcut("r")
+        }
+        CommandGroup(replacing: .saveItem) {
+            Button(L("ウインドウを閉じる")) {
+                NSApp.sendAction(#selector(NSWindow.performClose(_:)), to: nil, from: nil)
+            }
+            .keyboardShortcut("w", modifiers: .command)
         }
     }
 }
@@ -442,8 +462,10 @@ private struct UtilityWindowChrome: NSViewRepresentable {
         func apply() {
             guard let window else { return }
             window.title = windowTitle
-            window.styleMask.remove(.miniaturizable)
-            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            // Keep .miniaturizable so ⌘M and the yellow button work (BASELINE「メニューの共通構成」);
+            // only zoom and full screen stay disabled.
+            window.styleMask.insert(.miniaturizable)
+            window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.collectionBehavior.insert(.fullScreenNone)
         }

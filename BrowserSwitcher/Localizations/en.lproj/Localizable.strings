@@ -1,4 +1,4 @@
-"ブラウザー切り替えについて" = "About BrowserSwitcher";
+"BrowserSwitcherについて" = "About BrowserSwitcher";
 "設定…" = "Settings…";
 "ファイル" = "File";
 "ウインドウを閉じる" = "Close Window";
@@ -7,6 +7,12 @@
 "コピー" = "Copy";
 "ペースト" = "Paste";
 "すべてを選択" = "Select All";
+"取り消す" = "Undo";
+"やり直す" = "Redo";
+"ウインドウ" = "Window";
+"しまう" = "Minimize";
+"拡大／縮小" = "Zoom";
+"すべてを手前に移動" = "Bring All to Front";
 "ブラウザー切り替え" = "BrowserSwitcher";
 "ホットキーを登録できませんでした" = "Could Not Register Shortcut";
 "%@ がほかのアプリで使われていないか確認してください。アプリのアイコンからは引き続き開けます。（エラー：%@）" = "Check that %@ is not used by another app. You can still open this app from its icon. (Error: %@)";

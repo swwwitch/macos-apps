@@ -26,7 +26,7 @@ final class MenuBarPresence: NSObject {
     }
     /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumFlight's clock-on-screen icon).
     func install(name: String, symbol: String, existing: NSStatusItem? = nil, keepExistingImage: Bool = false,
-                 show: @escaping () -> Void, settings: @escaping () -> Void, help: @escaping () -> Void) {
+                 show: @escaping () -> Void, settings: (() -> Void)?, help: @escaping () -> Void) {
         guard !installed else { return }
         installed = true
         self.name = name; reveal = show; preferences = settings; self.help = help
@@ -54,13 +54,21 @@ final class MenuBarPresence: NSObject {
     }
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(withTitle: text("ウインドウを表示", "Show Window", "显示窗口", "윈도우 보기"), action: #selector(show), keyEquivalent: "").target = self
-        menu.addItem(withTitle: text("設定…", "Settings…", "设置…", "설정…"), action: #selector(showPreferences), keyEquivalent: "").target = self
-        menu.addItem(withTitle: text("ヘルプ", "Help", "帮助", "도움말"), action: #selector(showHelp), keyEquivalent: "").target = self
+        menu.addItem(withTitle: text("メインウインドウを開く", "Open Main Window", "打开主窗口", "메인 윈도우 열기"), action: #selector(show), keyEquivalent: "").target = self
+        // Apps without a settings window pass settings: nil and get no 設定… item.
+        if preferences != nil {
+            menu.addItem(withTitle: text("設定…", "Settings…", "设置…", "설정…"), action: #selector(showPreferences), keyEquivalent: "").target = self
+        }
+        // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
+        let help = NSMenu()
+        help.addItem(withTitle: String(format: text("%@ヘルプ", "%@ Help", "%@ 帮助", "%@ 도움말"), name), action: #selector(showHelp), keyEquivalent: "").target = self
+        HelpLinks.addNoteItem(to: help)
+        let helpItem = menu.addItem(withTitle: text("ヘルプ", "Help", "帮助", "도움말"), action: nil, keyEquivalent: "")
+        menu.setSubmenu(help, for: helpItem)
         menu.addItem(.separator())
         menu.addItem(withTitle: text("メニューバー設定…", "Menu Bar Settings…", "菜单栏设置…", "메뉴 막대 설정…"), action: #selector(showSettings), keyEquivalent: "").target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: text("終了", "Quit", "退出", "종료"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "").target = NSApp
+        menu.addItem(withTitle: String(format: text("%@を終了", "Quit %@", "退出 %@", "%@ 종료"), name), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "").target = NSApp
         return menu
     }
     private func installMenuEntry() {

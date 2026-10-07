@@ -77,27 +77,29 @@ loginApproval|システム設定のログイン項目で許可してください
 loginMissing|アプリをアプリケーションフォルダに移動して再起動してください。|Move the app to Applications and relaunch it.|请将应用移到“应用程序”文件夹并重新启动。|앱을 응용 프로그램 폴더로 옮긴 후 다시 실행하세요.
 loginOff|自動起動はオフです。|Not opening at login.|登录时不启动。|로그인 시 실행 안 함.
 loginError|設定を変更できませんでした：|Could not change the setting: |无法更改设置：|설정을 변경할 수 없습니다:
-show|メインウインドウを表示|Show Main Window|显示主窗口|메인 윈도우 보기
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
-help|PDF2Keynote ヘルプ|PDF2Keynote Help|PDF2Keynote 帮助|PDF2Keynote 도움말
+help|PDF2Keynoteヘルプ|PDF2Keynote Help|PDF2Keynote 帮助|PDF2Keynote 도움말
 helpMenu|ヘルプ|Help|帮助|도움말
 quit|PDF2Keynoteを終了|Quit PDF2Keynote|退出 PDF2Keynote|PDF2Keynote 종료
 hide|PDF2Keynoteを隠す|Hide PDF2Keynote|隐藏 PDF2Keynote|PDF2Keynote 가리기
-about|PDF2Keynoteについて|About PDF2Keynote|关于 PDF2Keynote|PDF2Keynote 정보
+services|サービス|Services|服务|서비스
+hideOthers|ほかを隠す|Hide Others|隐藏其他|기타 가리기
+showAll|すべてを表示|Show All|全部显示|모두 보기
+about|PDF2Keynoteについて|About PDF2Keynote|关于 PDF2Keynote|PDF2Keynote에 관하여
 aboutDetail|PDFの各ページをKeynoteのスライドに配置します。サポート：同梱のREADME.md|Places each PDF page on a Keynote slide. Support: bundled README.md|将 PDF 每页放到 Keynote 幻灯片上。支持：内置 README.md|PDF 각 페이지를 Keynote 슬라이드에 배치합니다. 지원: 포함된 README.md
-updates|アップデートを確認…|Check for Updates…|检查更新…|업데이트 확인…
-updatePending|更新機能は準備中です|Updates are not set up yet|更新功能尚未配置|업데이트 기능 준비 중
-updateDetail|配信先と署名が未設定のため、自動更新は行いません。新しい版はLatest Buildsから入手してください。|No update feed or signing is configured. Get new versions from Latest Builds.|尚未配置更新源和签名。请从 Latest Builds 获取新版本。|업데이트 배포처와 서명이 설정되지 않았습니다. Latest Builds에서 새 버전을 받으세요.
 fileMenu|ファイル|File|文件|파일
 editMenu|編集|Edit|编辑|편집
 windowMenu|ウインドウ|Window|窗口|윈도우
 minimize|しまう|Minimize|最小化|최소화
-close|閉じる|Close|关闭|닫기
+zoom|拡大／縮小|Zoom|缩放|확대/축소
+bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
+close|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
 undo|取り消す|Undo|撤销|실행 취소
+redo|やり直す|Redo|重做|실행 복귀
 cut|カット|Cut|剪切|오려두기
-copy|コピー|Copy|拷贝|복사
+copy|コピー|Copy|拷贝|복사하기
 paste|ペースト|Paste|粘贴|붙여넣기
 selectAll|すべてを選択|Select All|全选|모두 선택'''
 table = [line.split('|') for line in rows.splitlines()]

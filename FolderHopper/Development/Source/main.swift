@@ -97,7 +97,7 @@ final class FavoriteButton: NSButton {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuItemValidation, NSTextFieldDelegate, UNUserNotificationCenterDelegate {
-    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 680), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 680), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
     let table = NSTableView()
     var favoriteButtons: [NSButton] = []
     /// 「フォルダを選択…」 in the 指定 section; part of the ←/→ cycle before the favorites.
@@ -245,7 +245,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         window.isReleasedWhenClosed = false
         window.backgroundColor = AppColors.window
         window.titlebarAppearsTransparent = true
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         let menu = NSMenu()
@@ -269,9 +268,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let editItem = NSMenuItem(title: L("編集"), action: nil, keyEquivalent: ""); menu.addItem(editItem)
         let edit = NSMenu(title: L("編集")); editItem.submenu = edit
+        edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: L("やり直す"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        edit.addItem(.separator())
         for (title, selector, key) in [(L("カット"), "cut:", "x"), (L("コピー"), "copy:", "c"), (L("ペースト"), "paste:", "v"), (L("すべてを選択"), "selectAll:", "a")] {
             edit.addItem(withTitle: title, action: Selector(selector), keyEquivalent: key)
         }
+        // Window menu (before Help, which LocalHelp appends later): BASELINE「メニューの共通構成」.
+        let windowRoot = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
+        let windowMenu = NSMenu(title: L("ウインドウ")); windowRoot.submenu = windowMenu; menu.addItem(windowRoot)
+        windowMenu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+        NSApp.windowsMenu = windowMenu
         NSApp.mainMenu = menu
         AppSurface.install(in: window.contentView!)
         let root = NSStackView(); root.orientation = .vertical; root.alignment = .leading; root.spacing = 12
@@ -996,7 +1007,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         setBusy(true); status.stringValue = copying ? L("複製しています…") : (linking ? L("リンクを作成しています…") : L("移動しています…"))
         queue.async {
             do {
-                let plan = try MoveEngine.plan(files, into: destination.url, renameConflicts: shouldRename)
+                // Links into /Applications overwrite an existing link of the same name (no numbered copy).
+                let intoApplications = destination.url.resolvingSymlinksInPath().standardizedFileURL.path == "/Applications"
+                let plan = try MoveEngine.plan(files, into: destination.url, renameConflicts: shouldRename, replaceSymbolicLinks: linking && intoApplications)
                 let result = MoveEngine.execute(plan, asSymbolicLinks: linking, asCopies: copying)
                 DispatchQueue.main.async {
                     if !linking && !copying, let index = self.states.firstIndex(where: { $0.id == source.id }) {

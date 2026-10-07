@@ -16,6 +16,7 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
+- **⌘M**: Minimize
 - **⌘Q**: Quit CommandDee (in this app's window)
 
 ## Examples
@@ -50,5 +51,9 @@ Choose Settings… (⌘,) from the menu bar icon.
 - To quit, press ⌘Q in this app's window, or choose Quit CommandDee from the menu bar icon.
 
 ## Help and the note Article
-- To open this help, choose CommandDee Help… from the menu bar icon.
-- Choose Open the note Article in the same menu to read the article on note in your browser.
+- To open this help, choose Help > CommandDee Help from the menu bar icon. You can also choose CommandDee Help (⌘?) in the Help menu.
+- Choose Open the note Article in the same Help submenu to read the article on note in your browser.
+
+## Updates and the Menu Bar
+- Check for Updates… and Automatically Check for Updates in the app menu show that updates are not configured, and make no network access, until an update feed and signing key are set up.
+- Choose Menu Bar Settings… in the app menu to show or hide the menu bar icon. Hiding it does not quit the app.

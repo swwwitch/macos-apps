@@ -1,5 +1,4 @@
 "app.ready" = "텍스트를 선택한 다음 버튼을 클릭하세요";
-"menu.showPalette" = "팔레트 보기";
 "menu.hidePalette" = "팔레트 숨기기";
 "menu.settings" = "설정…";
 "menu.copyOnly" = "대치하지 않고 복사";
@@ -15,12 +14,19 @@
 "menu.edit" = "편집";
 "menu.undo" = "실행 취소";
 "menu.redo" = "실행 복귀";
-"menu.cut" = "잘라내기";
+"menu.cut" = "오려두기";
 "menu.copy" = "복사하기";
 "menu.paste" = "붙여넣기";
-"menu.selectAll" = "전체 선택";
-"menu.window" = "윈도우";
+"menu.selectAll" = "모두 선택";
+"menu.services" = "서비스";
+"menu.hideApp" = "MightyEdit 가리기";
+"menu.hideOthers" = "기타 가리기";
+"menu.showAll" = "모두 보기";
 "menu.closeWindow" = "윈도우 닫기";
+"menu.window" = "윈도우";
+"menu.minimize" = "최소화";
+"menu.zoom" = "확대/축소";
+"menu.bringAllToFront" = "모두 앞으로 가져오기";
 "help" = "도움말";
 "help.missing" = "도움말 파일을 찾을 수 없습니다. 포함된 README를 참조하세요.";
 "settings.window" = "설정";
@@ -202,7 +208,7 @@
 "hotkey.apply" = "적용";
 "hotkey.axApply" = "%@에 적용";
 "hotkey.reservedTitle" = "%@은(는) 표준 명령에 사용되므로 설정할 수 없습니다.";
-"hotkey.reservedDetail" = "⌘A(전체 선택), ⌘Z(실행 취소), ⌘X(잘라내기), ⌘C(복사하기), ⌘V(붙여넣기), ⌘W(닫기), ⌘,(설정), ⌘Q(종료)는 사용할 수 없습니다. Control, Option, Shift를 조합하세요.";
+"hotkey.reservedDetail" = "⌘A(모두 선택), ⌘Z(실행 취소), ⌘X(오려두기), ⌘C(복사하기), ⌘V(붙여넣기), ⌘W(닫기), ⌘,(설정), ⌘Q(종료)는 사용할 수 없습니다. Control, Option, Shift를 조합하세요.";
 "hotkey.needModifier" = "Control, Option, Command 중 하나를 선택하세요.";
 "hotkey.inUse" = "이 단축키는 다른 동작에 할당되어 있습니다.";
 "scope.global" = "모든 앱";

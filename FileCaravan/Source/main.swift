@@ -180,7 +180,7 @@ struct SettingsView: View {
     var body: some View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
-            LaunchPresenceSection(title: L("launchGroup"), loginControl: LoginAtLaunchView(), residentTitle: L("resident"), residentDetail: L("residentDetail"), resident: $resident, shortcutTitle: L("launchShortcut"), shortcutButton: L("systemSettings"), shortcutDetail: L("shortcutDetail")) {
+            LaunchPresenceSection(title: L("launchGroup"), loginControl: LoginAtLaunchView(), residentTitle: L("resident"), residentDetail: L("residentDetail"), resident: $resident, presenceExtra: MenuBarPresenceView(), shortcutTitle: L("launchShortcut"), shortcutButton: L("systemSettings"), shortcutDetail: L("shortcutDetail")) {
                 NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app"))
             }
             })),
@@ -213,23 +213,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.hidden { showMain() }
+        MainActor.assumeIsolated {
+            MenuBarPresence.shared.install(name: "FileCaravan", symbol: "shippingbox",
+                show: { [weak self] in self?.showMain() },
+                settings: { [weak self] in self?.showSettings() },
+                help: { [weak self] in self?.showHelp() })
+        }
     }
     func installMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
         func submenu(_ name: String) -> NSMenu { let item = NSMenuItem(); let menu = NSMenu(title: name); item.submenu = menu; bar.addItem(item); return menu }
         func add(_ m: NSMenu, _ title: String, _ sel: Selector, _ key: String = "", _ target: AnyObject? = nil) { let i = m.addItem(withTitle: title, action: sel, keyEquivalent: key); i.target = target ?? self }
         let app = submenu("FileCaravan")
-        add(app, L("about"), #selector(about))
-        #if !APP_STORE
-        add(app, L("updates"), #selector(updates))
-        #endif
-        app.addItem(.separator())
+        add(app, L("about"), #selector(about)); app.addItem(.separator())
         add(app, L("settings"), #selector(showSettings), ","); app.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        MainActor.assumeIsolated { AppUpdates.shared.addMenuItems(to: app) }
+        #endif
+        let services = NSMenu(title: L("services")); app.addItem(withTitle: L("services"), action: nil, keyEquivalent: "").submenu = services; NSApp.servicesMenu = services
+        app.addItem(.separator())
+        add(app, L("hideApp"), #selector(NSApplication.hide(_:)), "h", NSApp)
+        add(app, L("hideOthers"), #selector(NSApplication.hideOtherApplications(_:)), "h", NSApp); app.items.last?.keyEquivalentModifierMask = [.command, .option]
+        add(app, L("showAll"), #selector(NSApplication.unhideAllApplications(_:)), "", NSApp); app.addItem(.separator())
         add(app, L("quit"), #selector(NSApplication.terminate(_:)), "q", NSApp)
-        let file = submenu(L("file")); add(file, L("showWindow"), #selector(showMain), "0"); add(file, L("close"), #selector(NSWindow.performClose(_:)), "w", nil); file.items.last?.target = nil
+        let file = submenu(L("file")); add(file, L("showWindow"), #selector(showMain), "0"); file.addItem(.separator()); add(file, L("close"), #selector(NSWindow.performClose(_:)), "w", nil); file.items.last?.target = nil
         let edit = submenu(L("edit"))
-        for (key, selector, letter) in [("undo","undo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil }
-        let help = submenu(L("help")); add(help, L("help"), #selector(showHelp), "?"); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: help) }; NSApp.helpMenu = help
+        for (key, selector, letter) in [("undo","undo:","z"),("redo","redo:","Z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil; if key == "redo" { edit.addItem(.separator()) } }
+        let window = submenu(L("window"))
+        for (key, selector, letter) in [("minimize","performMiniaturize:","m"),("zoom","performZoom:","")] { window.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter).target = nil }
+        window.addItem(.separator())
+        window.addItem(withTitle: L("bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "").target = NSApp
+        NSApp.windowsMenu = window
+        let help = submenu(L("help")); add(help, L("helpItem"), #selector(showHelp), "?"); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: help) }; NSApp.helpMenu = help
     }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
@@ -254,7 +269,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         helpWindow?.makeKeyAndOrderFront(nil)
     }
     @objc func about() { NSApp.orderFrontStandardAboutPanel(options: [.credits: NSAttributedString(string: L("support"))]) }
-    @objc func updates() { let a = NSAlert(); a.messageText = L("updatesPending"); a.informativeText = L("updatesDetail"); a.runModal() }
     func openHistory() {
         let u = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("FolderMover/History")
         do { try FileManager.default.createDirectory(at: u, withIntermediateDirectories: true); NSWorkspace.shared.open(u) } catch { model.status = error.localizedDescription }

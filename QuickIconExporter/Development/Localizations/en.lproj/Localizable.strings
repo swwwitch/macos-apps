@@ -56,3 +56,6 @@
 "書き出し後、Finderで表示" = "Show in Finder after export";
 "書き出し後、アプリを隠す" = "Hide app after export";
 "Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。" = "In Finder, select files, then Control-click → Services → アイコンを書き出す（QuickIconExporter）. Change the shortcut in System Settings → Keyboard → Keyboard Shortcuts → Services.";
+"ウインドウを閉じる" = "Close Window";
+"設定…" = "Settings…";
+"QuickIconExporterを終了" = "Quit QuickIconExporter";

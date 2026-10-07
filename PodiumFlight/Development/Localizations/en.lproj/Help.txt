@@ -50,8 +50,9 @@ Open Settings with the Settings… button in the main window or with ⌘,. Click
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
+- **⌘M**: Minimize the window
 - **⌘?**: PodiumFlight Help
-- **⌘Q**: Quit PodiumFlight (the Quit button in the main window)
+- **⌘Q**: Quit PodiumFlight (the Quit PodiumFlight button in the main window)
 - **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)
 
 ## Permissions and Notifications
@@ -66,10 +67,10 @@ PodiumFlight uses these two shortcuts in the Shortcuts app on your Mac. Create t
 ※ You need these two shortcuts on every Mac where you use this feature.
 
 ## Opening and Quitting
-- Closing the window does not quit the app; it stays in the menu bar. Click the menu bar icon to show the main window again.
+- Closing the window does not quit the app; it stays in the menu bar. Click the menu bar icon to show the main window again. Right-click (or Control-click) the icon for a menu with Open Main Window, Settings…, Help, Menu Bar Settings…, and Quit PodiumFlight.
 - When opened at login, or when Hide main window at startup is on, the app starts without opening the main window.
 - Turning off Show in menu bar does not quit the app. Open PodiumFlight again to show the main window.
-- To quit, click the Quit button in the main window (⌘Q). The menu bar display disappears, but the system settings you changed stay as they are.
+- To quit, click the Quit PodiumFlight button in the main window (⌘Q), or choose Quit PodiumFlight from the icon’s right-click menu. The menu bar display disappears, but the system settings you changed stay as they are.
 
 ## Troubleshooting
 - PodiumFlight may restart the Dock or Finder to apply Dock and desktop settings.
@@ -84,4 +85,4 @@ PodiumFlight uses these two shortcuts in the Shortcuts app on your Mac. Create t
 ## Removing the App
 1. If needed, restore your Dock settings and desktop icons.
 2. Turn off Open at login.
-3. Quit with the Quit button in the main window, and then move PodiumFlight to the Trash.
+3. Quit with the Quit PodiumFlight button in the main window, and then move PodiumFlight to the Trash.

@@ -131,7 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let root = NSMenuItem()
         menu.addItem(root)
         let appMenu = NSMenu()
-        let about = appMenu.addItem(withTitle: L("ブラウザー切り替えについて"), action: #selector(showAbout), keyEquivalent: "")
+        let about = appMenu.addItem(withTitle: L("BrowserSwitcherについて"), action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         appMenu.addItem(.separator())
         let preferences = appMenu.addItem(withTitle: L("設定…"), action: #selector(showPreferences), keyEquivalent: ",")
@@ -156,17 +156,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         menu.addItem(fileRoot)
         let editRoot = NSMenuItem(title: L("編集"), action: nil, keyEquivalent: "")
         let edit = NSMenu(title: L("編集")); editRoot.submenu = edit; menu.addItem(editRoot)
+        edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: L("やり直す"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        edit.addItem(.separator())
         for (title, selector, key) in [(L("カット"), "cut:", "x"), (L("コピー"), "copy:", "c"), (L("ペースト"), "paste:", "v"), (L("すべてを選択"), "selectAll:", "a")] {
             edit.addItem(withTitle: title, action: Selector(selector), keyEquivalent: key)
         }
-        window = BrowserWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 440), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        // Window menu (before Help, which LocalHelp appends later): BASELINE「メニューの共通構成」.
+        let windowRoot = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
+        let windowMenu = NSMenu(title: L("ウインドウ")); windowRoot.submenu = windowMenu; menu.addItem(windowRoot)
+        windowMenu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+        NSApp.windowsMenu = windowMenu
+        window = BrowserWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 440), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.moveCandidate = { [weak self] direction in
             self?.table.moveSelection(direction)
         }
         window.delegate = self
         window.title = ""
         window.titleVisibility = .hidden
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false

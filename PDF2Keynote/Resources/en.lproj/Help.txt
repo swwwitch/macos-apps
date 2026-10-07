@@ -31,6 +31,7 @@ While it keeps running, reopen it from the Dock or the menu bar icon.
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
+- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit
@@ -47,7 +48,7 @@ Everything runs on this Mac. PDFs are not uploaded, the app makes no network con
 - **Keynote did not respond**: close any open dialog in Keynote and try again.
 - Password-protected PDFs cannot be converted.
 - **Blank or shifted pages**: try another page box.
-- App updates and notarization are not configured. Apple Silicon, macOS 13 or later.
+- Check for Updates… and Automatically Check for Updates in the app menu say updates are not configured yet (no update feed or signing key) and make no network access. Notarization is not configured either. Apple Silicon, macOS 13 or later.
 - Help › Open the note Article opens the article with usage notes and support information.
 
 ## Removing

@@ -36,9 +36,12 @@ rows=[
 ('launchShortcut','アプリ起動のキーボードショートカット','App launch keyboard shortcut','应用启动键盘快捷键','앱 실행 키보드 단축키'),('systemSettings','システムで設定…','Configure in Shortcuts…','在快捷指令中设置…','단축어에서 설정…'),
 ('shortcutDetail','「ショートカット」で「アプリを開く → FileCaravan」を作成し、キーボードショートカットを割り当てます。未起動時も使えます。','In Shortcuts, create “Open App → FileCaravan” and assign a keyboard shortcut. This also launches the app when it is not running.','在快捷指令中创建“打开 App → FileCaravan”并分配键盘快捷键。未运行时也可启动。','단축어에서 “앱 열기 → FileCaravan”을 만들고 키보드 단축키를 지정하세요. 앱이 꺼져 있어도 실행할 수 있습니다.'),
 ('privacy','プライバシー・履歴','Privacy & history','隐私与记录','개인정보 및 기록'),('privacyDetail','外部通信なし。履歴には移動したファイルのパスを保存します。不要な履歴はFinderで削除できます。','No network access. History stores file paths locally. Delete unneeded history in Finder.','无网络通信。记录在本地保存文件路径。可在访达删除不需要的记录。','네트워크 통신을 하지 않습니다. 기록에 파일 경로를 로컬로 저장합니다. Finder에서 불필요한 기록을 삭제할 수 있습니다.'),
-('about','FileCaravanについて','About FileCaravan','关于 FileCaravan','FileCaravan 정보'),('updates','アップデートを確認…','Check for Updates…','检查更新…','업데이트 확인…'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FileCaravanを終了','Quit FileCaravan','退出 FileCaravan','FileCaravan 종료'),('file','ファイル','File','文件','파일'),('showWindow','メインウインドウを開く','Open Main Window','打开主窗口','메인 윈도우 열기'),('close','閉じる','Close','关闭','닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('cut','カット','Cut','剪切','잘라내기'),('copy','コピー','Copy','复制','복사'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
-('busyQuit','移動処理中は終了できません。','A move is still in progress.','正在移动，无法退出。','이동 중에는 종료할 수 없습니다.'),('busyQuitDetail','「停止」で現在の処理を安全に終えてから、もう一度終了してください。','Choose Stop to finish the current batch safely, then quit again.','点击停止以安全完成当前批次，然后再次退出。','중지를 눌러 현재 배치를 안전하게 끝낸 뒤 다시 종료하세요.'),('continue','続ける','Continue','继续','계속'),('updatesPending','更新配布の準備中','Updates are not configured','更新尚未配置','업데이트가 설정되지 않았습니다'),('updatesDetail','更新先と検証用公開鍵は未設定です。自動更新は利用できません。','An update feed and verification key have not been configured. Automatic updates are unavailable.','尚未配置更新源和验证公钥，无法自动更新。','업데이트 주소와 검증 키가 설정되지 않아 자동 업데이트를 사용할 수 없습니다.'),('support','サポート：同梱のREADME.md','Support: see the bundled README.md','支持：请参阅随附的 README.md','지원: 함께 제공된 README.md 참조'),
-('login','ログイン時に起動','Launch at login','登录时启动','로그인 시 실행'),('loginOpen','ログイン項目を開く','Open Login Items','打开登录项','로그인 항목 열기'),('loginOn','Macへのログイン時に自動起動します。','Launches automatically when you log in.','登录时自动启动。','로그인 시 자동 실행합니다.'),('loginApproval','システム設定のログイン項目で許可してください。','Allow the app in System Settings → Login Items.','请在系统设置的登录项中允许此应用。','시스템 설정의 로그인 항목에서 허용하세요.'),('loginMissing','ログイン起動は未登録です。オンにすると登録します。','Login launch is not registered. Turn it on to register.','登录启动尚未注册。开启后即可注册。','로그인 실행이 등록되지 않았습니다. 켜면 등록됩니다.'),('loginOff','自動起動はオフです。','Launch at login is off.','登录时启动已关闭。','로그인 시 실행이 꺼져 있습니다.'),('loginError','設定を変更できませんでした：','Could not change the setting: ','无法更改设置：','설정을 변경할 수 없습니다: '),
+('about','FileCaravanについて','About FileCaravan','关于 FileCaravan','FileCaravan에 관하여'),('settings','設定…','Settings…','设置…','설정…'),('settingsTitle','設定','Settings','设置','설정'),('quit','FileCaravanを終了','Quit FileCaravan','退出 FileCaravan','FileCaravan 종료'),('file','ファイル','File','文件','파일'),('showWindow','メインウインドウを開く','Open Main Window','打开主窗口','메인 윈도우 열기'),('close','ウインドウを閉じる','Close Window','关闭窗口','윈도우 닫기'),('edit','編集','Edit','编辑','편집'),('undo','取り消す','Undo','撤销','실행 취소'),('redo','やり直す','Redo','重做','실행 복귀'),('cut','カット','Cut','剪切','오려두기'),('copy','コピー','Copy','拷贝','복사하기'),('paste','ペースト','Paste','粘贴','붙여넣기'),('selectAll','すべてを選択','Select All','全选','모두 선택'),('help','ヘルプ','Help','帮助','도움말'),
+('helpItem','FileCaravanヘルプ','FileCaravan Help','FileCaravan 帮助','FileCaravan 도움말'),('services','サービス','Services','服务','서비스'),('hideApp','FileCaravanを隠す','Hide FileCaravan','隐藏 FileCaravan','FileCaravan 가리기'),('hideOthers','ほかを隠す','Hide Others','隐藏其他','기타 가리기'),('showAll','すべてを表示','Show All','全部显示','모두 보기'),
+('window','ウインドウ','Window','窗口','윈도우'),('minimize','しまう','Minimize','最小化','최소화'),('zoom','拡大／縮小','Zoom','缩放','확대/축소'),('bringAllToFront','すべてを手前に移動','Bring All to Front','前置全部窗口','모두 앞으로 가져오기'),
+('busyQuit','移動処理中は終了できません。','A move is still in progress.','正在移动，无法退出。','이동 중에는 종료할 수 없습니다.'),('busyQuitDetail','「停止」で現在の処理を安全に終えてから、もう一度終了してください。','Choose Stop to finish the current batch safely, then quit again.','点击停止以安全完成当前批次，然后再次退出。','중지를 눌러 현재 배치를 안전하게 끝낸 뒤 다시 종료하세요.'),('continue','続ける','Continue','继续','계속'),('support','サポート：同梱のREADME.md','Support: see the bundled README.md','支持：请参阅随附的 README.md','지원: 함께 제공된 README.md 참조'),
+('login','ログイン時に起動','Launch at login','登录时启动','로그인 시 실행'),('loginOpen','ログイン項目を開く','Open Login Items','打开登录项','로그인 항목 열기'),('loginOn','Macへのログイン時に自動起動します。','Launches automatically when you log in.','登录时自动启动。','로그인 시 자동 실행합니다.'),
+('loginApproval','システム設定のログイン項目で許可してください。','Allow the app in System Settings → Login Items.','请在系统设置的登录项中允许此应用。','시스템 설정의 로그인 항목에서 허용하세요.'),('loginMissing','ログイン起動は未登録です。オンにすると登録します。','Login launch is not registered. Turn it on to register.','登录启动尚未注册。开启后即可注册。','로그인 실행이 등록되지 않았습니다. 켜면 등록됩니다.'),('loginOff','自動起動はオフです。','Launch at login is off.','登录时启动已关闭。','로그인 시 실행이 꺼져 있습니다.'),('loginError','設定を変更できませんでした：','Could not change the setting: ','无法更改设置：','설정을 변경할 수 없습니다: '),
 ]
 # Help markup (rendered by Shared/AppStandards/HelpDocument.swift): ## section, ### subsection, - bullet, 1. step, **bold**.
 helptexts=[
@@ -69,11 +72,16 @@ helptexts=[
 - 常駐オンでは、⌘Wや閉じるボタンでウインドウだけを閉じ、Dockまたは⌘0で再表示します。
 - 常駐オフでは、処理中でなければウインドウを閉じると終了します。
 - ⌘Qで終了します。移動中は終了できないため、「停止」した後でもう一度終了してください。
+### メニューバー
+- 設定の「起動・常駐」→「メニューバーに表示」、またはアプリメニューの「メニューバー設定…」で、メニューバーにアイコンを表示します。初期値はオフです。
+- アイコンのメニューから「メインウインドウを開く」「設定…」「ヘルプ」（FileCaravanヘルプ／note記事を開く）「FileCaravanを終了」を選べます。
 
 ## キーボードショートカット
 - **⌘,**：設定
 - **⌘0**：メインウインドウを開く
 - **⌘W**：ウインドウを閉じる
+- **⌘M**：しまう
+- **⇧⌘Z**：やり直す
 - **⌘?**：ヘルプ
 - **⌘Q**：終了
 - **Esc**：移動を停止
@@ -109,7 +117,7 @@ helptexts=[
 - 外部通信はありません。
 - 履歴は ~/Library/Application Support/FolderMover/History にパスを保存し、ファイルの内容は保存しません。履歴は自動削除せず、Finderから削除できます。
 - 設定はUserDefaultsに保存します。
-- 現在のビルドはローカル利用向けで、更新先・更新署名鍵・公証は未設定です。
+- アプリメニューの「アップデートを確認…」「アップデートを自動確認」は共通の更新機能です。現在のビルドはローカル利用向けで、更新先・更新署名鍵・公証は未設定のため「更新配布の準備中」と表示し、通信しません。App Store版には含みません。
 
 ## サポート
 - 同梱のREADME.md（アプリ内 Contents/Resources/README.md）を参照してください。
@@ -141,11 +149,16 @@ helptexts=[
 - With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.
 - With it off, closing the window quits the app when no move is running.
 - ⌘Q quits. During a move you cannot quit; choose Stop first, then quit again.
+### Menu Bar
+- Turn on Settings → Launch & presence → Show in menu bar, or use Menu Bar Settings… in the app menu, to show an icon in the menu bar. Off by default.
+- The icon's menu offers Open Main Window, Settings…, Help (FileCaravan Help / Open the note Article) and Quit FileCaravan.
 
 ## Keyboard Shortcuts
 - **⌘,**: Settings
 - **⌘0**: Open Main Window
 - **⌘W**: Close the window
+- **⌘M**: Minimize
+- **⇧⌘Z**: Redo
 - **⌘?**: Help
 - **⌘Q**: Quit
 - **Esc**: Stop a move
@@ -181,7 +194,7 @@ helptexts=[
 - No network communication.
 - File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not deleted automatically; remove journals in Finder.
 - Preferences are stored in UserDefaults.
-- This local build has no configured update feed, update verification key or notarization.
+- Check for Updates… and Automatically Check for Updates in the app menu use the shared updater. This local build has no configured update feed, update verification key or notarization, so it reports that updates are not configured and makes no network access. The App Store version does not include them.
 
 ## Support
 - See the bundled README.md (Contents/Resources/README.md in the app).
@@ -213,11 +226,16 @@ helptexts=[
 - 开启“保持运行”时，⌘W 或关闭按钮只关闭窗口，可从 Dock 或用 ⌘0 重新打开。
 - 关闭“保持运行”后，空闲时关闭窗口会退出。
 - ⌘Q 退出。移动期间无法退出，请先“停止”再退出。
+### 菜单栏
+- 在设置的“启动与驻留”中开启“在菜单栏中显示”，或使用应用菜单中的“菜单栏设置…”，即可在菜单栏显示图标。默认关闭。
+- 图标菜单提供“打开主窗口”“设置…”“帮助”（FileCaravan 帮助／打开 note 文章）和“退出 FileCaravan”。
 
 ## 键盘快捷键
 - **⌘,**：设置
 - **⌘0**：打开主窗口
 - **⌘W**：关闭窗口
+- **⌘M**：最小化
+- **⇧⌘Z**：重做
 - **⌘?**：帮助
 - **⌘Q**：退出
 - **Esc**：停止移动
@@ -253,7 +271,7 @@ helptexts=[
 - 没有网络通信。
 - 路径记录在 ~/Library/Application Support/FolderMover/History，不保存文件内容。记录不会自动删除，可在访达中删除。
 - 设置使用 UserDefaults 保存。
-- 本地版本未配置更新源、更新验证密钥或公证。
+- 应用菜单中的“检查更新…”和“自动检查更新”使用通用更新功能。本地版本未配置更新源、更新验证密钥或公证，因此会显示尚未配置，不进行网络通信。App Store 版本不包含此功能。
 
 ## 支持
 - 请参阅随附的 README.md（应用内 Contents/Resources/README.md）。
@@ -285,11 +303,16 @@ helptexts=[
 - 계속 실행을 켜면 ⌘W나 닫기 버튼은 창만 닫습니다. Dock 또는 ⌘0으로 다시 열 수 있습니다.
 - 계속 실행을 끄면 이동 중이 아닐 때 창을 닫으면 종료합니다.
 - ⌘Q로 종료합니다. 이동 중에는 종료할 수 없으므로 먼저 중지한 후 다시 종료하세요.
+### 메뉴 막대
+- 설정의 실행 및 상주에서 메뉴 막대에 표시를 켜거나 앱 메뉴의 메뉴 막대 설정…을 사용하면 메뉴 막대에 아이콘을 표시합니다. 기본값은 꺼짐입니다.
+- 아이콘 메뉴에서 메인 윈도우 열기, 설정…, 도움말(FileCaravan 도움말 / note 글 열기), FileCaravan 종료를 선택할 수 있습니다.
 
 ## 키보드 단축키
 - **⌘,**: 설정
 - **⌘0**: 메인 윈도우 열기
 - **⌘W**: 창 닫기
+- **⌘M**: 최소화
+- **⇧⌘Z**: 실행 복귀
 - **⌘?**: 도움말
 - **⌘Q**: 종료
 - **Esc**: 이동 중지
@@ -325,7 +348,7 @@ helptexts=[
 - 외부 통신을 하지 않습니다.
 - 파일 내용이 아닌 경로를 ~/Library/Application Support/FolderMover/History에 저장합니다. 기록은 자동 삭제하지 않으며 Finder에서 삭제할 수 있습니다.
 - 설정은 UserDefaults에 저장합니다.
-- 이 로컬 빌드에는 업데이트 주소, 업데이트 검증 키, 공증이 설정되지 않았습니다.
+- 앱 메뉴의 업데이트 확인… 및 업데이트 자동 확인은 공통 업데이트 기능입니다. 이 로컬 빌드에는 업데이트 주소, 업데이트 검증 키, 공증이 설정되지 않아 준비 중으로 표시하며 통신하지 않습니다. App Store 버전에는 포함되지 않습니다.
 
 ## 지원
 - 함께 제공된 README.md(앱 내부 Contents/Resources/README.md)를 참조하세요.

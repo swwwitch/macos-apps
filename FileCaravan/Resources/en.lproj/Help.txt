@@ -25,11 +25,16 @@
 - With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.
 - With it off, closing the window quits the app when no move is running.
 - ⌘Q quits. During a move you cannot quit; choose Stop first, then quit again.
+### Menu Bar
+- Turn on Settings → Launch & presence → Show in menu bar, or use Menu Bar Settings… in the app menu, to show an icon in the menu bar. Off by default.
+- The icon's menu offers Open Main Window, Settings…, Help (FileCaravan Help / Open the note Article) and Quit FileCaravan.
 
 ## Keyboard Shortcuts
 - **⌘,**: Settings
 - **⌘0**: Open Main Window
 - **⌘W**: Close the window
+- **⌘M**: Minimize
+- **⇧⌘Z**: Redo
 - **⌘?**: Help
 - **⌘Q**: Quit
 - **Esc**: Stop a move
@@ -65,7 +70,7 @@
 - No network communication.
 - File paths, not file contents, are saved to ~/Library/Application Support/FolderMover/History. History is not deleted automatically; remove journals in Finder.
 - Preferences are stored in UserDefaults.
-- This local build has no configured update feed, update verification key or notarization.
+- Check for Updates… and Automatically Check for Updates in the app menu use the shared updater. This local build has no configured update feed, update verification key or notarization, so it reports that updates are not configured and makes no network access. The App Store version does not include them.
 
 ## Support
 - See the bundled README.md (Contents/Resources/README.md in the app).

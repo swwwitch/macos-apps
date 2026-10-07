@@ -22,9 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installMainMenu()
         shortcut.action = { [weak self] in self?.performShortcut() }
         shortcut.restore()
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 540, height: 455), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        // Miniaturizable so the yellow button and Window > Minimize (⌘M) work; full screen stays off.
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 540, height: 455), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = ""
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
@@ -64,6 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showMainWindow() {
+        if window.isMiniaturized { window.deminiaturize(nil) }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -142,16 +143,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let showMain = fileMenu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(openMainWindowFromMenu(_:)), keyEquivalent: "0")
         showMain.keyEquivalentModifierMask = [.command]
         showMain.target = self
+        fileMenu.addItem(.separator())
         let open = fileMenu.addItem(withTitle: L("画像を選択…"), action: #selector(chooseImages), keyEquivalent: "o")
         open.target = self
+        fileMenu.addItem(.separator())
         fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileMenuItem.submenu = fileMenu
         mainMenu.addItem(fileMenuItem)
         let editRoot = NSMenuItem(title: L("編集"), action: nil, keyEquivalent: "")
         let edit = NSMenu(title: L("編集")); editRoot.submenu = edit; mainMenu.addItem(editRoot)
+        edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: L("やり直す"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        edit.addItem(.separator())
         for (title, selector, key) in [(L("カット"), "cut:", "x"), (L("コピー"), "copy:", "c"), (L("ペースト"), "paste:", "v"), (L("すべてを選択"), "selectAll:", "a")] {
             edit.addItem(withTitle: title, action: Selector(selector), keyEquivalent: key)
         }
+        addStandardWindowMenu(to: mainMenu)
         NSApp.mainMenu = mainMenu
     }
 }
@@ -462,6 +470,19 @@ private final class AdaptiveBackgroundView: NSView {
         fill.setFill(); bounds.intersection(dirtyRect).fill()
     }
     override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); needsDisplay = true }
+}
+
+/// Standard Window menu (placed before Help); registered as NSApp.windowsMenu so open windows are listed.
+private func addStandardWindowMenu(to mainMenu: NSMenu) {
+    let root = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
+    let menu = NSMenu(title: L("ウインドウ"))
+    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+    menu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+    menu.addItem(.separator())
+    menu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+    root.submenu = menu
+    mainMenu.addItem(root)
+    NSApp.windowsMenu = menu
 }
 
 private func addStandardApplicationCommands(to menu: NSMenu, name: String) {

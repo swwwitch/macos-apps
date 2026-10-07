@@ -156,6 +156,7 @@ struct Preferences: View {
                     StartupWindowView()
                     Toggle(L("keepRunning"), isOn: Binding(get: { model.keepRunning }, set: { model.keepRunning = $0; model.save() }))
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
+                    MenuBarPresenceView()
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
                 }
                 SettingsSection(AccessibilityText.text("title")) {
@@ -238,33 +239,61 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         let main = NSMenu(); let root = NSMenuItem(); let appMenu = NSMenu()
         main.addItem(root); root.submenu = appMenu
         add(appMenu, L("about"), #selector(about))
+        appMenu.addItem(.separator())
         add(appMenu, L("settings"), #selector(showPreferences), ",")
+        appMenu.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        MainActor.assumeIsolated { AppUpdates.shared.addMenuItems(to: appMenu) }
+        #endif
+        let services = NSMenu(title: L("services"))
+        appMenu.addItem(withTitle: L("services"), action: nil, keyEquivalent: "").submenu = services
+        NSApp.servicesMenu = services
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: L("hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appMenu.addItem(withTitle: L("hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h").keyEquivalentModifierMask = [.command, .option]
+        appMenu.addItem(withTitle: L("showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        appMenu.addItem(.separator())
         add(appMenu, L("quit"), #selector(quit), "q")
         let fileRoot = NSMenuItem(); let fileMenu = NSMenu(title: L("file")); fileRoot.submenu = fileMenu; main.addItem(fileRoot)
         add(fileMenu, L("openMainWindow"), #selector(openMainWindow), "0"); fileMenu.items.last?.keyEquivalentModifierMask = .command
+        fileMenu.addItem(.separator())
+        fileMenu.addItem(withTitle: L("closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let editRoot = NSMenuItem(); let editMenu = NSMenu(title: L("edit")); editRoot.submenu = editMenu; main.addItem(editRoot)
-        for (key, selector, equivalent) in [("undo", Selector(("undo:")), "z"), ("cut", #selector(NSText.cut(_:)), "x"), ("copy", #selector(NSText.copy(_:)), "c"), ("paste", #selector(NSText.paste(_:)), "v"), ("selectAll", #selector(NSText.selectAll(_:)), "a")] {
+        for (key, selector, equivalent) in [("undo", Selector(("undo:")), "z"), ("redo", Selector(("redo:")), "Z"), ("cut", #selector(NSText.cut(_:)), "x"), ("copy", #selector(NSText.copy(_:)), "c"), ("paste", #selector(NSText.paste(_:)), "v"), ("selectAll", #selector(NSText.selectAll(_:)), "a")] {
             editMenu.addItem(withTitle: L(key), action: selector, keyEquivalent: equivalent)
         }
-        let winRoot = NSMenuItem(); let winMenu = NSMenu(title: L("window")); winRoot.submenu = winMenu; main.addItem(winRoot)
-        winMenu.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-        let helpRoot = NSMenuItem(); let helpMenu = NSMenu(title: L("help")); helpRoot.submenu = helpMenu; main.addItem(helpRoot); add(helpMenu, L("help"), #selector(help), "?"); HelpLinks.addNoteItem(to: helpMenu)
+        let windowRoot = NSMenuItem(); let windowMenu = NSMenu(title: L("window")); windowRoot.submenu = windowMenu; main.addItem(windowRoot)
+        windowMenu.addItem(withTitle: L("minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+        NSApp.windowsMenu = windowMenu
+        let helpRoot = NSMenuItem(); let helpMenu = NSMenu(title: L("help")); helpRoot.submenu = helpMenu; main.addItem(helpRoot); add(helpMenu, L("appHelp"), #selector(help), "?"); HelpLinks.addNoteItem(to: helpMenu)
         NSApp.mainMenu = main; NSApp.helpMenu = helpMenu
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.title = "（）"; item.button?.setAccessibilityLabel("KakkoReplace")
         menu.delegate = self
         resultItem = menu.addItem(withTitle: model.status, action: nil, keyEquivalent: "")
+        add(menu, L("openMainWindow"), #selector(openMainWindow))
         add(menu, L("palette"), #selector(showPalette))
         add(menu, L("hidePalette"), #selector(hidePalette))
         add(menu, L("settings"), #selector(showPreferences), ",")
         add(menu, L("pause"), #selector(togglePause))
         add(menu, L("restore"), #selector(restore))
-        menu.addItem(.separator()); add(menu, L("help"), #selector(help))
-        // Keep the note link right below Help in the status menu (addNoteItem inserts its own separator).
-        HelpLinks.addNoteItem(to: menu); if let note = menu.items.firstIndex(where: { $0.identifier?.rawValue == "shared.help.note" }), note > 0, menu.items[note - 1].isSeparatorItem { menu.removeItem(at: note - 1) }
-        add(menu, L("about"), #selector(about)); add(menu, L("updates"), #selector(updates))
+        menu.addItem(.separator()); add(menu, L("about"), #selector(about))
+        // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
+        let statusHelp = NSMenu(title: L("help")); add(statusHelp, L("appHelp"), #selector(help)); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: statusHelp) }
+        menu.setSubmenu(statusHelp, for: menu.addItem(withTitle: L("help"), action: nil, keyEquivalent: ""))
         menu.addItem(.separator()); add(menu, L("quit"), #selector(quit), "q")
         item.menu = menu
+        // Shared menu-bar component: keeps this item, its menu and the （） title; adds「メニューバー設定…」to the app menu.
+        MainActor.assumeIsolated {
+            MenuBarPresence.shared.install(name: "KakkoReplace", symbol: "parentheses", existing: item,
+                show: { [weak self] in self?.showPrimaryWindow() },
+                settings: { [weak self] in self?.showPreferences() },
+                help: { [weak self] in self?.help() })
+        }
+        item.button?.image = nil
         // Reuse FolderHopper's Apple-event login-launch detection.
         if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.hidden { showPrimaryWindow() }
     }
@@ -291,7 +320,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     @objc func showPreferences() {
         model.refreshLogin()
         if preferences == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 614, height: 690), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 614, height: 690), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle")
             window.contentView = NSHostingView(rootView: Preferences(model: model))
             window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("Preferences"); preferences = window
@@ -339,7 +368,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
     @objc func togglePause() { model.paused.toggle(); model.refreshHotkey() }
     @objc func restore() { model.restoreLastChange() }
-    @objc func updates() { let alert = NSAlert(); alert.messageText = L("updatesPending"); alert.informativeText = L("updatesDetail"); alert.runModal() }
     @objc func about() { NSApp.activate(ignoringOtherApps: true); NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "KakkoReplace", .applicationVersion: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))", .credits: NSAttributedString(string: L("support"))]) }
     @objc func quit() { NSApp.terminate(nil) }
 }

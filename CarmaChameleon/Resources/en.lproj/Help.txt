@@ -78,6 +78,7 @@
 - **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Drag or use ↑↓ to reorder; Restore defaults puts everything back.
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).
 - While it keeps running, reopen the window from the Dock icon.
+- **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
 - For a launch shortcut, create an Open App action for CarmaChameleon in the Shortcuts app and assign a key.
 
 ## Keyboard shortcuts
@@ -86,6 +87,7 @@
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
+- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit (not during a conversion — wait for it or cancel first)
@@ -100,7 +102,7 @@
 - If a conversion fails, check the message, the input format and access to the destination folder.
 - If pandoc is missing, use the bundled version or install the latest one in Settings.
 - Help › Open the note Article opens the article with usage notes and support information.
-- Automatic app updates and notarization are not set up. Requires Apple Silicon and macOS 13 or later.
+- Check for Updates… and Automatically Check for Updates in the app menu say updates are not configured yet (no update feed or signing key) and make no network access. Notarization is not set up either. Requires Apple Silicon and macOS 13 or later.
 
 ## Removing
 1. Turn off Launch at login in Settings.

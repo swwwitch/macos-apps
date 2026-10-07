@@ -191,15 +191,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         mainWindow.center(); mainWindow.setFrameAutosaveName("IdBackgroundOffMain")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         showMain()
+        // No settings window: the menu bar menu's 設定… opens the main window.
+        MainActor.assumeIsolated {
+            MenuBarPresence.shared.install(name: "IdBackgroundOff", symbol: "pause.circle",
+                show: { [weak self] in self?.showMain() },
+                settings: nil,
+                help: { [weak self] in self?.showHelp() })
+        }
     }
     func installMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
         func submenu(_ name: String) -> NSMenu { let item = NSMenuItem(); let menu = NSMenu(title: name); item.submenu = menu; bar.addItem(item); return menu }
         func add(_ m: NSMenu, _ title: String, _ sel: Selector, _ key: String = "", _ target: AnyObject? = nil) { let i = m.addItem(withTitle: title, action: sel, keyEquivalent: key); i.target = target ?? self }
         let app = submenu("IdBackgroundOff")
-        add(app, L("about"), #selector(about))
-        add(app, L("updates"), #selector(updates))
+        add(app, L("about"), #selector(about)); app.addItem(.separator())
+        // MenuBarPresence inserts メニューバー設定… at index 2, between these separators.
         app.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        MainActor.assumeIsolated { AppUpdates.shared.addMenuItems(to: app) }
+        #endif
+        let services = NSMenu(title: L("services")); app.addItem(withTitle: L("services"), action: nil, keyEquivalent: "").submenu = services; NSApp.servicesMenu = services
+        app.addItem(.separator())
+        add(app, L("hideApp"), #selector(NSApplication.hide(_:)), "h", NSApp)
+        add(app, L("hideOthers"), #selector(NSApplication.hideOtherApplications(_:)), "h", NSApp); app.items.last?.keyEquivalentModifierMask = [.command, .option]
+        add(app, L("showAll"), #selector(NSApplication.unhideAllApplications(_:)), "", NSApp); app.addItem(.separator())
         add(app, L("quit"), #selector(NSApplication.terminate(_:)), "q", NSApp)
         let file = submenu(L("file"))
         add(file, L("openMainWindow"), #selector(showMain), "0")
@@ -209,8 +224,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         file.addItem(.separator())
         add(file, L("close"), #selector(NSWindow.performClose(_:)), "w"); file.items.last?.target = nil
         let edit = submenu(L("edit"))
-        for (key, selector, letter) in [("undo", "undo:", "z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil }
-        let help = submenu(L("help")); add(help, L("helpItem"), #selector(showHelp), "?"); NSApp.helpMenu = help
+        for (key, selector, letter) in [("undo", "undo:", "z"), ("redo", "redo:", "Z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] { let i = edit.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter); i.target = nil; if key == "redo" { edit.addItem(.separator()) } }
+        let window = submenu(L("window"))
+        for (key, selector, letter) in [("minimize", "performMiniaturize:", "m"), ("zoom", "performZoom:", "")] { window.addItem(withTitle: L(key), action: NSSelectorFromString(selector), keyEquivalent: letter).target = nil }
+        window.addItem(.separator())
+        window.addItem(withTitle: L("bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "").target = NSApp
+        NSApp.windowsMenu = window
+        let help = submenu(L("help")); add(help, L("helpItem"), #selector(showHelp), "?"); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: help) }; NSApp.helpMenu = help
     }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     @objc func reload() { model.refresh(resetStatus: true) }
@@ -218,8 +238,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
     // InDesign may have been updated or reinstalled while we were in the background.
     func applicationDidBecomeActive(_ notification: Notification) { if !model.busy { model.refresh() } }
-    /// Not resident by design: closing the main window quits (help window alone does not keep it alive).
-    func windowWillClose(_ notification: Notification) { if notification.object as? NSWindow === mainWindow { NSApp.terminate(nil) } }
+    /// Not resident by design: closing the main window quits (help window alone does not keep it alive),
+    /// unless the menu bar icon is shown, which keeps the app running so the icon stays usable.
+    func windowWillClose(_ notification: Notification) {
+        guard notification.object as? NSWindow === mainWindow else { return }
+        if !MainActor.assumeIsolated({ MenuBarPresence.shared.enabled }) { NSApp.terminate(nil) }
+    }
     @objc func showHelp() {
         if helpWindow == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false); w.title = "IdBackgroundOff — " + L("help"); w.isReleasedWhenClosed = false
@@ -230,7 +254,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }
     @objc func about() { NSApp.orderFrontStandardAboutPanel(options: [.credits: NSAttributedString(string: L("support"))]) }
-    @objc func updates() { let a = NSAlert(); a.messageText = L("updatesPending"); a.informativeText = L("updatesDetail"); a.runModal() }
 }
 
 let app = NSApplication.shared

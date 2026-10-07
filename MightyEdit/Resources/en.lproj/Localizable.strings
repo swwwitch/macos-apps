@@ -1,5 +1,4 @@
 "app.ready" = "Select text, then click a button";
-"menu.showPalette" = "Show Palette";
 "menu.hidePalette" = "Hide Palette";
 "menu.settings" = "Settings…";
 "menu.copyOnly" = "Copy Without Replacing";
@@ -19,8 +18,15 @@
 "menu.copy" = "Copy";
 "menu.paste" = "Paste";
 "menu.selectAll" = "Select All";
-"menu.window" = "Window";
+"menu.services" = "Services";
+"menu.hideApp" = "Hide MightyEdit";
+"menu.hideOthers" = "Hide Others";
+"menu.showAll" = "Show All";
 "menu.closeWindow" = "Close Window";
+"menu.window" = "Window";
+"menu.minimize" = "Minimize";
+"menu.zoom" = "Zoom";
+"menu.bringAllToFront" = "Bring All to Front";
 "help" = "Help";
 "help.missing" = "The help file is missing. See the bundled README.";
 "settings.window" = "Settings";

@@ -57,9 +57,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.77</string>
+	<string>0.1.81</string>
 	<key>CFBundleVersion</key>
-	<string>91</string>
+	<string>95</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
@@ -70,7 +72,5 @@
 	<true/>
 	<key>SWNoteArticleURL</key>
 	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.utilities</string>
 </dict>
 </plist>

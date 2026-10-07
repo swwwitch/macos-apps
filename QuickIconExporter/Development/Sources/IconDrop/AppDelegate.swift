@@ -13,7 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self else { return }
             MenuBarPresence.shared.install(name: "QuickIconExporter", symbol: "square.and.arrow.up", existing: self.statusItem,
                 show: { [weak self] in self?.showWindow() },
-                settings: { [weak self] in NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) },
+                settings: { [weak self] in self?.showSettings() },
                 help: { [weak self] in LocalHelp.shared.show() })
         } }
         NSApp.setActivationPolicy(.accessory)
@@ -22,17 +22,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.image = NSImage(systemSymbolName: "square.and.arrow.up", accessibilityDescription: "QuickIconExporter")
         let menu = NSMenu()
+        menu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(showWindow), keyEquivalent: "").target = self
         menu.addItem(withTitle: L("ファイルを選択…"), action: #selector(selectFiles), keyEquivalent: "o").target = self
-        menu.addItem(withTitle: L("ウインドウを表示"), action: #selector(showWindow), keyEquivalent: "").target = self
-        // The main menu (and its Help menu) is hidden for this menu bar app, so help lives here too.
         menu.addItem(.separator())
-        menu.addItem(withTitle: L("QuickIconExporterヘルプ"), action: #selector(LocalHelp.show), keyEquivalent: "").target = LocalHelp.shared
-        HelpLinks.addNoteItem(to: menu)
+        menu.addItem(withTitle: L("設定…"), action: #selector(showSettings), keyEquivalent: "").target = self
+        // The main menu (and its Help menu) is hidden for this menu bar app, so help lives here too,
+        // grouped in a ヘルプ submenu (BASELINE「メニューの共通構成」).
+        let helpMenu = NSMenu()
+        helpMenu.addItem(withTitle: L("QuickIconExporterヘルプ"), action: #selector(LocalHelp.show), keyEquivalent: "").target = LocalHelp.shared
+        HelpLinks.addNoteItem(to: helpMenu)
+        let helpItem = menu.addItem(withTitle: L("ヘルプ"), action: nil, keyEquivalent: "")
+        menu.setSubmenu(helpMenu, for: helpItem)
         menu.addItem(.separator())
-        menu.addItem(withTitle: L("終了"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        #if DIRECT_UPDATES && !APP_STORE
-        AppUpdates.shared.addMenuItems(to: menu)
-        #endif
+        // Update items live in the app menu only (BASELINE「常駐メニューの例外」).
+        // Quit stays last: nothing (not even a separator) goes below it.
+        menu.addItem(withTitle: L("QuickIconExporterを終了"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         item.menu = menu
         statusItem = item
     }
@@ -46,11 +50,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func showWindow() {
         // Pick the main window explicitly, not Settings, Help or another utility window.
         if let window = MainWindow.current {
+            if window.isMiniaturized { window.deminiaturize(nil) }
             window.makeKeyAndOrderFront(nil)
         } else {
             MainWindow.open?()
         }
         NSApp.activate(ignoringOtherApps: true)
+    }
+    /// Opens the SwiftUI Settings scene (status menu and the shared menu bar presence).
+    @objc func showSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
     @objc private func selectFiles() {
         let panel = NSOpenPanel()

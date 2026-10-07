@@ -15,7 +15,10 @@ After updating InDesign
 An update or reinstall can remove the file and turn background export back on. Each autumn's major version installs into a new folder (for example Adobe InDesign 2027), so turn it off again for the new version. The list is re-read when you return to the app, or with ⌘R.
 
 Quitting and shortcuts
-The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), and ⌘? opens this help. There are no settings.
+The app does not stay running. Closing the window (⌘W) or ⌘Q quits it. ⌘R reloads, ⌘O adds InDesign, ⌘0 opens the main window (Open Main Window), ⌘M minimizes, ⇧⌘Z redoes, and ⌘? opens this help. There is no settings window.
+
+Menu bar
+Turn on Add to Menu Bar in Menu Bar Settings… in the app menu to show an icon in the menu bar (off by default). Its menu offers Open Main Window, Help (IdBackgroundOff Help / Open the note Article) and Quit IdBackgroundOff. While the icon is shown, closing the window does not quit the app; reopen it from the icon or with ⌘0.
 
 Troubleshooting and manual restore
 Status unavailable means a folder or link with the same name exists. The app leaves it alone; check it in Finder.
@@ -23,6 +26,6 @@ To restore without the app, Control-click InDesign, choose Show Package Contents
 If only some changes failed, check the counts and each row, then try again.
 
 Privacy and updates
-No network access. Only the paths of apps chosen with Add InDesign… and the window position are saved (UserDefaults). This build is ad-hoc signed for local use; no update feed or notarization is configured.
+No network access. Only the paths of apps chosen with Add InDesign…, the window position and the menu bar choice are saved (UserDefaults). Check for Updates… and Automatically Check for Updates in the app menu use the shared updater, but this build is ad-hoc signed for local use with no update feed, signing key or notarization, so it reports that updates are not configured and makes no network access.
 Reference (Japanese): https://note.com/dtp_tranist/n/nf94bf905c478
 Support: see the bundled README.md (Contents/Resources/README.md inside the app).

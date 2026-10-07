@@ -4,6 +4,8 @@ struct MovePair: Codable {
     let from: URL; let to: URL; var isSymbolicLink = false
     var identity: String? = nil
     var isCopy: Bool? = nil
+    /// The destination is an existing symbolic link that the new link replaces (links into /Applications).
+    var replacesLink: Bool? = nil
 }
 struct MoveFailure: LocalizedError {
     let message: String
@@ -42,7 +44,12 @@ enum MoveEngine {
     static func exists(_ url: URL) -> Bool {
         FileManager.default.fileExists(atPath: url.path) || (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
     }
-    static func plan(_ sources: [URL], into destination: URL, renameConflicts: Bool = false) throws -> [MovePair] {
+    static func isSymbolicLink(_ url: URL) -> Bool {
+        (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
+    }
+    /// `replaceSymbolicLinks`: an existing symbolic link with the same name is overwritten instead of
+    /// getting a numbered name (used when creating links in /Applications). Real files are never replaced.
+    static func plan(_ sources: [URL], into destination: URL, renameConflicts: Bool = false, replaceSymbolicLinks: Bool = false) throws -> [MovePair] {
         guard !sources.isEmpty else { throw MoveFailure(message: L("移動するファイルを選択してください。")) }
         let fm = FileManager.default
         let target = destination.resolvingSymlinksInPath().standardizedFileURL
@@ -69,7 +76,10 @@ enum MoveEngine {
                 let name = url.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased()
                 return occupied.contains(name) || names.contains(name) || exists(url)
             }
-            if unavailable(output) {
+            var replacesLink = false
+            if replaceSymbolicLinks, isSymbolicLink(output), !names.contains(output.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased()) {
+                replacesLink = true
+            } else if unavailable(output) {
                 guard renameConflicts else { throw MoveFailure(message: L("移動先に同名の項目があります: %@\n上書きせずに中止しました。", String(describing: source.lastPathComponent))) }
                 let ext = values.isDirectory == true ? "" : source.pathExtension
                 let stem = ext.isEmpty ? source.lastPathComponent : source.deletingPathExtension().lastPathComponent
@@ -80,7 +90,7 @@ enum MoveEngine {
                 } while unavailable(output)
             }
             names.insert(output.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased())
-            result.append(MovePair(from: source, to: output))
+            result.append(MovePair(from: source, to: output, replacesLink: replacesLink ? true : nil))
         }
         return result
     }
@@ -91,7 +101,18 @@ enum MoveEngine {
                 if let expected = pair.identity, identity(pair.from) != expected {
                     throw MoveFailure(message: L("項目が削除・置換されたため処理を中止しました: %@", String(describing: pair.from.lastPathComponent)))
                 }
-                if asSymbolicLinks {
+                if asSymbolicLinks, pair.replacesLink == true {
+                    // Create the new link beside the old one, then rename it over the old link (atomic).
+                    guard isSymbolicLink(pair.to) else { throw MoveFailure(message: L("移動先に同名の項目があります: %@\n上書きせずに中止しました。", String(describing: pair.to.lastPathComponent))) }
+                    let temporary = pair.to.deletingLastPathComponent().appendingPathComponent(".\(pair.to.lastPathComponent).\(UUID().uuidString)")
+                    try FileManager.default.createSymbolicLink(atPath: temporary.path, withDestinationPath: pair.from.path)
+                    guard rename(temporary.path, pair.to.path) == 0 else {
+                        let code = errno
+                        try? FileManager.default.removeItem(at: temporary)
+                        throw NSError(domain: NSPOSIXErrorDomain, code: Int(code))
+                    }
+                    done.append(MovePair(from: pair.from, to: pair.to, isSymbolicLink: true, identity: identity(pair.to)))
+                } else if asSymbolicLinks {
                     try FileManager.default.createSymbolicLink(atPath: pair.to.path, withDestinationPath: pair.from.path)
                     done.append(MovePair(from: pair.from, to: pair.to, isSymbolicLink: true, identity: identity(pair.to)))
                 } else if asCopies {

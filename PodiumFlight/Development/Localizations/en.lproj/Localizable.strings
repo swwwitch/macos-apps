@@ -1,11 +1,16 @@
 "PodiumFlight — セミナー・キャプチャ準備" = "PodiumFlight — Seminar & Capture Preparation";
 "PodiumFlightについて" = "About PodiumFlight";
+"メニューバー設定…" = "Menu Bar Settings…";
 "設定…" = "Settings…";
 "ファイル" = "File";
 "メインウインドウを開く" = "Open Main Window";
 "ウインドウを閉じる" = "Close Window";
+"ウインドウ" = "Window";
+"しまう" = "Minimize";
+"拡大／縮小" = "Zoom";
+"すべてを手前に移動" = "Bring All to Front";
 "編集" = "Edit";
-"切り取り" = "Cut";
+"カット" = "Cut";
 "コピー" = "Copy";
 "ペースト" = "Paste";
 "すべてを選択" = "Select All";
@@ -102,7 +107,6 @@
 "通知オフは、おやすみモードを有効にします。" = "Turning off notifications enables Do Not Disturb.";
 "プリセットを適用" = "Apply Preset";
 "設定でプリセットを保存できます" = "Save presets in Settings";
-"終了" = "Quit";
 "選択中" = "Selected";
 "未選択" = "Not Selected";
 "サービス" = "Services";

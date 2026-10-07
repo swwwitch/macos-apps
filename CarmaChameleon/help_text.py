@@ -80,6 +80,7 @@ HELP = {
 - **変換形式**タブ：メインウインドウに表示する変換形式と、その順番を選べます。チェックを外した形式は一覧に出ません。ドラッグまたは↑↓で並べ替え、「初期状態に戻す」で元に戻せます。
 - **エンジン**タブ：pandoc と PDFエンジン（Typst）の状態・更新・独自のパスを設定します。
 - 常駐中はDockのアイコンからウインドウを再表示できます。
+- **メニューバーに表示**（起動・常駐タブ、またはアプリメニューの「メニューバー設定…」）：メニューバーのアイコンを表示します（初期値オン）。アイコンのメニューには「メインウインドウを開く」「設定…」「ヘルプ」（「CarmaChameleonヘルプ」「note記事を開く」）「CarmaChameleonを終了」があります。
 - アプリ起動のホットキーは、ショートカットAppで「アプリを開く」にCarmaChameleonを指定して割り当てます。
 
 ## ホットキー
@@ -88,6 +89,7 @@ HELP = {
 - **Esc**：変換をキャンセル
 - **⌘0**：メインウインドウを開く（閉じた後も再表示できます）
 - **⌘W**：ウインドウを閉じる
+- **⌘M**：ウインドウをしまう（ウインドウメニュー）
 - **⌘,**：設定
 - **⌘?**：ヘルプ
 - **⌘Q**：終了（変換中は終了できません。完了を待つかキャンセルしてください）
@@ -102,7 +104,7 @@ HELP = {
 - 失敗したときは、表示されたメッセージ、入力形式、保存先のアクセス権を確認してください。
 - pandocが見つからないときは、設定で同梱版に戻すか、最新版をインストールしてください。
 - ヘルプメニューの「note記事を開く」で、使い方の記事とサポート情報を開けます。
-- アプリ自体の自動更新と公証は未設定です。Apple Silicon・macOS 13以降用です。
+- アプリメニューの「アップデートを確認…」「アップデートを自動確認」は、更新の配信先と署名鍵が未設定のため準備中と表示し、通信しません。公証も未設定です。Apple Silicon・macOS 13以降用です。
 
 ## 削除
 1. 設定でログイン時に起動をオフにします。
@@ -189,6 +191,7 @@ HELP = {
 - **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Drag or use ↑↓ to reorder; Restore defaults puts everything back.
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).
 - While it keeps running, reopen the window from the Dock icon.
+- **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
 - For a launch shortcut, create an Open App action for CarmaChameleon in the Shortcuts app and assign a key.
 
 ## Keyboard shortcuts
@@ -197,6 +200,7 @@ HELP = {
 - **Escape**: cancel the conversion
 - **Command-0**: open the main window (also after closing it)
 - **Command-W**: close the window
+- **Command-M**: minimize the window (Window menu)
 - **Command-comma**: Settings
 - **Command-?**: Help
 - **Command-Q**: quit (not during a conversion — wait for it or cancel first)
@@ -211,7 +215,7 @@ HELP = {
 - If a conversion fails, check the message, the input format and access to the destination folder.
 - If pandoc is missing, use the bundled version or install the latest one in Settings.
 - Help › Open the note Article opens the article with usage notes and support information.
-- Automatic app updates and notarization are not set up. Requires Apple Silicon and macOS 13 or later.
+- Check for Updates… and Automatically Check for Updates in the app menu say updates are not configured yet (no update feed or signing key) and make no network access. Notarization is not set up either. Requires Apple Silicon and macOS 13 or later.
 
 ## Removing
 1. Turn off Launch at login in Settings.
@@ -298,6 +302,7 @@ HELP = {
 - **输出格式**标签：选择主窗口显示哪些输出格式及其顺序。取消勾选的格式不显示。可拖动或用 ↑↓ 排序，“恢复默认”可还原。
 - **引擎**标签：pandoc 和 PDF 引擎（Typst）的状态、更新和自定义路径。
 - 后台运行时，可从 Dock 图标重新显示窗口。
+- **在菜单栏中显示**（“启动与后台”标签，或应用菜单中的“菜单栏设置…”）：显示菜单栏图标（默认开启）。图标菜单包含“打开主窗口”“设置…”“帮助”（“CarmaChameleon 帮助”“打开 note 文章”）和“退出 CarmaChameleon”。
 - 启动快捷键：在快捷指令中为 CarmaChameleon 创建“打开 App”并分配按键。
 
 ## 键盘快捷键
@@ -306,6 +311,7 @@ HELP = {
 - **Esc**：取消转换
 - **⌘0**：打开主窗口（关闭后也可重新显示）
 - **⌘W**：关闭窗口
+- **⌘M**：最小化窗口（“窗口”菜单）
 - **⌘,**：设置
 - **⌘?**：帮助
 - **⌘Q**：退出（转换期间无法退出，请等待完成或先取消）
@@ -320,7 +326,7 @@ HELP = {
 - 转换失败时，请检查提示信息、输入格式和保存位置的访问权限。
 - 找不到 pandoc 时，请在设置中恢复内置版本或安装最新版本。
 - “帮助”菜单中的“打开 note 文章”可打开使用说明和支持信息。
-- 应用自动更新和公证尚未配置。需要 Apple Silicon 和 macOS 13 或更高版本。
+- 应用菜单中的“检查更新…”和“自动检查更新”因尚未配置更新源和签名密钥而显示为准备中，不会联网。公证也尚未配置。需要 Apple Silicon 和 macOS 13 或更高版本。
 
 ## 删除
 1. 在设置中关闭“登录时启动”。
@@ -407,6 +413,7 @@ HELP = {
 - **출력 형식** 탭: 메인 윈도우에 표시할 출력 형식과 순서를 고릅니다. 선택을 해제한 형식은 표시되지 않습니다. 드래그하거나 ↑↓로 순서를 바꾸고 "기본값으로 복원"으로 되돌릴 수 있습니다.
 - **엔진** 탭: pandoc과 PDF 엔진(Typst)의 상태, 업데이트, 사용자 경로를 설정합니다.
 - 계속 실행 중에는 Dock 아이콘에서 윈도우를 다시 열 수 있습니다.
+- **메뉴 막대에 표시**(시작 및 백그라운드 탭 또는 앱 메뉴의 "메뉴 막대 설정…"): 메뉴 막대 아이콘을 표시합니다(기본값 켬). 아이콘 메뉴에는 "메인 윈도우 열기", "설정…", "도움말"("CarmaChameleon 도움말", "note 글 열기"), "CarmaChameleon 종료"가 있습니다.
 - 실행 단축키는 단축어 앱에서 CarmaChameleon를 여는 동작을 만들고 키를 지정하세요.
 
 ## 키보드 단축키
@@ -415,6 +422,7 @@ HELP = {
 - **Esc**: 변환 취소
 - **⌘0**: 메인 윈도우 열기(닫은 후에도 다시 표시)
 - **⌘W**: 윈도우 닫기
+- **⌘M**: 윈도우 최소화(윈도우 메뉴)
 - **⌘,**: 설정
 - **⌘?**: 도움말
 - **⌘Q**: 종료(변환 중에는 종료할 수 없습니다. 완료를 기다리거나 먼저 취소하세요)
@@ -429,7 +437,7 @@ HELP = {
 - 변환에 실패하면 표시된 메시지, 입력 형식, 저장 위치의 접근 권한을 확인하세요.
 - pandoc을 찾을 수 없으면 설정에서 포함된 버전으로 되돌리거나 최신 버전을 설치하세요.
 - 도움말 메뉴의 "note 글 열기"에서 사용법과 지원 정보를 볼 수 있습니다.
-- 앱 자동 업데이트와 공증은 설정되어 있지 않습니다. Apple Silicon, macOS 13 이상이 필요합니다.
+- 앱 메뉴의 "업데이트 확인…"과 "업데이트 자동 확인"은 업데이트 주소와 서명 키가 설정되지 않아 준비 중으로 표시되며 네트워크에 연결하지 않습니다. 공증도 설정되어 있지 않습니다. Apple Silicon, macOS 13 이상이 필요합니다.
 
 ## 삭제
 1. 설정에서 로그인 시 실행을 끄세요.

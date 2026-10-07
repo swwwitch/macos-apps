@@ -2,7 +2,7 @@
 
 Sparkle 2.10.0（公式配布SHA-256は `prepare.py` に固定）を使用します。各アプリは `DIRECT_UPDATES` が指定された通常ビルドだけでSparkleを参照します。`APP_STORE` ビルドでは更新コードを除外します。
 
-共通実装は `UpdateSupport.swift` です。各Swiftターゲット内のコピーは `prepare.py` が一致確認します。共通実装を変更する場合は6つのコピーも同期してください。これにより従来のSwiftPM / swiftcビルド構成を保っています。通常の `swift test` は更新UIをリンクせず既存ロジックを検証し、共通更新コードは `test.sh` がフレームワーク込みで検証します。
+共通実装は `UpdateSupport.swift` です。各Swiftターゲット内のコピーは `prepare.py` が一致確認します。共通実装を変更する場合は各アプリのコピー（全13本、`prepare.py` の TARGETS）も同期してください。これにより従来のSwiftPM / swiftcビルド構成を保っています。通常の `swift test` は更新UIをリンクせず既存ロジックを検証し、共通更新コードは `test.sh` がフレームワーク込みで検証します。
 
 ## 現在の動作
 

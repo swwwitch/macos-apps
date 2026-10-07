@@ -19,7 +19,6 @@ LANGS = ['ja', 'en', 'zh-Hans', 'ko']
 
 rows = r'''
 app.ready|文字を選択して、ボタンをクリック|Select text, then click a button|选择文字，然后点击按钮|텍스트를 선택한 다음 버튼을 클릭하세요
-menu.showPalette|パレットを表示|Show Palette|显示面板|팔레트 보기
 menu.hidePalette|パレットを隠す|Hide Palette|隐藏面板|팔레트 숨기기
 menu.settings|設定…|Settings…|设置…|설정…
 menu.copyOnly|置き換えずにコピー|Copy Without Replacing|复制而不替换|대치하지 않고 복사
@@ -35,12 +34,19 @@ menu.openMainWindow|メインウインドウを開く|Open Main Window|打开主
 menu.edit|編集|Edit|编辑|편집
 menu.undo|取り消す|Undo|撤销|실행 취소
 menu.redo|やり直す|Redo|重做|실행 복귀
-menu.cut|カット|Cut|剪切|잘라내기
+menu.cut|カット|Cut|剪切|오려두기
 menu.copy|コピー|Copy|拷贝|복사하기
 menu.paste|ペースト|Paste|粘贴|붙여넣기
-menu.selectAll|すべてを選択|Select All|全选|전체 선택
-menu.window|ウインドウ|Window|窗口|윈도우
+menu.selectAll|すべてを選択|Select All|全选|모두 선택
+menu.services|サービス|Services|服务|서비스
+menu.hideApp|MightyEditを隠す|Hide MightyEdit|隐藏 MightyEdit|MightyEdit 가리기
+menu.hideOthers|ほかを隠す|Hide Others|隐藏其他|기타 가리기
+menu.showAll|すべてを表示|Show All|全部显示|모두 보기
 menu.closeWindow|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
+menu.window|ウインドウ|Window|窗口|윈도우
+menu.minimize|しまう|Minimize|最小化|최소화
+menu.zoom|拡大／縮小|Zoom|缩放|확대/축소
+menu.bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
 help|ヘルプ|Help|帮助|도움말
 help.missing|ヘルプファイルが見つかりません。同梱のREADMEを参照してください。|The help file is missing. See the bundled README.|找不到帮助文件。请参阅附带的 README。|도움말 파일을 찾을 수 없습니다. 포함된 README를 참조하세요.
 settings.window|設定|Settings|设置|설정
@@ -222,7 +228,7 @@ hotkey.axKey|%@のキー|Key for %@|%@的按键|%@ 키
 hotkey.apply|適用|Apply|应用|적용
 hotkey.axApply|%@に適用|Apply %@|应用到%@|%@에 적용
 hotkey.reservedTitle|%@は標準の操作に使われているため設定できません。|%@ is used by a standard command and cannot be assigned.|%@用于标准操作，无法设置。|%@은(는) 표준 명령에 사용되므로 설정할 수 없습니다.
-hotkey.reservedDetail|⌘A（すべてを選択）・⌘Z（取り消す）・⌘X（カット）・⌘C（コピー）・⌘V（ペースト）・⌘W（閉じる）・⌘,（設定）・⌘Q（終了）は使用できません。Control・Option・Shiftを組み合わせてください。|⌘A (Select All), ⌘Z (Undo), ⌘X (Cut), ⌘C (Copy), ⌘V (Paste), ⌘W (Close), ⌘, (Settings) and ⌘Q (Quit) cannot be used. Add Control, Option or Shift.|不能使用 ⌘A（全选）、⌘Z（撤销）、⌘X（剪切）、⌘C（拷贝）、⌘V（粘贴）、⌘W（关闭）、⌘,（设置）和 ⌘Q（退出）。请组合 Control、Option 或 Shift。|⌘A(전체 선택), ⌘Z(실행 취소), ⌘X(잘라내기), ⌘C(복사하기), ⌘V(붙여넣기), ⌘W(닫기), ⌘,(설정), ⌘Q(종료)는 사용할 수 없습니다. Control, Option, Shift를 조합하세요.
+hotkey.reservedDetail|⌘A（すべてを選択）・⌘Z（取り消す）・⌘X（カット）・⌘C（コピー）・⌘V（ペースト）・⌘W（閉じる）・⌘,（設定）・⌘Q（終了）は使用できません。Control・Option・Shiftを組み合わせてください。|⌘A (Select All), ⌘Z (Undo), ⌘X (Cut), ⌘C (Copy), ⌘V (Paste), ⌘W (Close), ⌘, (Settings) and ⌘Q (Quit) cannot be used. Add Control, Option or Shift.|不能使用 ⌘A（全选）、⌘Z（撤销）、⌘X（剪切）、⌘C（拷贝）、⌘V（粘贴）、⌘W（关闭）、⌘,（设置）和 ⌘Q（退出）。请组合 Control、Option 或 Shift。|⌘A(모두 선택), ⌘Z(실행 취소), ⌘X(오려두기), ⌘C(복사하기), ⌘V(붙여넣기), ⌘W(닫기), ⌘,(설정), ⌘Q(종료)는 사용할 수 없습니다. Control, Option, Shift를 조합하세요.
 hotkey.needModifier|Control・Option・Commandのいずれかを選んでください。|Choose Control, Option or Command.|请选择 Control、Option 或 Command 中的一个。|Control, Option, Command 중 하나를 선택하세요.
 hotkey.inUse|このホットキーは別の操作に割り当てられています。|This hotkey is already assigned to another action.|此快捷键已分配给其他操作。|이 단축키는 다른 동작에 할당되어 있습니다.
 scope.global|すべてのアプリ|All Apps|所有应用|모든 앱

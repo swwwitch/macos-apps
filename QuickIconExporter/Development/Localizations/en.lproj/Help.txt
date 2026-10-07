@@ -31,6 +31,7 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - **⌘O**: Choose Files
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
+- **⌘M**: Minimize the main window
 - **⌘W**: Close Window
 - **⌘Q**: Quit QuickIconExporter
 
@@ -42,10 +43,11 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - If the destination can’t be written to, choose a folder you can write to.
 
 ## Opening and Quitting
-- Closing the window does not quit the app; it stays in the menu bar. Choose Show Window from the menu bar icon to show the main window again.
+- Closing the window does not quit the app; it stays in the menu bar. Choose Open Main Window from the menu bar icon to show the main window again.
 - When opened at login, or when Hide main window at startup is on, the app starts without opening the main window.
 - Turning off Show in menu bar does not quit the app. Open QuickIconExporter again to show the main window.
-- To quit, choose Quit from the menu bar icon.
+- To quit, choose Quit QuickIconExporter from the menu bar icon.
+- Check for new versions with Check for Updates… in the app menu. Until update delivery is set up, it shows “Updates are not configured” and makes no network connection.
 
 ## Troubleshooting
 - If icons can’t be exported, make sure the destination folder exists and can be written to. Click Reset to Desktop in the Export tab of Settings to return to the default destination.
@@ -54,10 +56,10 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - If notifications don’t appear, make sure QuickIconExporter is allowed in Notifications in System Settings.
 
 ## Help and the note Article
-- To open this help, choose QuickIconExporter Help from the menu bar icon.
-- Choose Open the note Article in the same menu to read the article on note in your browser.
+- To open this help, choose Help > QuickIconExporter Help from the menu bar icon. While a window is shown, you can also choose QuickIconExporter Help (⌘?) from the Help menu.
+- Choose Open the note Article in the same Help submenu to read the article on note in your browser.
 
 ## Removing the App
 1. Turn off Open at login.
-2. Choose Quit from the menu bar icon.
+2. Choose Quit QuickIconExporter from the menu bar icon.
 3. Move QuickIconExporter to the Trash.

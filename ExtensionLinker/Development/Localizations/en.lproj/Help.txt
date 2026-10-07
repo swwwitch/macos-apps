@@ -34,6 +34,7 @@ Open **Settings…** from the app menu (⌘,).
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window (also after closing it)
+- **⌘M**: Minimize the window to the Dock
 - **⌘R**: Reload current settings
 - **⌘,**: Settings
 - **⌘?**: Help
@@ -42,7 +43,7 @@ Open **Settings…** from the app menu (⌘,).
 
 ## Running in the Background and Quitting
 - Closing the window does not quit the app. Click the Dock icon to show the window again.
-- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- When **Show in menu bar** is on, the menu bar icon offers **Open Main Window**, **Settings…**, **Help** (**ExtensionLinker Help** and **Open the note Article**), and **Quit ExtensionLinker**.
 - To quit, press ⌘Q or choose **Quit ExtensionLinker** from the app menu.
 
 ## Permissions

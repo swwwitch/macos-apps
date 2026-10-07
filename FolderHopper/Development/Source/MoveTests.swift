@@ -86,6 +86,22 @@ import Foundation
     let numberedLinkPlan = try MoveEngine.plan([linkSource], into: target, renameConflicts: true)
     let numberedLinks = MoveEngine.execute(numberedLinkPlan, asSymbolicLinks: true)
     precondition(numberedLinks.error == nil && numberedLinkPlan[0].to.lastPathComponent == "リンク元 2.ai")
+    // Links into /Applications: an existing link of the same name is overwritten, not numbered.
+    let newer = source.appendingPathComponent("newer", isDirectory: true)
+    try fm.createDirectory(at: newer, withIntermediateDirectories: true)
+    let newerSource = try file("リンク元.ai", in: newer, text: "newer")
+    let replacePlan = try MoveEngine.plan([newerSource], into: target, renameConflicts: true, replaceSymbolicLinks: true)
+    precondition(replacePlan[0].to.lastPathComponent == "リンク元.ai" && replacePlan[0].replacesLink == true)
+    let replaced = MoveEngine.execute(replacePlan, asSymbolicLinks: true)
+    let replacedDestination = try fm.destinationOfSymbolicLink(atPath: replacePlan[0].to.path)
+    precondition(replaced.error == nil && replacedDestination == newerSource.path && fm.fileExists(atPath: linkSource.path))
+    let leftovers = try fm.contentsOfDirectory(atPath: target.path)
+    precondition(!leftovers.contains { $0.hasPrefix(".リンク元.ai.") })
+    // A real file with the same name is never replaced; it still gets a numbered name.
+    _ = try file("real.txt", in: target, text: "keep")
+    let realSource = try file("real.txt", in: newer)
+    let realPlan = try MoveEngine.plan([realSource], into: target, renameConflicts: true, replaceSymbolicLinks: true)
+    precondition(realPlan[0].replacesLink == nil && realPlan[0].to.lastPathComponent == "real 2.txt")
     // Copy leaves the original unchanged and produces the same content.
     let copySource = try file("copy.txt", in: source, text: "copy content")
     let copyPlan = try MoveEngine.plan([copySource], into: target)
@@ -101,6 +117,6 @@ import Foundation
     let partial = MoveEngine.execute(partialPlan)
     precondition(partial.error != nil && partial.done.count == 1)
     precondition(!fm.fileExists(atPath: partialA.path) && fm.fileExists(atPath: partialB.path))
-    print("PASS: move, copy, collisions, numbered names, symbolic links, partial failure")
+    print("PASS: move, copy, collisions, numbered names, symbolic links, link overwrite, partial failure")
  }
 }

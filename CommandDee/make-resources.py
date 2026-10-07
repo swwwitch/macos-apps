@@ -12,23 +12,29 @@ root = Path(__file__).resolve().parent
 LANGS = ['ja', 'en', 'zh-Hans', 'ko']
 
 rows = '''\
-menu.about|CommandDeeについて|About CommandDee|关于 CommandDee|CommandDee 정보
+menu.about|CommandDeeについて|About CommandDee|关于 CommandDee|CommandDee에 관하여
 menu.settings|設定…|Settings…|设置…|설정…
+menu.services|サービス|Services|服务|서비스
 menu.hide|CommandDeeを隠す|Hide CommandDee|隐藏 CommandDee|CommandDee 가리기
+menu.hideOthers|ほかを隠す|Hide Others|隐藏其他|기타 가리기
+menu.showAll|すべてを表示|Show All|全部显示|모두 보기
 menu.quit|CommandDeeを終了|Quit CommandDee|退出 CommandDee|CommandDee 종료
 menu.file|ファイル|File|文件|파일
 menu.openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
-menu.window|ウインドウ|Window|窗口|윈도우
 menu.closeWindow|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
 menu.edit|編集|Edit|编辑|편집
 menu.undo|取り消す|Undo|撤销|실행 취소
-menu.cut|カット|Cut|剪切|잘라내기
+menu.redo|やり直す|Redo|重做|실행 복귀
+menu.cut|カット|Cut|剪切|오려두기
 menu.copy|コピー|Copy|拷贝|복사하기
 menu.paste|ペースト|Paste|粘贴|붙여넣기
-menu.selectAll|すべてを選択|Select All|全选|전체 선택
+menu.selectAll|すべてを選択|Select All|全选|모두 선택
+menu.window|ウインドウ|Window|窗口|윈도우
+menu.minimize|しまう|Minimize|最小化|최소화
+menu.zoom|拡大／縮小|Zoom|缩放|확대/축소
+menu.bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
 menu.help|ヘルプ|Help|帮助|도움말
 menu.appHelp|CommandDeeヘルプ|CommandDee Help|CommandDee 帮助|CommandDee 도움말
-menu.appHelpEllipsis|CommandDeeヘルプ…|CommandDee Help…|CommandDee 帮助…|CommandDee 도움말…
 menu.enableShortcuts|ホットキーを有効にする|Enable Shortcuts|启用快捷键|단축키 활성화
 status.initial|ファイル／フォルダを選択して ⌘D|Select files or folders and press ⌘D|选择文件或文件夹后按 ⌘D|파일 또는 폴더를 선택하고 ⌘D를 누르세요
 status.tooltip|CommandDee — バージョン・日付付きで複製|CommandDee — Duplicate with a version or date|CommandDee — 添加版本号或日期并复制|CommandDee — 버전 또는 날짜를 붙여 복제
@@ -106,6 +112,7 @@ help_texts = {
 - **⌘0**：メインウインドウを開く
 - **⌘,**：設定
 - **⌘W**：ウインドウを閉じる
+- **⌘M**：ウインドウをしまう
 - **⌘Q**：CommandDeeを終了（このアプリの画面で）
 
 ## 例
@@ -140,8 +147,12 @@ help_texts = {
 - 終了するには、このアプリの画面で⌘Qを押すか、メニューバーのアイコンから「CommandDeeを終了」を選びます。
 
 ## ヘルプとnote記事
-- このヘルプは、メニューバーのアイコンから「CommandDeeヘルプ…」を選ぶと開きます。
-- 同じメニューの「note記事を開く」で、noteの解説記事をブラウザで開きます。''',
+- このヘルプは、メニューバーのアイコンの「ヘルプ」から「CommandDeeヘルプ」を選ぶと開きます。ヘルプメニューの「CommandDeeヘルプ」（⌘?）でも開けます。
+- 同じ「ヘルプ」の「note記事を開く」で、noteの解説記事をブラウザで開きます。
+
+## アップデートとメニューバー
+- アプリメニューの「アップデートを確認…」「アップデートを自動確認」は、更新の配信先と署名鍵が設定されるまで準備中と表示し、通信しません。
+- アプリメニューの「メニューバー設定…」で、メニューバーのアイコンを表示するかを切り替えます。非表示でもアプリは終了しません。''',
 'en': '''A menu bar app that duplicates or renames the files and folders selected in Finder / Path Finder, adding a version number or date.
 
 ## Basic Use
@@ -160,6 +171,7 @@ help_texts = {
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
+- **⌘M**: Minimize
 - **⌘Q**: Quit CommandDee (in this app's window)
 
 ## Examples
@@ -194,8 +206,12 @@ Choose Settings… (⌘,) from the menu bar icon.
 - To quit, press ⌘Q in this app's window, or choose Quit CommandDee from the menu bar icon.
 
 ## Help and the note Article
-- To open this help, choose CommandDee Help… from the menu bar icon.
-- Choose Open the note Article in the same menu to read the article on note in your browser.''',
+- To open this help, choose Help > CommandDee Help from the menu bar icon. You can also choose CommandDee Help (⌘?) in the Help menu.
+- Choose Open the note Article in the same Help submenu to read the article on note in your browser.
+
+## Updates and the Menu Bar
+- Check for Updates… and Automatically Check for Updates in the app menu show that updates are not configured, and make no network access, until an update feed and signing key are set up.
+- Choose Menu Bar Settings… in the app menu to show or hide the menu bar icon. Hiding it does not quit the app.''',
 'zh-Hans': '''一款常驻菜单栏的应用，可为在 Finder／Path Finder 中选择的文件和文件夹添加版本号或日期并复制或重命名。
 
 ## 基本操作
@@ -214,6 +230,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌘0**：打开主窗口
 - **⌘,**：设置
 - **⌘W**：关闭窗口
+- **⌘M**：最小化
 - **⌘Q**：退出 CommandDee（在本应用的窗口中）
 
 ## 示例
@@ -248,8 +265,12 @@ Choose Settings… (⌘,) from the menu bar icon.
 - 要退出，请在本应用的窗口中按 ⌘Q，或在菜单栏图标中选择“退出 CommandDee”。
 
 ## 帮助与 note 文章
-- 在菜单栏图标中选择“CommandDee 帮助…”即可打开本帮助。
-- 在同一菜单中选择“打开 note 文章”，即可在浏览器中阅读 note 上的介绍文章。''',
+- 在菜单栏图标的“帮助”中选择“CommandDee 帮助”即可打开本帮助。也可在帮助菜单中选择“CommandDee 帮助”（⌘?）。
+- 在同一“帮助”子菜单中选择“打开 note 文章”，即可在浏览器中阅读 note 上的介绍文章。
+
+## 更新与菜单栏
+- 在配置更新源和签名密钥之前，应用菜单中的“检查更新…”和“自动检查更新”会显示尚未配置，且不会进行网络通信。
+- 在应用菜单中选择“菜单栏设置…”，可切换是否在菜单栏中显示图标。隐藏图标不会退出应用。''',
 'ko': '''Finder／Path Finder에서 선택한 파일과 폴더에 버전 번호나 날짜를 붙여 복제하거나 이름을 변경하는 메뉴 막대 앱입니다.
 
 ## 기본 조작
@@ -268,6 +289,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌘0**: 메인 윈도우 열기
 - **⌘,**: 설정
 - **⌘W**: 윈도우 닫기
+- **⌘M**: 최소화
 - **⌘Q**: CommandDee 종료(이 앱의 윈도우에서)
 
 ## 예
@@ -302,8 +324,12 @@ Choose Settings… (⌘,) from the menu bar icon.
 - 종료하려면 이 앱의 윈도우에서 ⌘Q를 누르거나 메뉴 막대 아이콘에서 ‘CommandDee 종료’를 선택합니다.
 
 ## 도움말과 note 글
-- 메뉴 막대 아이콘에서 ‘CommandDee 도움말…’을 선택하면 이 도움말이 열립니다.
-- 같은 메뉴의 ‘note 글 열기’를 선택하면 note의 소개 글을 브라우저에서 엽니다.''',
+- 메뉴 막대 아이콘의 ‘도움말’에서 ‘CommandDee 도움말’을 선택하면 이 도움말이 열립니다. 도움말 메뉴의 ‘CommandDee 도움말’(⌘?)로도 열 수 있습니다.
+- 같은 ‘도움말’ 하위 메뉴의 ‘note 글 열기’를 선택하면 note의 소개 글을 브라우저에서 엽니다.
+
+## 업데이트와 메뉴 막대
+- 앱 메뉴의 ‘업데이트 확인…’과 ‘자동으로 업데이트 확인’은 업데이트 배포처와 서명 키가 설정될 때까지 준비 중으로 표시되며 통신하지 않습니다.
+- 앱 메뉴의 ‘메뉴 막대 설정…’에서 메뉴 막대 아이콘의 표시 여부를 전환합니다. 숨겨도 앱은 종료되지 않습니다.''',
 }
 
 info_plist = {

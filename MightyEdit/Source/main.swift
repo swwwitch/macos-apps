@@ -65,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.image = NSImage(systemSymbolName: "textformat", accessibilityDescription: "MightyEdit")
         let menu = NSMenu()
-        menu.addItem(withTitle: L("menu.showPalette"), action: #selector(showPalette), keyEquivalent: "")
+        menu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPalette), keyEquivalent: "")
         menu.addItem(withTitle: L("menu.hidePalette"), action: #selector(hidePalette), keyEquivalent: "")
         menu.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         menu.addItem(.separator())
@@ -74,13 +74,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         menu.addItem(withTitle: L("menu.openAccessibility"), action: #selector(openPermission), keyEquivalent: "")
         menu.addItem(withTitle: L("menu.revealApp"), action: #selector(revealApplication), keyEquivalent: "")
         menu.addItem(.separator())
-        menu.addItem(withTitle: L("menu.quit"), action: #selector(quit), keyEquivalent: "q")
         for item in menu.items { item.target = self }
-        let help = menu.addItem(withTitle: L("menu.help"), action: #selector(LocalHelp.show), keyEquivalent: "")
-        help.target = LocalHelp.shared
-        // The note link sits right below Help (addNoteItem inserts its own separator).
-        MainActor.assumeIsolated { HelpLinks.addNoteItem(to: menu) }
-        if let note = menu.items.firstIndex(where: { $0.identifier?.rawValue == "shared.help.note" }), note > 0, menu.items[note - 1].isSeparatorItem { menu.removeItem(at: note - 1) }
+        // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
+        let helpMenu = NSMenu(title: L("help"))
+        helpMenu.addItem(withTitle: L("menu.help"), action: #selector(LocalHelp.show), keyEquivalent: "").target = LocalHelp.shared
+        MainActor.assumeIsolated { HelpLinks.addNoteItem(to: helpMenu) }
+        let helpRoot = menu.addItem(withTitle: L("help"), action: nil, keyEquivalent: "")
+        menu.setSubmenu(helpMenu, for: helpRoot)
+        // Quit is always the last status-menu item (BASELINE: nothing below Quit).
+        menu.addItem(.separator())
+        menu.addItem(withTitle: L("menu.quit"), action: #selector(quit), keyEquivalent: "q").target = self
         let display = NSMenu(title: L("menu.buttonDisplay"))
         for mode in PaletteDisplayMode.allCases {
             let item = display.addItem(withTitle: mode.title, action: #selector(changeDisplay(_:)), keyEquivalent: "")
@@ -123,6 +126,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let settings = applicationMenu.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         settings.target = self
         applicationMenu.addItem(.separator())
+        // Updates (Shared/Updater): 準備中 and no network access until a feed and key are configured.
+        #if DIRECT_UPDATES && !APP_STORE
+        MainActor.assumeIsolated { AppUpdates.shared.addMenuItems(to: applicationMenu) }
+        #endif
+        // Standard commands in BASELINE order: Services / Hide / Hide Others / Show All.
+        let servicesMenu = NSMenu(title: L("menu.services"))
+        applicationMenu.addItem(withTitle: L("menu.services"), action: nil, keyEquivalent: "").submenu = servicesMenu
+        NSApp.servicesMenu = servicesMenu
+        applicationMenu.addItem(.separator())
+        applicationMenu.addItem(withTitle: L("menu.hideApp"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        applicationMenu.addItem(withTitle: L("menu.hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
+            .keyEquivalentModifierMask = [.command, .option]
+        applicationMenu.addItem(withTitle: L("menu.showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        applicationMenu.addItem(.separator())
         let quitItem = applicationMenu.addItem(withTitle: L("menu.quit"), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         applicationItem.submenu = applicationMenu
@@ -133,6 +150,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let openMain = fileMenu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPalette), keyEquivalent: "0")
         openMain.keyEquivalentModifierMask = [.command]
         openMain.target = self
+        fileMenu.addItem(.separator())
+        fileMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileItem.submenu = fileMenu
         mainMenu.insertItem(fileItem, at: 1)
         // Standard edit commands for text fields such as the line-tools panel.
@@ -147,19 +166,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         editMenu.addItem(withTitle: L("menu.selectAll"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editItem.submenu = editMenu
         mainMenu.insertItem(editItem, at: 2)
+        // Window menu (before Help, which LocalHelp appends later): BASELINE「メニューの共通構成」.
         let windowItem = NSMenuItem(title: L("menu.window"), action: nil, keyEquivalent: "")
         let windowMenu = NSMenu(title: L("menu.window"))
-        windowMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        windowMenu.addItem(withTitle: L("menu.minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("menu.zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("menu.bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
         windowItem.submenu = windowMenu
-        mainMenu.addItem(windowItem)
+        mainMenu.insertItem(windowItem, at: 3)
+        NSApp.windowsMenu = windowMenu
         NSApp.mainMenu = mainMenu
         let shortcutItem = NSMenuItem(title: L("menu.hotkeys"), action: nil, keyEquivalent: "")
         shortcutItem.submenu = shortcuts?.menu
         menu.insertItem(shortcutItem, at: 3)
 
         panel = Palette(contentRect: NSRect(x: 0, y: 0, width: 380, height: 642),
-                        styleMask: [.titled, .closable, .resizable, .nonactivatingPanel, .utilityWindow], backing: .buffered, defer: false)
+                        styleMask: [.titled, .closable, .miniaturizable, .resizable, .nonactivatingPanel, .utilityWindow], backing: .buffered, defer: false)
         panel.title = ""
+        // Listed in the Window menu so a minimized palette can be brought back from there too.
+        panel.isExcludedFromWindowsMenu = false
         panel.contentMinSize = NSSize(width: PaletteDisplayMode.saved == .both ? 280 : (PaletteDisplayMode.saved == .iconOnly ? 72 : 180), height: 300)
         panel.minSize = NSSize(width: panel.contentMinSize.width, height: 322)
         panel.delegate = self

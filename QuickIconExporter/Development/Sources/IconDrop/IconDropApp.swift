@@ -6,6 +6,9 @@ struct IconDropApp: App {
     init() { SingleInstanceLaunch.enforce() }
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var settings = AppSettings.shared
+    #if DIRECT_UPDATES && !APP_STORE
+    @ObservedObject private var updates = AppUpdates.shared
+    #endif
 
     var body: some Scene {
         WindowGroup(id: MainWindow.sceneID) {
@@ -22,22 +25,38 @@ struct IconDropApp: App {
         .commands {
             CommandGroup(replacing: .help) {
                 Button(L("QuickIconExporterヘルプ")) { LocalHelp.shared.show() }
+                    .keyboardShortcut("?", modifiers: .command)
                 Divider()
                 Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
             }
             #if DIRECT_UPDATES && !APP_STORE
-            UpdateCommands()
+            // After 設定… (BASELINE order), not the shared UpdateCommands' after-About slot,
+            // so the menu-bar settings entry inserted below About stays next to 設定….
+            CommandGroup(after: .appSettings) {
+                Divider()
+                Button(AppUpdates.shared.text("アップデートを確認…", "Check for Updates…", "检查更新…", "업데이트 확인…")) { AppUpdates.shared.checkForUpdates() }
+                    .disabled(!updates.canCheck)
+                Toggle(AppUpdates.shared.text("アップデートを自動確認", "Automatically Check for Updates", "自动检查更新", "자동으로 업데이트 확인"), isOn: Binding(
+                    get: { updates.automaticChecks }, set: { _ in updates.toggleAutomaticChecks() }))
+                    .disabled(!updates.isConfigured)
+            }
             #endif
-            CommandGroup(before: .newItem) {
+            // Replaces SwiftUI's "New Window" ⌘N so only one main window can exist.
+            CommandGroup(replacing: .newItem) {
                 // Stays available with no windows open; reuses the reopen routine.
                 Button(L("メインウインドウを開く")) { appDelegate.showWindow() }
                     .keyboardShortcut("0", modifiers: .command)
-            }
-            CommandGroup(after: .newItem) {
+                Divider()
                 Button(L("ファイルを選択…")) {
                     NotificationCenter.default.post(name: .init("QuickIconExporterChooseFiles"), object: nil)
                 }
                 .keyboardShortcut("o", modifiers: .command)
+            }
+            // SwiftUI's "Close" lives in the save group; the shared menu names it "Close Window".
+            CommandGroup(replacing: .saveItem) {
+                Divider()
+                Button(L("ウインドウを閉じる")) { NSApp.keyWindow?.performClose(nil) }
+                    .keyboardShortcut("w", modifiers: .command)
             }
         }
 
@@ -84,8 +103,14 @@ private struct UtilityWindowChrome: NSViewRepresentable {
             guard let window else { return }
             if isMain { MainWindow.current = window }
             window.title = windowTitle
-            window.styleMask.remove(.miniaturizable)
-            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            if isMain {
+                // The main window can be minimized (yellow button, Window > Minimize ⌘M).
+                window.styleMask.insert(.miniaturizable)
+                window.standardWindowButton(.miniaturizeButton)?.isHidden = false
+            } else {
+                window.styleMask.remove(.miniaturizable)
+                window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            }
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.collectionBehavior.insert(.fullScreenNone)
         }

@@ -51,27 +51,33 @@ bundled|pandocを同梱しています。|Pandoc is bundled.|已内置 pandoc。
 customPath|独自のpandocのパス（任意）|Custom pandoc path (optional)|自定义 pandoc 路径（可选）|사용자 pandoc 경로(선택)
 browse|選択…|Browse…|选择…|선택…
 useBundled|同梱版に戻す|Use bundled version|恢复内置版本|포함된 버전 사용
-show|メインウインドウを表示|Show main window|显示主窗口|메인 윈도우 표시
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
-help|CarmaChameleon ヘルプ|CarmaChameleon Help|CarmaChameleon 帮助|CarmaChameleon 도움말
+help|CarmaChameleonヘルプ|CarmaChameleon Help|CarmaChameleon 帮助|CarmaChameleon 도움말
+helpMenu|ヘルプ|Help|帮助|도움말
+services|サービス|Services|服务|서비스
+hideApp|CarmaChameleonを隠す|Hide CarmaChameleon|隐藏 CarmaChameleon|CarmaChameleon 가리기
+hideOthers|ほかを隠す|Hide Others|隐藏其他|기타 가리기
+showAll|すべてを表示|Show All|全部显示|모두 보기
 quit|CarmaChameleonを終了|Quit CarmaChameleon|退出 CarmaChameleon|CarmaChameleon 종료
 quitBusy|変換が進行中です。完了を待つか、メイン画面でキャンセルしてから終了してください。|Wait for conversion, or cancel in the main window before quitting.|请等待转换完成，或在主窗口取消后退出。|변환을 기다리거나 메인 윈도우에서 취소한 후 종료하세요.
 ok|OK|OK|好|확인
-about|CarmaChameleonについて|About CarmaChameleon|关于 CarmaChameleon|CarmaChameleon 정보
-updates|アップデートを確認…|Check for Updates…|检查更新…|업데이트 확인…
-updatePending|アプリの更新配布は準備中です|App updates are not configured|应用更新尚未配置|앱 업데이트가 구성되지 않았습니다
-updateDetail|更新配信先と署名鍵は未設定です。pandoc本体は設定から更新できます。|App update feed and signing key are not configured. Update pandoc from Settings.|尚未配置应用更新源和签名密钥。可在设置中更新 pandoc。|앱 업데이트 주소와 서명 키가 설정되지 않았습니다. pandoc은 설정에서 업데이트하세요.
+about|CarmaChameleonについて|About CarmaChameleon|关于 CarmaChameleon|CarmaChameleon에 관하여
 aboutDetail|ローカル文書変換ツール。pandocの非公式GUI。サポート：同梱README.md。|Local document converter. Unofficial pandoc GUI. Support: bundled README.md.|本地文档转换工具。非官方 pandoc GUI。支持：内置 README.md。|로컬 문서 변환 도구. 비공식 pandoc GUI. 지원: 포함된 README.md.
 fileMenu|ファイル|File|文件|파일
 editMenu|編集|Edit|编辑|편집
-close|閉じる|Close|关闭|닫기
+close|ウインドウを閉じる|Close Window|关闭窗口|윈도우 닫기
 undo|取り消す|Undo|撤销|실행 취소
-cut|カット|Cut|剪切|잘라내기
-copy|コピー|Copy|复制|복사
+redo|やり直す|Redo|重做|실행 복귀
+windowMenu|ウインドウ|Window|窗口|윈도우
+minimize|しまう|Minimize|最小化|최소화
+zoom|拡大／縮小|Zoom|缩放|확대/축소
+bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
+cut|カット|Cut|剪切|오려두기
+copy|コピー|Copy|拷贝|복사하기
 paste|ペースト|Paste|粘贴|붙여넣기
-selectAll|すべて選択|Select All|全选|모두 선택
+selectAll|すべてを選択|Select All|全选|모두 선택
 login|ログイン時に起動|Launch at login|登录时启动|로그인 시 실행
 loginOpen|ログイン項目を開く|Open Login Items|打开登录项|로그인 항목 열기
 loginOn|ログイン時に自動起動します。|Launches automatically at login.|登录时自动启动。|로그인 시 자동 실행합니다.
@@ -243,6 +249,6 @@ from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
 for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 保存为 PDF。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.7.3',CFBundleVersion='22',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image'])])
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.7.6',CFBundleVersion='25',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, and Illustrator to save .ai files as PDF when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

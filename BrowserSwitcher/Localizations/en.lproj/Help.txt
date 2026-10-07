@@ -28,13 +28,14 @@ By default, show the app by pressing ⌃⌥Q twice (within 0.4 seconds). Hold Co
 - **⌘Return**: Switch
 - **Esc / ⌘W**: Hide window (⌘W closes Settings when it is open)
 - **⌘0**: Open Main Window (shows it again after closing)
+- **⌘M**: Minimize the window to the Dock
 - **⌘,**: Settings
 - **⌘?**: Help
 - **⌘Q**: Quit
 
 ## Running in the Background and Quitting
 - Closing or hiding the window does not quit the app. Show it again with the shortcut or the Dock icon.
-- When **Show in menu bar** is on, the menu bar icon offers **Show Window**, **Settings…**, **Help**, and **Quit**.
+- When **Show in menu bar** is on, the menu bar icon offers **Open Main Window**, **Settings…**, **Help** (**BrowserSwitcher Help** and **Open the note Article**), and **Quit BrowserSwitcher**.
 - To quit, press ⌘Q or choose **Quit BrowserSwitcher** from the app menu.
 
 ## Permissions

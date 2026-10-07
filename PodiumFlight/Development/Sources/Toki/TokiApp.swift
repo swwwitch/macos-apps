@@ -95,19 +95,21 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let showMain = file.addItem(withTitle: L("メインウインドウを開く"), action: #selector(openMainWindowFromMenu(_:)), keyEquivalent: "0")
         showMain.keyEquivalentModifierMask = [.command]
         showMain.target = self
+        file.addItem(.separator())
         file.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("編集"))
         edit.addItem(withTitle: L("取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
         let redo = edit.addItem(withTitle: L("やり直す"), action: Selector(("redo:")), keyEquivalent: "z")
         redo.keyEquivalentModifierMask = [.command, .shift]
         edit.addItem(.separator())
-        edit.addItem(withTitle: L("切り取り"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: L("カット"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         edit.addItem(withTitle: L("コピー"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         edit.addItem(withTitle: L("ペースト"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         edit.addItem(withTitle: L("すべてを選択"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         let editItem = NSMenuItem()
         editItem.submenu = edit
         menu.addItem(editItem)
+        addStandardWindowMenu(to: menu)
         NSApp.mainMenu = menu
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
@@ -117,6 +119,8 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
             button.imagePosition = .imageLeading
             button.target = self
             button.action = #selector(togglePopover)
+            // Left click opens the main window; right-click / Control-click shows the status menu.
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         tick()
         // The 1-second tick only drives the countdown display; run it only while a countdown exists.
@@ -168,15 +172,42 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     }
 
     @objc private func togglePopover() {
+        if let event = NSApp.currentEvent,
+           event.type == .rightMouseUp || event.type == .rightMouseDown || event.modifierFlags.contains(.control) {
+            showStatusMenu()
+            return
+        }
         revealWindow()
     }
+
+    /// Status menu (BASELINE「メニューの共通構成」: right-click exception for PodiumFlight).
+    private func showStatusMenu() {
+        let menu = NSMenu()
+        menu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(openMainWindowFromMenu(_:)), keyEquivalent: "").target = self
+        menu.addItem(withTitle: L("設定…"), action: #selector(showPreferences), keyEquivalent: "").target = self
+        let help = NSMenu(title: L("ヘルプ"))
+        help.addItem(withTitle: L("PodiumFlightヘルプ"), action: #selector(showHelpFromMenu(_:)), keyEquivalent: "").target = self
+        HelpLinks.addNoteItem(to: help)
+        let helpItem = menu.addItem(withTitle: L("ヘルプ"), action: nil, keyEquivalent: "")
+        menu.setSubmenu(help, for: helpItem)
+        menu.addItem(.separator())
+        menu.addItem(withTitle: L("メニューバー設定…"), action: #selector(showMenuBarSettings(_:)), keyEquivalent: "").target = self
+        menu.addItem(.separator())
+        menu.addItem(withTitle: L("%@を終了", "PodiumFlight"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "").target = NSApp
+        item.menu = menu
+        item.button?.performClick(nil)
+        item.menu = nil
+    }
+
+    @objc private func showHelpFromMenu(_ sender: Any?) { LocalHelp.shared.show() }
+    @objc private func showMenuBarSettings(_ sender: Any?) { MenuBarPresence.shared.showSettings() }
 
     private func prepareWindow() {
         guard controlsWindow == nil else { return }
         let size = NSSize(width: 420, height: 750)
-        let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        // Miniaturizable so the yellow button and Window > Minimize (⌘M) work; full screen stays off.
+        let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = ""
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
@@ -859,7 +890,7 @@ struct SettingsView: View {
                     Button(HelpLinks.noteTitle) { HelpLinks.openNote() }
                 }
                 .fixedSize()
-                Button(L("終了")) { NSApplication.shared.terminate(nil) }
+                Button(L("%@を終了", "PodiumFlight")) { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
             }
         }
@@ -891,6 +922,20 @@ struct SettingsView: View {
         .buttonStyle(.plain)
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
     }
+}
+
+/// Standard Window menu (placed before Help); registered as NSApp.windowsMenu so open windows are listed.
+@MainActor
+private func addStandardWindowMenu(to mainMenu: NSMenu) {
+    let root = NSMenuItem(title: L("ウインドウ"), action: nil, keyEquivalent: "")
+    let menu = NSMenu(title: L("ウインドウ"))
+    menu.addItem(withTitle: L("しまう"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+    menu.addItem(withTitle: L("拡大／縮小"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+    menu.addItem(.separator())
+    menu.addItem(withTitle: L("すべてを手前に移動"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+    root.submenu = menu
+    mainMenu.addItem(root)
+    NSApp.windowsMenu = menu
 }
 
 private func addStandardApplicationCommands(to menu: NSMenu, name: String) {

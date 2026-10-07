@@ -7,6 +7,12 @@
 "画像を選択…" = "Choose Images…";
 "メインウインドウを開く" = "Open Main Window";
 "ウインドウを閉じる" = "Close Window";
+"取り消す" = "Undo";
+"やり直す" = "Redo";
+"ウインドウ" = "Window";
+"しまう" = "Minimize";
+"拡大／縮小" = "Zoom";
+"すべてを手前に移動" = "Bring All to Front";
 "編集" = "Edit";
 "カット" = "Cut";
 "コピー" = "Copy";

@@ -1,6 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 cd "${0:A:h}"
+UPDATER_ROOT="$PWD/../Shared/Updater"
+source "$UPDATER_ROOT/build-support.sh"
 stage=$(mktemp -d /private/tmp/PDF2Keynote-build.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 python3 make-resources.py
@@ -11,9 +13,10 @@ cp -R Resources/*.lproj "$app/Contents/Resources/"
 osacompile -o "$app/Contents/Resources/Keynote.scpt" ../Shared/KeynoteExport/Keynote.applescript
 cp Assets/PDF2Keynote.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
-  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit \
+  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/KeynoteExport/KeynoteExport.swift \
-  Source/{ConversionRunner,LaunchPolicy,LoginAtLaunch,main}.swift -o "$app/Contents/MacOS/PDF2Keynote"
+  Source/{UpdateSupport,ConversionRunner,LaunchPolicy,LoginAtLaunch,main}.swift -o "$app/Contents/MacOS/PDF2Keynote"
+embed_updates "$app"
 xattr -cr "$app"
 codesign --force --sign - "$app"
 codesign --verify --deep --strict "$app"

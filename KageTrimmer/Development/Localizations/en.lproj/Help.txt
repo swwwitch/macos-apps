@@ -35,6 +35,8 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **⌘,**: Settings
 - **⌘?**: Help
 - **⌘W**: Close Window
+- **⌘M**: Minimize the window
+- **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)
 - **⌘Q**: Quit KageTrimmer
 - **⌃⌥⌘U** (default): Show the KageTrimmer window (works while you are using other apps)
 
@@ -42,10 +44,10 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 KageTrimmer does not need Accessibility permission. If it cannot write to the original image’s folder, it asks for access to that folder. Choose the folder that contains the original image and click **Allow Access**.
 
 ## Opening and Quitting
-- Closing the window does not quit the app. To show the window again, click the app icon in the Dock, choose **Show Window** from the menu bar icon (when **Show in menu bar** is on), or press the show app shortcut.
+- Closing the window does not quit the app. To show the window again, click the app icon in the Dock, choose **Open Main Window** from the menu bar icon (when **Show in menu bar** is on), or press the show app shortcut.
 - When opened at login, or when **Hide main window at startup** is on, the app starts without showing the main window.
 - If the app is opened with files, it shows the window, processes the files, and then quits. If you hand files to the app while it is already running, it keeps running after processing.
-- To quit, choose **Quit KageTrimmer** from the app menu (⌘Q) or **Quit** from the menu bar icon. You can’t quit while images are being processed; quit again after processing has finished.
+- To quit, choose **Quit KageTrimmer** from the app menu (⌘Q) or **Quit KageTrimmer** from the menu bar icon. You can’t quit while images are being processed; quit again after processing has finished.
 
 ## Troubleshooting
 - Results appear below the drop area. Images shown as “Skipped (no shadow)” are not processed in No shadow mode.

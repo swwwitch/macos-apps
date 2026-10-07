@@ -297,7 +297,6 @@ struct SettingsView: View {
         }
         helpWindow!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func updates() { let alert = NSAlert(); alert.messageText = L("updatePending"); alert.informativeText = L("updateDetail"); alert.runModal() }
     @objc func about() {
         let info = Bundle.main.infoDictionary ?? [:]
         let version = "\(info["CFBundleShortVersionString"] ?? "") (\(info["CFBundleVersion"] ?? ""))"
@@ -307,21 +306,31 @@ struct SettingsView: View {
     func buildMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
         let app = NSMenu(); let root = NSMenuItem(); root.submenu = app; bar.addItem(root)
-        add(app, L("about"), #selector(about), ""); add(app, L("updates"), #selector(updates), ""); app.addItem(.separator())
+        add(app, L("about"), #selector(about), ""); app.addItem(.separator())
         add(app, L("settings"), #selector(showSettings), ","); app.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        AppUpdates.shared.addMenuItems(to: app)   // 「アップデートを確認…」「アップデートを自動確認」 + separator
+        #endif
+        let services = NSMenu(title: L("services")); app.addItem(withTitle: L("services"), action: nil, keyEquivalent: "").submenu = services; NSApp.servicesMenu = services
+        app.addItem(.separator())
         app.addItem(withTitle: L("hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        app.addItem(withTitle: L("hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h").keyEquivalentModifierMask = [.command, .option]
+        app.addItem(withTitle: L("showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
         app.addItem(.separator()); add(app, L("quit"), #selector(quit), "q")
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
-        add(file, L("chooseFiles"), #selector(choose), "o")
+        add(file, L("chooseFiles"), #selector(choose), "o"); file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("editMenu")); let editItem = NSMenuItem(title: L("editMenu"), action: nil, keyEquivalent: ""); editItem.submenu = edit; bar.addItem(editItem)
-        for (key, action, shortcut) in [("undo", "undo:", "z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] {
+        for (key, action, shortcut) in [("undo", "undo:", "z"), ("redo", "redo:", "z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] {
             edit.addItem(withTitle: L(key), action: Selector(action), keyEquivalent: shortcut)
         }
+        edit.item(at: 1)?.keyEquivalentModifierMask = [.command, .shift]   // やり直す ⇧⌘Z
         let windowMenu = NSMenu(title: L("windowMenu")); let windowItem = NSMenuItem(title: L("windowMenu"), action: nil, keyEquivalent: ""); windowItem.submenu = windowMenu; bar.addItem(windowItem)
-        add(windowMenu, L("show"), #selector(show), "")
         windowMenu.addItem(withTitle: L("minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
         NSApp.windowsMenu = windowMenu
         let help = NSMenu(title: L("helpMenu")); let helpItem = NSMenuItem(title: L("helpMenu"), action: nil, keyEquivalent: ""); helpItem.submenu = help; bar.addItem(helpItem)
         add(help, L("help"), #selector(showHelp), "?"); HelpLinks.addNoteItem(to: help); NSApp.helpMenu = help

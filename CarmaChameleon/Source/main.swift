@@ -351,7 +351,7 @@ struct SettingsView: View {
             (SettingsUI.launchTitle, AnyView(VStack(spacing:16) {
                 SettingsSection(SettingsUI.launchTitle) {
                     LaunchPresenceSection(title:SettingsUI.launchTitle, loginControl:LoginAtLaunchView(), residentTitle:L("resident"), residentDetail:L("residentDetail"), resident:$resident,
-                                          shortcutTitle:L("launchShortcut"), shortcutButton:L("openShortcuts"), shortcutDetail:L("shortcutDetail")) {
+                                          presenceExtra:MenuBarPresenceView(), shortcutTitle:L("launchShortcut"), shortcutButton:L("openShortcuts"), shortcutDetail:L("shortcutDetail")) {
                         NSWorkspace.shared.open(URL(fileURLWithPath:"/System/Applications/Shortcuts.app"))
                     }
                 }
@@ -487,7 +487,13 @@ struct FormatSettingsView: View {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         statusItem = NSStatusBar.system.statusItem(withLength:NSStatusItem.squareLength)
         statusItem?.button?.image = NSImage(systemSymbolName:"doc.on.doc",accessibilityDescription:"CarmaChameleon")
-        let menu = NSMenu(); add(menu,L("show"),#selector(show),""); add(menu,L("settings"),#selector(showSettings),""); add(menu,L("help"),#selector(showHelp),""); menu.addItem(withTitle:HelpLinks.noteTitle,action:#selector(HelpLinks.openNote),keyEquivalent:"").target = HelpLinks.shared; menu.addItem(.separator()); add(menu,L("quit"),#selector(quit),""); statusItem?.menu = menu
+        // Status menu (BASELINE「メニューの共通構成」): help lives in a submenu; Quit is last.
+        let menu = NSMenu(); add(menu,L("openMainWindow"),#selector(show),""); add(menu,L("settings"),#selector(showSettings),"")
+        let helpSub = NSMenu(title:L("helpMenu")); add(helpSub,L("help"),#selector(showHelp),""); HelpLinks.addNoteItem(to:helpSub)
+        menu.setSubmenu(helpSub,for:menu.addItem(withTitle:L("helpMenu"),action:nil,keyEquivalent:""))
+        menu.addItem(.separator()); add(menu,L("quit"),#selector(quit),""); statusItem?.menu = menu
+        // Shared menu-bar presence keeps this icon and menu; it adds 「メニューバー設定…」 to the app menu and the visibility setting.
+        MenuBarPresence.shared.install(name:"CarmaChameleon",symbol:"doc.on.doc",existing:statusItem,show:{ [weak self] in self?.show() },settings:{ [weak self] in self?.showSettings() },help:{ [weak self] in self?.showHelp() })
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !model.files.isEmpty || (!login && !StartupWindow.hidden) { show() }
     }
@@ -522,17 +528,29 @@ struct FormatSettingsView: View {
         }
         helpWindow!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
     }
-    @objc func updates() { let a = NSAlert(); a.messageText = L("updatePending"); a.informativeText = L("updateDetail"); a.runModal() }
     @objc func about() { NSApp.orderFrontStandardAboutPanel(options:[.applicationName:"CarmaChameleon",.applicationVersion:"\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "") (\(Bundle.main.infoDictionary?["CFBundleVersion"] ?? ""))",.credits:NSAttributedString(string:L("aboutDetail"))]) }
     func add(_ menu:NSMenu,_ title:String,_ action:Selector,_ key:String) { let item = menu.addItem(withTitle:title,action:action,keyEquivalent:key); item.target = self }
     func buildMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
         let app = NSMenu(); let root = NSMenuItem(); root.submenu = app; bar.addItem(root)
-        add(app,L("about"),#selector(about),""); add(app,L("updates"),#selector(updates),""); app.addItem(.separator()); add(app,L("settings"),#selector(showSettings),","); app.addItem(.separator()); add(app,L("quit"),#selector(quit),"q")
-        let file = NSMenu(title:L("fileMenu")); let f = NSMenuItem(title:L("fileMenu"),action:nil,keyEquivalent:""); f.submenu = file; bar.addItem(f); add(file,L("openMainWindow"),#selector(show),"0"); file.addItem(.separator()); add(file,L("chooseFiles"),#selector(choose),"o"); file.addItem(withTitle:L("close"),action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w")
+        add(app,L("about"),#selector(about),""); app.addItem(.separator()); add(app,L("settings"),#selector(showSettings),","); app.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        AppUpdates.shared.addMenuItems(to:app)   // 「アップデートを確認…」「アップデートを自動確認」 + separator
+        #endif
+        let services = NSMenu(title:L("services")); app.addItem(withTitle:L("services"),action:nil,keyEquivalent:"").submenu = services; NSApp.servicesMenu = services; app.addItem(.separator())
+        app.addItem(withTitle:L("hideApp"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h"); app.addItem(withTitle:L("hideOthers"),action:#selector(NSApplication.hideOtherApplications(_:)),keyEquivalent:"h").keyEquivalentModifierMask = [.command,.option]; app.addItem(withTitle:L("showAll"),action:#selector(NSApplication.unhideAllApplications(_:)),keyEquivalent:""); app.addItem(.separator())
+        add(app,L("quit"),#selector(quit),"q")
+        let file = NSMenu(title:L("fileMenu")); let f = NSMenuItem(title:L("fileMenu"),action:nil,keyEquivalent:""); f.submenu = file; bar.addItem(f); add(file,L("openMainWindow"),#selector(show),"0"); file.addItem(.separator()); add(file,L("chooseFiles"),#selector(choose),"o"); file.addItem(.separator()); file.addItem(withTitle:L("close"),action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w")
         let edit = NSMenu(title:L("editMenu")); let e = NSMenuItem(title:L("editMenu"),action:nil,keyEquivalent:""); e.submenu = edit; bar.addItem(e)
-        for (key,action,shortcut) in [("undo","undo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { edit.addItem(withTitle:L(key),action:Selector(action),keyEquivalent:shortcut) }
-        let h = NSMenu(title:L("help")); let hi = NSMenuItem(title:L("help"),action:nil,keyEquivalent:""); hi.submenu = h; bar.addItem(hi); add(h,L("help"),#selector(showHelp),"?"); HelpLinks.addNoteItem(to:h); NSApp.helpMenu = h
+        for (key,action,shortcut) in [("undo","undo:","z"),("redo","redo:","z"),("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] { edit.addItem(withTitle:L(key),action:Selector(action),keyEquivalent:shortcut) }
+        edit.item(at:1)?.keyEquivalentModifierMask = [.command,.shift]   // やり直す ⇧⌘Z
+        let win = NSMenu(title:L("windowMenu")); let wi = NSMenuItem(title:L("windowMenu"),action:nil,keyEquivalent:""); wi.submenu = win; bar.addItem(wi)
+        win.addItem(withTitle:L("minimize"),action:#selector(NSWindow.performMiniaturize(_:)),keyEquivalent:"m")
+        win.addItem(withTitle:L("zoom"),action:#selector(NSWindow.performZoom(_:)),keyEquivalent:"")
+        win.addItem(.separator())
+        win.addItem(withTitle:L("bringAllToFront"),action:#selector(NSApplication.arrangeInFront(_:)),keyEquivalent:"")
+        NSApp.windowsMenu = win
+        let h = NSMenu(title:L("helpMenu")); let hi = NSMenuItem(title:L("helpMenu"),action:nil,keyEquivalent:""); hi.submenu = h; bar.addItem(hi); add(h,L("help"),#selector(showHelp),"?"); HelpLinks.addNoteItem(to:h); NSApp.helpMenu = h
     }
 }
 let app = NSApplication.shared

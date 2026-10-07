@@ -14,8 +14,14 @@ final class AppUpdates: NSObject, ObservableObject, NSMenuItemValidation {
     private var attemptedStart = false
     private var failureMessage: String?
 
-    private var japanese: Bool { Locale.preferredLanguages.first?.hasPrefix("ja") == true }
-    func text(_ ja: String, _ en: String) -> String { japanese ? ja : en }
+    /// ja / en / zh-Hans / ko, chosen from the user's first preferred language (others fall back to English).
+    func text(_ ja: String, _ en: String, _ zh: String? = nil, _ ko: String? = nil) -> String {
+        let language = Locale.preferredLanguages.first ?? ""
+        if language.hasPrefix("ja") { return ja }
+        if language.hasPrefix("zh"), let zh { return zh }
+        if language.hasPrefix("ko"), let ko { return ko }
+        return en
+    }
 
     func start() {
         guard !attemptedStart else { return }
@@ -56,10 +62,12 @@ final class AppUpdates: NSObject, ObservableObject, NSMenuItemValidation {
             controller.checkForUpdates(sender)
         } else {
             let alert = NSAlert()
-            alert.messageText = text("更新配布の準備中", "Updates are not configured")
+            alert.messageText = text("更新配布の準備中", "Updates are not configured", "尚未配置更新", "업데이트가 설정되지 않음")
             alert.informativeText = failureMessage ?? text(
                 "このビルドには更新先と検証用公開鍵が設定されていません。自動更新は利用できません。配布元の新しい案内をお待ちください。",
-                "This build has no configured update feed and verification key. Automatic updates are unavailable. Please wait for the publisher's release instructions.")
+                "This build has no configured update feed and verification key. Automatic updates are unavailable. Please wait for the publisher's release instructions.",
+                "此版本未配置更新源和验证公钥，无法自动更新。请等待发布者的新通知。",
+                "이 빌드에는 업데이트 주소와 검증용 공개 키가 설정되어 있지 않아 자동 업데이트를 사용할 수 없습니다. 배포자의 새 안내를 기다려 주세요.")
             alert.addButton(withTitle: "OK")
             NSApp.activate(ignoringOtherApps: true)
             alert.runModal()
@@ -74,9 +82,9 @@ final class AppUpdates: NSObject, ObservableObject, NSMenuItemValidation {
 
     func addMenuItems(to menu: NSMenu) {
         start()
-        let check = menu.addItem(withTitle: text("アップデートを確認…", "Check for Updates…"), action: #selector(checkForUpdates(_:)), keyEquivalent: "")
+        let check = menu.addItem(withTitle: text("アップデートを確認…", "Check for Updates…", "检查更新…", "업데이트 확인…"), action: #selector(checkForUpdates(_:)), keyEquivalent: "")
         check.target = self
-        let automatic = menu.addItem(withTitle: text("アップデートを自動確認", "Automatically Check for Updates"), action: #selector(toggleAutomaticChecks(_:)), keyEquivalent: "")
+        let automatic = menu.addItem(withTitle: text("アップデートを自動確認", "Automatically Check for Updates", "自动检查更新", "자동으로 업데이트 확인"), action: #selector(toggleAutomaticChecks(_:)), keyEquivalent: "")
         automatic.target = self
         menu.addItem(.separator())
     }
@@ -96,9 +104,9 @@ struct UpdateCommands: Commands {
     @ObservedObject private var updates = AppUpdates.shared
     var body: some Commands {
         CommandGroup(after: .appInfo) {
-            Button(updates.text("アップデートを確認…", "Check for Updates…")) { updates.checkForUpdates() }
+            Button(updates.text("アップデートを確認…", "Check for Updates…", "检查更新…", "업데이트 확인…")) { updates.checkForUpdates() }
                 .disabled(!updates.canCheck)
-            Toggle(updates.text("アップデートを自動確認", "Automatically Check for Updates"), isOn: Binding(
+            Toggle(updates.text("アップデートを自動確認", "Automatically Check for Updates", "自动检查更新", "자동으로 업데이트 확인"), isOn: Binding(
                 get: { updates.automaticChecks }, set: { _ in updates.toggleAutomaticChecks() }))
                 .disabled(!updates.isConfigured)
         }

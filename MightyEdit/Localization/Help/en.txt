@@ -121,6 +121,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 ## Keyboard Shortcuts
 ### App Commands (While MightyEdit Is Active)
 - **⌘0**: Open Main Window (the palette; shows it again after closing)
+- **⌘M**: Minimize the palette (Window menu; bring it back from the list in the Window menu)
 - **⌘,**: Settings
 - **⌘?**: MightyEdit Help
 - **⌘Q**: Quit
@@ -180,6 +181,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - If you open MightyEdit a second time, the running MightyEdit comes to the front and the new copy quits.
 - Quit MightyEdit from its menu bar menu or the app menu (**⌘Q** while MightyEdit is active).
 - About MightyEdit in the app menu shows the version and build.
+- Check for Updates… and Automatically Check for Updates in the app menu show that updates are not configured yet and make no network access until distribution is ready.
 
 ## Accessibility Permission
 - Check the permission status under Accessibility on the Startup & Background tab of Settings. “Ask for Permission…” shows the macOS prompt; the permission itself is granted in System Settings. MightyEdit does not ask at launch.
@@ -199,3 +201,4 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - To remove MightyEdit, turn off Open at login, quit, delete the app and remove MightyEdit from Accessibility in System Settings.
 - Support: see the README.
 - Help → Open the note Article opens Swwwitch’s note support magazine.
+- In the menu bar menu, the Help submenu contains MightyEdit Help and Open the note Article.

@@ -109,7 +109,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let preferences = application.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
         application.addItem(.separator())
+        #if DIRECT_UPDATES && !APP_STORE
+        MainActor.assumeIsolated { AppUpdates.shared.addMenuItems(to: application) }
+        #endif
+        let services = NSMenu(title: L("menu.services"))
+        application.addItem(withTitle: L("menu.services"), action: nil, keyEquivalent: "").submenu = services
+        NSApp.servicesMenu = services
+        application.addItem(.separator())
         application.addItem(withTitle: L("menu.hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        let hideOthers = application.addItem(withTitle: L("menu.hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
+        hideOthers.keyEquivalentModifierMask = [.command, .option]
+        application.addItem(withTitle: L("menu.showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        application.addItem(.separator())
         application.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         root.submenu = application
         main.addItem(root)
@@ -118,22 +129,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let openMain = fileMenu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPreferences), keyEquivalent: "0")
         openMain.keyEquivalentModifierMask = .command
         openMain.target = self
+        fileMenu.addItem(.separator())
+        fileMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileRoot.submenu = fileMenu
         main.addItem(fileRoot)
-        let windowRoot = NSMenuItem(title: L("menu.window"), action: nil, keyEquivalent: "")
-        let windowMenu = NSMenu(title: L("menu.window"))
-        windowMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-        windowRoot.submenu = windowMenu
-        main.addItem(windowRoot)
         let editRoot = NSMenuItem()
         let edit = NSMenu(title: L("menu.edit"))
         edit.addItem(withTitle: L("menu.undo"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: L("menu.redo"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
         edit.addItem(withTitle: L("menu.cut"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         edit.addItem(withTitle: L("menu.copy"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         edit.addItem(withTitle: L("menu.paste"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         edit.addItem(withTitle: L("menu.selectAll"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editRoot.submenu = edit
         main.addItem(editRoot)
+        let windowRoot = NSMenuItem()
+        let windowMenu = NSMenu(title: L("menu.window"))
+        windowMenu.addItem(withTitle: L("menu.minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: L("menu.zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: L("menu.bringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+        windowRoot.submenu = windowMenu
+        main.addItem(windowRoot)
+        NSApp.windowsMenu = windowMenu
         let helpRoot = NSMenuItem()
         let helpMenu = NSMenu(title: L("menu.help"))
         let help = helpMenu.addItem(withTitle: L("menu.appHelp"), action: #selector(showHelp), keyEquivalent: "?")
@@ -280,14 +299,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let status = menu.addItem(withTitle: lastResult, action: nil, keyEquivalent: "")
         status.isEnabled = false
         menu.addItem(.separator())
+        let openMain = menu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPreferences), keyEquivalent: "")
+        openMain.target = self
         let toggle = menu.addItem(withTitle: L("menu.enableShortcuts"), action: #selector(toggleEnabled), keyEquivalent: "")
         toggle.target = self
         toggle.state = enabled ? .on : .off
         let preferences = menu.addItem(withTitle: L("menu.settings"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
-        let settings = menu.addItem(withTitle: L("menu.appHelpEllipsis"), action: #selector(showHelp), keyEquivalent: "")
-        settings.target = self
-        HelpLinks.addNoteItem(to: menu)
+        // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
+        let helpMenu = NSMenu(title: L("menu.help"))
+        let help = helpMenu.addItem(withTitle: L("menu.appHelp"), action: #selector(showHelp), keyEquivalent: "")
+        help.target = self
+        MainActor.assumeIsolated { HelpLinks.addNoteItem(to: helpMenu) }
+        menu.setSubmenu(helpMenu, for: menu.addItem(withTitle: L("menu.help"), action: nil, keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
@@ -307,7 +331,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     @objc private func showHelp() {
         if window == nil {
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 760), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             panel.title = ""
             panel.minSize = NSSize(width: 480, height: 420)
             AppSurface.install(in: panel.contentView!)
@@ -344,7 +368,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     @objc private func showPreferences() {
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 620),
-                                 styleMask: [.titled, .closable], backing: .buffered, defer: false)
+                                 styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
             panel.title = L("settings.title")
             panel.isReleasedWhenClosed = false
             let title = NSTextField(labelWithString: L("settings.skipFolder"))

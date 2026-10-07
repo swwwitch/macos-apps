@@ -1,5 +1,4 @@
 "app.ready" = "选择文字，然后点击按钮";
-"menu.showPalette" = "显示面板";
 "menu.hidePalette" = "隐藏面板";
 "menu.settings" = "设置…";
 "menu.copyOnly" = "复制而不替换";
@@ -19,8 +18,15 @@
 "menu.copy" = "拷贝";
 "menu.paste" = "粘贴";
 "menu.selectAll" = "全选";
-"menu.window" = "窗口";
+"menu.services" = "服务";
+"menu.hideApp" = "隐藏 MightyEdit";
+"menu.hideOthers" = "隐藏其他";
+"menu.showAll" = "全部显示";
 "menu.closeWindow" = "关闭窗口";
+"menu.window" = "窗口";
+"menu.minimize" = "最小化";
+"menu.zoom" = "缩放";
+"menu.bringAllToFront" = "前置全部窗口";
 "help" = "帮助";
 "help.missing" = "找不到帮助文件。请参阅附带的 README。";
 "settings.window" = "设置";
