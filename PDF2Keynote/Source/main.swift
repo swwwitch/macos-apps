@@ -10,13 +10,23 @@ struct InputFile: Identifiable, Equatable {
 
 @MainActor final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
-    @Published var files: [InputFile] = []
+    @Published var files: [InputFile] = [] { didSet { refreshBackgrounds() } }
     @Published var slideSize = KeynoteSlideSize(rawValue: UserDefaults.standard.string(forKey: "slideSize") ?? "") ?? .matchPDF { didSet { defaults.set(slideSize.rawValue, forKey: "slideSize") } }
     @Published var placement = KeynotePlacement(rawValue: UserDefaults.standard.string(forKey: "placement") ?? "") ?? .fit { didSet { defaults.set(placement.rawValue, forKey: "placement") } }
-    @Published var box = KeynotePageBox(rawValue: UserDefaults.standard.string(forKey: "pageBox") ?? "") ?? .crop { didSet { defaults.set(box.rawValue, forKey: "pageBox") } }
-    @Published var useRange = false
-    @Published var rangeFrom = 1
-    @Published var rangeTo = 1
+    @Published var box = KeynotePageBox(rawValue: UserDefaults.standard.string(forKey: "pageBox") ?? "") ?? .crop { didSet { defaults.set(box.rawValue, forKey: "pageBox"); refreshBackgrounds() } }
+    @Published var useRange = false { didSet { refreshBackgrounds() } }
+    @Published var rangeFrom = 1 { didSet { refreshBackgrounds() } }
+    @Published var rangeTo = 1 { didSet { refreshBackgrounds() } }
+    @Published var removeBackground = UserDefaults.standard.bool(forKey: "removeBackground") { didSet { defaults.set(removeBackground, forKey: "removeBackground"); refreshBackgrounds() } }
+    /// "" = Keynote's default theme / no master.
+    @Published var theme = UserDefaults.standard.string(forKey: "theme") ?? "" { didSet { defaults.set(theme, forKey: "theme"); if theme != oldValue { loadMasters() } } }
+    @Published var master = UserDefaults.standard.string(forKey: "master") ?? "" { didSet { defaults.set(master, forKey: "master") } }
+    /// Background signature → master name, kept across launches so the same template maps again.
+    @Published var masterForBackground = UserDefaults.standard.dictionary(forKey: "masterForBackground") as? [String: String] ?? [:] { didSet { defaults.set(masterForBackground, forKey: "masterForBackground") } }
+    @Published var themes: [String] = []
+    @Published var masters: [String] = []
+    @Published var loadingThemes = false
+    @Published var backgrounds: [KeynoteBackgroundSummary] = []
     @Published var destinationMode = UserDefaults.standard.string(forKey: "destinationMode") ?? "source" { didSet { defaults.set(destinationMode, forKey: "destinationMode") } }
     @Published var folder: URL? = UserDefaults.standard.string(forKey: "outputFolder").map { URL(fileURLWithPath: $0) } { didSet { defaults.set(folder?.path, forKey: "outputFolder") } }
     @Published var openAfter = UserDefaults.standard.object(forKey: "openAfter") as? Bool ?? true { didSet { defaults.set(openAfter, forKey: "openAfter") } }
@@ -41,6 +51,74 @@ struct InputFile: Identifiable, Equatable {
         status = rejected ? L("unsupported") : ""
         results = []; details = ""; showAutomationHelp = false
     }
+    /// Theme choices; a saved theme stays listed until Keynote has been asked.
+    var themeChoices: [String] { themes.isEmpty && !theme.isEmpty ? [theme] : themes }
+    var masterChoices: [String] {
+        if !masters.isEmpty { return masters }
+        return Array(Set([master] + masterForBackground.values).filter { !$0.isEmpty }).sorted()
+    }
+    func masterBinding(_ signature: String) -> Binding<String> {
+        Binding(get: { self.masterForBackground[signature] ?? "" }, set: { self.masterForBackground[signature] = $0.isEmpty ? nil : $0 })
+    }
+
+    private var backgroundGeneration = 0
+    func refreshBackgrounds() {
+        backgroundGeneration += 1
+        let generation = backgroundGeneration
+        guard removeBackground, !files.isEmpty else { backgrounds = []; return }
+        let urls = files.map(\.url), box = box, range = useRange ? min(rangeFrom, rangeTo)...max(rangeFrom, rangeTo) : nil
+        DispatchQueue.global(qos: .userInitiated).async {
+            var merged: [KeynoteBackgroundSummary] = []
+            for url in urls {
+                for found in KeynotePDFSplitter.backgrounds(source: url, box: box, pageRange: range) {
+                    if let index = merged.firstIndex(where: { $0.signature == found.signature }) { merged[index].pageCount += found.pageCount } else { merged.append(found) }
+                }
+            }
+            DispatchQueue.main.async { if generation == self.backgroundGeneration { self.backgrounds = merged } }
+        }
+    }
+
+    /// Asks Keynote for its themes, then the masters of the chosen theme.
+    func loadThemes() {
+        guard !loadingThemes else { return }
+        guard KeynoteBridge.isInstalled else { status = L("keynoteMissing"); return }
+        loadingThemes = true; status = L("loadingThemes")
+        let chosen = theme
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = Result { () -> ([String], [String]) in
+                let bridge = KeynoteBridge()
+                return (try bridge.themes(), chosen.isEmpty ? [] : try bridge.masters(theme: chosen))
+            }
+            DispatchQueue.main.async {
+                self.loadingThemes = false
+                switch result {
+                case .success(let (themes, masters)): self.themes = themes; self.masters = masters; self.status = ""
+                case .failure(let error):
+                    self.status = error.localizedDescription
+                    if case KeynoteError.automationDenied = error { self.showAutomationHelp = true }
+                }
+            }
+        }
+    }
+
+    func loadMasters() {
+        masters = []
+        guard !theme.isEmpty, !themes.isEmpty else { return }
+        let chosen = theme
+        loadingThemes = true; status = L("loadingThemes")
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = Result { try KeynoteBridge().masters(theme: chosen) }
+            DispatchQueue.main.async {
+                self.loadingThemes = false
+                guard chosen == self.theme else { return }
+                switch result {
+                case .success(let masters): self.masters = masters; self.status = ""
+                case .failure(let error): self.status = error.localizedDescription
+                }
+            }
+        }
+    }
+
     func chooseFiles() {
         let panel = NSOpenPanel(); panel.allowsMultipleSelection = true; panel.canChooseDirectories = false
         panel.allowedContentTypes = [.pdf]
@@ -64,6 +142,12 @@ struct InputFile: Identifiable, Equatable {
         }
         var options = KeynoteOptions(slideSize: slideSize, placement: placement, box: box, pageRange: nil, openAfter: openAfter)
         if useRange { options.pageRange = min(rangeFrom, rangeTo)...max(rangeFrom, rangeTo) }
+        options.removeBackground = removeBackground
+        if !theme.isEmpty {
+            options.theme = theme
+            options.master = master.isEmpty ? nil : master
+            if removeBackground { options.masterForBackground = masterForBackground }
+        }
         let inputs = files.map(\.url)
         let worker = ConversionRunner(); runner = worker
         busy = true; completed = 0; results = []; details = ""; pageProgress = ""; showAutomationHelp = false; status = L("working")
@@ -151,6 +235,8 @@ struct MainView: View {
                             if model.placement == .fill { hint(L("fillHint")) }
                             Picker(L("box"), selection: $model.box) { ForEach(KeynotePageBox.allCases) { Text($0.label).tag($0) } }
                             Divider()
+                            backgroundSection
+                            Divider()
                             Toggle(L("pageRange"), isOn: $model.useRange)
                             if model.useRange {
                                 HStack(spacing: 6) {
@@ -198,6 +284,48 @@ struct MainView: View {
                 Button(L("convert")) { model.start() }.keyboardShortcut(.return, modifiers: .command).buttonStyle(.borderedProminent).controlSize(.large).disabled(model.files.isEmpty || model.busy)
             }
         }.padding(24).frame(minWidth: 860, minHeight: 600).background(Color(nsColor: AppSurface.color)).tint(Color(red: 0.55, green: 0.38, blue: 0.04))
+    }
+    @ViewBuilder var backgroundSection: some View {
+        Text(L("background")).fontWeight(.medium)
+        Toggle(L("removeBackground"), isOn: $model.removeBackground)
+        hint(L("removeBackgroundHint"))
+        Picker(L("theme"), selection: $model.theme) {
+            Text(L("themeDefault")).tag("")
+            ForEach(model.themeChoices, id: \.self) { Text($0).tag($0) }
+        }
+        if !model.theme.isEmpty {
+            Picker(L("master"), selection: $model.master) {
+                Text(L("masterAuto")).tag("")
+                ForEach(model.masterChoices, id: \.self) { Text($0).tag($0) }
+            }
+            if model.removeBackground {
+                if model.backgrounds.isEmpty {
+                    if !model.files.isEmpty { hint(L("noBackground")) }
+                } else {
+                    Text(L("backgroundsFound")).font(.caption).foregroundColor(.secondary)
+                    ForEach(model.backgrounds) { background in
+                        HStack(spacing: 6) {
+                            HStack(spacing: 2) {
+                                ForEach(Array(background.colors.prefix(4).enumerated()), id: \.offset) { _, color in
+                                    RoundedRectangle(cornerRadius: 3).fill(Color(cgColor: color.cgColor)).frame(width: 16, height: 16)
+                                        .overlay(RoundedRectangle(cornerRadius: 3).strokeBorder(Color.gray.opacity(0.5), lineWidth: 0.5))
+                                }
+                            }.accessibilityHidden(true)
+                            Text("\(background.pageCount) " + L("pages")).font(.caption).monospacedDigit().lineLimit(1).frame(width: 64, alignment: .trailing)
+                            Picker(L("master"), selection: model.masterBinding(background.signature)) {
+                                Text(L("masterSame")).tag("")
+                                ForEach(model.masterChoices, id: \.self) { Text($0).tag($0) }
+                            }.labelsHidden()
+                        }
+                    }
+                }
+            }
+        }
+        HStack {
+            Button(L("loadThemes")) { model.loadThemes() }.disabled(model.loadingThemes)
+            if model.loadingThemes { ProgressView().controlSize(.small) }
+        }
+        hint(L("themeHint"))
     }
     func heading(_ number: String, _ title: String) -> some View {
         HStack(spacing: 8) { Text(number).font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundColor(.secondary).accessibilityHidden(true); Text(title).font(.system(size: 14, weight: .semibold)) }

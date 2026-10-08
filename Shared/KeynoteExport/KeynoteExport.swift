@@ -3,7 +3,7 @@ import Carbon
 import PDFKit
 import SwiftUI
 
-// Shared PDF → Keynote export (PDF2Keynote, CarmaChameleon).
+// Shared PDF → Keynote export (PDF2Keynote, CarmaChameleon). Compile with PDFBackground.swift.
 // Each PDF page is written as a one-page PDF and placed on its own slide by Keynote,
 // so pages stay vector. Requires Keynote.scpt (compiled from Keynote.applescript) in
 // the app bundle, NSAppleEventsUsageDescription, and these localized keys in the app:
@@ -53,6 +53,15 @@ enum KeynotePageBox: String, CaseIterable, Identifiable {
         }
     }
     var label: String { L("box." + rawValue) }
+    var cgBox: CGPDFBox {
+        switch self {
+        case .crop: return .cropBox
+        case .trim: return .trimBox
+        case .bleed: return .bleedBox
+        case .media: return .mediaBox
+        case .art: return .artBox
+        }
+    }
 }
 
 struct KeynoteOptions {
@@ -62,6 +71,22 @@ struct KeynoteOptions {
     /// 1-based inclusive. nil converts every page.
     var pageRange: ClosedRange<Int>?
     var openAfter = true
+    /// Drops the background painted first on each page (PDFBackground.swift).
+    var removeBackground = false
+    /// Keynote theme name. nil keeps Keynote's default theme.
+    var theme: String?
+    /// Master slide for every slide. nil leaves it to Keynote.
+    var master: String?
+    /// Master slide per background signature; wins over `master`.
+    var masterForBackground: [String: String] = [:]
+}
+
+/// One kind of background found in a PDF, for choosing its master slide.
+struct KeynoteBackgroundSummary: Identifiable, Equatable {
+    var signature: String
+    var colors: [PDFBackgroundColor]
+    var pageCount: Int
+    var id: String { signature }
 }
 
 struct KeynoteGeometry: Equatable {
@@ -71,6 +96,7 @@ struct KeynoteGeometry: Equatable {
 struct KeynotePreparedPage {
     let url: URL
     let geometry: KeynoteGeometry
+    var master: String?
 }
 
 enum KeynoteError: LocalizedError, Equatable {
@@ -144,6 +170,19 @@ enum KeynotePDFSplitter {
         return document.pageCount
     }
 
+    /// Backgrounds of the pages in range, in order of first appearance. Empty when unreadable.
+    static func backgrounds(source: URL, box: KeynotePageBox, pageRange: ClosedRange<Int>?) -> [KeynoteBackgroundSummary] {
+        guard let document = CGPDFDocument(source as CFURL), !document.isEncrypted || document.isUnlocked,
+              let range = KeynoteLayout.pages(pageRange, count: document.numberOfPages) else { return [] }
+        var result: [KeynoteBackgroundSummary] = []
+        for number in range {
+            guard let page = document.page(at: number), let background = PDFBackgroundFinder.find(page: page, box: page.getBoxRect(box.cgBox)) else { continue }
+            if let index = result.firstIndex(where: { $0.signature == background.signature }) { result[index].pageCount += 1 }
+            else { result.append(KeynoteBackgroundSummary(signature: background.signature, colors: background.colors, pageCount: 1)) }
+        }
+        return result
+    }
+
     /// Writes each page as a one-page PDF whose MediaBox/CropBox equal the chosen box.
     static func prepare(source: URL, options: KeynoteOptions, into folder: URL, isCancelled: () -> Bool) throws -> (slide: (Int, Int), pages: [KeynotePreparedPage]) {
         guard let document = PDFDocument(url: source) else { throw KeynoteError.unreadable }
@@ -158,13 +197,20 @@ enum KeynotePDFSplitter {
             try autoreleasepool {
                 guard let page = document.page(at: number - 1), let copy = page.copy() as? PDFPage else { throw KeynoteError.unreadable }
                 let rect = page.bounds(for: box)
-                copy.setBounds(rect, for: .mediaBox)
-                copy.setBounds(rect, for: .cropBox)
-                let single = PDFDocument()
-                single.insert(copy, at: 0)
                 let url = folder.appendingPathComponent(String(format: "page-%04d.pdf", number))
-                guard single.write(to: url) else { throw KeynoteError.writePage }
-                pages.append(KeynotePreparedPage(url: url, geometry: KeynoteLayout.place(KeynoteLayout.displaySize(of: page, box: box), slide: slide, placement: options.placement)))
+                let ref = page.pageRef
+                let background = options.removeBackground ? ref.flatMap { PDFBackgroundFinder.find(page: $0, box: rect) } : nil
+                if let background, let ref, let content = PDFPageContent.data(of: ref) {
+                    try PDFPageWriter.write(page: ref, content: PDFBackgroundFinder.removing(background, from: content), box: rect, to: url)
+                } else {
+                    copy.setBounds(rect, for: .mediaBox)
+                    copy.setBounds(rect, for: .cropBox)
+                    let single = PDFDocument()
+                    single.insert(copy, at: 0)
+                    guard single.write(to: url) else { throw KeynoteError.writePage }
+                }
+                let master = background.flatMap { options.masterForBackground[$0.signature] } ?? options.master
+                pages.append(KeynotePreparedPage(url: url, geometry: KeynoteLayout.place(KeynoteLayout.displaySize(of: page, box: box), slide: slide, placement: options.placement), master: master))
             }
         }
         return (slide, pages)
@@ -247,6 +293,12 @@ struct KeynoteBridge {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") { NSWorkspace.shared.open(url) }
     }
 
+    /// Theme names as Keynote lists them (localized). Launches Keynote.
+    func themes() throws -> [String] { try run(["themes"]).components(separatedBy: "\n").filter { !$0.isEmpty } }
+
+    /// Master slide names of a theme. Keynote briefly opens a scratch presentation.
+    func masters(theme: String) throws -> [String] { try run(["masters", theme]).components(separatedBy: "\n").filter { !$0.isEmpty } }
+
     static func activateKeynote() {
         NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first?.activate()
     }
@@ -267,15 +319,19 @@ enum KeynoteExporter {
         let prepared = try KeynotePDFSplitter.prepare(source: pdf, options: options, into: work, isCancelled: isCancelled)
         if isCancelled() { throw CancellationError() }
         progress(0, prepared.pages.count)
-        let documentID = try bridge.run(["create", String(prepared.slide.0), String(prepared.slide.1)])
+        let documentID = try bridge.run(["create", String(prepared.slide.0), String(prepared.slide.1)] + (options.theme.map { [$0] } ?? []))
+        // "addm" takes a sixth field per page: the master slide name ("" leaves it to Keynote).
+        let usesMasters = prepared.pages.contains { $0.master != nil }
         var output: URL?
         do {
             var done = 0
             while done < prepared.pages.count {
                 if isCancelled() { throw CancellationError() }
                 let chunk = prepared.pages[done..<min(done + chunkSize, prepared.pages.count)]
-                let values = chunk.flatMap { [$0.url.path, String($0.geometry.x), String($0.geometry.y), String($0.geometry.width), String($0.geometry.height)] }
-                try bridge.run(["add", documentID, String(done + 1)] + values)
+                let values = chunk.flatMap { page in
+                    [page.url.path, String(page.geometry.x), String(page.geometry.y), String(page.geometry.width), String(page.geometry.height)] + (usesMasters ? [page.master ?? ""] : [])
+                }
+                try bridge.run([usesMasters ? "addm" : "add", documentID, String(done + 1)] + values)
                 done += chunk.count
                 progress(done, prepared.pages.count)
             }

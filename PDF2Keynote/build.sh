@@ -14,7 +14,7 @@ osacompile -o "$app/Contents/Resources/Keynote.scpt" ../Shared/KeynoteExport/Key
 cp Assets/PDF2Keynote.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit "${UPDATE_SWIFT_FLAGS[@]}" \
-  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/KeynoteExport/KeynoteExport.swift \
+  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift \
   Source/{UpdateSupport,ConversionRunner,LaunchPolicy,LoginAtLaunch,main}.swift -o "$app/Contents/MacOS/PDF2Keynote"
 embed_updates "$app"
 xattr -cr "$app"

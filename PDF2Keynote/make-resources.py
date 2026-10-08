@@ -25,6 +25,19 @@ box.trim|仕上がり（TrimBox）|Trim box|成品框 (TrimBox)|마감 상자(Tr
 box.bleed|裁ち落とし（BleedBox）|Bleed box|出血框 (BleedBox)|도련 상자(BleedBox)
 box.media|メディア（MediaBox）|Media box|媒体框 (MediaBox)|미디어 상자(MediaBox)
 box.art|アート（ArtBox）|Art box|作品框 (ArtBox)|아트 상자(ArtBox)
+background|背景とテーマ|Background and theme|背景与主题|배경과 테마
+removeBackground|各ページの背景を取り除く|Remove page backgrounds|移除页面背景|페이지 배경 제거
+removeBackgroundHint|ページの最初に描かれた全面の塗りや親ページの要素を外し、Keynoteのマスターの背景が見えるようにします。|Drops the full-page fill or parent-page items drawn first, so the Keynote master shows through.|移除页面最先绘制的整页填充或父页面元素，使 Keynote 母版的背景显示出来。|페이지에서 먼저 그려진 전면 채우기나 부모 페이지 요소를 제거하여 Keynote 마스터 배경이 보이게 합니다.
+noBackground|背景は見つかりませんでした。|No background found.|未找到背景。|배경을 찾지 못했습니다.
+backgroundsFound|見つかった背景ごとのマスター|Master for each background found|按找到的背景指定母版|찾은 배경별 마스터
+theme|テーマ|Theme|主题|테마
+themeDefault|Keynoteの既定|Keynote default|Keynote 默认|Keynote 기본값
+master|マスター|Master|母版|마스터
+masterAuto|指定しない|Don't set|不指定|지정 안 함
+masterSame|上のマスターと同じ|Same as above|与上面相同|위와 같음
+loadThemes|Keynoteから読み込む|Load from Keynote|从 Keynote 载入|Keynote에서 불러오기
+loadingThemes|Keynoteからテーマを読み込んでいます…|Loading themes from Keynote…|正在从 Keynote 载入主题…|Keynote에서 테마를 불러오는 중…
+themeHint|テーマとマスターの一覧はKeynoteから読み込みます。自作のテーマも選べます。|Themes and masters are read from Keynote, including your own themes.|主题和母版列表从 Keynote 读取，也可选择自定义主题。|테마와 마스터 목록은 Keynote에서 불러오며 직접 만든 테마도 선택할 수 있습니다.
 pageRange|ページ範囲を指定|Page range|指定页面范围|페이지 범위 지정
 from|開始ページ|First page|起始页|시작 페이지
 to|終了ページ|Last page|结束页|끝 페이지

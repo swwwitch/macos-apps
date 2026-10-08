@@ -2,11 +2,12 @@
 
 PDFの各ページをKeynoteのスライドに1枚ずつ配置するSwiftUI/AppKitアプリ。Apple Silicon / macOS 13以降。Keynoteが必要。
 
-PDFKitで1ページずつのPDFに分け、共通部品のAppleScript（`../Shared/KeynoteExport/Keynote.applescript`、ビルド時に`Keynote.scpt`へコンパイル）を`osascript`経由で実行し、Keynoteに新規プレゼンテーションを作らせて画像として配置する。ページはPDFのまま埋め込まれるためベクターを保持する。Keynoteのファイル形式は直接書かない。
+PDFKitで1ページずつのPDFに分け（背景を取り除くときは共通部品 `../Shared/KeynoteExport/PDFBackground.swift` が描画命令から背景を外して1ページのPDFを書き出す）、共通部品のAppleScript（`../Shared/KeynoteExport/Keynote.applescript`、ビルド時に`Keynote.scpt`へコンパイル）を`osascript`経由で実行し、Keynoteに新規プレゼンテーションを作らせて画像として配置する。ページはPDFのまま埋め込まれるためベクターを保持する。Keynoteのファイル形式は直接書かない。
 
 - スライドサイズ：PDFに合わせる（長辺1920）／1920×1080／1024×768／1280×720／1680×1050
 - 配置：全体を収める／スライドを埋める（はみ出しはスライド外）
 - 使用する枠：CropBox（既定）／TrimBox／BleedBox／MediaBox／ArtBox
+- 各ページの背景を取り除く（ページ先頭の全面の塗り・InDesignの親ページ）。テーマとマスターを指定でき、取り除いた背景ごとにマスターを割り当てられる
 - ページ範囲、保存先（PDFと同じ／デスクトップ／指定）、変換後にKeynoteで開いたままにする
 - 原本は変更しない。同名は「名前 2.key」で回避。キャンセル時は作成中の書類を保存せず閉じる
 
@@ -17,6 +18,10 @@ PDFKitで1ページずつのPDFに分け、共通部品のAppleScript（`../Shar
 ビルド：`./build.sh`（`make-resources.py`で4言語のリソースを生成）。テスト：`./test.sh`（`./test.sh --keynote`でKeynote実機の結合テストも実行）。配置：`python3 deploy.py`。
 
 アプリの配信更新・Developer ID署名・公証は未設定。ローカル用ad-hoc署名。サポート：この開発フォルダのREADMEとBASELINE-CHECKLIST。公開問い合わせ先は未設定。
+
+## 1.1.0 / build 14
+
+「背景とテーマ」を追加。「各ページの背景を取り除く」をオンにすると、ページの最初に描かれた全面の塗り（面積98%以上の長方形。Illustratorなど）や、描画命令の先頭のフォームXObject（InDesignの親ページ）を外して書き出す。写真・文字・線などが先に描かれているページは変更しない。Keynoteのテーマを選べるようにし（「Keynoteから読み込む」で一覧を取得）、全スライド共通のマスターと、見つかった背景（色見本とページ数で表示）ごとのマスターを指定できる。背景ごとの割り当ては保存され、同じテンプレートのPDFでは再び使われる。共通部品KeynoteExportに背景の検出と1ページPDFの書き出し（PDFBackground.swift）、AppleScriptにテーマ指定・`addm`・`themes`・`masters`を追加（既存の呼び方は変更なし。CarmaChameleonの動作は変わらない）。
 
 ## 1.0.12 / build 13
 

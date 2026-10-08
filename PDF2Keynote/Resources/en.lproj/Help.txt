@@ -5,13 +5,15 @@
 4. Show in Finder reveals the saved files.
 
 ## How it works
-Each page is split into a one-page PDF. PDF2Keynote asks Keynote to create a presentation and places one page per slide as an image. Pages stay vector, so text and lines remain sharp at any size, but they are not editable text. The theme is Keynote's default (Basic White). Keynote opens and shows the presentation while it is being built.
+Each page is split into a one-page PDF. PDF2Keynote asks Keynote to create a presentation and places one page per slide as an image. Pages stay vector, so text and lines remain sharp at any size, but they are not editable text. The theme can be chosen under Background and theme (Keynote's default at first). Keynote opens and shows the presentation while it is being built.
 
 ## Options
 - **Slide size**: Match PDF uses the first page's proportions with a long edge of 1920. Fixed 16:9 and 4:3 sizes are available.
 - **Placement**: Fit shows the whole page. Fill enlarges the page to cover the slide; overflow stays outside the slide.
 - **Page box**: Usually Crop box. Use Trim box to drop crop marks from print PDFs.
 - **Page range**: Applies to every PDF.
+- **Remove page backgrounds**: Drops the full-page fill (Illustrator and others) or parent-page items (InDesign) drawn first on each page, so the Keynote master shows through. Pages that start with a photo, text or lines are left as they are. Each background found is listed with a swatch and page count, and can get its own master.
+- **Theme and master**: Load from Keynote reads the themes and masters, including your own themes. One master applies to every slide; a master chosen for a background applies to its pages.
 - **Keep open in Keynote**: When off, the presentation is closed after saving.
 
 ## Originals and saving

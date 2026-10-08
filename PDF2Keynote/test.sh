@@ -6,7 +6,7 @@ cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/PDF2Keynote-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework PDFKit -framework Carbon \
-  -framework SwiftUI ../Shared/KeynoteExport/KeynoteExport.swift Source/ConversionRunner.swift Tests/main.swift -o "$stage/tests"
+  -framework SwiftUI ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift Source/ConversionRunner.swift Tests/main.swift -o "$stage/tests"
 if [[ "${1:-}" == "--keynote" ]]; then
   osacompile -o "$stage/Keynote.scpt" ../Shared/KeynoteExport/Keynote.applescript
   "$stage/tests" "$stage/work" "$stage/Keynote.scpt" "$PWD/Tests/KeynoteOutput"

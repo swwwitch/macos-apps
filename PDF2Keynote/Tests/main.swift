@@ -92,6 +92,57 @@ catch KeynoteError.locked { check(true, "locked PDF rejected") }
 check(KeynoteBridge.error(from: "x.scpt: execution error: Not authorized to send Apple events to Keynote. (-1743)") == .automationDenied, "-1743 → automation denied")
 check(KeynoteBridge.error(from: "x.scpt: execution error: Keynote got an error: AppleEvent timed out. (-1712)") == .timeout, "-1712 → timeout")
 
+// Backgrounds, written by hand because CoreGraphics and PDFKit inline Form XObjects when saving.
+// Page 1: full-page fill then text. Page 2: a Form XObject in q…Q then text (as InDesign writes
+// parent pages). Page 3: text only. The fixture above starts with an inset rectangle: no background.
+func makeBackgroundFixture() -> URL {
+    let url = work.appendingPathComponent("background.pdf")
+    let contents = ["1 0.9 0 rg 0 0 800 450 re f BT /F1 48 Tf 300 200 Td (Slide 1) Tj ET",
+                    "q /GS0 gs /Fm0 Do Q BT /F1 48 Tf 300 200 Td (Slide 2) Tj ET",
+                    "BT /F1 48 Tf 300 200 Td (Slide 3) Tj ET"]
+    let form = "0.2 0.4 0.8 rg 40 40 720 370 re f"
+    func stream(_ text: String, _ extra: String = "") -> String { "<< \(extra)/Length \(text.utf8.count) >>\nstream\n\(text)\nendstream" }
+    var bodies = ["<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>"]
+    let resources = "<< /XObject << /Fm0 9 0 R >> /Font << /F1 10 0 R >> /ExtGState << /GS0 << /CA 1 >> >> >>"
+    bodies += (0..<3).map { "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 800 450] /Contents \(6 + $0) 0 R /Resources \(resources) >>" }
+    bodies += contents.map { stream($0) }
+    bodies += [stream(form, "/Type /XObject /Subtype /Form /BBox [0 0 800 450] "), "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    var pdf = "%PDF-1.4\n", offsets: [Int] = []
+    for (index, body) in bodies.enumerated() { offsets.append(pdf.utf8.count); pdf += "\(index + 1) 0 obj\n\(body)\nendobj\n" }
+    let xref = pdf.utf8.count
+    pdf += "xref\n0 \(bodies.count + 1)\n0000000000 65535 f \n" + offsets.map { String(format: "%010d 00000 n \n", $0) }.joined()
+    pdf += "trailer\n<< /Size \(bodies.count + 1) /Root 1 0 R >>\nstartxref\n\(xref)\n%%EOF\n"
+    try! Data(pdf.utf8).write(to: url)
+    return url
+}
+let backgroundPDF = makeBackgroundFixture()
+let backgroundDoc = CGPDFDocument(backgroundPDF as CFURL)!
+let fillBackground = PDFBackgroundFinder.find(page: backgroundDoc.page(at: 1)!, box: CGRect(x: 0, y: 0, width: 800, height: 450))
+check(fillBackground?.signature.hasPrefix("fill:") == true && fillBackground?.colors.count == 1, "full-page fill found as background")
+check(PDFBackgroundFinder.find(page: backgroundDoc.page(at: 2)!, box: CGRect(x: 0, y: 0, width: 800, height: 450))?.signature.hasPrefix("form:") == true, "leading Form XObject found as background")
+check(PDFBackgroundFinder.find(page: backgroundDoc.page(at: 3)!, box: CGRect(x: 0, y: 0, width: 800, height: 450)) == nil, "text-only page has no background")
+check(PDFBackgroundFinder.find(page: CGPDFDocument(fixture as CFURL)!.page(at: 1)!, box: CGRect(x: 0, y: 0, width: 960, height: 540)) == nil, "inset rectangle is not a background")
+let summaries = KeynotePDFSplitter.backgrounds(source: backgroundPDF, box: .crop, pageRange: nil)
+check(summaries.count == 2 && summaries.allSatisfy { $0.pageCount == 1 }, "two kinds of background summarized")
+let stripDir = work.appendingPathComponent("strip", isDirectory: true)
+try FileManager.default.createDirectory(at: stripDir, withIntermediateDirectories: true)
+var stripOptions = KeynoteOptions(); stripOptions.removeBackground = true; stripOptions.master = "Blank"
+stripOptions.masterForBackground = [summaries[0].signature: "Yellow"]
+let stripped = try KeynotePDFSplitter.prepare(source: backgroundPDF, options: stripOptions, into: stripDir) { false }
+check(stripped.pages.map(\.master) == ["Yellow", "Blank", "Blank"], "master per background, others use the general master")
+func pixel(_ url: URL, _ x: Int, _ y: Int) -> NSColor {
+    let document = PDFDocument(url: url)!
+    let page = document.page(at: 0)!
+    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 400, pixelsHigh: 225, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+    NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+    let ctx = NSGraphicsContext.current!.cgContext; ctx.scaleBy(x: 0.5, y: 0.5); page.draw(with: .mediaBox, to: ctx)
+    NSGraphicsContext.restoreGraphicsState()
+    return withExtendedLifetime(document) { rep.colorAt(x: x, y: y)! }
+}
+check(pixel(stripped.pages[0].url, 5, 5).alphaComponent < 0.01 && pixel(stripped.pages[1].url, 200, 30).alphaComponent < 0.01, "backgrounds removed (transparent)")
+check(["Slide 1", "Slide 2"].enumerated().allSatisfy { PDFDocument(url: stripped.pages[$0.offset].url)?.string?.contains($0.element) == true }, "text kept after removal")
+check(PDFDocument(url: stripped.pages[2].url)?.page(at: 0)?.bounds(for: .mediaBox).size == CGSize(width: 800, height: 450), "page without background written as before")
+
 // Keynote integration
 if CommandLine.arguments.count >= 4 {
     let bridge = KeynoteBridge(script: URL(fileURLWithPath: CommandLine.arguments[2]))
@@ -112,6 +163,17 @@ if CommandLine.arguments.count >= 4 {
     let cancelled = ConversionRunner(bridge: bridge); cancelled.cancel()
     do { _ = try cancelled.convert(input: fixture, folder: out, options: options) { _, _ in }; check(false, "Keynote: cancelled run writes nothing") }
     catch is CancellationError { check(!FileManager.default.fileExists(atPath: out.appendingPathComponent("fixture 3.key").path), "Keynote: cancelled run writes nothing") }
+    // Theme and masters: the background page gets the last master, the others the first.
+    let themes = try bridge.themes(), masters = try bridge.masters(theme: themes[0])
+    check(!themes.isEmpty && masters.count >= 2, "Keynote: themes and masters listed")
+    var themed = KeynoteOptions(); themed.removeBackground = true; themed.theme = themes[0]; themed.master = masters[0]
+    themed.masterForBackground = [summaries[0].signature: masters[masters.count - 1]]
+    let themedKey = try ConversionRunner(bridge: bridge).convert(input: backgroundPDF, folder: out, options: themed) { _, _ in }
+    let query = Process(); let queryPipe = Pipe(); query.executableURL = URL(fileURLWithPath: "/usr/bin/osascript"); query.standardOutput = queryPipe
+    query.arguments = ["-e", "tell application id \"com.apple.Keynote\"", "-e", "set d to first document whose name starts with \"\(themedKey.deletingPathExtension().lastPathComponent)\"",
+                       "-e", "set AppleScript's text item delimiters to \"|\"", "-e", "set r to (name of base slide of every slide of d) as text", "-e", "close d saving no", "-e", "return r", "-e", "end tell"]
+    try query.run(); let bases = String(decoding: queryPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines); query.waitUntilExit()
+    check(bases == [masters[masters.count - 1], masters[0], masters[0]].joined(separator: "|"), "Keynote: masters applied per background (\(bases))")
     let script = "tell application id \"com.apple.Keynote\" to count documents"
     let count = Process(); let countPipe = Pipe(); count.executableURL = URL(fileURLWithPath: "/usr/bin/osascript"); count.arguments = ["-e", script]; count.standardOutput = countPipe
     try count.run(); let remaining = String(decoding: countPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines); count.waitUntilExit()
