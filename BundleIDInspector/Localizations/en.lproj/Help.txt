@@ -1,0 +1,53 @@
+BundleIDInspector looks up the Bundle ID of apps, lists them and lets you copy them.
+
+## How to Use
+### Add Apps
+1. Drop apps on the main window, or choose File > Choose Apps… (⌘O). You can add several apps at once.
+2. The list shows each app's name, Bundle ID and version (build).
+
+### Other Ways to Add
+- Drop apps on the BundleIDInspector icon in the Dock.
+- Adding the same app again moves it to the top of the list (no duplicates).
+- Files and folders without a Bundle ID are not added; the reason appears at the bottom of the window.
+
+## Copying and the List
+- Click Copy in a row to copy that app's Bundle ID.
+- Copy All copies every Bundle ID in the list, one per line.
+- Right-click a row for **Copy Bundle ID**, **Copy Path**, **Show in Finder** and **Remove from List**.
+- You can also select and copy the Bundle ID text.
+- Clear empties the list. The list is cleared when you quit the app.
+
+## Settings
+Open with the Settings button in the main window (⌘,).
+- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+
+## Shortcuts
+- **⌘O**: Choose Apps
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: BundleIDInspector Help
+- **⌘Q**: Quit BundleIDInspector
+
+## Permissions
+- No Accessibility or other permissions are required.
+- The app only reads each app's Info.plist. It never changes or launches the apps and makes no network connections.
+
+## Launching and Quitting
+- Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
+- With Show in menu bar turned on, the menu bar icon also offers Open Main Window, Settings… and Help.
+- To quit, choose Quit BundleIDInspector (⌘Q) in the app menu.
+- Choose Check for Updates… in the app menu to look for a new version. Until distribution is set up, it reports that updates are being prepared and makes no network connection.
+
+## Troubleshooting
+- If an item is not added, make sure it is an app (.app) or another bundle. The reason appears at the bottom of the window.
+- Names appear in English when the app has no localized display name for your language.
+
+## Help and the note Article
+- Open this help with BundleIDInspector Help (⌘?) in the Help menu.
+- Open the note Article in the Help menu opens the article in your browser.
+
+## Uninstalling
+1. Turn off Open at login.
+2. Choose Quit BundleIDInspector.
+3. Move BundleIDInspector to the Trash.

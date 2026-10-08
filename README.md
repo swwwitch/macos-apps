@@ -7,6 +7,7 @@
 | アプリ | 用途 | ソース | ビルド |
 | --- | --- | --- | --- |
 | BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) |
+| BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) |
 | CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
 | ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
 | FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) |

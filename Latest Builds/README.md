@@ -5,6 +5,7 @@
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.26 | 46 | `jp.local.BrowserSwitcher` |
+| [BundleIDInspector](BundleIDInspector.app) | 1.0.5 | 6 | `jp.dtp-transit.bundleidinspector` |
 | [CommandDee](CommandDee.app) | 1.8.7 | 34 | `jp.local.CommandDee` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.21 | 35 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.1.82 | 96 | `jp.local.FolderMover` |
