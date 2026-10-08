@@ -1,0 +1,2 @@
+"NSAppleEventsUsageDescription" = "KeynoteSweeper 需要读取 Keynote 最前面的演示文稿，并删除您选择的隐藏幻灯片。";
+"CFBundleDisplayName" = "KeynoteSweeper";

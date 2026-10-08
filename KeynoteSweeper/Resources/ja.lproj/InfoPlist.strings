@@ -1,0 +1,2 @@
+"NSAppleEventsUsageDescription" = "Keynoteの最前面の書類を読み取り、選んだ非表示のスライドを削除するため、Keynoteを操作します。";
+"CFBundleDisplayName" = "KeynoteSweeper";

@@ -12,6 +12,7 @@
 | [FileCaravan](FileCaravan.app) | 1.0.11 | 26 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.0.9 | 10 | `local.takano.IdAsyncOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.0.12 | 49 | `jp.dtp-transit.kagetrimmer` |
+| [KeynoteSweeper](KeynoteSweeper.app) | 1.0.0 | 1 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.10 | 30 | `jp.local.SuperKakkoEdit` |
 | [MightyEdit](MightyEdit.app) | 0.2.2 | 75 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.0 | 14 | `jp.local.PDF2Keynote` |
