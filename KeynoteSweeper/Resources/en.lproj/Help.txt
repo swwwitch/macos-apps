@@ -66,6 +66,11 @@ Everything runs on this Mac. Presentation contents are not uploaded, the app mak
 ## Troubleshooting
 - **Keynote is not running**: open a presentation in Keynote, then click Reload. KeynoteSweeper never launches Keynote.
 - **Could not open Edit Slide Layouts**: close any dialog or sheet in Keynote and try again.
+- **No items in the Services menu**: try these in order.
+1. Put KeynoteSweeper in the Applications folder and open it once (it registers the services at launch).
+2. In System Settings › Keyboard › Keyboard Shortcuts › Services, make sure the KeynoteSweeper items are on.
+3. Log out and back in. In Terminal, /System/Library/CoreServices/pbs -update also re-registers them.
+The items appear only while Keynote is active.
 - **Some masters were not deleted**: click Delete again to retry the remaining ones.
 - **Accessibility allowed but not working**: restart the app. After an update you may need to turn the permission off and on again.
 - Check for Updates… and Automatically Check for Updates in the app menu say updates are not configured yet (no update feed or signing key) and make no network access. Notarization is not configured either. Apple Silicon, macOS 13 or later.

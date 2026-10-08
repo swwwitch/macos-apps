@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
 アプリ名：KeynoteSweeper
-バージョン/build：1.0.0 / 1
+バージョン/build：1.0.1 / 2
 確認OS/CPU：macOS 26 / Apple Silicon（Keynote Creator Studio）
 確認日：2026-10-08
 
