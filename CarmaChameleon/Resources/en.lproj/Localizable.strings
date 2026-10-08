@@ -6,7 +6,7 @@
 "chooseFiles" = "Choose files…";
 "remove" = "Remove file";
 "files" = "files";
-"clear" = "Clear all";
+"clear" = "Clear input file list";
 "format" = "Output format";
 "options" = "Options";
 "readAs" = "Input format";
@@ -25,7 +25,13 @@
 "selectFolder" = "Choose output folder…";
 "preserveOriginal" = "Originals stay intact. Existing filenames get a number.";
 "ready" = "Add files to begin.";
-"reveal" = "Show in Finder";
+"revealAfterConversion" = "Show in Finder after conversion";
+"convertHelp" = "⌘-click to clear the input files after conversion";
+"catBusiness" = "Business";
+"catDesign" = "Design";
+"catImage" = "Image";
+"catOther" = "Other";
+"formatsHiddenForInput" = "%d formats the added files cannot become are hidden.";
 "cancel" = "Cancel";
 "convert" = "Convert";
 "selected" = "Selected";

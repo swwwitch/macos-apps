@@ -6,8 +6,9 @@ import ServiceManagement
 func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
 
 @MainActor final class Model: ObservableObject {
-    @Published var files: [URL] = []
-    @Published var formatID = UserDefaults.standard.string(forKey:"format") ?? "docx" { didSet { UserDefaults.standard.set(formatID,forKey:"format") } }
+    @Published var files: [URL] = [] { didSet { matchFormatToFiles() } }
+    @Published var formatID = UserDefaults.standard.string(forKey:"format") ?? "docx" { didSet { if !switchingForFiles { UserDefaults.standard.set(formatID,forKey:"format") } } }
+    private var switchingForFiles = false
     @Published var reader = "auto"
     @Published var toc = false
     @Published var numbers = false
@@ -28,6 +29,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     @Published var results: [URL] = []
     @Published var destinationMode = UserDefaults.standard.string(forKey:"destinationMode") ?? "source" { didSet { UserDefaults.standard.set(destinationMode,forKey:"destinationMode") } }
     @Published var openAfterConversion = UserDefaults.standard.bool(forKey:"openAfterConversion") { didSet { UserDefaults.standard.set(openAfterConversion,forKey:"openAfterConversion") } }
+    @Published var revealAfterConversion = UserDefaults.standard.bool(forKey:"revealAfterConversion") { didSet { UserDefaults.standard.set(revealAfterConversion,forKey:"revealAfterConversion") } }
     @Published var folder: URL? = UserDefaults.standard.string(forKey:"outputFolder").map { URL(fileURLWithPath:$0) } { didSet { UserDefaults.standard.set(folder?.path,forKey:"outputFolder") } }
     var runner: ConversionRunner?
     var format: OutputFormat { OutputFormat.all.first { $0.id == formatID } ?? OutputFormat.defaultFormat }
@@ -35,6 +37,17 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     func ensureVisibleFormat() {
         let visible = FormatPreferences.shared.visible
         if !visible.contains(where: { $0.id == formatID }), let first = visible.first { formatID = first.id }
+        matchFormatToFiles()
+    }
+    /// Formats the added files cannot become are not listed, so the selection moves to the first usable one.
+    /// The saved choice is kept and comes back once the files allow it again.
+    func matchFormatToFiles() {
+        let visible = FormatPreferences.shared.visible
+        func usable(_ id: String) -> Bool { visible.first { $0.id == id }.map { $0.unsupportedReason(for:files) == nil } ?? false }
+        let saved = UserDefaults.standard.string(forKey:"format") ?? formatID
+        let target = usable(saved) ? saved : usable(formatID) ? formatID : visible.first { usable($0.id) }?.id
+        guard let target, target != formatID else { return }
+        switchingForFiles = true; formatID = target; switchingForFiles = false
     }
     func add(_ urls: [URL]) {
         guard !busy else { return }
@@ -57,7 +70,8 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         p.prompt = L("selectFolder")
         if p.runModal() == .OK { folder = p.url }
     }
-    func start() {
+    /// clearAfter (⌘-click on 変換): files that converted are removed from the input list when done.
+    func start(clearAfter: Bool = false) {
         guard !busy, !files.isEmpty else { return }
         if let reason = format.unsupportedReason(for:files) { status = L(reason); return }
         guard let engine = ConversionRunner.engine() else { status = L("engineMissing"); return }
@@ -70,7 +84,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         if destinationMode == "custom", folder == nil { chooseFolder() }
         guard destinationMode == "source" || folder != nil else { return }
         let customFolder = destinationMode == "custom" ? folder : nil
-        let shouldOpen = openAfterConversion
+        let shouldOpen = openAfterConversion; let shouldReveal = revealAfterConversion
         let inputs = files
         var opts = ConversionOptions(format:format,reader:reader,standalone:standalone,toc:toc,numbers:numbers,wrap:wrap,pdfEngine:pdfEngine,htmlFormatting:htmlFormatting)
         // Keynote keeps the finished presentation open instead of reopening the saved file.
@@ -94,15 +108,15 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         opts.keynote = KeynoteOptions(slideSize:keynoteSlideSize, placement:keynotePlacement, box:keynoteBox, pageRange:nil, openAfter:shouldOpen)
         let worker = ConversionRunner(); runner = worker; busy = true; completed = 0; results = []; details = ""; showAutomationHelp = false; status = L("working")
         DispatchQueue.global(qos:.userInitiated).async {
-            var outputs: [URL] = []; var errors: [String] = []; var denied = false; var succeeded = 0
+            var outputs: [URL] = []; var errors: [String] = []; var denied = false; var succeeded = 0; var done: [URL] = []
             if combine {
-                do { outputs.append(try worker.combineImagesToPDF(inputs, folder:customFolder ?? inputs[0].deletingLastPathComponent())); succeeded = inputs.count }
+                do { outputs.append(try worker.combineImagesToPDF(inputs, folder:customFolder ?? inputs[0].deletingLastPathComponent())); succeeded = inputs.count; done = inputs }
                 catch is CancellationError {}
                 catch { errors.append(error.localizedDescription) }
             }
             for (index,input) in inputs.enumerated() where !combine {
                 if worker.isCancelled { break }
-                do { outputs += try worker.convertFiles(engine:engine,input:input,folder:customFolder ?? input.deletingLastPathComponent(),options:opts); succeeded += 1 }
+                do { outputs += try worker.convertFiles(engine:engine,input:input,folder:customFolder ?? input.deletingLastPathComponent(),options:opts); succeeded += 1; done.append(input) }
                 catch is CancellationError { break }
                 catch {
                     errors.append(input.lastPathComponent + ": " + error.localizedDescription)
@@ -110,9 +124,11 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
                 }
                 DispatchQueue.main.async { self.completed = index + 1 }
             }
-            let finalOutputs = outputs; let finalErrors = errors; let finalWarnings = worker.warnings; let finalDenied = denied; let finalSucceeded = succeeded
+            let finalOutputs = outputs; let finalErrors = errors; let finalWarnings = worker.warnings; let finalDenied = denied; let finalSucceeded = succeeded; let finalDone = done
             DispatchQueue.main.async {
-                self.busy = false; self.runner = nil; self.results = finalOutputs
+                self.busy = false; self.runner = nil
+                if clearAfter { self.files.removeAll { finalDone.contains($0) } }
+                self.results = finalOutputs
                 self.details = (finalErrors + finalWarnings).joined(separator:"\n\n")
                 let key = worker.isCancelled ? "cancelled" : finalErrors.isEmpty ? "success" : finalOutputs.isEmpty ? "failed" : "partial"
                 self.status = L(key) + " · \(finalSucceeded)/\(inputs.count)" + (finalOutputs.count > finalSucceeded ? " · " + String(format:L("filesWritten"), finalOutputs.count) : "")
@@ -121,6 +137,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
                     for url in finalOutputs where url.pathExtension.lowercased() != "key" { NSWorkspace.shared.open(url) }
                     if finalOutputs.contains(where: { $0.pathExtension.lowercased() == "key" }) { KeynoteBridge.activateKeynote() }
                 }
+                if shouldReveal && !worker.isCancelled && !finalOutputs.isEmpty { NSWorkspace.shared.activateFileViewerSelecting(finalOutputs) }
             }
         }
     }
@@ -135,7 +152,16 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     private init() {
         let known = OutputFormat.all.map(\.id)
         let saved = (UserDefaults.standard.stringArray(forKey:"formatOrder") ?? []).filter { known.contains($0) }
-        order = saved + known.filter { !saved.contains($0) }   // new formats join at the end
+        var list = saved
+        // 0.8: ラスター画像・SVG・CSV once move under PDF, even where an earlier version listed them at the end.
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey:"formatOrderImagesUnderPDF") { list.removeAll { ["image","svg","csv"].contains($0) }; defaults.set(true,forKey:"formatOrderImagesUnderPDF") }
+        // A format not in the saved order goes right after the format before it in the default order.
+        for (index,id) in known.enumerated() where !list.contains(id) {
+            let anchor = known[..<index].last { list.contains($0) }
+            list.insert(id, at:anchor.flatMap { list.firstIndex(of:$0) }.map { $0 + 1 } ?? 0)
+        }
+        order = list
         hidden = Set(UserDefaults.standard.stringArray(forKey:"hiddenFormats") ?? []).intersection(known)
     }
     var ordered: [OutputFormat] { order.compactMap { id in OutputFormat.all.first { $0.id == id } } }
@@ -198,18 +224,21 @@ struct MainView: View {
                 VStack(alignment:.leading,spacing:12) {
                     heading("02",L("format"))
                     ScrollView {
-                        VStack(spacing:6) {
-                            ForEach(formats.visible) { format in
-                                // Formats the added files cannot become are dimmed; the tooltip gives the reason.
-                                let reason = format.unsupportedReason(for:model.files)
-                                let selected = model.formatID == format.id
-                                Button { model.formatID = format.id } label: {
-                                    HStack { VStack(alignment:.leading,spacing:2) { Text(format.name).fontWeight(.medium); Text(format.extLabel).font(.caption).foregroundStyle(.secondary) }; Spacer()
-                                        Image(systemName:selected && reason != nil ? "exclamationmark.triangle.fill" : selected ? "checkmark.circle.fill" : "circle").foregroundColor(selected && reason != nil ? .orange : selected ? .accentColor : .gray.opacity(0.4)) }
-                                    .padding(.horizontal,12).padding(.vertical,8).background(selected ? Color.accentColor.opacity(0.12) : Color(nsColor:.textBackgroundColor)).cornerRadius(7)
-                                    .opacity(reason == nil || selected ? 1 : 0.4)
-                                }.buttonStyle(.plain).disabled(reason != nil && !selected).help(reason.map(L) ?? "")
-                                .accessibilityLabel(format.name).accessibilityValue(selected ? L("selected") : reason.map(L) ?? "")
+                        // Formats the added files cannot become are hidden. Only when none fits are all listed, dimmed, with the reason as the tooltip.
+                        let usable = formats.visible.filter { $0.unsupportedReason(for:model.files) == nil }
+                        let listed = usable.isEmpty ? formats.visible : usable
+                        VStack(alignment:.leading,spacing:12) {
+                            ForEach(OutputFormat.categories,id:\.self) { category in
+                                let items = listed.filter { $0.category == category }
+                                if !items.isEmpty {
+                                    VStack(alignment:.leading,spacing:6) {
+                                        Text(L(category)).font(.caption).fontWeight(.semibold).foregroundStyle(.secondary).padding(.leading,4)
+                                        ForEach(items) { formatRow($0) }
+                                    }
+                                }
+                            }
+                            if listed.count < formats.visible.count {
+                                Text(String(format:L("formatsHiddenForInput"),formats.visible.count - listed.count)).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                             }
                         }
                     }
@@ -287,12 +316,14 @@ struct MainView: View {
                                 Button(L("selectFolder")) { model.chooseFolder() }
                             }
                             Toggle(L("openAfterConversion"),isOn:$model.openAfterConversion)
+                            Toggle(L("revealAfterConversion"),isOn:$model.revealAfterConversion)
                             if model.files.contains(where: { $0.pathExtension.lowercased() == "idml" }) || model.reader == "idml" { Text(L("idmlLimit")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             if model.formatID != "keynote", !model.format.isImage, model.files.contains(where: { $0.pathExtension.lowercased() == "pdf" }) || model.reader == "pdf" { Text(L("pdfInputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             if model.formatID == "idml" { Text(L("idmlOutputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             Text(L("preserveOriginal")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
-                        }
-                    }
+                        }.padding(14).frame(maxWidth:.infinity,alignment:.leading)
+                    }.background(Color(nsColor:.textBackgroundColor)).cornerRadius(10)
+                    .overlay(RoundedRectangle(cornerRadius:10).strokeBorder(Color.gray.opacity(0.25)))
                 }.frame(width:260).disabled(model.busy)
             }
             Divider()
@@ -302,9 +333,9 @@ struct MainView: View {
                 Text(model.status.isEmpty ? L("ready") : model.status).font(.callout).lineLimit(2).textSelection(.enabled)
                 Spacer()
                 if model.showAutomationHelp { Button(L("permOpen")) { KeynoteBridge.openAutomationSettings() } }
-                if !model.results.isEmpty { Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting(model.results) } }
                 if model.busy { Button(L("cancel")) { model.cancel() }.keyboardShortcut(.cancelAction) }
-                Button(L("convert")) { model.start() }.keyboardShortcut(.return,modifiers:.command).buttonStyle(.borderedProminent).controlSize(.large).disabled(model.files.isEmpty || model.busy)
+                // ⌘-click also clears the converted files from the input list; ⌘↩ (keyboard) does not.
+                Button(L("convert")) { let event = NSApp.currentEvent; model.start(clearAfter:event?.type == .leftMouseUp && event?.modifierFlags.contains(.command) == true) }.help(L("convertHelp")).keyboardShortcut(.return,modifiers:.command).buttonStyle(.borderedProminent).controlSize(.large).disabled(model.files.isEmpty || model.busy)
             }
         }.onReceive(NotificationCenter.default.publisher(for:NSApplication.didBecomeActiveNotification)) { _ in
             model.pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
@@ -312,6 +343,17 @@ struct MainView: View {
             model.pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
         }.onReceive(FormatPreferences.shared.$hidden) { _ in DispatchQueue.main.async { model.ensureVisibleFormat() } }
         .padding(24).frame(minWidth:990,minHeight:670).background(Color(nsColor:AppSurface.color)).tint(Color(red:0.55,green:0.38,blue:0.04))
+    }
+    func formatRow(_ format: OutputFormat) -> some View {
+        let reason = format.unsupportedReason(for:model.files)
+        let selected = model.formatID == format.id
+        return Button { model.formatID = format.id } label: {
+            HStack { VStack(alignment:.leading,spacing:2) { Text(format.name).fontWeight(.medium); Text(format.extLabel).font(.caption).foregroundStyle(.secondary) }; Spacer()
+                Image(systemName:selected && reason != nil ? "exclamationmark.triangle.fill" : selected ? "checkmark.circle.fill" : "circle").foregroundColor(selected && reason != nil ? .orange : selected ? .accentColor : .gray.opacity(0.4)) }
+            .padding(.horizontal,12).padding(.vertical,8).background(selected ? Color.accentColor.opacity(0.12) : Color(nsColor:.textBackgroundColor)).cornerRadius(7)
+            .opacity(reason == nil || selected ? 1 : 0.4)
+        }.buttonStyle(.plain).disabled(reason != nil && !selected).help(reason.map(L) ?? "")
+        .accessibilityLabel(format.name).accessibilityValue(selected ? L("selected") : reason.map(L) ?? "")
     }
     func heading(_ number: String,_ title: String) -> some View {
         HStack(spacing:8) { Text(number).font(.system(size:11,weight:.semibold,design:.rounded)).foregroundColor(.secondary); Text(title).font(.system(size:14,weight:.semibold)) }

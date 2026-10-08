@@ -2,9 +2,10 @@
 HELP = {
 'ja': '''## 基本操作
 1. 左の枠にファイルをドロップするか、「ファイルを選択…」（⌘O）を押します。
-2. 中央で出力形式を、右で入力形式とオプションを選びます。
+2. 中央で出力形式を、右で入力形式とオプションを選びます。出力形式は「ビジネス」「デザイン」「画像」「その他」に分けて並び、追加したファイルから変換できない形式は表示しません。
 3. 保存先を確かめて「変換」（⌘Return）を押します。複数のファイルは1つずつ別々に変換します。
-4. 完了したら「Finderで表示」で書き出したファイルを確認できます。
+4. 「変換後にFinderで表示」をオンにすると、完了後に書き出したファイルをFinderで表示します。
+- 「変換」を⌘＋クリックすると、変換を終えたファイルを入力ファイルのリストから外します（失敗したファイルは残します）。「入力ファイルリストをクリア」でリストを空にできます。
 
 ## 保存先と原本
 - **元の文書と同じ**（初期値）：各原本と同じフォルダに保存します。
@@ -141,9 +142,10 @@ HELP = {
 ''',
 'en': '''## Basics
 1. Drop files on the left, or click Choose files… (Command-O).
-2. Choose an output format in the middle, and the input format and options on the right.
+2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other; formats the added files cannot become are hidden.
 3. Check where to save and click Convert (Command-Return). Each file is converted separately.
-4. When it finishes, Show in Finder reveals the saved files.
+4. Turn on Show in Finder after conversion to reveal the saved files when it finishes.
+- ⌘-click Convert to remove the converted files from the input list (files that failed stay). Clear input file list empties the list.
 
 ## Saving and originals
 - **Same as source document** (default): saves next to each original.
@@ -280,9 +282,10 @@ HELP = {
 ''',
 'zh-Hans': '''## 基本操作
 1. 将文件拖到左侧，或点击“选择文件…”（⌘O）。
-2. 在中间选择输出格式，在右侧选择输入格式和选项。
+2. 在中间选择输出格式，在右侧选择输入格式和选项。输出格式分为“商务”“设计”“图像”“其他”，无法从所添加文件转换的格式不会显示。
 3. 确认保存位置后点击“转换”（⌘Return）。多个文件会分别转换。
-4. 完成后，“在 Finder 中显示”可查看保存的文件。
+4. 打开“转换后在 Finder 中显示”，完成后会在 Finder 中显示保存的文件。
+- ⌘+点按“转换”，转换完成的文件会从输入列表中移除（失败的文件保留）。“清除输入文件列表”可清空列表。
 
 ## 保存位置与原文件
 - **与原文档相同**（默认）：保存在各原文件所在的文件夹。
@@ -419,9 +422,10 @@ HELP = {
 ''',
 'ko': '''## 기본 사용법
 1. 왼쪽에 파일을 드롭하거나 "파일 선택…"(⌘O)을 누르세요.
-2. 가운데에서 출력 형식을, 오른쪽에서 입력 형식과 옵션을 선택하세요.
+2. 가운데에서 출력 형식을, 오른쪽에서 입력 형식과 옵션을 선택하세요. 출력 형식은 "비즈니스" "디자인" "이미지" "기타"로 나뉘며, 추가한 파일로 변환할 수 없는 형식은 표시하지 않습니다.
 3. 저장 위치를 확인하고 "변환"(⌘Return)을 누르세요. 여러 파일은 하나씩 따로 변환합니다.
-4. 완료되면 "Finder에서 보기"로 저장된 파일을 확인할 수 있습니다.
+4. "변환 후 Finder에서 보기"를 켜면 완료 후 저장된 파일을 Finder에서 보여 줍니다.
+- "변환"을 ⌘+클릭하면 변환을 마친 파일을 입력 목록에서 뺍니다(실패한 파일은 남습니다). "입력 파일 목록 지우기"로 목록을 비울 수 있습니다.
 
 ## 저장 위치와 원본
 - **원본 문서와 동일**(기본값): 각 원본과 같은 폴더에 저장합니다.

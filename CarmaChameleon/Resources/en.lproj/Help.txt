@@ -1,8 +1,9 @@
 ## Basics
 1. Drop files on the left, or click Choose files… (Command-O).
-2. Choose an output format in the middle, and the input format and options on the right.
+2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other; formats the added files cannot become are hidden.
 3. Check where to save and click Convert (Command-Return). Each file is converted separately.
-4. When it finishes, Show in Finder reveals the saved files.
+4. Turn on Show in Finder after conversion to reveal the saved files when it finishes.
+- ⌘-click Convert to remove the converted files from the input list (files that failed stay). Clear input file list empties the list.
 
 ## Saving and originals
 - **Same as source document** (default): saves next to each original.

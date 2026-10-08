@@ -6,7 +6,7 @@
 "chooseFiles" = "ファイルを選択…";
 "remove" = "ファイルを外す";
 "files" = "ファイル";
-"clear" = "すべて外す";
+"clear" = "入力ファイルリストをクリア";
 "format" = "変換形式";
 "options" = "変換オプション";
 "readAs" = "入力形式";
@@ -25,7 +25,13 @@
 "selectFolder" = "保存先を選択…";
 "preserveOriginal" = "原本は変更しません。同名ファイルには連番を付けます。";
 "ready" = "ファイルを追加して変換してください。";
-"reveal" = "Finderで表示";
+"revealAfterConversion" = "変換後にFinderで表示";
+"convertHelp" = "⌘＋クリックで変換後に入力ファイルをクリア";
+"catBusiness" = "ビジネス";
+"catDesign" = "デザイン";
+"catImage" = "画像";
+"catOther" = "その他";
+"formatsHiddenForInput" = "追加したファイルに変換できない%d形式は表示していません。";
 "cancel" = "キャンセル";
 "convert" = "変換";
 "selected" = "選択済み";

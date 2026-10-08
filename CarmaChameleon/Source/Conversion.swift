@@ -23,6 +23,16 @@ struct OutputFormat: Identifiable, Equatable {
     static var defaultFormat: OutputFormat { all.first { $0.id == "docx" }! }
     /// Shown under the name in the format list.
     var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv" : "." + ext }
+    /// Group in the main window's format list; the value is the localization key of the heading.
+    var category: String {
+        switch id {
+        case "pdf","docx","pptx","keynote","rtf","odt": return "catBusiness"
+        case "idml","html5","epub3": return "catDesign"
+        case "image","svg": return "catImage"
+        default: return "catOther"
+        }
+    }
+    static let categories = ["catBusiness","catDesign","catImage","catOther"]
     /// Image outputs come only from Illustrator, Photoshop and PDF files (ImageConversion.swift).
     var isImage: Bool { id == "image" || id == "svg" }
     /// Inputs that only image / PDF outputs accept (no text conversion through pandoc).

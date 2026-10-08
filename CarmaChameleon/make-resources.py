@@ -10,7 +10,7 @@ inputHint|Markdown・Word・Excel・Illustrator・Photoshop・InDesign・PDF・�
 chooseFiles|ファイルを選択…|Choose files…|选择文件…|파일 선택…
 remove|ファイルを外す|Remove file|移除文件|파일 제거
 files|ファイル|files|个文件|개 파일
-clear|すべて外す|Clear all|全部移除|모두 제거
+clear|入力ファイルリストをクリア|Clear input file list|清除输入文件列表|입력 파일 목록 지우기
 format|変換形式|Output format|输出格式|출력 형식
 options|変換オプション|Options|转换选项|변환 옵션
 readAs|入力形式|Input format|输入格式|입력 형식
@@ -29,7 +29,13 @@ chooseOnConvert|変換時に保存先を選択|Choose a folder when converting|�
 selectFolder|保存先を選択…|Choose output folder…|选择保存位置…|저장 위치 선택…
 preserveOriginal|原本は変更しません。同名ファイルには連番を付けます。|Originals stay intact. Existing filenames get a number.|保留原文件。同名文件会添加编号。|원본은 변경하지 않습니다. 같은 이름에는 번호를 붙입니다.
 ready|ファイルを追加して変換してください。|Add files to begin.|添加文件以开始转换。|파일을 추가하여 변환하세요.
-reveal|Finderで表示|Show in Finder|在 Finder 中显示|Finder에서 보기
+revealAfterConversion|変換後にFinderで表示|Show in Finder after conversion|转换后在 Finder 中显示|변환 후 Finder에서 보기
+convertHelp|⌘＋クリックで変換後に入力ファイルをクリア|⌘-click to clear the input files after conversion|⌘+点按：转换后清除输入文件|⌘+클릭: 변환 후 입력 파일 지우기
+catBusiness|ビジネス|Business|商务|비즈니스
+catDesign|デザイン|Design|设计|디자인
+catImage|画像|Image|图像|이미지
+catOther|その他|Other|其他|기타
+formatsHiddenForInput|追加したファイルに変換できない%d形式は表示していません。|%d formats the added files cannot become are hidden.|已隐藏 %d 种无法从所添加文件转换的格式。|추가한 파일로 변환할 수 없는 형식 %d개는 표시하지 않습니다.
 cancel|キャンセル|Cancel|取消|취소
 convert|変換|Convert|转换|변환
 selected|選択済み|Selected|已选择|선택됨
@@ -346,6 +352,6 @@ from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
 for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 导出，在用 Photoshop 转换 .psd 时让 Photoshop 导出，在转换 .indd 时让 InDesign 导出。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.8.1',CFBundleVersion='28',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.8.2',CFBundleVersion='29',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml','indd','srt']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

@@ -6,7 +6,7 @@
 "chooseFiles" = "选择文件…";
 "remove" = "移除文件";
 "files" = "个文件";
-"clear" = "全部移除";
+"clear" = "清除输入文件列表";
 "format" = "输出格式";
 "options" = "转换选项";
 "readAs" = "输入格式";
@@ -25,7 +25,13 @@
 "selectFolder" = "选择保存位置…";
 "preserveOriginal" = "保留原文件。同名文件会添加编号。";
 "ready" = "添加文件以开始转换。";
-"reveal" = "在 Finder 中显示";
+"revealAfterConversion" = "转换后在 Finder 中显示";
+"convertHelp" = "⌘+点按：转换后清除输入文件";
+"catBusiness" = "商务";
+"catDesign" = "设计";
+"catImage" = "图像";
+"catOther" = "其他";
+"formatsHiddenForInput" = "已隐藏 %d 种无法从所添加文件转换的格式。";
 "cancel" = "取消";
 "convert" = "转换";
 "selected" = "已选择";
