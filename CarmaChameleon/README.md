@@ -231,3 +231,24 @@ UI文言の表記統一：環境設定ウインドウのタイトルから「…
 ## 0.7.7 / build 26
 
 ウインドウメニューの「しまう」からホットキー⌘Mを外した（BASELINEの「メニューの共通構成」の更新に合わせた）。ヘルプのホットキー一覧からも⌘Mを削除。
+
+## 0.8.0 / build 27
+
+画像の書き出しと、Photoshop・InDesign・画像・字幕の入力を追加。
+
+- 出力形式に「ラスター画像」（PNG・JPEG・HEIC・AVIF。AVIF は ImageIO が書き出せる macOS のみ、WebP は読み込みのみ）と「SVG」を追加。.ai はアートボードごと、PDF・.indd はページごと、.psd・画像ファイルは1枚。サイズは解像度（ppi）・幅・高さ（px）、画質、背景の透明、範囲（1,3-5）を指定（Source/ImageExport.swift・ImageConversion.swift）。
+- .ai → 画像・SVG は Illustrator の Export for Screens でアートボード単位に書き出す（Resources/Illustrator/ExportImages.jsx）。SVG の設定（スタイル・フォント・画像・オブジェクトID・桁数・縮小・レスポンシブ）を UI に用意。JPEG・HEIC・AVIF は Illustrator の PNG から変換して画質を指定。簡易方式では .ai 内の PDF をラスタライズ。
+- ファイル名を「元のファイル名・アートボード番号（ページ番号）・アートボード名（InDesign はページ名）」から組み合わせ、区切り・桁そろえ・1枚のときの扱いを選べる。複数のときは元のファイル名のフォルダーにまとめる設定を追加。
+- 入力に Photoshop（.psd）を追加。簡易（ImageIO で統合画像を読む）と Photoshop で書き出す（Resources/Photoshop/SaveCopy.jsx、コピーを保存）の2方式。PDF・ラスター画像に変換。設定に「Photoshop」タブ。
+- 入力に InDesign（.indd）を追加（InDesign が必要、Resources/InDesign/ExportPages.jsx）。PDF は PDF プリセット、画像はページごと。PNG の書き出し設定は変換後に元へ戻す。設定に「InDesign」タブ（使用する InDesign・PDF プリセットの読み込み）。
+- 入力に画像ファイル（PNG・JPEG・TIFF・HEIC・WebP・GIF・BMP）を追加。形式の変換・拡大縮小（EXIF の向きを補正）、PDF 化、「画像を1つのPDFにまとめる」。
+- 字幕（.srt）を CSV／TSV に変換（Source/SRTConverter.swift）。「#・時刻・ハンドル・コメント」の表で、「ハンドル: コメント」を最初の「: 」で分ける。
+- 追加したファイルから作れない形式は一覧で薄く表示して選べないようにし、理由をツールチップと変換オプション欄に表示。
+- 修正：SaveAsPDF.jsx が開いているドキュメントをパス文字列で判定しており、日本語パスで判定を外すと開いているドキュメントを保存せず閉じるおそれがあった。ドキュメント数の増減で判定するように変更。
+- ExtendScript では入れ子の三項演算子が誤って評価される（幅指定が高さ指定になった）ため、JSX は if/else で書いた。
+
+検証：自動テスト（./test.sh）で、ファイル名・範囲・PDF/.ai/.psd/画像 → PNG・JPEG・HEIC・AVIF、サイズ指定、フォルダーへのまとめ、画像 → PDF とまとめ、形式の組み合わせ、SRT → CSV/TSV が成功。Illustrator 2026（30.8.2）でアートボードごとの PNG・JPEG・SVG・幅指定・範囲外の拒否（CARMA_ILLUSTRATOR_TEST=1）、InDesign 2026（21.6）で PNG・JPEG・PDF プリセット（CARMA_INDESIGN_TEST=1）、Photoshop 2026（27.9）で PNG・PDF・CMYK の .psd（CARMA_PHOTOSHOP_TEST=1）を確認。アプリ画面では、合わない形式が薄く表示されることを確認。画面からの変換操作は未確認。
+
+## 0.8.1 / build 28
+
+Keynoteの参照Bundle IDを実機のcom.apple.iWork.Keynoteへ修正。通常版にアプリ別のSparkle公開鍵を組み込み、配信先未公開の間は通信を開始しません。ビルド後のApplicationsとLatest Buildsへの同一配置を接続しました。

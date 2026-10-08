@@ -26,3 +26,7 @@ if [[ -d build/CarmaChameleon.app ]]; then
   mv build/CarmaChameleon.app "$backup/"
 fi
 ditto "$app" build/CarmaChameleon.app
+
+if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
+    python3 ../Shared/BuildTools/publish_latest.py "$app"
+fi

@@ -232,7 +232,8 @@ struct MainView: View {
                                 FileNamingView(svg:model.formatID == "svg")
                                 Text(L(model.formatID == "svg" ? "svgHint" : "imageHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                                 Divider()
-                            } else {
+                            } else if model.files.isEmpty || !model.files.allSatisfy({ OutputFormat.imageOnlyInputs.union(["ai"]).contains($0.pathExtension.lowercased()) }) {
+                            // pandoc's reader and document options; not shown when only .ai / .psd / .indd / images are added.
                             Text(L("readAs")).fontWeight(.medium)
                             Picker("",selection:$model.reader) {
                                 Text(L("auto")).tag("auto")

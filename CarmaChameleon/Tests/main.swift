@@ -246,6 +246,17 @@ if ProcessInfo.processInfo.environment["CARMA_PHOTOSHOP_TEST"] == "1", let app =
     official.format = pdfOut.format
     let pdf = try ConversionRunner().convertFiles(engine:engine, input:psd, folder:imageFolder, options:official)
     check((PDFDocument(url:pdf[0])?.pageCount ?? 0) == 1,"Photoshop → PDF")
+    // CMYK cannot be saved as PNG: a converted duplicate is saved and the user's document is left as it was.
+    let cmyk = root.appendingPathComponent("cmyk.psd")
+    _ = try IllustratorBridge.run("""
+    var dialogs = app.displayDialogs; app.displayDialogs = DialogModes.NO; var units = app.preferences.rulerUnits; app.preferences.rulerUnits = Units.PIXELS;
+    var d = app.documents.add(120, 80, 300, "cmyk", NewDocumentMode.CMYK, DocumentFill.WHITE);
+    d.saveAs(new File(arguments[0]), new PhotoshopSaveOptions(), true); d.close(SaveOptions.DONOTSAVECHANGES);
+    app.preferences.rulerUnits = units; app.displayDialogs = dialogs; 'OK'
+    """, arguments:[cmyk.path], in:app.url, terms:PhotoshopBridge.bundleID)
+    official.format = raster.format
+    let cmykPNG = try ConversionRunner().convertFiles(engine:engine, input:cmyk, folder:imageFolder, options:official)
+    check(imageInfo(cmykPNG[0]).w == 120 && imageInfo(cmykPNG[0]).dpi == 300,"Photoshop → PNG from a CMYK document")
 }
 // Real Illustrator sample (Adobe's bundled script samples), when installed.
 let adobeSample = URL(fileURLWithPath:"/Applications/Adobe Illustrator (Beta)/Scripting.localized/Sample Scripts.localized/AppleScript.localized/Analyze Documents.localized/Documents to Analyze.localized/PlacedItemTest.ai")
