@@ -25,7 +25,12 @@ extension ConversionOptions {
         if let path = d.string(forKey:"photoshopPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { photoshopApp = URL(fileURLWithPath:path) }
         if let path = d.string(forKey:"indesignPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { indesignApp = URL(fileURLWithPath:path) }
         indesignPreset = d.string(forKey:"inddPDFPreset") ?? ""
-        csvDelimiter = d.string(forKey:"csvDelimiter") == "tab" ? "\t" : ","
+        csvDelimiter = ["tab":"\t","xlsx":"xlsx"][d.string(forKey:"csvDelimiter") ?? ""] ?? ","
+        utf16.bom = d.object(forKey:"utf16BOM") as? Bool ?? true
+        utf16.bigEndian = d.string(forKey:"utf16ByteOrder") == "big"
+        utf16.source = d.string(forKey:"utf16Source").flatMap { id in TextEncodingConverter.sourceEncodings.contains { $0.id == id } ? id : nil } ?? "auto"
+        utf16.lineEnding = ["keep","crlf","lf"].contains(d.string(forKey:"utf16LineEnding") ?? "") ? d.string(forKey:"utf16LineEnding")! : "keep"
+        utf16.composeKana = d.object(forKey:"utf16ComposeKana") as? Bool ?? true
     }
 }
 
@@ -198,8 +203,28 @@ struct CSVOptionsView: View {
     @AppStorage("csvDelimiter") var delimiter = "comma"
     var body: some View {
         VStack(alignment:.leading,spacing:8) {
-            Picker(L("csvDelimiter"),selection:$delimiter) { Text(L("csvComma")).tag("comma"); Text(L("csvTab")).tag("tab") }.pickerStyle(.radioGroup)
+            Picker(L("csvDelimiter"),selection:$delimiter) { Text(L("csvComma")).tag("comma"); Text(L("csvTab")).tag("tab"); Text(L("csvXLSX")).tag("xlsx") }.pickerStyle(.radioGroup)
             Text(L("csvHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+        }
+    }
+}
+
+struct UTF16OptionsView: View {
+    @AppStorage("utf16BOM") var bom = true
+    @AppStorage("utf16ByteOrder") var byteOrder = "little"
+    @AppStorage("utf16Source") var source = "auto"
+    @AppStorage("utf16LineEnding") var lineEnding = "keep"
+    @AppStorage("utf16ComposeKana") var composeKana = true
+    var body: some View {
+        VStack(alignment:.leading,spacing:8) {
+            Picker(L("utf16BOM"),selection:$bom) { Text(L("utf16WithBOM")).tag(true); Text(L("utf16WithoutBOM")).tag(false) }.pickerStyle(.radioGroup)
+            Picker(L("utf16ByteOrder"),selection:$byteOrder) { Text(L("utf16Little")).tag("little"); Text(L("utf16Big")).tag("big") }.pickerStyle(.radioGroup)
+            Picker(L("utf16LineEnding"),selection:$lineEnding) { Text(L("utf16LineKeep")).tag("keep"); Text(L("utf16LineCRLF")).tag("crlf"); Text(L("utf16LineLF")).tag("lf") }
+            Picker(L("utf16Source"),selection:$source) {
+                ForEach(TextEncodingConverter.sourceEncodings,id:\.id) { Text($0.id == "auto" ? L("auto") : $0.name).tag($0.id) }
+            }
+            Toggle(L("utf16ComposeKana"),isOn:$composeKana).help(L("utf16ComposeKanaHelp"))
+            Text(L("utf16Hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
         }
     }
 }

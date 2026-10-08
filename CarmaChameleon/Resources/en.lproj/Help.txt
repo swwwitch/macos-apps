@@ -55,17 +55,25 @@
 
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
-- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV. Only .ai files can become SVG.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV and UTF-16 text. Only .ai files can become SVG.
 
 ### InDesign (.indd)
 - .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
 - In Settings › InDesign, choose which InDesign to use and the PDF preset (list them with Load PDF presets from InDesign).
 - Files already open in InDesign are exported as they are and stay open (unsaved changes are included, with a notice). The PNG export settings are restored after converting. The first run asks for Automation permission to control InDesign.
 
-### Subtitles (.srt) → CSV
+### Text → UTF-16
+- "UTF-16 text" re-encodes text files (.txt, .md, .csv, .tsv, .srt, .html and so on) as UTF-16.
+- Choose with or without a BOM, and the byte order (little or big endian). For Windows apps and Excel, "With BOM" and little endian are the safe choice.
+- With Input encoding set to Automatic, the BOM (UTF-8, UTF-16, UTF-32) decides, then UTF-8, Shift_JIS and EUC-JP are tried. Files read as anything but UTF-8 are noted in the results; if the text is garbled, choose the encoding and convert again. Shift_JIS includes Windows characters such as ① and ㈱.
+- Line endings: Keep, CRLF (Windows) or LF (macOS, Unix).
+- Join voiced sound marks (on by default) turns kana written with a separate mark (common on macOS) into one character. Nothing else is changed.
+- The extension stays as it is; in the same folder the result gets a number, as in "name (1).txt".
+
+### Subtitles (.srt) → CSV, Excel
 - CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
 - Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
-- The separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+- Choose comma (.csv), tab (.tsv) or Excel (.xlsx). In CSV, comments containing commas or quotes are quoted. Excel output is one sheet with the header row frozen; the number is numeric and the time is text.
 
 ### Photoshop (.psd)
 - .psd files can be converted to PDF or a raster image.

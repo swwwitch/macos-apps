@@ -10,6 +10,7 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"svg", name:"SVG", ext:"svg"),
         OutputFormat(id:"csv", name:"CSV", ext:"csv"),
         OutputFormat(id:"plain", name:"Plain text", ext:"txt"),
+        OutputFormat(id:"utf16", name:NSLocalizedString("utf16Format", comment:""), ext:"txt"),
         OutputFormat(id:"idml", name:"InDesign (IDML)", ext:"idml"),
         OutputFormat(id:"html5", name:"HTML", ext:"html"),
         OutputFormat(id:"gfm", name:"Markdown", ext:"md"),
@@ -22,7 +23,7 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"odt", name:"OpenDocument", ext:"odt")]
     static var defaultFormat: OutputFormat { all.first { $0.id == "docx" }! }
     /// Shown under the name in the format list.
-    var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv" : "." + ext }
+    var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv / .xlsx" : id == "utf16" ? NSLocalizedString("utf16Ext", comment:"") : "." + ext }
     /// Group in the main window's format list; the value is the localization key of the heading.
     var category: String {
         switch id {
@@ -46,6 +47,7 @@ struct OutputFormat: Identifiable, Equatable {
         case "svg": return exts == ["ai"] ? nil : "svgInputUnsupported"
         case "image": return exts.subtracting(Self.imageOnlyInputs.union(["ai","pdf"])).isEmpty ? nil : "imageInputUnsupported"
         case "csv": return exts == ["srt"] ? nil : "csvInputUnsupported"
+        case "utf16": return exts.isSubset(of:TextEncodingConverter.inputs) ? nil : "utf16InputUnsupported"
         default:
             if exts.contains("srt") { return "srtFormatUnsupported" }
             if id == "pdf" { return nil }
@@ -80,8 +82,9 @@ struct ConversionOptions {
     /// .indd input (InDesign only): PDF export preset ("" = InDesign's current settings).
     var indesignApp: URL?
     var indesignPreset = ""
-    /// CSV output from .srt: "," or "\t" (the latter writes .tsv).
+    /// CSV output from .srt: "," / "\t" (writes .tsv) / "xlsx" (writes an Excel workbook).
     var csvDelimiter = ","
+    var utf16 = TextEncodingConverter.Options()
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
         if format.id == "pdf" {

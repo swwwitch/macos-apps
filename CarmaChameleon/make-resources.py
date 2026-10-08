@@ -314,16 +314,37 @@ rasterSize|サイズ|Size|尺寸|크기
 rasterWidth|幅|Width|宽度|너비
 rasterHeight|高さ|Height|高度|높이
 nameGroupFolder|複数のときは元のファイル名のフォルダーにまとめる|Several images: put them in a folder named after the source|多张时放入以源文件名命名的文件夹|여러 장이면 원본 파일 이름의 폴더에 모으기
-csvDelimiter|区切り|Separator|分隔符|구분 문자
+csvDelimiter|形式|Format|格式|형식
 csvComma|カンマ（.csv）|Comma (.csv)|逗号（.csv）|쉼표(.csv)
 csvTab|タブ（.tsv）|Tab (.tsv)|制表符（.tsv）|탭(.tsv)
+csvXLSX|Excel（.xlsx）|Excel (.xlsx)|Excel（.xlsx）|Excel(.xlsx)
+xlsxWriteFailed|Excelファイルを作成できませんでした。|The Excel file could not be created.|无法创建 Excel 文件。|Excel 파일을 만들 수 없습니다.
 csvHint|字幕（.srt）を「番号・時刻・ハンドル・コメント」の表にします。「ハンドル: コメント」の形の字幕は最初の「: 」で分け、それ以外はコメントだけにします。時刻は開始時刻（時:分:秒）です。|Turns subtitles (.srt) into a table of number, time, handle and comment. Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. The time is the start time (h:m:s).|将字幕（.srt）转为“编号、时间、昵称、评论”表格。“昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。时间为开始时间（时:分:秒）。|자막(.srt)을 "번호·시각·핸들·코멘트" 표로 만듭니다. "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 시각은 시작 시각(시:분:초)입니다.
 srtTime|時刻|Time|时间|시각
 srtHandle|ハンドル|Handle|昵称|핸들
 srtComment|コメント|Comment|评论|코멘트
 srtInvalid|字幕（SRT）として読み込めませんでした。|The file could not be read as subtitles (SRT).|无法作为字幕（SRT）读取。|자막(SRT)으로 읽을 수 없습니다.
-csvInputUnsupported|CSVに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as CSV.|只有字幕（.srt）可以导出为 CSV。|CSV로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
-srtFormatUnsupported|字幕（.srt）はCSVにだけ変換できます。|Subtitles (.srt) can be converted only to CSV.|字幕（.srt）只能转换为 CSV。|자막(.srt)은 CSV로만 변환할 수 있습니다.
+csvInputUnsupported|CSV・Excelに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as CSV or Excel.|只有字幕（.srt）可以导出为 CSV 或 Excel。|CSV·Excel로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
+srtFormatUnsupported|字幕（.srt）はCSV（Excel）・UTF-16テキストにだけ変換できます。|Subtitles (.srt) can be converted only to CSV (Excel) or UTF-16 text.|字幕（.srt）只能转换为 CSV（Excel）或 UTF-16 文本。|자막(.srt)은 CSV(Excel) 또는 UTF-16 텍스트로만 변환할 수 있습니다.
+utf16Format|UTF-16テキスト|UTF-16 text|UTF-16 文本|UTF-16 텍스트
+utf16Ext|元の拡張子のまま|Same extension|保持原扩展名|원래 확장자 유지
+utf16BOM|BOM|BOM|BOM|BOM
+utf16WithBOM|あり|With BOM|有|있음
+utf16WithoutBOM|なし|Without BOM|无|없음
+utf16ByteOrder|バイト順|Byte order|字节序|바이트 순서
+utf16Little|リトルエンディアン（Windows）|Little endian (Windows)|小端序（Windows）|리틀 엔디언(Windows)
+utf16Big|ビッグエンディアン|Big endian|大端序|빅 엔디언
+utf16Hint|テキストファイルの文字コードをUTF-16にします。拡張子はそのままです。入力の文字コードの「自動」はBOM、UTF-8、Shift_JIS、EUC-JPの順に判定し、UTF-8以外として読んだときは結果に表示します。|Re-encodes text files as UTF-16, keeping the extension. Automatic input encoding checks the BOM, then UTF-8, Shift_JIS and EUC-JP; a file read as anything but UTF-8 is noted in the results.|将文本文件的字符编码转换为 UTF-16，扩展名保持不变。输入编码为“自动”时依次检查 BOM、UTF-8、Shift_JIS、EUC-JP；按 UTF-8 以外的编码读取时会在结果中提示。|텍스트 파일의 문자 코드를 UTF-16으로 바꿉니다. 확장자는 그대로입니다. 입력 문자 코드 "자동"은 BOM, UTF-8, Shift_JIS, EUC-JP 순으로 판정하며, UTF-8 이외로 읽은 경우 결과에 표시합니다.
+utf16LineEnding|改行コード|Line endings|换行符|줄바꿈 코드
+utf16LineKeep|そのまま|Keep|保持不变|그대로
+utf16LineCRLF|CRLF（Windows）|CRLF (Windows)|CRLF（Windows）|CRLF(Windows)
+utf16LineLF|LF（macOS・Unix）|LF (macOS, Unix)|LF（macOS、Unix）|LF(macOS, Unix)
+utf16Source|入力の文字コード|Input encoding|输入编码|입력 문자 코드
+utf16ComposeKana|濁点・半濁点を結合する|Join voiced sound marks|合并浊音、半浊音符号|탁점·반탁점 결합
+utf16ComposeKanaHelp|「か＋゛」のように分かれた濁点・半濁点（macOSで起きやすい）を1文字にします。かな以外は変えません。|Joins kana written with a separate voiced or semi-voiced mark (common on macOS) into one character. Nothing else is changed.|将分开的浊音、半浊音符号（macOS 上常见）与假名合并为一个字符。其他字符不变。|분리된 탁점·반탁점(macOS에서 자주 발생)을 가나와 합쳐 한 글자로 만듭니다. 그 밖의 문자는 바꾸지 않습니다.
+textReadAs|%@として読み込みました。|Read as %@.|已按 %@ 读取。|%@(으)로 읽었습니다.
+utf16InputUnsupported|UTF-16テキストに変換できるのはテキストファイル（.txt・.md・.csv・.srt など）だけです。|Only text files (.txt, .md, .csv, .srt and so on) can be converted to UTF-16 text.|只有文本文件（.txt、.md、.csv、.srt 等）可以转换为 UTF-16 文本。|UTF-16 텍스트로 변환할 수 있는 것은 텍스트 파일(.txt, .md, .csv, .srt 등)뿐입니다.
+textDecodeFailed|テキストを読み込めませんでした。「入力の文字コード」を指定してください。|The text could not be read. Choose the input encoding.|无法读取文本。请指定“输入编码”。|텍스트를 읽을 수 없습니다. "입력 문자 코드"를 지정하세요.
 documentFormatUnsupported|.psd・.indd・画像ファイルは、PDF・ラスター画像にだけ変換できます。|.psd, .indd and image files can be converted only to PDF or a raster image.|.psd、.indd 和图像文件只能转换为 PDF 或位图图像。|.psd, .indd, 이미지 파일은 PDF 또는 래스터 이미지로만 변환할 수 있습니다.
 pdfCombineImages|画像を1つのPDFにまとめる|Combine images into one PDF|将图像合并为一个 PDF|이미지를 하나의 PDF로 합치기
 pdfCombineImagesHint|追加した順に1枚ずつページにし、最初のファイルの名前で保存します。オフなら画像ごとにPDFを作ります。|Each image becomes a page in the order added; the PDF is named after the first file. When off, each image gets its own PDF.|按添加顺序每张图像为一页，以第一个文件的名称保存。关闭时每张图像各生成一个 PDF。|추가한 순서대로 한 장씩 페이지로 만들고 첫 번째 파일 이름으로 저장합니다. 끄면 이미지마다 PDF를 만듭니다.
@@ -352,6 +373,6 @@ from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
 for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 导出，在用 Photoshop 转换 .psd 时让 Photoshop 导出，在转换 .indd 时让 InDesign 导出。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.8.2',CFBundleVersion='29',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.9.1',CFBundleVersion='31',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml','indd','srt']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

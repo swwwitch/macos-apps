@@ -254,6 +254,10 @@ struct MainView: View {
                             if model.formatID == "csv" {
                                 CSVOptionsView()
                                 Divider()
+                            } else if model.formatID == "utf16" {
+                                // Re-encoding only: pandoc's reader and document options do not apply.
+                                UTF16OptionsView()
+                                Divider()
                             } else if model.format.isImage {
                                 // Image outputs: pandoc's reader and document options do not apply.
                                 if model.formatID == "image" { RasterOptionsView() } else { SVGOptionsView() }

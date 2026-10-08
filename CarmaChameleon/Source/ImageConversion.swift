@@ -18,6 +18,11 @@ extension ConversionRunner {
         if let reason = options.format.unsupportedReason(for:[input]) { throw ImageExport.error(reason) }
         let ext = input.pathExtension.lowercased()
         if options.format.id == "csv" { return [try SRTConverter.convert(input:input, folder:folder, delimiter:options.csvDelimiter)] }
+        if options.format.id == "utf16" {
+            let result = try TextEncodingConverter.convert(input:input, folder:folder, options:options.utf16)
+            if let guessed = result.guessed { addWarning(input.lastPathComponent + ": " + String(format:NSLocalizedString("textReadAs", comment:""), guessed)) }
+            return [result.url]
+        }
         if options.format.isImage { return try convertImage(input:input, folder:folder, options:options) }
         if options.format.id == "pdf" && OutputFormat.imageOnlyInputs.contains(ext) { return [try convertToPDF(input:input, folder:folder, options:options)] }
         return [try convert(engine:engine, input:input, folder:folder, options:options)]

@@ -57,17 +57,25 @@ HELP = {
 
 ### 入力と変換形式の組み合わせ
 - 追加したファイルから作れない形式は、変換形式の一覧で薄く表示され、選べません。ポインターを合わせると理由が表示されます。
-- .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV にだけ変換できます。SVG にできるのは .ai だけです。
+- .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV と UTF-16 テキストにだけ変換できます。SVG にできるのは .ai だけです。
 
 ### InDesign（.indd）
 - .indd を PDF・ラスター画像に変換できます（InDesign が必要）。PDF は選んだ PDF プリセット（初期値は InDesign の現在の書き出し設定）、画像はページごとに書き出します。
 - 設定の「InDesign」タブで、使う InDesign と PDF プリセット（「InDesignからPDFプリセットを読み込む」で一覧を取得）を選びます。
 - InDesign で開いているファイルは開いたまま書き出します（未保存の変更も含まれ、注意を表示します）。PNG の書き出し設定は変換の後で元に戻します。初回は InDesign の操作（オートメーション）の許可を求められます。
 
-### 字幕（.srt）→ CSV
+### テキスト → UTF-16
+- 出力形式の「UTF-16テキスト」で、テキストファイル（.txt・.md・.csv・.tsv・.srt・.html など）の文字コードを UTF-16 にします。
+- BOM のあり／なしと、バイト順（リトルエンディアン／ビッグエンディアン）を選べます。Windows のアプリや Excel に渡すときは「あり」「リトルエンディアン」が無難です。
+- 「入力の文字コード」が「自動」なら、BOM（UTF-8・UTF-16・UTF-32）、UTF-8、Shift_JIS、EUC-JP の順に判定します。UTF-8 以外として読んだファイルは結果に表示するので、文字化けしていたら文字コードを指定して変換し直してください。Shift_JIS は Windows の機種依存文字（①・㈱ など）も読めます。
+- 「改行コード」は「そのまま」「CRLF（Windows）」「LF（macOS・Unix）」から選べます。
+- 「濁点・半濁点を結合する」（初期値オン）は、「か＋゛」のように分かれた文字（macOS で起きやすい）を1文字にします。かな以外は変えません。
+- 拡張子はそのままで、同じフォルダーに保存するときは「名前 (1).txt」のように連番を付けます。
+
+### 字幕（.srt）→ CSV・Excel
 - 出力形式の「CSV」で、字幕を「#・時刻・ハンドル・コメント」の表にします。時刻は開始時刻（時:分:秒）です。
 - 「ハンドル: コメント」の形の字幕は最初の「: 」で分けます。それ以外はコメントだけにします。2行以上の字幕は1行につなげます。
-- 区切りはカンマ（.csv）かタブ（.tsv）を選べます。カンマや「"」を含むコメントは「"」で囲みます。
+- 形式はカンマ（.csv）・タブ（.tsv）・Excel（.xlsx）から選べます。CSV ではカンマや「"」を含むコメントを「"」で囲みます。Excel は1枚のシートで、見出し行を固定し、番号は数値、時刻は文字列です。
 
 ### Photoshop（.psd）
 - .psd を PDF・ラスター画像に変換できます。
@@ -197,17 +205,25 @@ HELP = {
 
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
-- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV. Only .ai files can become SVG.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV and UTF-16 text. Only .ai files can become SVG.
 
 ### InDesign (.indd)
 - .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
 - In Settings › InDesign, choose which InDesign to use and the PDF preset (list them with Load PDF presets from InDesign).
 - Files already open in InDesign are exported as they are and stay open (unsaved changes are included, with a notice). The PNG export settings are restored after converting. The first run asks for Automation permission to control InDesign.
 
-### Subtitles (.srt) → CSV
+### Text → UTF-16
+- "UTF-16 text" re-encodes text files (.txt, .md, .csv, .tsv, .srt, .html and so on) as UTF-16.
+- Choose with or without a BOM, and the byte order (little or big endian). For Windows apps and Excel, "With BOM" and little endian are the safe choice.
+- With Input encoding set to Automatic, the BOM (UTF-8, UTF-16, UTF-32) decides, then UTF-8, Shift_JIS and EUC-JP are tried. Files read as anything but UTF-8 are noted in the results; if the text is garbled, choose the encoding and convert again. Shift_JIS includes Windows characters such as ① and ㈱.
+- Line endings: Keep, CRLF (Windows) or LF (macOS, Unix).
+- Join voiced sound marks (on by default) turns kana written with a separate mark (common on macOS) into one character. Nothing else is changed.
+- The extension stays as it is; in the same folder the result gets a number, as in "name (1).txt".
+
+### Subtitles (.srt) → CSV, Excel
 - CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
 - Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
-- The separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+- Choose comma (.csv), tab (.tsv) or Excel (.xlsx). In CSV, comments containing commas or quotes are quoted. Excel output is one sheet with the header row frozen; the number is numeric and the time is text.
 
 ### Photoshop (.psd)
 - .psd files can be converted to PDF or a raster image.
@@ -337,17 +353,25 @@ HELP = {
 
 ### 输入与输出格式的组合
 - 无法由已添加文件生成的格式会在格式列表中变淡且无法选择，将指针悬停可查看原因。
-- .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV。只有 .ai 可以转换为 SVG。
+- .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV 和 UTF-16 文本。只有 .ai 可以转换为 SVG。
 
 ### InDesign（.indd）
 - 可将 .indd 转换为 PDF 或位图图像（需要 InDesign）：PDF 使用所选 PDF 预设（默认为 InDesign 当前的导出设置），图像按页导出。
 - 在设置的“InDesign”标签中选择使用的 InDesign 和 PDF 预设（用“从 InDesign 读取 PDF 预设”获取列表）。
 - 已在 InDesign 中打开的文件按当前状态导出并保持打开（包含未保存的更改，并显示提示）。转换后会恢复 PNG 导出设置。首次使用会请求控制 InDesign 的自动化权限。
 
-### 字幕（.srt）→ CSV
+### 文本 → UTF-16
+- “UTF-16 文本”将文本文件（.txt、.md、.csv、.tsv、.srt、.html 等）的字符编码转换为 UTF-16。
+- 可选择有无 BOM 以及字节序（小端序／大端序）。交给 Windows 应用或 Excel 时，选择“有”和小端序较为稳妥。
+- “输入编码”为“自动”时，依次按 BOM（UTF-8、UTF-16、UTF-32）、UTF-8、Shift_JIS、EUC-JP 判定。按 UTF-8 以外读取的文件会在结果中提示；如出现乱码，请指定编码后重新转换。Shift_JIS 也能读取 ①、㈱ 等 Windows 专用字符。
+- “换行符”可选“保持不变”“CRLF（Windows）”“LF（macOS、Unix）”。
+- “合并浊音、半浊音符号”（默认开启）会将分开的符号（macOS 上常见）与假名合并为一个字符。其他字符不变。
+- 扩展名保持不变；保存到同一文件夹时会添加编号，如“名称 (1).txt”。
+
+### 字幕（.srt）→ CSV、Excel
 - “CSV”将字幕转为“#、时间、昵称、评论”表格。时间为开始时间（时:分:秒）。
 - “昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。多行字幕合并为一行。
-- 分隔符可选逗号（.csv）或制表符（.tsv）。包含逗号或引号的评论会加引号。
+- 格式可选逗号（.csv）、制表符（.tsv）或 Excel（.xlsx）。CSV 中包含逗号或引号的评论会加引号。Excel 为一张工作表，冻结标题行，编号为数值，时间为文本。
 
 ### Photoshop（.psd）
 - 可将 .psd 转换为 PDF 或位图图像。
@@ -477,17 +501,25 @@ HELP = {
 
 ### 입력과 출력 형식의 조합
 - 추가한 파일로 만들 수 없는 형식은 형식 목록에서 흐리게 표시되어 선택할 수 없습니다. 포인터를 올리면 이유가 표시됩니다.
-- .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
+- .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV와 UTF-16 텍스트로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
 
 ### InDesign(.indd)
 - .indd를 PDF 또는 래스터 이미지로 변환할 수 있습니다(InDesign 필요). PDF는 선택한 PDF 사전 설정(기본값은 InDesign의 현재 내보내기 설정), 이미지는 페이지별로 내보냅니다.
 - 설정의 "InDesign" 탭에서 사용할 InDesign과 PDF 사전 설정("InDesign에서 PDF 사전 설정 불러오기"로 목록을 가져옴)을 선택합니다.
 - InDesign에서 열려 있는 파일은 현재 상태 그대로 내보내며 닫지 않습니다(저장하지 않은 변경 사항도 포함되며 안내를 표시합니다). PNG 내보내기 설정은 변환 후 원래대로 되돌립니다. 처음에는 InDesign 제어(자동화) 허용을 요청합니다.
 
-### 자막(.srt) → CSV
+### 텍스트 → UTF-16
+- "UTF-16 텍스트"는 텍스트 파일(.txt, .md, .csv, .tsv, .srt, .html 등)의 문자 코드를 UTF-16으로 바꿉니다.
+- BOM 있음/없음과 바이트 순서(리틀 엔디언/빅 엔디언)를 선택할 수 있습니다. Windows 앱이나 Excel에 넘길 때는 "있음"과 리틀 엔디언이 무난합니다.
+- "입력 문자 코드"가 "자동"이면 BOM(UTF-8, UTF-16, UTF-32), UTF-8, Shift_JIS, EUC-JP 순으로 판정합니다. UTF-8 이외로 읽은 파일은 결과에 표시되므로, 글자가 깨졌다면 문자 코드를 지정해 다시 변환하세요. Shift_JIS는 ①, ㈱ 등 Windows 전용 문자도 읽을 수 있습니다.
+- "줄바꿈 코드"는 "그대로", "CRLF(Windows)", "LF(macOS, Unix)" 중에서 선택합니다.
+- "탁점·반탁점 결합"(기본값 켬)은 분리된 탁점·반탁점(macOS에서 자주 발생)을 가나와 합쳐 한 글자로 만듭니다. 그 밖의 문자는 바꾸지 않습니다.
+- 확장자는 그대로이며, 같은 폴더에 저장할 때는 "이름 (1).txt"처럼 번호를 붙입니다.
+
+### 자막(.srt) → CSV, Excel
 - "CSV"는 자막을 "#·시각·핸들·코멘트" 표로 만듭니다. 시각은 시작 시각(시:분:초)입니다.
 - "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 여러 줄 자막은 한 줄로 잇습니다.
-- 구분 문자는 쉼표(.csv) 또는 탭(.tsv)을 선택할 수 있습니다. 쉼표나 따옴표를 포함한 코멘트는 따옴표로 묶습니다.
+- 형식은 쉼표(.csv), 탭(.tsv), Excel(.xlsx) 중에서 선택할 수 있습니다. CSV에서는 쉼표나 따옴표를 포함한 코멘트를 따옴표로 묶습니다. Excel은 시트 1장이며 머리글 행을 고정하고, 번호는 숫자, 시각은 문자열입니다.
 
 ### Photoshop(.psd)
 - .psd를 PDF 또는 래스터 이미지로 변환할 수 있습니다.

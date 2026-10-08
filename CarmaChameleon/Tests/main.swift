@@ -14,7 +14,7 @@ let original = "# 日本語タイトル\n\nHello **world**.\n\n## Second\n\n- Fi
 try original.write(to:input,atomically:true,encoding:.utf8)
 func check(_ value:Bool,_ message:String) { if !value { fatalError(message) }; print("PASS: " + message) }
 var options = ConversionOptions()
-for format in OutputFormat.all where !["pdf","keynote","csv"].contains(format.id) && !format.isImage {
+for format in OutputFormat.all where !["pdf","keynote","csv","utf16"].contains(format.id) && !format.isImage {
     options.format = format
     let output = try ConversionRunner().convert(engine:engine,input:input,folder:root,options:options)
     check(fm.fileExists(atPath:output.path),"output \(format.id)")
@@ -172,6 +172,7 @@ let combined = try ConversionRunner().combineImagesToPDF([photo2, photo], folder
 check(combined.lastPathComponent == "photo2 (1).pdf" && PDFDocument(url:combined)?.pageCount == 2 && PDFDocument(url:combined)!.page(at:1)!.bounds(for:.mediaBox).height == 96,"images combined into one PDF in order")
 // Which formats each input can become.
 let fmt = { (id: String) in OutputFormat.all.first { $0.id == id }! }
+let fmtOptions = { (format: OutputFormat) in var o = ConversionOptions(); o.format = format; return o }
 check(fmt("docx").unsupportedReason(for:[photo]) == "documentFormatUnsupported" && fmt("pdf").unsupportedReason(for:[photo, psd]) == nil && fmt("image").unsupportedReason(for:[photo, input]) == "imageInputUnsupported" && fmt("svg").unsupportedReason(for:[artwork]) == nil && fmt("svg").unsupportedReason(for:[psd]) == "svgInputUnsupported" && fmt("docx").unsupportedReason(for:[input]) == nil,"format compatibility by input")
 // Subtitles → CSV / TSV.
 let srt = root.appendingPathComponent("chat.srt")
@@ -182,7 +183,40 @@ check(csv == "#,srtTime,srtHandle,srtComment\n1,00:00:05,alice,\"hello, world\"\
 csvOut.csvDelimiter = "\t"
 let tsv = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0]
 check(try tsv.pathExtension == "tsv" && (String(contentsOf:tsv, encoding:.utf8)).contains("1\t00:00:05\talice\thello, world"),"SRT → TSV")
+csvOut.csvDelimiter = "xlsx"
+let xlsx = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0]
+let xlsxHTML = try XLSXImporter.html(from:xlsx, cancelled:{ false })
+check(xlsx.pathExtension == "xlsx" && xlsxHTML.contains("alice") && xlsxHTML.contains("hello, world") && xlsxHTML.contains("a: b second line") && xlsxHTML.contains("01:02:03"),"SRT → Excel (read back by XLSXImporter)")
 check(fmt("docx").unsupportedReason(for:[srt]) == "srtFormatUnsupported" && fmt("csv").unsupportedReason(for:[input]) == "csvInputUnsupported","SRT only to CSV")
+// Text → UTF-16 (BOM / byte order; source BOM dropped, line endings kept).
+let sjis = root.appendingPathComponent("sjis.txt")
+try "日本語\r\nテキスト".data(using:.shiftJIS)!.write(to:sjis)
+var utf16Out = ConversionOptions(); utf16Out.format = fmt("utf16")
+let withBOM = try Data(contentsOf:try ConversionRunner().convertFiles(engine:engine, input:sjis, folder:imageFolder, options:utf16Out)[0])
+check(withBOM.starts(with:[0xFF,0xFE]) && String(data:withBOM.dropFirst(2), encoding:.utf16LittleEndian) == "日本語\r\nテキスト","Shift_JIS → UTF-16 LE with BOM")
+utf16Out.utf16.bom = false; utf16Out.utf16.bigEndian = true
+let plainBE = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:utf16Out)[0]
+let beData = try Data(contentsOf:plainBE)
+check(plainBE.pathExtension == "srt" && beData.starts(with:[0x00,0x31]) && String(data:beData, encoding:.utf16BigEndian)?.hasPrefix("1\r\n00:00:05") == true,"UTF-8 (BOM) → UTF-16 BE without BOM, extension kept")
+let sjisRunner = ConversionRunner()
+_ = try sjisRunner.convertFiles(engine:engine, input:sjis, folder:imageFolder, options:fmtOptions(fmt("utf16")))
+let sjisData = try Data(contentsOf:sjis)
+check(sjisRunner.warnings.count == 1 && TextEncodingConverter.decode(sjisData)?.guessed == "Shift_JIS","guessed Shift_JIS is noted")
+let euc = root.appendingPathComponent("euc.txt")
+try "日本語のテキストです\n".data(using:.japaneseEUC)!.write(to:euc)
+var tidy = ConversionOptions(); tidy.format = fmt("utf16"); tidy.utf16.lineEnding = "crlf"
+let eucOut = try Data(contentsOf:try ConversionRunner().convertFiles(engine:engine, input:euc, folder:imageFolder, options:tidy)[0])
+check(String(data:eucOut.dropFirst(2), encoding:.utf16LittleEndian) == "日本語のテキストです\r\n","EUC-JP detected, LF → CRLF")
+let nfd = root.appendingPathComponent("nfd.txt")
+try Data("カ\u{3099}イト 神\u{FA19}\r\nx".utf8).write(to:nfd)
+tidy.utf16.lineEnding = "lf"
+let nfdOut = String(data:try Data(contentsOf:try ConversionRunner().convertFiles(engine:engine, input:nfd, folder:imageFolder, options:tidy)[0]).dropFirst(2), encoding:.utf16LittleEndian)
+check(nfdOut == "ガイト 神\u{FA19}\nx","kana marks joined, compatibility ideograph kept, CRLF → LF")
+tidy.utf16.lineEnding = "keep"; tidy.utf16.source = "utf16"
+let forcedRunner = ConversionRunner()
+let forced = String(data:try Data(contentsOf:try forcedRunner.convertFiles(engine:engine, input:sjis, folder:imageFolder, options:tidy)[0]).dropFirst(2), encoding:.utf16LittleEndian)
+check(forced != nil && forced != "日本語\r\nテキスト" && forcedRunner.warnings.isEmpty,"chosen input encoding overrides detection")
+check(fmt("utf16").unsupportedReason(for:[srt, sjis]) == nil && fmt("utf16").unsupportedReason(for:[photo]) == "utf16InputUnsupported","UTF-16 only from text files")
 // Opt-in: InDesign pages → PNG / PDF (CARMA_INDESIGN_TEST=1; launches InDesign).
 if ProcessInfo.processInfo.environment["CARMA_INDESIGN_TEST"] == "1", let app = InDesignBridge.defaultInstallation() {
     IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")

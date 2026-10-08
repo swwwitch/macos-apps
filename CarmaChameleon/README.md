@@ -154,3 +154,22 @@ Keynoteの参照Bundle IDをcom.apple.Keynoteに統一。通常版にアプリ�
 - 「すべて外す」を「入力ファイルリストをクリア」に改名。
 - 「オプション」の見出しより下を白い背景の枠に入れて見やすくした。
 - Keynoteの参照Bundle IDをcom.apple.Keynoteに戻した（com.apple.iWork.Keynoteへの書き換えでAppleScriptがコンパイルできなくなっていた）。
+
+## 0.9.0 / build 30
+
+- 出力形式に「UTF-16テキスト」（その他）を追加（Source/TextEncodingConverter.swift）。テキストファイル（.txt・.md・.csv・.tsv・.srt・.html など）の文字コードを UTF-16 に変換する。BOM のあり／なし（初期値あり）とバイト順（リトルエンディアン／ビッグエンディアン、初期値リトル）を選べ、設定を保持する。
+- 入力は BOM（UTF-8・UTF-16・UTF-32）で判定し、BOM がなければ UTF-8、だめなら Shift_JIS として読む。元の BOM は引き継がず、改行と拡張子はそのまま。同じフォルダーでは連番を付けて保存する。
+- 字幕（.srt）を Excel（.xlsx）にも変換できるようにした（「CSV」の形式で選択）。1枚のシートで見出し行を固定し、番号は数値、時刻は文字列。/usr/bin/zip で作成。
+- 字幕（.srt）は UTF-16 テキストにも変換できる。
+
+検証：自動テスト（./test.sh）で、Shift_JIS → UTF-16 LE（BOM あり）、BOM 付き UTF-8 → UTF-16 BE（BOM なし・拡張子保持）、入力の判定、SRT → Excel（XLSXImporter で読み戻し）が成功。Excel・画面からの操作は未確認。
+
+## 0.9.1 / build 31
+
+UTF-16テキストの変換オプションを追加。
+
+- 「入力の文字コード」（自動・UTF-8・Shift_JIS・EUC-JP・UTF-16）。自動判定に EUC-JP を追加し、UTF-8 以外として読んだときは結果欄に「〜として読み込みました」と表示する。Swift の .shiftJIS は CP932 相当（①・㈱・～ を読める）ことを確認。
+- 「改行コード」（そのまま・CRLF・LF）。
+- 「濁点・半濁点を結合する」（初期値オン）。かな＋U+3099/U+309A だけを結合する。NFC 正規化は CJK 互換漢字（神 U+FA19 など）まで置き換えるので使わない。
+
+検証：自動テストで、Shift_JIS の推定表示、EUC-JP の判定と LF → CRLF、濁点の結合と互換漢字の保持、文字コード指定による判定の上書きが成功。

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Subtitles (.srt) → CSV / TSV, one row per cue: number, start time (HH:MM:SS), handle, comment.
+/// Subtitles (.srt) → CSV / TSV / Excel (.xlsx), one row per cue: number, start time (HH:MM:SS), handle, comment.
 /// A cue text "handle: comment" is split at the first ": "; text without it becomes the comment with an empty handle.
 /// Multi-line cue text is joined with a space. The header row starts with "#".
 enum SRTConverter {
@@ -40,15 +40,49 @@ enum SRTConverter {
         return rows.map { $0.map(field).joined(separator:delimiter) }.joined(separator:"\n") + "\n"
     }
 
+    /// One-sheet workbook with inline strings (no shared strings or styles); "#" is a number, the rest text.
+    static func writeXLSX(_ cues: [Cue], header: [String], sheet: String, to output: URL) throws {
+        let fm = FileManager.default
+        let package = fm.temporaryDirectory.appendingPathComponent("PandocDesk-xlsx-" + UUID().uuidString, isDirectory:true)
+        defer { try? fm.removeItem(at:package) }
+        func save(_ path: String, _ body: String) throws {
+            let url = package.appendingPathComponent(path)
+            try fm.createDirectory(at:url.deletingLastPathComponent(), withIntermediateDirectories:true)
+            try Data(("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + body).utf8).write(to:url)
+        }
+        func cell(_ value: String, _ column: Int, _ row: Int) -> String {
+            let ref = String(UnicodeScalar(UInt8(65 + column))) + String(row)
+            if column == 0, row > 1, Int(value) != nil { return "<c r=\"\(ref)\"><v>\(value)</v></c>" }
+            return "<c r=\"\(ref)\" t=\"inlineStr\"><is><t xml:space=\"preserve\">\(IDMLImporter.escape(value))</t></is></c>"
+        }
+        let rows = ([header] + cues.map { [$0.number, $0.time, $0.handle, $0.comment] }).enumerated().map { index, values in
+            "<row r=\"\(index + 1)\">" + values.enumerated().map { cell($1, $0, index + 1) }.joined() + "</row>"
+        }.joined()
+        // Excel refuses sheet names over 31 characters or with []:*?/\.
+        let name = String(sheet.map { "[]:*?/\\".contains($0) ? "_" : $0 }.prefix(31))
+        let main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main", rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        try save("[Content_Types].xml", "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/></Types>")
+        try save("_rels/.rels", "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"\(rel)/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>")
+        try save("xl/workbook.xml", "<workbook xmlns=\"\(main)\" xmlns:r=\"\(rel)\"><sheets><sheet name=\"\(IDMLImporter.escape(name.isEmpty ? "Sheet1" : name))\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>")
+        try save("xl/_rels/workbook.xml.rels", "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"\(rel)/worksheet\" Target=\"worksheets/sheet1.xml\"/></Relationships>")
+        try save("xl/worksheets/sheet1.xml", "<worksheet xmlns=\"\(main)\"><sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols><col min=\"1\" max=\"1\" width=\"6\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"10\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"16\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"80\" customWidth=\"1\"/></cols><sheetData>\(rows)</sheetData></worksheet>")
+        let p = Process(); p.executableURL = URL(fileURLWithPath:"/usr/bin/zip"); p.arguments = ["-q","-X","-r",output.path,"[Content_Types].xml","_rels","xl"]; p.currentDirectoryURL = package
+        p.standardOutput = FileHandle.nullDevice; p.standardError = FileHandle.nullDevice; try p.run(); p.waitUntilExit()
+        guard p.terminationStatus == 0 else { throw ImageExport.error("xlsxWriteFailed") }
+    }
+
+    /// delimiter: "," (.csv), "\t" (.tsv) or "xlsx".
     static func convert(input: URL, folder: URL, delimiter: String) throws -> URL {
         guard let data = try? Data(contentsOf:input) else { throw ImageExport.error("srtInvalid") }
         let text = String(data:data, encoding:.utf8) ?? String(data:data, encoding:.shiftJIS) ?? String(decoding:data, as:UTF8.self)
         let cues = parse(text)
         guard !cues.isEmpty else { throw ImageExport.error("srtInvalid") }
         let header = ["#", NSLocalizedString("srtTime", comment:""), NSLocalizedString("srtHandle", comment:""), NSLocalizedString("srtComment", comment:"")]
+        let stem = input.deletingPathExtension().lastPathComponent
         let temp = folder.appendingPathComponent(".PandocDesk-" + UUID().uuidString + ".tmp")
-        try Data(table(cues, delimiter:delimiter, header:header).utf8).write(to:temp)
-        do { return try ImageExport.publish(temp, folder:folder, name:input.deletingPathExtension().lastPathComponent, ext:delimiter == "\t" ? "tsv" : "csv") }
+        if delimiter == "xlsx" { try writeXLSX(cues, header:header, sheet:stem, to:temp) }
+        else { try Data(table(cues, delimiter:delimiter, header:header).utf8).write(to:temp) }
+        do { return try ImageExport.publish(temp, folder:folder, name:stem, ext:delimiter == "xlsx" ? "xlsx" : delimiter == "\t" ? "tsv" : "csv") }
         catch { try? FileManager.default.removeItem(at:temp); throw error }
     }
 }
