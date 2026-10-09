@@ -11,6 +11,8 @@ enum SettingsUI {
         let tabs = NSTabView(frame: container.bounds.insetBy(dx: 12, dy: 12))
         tabs.autoresizingMask = [.width, .height]
         tabs.font = .systemFont(ofSize: 13)
+        // The tab view takes the initial focus; its focus ring is drawn offset from the selected tab.
+        tabs.focusRingType = .none
         for (title, view) in sections {
             let item = NSTabViewItem(identifier: title)
             item.label = title
@@ -171,6 +173,8 @@ struct SettingsTabs: NSViewRepresentable {
     func makeNSView(context: Context) -> NSTabView {
         let tabs = NSTabView()
         tabs.font = .systemFont(ofSize: 13)
+        // The tab view takes the initial focus; its focus ring is drawn offset from the selected tab.
+        tabs.focusRingType = .none
         for (title, content) in allSections {
             let item = NSTabViewItem(identifier: title)
             item.label = title

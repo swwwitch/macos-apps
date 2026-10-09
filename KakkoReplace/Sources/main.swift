@@ -33,13 +33,16 @@ final class Model: ObservableObject {
     var observers: [NSObjectProtocol] = []
     var workspaceObserver: NSObjectProtocol?
     var departureObserver: NSObjectProtocol?
-    var activationRevision = 0
     var pending = false
+    var releaseTimer: Timer?
+    /// What is registered now; app switches re-register only when this changes (MightyEdit's refreshForFrontApp).
+    var registeredState: String?
+    var registeredFrontState: String?
     init() {
         hotkey.action = { [weak self] action in self?.trigger(action) }
         frontHotkey.action = { (NSApp.delegate as? AppDelegate)?.showPalette() }
         workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] notification in
-            self?.activationRevision += 1; self?.refreshHotkey()
+            self?.refreshHotkey()
             if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication { (NSApp.delegate as? AppDelegate)?.applicationActivated(app) }
         }
         departureObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didDeactivateApplicationNotification, object: nil, queue: .main) { notification in
@@ -93,6 +96,9 @@ final class Model: ObservableObject {
     func refreshHotkey() {
         refreshFrontHotkey()
         let active = !disabled && !paused && !recording && allowed(NSWorkspace.shared.frontmostApplication)
+        let state = active ? bindings.map { "\($0.key)=\($0.value.signature)" }.sorted().joined(separator: ",") : ""
+        guard state != registeredState else { return }
+        registeredState = state
         if active {
             registrationFailures = hotkey.register(bindings)
             if !registrationFailures.isEmpty { status = L("registrationFailed") }
@@ -102,6 +108,9 @@ final class Model: ObservableObject {
     /// itself is in front or a key is being recorded (MightyEdit's B21).
     func refreshFrontHotkey() {
         let blocked = recording || NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier
+        let state = "\(frontEnabled):\(frontShortcut.signature):\(blocked)"
+        guard state != registeredFrontState else { return }
+        registeredFrontState = state
         let result = frontHotkey.register(frontEnabled ? frontShortcut : nil, blocked: blocked)
         frontFailed = frontEnabled && result != noErr
         frontStatus = !frontEnabled ? L("frontDisabled") : result == noErr ? String(format: L("frontEnabledStatus"), frontShortcut.label) : String(format: L("frontRegisterFailed"), String(result))
@@ -114,20 +123,28 @@ final class Model: ObservableObject {
         if let candidate, bindings.contains(where: { $0.key != selectedAction && $0.value.signature == candidate.signature }) { status = L("duplicateShortcut"); return }
         bindings[selectedAction] = candidate; recording = false; save()
     }
+    /// Runs as soon as the hotkey is pressed (MightyEdit's performOnPress); editing goes through AX, so held
+    /// modifiers do not leak into the target. The gate stays closed until the trigger key is up, so key repeat never runs it twice.
     func trigger(_ action: String = "round") {
         guard !pending, !disabled, !paused, !recording, allowed(NSWorkspace.shared.frontmostApplication), let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
         pending = true
-        waitForRelease(pid, action: action, force: forceWrap, trim: trimSpaces, attempts: 100, revision: activationRevision)
-    }
-    func waitForRelease(_ pid: pid_t, action: String, force: Bool, trim: Bool, attempts: Int, revision: Int) {
-        guard revision == activationRevision, !disabled, !paused, !recording, allowed(NSWorkspace.shared.frontmostApplication), NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, attempts > 0 else { pending = false; status = L("cancelled"); return }
-        if !NSEvent.modifierFlags.intersection([.command, .shift, .option, .control]).isEmpty {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) { [weak self] in self?.waitForRelease(pid, action: action, force: force, trim: trim, attempts: attempts - 1, revision: revision) }
-            return
+        if action == "palette" { (NSApp.delegate as? AppDelegate)?.showPalette() }
+        else {
+            status = editor.perform(pid: pid, action: action, force: forceWrap, trimSpaces: trimSpaces)
+            if status != L("success") && status != L("unchanged") { NSSound.beep() }
         }
-        if action == "palette" { (NSApp.delegate as? AppDelegate)?.showPalette(); pending = false; return }
-        status = editor.perform(pid: pid, action: action, force: force, trimSpaces: trim); pending = false
-        if status != L("success") && status != L("unchanged") { NSSound.beep() }
+        let key = CGKeyCode(bindings[action]?.code ?? 0)
+        let started = Date()
+        releaseTimer?.invalidate()
+        let timer = Timer(timeInterval: 0.02, repeats: true) { [weak self] timer in
+            guard let self else { timer.invalidate(); return }
+            // Reopen once the trigger key is up (or after 10 s if the key state is never reported).
+            if !CGEventSource.keyState(.combinedSessionState, key: key) || Date().timeIntervalSince(started) > 10 {
+                timer.invalidate(); self.releaseTimer = nil; self.pending = false
+            }
+        }
+        releaseTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
     func refreshLogin() {
         let state = SMAppService.mainApp.status
@@ -208,7 +225,7 @@ struct Preferences: View {
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
                 }
                 SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: true).frame(height: 180)
+                    AccessibilityPermissionView(required: true, showsTitle: false)
                 }
             })),
             (L("shortcuts"), AnyView(GroupBox(label: Text(L("shortcuts"))) {
@@ -266,7 +283,7 @@ struct Preferences: View {
                 Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Button(L("restore")) { model.restoreLastChange() }
             }
-        }.padding(12).frame(width: 740, height: 520)
+        }.padding(12).frame(minWidth: 740, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity)
     }
     func appName(_ id: String) -> String {
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) else { return id }
@@ -376,9 +393,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     @objc func showPreferences() {
         model.refreshLogin()
         if preferences == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 614, height: 690), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 740, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle")
-            window.contentView = NSHostingView(rootView: Preferences(model: model))
+            // Resizable from the designed size upward; the hosting view reports only its minimum.
+            let hosting = NSHostingView(rootView: Preferences(model: model))
+            hosting.sizingOptions = [.minSize]
+            window.contentView = hosting
+            window.contentMinSize = NSSize(width: 740, height: 520)
             window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("Preferences"); preferences = window
         }
         if let window = preferences, !NSScreen.screens.contains(where: { $0.visibleFrame.contains(window.frame) }) { window.center() }

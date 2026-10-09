@@ -367,9 +367,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     @objc private func showPreferences() {
         if preferencesWindow == nil {
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 620),
-                                 styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 560),
+                                 styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             panel.title = L("settings.title")
+            panel.contentMinSize = NSSize(width: 480, height: 560)
             panel.isReleasedWhenClosed = false
             let title = NSTextField(labelWithString: L("settings.skipFolder"))
             title.font = .systemFont(ofSize: 17, weight: .semibold)
@@ -386,10 +387,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             keyRows.spacing = 10
             for index in shortcuts.indices {
                 let label = NSTextField(labelWithString: Shortcut.titles[index])
-                label.widthAnchor.constraint(equalToConstant: 235).isActive = true
+                label.widthAnchor.constraint(equalToConstant: 190).isActive = true
                 let button = NSButton(title: shortcuts[index].displayLabel, target: self, action: #selector(recordShortcut(_:)))
                 button.tag = index
-                button.widthAnchor.constraint(equalToConstant: 200).isActive = true
+                button.widthAnchor.constraint(equalToConstant: 150).isActive = true
                 shortcutButtons.append(button)
                 keyRows.addArrangedSubview(NSStackView(views: [label, button]))
             }

@@ -50,7 +50,15 @@ struct DutiGUIApp: App {
             #endif
             MainWindowCommands(reload: { store.refresh() })
         }
-        Settings { EnvironmentView(store: store).frame(width: 540).background(UtilityWindowChrome(title: L("設定"))) }
+        // Resizable from the designed size (540×418 content; window 540×450) upward.
+        // GeometryReader keeps the NSTabView's intrinsic size from fixing the window size.
+        Settings {
+            GeometryReader { geometry in EnvironmentView(store: store).frame(width: geometry.size.width, height: geometry.size.height) }
+                .frame(minWidth: 540, idealWidth: 540, maxWidth: .infinity, minHeight: 418, idealHeight: 418, maxHeight: .infinity)
+                .background(UtilityWindowChrome(title: L("設定"), resizable: true))
+        }
+        .defaultSize(width: 540, height: 450)
+        .windowResizability(.contentMinSize)
     }
 }
 
@@ -458,11 +466,14 @@ private struct MainWindowMarker: NSViewRepresentable {
 // Configure the actual SwiftUI window once it joins the view hierarchy.
 private struct UtilityWindowChrome: NSViewRepresentable {
     let title: String
-    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title) }
+    /// Settings only: SwiftUI's Settings window lacks .resizable even with .windowResizability.
+    var resizable = false
+    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title, resizable: resizable) }
     func updateNSView(_ view: ChromeView, context: Context) { view.windowTitle = title; view.apply() }
     final class ChromeView: NSView {
         var windowTitle: String
-        init(title: String) { windowTitle = title; super.init(frame: .zero) }
+        let resizable: Bool
+        init(title: String, resizable: Bool) { windowTitle = title; self.resizable = resizable; super.init(frame: .zero) }
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
         override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); apply() }
         func apply() {
@@ -474,6 +485,7 @@ private struct UtilityWindowChrome: NSViewRepresentable {
             window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.collectionBehavior.insert(.fullScreenNone)
+            if resizable { window.styleMask.insert(.resizable) }
         }
     }
 }

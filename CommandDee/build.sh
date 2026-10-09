@@ -23,8 +23,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>CommandDee</string>
 <key>CFBundleDisplayName</key><string>CommandDee</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.8.7</string>
-<key>CFBundleVersion</key><string>34</string>
+<key>CFBundleShortVersionString</key><string>1.8.9</string>
+<key>CFBundleVersion</key><string>36</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>LSMultipleInstancesProhibited</key><true/>
@@ -36,6 +36,7 @@ PLIST
 cp Assets/CommandDee.icns "$APP/Contents/Resources/CommandDee.icns"
 for lproj in Resources/*.lproj; do ditto "$lproj" "$APP/Contents/Resources/${lproj:t}"; done
 embed_updates "$APP"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$APP"
 xattr -cr "$APP"
 codesign --force --sign - "$APP"
 codesign --verify --deep --strict "$APP"
@@ -46,3 +47,7 @@ fi
 ditto --noextattr --norsrc "$APP" CommandDee.app
 codesign --verify --deep --strict CommandDee.app
 printf '%s\n' "$PWD/CommandDee.app"
+
+if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
+    python3 ../Shared/BuildTools/publish_latest.py "$APP"
+fi

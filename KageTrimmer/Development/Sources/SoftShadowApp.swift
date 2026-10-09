@@ -76,10 +76,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func showSettings() {
         if settingsWindow == nil {
             let controller = ShortcutSettingsController(shortcut: shortcut)
-            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             panel.title = L("設定")
             panel.isReleasedWhenClosed = false
             panel.contentViewController = controller
+            // Resizable from the designed size upward; the tab view follows via its autoresizing mask.
+            panel.contentMinSize = NSSize(width: 520, height: 560)
             panel.center()
             settingsWindow = panel
         }

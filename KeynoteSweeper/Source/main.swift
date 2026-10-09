@@ -328,9 +328,9 @@ struct SettingsView: View {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app"))
                 }
             }
-            SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true).frame(minHeight: 180) }
+            SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        }))]).frame(width: 560, height: 680)
+        }))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 680, maxHeight: .infinity)
     }
 }
 
@@ -440,8 +440,10 @@ struct SettingsView: View {
     @objc func chooseFile() { show(); model.chooseFile() }
     @objc func showSettings() {
         if settings == nil {
-            settings = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 680), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-            settings!.title = L("settingsWindow"); settings!.contentView = NSHostingView(rootView: SettingsView()); settings!.isReleasedWhenClosed = false; settings!.center()
+            settings = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 680), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+            // Resizable from the designed size upward; the hosting view reports only its minimum.
+            let hosting = NSHostingView(rootView: SettingsView()); hosting.sizingOptions = [.minSize]
+            settings!.title = L("settingsWindow"); settings!.contentView = hosting; settings!.contentMinSize = NSSize(width: 560, height: 680); settings!.isReleasedWhenClosed = false; settings!.center()
         }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }

@@ -346,7 +346,7 @@ struct SettingsView: View {
                 }
             }
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        }))]).frame(width: 560, height: 560)
+        }))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
     }
 }
 
@@ -413,8 +413,10 @@ struct SettingsView: View {
     @objc func choose() { show(); model.chooseFiles() }
     @objc func showSettings() {
         if settings == nil {
-            settings = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 560), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-            settings!.title = L("settingsWindow"); settings!.contentView = NSHostingView(rootView: SettingsView()); settings!.isReleasedWhenClosed = false; settings!.center()
+            settings = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+            // Resizable from the designed size upward; the hosting view reports only its minimum.
+            let hosting = NSHostingView(rootView: SettingsView()); hosting.sizingOptions = [.minSize]
+            settings!.title = L("settingsWindow"); settings!.contentView = hosting; settings!.contentMinSize = NSSize(width: 560, height: 560); settings!.isReleasedWhenClosed = false; settings!.center()
         }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }

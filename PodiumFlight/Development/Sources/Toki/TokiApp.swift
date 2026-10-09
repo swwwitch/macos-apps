@@ -206,7 +206,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         guard controlsWindow == nil else { return }
         let size = NSSize(width: 420, height: 750)
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
-        let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = ""
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
@@ -214,19 +214,18 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let host = NSHostingController(rootView:
             SettingsRoot(navigation: navigation, countdown: countdown, settings: settings, presets: presets,
                          openPreferences: { [weak self] in self?.showPreferences() }, goBack: { [weak self] in self?.showControls() })
-                .frame(width: 420, height: 750))
-        host.sizingOptions = []
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 750, maxHeight: .infinity))
+        // Resizable from the designed size upward; the hosting controller reports only its minimum.
+        host.sizingOptions = [.minSize]
         host.preferredContentSize = size
         host.view.setFrameSize(size)
         window.contentViewController = host
         window.setContentSize(size)
         window.contentMinSize = size
-        window.contentMaxSize = size
         window.setFrameAutosaveName("TokiUnifiedSettings")
         let restored = window.setFrameUsingName("TokiUnifiedSettings")
         let invalidFrame = window.frame.width < size.width || window.frame.height < size.height
-        window.setContentSize(size)
-        if !restored || invalidFrame { window.center() }
+        if !restored || invalidFrame { window.setContentSize(size); window.center() }
         controlsWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
@@ -396,16 +395,17 @@ struct SettingsRoot: View {
     var body: some View {
         ZStack(alignment: .top) {
             SettingsView(settings: settings, countdown: countdown, presets: presets, openPreferences: openPreferences)
-                .frame(width: 420, height: 700)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
+                .padding(.bottom, 50)
                 .opacity(navigation.preferencesShown ? 0 : 1)
                 .allowsHitTesting(!navigation.preferencesShown)
                 .accessibilityHidden(navigation.preferencesShown)
             PreferencesContainer(countdown: countdown, settings: settings, presets: presets, goBack: goBack)
-                .frame(width: 420, height: 750)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 750, maxHeight: .infinity)
                 .opacity(navigation.preferencesShown ? 1 : 0)
                 .allowsHitTesting(navigation.preferencesShown)
                 .accessibilityHidden(!navigation.preferencesShown)
-        }.frame(width: 420, height: 750).background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
+        }.frame(minWidth: 420, maxWidth: .infinity, minHeight: 750, maxHeight: .infinity).background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
     }
 }
 

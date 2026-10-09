@@ -70,8 +70,10 @@ struct IconDropApp: App {
                 .background(UtilityWindowChrome(title: L("環境設定")))
                 .background(MainWindowOpenerCapture())
                 .environmentObject(settings)
-                .frame(width: 520, height: 650)
+                .frame(minWidth: 520, maxWidth: .infinity, minHeight: 650, maxHeight: .infinity)
         }
+        // Resizable from the designed size upward.
+        .windowResizability(.contentMinSize)
     }
 }
 
@@ -113,6 +115,8 @@ private struct UtilityWindowChrome: NSViewRepresentable {
                 window.styleMask.insert(.miniaturizable)
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             } else {
+                // Settings: resizable from its designed size (the scene's minimum frame).
+                window.styleMask.insert(.resizable)
                 window.styleMask.remove(.miniaturizable)
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = true
             }

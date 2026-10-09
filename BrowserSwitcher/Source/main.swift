@@ -397,7 +397,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             return
         }
         preferenceBrowsers = browsers()
-        let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 465 + 44 + min(2, max(1, preferenceBrowsers.count)) * 44), styleMask: [.titled], backing: .buffered, defer: false)
+        let panelSize = NSSize(width: 480, height: 465 + 44 + min(2, max(1, preferenceBrowsers.count)) * 44)
+        let panel = NSWindow(contentRect: NSRect(origin: .zero, size: panelSize), styleMask: [.titled, .resizable], backing: .buffered, defer: false)
+        // Resizable from the designed size upward; the tab view follows via its autoresizing mask.
+        panel.contentMinSize = panelSize
         panel.title = L("設定")
         panel.isReleasedWhenClosed = false
         preferencesWindow = panel

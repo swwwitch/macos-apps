@@ -90,10 +90,14 @@ final class SettingsWindow {
     func show() {
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 400),
-                                  styleMask: [.titled, .closable], backing: .buffered, defer: false)
+                                  styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             window.title = L("設定")
             window.isReleasedWhenClosed = false
-            window.contentView = NSHostingView(rootView: SettingsView().frame(width: 480, height: 400))
+            // Resizable from the designed size upward; the hosting view reports only its minimum.
+            let hosting = NSHostingView(rootView: SettingsView().frame(minWidth: 480, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity))
+            hosting.sizingOptions = [.minSize]
+            window.contentView = hosting
+            window.contentMinSize = NSSize(width: 480, height: 400)
             window.center()
             self.window = window
         }

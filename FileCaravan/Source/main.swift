@@ -192,7 +192,7 @@ struct SettingsView: View {
             Text(L("privacyDetail")).font(.caption).foregroundColor(.secondary)
             Button(L("historyFolder")) { delegate.openHistory() }
             }))
-        ]).padding(12).frame(width: 620, height: 500)
+        ]).padding(12).frame(minWidth: 620, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 }
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -260,7 +260,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         return .terminateCancel
     }
     @objc func showSettings() {
-        if settings == nil { let w = NSWindow(contentRect: .zero, styleMask: [.titled,.closable], backing: .buffered, defer: false); w.title = L("settingsTitle"); w.isReleasedWhenClosed = false; w.contentView = NSHostingView(rootView: SettingsView()); w.center(); settings = w }
+        if settings == nil {
+            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 500), styleMask: [.titled,.closable,.resizable], backing: .buffered, defer: false); w.title = L("settingsTitle"); w.isReleasedWhenClosed = false
+            // Resizable from the designed size upward; the hosting view reports only its minimum.
+            let hosting = NSHostingView(rootView: SettingsView()); hosting.sizingOptions = [.minSize]
+            w.contentView = hosting; w.contentMinSize = hosting.fittingSize; w.setContentSize(hosting.fittingSize); w.center(); settings = w
+        }
         settings?.makeKeyAndOrderFront(nil)
     }
     @objc func showHelp() {

@@ -24,8 +24,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>35</string>
-<key>CFBundleShortVersionString</key><string>0.2.21</string>
+<key>CFBundleVersion</key><string>36</string>
+<key>CFBundleShortVersionString</key><string>0.2.22</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
@@ -40,6 +40,7 @@ cp ../Assets/ExtensionLinker-Mustard.icns "$APP/Contents/Resources/ExtensionLink
 cp -R Localizations/*.lproj "$APP/Contents/Resources/"
 python3 check-localization.py "$APP"
 embed_updates "$APP"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$APP"
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"

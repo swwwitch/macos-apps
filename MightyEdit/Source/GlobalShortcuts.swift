@@ -85,7 +85,7 @@ final class GlobalShortcuts: NSObject {
             guard result == noErr, identifier.signature == 0x4D454454 else { return OSStatus(eventNotHandledErr) }
             let owner = Unmanaged<GlobalShortcuts>.fromOpaque(context).takeUnretainedValue()
             let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
-            owner.waitForRelease(Int(identifier.id), pid: pid)
+            owner.performOnPress(Int(identifier.id), pid: pid)
             return noErr
         }, 1, &type, Unmanaged.passUnretained(self).toOpaque(), &handler)
         if status != noErr { handlerFailure = status; actions.forEach { failures[$0.id] = status }; rebuildMenu() }
@@ -106,29 +106,24 @@ final class GlobalShortcuts: NSObject {
 
     private func scope(_ id: Int) -> HotkeyScope { HotkeyScope.load(id) }
 
-    private func waitForRelease(_ id: Int, pid: pid_t?) {
+    /// Runs the action as soon as the hotkey is pressed (no wait for the key to come up).
+    /// The gate stays closed until the trigger key is released, so key repeat never runs it twice.
+    private func performOnPress(_ id: Int, pid: pid_t?) {
         guard let pid, let binding = binding(digit(id)) else { return }
-        // Ignore key-repeat callbacks while waiting for this invocation to finish.
         guard releaseGate.begin(id: id, pid: pid) else { return }
         pendingRelease?.invalidate()
+        let enabled = !paused && !UserDefaults.standard.bool(forKey: "shortcutsDisabled") && actionEnabled(id)
+            && scope(id).allowsAction(paletteVisible: paletteVisible())
+        guard enabled, NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { releaseGate.cancel(); return }
+        // Paste uses a private event source with explicit Command-only flags, so held modifiers do not leak into it.
+        perform(id)
         let key = CGKeyCode(binding.actual.key)
-        let timer = Timer(timeInterval: 0.01, repeats: true) { [weak self] timer in
+        let started = Date()
+        let timer = Timer(timeInterval: 0.02, repeats: true) { [weak self] timer in
             guard let self else { timer.invalidate(); return }
-            // Paste uses a private event source with explicit Command-only flags.
-            // Do not wait for Control/Option to be released after the trigger key.
-            let keyHeld = CGEventSource.keyState(.combinedSessionState, key: key)
-            let result = self.releaseGate.poll(
-                frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier,
-                keyHeld: keyHeld,
-                enabled: !self.paused && !UserDefaults.standard.bool(forKey: "shortcutsDisabled") && self.actionEnabled(id)
-                    && self.scope(id).allowsAction(paletteVisible: self.paletteVisible()))
-            switch result {
-            case .waiting: break
-            case .cancelled:
-                timer.invalidate(); self.pendingRelease = nil
-            case .perform:
-                timer.invalidate(); self.pendingRelease = nil
-                self.perform(id)
+            // Reopen the gate once the trigger key is up (or after 10 s if the key state is never reported).
+            if !CGEventSource.keyState(.combinedSessionState, key: key) || Date().timeIntervalSince(started) > 10 {
+                timer.invalidate(); self.pendingRelease = nil; self.releaseGate.cancel()
             }
         }
         pendingRelease = timer
@@ -215,7 +210,7 @@ final class GlobalShortcuts: NSObject {
                                   styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             window.title = L("settings.window")
             window.isReleasedWhenClosed = false
-            window.minSize = NSSize(width: 720, height: 360)
+            window.contentMinSize = NSSize(width: 760, height: 620)
             let scroll = NSScrollView(frame: window.contentView!.bounds)
             scroll.autoresizingMask = [.width, .height]
             scroll.hasVerticalScroller = true

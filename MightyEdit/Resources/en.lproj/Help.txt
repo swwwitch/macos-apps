@@ -87,6 +87,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Beautify (HTML) adds line breaks and 2-space indentation between HTML block elements. Inline text, attributes, comments and the contents of pre, script, style and similar elements are kept. It does not restore omitted tags or removed comments.
 - Minify (Whitespace) removes ordinary HTML comments and the whitespace and line breaks between block elements, and collapses runs of spaces in text to one. One space is kept between inline elements.
 - Minify also removes quotes from safe attribute values, shortens boolean attributes and removes end tags where the omission rules can be checked. br tags, character references and full-width spaces are kept.
+- Minify+ (Body Only) removes the DOCTYPE and the html, head and body elements (including the head contents), keeps only the body contents and compresses them like Minify.
 - The contents of pre, textarea, script, style, SVG, MathML and similar elements, conditional comments and license comments are protected.
 - CSS changes to white-space or display are not analyzed, so check the result. Input that cannot be interpreted safely, such as XML, server-side templates or incomplete tags, may be returned unchanged.
 
@@ -143,9 +144,9 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - **⌃⌥⇧⌘-**: Minify
 - **⌃⌘=**: Sum Numbers (on JIS keyboards, also press Shift to type =)
 ### Using Hotkeys
-- Select text in the target app, then press and release the key. With the default scope “All Apps”, hotkeys work even while the palette is hidden.
+- Select text in the target app, then press the key; it runs at once (only once while held). With the default scope “All Apps”, hotkeys work even while the palette is hidden.
 - Each hotkey has a scope. On the Hotkeys tab of Settings, choose “All Apps” (default) or “Only While Palette Is Shown” in the pop-up menu below the action name; it is saved immediately (no need to click Apply). You can also choose it in each action’s submenu under Hotkeys in the menu bar, where palette-only actions are marked “(Only While Palette Is Shown)”.
-- Palette-only keys are not registered while the palette is hidden or closed, so the key does its usual job in the front app. They are registered when the palette is shown, and nothing happens if the palette is hidden by the time you release the key.
+- Palette-only keys are not registered while the palette is hidden or closed, so the key does its usual job in the front app. They are registered when the palette is shown, and nothing happens if the palette is hidden when you press the key.
 - Enabling or disabling all hotkeys, pausing, turning off single actions and excluded apps work the same regardless of scope. Duplicate keys are detected even while the palette is hidden. “Reset to Default Assignments” also resets the scope to “All Apps”.
 ### Changing Hotkeys
 1. Open Settings… in the menu bar, or press **⌘,** while MightyEdit is the active app.
@@ -173,8 +174,14 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Choose apps where MightyEdit should never act. Click Add… to choose apps in /Applications, select rows and click Remove from List to remove them.
 - The list shows each app’s icon, name and bundle ID. Apps are identified by bundle ID; the same app twice and MightyEdit itself cannot be added (a reason is shown). The list is saved and kept after relaunching and updating. If an app has been deleted, “App not found” and its bundle ID are shown. Removing an app from the list does not affect the app itself.
 - While an excluded app is in front, the action hotkeys and the palette shortcut are released so keystrokes go straight to that app. The same happens while MightyEdit itself, for example its Settings, is in front. Switching to another app turns them back on.
-- Right before converting (when you release a key, click a button or before sending Paste), MightyEdit checks the front app again. If it is excluded, MightyEdit neither reads the selection nor pastes, and the palette shows “Not run because this app is excluded”.
+- Right before converting (when you press a key, click a button or before sending Paste), MightyEdit checks the front app again. If it is excluded, MightyEdit neither reads the selection nor pastes, and the palette shows “Not run because this app is excluded”.
 - If you show the palette from the menu bar over an excluded app, the same reason appears and the palette is dimmed. Auto show never shows the palette in excluded apps.
+
+### Options (Settings Sync)
+- Use “Set Sync Folder...” to choose a folder where the palette mode, visible buttons, button style, Special items and hotkeys are saved and shared with your other Macs. The folder can be inside a sync service such as iCloud Drive or Dropbox, or on this Mac. The chooser opens in your Dropbox folder when Dropbox is installed.
+- With a sync service, keep this folder downloaded and available offline. “Reveal in Finder” shows the saved file (MightyEdit-Settings.plist), and “Stop Syncing” stops syncing (the file is kept).
+- Login launch, background, Accessibility, window positions, auto show, excluded apps and the sync folder location stay per Mac.
+- If the folder already has different settings, you can choose which to use. After that, the most recent save wins.
 
 ## Running in the Background and Quitting
 - When “Keep running after closing” is on (default) on the Startup & Background tab, the close button hides the palette; show it again or quit from the menu bar. When it is off, the close button quits MightyEdit. The window position is saved.

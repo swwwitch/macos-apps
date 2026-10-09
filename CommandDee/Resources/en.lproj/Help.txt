@@ -6,11 +6,11 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ### Duplicate and Rename
 - **⌘D**: duplicate with the next version (the highest version number in the folder + 1)
-- **⌃⌘D**: duplicate, adding or updating today's date at the end
+- **⌃D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited- and today's date at the end
 - **⌃E**: rename by adding or removing -parent folder name at the end
 - **⌃⇧⌘D**: rename to the highest number + 1 without duplicating
-- **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
+- **⌃⇧⌘S**: swap the names of 2 items selected in the same folder
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -20,7 +20,7 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ## Examples
 - **⌘D**: v2 and v5 exist → v6 (gaps are ignored)
-- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃D**: aaa.txt → aaa-YYYYMMDD.txt
 - **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
 
 ## Duplicate and Rename Rules

@@ -121,6 +121,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let shortcutModifiers = NSPopUpButton()
     let shortcutKey = NSPopUpButton()
     let shortcutStatus = NSTextField(wrappingLabelWithString: "")
+    let applicationsShortcutEnabled = NSButton(checkboxWithTitle: L("⌃⌥⌘⇧Aで選択項目を「アプリケーション」へ移動"), target: nil, action: nil)
+    let applicationsShortcutStatus = NSTextField(wrappingLabelWithString: "")
     let loginEnabled = NSButton(checkboxWithTitle: L("ログイン時に自動起動"), target: nil, action: nil)
     let loginInBackground = NSButton(checkboxWithTitle: L("ログイン時はウインドウを表示せず、バックグラウンドで起動"), target: nil, action: nil)
     let loginStatus = NSTextField(wrappingLabelWithString: "")
@@ -264,6 +266,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let fileMenu = NSMenu(title: L("ファイル")); fileItem.submenu = fileMenu
         let showMainItem = fileMenu.addItem(withTitle: L("メインウインドウを開く"), action: #selector(showMainWindow), keyEquivalent: "0")
         showMainItem.target = self
+        #if APP_STORE
+        let choose = fileMenu.addItem(withTitle: L("ファイルを選択…"), action: #selector(chooseSourceFiles), keyEquivalent: "o")
+        choose.target = self
+        #endif
         fileMenu.addItem(.separator())
         fileMenu.addItem(withTitle: L("ウインドウを閉じる"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let editItem = NSMenuItem(title: L("編集"), action: nil, keyEquivalent: ""); menu.addItem(editItem)
@@ -290,6 +296,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         window.contentView!.addSubview(root)
         NSLayoutConstraint.activate([root.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor, constant: 20), root.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor, constant: -20), root.topAnchor.constraint(equalTo: window.contentView!.topAnchor, constant: 20), root.bottomAnchor.constraint(equalTo: window.contentView!.bottomAnchor, constant: -16)])
         root.addArrangedSubview(appHeader(L("選択したファイルを移動"), subtitle: L("移動先を選んで、移動・複製・リンク作成。")))
+        #if APP_STORE
+        let chooseFiles = NSButton(title: L("ファイルを選択…"), target: self, action: #selector(chooseSourceFiles))
+        root.addArrangedSubview(chooseFiles)
+        #endif
         summary.lineBreakMode = .byTruncatingMiddle
         let selectionRow = NSStackView(views: [summary, NSView(), symbolicLinks, copies])
         selectionRow.spacing = 12
@@ -371,8 +381,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     @objc func showPreferences() {
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
-                                 styleMask: [.titled, .closable], backing: .buffered, defer: false)
+                                 styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             panel.title = L("環境設定")
+            panel.contentMinSize = NSSize(width: 620, height: 560)
             panel.isReleasedWhenClosed = false
             panel.backgroundColor = AppColors.window
             var sections: [(String, NSView)] = []
@@ -385,7 +396,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             group(SettingsUI.launchTitle, [loginEnabled, loginInBackground, loginStatus, MainActor.assumeIsolated { StartupWindowControl() }, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutEnabled, keys, shortcutStatus])
             group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites])
             let conflictLabel = NSTextField(labelWithString: L("移動先に同名のファイルがあるとき"))
+            #if APP_STORE
             group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation])
+            #else
+            applicationsShortcutStatus.font = .systemFont(ofSize: 12); applicationsShortcutStatus.textColor = .secondaryLabelColor
+            group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation, applicationsShortcutEnabled, applicationsShortcutStatus])
+            #endif
             let limitRow = NSStackView(views: [NSTextField(labelWithString: L("最近使ったウインドウの数")), historyLimit, NSTextField(labelWithString: L("件（0＝すべて）"))])
             limitRow.spacing = 8
             historyLimit.widthAnchor.constraint(equalToConstant: 64).isActive = true
@@ -480,7 +496,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             if !self.busy { self.requestTransfer() }
         }
         shortcutChanged()
+        #if !APP_STORE
+        UserDefaults.standard.register(defaults: ["applicationsShortcutEnabled": true])
+        applicationsShortcutEnabled.state = UserDefaults.standard.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
+        applicationsShortcutEnabled.target = self; applicationsShortcutEnabled.action = #selector(applicationsShortcutChanged)
+        globalShortcut.actions[2] = { [weak self] in self?.moveSelectionToApplications() }
+        applicationsShortcutChanged()
+        #endif
     }
+    #if !APP_STORE
+    /// ⌃⌥⌘⇧A (fixed): hotkey ID 2, independent of the window hotkey.
+    @objc func applicationsShortcutChanged() {
+        let enabled = applicationsShortcutEnabled.state == .on
+        let shortcut = GlobalShortcut.applicationsShortcut
+        if globalShortcut.configure(id: 2, enabled: enabled, key: shortcut.key, modifiers: shortcut.modifiers) {
+            UserDefaults.standard.set(enabled, forKey: "applicationsShortcutEnabled")
+            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を移動します。常駐中に使用できます。")
+        } else {
+            applicationsShortcutEnabled.state = .off
+            applicationsShortcutStatus.stringValue = L("⌃⌥⌘⇧Aは他のアプリが使用しているため登録できませんでした。")
+        }
+    }
+    /// Reads the frontmost Finder/Path Finder selection and moves it to /Applications without showing the window.
+    /// The window opens only to show an error; an empty selection just beeps.
+    func moveSelectionToApplications() {
+        guard !busy, window.attachedSheet == nil else { NSSound.beep(); return }
+        let running = BrowserReader.apps()
+        let frontmost = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        guard let app = running.first(where: { $0.bundleIdentifier == frontmost })
+                ?? running.first(where: { $0.bundleIdentifier == lastBrowser }) else { NSSound.beep(); return }
+        lastBrowser = app.bundleIdentifier
+        let destination = Destination(url: URL(fileURLWithPath: "/Applications", isDirectory: true), origin: L("お気に入り"))
+        setBusy(true)
+        queue.async {
+            let state = BrowserReader.read(app)
+            DispatchQueue.main.async {
+                self.setBusy(false)
+                guard !state.files.isEmpty else {
+                    if let error = state.error { self.showError(error) } else { NSSound.beep() }
+                    return
+                }
+                if let reason = MoveEngine.destinationDisabledReason(state.files, into: destination.url) { self.showError(reason); return }
+                self.move(to: destination, source: state)
+            }
+        }
+    }
+    #endif
     func restoreShortcutControls() {
         let defaults = UserDefaults.standard
         shortcutEnabled.state = defaults.bool(forKey: "shortcutEnabled") ? .on : .off
@@ -521,6 +582,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         presentDestinations()
         load(preservingReceivedFiles: false)
     }
+    #if APP_STORE
+    @objc func chooseSourceFiles() {
+        guard !busy, window.attachedSheet == nil else { return }
+        let panel = NSOpenPanel()
+        panel.title = L("ファイルを選択…")
+        panel.canChooseFiles = true; panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = true; panel.treatsFilePackagesAsDirectories = false
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard response == .OK, let self, !panel.urls.isEmpty else { return }
+            do {
+                for url in panel.urls { try FolderAccess.shared.remember(url) }
+                self.pendingOpenFiles = panel.urls
+                DispatchQueue.main.async { self.requestTransfer() }
+            } catch { self.showError(error.localizedDescription) }
+        }
+    }
+    #endif
     @objc func load() {
         load(preservingReceivedFiles: false)
     }
@@ -528,7 +606,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         activationRefresh?.cancel()
         activationRefresh = nil
         guard !busy else { return }
+        #if APP_STORE
+        let received = chosen?.id == "opened-files" ? chosen : nil
+        #else
         let received = preservingReceivedFiles && chosen?.id == "opened-files" ? chosen : nil
+        #endif
         setBusy(true); status.stringValue = L("ウインドウと既存のフォルダ履歴を読み込んでいます…")
         let apps = BrowserReader.apps()
         let preferred = lastBrowser ?? chosen?.id
@@ -638,8 +720,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 seen.insert(entry.url.standardizedFileURL.path).inserted
             }
         }
+        #if APP_STORE
+        rows = []
+        #else
         rows = [.heading(L("現在開いているウインドウ"))]
         rows += filtered(current).map(Row.folder)
+        #endif
         if showChooser.state == .on { rows += [.heading(L("指定")), .choose] }
         if showFavorites.state == .on { rows += [.heading(L("お気に入り")), .favorites] }
         rows += [.heading(L("最近使ったウインドウ"))]
@@ -676,7 +762,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     /// True when Finder/Path Finder (or Open With) supplied at least one item to move.
     var hasSelection: Bool { !(chosen?.files.isEmpty ?? true) }
+    #if APP_STORE
+    static let noSelectionReason = L("ファイルを選択…")
+    #else
     static let noSelectionReason = L("Finder／Path Finderで項目を選択すると指定できます")
+    #endif
     func disabledReason(_ destination: Destination) -> String? {
         if busy { return L("処理中です") }
         // Without a selection every destination is dimmed (the reason is shown only as a tooltip).
@@ -886,7 +976,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         // Without a Finder/Path Finder selection the whole row (icon and both lines) is dimmed.
         button.alphaValue = ready ? 1 : 0.35
         button.setAccessibilityLabel(L("フォルダを選択…"))
-        button.toolTip = ready ? L("クリックして移動先を指定") : L("Finder／Path Finderで項目を選択すると指定できます")
+        button.toolTip = ready ? L("クリックして移動先を指定") : Self.noSelectionReason
         button.widthAnchor.constraint(equalToConstant: 48).isActive = true
         button.heightAnchor.constraint(equalToConstant: 48).isActive = true
         let label = NSTextField(labelWithString: L("フォルダを選択…"))
@@ -987,9 +1077,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let copying = event?.type == .keyDown && event?.modifierFlags.contains(.option) == true
         move(to: destination, bringForward: event?.modifierFlags.contains(.command) == true, copying: copying, linking: event?.type == .keyDown && event?.modifierFlags.contains(.control) == true)
     }
-    func move(to destination: Destination, bringForward: Bool = false, copying requestedCopy: Bool = false, linking requestedLink: Bool = false) {
-        guard !busy, window.attachedSheet == nil, disabledReason(destination) == nil,
-              let source = chosen, !source.files.isEmpty else { return }
+    /// `source` overrides the window's chosen selection (the ⌃⌥⌘⇧A hotkey, which checks the destination itself).
+    func move(to destination: Destination, source requestedSource: BrowserState? = nil, bringForward: Bool = false, copying requestedCopy: Bool = false, linking requestedLink: Bool = false) {
+        guard !busy, window.attachedSheet == nil, requestedSource != nil || disabledReason(destination) == nil,
+              let source = requestedSource ?? chosen, !source.files.isEmpty else { return }
         // Ignore Option+Return while symbolic-link mode is selected.
         // Control+Return always creates a link, including when Option is also held.
         guard !(symbolicLinks.state == .on && requestedCopy && !requestedLink) else { return }
