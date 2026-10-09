@@ -47,7 +47,8 @@ struct ValueEditor: View {
                 Text(L("未設定（既定値）")).tag(unsetTag)
             }
             .labelsHidden()
-            .fixedSize()
+            // fixedSize だと表のセルで幅が潰れることがあるので、幅を明示する
+            .frame(minWidth: 130, maxWidth: 220, alignment: .leading)
             .accessibilityLabel(L("%@の変更後の値", L(entry.item.label)))
         } else if isEditableText {
             TextField(L("未設定（既定値）"), text: $text)
