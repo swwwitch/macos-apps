@@ -1,6 +1,6 @@
 # KakkoReplace
 
-macOS 13以降 / Apple Silicon。0.3.10 (build 30)。選択した文字列のカッコを挿入・置換するメニューバーアプリです。
+macOS 13以降 / Apple Silicon。0.3.15 (build 35)。選択した文字列のカッコを挿入・置換するメニューバーアプリです。
 
 ## 起動と使い方
 
@@ -147,3 +147,28 @@ macOS 13以降 / Apple Silicon。0.3.10 (build 30)。選択した文字列のカ
 ## 「しまう」のホットキーを外す（0.3.10 / build 30、2026-10-08）
 
 - ウインドウメニューの「しまう」からホットキー⌘Mを外した。ヘルプのキー一覧からも⌘Mを削除（4言語）。
+
+## パレットの表示タイミングをMightyEditに準拠（0.3.11 / build 31、2026-10-09）
+
+- パレットの対象アプリと隠れるタイミングを MightyEdit と同じ仕組み（Sources/PaletteTargetSession.swift、MightyEdit から移植）にした。
+  - 対象は呼び出したときの最前面のアプリ。メニューバーの（）や設定から呼び出したときは、直前に使っていたアプリを対象にして最前面へ戻す。
+  - 別のアプリが最前面になると隠れる。KakkoReplace 自身（設定・メニューバーの（））が最前面になっても隠れない（これまでは隠れていた）。
+  - パレットの表示で KakkoReplace をアクティブにしない（unhideWithoutActivation＋orderFrontRegardless）。画面外にあれば中央へ戻す。
+- テストに MightyEdit と同じ対象アプリの判定テスト（Tests/PaletteTargetSessionTests.swift）を追加。
+
+## パレットを前面に出すホットキーと ⌘Tab への表示（0.3.12〜0.3.13 / build 32〜33、2026-10-10）
+
+- 設定の「起動時」に「パレットを前面に出す」を追加（MightyEdit のパレット呼び出しに準拠）。初期値は⌃⌥⌘R。押したときの最前面のアプリを対象にパレットを出す（0.3.12 では設定ウインドウを出していたのを 0.3.13 で変更）。
+  - 有効化のチェック、［変更…］、［初期値（⌃⌥⌘R）に戻す］、状態表示（有効／登録失敗）。
+  - カッコのショートカットの無効化・一時停止・除外アプリとは別に動作。KakkoReplace 自身が最前面のときとキーの記録中は止める。カッコのショートカットと同じキーは登録不可。
+- ウインドウ（設定・ヘルプなど）を開いている間だけ ⌘Tab と Dock に出るようにした（Shared/AppStandards/WindowActivationPolicy.swift）。パレットと「KakkoReplaceについて」は数えない。⌘H で隠している間は残す。
+
+## 設定に「情報」タブ（0.3.14 / build 34、2026-10-10）
+
+- CleanShot X の About に準拠した「情報」タブを追加（Shared/AppStandards/AboutSection.swift）。アイコン、アプリ名、バージョン（ビルド番号、選択してコピー可）、リンク（アプリのまとめ（note）、X）。
+  - 解説記事（note）は Info.plist の SWNoteArticleURL から表示。まとめと同じURLのときは出さない。
+
+## 解説記事とコピーライト（0.3.15 / build 35、2026-10-10）
+
+- SWNoteArticleURL を KakkoReplace 専用記事（https://note.com/swwwitch/n/n66760c4b28fa）に変更。「情報」タブの解説記事とヘルプメニューの「note記事を開く」がこの記事を開く。
+- Info.plist に NSHumanReadableCopyright「© 2026 swwwitch」を追加。「情報」タブと「KakkoReplaceについて」に表示。

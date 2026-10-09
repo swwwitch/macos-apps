@@ -6,6 +6,7 @@ struct Shortcut: Codable {
     var label: String
     static let initial = Shortcut(code: 25, modifiers: UInt32(cmdKey | shiftKey), label: "⇧⌘9")
     static let palette = Shortcut(code: 32, modifiers: UInt32(cmdKey | optionKey | shiftKey), label: "⌥⇧⌘U")
+    static let bringToFront = Shortcut(code: 15, modifiers: UInt32(cmdKey | optionKey | controlKey), label: "⌃⌥⌘R")
     // Transcribed from the article's palette image (US physical key positions).
     static let articleDefaults: [String: Shortcut] = {
         let full = UInt32(cmdKey | shiftKey)
@@ -88,4 +89,32 @@ final class HotKey {
         return failures
     }
     deinit { references.forEach { UnregisterEventHotKey($0) }; if let handler { RemoveEventHandler(handler) } }
+}
+/// Brings the palette to the front (MightyEdit's palette invocation): independent of the bracket
+/// hotkeys' disable/pause and needs no accessibility access.
+final class FrontHotKey {
+    var action: (() -> Void)?
+    private var reference: EventHotKeyRef?
+    private var handler: EventHandlerRef?
+    private var handlerStatus: OSStatus = noErr
+    init() {
+        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        handlerStatus = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
+            guard let context, let event else { return OSStatus(eventNotHandledErr) }
+            var id = EventHotKeyID()
+            guard GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &id) == noErr, id.signature == 0x534B4652 else { return OSStatus(eventNotHandledErr) }
+            Unmanaged<FrontHotKey>.fromOpaque(context).takeUnretainedValue().action?()
+            return noErr
+        }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
+    }
+    /// Registers to detect conflicts even while blocked; when blocked the key is released to the front app.
+    func register(_ shortcut: Shortcut?, blocked: Bool) -> OSStatus {
+        if let reference { UnregisterEventHotKey(reference) }; reference = nil
+        guard let shortcut else { return noErr }
+        guard handlerStatus == noErr else { return handlerStatus }
+        let status = RegisterEventHotKey(shortcut.code, shortcut.modifiers, EventHotKeyID(signature: 0x534B4652, id: 1), GetApplicationEventTarget(), 0, &reference)
+        if blocked, let registered = reference { UnregisterEventHotKey(registered); reference = nil }
+        return status
+    }
+    deinit { if let reference { UnregisterEventHotKey(reference) }; if let handler { RemoveEventHandler(handler) } }
 }

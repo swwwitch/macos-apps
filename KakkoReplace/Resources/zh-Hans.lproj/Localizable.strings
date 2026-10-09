@@ -98,3 +98,10 @@
 "minimize" = "最小化";
 "zoom" = "缩放";
 "bringAllToFront" = "前置全部窗口";
+"frontTitle" = "将面板置于前台";
+"frontEnable" = "启用将面板置于前台的快捷键";
+"frontReset" = "恢复默认（⌃⌥⌘R）";
+"frontEnabledStatus" = "已启用：%@";
+"frontRegisterFailed" = "注册失败（%@）：请选择其他快捷键。";
+"frontDisabled" = "已停用";
+"frontNote" = "KakkoReplace 运行期间，可从任意应用调出面板。未运行时不会启动 KakkoReplace。此功能独立于括号快捷键的停用或暂停。";

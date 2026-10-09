@@ -19,22 +19,36 @@ final class Model: ObservableObject {
     var statusChanged: ((String) -> Void)?
     @Published var status = L("ready") { didSet { statusChanged?(status) } }
     @Published var recording = false
+    @Published var recordingFront = false
+    @Published var frontEnabled = UserDefaults.standard.object(forKey: "bringToFrontEnabled") as? Bool ?? true
+    @Published var frontShortcut = UserDefaults.standard.data(forKey: "bringToFrontShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .bringToFront
+    @Published var frontStatus = ""
+    @Published var frontFailed = false
     @Published var loginStatus = ""
     @Published var loginOn = false
     let hotkey = HotKey()
+    let frontHotkey = FrontHotKey()
     let editor = Editor()
     var monitor: Any?
     var observers: [NSObjectProtocol] = []
     var workspaceObserver: NSObjectProtocol?
+    var departureObserver: NSObjectProtocol?
     var activationRevision = 0
     var pending = false
     init() {
         hotkey.action = { [weak self] action in self?.trigger(action) }
-        workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in self?.activationRevision += 1; self?.refreshHotkey(); (NSApp.delegate as? AppDelegate)?.frontApplicationChanged() }
+        frontHotkey.action = { (NSApp.delegate as? AppDelegate)?.showPalette() }
+        workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.activationRevision += 1; self?.refreshHotkey()
+            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication { (NSApp.delegate as? AppDelegate)?.applicationActivated(app) }
+        }
+        departureObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didDeactivateApplicationNotification, object: nil, queue: .main) { notification in
+            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication { (NSApp.delegate as? AppDelegate)?.applicationDeactivated(app) }
+        }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in self?.refreshLogin(); self?.refreshHotkey() })
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, self.recording else { return event }
-            if event.keyCode == 53 { self.recording = false; self.refreshHotkey(); return nil }
+            if event.keyCode == 53 { self.recording = false; self.recordingFront = false; self.refreshHotkey(); return nil }
             let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
             // Preserve standard editing, window and quit shortcuts.
             let standard: Set<UInt16> = [0, 6, 7, 8, 9, 12, 13, 43]
@@ -48,7 +62,13 @@ final class Model: ObservableObject {
             if flags.contains(.control) { mods |= UInt32(controlKey) }
             let prefix = (flags.contains(.control) ? "⌃" : "") + (flags.contains(.option) ? "⌥" : "") + (flags.contains(.shift) ? "⇧" : "") + (flags.contains(.command) ? "⌘" : "")
             let candidate = Shortcut(code: UInt32(event.keyCode), modifiers: mods, label: prefix + (event.keyCode == 25 ? "9" : key.uppercased()))
-            guard !self.bindings.contains(where: { $0.key != self.selectedAction && $0.value.signature == candidate.signature }) else { self.status = L("duplicateShortcut"); return nil }
+            if self.recordingFront {
+                guard !self.bindings.values.contains(where: { $0.signature == candidate.signature }) else { self.status = L("duplicateShortcut"); return nil }
+                self.frontShortcut = candidate; self.frontEnabled = true
+                self.recording = false; self.recordingFront = false; self.save(); return nil
+            }
+            guard !self.bindings.contains(where: { $0.key != self.selectedAction && $0.value.signature == candidate.signature }),
+                  !(self.frontEnabled && self.frontShortcut.signature == candidate.signature) else { self.status = L("duplicateShortcut"); return nil }
             self.bindings[self.selectedAction] = candidate
             self.recording = false; self.save(); return nil
         }
@@ -62,6 +82,8 @@ final class Model: ObservableObject {
         UserDefaults.standard.set(try? JSONEncoder().encode(bindings), forKey: "bracketBindings")
         UserDefaults.standard.set(forceWrap, forKey: "forceWrap")
         UserDefaults.standard.set(trimSpaces, forKey: "trimSpaces")
+        UserDefaults.standard.set(frontEnabled, forKey: "bringToFrontEnabled")
+        UserDefaults.standard.set(try? JSONEncoder().encode(frontShortcut), forKey: "bringToFrontShortcut")
         refreshHotkey()
     }
     func allowed(_ app: NSRunningApplication?) -> Bool {
@@ -69,11 +91,23 @@ final class Model: ObservableObject {
         return !excluded.contains(id) && id != Bundle.main.bundleIdentifier
     }
     func refreshHotkey() {
+        refreshFrontHotkey()
         let active = !disabled && !paused && !recording && allowed(NSWorkspace.shared.frontmostApplication)
         if active {
             registrationFailures = hotkey.register(bindings)
             if !registrationFailures.isEmpty { status = L("registrationFailed") }
         } else { _ = hotkey.register([:]) }
+    }
+    /// Registered before the bracket hotkeys so it wins a conflict. Blocked only while KakkoReplace
+    /// itself is in front or a key is being recorded (MightyEdit's B21).
+    func refreshFrontHotkey() {
+        let blocked = recording || NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier
+        let result = frontHotkey.register(frontEnabled ? frontShortcut : nil, blocked: blocked)
+        frontFailed = frontEnabled && result != noErr
+        frontStatus = !frontEnabled ? L("frontDisabled") : result == noErr ? String(format: L("frontEnabledStatus"), frontShortcut.label) : String(format: L("frontRegisterFailed"), String(result))
+    }
+    func resetFrontShortcut() {
+        frontShortcut = .bringToFront; frontEnabled = true; recording = false; recordingFront = false; save()
     }
     func resetShortcut() {
         let candidate = Shortcut.articleDefaults[selectedAction]
@@ -159,6 +193,20 @@ struct Preferences: View {
                     MenuBarPresenceView()
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
                 }
+                SettingsSection(L("frontTitle")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle(L("frontEnable"), isOn: Binding(get: { model.frontEnabled }, set: { model.frontEnabled = $0; model.save() }))
+                    HStack {
+                        Text(model.frontShortcut.label).font(.system(.body, design: .monospaced)).frame(width: 120)
+                        Button(model.recordingFront ? L("cancelRecording") : L("change")) {
+                            model.recordingFront.toggle(); model.recording = model.recordingFront; model.refreshHotkey()
+                        }
+                        Button(L("frontReset")) { model.resetFrontShortcut() }
+                    }.disabled(!model.frontEnabled && !model.recordingFront)
+                    Text(model.frontStatus).font(.caption).foregroundColor(model.frontFailed ? .red : .secondary)
+                    Text(model.recordingFront ? L("recordHint") : L("frontNote")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
+                }
                 SettingsSection(AccessibilityText.text("title")) {
                     AccessibilityPermissionView(required: true).frame(height: 180)
                 }
@@ -169,16 +217,18 @@ struct Preferences: View {
                     Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { model.paused = $0; model.refreshHotkey() }))
                     HStack {
                         Text(L("operation"))
-                        OperationPicker(selection: $model.selectedAction) { model.recording = false; model.refreshHotkey() }
+                        OperationPicker(selection: $model.selectedAction) { model.recording = false; model.recordingFront = false; model.refreshHotkey() }
                     }
                     HStack {
                         Text(model.shortcut?.label ?? L("unassigned")).font(.system(.body, design: .monospaced)).frame(width: 120)
-                        Button(model.recording ? L("cancelRecording") : L("change")) { model.recording.toggle(); model.refreshHotkey() }
+                        Button(model.recording && !model.recordingFront ? L("cancelRecording") : L("change")) {
+                            model.recording = model.recordingFront || !model.recording; model.recordingFront = false; model.refreshHotkey()
+                        }
                         Button(L("resetShortcut")) { model.resetShortcut() }
                         Button(L("disableBinding")) { model.bindings.removeValue(forKey: model.selectedAction); model.recording = false; model.save() }
                     }
                     if let code = model.registrationFailures[model.selectedAction] { Text(L("registrationFailed") + " (\(code))").font(.caption) }
-                    Text(model.recording ? L("recordHint") : L("shortcutHint")).font(.caption).foregroundColor(.secondary)
+                    Text(model.recording && !model.recordingFront ? L("recordHint") : L("shortcutHint")).font(.caption).foregroundColor(.secondary)
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
             })),
             (L("palette"), AnyView(GroupBox(label: Text(L("palette"))) {
@@ -208,7 +258,8 @@ struct Preferences: View {
                     }.frame(height: 100)
                     Button(L("addApp")) { model.addApp() }
                 }.padding(6)
-            }))
+            })),
+            (AboutSection.title, AnyView(AboutView()))
         ])
             Text(model.status).font(.callout).fixedSize(horizontal: false, vertical: true).accessibilityLabel(L("status") + ": " + model.status)
             HStack {
@@ -229,13 +280,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var preferences: NSWindow?
     var helpWindow: NSWindow?
     var palette: BracketPalette?
-    var paletteTarget: NSRunningApplication?
-    var lastExternalApplication: NSRunningApplication?
+    /// Same timing as MightyEdit: the target is fixed when the palette is shown; another app coming
+    /// to the front hides it, while KakkoReplace's own settings or menu do not.
+    var targetSession = PaletteTargetSession(ownPID: ProcessInfo.processInfo.processIdentifier)
+    var paletteTarget: NSRunningApplication? {
+        targetSession.targetPID.flatMap { NSRunningApplication(processIdentifier: $0) }.flatMap { $0.isTerminated ? nil : $0 }
+    }
     let menu = NSMenu()
     var resultItem: NSMenuItem!
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
-        frontApplicationChanged()
+        WindowActivationPolicy.install()
+        targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
         let main = NSMenu(); let root = NSMenuItem(); let appMenu = NSMenu()
         main.addItem(root); root.submenu = appMenu
         add(appMenu, L("about"), #selector(about))
@@ -332,13 +388,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "KakkoReplace — " + L("help"), text: L("helpText")) } }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }
-    func frontApplicationChanged() {
-        guard let front = NSWorkspace.shared.frontmostApplication else { return }
-        if front.bundleIdentifier != Bundle.main.bundleIdentifier { lastExternalApplication = front }
-        if let target = paletteTarget, front.processIdentifier != target.processIdentifier {
-            palette?.orderOut(nil)
-            paletteTarget = nil
-        }
+    func applicationActivated(_ app: NSRunningApplication) {
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier else { return }
+        if targetSession.activated(app.processIdentifier) { palette?.orderOut(nil) }
+    }
+    func applicationDeactivated(_ app: NSRunningApplication) {
+        targetSession.departed(app.processIdentifier, frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
     }
     func paletteCanEdit() -> Bool {
         guard let target = paletteTarget, !target.isTerminated,
@@ -346,25 +401,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
               model.allowed(target), !model.disabled, !model.paused, !model.recording else { return false }
         return true
     }
+    /// Shown without activating KakkoReplace (MightyEdit's presentPalette). From the menu bar or settings,
+    /// the editor used last becomes the target and is brought back to the front.
     @objc func showPalette() {
-        let front = NSWorkspace.shared.frontmostApplication
-        let target = front?.bundleIdentifier == Bundle.main.bundleIdentifier ? lastExternalApplication : front
-        guard let target, !target.isTerminated, model.allowed(target) else {
-            palette?.orderOut(nil); paletteTarget = nil; model.status = L("chooseTarget"); return
+        targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
+        guard let target = paletteTarget, model.allowed(target) else {
+            palette?.orderOut(nil); model.status = L("chooseTarget"); return
         }
-        paletteTarget = target
-        // Settings can be the foreground app; return focus to the captured editor.
-        if front?.processIdentifier != target.processIdentifier {
-            guard target.activate(options: [.activateIgnoringOtherApps]) else {
-                paletteTarget = nil; model.status = L("chooseTarget"); return
-            }
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier {
+            guard target.activate(options: [.activateIgnoringOtherApps]) else { model.status = L("chooseTarget"); return }
         }
         if palette == nil {
             palette = BracketPalette(model: model)
             palette?.delegate = self
             model.statusChanged = { [weak self] status in self?.palette?.result.stringValue = status }
         }
-        palette?.refresh(); palette?.orderFrontRegardless()
+        guard let palette else { return }
+        if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(palette.frame) }) { palette.center() }
+        palette.refresh()
+        NSApp.unhideWithoutActivation()
+        palette.orderFrontRegardless()
     }
     @objc func togglePause() { model.paused.toggle(); model.refreshHotkey() }
     @objc func restore() { model.restoreLastChange() }

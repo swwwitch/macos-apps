@@ -9,4 +9,6 @@ xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/LaunchPolicy.swif
 "$STAGING/launch-tests"
 xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/Transform.swift Sources/HotKey.swift Tests/ShortcutTests.swift -o "$STAGING/shortcut-tests"
 "$STAGING/shortcut-tests"
+xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/PaletteTargetSession.swift Tests/PaletteTargetSessionTests.swift -o "$STAGING/palette-target-tests"
+"$STAGING/palette-target-tests"
 python3 Tests/check_resources.py

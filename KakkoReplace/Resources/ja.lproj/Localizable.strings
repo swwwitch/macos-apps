@@ -98,3 +98,10 @@
 "minimize" = "しまう";
 "zoom" = "拡大／縮小";
 "bringAllToFront" = "すべてを手前に移動";
+"frontTitle" = "パレットを前面に出す";
+"frontEnable" = "パレットを前面に出すホットキーを有効にする";
+"frontReset" = "初期値（⌃⌥⌘R）に戻す";
+"frontEnabledStatus" = "有効：%@";
+"frontRegisterFailed" = "登録失敗（%@）：ほかのホットキーを選んでください。";
+"frontDisabled" = "無効";
+"frontNote" = "KakkoReplaceが常駐している間、ほかのアプリからパレットを呼び出せます。未起動のアプリを起動する機能ではありません。カッコのショートカットの無効化・一時停止とは別に動作します。";

@@ -98,3 +98,10 @@
 "minimize" = "Minimize";
 "zoom" = "Zoom";
 "bringAllToFront" = "Bring All to Front";
+"frontTitle" = "Bring Palette to Front";
+"frontEnable" = "Enable the shortcut that brings the palette to the front";
+"frontReset" = "Reset to Default (⌃⌥⌘R)";
+"frontEnabledStatus" = "Enabled: %@";
+"frontRegisterFailed" = "Registration failed (%@): choose another shortcut.";
+"frontDisabled" = "Disabled";
+"frontNote" = "While KakkoReplace is running, you can bring up the palette from any app. This does not launch KakkoReplace when it is not running. It works independently of disabling or pausing the bracket shortcuts.";
