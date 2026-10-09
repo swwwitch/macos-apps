@@ -1,0 +1,85 @@
+PrefsPreset lists your Mac settings (Dock, Finder, trackpad, keyboard and more) and lets you change them all at once. You can also export the current settings to a file, then open and apply it on another Mac after a clean install.
+
+## How to Use
+### Change settings
+1. Choose a category in the sidebar, or type an item name or key in the search field.
+2. Choose a value in the “New Value” column. Use the menu for on/off and other choices; for numbers and text, type in the field and press Return.
+3. Changed rows show a pencil mark and a bold name. Choose “Changed Items” in the sidebar to list only those rows.
+4. Click “Apply” at the lower right and confirm with “Apply”. Only the changed rows are written to the Mac.
+
+### Move to a new Mac
+1. On the current Mac, choose “Export…” (⌘S) to save the settings to a .prefspreset file.
+2. Open that file on the new Mac: double-click it, drop it on the window, or use “Open…” (⌘O).
+3. Items whose values differ from the new Mac go into “New Value”, and the list is narrowed to “Changed Items”. Review them and click “Apply”.
+
+### Undo changes
+- To revert a single row, right-click it and choose **Revert to Current Value**.
+- Choose **Set to Not Set (Default)** to delete the setting when applying, returning it to the macOS default.
+- “Discard All Changes” at the bottom reverts every change you have not applied yet.
+
+### Add settings not in the list
+- Use “Add Item…” to enter a domain and key; the item appears in the “Added Items” category. For global settings, enter NSGlobalDomain as the domain.
+- Added items are also saved in exported files.
+
+### Use the recommended settings
+- Choose “Recommended Settings” above the list, or File > “Load Recommended Settings”, to put the following values in “New Value”. Review them and click “Apply”.
+- Turns off automatic capitalization, period with double-space, smart quotes and smart dashes; turns on keyboard navigation; sets the screenshot file format to PNG; turns off “Group windows by application” and “Displays have separate Spaces” in Mission Control; turns off Stage Manager; turns on Terminal window focus under the pointer; turns off window zoom, Get Info animation and the parallax effect; turns on Zoom keyboard shortcuts, turns off the trackpad and scroll gestures and following the pointer, uses full-screen zoom (this Mac’s maximum and minimum zoom, F1 to turn zoom on or off, F2 to zoom in); sets “Move focus to next window” to ⌘`; turns off the Caps Lock indicator (takes effect after restarting the Mac); sets the mouse pointer size to about 1.8; turns off the startup sound (asks for an administrator password).
+- Changes you made to other rows are kept.
+
+### Save My Preset and use it on the next Mac
+1. Choose “Save Current Settings as My Preset…” from “My Preset” above the list. The current value of every item is saved as “My Preset.prefspreset” in the PrefsPreset folder in iCloud Drive.
+2. On the new Mac after a clean install, sign in to your Apple Account and choose “Load My Preset” from “My Preset” in PrefsPreset.
+3. Items that differ go into “New Value”. Review them and click “Apply”.
+- When you save again, the previous one is kept as “My Preset (previous).prefspreset”.
+- Change the location in the My Preset tab of Settings.
+
+## When Changes Take Effect
+- After applying, Dock, Finder, SystemUIServer, ControlCenter and WindowManager are restarted as needed.
+- Some settings, such as keyboard, trackpad and general settings, take effect after you log in again.
+- “Reload” reads the current values again after you change them in other apps or System Settings.
+
+## Backup and Restore
+- Before applying, the original values of the items being changed are saved to ~/Library/Application Support/PrefsPreset/Backups/.
+- To restore them, open that backup with File > “Open…” and click “Apply”.
+- File > “Show Backup Folder” opens the folder.
+- If the backup cannot be saved, nothing is written and applying stops.
+
+## Settings
+Open with the “Settings” button in the main window, or “Settings…” (⌘,) in the app menu.
+- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Display**: Show instructions in the main window
+- **My Preset**: Save location (iCloud Drive by default)
+
+## Hotkeys
+- **⌘O**: Open
+- **⌘S**: Export
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: PrefsPreset Help
+- **⌘Q**: Quit PrefsPreset
+
+## Permissions and Privacy
+- No Accessibility or other permissions are required.
+- Only the items you changed in “New Value” and applied are written. The app writes the macOS preference files (defaults) directly.
+- The app does not use the network. Exported files contain setting values and the Mac’s name.
+
+## Opening and Quitting
+- Closing the window does not quit the app. Click its Dock icon or press ⌘0 to show the main window again.
+- When “Show in menu bar” is on, the menu bar icon also offers “Open Main Window”, “Settings…” and “Help”.
+- To quit, choose “Quit PrefsPreset” (⌘Q) in the app menu.
+- Check for new versions with “Check for Updates…” in the app menu. Until distribution is set up, it says updates are being prepared and does not connect to the network.
+
+## Troubleshooting
+- If nothing looks different after applying, log out and log in again.
+- If “Not written” appears, macOS did not accept that setting. Change it in System Settings.
+- If you do not like the result, open the backup and click “Apply” to restore the previous values.
+
+## Help and the note Article
+- Open this help with “PrefsPreset Help” (⌘?) in the Help menu.
+- “Open the note Article” in the Help menu opens the article on note in your browser.
+
+## Removing the App
+1. Turn off “Open at login”.
+2. Choose “Quit PrefsPreset”.
+3. Move PrefsPreset to the Trash. If you no longer need the backups, delete ~/Library/Application Support/PrefsPreset.

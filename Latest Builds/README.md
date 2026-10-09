@@ -17,6 +17,7 @@
 | [MightyEdit](MightyEdit.app) | 0.2.2 | 75 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.0 | 14 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.7.7 | 26 | `jp.local.PandocDesk` |
+| [PrefsPreset](PrefsPreset.app) | 1.1.0 | 3 | `jp.dtp-transit.prefspreset` |
 | [PodiumFlight](PodiumFlight.app) | 3.2.14 | 37 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.11 | 25 | `jp.dtp-transit.quickiconexporter` |
 

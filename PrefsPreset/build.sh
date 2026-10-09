@@ -1,0 +1,44 @@
+#!/bin/zsh
+# PrefsPreset.app をビルドし、検証後に /Applications と Latest Builds へ配置する
+set -euo pipefail
+
+project_dir="${0:A:h}"
+output_dir="$project_dir/build"
+app_dir="$output_dir/PrefsPreset.app"
+contents_dir="$app_dir/Contents"
+
+cd "$project_dir"
+python3 ../Shared/MenuBarPresence/sync.py
+python3 ../Shared/AppStandards/sync-surface.py
+python3 ../Shared/LoginAtLaunch/sync.py
+UPDATER_ROOT="$project_dir/../Shared/Updater"
+source "$UPDATER_ROOT/build-support.sh"
+build_stage=$(mktemp -d /private/tmp/prefspreset-build.XXXXXX)
+trap 'rm -rf "$build_stage"' EXIT
+mkdir -p "$build_stage/module-cache" "$build_stage/swiftpm-cache"
+
+CLANG_MODULE_CACHE_PATH="$build_stage/module-cache" \
+SWIFTPM_MODULECACHE_OVERRIDE="$build_stage/module-cache" \
+swift build "${UPDATE_SPM_FLAGS[@]}" -c release --scratch-path "$build_stage/build" \
+    --disable-sandbox \
+    --cache-path "$build_stage/swiftpm-cache" \
+    -debug-info-format none
+
+rm -rf "$app_dir"
+mkdir -p "$contents_dir/MacOS" "$contents_dir/Resources"
+cp "$build_stage/build/release/PrefsPreset" "$contents_dir/MacOS/PrefsPreset"
+cp Info.plist "$contents_dir/Info.plist"
+cp Assets/PrefsPreset.icns "$contents_dir/Resources/PrefsPreset.icns"
+cp -R Localizations/*.lproj "$contents_dir/Resources/"
+printf 'APPL????' > "$contents_dir/PkgInfo"
+python3 Tests/check-localization.py --app "$app_dir"
+embed_updates "$app_dir"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app_dir"
+xattr -cr "$app_dir"
+codesign --force --deep --sign - "$app_dir"
+# Never deploy an app whose signature does not verify.
+codesign --verify --deep --strict "$app_dir"
+if [[ "${NO_DEPLOY:-0}" != 1 ]]; then
+    python3 ../Shared/BuildTools/publish_latest.py "$app_dir"
+fi
+echo "$app_dir"

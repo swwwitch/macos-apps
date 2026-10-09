@@ -4,7 +4,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 copies = {
     'Shared/LoginAtLaunch/LoginAtLaunch.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
-        'KageTrimmer/Development/Sources', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector'],
+        'KageTrimmer/Development/Sources', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector', 'PrefsPreset/Sources/PrefsPreset'],
     'Shared/Accessibility/AccessibilityPermission.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
         'KageTrimmer/Development/Sources', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
         'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source'],
