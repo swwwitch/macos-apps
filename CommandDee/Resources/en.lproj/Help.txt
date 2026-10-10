@@ -9,10 +9,10 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 - **⌃D**: rename without duplicating, adding or updating today's date at the end
 - **⌃⌘D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited at the end (the date and version stay as they are)
-- **⌃P**: rename by adding or removing -parent folder name at the end
+- **⌃F**: rename by adding or removing -parent folder name at the end
 - **⌃S**: swap the names of 2 items selected in the same folder
 
-⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, P = parent, S = switch.
+⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, F = folder, S = switch.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -40,6 +40,7 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ## Settings
 Choose Settings… (⌘,) from the menu bar icon.
+- **Separator**: choose a hyphen (-) or an underscore (_) before each suffix (version number, "edited", date, parent folder name). Version numbers, "edited" and dates are read only after the chosen separator; a parent folder name is removed after either one.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
 - **Action Shortcuts**: click a button and type a modifier key with a character key to change it. Press Esc to cancel. A combination that is already in use cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.

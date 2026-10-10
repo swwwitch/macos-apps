@@ -50,6 +50,9 @@
 "settings.actionShortcuts" = "功能快捷键";
 "settings.keyboardShortcuts" = "键盘快捷键";
 "settings.suffixOrder" = "后缀顺序";
+"settings.separator" = "分隔符";
+"settings.separatorHyphen" = "连字符（-）";
+"settings.separatorUnderscore" = "下划线（_）";
 "settings.skipFolder" = "要跳过的父文件夹名称";
 "settings.skipFolderPlaceholder" = "留空时使用直接上级文件夹的名称";
 "settings.resetSkipFolder" = "恢复为登录用户名";

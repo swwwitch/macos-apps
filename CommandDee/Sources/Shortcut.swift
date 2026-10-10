@@ -8,13 +8,13 @@ struct Shortcut: Codable, Equatable {
     private static func key(_ code: UInt16, _ flags: NSEvent.ModifierFlags, _ label: String) -> Shortcut {
         Shortcut(keyCode: code, modifiers: flags.rawValue, label: label)
     }
-    /// ⌃ renames in place, ⌘ / ⌃⌘ duplicate (1.8.13); D = date, E = edited, P = parent, S = switch. Order matches `modes` and the settings rows.
+    /// ⌃ renames in place, ⌘ / ⌃⌘ duplicate (1.8.13); D = date, E = edited, F = folder, S = switch. Order matches `modes` and the settings rows.
     static let defaults: [Shortcut] = [
         key(2, .command, "⌘D"),                 // 連番で複製
         key(2, .control, "⌃D"),                 // 日付付き（名前変更）
         key(2, [.control, .command], "⌃⌘D"),    // 日付付きで複製
         key(14, [.control, .command], "⌃⌘E"),   // edited付きで複製
-        key(35, .control, "⌃P"),                // 親フォルダ名を付け外し
+        key(3, .control, "⌃F"),                 // 親フォルダ名を付け外し
         key(1, .control, "⌃S")                  // 2項目の名前を入れ替え
     ]
     static let modes: [Duplicator.Mode] = [.version, .renameDate, .date, .edited, .parent, .swapNames]
@@ -38,6 +38,12 @@ struct Shortcut: Codable, Equatable {
            var values = try? JSONDecoder().decode([Shortcut].self, from: data) {
             // 1.8.13 stored 7 keys including 連番だけ更新 at index 5; drop it.
             if values.count == Self.defaults.count + 1 { values.remove(at: 5); save(values, defaults: defaults) }
+            // Until 1.8.15 the parent default was ⌃P, which Keyboard Maestro / Emacs-style remaps often take; move it to ⌃F if free.
+            let parentIndex = 4, oldParent = key(35, .control, "⌃P"), newParent = Self.defaults[parentIndex]
+            if values.count == Self.defaults.count, values[parentIndex] == oldParent,
+               !values.contains(where: { $0.keyCode == newParent.keyCode && $0.modifiers == newParent.modifiers }) {
+                values[parentIndex] = newParent; save(values, defaults: defaults)
+            }
             if values.count == Self.defaults.count { return values }
         }
         guard let data = defaults.data(forKey: legacyKey),

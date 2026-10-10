@@ -64,6 +64,9 @@ settings.fileNames|ファイル名|File Names|文件名|파일 이름
 settings.actionShortcuts|機能のホットキー|Action Shortcuts|功能快捷键|기능 단축키
 settings.keyboardShortcuts|ホットキー|Keyboard Shortcuts|键盘快捷键|키보드 단축키
 settings.suffixOrder|接尾辞の並び順|Suffix order|后缀顺序|접미사 순서
+settings.separator|区切り文字|Separator|分隔符|구분 문자
+settings.separatorHyphen|ハイフン（-）|Hyphen (-)|连字符（-）|하이픈(-)
+settings.separatorUnderscore|アンダースコア（_）|Underscore (_)|下划线（_）|밑줄(_)
 settings.skipFolder|読み飛ばす親フォルダ名|Parent folder name to skip|要跳过的父文件夹名称|건너뛸 상위 폴더 이름
 settings.skipFolderPlaceholder|空欄の場合は、直上の親フォルダ名を使用|If empty, the name of the immediate parent folder is used|留空时使用直接上级文件夹的名称|비워 두면 바로 위 상위 폴더 이름을 사용
 settings.resetSkipFolder|ログインユーザー名に戻す|Reset to Login User Name|恢复为登录用户名|로그인 사용자 이름으로 재설정
@@ -107,10 +110,10 @@ help_texts = {
 - **⌃D**：複製せず、末尾に今日の日付を追加・更新して名前変更
 - **⌃⌘D**：末尾に今日の日付を追加・更新して複製
 - **⌃⌘E**：末尾に -edited を追加して複製（日付や番号はそのまま）
-- **⌃P**：末尾の -親フォルダ名 を付け外しして名前変更
+- **⌃F**：末尾の -親フォルダ名 を付け外しして名前変更
 - **⌃S**：同じフォルダで選んだ2項目の名前を入れ替え
 
-⌃は複製せずに名前を変え、⌘・⌃⌘は複製します。D＝date（日付）、E＝edited／edit、P＝parent（親フォルダ）、S＝switch（入れ替え）。
+⌃は複製せずに名前を変え、⌘・⌃⌘は複製します。D＝date（日付）、E＝edited／edit、F＝folder（親フォルダ）、S＝switch（入れ替え）。
 
 ### アプリの操作
 - **⌘0**：メインウインドウを開く
@@ -138,6 +141,7 @@ help_texts = {
 
 ## 設定
 メニューバーのアイコンから「設定…」（⌘,）を選びます。
+- **区切り文字**：接尾辞（v番号・edited・日付・親フォルダ名）の前に付ける文字を、ハイフン（-）かアンダースコア（_）から選べます。v番号・edited・日付は選んだ文字で区切られたものだけを読み取ります。親フォルダ名はどちらで付いていても外せます。
 - **接尾辞の並び順**：v番号・edited・日付の順番を選べます。既存の名前も読み取り、次の操作から指定順で出力します。
 - **機能のホットキー**：ボタンを押して、修飾キーと文字キーを入力すると変更できます。Escでキャンセル。同じ組み合わせは重複して登録できません。
 - **読み飛ばす親フォルダ名**：完全一致で上の階層を参照します。空欄で無効化できます。
@@ -168,10 +172,10 @@ help_texts = {
 - **⌃D**: rename without duplicating, adding or updating today's date at the end
 - **⌃⌘D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited at the end (the date and version stay as they are)
-- **⌃P**: rename by adding or removing -parent folder name at the end
+- **⌃F**: rename by adding or removing -parent folder name at the end
 - **⌃S**: swap the names of 2 items selected in the same folder
 
-⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, P = parent, S = switch.
+⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, F = folder, S = switch.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -199,6 +203,7 @@ help_texts = {
 
 ## Settings
 Choose Settings… (⌘,) from the menu bar icon.
+- **Separator**: choose a hyphen (-) or an underscore (_) before each suffix (version number, "edited", date, parent folder name). Version numbers, "edited" and dates are read only after the chosen separator; a parent folder name is removed after either one.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
 - **Action Shortcuts**: click a button and type a modifier key with a character key to change it. Press Esc to cancel. A combination that is already in use cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
@@ -229,10 +234,10 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃D**：不复制，在末尾添加或更新今天的日期并重命名
 - **⌃⌘D**：在末尾添加或更新今天的日期并复制
 - **⌃⌘E**：在末尾添加 -edited 并复制（日期和版本号保持不变）
-- **⌃P**：添加或移除末尾的 -父文件夹名称 并重命名
+- **⌃F**：添加或移除末尾的 -父文件夹名称 并重命名
 - **⌃S**：交换在同一文件夹中所选 2 个项目的名称
 
-⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制。D = date（日期），E = edited / edit，P = parent（父文件夹），S = switch（交换）。
+⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制。D = date（日期），E = edited / edit，F = folder（父文件夹），S = switch（交换）。
 
 ### 应用操作
 - **⌘0**：打开主窗口
@@ -260,6 +265,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ## 设置
 在菜单栏图标中选择“设置…”（⌘,）。
+- **分隔符**：可选择在后缀（版本号、edited、日期、父文件夹名称）前使用连字符（-）或下划线（_）。版本号、edited 和日期只读取以所选分隔符分隔的部分；父文件夹名称无论用哪种分隔符都可移除。
 - **后缀顺序**：可选择版本号、edited 和日期的顺序。也会读取现有名称，从下一次操作起按指定顺序输出。
 - **功能快捷键**：点击按钮，然后按下修饰键和字符键即可更改。按 Esc 取消。不能重复登记相同的组合。
 - **要跳过的父文件夹名称**：按完全一致匹配并参照上一级文件夹。留空即可停用。
@@ -290,10 +296,10 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃D**: 복제하지 않고 끝에 오늘 날짜를 추가 또는 갱신하여 이름 변경
 - **⌃⌘D**: 끝에 오늘 날짜를 추가 또는 갱신하여 복제
 - **⌃⌘E**: 끝에 -edited를 추가하여 복제(날짜와 버전 번호는 그대로)
-- **⌃P**: 끝의 -상위 폴더 이름을 추가하거나 제거하여 이름 변경
+- **⌃F**: 끝의 -상위 폴더 이름을 추가하거나 제거하여 이름 변경
 - **⌃S**: 같은 폴더에서 선택한 두 항목의 이름 교환
 
-⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다. D = date(날짜), E = edited / edit, P = parent(상위 폴더), S = switch(교환).
+⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다. D = date(날짜), E = edited / edit, F = folder(상위 폴더), S = switch(교환).
 
 ### 앱 조작
 - **⌘0**: 메인 윈도우 열기
@@ -321,6 +327,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ## 설정
 메뉴 막대 아이콘에서 ‘설정…’(⌘,)을 선택합니다.
+- **구분 문자**: 접미사(버전 번호, edited, 날짜, 상위 폴더 이름) 앞에 붙일 문자를 하이픈(-) 또는 밑줄(_) 중에서 선택할 수 있습니다. 버전 번호, edited, 날짜는 선택한 문자로 구분된 것만 읽습니다. 상위 폴더 이름은 어느 쪽으로 붙어 있어도 제거할 수 있습니다.
 - **접미사 순서**: 버전 번호, edited, 날짜의 순서를 선택할 수 있습니다. 기존 이름도 읽어 다음 작업부터 지정한 순서로 출력합니다.
 - **기능 단축키**: 버튼을 누른 후 보조 키와 문자 키를 입력하면 변경할 수 있습니다. Esc로 취소합니다. 같은 조합은 중복 등록할 수 없습니다.
 - **건너뛸 상위 폴더 이름**: 완전히 일치할 때 위 단계의 폴더를 참조합니다. 비워 두면 사용하지 않습니다.

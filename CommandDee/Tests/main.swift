@@ -167,6 +167,9 @@ do { _ = try Duplicator.parentToggleDestination(parentFile("-親フォルダー 
 try check(emptyToggleFailed, "empty resulting stem rejected")
 try check(try Duplicator.parentToggleDestination(parentFile("README-親フォルダー [A].test")).lastPathComponent == "README", "remove dotted parent on extensionless file")
 try check(try Duplicator.parentToggleDestination(parentFile(".env-親フォルダー [A].test")).lastPathComponent == ".env", "remove dotted parent on dotfile")
+try check(try Duplicator.parentToggleDestination(parentSource, separator: "_").lastPathComponent == "sample_親フォルダー [A].test.txt", "underscore parent appended")
+try check(try Duplicator.parentToggleDestination(parentFile("u_親フォルダー [A].test.txt"), separator: "-").lastPathComponent == "u.txt", "underscore parent removed with hyphen setting")
+try check(try Duplicator.parentToggleDestination(parentTagged, separator: "_").lastPathComponent == "tagged.txt", "hyphen parent removed with underscore setting")
 let originalID = try fm.attributesOfItem(atPath: parentSource.path)[.systemFileNumber] as! NSNumber
 let renamedParent = try Duplicator.renameParentToggled(parentSource)
 try check(!fm.fileExists(atPath: parentSource.path), "rename removes old path")
@@ -251,6 +254,21 @@ for (index, order) in NamingSettings.orders.enumerated() {
     let dateTokens = ["version": "-v4", "edited": "-edited", "date": "-20261005"]
     try check(try Duplicator.duplicateDated(datedSource, date: fixedDate, timeZone: jst, order: order).lastPathComponent == base + "fresh" + order.map { dateTokens[$0]! }.joined() + ".txt", "date output order")
 }
+// Underscore separator: only "_" suffixes are read; "-" stays part of the base name.
+let underscored = try file("under_v2_edited.txt")
+try check(try Duplicator.duplicate(underscored, order: ["version", "edited", "date"], separator: "_").lastPathComponent == "under_v3_edited.txt", "underscore version")
+try check(try Duplicator.duplicateDated(file("snap-v2.txt"), date: fixedDate, timeZone: jst, order: ["version", "date", "edited"], separator: "_").lastPathComponent == "snap-v2_20261005.txt", "underscore leaves hyphen tokens in base")
+try check(try Duplicator.duplicateEdited(file("IMG_20200101.txt"), order: ["edited", "date", "version"], separator: "_").lastPathComponent == "IMG_edited_20200101.txt", "underscore reads date")
+try check(try Duplicator.duplicateEdited(file("IMG_20200102.txt"), order: ["edited", "date", "version"]).lastPathComponent == "IMG_20200102-edited.txt", "hyphen keeps underscore date in base")
+try check(NamingSettings.label(["version", "edited", "date"], separator: "_") == "_v4_edited_20261006", "underscore label")
+let prefsSeparator = UserDefaults(suiteName: "CommandDeeSeparatorTests")!
+prefsSeparator.removePersistentDomain(forName: "CommandDeeSeparatorTests")
+try check(NamingSettings.separator(defaults: prefsSeparator) == "-", "separator default")
+prefsSeparator.set("_", forKey: NamingSettings.separatorKey)
+try check(NamingSettings.separator(defaults: prefsSeparator) == "_", "separator preference")
+prefsSeparator.set(".", forKey: NamingSettings.separatorKey)
+try check(NamingSettings.separator(defaults: prefsSeparator) == "-", "invalid separator fallback")
+prefsSeparator.removePersistentDomain(forName: "CommandDeeSeparatorTests")
 let crossOrder = try file("rename-v3-edited-20261005.txt")
 _ = try file("rename-edited-20261005-v8.txt")
 try check(try Duplicator.duplicate(crossOrder).lastPathComponent == "rename-edited-20261005-v9.txt", "version uses maximum across orders")

@@ -50,6 +50,9 @@
 "settings.actionShortcuts" = "機能のホットキー";
 "settings.keyboardShortcuts" = "ホットキー";
 "settings.suffixOrder" = "接尾辞の並び順";
+"settings.separator" = "区切り文字";
+"settings.separatorHyphen" = "ハイフン（-）";
+"settings.separatorUnderscore" = "アンダースコア（_）";
 "settings.skipFolder" = "読み飛ばす親フォルダ名";
 "settings.skipFolderPlaceholder" = "空欄の場合は、直上の親フォルダ名を使用";
 "settings.resetSkipFolder" = "ログインユーザー名に戻す";

@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private let skippedFolderField = NSTextField(string: "")
     private let statusLabel = NSTextField(wrappingLabelWithString: "")
     private let orderPopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    private var separatorButtons: [NSButton] = []
     private var busy = false
     private var swallowedKeys = Set<Int64>()
     private var enabled = UserDefaults.standard.object(forKey: "shortcutsEnabled") as? Bool ?? true
@@ -261,6 +262,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             let batchDate = Date()
             let batchTimeZone = TimeZone.current
             let suffixOrder = NamingSettings.order()
+            let separator = NamingSettings.separator()
             let skippedParentName = ParentFolderSettings.skippedName()
             DispatchQueue.global(qos: .userInitiated).async {
                 var copies: [URL] = []
@@ -275,11 +277,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                         let copy: URL
                         switch mode {
                         case .swapNames: continue
-                        case .version: copy = try Duplicator.duplicate(file, order: suffixOrder)
-                        case .parent: copy = try Duplicator.renameParentToggled(file, skipping: skippedParentName)
-                        case .date: copy = try Duplicator.duplicateDated(file, date: batchDate, timeZone: batchTimeZone, order: suffixOrder)
-                        case .edited: copy = try Duplicator.duplicateEdited(file, order: suffixOrder)
-                        case .renameDate: copy = try Duplicator.duplicateDated(file, rename: true, date: batchDate, timeZone: batchTimeZone, order: suffixOrder)
+                        case .version: copy = try Duplicator.duplicate(file, order: suffixOrder, separator: separator)
+                        case .parent: copy = try Duplicator.renameParentToggled(file, skipping: skippedParentName, separator: separator)
+                        case .date: copy = try Duplicator.duplicateDated(file, date: batchDate, timeZone: batchTimeZone, order: suffixOrder, separator: separator)
+                        case .edited: copy = try Duplicator.duplicateEdited(file, order: suffixOrder, separator: separator)
+                        case .renameDate: copy = try Duplicator.duplicateDated(file, rename: true, date: batchDate, timeZone: batchTimeZone, order: suffixOrder, separator: separator)
                         }
                         if copy == file { skipped += 1 } else { copies.append(copy) }
                     }
@@ -415,7 +417,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             }
             let orderTitle = NSTextField(labelWithString: L("settings.suffixOrder"))
             orderTitle.font = .systemFont(ofSize: 17, weight: .semibold)
-            orderPopup.addItems(withTitles: NamingSettings.orders.map(NamingSettings.label))
+            let separatorTitle = NSTextField(labelWithString: L("settings.separator"))
+            separatorTitle.font = .systemFont(ofSize: 17, weight: .semibold)
+            separatorButtons = [L("settings.separatorHyphen"), L("settings.separatorUnderscore")].enumerated().map { index, label in
+                let button = NSButton(radioButtonWithTitle: label, target: self, action: #selector(changeSeparator(_:)))
+                button.tag = index
+                return button
+            }
+            let separatorRow = NSStackView(views: separatorButtons)
+            separatorRow.spacing = 16
             orderPopup.setAccessibilityLabel(L("settings.suffixOrder"))
             orderPopup.target = self
             orderPopup.action = #selector(changeSuffixOrder)
@@ -424,7 +434,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             let access = AccessibilityPermissionControl(required: true)
             let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [login, MenuBarPresence.shared.settingsControl()]) }
             let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, shortcutMessage, resetKeys]) }
-            let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [orderTitle, orderPopup, title, skippedFolderField, reset]) }
+            let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [separatorTitle, separatorRow, orderTitle, orderPopup, title, skippedFolderField, reset]) }
             let accessPage = NSStackView(views: [launchGroup, access, helpButton])
             accessPage.orientation = .vertical; accessPage.alignment = .leading; accessPage.spacing = 16
             access.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
@@ -436,10 +446,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             panel.center()
             preferencesWindow = panel
         }
-        orderPopup.selectItem(at: NamingSettings.orders.firstIndex(of: NamingSettings.order()) ?? 0)
+        refreshNamingControls()
         skippedFolderField.stringValue = ParentFolderSettings.skippedName()
         NSApp.activate(ignoringOtherApps: true)
         preferencesWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    /// The order popup previews names with the current separator, so both are refreshed together.
+    private func refreshNamingControls() {
+        let separator = NamingSettings.separator()
+        for button in separatorButtons { button.state = NamingSettings.separators[button.tag] == separator ? .on : .off }
+        orderPopup.removeAllItems()
+        orderPopup.addItems(withTitles: NamingSettings.orders.map { NamingSettings.label($0, separator: separator) })
+        orderPopup.selectItem(at: NamingSettings.orders.firstIndex(of: NamingSettings.order()) ?? 0)
+    }
+
+    @objc private func changeSeparator(_ sender: NSButton) {
+        guard NamingSettings.separators.indices.contains(sender.tag) else { return }
+        UserDefaults.standard.set(NamingSettings.separators[sender.tag], forKey: NamingSettings.separatorKey)
+        refreshNamingControls()
     }
 
     @objc private func changeSuffixOrder() {

@@ -50,6 +50,9 @@
 "settings.actionShortcuts" = "Action Shortcuts";
 "settings.keyboardShortcuts" = "Keyboard Shortcuts";
 "settings.suffixOrder" = "Suffix order";
+"settings.separator" = "Separator";
+"settings.separatorHyphen" = "Hyphen (-)";
+"settings.separatorUnderscore" = "Underscore (_)";
 "settings.skipFolder" = "Parent folder name to skip";
 "settings.skipFolderPlaceholder" = "If empty, the name of the immediate parent folder is used";
 "settings.resetSkipFolder" = "Reset to Login User Name";

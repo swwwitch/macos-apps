@@ -20,8 +20,16 @@ enum NamingSettings {
         let value = defaults.stringArray(forKey: key) ?? defaultOrder
         return orders.contains(value) ? value : defaultOrder
     }
-    static func label(_ order: [String]) -> String {
-        order.map { ["version": "-v4", "edited": "-edited", "date": "-20261006"][$0]! }.joined()
+    static func label(_ order: [String], separator: String = "-") -> String {
+        order.map { separator + ["version": "v4", "edited": "edited", "date": "20261006"][$0]! }.joined()
+    }
+
+    /// Character placed before each suffix (version, edited, date, parent folder name).
+    static let separatorKey = "suffixSeparator"
+    static let separators = ["-", "_"]
+    static func separator(defaults: UserDefaults = .standard) -> String {
+        let value = defaults.string(forKey: separatorKey) ?? "-"
+        return separators.contains(value) ? value : "-"
     }
 }
 
@@ -30,10 +38,14 @@ private struct VersionedName {
     var version: String?
     var edited = false
     var date: String?
+    let separator: String
 
-    init(_ stem: String) {
+    /// Only the chosen separator is recognized, so names like IMG_20261010 stay intact with "-".
+    init(_ stem: String, separator: String = "-") {
         base = stem
-        while let range = base.range(of: "-(?:v[0-9]+|edited|[0-9]{6}|[0-9]{8})$", options: .regularExpression) {
+        self.separator = separator
+        let pattern = NSRegularExpression.escapedPattern(for: separator) + "(?:v[0-9]+|edited|[0-9]{6}|[0-9]{8})$"
+        while let range = base.range(of: pattern, options: .regularExpression) {
             let token = String(base[range].dropFirst())
             if token == "edited" {
                 guard !edited else { break }
@@ -53,9 +65,9 @@ private struct VersionedName {
         let validOrder = NamingSettings.orders.contains(order) ? order : NamingSettings.defaultOrder
         return base + validOrder.compactMap { component -> String? in
             switch component {
-            case "version": return version.map { "-v" + $0 }
-            case "edited": return edited ? "-edited" : nil
-            default: return date.map { "-" + $0 }
+            case "version": return version.map { separator + "v" + $0 }
+            case "edited": return edited ? separator + "edited" : nil
+            default: return date.map { separator + $0 }
             }
         }.joined()
     }
@@ -100,7 +112,9 @@ enum Duplicator {
         return (suffix.isEmpty ? name : String(name.dropLast(suffix.count)), suffix)
     }
 
-    static func parentToggleDestination(_ source: URL, skipping skippedName: String = "") throws -> URL {
+    /// Adds the parent name with `separator`; removes it after either separator, so names made with the other setting still toggle off.
+    static func parentToggleDestination(_ source: URL, skipping skippedName: String = "",
+                                        separator: String = NamingSettings.separator()) throws -> URL {
         let parts = try nameParts(source)
         let parent = source.deletingLastPathComponent()
         var namingParent = parent
@@ -113,20 +127,24 @@ enum Duplicator {
         guard !parentName.isEmpty, parentName != "/" else {
             throw NSError(domain: "CommandDee", code: 3, userInfo: [NSLocalizedDescriptionKey: L("error.noParentName")])
         }
-        let tag = "-" + parentName
+        let tags = NamingSettings.separators.map { $0 + parentName }
         // A dotted parent name must not become the extension of a suffix-only filename.
         let fullName = source.lastPathComponent
-        let removesFullSuffix = fullName.hasSuffix(tag)
-        let stem = removesFullSuffix ? String(fullName.dropLast(tag.count))
-            : (parts.stem.hasSuffix(tag) ? String(parts.stem.dropLast(tag.count)) : parts.stem + tag)
+        let fullTag = tags.first { fullName.hasSuffix($0) }
+        let removesFullSuffix = fullTag != nil
+        let stem: String
+        if let fullTag { stem = String(fullName.dropLast(fullTag.count)) }
+        else if let tag = tags.first(where: { parts.stem.hasSuffix($0) }) { stem = String(parts.stem.dropLast(tag.count)) }
+        else { stem = parts.stem + separator + parentName }
         guard !stem.isEmpty, stem != ".", stem != ".." else {
             throw NSError(domain: "CommandDee", code: 4, userInfo: [NSLocalizedDescriptionKey: L("error.emptyName")])
         }
         return parent.appendingPathComponent(stem + (removesFullSuffix ? "" : parts.suffix))
     }
 
-    static func renameParentToggled(_ source: URL, skipping skippedName: String = "", manager: FileManager = .default) throws -> URL {
-        let destination = try parentToggleDestination(source, skipping: skippedName)
+    static func renameParentToggled(_ source: URL, skipping skippedName: String = "", separator: String = NamingSettings.separator(),
+                                    manager: FileManager = .default) throws -> URL {
+        let destination = try parentToggleDestination(source, skipping: skippedName, separator: separator)
         func collision() -> NSError {
             NSError(domain: "CommandDee", code: 2, userInfo: [NSLocalizedDescriptionKey:
                 L("error.renameExists", destination.lastPathComponent)])
@@ -158,9 +176,10 @@ enum Duplicator {
     /// rename: add or update the date on the item itself instead of a copy (⌃D 「日付付き」).
     static func duplicateDated(_ source: URL, rename: Bool = false, date: Date = Date(),
                                timeZone: TimeZone = .current, manager: FileManager = .default,
-                               order: [String] = NamingSettings.order()) throws -> URL {
+                               order: [String] = NamingSettings.order(),
+                          separator: String = NamingSettings.separator()) throws -> URL {
         let parts = try nameParts(source)
-        var name = VersionedName(parts.stem)
+        var name = VersionedName(parts.stem, separator: separator)
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.calendar = Calendar(identifier: .gregorian)
@@ -192,9 +211,10 @@ enum Duplicator {
 
     /// ⌘E: duplicate with -edited- added; an existing date or version is kept as is.
     static func duplicateEdited(_ source: URL, manager: FileManager = .default,
-                                order: [String] = NamingSettings.order()) throws -> URL {
+                                order: [String] = NamingSettings.order(),
+                                separator: String = NamingSettings.separator()) throws -> URL {
         let parts = try nameParts(source)
-        var name = VersionedName(parts.stem)
+        var name = VersionedName(parts.stem, separator: separator)
         if name.edited { return source }
         name.edited = true
         let destination = source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
@@ -202,10 +222,11 @@ enum Duplicator {
     }
 
     static func duplicate(_ source: URL, manager: FileManager = .default,
-                          order: [String] = NamingSettings.order()) throws -> URL {
+                          order: [String] = NamingSettings.order(),
+                          separator: String = NamingSettings.separator()) throws -> URL {
         let parts = try nameParts(source)
         let suffix = parts.suffix
-        var parsed = VersionedName(parts.stem)
+        var parsed = VersionedName(parts.stem, separator: separator)
         let parent = source.deletingLastPathComponent()
         var lastCollision = 1
         while true {
@@ -214,7 +235,7 @@ enum Duplicator {
             var maximum = lastCollision
             for name in names {
                 guard suffix.isEmpty || name.hasSuffix(suffix) else { continue }
-                let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)))
+                let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)), separator: separator)
                 guard sibling.base == parsed.base, sibling.date == parsed.date,
                       sibling.edited == parsed.edited, let digits = sibling.version else { continue }
                 guard let number = Int(digits), number < Int.max else {

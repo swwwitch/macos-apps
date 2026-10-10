@@ -50,6 +50,9 @@
 "settings.actionShortcuts" = "기능 단축키";
 "settings.keyboardShortcuts" = "키보드 단축키";
 "settings.suffixOrder" = "접미사 순서";
+"settings.separator" = "구분 문자";
+"settings.separatorHyphen" = "하이픈(-)";
+"settings.separatorUnderscore" = "밑줄(_)";
 "settings.skipFolder" = "건너뛸 상위 폴더 이름";
 "settings.skipFolderPlaceholder" = "비워 두면 바로 위 상위 폴더 이름을 사용";
 "settings.resetSkipFolder" = "로그인 사용자 이름으로 재설정";
