@@ -28,7 +28,7 @@ enum IconExporter {
         to directoryURL: URL,
         rules: FilenameRules
     ) throws -> ExportResult {
-        let image = NSWorkspace.shared.icon(forFile: sourceURL.path)
+        let image = bundledLegacyIcon(for: sourceURL) ?? NSWorkspace.shared.icon(forFile: sourceURL.path)
         let bitmap = try largestBitmap(from: image)
 
         guard let pngData = bitmap.representation(using: .png, properties: [:]) else {
@@ -96,21 +96,37 @@ enum IconExporter {
         return trimmed.isEmpty ? "icon" : trimmed
     }
 
+    /// .icnsだけを持つアプリは同梱の.icnsを返す。
+    /// macOS 26はこの形式のアイコンをグレーの枠に入れて表示するため、NSWorkspaceを経由すると枠ごと書き出してしまう。
+    private static func bundledLegacyIcon(for sourceURL: URL) -> NSImage? {
+        guard let bundle = Bundle(url: sourceURL), bundle.bundleURL.pathExtension == "app",
+              bundle.object(forInfoDictionaryKey: "CFBundleIconName") == nil,
+              var iconFile = bundle.object(forInfoDictionaryKey: "CFBundleIconFile") as? String,
+              !iconFile.isEmpty else {
+            return nil
+        }
+        if (iconFile as NSString).pathExtension.isEmpty {
+            iconFile += ".icns"
+        }
+        guard let iconURL = bundle.resourceURL?.appendingPathComponent(iconFile) else {
+            return nil
+        }
+        return NSImage(contentsOf: iconURL)
+    }
+
     private static func largestBitmap(from image: NSImage) throws -> NSBitmapImageRep {
-        let bitmapRepresentations = image.representations.compactMap { representation -> NSBitmapImageRep? in
-            if let bitmap = representation as? NSBitmapImageRep {
+        // 描画は最大の1枚だけにする（全32サイズを描くと1個あたり0.5〜1秒かかる）。
+        let largest = image.representations
+            .filter { $0.pixelsWide > 0 && $0.pixelsHigh > 0 }
+            .max { ($0.pixelsWide * $0.pixelsHigh) < ($1.pixelsWide * $1.pixelsHigh) }
+
+        if let largest {
+            if let bitmap = largest as? NSBitmapImageRep {
                 return bitmap
             }
-            guard representation.pixelsWide > 0, representation.pixelsHigh > 0 else {
-                return nil
+            if let rendered = render(representation: largest) {
+                return rendered
             }
-            return render(representation: representation)
-        }
-
-        if let largest = bitmapRepresentations.max(by: {
-            ($0.pixelsWide * $0.pixelsHigh) < ($1.pixelsWide * $1.pixelsHigh)
-        }) {
-            return largest
         }
 
         if let tiffData = image.tiffRepresentation,

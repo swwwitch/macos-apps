@@ -24,7 +24,7 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
 - **Export**: change the Destination (Choose Folder…, Reset to Desktop)
 - **Filename**: the “icon” Text (leave it empty to use only the filename), Position ({icon}-filename.png or filename-{icon}.png), Separator (hyphen or underscore), Spaces, and Remove unnecessary symbols. Check the result in Preview, and click Restore Filename Defaults to go back to the defaults.
-- **On Completion**: Show in Finder after export (on by default), Hide app after export (on by default), Show notification (off by default), Play a sound (off by default)
+- **On Completion**: Show in Finder after export (on by default), Hide app after export (off by default), Show notification (off by default), Play a sound (off by default)
 - **Shortcuts**: how to export from Services
 
 ## Keyboard Shortcuts

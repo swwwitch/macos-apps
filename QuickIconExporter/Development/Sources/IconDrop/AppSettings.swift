@@ -106,7 +106,7 @@ final class AppSettings: ObservableObject {
     @Published var revealsInFinder = UserDefaults.standard.object(forKey: "revealsInFinder") as? Bool ?? true {
         didSet { UserDefaults.standard.set(revealsInFinder, forKey: "revealsInFinder") }
     }
-    @Published var hidesAfterExport = UserDefaults.standard.object(forKey: "hidesAfterExport") as? Bool ?? true {
+    @Published var hidesAfterExport = UserDefaults.standard.object(forKey: "hidesAfterExport") as? Bool ?? false {
         didSet { UserDefaults.standard.set(hidesAfterExport, forKey: "hidesAfterExport") }
     }
 
