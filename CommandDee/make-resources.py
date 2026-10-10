@@ -49,6 +49,12 @@ palette.selectionMore|%1$@ ほか%2$d項目（%3$@）|%1$@ and %2$d more (%3$@)|
 palette.more|ほか%d項目|+%d more|另 %d 项|외 %d개
 palette.alreadyToday|変更なし（今日の日付付き）|No change (already has today's date)|无变化（已有今天的日期）|변경 없음(이미 오늘 날짜 있음)
 palette.alreadyEdited|変更なし（edited付き）|No change (already marked edited)|无变化（已有 edited）|변경 없음(이미 edited 있음)
+palette.status|ステータスを付ける|Add Status|添加状态|상태 붙이기
+palette.statusHint|クリックして一覧から選択（名前を変更）|Click to choose from the list (renames)|点击从列表中选择（重命名）|클릭하여 목록에서 선택(이름 변경)
+palette.statusCurrent|現在：%@（クリックして変更）|Current: %@ (click to change)|当前：%@（点击更改）|현재: %@(클릭하여 변경)
+settings.statuses|ステータスの一覧（パレット）|Status List (Palette)|状态列表（面板）|상태 목록(팔레트)
+settings.statusesNote|パレットの「ステータスを付ける」で選べる語です。カンマかスペースで区切ります。英字で始まる英数字のみ（edited と v＋数字は除く）。名前には edited の後ろに付き、別のステータスが付いていれば置き換えます。|Words offered by Add Status in the palette, separated by commas or spaces. Letters and digits only, starting with a letter (not “edited” or v + digits). The word goes after “edited” and replaces any other status already in the name.|面板“添加状态”中可选的词，用逗号或空格分隔。仅限以字母开头的字母和数字（不含 edited 和 v＋数字）。添加在 edited 之后，已有其他状态时会被替换。|팔레트의 “상태 붙이기”에서 고를 수 있는 단어입니다. 쉼표나 공백으로 구분합니다. 영문자로 시작하는 영숫자만 가능합니다(edited와 v+숫자 제외). 이름에서 edited 뒤에 붙으며, 다른 상태가 있으면 바꿉니다.
+settings.resetStatuses|初期値に戻す|Reset to Defaults|恢复默认|기본값으로 재설정
 palette.swapNeedsTwo|同じフォルダの2項目を選ぶと使えます|Select 2 items in the same folder|请选择同一文件夹中的 2 个项目|같은 폴더의 항목 2개를 선택하세요
 menu.enableShortcuts|ホットキーを有効にする|Enable Shortcuts|启用快捷键|단축키 활성화
 status.initial|ファイル／フォルダを選択して ⌘D|Select files or folders and press ⌘D|选择文件或文件夹后按 ⌘D|파일 또는 폴더를 선택하고 ⌘D를 누르세요
@@ -133,7 +139,8 @@ help_texts = {
 ### パレット
 - ⌃⌥⌘D（どのアプリからでも）か、メニューバーのアイコンの「パレットを表示」で、各操作のボタンを並べたパレットが開きます。もう一度⌃⌥⌘Dを押すと隠れます。キーは設定の「起動・常駐」で変更できます。
 - Finder／Path Finderで選んでいる項目について、各ボタンに実行後の名前を表示します（変わる部分を色付き）。複数選択では先頭の項目を表示し、ボタンにポインタを置くと全項目の結果を確認できます。
-- パレットはほかのアプリの前面に表示されたままで、クリックしてもFinderの選択は外れません。
+- パレットはFinder／Path Finderの前面に表示され、クリックしてもFinderの選択は外れません。ほかのアプリに切り替えると自動的に隠れ、Finder／Path Finderに戻ると再び表示されます（ほかのアプリでも⌃⌥⌘Dで表示できます）。
+- パレットの「ステータスを付ける」をクリックすると、wip・draft・review などの一覧から選んで名前に付けられます（複製せずに名前を変更。例：aaa.txt → aaa-wip.txt）。別のステータスが付いていれば置き換えます。一覧は設定の「ファイル名」で編集できます。
 
 ### アプリの操作
 - **⌘0**：メインウインドウを開く
@@ -200,7 +207,8 @@ help_texts = {
 ### Palette
 - Press ⌃⌥⌘D in any app, or choose Show Palette from the menu bar icon, to open a palette with a button for each action. Press ⌃⌥⌘D again to hide it. You can change the key in Settings > Startup & Background.
 - For the items selected in Finder or Path Finder, each button shows the resulting name, with the changed part in color. With several items, the first one is shown; hold the pointer over a button to see the result for every item.
-- The palette stays in front of other apps, and clicking it does not change the Finder selection.
+- The palette floats over Finder and Path Finder, and clicking it does not change the Finder selection. It hides automatically when you switch to another app and comes back when you return to Finder or Path Finder (press ⌃⌥⌘D to show it in any app).
+- Click Add Status in the palette to choose a word such as wip, draft or review and add it to the name (renames without duplicating, e.g. aaa.txt → aaa-wip.txt). Another status already in the name is replaced. Edit the list in Settings > File Names.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -267,7 +275,8 @@ Choose Settings… (⌘,) from the menu bar icon.
 ### 面板
 - 在任意应用中按 ⌃⌥⌘D，或从菜单栏图标选择“显示面板”，会打开排列着各操作按钮的面板。再次按 ⌃⌥⌘D 即可隐藏。可在设置的“启动与后台”中更改按键。
 - 针对在 Finder／Path Finder 中选中的项目，每个按钮会显示执行后的名称（变化部分以颜色标出）。选择多个项目时显示第一个项目，将指针悬停在按钮上可查看所有项目的结果。
-- 面板始终显示在其他应用前面，点击它不会改变 Finder 中的选择。
+- 面板显示在 Finder／Path Finder 前面，点击它不会改变 Finder 中的选择。切换到其他应用时会自动隐藏，回到 Finder／Path Finder 时再次显示（在其他应用中也可按 ⌃⌥⌘D 显示）。
+- 点击面板中的“添加状态”，可从 wip、draft、review 等列表中选择并添加到名称中（不复制，直接重命名，例如 aaa.txt → aaa-wip.txt）。已有其他状态时会被替换。可在设置的“文件名”中编辑列表。
 
 ### 应用操作
 - **⌘0**：打开主窗口
@@ -334,7 +343,8 @@ Choose Settings… (⌘,) from the menu bar icon.
 ### 팔레트
 - 어느 앱에서든 ⌃⌥⌘D를 누르거나 메뉴 막대 아이콘에서 '팔레트 보기'를 선택하면 각 동작의 버튼이 나열된 팔레트가 열립니다. ⌃⌥⌘D를 다시 누르면 가려집니다. 키는 설정의 '시작 및 백그라운드'에서 변경할 수 있습니다.
 - Finder／Path Finder에서 선택한 항목에 대해 각 버튼에 실행 후의 이름을 표시합니다(바뀌는 부분은 색으로 표시). 여러 항목을 선택하면 첫 번째 항목을 표시하며, 버튼 위에 포인터를 올리면 모든 항목의 결과를 볼 수 있습니다.
-- 팔레트는 다른 앱 앞에 계속 표시되며, 클릭해도 Finder의 선택이 바뀌지 않습니다.
+- 팔레트는 Finder／Path Finder 앞에 표시되며, 클릭해도 Finder의 선택이 바뀌지 않습니다. 다른 앱으로 전환하면 자동으로 숨겨지고, Finder／Path Finder로 돌아오면 다시 표시됩니다(다른 앱에서도 ⌃⌥⌘D로 표시할 수 있습니다).
+- 팔레트의 “상태 붙이기”를 클릭하면 wip, draft, review 등의 목록에서 골라 이름에 붙일 수 있습니다(복제하지 않고 이름 변경, 예: aaa.txt → aaa-wip.txt). 다른 상태가 있으면 바꿉니다. 목록은 설정의 “파일 이름”에서 편집할 수 있습니다.
 
 ### 앱 조작
 - **⌘0**: 메인 윈도우 열기

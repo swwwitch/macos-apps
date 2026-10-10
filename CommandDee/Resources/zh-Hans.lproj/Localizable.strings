@@ -35,6 +35,12 @@
 "palette.more" = "另 %d 项";
 "palette.alreadyToday" = "无变化（已有今天的日期）";
 "palette.alreadyEdited" = "无变化（已有 edited）";
+"palette.status" = "添加状态";
+"palette.statusHint" = "点击从列表中选择（重命名）";
+"palette.statusCurrent" = "当前：%@（点击更改）";
+"settings.statuses" = "状态列表（面板）";
+"settings.statusesNote" = "面板“添加状态”中可选的词，用逗号或空格分隔。仅限以字母开头的字母和数字（不含 edited 和 v＋数字）。添加在 edited 之后，已有其他状态时会被替换。";
+"settings.resetStatuses" = "恢复默认";
 "palette.swapNeedsTwo" = "请选择同一文件夹中的 2 个项目";
 "menu.enableShortcuts" = "启用快捷键";
 "status.initial" = "选择文件或文件夹后按 ⌘D";

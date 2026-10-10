@@ -17,7 +17,8 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 ### Palette
 - Press ⌃⌥⌘D in any app, or choose Show Palette from the menu bar icon, to open a palette with a button for each action. Press ⌃⌥⌘D again to hide it. You can change the key in Settings > Startup & Background.
 - For the items selected in Finder or Path Finder, each button shows the resulting name, with the changed part in color. With several items, the first one is shown; hold the pointer over a button to see the result for every item.
-- The palette stays in front of other apps, and clicking it does not change the Finder selection.
+- The palette floats over Finder and Path Finder, and clicking it does not change the Finder selection. It hides automatically when you switch to another app and comes back when you return to Finder or Path Finder (press ⌃⌥⌘D to show it in any app).
+- Click Add Status in the palette to choose a word such as wip, draft or review and add it to the name (renames without duplicating, e.g. aaa.txt → aaa-wip.txt). Another status already in the name is replaced. Edit the list in Settings > File Names.
 
 ### App Commands
 - **⌘0**: Open Main Window

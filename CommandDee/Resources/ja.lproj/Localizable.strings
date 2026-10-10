@@ -35,6 +35,12 @@
 "palette.more" = "ほか%d項目";
 "palette.alreadyToday" = "変更なし（今日の日付付き）";
 "palette.alreadyEdited" = "変更なし（edited付き）";
+"palette.status" = "ステータスを付ける";
+"palette.statusHint" = "クリックして一覧から選択（名前を変更）";
+"palette.statusCurrent" = "現在：%@（クリックして変更）";
+"settings.statuses" = "ステータスの一覧（パレット）";
+"settings.statusesNote" = "パレットの「ステータスを付ける」で選べる語です。カンマかスペースで区切ります。英字で始まる英数字のみ（edited と v＋数字は除く）。名前には edited の後ろに付き、別のステータスが付いていれば置き換えます。";
+"settings.resetStatuses" = "初期値に戻す";
 "palette.swapNeedsTwo" = "同じフォルダの2項目を選ぶと使えます";
 "menu.enableShortcuts" = "ホットキーを有効にする";
 "status.initial" = "ファイル／フォルダを選択して ⌘D";

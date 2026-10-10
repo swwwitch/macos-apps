@@ -348,4 +348,19 @@ try check(carried[1].keyCode == UInt16.max, "new ⌃D rename starts unset when a
 try check(carried[2] == Shortcut.defaults[2] && carried[4] == Shortcut.defaults[4], "untouched keys take the new layout")
 try check(legacyLoad(Array(Shortcut.legacyDefaults.prefix(4))) == Shortcut.defaults, "four-key settings migrate")
 
+// Status words (palette only, 1.8.22): rename in place after "edited", one status per name.
+func status(_ name: String, _ word: String, order: [String] = NamingSettings.defaultOrder) throws -> String {
+    try Duplicator.renameStatus(file(name), status: word, order: order, separator: "-").lastPathComponent
+}
+try check(try status("st1.txt", "wip") == "st1-wip.txt", "status added")
+try check(!fm.fileExists(atPath: root.appendingPathComponent("st1.txt").path), "status renames, no copy")
+try check(try status("st2-edited-20261006-v3.ai", "review") == "st2-edited-review-20261006-v3.ai", "status after edited")
+try check(try status("st3-wip-20261006.ai", "approved") == "st3-approved-20261006.ai", "status replaces another")
+try check(try status("st4-draft.ai", "draft") == "st4-draft.ai", "same status unchanged")
+try check(try status("st5-v2.psd", "flattened", order: ["version", "edited", "date"]) == "st5-v2-flattened.psd", "status follows edited slot")
+try check(try Duplicator.duplicate(file("st6-review-20261006.ai")).lastPathComponent == "st6-review-20261006-v2.ai", "version keeps status")
+_ = try file("st7-wip-v5.ai")
+try check(try Duplicator.duplicate(file("st7-v2.ai")).lastPathComponent == "st7-v3.ai", "other status is a separate sequence")
+try check(NamingSettings.parseStatuses("wip, Draft  edited v2 2x ok1、wip") == ["wip", "Draft", "ok1"], "status list validation")
+
 print("PASS: \(checks) checks")

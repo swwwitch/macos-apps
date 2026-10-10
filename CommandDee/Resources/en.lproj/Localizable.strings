@@ -35,6 +35,12 @@
 "palette.more" = "+%d more";
 "palette.alreadyToday" = "No change (already has today's date)";
 "palette.alreadyEdited" = "No change (already marked edited)";
+"palette.status" = "Add Status";
+"palette.statusHint" = "Click to choose from the list (renames)";
+"palette.statusCurrent" = "Current: %@ (click to change)";
+"settings.statuses" = "Status List (Palette)";
+"settings.statusesNote" = "Words offered by Add Status in the palette, separated by commas or spaces. Letters and digits only, starting with a letter (not “edited” or v + digits). The word goes after “edited” and replaces any other status already in the name.";
+"settings.resetStatuses" = "Reset to Defaults";
 "palette.swapNeedsTwo" = "Select 2 items in the same folder";
 "menu.enableShortcuts" = "Enable Shortcuts";
 "status.initial" = "Select files or folders and press ⌘D";

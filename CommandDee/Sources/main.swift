@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private var window: NSWindow?
     private var preferencesWindow: NSWindow?
     private let skippedFolderField = NSTextField(string: "")
+    private let statusField = NSTextField(string: "")
     private let statusLabel = NSTextField(wrappingLabelWithString: "")
     private let orderPopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private var separatorButtons: [NSButton] = []
@@ -284,7 +285,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                 }
                 return
             }
-            let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameDate) ? "rename" : "duplicate")
+            let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameDate || { if case .status = mode { return true }; return false }()) ? "rename" : "duplicate")
             lastResult = L("progress." + action, files.count)
             updateStatus()
             // Use one date for the whole selection, including batches crossing midnight.
@@ -311,6 +312,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                         case .date: copy = try Duplicator.duplicateDated(file, date: batchDate, timeZone: batchTimeZone, order: suffixOrder, separator: separator)
                         case .edited: copy = try Duplicator.duplicateEdited(file, order: suffixOrder, separator: separator)
                         case .renameDate: copy = try Duplicator.duplicateDated(file, rename: true, date: batchDate, timeZone: batchTimeZone, order: suffixOrder, separator: separator)
+                        case .status(let word): copy = try Duplicator.renameStatus(file, status: word, order: suffixOrder, separator: separator)
                         }
                         if copy == file { skipped += 1 } else { copies.append(copy) }
                     }
@@ -480,6 +482,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             skippedFolderField.placeholderString = L("settings.skipFolderPlaceholder")
             skippedFolderField.setAccessibilityLabel(L("settings.skipFolder"))
             let reset = NSButton(title: L("settings.resetSkipFolder"), target: self, action: #selector(resetSkippedFolder))
+            let statusTitle = NSTextField(labelWithString: L("settings.statuses"))
+            statusTitle.font = .systemFont(ofSize: 17, weight: .semibold)
+            statusField.delegate = self
+            statusField.setAccessibilityLabel(L("settings.statuses"))
+            let statusNote = NSTextField(wrappingLabelWithString: L("settings.statusesNote"))
+            statusNote.font = .systemFont(ofSize: 11)
+            statusNote.textColor = .secondaryLabelColor
+            let resetStatuses = NSButton(title: L("settings.resetStatuses"), target: self, action: #selector(resetStatusWords))
             let login = MainActor.assumeIsolated { LoginAtLaunchControl() }
             let keysTitle = NSTextField(labelWithString: L("settings.keyboardShortcuts"))
             keysTitle.font = .systemFont(ofSize: 17, weight: .semibold)
@@ -528,7 +538,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [login, MenuBarPresence.shared.settingsControl(),
                                                                                                    paletteRow, paletteHotkeyStatus, paletteReset, paletteNote]) }
             let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, shortcutMessage, resetKeys]) }
-            let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [separatorTitle, separatorRow, orderTitle, orderPopup, title, skippedFolderField, reset]) }
+            let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [separatorTitle, separatorRow, orderTitle, orderPopup, title, skippedFolderField, reset,
+                                                                                                 statusTitle, statusField, statusNote, resetStatuses]) }
             let accessPage = NSStackView(views: [launchGroup, access, helpButton])
             accessPage.orientation = .vertical; accessPage.alignment = .leading; accessPage.spacing = 16
             access.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
@@ -542,6 +553,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         }
         refreshNamingControls()
         skippedFolderField.stringValue = ParentFolderSettings.skippedName()
+        statusField.stringValue = NamingSettings.statuses().joined(separator: ", ")
         NSApp.activate(ignoringOtherApps: true)
         preferencesWindow?.makeKeyAndOrderFront(nil)
     }
@@ -596,8 +608,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }
 
     func controlTextDidChange(_ notification: Notification) {
+        if notification.object as? NSTextField === statusField {
+            UserDefaults.standard.set(NamingSettings.parseStatuses(statusField.stringValue), forKey: NamingSettings.statusKey)
+            palette?.refresh()
+            return
+        }
         guard notification.object as? NSTextField === skippedFolderField else { return }
         UserDefaults.standard.set(skippedFolderField.stringValue, forKey: ParentFolderSettings.key)
+    }
+
+    /// Shows the list as saved (invalid words dropped) once editing ends.
+    func controlTextDidEndEditing(_ notification: Notification) {
+        guard notification.object as? NSTextField === statusField else { return }
+        statusField.stringValue = NamingSettings.statuses().joined(separator: ", ")
+    }
+
+    @objc private func resetStatusWords() {
+        UserDefaults.standard.removeObject(forKey: NamingSettings.statusKey)
+        statusField.stringValue = NamingSettings.statuses().joined(separator: ", ")
+        palette?.refresh()
     }
 
     @objc private func resetSkippedFolder() {

@@ -70,7 +70,7 @@ final class PaletteActionCell: NSButtonCell {
         titleStyle.lineBreakMode = .byTruncatingTail
         (title as NSString).draw(with: NSRect(x: textX, y: y(9, 17), width: frame.maxX - 12 - shortcutWidth - 8 - textX, height: 17),
                                  options: .usesLineFragmentOrigin,
-                                 attributes: [.font: NSFont.systemFont(ofSize: 13, weight: .medium), .foregroundColor: color, .paragraphStyle: titleStyle])
+                                 attributes: [.font: NSFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: color, .paragraphStyle: titleStyle])
         let preview = NSMutableAttributedString(attributedString: button.preview)
         let previewStyle = NSMutableParagraphStyle()
         previewStyle.lineBreakMode = .byTruncatingMiddle
@@ -91,6 +91,8 @@ final class CommandPalette: NSObject, NSWindowDelegate {
     private let panel: CommandPalettePanel
     private let targetLabel = NSTextField(labelWithString: "")
     private var buttons: [PaletteActionButton] = []
+    /// Palette only (1.8.22): opens the status list instead of running directly; never has a hotkey.
+    private let statusButton = PaletteActionButton(frame: .zero)
     private var timer: Timer?
     private(set) var target: PaletteTarget?
     private let perform: (Duplicator.Mode, PaletteTarget) -> Void
@@ -141,6 +143,14 @@ final class CommandPalette: NSObject, NSWindowDelegate {
             button.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
             button.heightAnchor.constraint(equalToConstant: 54).isActive = true
         }
+        statusButton.title = L("palette.status")
+        statusButton.image = NSImage(systemSymbolName: "tag", accessibilityDescription: nil)
+        statusButton.target = self
+        statusButton.action = #selector(showStatusMenu(_:))
+        statusButton.setAccessibilityLabel(statusButton.title)
+        column.addArrangedSubview(statusButton)
+        statusButton.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
+        statusButton.heightAnchor.constraint(equalToConstant: 54).isActive = true
         let settings = NSButton(title: L("menu.settings"), target: settingsTarget, action: openSettings)
         settings.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)
         settings.imagePosition = .imageLeading
@@ -148,7 +158,7 @@ final class CommandPalette: NSObject, NSWindowDelegate {
         settings.controlSize = .small
         settings.font = .systemFont(ofSize: 11)
         settings.refusesFirstResponder = true
-        column.setCustomSpacing(12, after: buttons.last!)
+        column.setCustomSpacing(12, after: statusButton)
         column.addArrangedSubview(settings)
         header.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
         targetLabel.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
@@ -164,6 +174,20 @@ final class CommandPalette: NSObject, NSWindowDelegate {
         panel.setFrameAutosaveName("CommandDeePalette")
         refreshShortcutLabels(Shortcut.load())
         render()
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(appActivated(_:)),
+                                                          name: NSWorkspace.didActivateApplicationNotification, object: nil)
+    }
+
+    /// Auto-hide (1.8.22): while the palette is on, it is shown only over Finder / Path Finder (and CommandDee itself).
+    /// orderOut keeps the on state, so it comes back with the browser; the hotkey still shows it anywhere.
+    @objc private func appActivated(_ notification: Notification) {
+        guard UserDefaults.standard.bool(forKey: Self.visibleKey), !panel.isMiniaturized,
+              let id = (notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.bundleIdentifier else { return }
+        if Browser.identifiers.contains(id) || id == Bundle.main.bundleIdentifier {
+            if !panel.isVisible { panel.orderFrontRegardless(); refresh() }
+        } else if panel.isVisible {
+            panel.orderOut(nil)
+        }
     }
 
     var isVisible: Bool { panel.isVisible }
@@ -226,6 +250,29 @@ final class CommandPalette: NSObject, NSWindowDelegate {
             button.isEnabled = enabled
             button.toolTip = detail
         }
+        let current = files.first.flatMap { try? Duplicator.currentStatus($0) }
+        statusButton.preview = files.isEmpty ? Self.plain("—")
+            : Self.plain(current.map { L("palette.statusCurrent", $0) } ?? L("palette.statusHint"), color: current == nil ? .secondaryLabelColor : .labelColor)
+        statusButton.isEnabled = !files.isEmpty && !NamingSettings.statuses().isEmpty
+    }
+
+    /// The list shows the words only; the first item's current status is checked.
+    @objc private func showStatusMenu(_ sender: PaletteActionButton) {
+        guard let first = target?.files.first else { NSSound.beep(); return }
+        let current = try? Duplicator.currentStatus(first)
+        let menu = NSMenu()
+        for word in NamingSettings.statuses() {
+            let item = menu.addItem(withTitle: word, action: #selector(applyStatus(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = word
+            item.state = word == current ? .on : .off
+        }
+        menu.popUp(positioning: nil, at: NSPoint(x: 46, y: sender.isFlipped ? sender.bounds.maxY : 0), in: sender)
+    }
+
+    @objc private func applyStatus(_ sender: NSMenuItem) {
+        guard let target, !target.files.isEmpty, let word = sender.representedObject as? String else { NSSound.beep(); return }
+        perform(.status(word), target)
     }
 
     /// Resulting name for the first item (changed part highlighted), whether the action applies, and every item's result for the tooltip.
@@ -245,6 +292,7 @@ final class CommandPalette: NSObject, NSWindowDelegate {
                 case .renameDate, .date: return try Duplicator.datedDestination(file, date: date, order: order, separator: separator)?.lastPathComponent
                 case .edited: return try Duplicator.editedDestination(file, order: order, separator: separator)?.lastPathComponent
                 case .parent: return try Duplicator.parentToggleDestination(file, skipping: skipping, separator: separator).lastPathComponent
+                case .status(let word): return try Duplicator.statusDestination(file, status: word, order: order, separator: separator)?.lastPathComponent
                 case .swapNames: return nil
                 }
             }
@@ -275,7 +323,7 @@ final class CommandPalette: NSObject, NSWindowDelegate {
         mode == .edited ? L("palette.alreadyEdited") : L("palette.alreadyToday")
     }
 
-    private static func plain(_ text: String, color: NSColor = .secondaryLabelColor) -> NSMutableAttributedString {
+    static func plain(_ text: String, color: NSColor = .secondaryLabelColor) -> NSMutableAttributedString {
         NSMutableAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: color])
     }
 

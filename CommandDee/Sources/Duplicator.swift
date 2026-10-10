@@ -27,6 +27,28 @@ enum NamingSettings {
     /// Character placed before each suffix (version, edited, date, parent folder name).
     static let separatorKey = "suffixSeparator"
     static let separators = ["-", "_"]
+
+    /// Status words the palette adds by renaming (1.8.22); written right after "edited", one per name. Editable in Settings.
+    static let statusKey = "statusWords"
+    static let defaultStatuses = ["wip", "draft", "review", "revised", "updated", "fixed",
+                                  "approved", "rejected", "archived", "flattened", "outlined"]
+    static func statuses(defaults: UserDefaults = .standard) -> [String] {
+        defaults.stringArray(forKey: statusKey).map(validStatuses) ?? defaultStatuses
+    }
+    /// Words split on commas, spaces or newlines; letters first, then letters and digits. Words the other suffixes read
+    /// (edited, v + digits) and duplicates are dropped.
+    static func validStatuses(_ words: [String]) -> [String] {
+        var result: [String] = []
+        for word in words.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) {
+            guard word.range(of: "^[A-Za-z][A-Za-z0-9]*$", options: .regularExpression) != nil, word != "edited",
+                  word.range(of: "^v[0-9]+$", options: .regularExpression) == nil, !result.contains(word) else { continue }
+            result.append(word)
+        }
+        return result
+    }
+    static func parseStatuses(_ text: String) -> [String] {
+        validStatuses(text.components(separatedBy: CharacterSet(charactersIn: ",、，").union(.whitespacesAndNewlines)))
+    }
     static func separator(defaults: UserDefaults = .standard) -> String {
         let value = defaults.string(forKey: separatorKey) ?? "-"
         return separators.contains(value) ? value : "-"
@@ -37,19 +59,24 @@ private struct VersionedName {
     var base: String
     var version: String?
     var edited = false
+    var status: String?
     var date: String?
     let separator: String
 
     /// Only the chosen separator is recognized, so names like IMG_20261010 stay intact with "-".
-    init(_ stem: String, separator: String = "-") {
+    init(_ stem: String, separator: String = "-", statuses: [String] = NamingSettings.statuses()) {
         base = stem
         self.separator = separator
-        let pattern = NSRegularExpression.escapedPattern(for: separator) + "(?:v[0-9]+|edited|[0-9]{6}|[0-9]{8})$"
+        let pattern = NSRegularExpression.escapedPattern(for: separator) + "(?:v[0-9]+|edited|"
+            + statuses.map { $0 + "|" }.joined() + "[0-9]{6}|[0-9]{8})$"
         while let range = base.range(of: pattern, options: .regularExpression) {
             let token = String(base[range].dropFirst())
             if token == "edited" {
                 guard !edited else { break }
                 edited = true
+            } else if statuses.contains(token) {
+                guard status == nil else { break }
+                status = token
             } else if token.hasPrefix("v") {
                 guard version == nil else { break }
                 version = String(token.dropFirst())
@@ -66,7 +93,9 @@ private struct VersionedName {
         return base + validOrder.compactMap { component -> String? in
             switch component {
             case "version": return version.map { separator + "v" + $0 }
-            case "edited": return edited ? separator + "edited" : nil
+            case "edited":
+                let marks = (edited ? separator + "edited" : "") + (status.map { separator + $0 } ?? "")
+                return marks.isEmpty ? nil : marks
             default: return date.map { separator + $0 }
             }
         }.joined()
@@ -74,7 +103,7 @@ private struct VersionedName {
 }
 
 enum Duplicator {
-    enum Mode { case version, renameDate, date, edited, parent, swapNames }
+    enum Mode: Equatable { case version, renameDate, date, edited, parent, swapNames, status(String) }
 
     /// One atomic filesystem operation: no temporary name or partially completed exchange.
     static func swapNames(_ sources: [URL]) throws -> [URL] {
@@ -234,22 +263,45 @@ enum Duplicator {
         return try copyWithoutReplacing(source, to: destination, manager: manager)
     }
 
+    /// The name the palette's status list would give, or nil when the item already carries that status. Another status is replaced.
+    static func statusDestination(_ source: URL, status: String, order: [String] = NamingSettings.order(),
+                                  separator: String = NamingSettings.separator()) throws -> URL? {
+        let parts = try nameParts(source)
+        var name = VersionedName(parts.stem, separator: separator)
+        if name.status == status { return nil }
+        name.status = status
+        return source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+    }
+
+    static func currentStatus(_ source: URL, separator: String = NamingSettings.separator()) throws -> String? {
+        VersionedName(try nameParts(source).stem, separator: separator).status
+    }
+
+    /// Palette only: renames the item itself (no copy).
+    static func renameStatus(_ source: URL, status: String, manager: FileManager = .default,
+                             order: [String] = NamingSettings.order(),
+                             separator: String = NamingSettings.separator()) throws -> URL {
+        guard let destination = try statusDestination(source, status: status, order: order, separator: separator) else { return source }
+        return try moveWithoutReplacing(source, to: destination, manager: manager)
+    }
+
     /// The next version name for ⌘D: one above the highest sibling (at least `after` + 1); reads the folder only.
     static func versionDestination(_ source: URL, after floor: Int = 1, manager: FileManager = .default,
                                    order: [String] = NamingSettings.order(),
                                    separator: String = NamingSettings.separator()) throws -> (url: URL, version: Int) {
         let parts = try nameParts(source)
         let suffix = parts.suffix
-        var parsed = VersionedName(parts.stem, separator: separator)
+        let statuses = NamingSettings.statuses()
+        var parsed = VersionedName(parts.stem, separator: separator, statuses: statuses)
         let parent = source.deletingLastPathComponent()
         // Never fill gaps in the sequence.
         let names = try manager.contentsOfDirectory(atPath: parent.path)
         var maximum = floor
         for name in names {
             guard suffix.isEmpty || name.hasSuffix(suffix) else { continue }
-            let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)), separator: separator)
+            let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)), separator: separator, statuses: statuses)
             guard sibling.base == parsed.base, sibling.date == parsed.date,
-                  sibling.edited == parsed.edited, let digits = sibling.version else { continue }
+                  sibling.edited == parsed.edited, sibling.status == parsed.status, let digits = sibling.version else { continue }
             guard let number = Int(digits), number < Int.max else {
                 throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionTooLarge")])
             }
