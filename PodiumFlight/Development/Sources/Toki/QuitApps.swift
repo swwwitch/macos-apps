@@ -101,6 +101,8 @@ struct PresetAppListEditor: View {
     let title: String
     @Binding var targets: [QuitAppTarget]
     let done: () -> Void
+    /// The list as it was when the sheet opened; Cancel (Esc) puts it back.
+    @State private var original: [QuitAppTarget]?
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(title).font(.headline)
@@ -119,9 +121,11 @@ struct PresetAppListEditor: View {
             HStack {
                 Button(L("アプリを追加…")) { choose() }
                 Spacer()
+                Button(L("キャンセル")) { if let original { targets = original }; done() }.keyboardShortcut(.cancelAction)
                 Button(L("完了"), action: done).keyboardShortcut(.defaultAction)
             }
         }.padding(20).frame(width: 380, height: 420)
+        .onAppear { if original == nil { original = targets } }
     }
     private func choose() {
         let panel = NSOpenPanel()

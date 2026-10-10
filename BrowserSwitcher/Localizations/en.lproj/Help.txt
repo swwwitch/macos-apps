@@ -14,7 +14,7 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 
 ### Startup & Background Tab
 - Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
-- **Show app shortcut**: select modifier keys (⌃⌥⇧⌘) and a key, then click **Apply**.
+- **Show app shortcut**: select modifier keys (⌃⌥⇧⌘) and a key; the change takes effect immediately.
 - At least one of ⌃, ⌥ or ⌘ is required, and combinations that conflict with standard shortcuts cannot be used.
 - **Restore Defaults** returns to ⌃⌥Q.
 

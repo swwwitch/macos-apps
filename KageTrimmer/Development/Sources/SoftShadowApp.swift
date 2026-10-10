@@ -109,7 +109,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func chooseImages() {
-        guard !mainViewController!.isProcessing else { NSSound.beep(); return }
+        // The menu item is disabled while processing (validateMenuItem); this guards a stale invocation.
+        guard mainViewController?.isProcessing != true else { return }
         showMainWindow()
         let panel = NSOpenPanel()
         panel.title = L("処理する画像を選択")
@@ -176,6 +177,14 @@ enum KageTrimmerMain {
         app.setActivationPolicy(.regular)
         app.run()
         _ = delegate
+    }
+}
+
+extension AppDelegate: NSMenuItemValidation {
+    /// 「画像を選択…」 is unavailable while images are being processed, instead of beeping when chosen.
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(chooseImages) { return mainViewController?.isProcessing != true }
+        return true
     }
 }
 
@@ -309,9 +318,18 @@ final class MainViewController: NSViewController {
 
 final class DropView: NSView {
     var onDrop: (([URL]) -> Void)?
-    var isProcessing = false { didSet { needsDisplay = true } }
+    var isProcessing = false { didSet { needsDisplay = true; NSAccessibility.post(element: self, notification: .titleChanged) } }
     private var targeted = false
     override init(frame frameRect: NSRect) { super.init(frame: frameRect); registerForDraggedTypes([.fileURL]) }
+    // Custom-drawn drop target: VoiceOver reads what it is and how to choose an image without dragging.
+    override func isAccessibilityElement() -> Bool { true }
+    override func accessibilityRole() -> NSAccessibility.Role? { .group }
+    override func accessibilityLabel() -> String? {
+        if isProcessing { return L("処理しています…") }
+        let stop = StartupWindow.text("。", ". ", "。", ". ")
+        let menuHint = String(format: StartupWindow.text("ファイルメニューの「%@」（⌘O）でも選べます", "You can also use File > %@ (⌘O)", "也可以使用“文件”菜单中的“%@”（⌘O）", "파일 메뉴의 '%@'(⌘O)로도 선택할 수 있습니다"), L("画像を選択…"))
+        return L("画像ファイルをここにドロップ") + stop + L("複数画像・アプリアイコンへのドロップにも対応") + stop + menuHint
+    }
     required init?(coder: NSCoder) { fatalError() }
     override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); needsDisplay = true }
     override func draw(_ dirtyRect: NSRect) {
@@ -425,12 +443,14 @@ final class ShortcutSettingsController: NSViewController {
         modifiers.addItems(withTitles: KageShortcut.modifiers.map { $0.0 })
         key.addItems(withTitles: KageShortcut.keys.map { $0.0 })
         for control in [modifiers, key] { control.target = self; control.action = #selector(changed) }
+        modifiers.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("修飾キー", "Modifier keys", "修饰键", "보조 키"))
+        key.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("キー", "Key", "按键", "키"))
         enabled.target = self; enabled.action = #selector(changed)
         let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetShortcut))
         let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
         message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
         let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
-        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup)], in: view)
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (AboutSection.title, AboutSection.view())], in: view)
         refresh()
         message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：⌃⌥⌘U（control + option + command + U）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
     }

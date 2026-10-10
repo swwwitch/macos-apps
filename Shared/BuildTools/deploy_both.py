@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -36,6 +37,15 @@ def manifest(app):
     return result
 
 
+def tag_family(app, meta):
+    """Our own apps carry SWAppFamily in Info.plist; mirror it as a Finder tag (outside the signed contents)."""
+    family = meta.get('SWAppFamily')
+    if not family:
+        return
+    data = plistlib.dumps([f'{family}\n0'], fmt=plistlib.FMT_BINARY)
+    subprocess.run(['xattr', '-wx', 'com.apple.metadata:_kMDItemUserTags', data.hex(), str(app)], check=True)
+
+
 def verify(app):
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True)
 
@@ -47,9 +57,14 @@ def main():
     meta = info(source)
     bundle_id, version, build = meta['CFBundleIdentifier'], str(meta['CFBundleShortVersionString']), str(meta['CFBundleVersion'])
     verify(source)
+    if os.environ.get('NO_DEPLOY') == '1':
+        print(f'Verified {source}; deployment skipped (NO_DEPLOY=1).')
+        return
     executable = meta['CFBundleExecutable']
     # Match only processes whose command line starts with the executable path (not shells mentioning it).
-    running = subprocess.run(['pgrep', '-f', '^[^ ]*/' + re.escape(source.name) + '/Contents/MacOS/' + re.escape(executable) + '( |$)'], capture_output=True)
+    running = subprocess.run(['pgrep', '-f', '^.*/' + re.escape(source.name) + '/Contents/MacOS/' + re.escape(executable) + '( |$)'], capture_output=True)
+    if running.returncode not in (0, 1):
+        sys.exit('Cannot check running applications; nothing was replaced.')
     if running.returncode == 0:
         sys.exit(f'{source.stem} is running; quit it before deployment.')
     destinations = {'Applications': Path('/Applications') / source.name, 'LatestBuilds': ROOT / 'Latest Builds' / source.name}
@@ -63,16 +78,41 @@ def main():
                 sys.exit(f'Build {build} is older than {current} at {dest}; nothing was replaced.')
     stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
     expected = manifest(source)
-    for label, dest in destinations.items():
-        if dest.exists():
-            backup = ROOT / 'Shared/Backups/Build' / stamp / label / source.name
-            backup.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(dest), str(backup))
-        subprocess.run(['ditto', str(source), str(dest)], check=True)
-        verify(dest)
-        if manifest(dest) != expected:
-            sys.exit(f'Content mismatch at {dest}.')
-        print(f'{dest}  {version} ({build})  signature/content match')
+    # Stage both copies before replacing either destination. Keep backups for rollback.
+    staged, backups, installed = {}, {}, []
+    try:
+        for label, dest in destinations.items():
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            stage = Path(tempfile.mkdtemp(prefix='.sw-app-deploy-', dir=dest.parent))
+            staged[label] = stage / source.name
+            subprocess.run(['ditto', str(source), str(staged[label])], check=True)
+            verify(staged[label])
+            if manifest(staged[label]) != expected:
+                raise RuntimeError(f'Content mismatch while staging {dest}.')
+        for label, dest in destinations.items():
+            if dest.exists():
+                backup = ROOT / 'Shared/Backups/Build' / stamp / label / source.name
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(dest), str(backup))
+                backups[label] = backup
+            staged[label].rename(dest)
+            installed.append(label)
+            verify(dest)
+            if manifest(dest) != expected:
+                raise RuntimeError(f'Content mismatch at {dest}.')
+            tag_family(dest, meta)
+            print(f'{dest}  {version} ({build})  signature/content match')
+    except Exception:
+        for label in reversed(list(destinations)):
+            dest = destinations[label]
+            if label in installed and dest.exists():
+                shutil.rmtree(dest)
+            if label in backups:
+                shutil.move(str(backups[label]), str(dest))
+        raise
+    finally:
+        for path in staged.values():
+            shutil.rmtree(path.parent, ignore_errors=True)
     readme = ROOT / 'Latest Builds/README.md'
     text = readme.read_text()
     row = re.compile(r'^\| \[' + re.escape(source.stem) + r'\]\(' + re.escape(source.name) + r'\) \| [^|]* \| [^|]* \|', re.M)

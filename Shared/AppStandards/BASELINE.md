@@ -58,6 +58,19 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 | --- | --- | --- |
 | B21 | 設定で対象外アプリを指定できる | 他アプリの文字・ファイル・操作に作用する機能では「対象外アプリ」カテゴリを設け、アプリの追加・削除と名前・アイコン付き一覧を用意する。Bundle IDで識別して重複登録を防ぎ、再起動・更新後も保持する。対象外では処理を実行せず、グローバルキーを消費せず元のアプリへ通す。非アクティブパレットは操作対象アプリを判定し、非同期処理は実行直前にも対象を再確認する。除外された理由を画面に表示し、対象外の追加・削除・アプリ切替・設定保持・標準キー操作を実機確認する。外部アプリに作用しない機能は理由付きで適用外とする。 |
 
+## UXの追加項目（2026-10-10）
+
+全16本のUX点検（`Records/UX-AUDIT-20261010.md`）で見つかった抜けと、2026-10-10に共通部品へ入れた仕組みを項目にした。B04・B06・B08・B11・B14の受け入れ条件を具体化したもの。
+
+| ID | 必須仕様 | 受け入れ条件 |
+| --- | --- | --- |
+| B23 | 開き直しと⌘Tab・⌘0 | 起動中にDockのアイコンやFinderから開き直したら、ウインドウが無くても処理中でもメインウインドウを前面に出す（applicationShouldHandleReopen、SwiftUIはWindowGroupの既定）。メニューバー常駐（accessory）アプリはWindowActivationPolicyで、ウインドウを開いている間だけ⌘TabとDockに出し、しまったウインドウだけのときは⌘Tabで選ぶと戻す。通常アプリには入れない（閉じるとDockから消えるため）。「メインウインドウを開く」⌘0はメニューの表記を⌘0のまま⌘1でも実行する（MenuBarPresenceのMainWindowShortcutAlias。アプリが⌘1を使う場合はそちら優先）。 |
+| B24 | 設定ウインドウのふるまい | 大きさを変えられ、最小は設計時の大きさ（contentMinSize、SwiftUIはframe(min…max:.infinity)と`sizingOptions = [.minSize]`）。最後に選んだタブを再起動後も復元する。タブにずれたフォーカス枠を出さない（SettingsSectionで`focusRingType = .none`）。変更はその場で反映し「適用」ボタンを置かない。シートやパネルの設定はEscと⌘Wで閉じられる。タイトルとローカライズの元キーは「設定」（旧「環境設定」をキーにも残さない）。 |
+| B25 | アプリ情報と目印 | 設定の最後に「情報」タブ（AboutSection.swift）を置き、アイコン・名前・バージョン（build）・コピーライト・リンク（解説記事・アプリのまとめ・X）を表示する。Info.plistにSWNoteArticleURL（アプリ専用の記事、まとめと同じなら記事の行は出ない）、NSHumanReadableCopyright「© 2026 swwwitch」、SWAppFamily「swwwitch」を入れる。配置時（deploy_both.py）にSWAppFamilyと同名のFinderタグを付ける。 |
+| B26 | 証明書での署名 | ローカルビルドもアドホックではなくチームの証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可を引き継ぐ。秘密鍵はログインキーチェーンに置く（システムキーチェーンだと署名のたびに管理者認証が出る）。配布はDeveloper ID＋Hardened Runtime＋公証とし、証明書が無いときは別の署名に切り替えず止める。 |
+| B27 | 取消と失敗の伝え方 | パレット・シート・確認ダイアログはEscで閉じる（cancelOperation、`.cancelAction`、確認の取消ボタンにEsc）。ビープだけで終わらせず、見える場所（ウインドウの状態欄・パレット・アラート）に理由を出す。実行できない状況ではメニュー項目を無効にする。 |
+| B28 | ウインドウ位置とアクセシビリティの細目 | 位置の保存が無い初回は中央に出し、復元した位置が画面外なら戻す（SwiftUIのWindowGroupも含め、visibleFrameで判定）。自作描画・画像だけのボタン・ドロップ領域にaccessibilityLabel（`.help`だけにしない）。固定色のtintはダークモードでコントラストを確かめる。アニメーションは「視差効果を減らす」に従う。 |
+
 ## 既存部品の扱い
 
 `Shared/LoginAtLaunch/`、`Shared/Updater/`、各アプリのLocalHelp・Localization・SingleInstanceLaunchを確認して再利用する。コピーがある場合は差分を確認する。共通フォルダにあるという理由だけで最新・ビルド可能と判断しない。
@@ -87,8 +100,10 @@ B18の納品先は次の2か所とし、同じ最終ビルドを両方へ配置�
 
 - [Apple SMAppService mainApp](https://developer.apple.com/documentation/servicemanagement/smappservice/mainapp)：ログイン項目としてのアプリ登録。
 - [Apple Keyboards](https://developer.apple.com/design/human-interface-guidelines/keyboards)：標準キー操作を尊重する設計。
+- [Apple Windows](https://developer.apple.com/design/human-interface-guidelines/windows)・[Settings](https://developer.apple.com/design/human-interface-guidelines/settings)・[The menu bar](https://developer.apple.com/design/human-interface-guidelines/the-menu-bar)・[Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)：B23〜B28の参考。
+- [applicationShouldHandleReopen(_:hasVisibleWindows:)](https://developer.apple.com/documentation/appkit/nsapplicationdelegate/applicationshouldhandlereopen(_:hasvisiblewindows:))：Dockクリック・Finderからの開き直し（⌘Tabでは呼ばれない）。
 
-本書の初期値や21項目すべてをAppleの必須仕様と主張するものではない。このアプリ群で採用する開発方針である。
+本書の初期値や全項目をAppleの必須仕様と主張するものではない。このアプリ群で採用する開発方針である。
 
 アクセシビリティ権限が必要なアプリの設定では、独立したグループに「許可済み／未許可」を文字と状態アイコンで表示する。画面表示時とアプリへ戻ったときにAXIsProcessTrustedで再確認する。状態確認だけでは許可要求を出さず、システム設定へのボタンを用意する。
 
@@ -107,6 +122,10 @@ AppKitのカテゴリ枠はSettingsUI.group、SwiftUIはSettingsSection（Shared
 ## 設定はタブ形式（2026-10-07追加）
 
 MightyEditを基準に、設定は上部の内容別タブで切り替える形式を全アプリで使用する。先頭は「起動・常駐」。機能ホットキー・表示・出力などは必要なカテゴリだけ別タブに置く。権限とアプリ呼び出しホットキーは「起動・常駐」に含める。縦方向に全カテゴリを並べる方式は使用しない。タブ内の関連設定は共通グループ部品でまとめ、長い内容はタブ内でスクロール可能にする。既存の設定値と操作を保持する。
+
+## 終了・再起動ボタン（2026-10-09）
+
+設定の「起動・常駐」タブの末尾に「操作」グループを置き、「（アプリ名）を再起動」「（アプリ名）を終了」のボタンをこの順で並べる。SettingsUI.tabs（AppKit）と SettingsTabs（SwiftUI）が「起動・常駐」の見出しのタブに自動で追加するので、各アプリでは書かない。独自のタブを組むアプリは SettingsUI.quitRestartGroup() を「起動・常駐」の末尾に加える。再起動は終了を確定してからプロセスの終了を待って開き直し、処理中などで終了が取り消された場合は起動しない。設定ウインドウの無いアプリは適用外。
 
 ## 設定の共通ホットキー
 

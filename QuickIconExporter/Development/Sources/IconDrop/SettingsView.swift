@@ -98,7 +98,8 @@ struct SettingsView: View {
             } }.formStyle(.grouped))),
             (StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키"), AnyView(Form { Section(StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키")) {                Text(L("Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。"))
                     .font(.caption)
-            } }.formStyle(.grouped)))
+            } }.formStyle(.grouped))),
+            (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
     }
 

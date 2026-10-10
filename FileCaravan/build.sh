@@ -17,13 +17,15 @@ cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Resources/PrivacyInfo.xcprivacy "$app/Contents/Resources/"
 cp README.md "$app/Contents/Resources/"
 cp Assets/FileCaravan.icns "$app/Contents/Resources/"
-xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon ../Shared/AppStandards/SettingsSection.swift ../Shared/AppStandards/LaunchPresenceSection.swift ../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/StartupWindow.swift ../Shared/AppStandards/HelpDocument.swift Source/LaunchPolicy.swift Source/LoginAtLaunch.swift Source/MoveEngine.swift Source/FolderAccess.swift Source/FolderIcon.swift Source/PathDisplay.swift Source/MenuBarPresence.swift Source/UpdateSupport.swift Source/main.swift -o "$app/Contents/MacOS/FileCaravan"
+xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon ../Shared/AppStandards/SettingsSection.swift ../Shared/AppStandards/LaunchPresenceSection.swift ../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/StartupWindow.swift ../Shared/AppStandards/HelpDocument.swift ../Shared/AppStandards/AboutSection.swift Source/LaunchPolicy.swift Source/LoginAtLaunch.swift Source/MoveEngine.swift Source/FolderAccess.swift Source/FolderIcon.swift Source/PathDisplay.swift Source/MenuBarPresence.swift Source/UpdateSupport.swift Source/main.swift -o "$app/Contents/MacOS/FileCaravan"
 embed_updates "$app"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"
 if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
   codesign --force --sign - --entitlements AppStore/FileCaravan.entitlements "$app"
 else
-  codesign --force --sign - "$app"
+  # Sign local builds with the team certificate (PL9S9PXX96) instead of ad hoc, as in KakkoReplace, so permission grants survive rebuilds.
+  codesign --force --sign "${FILECARAVAN_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}" --timestamp=none "$app"
 fi
 codesign --verify --deep --strict "$app"
 mkdir -p "$output"
@@ -33,3 +35,7 @@ if [[ -d "$output/FileCaravan.app" ]]; then
   mv "$output/FileCaravan.app" "$backup/"
 fi
 ditto "$app" "$output/FileCaravan.app"
+
+if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
+    python3 ../Shared/BuildTools/publish_latest.py "$app"
+fi

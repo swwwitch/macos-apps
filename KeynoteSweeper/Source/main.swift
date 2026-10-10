@@ -167,6 +167,13 @@ import UniformTypeIdentifiers
     func cancel() { sweeper?.cancel(); status = L("cancelling") }
 }
 
+/// Mustard accent. Dark Mode uses a lighter mustard so tinted controls keep contrast (3:1 or more) on the dark surface.
+let appTint = Color(nsColor: NSColor(name: nil) { appearance in
+    appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        ? NSColor(srgbRed: 0.78, green: 0.56, blue: 0.14, alpha: 1)
+        : NSColor(srgbRed: 0.55, green: 0.38, blue: 0.04, alpha: 1)
+})
+
 struct MainView: View {
     @ObservedObject var model: Model
     @State private var targeted = false
@@ -244,7 +251,7 @@ struct MainView: View {
         }.padding(24)
         // The content's own height is the minimum; a fixed minHeight here hid how tall it really is and the rows got clipped.
         .fixedSize(horizontal: false, vertical: true)
-        .frame(minWidth: 520, maxHeight: .infinity, alignment: .top).background(Color(nsColor: AppSurface.color)).tint(Color(red: 0.55, green: 0.38, blue: 0.04))
+        .frame(minWidth: 520, maxHeight: .infinity, alignment: .top).background(Color(nsColor: AppSurface.color)).tint(appTint)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in model.refresh() }
         // The whole window accepts a dropped .key file.
         .onDrop(of: [UTType.fileURL.identifier], isTargeted: $targeted) { providers in
@@ -330,7 +337,7 @@ struct SettingsView: View {
             }
             SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        }))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 680, maxHeight: .infinity)
+        })), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 680, maxHeight: .infinity)
     }
 }
 
@@ -392,6 +399,7 @@ struct SettingsView: View {
         host.sizingOptions = [.minSize]
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
+        if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 520, height: 420)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onQuietProblem = { [weak self] in self?.show() }

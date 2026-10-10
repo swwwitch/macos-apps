@@ -33,7 +33,8 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(helpdoc)
 
 activation = Path(__file__).with_name("WindowActivationPolicy.swift").read_bytes()
-for relative in ['KakkoReplace/Sources']:
+# Menu-bar (accessory) apps only: regular apps keep their Dock icon.
+for relative in ['KakkoReplace/Sources', 'CommandDee/Sources', 'MightyEdit/Source', 'PodiumFlight/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop']:
     target = root / relative / "WindowActivationPolicy.swift"
     if not target.parent.is_dir():
         continue
@@ -41,7 +42,7 @@ for relative in ['KakkoReplace/Sources']:
         target.write_bytes(activation)
 
 about = Path(__file__).with_name("AboutSection.swift").read_bytes()
-for relative in ['KakkoReplace/Sources']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumFlight/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
     target = root / relative / "AboutSection.swift"
     if not target.parent.is_dir():
         continue

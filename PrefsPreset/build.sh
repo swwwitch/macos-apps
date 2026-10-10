@@ -35,7 +35,9 @@ python3 Tests/check-localization.py --app "$app_dir"
 embed_updates "$app_dir"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app_dir"
 xattr -cr "$app_dir"
-codesign --force --deep --sign - "$app_dir"
+# Sign with the team certificate (PL9S9PXX96) instead of ad hoc, as in KakkoReplace, so permission grants survive rebuilds.
+signing_identity="${PREFSPRESET_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+codesign --force --sign "$signing_identity" --timestamp=none "$app_dir"
 # Never deploy an app whose signature does not verify.
 codesign --verify --deep --strict "$app_dir"
 if [[ "${NO_DEPLOY:-0}" != 1 ]]; then

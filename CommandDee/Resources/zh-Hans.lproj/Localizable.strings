@@ -54,6 +54,8 @@
 "settings.skipFolderPlaceholder" = "留空时使用直接上级文件夹的名称";
 "settings.resetSkipFolder" = "恢复为登录用户名";
 "settings.resetShortcuts" = "恢复默认快捷键";
+"settings.shortcutInvalid" = "无法使用此键。请与 ⌘、⌃ 或 ⌥ 组合使用（按 Esc 取消）。";
+"settings.shortcutDuplicate" = "“%@”已分配给其他操作。";
 "settings.recordShortcut" = "按下快捷键（按 Esc 取消）";
 "shortcut.unset" = "未设置";
 "shortcut.version" = "复制并递增版本号";

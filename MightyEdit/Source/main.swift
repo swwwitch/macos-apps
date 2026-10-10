@@ -46,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let target = NSTextField(labelWithString: "")
     var timer: Timer?
     var busy = false
+    var pendingTransforms: [(tag: Int, pid: pid_t)] = []
     var shortcuts: GlobalShortcuts?
     var paletteShortcut: PaletteShortcut?
     var wasTrusted: Bool?
@@ -62,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         } }
         DispatchQueue.main.async { LocalHelp.shared.install() }
         NSApp.setActivationPolicy(.accessory)
+        WindowActivationPolicy.install()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.image = NSImage(systemSymbolName: "textformat", accessibilityDescription: "MightyEdit")
         let menu = NSMenu()
@@ -287,7 +289,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         target.textColor = .secondaryLabelColor
         column.addArrangedSubview(target)
         let symbols = ["arrow.turn.up.left", "list.number", "list.bullet", "text.alignleft", "text.badge.minus", "1.circle", "a.square", "plus.circle", "minus.circle", "line.3.horizontal.decrease", "arrow.up.and.down.text.horizontal", "plus.circle", "minus.circle", "number", "a.square", "arrow.down.right.and.arrow.up.left", "arrow.triangle.merge", "textformat.abc", "textformat", "arrow.left.and.right.righttriangle.left.righttriangle.right", "arrow.left.and.right", "sum", "textformat.size.larger", "textformat.size.smaller", "textformat.abc", "textformat"]
-        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc"]
+        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc"]
         let groups = PaletteConfiguration.groups
         for (title, operations) in groups {
             var buttons: [PaletteButton] = []
@@ -327,6 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     case .joinAll: button.toolTip = L("tip.joinAll")
                     case .beautify: button.toolTip = L("tip.beautify")
                     case .minify: button.toolTip = L("tip.minify")
+                    case .minifyBody: button.toolTip = L("tip.minifyBody")
                     case .removeBlankLines: button.toolTip = L("tip.removeBlankLines")
                     case .spaceLines: button.toolTip = L("tip.spaceLines")
                     case .addPeriod: button.toolTip = L("tip.addPeriod")
@@ -412,6 +415,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         paletteShortcut = PaletteShortcut { [weak self] pid in self?.presentPalette(targetPID: pid) }
         shortcuts?.additionalPreferenceTabs = [(SettingsUI.launchTitle, paletteShortcut!.settingsView())] + settingsViews.tabs()
             + [(L("tab.autoShow"), autoShow.makeSettingsView()), (ExcludedApps.title, ExcludedApps.shared.settingsView())]
+            + [(L("tab.options"), MainActor.assumeIsolated { SettingsUI.page(SettingsSync.shared.settingsView()) })]
+            + [(AboutSection.title, MainActor.assumeIsolated { AboutSection.view() })]
+        SettingsSync.shared.onImport = { [weak self] in
+            guard let self else { return }
+            self.profilePicker.selectItem(at: PaletteProfile.allCases.firstIndex(of: .saved)!)
+            self.setDisplay(PaletteDisplayMode.saved)
+            self.settingsViews.editProfile(.saved)
+            self.settingsViews.onChange?()
+            self.paletteShortcut?.reloadFromDefaults()
+        }
+        SettingsSync.shared.start()
         // Excluded apps and MightyEdit itself get their keystrokes back (B21).
         shortcuts?.hotkeysBlocked = { ExcludedApps.shared.hotkeysBlocked }
         // Palette-only hotkeys follow the palette's visibility (show, hide, close, app hide).
@@ -762,8 +776,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func selectReplacement(in element: AXUIElement, application: AXUIElement,
                                    pid: pid_t, original: CFRange, replacement: String,
-                                   expectedDocument: String?, attempts: Int = 8) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                                   expectedDocument: String?, attempts: Int = 25) {
+        // Retry every 30 ms (about 0.75 s in total) so a following hotkey can continue quickly.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
             guard let self, NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
                   !ExcludedApps.shared.isExcluded(pid: pid) else { return }
             var focused: CFTypeRef?
@@ -815,7 +830,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc func transform(_ sender: NSButton) {
-        guard !busy, let operation = TextTransform(rawValue: sender.tag) else { return }
+        guard let operation = TextTransform(rawValue: sender.tag) else { return }
+        if busy {
+            if let app = NSWorkspace.shared.frontmostApplication,
+               app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
+               !ExcludedApps.shared.isExcluded(app), pendingTransforms.count < 8 {
+                pendingTransforms.append((sender.tag, app.processIdentifier))
+            }
+            return
+        }
         guard AXIsProcessTrusted() else { updateTarget(); return }
         guard let app = NSWorkspace.shared.frontmostApplication, app.processIdentifier != ProcessInfo.processInfo.processIdentifier else {
             message.stringValue = L("msg.selectInApp"); return
@@ -913,7 +936,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         message.stringValue = L("msg.pasteSent", app.localizedName ?? L("target.appLong"))
         selectReplacement(in: element, application: application, pid: app.processIdentifier,
                           original: range, replacement: result, expectedDocument: expectedDocument)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+        // Finish as soon as the target shows the pasted text (polled every 20 ms); fall back to 1 s
+        // for apps whose document cannot be read back. The clipboard is restored only after that.
+        var inserted = CFRange(location: range.location, length: result.utf16.count)
+        let insertedValue = AXValueCreate(.cfRange, &inserted)
+        let deadline = Date().addingTimeInterval(1)
+        func pasteLanded() -> Bool {
+            var actual: CFTypeRef?
+            if let expectedDocument {
+                return AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &actual) == .success
+                    && (actual as? String) == expectedDocument
+            }
+            guard let insertedValue else { return false }
+            return AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
+                                                              insertedValue, &actual) == .success && (actual as? String) == result
+        }
+        // A queued hotkey continues on the reselected result, so wait for that selection too.
+        func resultSelected() -> Bool {
+            var current: CFTypeRef?
+            var selection = CFRange()
+            return AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &current) == .success
+                && current.map { CFGetTypeID($0) == AXValueGetTypeID() && AXValueGetValue(unsafeBitCast($0, to: AXValue.self), .cfRange, &selection) } == true
+                && selection.location == inserted.location && selection.length == inserted.length
+        }
+        func waitForPaste(_ finish: @escaping () -> Void) {
+            // A short grace period lets the app read the clipboard even after its text already matches.
+            if Date() >= deadline || (pasteLanded() && (pendingTransforms.isEmpty || resultSelected())) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + (Date() >= deadline ? 0 : 0.05), execute: finish)
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) { waitForPaste(finish) }
+            }
+        }
+        waitForPaste { [weak self] in
             if pasteboard.changeCount == change {
                 pasteboard.clearContents()
                 let items = previous.map { saved -> NSPasteboardItem in
@@ -923,7 +977,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 }
                 if !items.isEmpty { pasteboard.writeObjects(items) }
             }
-            self?.busy = false
+            guard let self else { return }
+            self.busy = false
+            guard !self.pendingTransforms.isEmpty else { return }
+            let next = self.pendingTransforms.removeFirst()
+            var currentFocus: CFTypeRef?
+            var currentText: CFTypeRef?
+            var currentRange: CFTypeRef?
+            var selection = CFRange()
+            guard next.pid == app.processIdentifier,
+                  NSWorkspace.shared.frontmostApplication?.processIdentifier == next.pid,
+                  !ExcludedApps.shared.isExcluded(pid: next.pid),
+                  AXUIElementCopyAttributeValue(application, kAXFocusedUIElementAttribute as CFString, &currentFocus) == .success,
+                  let currentFocus, CFEqual(currentFocus, element),
+                  AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &currentText) == .success,
+                  AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &currentRange) == .success,
+                  let currentRange, CFGetTypeID(currentRange) == AXValueGetTypeID(),
+                  AXValueGetValue(unsafeBitCast(currentRange, to: AXValue.self), .cfRange, &selection),
+                  ContinuationSelection.matches(text: currentText as? String, location: selection.location,
+                                                length: selection.length, expected: result, start: range.location) else {
+                self.pendingTransforms.removeAll()
+                return
+            }
+            let queued = NSButton(); queued.tag = next.tag
+            self.transform(queued)
+            // A no-op or failed continuation must not leave actions for a later selection.
+            if !self.busy { self.pendingTransforms.removeAll() }
         }
     }
 }

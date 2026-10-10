@@ -25,12 +25,20 @@ extension ConversionOptions {
         if let path = d.string(forKey:"photoshopPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { photoshopApp = URL(fileURLWithPath:path) }
         if let path = d.string(forKey:"indesignPath"), !path.isEmpty, FileManager.default.fileExists(atPath:path) { indesignApp = URL(fileURLWithPath:path) }
         indesignPreset = d.string(forKey:"inddPDFPreset") ?? ""
-        csvDelimiter = ["tab":"\t","xlsx":"xlsx"][d.string(forKey:"csvDelimiter") ?? ""] ?? ","
+        csvDelimiter = d.string(forKey:"csvDelimiter") == "tab" ? "\t" : ","
+        xlsxRowsPerSheet = d.bool(forKey:"xlsxSplit") ? XLSXOptionsView.clamp(d.object(forKey:"xlsxSplitRows") as? Int ?? 100) : 0
         utf16.bom = d.object(forKey:"utf16BOM") as? Bool ?? true
         utf16.bigEndian = d.string(forKey:"utf16ByteOrder") == "big"
         utf16.source = d.string(forKey:"utf16Source").flatMap { id in TextEncodingConverter.sourceEncodings.contains { $0.id == id } ? id : nil } ?? "auto"
         utf16.lineEnding = ["keep","crlf","lf"].contains(d.string(forKey:"utf16LineEnding") ?? "") ? d.string(forKey:"utf16LineEnding")! : "keep"
         utf16.composeKana = d.object(forKey:"utf16ComposeKana") as? Bool ?? true
+        fileName.replacement = d.string(forKey:"filenameReplacement") == "underscore" ? "underscore" : "fullwidth"
+        fileName.spaces = ["keep","underscore","hyphen"].contains(d.string(forKey:"filenameSpaces") ?? "") ? d.string(forKey:"filenameSpaces")! : "keep"
+        fileName.normalize = d.object(forKey:"filenameNormalize") as? Bool ?? true
+        fileName.renameOriginal = d.bool(forKey:"filenameRename")
+        fileName.leadingDot = ["keep","underscore","remove"].contains(d.string(forKey:"filenameLeadingDot") ?? "") ? d.string(forKey:"filenameLeadingDot")! : "keep"
+        fileName.legacy = d.bool(forKey:"filenameLegacy")
+        fileName.maxLength = d.bool(forKey:"filenameLimit") ? FileNameOptionsView.clamp(d.object(forKey:"filenameLimitLength") as? Int ?? 100) : 0
     }
 }
 
@@ -203,8 +211,27 @@ struct CSVOptionsView: View {
     @AppStorage("csvDelimiter") var delimiter = "comma"
     var body: some View {
         VStack(alignment:.leading,spacing:8) {
-            Picker(L("csvDelimiter"),selection:$delimiter) { Text(L("csvComma")).tag("comma"); Text(L("csvTab")).tag("tab"); Text(L("csvXLSX")).tag("xlsx") }.pickerStyle(.radioGroup)
+            Picker(L("csvDelimiter"),selection:$delimiter) { Text(L("csvComma")).tag("comma"); Text(L("csvTab")).tag("tab") }.pickerStyle(.radioGroup)
             Text(L("csvHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+        }
+        // 0.9.1 kept Excel here; it is its own output format now.
+        .onAppear { if delimiter == "xlsx" { delimiter = "comma" } }
+    }
+}
+
+struct XLSXOptionsView: View {
+    @AppStorage("xlsxSplit") var split = false
+    @AppStorage("xlsxSplitRows") var rows = 100
+    /// Excel holds 1,048,576 rows per sheet, one of them the header.
+    static func clamp(_ value: Int) -> Int { min(max(value, 1), 1_048_575) }
+    var body: some View {
+        VStack(alignment:.leading,spacing:8) {
+            HStack(spacing:6) {
+                Toggle(L("xlsxSplit"),isOn:$split)
+                TextField("",value:Binding(get:{ rows },set:{ rows = Self.clamp($0) }),format:.number).frame(width:64).multilineTextAlignment(.trailing).disabled(!split).accessibilityLabel(L("xlsxSplitRows"))
+                Text(L("xlsxSplitRows")).foregroundColor(split ? .primary : .secondary)
+            }
+            Text(L("xlsxHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
         }
     }
 }
@@ -225,6 +252,34 @@ struct UTF16OptionsView: View {
             }
             Toggle(L("utf16ComposeKana"),isOn:$composeKana).help(L("utf16ComposeKanaHelp"))
             Text(L("utf16Hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+        }
+    }
+}
+
+struct FileNameOptionsView: View {
+    @AppStorage("filenameRename") var rename = false
+    @AppStorage("filenameReplacement") var replacement = "fullwidth"
+    @AppStorage("filenameSpaces") var spaces = "keep"
+    @AppStorage("filenameLeadingDot") var leadingDot = "keep"
+    @AppStorage("filenameNormalize") var normalize = true
+    @AppStorage("filenameLegacy") var legacy = false
+    @AppStorage("filenameLimit") var limit = false
+    @AppStorage("filenameLimitLength") var length = 100
+    static func clamp(_ value: Int) -> Int { min(max(value, FileNameConverter.maxLengthRange.lowerBound), FileNameConverter.maxLengthRange.upperBound) }
+    var body: some View {
+        VStack(alignment:.leading,spacing:8) {
+            Picker(L("filenameMethod"),selection:$rename) { Text(L("filenameCopy")).tag(false); Text(L("filenameRename")).tag(true) }.pickerStyle(.radioGroup)
+            Picker(L("filenameReplacement"),selection:$replacement) { Text(L("filenameFullwidth")).tag("fullwidth"); Text(L("filenameUnderscore")).tag("underscore") }.pickerStyle(.radioGroup)
+            Picker(L("filenameSpaces"),selection:$spaces) { Text(L("filenameSpacesKeep")).tag("keep"); Text(L("filenameSpacesUnderscore")).tag("underscore"); Text(L("filenameSpacesHyphen")).tag("hyphen") }.pickerStyle(.radioGroup)
+            Picker(L("filenameLeadingDot"),selection:$leadingDot) { Text(L("filenameSpacesKeep")).tag("keep"); Text(L("filenameSpacesUnderscore")).tag("underscore"); Text(L("filenameDotRemove")).tag("remove") }.pickerStyle(.radioGroup).help(L("filenameLeadingDotHelp"))
+            Toggle(L("filenameNormalize"),isOn:$normalize).help(L("filenameNormalizeHelp"))
+            Toggle(L("filenameLegacy"),isOn:$legacy).help(L("filenameLegacyHelp"))
+            HStack(spacing:6) {
+                Toggle(L("filenameLimit"),isOn:$limit)
+                TextField("",value:Binding(get:{ length },set:{ length = Self.clamp($0) }),format:.number).frame(width:52).multilineTextAlignment(.trailing).disabled(!limit).accessibilityLabel(L("filenameLimitLength"))
+                Text(L("filenameLimitLength")).foregroundColor(limit ? .primary : .secondary)
+            }.help(L("filenameLimitHelp"))
+            Text(L("filenameHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
         }
     }
 }
@@ -267,6 +322,7 @@ struct InDesignSettingsView: View {
     @AppStorage("inddPDFPresetList") var presetList = ""
     @State private var loading = false
     @State private var message = ""
+    @State private var denied = false
     private let installations = InDesignBridge.installations()
     var body: some View {
         VStack(alignment:.leading,spacing:12) {
@@ -282,6 +338,7 @@ struct InDesignSettingsView: View {
                 HStack {
                     Button(L("inddLoadPresets")) { loadPresets() }.disabled(loading)
                     if loading { ProgressView().controlSize(.small) }
+                    if denied { Button(L("permOpen")) { KeynoteBridge.openAutomationSettings() } }
                 }
                 Text(message.isEmpty ? L("inddLoadPresetsHint") : message).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
             }
@@ -295,9 +352,10 @@ struct InDesignSettingsView: View {
             let result = Result { try InDesignBridge.presets(in:app) }
             DispatchQueue.main.async {
                 loading = false
+                denied = false
                 switch result {
                 case .success(let names): presetList = names.joined(separator:"\n"); message = String(format:L("aiPresetsLoaded"), names.count)
-                case .failure(let error): message = error.localizedDescription
+                case .failure(let error): message = error.localizedDescription; denied = IllustratorBridge.isAutomationDenied(error)
                 }
             }
         }

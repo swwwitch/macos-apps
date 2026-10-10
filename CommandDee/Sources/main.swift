@@ -18,6 +18,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private var localKeys: Any?
     private var shortcuts = Shortcut.load()
     private var shortcutButtons: [NSButton] = []
+    private let shortcutMessage: NSTextField = {
+        let label = NSTextField(wrappingLabelWithString: "")
+        label.textColor = .systemRed
+        label.font = .systemFont(ofSize: 12)
+        return label
+    }()
     private var recordingShortcut: Int?
     private var lastResult = L("status.initial")
 
@@ -35,13 +41,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                 help: { [weak self] in self?.showHelp() })
         } }
         NSApp.setActivationPolicy(.accessory)
+        WindowActivationPolicy.install()
         installApplicationMenu()
         localKeys = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
             if let index = self.recordingShortcut {
                 if event.keyCode == 53 { self.recordingShortcut = nil; self.refreshShortcutButtons(); return nil }
-                guard let shortcut = Shortcut.capture(event) else { NSSound.beep(); return nil }
-                guard !self.shortcuts.enumerated().contains(where: { $0.offset != index && $0.element.keyCode == shortcut.keyCode && $0.element.modifiers == shortcut.modifiers }) else { NSSound.beep(); return nil }
+                guard let shortcut = Shortcut.capture(event) else { self.showShortcutMessage(L("settings.shortcutInvalid")); return nil }
+                guard !self.shortcuts.enumerated().contains(where: { $0.offset != index && $0.element.keyCode == shortcut.keyCode && $0.element.modifiers == shortcut.modifiers }) else {
+                    self.showShortcutMessage(L("settings.shortcutDuplicate", shortcut.displayLabel)); return nil
+                }
+                self.shortcutMessage.stringValue = ""
                 self.shortcuts[index] = shortcut
                 Shortcut.save(self.shortcuts)
                 self.recordingShortcut = nil
@@ -234,7 +244,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { busy = false; return }
         do {
             let files = try Browser.selection(from: id)
-            guard !files.isEmpty else { busy = false; lastResult = L("status.noSelection"); NSSound.beep(); return }
+            guard !files.isEmpty else {
+                busy = false
+                lastResult = L("status.noSelection")
+                updateStatus()
+                NSSound.beep()
+                if !NSApp.windows.contains(where: { $0.isVisible && !($0 is NSPanel) }) {
+                    DispatchQueue.main.async { MainActor.assumeIsolated { TransientMessage.show(L("status.noSelection")) } }
+                }
+                return
+            }
             let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameVersion) ? "rename" : "duplicate")
             lastResult = L("progress." + action, files.count)
             updateStatus()
@@ -404,7 +423,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             let helpButton = NSButton(title: L("menu.help"), target: self, action: #selector(showHelp))
             let access = AccessibilityPermissionControl(required: true)
             let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [login, MenuBarPresence.shared.settingsControl()]) }
-            let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, resetKeys]) }
+            let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, shortcutMessage, resetKeys]) }
             let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [orderTitle, orderPopup, title, skippedFolderField, reset]) }
             let accessPage = NSStackView(views: [launchGroup, access, helpButton])
             accessPage.orientation = .vertical; accessPage.alignment = .leading; accessPage.spacing = 16
@@ -412,7 +431,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             launchGroup.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
             MainActor.assumeIsolated { SettingsUI.tabs([
                 (SettingsUI.launchTitle, accessPage), (L("settings.hotkeys"), keyGroup),
-                (L("settings.fileNames"), nameGroup)
+                (L("settings.fileNames"), nameGroup), (AboutSection.title, AboutSection.view())
             ], in: panel.contentView!) }
             panel.center()
             preferencesWindow = panel
@@ -431,7 +450,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     @objc private func recordShortcut(_ sender: NSButton) {
         recordingShortcut = sender.tag
+        shortcutMessage.stringValue = ""
         refreshShortcutButtons()
+    }
+
+    /// Why the pressed key was not accepted, shown under the shortcut list (not just a beep).
+    private func showShortcutMessage(_ text: String) {
+        NSSound.beep()
+        shortcutMessage.stringValue = text
     }
 
     private func refreshShortcutButtons() {
@@ -442,6 +468,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     @objc private func resetShortcuts() {
         recordingShortcut = nil
+        shortcutMessage.stringValue = ""
         shortcuts = Shortcut.defaults
         Shortcut.save(shortcuts)
         refreshShortcutButtons()

@@ -54,6 +54,8 @@
 "settings.skipFolderPlaceholder" = "비워 두면 바로 위 상위 폴더 이름을 사용";
 "settings.resetSkipFolder" = "로그인 사용자 이름으로 재설정";
 "settings.resetShortcuts" = "기본 단축키로 복원";
+"settings.shortcutInvalid" = "이 키는 사용할 수 없습니다. ⌘, ⌃, ⌥ 중 하나와 함께 누르십시오(Esc로 취소).";
+"settings.shortcutDuplicate" = "“%@”은(는) 이미 다른 동작에 지정되어 있습니다.";
 "settings.recordShortcut" = "키 입력(Esc로 취소)";
 "shortcut.unset" = "설정 안 됨";
 "shortcut.version" = "다음 버전으로 복제";

@@ -8,7 +8,7 @@ enum SettingsUI {
     static var shortcutTitle: String { StartupWindow.text("アプリを呼び出すホットキー", "Show app shortcut", "显示应用快捷键", "앱 표시 단축키") }
     /// The quit/restart buttons go at the bottom of the 「起動・常駐」 tab.
     @MainActor static func tabs(_ sections: [(String, NSView)], in container: NSView) {
-        let tabs = NSTabView(frame: container.bounds.insetBy(dx: 12, dy: 12))
+        let tabs = RememberedTabView(frame: container.bounds.insetBy(dx: 12, dy: 12))
         tabs.autoresizingMask = [.width, .height]
         tabs.font = .systemFont(ofSize: 13)
         // The tab view takes the initial focus; its focus ring is drawn offset from the selected tab.
@@ -19,6 +19,7 @@ enum SettingsUI {
             item.view = page(title == launchTitle ? withQuitRestart(view) : view)
             tabs.addTabViewItem(item)
         }
+        tabs.restoreSelection()
         container.addSubview(tabs)
     }
     /// Scrollable tab page with the shared 20pt margins.
@@ -171,7 +172,7 @@ struct SettingsTabs: NSViewRepresentable {
         }
     }
     func makeNSView(context: Context) -> NSTabView {
-        let tabs = NSTabView()
+        let tabs = RememberedTabView()
         tabs.font = .systemFont(ofSize: 13)
         // The tab view takes the initial focus; its focus ring is drawn offset from the selected tab.
         tabs.focusRingType = .none
@@ -181,6 +182,7 @@ struct SettingsTabs: NSViewRepresentable {
             item.view = NSHostingView(rootView: page(content))
             tabs.addTabViewItem(item)
         }
+        tabs.restoreSelection()
         return tabs
     }
     func updateNSView(_ tabs: NSTabView, context: Context) {
@@ -194,5 +196,21 @@ struct SettingsTabs: NSViewRepresentable {
         AnyView(ScrollView {
             content.frame(maxWidth: .infinity, alignment: .leading).padding(20)
         })
+    }
+}
+
+/// Settings tab view that reopens on the tab chosen last, also after a relaunch (B24).
+/// Saving starts only after restoreSelection(), so adding the first tab does not overwrite the saved choice.
+final class RememberedTabView: NSTabView {
+    static let key = "shared.settings.selectedTabIndex"
+    private var remembers = false
+    func restoreSelection() {
+        let saved = UserDefaults.standard.integer(forKey: Self.key)
+        if numberOfTabViewItems > saved { selectTabViewItem(at: saved) }
+        remembers = true
+    }
+    override func selectTabViewItem(_ tabViewItem: NSTabViewItem?) {
+        super.selectTabViewItem(tabViewItem)
+        if remembers, let tabViewItem { UserDefaults.standard.set(indexOfTabViewItem(tabViewItem), forKey: Self.key) }
     }
 }

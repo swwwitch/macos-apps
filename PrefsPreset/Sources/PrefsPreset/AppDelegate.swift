@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func showWindow() {
         if let window = MainWindow.current {
             if window.isMiniaturized { window.deminiaturize(nil) }
+            MainWindow.keepOnScreen(window)
             window.makeKeyAndOrderFront(nil)
         } else {
             MainWindow.open?()

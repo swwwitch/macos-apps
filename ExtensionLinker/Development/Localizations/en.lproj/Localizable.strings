@@ -120,3 +120,5 @@
 "メインウインドウを開く" = "Open Main Window";
 "しまう" = "Minimize";
 "拡大／縮小" = "Zoom";
+"再読み込み" = "Reload";
+"検索をクリア" = "Clear Search";

@@ -104,6 +104,11 @@ enum MainWindow {
     static weak var current: NSWindow?
     /// Captured SwiftUI openWindow action, used when the main window was closed.
     static var open: (() -> Void)?
+    /// Re-centers the window when its restored frame lies on no current screen (e.g. a display was disconnected).
+    static func keepOnScreen(_ window: NSWindow) {
+        guard !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) else { return }
+        window.center()
+    }
 }
 
 private struct MainWindowOpenerCapture: View {
@@ -125,7 +130,12 @@ private struct UtilityWindowChrome: NSViewRepresentable {
         let isMain: Bool
         init(title: String, isMain: Bool) { windowTitle = title; self.isMain = isMain; super.init(frame: .zero) }
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-        override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); apply() }
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            apply()
+            // After SwiftUI restores the saved frame.
+            if isMain, let window { DispatchQueue.main.async { MainWindow.keepOnScreen(window) } }
+        }
         func apply() {
             guard let window else { return }
             if isMain { MainWindow.current = window }

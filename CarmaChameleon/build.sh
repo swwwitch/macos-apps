@@ -11,13 +11,18 @@ cp Info.plist "$app/Contents/Info.plist"
 cp -R Resources/* "$app/Contents/Resources/"
 cp Assets/CarmaChameleon.icns "$app/Contents/Resources/"
 cp Vendor/pandoc "$app/Contents/Resources/bin/"
-osacompile -o "$app/Contents/Resources/Keynote.scpt" ../Shared/KeynoteExport/Keynote.applescript
+python3 ../Shared/KeynoteExport/compile.py "$app/Contents/Resources/Keynote.scpt"
 cp README.md "$app/Contents/Resources/"
-xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit -framework Vision "${UPDATE_SWIFT_FLAGS[@]}" ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument}.swift ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift Source/{MenuBarPresence,UpdateSupport,LaunchPolicy,LoginAtLaunch,IDMLImporter,PDFImporter,IDMLExporter,HTMLFormatting,MarkdownToText,XLSXImporter,AIImporter,IllustratorBridge,Conversion,ImageExport,ImageConversion,ImageOptionsViews,SRTConverter,TextEncodingConverter,EngineManager,PDFEngineManager,main}.swift -o "$app/Contents/MacOS/CarmaChameleon"
+xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit -framework Vision "${UPDATE_SWIFT_FLAGS[@]}" ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift Source/{MenuBarPresence,UpdateSupport,LaunchPolicy,LoginAtLaunch,IDMLImporter,PDFImporter,IDMLExporter,HTMLFormatting,MarkdownToText,XLSXImporter,AIImporter,IllustratorBridge,Conversion,ImageExport,ImageConversion,ImageOptionsViews,SRTConverter,TextEncodingConverter,FileNameConverter,EngineManager,PDFEngineManager,main}.swift -o "$app/Contents/MacOS/CarmaChameleon"
 embed_updates "$app"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"
-codesign --force --sign - "$app/Contents/Resources/bin/pandoc"
-codesign --force --sign - "$app"
+# Local builds sign with the team certificate so the designated requirement stays stable across rebuilds
+# (Accessibility and other permissions carry over). CARMACHAMELEON_SIGNING_IDENTITY overrides it.
+SIGNING_IDENTITY="${CARMACHAMELEON_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+SIGNING_OPTIONS=(--timestamp=none)
+codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$app/Contents/Resources/bin/pandoc"
+codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$app"
 codesign --verify --deep --strict "$app"
 mkdir -p build
 if [[ -d build/CarmaChameleon.app ]]; then
@@ -25,7 +30,8 @@ if [[ -d build/CarmaChameleon.app ]]; then
   mkdir -p "$backup"
   mv build/CarmaChameleon.app "$backup/"
 fi
-ditto "$app" build/CarmaChameleon.app
+ditto --noextattr --norsrc "$app" build/CarmaChameleon.app
+codesign --verify --deep --strict build/CarmaChameleon.app
 
 if [[ "${APP_STORE_BUILD:-0}" != 1 ]]; then
     python3 ../Shared/BuildTools/publish_latest.py "$app"

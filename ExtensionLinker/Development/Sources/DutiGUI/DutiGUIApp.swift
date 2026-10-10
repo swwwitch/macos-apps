@@ -97,7 +97,7 @@ struct ContentView: View {
                 }
                 Spacer()
                 Button { store.refresh() } label: { Image(systemName: "arrow.clockwise") }
-                    .help(L("現在の設定を再読み込み（⌘R）"))
+                    .help(L("現在の設定を再読み込み（⌘R）")).accessibilityLabel(L("再読み込み"))
                 Button { addSheet = true } label: { Image(systemName: "plus") }.help(L("拡張子を追加")).accessibilityLabel(L("拡張子を追加"))
             }.padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 12)
 
@@ -115,7 +115,7 @@ struct ContentView: View {
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                     TextField(L("拡張子・アプリを検索"), text: $store.query).textFieldStyle(.plain)
-                    if !store.query.isEmpty { Button { store.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.secondary) }
+                    if !store.query.isEmpty { Button { store.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.secondary).accessibilityLabel(L("検索をクリア")).help(L("検索をクリア")) }
                 }.padding(9).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
                 Toggle(L("変更のみ"), isOn: $store.onlyChanges).toggleStyle(.checkbox)
             }.padding(.horizontal, 20).padding(.bottom, 8)
@@ -454,6 +454,11 @@ private struct MainWindowMarker: NSViewRepresentable {
             super.viewDidMoveToWindow()
             guard let window else { return }
             MainWindow.window = window
+            // A restored frame can be left on a display that is no longer connected; bring it back on screen.
+            DispatchQueue.main.async { [weak window] in
+                guard let window, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) else { return }
+                window.center()
+            }
             if let observer { NotificationCenter.default.removeObserver(observer) }
             observer = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { [weak window] _ in
                 Task { @MainActor in if MainWindow.window === window { MainWindow.window = nil } }

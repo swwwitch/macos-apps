@@ -50,8 +50,12 @@ cp "$project_dir/../Assets/QuickIconExporter-Mustard.icns" "$contents_dir/Resour
 cp -R "$project_dir/Localizations/"*.lproj "$contents_dir/Resources/"
 python3 "$project_dir/Tests/check-localization.py" --app "$app_dir"
 embed_updates "$app_dir"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app_dir"
 xattr -cr "$app_dir"
-codesign --force --deep --sign - "$app_dir"
+# Sign with the team certificate (PL9S9PXX96) instead of ad hoc, as in KakkoReplace, so permission grants survive rebuilds.
+# build-app-store.sh re-signs the App Store copy with its own identity afterwards.
+signing_identity="${QUICKICONEXPORTER_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+codesign --force --sign "$signing_identity" --timestamp=none "$app_dir"
 # Never package an app whose signature does not verify.
 codesign --verify --deep --strict "$app_dir"
 rm -f "$output_dir/QuickIconExporter.zip"

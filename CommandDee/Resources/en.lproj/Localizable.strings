@@ -54,6 +54,8 @@
 "settings.skipFolderPlaceholder" = "If empty, the name of the immediate parent folder is used";
 "settings.resetSkipFolder" = "Reset to Login User Name";
 "settings.resetShortcuts" = "Restore Default Shortcuts";
+"settings.shortcutInvalid" = "This key can’t be used. Combine it with ⌘, ⌃, or ⌥ (Esc to cancel).";
+"settings.shortcutDuplicate" = "“%@” is already assigned to another action.";
 "settings.recordShortcut" = "Type a shortcut (Esc to cancel)";
 "shortcut.unset" = "Not Set";
 "shortcut.version" = "Duplicate with next version";

@@ -45,6 +45,7 @@ final class MenuBarPresence: NSObject {
         item?.button?.setAccessibilityLabel(name)
         apply()
         installMenuEntry()
+        MainWindowShortcutAlias.install()
         NotificationCenter.default.addObserver(self, selector: #selector(activated), name: NSApplication.didBecomeActiveNotification, object: NSApp)
         let event = NSAppleEventManager.shared().currentAppleEvent
         let login = event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
@@ -89,6 +90,7 @@ final class MenuBarPresence: NSObject {
         alert.addButton(withTitle: text("メニューバーに追加", "Add to Menu Bar", "添加到菜单栏", "메뉴 막대에 추가"))
         alert.addButton(withTitle: text("追加しない", "Do Not Add", "不添加", "추가하지 않음"))
         alert.addButton(withTitle: text("あとで", "Later", "稍后", "나중에"))
+        alert.buttons.last?.keyEquivalent = "\u{1b}"
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()
         if response == .alertFirstButtonReturn { save(true) }
@@ -132,4 +134,69 @@ final class MenuBarPresence: NSObject {
 struct MenuBarPresenceView: NSViewRepresentable {
     func makeNSView(context: Context) -> NSButton { MenuBarPresence.shared.settingsControl() }
     func updateNSView(_ view: NSButton, context: Context) { view.state = MenuBarPresence.shared.enabled ? .on : .off }
+}
+
+/// ⌘1 also runs the menu item shown as ⌘0 (「メインウインドウを開く」); the menu keeps showing ⌘0.
+/// Works with AppKit and SwiftUI menus, and steps aside when one of the app's own menu items uses ⌘1.
+@MainActor
+enum MainWindowShortcutAlias {
+    private static var monitor: Any?
+    static func install() {
+        guard monitor == nil else { return }
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            guard event.modifierFlags.intersection([.command, .shift, .option, .control]) == .command,
+                  event.charactersIgnoringModifiers == "1", let main = NSApp.mainMenu,
+                  item(in: main, key: "1") == nil, let target = item(in: main, key: "0"), let menu = target.menu else { return event }
+            menu.update()
+            guard target.isEnabled else { return event }
+            menu.performActionForItem(at: menu.index(of: target))
+            return nil
+        }
+    }
+    private static func item(in menu: NSMenu, key: String) -> NSMenuItem? {
+        for entry in menu.items {
+            if entry.keyEquivalent == key, entry.keyEquivalentModifierMask.intersection([.command, .shift, .option, .control]) == .command { return entry }
+            if let submenu = entry.submenu, let found = item(in: submenu, key: key) { return found }
+        }
+        return nil
+    }
+}
+
+/// Short message shown near the top of the screen for hotkey actions that have no visible window,
+/// so a failure is never just a beep (B27). VoiceOver announces it too.
+@MainActor
+enum TransientMessage {
+    private static var panel: NSPanel?
+    private static var hide: DispatchWorkItem?
+    static func show(_ text: String) {
+        hide?.cancel()
+        panel?.orderOut(nil)
+        let label = NSTextField(wrappingLabelWithString: text)
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.alignment = .center
+        label.preferredMaxLayoutWidth = 360
+        let size = label.fittingSize
+        let frame = NSRect(x: 0, y: 0, width: ceil(size.width) + 32, height: ceil(size.height) + 20)
+        let background = NSVisualEffectView(frame: frame)
+        background.material = .hudWindow; background.state = .active; background.blendingMode = .behindWindow
+        background.wantsLayer = true; background.layer?.cornerRadius = 10; background.layer?.masksToBounds = true
+        label.frame = NSRect(x: 16, y: 10, width: ceil(size.width), height: ceil(size.height))
+        background.addSubview(label)
+        let window = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        window.contentView = background
+        window.isOpaque = false; window.backgroundColor = .clear; window.hasShadow = true
+        window.level = .statusBar; window.ignoresMouseEvents = true
+        window.collectionBehavior = [.canJoinAllSpaces, .transient, .ignoresCycle]
+        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
+        if let visible = screen?.visibleFrame {
+            window.setFrameOrigin(NSPoint(x: visible.midX - frame.width / 2, y: visible.maxY - frame.height - 60))
+        }
+        window.orderFrontRegardless()
+        panel = window
+        NSAccessibility.post(element: NSApp as Any, notification: .announcementRequested,
+                             userInfo: [.announcement: text, .priority: NSAccessibilityPriorityLevel.high.rawValue])
+        let work = DispatchWorkItem { panel?.orderOut(nil); panel = nil }
+        hide = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
+    }
 }

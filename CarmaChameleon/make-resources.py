@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pathlib import Path
 import json, plistlib
 root=Path(__file__).parent
@@ -210,7 +211,7 @@ xlsxTooLarge|Excelファイルが大きすぎます（読み込むXMLは合計20
 xlsxEmpty|Excelファイルに読み込めるシートがありません。|The Excel file has no sheets with data.|Excel 文件中没有包含数据的工作表。|Excel 파일에 데이터가 있는 시트가 없습니다."""
 rows += """
 formatsTitle|変換形式の表示と順番|Output formats shown and their order|显示的输出格式及顺序|표시할 출력 형식과 순서
-formatsHint|チェックした形式だけをメインウインドウの「変換形式」に表示します。ドラッグまたは↑↓で順番を変えられます。少なくとも1つは表示されます。|Only checked formats appear in the main window. Drag or use ↑↓ to change the order. At least one stays visible.|主窗口只显示勾选的格式。拖动或使用 ↑↓ 更改顺序。至少保留一个。|선택한 형식만 메인 윈도우에 표시됩니다. 드래그하거나 ↑↓로 순서를 바꿀 수 있습니다. 최소 1개는 표시됩니다.
+formatsHint|チェックした形式だけをメインウインドウの「変換形式」に表示します。ドラッグまたは↑↓でカテゴリの中の順番を変えられます。少なくとも1つは表示されます。|Only checked formats appear in the main window. Drag or use ↑↓ to change the order within a category. At least one stays visible.|主窗口只显示勾选的格式。拖动或使用 ↑↓ 在类别内更改顺序。至少保留一个。|선택한 형식만 메인 윈도우에 표시됩니다. 드래그하거나 ↑↓로 카테고리 안에서 순서를 바꿀 수 있습니다. 최소 1개는 표시됩니다.
 moveUp|上へ移動|Move up|上移|위로 이동
 moveDown|下へ移動|Move down|下移|아래로 이동
 resetFormats|初期状態に戻す|Restore defaults|恢复默认|기본값으로 복원
@@ -314,18 +315,21 @@ rasterSize|サイズ|Size|尺寸|크기
 rasterWidth|幅|Width|宽度|너비
 rasterHeight|高さ|Height|高度|높이
 nameGroupFolder|複数のときは元のファイル名のフォルダーにまとめる|Several images: put them in a folder named after the source|多张时放入以源文件名命名的文件夹|여러 장이면 원본 파일 이름의 폴더에 모으기
-csvDelimiter|形式|Format|格式|형식
+csvDelimiter|区切り|Separator|分隔符|구분 문자
 csvComma|カンマ（.csv）|Comma (.csv)|逗号（.csv）|쉼표(.csv)
 csvTab|タブ（.tsv）|Tab (.tsv)|制表符（.tsv）|탭(.tsv)
-csvXLSX|Excel（.xlsx）|Excel (.xlsx)|Excel（.xlsx）|Excel(.xlsx)
+xlsxHint|字幕（.srt）を「番号・時刻・ハンドル・コメント」の表にしたExcelブック（.xlsx）を作ります。見出し行を固定し、番号は数値、時刻は文字列です。シートに分けると、各シートの先頭に見出し行を入れ、シート名は「1-100」「101-200」…のように行の範囲になります。|Turns subtitles (.srt) into an Excel workbook (.xlsx) with a table of number, time, handle and comment, the header row frozen, the number numeric and the time text. Split into sheets repeats the header on each sheet; sheets are named by their row range, such as "1-100" and "101-200".|将字幕（.srt）转为含“编号、时间、昵称、评论”表格的 Excel 工作簿（.xlsx），冻结标题行，编号为数值，时间为文本。分为多个工作表时，每张工作表都有标题行，名称为行范围，如“1-100”“101-200”。|자막(.srt)을 "번호·시각·핸들·코멘트" 표가 든 Excel 통합 문서(.xlsx)로 만듭니다. 머리글 행을 고정하고 번호는 숫자, 시각은 문자열입니다. 시트로 나누면 각 시트 맨 위에 머리글 행을 넣고, 시트 이름은 "1-100", "101-200"처럼 행 범위가 됩니다.
+xlsxSplit|シートに分ける :|Split into sheets:|分为工作表：|시트로 나누기:
+xlsxSplitRows|行ごと|rows each|行一张|행마다
+xlsxInputUnsupported|Excelに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as Excel.|只有字幕（.srt）可以导出为 Excel。|Excel로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
 xlsxWriteFailed|Excelファイルを作成できませんでした。|The Excel file could not be created.|无法创建 Excel 文件。|Excel 파일을 만들 수 없습니다.
 csvHint|字幕（.srt）を「番号・時刻・ハンドル・コメント」の表にします。「ハンドル: コメント」の形の字幕は最初の「: 」で分け、それ以外はコメントだけにします。時刻は開始時刻（時:分:秒）です。|Turns subtitles (.srt) into a table of number, time, handle and comment. Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. The time is the start time (h:m:s).|将字幕（.srt）转为“编号、时间、昵称、评论”表格。“昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。时间为开始时间（时:分:秒）。|자막(.srt)을 "번호·시각·핸들·코멘트" 표로 만듭니다. "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 시각은 시작 시각(시:분:초)입니다.
 srtTime|時刻|Time|时间|시각
 srtHandle|ハンドル|Handle|昵称|핸들
 srtComment|コメント|Comment|评论|코멘트
 srtInvalid|字幕（SRT）として読み込めませんでした。|The file could not be read as subtitles (SRT).|无法作为字幕（SRT）读取。|자막(SRT)으로 읽을 수 없습니다.
-csvInputUnsupported|CSV・Excelに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as CSV or Excel.|只有字幕（.srt）可以导出为 CSV 或 Excel。|CSV·Excel로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
-srtFormatUnsupported|字幕（.srt）はCSV（Excel）・UTF-16テキストにだけ変換できます。|Subtitles (.srt) can be converted only to CSV (Excel) or UTF-16 text.|字幕（.srt）只能转换为 CSV（Excel）或 UTF-16 文本。|자막(.srt)은 CSV(Excel) 또는 UTF-16 텍스트로만 변환할 수 있습니다.
+csvInputUnsupported|CSVに書き出せるのは字幕（.srt）だけです。|Only subtitles (.srt) can be exported as CSV.|只有字幕（.srt）可以导出为 CSV。|CSV로 내보낼 수 있는 것은 자막(.srt)뿐입니다.
+srtFormatUnsupported|字幕（.srt）はCSV・Excel・UTF-16テキストにだけ変換できます。|Subtitles (.srt) can be converted only to CSV, Excel or UTF-16 text.|字幕（.srt）只能转换为 CSV、Excel 或 UTF-16 文本。|자막(.srt)은 CSV, Excel, UTF-16 텍스트로만 변환할 수 있습니다.
 utf16Format|UTF-16テキスト|UTF-16 text|UTF-16 文本|UTF-16 텍스트
 utf16Ext|元の拡張子のまま|Same extension|保持原扩展名|원래 확장자 유지
 utf16BOM|BOM|BOM|BOM|BOM
@@ -344,6 +348,34 @@ utf16ComposeKana|濁点・半濁点を結合する|Join voiced sound marks|合�
 utf16ComposeKanaHelp|「か＋゛」のように分かれた濁点・半濁点（macOSで起きやすい）を1文字にします。かな以外は変えません。|Joins kana written with a separate voiced or semi-voiced mark (common on macOS) into one character. Nothing else is changed.|将分开的浊音、半浊音符号（macOS 上常见）与假名合并为一个字符。其他字符不变。|분리된 탁점·반탁점(macOS에서 자주 발생)을 가나와 합쳐 한 글자로 만듭니다. 그 밖의 문자는 바꾸지 않습니다.
 textReadAs|%@として読み込みました。|Read as %@.|已按 %@ 读取。|%@(으)로 읽었습니다.
 utf16InputUnsupported|UTF-16テキストに変換できるのはテキストファイル（.txt・.md・.csv・.srt など）だけです。|Only text files (.txt, .md, .csv, .srt and so on) can be converted to UTF-16 text.|只有文本文件（.txt、.md、.csv、.srt 等）可以转换为 UTF-16 文本。|UTF-16 텍스트로 변환할 수 있는 것은 텍스트 파일(.txt, .md, .csv, .srt 등)뿐입니다.
+filenameFormat|ファイル名のみ|File name only|仅文件名|파일 이름만
+filenameReplacement|使えない文字|Invalid characters|不可用字符|사용할 수 없는 문자
+filenameFullwidth|全角にする（＼／：＊？”＜＞｜）|Full-width (＼／：＊？”＜＞｜)|改为全角（＼／：＊？”＜＞｜）|전각으로 변경(＼／：＊？”＜＞｜)
+filenameUnderscore|_ に変更|Change to _|改为 _|_ 로 변경
+filenameSpaces|スペース|Spaces|空格|공백
+filenameSpacesKeep|そのまま|Keep|保持不变|그대로
+filenameSpacesUnderscore|_ に変更|Change to _|改为 _|_ 로 변경
+filenameSpacesHyphen|- に変更|Change to -|改为 -|- 로 변경
+filenameNormalize|Unicode正規化（NFC）|Unicode normalization (NFC)|Unicode 规范化（NFC）|유니코드 정규화(NFC)
+filenameNormalizeHelp|「か＋゛」のように分かれた濁点・半濁点やハングル、アクセント付きの文字（macOSで起きやすい）を1文字にします。神（U+FA19）などのCJK互換漢字は変えません。|Joins characters stored in decomposed form (common on macOS), such as kana with voiced marks, Hangul and accented letters. CJK compatibility ideographs such as 神 (U+FA19) are kept.|将分开存储的字符（macOS 上常见，如带浊音符号的假名、韩文、带重音的字母）合并为一个字符。神（U+FA19）等 CJK 兼容汉字保持不变。|분리되어 저장된 문자(macOS에서 자주 발생, 탁점이 붙은 가나·한글·악센트 문자 등)를 한 글자로 합칩니다. 神(U+FA19) 등 CJK 호환 한자는 바꾸지 않습니다.
+filenameHint|内容はそのままで、MacとWindowsの両方で使える名前にします。フォルダーは中のファイル・フォルダーもまとめて変換します。Windowsで使えない記号を置き換え、制御文字・先頭の空白・末尾の空白とピリオドを取り除き、CON・NULなどの予約名には「_」を付けます。|Gives names that work on both macOS and Windows; the contents are unchanged. Folders are converted with everything inside. Symbols Windows rejects are replaced, control characters, leading spaces and trailing spaces or periods are removed, and reserved names such as CON and NUL get "_".|内容不变，改为在 macOS 和 Windows 上都可用的名称。文件夹会连同其中的文件和文件夹一起转换。替换 Windows 不可用的符号，删除控制字符、开头的空格以及末尾的空格和句点，并为 CON、NUL 等保留名称添加“_”。|내용은 그대로 두고 macOS와 Windows 모두에서 쓸 수 있는 이름으로 바꿉니다. 폴더는 안의 파일·폴더까지 함께 변환합니다. Windows에서 쓸 수 없는 기호를 바꾸고, 제어 문자·앞 공백·끝의 공백과 마침표를 지우며, CON·NUL 등 예약된 이름에는 "_"를 붙입니다.
+filenameAlreadySafe|名前を変える必要がないため、何もしませんでした。|The name needs no change, so nothing was done.|名称无需更改，因此未做任何处理。|이름을 바꿀 필요가 없어 아무것도 하지 않았습니다.
+filenameOnlyInputs|この種類のファイルやフォルダーは「ファイル名のみ」にだけ変換できます。|Files of this kind and folders can only be converted with "File name only".|此类文件和文件夹只能使用“仅文件名”转换。|이 종류의 파일과 폴더는 "파일 이름만"으로만 변환할 수 있습니다.
+filenameMethod|処理|Method|处理方式|처리 방식
+filenameCopy|コピーを作成|Make a copy|创建副本|사본 만들기
+filenameRename|元のファイルの名前を変更|Rename the original|重命名原文件|원본 이름 변경
+filenameLeadingDot|先頭の「.」|Leading "."|开头的“.”|맨 앞의 "."
+filenameDotRemove|取り除く|Remove|删除|제거
+filenameLeadingDotHelp|「.」で始まる名前はmacOSで非表示になります。.DS_Storeと「._」で始まるファイル（Finderのデータ）は変えません。|Names starting with "." are hidden on macOS. .DS_Store and files starting with "._" (Finder data) are left as they are.|以“.”开头的名称在 macOS 上会被隐藏。.DS_Store 和以“._”开头的文件（Finder 数据）保持不变。|"."으로 시작하는 이름은 macOS에서 숨겨집니다. .DS_Store와 "._"로 시작하는 파일(Finder 데이터)은 바꾸지 않습니다.
+filenameLegacy|機種依存文字・絵文字を置き換える|Replace machine-dependent characters and emoji|替换平台相关字符和表情符号|기종 의존 문자·이모지 바꾸기
+filenameLegacyHelp|①→(1)、㈱→(株)、Ⅰ→I、㍉→ミリ、〜→～・−→－（Windowsの形）などにし、絵文字は取り除きます。古いShift_JISのアプリで「?」になるのを防ぎます。髙・﨑などの漢字は変えません。|① → (1), ㈱ → (株), Ⅰ → I, ㍉ → ミリ, 〜 → ～ and − → － (the Windows forms) and so on; emoji are removed. This keeps old Shift_JIS applications from showing "?". Kanji such as 髙 and 﨑 are kept.|① → (1)、㈱ → (株)、Ⅰ → I、㍉ → ミリ、〜 → ～、− → －（Windows 的形式）等，并删除表情符号。可防止旧的 Shift_JIS 应用显示为“?”。髙、﨑 等汉字保持不变。|① → (1), ㈱ → (株), Ⅰ → I, ㍉ → ミリ, 〜 → ～, − → －(Windows 형식) 등으로 바꾸고 이모지는 지웁니다. 오래된 Shift_JIS 앱에서 "?"로 표시되는 것을 막습니다. 髙, 﨑 등의 한자는 바꾸지 않습니다.
+filenameLimit|名前を|Limit names to|名称限制为|이름을
+filenameLimitLength|文字までにする|characters|个字符以内|자 이내로
+filenameLimitHelp|拡張子を残して名前を切り詰めます（10〜255文字）。Windowsでは置く場所を含めたパスが260文字を超えると扱えないことがあります。|Cuts names, keeping the extension (10–255 characters). Windows may not handle paths over 260 characters, including where they are placed.|保留扩展名截短名称（10–255 个字符）。在 Windows 上，包括存放位置在内的路径超过 260 个字符时可能无法处理。|확장자를 남기고 이름을 줄입니다(10~255자). Windows에서는 놓는 위치를 포함한 경로가 260자를 넘으면 다루지 못할 수 있습니다.
+filenameShortened|%ld件の名前を短くしました。|Shortened %ld names.|已缩短 %ld 个名称。|이름 %ld개를 줄였습니다.
+filenameLongPath|中のパスが最長%ld文字あります。Windowsでは置く場所を含めて260文字を超えると扱えないことがあります。|The longest path inside is %ld characters. Windows may not handle paths over 260 characters, including where they are placed.|内部最长路径为 %ld 个字符。在 Windows 上，包括存放位置在内超过 260 个字符时可能无法处理。|안의 가장 긴 경로가 %ld자입니다. Windows에서는 놓는 위치를 포함해 260자를 넘으면 다루지 못할 수 있습니다.
+filenameRenameInPlace|元のファイル・フォルダーの名前を、その場で変更します。|Originals are renamed where they are.|在原位置重命名原文件和文件夹。|원본 파일·폴더의 이름을 그 자리에서 바꿉니다.
+filenameRenameWarning|元のファイルの名前が変わります（内容は変えません）。同名ファイルには連番を付けます。|The originals are renamed (contents unchanged). Existing names get a number.|原文件将被重命名（内容不变）。同名文件会添加编号。|원본 파일의 이름이 바뀝니다(내용은 바꾸지 않음). 같은 이름의 파일에는 번호를 붙입니다.
 textDecodeFailed|テキストを読み込めませんでした。「入力の文字コード」を指定してください。|The text could not be read. Choose the input encoding.|无法读取文本。请指定“输入编码”。|텍스트를 읽을 수 없습니다. "입력 문자 코드"를 지정하세요.
 documentFormatUnsupported|.psd・.indd・画像ファイルは、PDF・ラスター画像にだけ変換できます。|.psd, .indd and image files can be converted only to PDF or a raster image.|.psd、.indd 和图像文件只能转换为 PDF 或位图图像。|.psd, .indd, 이미지 파일은 PDF 또는 래스터 이미지로만 변환할 수 있습니다.
 pdfCombineImages|画像を1つのPDFにまとめる|Combine images into one PDF|将图像合并为一个 PDF|이미지를 하나의 PDF로 합치기
@@ -373,6 +405,6 @@ from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
 for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 导出，在用 Photoshop 转换 .psd 时让 Photoshop 导出，在转换 .indd 时让 InDesign 导出。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.9.1',CFBundleVersion='31',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.11.0',CFBundleVersion='36',SWNoteArticleURL='https://note.com/swwwitch/m/m057948d2fbeb',SWAppFamily='swwwitch',NSHumanReadableCopyright='© 2026 swwwitch',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml','indd','srt']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

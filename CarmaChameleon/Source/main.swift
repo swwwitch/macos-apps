@@ -132,7 +132,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
                 catch is CancellationError { break }
                 catch {
                     errors.append(input.lastPathComponent + ": " + error.localizedDescription)
-                    if (error as? KeynoteError) == .automationDenied { denied = true; break }  // Every remaining file would fail the same way.
+                    if (error as? KeynoteError) == .automationDenied || IllustratorBridge.isAutomationDenied(error) { denied = true; break }  // Every remaining file would fail the same way.
                 }
                 DispatchQueue.main.async { self.completed = index + 1 }
             }
@@ -205,6 +205,13 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     func reset() { order = OutputFormat.all.map(\.id); hidden = Self.defaultHidden }
 }
 
+/// Mustard accent. Dark Mode uses a lighter mustard so tinted controls keep contrast (3:1 or more) on the dark surface.
+let appTint = Color(nsColor: NSColor(name: nil) { appearance in
+    appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        ? NSColor(srgbRed: 0.78, green: 0.56, blue: 0.14, alpha: 1)
+        : NSColor(srgbRed: 0.55, green: 0.38, blue: 0.04, alpha: 1)
+})
+
 struct MainView: View {
     @ObservedObject var model: Model
     @ObservedObject var formats = FormatPreferences.shared
@@ -230,6 +237,7 @@ struct MainView: View {
                         Text(L("inputHint")).font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center)
                         Button(L("chooseFiles")) { model.chooseFiles() }
                     }.frame(maxWidth:.infinity).frame(height:155)
+                    .accessibilityElement(children:.contain).accessibilityLabel(L("drop") + " " + L("inputHint"))
                     .background(Color(nsColor:.textBackgroundColor)).cornerRadius(10)
                     .overlay(RoundedRectangle(cornerRadius:10).strokeBorder(targeted ? Color.accentColor : Color.gray.opacity(0.35),style:StrokeStyle(lineWidth:1.5,dash:[6,4])))
                     .onDrop(of:[UTType.fileURL.identifier],isTargeted:$targeted) { providers in
@@ -389,7 +397,7 @@ struct MainView: View {
         }.onReceive(pdfManager.$version) { _ in
             model.pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
         }.onReceive(FormatPreferences.shared.$hidden) { _ in DispatchQueue.main.async { model.ensureVisibleFormat() } }
-        .padding(24).frame(minWidth:990,minHeight:670).background(Color(nsColor:AppSurface.color)).tint(Color(red:0.55,green:0.38,blue:0.04))
+        .padding(24).frame(minWidth:990,minHeight:670).background(Color(nsColor:AppSurface.color)).tint(appTint)
     }
     func formatRow(_ format: OutputFormat) -> some View {
         let reason = format.unsupportedReason(for:model.files)
@@ -495,6 +503,7 @@ struct SettingsView: View {
                 SettingsSection(L("engine")) { EngineSettingsView() }
                 SettingsSection(L("pdfEngineGroup")) { PDFEngineSettingsView() }
             })),
+            (AboutSection.title, AnyView(AboutView())),
         ]).frame(minWidth:620,maxWidth:.infinity,minHeight:640,maxHeight:.infinity)
     }
 }
@@ -530,6 +539,7 @@ struct IllustratorSettingsView: View {
     @AppStorage("aiPDFPresetList") var presetList = ""
     @State private var loading = false
     @State private var message = ""
+    @State private var denied = false
     private let installations = IllustratorBridge.installations()
     var body: some View {
         VStack(alignment:.leading,spacing:12) {
@@ -545,6 +555,7 @@ struct IllustratorSettingsView: View {
                 HStack {
                     Button(L("aiLoadPresets")) { loadPresets() }.disabled(loading)
                     if loading { ProgressView().controlSize(.small) }
+                    if denied { Button(L("permOpen")) { KeynoteBridge.openAutomationSettings() } }
                 }
                 Text(message.isEmpty ? L("aiLoadPresetsHint") : message).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
             }
@@ -558,9 +569,10 @@ struct IllustratorSettingsView: View {
             let result = Result { try IllustratorBridge.presets(in:app) }
             DispatchQueue.main.async {
                 loading = false
+                denied = false
                 switch result {
                 case .success(let names): presetList = names.joined(separator:"\n"); message = String(format:L("aiPresetsLoaded"), names.count)
-                case .failure(let error): message = error.localizedDescription
+                case .failure(let error): message = error.localizedDescription; denied = IllustratorBridge.isAutomationDenied(error)
                 }
             }
         }
@@ -620,6 +632,7 @@ struct FormatSettingsView: View {
         buildMenus()
         window = NSWindow(contentRect:NSRect(x:0,y:0,width:1080,height:720),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
         window.title = "CarmaChameleon"; window.titleVisibility = .hidden; window.contentView = NSHostingView(rootView:MainView(model:model)); window.delegate = self; window.isReleasedWhenClosed = false
+        if UserDefaults.standard.string(forKey:"NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width:1030,height:710)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         statusItem = NSStatusBar.system.statusItem(withLength:NSStatusItem.squareLength)

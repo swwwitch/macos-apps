@@ -9,7 +9,7 @@ struct ContentView: View {
 
     private enum Status {
         case idle
-        case exporting
+        case exporting(done: Int, total: Int)
         case success([ExportResult])
         case failure(String)
     }
@@ -79,7 +79,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .onDrop(of: [.fileURL], isTargeted: $isTargeted, perform: handleDrop)
-        .animation(.easeOut(duration: 0.16), value: isTargeted)
+        .animation(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? nil : .easeOut(duration: 0.16), value: isTargeted)
     }
 
     @ViewBuilder
@@ -91,9 +91,16 @@ struct ContentView: View {
             Text(L("複数のファイルもまとめて書き出せます"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-        case .exporting:
+        case .exporting(let done, let total):
             Text(L("アイコンを書き出しています…"))
                 .font(.title3.weight(.medium))
+            if total > 1 {
+                ProgressView(value: Double(done), total: Double(total))
+                    .frame(maxWidth: 240)
+                Text("\(done) / \(total)")
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
         case .success(let results):
             Text(results.count == 1 ? L("書き出しました") : L("%@個を書き出しました", String(describing: results.count)))
                 .font(.title3.weight(.semibold))
@@ -153,7 +160,7 @@ struct ContentView: View {
         let capableProviders = providers.filter { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }
         guard !capableProviders.isEmpty else { return false }
 
-        status = .exporting
+        status = .exporting(done: 0, total: capableProviders.count)
         Task {
             var urls: [URL] = []
             for provider in capableProviders {
@@ -163,7 +170,7 @@ struct ContentView: View {
                 }
             }
 
-            export(urls: urls)
+            await export(urls: urls)
         }
         return true
     }
@@ -182,31 +189,37 @@ struct ContentView: View {
         guard let window = NSApp.keyWindow else { return }
         panel.beginSheetModal(for: window) { response in
             guard response == .OK else { return }
-            status = .exporting
-            export(urls: panel.urls)
+            let urls = panel.urls
+            status = .exporting(done: 0, total: urls.count)
+            Task { await export(urls: urls) }
         }
     }
 
-    private func export(urls: [URL]) {
-            do {
-                let rules = settings.filenameRules
-                var results: [ExportResult] = []
-                for url in urls {
+    /// 書き出しは1件ずつバックグラウンドで行い、進捗を画面に反映する。
+    private func export(urls: [URL]) async {
+        let rules = settings.filenameRules
+        let directory = settings.outputDirectory
+        var results: [ExportResult] = []
+        status = .exporting(done: 0, total: urls.count)
+        do {
+            for url in urls {
+                let result = try await Task.detached(priority: .userInitiated) {
                     let isAccessing = url.startAccessingSecurityScopedResource()
                     defer {
                         if isAccessing { url.stopAccessingSecurityScopedResource() }
                     }
-                    results.append(
-                        try IconExporter.exportIcon(for: url, to: settings.outputDirectory, rules: rules)
-                    )
-                }
-                status = results.isEmpty ? .failure(L("ファイルを読み取れませんでした。")) : .success(results)
-                if !results.isEmpty {
-                    settings.reportSuccessfulExport(results)
-                }
-            } catch {
-                status = .failure(error.localizedDescription)
+                    return try IconExporter.exportIcon(for: url, to: directory, rules: rules)
+                }.value
+                results.append(result)
+                status = .exporting(done: results.count, total: urls.count)
             }
+            status = results.isEmpty ? .failure(L("ファイルを読み取れませんでした。")) : .success(results)
+            if !results.isEmpty {
+                settings.reportSuccessfulExport(results)
+            }
+        } catch {
+            status = .failure(error.localizedDescription)
+        }
     }
 
     private func fileURL(from item: NSSecureCoding) -> URL? {

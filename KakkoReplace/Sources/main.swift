@@ -131,7 +131,11 @@ final class Model: ObservableObject {
         if action == "palette" { (NSApp.delegate as? AppDelegate)?.showPalette() }
         else {
             status = editor.perform(pid: pid, action: action, force: forceWrap, trimSpaces: trimSpaces)
-            if status != L("success") && status != L("unchanged") { NSSound.beep() }
+            if status != L("success") && status != L("unchanged") {
+                NSSound.beep()
+                // Without the palette the reason would only be in the menu-bar menu (B27).
+                if (NSApp.delegate as? AppDelegate)?.palette?.isVisible != true { let message = status; MainActor.assumeIsolated { TransientMessage.show(message) } }
+            }
         }
         let key = CGKeyCode(bindings[action]?.code ?? 0)
         let started = Date()

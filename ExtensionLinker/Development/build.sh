@@ -24,14 +24,16 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>36</string>
-<key>CFBundleShortVersionString</key><string>0.2.22</string>
+<key>CFBundleVersion</key><string>38</string>
+<key>CFBundleShortVersionString</key><string>0.2.24</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSPrincipalClass</key><string>NSApplication</string>
+<key>NSHumanReadableCopyright</key><string>© 2026 swwwitch</string>
+<key>SWAppFamily</key><string>swwwitch</string>
 <key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
 </dict></plist>
 PLIST
@@ -42,7 +44,10 @@ python3 check-localization.py "$APP"
 embed_updates "$APP"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$APP"
 xattr -cr "$APP"
-codesign --force --deep --sign - "$APP"
+# A certificate-backed identity (team PL9S9PXX96) so permission grants follow the app
+# rather than a changing ad-hoc hash (same as KakkoReplace / MightyEdit).
+SIGNING_IDENTITY="${EXTENSIONLINKER_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+codesign --force --deep --sign "$SIGNING_IDENTITY" --timestamp=none "$APP"
 codesign --verify --deep --strict "$APP"
 backup="../Backups/before-help-build-$(date +%Y%m%d-%H%M%S)-$$"
 if [[ -d ../ExtensionLinker.app ]]; then

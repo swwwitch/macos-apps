@@ -12,15 +12,19 @@ bundle="$stage/FolderHopper.app"
 mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
 cp ../Assets/FolderHopper-Mustard.icns "$bundle/Contents/Resources/FolderHopper-Mustard.icns"
 cp Info.plist "$bundle/Contents/Info.plist"
-xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift Source/FolderAccess.swift -module-cache-path "$stage/module-cache" -target arm64-apple-macosx13.0 -swift-version 5 -O -framework AppKit -framework Carbon -framework ServiceManagement -framework UserNotifications Source/Localization.swift Source/LaunchPolicy.swift Source/GlobalShortcut.swift Source/History.swift Source/MoveEngine.swift Source/Browser.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/main.swift -o "$bundle/Contents/MacOS/FolderMover"
+xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift Source/FolderAccess.swift -module-cache-path "$stage/module-cache" -target arm64-apple-macosx13.0 -swift-version 5 -O -framework AppKit -framework Carbon -framework ServiceManagement -framework UserNotifications Source/Localization.swift Source/LaunchPolicy.swift Source/GlobalShortcut.swift Source/History.swift Source/MoveEngine.swift Source/Browser.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/AboutSection.swift Source/main.swift -o "$bundle/Contents/MacOS/FolderMover"
 cp -R Localizations/*.lproj "$bundle/Contents/Resources/"
 python3 check-localization.py "$bundle"
 embed_updates "$bundle"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$bundle"
 xattr -cr "$bundle"
 if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
     codesign --force --sign - --entitlements FolderHopper-AppStore.entitlements "$bundle"
 else
-    codesign --force --sign - "$bundle"
+    # A certificate-backed identity (team PL9S9PXX96) so Accessibility / Automation grants follow the app
+    # rather than a changing ad-hoc hash (same as KakkoReplace / MightyEdit).
+    SIGNING_IDENTITY="${FOLDERHOPPER_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+    codesign --force --sign "$SIGNING_IDENTITY" --timestamp=none "$bundle"
 fi
 codesign --verify --deep --strict "$bundle"
 if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then

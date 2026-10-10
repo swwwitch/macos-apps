@@ -15,12 +15,17 @@ cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Assets/KeynoteSweeper.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices "${UPDATE_SWIFT_FLAGS[@]}" \
-  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift \
+  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Accessibility/AccessibilityPermission.swift ../Shared/Updater/UpdateSupport.swift \
   Source/{Sweeper,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/KeynoteSweeper"
 embed_updates "$app"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"
-codesign --force --sign - "$app"
+# Local builds sign with the team certificate so the designated requirement stays stable across rebuilds
+# (Accessibility and other permissions carry over). KEYNOTESWEEPER_SIGNING_IDENTITY overrides it.
+SIGNING_IDENTITY="${KEYNOTESWEEPER_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+SIGNING_OPTIONS=(--timestamp=none)
+codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$app"
 codesign --verify --deep --strict "$app"
 mkdir -p build
 if [[ -d build/KeynoteSweeper.app ]]; then

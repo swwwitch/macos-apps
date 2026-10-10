@@ -20,7 +20,17 @@ cp Assets/KakkoReplace.icns "$APP/Contents/Resources/"
 embed_updates "$APP"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$APP"
 xattr -cr "$APP"
-codesign --force --sign "${SUPERKAKKOREPLACE_SIGNING_IDENTITY:-${SUPERKAKKOEDIT_SIGNING_IDENTITY:--}}" --timestamp=none "$APP"
+# Same as MightyEdit: a certificate-backed identity (team PL9S9PXX96) so Accessibility grants follow the app
+# rather than a changing ad-hoc hash. KAKKOREPLACE_DISTRIBUTION=developer-id signs for distribution and never falls back.
+SIGNING_IDENTITY="${SUPERKAKKOREPLACE_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
+SIGNING_OPTIONS=(--timestamp=none)
+if [[ "${KAKKOREPLACE_DISTRIBUTION:-local}" == "developer-id" ]]; then
+    SIGNING_IDENTITY=$(security find-identity -v -p codesigning | awk '/"Developer ID Application:.*\(PL9S9PXX96\)"/ {print $2; exit}')
+    [[ -n "$SIGNING_IDENTITY" ]] || { print -u2 "Developer ID Application certificate with private key is required for team PL9S9PXX96."; exit 1; }
+    SIGNING_OPTIONS=(--options runtime --timestamp)
+    [[ -d "$APP/Contents/Frameworks/Sparkle.framework" ]] && codesign --force --deep --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$APP/Contents/Frameworks/Sparkle.framework"
+fi
+codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$APP"
 codesign --verify --deep --strict "$APP"
 if [[ -e KakkoReplace.app ]]; then
     mkdir -p Backups

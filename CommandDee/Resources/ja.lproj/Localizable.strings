@@ -54,6 +54,8 @@
 "settings.skipFolderPlaceholder" = "空欄の場合は、直上の親フォルダ名を使用";
 "settings.resetSkipFolder" = "ログインユーザー名に戻す";
 "settings.resetShortcuts" = "ホットキーを初期値に戻す";
+"settings.shortcutInvalid" = "このキーは使えません。⌘・⌃・⌥のいずれかと組み合わせてください（Escでキャンセル）";
+"settings.shortcutDuplicate" = "「%@」はほかの操作に割り当て済みです";
 "settings.recordShortcut" = "キーを入力（Escでキャンセル）";
 "shortcut.unset" = "未設定";
 "shortcut.version" = "連番で複製";

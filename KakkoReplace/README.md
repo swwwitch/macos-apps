@@ -1,6 +1,6 @@
 # KakkoReplace
 
-macOS 13以降 / Apple Silicon。0.3.19 (build 39)。選択した文字列のカッコを挿入・置換するメニューバーアプリです。
+macOS 13以降 / Apple Silicon。0.3.23 (build 43)。選択した文字列のカッコを挿入・置換するメニューバーアプリです。
 
 ## 起動と使い方
 
@@ -191,3 +191,22 @@ macOS 13以降 / Apple Silicon。0.3.19 (build 39)。選択した文字列のカ
 
 - 「起動・常駐」のアクセシビリティ欄の下に空白が出ていた。部品が高さを180pt固定で申告していたのを、中身の高さで申告するようにした（共通部品 Shared/Accessibility/AccessibilityPermission.swift）。
 - セクション名と部品の見出しで「アクセシビリティ」が二重に出ていたので、部品側の見出しを出さないようにした（showsTitle: false）。
+
+## ⌘1 でもメインウインドウを開く（0.3.20 / build 40、2026-10-10）
+
+- ⌘1 でもメインウインドウを開けるようにした（メニューの表記は ⌘0 のまま）。共通部品 MenuBarPresence の MainWindowShortcutAlias。
+
+## 自作アプリの目印と署名（0.3.21 / build 41、2026-10-10）
+
+- Info.plist に SWAppFamily「swwwitch」を追加（自作アプリの目印）。配置時（Shared/BuildTools/deploy_both.py）に同じ名前の Finder タグを付ける。
+- 署名をアドホックから証明書（チーム PL9S9PXX96）に変更（MightyEdit と同じ）。ビルドし直してもアクセシビリティの許可が引き継がれる。KAKKOREPLACE_DISTRIBUTION=developer-id で Developer ID 署名（Hardened Runtime）。
+
+## ⌘Tab で選んだときにしまったウインドウを戻す（0.3.22 / build 42、2026-10-10）
+
+- 設定などのウインドウをしまった（最小化した）状態で ⌘Tab から KakkoReplace を選ぶと、前面に出ると同時にウインドウを戻すようにした（⌘Tab では Dock クリックのような開き直しの通知が来ないため）。共通部品 WindowActivationPolicy。
+
+## UX点検の反映（0.3.23 / build 43、2026-10-10）
+
+- 設定のタブを再起動後も覚えるようにした（共通部品 SettingsSection の RememberedTabView）。
+- ホットキーで編集できなかったとき、パレットが出ていなければビープに加えて理由を画面上部に短く表示する（共通部品 MenuBarPresence の TransientMessage、VoiceOver でも読み上げ）。
+- メニューバーへの追加の確認で「あとで」を Esc で選べるようにした。

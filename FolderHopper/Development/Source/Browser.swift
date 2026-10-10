@@ -6,7 +6,21 @@ struct BrowserState {
     var files: [URL] = []
     var destinations: [Destination] = []
     var error: String?
+    /// Automation (Apple Events) was refused; the window offers a button to System Settings.
+    var automationDenied = false
 }
+#if APP_STORE
+enum BrowserReader {
+    static func apps() -> [NSRunningApplication] { [] }
+    static func read(_ app: NSRunningApplication) -> BrowserState {
+        BrowserState(id: "opened-files", name: L("受け取ったファイル"))
+    }
+    static func bringDestinationForward(_ destination: Destination, preferredID: String?) -> String? {
+        NSWorkspace.shared.open(destination.url)
+        return nil
+    }
+}
+#else
 enum BrowserReader {
     static func bringDestinationForward(_ destination: Destination, preferredID: String?) -> String? {
         let running = apps()
@@ -92,6 +106,7 @@ enum BrowserReader {
         let result = appleScript.executeAndReturnError(&error)
         if let error {
             let code = error[NSAppleScript.errorNumber] as? Int ?? 0
+            state.automationDenied = code == -1743
             state.error = code == -1743 ? L("%@の操作が許可されていません。システム設定 → プライバシーとセキュリティ → オートメーションを確認してください。", String(describing: name)) : "\(name): \(error[NSAppleScript.errorMessage] ?? error)"
             return state
         }
@@ -120,3 +135,5 @@ enum BrowserReader {
         }.sorted { ($0.bundleIdentifier ?? "") < ($1.bundleIdentifier ?? "") }
     }
 }
+
+#endif

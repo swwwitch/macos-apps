@@ -1,6 +1,6 @@
 # IdBackgroundOff
 
-macOS 13以降 / Apple Silicon向けのネイティブアプリ。InDesignのアプリ内 `Contents/MacOS` に空ファイル `DisableAsyncExports.txt` を配置・削除し、PDFなどの「バックグラウンド書き出し／保存」をオフ／元に戻します。
+macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブアプリ。InDesignのアプリ内 `Contents/MacOS` に空ファイル `DisableAsyncExports.txt` を配置・削除し、PDFなどの「バックグラウンド書き出し／保存」をオフ／元に戻します。
 
 参考：[InDesignのバックグラウンド処理をOFFにする（note）](https://note.com/dtp_tranist/n/nf94bf905c478)
 
@@ -27,9 +27,22 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。InDesignのア
 
 アプリを使わずに戻すには、InDesignの「パッケージの内容を表示」→ Contents → MacOS の `DisableAsyncExports.txt` を削除します。
 
-このビルドはローカル利用向けのad-hoc署名です。Developer ID署名・公証・更新配信先は未設定です。
+このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。
 
 ## 更新履歴
+
+### 1.0.12（build 13、2026-10-10）
+
+- 自作アプリの目印（SWAppFamily、配置時に Finder タグ）とコピーライトを追加。証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可が引き継がれるようにした。
+
+### 1.0.11（build 12、2026-10-10）
+
+- ⌘1 でもメインウインドウを開けるようにした（メニューの表記は ⌘0 のまま）。
+
+### 1.0.10（build 11）
+
+- Intel（x86_64）とApple Silicon（arm64）を含むUniversal版へ変更。対応OSはmacOS 13以降。
+- Intel実機での動作は未確認。
 
 ### 1.0.9（build 10）
 

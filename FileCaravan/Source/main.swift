@@ -61,7 +61,7 @@ final class Model: ObservableObject {
         guard !plan.items.isEmpty else { busy = false; status = L("empty"); return }
         let alert = NSAlert(); alert.messageText = String(format: L("confirmTitle"), plan.items.count)
         alert.informativeText = plan.source.path + "\n↓\n" + plan.destination.path + "\n\n" + L("confirmDetail")
-        alert.addButton(withTitle: L("move")); alert.addButton(withTitle: L("cancel"))
+        alert.addButton(withTitle: L("move")); alert.addButton(withTitle: L("cancel")).keyEquivalent = "\u{1b}"
         guard alert.runModal() == .alertFirstButtonReturn else { busy = false; status = L("cancelled"); return }
         status = L("moving"); progress.total = plan.items.count
         let token = cancel
@@ -151,7 +151,7 @@ struct ContentView: View {
                 Toggle(L("includeHidden"), isOn: $hidden)
                 Toggle(L("openDestinationAfterMove"), isOn: $openDestinationAfterMove)
                 Spacer()
-                Button { swap(&model.source, &model.destination) } label: { Image(systemName: "arrow.left.arrow.right") }.help(L("swap"))
+                Button { swap(&model.source, &model.destination) } label: { Image(systemName: "arrow.left.arrow.right") }.help(L("swap")).accessibilityLabel(L("swap"))
             }.disabled(model.busy)
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
@@ -191,7 +191,8 @@ struct SettingsView: View {
             (L("privacy"), AnyView(SettingsSection(L("privacy")) {
             Text(L("privacyDetail")).font(.caption).foregroundColor(.secondary)
             Button(L("historyFolder")) { delegate.openHistory() }
-            }))
+            })),
+            (AboutSection.title, AnyView(AboutView()))
         ]).padding(12).frame(minWidth: 620, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 }

@@ -43,7 +43,14 @@ enum IllustratorBridge {
     }
 
     static func error(_ key: String, _ detail: String = "") -> NSError {
-        NSError(domain: "PandocDesk.Illustrator", code: 1, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, comment: "") + detail])
+        // "…Denied" (Automation refused, -1743/-1744) gets its own code so the UI can offer the System Settings button.
+        NSError(domain: "PandocDesk.Illustrator", code: key.hasSuffix("Denied") ? automationDeniedCode : 1, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, comment: "") + detail])
+    }
+    static let automationDeniedCode = 1743
+    /// True when Illustrator, Photoshop or InDesign refused Automation (Apple Events) for this app.
+    static func isAutomationDenied(_ error: Error) -> Bool {
+        let error = error as NSError
+        return error.domain == "PandocDesk.Illustrator" && error.code == automationDeniedCode
     }
 
     /// Runs JSX in the given Illustrator (or Photoshop, with its `terms` ID) with arguments; returns the script's result text.

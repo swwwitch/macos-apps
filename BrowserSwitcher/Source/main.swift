@@ -391,14 +391,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         ])
     }
     @objc func showPreferences() {
-        guard !busy else { NSSound.beep(); return }
+        guard !busy else {
+            // Say why instead of a bare beep: settings wait until the switch finishes.
+            MainActor.assumeIsolated { TransientMessage.show(L("切り替え中は設定を開けません。完了してからお試しください。")) }
+            return
+        }
         if let preferencesWindow = preferencesWindow {
             preferencesWindow.makeKeyAndOrderFront(nil)
             return
         }
         preferenceBrowsers = browsers()
         let panelSize = NSSize(width: 480, height: 465 + 44 + min(2, max(1, preferenceBrowsers.count)) * 44)
-        let panel = NSWindow(contentRect: NSRect(origin: .zero, size: panelSize), styleMask: [.titled, .resizable], backing: .buffered, defer: false)
+        let panel = SettingsSheetWindow(contentRect: NSRect(origin: .zero, size: panelSize), styleMask: [.titled, .resizable], backing: .buffered, defer: false)
+        // Esc closes the sheet like 完了 (the sheet has no close button).
+        panel.onCancel = { [weak self] in self?.closePreferences() }
         // Resizable from the designed size upward; the tab view follows via its autoresizing mask.
         panel.contentMinSize = panelSize
         panel.title = L("設定")
@@ -417,7 +423,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         shortcutRow.spacing = 8
         shortcutModifierButtons = []
         for (index, choice) in modifierChoices.enumerated() {
-            let checkbox = NSButton(checkboxWithTitle: choice.0, target: nil, action: nil)
+            // Each change takes effect at once; invalid combinations only show a message and keep the current hotkey.
+            let checkbox = NSButton(checkboxWithTitle: choice.0, target: self, action: #selector(applyShortcut))
             checkbox.tag = index
             checkbox.state = shortcutModifiers & choice.1 != 0 ? .on : .off
             checkbox.toolTip = ["Control", "Option", "Shift", "Command"][index]
@@ -427,11 +434,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let keyMenu = NSPopUpButton()
         keyMenu.addItems(withTitles: shortcutKeys.map { $0.0 })
         keyMenu.selectItem(at: shortcutKeys.firstIndex { $0.1 == shortcutKey } ?? 16)
+        keyMenu.target = self
+        keyMenu.action = #selector(applyShortcut)
         shortcutKeyMenu = keyMenu
         shortcutRow.addArrangedSubview(keyMenu)
-        let apply = NSButton(title: L("適用"), target: self, action: #selector(applyShortcut))
-        apply.bezelStyle = .rounded
-        shortcutRow.addArrangedSubview(apply)
         launch.addArrangedSubview(shortcutRow)
         let infoRow = NSStackView()
         infoRow.orientation = .horizontal
@@ -473,7 +479,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         list.topAnchor.constraint(equalTo: scroll.contentView.topAnchor).isActive = true
         list.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor).isActive = true
         let browsersGroup = MainActor.assumeIsolated { SettingsUI.group(title.stringValue, [help, scroll]) }
-        scroll.heightAnchor.constraint(equalToConstant: CGFloat(min(2, max(1, preferenceBrowsers.count)) * 44 + 16)).isActive = true
+        // The designed height is the minimum; the list takes whatever height the window adds.
+        scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(min(2, max(1, preferenceBrowsers.count)) * 44 + 16)).isActive = true
+        scroll.setContentHuggingPriority(NSLayoutConstraint.Priority(1), for: .vertical)
+        (browsersGroup.contentView?.subviews.first as? NSStackView)?.distribution = .fill
         // The sheet has no close button, so 完了 sits outside the tabs and is shown on every tab.
         let done = NSButton(title: L("完了"), target: self, action: #selector(closePreferences))
         done.bezelStyle = .rounded
@@ -485,7 +494,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let tabArea = NSView(frame: NSRect(x: 0, y: 52, width: content.bounds.width, height: content.bounds.height - 52))
         tabArea.autoresizingMask = [.width, .height]
         content.addSubview(tabArea)
-        MainActor.assumeIsolated { SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsUI.displayTitle, browsersGroup)], in: tabArea) }
+        MainActor.assumeIsolated { SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsUI.displayTitle, browsersGroup), (AboutSection.title, AboutSection.view())], in: tabArea) }
+        // Let the browsers page fill its tab so the list stretches with the window instead of leaving blank space below.
+        if let document = browsersGroup.superview, let page = document.enclosingScrollView {
+            let fill = document.heightAnchor.constraint(equalTo: page.contentView.heightAnchor)
+            fill.priority = NSLayoutConstraint.Priority(200)
+            fill.isActive = true
+        }
         window.beginSheet(panel)
     }
     @objc func toggleExclusion(_ sender: NSButton) {
@@ -567,6 +582,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
 
     }
+}
+/// Settings sheet that closes with Esc (cancelOperation reaches the window through the responder chain).
+final class SettingsSheetWindow: NSWindow {
+    var onCancel: (() -> Void)?
+    override func cancelOperation(_ sender: Any?) { onCancel?() }
 }
 if CommandLine.arguments.contains("--diagnose") {
     print("Switching: Launch Services native API (no external tools)")

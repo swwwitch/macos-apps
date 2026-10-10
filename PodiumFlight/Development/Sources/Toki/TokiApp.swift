@@ -76,6 +76,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         } }
         DispatchQueue.main.async { LocalHelp.shared.install() }
         NSApp.setActivationPolicy(.accessory)
+        WindowActivationPolicy.install()
         let menu = NSMenu()
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: L("PodiumFlightについて"), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
@@ -224,7 +225,8 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         window.contentMinSize = size
         window.setFrameAutosaveName("TokiUnifiedSettings")
         let restored = window.setFrameUsingName("TokiUnifiedSettings")
-        let invalidFrame = window.frame.width < size.width || window.frame.height < size.height
+        let offScreen = !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) })
+        let invalidFrame = window.frame.width < size.width || window.frame.height < size.height || offScreen
         if !restored || invalidFrame { window.setContentSize(size); window.center() }
         controlsWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
@@ -435,7 +437,8 @@ struct PreferencesView: View {
             (L("アプリ起動"), AnyView(LaunchAppsPreferences())),
             (L("アプリ終了"), AnyView(QuitAppsPreferences())),
             (L("タイマー"), AnyView(TimerPreferences(countdown: countdown))),
-            (L("プリセット"), AnyView(PresetPreferences(settings: settings, countdown: countdown, presets: presets)))
+            (L("プリセット"), AnyView(PresetPreferences(settings: settings, countdown: countdown, presets: presets))),
+            (AboutSection.title, AnyView(AboutView()))
         ]).padding(.horizontal, 12).padding(.bottom, 10)
     }
 }
@@ -538,6 +541,9 @@ struct PresetPreferences: View {
             Spacer(minLength: 0)
             Text(editor.status).font(.caption).foregroundStyle(.secondary)
             Text(settings.message).font(.caption).foregroundStyle(settings.error ? Color.red : Color.secondary)
+            if settings.automationDenied {
+                Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
+            }
             HStack {
                 Button(L("削除")) { presets.remove(editor.draft.id); editor.draft = Preset(); editor.status = L("削除しました。") }
                     .disabled(!presets.items.contains(where: { $0.id == editor.draft.id }))
@@ -587,6 +593,11 @@ final class MacSettings: ObservableObject {
     @Published var dark = false
     @Published var busy = false
     @Published var message = L("選択すると、Macのシステム設定を変更します。")
+    /// System Events automation was refused; the views offer a button to the Automation pane.
+    @Published var automationDenied = false
+    static func openAutomationSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") { NSWorkspace.shared.open(url) }
+    }
     @Published var error = false
 
     private let clockDomain = "com.apple.menuextra.clock" as CFString
@@ -657,6 +668,7 @@ final class MacSettings: ObservableObject {
         guard !busy else { return }
         busy = true
         error = false
+        automationDenied = false
         // A documented System Events scripting property changes the system appearance.
         // No GUI scripting or Accessibility permission is required.
         let source = """
@@ -672,6 +684,7 @@ final class MacSettings: ObservableObject {
         if let details {
             error = true
             let code = details[NSAppleScript.errorNumber] as? Int
+            automationDenied = code == -1743
             if code == -1743 {
                 message = L("外観の変更には、システム設定 → プライバシーとセキュリティ → オートメーションで、PodiumFlightのSystem Events操作を許可してください。")
             } else {
@@ -878,6 +891,9 @@ struct SettingsView: View {
                 .foregroundStyle(settings.error ? Color.red : Color.secondary)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityLabel(settings.message)
+            if settings.automationDenied {
+                Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
+            }
             Spacer(minLength: 0)
             Divider()
             HStack {

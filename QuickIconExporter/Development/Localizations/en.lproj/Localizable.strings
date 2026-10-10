@@ -32,7 +32,6 @@
 "アイコンの画像データを取得できませんでした。" = "Could not retrieve the icon image data.";
 "PNGデータを作成できませんでした。" = "Could not create PNG data.";
 "ファイルを選択…" = "Choose Files…";
-"環境設定" = "Settings";
 "アイコンを書き出す" = "Export Icons";
 "ファイルのアイコンを最大サイズのPNGに" = "Save file icons as full-size PNGs";
 "設定" = "Settings";

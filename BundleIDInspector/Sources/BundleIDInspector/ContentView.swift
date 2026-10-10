@@ -70,7 +70,7 @@ struct ContentView: View {
             store.add(urls)
             return true
         } isTargeted: { isTargeted = $0 }
-        .animation(.easeOut(duration: 0.16), value: isTargeted)
+        .animation(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? nil : .easeOut(duration: 0.16), value: isTargeted)
     }
 
     private func row(_ item: AppInfo) -> some View {

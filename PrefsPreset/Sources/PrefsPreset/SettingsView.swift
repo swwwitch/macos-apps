@@ -16,6 +16,7 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             })),
             (L("マイプリセット"), AnyView(MyPresetSettings())),
+            (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
     }
 }

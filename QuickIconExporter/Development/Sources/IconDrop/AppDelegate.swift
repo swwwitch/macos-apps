@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 help: { [weak self] in LocalHelp.shared.show() })
         } }
         NSApp.setActivationPolicy(.accessory)
+        WindowActivationPolicy.install()
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -51,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Pick the main window explicitly, not Settings, Help or another utility window.
         if let window = MainWindow.current {
             if window.isMiniaturized { window.deminiaturize(nil) }
+            MainWindow.keepOnScreen(window)
             window.makeKeyAndOrderFront(nil)
         } else {
             MainWindow.open?()

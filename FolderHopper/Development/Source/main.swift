@@ -103,8 +103,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     /// 「フォルダを選択…」 in the 指定 section; part of the ←/→ cycle before the favorites.
     weak var chooserButton: FavoriteButton?
     static let chooserTag = -1
-    /// 指定 first, then the favorites, in on-screen order.
-    var selectableButtons: [NSButton] { (chooserButton.map { [$0 as NSButton] } ?? []) + favoriteButtons }
+    /// 「デスクトップ」, to the right of 「フォルダを選択…」 in the same section.
+    weak var desktopButton: FavoriteButton?
+    static let desktopTag = -2
+    /// 指定・デスクトップ first, then the favorites, in on-screen order.
+    var selectableButtons: [NSButton] { [chooserButton, desktopButton].compactMap { $0 } + favoriteButtons }
     var selectedFavoriteIndex: Int?
     var selectedSourceID: String?
     let operationHint = NSTextField(labelWithString: "")
@@ -112,9 +115,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let copies = NSButton(checkboxWithTitle: L("複製"), target: nil, action: nil)
     let summary = NSTextField(labelWithString: "")
     let status = NSTextField(wrappingLabelWithString: "")
+    /// Shown under the status while Finder / Path Finder automation is refused.
+    lazy var automationButton: NSButton = {
+        let button = NSButton(title: L("オートメーションの設定を開く…"), target: self, action: #selector(openAutomationSettings))
+        button.bezelStyle = .rounded; button.isHidden = true
+        return button
+    }()
     let shortenDropbox = NSButton(checkboxWithTitle: L("Dropboxのパスを簡易表示"), target: nil, action: nil)
     let showFavorites = NSButton(checkboxWithTitle: L("お気に入りセクションを表示"), target: nil, action: nil)
-    let showChooser = NSButton(checkboxWithTitle: L("「指定」セクションを表示"), target: nil, action: nil)
+    let showChooser = NSButton(checkboxWithTitle: L("「指定・デスクトップ」セクションを表示"), target: nil, action: nil)
     var preferencesWindow: NSWindow?
     let globalShortcut = GlobalShortcut()
     let shortcutEnabled = NSButton(checkboxWithTitle: L("ホットキーでウインドウを表示"), target: nil, action: nil)
@@ -237,7 +246,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
            BrowserReader.apps().contains(where: { $0.bundleIdentifier == app.bundleIdentifier }) { lastBrowser = app.bundleIdentifier }
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if !busy { requestTransfer() }
+        // Even while processing or with a sheet open, at least bring the window to the front.
+        if busy || window.attachedSheet != nil { presentDestinations() } else { requestTransfer() }
         return true
     }
     func buildUI() {
@@ -325,7 +335,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let hint = operationHint
         operationChanged()
         hint.font = .systemFont(ofSize: 11); hint.textColor = .secondaryLabelColor; root.addArrangedSubview(hint)
-        status.font = .systemFont(ofSize: 12); root.addArrangedSubview(status)
+        status.font = .systemFont(ofSize: 12); root.addArrangedSubview(status); root.addArrangedSubview(automationButton)
         let preferences = NSButton(title: L("設定…"), target: self, action: #selector(showPreferences))
         let footer = NSStackView(views: [NSView(), preferences]); footer.spacing = 12
         root.addArrangedSubview(footer)
@@ -349,6 +359,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             if (event.keyCode == 36 || event.keyCode == 76), self.window.attachedSheet == nil {
                 if self.selectedFavoriteIndex == Self.chooserTag, let chooser = self.chooserButton, chooser.isEnabled {
                     self.chooseDestination(chooser)
+                    return nil
+                }
+                if self.selectedFavoriteIndex == Self.desktopTag, let desktop = self.desktopButton, desktop.isEnabled {
+                    self.moveToDesktop(desktop)
                     return nil
                 }
                 if let index = self.selectedFavoriteIndex, let url = self.favoriteURL(index) {
@@ -382,7 +396,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
                                  styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-            panel.title = L("環境設定")
+            panel.title = L("設定")
             panel.contentMinSize = NSSize(width: 620, height: 560)
             panel.isReleasedWhenClosed = false
             panel.backgroundColor = AppColors.window
@@ -411,6 +425,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             historyHelp.font = .systemFont(ofSize: 12); historyHelp.textColor = .secondaryLabelColor
             group(L("履歴"), [limitRow, NSStackView(views: [clear, restore]), historyHelp])
 
+            sections.append((AboutSection.title, MainActor.assumeIsolated { AboutSection.view() }))
             MainActor.assumeIsolated { SettingsUI.tabs(sections, in: panel.contentView!) }
             panel.center()
             preferencesWindow = panel
@@ -463,6 +478,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         guard let count = Int(historyLimit.stringValue.trimmingCharacters(in: .whitespaces)), (0...10000).contains(count) else {
             historyLimit.integerValue = UserDefaults.standard.integer(forKey: "historyDisplayLimit")
             NSSound.beep()
+            showError(L("最近使ったウインドウの数は0〜10000の整数で入力してください。元の値に戻しました。"))
             return
         }
         UserDefaults.standard.set(count, forKey: "historyDisplayLimit")
@@ -518,13 +534,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
     }
     /// Reads the frontmost Finder/Path Finder selection and moves it to /Applications without showing the window.
-    /// The window opens only to show an error; an empty selection just beeps.
+    /// The window opens only to show an error; when there is nothing to move, a short message says why.
     func moveSelectionToApplications() {
-        guard !busy, window.attachedSheet == nil else { NSSound.beep(); return }
+        guard !busy, window.attachedSheet == nil else {
+            NSSound.beep(); MainActor.assumeIsolated { TransientMessage.show(L("FolderHopperは処理中です。完了してからもう一度お試しください。")) }; return
+        }
         let running = BrowserReader.apps()
         let frontmost = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         guard let app = running.first(where: { $0.bundleIdentifier == frontmost })
-                ?? running.first(where: { $0.bundleIdentifier == lastBrowser }) else { NSSound.beep(); return }
+                ?? running.first(where: { $0.bundleIdentifier == lastBrowser }) else {
+            NSSound.beep(); MainActor.assumeIsolated { TransientMessage.show(L("Finder／Path Finderが起動していません。")) }; return
+        }
         lastBrowser = app.bundleIdentifier
         let destination = Destination(url: URL(fileURLWithPath: "/Applications", isDirectory: true), origin: L("お気に入り"))
         setBusy(true)
@@ -533,7 +553,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             DispatchQueue.main.async {
                 self.setBusy(false)
                 guard !state.files.isEmpty else {
-                    if let error = state.error { self.showError(error) } else { NSSound.beep() }
+                    if let error = state.error { self.showError(error, automation: state.automationDenied) } else { NSSound.beep(); MainActor.assumeIsolated { TransientMessage.show(L("Finder／Path Finderで項目が選択されていません。")) } }
                     return
                 }
                 if let reason = MoveEngine.destinationDisabledReason(state.files, into: destination.url) { self.showError(reason); return }
@@ -635,6 +655,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 let errors = states.compactMap(\.error) + history.notes
                 self.status.stringValue = errors.joined(separator: "\n")
                 self.status.isHidden = errors.isEmpty
+                self.automationButton.isHidden = !states.contains(where: \.automationDenied)
 
             }
         }
@@ -726,7 +747,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         rows = [.heading(L("現在開いているウインドウ"))]
         rows += filtered(current).map(Row.folder)
         #endif
-        if showChooser.state == .on { rows += [.heading(L("指定")), .choose] }
+        if showChooser.state == .on { rows += [.heading(L("指定・デスクトップ")), .choose] }
         if showFavorites.state == .on { rows += [.heading(L("お気に入り")), .favorites] }
         rows += [.heading(L("最近使ったウインドウ"))]
         let recent = filtered(history.filter { !hiddenHistory.contains($0.url.standardizedFileURL.path) })
@@ -963,49 +984,85 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         for button in selectableButtons { button.state = .off }
         window.makeFirstResponder(table)
     }
-    /// 「指定」: a folder icon with two lines of text, centered; clicking anywhere on it asks for a destination.
+    /// 「指定・デスクトップ」: two equal-width tiles (icon and two lines of text); clicking anywhere on a tile runs it.
+    /// Left asks for a destination folder; right sends the selection straight to the Desktop.
     func chooserView() -> NSView {
         let view = NSView()
         let ready = !busy && hasSelection
-        let button = FavoriteButton(title: "", target: self, action: #selector(chooseDestination(_:)))
+        let verb = copies.state == .on ? L("複製") : (symbolicLinks.state == .on ? L("リンクを作成") : L("移動"))
+        let chooser = chooserTile(tag: Self.chooserTag, image: NSImage(named: NSImage.folderName), title: L("フォルダを選択…"),
+                                  detail: L("クリックして移動先を指定"), accessibility: L("フォルダを選択…"),
+                                  action: #selector(chooseDestination(_:)), ready: ready)
+        chooserButton = chooser.button
+        let desktopDetail = L("クリックしてデスクトップへ%@", verb)
+        let desktop = chooserTile(tag: Self.desktopTag, image: NSWorkspace.shared.icon(forFile: Self.desktopURL.path), title: L("デスクトップ"),
+                                  detail: desktopDetail, accessibility: L("%@へ", L("デスクトップ")) + verb,
+                                  action: #selector(moveToDesktop(_:)), ready: ready)
+        desktopButton = desktop.button
+        let pair = NSStackView(views: [chooser.row, desktop.row])
+        pair.orientation = .horizontal; pair.distribution = .fillEqually; pair.spacing = 12
+        pair.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(pair)
+        NSLayoutConstraint.activate([
+            pair.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            pair.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            pair.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -2)
+        ])
+        return view
+    }
+    private func chooserTile(tag: Int, image: NSImage?, title: String, detail detailText: String, accessibility: String, action: Selector, ready: Bool) -> (row: FavoriteSelectionView, button: FavoriteButton) {
+        let button = FavoriteButton(title: "", target: self, action: action)
         button.isBordered = false; button.imagePosition = .imageOnly; button.imageScaling = .scaleProportionallyUpOrDown
-        button.image = NSImage(named: NSImage.folderName)
+        button.image = image
         button.setButtonType(.toggle)
-        button.tag = Self.chooserTag
+        button.tag = tag
         button.isEnabled = ready
-        // Without a Finder/Path Finder selection the whole row (icon and both lines) is dimmed.
+        // Without a Finder/Path Finder selection the whole tile (icon and both lines) is dimmed.
         button.alphaValue = ready ? 1 : 0.35
-        button.setAccessibilityLabel(L("フォルダを選択…"))
-        button.toolTip = ready ? L("クリックして移動先を指定") : Self.noSelectionReason
+        button.setAccessibilityLabel(accessibility)
+        button.toolTip = ready ? detailText : Self.noSelectionReason
         button.widthAnchor.constraint(equalToConstant: 48).isActive = true
         button.heightAnchor.constraint(equalToConstant: 48).isActive = true
-        let label = NSTextField(labelWithString: L("フォルダを選択…"))
+        let label = NSTextField(labelWithString: title)
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.textColor = ready ? .labelColor : .tertiaryLabelColor
-        let detail = NSTextField(labelWithString: L("クリックして移動先を指定"))
+        label.lineBreakMode = .byTruncatingTail
+        let detail = NSTextField(labelWithString: detailText)
         detail.font = .systemFont(ofSize: 11); detail.textColor = ready ? .secondaryLabelColor : .quaternaryLabelColor
+        detail.lineBreakMode = .byTruncatingTail
+        for field in [label, detail] { field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal) }
         let texts = NSStackView(views: [label, detail]); texts.orientation = .vertical; texts.alignment = .leading; texts.spacing = 2
         let row = FavoriteSelectionView(views: [button, texts]); row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 10
         row.edgeInsets = NSEdgeInsets(top: 4, left: 10, bottom: 4, right: 14)
         row.wantsLayer = true; row.layer?.cornerRadius = 8
         button.selectionPanel = row
-        button.state = ready && selectedFavoriteIndex == Self.chooserTag ? .on : .off
-        chooserButton = button
-        row.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(row)
-        NSLayoutConstraint.activate([
-            row.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            row.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -2)
-        ])
+        button.state = ready && selectedFavoriteIndex == tag ? .on : .off
         if ready {
             let click = NSClickGestureRecognizer(target: self, action: #selector(chooserAreaClicked(_:)))
             row.addGestureRecognizer(click)
         }
-        return view
+        return (row, button)
     }
     @objc func chooserAreaClicked(_ sender: NSClickGestureRecognizer) {
-        guard let button = (sender.view as? NSStackView)?.arrangedSubviews.first as? NSButton, button.isEnabled else { return }
-        chooseDestination(button)
+        guard let button = (sender.view as? NSStackView)?.arrangedSubviews.first as? NSButton, button.isEnabled, let action = button.action else { return }
+        NSApp.sendAction(action, to: button.target, from: button)
+    }
+    /// The user's real Desktop (also inside the App Store sandbox, where the home directory is the container).
+    static var desktopURL: URL {
+        if let home = getpwuid(getuid())?.pointee.pw_dir {
+            return URL(fileURLWithPath: String(cString: home), isDirectory: true).appendingPathComponent("Desktop", isDirectory: true)
+        }
+        return FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSHomeDirectory() + "/Desktop", isDirectory: true)
+    }
+    /// 「デスクトップ」: runs the current mode into the Desktop right away. In the App Store build, move() asks for
+    /// access to the Desktop (FolderAccess.authorize, panel opened at the Desktop) when it is not granted yet.
+    @objc func moveToDesktop(_ sender: NSButton) {
+        guard !busy, window.attachedSheet == nil, hasSelection else { return }
+        if let tile = sender as? FavoriteButton, tile.tag == Self.desktopTag { selectFavorite(tile) }
+        let bringForward = NSApp.currentEvent?.modifierFlags.contains(.command) == true
+        let destination = Destination(url: Self.desktopURL, origin: L("デスクトップ"))
+        if let reason = disabledReason(destination) { showError(reason); return }
+        move(to: destination, bringForward: bringForward)
     }
     @objc func chooseDestination(_ sender: NSButton) {
         guard !busy, window.attachedSheet == nil, !(chosen?.files.isEmpty ?? true) else { return }
@@ -1037,7 +1094,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         guard !busy, (1...2).contains(index), window.attachedSheet == nil else { return }
         let panel = NSOpenPanel()
         panel.title = L("お気に入り%@のフォルダを指定", String(describing: index))
-        panel.prompt = L("設定"); panel.canChooseFiles = false; panel.canChooseDirectories = true
+        panel.prompt = L("設定する"); panel.canChooseFiles = false; panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false; panel.treatsFilePackagesAsDirectories = false
         panel.directoryURL = favoriteURL(index)
         panel.beginSheetModal(for: window) { [weak self] response in
@@ -1065,9 +1122,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             }
         }
     }
-    func showError(_ message: String) {
+    func showError(_ message: String, automation: Bool = false) {
         presentDestinations()
-        let alert = NSAlert(); alert.messageText = L("処理できませんでした"); alert.informativeText = message; alert.beginSheetModal(for: window)
+        let alert = NSAlert(); alert.messageText = L("処理できませんでした"); alert.informativeText = message
+        if automation { alert.addButton(withTitle: L("OK")); alert.addButton(withTitle: L("オートメーションの設定を開く…")) }
+        alert.beginSheetModal(for: window) { [weak self] response in
+            if automation && response == .alertSecondButtonReturn { self?.openAutomationSettings() }
+        }
+    }
+    @objc func openAutomationSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") { NSWorkspace.shared.open(url) }
     }
     @objc func moveClicked(_ sender: Any? = nil) {
         // Mouse actions must use the clicked row: a disabled click can leave an older row selected.

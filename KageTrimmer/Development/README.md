@@ -16,11 +16,21 @@ macOSのスクリーンショットなどの画像に付いている影をコン
 zsh build.sh
 ```
 
-`build/KageTrimmer.app` を生成します。スクリプトは `Shared/BuildTools/publish_latest.py` で `Latest Builds/KageTrimmer.app` にも配置します（`APP_STORE_BUILD=1` のときは配置しません）。署名はローカルのアドホック署名です。バージョンとbuildは `Info.plist` だけで管理し、`KageTrimmer.xcodeproj` の `MARKETING_VERSION`／`CURRENT_PROJECT_VERSION` も同じ値にそろえます。
+`build/KageTrimmer.app` を生成します。スクリプトは `Shared/BuildTools/publish_latest.py` で `Latest Builds/KageTrimmer.app` にも配置します（`APP_STORE_BUILD=1` のときは配置しません）。署名は証明書（PL9S9PXX96、`KAGETRIMMER_SIGNING_IDENTITY` で変更可）で行います。バージョンとbuildは `Info.plist` だけで管理し、`KageTrimmer.xcodeproj` の `MARKETING_VERSION`／`CURRENT_PROJECT_VERSION` も同じ値にそろえます。
 
 画像処理の確認は `Sources/ShadowProcessor.swift`、`Sources/Localization.swift` と `Tests/ProcessorSmoke.swift` を一緒に `swiftc -parse-as-library` でコンパイルし、引数に一時ディレクトリを渡して実行します。テストはそのディレクトリだけを操作します。
 
 ## 更新履歴
+
+### 1.0.15（build 52、2026-10-10）
+
+- 設定に「情報」タブ（バージョン・note・X）を追加。自作アプリの目印（SWAppFamily、配置時に Finder タグ）とコピーライトを追加。証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可が引き継がれるようにした。
+- VoiceOver で、ドロップ領域（ドロップの説明と「画像を選択…」（⌘O）の案内）とホットキーのポップアップメニューを読み上げるようにした。
+- 処理中は「画像を選択…」を選べないようにした（以前はビープ音だけ鳴っていた）。
+
+### 1.0.14（build 51、2026-10-10）
+
+- ⌘1 でもメインウインドウを開けるようにした（メニューの表記は ⌘0 のまま）。
 
 ### 1.0.13（build 50、2026-10-10）
 

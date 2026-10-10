@@ -52,13 +52,17 @@ final class AccessibilityPermissionControl: NSView {
     private let status = NSTextField(labelWithString: "")
     private let icon = NSImageView()
     private let feedback = NSTextField(wrappingLabelWithString: "")
+    private let reason = NSTextField(wrappingLabelWithString: "")
+    private let stack = NSStackView()
+    private var laidOutWidth: CGFloat = 0
     private var requestButton: NSButton?
-    init(required: Bool = false, state: AccessibilityPermissionState? = nil) {
+    /// showsTitle: false when the caller already puts it under a section titled 「アクセシビリティ」.
+    init(required: Bool = false, showsTitle: Bool = true, state: AccessibilityPermissionState? = nil) {
         self.state = state ?? AccessibilityPermissionState(required: required)
         super.init(frame: .zero)
         let title = NSTextField(labelWithString: AccessibilityText.text("title"))
         title.font = .boldSystemFont(ofSize: 13)
-        let reason = NSTextField(wrappingLabelWithString: AccessibilityText.text(self.state.required ? "needed" : "unneeded"))
+        reason.stringValue = AccessibilityText.text(self.state.required ? "needed" : "unneeded")
         reason.font = .systemFont(ofSize: 12)
         let row = NSStackView(views: [icon, status]); row.spacing = 8
         icon.setAccessibilityElement(false)
@@ -73,7 +77,7 @@ final class AccessibilityPermissionControl: NSView {
         open.bezelStyle = .rounded; buttons.addArrangedSubview(open)
         feedback.stringValue = AccessibilityText.text("hint")
         feedback.font = .systemFont(ofSize: 11); feedback.textColor = .secondaryLabelColor
-        let stack = NSStackView(views: [title, reason, row, buttons, feedback])
+        stack.setViews((showsTitle ? [title] : []) + [reason, row, buttons, feedback], in: .leading)
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
@@ -88,7 +92,15 @@ final class AccessibilityPermissionControl: NSView {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     deinit { NotificationCenter.default.removeObserver(self) }
-    override var intrinsicContentSize: NSSize { NSSize(width: NSView.noIntrinsicMetric, height: 180) }
+    /// Height of the content at the current width, so no blank space is left below it.
+    override var intrinsicContentSize: NSSize { NSSize(width: NSView.noIntrinsicMetric, height: ceil(stack.fittingSize.height)) }
+    override func layout() {
+        super.layout()
+        guard bounds.width > 0, bounds.width != laidOutWidth else { return }
+        laidOutWidth = bounds.width
+        reason.preferredMaxLayoutWidth = bounds.width; feedback.preferredMaxLayoutWidth = bounds.width
+        invalidateIntrinsicContentSize()
+    }
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); refresh() }
     @objc func refresh() {
         state.refresh()
@@ -109,7 +121,8 @@ final class AccessibilityPermissionControl: NSView {
 
 struct AccessibilityPermissionView: NSViewRepresentable {
     var required = false
-    func makeNSView(context: Context) -> AccessibilityPermissionControl { AccessibilityPermissionControl(required: required) }
+    var showsTitle = true
+    func makeNSView(context: Context) -> AccessibilityPermissionControl { AccessibilityPermissionControl(required: required, showsTitle: showsTitle) }
     func updateNSView(_ nsView: AccessibilityPermissionControl, context: Context) { nsView.refresh() }
 }
 

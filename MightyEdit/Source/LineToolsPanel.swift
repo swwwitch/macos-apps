@@ -3,6 +3,8 @@ import AppKit
 final class LineToolsPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
+    /// Esc closes the panel (it can become key, so the key reaches it).
+    override func cancelOperation(_ sender: Any?) { performClose(sender) }
     private let prefixField = NSTextField(string: UserDefaults.standard.string(forKey: "lineAffixPrefix") ?? "")
     private let suffixField = NSTextField(string: UserDefaults.standard.string(forKey: "lineAffixSuffix") ?? "")
     private let feedback = NSTextField(wrappingLabelWithString: L("lines.affixNote"))

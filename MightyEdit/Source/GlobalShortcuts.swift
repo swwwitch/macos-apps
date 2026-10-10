@@ -298,7 +298,7 @@ final class GlobalShortcuts: NSObject {
                 column.topAnchor.constraint(equalTo: document.topAnchor, constant: 24),
                 column.bottomAnchor.constraint(equalTo: document.bottomAnchor, constant: -24)
             ])
-            let tabs = NSTabView(frame: window.contentView!.bounds.insetBy(dx: 10, dy: 10))
+            let tabs = RememberedTabView(frame: window.contentView!.bounds.insetBy(dx: 10, dy: 10))
             tabs.autoresizingMask = [.width, .height]
             let shortcutTab = NSTabViewItem(identifier: "shortcuts")
             shortcutTab.label = L("menu.hotkeys")
@@ -312,6 +312,7 @@ final class GlobalShortcuts: NSObject {
                 if label == SettingsUI.launchTitle { tabs.insertTabViewItem(tab, at: 0) }
                 else { tabs.addTabViewItem(tab) }
             }
+            tabs.restoreSelection()
             window.contentView!.addSubview(tabs)
             window.center()
             window.setFrameAutosaveName("ShortcutPreferencesPosition")

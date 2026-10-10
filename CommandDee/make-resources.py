@@ -68,6 +68,8 @@ settings.skipFolder|読み飛ばす親フォルダ名|Parent folder name to skip
 settings.skipFolderPlaceholder|空欄の場合は、直上の親フォルダ名を使用|If empty, the name of the immediate parent folder is used|留空时使用直接上级文件夹的名称|비워 두면 바로 위 상위 폴더 이름을 사용
 settings.resetSkipFolder|ログインユーザー名に戻す|Reset to Login User Name|恢复为登录用户名|로그인 사용자 이름으로 재설정
 settings.resetShortcuts|ホットキーを初期値に戻す|Restore Default Shortcuts|恢复默认快捷键|기본 단축키로 복원
+settings.shortcutInvalid|このキーは使えません。⌘・⌃・⌥のいずれかと組み合わせてください（Escでキャンセル）|This key can’t be used. Combine it with ⌘, ⌃, or ⌥ (Esc to cancel).|无法使用此键。请与 ⌘、⌃ 或 ⌥ 组合使用（按 Esc 取消）。|이 키는 사용할 수 없습니다. ⌘, ⌃, ⌥ 중 하나와 함께 누르십시오(Esc로 취소).
+settings.shortcutDuplicate|「%@」はほかの操作に割り当て済みです|“%@” is already assigned to another action.|“%@”已分配给其他操作。|“%@”은(는) 이미 다른 동작에 지정되어 있습니다.
 settings.recordShortcut|キーを入力（Escでキャンセル）|Type a shortcut (Esc to cancel)|按下快捷键（按 Esc 取消）|키 입력(Esc로 취소)
 shortcut.unset|未設定|Not Set|未设置|설정 안 됨
 shortcut.version|連番で複製|Duplicate with next version|复制并递增版本号|다음 버전으로 복제
@@ -102,11 +104,11 @@ help_texts = {
 
 ### 複製と名前変更
 - **⌘D**：連番で複製（同じフォルダの最大バージョン番号＋1）
-- **⌃⌘D**：末尾に今日の日付を追加・更新して複製
+- **⌃D**：末尾に今日の日付を追加・更新して複製
 - **⌃⌘E**：末尾に -edited- と今日の日付を追加して複製
 - **⌃E**：末尾の -親フォルダ名 を付け外しして名前変更
 - **⌃⇧⌘D**：複製せず、最大番号＋1に名前変更
-- **⌃⌥⌘S**：同じフォルダで選んだ2項目の名前を入れ替え
+- **⌃⇧⌘S**：同じフォルダで選んだ2項目の名前を入れ替え
 
 ### アプリの操作
 - **⌘0**：メインウインドウを開く
@@ -116,7 +118,7 @@ help_texts = {
 
 ## 例
 - **⌘D**：v2・v5 がある場合 → v6（欠番は無視）
-- **⌃⌘D**：aaa.txt → aaa-YYYYMMDD.txt
+- **⌃D**：aaa.txt → aaa-YYYYMMDD.txt
 - **⌃⌘E**：aaa.txt → aaa-edited-YYYYMMDD.txt
 
 ## 複製と名前変更のルール
@@ -160,11 +162,11 @@ help_texts = {
 
 ### Duplicate and Rename
 - **⌘D**: duplicate with the next version (the highest version number in the folder + 1)
-- **⌃⌘D**: duplicate, adding or updating today's date at the end
+- **⌃D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited- and today's date at the end
 - **⌃E**: rename by adding or removing -parent folder name at the end
 - **⌃⇧⌘D**: rename to the highest number + 1 without duplicating
-- **⌃⌥⌘S**: swap the names of 2 items selected in the same folder
+- **⌃⇧⌘S**: swap the names of 2 items selected in the same folder
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -174,7 +176,7 @@ help_texts = {
 
 ## Examples
 - **⌘D**: v2 and v5 exist → v6 (gaps are ignored)
-- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃D**: aaa.txt → aaa-YYYYMMDD.txt
 - **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
 
 ## Duplicate and Rename Rules
@@ -218,11 +220,11 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ### 复制与重命名
 - **⌘D**：复制并递增版本号（同一文件夹中最大的版本号 + 1）
-- **⌃⌘D**：在末尾添加或更新今天的日期并复制
+- **⌃D**：在末尾添加或更新今天的日期并复制
 - **⌃⌘E**：在末尾添加 -edited- 和今天的日期并复制
 - **⌃E**：添加或移除末尾的 -父文件夹名称 并重命名
 - **⌃⇧⌘D**：不复制，直接重命名为最大版本号 + 1
-- **⌃⌥⌘S**：交换在同一文件夹中所选 2 个项目的名称
+- **⌃⇧⌘S**：交换在同一文件夹中所选 2 个项目的名称
 
 ### 应用操作
 - **⌘0**：打开主窗口
@@ -232,7 +234,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ## 示例
 - **⌘D**：已有 v2 和 v5 → v6（忽略缺号）
-- **⌃⌘D**：aaa.txt → aaa-YYYYMMDD.txt
+- **⌃D**：aaa.txt → aaa-YYYYMMDD.txt
 - **⌃⌘E**：aaa.txt → aaa-edited-YYYYMMDD.txt
 
 ## 复制与重命名规则
@@ -276,11 +278,11 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ### 복제와 이름 변경
 - **⌘D**: 다음 버전으로 복제(같은 폴더의 가장 큰 버전 번호 + 1)
-- **⌃⌘D**: 끝에 오늘 날짜를 추가 또는 갱신하여 복제
+- **⌃D**: 끝에 오늘 날짜를 추가 또는 갱신하여 복제
 - **⌃⌘E**: 끝에 -edited-와 오늘 날짜를 추가하여 복제
 - **⌃E**: 끝의 -상위 폴더 이름을 추가하거나 제거하여 이름 변경
 - **⌃⇧⌘D**: 복제하지 않고 가장 큰 번호 + 1로 이름 변경
-- **⌃⌥⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
+- **⌃⇧⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
 
 ### 앱 조작
 - **⌘0**: 메인 윈도우 열기
@@ -290,7 +292,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ## 예
 - **⌘D**: v2와 v5가 있는 경우 → v6(빠진 번호는 무시)
-- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt
+- **⌃D**: aaa.txt → aaa-YYYYMMDD.txt
 - **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
 
 ## 복제와 이름 변경 규칙

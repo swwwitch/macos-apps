@@ -6,7 +6,8 @@ struct SettingsView: View {
             (SettingsUI.launchTitle, AnyView(Form { Section(SettingsUI.launchTitle) {
                 LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                 MenuBarPresenceView()
-            } }.formStyle(.grouped)))
+            } }.formStyle(.grouped))),
+            (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
     }
 }

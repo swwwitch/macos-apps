@@ -24,9 +24,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.2.15</string>
+	<string>3.2.17</string>
 	<key>CFBundleVersion</key>
-	<string>38</string>
+	<string>40</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
@@ -37,6 +37,10 @@
 	<string>Mac全体のライト／ダーク外観を切り換えるために、System Eventsを操作します。</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>
 	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
 </dict>

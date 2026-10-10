@@ -2,6 +2,13 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// Mustard accent. Dark Mode uses a lighter mustard so tinted controls keep contrast (3:1 or more) on the dark surface.
+let appTint = Color(nsColor: NSColor(name: nil) { appearance in
+    appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        ? NSColor(srgbRed: 0.78, green: 0.56, blue: 0.14, alpha: 1)
+        : NSColor(srgbRed: 0.55, green: 0.38, blue: 0.04, alpha: 1)
+})
+
 struct InputFile: Identifiable, Equatable {
     let url: URL
     let pages: Int
@@ -283,7 +290,7 @@ struct MainView: View {
                 if model.busy { Button(L("cancel")) { model.cancel() }.keyboardShortcut(.cancelAction) }
                 Button(L("convert")) { model.start() }.keyboardShortcut(.return, modifiers: .command).buttonStyle(.borderedProminent).controlSize(.large).disabled(model.files.isEmpty || model.busy)
             }
-        }.padding(24).frame(minWidth: 860, minHeight: 600).background(Color(nsColor: AppSurface.color)).tint(Color(red: 0.55, green: 0.38, blue: 0.04))
+        }.padding(24).frame(minWidth: 860, minHeight: 600).background(Color(nsColor: AppSurface.color)).tint(appTint)
     }
     @ViewBuilder var backgroundSection: some View {
         Text(L("background")).fontWeight(.medium)
@@ -346,7 +353,7 @@ struct SettingsView: View {
                 }
             }
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        }))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
+        })), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
     }
 }
 
@@ -379,6 +386,7 @@ struct SettingsView: View {
         window.title = "PDF2Keynote"; window.titleVisibility = .hidden
         window.contentView = NSHostingView(rootView: MainView(model: model))
         window.delegate = self; window.isReleasedWhenClosed = false
+        if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 860, height: 600)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         MenuBarPresence.shared.install(name: "PDF2Keynote", symbol: "rectangle.on.rectangle.angled", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
