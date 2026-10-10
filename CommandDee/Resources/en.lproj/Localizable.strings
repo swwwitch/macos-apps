@@ -22,6 +22,10 @@
 "menu.help" = "Help";
 "menu.appHelp" = "CommandDee Help";
 "shortcut.palette" = "Show / Hide Palette";
+"settings.paletteHotkeyNote" = "While CommandDee is running, this key shows or hides the palette from any app. It works independently of Enable Shortcuts.";
+"settings.resetPaletteHotkey" = "Reset to ⌃⌥⌘D";
+"settings.paletteHotkeyActive" = "Press %@ to show or hide the palette";
+"settings.paletteHotkeyFailed" = "Could not register %1$@ (error %2$d). Choose another key.";
 "menu.showPalette" = "Show Palette";
 "menu.hidePalette" = "Hide Palette";
 "palette.subtitle" = "Check the resulting name, then click";

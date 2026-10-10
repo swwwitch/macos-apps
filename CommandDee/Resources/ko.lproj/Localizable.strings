@@ -22,6 +22,10 @@
 "menu.help" = "도움말";
 "menu.appHelp" = "CommandDee 도움말";
 "shortcut.palette" = "팔레트 보기/가리기";
+"settings.paletteHotkeyNote" = "CommandDee가 실행 중인 동안 어느 앱에서든 팔레트를 보이거나 가릴 수 있습니다. '단축키 활성화'와는 별도로 작동합니다.";
+"settings.resetPaletteHotkey" = "⌃⌥⌘D로 재설정";
+"settings.paletteHotkeyActive" = "%@ 키로 팔레트 보기/가리기";
+"settings.paletteHotkeyFailed" = "%1$@을(를) 등록할 수 없습니다(오류 %2$d). 다른 키를 선택하세요.";
 "menu.showPalette" = "팔레트 보기";
 "menu.hidePalette" = "팔레트 가리기";
 "palette.subtitle" = "결과 이름을 확인한 후 클릭";

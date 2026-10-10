@@ -22,6 +22,10 @@
 "menu.help" = "帮助";
 "menu.appHelp" = "CommandDee 帮助";
 "shortcut.palette" = "显示／隐藏面板";
+"settings.paletteHotkeyNote" = "CommandDee 在后台运行时，可从任意应用显示或隐藏面板。此功能与“启用快捷键”的开关无关。";
+"settings.resetPaletteHotkey" = "恢复为 ⌃⌥⌘D";
+"settings.paletteHotkeyActive" = "按 %@ 显示或隐藏面板";
+"settings.paletteHotkeyFailed" = "无法注册 %1$@（错误 %2$d）。请选择其他按键。";
 "menu.showPalette" = "显示面板";
 "menu.hidePalette" = "隐藏面板";
 "palette.subtitle" = "确认结果名称后再点击";
