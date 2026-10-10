@@ -1,2 +1,4 @@
 Built-in image_gen, style-transfer edit. Target: previous CommandDee blue icon. Style references: KageTrimmer-Mustard.png, QuickIconExporter-Mustard.png.
 Preserve two overlapping document sheets and precise large command symbol. Change tile to matching mustard yellow/golden ochre, command symbol to dark warm brown, rear sheet to warm ivory. Match restrained shading of sibling icons; remove blue/cyan entirely. Preserve centered rounded square and transparent outer margins, white front document. No additional elements or lettering.
+
+2026-10-10: 前後の紙の区別をはっきりさせるため、Assets/add-sheet-gap.swift で前の紙の外側（後ろの紙に重なる部分）にタイル色の20pxのすき間を加えた（swiftc -O add-sheet-gap.swift -o /tmp/gap && /tmp/gap 元画像 出力 20）。
