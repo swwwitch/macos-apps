@@ -11,42 +11,50 @@ struct OutputFormat: Identifiable, Equatable {
         OutputFormat(id:"csv", name:"CSV", ext:"csv"),
         OutputFormat(id:"plain", name:"Plain text", ext:"txt"),
         OutputFormat(id:"utf16", name:NSLocalizedString("utf16Format", comment:""), ext:"txt"),
+        OutputFormat(id:"filename", name:NSLocalizedString("filenameFormat", comment:""), ext:""),
         OutputFormat(id:"idml", name:"InDesign (IDML)", ext:"idml"),
         OutputFormat(id:"html5", name:"HTML", ext:"html"),
         OutputFormat(id:"gfm", name:"Markdown", ext:"md"),
         OutputFormat(id:"pptx", name:"PowerPoint", ext:"pptx"),
         OutputFormat(id:"keynote", name:"Keynote", ext:"key"),
         OutputFormat(id:"docx", name:"Word", ext:"docx"),
+        OutputFormat(id:"xlsx", name:"Excel", ext:"xlsx"),
         OutputFormat(id:"epub3", name:"EPUB", ext:"epub"),
         OutputFormat(id:"rtf", name:"RTF", ext:"rtf"),
         OutputFormat(id:"latex", name:"LaTeX", ext:"tex"),
         OutputFormat(id:"odt", name:"OpenDocument", ext:"odt")]
     static var defaultFormat: OutputFormat { all.first { $0.id == "docx" }! }
     /// Shown under the name in the format list.
-    var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv / .xlsx" : id == "utf16" ? NSLocalizedString("utf16Ext", comment:"") : "." + ext }
-    /// Group in the main window's format list; the value is the localization key of the heading.
+    var extLabel: String { id == "image" ? ".png / .jpg / .heic" : id == "csv" ? ".csv / .tsv" : ["utf16","filename"].contains(id) ? NSLocalizedString("utf16Ext", comment:"") : "." + ext }
+    /// Group in the main window's format list; the value is the localization key of the heading
+    /// ("" = no heading, listed first: 「ファイル名のみ」 works on any file).
     var category: String {
         switch id {
-        case "pdf","docx","pptx","keynote","rtf","odt": return "catBusiness"
+        case "filename": return ""
+        case "pdf","docx","xlsx","pptx","keynote","rtf","odt": return "catBusiness"
         case "idml","html5","epub3": return "catDesign"
         case "image","svg": return "catImage"
         default: return "catOther"
         }
     }
-    static let categories = ["catBusiness","catDesign","catImage","catOther"]
+    static let categories = ["","catBusiness","catDesign","catImage","catOther"]
     /// Image outputs come only from Illustrator, Photoshop and PDF files (ImageConversion.swift).
     var isImage: Bool { id == "image" || id == "svg" }
     /// Inputs that only image / PDF outputs accept (no text conversion through pandoc).
     static let rasterInputs: Set<String> = ["png","jpg","jpeg","tif","tiff","heic","heif","webp","gif","bmp"]
     static let imageOnlyInputs: Set<String> = rasterInputs.union(["psd","indd"])
+    /// Inputs some format reads; any other file can only get a safe name (「ファイル名のみ」).
+    static let knownInputs: Set<String> = Set(["md","markdown","txt","html","htm","docx","odt","rtf","epub","tex","rst","org","ipynb","json","csv","tsv","xlsx","pptx","typ","wiki","xml","idml","pdf","ai","psd","indd","srt"]).union(rasterInputs).union(TextEncodingConverter.inputs)
     /// nil when every input can be converted to this format; otherwise the localization key of the reason.
     func unsupportedReason(for inputs: [URL]) -> String? {
         let exts = Set(inputs.map { $0.pathExtension.lowercased() })
-        if exts.isEmpty { return nil }
+        if exts.isEmpty || id == "filename" { return nil }
+        if !exts.isSubset(of:Self.knownInputs) || inputs.contains(where:FileNameConverter.isFolder) { return "filenameOnlyInputs" }
         switch id {
         case "svg": return exts == ["ai"] ? nil : "svgInputUnsupported"
         case "image": return exts.subtracting(Self.imageOnlyInputs.union(["ai","pdf"])).isEmpty ? nil : "imageInputUnsupported"
         case "csv": return exts == ["srt"] ? nil : "csvInputUnsupported"
+        case "xlsx": return exts == ["srt"] ? nil : "xlsxInputUnsupported"
         case "utf16": return exts.isSubset(of:TextEncodingConverter.inputs) ? nil : "utf16InputUnsupported"
         default:
             if exts.contains("srt") { return "srtFormatUnsupported" }
@@ -82,9 +90,12 @@ struct ConversionOptions {
     /// .indd input (InDesign only): PDF export preset ("" = InDesign's current settings).
     var indesignApp: URL?
     var indesignPreset = ""
-    /// CSV output from .srt: "," / "\t" (writes .tsv) / "xlsx" (writes an Excel workbook).
+    /// CSV output from .srt: "," or "\t" (the latter writes .tsv).
     var csvDelimiter = ","
+    /// Excel output from .srt: cues per sheet (0 = one sheet).
+    var xlsxRowsPerSheet = 0
     var utf16 = TextEncodingConverter.Options()
+    var fileName = FileNameConverter.Options()
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
         if format.id == "pdf" {

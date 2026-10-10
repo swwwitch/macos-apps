@@ -2,7 +2,7 @@
 HELP = {
 'ja': '''## 基本操作
 1. 左の枠にファイルをドロップするか、「ファイルを選択…」（⌘O）を押します。
-2. 中央で出力形式を、右で入力形式とオプションを選びます。出力形式は「ビジネス」「デザイン」「画像」「その他」に分けて並び、追加したファイルから変換できない形式は表示しません。
+2. 中央で出力形式を、右で入力形式とオプションを選びます。出力形式は「ビジネス」「デザイン」「画像」「その他」に分けて並び（「ファイル名のみ」は分類せず一番上）、追加したファイルから変換できない形式は表示しません。
 3. 保存先を確かめて「変換」（⌘Return）を押します。複数のファイルは1つずつ別々に変換します。
 4. 「変換後にFinderで表示」をオンにすると、完了後に書き出したファイルをFinderで表示します。
 - 「変換」を⌘＋クリックすると、変換を終えたファイルを入力ファイルのリストから外します（失敗したファイルは残します）。「入力ファイルリストをクリア」でリストを空にできます。
@@ -57,7 +57,7 @@ HELP = {
 
 ### 入力と変換形式の組み合わせ
 - 追加したファイルから作れない形式は、変換形式の一覧で薄く表示され、選べません。ポインターを合わせると理由が表示されます。
-- .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV と UTF-16 テキストにだけ変換できます。SVG にできるのは .ai だけです。
+- .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV・Excel・UTF-16 テキストにだけ変換できます。SVG にできるのは .ai だけです。
 
 ### InDesign（.indd）
 - .indd を PDF・ラスター画像に変換できます（InDesign が必要）。PDF は選んだ PDF プリセット（初期値は InDesign の現在の書き出し設定）、画像はページごとに書き出します。
@@ -72,10 +72,24 @@ HELP = {
 - 「濁点・半濁点を結合する」（初期値オン）は、「か＋゛」のように分かれた文字（macOS で起きやすい）を1文字にします。かな以外は変えません。
 - 拡張子はそのままで、同じフォルダーに保存するときは「名前 (1).txt」のように連番を付けます。
 
+### ファイル名のみ（Mac ⇄ Windows）
+- 出力形式の「ファイル名のみ」で、内容はそのままに、Mac と Windows の両方で使える名前にします。どの種類のファイルにも、フォルダーにも使えます（フォルダーは中のファイル・フォルダーもまとめて変換）。
+- 「処理」は「コピーを作成」（初期値、原本はそのまま）か「元のファイルの名前を変更」（その場で名前を変え、入力ファイルのリストも新しい名前にします。保存先の設定は使いません）。
+- Windows で使えない記号（\\ / : * ? " < > |）は、全角（＼／：＊？”＜＞｜）か「_」に置き換えます。
+- スペースは「そのまま」「_ に変更」「- に変更」から選べます（全角スペースも対象）。
+- 「先頭の「.」」は「そのまま」「_ に変更」「取り除く」から選べます。「.」で始まる名前は macOS で非表示になります。.DS_Store と「._」で始まるファイル（Finder のデータ）は変えません。
+- 「Unicode正規化（NFC）」（初期値オン）は、「か＋゛」のように分かれた濁点・半濁点やハングル、アクセント付きの文字（macOS で起きやすい）を1文字にします。神（U+FA19）などの CJK 互換漢字は変えません。
+- 「機種依存文字・絵文字を置き換える」（初期値オフ）は、①→(1)、㈱→(株)、Ⅰ→I、㍉→ミリ、〜→～・−→－（Windows の形）などにし、絵文字を取り除きます。古い Shift_JIS のアプリで「?」になるのを防ぎます。髙・﨑などの漢字は変えません。
+- 「名前を［100］文字までにする」（初期値オフ、10〜255）は、拡張子を残して名前を切り詰めます。Windows では置く場所を含めたパスが260文字を超えると扱えないことがあるため、フォルダーの中のパスが200文字を超えると結果に表示します。
+- 制御文字・先頭の空白・末尾の空白とピリオドは取り除き、CON・PRN・AUX・NUL・COM1〜9・LPT1〜9 という名前には「_」を付けます。
+- 名前を変える必要がないとき（コピーでは保存先が元と同じフォルダーのとき）は何もせず、結果に表示します。同名があるときは「名前 (1)」のように連番を付けます。
+
 ### 字幕（.srt）→ CSV・Excel
-- 出力形式の「CSV」で、字幕を「#・時刻・ハンドル・コメント」の表にします。時刻は開始時刻（時:分:秒）です。
+- 出力形式の「CSV」か「Excel」で、字幕を「#・時刻・ハンドル・コメント」の表にします。時刻は開始時刻（時:分:秒）です。
 - 「ハンドル: コメント」の形の字幕は最初の「: 」で分けます。それ以外はコメントだけにします。2行以上の字幕は1行につなげます。
-- 形式はカンマ（.csv）・タブ（.tsv）・Excel（.xlsx）から選べます。CSV ではカンマや「"」を含むコメントを「"」で囲みます。Excel は1枚のシートで、見出し行を固定し、番号は数値、時刻は文字列です。
+- CSV の区切りはカンマ（.csv）かタブ（.tsv）を選べます。カンマや「"」を含むコメントは「"」で囲みます。
+- Excel（.xlsx）は見出し行を固定し、番号は数値、時刻は文字列です。
+- 「シートに分ける :［100］行ごと」をオンにすると、指定した行数ごとにシートを分けます。各シートの先頭に見出し行を入れ（行数に見出しは含めません）、シート名は「1-100」「101-200」…のように行の範囲です（最後のシートは「201-245」のように実際の行まで）。
 
 ### Photoshop（.psd）
 - .psd を PDF・ラスター画像に変換できます。
@@ -115,7 +129,7 @@ HELP = {
 ## 設定
 - **起動・常駐**：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない、ウインドウを閉じても常駐、アプリ起動のホットキー。
 - **起動・常駐**タブには、「Keynoteの操作」の許可状態も表示します。
-- **変換形式**タブ：メインウインドウに表示する変換形式と、その順番を選べます。チェックを外した形式は一覧に出ません。ドラッグまたは↑↓で並べ替え、「初期状態に戻す」で元に戻せます。
+- **変換形式**タブ：メインウインドウに表示する変換形式と、その順番を選べます。チェックを外した形式は一覧に出ません。形式はカテゴリごとに並び、ドラッグまたは↑↓でカテゴリの中の順番を変えられます。「初期状態に戻す」で元に戻せます（OpenDocument と LaTeX は初期状態で非表示）。
 - **エンジン**タブ：pandoc と PDFエンジン（Typst）の状態・更新・独自のパスを設定します。
 - 常駐中はDockのアイコンからウインドウを再表示できます。
 - **メニューバーに表示**（起動・常駐タブ、またはアプリメニューの「メニューバー設定…」）：メニューバーのアイコンを表示します（初期値オン）。アイコンのメニューには「メインウインドウを開く」「設定…」「ヘルプ」（「CarmaChameleonヘルプ」「note記事を開く」）「CarmaChameleonを終了」があります。
@@ -150,7 +164,7 @@ HELP = {
 ''',
 'en': '''## Basics
 1. Drop files on the left, or click Choose files… (Command-O).
-2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other; formats the added files cannot become are hidden.
+2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other ("File name only" sits at the top, outside the groups); formats the added files cannot become are hidden.
 3. Check where to save and click Convert (Command-Return). Each file is converted separately.
 4. Turn on Show in Finder after conversion to reveal the saved files when it finishes.
 - ⌘-click Convert to remove the converted files from the input list (files that failed stay). Clear input file list empties the list.
@@ -205,7 +219,7 @@ HELP = {
 
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
-- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV and UTF-16 text. Only .ai files can become SVG.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV, Excel and UTF-16 text. Only .ai files can become SVG.
 
 ### InDesign (.indd)
 - .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
@@ -220,10 +234,24 @@ HELP = {
 - Join voiced sound marks (on by default) turns kana written with a separate mark (common on macOS) into one character. Nothing else is changed.
 - The extension stays as it is; in the same folder the result gets a number, as in "name (1).txt".
 
+### File name only (Mac ⇄ Windows)
+- "File name only" gives names that work on both macOS and Windows; the contents are unchanged. It accepts any kind of file, and folders (converted with everything inside).
+- Method: "Make a copy" (default; the original stays) or "Rename the original" (renamed where it is, and the input list shows the new name; the destination setting does not apply).
+- Symbols Windows rejects (\\ / : * ? " < > |) become full-width characters (＼／：＊？”＜＞｜) or "_".
+- Spaces can be kept or changed to "_" or "-" (full-width spaces included).
+- A leading "." can be kept, changed to "_" or removed. Names starting with "." are hidden on macOS. .DS_Store and files starting with "._" (Finder data) are left as they are.
+- Unicode normalization (NFC, on by default) joins characters stored in decomposed form (common on macOS), such as kana with voiced marks, Hangul and accented letters. CJK compatibility ideographs such as 神 (U+FA19) are kept.
+- "Replace machine-dependent characters and emoji" (off by default) turns ① into (1), ㈱ into (株), Ⅰ into I, ㍉ into ミリ, 〜 into ～ and − into － (the Windows forms) and so on, and removes emoji, so old Shift_JIS applications do not show "?". Kanji such as 髙 and 﨑 are kept.
+- "Limit names to [100] characters" (off by default, 10–255) cuts names and keeps the extension. Windows may not handle paths over 260 characters including where they are placed, so a path inside a folder longer than 200 characters is noted in the results.
+- Control characters, leading spaces and trailing spaces or periods are removed; the names CON, PRN, AUX, NUL, COM1–9 and LPT1–9 get "_".
+- When no name needs to change (for a copy, when it would go into the same folder), nothing is done and the results say so. Existing names get a number, such as "name (1)".
+
 ### Subtitles (.srt) → CSV, Excel
-- CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
+- CSV or Excel turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
 - Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
-- Choose comma (.csv), tab (.tsv) or Excel (.xlsx). In CSV, comments containing commas or quotes are quoted. Excel output is one sheet with the header row frozen; the number is numeric and the time is text.
+- The CSV separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+- Excel (.xlsx) output has the header row frozen; the number is numeric and the time is text.
+- "Split into sheets: [100] rows each" starts a new sheet every given number of rows. Each sheet repeats the header row (not counted), and sheets are named by their row range, such as "1-100" and "101-200" (the last one ends at the actual last row, such as "201-245").
 
 ### Photoshop (.psd)
 - .psd files can be converted to PDF or a raster image.
@@ -263,7 +291,7 @@ HELP = {
 ## Settings
 - **Startup & Background**: Launch at login (off by default), hide main window at startup, keep running after closing, and the app launch keyboard shortcut.
 - The **Startup & Background** tab also shows the Keynote control permission.
-- **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Drag or use ↑↓ to reorder; Restore defaults puts everything back.
+- **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Formats are listed by category; drag or use ↑↓ to reorder them within a category. Restore defaults puts everything back (OpenDocument and LaTeX start hidden).
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).
 - While it keeps running, reopen the window from the Dock icon.
 - **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
@@ -298,7 +326,7 @@ HELP = {
 ''',
 'zh-Hans': '''## 基本操作
 1. 将文件拖到左侧，或点击“选择文件…”（⌘O）。
-2. 在中间选择输出格式，在右侧选择输入格式和选项。输出格式分为“商务”“设计”“图像”“其他”，无法从所添加文件转换的格式不会显示。
+2. 在中间选择输出格式，在右侧选择输入格式和选项。输出格式分为“商务”“设计”“图像”“其他”（“仅文件名”不分类，位于最上方），无法从所添加文件转换的格式不会显示。
 3. 确认保存位置后点击“转换”（⌘Return）。多个文件会分别转换。
 4. 打开“转换后在 Finder 中显示”，完成后会在 Finder 中显示保存的文件。
 - ⌘+点按“转换”，转换完成的文件会从输入列表中移除（失败的文件保留）。“清除输入文件列表”可清空列表。
@@ -353,7 +381,7 @@ HELP = {
 
 ### 输入与输出格式的组合
 - 无法由已添加文件生成的格式会在格式列表中变淡且无法选择，将指针悬停可查看原因。
-- .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV 和 UTF-16 文本。只有 .ai 可以转换为 SVG。
+- .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV、Excel 和 UTF-16 文本。只有 .ai 可以转换为 SVG。
 
 ### InDesign（.indd）
 - 可将 .indd 转换为 PDF 或位图图像（需要 InDesign）：PDF 使用所选 PDF 预设（默认为 InDesign 当前的导出设置），图像按页导出。
@@ -368,10 +396,24 @@ HELP = {
 - “合并浊音、半浊音符号”（默认开启）会将分开的符号（macOS 上常见）与假名合并为一个字符。其他字符不变。
 - 扩展名保持不变；保存到同一文件夹时会添加编号，如“名称 (1).txt”。
 
+### 仅文件名（Mac ⇄ Windows）
+- 输出格式“仅文件名”在内容不变的情况下，改为在 macOS 和 Windows 上都可用的名称。适用于任何类型的文件和文件夹（文件夹会连同其中的文件和文件夹一起转换）。
+- “处理方式”可选“创建副本”（默认，原文件不变）或“重命名原文件”（在原位置重命名，输入文件列表也显示新名称；不使用保存位置设置）。
+- Windows 不可用的符号（\\ / : * ? " < > |）替换为全角（＼／：＊？”＜＞｜）或“_”。
+- 空格可选择“保持不变”“改为 _”“改为 -”（也包括全角空格）。
+- 开头的“.”可选择“保持不变”“改为 _”“删除”。以“.”开头的名称在 macOS 上会被隐藏。.DS_Store 和以“._”开头的文件（Finder 数据）保持不变。
+- “Unicode 规范化（NFC）”（默认开启）将分开存储的字符（macOS 上常见，如带浊音符号的假名、韩文、带重音的字母）合并为一个字符。神（U+FA19）等 CJK 兼容汉字保持不变。
+- “替换平台相关字符和表情符号”（默认关闭）将 ① 改为 (1)、㈱ 改为 (株)、Ⅰ 改为 I、㍉ 改为 ミリ、〜 改为 ～、− 改为 －（Windows 的形式）等，并删除表情符号，防止旧的 Shift_JIS 应用显示为“?”。髙、﨑 等汉字保持不变。
+- “名称限制为 [100] 个字符以内”（默认关闭，10–255）保留扩展名截短名称。在 Windows 上，包括存放位置在内的路径超过 260 个字符时可能无法处理，因此文件夹内的路径超过 200 个字符时会在结果中提示。
+- 删除控制字符、开头的空格以及末尾的空格和句点；名为 CON、PRN、AUX、NUL、COM1–9、LPT1–9 时添加“_”。
+- 名称无需更改时（创建副本且保存到原文件所在文件夹时）不做任何处理，并在结果中显示。同名时添加编号，如“名称 (1)”。
+
 ### 字幕（.srt）→ CSV、Excel
-- “CSV”将字幕转为“#、时间、昵称、评论”表格。时间为开始时间（时:分:秒）。
+- “CSV”或“Excel”将字幕转为“#、时间、昵称、评论”表格。时间为开始时间（时:分:秒）。
 - “昵称: 评论”形式的字幕在第一个“: ”处拆分，其他文字仅作为评论。多行字幕合并为一行。
-- 格式可选逗号（.csv）、制表符（.tsv）或 Excel（.xlsx）。CSV 中包含逗号或引号的评论会加引号。Excel 为一张工作表，冻结标题行，编号为数值，时间为文本。
+- CSV 的分隔符可选逗号（.csv）或制表符（.tsv）。包含逗号或引号的评论会加引号。
+- Excel（.xlsx）冻结标题行，编号为数值，时间为文本。
+- 打开“分为工作表：[100] 行一张”后，按指定行数分为多张工作表。每张工作表开头都有标题行（不计入行数），名称为行范围，如“1-100”“101-200”（最后一张到实际的最后一行，如“201-245”）。
 
 ### Photoshop（.psd）
 - 可将 .psd 转换为 PDF 或位图图像。
@@ -411,7 +453,7 @@ HELP = {
 ## 设置
 - **启动与后台**：登录时启动（默认关闭）、启动时不显示主窗口、关闭窗口后继续运行、启动应用快捷键。
 - **启动与后台**标签也显示“控制 Keynote”的权限状态。
-- **输出格式**标签：选择主窗口显示哪些输出格式及其顺序。取消勾选的格式不显示。可拖动或用 ↑↓ 排序，“恢复默认”可还原。
+- **输出格式**标签：选择主窗口显示哪些输出格式及其顺序。取消勾选的格式不显示。格式按类别排列，可拖动或用 ↑↓ 在类别内排序。“恢复默认”可还原（OpenDocument 和 LaTeX 默认隐藏）。
 - **引擎**标签：pandoc 和 PDF 引擎（Typst）的状态、更新和自定义路径。
 - 后台运行时，可从 Dock 图标重新显示窗口。
 - **在菜单栏中显示**（“启动与后台”标签，或应用菜单中的“菜单栏设置…”）：显示菜单栏图标（默认开启）。图标菜单包含“打开主窗口”“设置…”“帮助”（“CarmaChameleon 帮助”“打开 note 文章”）和“退出 CarmaChameleon”。
@@ -446,7 +488,7 @@ HELP = {
 ''',
 'ko': '''## 기본 사용법
 1. 왼쪽에 파일을 드롭하거나 "파일 선택…"(⌘O)을 누르세요.
-2. 가운데에서 출력 형식을, 오른쪽에서 입력 형식과 옵션을 선택하세요. 출력 형식은 "비즈니스" "디자인" "이미지" "기타"로 나뉘며, 추가한 파일로 변환할 수 없는 형식은 표시하지 않습니다.
+2. 가운데에서 출력 형식을, 오른쪽에서 입력 형식과 옵션을 선택하세요. 출력 형식은 "비즈니스" "디자인" "이미지" "기타"로 나뉘며("파일 이름만"은 분류 없이 맨 위), 추가한 파일로 변환할 수 없는 형식은 표시하지 않습니다.
 3. 저장 위치를 확인하고 "변환"(⌘Return)을 누르세요. 여러 파일은 하나씩 따로 변환합니다.
 4. "변환 후 Finder에서 보기"를 켜면 완료 후 저장된 파일을 Finder에서 보여 줍니다.
 - "변환"을 ⌘+클릭하면 변환을 마친 파일을 입력 목록에서 뺍니다(실패한 파일은 남습니다). "입력 파일 목록 지우기"로 목록을 비울 수 있습니다.
@@ -501,7 +543,7 @@ HELP = {
 
 ### 입력과 출력 형식의 조합
 - 추가한 파일로 만들 수 없는 형식은 형식 목록에서 흐리게 표시되어 선택할 수 없습니다. 포인터를 올리면 이유가 표시됩니다.
-- .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV와 UTF-16 텍스트로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
+- .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV, Excel, UTF-16 텍스트로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
 
 ### InDesign(.indd)
 - .indd를 PDF 또는 래스터 이미지로 변환할 수 있습니다(InDesign 필요). PDF는 선택한 PDF 사전 설정(기본값은 InDesign의 현재 내보내기 설정), 이미지는 페이지별로 내보냅니다.
@@ -516,10 +558,24 @@ HELP = {
 - "탁점·반탁점 결합"(기본값 켬)은 분리된 탁점·반탁점(macOS에서 자주 발생)을 가나와 합쳐 한 글자로 만듭니다. 그 밖의 문자는 바꾸지 않습니다.
 - 확장자는 그대로이며, 같은 폴더에 저장할 때는 "이름 (1).txt"처럼 번호를 붙입니다.
 
+### 파일 이름만(Mac ⇄ Windows)
+- 출력 형식 "파일 이름만"은 내용은 그대로 두고 macOS와 Windows 모두에서 쓸 수 있는 이름으로 바꿉니다. 모든 종류의 파일과 폴더에 쓸 수 있습니다(폴더는 안의 파일·폴더까지 함께 변환).
+- "처리 방식"은 "사본 만들기"(기본값, 원본은 그대로) 또는 "원본 이름 변경"(그 자리에서 이름을 바꾸고 입력 파일 목록도 새 이름으로 표시, 저장 위치 설정은 쓰지 않음)입니다.
+- Windows에서 쓸 수 없는 기호(\\ / : * ? " < > |)는 전각(＼／：＊？”＜＞｜)이나 "_"로 바꿉니다.
+- 공백은 "그대로", "_ 로 변경", "- 로 변경" 중에서 고를 수 있습니다(전각 공백 포함).
+- 맨 앞의 "."은 "그대로", "_ 로 변경", "제거" 중에서 고릅니다. "."으로 시작하는 이름은 macOS에서 숨겨집니다. .DS_Store와 "._"로 시작하는 파일(Finder 데이터)은 바꾸지 않습니다.
+- "유니코드 정규화(NFC)"(기본값 켬)는 분리되어 저장된 문자(macOS에서 자주 발생, 탁점이 붙은 가나·한글·악센트 문자 등)를 한 글자로 합칩니다. 神(U+FA19) 등 CJK 호환 한자는 바꾸지 않습니다.
+- "기종 의존 문자·이모지 바꾸기"(기본값 끔)는 ① → (1), ㈱ → (株), Ⅰ → I, ㍉ → ミリ, 〜 → ～, − → －(Windows 형식) 등으로 바꾸고 이모지를 지워, 오래된 Shift_JIS 앱에서 "?"로 표시되는 것을 막습니다. 髙, 﨑 등의 한자는 바꾸지 않습니다.
+- "이름을 [100]자 이내로"(기본값 끔, 10~255)는 확장자를 남기고 이름을 줄입니다. Windows에서는 놓는 위치를 포함한 경로가 260자를 넘으면 다루지 못할 수 있으므로, 폴더 안의 경로가 200자를 넘으면 결과에 표시합니다.
+- 제어 문자, 앞 공백, 끝의 공백과 마침표를 지우고, CON·PRN·AUX·NUL·COM1–9·LPT1–9라는 이름에는 "_"를 붙입니다.
+- 이름을 바꿀 필요가 없을 때(사본은 원본과 같은 폴더에 저장할 때)는 아무것도 하지 않고 결과에 표시합니다. 같은 이름이 있으면 "이름 (1)"처럼 번호를 붙입니다.
+
 ### 자막(.srt) → CSV, Excel
-- "CSV"는 자막을 "#·시각·핸들·코멘트" 표로 만듭니다. 시각은 시작 시각(시:분:초)입니다.
+- "CSV" 또는 "Excel"은 자막을 "#·시각·핸들·코멘트" 표로 만듭니다. 시각은 시작 시각(시:분:초)입니다.
 - "핸들: 코멘트" 형식은 첫 번째 ": "에서 나누고, 그 밖의 텍스트는 코멘트만으로 합니다. 여러 줄 자막은 한 줄로 잇습니다.
-- 형식은 쉼표(.csv), 탭(.tsv), Excel(.xlsx) 중에서 선택할 수 있습니다. CSV에서는 쉼표나 따옴표를 포함한 코멘트를 따옴표로 묶습니다. Excel은 시트 1장이며 머리글 행을 고정하고, 번호는 숫자, 시각은 문자열입니다.
+- CSV의 구분 문자는 쉼표(.csv) 또는 탭(.tsv)을 선택할 수 있습니다. 쉼표나 따옴표를 포함한 코멘트는 따옴표로 묶습니다.
+- Excel(.xlsx)은 머리글 행을 고정하고, 번호는 숫자, 시각은 문자열입니다.
+- "시트로 나누기: [100] 행마다"를 켜면 지정한 행 수마다 시트를 나눕니다. 각 시트 맨 위에 머리글 행을 넣고(행 수에 포함하지 않음), 시트 이름은 "1-100", "101-200"처럼 행 범위입니다(마지막 시트는 "201-245"처럼 실제 마지막 행까지).
 
 ### Photoshop(.psd)
 - .psd를 PDF 또는 래스터 이미지로 변환할 수 있습니다.
@@ -559,7 +615,7 @@ HELP = {
 ## 설정
 - **시작 및 백그라운드**: 로그인 시 실행(기본값 끔), 시작 시 메인 윈도우 표시 안 함, 창을 닫아도 계속 실행, 앱 실행 키보드 단축키.
 - **시작 및 백그라운드** 탭에는 "Keynote 제어" 권한 상태도 표시됩니다.
-- **출력 형식** 탭: 메인 윈도우에 표시할 출력 형식과 순서를 고릅니다. 선택을 해제한 형식은 표시되지 않습니다. 드래그하거나 ↑↓로 순서를 바꾸고 "기본값으로 복원"으로 되돌릴 수 있습니다.
+- **출력 형식** 탭: 메인 윈도우에 표시할 출력 형식과 순서를 고릅니다. 선택을 해제한 형식은 표시되지 않습니다. 형식은 카테고리별로 나열되며, 드래그하거나 ↑↓로 카테고리 안에서 순서를 바꿀 수 있습니다. "기본값으로 복원"으로 되돌릴 수 있습니다(OpenDocument와 LaTeX는 기본적으로 숨김).
 - **엔진** 탭: pandoc과 PDF 엔진(Typst)의 상태, 업데이트, 사용자 경로를 설정합니다.
 - 계속 실행 중에는 Dock 아이콘에서 윈도우를 다시 열 수 있습니다.
 - **메뉴 막대에 표시**(시작 및 백그라운드 탭 또는 앱 메뉴의 "메뉴 막대 설정…"): 메뉴 막대 아이콘을 표시합니다(기본값 켬). 아이콘 메뉴에는 "메인 윈도우 열기", "설정…", "도움말"("CarmaChameleon 도움말", "note 글 열기"), "CarmaChameleon 종료"가 있습니다.

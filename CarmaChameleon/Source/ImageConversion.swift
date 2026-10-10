@@ -18,10 +18,20 @@ extension ConversionRunner {
         if let reason = options.format.unsupportedReason(for:[input]) { throw ImageExport.error(reason) }
         let ext = input.pathExtension.lowercased()
         if options.format.id == "csv" { return [try SRTConverter.convert(input:input, folder:folder, delimiter:options.csvDelimiter)] }
+        if options.format.id == "xlsx" { return [try SRTConverter.convert(input:input, folder:folder, delimiter:"xlsx", rowsPerSheet:options.xlsxRowsPerSheet)] }
         if options.format.id == "utf16" {
             let result = try TextEncodingConverter.convert(input:input, folder:folder, options:options.utf16)
             if let guessed = result.guessed { addWarning(input.lastPathComponent + ": " + String(format:NSLocalizedString("textReadAs", comment:""), guessed)) }
             return [result.url]
+        }
+        if options.format.id == "filename" {
+            let session = FileNameConverter.Session(options:options.fileName)
+            guard let url = try FileNameConverter.convert(input:input, folder:folder, session:session) else {
+                addWarning(input.lastPathComponent + ": " + NSLocalizedString("filenameAlreadySafe", comment:"")); return []
+            }
+            if session.shortened > 0 { addWarning(url.lastPathComponent + ": " + String(format:NSLocalizedString("filenameShortened", comment:""), session.shortened)) }
+            if session.longestPath > FileNameConverter.pathWarningLength { addWarning(url.lastPathComponent + ": " + String(format:NSLocalizedString("filenameLongPath", comment:""), session.longestPath)) }
+            return [url]
         }
         if options.format.isImage { return try convertImage(input:input, folder:folder, options:options) }
         if options.format.id == "pdf" && OutputFormat.imageOnlyInputs.contains(ext) { return [try convertToPDF(input:input, folder:folder, options:options)] }

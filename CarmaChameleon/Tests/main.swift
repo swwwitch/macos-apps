@@ -14,7 +14,7 @@ let original = "# 日本語タイトル\n\nHello **world**.\n\n## Second\n\n- Fi
 try original.write(to:input,atomically:true,encoding:.utf8)
 func check(_ value:Bool,_ message:String) { if !value { fatalError(message) }; print("PASS: " + message) }
 var options = ConversionOptions()
-for format in OutputFormat.all where !["pdf","keynote","csv","utf16"].contains(format.id) && !format.isImage {
+for format in OutputFormat.all where !["pdf","keynote","csv","xlsx","utf16","filename"].contains(format.id) && !format.isImage {
     options.format = format
     let output = try ConversionRunner().convert(engine:engine,input:input,folder:root,options:options)
     check(fm.fileExists(atPath:output.path),"output \(format.id)")
@@ -183,11 +183,16 @@ check(csv == "#,srtTime,srtHandle,srtComment\n1,00:00:05,alice,\"hello, world\"\
 csvOut.csvDelimiter = "\t"
 let tsv = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0]
 check(try tsv.pathExtension == "tsv" && (String(contentsOf:tsv, encoding:.utf8)).contains("1\t00:00:05\talice\thello, world"),"SRT → TSV")
-csvOut.csvDelimiter = "xlsx"
-let xlsx = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:csvOut)[0]
+let xlsx = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:fmtOptions(fmt("xlsx")))[0]
 let xlsxHTML = try XLSXImporter.html(from:xlsx, cancelled:{ false })
 check(xlsx.pathExtension == "xlsx" && xlsxHTML.contains("alice") && xlsxHTML.contains("hello, world") && xlsxHTML.contains("a: b second line") && xlsxHTML.contains("01:02:03"),"SRT → Excel (read back by XLSXImporter)")
-check(fmt("docx").unsupportedReason(for:[srt]) == "srtFormatUnsupported" && fmt("csv").unsupportedReason(for:[input]) == "csvInputUnsupported","SRT only to CSV")
+var splitOut = fmtOptions(fmt("xlsx")); splitOut.xlsxRowsPerSheet = 2
+let splitXLSX = try ConversionRunner().convertFiles(engine:engine, input:srt, folder:imageFolder, options:splitOut)[0]
+let splitHTML = try XLSXImporter.html(from:splitXLSX, cancelled:{ false })
+let workbook = Process(); let pipe = Pipe(); workbook.executableURL = URL(fileURLWithPath:"/usr/bin/unzip"); workbook.arguments = ["-p", splitXLSX.path, "xl/workbook.xml"]; workbook.standardOutput = pipe
+try workbook.run(); let workbookXML = String(decoding:pipe.fileHandleForReading.readDataToEndOfFile(), as:UTF8.self); workbook.waitUntilExit()
+check(workbookXML.contains("name=\"1-2\"") && workbookXML.contains("name=\"3\"") && !workbookXML.contains("chat") && splitHTML.components(separatedBy:"srtHandle").count == 3 && splitHTML.contains("no handle here"),"SRT → Excel split every 2 rows (header on each sheet)")
+check(fmt("docx").unsupportedReason(for:[srt]) == "srtFormatUnsupported" && fmt("csv").unsupportedReason(for:[input]) == "csvInputUnsupported" && fmt("xlsx").unsupportedReason(for:[input]) == "xlsxInputUnsupported" && fmt("xlsx").category == "catBusiness","SRT only to CSV / Excel")
 // Text → UTF-16 (BOM / byte order; source BOM dropped, line endings kept).
 let sjis = root.appendingPathComponent("sjis.txt")
 try "日本語\r\nテキスト".data(using:.shiftJIS)!.write(to:sjis)
@@ -217,6 +222,69 @@ let forcedRunner = ConversionRunner()
 let forced = String(data:try Data(contentsOf:try forcedRunner.convertFiles(engine:engine, input:sjis, folder:imageFolder, options:tidy)[0]).dropFirst(2), encoding:.utf16LittleEndian)
 check(forced != nil && forced != "日本語\r\nテキスト" && forcedRunner.warnings.isEmpty,"chosen input encoding overrides detection")
 check(fmt("utf16").unsupportedReason(for:[srt, sjis]) == nil && fmt("utf16").unsupportedReason(for:[photo]) == "utf16InputUnsupported","UTF-16 only from text files")
+// 「ファイル名のみ」: a safe-named copy for macOS and Windows; the contents and the original stay as they are.
+check(FileNameConverter.safeName("a:b*c?\"d<e>f|g\\h.txt") == "a：b＊c？”d＜e＞f｜g＼h.txt","Windows symbols → full-width")
+var under = FileNameConverter.Options(); under.replacement = "underscore"
+check(FileNameConverter.safeName("a:b/c.txt", options:under) == "a_b_c.txt","Windows symbols → _")
+check(FileNameConverter.safeName("カ\u{3099}イト 한\u{1100}\u{1161}e\u{301} 神\u{FA19}.txt") == "ガイト 한가é 神\u{FA19}.txt","NFC: kana, Hangul, accents joined; compatibility ideograph kept")
+var raw = FileNameConverter.Options(); raw.normalize = false
+check(FileNameConverter.safeName("カ\u{3099}.txt", options:raw) == "カ\u{3099}.txt","normalization can be turned off")
+check(FileNameConverter.safeName("\u{3000} name\tx . . ") == "namex","control characters, leading spaces, trailing spaces and periods removed")
+var hyphen = FileNameConverter.Options(); hyphen.spaces = "hyphen"; var underscore = FileNameConverter.Options(); underscore.spaces = "underscore"
+check(FileNameConverter.safeName("会議 資料\u{3000}v2.txt", options:hyphen) == "会議-資料-v2.txt" && FileNameConverter.safeName("会議 資料.txt", options:underscore) == "会議_資料.txt" && FileNameConverter.safeName("会議 資料.txt") == "会議 資料.txt","spaces kept / _ / -")
+check(FileNameConverter.safeName("CON") == "CON_" && FileNameConverter.safeName("nul.txt") == "nul_.txt" && FileNameConverter.safeName("com1.tar.gz") == "com1_.tar.gz" && FileNameConverter.safeName("CONSOLE.txt") == "CONSOLE.txt","reserved device names")
+let unsafe = root.appendingPathComponent("会議:資料?.zip"); try Data([1,2,3]).write(to:unsafe)
+let renamed = try ConversionRunner().convertFiles(engine:engine, input:unsafe, folder:root, options:fmtOptions(fmt("filename")))
+let renamedData = try Data(contentsOf:renamed[0])
+check(renamed.count == 1 && renamed[0].lastPathComponent == "会議：資料？.zip" && renamedData == Data([1,2,3]) && fm.fileExists(atPath:unsafe.path),"unknown file type copied under a safe name, original kept")
+let safeRunner = ConversionRunner()
+check(try safeRunner.convertFiles(engine:engine, input:renamed[0], folder:root, options:fmtOptions(fmt("filename"))).isEmpty && safeRunner.warnings.count == 1,"safe name in the same folder: no copy, noted")
+check(try ConversionRunner().convertFiles(engine:engine, input:renamed[0], folder:imageFolder, options:fmtOptions(fmt("filename")))[0].lastPathComponent == "会議：資料？.zip","safe name copied to another folder")
+check(fmt("filename").unsupportedReason(for:[unsafe, photo, srt]) == nil && fmt("docx").unsupportedReason(for:[unsafe]) == "filenameOnlyInputs" && fmt("utf16").unsupportedReason(for:[unsafe]) == "filenameOnlyInputs","only 「ファイル名のみ」 takes unknown file types")
+var legacy = FileNameConverter.Options(); legacy.legacy = true
+check(FileNameConverter.safeName("①会議㈱〜−Ⅰ㍉😀👍🏻髙.txt", options:legacy) == "(1)会議(株)～－Iミリ髙.txt" && FileNameConverter.safeName("①〜.txt") == "①〜.txt","machine-dependent characters, Windows forms and emoji (option)")
+var dotUnder = FileNameConverter.Options(); dotUnder.leadingDot = "underscore"; var dotRemove = FileNameConverter.Options(); dotRemove.leadingDot = "remove"
+check(FileNameConverter.safeName(".env") == ".env" && FileNameConverter.safeName(".env", options:dotUnder) == "_env" && FileNameConverter.safeName("..env", options:dotRemove) == "env","leading period kept / _ / removed")
+var short = FileNameConverter.Options(); short.maxLength = 20
+check(FileNameConverter.safeName(String(repeating:"あ", count:30) + ".txt", options:short) == String(repeating:"あ", count:16) + ".txt" && FileNameConverter.safeName("ab👍🏻cdefghijklmnopqrstu.md", options:short).utf16.count <= 20,"names shortened, extension and whole characters kept")
+// Decomposed names: Swift's == treats them as unchanged, the converter must not.
+let nfdName = root.appendingPathComponent("カ\u{3099}イト.txt"); try Data([7]).write(to:nfdName)
+let nfdCopy = try ConversionRunner().convertFiles(engine:engine, input:nfdName, folder:root, options:fmtOptions(fmt("filename")))
+// URL(fileURLWithPath:) hands names back decomposed, so the names on disk are what counts.
+func onDisk(_ folder: URL, _ suffix: String) throws -> [String] { try fm.contentsOfDirectory(atPath:folder.path).filter { $0.hasSuffix(suffix) } }
+let nfdListed = try onDisk(root, "イト (1).txt")
+check(nfdCopy.count == 1 && nfdListed.map { Array($0.unicodeScalars) } == [Array("ガイト (1).txt".unicodeScalars)],"NFD name copied beside the original as NFC")
+var renameOptions = fmtOptions(fmt("filename")); renameOptions.fileName.renameOriginal = true
+try fm.removeItem(at:nfdCopy[0])
+let nfdRenamed = try ConversionRunner().convertFiles(engine:engine, input:nfdName, folder:imageFolder, options:renameOptions)
+let listed = try fm.contentsOfDirectory(atPath:root.path).filter { $0.hasSuffix("イト.txt") }
+check(nfdRenamed.count == 1 && nfdRenamed[0].deletingLastPathComponent().standardizedFileURL == root.standardizedFileURL && listed.count == 1 && listed[0].unicodeScalars.elementsEqual("ガイト.txt".unicodeScalars),"NFD name renamed in place to NFC (APFS keeps the spelling of a direct rename)")
+// Folders: everything inside; Finder data keeps its name.
+func makeTree(_ name: String) throws -> URL {
+    let top = root.appendingPathComponent(name); try fm.createDirectory(at:top.appendingPathComponent("b*/.hidden"), withIntermediateDirectories:true)
+    try Data([1]).write(to:top.appendingPathComponent("a?.txt")); try Data([2]).write(to:top.appendingPathComponent("b*/c|.txt")); try Data([3]).write(to:top.appendingPathComponent(".DS_Store"))
+    try Data([4]).write(to:top.appendingPathComponent("b*/.hidden/x.txt"))
+    return top
+}
+func tree(_ url: URL) -> [String] { (fm.enumerator(atPath:url.path)?.allObjects as? [String] ?? []).sorted() }
+var folderOptions = fmtOptions(fmt("filename")); folderOptions.fileName.leadingDot = "underscore"
+let copySource = try makeTree("資料:2026")
+let folderCopy = try ConversionRunner().convertFiles(engine:engine, input:copySource, folder:imageFolder, options:folderOptions)
+check(folderCopy.count == 1 && folderCopy[0].lastPathComponent == "資料：2026" && tree(folderCopy[0]) == [".DS_Store","a？.txt","b＊","b＊/_hidden","b＊/_hidden/x.txt","b＊/c｜.txt"] && tree(copySource).contains("b*/c|.txt"),"folder copied with safe names inside, original kept")
+folderOptions.fileName.renameOriginal = true
+let renameSource = try makeTree("改名:フォルダー")
+let folderRenamed = try ConversionRunner().convertFiles(engine:engine, input:renameSource, folder:imageFolder, options:folderOptions)
+check(folderRenamed.count == 1 && folderRenamed[0].lastPathComponent == "改名：フォルダー" && !fm.fileExists(atPath:renameSource.path) && tree(folderRenamed[0]) == [".DS_Store","a？.txt","b＊","b＊/_hidden","b＊/_hidden/x.txt","b＊/c｜.txt"],"folder renamed in place with everything inside")
+check(fmt("docx").unsupportedReason(for:[folderRenamed[0]]) == "filenameOnlyInputs" && fmt("filename").unsupportedReason(for:[folderRenamed[0]]) == nil,"folders only for 「ファイル名のみ」")
+let deep = root.appendingPathComponent("深い"); var leaf = deep
+for _ in 0..<5 { leaf = leaf.appendingPathComponent(String(repeating:"長い名前", count:12)) }
+try fm.createDirectory(at:leaf, withIntermediateDirectories:true); try Data([5]).write(to:leaf.appendingPathComponent("x.txt"))
+var limited = fmtOptions(fmt("filename")); limited.fileName.maxLength = 30
+let deepRunner = ConversionRunner()
+let deepCopy = try deepRunner.convertFiles(engine:engine, input:deep, folder:imageFolder, options:limited)
+check(deepRunner.warnings.count == 1 && deepRunner.warnings[0].contains("filenameShortened") && tree(deepCopy[0]).allSatisfy { $0.split(separator:"/").allSatisfy { $0.utf16.count <= 30 } },"long names shortened inside a folder")
+let longRunner = ConversionRunner(); _ = try longRunner.convertFiles(engine:engine, input:deep, folder:imageFolder, options:fmtOptions(fmt("filename")))
+check(longRunner.warnings.count == 1,"long path noted")
 // Opt-in: InDesign pages → PNG / PDF (CARMA_INDESIGN_TEST=1; launches InDesign).
 if ProcessInfo.processInfo.environment["CARMA_INDESIGN_TEST"] == "1", let app = InDesignBridge.defaultInstallation() {
     IllustratorBridge.scriptsDirectory = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Resources")

@@ -1,6 +1,6 @@
 ## Basics
 1. Drop files on the left, or click Choose files… (Command-O).
-2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other; formats the added files cannot become are hidden.
+2. Choose an output format in the middle, and the input format and options on the right. Output formats are grouped into Business, Design, Image and Other ("File name only" sits at the top, outside the groups); formats the added files cannot become are hidden.
 3. Check where to save and click Convert (Command-Return). Each file is converted separately.
 4. Turn on Show in Finder after conversion to reveal the saved files when it finishes.
 - ⌘-click Convert to remove the converted files from the input list (files that failed stay). Clear input file list empties the list.
@@ -55,7 +55,7 @@
 
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
-- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV and UTF-16 text. Only .ai files can become SVG.
+- .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV, Excel and UTF-16 text. Only .ai files can become SVG.
 
 ### InDesign (.indd)
 - .indd files can be converted to PDF or raster images (InDesign required): PDF with the chosen PDF preset (InDesign's current export settings by default), images per page.
@@ -70,10 +70,24 @@
 - Join voiced sound marks (on by default) turns kana written with a separate mark (common on macOS) into one character. Nothing else is changed.
 - The extension stays as it is; in the same folder the result gets a number, as in "name (1).txt".
 
+### File name only (Mac ⇄ Windows)
+- "File name only" gives names that work on both macOS and Windows; the contents are unchanged. It accepts any kind of file, and folders (converted with everything inside).
+- Method: "Make a copy" (default; the original stays) or "Rename the original" (renamed where it is, and the input list shows the new name; the destination setting does not apply).
+- Symbols Windows rejects (\ / : * ? " < > |) become full-width characters (＼／：＊？”＜＞｜) or "_".
+- Spaces can be kept or changed to "_" or "-" (full-width spaces included).
+- A leading "." can be kept, changed to "_" or removed. Names starting with "." are hidden on macOS. .DS_Store and files starting with "._" (Finder data) are left as they are.
+- Unicode normalization (NFC, on by default) joins characters stored in decomposed form (common on macOS), such as kana with voiced marks, Hangul and accented letters. CJK compatibility ideographs such as 神 (U+FA19) are kept.
+- "Replace machine-dependent characters and emoji" (off by default) turns ① into (1), ㈱ into (株), Ⅰ into I, ㍉ into ミリ, 〜 into ～ and − into － (the Windows forms) and so on, and removes emoji, so old Shift_JIS applications do not show "?". Kanji such as 髙 and 﨑 are kept.
+- "Limit names to [100] characters" (off by default, 10–255) cuts names and keeps the extension. Windows may not handle paths over 260 characters including where they are placed, so a path inside a folder longer than 200 characters is noted in the results.
+- Control characters, leading spaces and trailing spaces or periods are removed; the names CON, PRN, AUX, NUL, COM1–9 and LPT1–9 get "_".
+- When no name needs to change (for a copy, when it would go into the same folder), nothing is done and the results say so. Existing names get a number, such as "name (1)".
+
 ### Subtitles (.srt) → CSV, Excel
-- CSV turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
+- CSV or Excel turns subtitles into a table of #, time, handle and comment. The time is the start time (h:m:s).
 - Text in the form "handle: comment" is split at the first ": "; other text becomes the comment. Multi-line text is joined into one line.
-- Choose comma (.csv), tab (.tsv) or Excel (.xlsx). In CSV, comments containing commas or quotes are quoted. Excel output is one sheet with the header row frozen; the number is numeric and the time is text.
+- The CSV separator is a comma (.csv) or a tab (.tsv). Comments containing commas or quotes are quoted.
+- Excel (.xlsx) output has the header row frozen; the number is numeric and the time is text.
+- "Split into sheets: [100] rows each" starts a new sheet every given number of rows. Each sheet repeats the header row (not counted), and sheets are named by their row range, such as "1-100" and "101-200" (the last one ends at the actual last row, such as "201-245").
 
 ### Photoshop (.psd)
 - .psd files can be converted to PDF or a raster image.
@@ -113,7 +127,7 @@
 ## Settings
 - **Startup & Background**: Launch at login (off by default), hide main window at startup, keep running after closing, and the app launch keyboard shortcut.
 - The **Startup & Background** tab also shows the Keynote control permission.
-- **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Drag or use ↑↓ to reorder; Restore defaults puts everything back.
+- **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Formats are listed by category; drag or use ↑↓ to reorder them within a category. Restore defaults puts everything back (OpenDocument and LaTeX start hidden).
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).
 - While it keeps running, reopen the window from the Dock icon.
 - **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.

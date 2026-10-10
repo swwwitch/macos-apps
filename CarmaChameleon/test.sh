@@ -3,7 +3,7 @@ set -euo pipefail
 cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/CarmaChameleon-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
-xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework Vision -framework PDFKit -framework AppKit -framework SwiftUI -framework Carbon ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift Source/PDFImporter.swift Source/IDMLExporter.swift Source/IDMLImporter.swift Source/HTMLFormatting.swift Source/MarkdownToText.swift Source/XLSXImporter.swift Source/AIImporter.swift Source/IllustratorBridge.swift Source/Conversion.swift Source/ImageExport.swift Source/ImageConversion.swift Source/SRTConverter.swift Source/TextEncodingConverter.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework Vision -framework PDFKit -framework AppKit -framework SwiftUI -framework Carbon ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift Source/PDFImporter.swift Source/IDMLExporter.swift Source/IDMLImporter.swift Source/HTMLFormatting.swift Source/MarkdownToText.swift Source/XLSXImporter.swift Source/AIImporter.swift Source/IllustratorBridge.swift Source/Conversion.swift Source/ImageExport.swift Source/ImageConversion.swift Source/SRTConverter.swift Source/TextEncodingConverter.swift Source/FileNameConverter.swift Tests/main.swift -o "$stage/tests"
 osacompile -o "$stage/Keynote.scpt" ../Shared/KeynoteExport/Keynote.applescript
 export PANDOCDESK_KEYNOTE_SCRIPT="$stage/Keynote.scpt"
 if [[ -n "${1:-}" ]]; then
