@@ -77,7 +77,8 @@ def main() -> int:
         app = Path(sys.argv[sys.argv.index("--app") + 1])
         errors += check(app / "Contents" / "Resources", app.name)
         info = subprocess.run(["/usr/libexec/PlistBuddy", "-c", "Print :SWNoteArticleURL", str(app / "Contents" / "Info.plist")], capture_output=True, text=True)
-        if info.stdout.strip() != NOTE_URL:
+        # Each app may point at its own article; it only has to be a note.com URL.
+        if not info.stdout.strip().startswith("https://note.com/"):
             errors.append(f"[{app.name}] Info.plist SWNoteArticleURL is {info.stdout.strip() or 'missing'}")
     for error in errors:
         print("FAIL", error)

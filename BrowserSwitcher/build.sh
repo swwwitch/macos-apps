@@ -25,14 +25,14 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>Browser Switcher</string>
 <key>CFBundleDisplayName</key><string>ブラウザー切り替え</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.6.29</string>
-<key>CFBundleVersion</key><string>49</string>
+<key>CFBundleShortVersionString</key><string>1.6.30</string>
+<key>CFBundleVersion</key><string>50</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSHumanReadableCopyright</key><string>© 2026 swwwitch</string>
 <key>SWAppFamily</key><string>swwwitch</string>
-<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/n/n90552df8021e</string>
 </dict></plist>
 PLIST
 cp Assets/BrowserSwitcher.icns "$APP/Contents/Resources/BrowserSwitcher.icns"

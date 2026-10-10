@@ -23,15 +23,15 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>CommandDee</string>
 <key>CFBundleDisplayName</key><string>CommandDee</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.8.11</string>
-<key>CFBundleVersion</key><string>38</string>
+<key>CFBundleShortVersionString</key><string>1.8.12</string>
+<key>CFBundleVersion</key><string>39</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSHumanReadableCopyright</key><string>© 2026 swwwitch</string>
 <key>SWAppFamily</key><string>swwwitch</string>
-<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/n/n6913d7c34467</string>
 <key>NSAppleEventsUsageDescription</key><string>Finder／Path Finderで選択したファイルやフォルダを取得し、複製または名前変更します。</string>
 </dict></plist>
 PLIST

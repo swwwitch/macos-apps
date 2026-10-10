@@ -1,4 +1,4 @@
-# BrowserSwitcher 1.6.29（ビルド49）
+# BrowserSwitcher 1.6.30（ビルド50）
 
 通常配布版はmacOSのNSWorkspace APIでHTTPとHTTPSの既定ブラウザーを変更します。Homebrew、defaultbrowser、Keyboard Maestroは不要です。macOSの確認が表示された場合は許可してください。両方の設定を読み直して一致した場合のみ成功を表示します。
 
@@ -13,6 +13,10 @@
 App Sandboxでは既定アプリの変更が制限されるため、この直接切り替え機能はApp Store版の動作保証を意味しません。
 
 ## 更新履歴
+
+### 1.6.30（ビルド50）（2026-10-10）
+
+- 「情報」タブの解説記事のリンクを、アプリ専用の note 記事にした（SWNoteArticleURL）。ヘルプの「note記事を開く」も同じ記事を開く。
 
 ### 1.6.29（ビルド49）（2026-10-10）
 

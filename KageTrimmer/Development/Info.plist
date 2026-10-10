@@ -55,9 +55,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.15</string>
+	<string>1.0.16</string>
 	<key>CFBundleVersion</key>
-	<string>52</string>
+	<string>53</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
@@ -69,7 +69,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>SWNoteArticleURL</key>
-	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+	<string>https://note.com/swwwitch/n/n9b43fbba5d54</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 swwwitch</string>
 	<key>SWAppFamily</key>

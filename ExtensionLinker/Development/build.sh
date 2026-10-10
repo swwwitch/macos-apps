@@ -24,8 +24,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>38</string>
-<key>CFBundleShortVersionString</key><string>0.2.24</string>
+<key>CFBundleVersion</key><string>39</string>
+<key>CFBundleShortVersionString</key><string>0.2.25</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
@@ -34,7 +34,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>NSPrincipalClass</key><string>NSApplication</string>
 <key>NSHumanReadableCopyright</key><string>© 2026 swwwitch</string>
 <key>SWAppFamily</key><string>swwwitch</string>
-<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/n/n21440ebdaa0e</string>
 </dict></plist>
 PLIST
 # All required resources are versioned; a previously built app is unnecessary.
