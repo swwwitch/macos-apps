@@ -111,9 +111,9 @@ help_texts = {
 - **⌃⌘D**：末尾に今日の日付を追加・更新して複製
 - **⌃⌘E**：末尾に -edited を追加して複製（日付や番号はそのまま）
 - **⌃F**：末尾の -親フォルダ名 を付け外しして名前変更
-- **⌃S**：同じフォルダで選んだ2項目の名前を入れ替え
+- **⌃⌘S**：同じフォルダで選んだ2項目の名前を入れ替え
 
-⌃は複製せずに名前を変え、⌘・⌃⌘は複製します。D＝date（日付）、E＝edited／edit、F＝folder（親フォルダ）、S＝switch（入れ替え）。
+⌃は複製せずに名前を変え、⌘・⌃⌘は複製します（⌃⌘Sは名前の入れ替え）。D＝date（日付）、E＝edited／edit、F＝folder（親フォルダ）、S＝switch（入れ替え）。
 
 ### アプリの操作
 - **⌘0**：メインウインドウを開く
@@ -173,9 +173,9 @@ help_texts = {
 - **⌃⌘D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited at the end (the date and version stay as they are)
 - **⌃F**: rename by adding or removing -parent folder name at the end
-- **⌃S**: swap the names of 2 items selected in the same folder
+- **⌃⌘S**: swap the names of 2 items selected in the same folder
 
-⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, F = folder, S = switch.
+⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate (⌃⌘S swaps names). D = date, E = edited / edit, F = folder, S = switch.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -235,9 +235,9 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃⌘D**：在末尾添加或更新今天的日期并复制
 - **⌃⌘E**：在末尾添加 -edited 并复制（日期和版本号保持不变）
 - **⌃F**：添加或移除末尾的 -父文件夹名称 并重命名
-- **⌃S**：交换在同一文件夹中所选 2 个项目的名称
+- **⌃⌘S**：交换在同一文件夹中所选 2 个项目的名称
 
-⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制。D = date（日期），E = edited / edit，F = folder（父文件夹），S = switch（交换）。
+⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制（⌃⌘S 为交换名称）。D = date（日期），E = edited / edit，F = folder（父文件夹），S = switch（交换）。
 
 ### 应用操作
 - **⌘0**：打开主窗口
@@ -297,9 +297,9 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃⌘D**: 끝에 오늘 날짜를 추가 또는 갱신하여 복제
 - **⌃⌘E**: 끝에 -edited를 추가하여 복제(날짜와 버전 번호는 그대로)
 - **⌃F**: 끝의 -상위 폴더 이름을 추가하거나 제거하여 이름 변경
-- **⌃S**: 같은 폴더에서 선택한 두 항목의 이름 교환
+- **⌃⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
 
-⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다. D = date(날짜), E = edited / edit, F = folder(상위 폴더), S = switch(교환).
+⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다(⌃⌘S는 이름 교환). D = date(날짜), E = edited / edit, F = folder(상위 폴더), S = switch(교환).
 
 ### 앱 조작
 - **⌘0**: 메인 윈도우 열기

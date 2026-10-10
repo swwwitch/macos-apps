@@ -10,9 +10,9 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 - **⌃⌘D**: duplicate, adding or updating today's date at the end
 - **⌃⌘E**: duplicate, adding -edited at the end (the date and version stay as they are)
 - **⌃F**: rename by adding or removing -parent folder name at the end
-- **⌃S**: swap the names of 2 items selected in the same folder
+- **⌃⌘S**: swap the names of 2 items selected in the same folder
 
-⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, F = folder, S = switch.
+⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate (⌃⌘S swaps names). D = date, E = edited / edit, F = folder, S = switch.
 
 ### App Commands
 - **⌘0**: Open Main Window

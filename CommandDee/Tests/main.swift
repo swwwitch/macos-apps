@@ -327,6 +327,15 @@ try check(carried[0].label == "⌃D" && carried[5].label == "⌃R", "customized 
 var sevenKeys = Shortcut.defaults; sevenKeys.insert(Shortcut.unset, at: 5)
 prefs.set(try JSONEncoder().encode(sevenKeys), forKey: Shortcut.storageKey)
 try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "1.8.13 seven-key settings drop the removed action")
+// Stored former defaults ⌃P (parent) and ⌃S (swap) move to ⌃F / ⌃⌘S unless that key is taken.
+var formerDefaults = Shortcut.defaults
+formerDefaults[4] = Shortcut(keyCode: 35, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃P")
+formerDefaults[5] = Shortcut(keyCode: 1, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃S")
+prefs.set(try JSONEncoder().encode(formerDefaults), forKey: Shortcut.storageKey)
+try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "former ⌃P / ⌃S defaults move to ⌃F / ⌃⌘S")
+var takenSwap = formerDefaults; takenSwap[0] = Shortcut.defaults[5]
+prefs.set(try JSONEncoder().encode(takenSwap), forKey: Shortcut.storageKey)
+try check(Shortcut.load(defaults: prefs)[5] == formerDefaults[5], "⌃S stays when ⌃⌘S is assigned elsewhere")
 try check(carried[1].keyCode == UInt16.max, "new ⌃D rename starts unset when a custom key holds ⌃D")
 try check(carried[2] == Shortcut.defaults[2] && carried[4] == Shortcut.defaults[4], "untouched keys take the new layout")
 try check(legacyLoad(Array(Shortcut.legacyDefaults.prefix(4))) == Shortcut.defaults, "four-key settings migrate")
