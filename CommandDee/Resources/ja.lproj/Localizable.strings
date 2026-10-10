@@ -63,7 +63,6 @@
 "shortcut.renameDate" = "日付付き（名前変更）";
 "shortcut.edited" = "edited付きで複製";
 "shortcut.parent" = "親フォルダ名を付け外し";
-"shortcut.renameVersion" = "連番だけ更新（名前変更）";
 "shortcut.swapNames" = "2項目の名前を入れ替え";
 "error.automation" = "システム設定 → プライバシーとセキュリティ → オートメーションで、CommandDeeによるFinder／Path Finderの操作を許可してください。";
 "error.selection" = "選択ファイルを取得できませんでした。";

@@ -63,7 +63,6 @@
 "shortcut.renameDate" = "날짜 붙이기(이름 변경)";
 "shortcut.edited" = "edited를 붙여 복제";
 "shortcut.parent" = "상위 폴더 이름 추가/제거";
-"shortcut.renameVersion" = "버전 번호만 올리기(이름 변경)";
 "shortcut.swapNames" = "두 항목의 이름 교환";
 "error.automation" = "시스템 설정 → 개인정보 보호 및 보안 → 자동화에서 CommandDee가 Finder／Path Finder를 제어하도록 허용하세요.";
 "error.selection" = "선택한 파일을 가져올 수 없습니다.";

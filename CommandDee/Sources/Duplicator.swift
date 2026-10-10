@@ -62,7 +62,7 @@ private struct VersionedName {
 }
 
 enum Duplicator {
-    enum Mode { case version, renameDate, date, edited, parent, renameVersion, swapNames }
+    enum Mode { case version, renameDate, date, edited, parent, swapNames }
 
     /// One atomic filesystem operation: no temporary name or partially completed exchange.
     static func swapNames(_ sources: [URL]) throws -> [URL] {
@@ -203,16 +203,6 @@ enum Duplicator {
 
     static func duplicate(_ source: URL, manager: FileManager = .default,
                           order: [String] = NamingSettings.order()) throws -> URL {
-        try incrementVersion(source, rename: false, manager: manager, order: order)
-    }
-
-    static func renameVersion(_ source: URL, manager: FileManager = .default,
-                              order: [String] = NamingSettings.order()) throws -> URL {
-        try incrementVersion(source, rename: true, manager: manager, order: order)
-    }
-
-    private static func incrementVersion(_ source: URL, rename: Bool, manager: FileManager,
-                                         order: [String]) throws -> URL {
         let parts = try nameParts(source)
         let suffix = parts.suffix
         var parsed = VersionedName(parts.stem)
@@ -239,8 +229,7 @@ enum Duplicator {
             parsed.version = String(version)
             let candidate = parent.appendingPathComponent(parsed.rendered(order: order) + suffix)
             do {
-                if rename { try manager.moveItem(at: source, to: candidate) }
-                else { try manager.copyItem(at: source, to: candidate) }
+                try manager.copyItem(at: source, to: candidate)
                 return candidate
             } catch let error as NSError {
                 if error.domain == NSCocoaErrorDomain && error.code == NSFileWriteFileExistsError {

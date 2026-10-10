@@ -63,7 +63,6 @@
 "shortcut.renameDate" = "Add date (rename)";
 "shortcut.edited" = "Duplicate with “edited”";
 "shortcut.parent" = "Add/remove parent folder name";
-"shortcut.renameVersion" = "Increment version only (rename)";
 "shortcut.swapNames" = "Swap names of 2 items";
 "error.automation" = "In System Settings → Privacy & Security → Automation, allow CommandDee to control Finder / Path Finder.";
 "error.selection" = "Could not get the selected files.";

@@ -63,7 +63,6 @@
 "shortcut.renameDate" = "添加日期（重命名）";
 "shortcut.edited" = "复制并添加 edited";
 "shortcut.parent" = "添加/移除父文件夹名称";
-"shortcut.renameVersion" = "仅递增版本号（重命名）";
 "shortcut.swapNames" = "交换 2 个项目的名称";
 "error.automation" = "请在“系统设置”→“隐私与安全性”→“自动化”中允许 CommandDee 控制 Finder／Path Finder。";
 "error.selection" = "无法获取所选文件。";

@@ -251,19 +251,10 @@ for (index, order) in NamingSettings.orders.enumerated() {
     let dateTokens = ["version": "-v4", "edited": "-edited", "date": "-20261005"]
     try check(try Duplicator.duplicateDated(datedSource, date: fixedDate, timeZone: jst, order: order).lastPathComponent == base + "fresh" + order.map { dateTokens[$0]! }.joined() + ".txt", "date output order")
 }
-let renameOnly = try file("rename-v3-edited-20261005.txt")
+let crossOrder = try file("rename-v3-edited-20261005.txt")
 _ = try file("rename-edited-20261005-v8.txt")
-let renameID = try fm.attributesOfItem(atPath: renameOnly.path)[.systemFileNumber] as! NSNumber
-let renamedOnly = try Duplicator.renameVersion(renameOnly)
-try check(renamedOnly.lastPathComponent == "rename-edited-20261005-v9.txt", "rename uses maximum across orders")
-try check(!fm.fileExists(atPath: renameOnly.path), "version rename removes original path")
-try check(try fm.attributesOfItem(atPath: renamedOnly.path)[.systemFileNumber] as? NSNumber == renameID, "version rename retains identity")
-let renameFolder = root.appendingPathComponent("rename.folder-v2")
-try fm.createDirectory(at: renameFolder, withIntermediateDirectories: true)
-try Data("child".utf8).write(to: renameFolder.appendingPathComponent("child.txt"))
-let renamedFolder = try Duplicator.renameVersion(renameFolder)
-try check(renamedFolder.lastPathComponent == "rename.folder-v3" && !fm.fileExists(atPath: renameFolder.path), "folder version rename")
-try check(try Data(contentsOf: renamedFolder.appendingPathComponent("child.txt")) == Data("child".utf8), "folder rename contents")
+try check(try Duplicator.duplicate(crossOrder).lastPathComponent == "rename-edited-20261005-v9.txt", "version uses maximum across orders")
+try check(fm.fileExists(atPath: crossOrder.path), "version duplicate keeps the original")
 try check(try edited(editCopy) == editCopy, "today edited skips")
 try check(try dated(file("today-short-261005.txt")).lastPathComponent == "today-short-261005.txt", "short today skips")
 try check(try edited(file("today-new-marker-20261005.txt")).lastPathComponent == "today-new-marker-edited-20261005.txt", "today-dated item can get edited")
@@ -301,7 +292,7 @@ var renameCollision = false
 do { _ = try Duplicator.duplicateDated(renameBlocked, rename: true, date: fixedDate, timeZone: jst) } catch { renameCollision = true }
 try check(renameCollision && fm.fileExists(atPath: renameBlocked.path), "date rename never replaces")
 
-// Settings saved by 1.8.12 and earlier (version, date, edited, parent, renameVersion, swapNames).
+// Settings saved by 1.8.12 and earlier (version, date, edited, parent, renameVersion (removed), swapNames).
 func legacyLoad(_ values: [Shortcut]) -> [Shortcut] {
     prefs.removeObject(forKey: Shortcut.storageKey)
     prefs.set(try! JSONEncoder().encode(values), forKey: Shortcut.legacyKey)
@@ -311,9 +302,13 @@ try check(legacyLoad(Shortcut.legacyDefaults) == Shortcut.defaults, "old default
 try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "migrated layout is saved")
 var customLegacy = Shortcut.legacyDefaults
 customLegacy[0] = Shortcut(keyCode: 2, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃D")   // version moved to ⌃D
-customLegacy[4] = Shortcut(keyCode: 15, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃R")  // renameVersion customized
+customLegacy[5] = Shortcut(keyCode: 15, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃R")  // swap customized
 let carried = legacyLoad(customLegacy)
 try check(carried[0].label == "⌃D" && carried[5].label == "⌃R", "customized keys carry over")
+// 1.8.13 saved 7 keys (連番だけ更新 at index 5); 1.8.14 drops that slot.
+var sevenKeys = Shortcut.defaults; sevenKeys.insert(Shortcut.unset, at: 5)
+prefs.set(try JSONEncoder().encode(sevenKeys), forKey: Shortcut.storageKey)
+try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "1.8.13 seven-key settings drop the removed action")
 try check(carried[1].keyCode == UInt16.max, "new ⌃D rename starts unset when a custom key holds ⌃D")
 try check(carried[2] == Shortcut.defaults[2] && carried[4] == Shortcut.defaults[4], "untouched keys take the new layout")
 try check(legacyLoad(Array(Shortcut.legacyDefaults.prefix(4))) == Shortcut.defaults, "four-key settings migrate")

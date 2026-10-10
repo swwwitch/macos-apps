@@ -15,15 +15,14 @@ struct Shortcut: Codable, Equatable {
         key(2, [.control, .command], "⌃⌘D"),    // 日付付きで複製
         key(14, [.control, .command], "⌃⌘E"),   // edited付きで複製
         key(35, .control, "⌃P"),                // 親フォルダ名を付け外し
-        unset,                                  // 連番だけ更新（初期値はキーなし）
         key(1, .control, "⌃S")                  // 2項目の名前を入れ替え
     ]
-    static let modes: [Duplicator.Mode] = [.version, .renameDate, .date, .edited, .parent, .renameVersion, .swapNames]
+    static let modes: [Duplicator.Mode] = [.version, .renameDate, .date, .edited, .parent, .swapNames]
     static var titles: [String] {
-        [L("shortcut.version"), L("shortcut.renameDate"), L("shortcut.date"), L("shortcut.edited"), L("shortcut.parent"), L("shortcut.renameVersion"), L("shortcut.swapNames")]
+        [L("shortcut.version"), L("shortcut.renameDate"), L("shortcut.date"), L("shortcut.edited"), L("shortcut.parent"), L("shortcut.swapNames")]
     }
     static let storageKey = "keyboardShortcutsV2"
-    /// Until 1.8.12: array in the order version, date, edited, parent, renameVersion, swapNames.
+    /// Until 1.8.12: array in the order version, date, edited, parent, renameVersion (removed in 1.8.14), swapNames.
     static let legacyKey = "keyboardShortcuts"
     static let legacyDefaults: [Shortcut] = [
         key(2, .command, "⌘D"), key(2, .control, "⌃D"), key(14, [.control, .command], "⌃⌘E"),
@@ -36,12 +35,16 @@ struct Shortcut: Codable, Equatable {
     var displayLabel: String { keyCode == UInt16.max || label == Self.unsetLabel ? L("shortcut.unset") : label }
     static func load(defaults: UserDefaults = .standard) -> [Shortcut] {
         if let data = defaults.data(forKey: storageKey),
-           let values = try? JSONDecoder().decode([Shortcut].self, from: data), values.count == Self.defaults.count { return values }
+           var values = try? JSONDecoder().decode([Shortcut].self, from: data) {
+            // 1.8.13 stored 7 keys including 連番だけ更新 at index 5; drop it.
+            if values.count == Self.defaults.count + 1 { values.remove(at: 5); save(values, defaults: defaults) }
+            if values.count == Self.defaults.count { return values }
+        }
         guard let data = defaults.data(forKey: legacyKey),
               let legacy = try? JSONDecoder().decode([Shortcut].self, from: data), (4...6).contains(legacy.count) else { return Self.defaults }
         // Keys the user changed carry over; keys still on the old default take the new layout,
         // unless a carried custom key already uses them (then that action starts unset).
-        let legacyIndex: [Int?] = [0, nil, 1, 2, 3, 4, 5]   // new slot → old slot
+        let legacyIndex: [Int?] = [0, nil, 1, 2, 3, 5]   // new slot → old slot (old 4 = 連番だけ更新, removed)
         let custom: [Shortcut?] = legacyIndex.map { old in
             guard let old, old < legacy.count, legacy[old] != legacyDefaults[old] else { return nil }
             return legacy[old]
