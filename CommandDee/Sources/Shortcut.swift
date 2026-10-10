@@ -67,6 +67,18 @@ struct Shortcut: Codable, Equatable {
         return migrated
     }
 
+    /// Shows or hides the palette from any app (1.8.20); stored apart from the six actions.
+    static let paletteStorageKey = "paletteShortcut"
+    static let paletteDefault = key(2, [.control, .option, .command], "⌃⌥⌘D")
+    static func loadPalette(defaults: UserDefaults = .standard) -> Shortcut {
+        guard let data = defaults.data(forKey: paletteStorageKey),
+              let value = try? JSONDecoder().decode(Shortcut.self, from: data) else { return paletteDefault }
+        return value
+    }
+    static func savePalette(_ value: Shortcut, defaults: UserDefaults = .standard) {
+        if let data = try? JSONEncoder().encode(value) { defaults.set(data, forKey: paletteStorageKey) }
+    }
+
     static func save(_ values: [Shortcut], defaults: UserDefaults = .standard) {
         if let data = try? JSONEncoder().encode(values) { defaults.set(data, forKey: storageKey) }
     }

@@ -327,6 +327,14 @@ try check(carried[0].label == "⌃D" && carried[5].label == "⌃R", "customized 
 var sevenKeys = Shortcut.defaults; sevenKeys.insert(Shortcut.unset, at: 5)
 prefs.set(try JSONEncoder().encode(sevenKeys), forKey: Shortcut.storageKey)
 try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "1.8.13 seven-key settings drop the removed action")
+// The palette key is stored on its own and defaults to ⌃⌥⌘D.
+prefs.removeObject(forKey: Shortcut.paletteStorageKey)
+try check(Shortcut.loadPalette(defaults: prefs).label == "⌃⌥⌘D", "palette key default")
+let customPalette = Shortcut(keyCode: 35, modifiers: NSEvent.ModifierFlags([.control, .option]).rawValue, label: "⌃⌥P")
+Shortcut.savePalette(customPalette, defaults: prefs)
+try check(Shortcut.loadPalette(defaults: prefs) == customPalette, "palette key round trip")
+try check(!Shortcut.defaults.contains { $0.keyCode == Shortcut.paletteDefault.keyCode && $0.modifiers == Shortcut.paletteDefault.modifiers }, "palette key differs from action defaults")
+prefs.removeObject(forKey: Shortcut.paletteStorageKey)
 // Stored former defaults ⌃P (parent) and ⌃S (swap) move to ⌃F / ⌃⌘S unless that key is taken.
 var formerDefaults = Shortcut.defaults
 formerDefaults[4] = Shortcut(keyCode: 35, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃P")

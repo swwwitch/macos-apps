@@ -21,6 +21,7 @@
 "menu.bringAllToFront" = "すべてを手前に移動";
 "menu.help" = "ヘルプ";
 "menu.appHelp" = "CommandDeeヘルプ";
+"shortcut.palette" = "パレットを表示／隠す";
 "menu.showPalette" = "パレットを表示";
 "menu.hidePalette" = "パレットを隠す";
 "palette.subtitle" = "実行後の名前を確かめてからクリック";

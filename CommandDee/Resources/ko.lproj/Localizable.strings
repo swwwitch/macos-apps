@@ -21,6 +21,7 @@
 "menu.bringAllToFront" = "모두 앞으로 가져오기";
 "menu.help" = "도움말";
 "menu.appHelp" = "CommandDee 도움말";
+"shortcut.palette" = "팔레트 보기/가리기";
 "menu.showPalette" = "팔레트 보기";
 "menu.hidePalette" = "팔레트 가리기";
 "palette.subtitle" = "결과 이름을 확인한 후 클릭";

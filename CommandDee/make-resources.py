@@ -35,6 +35,7 @@ menu.zoom|拡大／縮小|Zoom|缩放|확대/축소
 menu.bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
 menu.help|ヘルプ|Help|帮助|도움말
 menu.appHelp|CommandDeeヘルプ|CommandDee Help|CommandDee 帮助|CommandDee 도움말
+shortcut.palette|パレットを表示／隠す|Show / Hide Palette|显示／隐藏面板|팔레트 보기/가리기
 menu.showPalette|パレットを表示|Show Palette|显示面板|팔레트 보기
 menu.hidePalette|パレットを隠す|Hide Palette|隐藏面板|팔레트 가리기
 palette.subtitle|実行後の名前を確かめてからクリック|Check the resulting name, then click|确认结果名称后再点击|결과 이름을 확인한 후 클릭
@@ -126,7 +127,7 @@ help_texts = {
 ⌃は複製せずに名前を変え、⌘・⌃⌘は複製します（⌃⌘Sは名前の入れ替え）。D＝date（日付）、E＝edited／edit、F＝folder（親フォルダ）、S＝switch（入れ替え）。
 
 ### パレット
-- メニューバーのアイコンから「パレットを表示」（⌥⌘P）を選ぶと、各操作のボタンを並べたパレットが開きます。
+- ⌃⌥⌘D（どのアプリからでも）か、メニューバーのアイコンの「パレットを表示」で、各操作のボタンを並べたパレットが開きます。もう一度⌃⌥⌘Dを押すと隠れます。キーは設定で変更できます。
 - Finder／Path Finderで選んでいる項目について、各ボタンに実行後の名前を表示します（変わる部分を色付き）。複数選択では先頭の項目を表示し、ボタンにポインタを置くと全項目の結果を確認できます。
 - パレットはほかのアプリの前面に表示されたままで、クリックしてもFinderの選択は外れません。
 
@@ -193,7 +194,7 @@ help_texts = {
 ⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate (⌃⌘S swaps names). D = date, E = edited / edit, F = folder, S = switch.
 
 ### Palette
-- Choose Show Palette (⌥⌘P) from the menu bar icon to open a palette with a button for each action.
+- Press ⌃⌥⌘D in any app, or choose Show Palette from the menu bar icon, to open a palette with a button for each action. Press ⌃⌥⌘D again to hide it. You can change the key in Settings.
 - For the items selected in Finder or Path Finder, each button shows the resulting name, with the changed part in color. With several items, the first one is shown; hold the pointer over a button to see the result for every item.
 - The palette stays in front of other apps, and clicking it does not change the Finder selection.
 
@@ -260,7 +261,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 ⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制（⌃⌘S 为交换名称）。D = date（日期），E = edited / edit，F = folder（父文件夹），S = switch（交换）。
 
 ### 面板
-- 从菜单栏图标选择“显示面板”（⌥⌘P），会打开排列着各操作按钮的面板。
+- 在任意应用中按 ⌃⌥⌘D，或从菜单栏图标选择“显示面板”，会打开排列着各操作按钮的面板。再次按 ⌃⌥⌘D 即可隐藏。可在设置中更改按键。
 - 针对在 Finder／Path Finder 中选中的项目，每个按钮会显示执行后的名称（变化部分以颜色标出）。选择多个项目时显示第一个项目，将指针悬停在按钮上可查看所有项目的结果。
 - 面板始终显示在其他应用前面，点击它不会改变 Finder 中的选择。
 
@@ -327,7 +328,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 ⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다(⌃⌘S는 이름 교환). D = date(날짜), E = edited / edit, F = folder(상위 폴더), S = switch(교환).
 
 ### 팔레트
-- 메뉴 막대 아이콘에서 '팔레트 보기'(⌥⌘P)를 선택하면 각 동작의 버튼이 나열된 팔레트가 열립니다.
+- 어느 앱에서든 ⌃⌥⌘D를 누르거나 메뉴 막대 아이콘에서 '팔레트 보기'를 선택하면 각 동작의 버튼이 나열된 팔레트가 열립니다. ⌃⌥⌘D를 다시 누르면 가려집니다. 키는 설정에서 변경할 수 있습니다.
 - Finder／Path Finder에서 선택한 항목에 대해 각 버튼에 실행 후의 이름을 표시합니다(바뀌는 부분은 색으로 표시). 여러 항목을 선택하면 첫 번째 항목을 표시하며, 버튼 위에 포인터를 올리면 모든 항목의 결과를 볼 수 있습니다.
 - 팔레트는 다른 앱 앞에 계속 표시되며, 클릭해도 Finder의 선택이 바뀌지 않습니다.
 

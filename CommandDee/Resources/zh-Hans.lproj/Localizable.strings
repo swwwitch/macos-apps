@@ -21,6 +21,7 @@
 "menu.bringAllToFront" = "前置全部窗口";
 "menu.help" = "帮助";
 "menu.appHelp" = "CommandDee 帮助";
+"shortcut.palette" = "显示／隐藏面板";
 "menu.showPalette" = "显示面板";
 "menu.hidePalette" = "隐藏面板";
 "palette.subtitle" = "确认结果名称后再点击";

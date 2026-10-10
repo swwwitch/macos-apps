@@ -21,6 +21,7 @@
 "menu.bringAllToFront" = "Bring All to Front";
 "menu.help" = "Help";
 "menu.appHelp" = "CommandDee Help";
+"shortcut.palette" = "Show / Hide Palette";
 "menu.showPalette" = "Show Palette";
 "menu.hidePalette" = "Hide Palette";
 "palette.subtitle" = "Check the resulting name, then click";

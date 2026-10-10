@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.30 | 50 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
-| [CommandDee](CommandDee.app) | 1.8.19 | 46 | `jp.local.CommandDee` |
+| [CommandDee](CommandDee.app) | 1.8.20 | 47 | `jp.local.CommandDee` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.1.90 | 105 | `jp.local.FolderMover` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
