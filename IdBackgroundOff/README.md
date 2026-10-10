@@ -31,6 +31,10 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 
 ## 更新履歴
 
+### 1.0.13（build 14、2026-10-10）
+
+- ヘルプメニューの「note記事を開く」を、アプリ専用の note 記事（DTP Transit 別館）にした（SWNoteArticleURL）。
+
 ### 1.0.12（build 13、2026-10-10）
 
 - 自作アプリの目印（SWAppFamily、配置時に Finder タグ）とコピーライトを追加。証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可が引き継がれるようにした。
