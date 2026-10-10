@@ -8,7 +8,7 @@
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
 | [CommandDee](CommandDee.app) | 1.8.18 | 45 | `jp.local.CommandDee` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
-| [FolderHopper](FolderHopper.app) | 0.1.89 | 104 | `jp.local.FolderMover` |
+| [FolderHopper](FolderHopper.app) | 0.1.90 | 105 | `jp.local.FolderMover` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.0.13 | 14 | `local.takano.IdAsyncOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.0.16 | 53 | `jp.dtp-transit.kagetrimmer` |

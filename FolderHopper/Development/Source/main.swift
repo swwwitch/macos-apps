@@ -1176,7 +1176,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                     if let error = result.error { self.showError(L("%@項目を処理した後に停止しました。\n%@", String(describing: result.done.count), String(describing: error.localizedDescription))) }
                     else if result.done.count == files.count && self.pendingOpenFiles == nil {
                         self.notifyOperation(count: result.done.count, destination: destination.url, linking: linking, copying: copying)
-                        if self.closeAfterOperation.state == .on { self.window.orderOut(nil) }
+                        if self.closeAfterOperation.state == .on {
+                            let wasActive = NSApp.isActive
+                            self.window.orderOut(nil)
+                            // Hand focus back to the source folder's window instead of leaving FolderHopper active with no window.
+                            if wasActive && !bringForward, let folder = files.first?.deletingLastPathComponent() {
+                                self.queue.async {
+                                    let failed = BrowserReader.bringDestinationForward(Destination(url: folder, origin: source.name), preferredID: source.id) != nil
+                                    if failed { DispatchQueue.main.async { NSApp.hide(nil) } }
+                                }
+                            }
+                        }
                         if bringForward {
                             self.queue.async {
                                 if let message = BrowserReader.bringDestinationForward(destination, preferredID: preferredBrowser) {

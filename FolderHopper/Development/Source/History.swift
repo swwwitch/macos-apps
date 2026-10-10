@@ -25,6 +25,9 @@ enum FolderHistory {
         return try? URL(resolvingBookmarkData: data, options: [.withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale)
     }
     static func read() -> (items: [Destination], notes: [String]) {
+        #if APP_STORE
+        return ([], [])
+        #else
         var result: [Destination] = [], notes: [String] = []
         let finder = preferences("com.apple.finder")
         let entries = finder["FXRecentFolders"] as? [[String: Any]] ?? []
@@ -55,5 +58,6 @@ enum FolderHistory {
             return values == nil || (values?.isDirectory == true && values?.isPackage != true)
         }
         return (result, notes)
+        #endif
     }
 }
