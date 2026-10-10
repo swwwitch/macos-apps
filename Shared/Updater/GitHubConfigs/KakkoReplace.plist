@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SUFeedURL</key>
+	<string>https://github.com/swwwitch/macos-apps/releases/download/updates/KakkoReplace-appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>FyA7A4thhauvgx9VjGUiC+eTXLmCgv48nTHw0818aEc=</string>
+</dict>
+</plist>

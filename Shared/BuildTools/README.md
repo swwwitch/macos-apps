@@ -1,4 +1,4 @@
-# Latest Buildsへの自動コピー
+# 検証済みビルドの共通配置
 
 ビルドスクリプトが正常に署名検証を終えたあと、`publish_latest.py`を呼び出します。
 
@@ -29,3 +29,7 @@
 - 既存版は `Shared/Backups/Build/<日時>/Applications|LatestBuilds/` へ退避します。
 - 配置後に署名を検証し、全ファイルの内容と実行権限が元と一致することを確認します。
 - `Latest Builds/README.md` の該当行の版とbuildを更新します。行がなければ手で追加します。
+
+## 2026-10-08 配置経路の修正
+
+通常ビルドの `publish_latest.py` は `deploy_both.py` を呼び、/Applications と Latest Builds の両方を更新します。全13本のビルド入口へ接続しました。App Store候補は通常版へ配置しません。両コピーを先に作成・検証し、置換失敗時は既存版を復元します。実行中アプリのパスに空白がある場合も検出し、プロセス確認自体に失敗した場合は置換しません。更新配信のURL・公開鍵は未設定のままです。

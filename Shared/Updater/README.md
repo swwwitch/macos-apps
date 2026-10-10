@@ -43,3 +43,9 @@ Sparkle 2.10.0（公式配布SHA-256は `prepare.py` に固定）を使用しま
 - https://sparkle-project.org/documentation/publishing/
 - https://sparkle-project.org/documentation/sandboxing/
 - https://github.com/sparkle-project/Sparkle/releases/tag/2.10.0
+
+## 2026-10-08 公開鍵の設定
+
+13本それぞれの公開鍵を `PublicKeys/<Bundle ID>.plist` に保存しました。秘密鍵はSparkle公式generate_keysでMacのキーチェーンへ保管し、書き出していません。署名時のaccountは `swwwitch.<Bundle ID>` を指定します（sign_update / generate_appcastの `--account`）。このMacのキーチェーンを失うと更新署名ができなくなるため、移行時は鍵の引き継ぎが必要です。
+
+通常ビルドは公開鍵を自動で組み込みます。配信先未設定ではSUFeedURLを入れず、更新通信を開始しません。配信先確定後は公開鍵とSUFeedURLを含むUPDATE_PUBLIC_CONFIGを指定します。noteの記事URLをSUFeedURLとして設定しないでください。App Store版には公開鍵もSparkleも組み込みません。

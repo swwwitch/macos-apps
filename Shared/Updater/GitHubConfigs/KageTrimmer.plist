@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SUFeedURL</key>
+	<string>https://github.com/swwwitch/macos-apps/releases/download/updates/KageTrimmer-appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>O5fkkt+kVsBNS/0Hh3Sf8ozlHuTknUXwspbm1b7EAhk=</string>
+</dict>
+</plist>

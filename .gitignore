@@ -38,3 +38,9 @@ Shared/Updater/vendor/
 *.dSYM/
 Shared/BuildBackups/
 *競合コピー*
+# 作業記録・検証の生成物（2026-10-10）
+*.log
+Shared/BuildTools/Verification-*/
+Shared/BuildTools/deployment-*.json
+Shared/ReleasePreparation/
+PDF2Keynote/Tests/KeynoteOutput/

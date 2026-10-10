@@ -21,6 +21,19 @@ def validate(config):
         raise ValueError('A valid 32-byte public Ed25519 key is required')
     return config
 
+def saved_public_key(bundle_id):
+    path = Path(__file__).resolve().parent/'PublicKeys'/(bundle_id + '.plist')
+    if not path.exists():
+        return None
+    config = plistlib.loads(path.read_bytes())
+    if set(config) != {'SUPublicEDKey'}:
+        raise ValueError('Public key file must contain only SUPublicEDKey')
+    key = config['SUPublicEDKey']
+    decoded = base64.b64decode(key, validate=True)
+    if len(decoded) != 32 or not any(decoded):
+        raise ValueError('Invalid saved public key')
+    return key
+
 def configure(app, sdk):
     path = app/'Contents/Info.plist'
     info = plistlib.loads(path.read_bytes())
@@ -31,7 +44,10 @@ def configure(app, sdk):
         info.update(validate(plistlib.loads(Path(config_file).read_bytes())))
         print('Signed update configuration included for', info['CFBundleIdentifier'])
     else:
-        print('Updates unconfigured (no network checks):', info['CFBundleIdentifier'])
+        key = saved_public_key(info['CFBundleIdentifier'])
+        if key:
+            info['SUPublicEDKey'] = key
+        print('Updates unconfigured (no feed; no network checks):', info['CFBundleIdentifier'])
     info.update(SUVerifyUpdateBeforeExtraction=True, SURequireSignedFeed=True, SUSignedFeedFailureExpirationInterval=0,
                 SUPromptUserOnFirstLaunch=True, SUAllowsAutomaticUpdates=False,
                 SUAutomaticallyUpdate=False, SUEnableSystemProfiling=False,
