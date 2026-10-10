@@ -21,6 +21,16 @@
 "menu.bringAllToFront" = "Bring All to Front";
 "menu.help" = "Help";
 "menu.appHelp" = "CommandDee Help";
+"menu.showPalette" = "Show Palette";
+"menu.hidePalette" = "Hide Palette";
+"palette.subtitle" = "Check the resulting name, then click";
+"palette.noSelection" = "Select items in Finder or Path Finder";
+"palette.selection" = "%1$@ (%2$@)";
+"palette.selectionMore" = "%1$@ and %2$d more (%3$@)";
+"palette.more" = "+%d more";
+"palette.alreadyToday" = "No change (already has today's date)";
+"palette.alreadyEdited" = "No change (already marked edited)";
+"palette.swapNeedsTwo" = "Select 2 items in the same folder";
 "menu.enableShortcuts" = "Enable Shortcuts";
 "status.initial" = "Select files or folders and press ⌘D";
 "status.tooltip" = "CommandDee — Duplicate with a version or date";

@@ -35,6 +35,16 @@ menu.zoom|拡大／縮小|Zoom|缩放|확대/축소
 menu.bringAllToFront|すべてを手前に移動|Bring All to Front|前置全部窗口|모두 앞으로 가져오기
 menu.help|ヘルプ|Help|帮助|도움말
 menu.appHelp|CommandDeeヘルプ|CommandDee Help|CommandDee 帮助|CommandDee 도움말
+menu.showPalette|パレットを表示|Show Palette|显示面板|팔레트 보기
+menu.hidePalette|パレットを隠す|Hide Palette|隐藏面板|팔레트 가리기
+palette.subtitle|実行後の名前を確かめてからクリック|Check the resulting name, then click|确认结果名称后再点击|결과 이름을 확인한 후 클릭
+palette.noSelection|Finder／Path Finderで項目を選択してください|Select items in Finder or Path Finder|请在 Finder／Path Finder 中选择项目|Finder／Path Finder에서 항목을 선택하세요
+palette.selection|%1$@（%2$@）|%1$@ (%2$@)|%1$@（%2$@）|%1$@(%2$@)
+palette.selectionMore|%1$@ ほか%2$d項目（%3$@）|%1$@ and %2$d more (%3$@)|%1$@ 及其他 %2$d 项（%3$@）|%1$@ 외 %2$d개(%3$@)
+palette.more|ほか%d項目|+%d more|另 %d 项|외 %d개
+palette.alreadyToday|変更なし（今日の日付付き）|No change (already has today's date)|无变化（已有今天的日期）|변경 없음(이미 오늘 날짜 있음)
+palette.alreadyEdited|変更なし（edited付き）|No change (already marked edited)|无变化（已有 edited）|변경 없음(이미 edited 있음)
+palette.swapNeedsTwo|同じフォルダの2項目を選ぶと使えます|Select 2 items in the same folder|请选择同一文件夹中的 2 个项目|같은 폴더의 항목 2개를 선택하세요
 menu.enableShortcuts|ホットキーを有効にする|Enable Shortcuts|启用快捷键|단축키 활성화
 status.initial|ファイル／フォルダを選択して ⌘D|Select files or folders and press ⌘D|选择文件或文件夹后按 ⌘D|파일 또는 폴더를 선택하고 ⌘D를 누르세요
 status.tooltip|CommandDee — バージョン・日付付きで複製|CommandDee — Duplicate with a version or date|CommandDee — 添加版本号或日期并复制|CommandDee — 버전 또는 날짜를 붙여 복제
@@ -115,6 +125,11 @@ help_texts = {
 
 ⌃は複製せずに名前を変え、⌘・⌃⌘は複製します（⌃⌘Sは名前の入れ替え）。D＝date（日付）、E＝edited／edit、F＝folder（親フォルダ）、S＝switch（入れ替え）。
 
+### パレット
+- メニューバーのアイコンから「パレットを表示」（⌥⌘P）を選ぶと、各操作のボタンを並べたパレットが開きます。
+- Finder／Path Finderで選んでいる項目について、各ボタンに実行後の名前を表示します（変わる部分を色付き）。複数選択では先頭の項目を表示し、ボタンにポインタを置くと全項目の結果を確認できます。
+- パレットはほかのアプリの前面に表示されたままで、クリックしてもFinderの選択は外れません。
+
 ### アプリの操作
 - **⌘0**：メインウインドウを開く
 - **⌘,**：設定
@@ -176,6 +191,11 @@ help_texts = {
 - **⌃⌘S**: swap the names of 2 items selected in the same folder
 
 ⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate (⌃⌘S swaps names). D = date, E = edited / edit, F = folder, S = switch.
+
+### Palette
+- Choose Show Palette (⌥⌘P) from the menu bar icon to open a palette with a button for each action.
+- For the items selected in Finder or Path Finder, each button shows the resulting name, with the changed part in color. With several items, the first one is shown; hold the pointer over a button to see the result for every item.
+- The palette stays in front of other apps, and clicking it does not change the Finder selection.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -239,6 +259,11 @@ Choose Settings… (⌘,) from the menu bar icon.
 
 ⌃ 不复制直接重命名，⌘ 和 ⌃⌘ 会复制（⌃⌘S 为交换名称）。D = date（日期），E = edited / edit，F = folder（父文件夹），S = switch（交换）。
 
+### 面板
+- 从菜单栏图标选择“显示面板”（⌥⌘P），会打开排列着各操作按钮的面板。
+- 针对在 Finder／Path Finder 中选中的项目，每个按钮会显示执行后的名称（变化部分以颜色标出）。选择多个项目时显示第一个项目，将指针悬停在按钮上可查看所有项目的结果。
+- 面板始终显示在其他应用前面，点击它不会改变 Finder 中的选择。
+
 ### 应用操作
 - **⌘0**：打开主窗口
 - **⌘,**：设置
@@ -300,6 +325,11 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **⌃⌘S**: 같은 폴더에서 선택한 두 항목의 이름 교환
 
 ⌃는 복제하지 않고 이름을 바꾸고, ⌘·⌃⌘는 복제합니다(⌃⌘S는 이름 교환). D = date(날짜), E = edited / edit, F = folder(상위 폴더), S = switch(교환).
+
+### 팔레트
+- 메뉴 막대 아이콘에서 '팔레트 보기'(⌥⌘P)를 선택하면 각 동작의 버튼이 나열된 팔레트가 열립니다.
+- Finder／Path Finder에서 선택한 항목에 대해 각 버튼에 실행 후의 이름을 표시합니다(바뀌는 부분은 색으로 표시). 여러 항목을 선택하면 첫 번째 항목을 표시하며, 버튼 위에 포인터를 올리면 모든 항목의 결과를 볼 수 있습니다.
+- 팔레트는 다른 앱 앞에 계속 표시되며, 클릭해도 Finder의 선택이 바뀌지 않습니다.
 
 ### 앱 조작
 - **⌘0**: 메인 윈도우 열기

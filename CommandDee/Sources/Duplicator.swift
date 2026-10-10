@@ -173,11 +173,10 @@ enum Duplicator {
         return destination
     }
 
-    /// rename: add or update the date on the item itself instead of a copy (⌃D 「日付付き」).
-    static func duplicateDated(_ source: URL, rename: Bool = false, date: Date = Date(),
-                               timeZone: TimeZone = .current, manager: FileManager = .default,
-                               order: [String] = NamingSettings.order(),
-                          separator: String = NamingSettings.separator()) throws -> URL {
+    /// The name ⌃D / ⌃⌘D would give, or nil when the item already carries today's date.
+    static func datedDestination(_ source: URL, date: Date = Date(), timeZone: TimeZone = .current,
+                                 order: [String] = NamingSettings.order(),
+                                 separator: String = NamingSettings.separator()) throws -> URL? {
         let parts = try nameParts(source)
         var name = VersionedName(parts.stem, separator: separator)
         let formatter = DateFormatter()
@@ -186,10 +185,18 @@ enum Duplicator {
         formatter.timeZone = timeZone
         formatter.dateFormat = "yyyyMMdd"
         let today = formatter.string(from: date)
-        // A no-op preserves the original file and avoids collision alerts.
-        if name.date == today || name.date == String(today.suffix(6)) { return source }
+        if name.date == today || name.date == String(today.suffix(6)) { return nil }
         name.date = today
-        let destination = source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+        return source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+    }
+
+    /// rename: add or update the date on the item itself instead of a copy (⌃D 「日付付き」).
+    static func duplicateDated(_ source: URL, rename: Bool = false, date: Date = Date(),
+                               timeZone: TimeZone = .current, manager: FileManager = .default,
+                               order: [String] = NamingSettings.order(),
+                               separator: String = NamingSettings.separator()) throws -> URL {
+        // A no-op preserves the original file and avoids collision alerts.
+        guard let destination = try datedDestination(source, date: date, timeZone: timeZone, order: order, separator: separator) else { return source }
         return rename ? try moveWithoutReplacing(source, to: destination, manager: manager)
             : try copyWithoutReplacing(source, to: destination, manager: manager)
     }
@@ -209,52 +216,65 @@ enum Duplicator {
         return destination
     }
 
+    /// The name ⌃⌘E would give, or nil when the item is already marked edited.
+    static func editedDestination(_ source: URL, order: [String] = NamingSettings.order(),
+                                  separator: String = NamingSettings.separator()) throws -> URL? {
+        let parts = try nameParts(source)
+        var name = VersionedName(parts.stem, separator: separator)
+        if name.edited { return nil }
+        name.edited = true
+        return source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+    }
+
     /// ⌘E: duplicate with -edited- added; an existing date or version is kept as is.
     static func duplicateEdited(_ source: URL, manager: FileManager = .default,
                                 order: [String] = NamingSettings.order(),
                                 separator: String = NamingSettings.separator()) throws -> URL {
-        let parts = try nameParts(source)
-        var name = VersionedName(parts.stem, separator: separator)
-        if name.edited { return source }
-        name.edited = true
-        let destination = source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+        guard let destination = try editedDestination(source, order: order, separator: separator) else { return source }
         return try copyWithoutReplacing(source, to: destination, manager: manager)
+    }
+
+    /// The next version name for ⌘D: one above the highest sibling (at least `after` + 1); reads the folder only.
+    static func versionDestination(_ source: URL, after floor: Int = 1, manager: FileManager = .default,
+                                   order: [String] = NamingSettings.order(),
+                                   separator: String = NamingSettings.separator()) throws -> (url: URL, version: Int) {
+        let parts = try nameParts(source)
+        let suffix = parts.suffix
+        var parsed = VersionedName(parts.stem, separator: separator)
+        let parent = source.deletingLastPathComponent()
+        // Never fill gaps in the sequence.
+        let names = try manager.contentsOfDirectory(atPath: parent.path)
+        var maximum = floor
+        for name in names {
+            guard suffix.isEmpty || name.hasSuffix(suffix) else { continue }
+            let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)), separator: separator)
+            guard sibling.base == parsed.base, sibling.date == parsed.date,
+                  sibling.edited == parsed.edited, let digits = sibling.version else { continue }
+            guard let number = Int(digits), number < Int.max else {
+                throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionTooLarge")])
+            }
+            maximum = max(maximum, number)
+        }
+        guard maximum < Int.max else {
+            throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionNext")])
+        }
+        parsed.version = String(maximum + 1)
+        return (parent.appendingPathComponent(parsed.rendered(order: order) + suffix), maximum + 1)
     }
 
     static func duplicate(_ source: URL, manager: FileManager = .default,
                           order: [String] = NamingSettings.order(),
                           separator: String = NamingSettings.separator()) throws -> URL {
-        let parts = try nameParts(source)
-        let suffix = parts.suffix
-        var parsed = VersionedName(parts.stem, separator: separator)
-        let parent = source.deletingLastPathComponent()
         var lastCollision = 1
         while true {
-            // Rescan after a concurrent collision; never fill gaps in the sequence.
-            let names = try manager.contentsOfDirectory(atPath: parent.path)
-            var maximum = lastCollision
-            for name in names {
-                guard suffix.isEmpty || name.hasSuffix(suffix) else { continue }
-                let sibling = VersionedName(suffix.isEmpty ? name : String(name.dropLast(suffix.count)), separator: separator)
-                guard sibling.base == parsed.base, sibling.date == parsed.date,
-                      sibling.edited == parsed.edited, let digits = sibling.version else { continue }
-                guard let number = Int(digits), number < Int.max else {
-                    throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionTooLarge")])
-                }
-                maximum = max(maximum, number)
-            }
-            guard maximum < Int.max else {
-                throw NSError(domain: "CommandDee", code: 1, userInfo: [NSLocalizedDescriptionKey: L("error.versionNext")])
-            }
-            let version = maximum + 1
-            parsed.version = String(version)
-            let candidate = parent.appendingPathComponent(parsed.rendered(order: order) + suffix)
+            // Rescan after a concurrent collision.
+            let candidate = try versionDestination(source, after: lastCollision, manager: manager, order: order, separator: separator)
             do {
-                try manager.copyItem(at: source, to: candidate)
-                return candidate
+                try manager.copyItem(at: source, to: candidate.url)
+                return candidate.url
             } catch let error as NSError {
                 if error.domain == NSCocoaErrorDomain && error.code == NSFileWriteFileExistsError {
-                    lastCollision = version
+                    lastCollision = candidate.version
                     continue
                 }
                 throw error

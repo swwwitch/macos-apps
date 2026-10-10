@@ -21,6 +21,16 @@
 "menu.bringAllToFront" = "前置全部窗口";
 "menu.help" = "帮助";
 "menu.appHelp" = "CommandDee 帮助";
+"menu.showPalette" = "显示面板";
+"menu.hidePalette" = "隐藏面板";
+"palette.subtitle" = "确认结果名称后再点击";
+"palette.noSelection" = "请在 Finder／Path Finder 中选择项目";
+"palette.selection" = "%1$@（%2$@）";
+"palette.selectionMore" = "%1$@ 及其他 %2$d 项（%3$@）";
+"palette.more" = "另 %d 项";
+"palette.alreadyToday" = "无变化（已有今天的日期）";
+"palette.alreadyEdited" = "无变化（已有 edited）";
+"palette.swapNeedsTwo" = "请选择同一文件夹中的 2 个项目";
 "menu.enableShortcuts" = "启用快捷键";
 "status.initial" = "选择文件或文件夹后按 ⌘D";
 "status.tooltip" = "CommandDee — 添加版本号或日期并复制";

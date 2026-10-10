@@ -21,6 +21,16 @@
 "menu.bringAllToFront" = "すべてを手前に移動";
 "menu.help" = "ヘルプ";
 "menu.appHelp" = "CommandDeeヘルプ";
+"menu.showPalette" = "パレットを表示";
+"menu.hidePalette" = "パレットを隠す";
+"palette.subtitle" = "実行後の名前を確かめてからクリック";
+"palette.noSelection" = "Finder／Path Finderで項目を選択してください";
+"palette.selection" = "%1$@（%2$@）";
+"palette.selectionMore" = "%1$@ ほか%2$d項目（%3$@）";
+"palette.more" = "ほか%d項目";
+"palette.alreadyToday" = "変更なし（今日の日付付き）";
+"palette.alreadyEdited" = "変更なし（edited付き）";
+"palette.swapNeedsTwo" = "同じフォルダの2項目を選ぶと使えます";
 "menu.enableShortcuts" = "ホットキーを有効にする";
 "status.initial" = "ファイル／フォルダを選択して ⌘D";
 "status.tooltip" = "CommandDee — バージョン・日付付きで複製";

@@ -27,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }()
     private var recordingShortcut: Int?
     private var lastResult = L("status.initial")
+    private var palette: CommandPalette?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AccessibilityText.neededOverride = [
@@ -55,6 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                 self.shortcutMessage.stringValue = ""
                 self.shortcuts[index] = shortcut
                 Shortcut.save(self.shortcuts)
+                self.palette?.refreshShortcutLabels(self.shortcuts)
                 self.recordingShortcut = nil
                 self.refreshShortcutButtons()
                 return nil
@@ -87,6 +89,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             if self.tap == nil { self.installTap() }
             self.updateStatus()
         }
+        palette = CommandPalette(perform: { [weak self] mode, target in self?.runFromPalette(mode, target: target) },
+                                 isBusy: { [weak self] in self?.busy ?? false },
+                                 openSettings: #selector(showPreferences), settingsTarget: self)
+        if UserDefaults.standard.bool(forKey: CommandPalette.visibleKey) { palette?.show() }
         if !StartupWindow.hidden && !UserDefaults.standard.bool(forKey: "didShowIntroduction") {
             showPreferences()
             UserDefaults.standard.set(true, forKey: "didShowIntroduction")
@@ -140,6 +146,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let openMain = fileMenu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPreferences), keyEquivalent: "0")
         openMain.keyEquivalentModifierMask = .command
         openMain.target = self
+        fileMenu.addItem(.separator())
+        let showPalette = fileMenu.addItem(withTitle: L("menu.showPalette"), action: #selector(togglePalette), keyEquivalent: "p")
+        showPalette.keyEquivalentModifierMask = [.command, .option]
+        showPalette.target = self
         fileMenu.addItem(.separator())
         fileMenu.addItem(withTitle: L("menu.closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileRoot.submenu = fileMenu
@@ -294,6 +304,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                     self.busy = false
                     self.lastResult = failures.isEmpty ? summary : L("partial." + action, copies.count, failures.count)
                     self.updateStatus()
+                    self.palette?.refresh()
                     if !errors.isEmpty { self.showError(errors) }
                 }
             }
@@ -322,6 +333,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         menu.addItem(.separator())
         let openMain = menu.addItem(withTitle: L("menu.openMainWindow"), action: #selector(showPreferences), keyEquivalent: "")
         openMain.target = self
+        let paletteItem = menu.addItem(withTitle: palette?.isVisible == true ? L("menu.hidePalette") : L("menu.showPalette"),
+                                       action: #selector(togglePalette), keyEquivalent: "")
+        paletteItem.target = self
         let toggle = menu.addItem(withTitle: L("menu.enableShortcuts"), action: #selector(toggleEnabled), keyEquivalent: "")
         toggle.target = self
         toggle.state = enabled ? .on : .off
@@ -335,6 +349,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         menu.setSubmenu(helpMenu, for: menu.addItem(withTitle: L("menu.help"), action: nil, keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(withTitle: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    }
+
+    @objc private func togglePalette() {
+        if palette?.isVisible == true { palette?.hide() } else { palette?.show() }
+    }
+
+    /// A palette click works on the selection it previewed; the browser is brought forward first if needed.
+    private func runFromPalette(_ mode: Duplicator.Mode, target: PaletteTarget) {
+        guard !busy, let app = NSRunningApplication(processIdentifier: target.pid), !app.isTerminated else { NSSound.beep(); return }
+        busy = true
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier == target.pid {
+            duplicateSelection(id: target.bundleID, pid: target.pid, mode: mode)
+        } else {
+            app.activate(options: [])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.duplicateSelection(id: target.bundleID, pid: target.pid, mode: mode)
+            }
+        }
     }
 
     @objc private func toggleEnabled() {
@@ -496,6 +528,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         shortcutMessage.stringValue = ""
         shortcuts = Shortcut.defaults
         Shortcut.save(shortcuts)
+        palette?.refreshShortcutLabels(shortcuts)
         refreshShortcutButtons()
     }
 
@@ -530,7 +563,7 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)

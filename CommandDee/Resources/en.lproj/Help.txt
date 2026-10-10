@@ -14,6 +14,11 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate (⌃⌘S swaps names). D = date, E = edited / edit, F = folder, S = switch.
 
+### Palette
+- Choose Show Palette (⌥⌘P) from the menu bar icon to open a palette with a button for each action.
+- For the items selected in Finder or Path Finder, each button shows the resulting name, with the changed part in color. With several items, the first one is shown; hold the pointer over a button to see the result for every item.
+- The palette stays in front of other apps, and clicking it does not change the Finder selection.
+
 ### App Commands
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
