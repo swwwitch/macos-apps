@@ -6,11 +6,14 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ### Duplicate and Rename
 - **⌘D**: duplicate with the next version (the highest version number in the folder + 1)
-- **⌃D**: duplicate, adding or updating today's date at the end
-- **⌃⌘E**: duplicate, adding -edited- and today's date at the end
-- **⌃E**: rename by adding or removing -parent folder name at the end
-- **⌃⇧⌘D**: rename to the highest number + 1 without duplicating
-- **⌃⇧⌘S**: swap the names of 2 items selected in the same folder
+- **⌃D**: rename without duplicating, adding or updating today's date at the end
+- **⌃⌘D**: duplicate, adding or updating today's date at the end
+- **⌃⌘E**: duplicate, adding -edited at the end (the date and version stay as they are)
+- **⌃P**: rename by adding or removing -parent folder name at the end
+- **Increment version only**: rename to the highest number + 1 without duplicating (no key by default; assign one in Settings)
+- **⌃S**: swap the names of 2 items selected in the same folder
+
+⌃ renames without duplicating; ⌘ and ⌃⌘ duplicate. D = date, E = edited / edit, P = parent, S = switch.
 
 ### App Commands
 - **⌘0**: Open Main Window
@@ -20,13 +23,14 @@ A menu bar app that duplicates or renames the files and folders selected in Find
 
 ## Examples
 - **⌘D**: v2 and v5 exist → v6 (gaps are ignored)
-- **⌃D**: aaa.txt → aaa-YYYYMMDD.txt
-- **⌃⌘E**: aaa.txt → aaa-edited-YYYYMMDD.txt
+- **⌃D**: aaa.txt → aaa-YYYYMMDD.txt (rename)
+- **⌃⌘D**: aaa.txt → aaa-YYYYMMDD.txt (duplicate)
+- **⌃⌘E**: aaa.txt → aaa-edited.txt
 
 ## Duplicate and Rename Rules
 - Extensions are kept, and neither the original nor existing copies are overwritten.
 - A trailing 6- or 8-digit date is recognized and updated to 8 digits.
-- Items already dated today are skipped (adding "edited" still runs).
+- Items already dated today are skipped (⌃D, ⌃⌘D). Items already marked "edited" are skipped by ⌃⌘E.
 - If another item with the same name exists, nothing is changed and you are notified.
 
 ### Swapping Names

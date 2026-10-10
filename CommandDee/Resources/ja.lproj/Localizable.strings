@@ -60,6 +60,7 @@
 "shortcut.unset" = "未設定";
 "shortcut.version" = "連番で複製";
 "shortcut.date" = "日付付きで複製";
+"shortcut.renameDate" = "日付付き（名前変更）";
 "shortcut.edited" = "edited付きで複製";
 "shortcut.parent" = "親フォルダ名を付け外し";
 "shortcut.renameVersion" = "連番だけ更新（名前変更）";

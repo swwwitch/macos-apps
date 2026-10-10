@@ -63,21 +63,21 @@ try check(overflowFailed, "oversized version fails safely instead of filling gap
 let jst = TimeZone(identifier: "Asia/Tokyo")!
 let trace = try file("線パネルのトレース-v3-edited-20261006.ai")
 let traceCopy = try Duplicator.duplicate(trace)
-try check(traceCopy.lastPathComponent == "線パネルのトレース-v4-edited-20261006.ai", "increment version before edited date")
+try check(traceCopy.lastPathComponent == "線パネルのトレース-edited-20261006-v4.ai", "increment version before edited date")
 try check(try Data(contentsOf: traceCopy) == Data(contentsOf: trace), "edited version copy preserves bytes")
 _ = try file("線パネルのトレース-v9-edited-20261006.ai")
 _ = try file("線パネルのトレース-v99-edited-20261005.ai")
-try check(try Duplicator.duplicate(trace).lastPathComponent == "線パネルのトレース-v10-edited-20261006.ai", "edited version ignores gaps and different dates")
-try check(try Duplicator.duplicate(file("draft-v3-20261006.ai")).lastPathComponent == "draft-v4-20261006.ai", "version before date only")
-try check(try Duplicator.duplicate(file("draft-v3-edited-261006.ai")).lastPathComponent == "draft-v4-edited-261006.ai", "six digit date preserved")
-try check(try Duplicator.duplicate(file("draft-v3-edited.ai")).lastPathComponent == "draft-v4-edited.ai", "edited marker without date")
-try check(try Duplicator.duplicate(file("new-edited-20261006.ai")).lastPathComponent == "new-v2-edited-20261006.ai", "insert first version before metadata")
+try check(try Duplicator.duplicate(trace).lastPathComponent == "線パネルのトレース-edited-20261006-v10.ai", "edited version ignores gaps and different dates")
+try check(try Duplicator.duplicate(file("draft-v3-20261006.ai")).lastPathComponent == "draft-20261006-v4.ai", "version before date only")
+try check(try Duplicator.duplicate(file("draft-v3-edited-261006.ai")).lastPathComponent == "draft-edited-261006-v4.ai", "six digit date preserved")
+try check(try Duplicator.duplicate(file("draft-v3-edited.ai")).lastPathComponent == "draft-edited-v4.ai", "edited marker without date")
+try check(try Duplicator.duplicate(file("new-edited-20261006.ai")).lastPathComponent == "new-edited-20261006-v2.ai", "insert first version before metadata")
 try check(try Duplicator.duplicate(file("middle-v3-notes.ai")).lastPathComponent == "middle-v3-notes-v2.ai", "unrecognized suffix remains literal")
 let versionedEditedFolder = root.appendingPathComponent("folder-v3-edited-20261006")
 try fm.createDirectory(at: versionedEditedFolder, withIntermediateDirectories: true)
 try Data("nested".utf8).write(to: versionedEditedFolder.appendingPathComponent("child.txt"))
 let versionedEditedFolderCopy = try Duplicator.duplicate(versionedEditedFolder)
-try check(versionedEditedFolderCopy.lastPathComponent == "folder-v4-edited-20261006", "folder metadata preserved")
+try check(versionedEditedFolderCopy.lastPathComponent == "folder-edited-20261006-v4", "folder metadata preserved")
 try check(try Data(contentsOf: versionedEditedFolderCopy.appendingPathComponent("child.txt")) == Data("nested".utf8), "folder version retains contents")
 let fixedDate = ISO8601DateFormatter().date(from: "2026-10-04T16:00:00Z")!
 func dated(_ source: URL) throws -> URL {
@@ -93,7 +93,7 @@ try check(fm.fileExists(atPath: oldDaily.path), "dated original retained")
 try check(try dated(file("datedREADME")).lastPathComponent == "datedREADME-20261005", "date without extension")
 try check(try dated(file(".dailyenv")).lastPathComponent == ".dailyenv-20261005", "date dotfile")
 try check(try dated(file("途中-20200101-資料.txt")).lastPathComponent == "途中-20200101-資料-20261005.txt", "only trailing date changes")
-try check(try dated(file("versioned-v5-20200101.txt")).lastPathComponent == "versioned-v5-20261005.txt", "keep version when updating date")
+try check(try dated(file("versioned-v5-20200101.txt")).lastPathComponent == "versioned-20261005-v5.txt", "keep version when updating date")
 let datedFolder = root.appendingPathComponent("folder.name-20200101")
 try fm.createDirectory(at: datedFolder, withIntermediateDirectories: true)
 try Data("child".utf8).write(to: datedFolder.appendingPathComponent("child.txt"))
@@ -114,27 +114,27 @@ try check(linkDateFailed, "dated dangling symlink not overwritten")
 let newYear = ISO8601DateFormatter().date(from: "2026-12-31T16:00:00Z")!
 try check(try Duplicator.duplicateDated(file("year.txt"), date: newYear, timeZone: jst).lastPathComponent == "year-20270101.txt", "calendar year and local year boundary")
 func edited(_ source: URL) throws -> URL {
-    try Duplicator.duplicateDated(source, edited: true, date: fixedDate, timeZone: jst)
+    try Duplicator.duplicateEdited(source)
 }
 let editSource = try file("edit.txt")
 let editCopy = try edited(editSource)
-try check(editCopy.lastPathComponent == "edit-edited-20261005.txt", "edited suffix")
+try check(editCopy.lastPathComponent == "edit-edited.txt", "edited suffix without date")
 try check(try Data(contentsOf: editSource) == Data(contentsOf: editCopy), "edited copy bytes and original")
-try check(try edited(file("oldedit-20200101.txt")).lastPathComponent == "oldedit-edited-20261005.txt", "edited replaces date")
-try check(try edited(file("marked-edited-20200101.txt")).lastPathComponent == "marked-edited-20261005.txt", "edited does not repeat marker")
-try check(try edited(file("noextension")).lastPathComponent == "noextension-edited-20261005", "edited no extension")
-try check(try edited(file(".hidden")).lastPathComponent == ".hidden-edited-20261005", "edited dotfile")
-try check(try edited(file("日本語-v3.txt")).lastPathComponent == "日本語-v3-edited-20261005.txt", "edited preserves version")
+try check(try edited(file("oldedit-20200101.txt")).lastPathComponent == "oldedit-edited-20200101.txt", "edited keeps the date")
+try check(try edited(file("marked-edited-20200101.txt")).lastPathComponent == "marked-edited-20200101.txt", "already edited is skipped")
+try check(try edited(file("noextension")).lastPathComponent == "noextension-edited", "edited no extension")
+try check(try edited(file(".hidden")).lastPathComponent == ".hidden-edited", "edited dotfile")
+try check(try edited(file("日本語-v3.txt")).lastPathComponent == "日本語-edited-v3.txt", "edited preserves version")
 var editCollision = false
 do { _ = try edited(editSource) } catch { editCollision = true }
 try check(editCollision, "edited collision")
 try check(try Data(contentsOf: editCopy) == Data(contentsOf: editSource), "edited collision preserves bytes")
 let editedFolder = try edited(datedFolder)
-try check(editedFolder.lastPathComponent == "folder.name-edited-20261005", "edited folder")
+try check(editedFolder.lastPathComponent == "folder.name-edited-20200101", "edited folder keeps date")
 try check(try String(contentsOf: editedFolder.appendingPathComponent("child.txt"), encoding: .utf8) == "child", "edited folder contents")
 try check(try dated(file("short-261001.txt")).lastPathComponent == "short-20261005.txt", "six digit date normalized to today's eight digits")
-try check(try edited(file("shortedit-261001.txt")).lastPathComponent == "shortedit-edited-20261005.txt", "edited six digit date")
-try check(try edited(file("shortmarked-edited-261001.txt")).lastPathComponent == "shortmarked-edited-20261005.txt", "edited six digit marker does not repeat")
+try check(try edited(file("shortedit-261001.txt")).lastPathComponent == "shortedit-edited-261001.txt", "edited keeps six digit date")
+try check(try edited(file("shortmarked-edited-261001.txt")).lastPathComponent == "shortmarked-edited-261001.txt", "edited six digit marker is skipped")
 try check(try dated(file("shortREADME-261001")).lastPathComponent == "shortREADME-20261005", "six digit date without extension")
 try check(try dated(file("middle-261001-notes.txt")).lastPathComponent == "middle-261001-notes-20261005.txt", "six digits only replaced at end")
 try check(try dated(file("seven-1234567.txt")).lastPathComponent == "seven-1234567-20261005.txt", "seven digit suffix left unchanged")
@@ -229,7 +229,7 @@ var changedShortcuts = Shortcut.defaults
 changedShortcuts[1] = Shortcut(keyCode: 6, modifiers: NSEvent.ModifierFlags([.control, .option]).rawValue, label: "⌃⌥Z")
 Shortcut.save(changedShortcuts, defaults: prefs)
 try check(Shortcut.load(defaults: prefs) == changedShortcuts, "custom shortcut round trip persistence")
-prefs.set(Data("invalid".utf8), forKey: "keyboardShortcuts")
+prefs.set(Data("invalid".utf8), forKey: Shortcut.storageKey)
 try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "invalid saved shortcut fallback")
 let plainKey = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: "z", charactersIgnoringModifiers: "z", isARepeat: false, keyCode: 6)!
 try check(Shortcut.capture(plainKey) == nil, "plain typing cannot become shortcut")
@@ -255,7 +255,7 @@ let renameOnly = try file("rename-v3-edited-20261005.txt")
 _ = try file("rename-edited-20261005-v8.txt")
 let renameID = try fm.attributesOfItem(atPath: renameOnly.path)[.systemFileNumber] as! NSNumber
 let renamedOnly = try Duplicator.renameVersion(renameOnly)
-try check(renamedOnly.lastPathComponent == "rename-v9-edited-20261005.txt", "rename uses maximum across orders")
+try check(renamedOnly.lastPathComponent == "rename-edited-20261005-v9.txt", "rename uses maximum across orders")
 try check(!fm.fileExists(atPath: renameOnly.path), "version rename removes original path")
 try check(try fm.attributesOfItem(atPath: renamedOnly.path)[.systemFileNumber] as? NSNumber == renameID, "version rename retains identity")
 let renameFolder = root.appendingPathComponent("rename.folder-v2")
@@ -266,18 +266,11 @@ try check(renamedFolder.lastPathComponent == "rename.folder-v3" && !fm.fileExist
 try check(try Data(contentsOf: renamedFolder.appendingPathComponent("child.txt")) == Data("child".utf8), "folder rename contents")
 try check(try edited(editCopy) == editCopy, "today edited skips")
 try check(try dated(file("today-short-261005.txt")).lastPathComponent == "today-short-261005.txt", "short today skips")
-try check(try edited(file("today-new-marker-20261005.txt")).lastPathComponent == "today-new-marker-edited-20261005.txt", "today without edited can add edited")
-let savedFour = Array(changedShortcuts.prefix(4))
-Shortcut.save(savedFour, defaults: prefs)
-try check(Shortcut.load(defaults: prefs) == savedFour + Array(Shortcut.defaults.dropFirst(4)), "migrate old shortcut settings")
-var conflictingFour = savedFour
-conflictingFour[0] = Shortcut.defaults[4]
-Shortcut.save(conflictingFour, defaults: prefs)
-try check(Shortcut.load(defaults: prefs)[4].keyCode == UInt16.max, "migration avoids duplicate shortcut")
+try check(try edited(file("today-new-marker-20261005.txt")).lastPathComponent == "today-new-marker-edited-20261005.txt", "today-dated item can get edited")
 prefs.set(["date", "edited", "version"], forKey: NamingSettings.key)
 try check(NamingSettings.order(defaults: prefs) == ["date", "edited", "version"], "order preference")
 prefs.set(["date", "date", "version"], forKey: NamingSettings.key)
-try check(NamingSettings.order(defaults: prefs) == NamingSettings.orders[0], "invalid order fallback")
+try check(NamingSettings.order(defaults: prefs) == NamingSettings.defaultOrder, "invalid order fallback")
 
 let swapA = try file("DoSomething-v16.jsx")
 let swapB = try file("DoSomething-.jsx")
@@ -297,12 +290,32 @@ for invalid in [[swapA], [swapA, swapA], [swapA, swapB, original], [swapA, root.
 }
 _ = try Duplicator.swapNames([folder, folderCopy])
 try check(fm.fileExists(atPath: folder.appendingPathComponent("nested.txt").path), "swap folders")
-let savedFive = Array(Shortcut.defaults.prefix(5))
-Shortcut.save(savedFive, defaults: prefs)
-try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "migrate five shortcuts")
-var swapConflict = savedFive
-swapConflict[0] = Shortcut.defaults[5]
-Shortcut.save(swapConflict, defaults: prefs)
-try check(Shortcut.load(defaults: prefs)[5].keyCode == UInt16.max, "swap migration avoids conflict")
+
+// ⌃D: add the date to the item itself (no copy); ⌃⌘D: duplicate with the date.
+let renameSource = try file("rename-me.txt")
+let renamedDated = try Duplicator.duplicateDated(renameSource, rename: true, date: fixedDate, timeZone: jst)
+try check(renamedDated.lastPathComponent == "rename-me-20261005.txt" && !fm.fileExists(atPath: renameSource.path), "date rename moves the item")
+try check(try Duplicator.duplicateDated(renamedDated, rename: true, date: fixedDate, timeZone: jst) == renamedDated, "date rename skips today")
+let renameBlocked = try file("blocked.txt"); _ = try file("blocked-20261005.txt")
+var renameCollision = false
+do { _ = try Duplicator.duplicateDated(renameBlocked, rename: true, date: fixedDate, timeZone: jst) } catch { renameCollision = true }
+try check(renameCollision && fm.fileExists(atPath: renameBlocked.path), "date rename never replaces")
+
+// Settings saved by 1.8.12 and earlier (version, date, edited, parent, renameVersion, swapNames).
+func legacyLoad(_ values: [Shortcut]) -> [Shortcut] {
+    prefs.removeObject(forKey: Shortcut.storageKey)
+    prefs.set(try! JSONEncoder().encode(values), forKey: Shortcut.legacyKey)
+    return Shortcut.load(defaults: prefs)
+}
+try check(legacyLoad(Shortcut.legacyDefaults) == Shortcut.defaults, "old default layout moves to the new layout")
+try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "migrated layout is saved")
+var customLegacy = Shortcut.legacyDefaults
+customLegacy[0] = Shortcut(keyCode: 2, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃D")   // version moved to ⌃D
+customLegacy[4] = Shortcut(keyCode: 15, modifiers: NSEvent.ModifierFlags.control.rawValue, label: "⌃R")  // renameVersion customized
+let carried = legacyLoad(customLegacy)
+try check(carried[0].label == "⌃D" && carried[5].label == "⌃R", "customized keys carry over")
+try check(carried[1].keyCode == UInt16.max, "new ⌃D rename starts unset when a custom key holds ⌃D")
+try check(carried[2] == Shortcut.defaults[2] && carried[4] == Shortcut.defaults[4], "untouched keys take the new layout")
+try check(legacyLoad(Array(Shortcut.legacyDefaults.prefix(4))) == Shortcut.defaults, "four-key settings migrate")
 
 print("PASS: \(checks) checks")

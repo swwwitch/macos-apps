@@ -60,6 +60,7 @@
 "shortcut.unset" = "설정 안 됨";
 "shortcut.version" = "다음 버전으로 복제";
 "shortcut.date" = "날짜를 붙여 복제";
+"shortcut.renameDate" = "날짜 붙이기(이름 변경)";
 "shortcut.edited" = "edited를 붙여 복제";
 "shortcut.parent" = "상위 폴더 이름 추가/제거";
 "shortcut.renameVersion" = "버전 번호만 올리기(이름 변경)";

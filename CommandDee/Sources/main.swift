@@ -254,7 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                 }
                 return
             }
-            let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameVersion) ? "rename" : "duplicate")
+            let action = mode == .swapNames ? "swap" : ((mode == .parent || mode == .renameVersion || mode == .renameDate) ? "rename" : "duplicate")
             lastResult = L("progress." + action, files.count)
             updateStatus()
             // Use one date for the whole selection, including batches crossing midnight.
@@ -276,10 +276,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                         switch mode {
                         case .swapNames: continue
                         case .version: copy = try Duplicator.duplicate(file, order: suffixOrder)
-                        case .renameVersion: copy = try Duplicator.renameVersion(file, order: suffixOrder)
                         case .parent: copy = try Duplicator.renameParentToggled(file, skipping: skippedParentName)
                         case .date: copy = try Duplicator.duplicateDated(file, date: batchDate, timeZone: batchTimeZone, order: suffixOrder)
-                        case .edited: copy = try Duplicator.duplicateDated(file, edited: true, date: batchDate, timeZone: batchTimeZone, order: suffixOrder)
+                        case .edited: copy = try Duplicator.duplicateEdited(file, order: suffixOrder)
+                        case .renameVersion: copy = try Duplicator.renameVersion(file, order: suffixOrder)
+                        case .renameDate: copy = try Duplicator.duplicateDated(file, rename: true, date: batchDate, timeZone: batchTimeZone, order: suffixOrder)
                         }
                         if copy == file { skipped += 1 } else { copies.append(copy) }
                     }

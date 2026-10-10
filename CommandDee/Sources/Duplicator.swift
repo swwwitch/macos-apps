@@ -15,9 +15,10 @@ enum NamingSettings {
         ["edited", "version", "date"], ["edited", "date", "version"],
         ["date", "version", "edited"], ["date", "edited", "version"]
     ]
+    static let defaultOrder = ["edited", "date", "version"]
     static func order(defaults: UserDefaults = .standard) -> [String] {
-        let value = defaults.stringArray(forKey: key) ?? orders[0]
-        return orders.contains(value) ? value : orders[0]
+        let value = defaults.stringArray(forKey: key) ?? defaultOrder
+        return orders.contains(value) ? value : defaultOrder
     }
     static func label(_ order: [String]) -> String {
         order.map { ["version": "-v4", "edited": "-edited", "date": "-20261006"][$0]! }.joined()
@@ -49,7 +50,7 @@ private struct VersionedName {
     }
 
     func rendered(order: [String]) -> String {
-        let validOrder = NamingSettings.orders.contains(order) ? order : NamingSettings.orders[0]
+        let validOrder = NamingSettings.orders.contains(order) ? order : NamingSettings.defaultOrder
         return base + validOrder.compactMap { component -> String? in
             switch component {
             case "version": return version.map { "-v" + $0 }
@@ -61,7 +62,7 @@ private struct VersionedName {
 }
 
 enum Duplicator {
-    enum Mode { case version, date, edited, parent, renameVersion, swapNames }
+    enum Mode { case version, renameDate, date, edited, parent, renameVersion, swapNames }
 
     /// One atomic filesystem operation: no temporary name or partially completed exchange.
     static func swapNames(_ sources: [URL]) throws -> [URL] {
@@ -154,7 +155,8 @@ enum Duplicator {
         return destination
     }
 
-    static func duplicateDated(_ source: URL, edited: Bool = false, date: Date = Date(),
+    /// rename: add or update the date on the item itself instead of a copy (⌃D 「日付付き」).
+    static func duplicateDated(_ source: URL, rename: Bool = false, date: Date = Date(),
                                timeZone: TimeZone = .current, manager: FileManager = .default,
                                order: [String] = NamingSettings.order()) throws -> URL {
         let parts = try nameParts(source)
@@ -166,10 +168,35 @@ enum Duplicator {
         formatter.dateFormat = "yyyyMMdd"
         let today = formatter.string(from: date)
         // A no-op preserves the original file and avoids collision alerts.
-        let isToday = name.date == today || name.date == String(today.suffix(6))
-        if isToday && (!edited || name.edited) { return source }
+        if name.date == today || name.date == String(today.suffix(6)) { return source }
         name.date = today
-        if edited { name.edited = true }
+        let destination = source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
+        return rename ? try moveWithoutReplacing(source, to: destination, manager: manager)
+            : try copyWithoutReplacing(source, to: destination, manager: manager)
+    }
+
+    private static func moveWithoutReplacing(_ source: URL, to destination: URL,
+                                              manager: FileManager) throws -> URL {
+        func collision() -> NSError {
+            NSError(domain: "CommandDee", code: 2, userInfo: [NSLocalizedDescriptionKey:
+                L("error.renameExists", destination.lastPathComponent)])
+        }
+        if (try? manager.attributesOfItem(atPath: destination.path)) != nil { throw collision() }
+        do { try manager.moveItem(at: source, to: destination) }
+        catch let error as NSError {
+            if error.domain == NSCocoaErrorDomain && error.code == NSFileWriteFileExistsError { throw collision() }
+            throw error
+        }
+        return destination
+    }
+
+    /// ⌘E: duplicate with -edited- added; an existing date or version is kept as is.
+    static func duplicateEdited(_ source: URL, manager: FileManager = .default,
+                                order: [String] = NamingSettings.order()) throws -> URL {
+        let parts = try nameParts(source)
+        var name = VersionedName(parts.stem)
+        if name.edited { return source }
+        name.edited = true
         let destination = source.deletingLastPathComponent().appendingPathComponent(name.rendered(order: order) + parts.suffix)
         return try copyWithoutReplacing(source, to: destination, manager: manager)
     }

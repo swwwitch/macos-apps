@@ -60,6 +60,7 @@
 "shortcut.unset" = "未设置";
 "shortcut.version" = "复制并递增版本号";
 "shortcut.date" = "复制并添加日期";
+"shortcut.renameDate" = "添加日期（重命名）";
 "shortcut.edited" = "复制并添加 edited";
 "shortcut.parent" = "添加/移除父文件夹名称";
 "shortcut.renameVersion" = "仅递增版本号（重命名）";

@@ -47,7 +47,7 @@ for lang, table in tables.items():
     assert structure == headings['ja'], (lang, 'Help.txt heading structure differs from ja'); checks += 1
     assert '----' not in lines and any(l.startswith('- ') for l in lines), (lang, 'Help.txt bullets'); checks += 1
     assert tables[lang]['menu.appHelp'] in help_text and tables[lang]['menu.help'] in help_text, (lang, 'help names the status menu Help submenu'); checks += 1
-    for shortcut in ['⌘D', '⌃⌘D', '⌃⌘E', '⌃E', '⌃⇧⌘D', '⌃⌥⌘S', '⌘,', '⌘Q']:
+    for shortcut in ['⌘D', '⌃D', '⌃⌘D', '⌃⌘E', '⌃P', '⌃S', '⌘,', '⌘Q']:
         assert shortcut in help_text, (lang, 'help shortcut', shortcut)
     assert '⌘M' not in help_text, (lang, 'Minimize has no key equivalent')
     checks += 1
@@ -61,7 +61,7 @@ for lang in langs:
     assert note_titles[lang] in (root / 'Resources' / f'{lang}.lproj' / 'Help.txt').read_text(encoding='utf-8'), (lang, 'help mentions the note item')
 checks += 1
 plist = (root / 'build.sh').read_text()
-assert '<key>SWNoteArticleURL</key><string>https://note.com/swwwitch/m/m057948d2fbeb</string>' in plist, 'SWNoteArticleURL'
+assert re.search(r'<key>SWNoteArticleURL</key><string>https://note\.com/[^<]+</string>', plist), 'SWNoteArticleURL'  # each app's own article
 checks += 1
 for lang in langs:
     assert f'<string>{lang}</string>' in plist.split('CFBundleLocalizations', 1)[1].split('</array>', 1)[0], lang

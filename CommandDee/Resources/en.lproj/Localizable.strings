@@ -60,6 +60,7 @@
 "shortcut.unset" = "Not Set";
 "shortcut.version" = "Duplicate with next version";
 "shortcut.date" = "Duplicate with date";
+"shortcut.renameDate" = "Add date (rename)";
 "shortcut.edited" = "Duplicate with “edited”";
 "shortcut.parent" = "Add/remove parent folder name";
 "shortcut.renameVersion" = "Increment version only (rename)";
