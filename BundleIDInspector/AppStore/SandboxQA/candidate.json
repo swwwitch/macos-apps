@@ -1,0 +1,9 @@
+{
+  "version": "1.0.5",
+  "build": "6",
+  "bundle_id": "jp.dtp-transit.bundleidinspector",
+  "sparkle_present": false,
+  "updater_keys": [],
+  "executable_sha256": "7aa77e0ce80dadf2d14afb5874da03f1a82dde36caded6f293ec6d98af412c37",
+  "signing": "ad-hoc QA only; not App Store distribution"
+}

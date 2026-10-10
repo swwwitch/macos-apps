@@ -4,18 +4,18 @@ let root = URL(fileURLWithPath: CommandLine.arguments[1])
 let image = NSImage(size: NSSize(width: 1024, height: 1024))
 image.lockFocus()
 // Mustard tile shared with the other sw_app icons (same as IdBackgroundOff).
-let box = NSBezierPath(roundedRect: NSRect(x: 80, y: 80, width: 864, height: 864), xRadius: 220, yRadius: 220)
-let shadow = NSShadow(); shadow.shadowColor = NSColor.black.withAlphaComponent(0.23); shadow.shadowBlurRadius = 18; shadow.shadowOffset = NSSize(width: 0, height: -7)
+let box = NSBezierPath(roundedRect: NSRect(x: 54, y: 54, width: 916, height: 916), xRadius: 220, yRadius: 220)
+let shadow = NSShadow(); shadow.shadowColor = NSColor.black.withAlphaComponent(0.10); shadow.shadowBlurRadius = 0; shadow.shadowOffset = NSSize(width: 0, height: -12)
 NSGraphicsContext.saveGraphicsState(); shadow.set()
-NSGradient(starting: NSColor(srgbRed: 1, green: 0.84, blue: 0.19, alpha: 1), ending: NSColor(srgbRed: 0.93, green: 0.69, blue: 0.055, alpha: 1))!.draw(in: box, angle: -75)
+NSGradient(starting: NSColor(srgbRed: 0.99, green: 0.79, blue: 0.095, alpha: 1), ending: NSColor(srgbRed: 0.97, green: 0.75, blue: 0.075, alpha: 1))!.draw(in: box, angle: -75)
 NSGraphicsContext.restoreGraphicsState()
-NSColor.white.withAlphaComponent(0.35).setStroke(); box.lineWidth = 5; box.stroke()
-let brown = NSColor(srgbRed: 0.38, green: 0.27, blue: 0.09, alpha: 1)
+// No glossy rim: matches the existing flat mustard icon family.
+let brown = NSColor(srgbRed: 0.36, green: 0.25, blue: 0.085, alpha: 1)
 let paper = NSColor(srgbRed: 1, green: 0.985, blue: 0.95, alpha: 1)
 // App tile: the inspected application.
 let tile = NSBezierPath(roundedRect: NSRect(x: 215, y: 300, width: 470, height: 470), xRadius: 110, yRadius: 110)
 NSGraphicsContext.saveGraphicsState(); shadow.set(); paper.setFill(); tile.fill(); NSGraphicsContext.restoreGraphicsState()
-brown.setStroke(); tile.lineWidth = 17; tile.stroke()
+brown.setStroke(); tile.lineWidth = 0; // Cream app tile without a heavy outer outline.
 // "ID" names what the app reads.
 let label = NSAttributedString(string: "ID", attributes: [.font: NSFont.systemFont(ofSize: 250, weight: .heavy), .foregroundColor: brown, .kern: -4])
 let labelSize = label.size()
