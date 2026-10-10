@@ -42,3 +42,11 @@
 - 実際のInDesignへの配置・削除（管理者認証）：未実施（ユーザーのパスワードが必要）
 - 閉じると終了・⌘Q・ヘルプ表示：未確認
 - /ApplicationsとLatest Buildsへの配置・両配置先の版/build/署名・内容一致：deploy_both.pyで確認
+
+## Intel対応検証（2026-10-08 / 1.0.10 build 11）
+
+- ソース・ビルド：build.shでarm64／x86_64を個別コンパイルし、lipoでUniversal化。両アーキテクチャの存在確認と署名検証に成功。Sparkleも両CPU対応。
+- 自動テスト：test.shの全テスト成功（一時疑似InDesignを利用、AppleScript往復を含む）。
+- 配布確認：既存Bundle IDを照合し、Shared/Backups/Buildへ既存版を保存後、/ApplicationsとLatest Buildsへ配置。両配置先のバージョン・build・署名・ファイル内容一致をdeploy_both.pyで確認。
+- 実機確認：Apple Silicon上で/Applications版を起動し、主画面とInDesign一覧の表示を確認。Intel実機での起動・管理者認証・InDesign操作は未確認。
+- InDesign本体へのマーカーファイル追加・削除は今回の検証では実施していない。
