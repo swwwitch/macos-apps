@@ -2,6 +2,7 @@ import Foundation
 
 @main struct TransformTests {
     static func main() {
+        precondition(TextTransform.markdown.apply(TextTransform.bullet.apply("りんご\nみかん")) == "- りんご\n- みかん")
         for (input, expected) in [
             ("2026年01月07日（水）", "2026年1月7日（水）"),
             ("2026-01-07", "2026-1-7"),

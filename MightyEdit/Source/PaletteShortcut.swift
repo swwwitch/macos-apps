@@ -111,7 +111,8 @@ final class PaletteShortcut: NSObject {
         residentNote.font = .systemFont(ofSize: 11); residentNote.textColor = .secondaryLabelColor
         let group = SettingsUI.group(SettingsUI.launchTitle, [login, resident, residentNote, MenuBarPresence.shared.settingsControl(), enabled, label, row, status, reset, note])
         let permission = AccessibilityPermissionControl(required: true)
-        let stack = NSStackView(views: [group, permission])
+        let quit = SettingsUI.quitRestartGroup()
+        let stack = NSStackView(views: [group, permission, quit])
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
         let container = PaletteSettingsDocumentView(); container.translatesAutoresizingMaskIntoConstraints = false
@@ -123,6 +124,7 @@ final class PaletteShortcut: NSObject {
             group.widthAnchor.constraint(equalTo: stack.widthAnchor),
             permission.widthAnchor.constraint(equalTo: stack.widthAnchor),
             permission.heightAnchor.constraint(equalToConstant: 180),
+            quit.widthAnchor.constraint(equalTo: stack.widthAnchor),
             stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -24)
         ])
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.drawsBackground = false
@@ -143,6 +145,17 @@ final class PaletteShortcut: NSObject {
     private var currentBinding: HotkeyBinding? {
         if let saved = UserDefaults.standard.object(forKey: prefix + "binding") as? Int { return HotkeyBinding.decode(saved) }
         return HotkeyBinding(key: keys[key.indexOfSelectedItem].1, modifiers: combinations[modifiers.indexOfSelectedItem].1)
+    }
+    /// Re-reads the saved binding after iCloud sync replaced it.
+    func reloadFromDefaults() {
+        let defaults = UserDefaults.standard
+        enabled.state = defaults.object(forKey: prefix + "enabled") == nil || defaults.bool(forKey: prefix + "enabled") ? .on : .off
+        let combination = (defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1
+        modifiers.selectItem(at: combinations.indices.contains(combination) ? combination : 1)
+        key.selectItem(withTitle: defaults.string(forKey: prefix + "key") ?? "E")
+        if key.indexOfSelectedItem < 0 { key.selectItem(withTitle: "E") }
+        editor?.load(currentBinding)
+        register()
     }
     @objc private func resetDefault() {
         UserDefaults.standard.removeObject(forKey: prefix + "binding")

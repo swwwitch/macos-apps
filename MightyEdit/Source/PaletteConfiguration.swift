@@ -28,7 +28,7 @@ enum PaletteConfiguration {
         ("文字の整形", [.narrowAlphanumerics, .widenKana, .removeJapaneseSpaces, .addJapaneseSpaces]),
         ("欧文", [.fullwidthWestern, .halfwidthWestern, .capitalizeWords, .titleCase, .camelCase]),
         ("日付", [.dateToISO, .dateToJapanese, .dateToCompact, .removeDatePadding, .dateToEra, .dateToGregorian, .removeDateYear, .addDateYear, .weekdayShort, .weekdayLong]),
-        ("ソースコード", [.minify, .beautify]),
+        ("ソースコード", [.minify, .minifyBody, .beautify]),
         ("その他", [.addPeriod, .removePeriod])
     ]
     // Group names above are internal identifiers (persistence and grouping), never shown directly.

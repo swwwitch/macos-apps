@@ -14,6 +14,11 @@ enum HTMLMinifier {
     private static let protectedNames = Set(["pre", "svg", "math"])
     private static let rawNames = Set(["script", "style", "textarea", "title", "xmp", "iframe", "noembed", "noframes"])
     private static let voids = Set("area base br col embed hr img input link meta source track wbr".split(separator: " ").map(String.init))
+    private static let headOnly = Set(["meta", "link", "title", "base"])
+    private static let invisibles = Set(["script", "style", "template", "noscript"])
+    private static func blockBoundary(_ token: Token) -> Bool {
+        !token.isText && (blocks.contains(token.name) || headOnly.contains(token.name) || token.text.lowercased().hasPrefix("<!doctype"))
+    }
     private static func regex(_ pattern: String) -> NSRegularExpression { try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) }
     private static func collapse(_ value: String) -> String { value.replacingOccurrences(of: "[ \\t\\r\\n\\x{000C}]+", with: " ", options: .regularExpression) }
 
@@ -70,8 +75,13 @@ enum HTMLMinifier {
         guard var tokens = tokenize(input, compact: true) else { return input }
         for i in tokens.indices where tokens[i].isText && !tokens[i].protected {
             tokens[i].text = collapse(tokens[i].text)
+            // Whitespace next to a block boundary never renders, so trim it on that side.
+            if i > 0, blockBoundary(tokens[i-1]), tokens[i].text.hasPrefix(" ") { tokens[i].text.removeFirst() }
+            if i + 1 < tokens.count, blockBoundary(tokens[i+1]), tokens[i].text.hasSuffix(" ") { tokens[i].text.removeLast() }
+            // Between invisible elements (script/style) and blocks, a lone space is insignificant too.
             if tokens[i].text == " ", i > 0, i + 1 < tokens.count,
-               blocks.contains(tokens[i-1].name), blocks.contains(tokens[i+1].name) { tokens[i].text = "" }
+               blockBoundary(tokens[i-1]) || invisibles.contains(tokens[i-1].name),
+               blockBoundary(tokens[i+1]) || invisibles.contains(tokens[i+1].name) { tokens[i].text = "" }
         }
         tokens.removeAll { $0.text.isEmpty }
         for i in tokens.indices where tokens[i].closing && !tokens[i].protected {
@@ -83,6 +93,27 @@ enum HTMLMinifier {
             if omitEnd(tokens[i].name, next: next) { tokens[i].text = "" }
         }
         return tokens.map(\.text).joined()
+    }
+
+    /// Minify+: drop DOCTYPE, html, head (with its contents) and body, keeping only the body contents.
+    static func minifyBody(_ input: String) -> String {
+        guard let tokens = tokenize(input, compact: false) else { return minify(input) }
+        let wrappers: Set<String> = ["html", "head", "body"]
+        var kept: [Token] = []
+        if let start = tokens.firstIndex(where: { $0.name == "body" && !$0.closing }) {
+            for token in tokens[(start+1)...] {
+                if token.closing && (token.name == "body" || token.name == "html") { break }
+                kept.append(token)
+            }
+        } else {
+            var inHead = false
+            for token in tokens {
+                if token.name == "head" { inHead = !token.closing; continue }
+                if inHead || wrappers.contains(token.name) || token.text.lowercased().hasPrefix("<!doctype") { continue }
+                kept.append(token)
+            }
+        }
+        return minify(kept.map(\.text).joined()).trimmingCharacters(in: spaces)
     }
 
     /// Format structural boundaries only; never split inline text or raw contents.

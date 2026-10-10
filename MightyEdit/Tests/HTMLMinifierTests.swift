@@ -26,12 +26,28 @@ import Foundation
             ("<script>unterminated", "<script>unterminated"),
             ("<html><head><title>A</title></head><body><p>A</p></body></html>", "<html><head><title>A</title><body><p>A"),
             ("<body>A</body><!--[if IE]>x<![endif]-->", "<body>A</body><!--[if IE]>x<![endif]-->"),
-            ("全角　　&nbsp;&nbsp;", "全角　　&nbsp;&nbsp;")
+            ("全角　　&nbsp;&nbsp;", "全角　　&nbsp;&nbsp;"),
+            ("<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <title>A</title>\n</head>", "<!DOCTYPE html><html><head><meta charset=utf-8><title>A</title>"),
+            ("<div>\n  <span>a</span>\n</div>", "<div><span>a</span></div>"),
+            ("<p> text \n</p>", "<p>text</p>"),
+            ("<p>a</p>\n<img src=\"x\">\n<p>b</p>", "<p>a</p><img src=x><p>b</p>"),
+            ("<body>\n<script src=\"a\"></script>\n</body>", "<body><script src=a></script>"),
+            ("a <script></script> b", "a <script></script> b")
         ]
         for (input, expected) in cases {
             let actual = HTMLMinifier.minify(input)
             precondition(actual == expected, "Input: \(input)\nExpected: \(expected)\nActual: \(actual)")
             precondition(HTMLMinifier.minify(actual) == actual, "Not idempotent: \(actual)")
+        }
+        let bodyCases: [(String, String)] = [
+            ("<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>A</title>\n</head>\n<body class=\"x\">\n  <div>\n    <p>Hello   world</p>\n  </div>\n</body>\n</html>\n", "<div><p>Hello world</div>"),
+            ("<html><head><title>A</title></head><p>B</p></html>", "<p>B</p>"),
+            ("<head><script>var s = \"<body>\";</script></head><body><span>a</span> <b>b</b></body>", "<span>a</span> <b>b</b>"),
+            ("<p>no wrapper</p>", "<p>no wrapper</p>")
+        ]
+        for (input, expected) in bodyCases {
+            let actual = HTMLMinifier.minifyBody(input)
+            precondition(actual == expected, "Minify+ Input: \(input)\nExpected: \(expected)\nActual: \(actual)")
         }
         print("Passed \(cases.count) HTML minifier cases and idempotence checks")
     }

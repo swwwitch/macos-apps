@@ -9,6 +9,7 @@ trap 'rm -rf "$OUT"' EXIT
 LOCALIZATION=(Source/Localization.swift Source/LocalizationFallback.swift)
 TRANSFORMS=(Source/LineTools.swift Source/HTMLMinifier.swift Source/TextTransform.swift Source/TypographyOption.swift Source/DateTransform.swift)
 typeset -A deps
+deps[ContinuationSelectionTests]="Source/ContinuationSelection.swift"
 deps[TextTransformTests]="${TRANSFORMS[*]}"
 deps[HTMLBeautifierTests]="${TRANSFORMS[*]}"
 deps[HTMLMinifierTests]="Source/HTMLMinifier.swift"

@@ -104,6 +104,27 @@ group.more|追加の操作|More Actions|更多操作|추가 동작
 special.lists|その他のリスト|More Lists|更多列表|기타 목록
 tab.special|スペシャル|Special|特殊|스페셜
 tab.autoShow|自動表示|Auto Show|自动显示|자동 표시
+tab.options|オプション|Options|选项|옵션
+sync.title|設定の同期|Settings Sync|设置同步|설정 동기화
+sync.noFolder|同期フォルダーが設定されていません|No sync folder set|未设置同步文件夹|동기화 폴더가 설정되지 않음
+sync.note|パレットの表示モード・表示するボタン・ボタンの表示方法・スペシャルの項目・機能のホットキー・パレット呼び出しのホットキーを、このフォルダーに保存してほかのMacと共有します。フォルダーはこのMacの中でも、iCloud DriveやDropboxなど同期サービスの中でも構いません。同期サービスでは、このフォルダーを常にこのMacに保存する（オフラインで使用可能にする）設定にしてください。|The palette mode, visible buttons, button style, Special items, action hotkeys and the palette shortcut are saved in this folder and shared with your other Macs. The folder can be local or inside a sync service such as iCloud Drive or Dropbox. With a sync service, keep this folder downloaded and available offline.|面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键和调出面板的快捷键会保存到此文件夹，并与其他 Mac 共享。文件夹可以在本机，也可以在 iCloud 云盘、Dropbox 等同步服务中。使用同步服务时，请将此文件夹设为始终保留在本机（可离线使用）。|팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키를 이 폴더에 저장해 다른 Mac과 공유합니다. 폴더는 이 Mac 안이나 iCloud Drive, Dropbox 같은 동기화 서비스 안에 둘 수 있습니다. 동기화 서비스에서는 이 폴더를 항상 이 Mac에 보관(오프라인 사용 가능)하도록 설정하세요.
+sync.perMac|ログイン時の起動、常駐、アクセシビリティ、ウインドウ位置、自動表示、対象外アプリ、同期フォルダーの場所はMacごとに保持します。複数のMacで変更した場合は、後から保存した内容が優先されます。|Login launch, background, Accessibility, window positions, auto show, excluded apps and the sync folder location stay per Mac. If several Macs change settings, the most recent save wins.|登录时启动、后台运行、辅助功能、窗口位置、自动显示、排除的应用和同步文件夹的位置在每台 Mac 上分别保留。多台 Mac 修改时以最后保存的内容为准。|로그인 시 실행, 백그라운드, 손쉬운 사용, 윈도우 위치, 자동 표시, 제외 앱, 동기화 폴더 위치는 Mac마다 유지합니다. 여러 Mac에서 변경하면 나중에 저장한 내용이 우선합니다.
+sync.choose|同期フォルダーを設定...|Set Sync Folder...|设置同步文件夹...|동기화 폴더 설정...
+sync.choosePrompt|このフォルダーで同期|Sync with This Folder|使用此文件夹同步|이 폴더로 동기화
+sync.chooseMessage|設定を保存して共有するフォルダーを選んでください（iCloud Drive・Dropboxなど）|Choose a folder to save and share settings (iCloud Drive, Dropbox, etc.)|选择用于保存和共享设置的文件夹（iCloud 云盘、Dropbox 等）|설정을 저장하고 공유할 폴더를 선택하세요(iCloud Drive, Dropbox 등)
+sync.reveal|Finderで表示|Reveal in Finder|在 Finder 中显示|Finder에서 보기
+sync.now|今すぐ同期|Sync Now|立即同步|지금 동기화
+sync.stop|同期を停止|Stop Syncing|停止同步|동기화 중지
+sync.off|同期していません|Not syncing|未同步|동기화하지 않음
+sync.waiting|同期の準備中...|Preparing to sync...|正在准备同步...|동기화 준비 중...
+sync.last|最終同期：%@|Last synced: %@|上次同步：%@|마지막 동기화: %@
+sync.failed|同期フォルダーに保存できませんでした|Could not save to the sync folder|无法保存到同步文件夹|동기화 폴더에 저장하지 못했습니다
+sync.unavailable|同期フォルダーが見つかりません。同期サービスが動いているか確認するか、フォルダーを設定し直してください。|The sync folder cannot be found. Check that the sync service is running, or set the folder again.|找不到同步文件夹。请确认同步服务正在运行，或重新设置文件夹。|동기화 폴더를 찾을 수 없습니다. 동기화 서비스가 실행 중인지 확인하거나 폴더를 다시 설정하세요.
+sync.conflictTitle|このフォルダーには保存済みの設定があります|This folder already has saved settings|此文件夹中已有保存的设置|이 폴더에 저장된 설정이 있습니다
+sync.conflictDetail|「%@」で保存した設定と、このMacの設定が異なります。どちらを使いますか？|The settings saved on “%@” differ from this Mac’s settings. Which do you want to use?|在“%@”上保存的设置与这台 Mac 的设置不同。要使用哪一个？|“%@”에서 저장한 설정이 이 Mac의 설정과 다릅니다. 어느 쪽을 사용하시겠습니까?
+sync.useCloud|保存済みの設定を使う|Use Saved Settings|使用已保存的设置|저장된 설정 사용
+sync.useLocal|このMacの設定を使う|Use This Mac’s Settings|使用这台 Mac 的设置|이 Mac의 설정 사용
+sync.cancel|キャンセル|Cancel|取消|취소
 display.heading|モードごとの表示設定|Display Settings by Mode|按模式设置显示|모드별 표시 설정
 display.modeToEdit|設定するモード|Mode to configure|要设置的模式|설정할 모드
 display.itemsHeading|表示するカテゴリ・ボタン|Categories and Buttons to Show|要显示的类别和按钮|표시할 카테고리 및 버튼
@@ -128,6 +149,7 @@ op.bracketNumber|括弧付き数字|Bracketed Numbers|带括号数字|괄호 숫
 op.bracketAlphabet|括弧付きアルファベット|Bracketed Letters|带括号字母|괄호 영문자
 op.beautify|Beautify（HTML整形）|Beautify (HTML)|Beautify（HTML 格式化）|Beautify(HTML 정리)
 op.minify|Minify（空白圧縮）|Minify (Whitespace)|Minify（压缩空白）|Minify(공백 압축)
+op.minifyBody|Minify+（bodyの中だけ）|Minify+ (Body Only)|Minify+（仅 body 内容）|Minify+(body 내용만)
 op.joinAll|すべての改行を削除|Remove All Line Breaks|删除所有换行|모든 줄 바꿈 삭제
 op.narrowAlphanumerics|全角英数字を半角に|Full-width Letters/Digits to Half-width|全角字母数字转半角|전각 영숫자를 반각으로
 op.widenKana|半角カナを全角に|Half-width Kana to Full-width|半角假名转全角|반각 가나를 전각으로
@@ -196,6 +218,7 @@ tip.joinWestern|空行を残し、本文の改行を半角スペース1つで連
 tip.join|空行を区切りとして残し、本文の改行を削除して連結|Removes line breaks within paragraphs, keeping blank lines as separators|保留空行作为分隔，删除正文换行并连接|빈 줄을 구분으로 남기고 본문 줄 바꿈을 삭제하여 연결
 tip.joinAll|空行も含むすべての改行を削除して連結|Removes every line break, including blank lines|删除包括空行在内的所有换行并连接|빈 줄을 포함한 모든 줄 바꿈을 삭제하여 연결
 tip.beautify|HTMLのブロック要素間に改行と2スペースのインデントを追加（インライン本文・コードは保持）|Adds line breaks and 2-space indents between HTML block elements (inline text and code are kept)|在 HTML 块元素间添加换行和两个空格缩进（保留行内文本和代码）|HTML 블록 요소 사이에 줄 바꿈과 2칸 들여쓰기 추가(인라인 본문·코드 유지)
+tip.minifyBody|html・head・body要素とDOCTYPEを削除してbodyの中だけを残し、Minifyと同じ圧縮を行う|Removes the html, head and body elements and DOCTYPE, keeps only the body contents, then compresses them like Minify|删除 html、head、body 元素和 DOCTYPE，仅保留 body 内容，再按 Minify 压缩|html·head·body 요소와 DOCTYPE을 삭제하고 body 내용만 남긴 뒤 Minify와 같이 압축
 tip.minify|HTMLのコメント・空白・属性・省略可能な終了タグを圧縮（インライン要素間の空白とコード本文は保護）|Compresses HTML comments, whitespace, attributes and optional end tags (spaces between inline elements and code are protected)|压缩 HTML 注释、空白、属性和可省略的结束标签（保护行内元素间空白和代码）|HTML 주석·공백·속성·생략 가능한 종료 태그 압축(인라인 요소 사이 공백과 코드는 보호)
 tip.removeBlankLines|空白・タブだけの行を含む空行を削除|Removes blank lines, including lines with only spaces or tabs|删除空行（包括仅含空格或制表符的行）|공백·탭만 있는 줄을 포함한 빈 줄 삭제
 tip.spaceLines|既存の空行を整理し、各行の間に空行を1つ入れる|Tidies existing blank lines and puts one blank line between lines|整理现有空行，在各行之间插入一个空行|기존 빈 줄을 정리하고 각 줄 사이에 빈 줄을 하나 넣음

@@ -23,6 +23,7 @@ enum TextTransform: Int, CaseIterable {
     case dateToCompact
     case removeDatePadding
     case trimLineEdges, sortLineLength, countText, affixLines
+    case minifyBody
 
     static let specialLists: [TextTransform] = [.blackCircled, .kanji, .formalKanji, .circledAlphabet, .romanUpper, .romanLower, .checkmark, .emptyBox, .checkedBox, .taskList]
 
@@ -315,6 +316,7 @@ enum TextTransform: Int, CaseIterable {
         case .bracketAlphabet: return L("op.bracketAlphabet")
         case .beautify: return L("op.beautify")
         case .minify: return L("op.minify")
+        case .minifyBody: return L("op.minifyBody")
         case .joinAll: return L("op.joinAll")
         case .narrowAlphanumerics: return L("op.narrowAlphanumerics")
         case .widenKana: return L("op.widenKana")
@@ -396,6 +398,7 @@ enum TextTransform: Int, CaseIterable {
         if self == .countText || self == .affixLines { return text } // Handled by the panel; never replace with a count.
         if self == .beautify { return HTMLMinifier.beautify(text) }
         if self == .minify { return HTMLMinifier.minify(text) }
+        if self == .minifyBody { return HTMLMinifier.minifyBody(text) }
         if self == .addCommas || self == .removeCommas { return formatCommas(text) }
         // Treat CRLF as one newline, and support pasted Unicode separators.
         let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
