@@ -6,13 +6,13 @@ Moves or duplicates the files and folders selected in the Finder or Path Finder 
 3. Select a destination folder in the list and press Return, or double-click it. A single click only selects.
 
 - To copy, turn on **Duplicate**; to create links, turn on **Create symbolic links** before running. You can also press ⌥Return to duplicate or ⌃Return to create symbolic links.
-- Hold ⌘ while running to bring the destination to the front when it finishes.
+- Hold ⌘ while running to bring the destination to the front with the processed items selected when it finishes.
 - Places that cannot be used as a destination, such as the folder containing the selected files, are dimmed with the reason shown.
 - Right-click an item in the Finder or Path Finder and choose FolderHopper from **Open With** to use it as Received files.
 
 ## Destinations
 - **Finder Windows**: The locations of windows open in the Finder or Path Finder.
-- **Choose / Desktop**: On the left, Choose Folder…: click the folder icon and select a destination folder to run the current mode (move, duplicate, or create links) right away. ⌘-click to bring the destination to the front when it finishes. The next time, the panel opens at the last folder you chose. Click Desktop on the right (or press Return) to move (duplicate, or link) the selection straight to the Desktop.
+- **Choose / Desktop**: On the left, Choose Folder…: click the folder icon and select a destination folder to run the current mode (move, duplicate, or create links) right away. ⌘-click to bring the destination to the front with the processed items selected when it finishes. The next time, the panel opens at the last folder you chose. Click Desktop on the right (or press Return) to move (duplicate, or link) the selection straight to the Desktop.
 - **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run.
 - **Recent Folders**: The recent-folder history saved by the Finder and Path Finder.
 
@@ -40,13 +40,13 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 - Tidy the list with **Clear Recent Folders** and **Restore**. Clearing affects only this app’s list; the Finder and Path Finder history is not changed.
 
 ## Keyboard Shortcuts
-Show the app with ⌃⌥⌘M by default. Available while the app is running.
+Show the app with ⌃⌥⌘M by default. Available while the app is running and Finder/Path Finder is in front; in other apps the keys pass through to that app.
 
 - **Return**: Execute
 - **⌥Return**: Duplicate
 - **⌃Return**: Create symbolic links
-- **⌃⌥⌘⇧A**: Moves the items selected in Finder/Path Finder to the Applications folder without showing the window (from any app while running; follows **Duplicate** or **Create symbolic links** when turned on; turn it on or off in the File Operations tab of Settings)
-- **Add ⌘**: Bring the destination to the front when finished
+- **⌃⌥⌘⇧A**: Moves the items selected in Finder/Path Finder to the Applications folder without showing the window (while running, with Finder/Path Finder in front; follows **Duplicate** or **Create symbolic links** when turned on; turn it on or off in the File Operations tab of Settings)
+- **Add ⌘**: Bring the destination to the front with the processed items selected
 - **Tab**: Switch between Finder Windows and Recent Folders
 - **←→**: Select a favorite
 - **Esc**: Close window

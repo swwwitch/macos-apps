@@ -15,14 +15,15 @@ enum BrowserReader {
     static func read(_ app: NSRunningApplication) -> BrowserState {
         BrowserState(id: "opened-files", name: L("受け取ったファイル"))
     }
-    static func bringDestinationForward(_ destination: Destination, preferredID: String?) -> String? {
-        NSWorkspace.shared.open(destination.url)
+    static func bringDestinationForward(_ destination: Destination, preferredID: String?, selecting items: [URL] = []) -> String? {
+        if items.isEmpty { NSWorkspace.shared.open(destination.url) } else { NSWorkspace.shared.activateFileViewerSelecting(items) }
         return nil
     }
 }
 #else
 enum BrowserReader {
-    static func bringDestinationForward(_ destination: Destination, preferredID: String?) -> String? {
+    /// Brings the destination folder's window forward and, when given, selects `items` inside it.
+    static func bringDestinationForward(_ destination: Destination, preferredID: String?, selecting items: [URL] = []) -> String? {
         let running = apps()
         let id: String
         if destination.origin.hasPrefix("Path Finder") {
@@ -38,22 +39,27 @@ enum BrowserReader {
         let path = destination.url.standardizedFileURL.path
         let target = id == "com.apple.finder" ? "POSIX path of (target of Finder window n as alias)" : "POSIX path of (target of Finder window n)"
         let restore = id == "com.apple.finder" ? "set collapsed of Finder window n to false" : "set visible of Finder window n to true"
+        // Finder selects aliases in the front window; Path Finder takes a list of POSIX paths.
+        let itemList = items.map { id == "com.apple.finder" ? "(POSIX file \(quoted($0.path)) as alias)" : quoted($0.path) }.joined(separator: ", ")
+        let selectItems = items.isEmpty ? "" : "try\n              select {\(itemList)}\n            end try"
         let source = """
         with timeout of 10 seconds
           tell application id \(quoted(id))
+            set found to false
             repeat with n from 1 to (count Finder windows)
               try
                 set folderPath to \(target)
                 if folderPath is \(quoted(path)) or folderPath is \(quoted(path + "/")) then
                   \(restore)
                   set index of Finder window n to 1
-                  activate
-                  return
+                  set found to true
+                  exit repeat
                 end if
               end try
             end repeat
-            open (POSIX file \(quoted(path)) as alias)
+            if not found then open (POSIX file \(quoted(path)) as alias)
             activate
+            \(selectItems)
           end tell
         end timeout
         """
@@ -129,10 +135,9 @@ enum BrowserReader {
         }
         return state
     }
+    static let identifiers: Set<String> = ["com.apple.finder", "com.cocoatech.PathFinder", "com.cocoatech.PathFinder-setapp"]
     static func apps() -> [NSRunningApplication] {
-        NSWorkspace.shared.runningApplications.filter {
-            ["com.apple.finder", "com.cocoatech.PathFinder", "com.cocoatech.PathFinder-setapp"].contains($0.bundleIdentifier ?? "")
-        }.sorted { ($0.bundleIdentifier ?? "") < ($1.bundleIdentifier ?? "") }
+        NSWorkspace.shared.runningApplications.filter { identifiers.contains($0.bundleIdentifier ?? "") }.sorted { ($0.bundleIdentifier ?? "") < ($1.bundleIdentifier ?? "") }
     }
 }
 

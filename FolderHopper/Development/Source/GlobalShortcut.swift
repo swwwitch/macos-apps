@@ -22,9 +22,11 @@ final class GlobalShortcut {
         get { actions[1] }
         set { actions[1] = newValue }
     }
+    /// Hotkeys are registered only while one of these apps is frontmost; elsewhere the keys pass through. Empty = always.
+    var activeApps: Set<String> = []
     private var references: [UInt32: EventHotKeyRef] = [:]
     private var handler: EventHandlerRef?
-    private var current: [UInt32: (UInt32, UInt32)] = [:]
+    private var wanted: [UInt32: (UInt32, UInt32)] = [:]
     init() {
         var type = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
@@ -39,9 +41,10 @@ final class GlobalShortcut {
         }, 1, &type, Unmanaged.passUnretained(self).toOpaque(), &handler)
     }
     // Register the replacement first so a conflict leaves the previous shortcut working.
+    // The key is registered even outside `activeApps` to report conflicts, then released by `refresh`.
     func configure(id: UInt32 = 1, enabled: Bool, key: UInt32, modifiers: UInt32) -> Bool {
         guard handler != nil else { return false }
-        if enabled, let existing = current[id], existing.0 == key, existing.1 == modifiers { return true }
+        if enabled, let existing = wanted[id], existing == (key, modifiers) { refresh(); return true }
         var replacement: EventHotKeyRef?
         if enabled {
             let result = RegisterEventHotKey(key, modifiers, EventHotKeyID(signature: 0x464D4F56, id: id), GetApplicationEventTarget(), OptionBits(kEventHotKeyExclusive), &replacement)
@@ -49,8 +52,24 @@ final class GlobalShortcut {
         }
         if let reference = references[id] { UnregisterEventHotKey(reference) }
         references[id] = replacement
-        current[id] = enabled ? (key, modifiers) : nil
+        wanted[id] = enabled ? (key, modifiers) : nil
+        refresh()
         return true
+    }
+    /// Call when the frontmost app changes: registers the wanted keys over `activeApps`, releases them elsewhere.
+    func refresh(frontmost: String? = NSWorkspace.shared.frontmostApplication?.bundleIdentifier) {
+        let active = activeApps.isEmpty || activeApps.contains(frontmost ?? "")
+        for (id, shortcut) in wanted {
+            if active, references[id] == nil {
+                var reference: EventHotKeyRef?
+                if RegisterEventHotKey(shortcut.0, shortcut.1, EventHotKeyID(signature: 0x464D4F56, id: id), GetApplicationEventTarget(), OptionBits(kEventHotKeyExclusive), &reference) == noErr {
+                    references[id] = reference
+                }
+            } else if !active, let reference = references[id] {
+                UnregisterEventHotKey(reference)
+                references[id] = nil
+            }
+        }
     }
     deinit {
         for reference in references.values { UnregisterEventHotKey(reference) }

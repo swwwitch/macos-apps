@@ -242,8 +242,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         return true
     }
     @objc func activated(_ notification: Notification) {
-        if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-           BrowserReader.apps().contains(where: { $0.bundleIdentifier == app.bundleIdentifier }) { lastBrowser = app.bundleIdentifier }
+        let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+        if let id = app?.bundleIdentifier, BrowserReader.identifiers.contains(id) { lastBrowser = id }
+        globalShortcut.refresh(frontmost: app?.bundleIdentifier)
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         // Even while processing or with a sheet open, at least bring the window to the front.
@@ -505,6 +506,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             control.target = self; control.action = #selector(shortcutChanged)
         }
         restoreShortcutControls()
+        // Both hotkeys work only while Finder / Path Finder is frontmost; other apps keep the keys.
+        globalShortcut.activeApps = BrowserReader.identifiers
         globalShortcut.action = { [weak self] in
             guard let self else { return }
             if let id = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
@@ -527,7 +530,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let shortcut = GlobalShortcut.applicationsShortcut
         if globalShortcut.configure(id: 2, enabled: enabled, key: shortcut.key, modifiers: shortcut.modifiers) {
             UserDefaults.standard.set(enabled, forKey: "applicationsShortcutEnabled")
-            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を移動します。常駐中に使用できます。")
+            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を移動します。常駐中、Finder／Path Finderが前面のときに使用できます。")
         } else {
             applicationsShortcutEnabled.state = .off
             applicationsShortcutStatus.stringValue = L("⌃⌥⌘⇧Aは他のアプリが使用しているため登録できませんでした。")
@@ -578,7 +581,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             UserDefaults.standard.set(enabled, forKey: "shortcutEnabled")
             UserDefaults.standard.set(modifier, forKey: "shortcutModifierIndex")
             UserDefaults.standard.set(key, forKey: "shortcutKeyIndex")
-            shortcutStatus.stringValue = L("常駐中に使用できます。アプリを終了した場合は、先に起動してください。")
+            shortcutStatus.stringValue = L("常駐中、Finder／Path Finderが前面のときに使用できます。アプリを終了した場合は、先に起動してください。")
         } else {
             restoreShortcutControls()
             shortcutStatus.stringValue = L("このキーは登録できませんでした。他の組み合わせを選んでください。")
@@ -1189,7 +1192,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                         }
                         if bringForward {
                             self.queue.async {
-                                if let message = BrowserReader.bringDestinationForward(destination, preferredID: preferredBrowser) {
+                                if let message = BrowserReader.bringDestinationForward(destination, preferredID: preferredBrowser, selecting: result.done.map { $0.to }) {
                                     DispatchQueue.main.async {
                                         self.status.stringValue = message
                                         self.status.isHidden = false
