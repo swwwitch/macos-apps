@@ -154,3 +154,7 @@
 "アイコンを最小にし、表示までの待ち時間を最大にします。" = "Shrinks the icons to the minimum and makes the Dock wait as long as possible before appearing.";
 "上へ移動" = "Move Up";
 "下へ移動" = "Move Down";
+"ポインタのサイズ" = "Pointer Size";
+"ポインタのサイズを%@にしました。" = "Pointer size set to %@.";
+"ポインタのサイズを変更できませんでした。" = "Could not change the pointer size.";
+"標準に戻す" = "Reset to Default";

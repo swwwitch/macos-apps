@@ -6,6 +6,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 ### Display
 - **Clock**: switch the menu bar clock between Digital and Analog. You can also show or hide the Date and Day of Week (for the digital clock).
 - **Appearance**: switch the whole Mac between Light and Dark.
+- **Pointer Size**: change the mouse pointer size at once, from 1 (default) to 4. Reset to Default returns it to 1. The value in System Settings › Accessibility › Display does not change, so the pointer returns to that size when you log in again.
 
 ### Dock and Desktop
 - **Hide Dock (Automatically)**: turn Dock auto-hide on or off.

@@ -249,7 +249,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
-        let size = NSSize(width: 460, height: 720)
+        let size = NSSize(width: 460, height: 770)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -382,6 +382,7 @@ struct Preset: Codable, Identifiable {
     var dark: Bool? = nil
     var hideDock: Bool? = nil
     var killDock: Bool? = nil
+    var pointerSize: Double? = nil
     var hideDesktop: Bool? = nil
     var notificationsOff: Bool? = nil
     var timerMinutes: Int? = nil
@@ -664,6 +665,13 @@ struct PresetPreferences: View {
             presetRow(L("Dockを隠す"), value: $editor.draft.hideDock, off: L("オフ"), on: L("オン"), current: settings.dockHidden)
             presetRow(L("Dockを完全非表示"), value: $editor.draft.killDock, off: L("オフ"), on: L("オン"), current: settings.dockKilled)
             presetRow(L("デスクトップ非表示"), value: $editor.draft.hideDesktop, off: L("オフ"), on: L("オン"), current: settings.desktopHidden)
+            HStack {
+                Toggle(L("ポインタのサイズ"), isOn: Binding(get: { editor.draft.pointerSize != nil }, set: { editor.draft.pointerSize = $0 ? settings.pointerSize : nil }))
+                Spacer()
+                Slider(value: Binding(get: { editor.draft.pointerSize ?? settings.pointerSize }, set: { editor.draft.pointerSize = $0 }), in: PointerSize.range, step: 0.5)
+                    .frame(width: 104).disabled(editor.draft.pointerSize == nil)
+                Text(PointerSize.text(editor.draft.pointerSize ?? settings.pointerSize)).monospacedDigit().frame(width: 28, alignment: .trailing)
+            }
             presetRow(L("通知をオフ"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
             presetRow(L("タイマーを使う"), value: $editor.draft.timerEnabled, off: L("オフ"), on: L("オン"), current: countdown.enabled)
             HStack {
@@ -738,6 +746,7 @@ final class MacSettings: ObservableObject {
     @Published var showDate = true
     @Published var showWeekday = true
     @Published var dark = false
+    @Published var pointerSize = 1.0
     @Published var busy = false
     @Published var message = L("選択すると、Macのシステム設定を変更します。")
     /// System Events automation was refused; the views offer a button to the Automation pane.
@@ -761,6 +770,18 @@ final class MacSettings: ObservableObject {
         CFPreferencesAppSynchronize("com.apple.finder" as CFString)
         desktopHidden = (CFPreferencesCopyAppValue("CreateDesktop" as CFString, "com.apple.finder" as CFString) as? NSNumber)?.boolValue == false
         dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        pointerSize = PointerSize.current
+    }
+
+    func setPointerSize(_ value: Double) {
+        if PointerSize.set(value) {
+            error = false
+            message = L("ポインタのサイズを%@にしました。", PointerSize.text(value))
+        } else {
+            error = true
+            message = L("ポインタのサイズを変更できませんでした。")
+        }
+        refresh()
     }
 
     func setClock(_ value: Bool) {
@@ -908,6 +929,7 @@ final class MacSettings: ObservableObject {
         if let value = preset.killDock, value != dockKilled { setDockKilled(value); if error { return } }
         if let value = preset.hideDock, value != dockHidden { setDockHidden(value); if error { return } }
         if let value = preset.hideDesktop, value != desktopHidden { setDesktopHidden(value); if error { return } }
+        if let value = preset.pointerSize { setPointerSize(value); if error { return } }
         if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
         if let value = preset.timerEnabled { countdown.enabled = value }
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
@@ -965,6 +987,7 @@ struct ManualControlsView: View {
     @ObservedObject var settings: MacSettings
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
+    @State private var pointerDraft = 1.0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -1006,6 +1029,21 @@ struct ManualControlsView: View {
             }
             Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
                 .font(.system(size: 12))
+            HStack {
+                Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
+                Spacer()
+                // Applied when the knob is released, not on every step of the drag.
+                Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
+                    if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                }
+                .frame(width: 96)
+                Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
+                Button(L("標準に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
+                    .disabled(settings.pointerSize == 1)
+            }
+            .font(.system(size: 12))
+            .onAppear { pointerDraft = settings.pointerSize }
+            .onChange(of: settings.pointerSize) { pointerDraft = $0 }
             HStack {
                 Label(L("通知"), systemImage: "bell.slash")
                 Spacer()
