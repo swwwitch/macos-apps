@@ -7,6 +7,8 @@ import AppKit
 enum SystemSettingsSwitch {
     static let reduceTransparency = (pane: "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?Display",
                                      identifier: "AX_REDUCE_TRANSPARENCY")
+    static let reduceMotion = (pane: "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?Motion",
+                               identifier: "AX_REDUCE_MOTION")
     private static let settingsBundleID = "com.apple.systempreferences"
 
     @MainActor

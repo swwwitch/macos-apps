@@ -204,3 +204,7 @@
 "ディスプレイの既定" = "Display default";
 "このディスプレイの既定の解像度が分かりませんでした。" = "Could not find the default resolution of this display.";
 "ディスプレイの既定に戻す" = "Reset to Display Default";
+"システム設定で視差効果を変更しています…" = "Changing motion in System Settings…";
+"視差効果を減らしました。" = "Motion reduced.";
+"視差効果を元に戻しました。" = "Motion restored.";
+"視差効果を減らす" = "Reduce motion";

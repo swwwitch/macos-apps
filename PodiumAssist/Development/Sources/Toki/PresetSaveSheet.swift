@@ -11,7 +11,7 @@ struct PresetSaveSheet: View {
 
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
-             reduceTransparency, volumeFeedback, notificationsOff, timerEnabled, timerMinutes
+             reduceTransparency, reduceMotion, volumeFeedback, notificationsOff, timerEnabled, timerMinutes
     }
 
     @State private var targetID: UUID?
@@ -52,6 +52,7 @@ struct PresetSaveSheet: View {
                         }.labelsHidden().frame(width: 150).disabled(!included.contains(.resolution))
                     }
                     row(.reduceTransparency, L("透明度を下げる"), onOff(settings.reduceTransparency))
+                    row(.reduceMotion, L("視差効果を減らす"), onOff(settings.reduceMotion))
                     row(.volumeFeedback, L("音量変更時の音"), onOff(settings.volumeFeedback))
                     HStack {
                         Toggle(L("通知をオフ"), isOn: binding(.notificationsOff))
@@ -103,7 +104,7 @@ struct PresetSaveSheet: View {
             .clock: preset.clock != nil, .showDate: preset.showDate != nil, .showWeekday: preset.showWeekday != nil,
             .dark: preset.dark != nil, .hideDock: preset.hideDock != nil, .killDock: preset.killDock != nil,
             .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
-            .reduceTransparency: preset.reduceTransparency != nil, .volumeFeedback: preset.volumeFeedback != nil,
+            .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
             .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
         included = Set(has.filter(\.value).map(\.key))
         notificationsOff = preset.notificationsOff ?? true
@@ -126,6 +127,7 @@ struct PresetSaveSheet: View {
         preset.pointerSize = value(.pointerSize, settings.pointerSize)
         preset.resolution = included.contains(.resolution) ? (resolutionDefault ? .displayDefault : settings.resolution) : nil
         preset.reduceTransparency = value(.reduceTransparency, settings.reduceTransparency)
+        preset.reduceMotion = value(.reduceMotion, settings.reduceMotion)
         preset.volumeFeedback = value(.volumeFeedback, settings.volumeFeedback)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
         preset.timerEnabled = value(.timerEnabled, countdown.enabled)

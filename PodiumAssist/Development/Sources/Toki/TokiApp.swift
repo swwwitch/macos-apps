@@ -70,10 +70,10 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
         AccessibilityText.neededOverride = [
-            "「透明度を下げる」の切り替えで、システム設定のスイッチを操作するために使用します。未許可の場合、この項目だけ利用できません。",
-            "Used to turn the Reduce transparency switch in System Settings on or off. Without permission, only this item is unavailable.",
-            "用于在系统设置中切换“降低透明度”开关。未获授权时，仅此项目不可用。",
-            "시스템 설정에서 ‘투명도 줄이기’ 스위치를 켜고 끄는 데 사용합니다. 권한이 없으면 이 항목만 사용할 수 없습니다."]
+            "「透明度を下げる」「視差効果を減らす」の切り替えで、システム設定のスイッチを操作するために使用します。未許可の場合、この2つだけ利用できません。",
+            "Used to turn the Reduce transparency and Reduce motion switches in System Settings on or off. Without permission, only these two are unavailable.",
+            "用于在系统设置中切换“降低透明度”和“减弱动态效果”开关。未获授权时，仅这两项不可用。",
+            "시스템 설정에서 ‘투명도 줄이기’와 ‘동작 줄이기’ 스위치를 켜고 끄는 데 사용합니다. 권한이 없으면 이 두 항목만 사용할 수 없습니다."]
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "PodiumAssist", symbol: "clock", existing: self.item, keepExistingImage: true,
@@ -390,6 +390,7 @@ struct Preset: Codable, Identifiable {
     var killDock: Bool? = nil
     var pointerSize: Double? = nil
     var reduceTransparency: Bool? = nil
+    var reduceMotion: Bool? = nil
     var volumeFeedback: Bool? = nil
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
@@ -689,6 +690,7 @@ final class MacSettings: ObservableObject {
     @Published var dark = false
     @Published var pointerSize = 1.0
     @Published var reduceTransparency = false
+    @Published var reduceMotion = false
     @Published var volumeFeedback = false
     @Published var resolution: DisplayResolution?
     @Published var busy = false
@@ -717,6 +719,7 @@ final class MacSettings: ObservableObject {
         pointerSize = PointerSize.current
         resolution = DisplayResolution.current
         reduceTransparency = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+        reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
         volumeFeedback = (CFPreferencesCopyAppValue(Self.volumeFeedbackKey, kCFPreferencesAnyApplication) as? NSNumber)?.boolValue ?? false
     }
@@ -784,17 +787,16 @@ final class MacSettings: ObservableObject {
         }
     }
 
-    /// Flips the System Settings switch (the preference write is refused without Full Disk Access). `then` runs afterwards on success.
-    func setReduceTransparency(_ value: Bool, then: (() -> Void)? = nil) {
+    /// Flips a System Settings switch (the preference write is refused without Full Disk Access). `then` runs afterwards on success.
+    private func setSystemSwitch(_ target: (pane: String, identifier: String), to value: Bool, working: String, done: String, then: (() -> Void)?) {
         guard !busy else { return }
         busy = true
         error = false
-        message = L("システム設定で透明度を変更しています…")
+        message = working
         Task {
             do {
-                try await SystemSettingsSwitch.set(pane: SystemSettingsSwitch.reduceTransparency.pane,
-                                                   identifier: SystemSettingsSwitch.reduceTransparency.identifier, to: value)
-                message = value ? L("透明度を下げました。") : L("透明度を元に戻しました。")
+                try await SystemSettingsSwitch.set(pane: target.pane, identifier: target.identifier, to: value)
+                message = done
                 busy = false
                 refresh()
                 then?()
@@ -805,6 +807,16 @@ final class MacSettings: ObservableObject {
                 refresh()
             }
         }
+    }
+
+    func setReduceTransparency(_ value: Bool, then: (() -> Void)? = nil) {
+        setSystemSwitch(SystemSettingsSwitch.reduceTransparency, to: value, working: L("システム設定で透明度を変更しています…"),
+                        done: value ? L("透明度を下げました。") : L("透明度を元に戻しました。"), then: then)
+    }
+
+    func setReduceMotion(_ value: Bool, then: (() -> Void)? = nil) {
+        setSystemSwitch(SystemSettingsSwitch.reduceMotion, to: value, working: L("システム設定で視差効果を変更しています…"),
+                        done: value ? L("視差効果を減らしました。") : L("視差効果を元に戻しました。"), then: then)
     }
 
     func setPointerSize(_ value: Double) {
@@ -975,7 +987,11 @@ final class MacSettings: ObservableObject {
             if let value = preset.notificationsOff { setNotificationsOff(value) }
             else { message = L("「%@」を適用しました。", String(describing: preset.name)) }
         }
-        if let value = preset.reduceTransparency, value != reduceTransparency { setReduceTransparency(value, then: finish) } else { finish() }
+        // System Settings steps run one after another (each opens the pane), then notifications.
+        let motion = { [self] in
+            if let value = preset.reduceMotion, value != reduceMotion { setReduceMotion(value, then: finish) } else { finish() }
+        }
+        if let value = preset.reduceTransparency, value != reduceTransparency { setReduceTransparency(value, then: motion) } else { motion() }
     }
 
     func setNotificationsOff(_ value: Bool) {
@@ -1072,6 +1088,8 @@ struct ManualControlsView: View {
             Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
                 .font(.system(size: 12))
             Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
+                .font(.system(size: 12)).disabled(settings.busy)
+            Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
                 .font(.system(size: 12)).disabled(settings.busy)
             Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
                 .font(.system(size: 12))
