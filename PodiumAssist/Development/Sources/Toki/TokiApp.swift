@@ -421,6 +421,12 @@ final class PresetStore: ObservableObject {
         remember(preset.id)
         persist()
     }
+    /// Moves a preset one place up (-1) or down (+1); the main window lists presets in this order.
+    func move(_ id: UUID, by offset: Int) {
+        guard let i = items.firstIndex(where: { $0.id == id }), items.indices.contains(i + offset) else { return }
+        items.swapAt(i, i + offset)
+        persist()
+    }
     func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
     private func persist() {
         if let data = try? JSONEncoder().encode(items) { defaults.set(data, forKey: "presets") }
@@ -635,6 +641,14 @@ struct PresetPreferences: View {
                     ForEach(presets.items) { item in Button(item.name) { editor.draft = item; presets.remember(item.id); editor.status = "" } }
                 }.disabled(presets.items.isEmpty)
                 Button(L("新規")) { editor.draft = Preset(); presets.remember(nil); editor.status = "" }
+                Spacer()
+                let index = presets.items.firstIndex { $0.id == editor.draft.id }
+                Button { presets.move(editor.draft.id, by: -1) } label: { Image(systemName: "arrow.up") }
+                    .help(L("上へ移動")).accessibilityLabel(L("上へ移動"))
+                    .disabled(index == nil || index == 0)
+                Button { presets.move(editor.draft.id, by: 1) } label: { Image(systemName: "arrow.down") }
+                    .help(L("下へ移動")).accessibilityLabel(L("下へ移動"))
+                    .disabled(index == nil || index == presets.items.count - 1)
             }
             TextField(L("プリセット名"), text: $editor.draft.name)
             Text(L("チェックした項目だけを一括変更します。"))

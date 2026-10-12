@@ -15,6 +15,12 @@ import Foundation
   precondition(restored.items.count == 1 && restored.rememberedPreset?.dark == false)
   precondition(restored.rememberedPreset?.launchApps?.first?.id == "a" && restored.rememberedPreset?.quitAppTargets?.first?.id == "b")
   restored.remember(nil); precondition(PresetStore(defaults: defaults).rememberedPreset == nil)
-  print("PASS: persistent save, overwrite without duplicate, remembered selection, app lists")
+  var second = Preset(); second.name = "Second"; restored.save(second)
+  restored.move(second.id, by: -1)
+  precondition(PresetStore(defaults: defaults).items.map(\.name) == ["Second", "Test"])
+  restored.move(second.id, by: -1)  // already first: no change
+  restored.move(preset.id, by: 1)   // already last: no change
+  precondition(PresetStore(defaults: defaults).items.map(\.name) == ["Second", "Test"])
+  print("PASS: persistent save, overwrite without duplicate, remembered selection, app lists, reorder")
  }
 }

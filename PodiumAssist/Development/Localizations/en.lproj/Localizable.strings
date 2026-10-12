@@ -152,3 +152,5 @@
 "プリセットとタイマーで、まとめて準備。" = "Get ready with presets and the timer.";
 "プリセットをクリックすると、まとめて適用します。" = "Click a preset to apply all of its settings.";
 "アイコンを最小にし、表示までの待ち時間を最大にします。" = "Shrinks the icons to the minimum and makes the Dock wait as long as possible before appearing.";
+"上へ移動" = "Move Up";
+"下へ移動" = "Move Down";

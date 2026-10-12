@@ -37,6 +37,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 
 - The only timer item in a preset is the duration. Starting or scheduling the timer is a separate action, so applying a preset never starts the timer.
 - Use Edit Launch Apps… and Edit Quit Apps… to edit app lists that belong to the preset; click Done and then save the preset. Other presets are not affected. Apps that are already running are not opened again, and apps are not force quit; if there are unsaved documents, save them when the app asks.
+- Choose a preset and click ↑ or ↓ to change its position. The Presets tab of the main window uses the same order.
 
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
