@@ -8,8 +8,15 @@ struct DisplayResolution: Codable, Hashable {
     var height: Int
     var hiDPI: Bool
 
+    /// Stands for "the display's own default mode" (0 × 0), so one preset restores the right size on any display.
+    static let displayDefault = DisplayResolution(width: 0, height: 0, hiDPI: true)
+    var isDisplayDefault: Bool { width == 0 && height == 0 }
+
     /// "2560 × 1080" (HiDPI is the normal case; the low-resolution variant is marked).
-    var text: String { "\(width) × \(height)" + (hiDPI ? "" : L("（低解像度）")) }
+    var text: String {
+        if isDisplayDefault { return L("ディスプレイの既定") }
+        return "\(width) × \(height)" + (hiDPI ? "" : L("（低解像度）"))
+    }
 
     init(width: Int, height: Int, hiDPI: Bool) { self.width = width; self.height = height; self.hiDPI = hiDPI }
     init(_ mode: CGDisplayMode) { self.init(width: mode.width, height: mode.height, hiDPI: mode.pixelWidth > mode.width) }
@@ -23,6 +30,11 @@ struct DisplayResolution: Codable, Hashable {
         return ((CGDisplayCopyAllDisplayModes(display, options) as? [CGDisplayMode]) ?? []).filter { $0.isUsableForDesktopGUI() }
     }
 
+    /// The mode macOS marks as the display's default (IOKit kDisplayModeDefaultFlag = 0x4; measured: 2560 × 1080 HiDPI on a DELL U4021QW).
+    static var defaultForMainDisplay: DisplayResolution? {
+        modes(mainDisplay).first { $0.ioFlags & 0x4 != 0 }.map(DisplayResolution.init)
+    }
+
     /// Choices for the menus: the HiDPI sizes when the display has them (as System Settings shows), otherwise every size.
     /// Largest first; the current one is always included.
     static var choices: [DisplayResolution] {
@@ -34,7 +46,12 @@ struct DisplayResolution: Codable, Hashable {
     }
 
     /// Switches the main display; keeps the current refresh rate when that mode offers it. Saved permanently.
-    static func set(_ target: DisplayResolution) throws {
+    /// Returns the resolution actually set (the display default is resolved to its size).
+    @discardableResult
+    static func set(_ requested: DisplayResolution) throws -> DisplayResolution {
+        guard let target = requested.isDisplayDefault ? defaultForMainDisplay : requested else {
+            throw SettingsError(L("このディスプレイの既定の解像度が分かりませんでした。"))
+        }
         let display = mainDisplay
         let rate = CGDisplayCopyDisplayMode(display)?.refreshRate ?? 0
         let matches = modes(display).filter { DisplayResolution($0) == target }
@@ -48,5 +65,6 @@ struct DisplayResolution: Codable, Hashable {
             CGCancelDisplayConfiguration(config)
             throw SettingsError(L("解像度を変更できませんでした。"))
         }
+        return target
     }
 }

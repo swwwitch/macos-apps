@@ -19,6 +19,8 @@ struct PresetSaveSheet: View {
     @State private var included = Set<Item>()
     /// Notifications have no readable state, so the preset value is chosen here.
     @State private var notificationsOff = true
+    /// Resolution: the current size, or "the display's default" (works on any display).
+    @State private var resolutionDefault = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -41,7 +43,14 @@ struct PresetSaveSheet: View {
                     row(.killDock, L("Dockを完全非表示"), onOff(settings.dockKilled))
                     row(.hideDesktop, L("デスクトップ非表示"), onOff(settings.desktopHidden))
                     row(.pointerSize, L("ポインタのサイズ"), PointerSize.text(settings.pointerSize))
-                    row(.resolution, L("解像度"), settings.resolution?.text ?? "–")
+                    HStack {
+                        Toggle(L("解像度"), isOn: binding(.resolution))
+                        Spacer()
+                        Picker(L("解像度"), selection: $resolutionDefault) {
+                            Text(settings.resolution?.text ?? "–").tag(false)
+                            Text(L("ディスプレイの既定")).tag(true)
+                        }.labelsHidden().frame(width: 150).disabled(!included.contains(.resolution))
+                    }
                     row(.reduceTransparency, L("透明度を下げる"), onOff(settings.reduceTransparency))
                     row(.volumeFeedback, L("音量変更時の音"), onOff(settings.volumeFeedback))
                     HStack {
@@ -86,6 +95,7 @@ struct PresetSaveSheet: View {
         guard let preset = presets.items.first(where: { $0.id == id }) else {
             name = L("新しいプリセット")
             included = Set(Item.allCases)
+            resolutionDefault = false
             return
         }
         name = preset.name
@@ -97,6 +107,7 @@ struct PresetSaveSheet: View {
             .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
         included = Set(has.filter(\.value).map(\.key))
         notificationsOff = preset.notificationsOff ?? true
+        resolutionDefault = preset.resolution?.isDisplayDefault ?? false
     }
 
     private var valid: Bool { !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !included.isEmpty }
@@ -113,7 +124,7 @@ struct PresetSaveSheet: View {
         preset.killDock = value(.killDock, settings.dockKilled)
         preset.hideDesktop = value(.hideDesktop, settings.desktopHidden)
         preset.pointerSize = value(.pointerSize, settings.pointerSize)
-        preset.resolution = included.contains(.resolution) ? settings.resolution : nil
+        preset.resolution = included.contains(.resolution) ? (resolutionDefault ? .displayDefault : settings.resolution) : nil
         preset.reduceTransparency = value(.reduceTransparency, settings.reduceTransparency)
         preset.volumeFeedback = value(.volumeFeedback, settings.volumeFeedback)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)

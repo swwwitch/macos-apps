@@ -723,9 +723,9 @@ final class MacSettings: ObservableObject {
 
     func setResolution(_ value: DisplayResolution) {
         do {
-            try DisplayResolution.set(value)
+            let applied = try DisplayResolution.set(value)
             error = false
-            message = L("解像度を %@ にしました。", value.text)
+            message = L("解像度を %@ にしました。", applied.text)
         } catch {
             self.error = true
             message = error.localizedDescription
@@ -1101,6 +1101,8 @@ struct ManualControlsView: View {
                 Label(L("解像度"), systemImage: "display").fixedSize()
                 Spacer()
                 Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
+                    Text(L("ディスプレイの既定に戻す")).tag(Optional(DisplayResolution.displayDefault))
+                    Divider()
                     ForEach(DisplayResolution.choices, id: \.self) { Text($0.text).tag(Optional($0)) }
                 }
                 .labelsHidden().frame(width: 170)

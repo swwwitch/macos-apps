@@ -17,6 +17,9 @@ import Foundation
   restored.remember(nil); precondition(PresetStore(defaults: defaults).rememberedPreset == nil)
   var pointer = Preset(); pointer.name = "Pointer"; pointer.pointerSize = 2.5
   pointer.resolution = DisplayResolution(width: 1920, height: 1080, hiDPI: true); restored.save(pointer)
+  var byDefault = Preset(); byDefault.name = "Default"; byDefault.resolution = .displayDefault; restored.save(byDefault)
+  precondition(PresetStore(defaults: defaults).items.first { $0.name == "Default" }?.resolution?.isDisplayDefault == true)
+  restored.remove(byDefault.id)
   let loaded = PresetStore(defaults: defaults).items.first { $0.name == "Pointer" }
   precondition(loaded?.pointerSize == 2.5 && loaded?.resolution == DisplayResolution(width: 1920, height: 1080, hiDPI: true))
   restored.remove(pointer.id)
