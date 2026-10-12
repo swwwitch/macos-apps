@@ -8,6 +8,11 @@ IdBackgroundOff — 关闭 InDesign 后台导出
 其他位置的 InDesign 可通过“添加 InDesign…”（⌘O）选择。不支持 InDesign Server。
 更改将在下次启动 InDesign 时生效。若 InDesign 正在运行，请退出后重新启动。
 
+应用程序栏
+切换到顶部的“应用程序栏”后，会列出 ~/Library/Preferences/Adobe InDesign 中各版本的工作区。“隐藏”会把工作区 XML 中的 <app-container-control-bar … is-closed="false"> 改为 "true"（“显示”改回）。已存储的工作区（名称.xml）和当前状态（名称_CurrentWorkspace.xml）都会修改。
+InDesign 退出时会写回工作区，因此 InDesign 运行时无法更改，请先退出。使用应用程序框架时无效。不需要管理员密码。
+参考（日语）：https://note.com/dtp_tranist/n/n08559ccb6a3b
+
 管理员密码
 InDesign 应用内部受到保护，因此更改时 macOS 会要求输入管理员密码。密码由 macOS 处理，本应用不会保存。取消时不做任何更改。不需要辅助功能、完全磁盘访问等权限。
 

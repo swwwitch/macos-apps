@@ -236,6 +236,7 @@
 "hotkey.inUse" = "This hotkey is already assigned to another action.";
 "scope.global" = "All Apps";
 "scope.palette" = "Only While Palette Is Shown";
+"hotkey.manifestPaletteOnly" = "Only while the palette is shown";
 "palette.enableShortcut" = "Enable the shortcut that brings the palette to the front";
 "palette.axModifiers" = "Modifier keys for showing the palette";
 "palette.axKey" = "Key for showing the palette";

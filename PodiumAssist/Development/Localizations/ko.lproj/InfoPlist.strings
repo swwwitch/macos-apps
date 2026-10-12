@@ -1,2 +1,4 @@
 "CFBundleDisplayName" = "PodiumAssist";
 "NSAppleEventsUsageDescription" = "Mac의 라이트 또는 다크 모양을 전환하기 위해 System Events를 제어합니다.";
+"NSLocationUsageDescription" = "네트워크 속도 목록에 연결된 Wi-Fi 네트워크 이름을 표시하는 데 사용합니다.";
+"NSLocationWhenInUseUsageDescription" = "네트워크 속도 목록에 연결된 Wi-Fi 네트워크 이름을 표시하는 데 사용합니다.";

@@ -13,7 +13,7 @@ final class GlobalShortcuts: NSObject {
     var paletteVisible: () -> Bool = { false }
     private var visibleState = false
     /// Re-register only when the front app crosses the excluded boundary.
-    func refreshForFrontApp() { if hotkeysBlocked() != blockedState { register() } }
+    func refreshForFrontApp() { if hotkeysBlocked() != blockedState { register() } else { publishManifest() } }
     /// Call after the palette is shown, hidden or closed. Skips work when no action is palette-only.
     func refreshForPaletteVisibility() {
         guard paletteVisible() != visibleState else { return }
@@ -161,6 +161,21 @@ final class GlobalShortcuts: NSObject {
         }
         rebuildMenu()
         refreshPreferences()
+        publishManifest()
+    }
+
+    /// Declares the assigned keys for HotkeyHound (enabled = the user's settings, not the registration result).
+    private func publishManifest() {
+        let on = !paused && !UserDefaults.standard.bool(forKey: "shortcutsDisabled")
+        HotkeyManifestParts.actions = actions.compactMap { action in
+            guard let binding = binding(digit(action.id)) else { return nil }
+            let actual = binding.actual
+            var item = HotkeyManifestParts.item("action-\(action.id)", action.title, actual)
+            item.enabled = on && actionEnabled(action.id)
+            if scope(action.id) == .palette { item.note = L("hotkey.manifestPaletteOnly") }
+            return item
+        }
+        HotkeyManifestParts.publish()
     }
 
     private func rebuildMenu() {
@@ -362,4 +377,17 @@ final class GlobalShortcuts: NSObject {
 
 private final class PreferencesDocumentView: NSView {
     override var isFlipped: Bool { true }
+}
+
+/// MightyEdit's two hotkey owners share one manifest file (HotkeyManifest replaces it whole).
+enum HotkeyManifestParts {
+    static var actions: [HotkeyManifest.Item] = []
+    static var palette: [HotkeyManifest.Item] = []
+    static func publish() { HotkeyManifest.publish(palette + actions) }
+    /// Excluded apps (B21) release every hotkey while they are in front.
+    static func item(_ id: String, _ title: String, _ binding: HotkeyBinding) -> HotkeyManifest.Item {
+        let excluded = ExcludedApps.shared.list.ids
+        return HotkeyManifest.Item(id: id, title: title, keyCode: Int(binding.key), modifiers: Int(binding.modifiers),
+                                   scope: excluded.isEmpty ? "all" : "except", apps: excluded)
+    }
 }

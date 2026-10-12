@@ -16,7 +16,7 @@ final class PaletteShortcut: NSObject {
     /// True while the front app is excluded or MightyEdit itself (B21): keys pass through.
     var hotkeysBlocked: () -> Bool = { false }
     private var blockedState = false
-    func refreshForFrontApp() { if hotkeysBlocked() != blockedState { register() } }
+    func refreshForFrontApp() { if hotkeysBlocked() != blockedState { register() } else { publishManifest() } }
     private let keys: [(String, UInt32)] = [("A",0),("B",11),("C",8),("D",2),("E",14),("F",3),("G",5),("H",4),("I",34),("J",38),("K",40),("L",37),("M",46),("N",45),("O",31),("P",35),("Q",12),("R",15),("S",1),("T",17),("U",32),("V",9),("W",13),("X",7),("Y",16),("Z",6)]
     // Saved by index; the label is joined with the localized plus sign (Japanese keeps ＋).
     private let combinations: [(String, UInt32)] = [
@@ -164,6 +164,7 @@ final class PaletteShortcut: NSObject {
     private func register() {
         if let reference { UnregisterEventHotKey(reference) }; reference = nil
         blockedState = hotkeysBlocked()
+        publishManifest()
         guard enabled.state == .on else { status.stringValue = L("status.disabled"); return }
         guard handler != nil else { status.stringValue = L("palette.notInitialized"); return }
         guard let binding = currentBinding else { status.stringValue = L("status.disabled"); return }
@@ -174,6 +175,15 @@ final class PaletteShortcut: NSObject {
         status.textColor = result == noErr ? .secondaryLabelColor : .systemRed
         // Conflicts are checked above; while blocked the key goes to the front app.
         if blockedState, let registered = reference { UnregisterEventHotKey(registered); reference = nil }
+    }
+    /// Declares the palette key for HotkeyHound (enabled = the checkbox, not the registration result).
+    private func publishManifest() {
+        HotkeyManifestParts.palette = currentBinding.map {
+            var item = HotkeyManifestParts.item("palette", L("palette.shortcutTitle"), $0.actual)
+            item.enabled = enabled.state == .on
+            return [item]
+        } ?? []
+        HotkeyManifestParts.publish()
     }
 }
 

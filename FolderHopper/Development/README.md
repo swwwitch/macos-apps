@@ -187,3 +187,7 @@ Finder／Path Finderで項目を選択していないときは、「Finderウイ
 
 - ⌘を押しながら移動（複製・リンク作成）したとき、前面に表示した移動先のFinder／Path Finderウインドウで、処理した項目を選択するようにした。App Store版はFinderで選択して表示する。
 - ヘルプの説明（4言語）を合わせて更新。
+
+## 0.1.93（build 108、2026-10-12）：ホットキーをHotkeyHoundから見えるように
+
+- 登録するホットキー（ウインドウ呼び出しと⌃⌥⌘⇧A）を共通ファイル（~/Library/Application Support/swwwitch/Hotkeys）に書き出し、HotkeyHound から「どのアプリが使っているか」が見えるようにした。App Store版は書き出さない。

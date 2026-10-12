@@ -10,6 +10,10 @@ Finder／Path Finderで選択したファイル・フォルダを、⌘Dでバ�
 
 ## 更新履歴
 
+### 1.8.23（ビルド50）（2026-10-12）
+
+- ホットキーを共通ファイル（~/Library/Application Support/swwwitch/Hotkeys）に書き出し、HotkeyHound から見えるようにした。パレットのホットキーはすべてのアプリ、6つの操作のホットキーは Finder／Path Finder が前面のときだけとして載せる（「ホットキーを有効にする」がオフなら無効として載せる）。
+
 ### 1.8.22（ビルド49）（2026-10-10）
 
 - パレットに「ステータスを付ける」を追加した。クリックすると wip・draft・review・revised・updated・fixed・approved・rejected・archived・flattened・outlined の一覧が出て、選んだ語を名前に付ける（複製せずに名前を変更。例：aaa.txt → aaa-wip.txt）。edited の後ろに付き、別のステータスが付いていれば置き換える。今付いているステータスはボタンと一覧のチェックで分かる。ホットキーは無し。

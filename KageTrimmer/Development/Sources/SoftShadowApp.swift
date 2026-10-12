@@ -380,6 +380,7 @@ final class KageShortcut {
     var registrationSucceeded = true
     func restore() {
         registrationSucceeded = configure(enabled: enabled, key: key, modifiers: flags)
+        publish()
     }
     func save(enabled: Bool, key: UInt32, flags: UInt32) -> Bool {
         guard configure(enabled: enabled, key: key, modifiers: flags) else { return false }
@@ -388,7 +389,12 @@ final class KageShortcut {
         UserDefaults.standard.set(enabled, forKey: "shortcutEnabled")
         UserDefaults.standard.set(Int(key), forKey: "shortcutKey")
         UserDefaults.standard.set(Int(flags), forKey: "shortcutModifiers")
+        publish()
         return true
+    }
+    /// Declares the hotkey to HotkeyHound (Shared/HotkeyManifest). `enabled` is the setting, not whether registration succeeded.
+    private func publish() {
+        HotkeyManifest.publish([HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(key), modifiers: Int(flags), enabled: enabled)])
     }
     var action: (() -> Void)?
     private var reference: EventHotKeyRef?

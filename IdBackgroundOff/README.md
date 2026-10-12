@@ -4,6 +4,8 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 
 参考：[InDesignのバックグラウンド処理をOFFにする（note）](https://note.com/dtp_tranist/n/nf94bf905c478)
 
+もう1つの機能として、InDesignのアプリケーションバーを非表示にします（参考：[InDesignのアプリケーションバーを非表示にする（note）](https://note.com/dtp_tranist/n/n08559ccb6a3b)）。上部の切り替えで「アプリケーションバー」を選ぶと、`~/Library/Preferences/Adobe InDesign/Version <n>/<言語>/Workspaces` のワークスペースを一覧表示し、`<app-container-control-bar … is-closed="…">` だけを書き換えます。保存したワークスペース（`名前.xml`）と現在の状態（`名前_CurrentWorkspace.xml`）の両方が対象で、競合コピーは無視します。InDesignは終了時にワークスペースを書き戻すため、InDesignの起動中は変更できません。アプリケーションフレームを使っている場合は効きません。
+
 - `/Applications`・`~/Applications`（`Adobe InDesign 20xx/Adobe InDesign 20xx.app`）とLaunch Servicesから検出。Bundle ID `com.adobe.InDesign` だけを対象にし、InDesign Serverは除外。ほかの場所は「InDesignを追加…」（⌘O）。
 - バージョンごとに状態（オフ／オン（標準）／確認不可）、起動中の表示。行ごとの「オフにする」「元に戻す」と「すべてオフにする」。
 - 書き込み不可の場所（通常のインストール）はmacOSの管理者認証（`do shell script … with administrator privileges`）で1回にまとめて実行。書き込める場所はパスワードなしで変更。
@@ -30,6 +32,10 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。
 
 ## 更新履歴
+
+### 1.1.0（build 15、2026-10-13）
+
+- 「アプリケーションバー」を追加。InDesignのワークスペースごとにアプリケーションバーを非表示／表示にする（ワークスペースXMLの is-closed を書き換え。InDesignの起動中は変更不可）。
 
 ### 1.0.13（build 14、2026-10-10）
 

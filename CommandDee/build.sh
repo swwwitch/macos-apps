@@ -2,6 +2,7 @@
 set -eu
 cd "${0:A:h}"
 python3 ../Shared/MenuBarPresence/sync.py
+python3 ../Shared/HotkeyManifest/sync.py
 python3 "../Shared/AppStandards/sync-surface.py"
 python3 make-resources.py
 UPDATER_ROOT="$PWD/../Shared/Updater"
@@ -23,8 +24,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>CommandDee</string>
 <key>CFBundleDisplayName</key><string>CommandDee</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.8.22</string>
-<key>CFBundleVersion</key><string>49</string>
+<key>CFBundleShortVersionString</key><string>1.8.23</string>
+<key>CFBundleVersion</key><string>50</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>LSMultipleInstancesProhibited</key><true/>

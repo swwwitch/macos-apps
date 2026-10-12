@@ -9,6 +9,11 @@ import Foundation
         precondition(defaults.object(forKey: HotkeyScope.key(2)) == nil)
         precondition(HotkeyScope.load(2, defaults: defaults) == .global)
         precondition(HotkeyScope.key(10000) == "shortcutScope-10000")
+        // 表示形式を切り替え defaults to palette-only (0.2.16); an explicit choice still wins.
+        precondition(HotkeyScope.load(10000, defaults: defaults) == .palette)
+        HotkeyScope.save(.global, id: 10000, defaults: defaults)
+        precondition(HotkeyScope.load(10000, defaults: defaults) == .global)
+        defaults.removeObject(forKey: HotkeyScope.key(10000))
         HotkeyScope.save(.palette, id: 2, defaults: defaults)
         precondition(defaults.string(forKey: "shortcutScope-2") == "palette")
         precondition(HotkeyScope.load(2, defaults: defaults) == .palette)

@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "LinkMaker";
+"NSAppleEventsUsageDescription" = "LinkMaker reads the tabs of the browser window in front and the folder of the front Finder window.";

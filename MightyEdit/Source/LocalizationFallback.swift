@@ -240,6 +240,7 @@ enum LocalizationFallback {
         "hotkey.inUse": "このホットキーは別の操作に割り当てられています。",
         "scope.global": "すべてのアプリ",
         "scope.palette": "パレット表示中のみ",
+        "hotkey.manifestPaletteOnly": "パレット表示中だけ",
         "palette.enableShortcut": "パレットを前面に出すホットキーを有効にする",
         "palette.axModifiers": "パレット呼び出しの修飾キー",
         "palette.axKey": "パレット呼び出しのキー",

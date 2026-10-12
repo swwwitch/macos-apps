@@ -236,6 +236,7 @@
 "hotkey.inUse" = "이 단축키는 다른 동작에 할당되어 있습니다.";
 "scope.global" = "모든 앱";
 "scope.palette" = "팔레트가 표시된 동안만";
+"hotkey.manifestPaletteOnly" = "팔레트가 표시된 동안만";
 "palette.enableShortcut" = "팔레트를 앞으로 가져오는 단축키 활성화";
 "palette.axModifiers" = "팔레트 호출 수정자 키";
 "palette.axKey" = "팔레트 호출 키";

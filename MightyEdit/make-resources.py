@@ -256,6 +256,7 @@ hotkey.needModifier|Control・Option・Commandのいずれかを選んでくだ�
 hotkey.inUse|このホットキーは別の操作に割り当てられています。|This hotkey is already assigned to another action.|此快捷键已分配给其他操作。|이 단축키는 다른 동작에 할당되어 있습니다.
 scope.global|すべてのアプリ|All Apps|所有应用|모든 앱
 scope.palette|パレット表示中のみ|Only While Palette Is Shown|仅在显示面板时|팔레트가 표시된 동안만
+hotkey.manifestPaletteOnly|パレット表示中だけ|Only while the palette is shown|仅在显示面板时|팔레트가 표시된 동안만
 palette.enableShortcut|パレットを前面に出すホットキーを有効にする|Enable the shortcut that brings the palette to the front|启用将面板置于前面的快捷键|팔레트를 앞으로 가져오는 단축키 활성화
 palette.axModifiers|パレット呼び出しの修飾キー|Modifier keys for showing the palette|调出面板的修饰键|팔레트 호출 수정자 키
 palette.axKey|パレット呼び出しのキー|Key for showing the palette|调出面板的按键|팔레트 호출 키

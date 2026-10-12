@@ -1,2 +1,4 @@
 "CFBundleDisplayName" = "PodiumAssist";
 "NSAppleEventsUsageDescription" = "Controls System Events to switch the light or dark appearance of your Mac.";
+"NSLocationUsageDescription" = "Used to show the name of the connected Wi-Fi network in the network speed list.";
+"NSLocationWhenInUseUsageDescription" = "Used to show the name of the connected Wi-Fi network in the network speed list.";

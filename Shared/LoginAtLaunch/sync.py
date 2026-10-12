@@ -4,10 +4,10 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 copies = {
     'Shared/LoginAtLaunch/LoginAtLaunch.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
-        'KageTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector', 'PrefsPreset/Sources/PrefsPreset'],
+        'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset'],
     'Shared/Accessibility/AccessibilityPermission.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
-        'KageTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
-        'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source'],
+        'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
+        'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound'],
 }
 for source, targets in copies.items():
     data = (root / source).read_bytes()

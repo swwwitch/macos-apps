@@ -95,6 +95,7 @@ final class Model: ObservableObject {
     }
     func refreshHotkey() {
         refreshFrontHotkey()
+        publishHotkeys()
         let active = !disabled && !paused && !recording && allowed(NSWorkspace.shared.frontmostApplication)
         let state = active ? bindings.map { "\($0.key)=\($0.value.signature)" }.sorted().joined(separator: ",") : ""
         guard state != registeredState else { return }
@@ -103,6 +104,19 @@ final class Model: ObservableObject {
             registrationFailures = hotkey.register(bindings)
             if !registrationFailures.isEmpty { status = L("registrationFailed") }
         } else { _ = hotkey.register([:]) }
+    }
+    /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
+    /// Bracket hotkeys skip excluded apps and KakkoReplace itself; the front hotkey skips only KakkoReplace.
+    func publishHotkeys() {
+        let own = Bundle.main.bundleIdentifier.map { [$0] } ?? []
+        var items = BracketAction.ids.compactMap { id -> HotkeyManifest.Item? in
+            guard let shortcut = bindings[id] else { return nil }
+            return HotkeyManifest.Item(id: id, title: actionTitle(id), keyCode: Int(shortcut.code), modifiers: Int(shortcut.modifiers),
+                                       enabled: !disabled, scope: "except", apps: excluded + own)
+        }
+        items.append(HotkeyManifest.Item(id: "bringToFront", title: L("frontTitle"), keyCode: Int(frontShortcut.code), modifiers: Int(frontShortcut.modifiers),
+                                         enabled: frontEnabled, scope: "except", apps: own))
+        HotkeyManifest.publish(items)
     }
     /// Registered before the bracket hotkeys so it wins a conflict. Blocked only while KakkoReplace
     /// itself is in front or a key is being recorded (MightyEdit's B21).

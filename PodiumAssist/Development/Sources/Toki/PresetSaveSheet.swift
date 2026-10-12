@@ -100,13 +100,7 @@ struct PresetSaveSheet: View {
             return
         }
         name = preset.name
-        let has: [Item: Bool] = [
-            .clock: preset.clock != nil, .showDate: preset.showDate != nil, .showWeekday: preset.showWeekday != nil,
-            .dark: preset.dark != nil, .hideDock: preset.hideDock != nil, .killDock: preset.killDock != nil,
-            .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
-            .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
-            .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
-        included = Set(has.filter(\.value).map(\.key))
+        included = Self.items(of: preset)
         notificationsOff = preset.notificationsOff ?? true
         resolutionDefault = preset.resolution?.isDisplayDefault ?? false
     }
@@ -116,6 +110,40 @@ struct PresetSaveSheet: View {
     private func save() {
         var preset = presets.items.first { $0.id == targetID } ?? Preset()
         preset.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        Self.fill(&preset, included: included, notificationsOff: notificationsOff, resolutionDefault: resolutionDefault,
+                  settings: settings, countdown: countdown)
+        let overwriting = targetID != nil
+        presets.save(preset)
+        settings.error = false
+        settings.message = L(overwriting ? "「%@」を上書き保存しました。" : "「%@」を保存しました。", preset.name)
+        done()
+    }
+
+    /// Option-click 「プリセットに保存…」: overwrite without the sheet, keeping the preset's items, notification value
+    /// (no readable state) and "display default" resolution.
+    static func overwrite(_ preset: Preset, settings: MacSettings, countdown: Countdown, presets: PresetStore) {
+        var preset = preset
+        fill(&preset, included: items(of: preset), notificationsOff: preset.notificationsOff ?? true,
+             resolutionDefault: preset.resolution?.isDisplayDefault ?? false, settings: settings, countdown: countdown)
+        presets.save(preset)
+        settings.error = false
+        settings.message = L("「%@」を上書き保存しました。", preset.name)
+    }
+
+    /// The items a preset already sets.
+    static func items(of preset: Preset) -> Set<Item> {
+        let has: [Item: Bool] = [
+            .clock: preset.clock != nil, .showDate: preset.showDate != nil, .showWeekday: preset.showWeekday != nil,
+            .dark: preset.dark != nil, .hideDock: preset.hideDock != nil, .killDock: preset.killDock != nil,
+            .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
+            .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
+            .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
+        return Set(has.filter(\.value).map(\.key))
+    }
+
+    /// Writes the current values of the included items; the others become nil ("unchanged").
+    private static func fill(_ preset: inout Preset, included: Set<Item>, notificationsOff: Bool, resolutionDefault: Bool,
+                             settings: MacSettings, countdown: Countdown) {
         func value<T>(_ item: Item, _ current: T) -> T? { included.contains(item) ? current : nil }
         preset.clock = value(.clock, settings.analog)
         preset.showDate = value(.showDate, settings.showDate)
@@ -132,10 +160,5 @@ struct PresetSaveSheet: View {
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
         preset.timerEnabled = value(.timerEnabled, countdown.enabled)
         preset.timerMinutes = value(.timerMinutes, countdown.plan.minutes)
-        let overwriting = targetID != nil
-        presets.save(preset)
-        settings.error = false
-        settings.message = L(overwriting ? "「%@」を上書き保存しました。" : "「%@」を保存しました。", preset.name)
-        done()
     }
 }

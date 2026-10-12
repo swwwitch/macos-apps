@@ -8,6 +8,11 @@ InDesignのアプリ内の Contents/MacOS フォルダに、空のファイル D
 別の場所にあるInDesignは「InDesignを追加…」（⌘O）で選びます。InDesign Serverは対象外です。
 反映はInDesignの次回起動からです。起動中のInDesignは終了して起動し直してください。
 
+アプリケーションバー
+上部の「アプリケーションバー」に切り替えると、~/Library/Preferences/Adobe InDesign の各バージョンのワークスペースを一覧表示します。「非表示にする」で、ワークスペースのXMLにある <app-container-control-bar … is-closed="false"> を "true" に書き換えます（「表示する」で元に戻します）。保存したワークスペース（名前.xml）と現在の状態（名前_CurrentWorkspace.xml）の両方を書き換えます。
+InDesignは終了するときにワークスペースを書き戻すため、InDesignの起動中は変更できません。終了してから操作してください。アプリケーションフレームを使っているときは効きません。管理者パスワードは不要です。
+参考：https://note.com/dtp_tranist/n/n08559ccb6a3b
+
 管理者パスワード
 InDesignのアプリ内は管理者の権限で保護されているため、変更時にmacOSの認証ダイアログが表示されます。パスワードはmacOSが扱い、このアプリは保存しません。キャンセルした場合は何も変更しません。アクセシビリティ、フルディスクアクセスなどの権限は不要です。
 

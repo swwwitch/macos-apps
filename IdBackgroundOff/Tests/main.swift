@@ -94,5 +94,28 @@ let osa = Process(); osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascrip
 try! osa.run(); osa.waitUntilExit()
 check(osa.terminationStatus == 0 && AsyncExports.state(of: oddApp) == .off, "AppleScript round trip creates marker at hostile path")
 
+// Application bar: workspace discovery and the is-closed rewrite.
+let prefs = base.appendingPathComponent("Prefs", isDirectory: true)
+let wsFolder = prefs.appendingPathComponent("Version 21.0-J/ja_JP/Workspaces", isDirectory: true)
+try! fm.createDirectory(at: wsFolder, withIntermediateDirectories: true)
+func workspaceXML(_ closed: Bool) -> String {
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<workspace>\n<palette is-closed=\"false\"/>\n<app-container-control-bar id=\"3\" origin=\"1 25\" size=\"697 37\" is-closed=\"\(closed)\"/>\n</workspace>\n"
+}
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(true).write(to: wsFolder.appendingPathComponent("初期設定_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWorkspace (競合コピー).xml"), atomically: true, encoding: .utf8)
+try! "<workspace/>".write(to: wsFolder.appendingPathComponent("broken.xml"), atomically: true, encoding: .utf8)
+let spaces = ApplicationBar.discover(root: prefs)
+check(spaces.map(\.name).sorted() == ["sw", "初期設定"], "workspaces grouped, conflicted copy and files without the bar skipped (\(spaces.map(\.name)))")
+let sw = spaces.first { $0.name == "sw" }!
+check(sw.files.count == 2 && sw.version == "21.0-J" && sw.locale == "ja_JP", "saved and current files grouped with version")
+check(ApplicationBar.state(of: sw) == .shown, "shown when is-closed is false")
+check(ApplicationBar.state(of: spaces.first { $0.name == "初期設定" }!) == .hidden, "hidden when is-closed is true")
+check(ApplicationBar.set(sw, hidden: true) && ApplicationBar.state(of: sw) == .hidden, "hide rewrites both files")
+let hiddenText = try! String(contentsOf: wsFolder.appendingPathComponent("sw.xml"), encoding: .utf8)
+check(hiddenText == workspaceXML(true).replacingOccurrences(of: "<palette is-closed=\"true\"/>", with: "<palette is-closed=\"false\"/>"), "only the application bar attribute changes")
+check(ApplicationBar.set(sw, hidden: false) && ApplicationBar.state(of: sw) == .shown, "show restores both files")
+
 print(failures == 0 ? "All tests passed." : "\(failures) failure(s).")
 exit(failures == 0 ? 0 : 1)

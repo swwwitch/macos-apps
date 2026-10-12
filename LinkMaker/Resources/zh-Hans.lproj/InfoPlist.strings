@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "LinkMaker";
+"NSAppleEventsUsageDescription" = "LinkMaker 会读取前台浏览器窗口的标签页和前台 Finder 窗口的文件夹。";

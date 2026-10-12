@@ -135,6 +135,7 @@
 "ファイルを選択…" = "Choose Files…";
 
 "⌃⌥⌘⇧Aで選択項目を「アプリケーション」へ移動" = "Move selection to Applications with ⌃⌥⌘⇧A";
+"選択項目を「アプリケーション」へ移動" = "Move Selection to Applications";
 "ウインドウを表示せず、Finder／Path Finderで選択中の項目を移動します。常駐中、Finder／Path Finderが前面のときに使用できます。" = "Moves the items selected in Finder/Path Finder without showing the window. Available while the app is running and Finder/Path Finder is in front.";
 "⌃⌥⌘⇧Aは他のアプリが使用しているため登録できませんでした。" = "⌃⌥⌘⇧A could not be registered because another app is using it.";
 "設定" = "Settings";

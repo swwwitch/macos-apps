@@ -69,6 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
                     self.shortcuts[index] = shortcut
                     Shortcut.save(self.shortcuts)
                     self.palette?.refreshShortcutLabels(self.shortcuts)
+                    self.publishHotkeys()
                 } else {
                     self.paletteShortcut = shortcut
                     Shortcut.savePalette(shortcut)
@@ -388,6 +389,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             : L("settings.paletteHotkeyFailed", paletteShortcut.displayLabel, Int(paletteHotkey?.lastStatus ?? 0))
         paletteHotkeyStatus.textColor = ok ? .secondaryLabelColor : .systemRed
         if let item = fileMenuPaletteItem { applyPaletteKey(to: item) }
+        publishHotkeys()
+    }
+
+    /// Lists the keys for HotkeyHound: the palette key works everywhere; action keys only over Finder / Path Finder
+    /// (event tap, not Carbon) and follow 「ホットキーを有効にする」. Unset keys are left out.
+    private func publishHotkeys() {
+        let ids = ["version", "renameDate", "date", "edited", "parent", "swapNames"]   // order of Shortcut.defaults
+        let actions = zip(ids, zip(shortcuts, Shortcut.titles)).map { id, pair in
+            HotkeyManifest.Item(id: id, title: pair.1, keyCode: Int(pair.0.keyCode), modifiers: Int(pair.0.carbonModifiers),
+                                enabled: enabled, scope: "only", apps: Browser.identifiers)
+        }
+        let palette = HotkeyManifest.Item(id: Shortcut.paletteStorageKey, title: L("shortcut.palette"), keyCode: Int(paletteShortcut.keyCode),
+                                          modifiers: Int(paletteShortcut.carbonModifiers))
+        HotkeyManifest.publish(([palette] + actions).filter { $0.keyCode != Int(UInt16.max) })
     }
 
     @objc private func resetPaletteHotkey() {
@@ -423,6 +438,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     @objc private func toggleEnabled() {
         enabled.toggle()
         UserDefaults.standard.set(enabled, forKey: "shortcutsEnabled")
+        publishHotkeys()
         updateStatus()
     }
 
@@ -604,6 +620,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         shortcuts = Shortcut.defaults
         Shortcut.save(shortcuts)
         palette?.refreshShortcutLabels(shortcuts)
+        publishHotkeys()
         refreshShortcutButtons()
     }
 

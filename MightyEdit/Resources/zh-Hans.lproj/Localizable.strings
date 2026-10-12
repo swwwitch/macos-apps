@@ -236,6 +236,7 @@
 "hotkey.inUse" = "此快捷键已分配给其他操作。";
 "scope.global" = "所有应用";
 "scope.palette" = "仅在显示面板时";
+"hotkey.manifestPaletteOnly" = "仅在显示面板时";
 "palette.enableShortcut" = "启用将面板置于前面的快捷键";
 "palette.axModifiers" = "调出面板的修饰键";
 "palette.axKey" = "调出面板的按键";

@@ -9,6 +9,16 @@ final class Model: ObservableObject {
     @Published var running: Set<String> = []
     @Published var busy = false
     @Published var status = ""
+    /// The application bar tab.
+    @Published var mode = Mode(rawValue: UserDefaults.standard.string(forKey: "mode") ?? "") ?? .background {
+        didSet { UserDefaults.standard.set(mode.rawValue, forKey: "mode") }
+    }
+    @Published var workspaces: [Workspace] = []
+    @Published var barStates: [String: BarState] = [:]
+    @Published var barStatus = ""
+    enum Mode: String { case background, applicationBar }
+    /// InDesign rewrites workspace files when it quits, so edits are refused while any InDesign runs.
+    var inDesignRunning: Bool { !running.isEmpty }
     /// Bundles chosen with "Add InDesign…" outside the scanned folders.
     private var addedPaths: [String] {
         get { UserDefaults.standard.stringArray(forKey: "addedApps") ?? [] }
@@ -24,6 +34,25 @@ final class Model: ObservableObject {
         states = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, AsyncExports.state(of: $0)) })
         running = Set(NSRunningApplication.runningApplications(withBundleIdentifier: AsyncExports.bundleID).compactMap { $0.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path })
         if status.isEmpty || resetStatus { status = apps.isEmpty ? L("notFound") : String(format: L("found"), apps.count) }
+        workspaces = ApplicationBar.discover()
+        barStates = Dictionary(uniqueKeysWithValues: workspaces.map { ($0.id, ApplicationBar.state(of: $0)) })
+        if barStatus.isEmpty || resetStatus { barStatus = workspaces.isEmpty ? L("barNotFound") : String(format: L("barFound"), workspaces.count) }
+    }
+
+    func setBar(_ selection: [Workspace], hidden: Bool) {
+        guard !busy else { return }
+        refresh()
+        guard !inDesignRunning else { barStatus = L("barQuitFirst"); return }
+        // Re-read from disk right before writing.
+        let current = Dictionary(uniqueKeysWithValues: workspaces.map { ($0.id, $0) })
+        let targets = selection.compactMap { current[$0.id] }.filter { ApplicationBar.state(of: $0) == (hidden ? .shown : .hidden) }
+        guard !targets.isEmpty else { barStatus = L("nothingToDo"); return }
+        busy = true
+        defer { busy = false }
+        let failed = targets.filter { !ApplicationBar.set($0, hidden: hidden) }.count
+        refresh()
+        barStatus = failed == 0 ? String(format: L(hidden ? "barDoneHidden" : "barDoneShown"), targets.count)
+            : String(format: L("partial"), targets.count - failed, failed)
     }
 
     func add() {
@@ -73,8 +102,10 @@ final class Model: ObservableObject {
 }
 
 struct Header: NSViewRepresentable {
+    var title = L("headline")
+    var subtitle = L("subtitle")
     func makeNSView(context: Context) -> NSStackView {
-        let header = appHeader(L("headline"), subtitle: L("subtitle"))
+        let header = appHeader(title, subtitle: subtitle)
         // The wrapping subtitle is selectable and becomes first responder on open, showing a blue selection.
         func unselectable(_ view: NSView) {
             if let field = view as? NSTextField { field.isSelectable = false; field.drawsBackground = false; field.refusesFirstResponder = true }
@@ -131,11 +162,104 @@ struct AppRow: View {
     }
 }
 
+struct WorkspaceRow: View {
+    @ObservedObject var model: Model
+    let workspace: Workspace
+    var state: BarState { model.barStates[workspace.id] ?? .invalid }
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(workspace.name).font(.system(size: 14, weight: .semibold))
+                    Text("Version " + workspace.version + " · " + workspace.locale).font(.system(size: 12)).foregroundColor(.secondary)
+                }
+                switch state {
+                case .hidden: Label(L("barHidden"), systemImage: "checkmark.circle.fill").foregroundColor(.green).font(.system(size: 12))
+                case .shown: Label(L("barShown"), systemImage: "circle").foregroundColor(.secondary).font(.system(size: 12))
+                case .invalid: Label(L("stateInvalid"), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange).font(.system(size: 12))
+                }
+                Text(workspace.files.map(\.lastPathComponent).joined(separator: "、")).font(.system(size: 11)).foregroundColor(.secondary)
+                    .lineLimit(1).truncationMode(.middle)
+            }
+            Spacer()
+            Button { NSWorkspace.shared.activateFileViewerSelecting(workspace.files) } label: { Image(systemName: "magnifyingglass") }
+                .help(L("reveal")).accessibilityLabel(workspace.name + ": " + L("reveal"))
+            switch state {
+            case .shown: Button(L("barHide")) { model.setBar([workspace], hidden: true) }.accessibilityLabel(workspace.name + ": " + L("barHide"))
+            case .hidden: Button(L("barShow")) { model.setBar([workspace], hidden: false) }.accessibilityLabel(workspace.name + ": " + L("barShow"))
+            case .invalid: EmptyView()
+            }
+        }
+        .disabled(model.inDesignRunning)
+        .padding(.horizontal, 14).padding(.vertical, 10)
+        .accessibilityElement(children: .contain)
+    }
+}
+
+struct ApplicationBarView: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(spacing: 0) {
+                if model.workspaces.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "rectangle.topthird.inset.filled").font(.largeTitle).foregroundColor(.secondary)
+                        Text(L("barNotFound")).font(.system(size: 14, weight: .medium))
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(30)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            ForEach(model.workspaces) { workspace in
+                                WorkspaceRow(model: model, workspace: workspace)
+                                if workspace != model.workspaces.last { Divider().padding(.leading, 14) }
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 150, maxHeight: .infinity)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .textBackgroundColor)))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.secondary.opacity(0.18)))
+            Text(model.inDesignRunning ? L("barQuitFirst") : L("barNote")).font(.system(size: 11))
+                .foregroundColor(model.inDesignRunning ? .orange : .secondary).fixedSize(horizontal: false, vertical: true)
+            Text(model.barStatus).font(.system(size: 13)).lineLimit(3).textSelection(.enabled).frame(minHeight: 34, alignment: .topLeading)
+            HStack {
+                Button(L("help")) { delegate.showHelp() }
+                Spacer()
+                Button(L("reload")) { model.refresh(resetStatus: true) }
+                Button(L("barHideAll")) { model.setBar(model.workspaces, hidden: true) }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(model.inDesignRunning || !model.workspaces.contains { model.barStates[$0.id] == .shown })
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @ObservedObject var model: Model
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Header().frame(height: 48)
+            Group {
+                if model.mode == .background { Header() } else { Header(title: L("barHeadline"), subtitle: L("barSubtitle")) }
+            }
+            .id(model.mode).frame(height: 48)
+            Picker("", selection: $model.mode) {
+                Text(L("tabBackground")).tag(Model.Mode.background)
+                Text(L("tabApplicationBar")).tag(Model.Mode.applicationBar)
+            }
+            .pickerStyle(.segmented).labelsHidden().fixedSize()
+            if model.mode == .applicationBar {
+                ApplicationBarView(model: model)
+            } else {
+                backgroundView
+            }
+        }
+        .disabled(model.busy)
+        .padding(20).frame(minWidth: 620, minHeight: 460).background(Color(nsColor: AppSurface.color))
+    }
+
+    private var backgroundView: some View {
+        VStack(alignment: .leading, spacing: 14) {
             VStack(spacing: 0) {
                 if model.apps.isEmpty {
                     VStack(spacing: 10) {
@@ -170,8 +294,6 @@ struct ContentView: View {
                     .disabled(!model.apps.contains { model.states[$0.id] == .on })
             }
         }
-        .disabled(model.busy)
-        .padding(20).frame(minWidth: 620, minHeight: 420).background(Color(nsColor: AppSurface.color))
     }
 }
 
@@ -185,9 +307,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         installMenus()
         model.refresh()
-        mainWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 460), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        mainWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 500), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         mainWindow.title = ""; mainWindow.titleVisibility = .hidden; mainWindow.isReleasedWhenClosed = false; mainWindow.delegate = self
-        mainWindow.contentView = NSHostingView(rootView: ContentView(model: model)); mainWindow.minSize = NSSize(width: 620, height: 420)
+        mainWindow.contentView = NSHostingView(rootView: ContentView(model: model)); mainWindow.minSize = NSSize(width: 620, height: 460)
         mainWindow.center(); mainWindow.setFrameAutosaveName("IdBackgroundOffMain")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         showMain()

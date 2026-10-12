@@ -12,7 +12,7 @@ cp Info.plist "$app/Contents/Info.plist"
 cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Resources/PrivacyInfo.xcprivacy README.md Assets/IdBackgroundOff.icns "$app/Contents/Resources/"
 for arch in arm64 x86_64; do
-  xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target "$arch-apple-macosx13.0" -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework Carbon ../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/StartupWindow.swift ../Shared/AppStandards/HelpDocument.swift Source/AsyncExports.swift Source/MenuBarPresence.swift Source/UpdateSupport.swift Source/main.swift -o "$stage/IdBackgroundOff-$arch"
+  xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target "$arch-apple-macosx13.0" -module-cache-path "$stage/cache" -framework AppKit -framework SwiftUI -framework Carbon ../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/StartupWindow.swift ../Shared/AppStandards/HelpDocument.swift Source/AsyncExports.swift Source/ApplicationBar.swift Source/MenuBarPresence.swift Source/UpdateSupport.swift Source/main.swift -o "$stage/IdBackgroundOff-$arch"
 done
 xcrun lipo -create "$stage/IdBackgroundOff-arm64" "$stage/IdBackgroundOff-x86_64" -output "$app/Contents/MacOS/IdBackgroundOff"
 xcrun lipo -verify_arch arm64 "$app/Contents/MacOS/IdBackgroundOff"

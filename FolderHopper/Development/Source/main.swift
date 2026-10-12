@@ -497,7 +497,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         filterRows()
     }
     func setupShortcut() {
-        UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12])
+        UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12, "applicationsShortcutEnabled": true])
         shortcutModifiers.addItems(withTitles: GlobalShortcut.modifiers.map { $0.0 })
         shortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
         shortcutModifiers.setAccessibilityLabel(L("ホットキーの修飾キー"))
@@ -516,7 +516,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         shortcutChanged()
         #if !APP_STORE
-        UserDefaults.standard.register(defaults: ["applicationsShortcutEnabled": true])
         applicationsShortcutEnabled.state = UserDefaults.standard.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
         applicationsShortcutEnabled.target = self; applicationsShortcutEnabled.action = #selector(applicationsShortcutChanged)
         globalShortcut.actions[2] = { [weak self] in self?.moveSelectionToApplications() }
@@ -535,6 +534,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             applicationsShortcutEnabled.state = .off
             applicationsShortcutStatus.stringValue = L("⌃⌥⌘⇧Aは他のアプリが使用しているため登録できませんでした。")
         }
+        publishHotkeys()
     }
     /// Reads the frontmost Finder/Path Finder selection and moves it to /Applications without showing the window.
     /// The window opens only to show an error; when there is nothing to move, a short message says why.
@@ -588,6 +588,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         shortcutModifiers.isEnabled = shortcutEnabled.state == .on
         shortcutKey.isEnabled = shortcutEnabled.state == .on
+        publishHotkeys()
+    }
+    /// Declares both hotkeys to HotkeyHound (Shared/HotkeyManifest). `enabled` is the saved setting, not whether registration succeeded.
+    /// The App Store build writes nothing (sandboxed), so the body is direct-distribution only.
+    func publishHotkeys() {
+        #if !APP_STORE
+        let defaults = UserDefaults.standard
+        let modifier = defaults.integer(forKey: "shortcutModifierIndex"), key = defaults.integer(forKey: "shortcutKeyIndex")
+        let apps = BrowserReader.identifiers.sorted()
+        let applications = GlobalShortcut.applicationsShortcut
+        HotkeyManifest.publish([
+            HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"),
+                                keyCode: Int(GlobalShortcut.keys[GlobalShortcut.keys.indices.contains(key) ? key : 12].1),
+                                modifiers: Int(GlobalShortcut.modifiers[GlobalShortcut.modifiers.indices.contains(modifier) ? modifier : 0].1),
+                                enabled: defaults.bool(forKey: "shortcutEnabled"), scope: "only", apps: apps),
+            HotkeyManifest.Item(id: "applicationsShortcut", title: L("選択項目を「アプリケーション」へ移動"),
+                                keyCode: Int(applications.key), modifiers: Int(applications.modifiers),
+                                enabled: defaults.bool(forKey: "applicationsShortcutEnabled"), scope: "only", apps: apps)
+        ])
+        #endif
     }
     /// File menu ⌘0: same path as reopening from the Dock. The window is kept (isReleasedWhenClosed = false).
     @objc func showMainWindow() {

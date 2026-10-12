@@ -47,6 +47,7 @@
 "%@を終了" = "Quit %@";
 
 "%@（2回押す）" = "%@ (press twice)";
+"続けて2回押す" = "Press twice in a row";
 
 "ヘルプ" = "Help";
 "%@ヘルプ" = "%@ Help";

@@ -22,6 +22,10 @@ zsh build.sh
 
 ## 更新履歴
 
+### 1.0.17（build 54、2026-10-12）
+
+- ホットキー（メインウインドウの表示）を共通ファイル（~/Library/Application Support/swwwitch/Hotkeys）に書き出し、HotkeyHound から「どのアプリが使っているか」が見えるようにした。App Store版は書き出さない。
+
 ### 1.0.16（build 53、2026-10-10）
 
 - 「情報」タブの解説記事のリンクを、アプリ専用の note 記事にした（SWNoteArticleURL）。ヘルプの「note記事を開く」も同じ記事を開く。

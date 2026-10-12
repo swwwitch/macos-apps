@@ -35,14 +35,21 @@ final class PaletteHotkey {
         if let reference { UnregisterEventHotKey(reference) }
         reference = nil
         guard shortcut.keyCode != UInt16.max else { lastStatus = noErr; return true }
-        let flags = NSEvent.ModifierFlags(rawValue: shortcut.modifiers)
-        var modifiers: UInt32 = 0
-        if flags.contains(.command) { modifiers |= UInt32(cmdKey) }
-        if flags.contains(.shift) { modifiers |= UInt32(shiftKey) }
-        if flags.contains(.option) { modifiers |= UInt32(optionKey) }
-        if flags.contains(.control) { modifiers |= UInt32(controlKey) }
-        lastStatus = RegisterEventHotKey(UInt32(shortcut.keyCode), modifiers, EventHotKeyID(signature: 0x43445050, id: 1),
+        lastStatus = RegisterEventHotKey(UInt32(shortcut.keyCode), shortcut.carbonModifiers, EventHotKeyID(signature: 0x43445050, id: 1),
                                          GetApplicationEventTarget(), 0, &reference)
         return lastStatus == noErr
+    }
+}
+
+extension Shortcut {
+    /// Carbon modifier bits (cmdKey etc.) for RegisterEventHotKey and HotkeyManifest; fn has no Carbon bit.
+    var carbonModifiers: UInt32 {
+        let flags = NSEvent.ModifierFlags(rawValue: modifiers)
+        var value: UInt32 = 0
+        if flags.contains(.command) { value |= UInt32(cmdKey) }
+        if flags.contains(.shift) { value |= UInt32(shiftKey) }
+        if flags.contains(.option) { value |= UInt32(optionKey) }
+        if flags.contains(.control) { value |= UInt32(controlKey) }
+        return value
     }
 }

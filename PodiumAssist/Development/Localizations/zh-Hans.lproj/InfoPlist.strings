@@ -1,2 +1,4 @@
 "CFBundleDisplayName" = "PodiumAssist";
 "NSAppleEventsUsageDescription" = "控制 System Events，以切换 Mac 的浅色或深色外观。";
+"NSLocationUsageDescription" = "用于在网络速度列表中显示已连接 Wi-Fi 网络的名称。";
+"NSLocationWhenInUseUsageDescription" = "用于在网络速度列表中显示已连接 Wi-Fi 网络的名称。";

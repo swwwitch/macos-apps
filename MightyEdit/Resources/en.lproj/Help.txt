@@ -129,7 +129,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - **⌘Z** / **⇧⌘Z**: Undo / Redo in MightyEdit’s text fields (Cut, Copy, Paste and Select All are in the Edit menu too)
 ### Default Hotkeys
 - **⌃⌥⌘E**: Show the palette
-- **⌃⌥⌘D**: Switch Button Style (Icon and Text → Icon Only → Text Only; does not change any text)
+- **⌃⌥⌘Y**: Switch Button Style (only while the palette is shown; Icon and Text → Icon Only → Text Only; does not change any text)
 - **⌃1**: Numbered List
 - **⌃3**: Circled Numbers
 - **⌃4**: Letter List (A.)

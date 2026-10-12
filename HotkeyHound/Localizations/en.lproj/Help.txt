@@ -1,0 +1,83 @@
+HotkeyHound finds which apps define a key combination. Use it when a hotkey does not work and you need to know what is taking it.
+
+## Using HotkeyHound
+### Look Up a Key
+1. Click “Click, then press a key” and press the combination (or choose File > Look Up a Key, ⌘K).
+2. The key is not passed to other apps, so no macros run while you look it up. Press Esc without modifiers to cancel.
+3. Every source that defines the key is listed. A warning mark appears when two or more of them are active.
+
+### Which Apps to Check
+- Use the switch at the top to choose “All Apps” or “Specific App”.
+- With “Specific App”, only the menus of the app chosen in the pop-up menu and the hotkeys that work in it (those for all apps and those targeting that app) are checked. Hotkeys only for other apps are not shown.
+- When you switch, the app you used last is selected. Choose “Other…” to pick an app that is not running (its menus are not checked).
+
+### Reading the list
+- **Disabled**: turned off in the source (a disabled macro or group, a rule that is off, and so on).
+- **Not running**: the app that provides the hotkey (such as Keyboard Maestro Engine) is not running, so it has no effect now.
+- Turn on “Hide inactive hotkeys” at the top right of the results to hide disabled and not-running ones.
+- **Also with extra modifiers**: a Karabiner-Elements rule that also fires when other modifiers are held.
+- Control-click a row to copy its details or open the app that defines it.
+
+## Sources
+- **macOS Shortcuts**: System Settings > Keyboard > Keyboard Shortcuts (Spotlight, Mission Control, input sources and more).
+- **Services**: hotkeys assigned to services.
+- **App Shortcuts (System Settings)**: hotkeys you assigned to menu items in System Settings.
+- **Menus of running apps**: hotkeys in the menu bar of running apps. They work only while that app is frontmost.
+- **Keyboard Maestro**: macro hotkeys and group activation / palette hotkeys, with the targeted apps.
+- **BetterTouchTool**: keyboard triggers, with notes, folder, preset and app.
+- **Karabiner-Elements**: rules and remappings in the selected profile, with what they produce.
+- **Alfred**: the hotkey that shows Alfred, feature hotkeys such as clipboard history, and workflow hotkeys, with the related apps.
+- **Default Folder X**: hotkeys for file dialogs, Finder and all apps.
+- **Keystroke Pro**: the hotkey that turns the keystroke display on and off.
+- **ATOK**: key settings of the style in use (ATOK Customizer). They work only while ATOK is on, so the states (no input, typing, converting and so on) are shown.
+- **Adobe Illustrator**: the keyboard shortcut set selected in Illustrator. A custom set is read from its .kys file; for the default set, the bundled defaults are used. Tool keys (V, A and so on) are shown with their default keys.
+- **My apps (swwwitch)**: hotkeys published by CommandDee, MightyEdit, FolderHopper and others (~/Library/Application Support/swwwitch/Hotkeys), with where they work and whether the app is running.
+- **Apps using KeyboardShortcuts**: apps that store hotkeys with the KeyboardShortcuts library (such as DemoPro). Names are the identifiers in their settings.
+- **Custom sources**: hotkeys you enter by hand in Settings › Sources for apps whose settings cannot be read.
+
+### When nothing is found
+- “The system (or another app) reserves this key exclusively” means a macOS shortcut or similar holds the key.
+- “Apps that can intercept keys” lists apps with an event tap that receives keystrokes. If an app whose settings cannot be read is the cause, quit these apps one at a time and try again.
+- Hotkeys that other apps register in shared mode (for example with RegisterEventHotKey) cannot be found, because macOS offers no way to list them.
+
+## Settings
+Click Settings in the main window (⌘,).
+- **Startup & Background**: open at login, hide the main window at startup, show in the menu bar, and Accessibility status
+- **Sources**: turn each source on or off and drag to reorder (results follow this order); the number of hotkeys found is shown. “Add Source…” creates a custom source where you enter keys, names and where they work (pencil to edit, trash to delete).
+
+## Hotkeys
+- **⌘K**: Look Up a Key
+- **⌘R**: Reload
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: HotkeyHound Help
+- **⌘Q**: Quit HotkeyHound
+
+## Permissions
+- HotkeyHound uses Accessibility to receive the pressed key before other apps and to read the menus of running apps.
+- Without it you can still use the app, but keys that other apps take first cannot be recorded and menus are not checked.
+- Grant it with “Open Accessibility Settings” in the Startup & Background tab.
+- Settings files of other apps are only read, never changed. The app does not use the network.
+
+## Opening and Quitting
+- Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
+- With “Show in Menu Bar” on, the menu bar icon also offers Open Main Window, Settings… and Help.
+- To quit, choose HotkeyHound > Quit HotkeyHound (⌘Q).
+- Choose Check for Updates… in the app menu to look for a new version. Until distribution is set up it shows that updates are being prepared and does not connect.
+
+## Troubleshooting
+- If nothing is recorded, check the Accessibility permission. Restart the app if the change is not picked up.
+- Karabiner-Elements changes keys before they reach this app, so a remapped key may appear as its result.
+- If results look out of date after you changed settings, click Reload (⌘R).
+- Apps with large menus can take a few seconds to read.
+
+## Help and the note Article
+- Open this help with Help > HotkeyHound Help (⌘?).
+- Choose Help > Open the note Article to read the article on note in your browser.
+
+## Removing the App
+1. Turn off Open at Login.
+2. Choose Quit HotkeyHound.
+3. Move HotkeyHound to the Trash.
+4. Remove HotkeyHound from System Settings > Privacy & Security > Accessibility.

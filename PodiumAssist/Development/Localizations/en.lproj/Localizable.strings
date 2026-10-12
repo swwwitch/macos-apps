@@ -86,7 +86,6 @@
 "Mac全体" = "Entire Mac";
 "デスクトップアイコンを非表示" = "Hide Desktop Icons";
 "通知" = "Notifications";
-"「オフ」にすると、おやすみモードをオンにします。" = "Off turns on Do Not Disturb.";
 "選択中" = "Selected";
 "未選択" = "Not Selected";
 "サービス" = "Services";
@@ -190,3 +189,12 @@
 "視差効果を減らしました。" = "Motion reduced.";
 "視差効果を元に戻しました。" = "Motion restored.";
 "視差効果を減らす" = "Reduce motion";
+"ネットワーク" = "Network";
+"接続しているネットワークがありません。" = "No network is connected.";
+"速度を測定" = "Measure Speed";
+"測定中…" = "Measuring…";
+"測定できませんでした" = "Could not measure";
+"接続しているネットワークごとに、下り（↓）と上り（↑）の速度を測ります。1つにつき約10秒かかります。" = "Measures the download (↓) and upload (↑) speed of each connected network. Each takes about 10 seconds.";
+"今の状態を、最後に適用したプリセット「%@」に上書きします。optionキーを押しながらクリックすると、保存先と含める項目を選べます。" = "Overwrites “%@”, the preset you applied last, with the current state. Option-click to choose where to save and which items to include.";
+"通知を止める（おやすみモード）" = "Silence Notifications (Do Not Disturb)";
+"おやすみモードを切り替えます。表示はPodiumAssistで最後に切り替えた状態です（コントロールセンターなどで変えた場合は反映されません）。" = "Turns Do Not Disturb on or off. The checkbox shows the state PodiumAssist set last (changes made elsewhere, such as in Control Center, are not reflected).";

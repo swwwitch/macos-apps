@@ -230,7 +230,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let manualHeight = [false, true].map { detailed in
             NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets, detailed: detailed).padding(16).frame(width: panelWidth)).fittingSize.height
         }.max() ?? 0
-        let size = NSSize(width: 420, height: max(560, ceil(180 + manualHeight)))
+        let size = NSSize(width: 420, height: ceil(180 + manualHeight))
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("セミナー・キャプチャ準備")
@@ -521,6 +521,7 @@ struct PresetPicker: View {
                     }
                 }
             }
+            NetworkSpeedSection()
             StatusMessage(settings: settings)
         }
         .padding(12)
@@ -558,6 +559,7 @@ struct PresetPicker: View {
         let index = presets.items.firstIndex { $0.id == preset.id } ?? 0
         return Button {
             lastApplied = preset.id.uuidString
+            presets.remember(preset.id)  // the target of option-click 「プリセットに保存…」, kept after manual changes
             settings.apply(preset, countdown: countdown)
         } label: {
             HStack(spacing: 12) {
@@ -590,6 +592,40 @@ struct PresetPicker: View {
     }
 }
 
+/// Below the preset buttons: a check before going live, not a setting, so presets do not save it.
+struct NetworkSpeedSection: View {
+    @ObservedObject private var network = NetworkSpeedStore.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Divider()
+            Text(L("ネットワーク")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+            if network.networks.isEmpty {
+                Text(L("接続しているネットワークがありません。")).font(.system(size: 12)).foregroundStyle(.secondary)
+            }
+            ForEach(network.networks) { item in
+                HStack {
+                    // Fixed-width icon column: the Wi-Fi and cable symbols differ in width, which shifted the names.
+                    Image(systemName: item.ssid != nil || item.name.localizedCaseInsensitiveContains("Wi-Fi") ? "wifi" : "cable.connector")
+                        .frame(width: 18)
+                    Text(item.title).lineLimit(1)
+                    Spacer()
+                    Text(network.results[item.id] ?? "").monospacedDigit().foregroundStyle(.secondary)
+                }
+                .font(.system(size: 12))
+            }
+            HStack {
+                Spacer()
+                Button(network.measuring == nil ? L("速度を測定") : L("測定中…")) { network.measureAll() }
+                    .disabled(network.measuring != nil || network.networks.isEmpty)
+                    .help(L("接続しているネットワークごとに、下り（↓）と上り（↑）の速度を測ります。1つにつき約10秒かかります。"))
+            }
+            .font(.system(size: 12))
+        }
+        .onAppear { network.refresh() }
+    }
+}
+
 /// Result of the last action; the standing explanations are tooltips.
 /// Always two lines tall, so a message appearing does not change the tab's height and push the header up.
 struct StatusMessage: View {
@@ -599,7 +635,7 @@ struct StatusMessage: View {
             .font(.system(size: 11))
             .foregroundStyle(settings.error ? Color.red : Color.secondary)
             .lineLimit(2)
-            .frame(maxWidth: .infinity, minHeight: 28, maxHeight: 28, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 28, maxHeight: 28, alignment: .leading)
             .help(settings.message)
             .accessibilityLabel(settings.message)
         if settings.automationDenied {
@@ -646,7 +682,6 @@ struct TimerPanel: View {
                 }
             }
             if !countdown.error.isEmpty { Text(countdown.error).foregroundStyle(.red).font(.caption) }
-            Spacer()
             HStack {
                 Text(countdown.remaining).monospacedDigit()
                 Spacer()
@@ -661,11 +696,11 @@ struct TimerPanel: View {
     private func dateTimeRow(_ title: String, value: Date, set: @escaping (Date) -> Void) -> some View {
         HStack {
             Text(title)
-            // Explicit widths: the pickers' own widths clip the last digit.
-            DatePicker(title, selection: Binding(get: { value }, set: { set(Self.combine(day: $0, time: value)) }), displayedComponents: .date)
-                .labelsHidden().frame(width: 136, alignment: .leading)
-            DatePicker(title, selection: Binding(get: { value }, set: { set(Self.combine(day: value, time: $0)) }), displayedComponents: .hourAndMinute)
-                .labelsHidden().frame(width: 90, alignment: .leading)
+            // SwiftUI's DatePicker keeps NSDatePicker's own width, which clips the last digit; a frame does not widen it.
+            WideDatePicker(title: title, date: Binding(get: { value }, set: { set(Self.combine(day: $0, time: value)) }),
+                           elements: .yearMonthDay, width: 150)
+            WideDatePicker(title: title, date: Binding(get: { value }, set: { set(Self.combine(day: value, time: $0)) }),
+                           elements: .hourMinute, width: 96)
         }
     }
 
@@ -677,6 +712,43 @@ struct TimerPanel: View {
     }
 }
 
+
+/// NSDatePicker (text field and stepper) at a fixed width.
+struct WideDatePicker: NSViewRepresentable {
+    let title: String
+    @Binding var date: Date
+    let elements: NSDatePicker.ElementFlags
+    let width: CGFloat
+
+    final class Picker: NSDatePicker {
+        var width: CGFloat = 0
+        override var intrinsicContentSize: NSSize { NSSize(width: width, height: super.intrinsicContentSize.height) }
+    }
+
+    func makeNSView(context: Context) -> Picker {
+        let picker = Picker()
+        picker.datePickerStyle = .textFieldAndStepper
+        picker.datePickerElements = elements
+        picker.width = width
+        picker.setAccessibilityLabel(title)
+        picker.target = context.coordinator
+        picker.action = #selector(Coordinator.changed(_:))
+        return picker
+    }
+
+    func updateNSView(_ picker: Picker, context: Context) {
+        context.coordinator.parent = self
+        if picker.dateValue != date { picker.dateValue = date }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject {
+        var parent: WideDatePicker
+        init(_ parent: WideDatePicker) { self.parent = parent }
+        @objc func changed(_ sender: NSDatePicker) { parent.date = sender.dateValue }
+    }
+}
 
 @MainActor
 final class MacSettings: ObservableObject {
@@ -692,6 +764,10 @@ final class MacSettings: ObservableObject {
     @Published var reduceMotion = false
     @Published var volumeFeedback = false
     @Published var resolution: DisplayResolution?
+    /// Do Not Disturb as PodiumAssist last set it: the Focus state itself is not readable without Full Disk Access.
+    @Published var notificationsOff = UserDefaults.standard.bool(forKey: "notificationsOffLastSet") {
+        didSet { UserDefaults.standard.set(notificationsOff, forKey: "notificationsOffLastSet") }
+    }
     @Published var hasExternalDisplay = false
     @Published var mirrored = false
     @Published var busy = false
@@ -1019,6 +1095,7 @@ final class MacSettings: ObservableObject {
                 try await Task.detached {
                     try self.run("/usr/bin/shortcuts", ["run", value ? "Toki Notifications Off" : "Toki Notifications On"])
                 }.value
+                notificationsOff = value
                 message = value ? L("おやすみモードをオンにしました。許可済みの通知は届く場合があります。") : L("おやすみモードを解除しました。")
             } catch {
                 self.error = true
@@ -1123,13 +1200,9 @@ struct ManualControlsView: View {
                 category(L("集中を妨げるもの")) {
                     Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
                         .font(.system(size: 12))
-                    HStack {
-                        Label(L("通知"), systemImage: "bell.slash")
-                        Spacer()
-                        Button(L("オフ")) { manual { settings.setNotificationsOff(true) } }
-                        Button(L("オン")) { manual { settings.setNotificationsOff(false) } }
-                    }.font(.system(size: 12)).disabled(settings.busy)
-                    .help(L("「オフ」にすると、おやすみモードをオンにします。"))
+                    Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))
+                        .font(.system(size: 12)).disabled(settings.busy)
+                        .help(L("おやすみモードを切り替えます。表示はPodiumAssistで最後に切り替えた状態です（コントロールセンターなどで変えた場合は反映されません）。"))
                 }
                 category(L("プライバシー")) {
                     Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
@@ -1182,11 +1255,20 @@ struct ManualControlsView: View {
                 TimerPanel(countdown: countdown)
                     .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
             }
-            StatusMessage(settings: settings)
-            HStack {
-                Spacer()
-                Button(L("プリセットに保存…")) { saving = true }
-                    .help(L("今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。"))
+            // The message sits beside the button, so its fixed two-line height adds no empty row.
+            HStack(spacing: 12) {
+                StatusMessage(settings: settings)
+                // Click: overwrite the preset applied (or saved) last, with the items it already has.
+                // Option-click, or no such preset yet: the sheet to choose the preset and items. No "…" when no sheet opens.
+                Button(presets.rememberedPreset == nil ? L("プリセットに保存…") : L("プリセットに保存")) {
+                    if !NSEvent.modifierFlags.contains(.option), let preset = presets.rememberedPreset {
+                        PresetSaveSheet.overwrite(preset, settings: settings, countdown: countdown, presets: presets)
+                    } else {
+                        saving = true
+                    }
+                }
+                .help(presets.rememberedPreset.map { L("今の状態を、最後に適用したプリセット「%@」に上書きします。optionキーを押しながらクリックすると、保存先と含める項目を選べます。", $0.name) }
+                      ?? L("今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。"))
             }
         }
         .help(L("選択すると、Macのシステム設定を変更します。"))

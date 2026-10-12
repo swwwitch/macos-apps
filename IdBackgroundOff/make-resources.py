@@ -30,6 +30,21 @@ rows = [
 ('doneOn', '%ld件を元に戻しました。InDesignの次回起動から反映されます。', 'Restored %ld. Takes effect the next time InDesign starts.', '已恢复 %ld 个。将在下次启动 InDesign 时生效。', '%ld개를 되돌렸습니다. 다음 InDesign 실행부터 적용됩니다.'),
 ('restartNote', '起動中のInDesignは、終了して起動し直すと反映されます。', 'Quit and reopen any running InDesign to apply.', '正在运行的 InDesign 需要退出并重新启动后生效。', '실행 중인 InDesign은 종료 후 다시 실행해야 적용됩니다.'),
 ('updateNote', 'InDesignのアップデートや再インストールでファイルが消え、「オン」に戻ることがあります。その場合はもう一度オフにしてください。', 'Updating or reinstalling InDesign can remove the file and turn background export back on. Turn it off again if that happens.', '更新或重新安装 InDesign 可能会删除该文件并恢复为“开启”。此时请再次关闭。', 'InDesign을 업데이트하거나 다시 설치하면 파일이 사라져 켬으로 돌아갈 수 있습니다. 그럴 때는 다시 끄세요.'),
+('tabBackground', 'バックグラウンド書き出し', 'Background Export', '后台导出', '백그라운드 내보내기'),
+('tabApplicationBar', 'アプリケーションバー', 'Application Bar', '应用程序栏', '응용 프로그램 막대'),
+('barHeadline', 'InDesignのアプリケーションバーを非表示', 'Hide the InDesign application bar', '隐藏 InDesign 应用程序栏', 'InDesign 응용 프로그램 막대 숨기기'),
+('barSubtitle', 'ワークスペースのXMLで is-closed を切り替えます（アプリケーションフレームを使わない場合）。', 'Switches is-closed in the workspace XML (when the Application Frame is not used).', '切换工作区 XML 中的 is-closed（不使用应用程序框架时）。', '작업 영역 XML의 is-closed를 전환합니다(응용 프로그램 프레임을 사용하지 않을 때).'),
+('barHidden', 'アプリケーションバー：非表示', 'Application bar: Hidden', '应用程序栏：隐藏', '응용 프로그램 막대: 숨김'),
+('barShown', 'アプリケーションバー：表示', 'Application bar: Shown', '应用程序栏：显示', '응용 프로그램 막대: 표시'),
+('barHide', '非表示にする', 'Hide', '隐藏', '숨기기'),
+('barShow', '表示する', 'Show', '显示', '표시'),
+('barHideAll', 'すべて非表示にする', 'Hide All', '全部隐藏', '모두 숨기기'),
+('barFound', '%ld件のワークスペースを検出しました。反映はInDesignの次回起動からです。', 'Found %ld workspaces. Changes apply the next time InDesign starts.', '检测到 %ld 个工作区。更改将在下次启动 InDesign 时生效。', '작업 영역 %ld개를 찾았습니다. 변경 사항은 다음 InDesign 실행부터 적용됩니다.'),
+('barNotFound', 'ワークスペースが見つかりません', 'No workspaces found', '未找到工作区', '작업 영역을 찾을 수 없습니다'),
+('barQuitFirst', 'InDesignの起動中は変更できません。InDesignは終了するときにワークスペースを書き戻すため、終了してから操作してください。', 'Cannot change while InDesign is running. InDesign writes its workspaces back when it quits, so quit it first.', 'InDesign 运行时无法更改。InDesign 退出时会写回工作区，请先退出 InDesign。', 'InDesign이 실행 중일 때는 변경할 수 없습니다. InDesign은 종료할 때 작업 영역을 다시 저장하므로 먼저 종료하세요.'),
+('barNote', '保存したワークスペース（名前.xml）と現在の状態（名前_CurrentWorkspace.xml）の両方を書き換えます。アプリケーションフレームを使っているときは効きません。', 'Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed. Has no effect while the Application Frame is used.', '会同时修改已存储的工作区（名称.xml）和当前状态（名称_CurrentWorkspace.xml）。使用应用程序框架时无效。', '저장된 작업 영역(이름.xml)과 현재 상태(이름_CurrentWorkspace.xml)를 모두 변경합니다. 응용 프로그램 프레임을 사용할 때는 적용되지 않습니다.'),
+('barDoneHidden', '%ld件のワークスペースでアプリケーションバーを非表示にしました。InDesignの次回起動から反映されます。', 'Hid the application bar in %ld workspaces. Takes effect the next time InDesign starts.', '已在 %ld 个工作区中隐藏应用程序栏。将在下次启动 InDesign 时生效。', '작업 영역 %ld개에서 응용 프로그램 막대를 숨겼습니다. 다음 InDesign 실행부터 적용됩니다.'),
+('barDoneShown', '%ld件のワークスペースでアプリケーションバーを表示にしました。InDesignの次回起動から反映されます。', 'Showed the application bar in %ld workspaces. Takes effect the next time InDesign starts.', '已在 %ld 个工作区中显示应用程序栏。将在下次启动 InDesign 时生效。', '작업 영역 %ld개에서 응용 프로그램 막대를 표시했습니다. 다음 InDesign 실행부터 적용됩니다.'),
 ('about', 'IdBackgroundOffについて', 'About IdBackgroundOff', '关于 IdBackgroundOff', 'IdBackgroundOff에 관하여'),
 ('services', 'サービス', 'Services', '服务', '서비스'),
 ('hideApp', 'IdBackgroundOffを隠す', 'Hide IdBackgroundOff', '隐藏 IdBackgroundOff', 'IdBackgroundOff 가리기'),
@@ -65,6 +80,11 @@ InDesignのアプリ内の Contents/MacOS フォルダに、空のファイル D
 別の場所にあるInDesignは「InDesignを追加…」（⌘O）で選びます。InDesign Serverは対象外です。
 反映はInDesignの次回起動からです。起動中のInDesignは終了して起動し直してください。
 
+アプリケーションバー
+上部の「アプリケーションバー」に切り替えると、~/Library/Preferences/Adobe InDesign の各バージョンのワークスペースを一覧表示します。「非表示にする」で、ワークスペースのXMLにある <app-container-control-bar … is-closed="false"> を "true" に書き換えます（「表示する」で元に戻します）。保存したワークスペース（名前.xml）と現在の状態（名前_CurrentWorkspace.xml）の両方を書き換えます。
+InDesignは終了するときにワークスペースを書き戻すため、InDesignの起動中は変更できません。終了してから操作してください。アプリケーションフレームを使っているときは効きません。管理者パスワードは不要です。
+参考：https://note.com/dtp_tranist/n/n08559ccb6a3b
+
 管理者パスワード
 InDesignのアプリ内は管理者の権限で保護されているため、変更時にmacOSの認証ダイアログが表示されます。パスワードはmacOSが扱い、このアプリは保存しません。キャンセルした場合は何も変更しません。アクセシビリティ、フルディスクアクセスなどの権限は不要です。
 
@@ -95,6 +115,11 @@ Basic use
 The app lists InDesign versions (2025, 2026 and so on) found in /Applications and ~/Applications. Turn Off adds the file and Restore removes it. Turn Off All handles every version that is still on. The magnifier button shows the location in Finder.
 Use Add InDesign… (⌘O) for a copy in another location. InDesign Server is not supported.
 Changes take effect the next time InDesign starts. Quit and reopen InDesign if it is running.
+
+Application bar
+Switch to Application Bar at the top to list the workspaces of each version in ~/Library/Preferences/Adobe InDesign. Hide changes <app-container-control-bar … is-closed="false"> in the workspace XML to "true" (Show changes it back). Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed.
+InDesign writes its workspaces back when it quits, so changes are not allowed while InDesign is running. Quit it first. This has no effect while the Application Frame is used. No administrator password is needed.
+Reference (Japanese): https://note.com/dtp_tranist/n/n08559ccb6a3b
 
 Administrator password
 The inside of the InDesign app is protected, so macOS asks for an administrator password when you make a change. macOS handles the password; this app never stores it. If you cancel, nothing is changed. Accessibility, Full Disk Access and similar permissions are not required.
@@ -127,6 +152,11 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 其他位置的 InDesign 可通过“添加 InDesign…”（⌘O）选择。不支持 InDesign Server。
 更改将在下次启动 InDesign 时生效。若 InDesign 正在运行，请退出后重新启动。
 
+应用程序栏
+切换到顶部的“应用程序栏”后，会列出 ~/Library/Preferences/Adobe InDesign 中各版本的工作区。“隐藏”会把工作区 XML 中的 <app-container-control-bar … is-closed="false"> 改为 "true"（“显示”改回）。已存储的工作区（名称.xml）和当前状态（名称_CurrentWorkspace.xml）都会修改。
+InDesign 退出时会写回工作区，因此 InDesign 运行时无法更改，请先退出。使用应用程序框架时无效。不需要管理员密码。
+参考（日语）：https://note.com/dtp_tranist/n/n08559ccb6a3b
+
 管理员密码
 InDesign 应用内部受到保护，因此更改时 macOS 会要求输入管理员密码。密码由 macOS 处理，本应用不会保存。取消时不做任何更改。不需要辅助功能、完全磁盘访问等权限。
 
@@ -157,6 +187,11 @@ InDesign 앱 내부의 Contents/MacOS 폴더에 DisableAsyncExports.txt라는 �
 /Applications와 ~/Applications에 있는 InDesign(2025, 2026 등)을 목록으로 표시합니다. 끄기는 파일을 배치하고 되돌리기는 삭제합니다. 모두 끄기는 아직 켜져 있는 모든 버전을 처리합니다. 돋보기 버튼으로 Finder에서 위치를 표시합니다.
 다른 위치의 InDesign은 InDesign 추가…(⌘O)로 선택하세요. InDesign Server는 지원하지 않습니다.
 변경 사항은 다음 InDesign 실행부터 적용됩니다. 실행 중이라면 종료 후 다시 실행하세요.
+
+응용 프로그램 막대
+위쪽의 “응용 프로그램 막대”로 전환하면 ~/Library/Preferences/Adobe InDesign에 있는 각 버전의 작업 영역을 표시합니다. “숨기기”는 작업 영역 XML의 <app-container-control-bar … is-closed="false">를 "true"로 바꿉니다(“표시”로 되돌림). 저장된 작업 영역(이름.xml)과 현재 상태(이름_CurrentWorkspace.xml)를 모두 변경합니다.
+InDesign은 종료할 때 작업 영역을 다시 저장하므로 InDesign이 실행 중일 때는 변경할 수 없습니다. 먼저 종료하세요. 응용 프로그램 프레임을 사용할 때는 적용되지 않습니다. 관리자 암호는 필요하지 않습니다.
+참고(일본어): https://note.com/dtp_tranist/n/n08559ccb6a3b
 
 관리자 암호
 InDesign 앱 내부는 보호되어 있어 변경할 때 macOS가 관리자 암호를 요청합니다. 암호는 macOS가 처리하며 이 앱은 저장하지 않습니다. 취소하면 아무것도 변경하지 않습니다. 손쉬운 사용, 전체 디스크 접근 권한 등은 필요하지 않습니다.

@@ -8,6 +8,11 @@ The app lists InDesign versions (2025, 2026 and so on) found in /Applications an
 Use Add InDesign… (⌘O) for a copy in another location. InDesign Server is not supported.
 Changes take effect the next time InDesign starts. Quit and reopen InDesign if it is running.
 
+Application bar
+Switch to Application Bar at the top to list the workspaces of each version in ~/Library/Preferences/Adobe InDesign. Hide changes <app-container-control-bar … is-closed="false"> in the workspace XML to "true" (Show changes it back). Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed.
+InDesign writes its workspaces back when it quits, so changes are not allowed while InDesign is running. Quit it first. This has no effect while the Application Frame is used. No administrator password is needed.
+Reference (Japanese): https://note.com/dtp_tranist/n/n08559ccb6a3b
+
 Administrator password
 The inside of the InDesign app is protected, so macOS asks for an administrator password when you make a change. macOS handles the password; this app never stores it. If you cancel, nothing is changed. Accessibility, Full Disk Access and similar permissions are not required.
 

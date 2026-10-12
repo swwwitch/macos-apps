@@ -239,6 +239,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             alert.informativeText = L("%@ がほかのアプリで使われていないか確認してください。アプリのアイコンからは引き続き開けます。（エラー：%@）", String(describing: shortcutName), String(describing: registered))
             alert.beginSheetModal(for: window)
         }
+        publishHotkeys()
+    }
+    /// Declares the call shortcut to HotkeyHound (Shared/HotkeyManifest); there is no off switch, so it is always enabled.
+    func publishHotkeys() {
+        HotkeyManifest.publish([HotkeyManifest.Item(id: "callShortcut", title: L("メインウインドウを開く"), keyCode: Int(shortcutKey),
+                                                     modifiers: Int(shortcutModifiers), note: L("続けて2回押す"))])
     }
     @objc func showMainWindow() {
         if !busy { refresh() }
@@ -380,6 +386,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         for button in shortcutModifierButtons { button.state = modifiers & modifierChoices[button.tag].1 != 0 ? .on : .off }
         shortcutKeyMenu?.selectItem(at: shortcutKeys.firstIndex { $0.1 == key } ?? 16)
         shortcutStatus?.stringValue = L("保存しました：%@\nEscで隠す／⌘Qで終了", String(describing: shortcutName))
+        publishHotkeys()
     }
     @objc func showAbout() {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
