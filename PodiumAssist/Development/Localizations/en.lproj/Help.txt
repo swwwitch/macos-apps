@@ -12,8 +12,8 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 - **Play feedback when volume is changed**: turn the sound played when you change the volume on or off. This is the same setting as in System Settings › Sound.
 
 ### Dock and Desktop
-- **Hide Dock (Automatically)**: turn Dock auto-hide on or off.
-- **Hide Dock Completely**: sets the Dock to size 1 with a 3,000,000-second appearance delay. Turning it off restores the settings from just before you turned it on.
+- **Dock: Auto-hide**: turn Dock auto-hide on or off.
+- **Dock: Hide completely**: sets the Dock to size 1 with a 3,000,000-second appearance delay. Turning it off restores the settings from just before you turned it on.
 - **Hide Desktop Icons**: hides the file icons on the desktop. Files are not deleted.
 
 ### Notifications and Presets

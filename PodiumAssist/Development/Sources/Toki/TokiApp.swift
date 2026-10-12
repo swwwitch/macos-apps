@@ -590,17 +590,18 @@ struct PresetPicker: View {
     }
 }
 
-/// Result of the last action. Shown only when there is one; the standing explanations are tooltips.
+/// Result of the last action; the standing explanations are tooltips.
+/// Always two lines tall, so a message appearing does not change the tab's height and push the header up.
 struct StatusMessage: View {
     @ObservedObject var settings: MacSettings
     var body: some View {
-        if !settings.message.isEmpty {
-            Text(settings.message)
-                .font(.system(size: 11))
-                .foregroundStyle(settings.error ? Color.red : Color.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityLabel(settings.message)
-        }
+        Text(settings.message)
+            .font(.system(size: 11))
+            .foregroundStyle(settings.error ? Color.red : Color.secondary)
+            .lineLimit(2)
+            .frame(maxWidth: .infinity, minHeight: 28, maxHeight: 28, alignment: .topLeading)
+            .help(settings.message)
+            .accessibilityLabel(settings.message)
         if settings.automationDenied {
             Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
         }
@@ -618,7 +619,7 @@ struct PreferencesView: View {
                 SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
             })),
             (AboutSection.title, AnyView(AboutView()))
-        ]).padding(.horizontal, 12).padding(.bottom, 10)
+        ]).padding(12)
     }
 }
 
@@ -1061,11 +1062,13 @@ struct ManualControlsView: View {
             .padding(18)
             .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
             .disabled(settings.busy)
-            Toggle(L("Dockを隠す（自動非表示）"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
-                .font(.system(size: 12))
-            Toggle(L("Dockを完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
-                .font(.system(size: 12))
-                .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
+            HStack(spacing: 16) {
+                Text("Dock")
+                Toggle(L("自動非表示"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
+                Toggle(L("完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
+                    .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
+            }
+            .font(.system(size: 12))
             Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
                 .font(.system(size: 12))
             Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
