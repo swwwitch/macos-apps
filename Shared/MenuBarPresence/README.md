@@ -7,8 +7,8 @@
 - 新設するアプリは選択前に常駐アイコンを勝手に追加しない。
 - 後からアプリメニューの「メニューバー設定…」で変更できる。OFFはアイコン非表示であり、アプリ終了やログイン設定変更ではない。
 - モノクロ画像はNSImage.isTemplate=true。ライト／ダーク表示の描画はmacOSに任せる。
-- PodiumFlightの既存のタイマー表示は保持する。
+- PodiumAssistの既存のタイマー表示は保持する。
 - ステータスメニューの既存機能、機能ホットキー、ユーザー設定を置換しない。
 - 日本語・英語・簡体字中国語・韓国語の共通ラベルを同梱。
 
-対象：MightyEdit、BrowserSwitcher、ExtensionLinker、FolderHopper、KageTrimmer、QuickIconExporter、PodiumFlight、CommandDee。
+対象：MightyEdit、BrowserSwitcher、ExtensionLinker、FolderHopper、KageTrimmer、QuickIconExporter、PodiumAssist、CommandDee。

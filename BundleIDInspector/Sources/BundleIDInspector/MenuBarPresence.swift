@@ -24,7 +24,7 @@ final class MenuBarPresence: NSObject {
     var enabled: Bool {
         UserDefaults.standard.object(forKey: Self.enabledKey) == nil ? defaultEnabled : UserDefaults.standard.bool(forKey: Self.enabledKey)
     }
-    /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumFlight's clock-on-screen icon).
+    /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumAssist's clock-on-screen icon).
     func install(name: String, symbol: String, existing: NSStatusItem? = nil, keepExistingImage: Bool = false,
                  show: @escaping () -> Void, settings: (() -> Void)?, help: @escaping () -> Void) {
         guard !installed else { return }
@@ -40,7 +40,7 @@ final class MenuBarPresence: NSObject {
             item?.button?.image = image
         }
         item?.button?.toolTip = name
-        // PodiumFlight's live timer title remains unchanged.
+        // PodiumAssist's live timer title remains unchanged.
         if name == "CommandDee" { item?.button?.title = ""; item?.length = NSStatusItem.squareLength }
         item?.button?.setAccessibilityLabel(name)
         apply()

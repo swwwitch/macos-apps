@@ -7,7 +7,7 @@
 - KageTrimmer：`KageTrimmer/Development/build.sh` に組み込み済み。シェル構文確認済み。今回の再ビルドは未実施。
 - QuickIconExporter：`QuickIconExporter/Development/build-app.sh` に組み込み済み。シェル構文確認済み。今回の再ビルドは未実施。App Store用スクリプトから通常ビルドを呼んだ場合も通常版がコピーされます。署名済み申請用パッケージは別の出力先です。
 - FolderHopper：`FolderHopper/Development/build.sh` に組み込み済み。実ビルド・署名検証・自動コピーを確認済み。
-- PodiumFlight：`PodiumFlight/Development/build-app.sh` に組み込み済み。実ビルド・署名検証・自動コピーを確認済み。
+- PodiumAssist：`PodiumAssist/Development/build-app.sh` に組み込み済み。実ビルド・署名検証・自動コピーを確認済み。
 
 両アプリのソースは `/Users/takano/Documents/Codex` から取得しました。元フォルダは保持しています。今後はsw_app内のDevelopmentでビルドしてください。
 
