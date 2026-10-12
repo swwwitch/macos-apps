@@ -1034,7 +1034,7 @@ struct ManualControlsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(spacing: 20) {
+            VStack(spacing: 14) {
                 settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
                     choice(L("デジタル"), selected: !settings.analog) { manual { settings.setClock(false) } }
                     choice(L("アナログ"), selected: settings.analog) { manual { settings.setClock(true) } }
@@ -1059,7 +1059,7 @@ struct ManualControlsView: View {
                     choice(L("ダーク"), selected: settings.dark) { manual { settings.setAppearance(true) } }
                 }
             }
-            .padding(18)
+            .padding(14)
             .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
             .disabled(settings.busy)
             HStack(spacing: 16) {
