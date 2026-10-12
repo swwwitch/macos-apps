@@ -95,6 +95,8 @@ struct ConversionOptions {
     /// Excel output from .srt: cues per sheet (0 = one sheet).
     var xlsxRowsPerSheet = 0
     var utf16 = TextEncodingConverter.Options()
+    /// PDF input with Plain text output: pdftotext's mode (PDFImporter.modes).
+    var pdfTextMode = "reading"
     var fileName = FileNameConverter.Options()
     func arguments(input: URL, output: URL) -> [String] {
         var args = ["--output", output.path]
@@ -211,6 +213,17 @@ final class ConversionRunner: @unchecked Sendable {
         try Data(text.utf8).write(to:destination, options:.withoutOverwriting)
         return destination
     }
+    /// PDF → Plain text without pandoc, so -layout's spacing survives; pages are separated by a blank line.
+    func convertPDFText(input: URL, folder: URL, options: ConversionOptions) throws -> URL {
+        let result = try PDFImporter.pages(from:input, mode:options.pdfTextMode, cancelled:{ self.isCancelled })
+        if !result.usedPDFToText { addWarning(input.lastPathComponent + ": " + NSLocalizedString("pdftotextMissing", comment:"")) }
+        if isCancelled { throw CancellationError() }
+        guard let destination = Self.unusedURL(folder:folder, stem:input.deletingPathExtension().lastPathComponent, ext:"txt") else {
+            throw NSError(domain:"PandocDesk",code:1,userInfo:[NSLocalizedDescriptionKey:"No unused output filename"])
+        }
+        try Data((result.pages.joined(separator:"\n\n") + "\n").utf8).write(to:destination, options:.withoutOverwriting)
+        return destination
+    }
     /// "name.ext", then "name (1).ext"… the first name not in use.
     static func unusedURL(folder: URL, stem: String, ext: String) -> URL? {
         for index in 0..<10000 {
@@ -223,6 +236,7 @@ final class ConversionRunner: @unchecked Sendable {
         if isCancelled { throw CancellationError() }
         if input.pathExtension.lowercased() == "ai" { return try convertIllustrator(engine:engine, input:input, folder:folder, options:options) }
         if options.format.id == "keynote" { return try convertToKeynote(engine:engine, input:input, folder:folder, options:options) }
+        if options.format.id == "plain", Self.isPDF(input) || options.reader == "pdf" { return try convertPDFText(input:input, folder:folder, options:options) }
         if options.format.id == "plain", let textOptions = options.markdownText { return try convertStructuredText(engine:engine, input:input, folder:folder, options:options, textOptions:textOptions) }
         let fm = FileManager.default
         let temp = folder.appendingPathComponent(".PandocDesk-" + UUID().uuidString, isDirectory:true)
@@ -243,6 +257,7 @@ final class ConversionRunner: @unchecked Sendable {
         }
         if input.pathExtension.lowercased() == "pdf" || options.reader == "pdf" {
             effectiveInput = temp.appendingPathComponent("pdf-import.html")
+            if PDFImporter.pdftotext() == nil { addWarning(input.lastPathComponent + ": " + NSLocalizedString("pdftotextMissing", comment:"")) }
             try PDFImporter.html(from:input,cancelled:{ self.isCancelled }).write(to:effectiveInput,atomically:true,encoding:.utf8)
             effectiveOptions.reader = "html"
         }

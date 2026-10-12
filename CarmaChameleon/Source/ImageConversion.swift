@@ -90,7 +90,7 @@ extension ConversionRunner {
 
     /// An image from Illustrator / InDesign (PNG at the requested size): PNG stays as is, other types are re-encoded.
     private func encodeExported(_ png: URL, as name: String, temp: URL, options: ConversionOptions) throws -> Pending {
-        guard options.raster.type != "png" else { return Pending(file:png, name:name, ext:"png") }
+        guard options.raster.type != "png" || options.raster.processesPixels else { return Pending(file:png, name:name, ext:"png") }
         let (image, ppi) = try ImageExport.readImage(png)
         let file = temp.appendingPathComponent(UUID().uuidString + "." + options.raster.ext)
         try ImageExport.write(image, to:file, options:options.raster, ppi:ppi)

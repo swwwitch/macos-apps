@@ -13,6 +13,12 @@ extension ConversionOptions {
         raster.quality = min(max(d.object(forKey:"rasterQuality") as? Int ?? 85, 0), 100)
         raster.transparent = d.object(forKey:"rasterTransparent") as? Bool ?? true
         raster.range = d.string(forKey:"rasterRange") ?? ""
+        raster.trimMargins = d.bool(forKey:"rasterTrimMargins")
+        let tolerance = d.object(forKey:"rasterMarginTolerance") as? Int ?? MarginTrimmer.defaultTolerance
+        raster.marginTolerance = MarginTrimmer.toleranceChoices.contains(tolerance) ? tolerance : MarginTrimmer.defaultTolerance
+        let shadowSize = d.object(forKey:"rasterShadow") as? Int ?? -1
+        raster.shadowSize = shadowSize == -1 || ShadowTrimmer.sizes.contains { $0.size == shadowSize } ? shadowSize : -1
+        raster.shadowBorder = d.object(forKey:"rasterShadowBorder") as? Bool ?? true
         svg.css = d.string(forKey:"svgCSS") ?? svg.css
         svg.font = d.string(forKey:"svgFont") ?? svg.font
         svg.images = d.string(forKey:"svgImages") ?? svg.images
@@ -67,10 +73,21 @@ struct RasterOptionsView: View {
     @AppStorage("rasterQuality") var quality = 85
     @AppStorage("rasterTransparent") var transparent = true
     @AppStorage("rasterRange") var range = ""
+    @AppStorage("rasterTrimMargins") var trimMargins = false
+    @AppStorage("rasterMarginTolerance") var marginTolerance = MarginTrimmer.defaultTolerance
+    @AppStorage("rasterShadow") var shadow = -1
+    @AppStorage("rasterShadowBorder") var shadowBorder = true
     var body: some View {
         VStack(alignment:.leading,spacing:10) {
-            Picker(L("rasterType"),selection:$type) { ForEach(RasterOptions.availableTypes,id:\.id) { Text($0.name).tag($0.id) } }.pickerStyle(.segmented)
-            Picker(L("rasterSize"),selection:$sizeMode) { Text(L("rasterPPI")).tag("ppi"); Text(L("rasterWidth")).tag("width"); Text(L("rasterHeight")).tag("height") }.pickerStyle(.segmented)
+            // The label sits above the segments: beside them a narrow column wrapped it one character per line.
+            VStack(alignment:.leading,spacing:4) {
+                Text(L("rasterType"))
+                Picker(L("rasterType"),selection:$type) { ForEach(RasterOptions.availableTypes,id:\.id) { Text($0.name).tag($0.id) } }.pickerStyle(.segmented).labelsHidden()
+            }
+            VStack(alignment:.leading,spacing:4) {
+                Text(L("rasterSize"))
+                Picker(L("rasterSize"),selection:$sizeMode) { Text(L("rasterPPI")).tag("ppi"); Text(L("rasterWidth")).tag("width"); Text(L("rasterHeight")).tag("height") }.pickerStyle(.segmented).labelsHidden()
+            }
             HStack(spacing:6) {
                 switch sizeMode {
                 case "width": TextField("",value:$width,format:.number).frame(width:64).multilineTextAlignment(.trailing); Text("px").foregroundColor(.secondary)
@@ -90,6 +107,25 @@ struct RasterOptionsView: View {
                 }
             }
             if type != "jpeg" { Toggle(L("rasterTransparent"),isOn:$transparent) }
+            // YohakuTrimmer / KageTrimmer: applied to each image at its final size, margins first.
+            Toggle(L("rasterTrimMargins"),isOn:$trimMargins)
+            if trimMargins {
+                VStack(alignment:.leading,spacing:4) {
+                    Text(L("marginTolerance"))
+                    Picker(L("marginTolerance"),selection:$marginTolerance) {
+                        Text(L("marginToleranceNone")).tag(0); Text(L("marginToleranceLow")).tag(8); Text(L("marginToleranceHigh")).tag(32)
+                    }.pickerStyle(.segmented).labelsHidden()
+                }.padding(.leading,20)
+            }
+            VStack(alignment:.leading,spacing:4) {
+                Text(L("shadowSize"))
+                Picker(L("shadowSize"),selection:$shadow) {
+                    Text(L("shadowKeep")).tag(-1)
+                    ForEach(ShadowTrimmer.sizes,id:\.size) { choice in Text(choice.size == 0 ? L("shadowNone") : choice.name).tag(choice.size) }
+                }.pickerStyle(.segmented).labelsHidden()
+            }
+            if shadow > 0 { Toggle(L("shadowAddBorder"),isOn:$shadowBorder).padding(.leading,20) }
+            if trimMargins || shadow >= 0 { Text(L("rasterTrimHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
             HStack(spacing:6) {
                 Text(L("rasterRange"))
                 TextField(L("rasterRangeAll"),text:$range).frame(maxWidth:.infinity)

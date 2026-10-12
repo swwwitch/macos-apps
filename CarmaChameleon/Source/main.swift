@@ -22,6 +22,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     @Published var showAutomationHelp = false
     @Published var keepStructure = UserDefaults.standard.bool(forKey:"plainKeepStructure") { didSet { UserDefaults.standard.set(keepStructure,forKey:"plainKeepStructure") } }
     @Published var textOptions = MarkdownTextOptions.load() { didSet { textOptions.save() } }
+    @Published var pdfTextMode = UserDefaults.standard.string(forKey:"pdfTextMode") ?? "reading" { didSet { UserDefaults.standard.set(pdfTextMode,forKey:"pdfTextMode") } }
     @Published var busy = false
     @Published var status = ""
     @Published var details = ""
@@ -96,6 +97,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         var opts = ConversionOptions(format:format,reader:reader,standalone:standalone,toc:toc,numbers:numbers,wrap:wrap,pdfEngine:pdfEngine,htmlFormatting:htmlFormatting)
         // Keynote keeps the finished presentation open instead of reopening the saved file.
         if formatID == "plain" && keepStructure { opts.markdownText = textOptions }
+        opts.pdfTextMode = pdfTextMode
         let defaults = UserDefaults.standard
         opts.aiMethod = defaults.string(forKey:"aiMethod") ?? "simple"
         opts.aiPreset = defaults.string(forKey:"aiPDFPreset") ?? ""
@@ -322,6 +324,13 @@ struct MainView: View {
                             Toggle(L("toc"),isOn:$model.toc).disabled(!model.format.supportsTOC)
                             Toggle(L("numbers"),isOn:$model.numbers).disabled(!model.format.supportsNumbers)
                             }
+                            if model.formatID == "plain", model.files.contains(where:ConversionRunner.isPDF) || model.reader == "pdf" {
+                                // PDF input is written by pdftotext directly; 「構造を保持」 and wrapping do not apply to it.
+                                Picker(L("pdfTextMode"),selection:$model.pdfTextMode) {
+                                    Text(L("pdfTextReading")).tag("reading"); Text(L("pdfTextLayout")).tag("layout"); Text(L("pdfTextRaw")).tag("raw")
+                                }.pickerStyle(.radioGroup)
+                                Text(L("pdfTextModeHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+                            }
                             if model.formatID == "plain" {
                                 Toggle(L("keepStructure"),isOn:$model.keepStructure)
                                 Text(L("keepStructureHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
@@ -373,7 +382,10 @@ struct MainView: View {
                             Toggle(L("openAfterConversion"),isOn:$model.openAfterConversion)
                             Toggle(L("revealAfterConversion"),isOn:$model.revealAfterConversion)
                             if model.formatID != "filename", model.files.contains(where: { $0.pathExtension.lowercased() == "idml" }) || model.reader == "idml" { Text(L("idmlLimit")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
-                            if !["keynote","filename"].contains(model.formatID), !model.format.isImage, model.files.contains(where: { $0.pathExtension.lowercased() == "pdf" }) || model.reader == "pdf" { Text(L("pdfInputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
+                            if !["keynote","filename"].contains(model.formatID), !model.format.isImage, model.files.contains(where: { $0.pathExtension.lowercased() == "pdf" }) || model.reader == "pdf" {
+                                Text(L("pdfInputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+                                if PDFImporter.pdftotext() == nil { Label(L("pdftotextMissing"),systemImage:"info.circle").font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true).textSelection(.enabled) }
+                            }
                             if model.formatID == "idml" { Text(L("idmlOutputHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true) }
                             Text(L(renamesOriginals ? "filenameRenameWarning" : "preserveOriginal")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                         }.padding(14).frame(maxWidth:.infinity,alignment:.leading)

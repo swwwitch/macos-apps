@@ -403,6 +403,51 @@ options.reader = "docx"; options.format = OutputFormat.all.first { $0.id == "gfm
 let word = root.appendingPathComponent("日本語 sample.docx")
 let roundtrip = try ConversionRunner().convert(engine:engine,input:word,folder:root,options:options)
 check(try String(contentsOf:roundtrip).contains("日本語タイトル"),"Japanese DOCX roundtrip")
+do {
+    // ラスター画像の「余白を削除」(YohakuTrimmer) と「影」(KageTrimmer): a 200×120 opaque window.
+    let space = CGColorSpace(name:CGColorSpace.sRGB)!
+    func canvas(_ width: Int, _ height: Int, _ fill: (CGContext) -> Void) -> CGImage {
+        let context = CGContext(data:nil,width:width,height:height,bitsPerComponent:8,bytesPerRow:0,space:space,bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue)!
+        fill(context); return context.makeImage()!
+    }
+    let orange = CGColor(red:0.9,green:0.5,blue:0.2,alpha:1)
+    let content = canvas(200,120) { $0.setFillColor(orange); $0.fill(CGRect(x:0,y:0,width:200,height:120)) }
+    func savePNG(_ image: CGImage, _ name: String) -> URL {
+        let url = root.appendingPathComponent(name)
+        let destination = CGImageDestinationCreateWithURL(url as CFURL, "public.png" as CFString, 1, nil)!
+        CGImageDestinationAddImage(destination, image, nil); CGImageDestinationFinalize(destination); return url
+    }
+    func pixelSize(_ url: URL) -> (Int, Int) { let image = CGImageSourceCreateImageAtIndex(CGImageSourceCreateWithURL(url as CFURL, nil)!, 0, nil)!; return (image.width, image.height) }
+    var trim = ConversionOptions(); trim.format = OutputFormat.all.first { $0.id == "image" }!
+    func convert(_ input: URL) throws -> URL { let out = try ConversionRunner().convertFiles(engine:engine,input:input,folder:root,options:trim); check(out.count == 1,"one raster output"); return out[0] }
+    // White margins 30 / 10 / 20 / 40 around the window, plus a gray strip on the left.
+    let margined = savePNG(canvas(300,200) { c in
+        c.setFillColor(CGColor(gray:1,alpha:1)); c.fill(CGRect(x:0,y:0,width:300,height:200))
+        c.setFillColor(CGColor(gray:0.5,alpha:1)); c.fill(CGRect(x:0,y:0,width:6,height:200))
+        c.setFillColor(orange); c.fill(CGRect(x:40,y:30,width:200,height:120))
+    }, "margined.png")
+    check(pixelSize(try convert(margined)) == (300,200),"raster: margins kept when 余白を削除 is off")
+    trim.raster.trimMargins = true
+    check(pixelSize(try convert(margined)) == (200,120),"raster: 余白を削除 cuts white and gray margins")
+    let plain = savePNG(content, "plain.png")
+    check(pixelSize(try convert(plain)) == (200,120),"raster: image without margins unchanged")
+    trim.raster.trimMargins = false
+    let shadowed = savePNG(ShadowTrimmer.render(content, border:false, shadowSize:60)!, "capture.png")
+    let original = try Data(contentsOf:shadowed)
+    trim.raster.shadowSize = 27
+    check(pixelSize(try convert(shadowed)) == (256,176),"raster: shadow replaced by S (202×122 incl. 1 px fringe + 54)")
+    trim.raster.shadowSize = 0
+    check(pixelSize(try convert(shadowed)) == (202,122),"raster: 影なし removes the shadow")
+    check(pixelSize(try convert(plain)) == (200,120),"raster: 影なし leaves an image without a shadow")
+    trim.raster.shadowSize = 112
+    check(pixelSize(try convert(plain)) == (424,344),"raster: L adds a shadow to an image without one")
+    trim.raster.trimMargins = true; trim.raster.shadowSize = 10
+    check(pixelSize(try convert(margined)) == (220,140),"raster: margins removed, then XS shadow added")
+    trim.raster.type = "jpeg"
+    let jpeg = try convert(margined)
+    check(jpeg.pathExtension == "jpg" && pixelSize(jpeg) == (220,140),"raster: JPEG gets the same processing")
+    check(try Data(contentsOf:shadowed) == original,"raster: shadow source unchanged")
+}
 print("All conversion tests passed.")
 
 if CommandLine.arguments.count > 2 {
@@ -481,6 +526,15 @@ if CommandLine.arguments.count > 2 {
     let textPDF = evidenceFolder.appendingPathComponent("Japanese-PDF.pdf")
     let extracted = try PDFImporter.html(from:textPDF,cancelled:{false})
     check(extracted.contains("日本語タイトル"),"PDF text layer import")
+    check(PDFImporter.pdftotext() != nil,"pdftotext found (brew install poppler)")
+    for mode in PDFImporter.modes {
+        var textOptions = ConversionOptions(); textOptions.format = OutputFormat.all.first { $0.id == "plain" }!; textOptions.pdfTextMode = mode
+        let runner = ConversionRunner()
+        let plain = try runner.convert(engine:engine,input:textPDF,folder:root,options:textOptions)
+        let text = try String(contentsOf:plain,encoding:.utf8)
+        check(plain.pathExtension == "txt" && text.contains("日本語タイトル") && runner.warnings.isEmpty,"PDF to plain text with pdftotext (\(mode))")
+        try fm.removeItem(at:plain)
+    }
     options = ConversionOptions(); options.format = OutputFormat.all.first { $0.id == "docx" }!
     let pdfWord = try ConversionRunner().convert(engine:engine,input:textPDF,folder:root,options:options)
     check(fm.fileExists(atPath:pdfWord.path),"PDF to DOCX end to end")

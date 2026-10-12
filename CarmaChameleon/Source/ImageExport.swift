@@ -14,6 +14,10 @@ struct RasterOptions {
     var quality = 85            // JPEG / HEIC / AVIF, 0–100
     var transparent = true      // PNG / HEIC / AVIF background; JPEG is always white
     var range = ""              // artboards / pages, e.g. "1,3-5"; empty = all
+    var trimMargins = false     // 余白を削除 (YohakuTrimmer)
+    var marginTolerance = MarginTrimmer.defaultTolerance
+    var shadowSize = -1         // 影 (KageTrimmer): -1 = leave as is, 0 = remove, 10 / 27 / 112 px
+    var shadowBorder = true     // thin inner border when a shadow is added to an image without one
     static let types: [(id: String, name: String, ext: String, uti: String)] = [
         ("png", "PNG", "png", "public.png"), ("jpeg", "JPEG", "jpg", "public.jpeg"),
         ("heic", "HEIC", "heic", "public.heic"), ("avif", "AVIF", "avif", "public.avif")]
@@ -27,6 +31,14 @@ struct RasterOptions {
     var uti: String { info.uti }
     var isLossy: Bool { type != "png" }
     var keepsAlpha: Bool { type != "jpeg" && transparent }
+    var processesPixels: Bool { trimMargins || shadowSize >= 0 }
+    /// 余白を削除, then 影, on the image at its final size (before JPEG / opaque PNG get their white background).
+    func processed(_ image: CGImage) -> CGImage {
+        var result = image
+        if trimMargins { result = MarginTrimmer.apply(result, tolerance:marginTolerance) }
+        if shadowSize >= 0 { result = ShadowTrimmer.apply(result, shadowSize:shadowSize, border:shadowBorder) }
+        return result
+    }
     /// Scale from points (or source pixels) to output pixels for an item of `size`.
     func scale(for size: CGSize) -> CGFloat {
         switch sizeMode {
@@ -178,7 +190,7 @@ enum ImageExport {
 
     /// Writes PNG / JPEG / HEIC / AVIF with the resolution recorded in the file.
     static func write(_ image: CGImage, to url: URL, options: RasterOptions, ppi: Double) throws {
-        let output = try prepared(image, opaque:!options.keepsAlpha)
+        let output = try prepared(options.processed(image), opaque:!options.keepsAlpha)
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL, options.uti as CFString, 1, nil) else { throw error("imageWriteFailed") }
         var properties: [CFString: Any] = [kCGImagePropertyDPIWidth: ppi, kCGImagePropertyDPIHeight: ppi]
         if options.isLossy { properties[kCGImageDestinationLossyCompressionQuality] = Double(min(max(options.quality, 0), 100)) / 100 }

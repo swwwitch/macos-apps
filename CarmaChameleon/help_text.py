@@ -55,6 +55,13 @@ HELP = {
 - 画像ファイルを PDF にするときは、1枚ずつ PDF にするか、「画像を1つのPDFにまとめる」で追加した順に1つの PDF にできます。
 - .ai を「簡易」で変換すると、.ai に入っている PDF 用の内容から画像を作ります（アートボード名は使えません）。
 
+### 余白を削除・影（YohakuTrimmer・KageTrimmer の処理）
+- 「ラスター画像」のオプションです。.ai・.indd・PDF・.psd・画像ファイルのどれから書き出すときも、1枚ずつ最終的な大きさにしてから掛けます。
+- 「余白を削除」（初期値オフ）：四辺の同じ色の行・列を切り取ります（YohakuTrimmer と同じ処理）。辺ごとに色が異なってもかまいません。「色の許容範囲」は なし／小（8）／大（32）。画素は拡大・縮小しません。全体が同じ色の画像はそのままです。
+- 「影」（初期値「そのまま」）：影なし／XS（10px）／S（27px）／L（112px）。macOS のスクリーンショットの影を取り除いて指定の大きさで付け直し、影のない画像には影を付けます（KageTrimmer と同じ処理）。「影なし」は取り除くだけで、影のない画像はそのままです。
+- 「薄い罫線を付ける」（初期値オン）は、影のない画像に影を付けるときだけ、輪郭の内側に薄い罫線を引きます。
+- 両方を選ぶと、余白を削除してから影を整えます。JPEG と「背景を透明にする」オフでは、影の外側が白になります。
+
 ### 入力と変換形式の組み合わせ
 - 追加したファイルから作れない形式は、変換形式の一覧で薄く表示され、選べません。ポインターを合わせると理由が表示されます。
 - .psd・.indd・画像ファイルは PDF とラスター画像に、字幕（.srt）は CSV・Excel・UTF-16 テキストにだけ変換できます。SVG にできるのは .ai だけです。
@@ -110,7 +117,8 @@ HELP = {
 - テキスト出力で「構造を保持」を使うと、表をタブ区切りか罫線付きにできます。
 
 ### PDF
-- 文字をそのまま取り出し、文字のないページは日本語・英語のOCRで読み取ります。すべてこのMac上で処理します。
+- 文字は pdftotext（poppler。Homebrew で brew install poppler）で UTF-8 として取り出し、文字のないページは日本語・英語のOCRで読み取ります。すべてこのMac上で処理します。pdftotext が見つからないときは PDFKit で取り出し、結果に表示します。
+- 「Plain text」に変換するときは pandoc を通さず、pdftotext の結果をそのまま書き出します。読み取り方は「読み順（段組みを順に）」（初期値）・「レイアウトを保持（-layout）」・「書き込み順（-raw）」から選べます。日本語で改行位置がずれるときは「レイアウトを保持」を試してください。ページの間は空行で区切ります。
 - 画像、段組み、表の構造、組版は再現しません。OCRは読み間違えることがあります。
 - 文字を得られないページがあるとエラーにして、途中の結果は保存しません。
 - パスワードで保護されたPDFは、解除してから使ってください。上限は500ページ・抽出テキスト20MBです。
@@ -217,6 +225,13 @@ HELP = {
 - Image files become one PDF each, or one PDF in the order added with "Combine images into one PDF".
 - With the Simple method, images of an .ai are made from the PDF content stored in it (no artboard names).
 
+### Remove margins and shadow (YohakuTrimmer / KageTrimmer processing)
+- Options of Raster image. They apply to every source (.ai, .indd, PDF, .psd, image files), one image at a time at its final size.
+- Remove margins (off by default): cuts off rows and columns of one color on each side (as in YohakuTrimmer); the sides may differ in color. Color tolerance: None, Low (8) or High (32). Pixels are not resampled; an image of a single color is left as is.
+- Shadow (default Keep): No shadow, XS (10 px), S (27 px) or L (112 px). A macOS screenshot's shadow is removed and redrawn at the chosen size, and an image without one gets a shadow (as in KageTrimmer). No shadow only removes it; an image without a shadow is left as is.
+- Add a thin border (on by default) draws a faint line inside the outline, only when a shadow is added to an image without one.
+- With both, the margins are removed first, then the shadow. In JPEG, or with a transparent background off, the area outside the shadow is white.
+
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
 - .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV, Excel and UTF-16 text. Only .ai files can become SVG.
@@ -272,7 +287,8 @@ HELP = {
 - With Keep structure for plain text, tables can be tab-separated or bordered.
 
 ### PDF
-- Text is extracted directly; pages without text are read with Japanese/English OCR, all on this Mac.
+- Text is extracted as UTF-8 with pdftotext (poppler; brew install poppler with Homebrew); pages without text are read with Japanese/English OCR, all on this Mac. Without pdftotext, PDFKit extracts the text and the result says so.
+- For Plain text, pdftotext's output is written as is, without pandoc. Choose Reading order (columns in turn, default), Keep layout (-layout) or Content stream order (-raw). If Japanese line breaks land in the wrong places, try Keep layout. Pages are separated by a blank line.
 - Images, columns, table structure and layout are not reproduced. OCR can make mistakes.
 - If a page yields no text, conversion stops with an error and no partial result is saved.
 - Unlock password-protected PDFs first. Limit: 500 pages and 20 MB of extracted text.
@@ -379,6 +395,13 @@ HELP = {
 - 图像文件可各自生成 PDF，或用“将图像合并为一个 PDF”按添加顺序合并为一个 PDF。
 - 以“简易”方式转换 .ai 时，从 .ai 中保存的 PDF 内容生成图像（不能使用画板名称）。
 
+### 删除边距与阴影（YohakuTrimmer・KageTrimmer 的处理）
+- 这是“光栅图像”的选项。无论从 .ai、.indd、PDF、.psd 还是图像文件导出，都会在每张图像调整到最终尺寸后应用。
+- “删除边距”（默认关闭）：裁去四边同色的行和列（与 YohakuTrimmer 相同）。各边颜色可以不同。“颜色容差”为 无／小（8）／大（32）。不缩放像素；整张为同一颜色的图像保持原样。
+- “阴影”（默认“保持原样”）：无阴影／XS（10px）／S（27px）／L（112px）。去除 macOS 截图的阴影并按所选大小重新添加，没有阴影的图像会添加阴影（与 KageTrimmer 相同）。“无阴影”只去除阴影，没有阴影的图像保持原样。
+- “添加细边框”（默认开启）仅在为没有阴影的图像添加阴影时，在轮廓内侧绘制淡淡的线。
+- 两者都选时，先删除边距再调整阴影。JPEG 或关闭透明背景时，阴影外侧为白色。
+
 ### 输入与输出格式的组合
 - 无法由已添加文件生成的格式会在格式列表中变淡且无法选择，将指针悬停可查看原因。
 - .psd、.indd 和图像文件只能转换为 PDF 和位图图像，字幕（.srt）只能转换为 CSV、Excel 和 UTF-16 文本。只有 .ai 可以转换为 SVG。
@@ -434,7 +457,8 @@ HELP = {
 - 纯文本使用“保留结构”时，表格可为制表符分隔或带边框。
 
 ### PDF
-- 直接提取文字；没有文字的页面使用日语/英语 OCR 识别，全部在本机处理。
+- 使用 pdftotext（poppler；Homebrew 中 brew install poppler）以 UTF-8 提取文字；没有文字的页面使用日语/英语 OCR 识别，全部在本机处理。找不到 pdftotext 时改用 PDFKit 提取，并在结果中提示。
+- 转换为纯文本时不经过 pandoc，直接写出 pdftotext 的结果。读取方式可选“阅读顺序（按栏依次）”（默认）、“保留版面（-layout）”或“写入顺序（-raw）”。日文换行位置不对时，请尝试“保留版面”。页面之间以空行分隔。
 - 不重现图像、分栏、表格结构和排版。OCR 可能识别错误。
 - 如有无法取得文字的页面，会报错且不保存中间结果。
 - 受密码保护的 PDF 请先解除保护。上限为 500 页、提取文本 20MB。
@@ -541,6 +565,13 @@ HELP = {
 - 이미지 파일은 한 장씩 PDF로 만들거나, "이미지를 하나의 PDF로 합치기"로 추가한 순서대로 하나의 PDF로 만들 수 있습니다.
 - .ai를 "간이"로 변환하면 .ai에 저장된 PDF용 내용으로 이미지를 만듭니다(대지 이름은 사용할 수 없음).
 
+### 여백 삭제・그림자(YohakuTrimmer・KageTrimmer의 처리)
+- ‘래스터 이미지’의 옵션입니다. .ai, .indd, PDF, .psd, 이미지 파일 중 어느 것에서 내보내든, 한 장씩 최종 크기로 만든 뒤 적용합니다.
+- ‘여백 삭제’(기본값 끔): 네 변의 같은 색 행·열을 잘라냅니다(YohakuTrimmer와 같은 처리). 변마다 색이 달라도 됩니다. ‘색상 허용 범위’는 없음／작게(8)／크게(32). 픽셀은 확대·축소하지 않으며, 전체가 같은 색인 이미지는 그대로 둡니다.
+- ‘그림자’(기본값 ‘그대로’): 그림자 없음／XS(10px)／S(27px)／L(112px). macOS 스크린샷의 그림자를 제거하고 선택한 크기로 다시 붙이며, 그림자가 없는 이미지에는 그림자를 추가합니다(KageTrimmer와 같은 처리). ‘그림자 없음’은 제거만 하며, 그림자가 없는 이미지는 그대로 둡니다.
+- ‘얇은 테두리 추가’(기본값 켬)는 그림자가 없는 이미지에 그림자를 추가할 때만 윤곽 안쪽에 옅은 선을 그립니다.
+- 둘 다 선택하면 여백을 삭제한 뒤 그림자를 정리합니다. JPEG이거나 투명 배경을 끄면 그림자 바깥쪽이 흰색이 됩니다.
+
 ### 입력과 출력 형식의 조합
 - 추가한 파일로 만들 수 없는 형식은 형식 목록에서 흐리게 표시되어 선택할 수 없습니다. 포인터를 올리면 이유가 표시됩니다.
 - .psd, .indd, 이미지 파일은 PDF와 래스터 이미지로만, 자막(.srt)은 CSV, Excel, UTF-16 텍스트로만 변환할 수 있습니다. SVG로 만들 수 있는 것은 .ai뿐입니다.
@@ -596,7 +627,8 @@ HELP = {
 - 일반 텍스트에서 "구조 유지"를 사용하면 표를 탭 구분 또는 테두리 포함으로 만들 수 있습니다.
 
 ### PDF
-- 텍스트를 그대로 추출하고, 텍스트가 없는 페이지는 일본어/영어 OCR로 읽습니다. 모두 이 Mac에서 처리합니다.
+- 텍스트는 pdftotext(poppler, Homebrew에서 brew install poppler)로 UTF-8로 추출하고, 텍스트가 없는 페이지는 일본어/영어 OCR로 읽습니다. 모두 이 Mac에서 처리합니다. pdftotext가 없으면 PDFKit으로 추출하고 결과에 표시합니다.
+- 일반 텍스트로 변환할 때는 pandoc을 거치지 않고 pdftotext 결과를 그대로 저장합니다. 읽기 방식은 ‘읽기 순서(단을 차례로)’(기본값), ‘레이아웃 유지(-layout)’, ‘기록 순서(-raw)’ 중에서 선택합니다. 일본어 줄바꿈 위치가 어긋나면 ‘레이아웃 유지’를 사용해 보세요. 페이지 사이는 빈 줄로 구분합니다.
 - 이미지, 단 구성, 표 구조, 조판은 재현하지 않습니다. OCR은 잘못 읽을 수 있습니다.
 - 텍스트를 얻을 수 없는 페이지가 있으면 오류로 처리하고 중간 결과를 저장하지 않습니다.
 - 암호로 보호된 PDF는 먼저 해제하세요. 최대 500페이지, 추출 텍스트 20MB입니다.

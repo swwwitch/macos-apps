@@ -62,9 +62,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.11.4</string>
+	<string>0.14.0</string>
 	<key>CFBundleVersion</key>
-	<string>40</string>
+	<string>43</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
@@ -73,11 +73,11 @@
 	<string>CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-	<key>SWNoteArticleURL</key>
-	<string>https://note.com/swwwitch/n/nd6df5482fd00</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 swwwitch</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/n/nd6df5482fd00</string>
 </dict>
 </plist>

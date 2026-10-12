@@ -53,6 +53,13 @@
 - Image files become one PDF each, or one PDF in the order added with "Combine images into one PDF".
 - With the Simple method, images of an .ai are made from the PDF content stored in it (no artboard names).
 
+### Remove margins and shadow (YohakuTrimmer / KageTrimmer processing)
+- Options of Raster image. They apply to every source (.ai, .indd, PDF, .psd, image files), one image at a time at its final size.
+- Remove margins (off by default): cuts off rows and columns of one color on each side (as in YohakuTrimmer); the sides may differ in color. Color tolerance: None, Low (8) or High (32). Pixels are not resampled; an image of a single color is left as is.
+- Shadow (default Keep): No shadow, XS (10 px), S (27 px) or L (112 px). A macOS screenshot's shadow is removed and redrawn at the chosen size, and an image without one gets a shadow (as in KageTrimmer). No shadow only removes it; an image without a shadow is left as is.
+- Add a thin border (on by default) draws a faint line inside the outline, only when a shadow is added to an image without one.
+- With both, the margins are removed first, then the shadow. In JPEG, or with a transparent background off, the area outside the shadow is white.
+
 ### Inputs and output formats
 - Formats the added files cannot become are dimmed in the format list and cannot be chosen; hover for the reason.
 - .psd, .indd and image files convert only to PDF and raster images, subtitles (.srt) only to CSV, Excel and UTF-16 text. Only .ai files can become SVG.
@@ -108,7 +115,8 @@
 - With Keep structure for plain text, tables can be tab-separated or bordered.
 
 ### PDF
-- Text is extracted directly; pages without text are read with Japanese/English OCR, all on this Mac.
+- Text is extracted as UTF-8 with pdftotext (poppler; brew install poppler with Homebrew); pages without text are read with Japanese/English OCR, all on this Mac. Without pdftotext, PDFKit extracts the text and the result says so.
+- For Plain text, pdftotext's output is written as is, without pandoc. Choose Reading order (columns in turn, default), Keep layout (-layout) or Content stream order (-raw). If Japanese line breaks land in the wrong places, try Keep layout. Pages are separated by a blank line.
 - Images, columns, table structure and layout are not reproduced. OCR can make mistakes.
 - If a page yields no text, conversion stops with an error and no partial result is saved.
 - Unlock password-protected PDFs first. Limit: 500 pages and 20 MB of extracted text.
