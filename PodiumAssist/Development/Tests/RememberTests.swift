@@ -15,8 +15,10 @@ import Foundation
   precondition(restored.items.count == 1 && restored.rememberedPreset?.dark == false)
   precondition(restored.rememberedPreset?.launchApps?.first?.id == "a" && restored.rememberedPreset?.quitAppTargets?.first?.id == "b")
   restored.remember(nil); precondition(PresetStore(defaults: defaults).rememberedPreset == nil)
-  var pointer = Preset(); pointer.name = "Pointer"; pointer.pointerSize = 2.5; restored.save(pointer)
-  precondition(PresetStore(defaults: defaults).items.first { $0.name == "Pointer" }?.pointerSize == 2.5)
+  var pointer = Preset(); pointer.name = "Pointer"; pointer.pointerSize = 2.5
+  pointer.resolution = DisplayResolution(width: 1920, height: 1080, hiDPI: true); restored.save(pointer)
+  let loaded = PresetStore(defaults: defaults).items.first { $0.name == "Pointer" }
+  precondition(loaded?.pointerSize == 2.5 && loaded?.resolution == DisplayResolution(width: 1920, height: 1080, hiDPI: true))
   restored.remove(pointer.id)
   var second = Preset(); second.name = "Second"; restored.save(second)
   restored.move(second.id, by: -1)

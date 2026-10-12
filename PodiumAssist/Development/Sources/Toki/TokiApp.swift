@@ -254,7 +254,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
-        let size = NSSize(width: 460, height: 850)
+        let size = NSSize(width: 460, height: 880)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -390,6 +390,7 @@ struct Preset: Codable, Identifiable {
     var pointerSize: Double? = nil
     var reduceTransparency: Bool? = nil
     var volumeFeedback: Bool? = nil
+    var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
     var notificationsOff: Bool? = nil
     var timerMinutes: Int? = nil
@@ -682,6 +683,14 @@ struct PresetPreferences: View {
                     .frame(width: 104).disabled(editor.draft.pointerSize == nil)
                 Text(PointerSize.text(editor.draft.pointerSize ?? settings.pointerSize)).monospacedDigit().frame(width: 28, alignment: .trailing)
             }
+            HStack {
+                Toggle(L("解像度"), isOn: Binding(get: { editor.draft.resolution != nil }, set: { editor.draft.resolution = $0 ? settings.resolution : nil }))
+                Spacer()
+                Picker(L("解像度"), selection: Binding(get: { editor.draft.resolution ?? settings.resolution }, set: { editor.draft.resolution = $0 })) {
+                    ForEach(DisplayResolution.choices, id: \.self) { Text($0.text).tag(Optional($0)) }
+                }
+                .labelsHidden().frame(width: 170).disabled(editor.draft.resolution == nil)
+            }
             presetRow(L("透明度を下げる"), value: $editor.draft.reduceTransparency, off: L("オフ"), on: L("オン"), current: settings.reduceTransparency)
             presetRow(L("音量変更時の音"), value: $editor.draft.volumeFeedback, off: L("オフ"), on: L("オン"), current: settings.volumeFeedback)
             presetRow(L("通知をオフ"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
@@ -761,6 +770,7 @@ final class MacSettings: ObservableObject {
     @Published var pointerSize = 1.0
     @Published var reduceTransparency = false
     @Published var volumeFeedback = false
+    @Published var resolution: DisplayResolution?
     @Published var busy = false
     @Published var message = L("選択すると、Macのシステム設定を変更します。")
     /// System Events automation was refused; the views offer a button to the Automation pane.
@@ -785,9 +795,22 @@ final class MacSettings: ObservableObject {
         desktopHidden = (CFPreferencesCopyAppValue("CreateDesktop" as CFString, "com.apple.finder" as CFString) as? NSNumber)?.boolValue == false
         dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         pointerSize = PointerSize.current
+        resolution = DisplayResolution.current
         reduceTransparency = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
         CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
         volumeFeedback = (CFPreferencesCopyAppValue(Self.volumeFeedbackKey, kCFPreferencesAnyApplication) as? NSNumber)?.boolValue ?? false
+    }
+
+    func setResolution(_ value: DisplayResolution) {
+        do {
+            try DisplayResolution.set(value)
+            error = false
+            message = L("解像度を %@ にしました。", value.text)
+        } catch {
+            self.error = true
+            message = error.localizedDescription
+        }
+        refresh()
     }
 
     /// System Settings → Sound → "Play feedback when volume is changed" (global domain; measured by toggling the switch).
@@ -1021,6 +1044,7 @@ final class MacSettings: ObservableObject {
         if let value = preset.hideDock, value != dockHidden { setDockHidden(value); if error { return } }
         if let value = preset.hideDesktop, value != desktopHidden { setDesktopHidden(value); if error { return } }
         if let value = preset.pointerSize { setPointerSize(value); if error { return } }
+        if let value = preset.resolution, value != resolution { setResolution(value); if error { return } }
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
         if let value = preset.timerEnabled { countdown.enabled = value }
@@ -1151,6 +1175,15 @@ struct ManualControlsView: View {
             .font(.system(size: 12))
             .onAppear { pointerDraft = settings.pointerSize }
             .onChange(of: settings.pointerSize) { pointerDraft = $0 }
+            HStack {
+                Label(L("解像度"), systemImage: "display").fixedSize()
+                Spacer()
+                Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
+                    ForEach(DisplayResolution.choices, id: \.self) { Text($0.text).tag(Optional($0)) }
+                }
+                .labelsHidden().frame(width: 170)
+            }
+            .font(.system(size: 12)).disabled(settings.busy)
             HStack {
                 Label(L("通知"), systemImage: "bell.slash")
                 Spacer()

@@ -181,3 +181,8 @@
 "%@の履歴を削除しました。" = "Deleted the history of %@.";
 "ブラウザーの履歴" = "Browser History";
 "削除…" = "Delete…";
+"（低解像度）" = " (low resolution)";
+"このディスプレイでは %@ を使えません。" = "%@ is not available on this display.";
+"解像度を変更できませんでした。" = "Could not change the resolution.";
+"解像度を %@ にしました。" = "Resolution set to %@.";
+"解像度" = "Resolution";
