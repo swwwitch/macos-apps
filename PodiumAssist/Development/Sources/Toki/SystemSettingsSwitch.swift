@@ -13,7 +13,7 @@ enum SystemSettingsSwitch {
 
     @MainActor
     static func set(pane: String, identifier: String, to value: Bool) async throws {
-        guard AXIsProcessTrusted() else { throw SettingsError(L("アクセシビリティの許可が必要です。設定の「起動・常駐」で許可してください。")) }
+        guard AXIsProcessTrusted() else { throw SettingsError(L("アクセシビリティの許可が必要です。［設定…］の「起動・常駐」で許可してください。")) }
         guard let url = URL(string: pane) else { return }
         let wasRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: settingsBundleID).isEmpty
         NSWorkspace.shared.open(url)

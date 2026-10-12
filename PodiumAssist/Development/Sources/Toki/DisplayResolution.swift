@@ -36,11 +36,12 @@ struct DisplayResolution: Codable, Hashable {
     }
 
     /// Choices for the menus: the HiDPI sizes when the display has them (as System Settings shows), otherwise every size.
+    /// `showAll` adds the low-resolution modes too (System Settings' 「すべての解像度を表示」).
     /// Largest first; the current one is always included.
-    static var choices: [DisplayResolution] {
+    static func choices(showAll: Bool = false) -> [DisplayResolution] {
         let all = Set(modes(mainDisplay).map(DisplayResolution.init))
         let hiDPI = all.filter(\.hiDPI)
-        var list = Set(hiDPI.isEmpty ? all : hiDPI)
+        var list = Set(showAll || hiDPI.isEmpty ? all : hiDPI)
         if let current { list.insert(current) }
         return list.sorted { ($0.width, $0.height, $0.hiDPI ? 1 : 0) > ($1.width, $1.height, $1.hiDPI ? 1 : 0) }
     }
@@ -66,5 +67,40 @@ struct DisplayResolution: Codable, Hashable {
             throw SettingsError(L("解像度を変更できませんでした。"))
         }
         return target
+    }
+}
+
+/// Mirroring or extending the external displays (System Settings › Displays › "Use as"), with the public
+/// CoreGraphics configuration API. Every other online display mirrors the main display, or none does.
+enum DisplayMirroring {
+    /// Online displays, mirrored ones included (the active list folds a mirror set into one).
+    static var onlineDisplays: [CGDirectDisplayID] {
+        var count: UInt32 = 0
+        guard CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 else { return [] }
+        var ids = [CGDirectDisplayID](repeating: 0, count: Int(count))
+        guard CGGetOnlineDisplayList(count, &ids, &count) == .success else { return [] }
+        return Array(ids.prefix(Int(count)))
+    }
+
+    /// More than one display: an external display is connected (with the lid closed, the built-in one is not online).
+    static var hasExternal: Bool { onlineDisplays.count > 1 }
+
+    static var isMirrored: Bool { onlineDisplays.contains { CGDisplayIsInMirrorSet($0) != 0 } }
+
+    /// Saved permanently, like a change in System Settings.
+    static func set(mirrored: Bool) throws {
+        let main = CGMainDisplayID()
+        let others = onlineDisplays.filter { $0 != main }
+        guard !others.isEmpty else { throw SettingsError(L("外部ディスプレイが接続されていません。")) }
+        var config: CGDisplayConfigRef?
+        guard CGBeginDisplayConfiguration(&config) == .success, let config else { throw SettingsError(L("ディスプレイの使用形態を変更できませんでした。")) }
+        for display in others where CGConfigureDisplayMirrorOfDisplay(config, display, mirrored ? main : kCGNullDirectDisplay) != .success {
+            CGCancelDisplayConfiguration(config)
+            throw SettingsError(L("ディスプレイの使用形態を変更できませんでした。"))
+        }
+        guard CGCompleteDisplayConfiguration(config, .permanently) == .success else {
+            CGCancelDisplayConfiguration(config)
+            throw SettingsError(L("ディスプレイの使用形態を変更できませんでした。"))
+        }
     }
 }

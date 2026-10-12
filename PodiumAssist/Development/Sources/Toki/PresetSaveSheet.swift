@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 「プリセットに保存…」 from the 個別操作 tab: saves the current state into a new or an existing preset.
+/// 「プリセットに保存…」 from the 「基本設定」/「その他の設定」 tabs: saves the current state into a new or an existing preset.
 /// Only ticked items go into the preset; unticked ones stay "unchanged" when it is applied.
 /// Overwriting keeps the preset's name, place in the list and app lists, and starts with the items it already had ticked.
 struct PresetSaveSheet: View {
@@ -39,9 +39,9 @@ struct PresetSaveSheet: View {
                     row(.showDate, L("時計の日付"), settings.showDate ? L("表示する") : L("表示しない"))
                     row(.showWeekday, L("時計の曜日"), settings.showWeekday ? L("表示する") : L("表示しない"))
                     row(.dark, L("外観"), settings.dark ? L("ダーク") : L("ライト"))
-                    row(.hideDock, L("Dockを隠す"), onOff(settings.dockHidden))
-                    row(.killDock, L("Dockを完全非表示"), onOff(settings.dockKilled))
-                    row(.hideDesktop, L("デスクトップ非表示"), onOff(settings.desktopHidden))
+                    row(.hideDock, L("Dock：自動非表示"), onOff(settings.dockHidden))
+                    row(.killDock, L("Dock：完全非表示"), onOff(settings.dockKilled))
+                    row(.hideDesktop, L("デスクトップアイコンを非表示"), onOff(settings.desktopHidden))
                     row(.pointerSize, L("ポインタのサイズ"), PointerSize.text(settings.pointerSize))
                     HStack {
                         Toggle(L("解像度"), isOn: binding(.resolution))
@@ -53,16 +53,16 @@ struct PresetSaveSheet: View {
                     }
                     row(.reduceTransparency, L("透明度を下げる"), onOff(settings.reduceTransparency))
                     row(.reduceMotion, L("視差効果を減らす"), onOff(settings.reduceMotion))
-                    row(.volumeFeedback, L("音量変更時の音"), onOff(settings.volumeFeedback))
+                    row(.volumeFeedback, L("音量を変更するときにフィードバックを再生"), onOff(settings.volumeFeedback))
                     HStack {
-                        Toggle(L("通知をオフ"), isOn: binding(.notificationsOff))
+                        Toggle(L("通知"), isOn: binding(.notificationsOff))
                         Spacer()
-                        Picker(L("通知をオフ"), selection: $notificationsOff) {
-                            Text(L("解除")).tag(false); Text(L("抑える")).tag(true)
+                        Picker(L("通知"), selection: $notificationsOff) {
+                            Text(L("オン")).tag(false); Text(L("オフ")).tag(true)
                         }.labelsHidden().pickerStyle(.segmented).frame(width: 120).disabled(!included.contains(.notificationsOff))
                     }
                     row(.timerEnabled, L("タイマーを使う"), onOff(countdown.enabled))
-                    row(.timerMinutes, L("タイマー所要時間"), L("%@分", String(countdown.plan.minutes)))
+                    row(.timerMinutes, L("タイマーの所要時間"), L("%@分", String(countdown.plan.minutes)))
                 }
             }
             .help(L("チェックした項目だけを、今の値でプリセットに保存します。チェックしない項目は、適用しても変わりません。"))

@@ -227,9 +227,10 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         // Fit the tallest tab so the header stays put when switching tabs. 180 = everything around the tab panel
         // (padding, header, tab picker, footer and the spacing between them).
         let panelWidth: CGFloat = 384  // 420 minus the 18pt side padding
-        let timerHeight = NSHostingView(rootView: TimerPanel(countdown: countdown).frame(width: panelWidth)).fittingSize.height
-        let manualHeight = NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets).padding(16).frame(width: panelWidth)).fittingSize.height
-        let size = NSSize(width: 420, height: max(560, ceil(180 + max(timerHeight, manualHeight))))
+        let manualHeight = [false, true].map { detailed in
+            NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets, detailed: detailed).padding(16).frame(width: panelWidth)).fittingSize.height
+        }.max() ?? 0
+        let size = NSSize(width: 420, height: max(560, ceil(180 + manualHeight)))
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("セミナー・キャプチャ準備")
@@ -444,7 +445,7 @@ final class PresetStore: ObservableObject {
     }
 }
 
-/// Main window: preset buttons, manual controls and the timer in tabs. Settings open in a separate window.
+/// Main window: preset buttons and the manual controls (with the timer) in tabs. Settings open in a separate window.
 struct MainView: View {
     @ObservedObject var countdown: Countdown
     @ObservedObject var settings: MacSettings
@@ -465,15 +466,13 @@ struct MainView: View {
             // In-window tabs: a SwiftUI TabView would move into the native title bar.
             Picker("", selection: $tab) {
                 Text(L("プリセット")).tag(0)
-                Text(L("個別操作")).tag(2)
-                Text(L("タイマー")).tag(1)
+                Text(L("基本設定")).tag(2)
+                Text(L("その他の設定")).tag(3)
             }
             .pickerStyle(.segmented).labelsHidden().fixedSize().frame(maxWidth: .infinity)
             Group {
-                if tab == 1 {
-                    TimerPanel(countdown: countdown)
-                } else if tab == 2 {
-                    ManualControlsView(settings: settings, countdown: countdown, presets: presets).padding(16)
+                if tab == 2 || tab == 3 {
+                    ManualControlsView(settings: settings, countdown: countdown, presets: presets, detailed: tab == 3).padding(16)
                 } else {
                     PresetPicker(settings: settings, countdown: countdown, presets: presets)
                 }
@@ -513,7 +512,7 @@ struct PresetPicker: View {
         VStack(alignment: .leading, spacing: 10) {
             if presets.items.isEmpty {
                 Spacer()
-                Text(L("「個別操作」タブの「プリセットに保存…」で作れます。")).foregroundStyle(.secondary).frame(maxWidth: .infinity)
+                Text(L("「基本設定」タブの「プリセットに保存…」で作れます。")).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                 Spacer()
             } else {
                 ScrollView {
@@ -575,7 +574,7 @@ struct PresetPicker: View {
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
-        .help(L("クリックすると、このプリセットをまとめて適用します。右クリックで名前の変更・並べ替え・アプリの編集・削除。"))
+        .help(L("クリックすると、このプリセットをまとめて適用します。右クリックで、名前の変更・並べ替え・起動／終了アプリの編集・削除ができます。"))
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
         .contextMenu {
             Button(L("名前を変更…")) { newName = preset.name; renaming = preset }
@@ -693,6 +692,8 @@ final class MacSettings: ObservableObject {
     @Published var reduceMotion = false
     @Published var volumeFeedback = false
     @Published var resolution: DisplayResolution?
+    @Published var hasExternalDisplay = false
+    @Published var mirrored = false
     @Published var busy = false
     @Published var message = ""
     /// System Events automation was refused; the views offer a button to the Automation pane.
@@ -718,6 +719,8 @@ final class MacSettings: ObservableObject {
         dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         pointerSize = PointerSize.current
         resolution = DisplayResolution.current
+        hasExternalDisplay = DisplayMirroring.hasExternal
+        mirrored = DisplayMirroring.isMirrored
         reduceTransparency = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
         reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
@@ -729,6 +732,18 @@ final class MacSettings: ObservableObject {
             let applied = try DisplayResolution.set(value)
             error = false
             message = L("解像度を %@ にしました。", applied.text)
+        } catch {
+            self.error = true
+            message = error.localizedDescription
+        }
+        refresh()
+    }
+
+    func setMirrored(_ value: Bool) {
+        do {
+            try DisplayMirroring.set(mirrored: value)
+            error = false
+            message = value ? L("ミラーリングにしました。") : L("拡張ディスプレイにしました。")
         } catch {
             self.error = true
             message = error.localizedDescription
@@ -859,7 +874,7 @@ final class MacSettings: ObservableObject {
             try run("/usr/bin/defaults", ["write", clockDomain as String, "ShowDate", "-int", value ? "1" : "2"])
             try run("/usr/bin/killall", ["-u", NSUserName(), "ControlCenter"], allowedStatuses: [0, 1])
             error = false
-            message = value ? L("メニューバーの日付を表示する設定にしました。") : L("メニューバーの日付を非表示にしました。")
+            message = value ? L("メニューバーに日付を表示しました。") : L("メニューバーの日付を非表示にしました。")
         } catch { self.error = true; message = error.localizedDescription }
         busy = false
         refresh()
@@ -872,7 +887,7 @@ final class MacSettings: ObservableObject {
             try run("/usr/bin/defaults", ["write", clockDomain as String, "ShowDayOfWeek", "-bool", value ? "true" : "false"])
             try run("/usr/bin/killall", ["-u", NSUserName(), "ControlCenter"], allowedStatuses: [0, 1])
             error = false
-            message = value ? L("メニューバーの曜日を表示する設定にしました。") : L("メニューバーの曜日を非表示にしました。")
+            message = value ? L("メニューバーに曜日を表示しました。") : L("メニューバーの曜日を非表示にしました。")
         } catch { self.error = true; message = error.localizedDescription }
         busy = false
         refresh()
@@ -900,7 +915,7 @@ final class MacSettings: ObservableObject {
             let code = details[NSAppleScript.errorNumber] as? Int
             automationDenied = code == -1743
             if code == -1743 {
-                message = L("外観の変更には、システム設定 → プライバシーとセキュリティ → オートメーションで、PodiumAssistのSystem Events操作を許可してください。")
+                message = L("外観を変更するには、システム設定の「プライバシーとセキュリティ」→「オートメーション」で、PodiumAssistに「System Events」の操作を許可してください。")
             } else {
                 message = L("外観を変更できませんでした：%@", String(describing: details[NSAppleScript.errorMessage] ?? L("不明なエラー")))
             }
@@ -949,7 +964,7 @@ final class MacSettings: ObservableObject {
             try run("/usr/bin/killall", ["-u", NSUserName(), "Dock"], allowedStatuses: [0, 1])
             if !value { UserDefaults.standard.removeObject(forKey: "dockBackup") }
             error = false
-            message = value ? L("Dockをサイズ1・出現遅延3000000秒にしました。") : L("Dockを変更前の設定に戻しました。")
+            message = value ? L("Dockを完全非表示にしました（サイズ1・表示までの待ち時間3000000秒）。") : L("Dockを完全非表示にする前の設定に戻しました。")
         } catch { self.error = true; message = error.localizedDescription }
         refresh()
     }
@@ -1007,7 +1022,7 @@ final class MacSettings: ObservableObject {
                 message = value ? L("おやすみモードをオンにしました。許可済みの通知は届く場合があります。") : L("おやすみモードを解除しました。")
             } catch {
                 self.error = true
-                message = L("通知の変更に失敗しました。ショートカットアプリのToki Notifications On / Offを確認してください。")
+                message = L("通知を変更できませんでした。ショートカットの「Toki Notifications On / Off」を確認してください。")
             }
             busy = false
         }
@@ -1038,101 +1053,135 @@ struct SettingsError: LocalizedError {
     var errorDescription: String? { text }
 }
 
-/// Main window 「個別操作」 tab: switch each Mac setting directly (presets switch several at once).
+/// Main window 「基本設定」 / 「その他の設定」 tabs: switch each Mac setting directly (presets switch several at once).
 struct ManualControlsView: View {
     @ObservedObject var settings: MacSettings
     @ObservedObject var countdown: Countdown
     @ObservedObject var presets: PresetStore
+    /// false: clock, date, weekday, appearance and the timer. true: everything else.
+    let detailed: Bool
     @State private var saving = false
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
     @State private var pointerDraft = 1.0
+    /// Only widens the 解像度 menu; nothing on the Mac changes.
+    @AppStorage("showAllResolutions") private var showAllResolutions = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(spacing: 14) {
-                settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
-                    choice(L("デジタル"), selected: !settings.analog) { manual { settings.setClock(false) } }
-                    choice(L("アナログ"), selected: settings.analog) { manual { settings.setClock(true) } }
+            if detailed {
+                category(L("ディスプレイ")) {
+                    HStack {
+                        Label(L("外部ディスプレイ"), systemImage: "rectangle.on.rectangle").fixedSize()
+                        Spacer()
+                        Picker(L("外部ディスプレイ"), selection: Binding(get: { settings.mirrored }, set: { value in manual { settings.setMirrored(value) } })) {
+                            Text(L("ミラーリング")).tag(true)
+                            Text(L("拡張ディスプレイ")).tag(false)
+                        }
+                        .pickerStyle(.segmented).labelsHidden().fixedSize()
+                    }
+                    .font(.system(size: 12))
+                    .disabled(settings.busy || !settings.hasExternalDisplay)
+                    .opacity(settings.hasExternalDisplay ? 1 : 0.4)
+                    .help(settings.hasExternalDisplay ? L("外部ディスプレイにメインディスプレイと同じ画面を映すか、画面を広げて使うかを切り替えます。") : L("外部ディスプレイが接続されていません。"))
+                    HStack {
+                        Label(L("解像度"), systemImage: "display").fixedSize()
+                        Spacer()
+                        Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
+                            Text(L("ディスプレイの既定に戻す")).tag(Optional(DisplayResolution.displayDefault))
+                            Divider()
+                            ForEach(DisplayResolution.choices(showAll: showAllResolutions), id: \.self) { Text($0.text).tag(Optional($0)) }
+                        }
+                        .labelsHidden().frame(width: 170)
+                    }
+                    .font(.system(size: 12)).disabled(settings.busy)
+                    Toggle(L("すべての解像度を表示"), isOn: $showAllResolutions)
+                        .font(.system(size: 12))
+                        .help(L("低解像度のモードも一覧に含めます。"))
                 }
-                Divider()
-                settingRow(L("日付"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar") {
-                    choice(L("表示する"), selected: settings.showDate) { manual { settings.setDateVisible(true) } }
-                    choice(L("しない"), selected: !settings.showDate) { manual { settings.setDateVisible(false) } }
+                category(L("見やすさ")) {
+                    Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
+                        .font(.system(size: 12)).disabled(settings.busy)
+                    Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
+                        .font(.system(size: 12)).disabled(settings.busy)
+                    HStack {
+                        Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
+                        Spacer()
+                        // Applied when the knob is released, not on every step of the drag.
+                        Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
+                            if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                        }
+                        .frame(width: 96)
+                        Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
+                        Button(L("標準に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
+                            .disabled(settings.pointerSize == 1)
+                    }
+                    .font(.system(size: 12))
+                    .onAppear { pointerDraft = settings.pointerSize }
+                    .onChange(of: settings.pointerSize) { pointerDraft = $0 }
                 }
-                .disabled(settings.analog)
-                .opacity(settings.analog ? 0.4 : 1)
-                Divider()
-                settingRow(L("曜日"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar.day.timeline.left") {
-                    choice(L("表示する"), selected: settings.showWeekday) { manual { settings.setWeekdayVisible(true) } }
-                    choice(L("しない"), selected: !settings.showWeekday) { manual { settings.setWeekdayVisible(false) } }
+                category(L("集中を妨げるもの")) {
+                    Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
+                        .font(.system(size: 12))
+                    HStack {
+                        Label(L("通知"), systemImage: "bell.slash")
+                        Spacer()
+                        Button(L("オフ")) { manual { settings.setNotificationsOff(true) } }
+                        Button(L("オン")) { manual { settings.setNotificationsOff(false) } }
+                    }.font(.system(size: 12)).disabled(settings.busy)
+                    .help(L("「オフ」にすると、おやすみモードをオンにします。"))
                 }
-                .disabled(settings.analog)
-                .opacity(settings.analog ? 0.4 : 1)
-                Divider()
-                settingRow(L("外観"), subtitle: L("Mac全体"), symbol: "circle.lefthalf.filled") {
-                    choice(L("ライト"), selected: !settings.dark) { manual { settings.setAppearance(false) } }
-                    choice(L("ダーク"), selected: settings.dark) { manual { settings.setAppearance(true) } }
+                category(L("プライバシー")) {
+                    Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
+                        .font(.system(size: 12))
+                    HStack {
+                        Label(L("ブラウザーの履歴"), systemImage: "clock.arrow.circlepath")
+                        Spacer()
+                        Text(BrowserHistory.defaultBrowser?.name ?? "").foregroundStyle(.secondary)
+                        Button(L("削除…")) { settings.clearBrowserHistory() }
+                    }
+                    .font(.system(size: 12)).disabled(settings.busy)
                 }
-            }
-            .padding(14)
-            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
-            .disabled(settings.busy)
-            HStack(spacing: 16) {
-                Text("Dock")
-                Toggle(L("自動非表示"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
-                Toggle(L("完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
-                    .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
-            }
-            .font(.system(size: 12))
-            Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
-                .font(.system(size: 12))
-            Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
-                .font(.system(size: 12)).disabled(settings.busy)
-            Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
-                .font(.system(size: 12)).disabled(settings.busy)
-            Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
-                .font(.system(size: 12))
-            HStack {
-                Label(L("ブラウザーの履歴"), systemImage: "clock.arrow.circlepath")
-                Spacer()
-                Text(BrowserHistory.defaultBrowser?.name ?? "").foregroundStyle(.secondary)
-                Button(L("削除…")) { settings.clearBrowserHistory() }
-            }
-            .font(.system(size: 12)).disabled(settings.busy)
-            HStack {
-                Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
-                Spacer()
-                // Applied when the knob is released, not on every step of the drag.
-                Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
-                    if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                category("Dock") {
+                    HStack(spacing: 16) {
+                        Toggle(L("自動非表示"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
+                        Toggle(L("完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
+                            .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
+                    }
+                    .font(.system(size: 12))
                 }
-                .frame(width: 96)
-                Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
-                Button(L("標準に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
-                    .disabled(settings.pointerSize == 1)
-            }
-            .font(.system(size: 12))
-            .onAppear { pointerDraft = settings.pointerSize }
-            .onChange(of: settings.pointerSize) { pointerDraft = $0 }
-            HStack {
-                Label(L("解像度"), systemImage: "display").fixedSize()
-                Spacer()
-                Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
-                    Text(L("ディスプレイの既定に戻す")).tag(Optional(DisplayResolution.displayDefault))
+            } else {
+                VStack(spacing: 14) {
+                    settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
+                        choice(L("デジタル"), selected: !settings.analog) { manual { settings.setClock(false) } }
+                        choice(L("アナログ"), selected: settings.analog) { manual { settings.setClock(true) } }
+                    }
                     Divider()
-                    ForEach(DisplayResolution.choices, id: \.self) { Text($0.text).tag(Optional($0)) }
+                    settingRow(L("日付"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar") {
+                        choice(L("表示する"), selected: settings.showDate) { manual { settings.setDateVisible(true) } }
+                        choice(L("しない"), selected: !settings.showDate) { manual { settings.setDateVisible(false) } }
+                    }
+                    .disabled(settings.analog)
+                    .opacity(settings.analog ? 0.4 : 1)
+                    Divider()
+                    settingRow(L("曜日"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar.day.timeline.left") {
+                        choice(L("表示する"), selected: settings.showWeekday) { manual { settings.setWeekdayVisible(true) } }
+                        choice(L("しない"), selected: !settings.showWeekday) { manual { settings.setWeekdayVisible(false) } }
+                    }
+                    .disabled(settings.analog)
+                    .opacity(settings.analog ? 0.4 : 1)
+                    Divider()
+                    settingRow(L("外観"), subtitle: L("Mac全体"), symbol: "circle.lefthalf.filled") {
+                        choice(L("ライト"), selected: !settings.dark) { manual { settings.setAppearance(false) } }
+                        choice(L("ダーク"), selected: settings.dark) { manual { settings.setAppearance(true) } }
+                    }
                 }
-                .labelsHidden().frame(width: 170)
+                .padding(14)
+                .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
+                .disabled(settings.busy)
+                TimerPanel(countdown: countdown)
+                    .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
             }
-            .font(.system(size: 12)).disabled(settings.busy)
-            HStack {
-                Label(L("通知"), systemImage: "bell.slash")
-                Spacer()
-                Button(L("オフ")) { manual { settings.setNotificationsOff(true) } }
-                Button(L("オン")) { manual { settings.setNotificationsOff(false) } }
-            }.font(.system(size: 12)).disabled(settings.busy)
-            .help(L("通知オフは、おやすみモードを有効にします。"))
             StatusMessage(settings: settings)
             HStack {
                 Spacer()
@@ -1144,11 +1193,21 @@ struct ManualControlsView: View {
         .sheet(isPresented: $saving) { PresetSaveSheet(settings: settings, countdown: countdown, presets: presets) { saving = false } }
         .onAppear { settings.refresh() }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.refresh() }
+        // Connecting or disconnecting a display, or mirroring from elsewhere.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in settings.refresh() }
     }
 
     private func manual(_ change: () -> Void) {
         lastApplied = ""
         change()
+    }
+
+    /// A titled group on the 「その他の設定」 tab.
+    private func category<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+            content()
+        }
     }
 
     private func settingRow<Content: View>(_ title: String, subtitle: String, symbol: String, @ViewBuilder content: () -> Content) -> some View {
