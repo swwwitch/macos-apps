@@ -69,6 +69,11 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
+        AccessibilityText.neededOverride = [
+            "「透明度を下げる」の切り替えで、システム設定のスイッチを操作するために使用します。未許可の場合、この項目だけ利用できません。",
+            "Used to turn the Reduce transparency switch in System Settings on or off. Without permission, only this item is unavailable.",
+            "用于在系统设置中切换“降低透明度”开关。未获授权时，仅此项目不可用。",
+            "시스템 설정에서 ‘투명도 줄이기’ 스위치를 켜고 끄는 데 사용합니다. 권한이 없으면 이 항목만 사용할 수 없습니다."]
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "PodiumAssist", symbol: "clock", existing: self.item, keepExistingImage: true,
@@ -249,7 +254,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
-        let size = NSSize(width: 460, height: 770)
+        let size = NSSize(width: 460, height: 850)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -383,6 +388,8 @@ struct Preset: Codable, Identifiable {
     var hideDock: Bool? = nil
     var killDock: Bool? = nil
     var pointerSize: Double? = nil
+    var reduceTransparency: Bool? = nil
+    var volumeFeedback: Bool? = nil
     var hideDesktop: Bool? = nil
     var notificationsOff: Bool? = nil
     var timerMinutes: Int? = nil
@@ -555,7 +562,10 @@ struct PreferencesView: View {
     @ObservedObject var presets: PresetStore
     var body: some View {
         SettingsTabs(sections: [
-            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() })),
+            (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
+                SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
+                SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
+            })),
             (L("プリセット"), AnyView(PresetPreferences(settings: settings, countdown: countdown, presets: presets))),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(.horizontal, 12).padding(.bottom, 10)
@@ -607,9 +617,9 @@ struct TimerPanel: View {
             Text(title)
             // Explicit widths: the pickers' own widths clip the last digit.
             DatePicker(title, selection: Binding(get: { value }, set: { set(Self.combine(day: $0, time: value)) }), displayedComponents: .date)
-                .labelsHidden().frame(width: 124, alignment: .leading)
+                .labelsHidden().frame(width: 136, alignment: .leading)
             DatePicker(title, selection: Binding(get: { value }, set: { set(Self.combine(day: value, time: $0)) }), displayedComponents: .hourAndMinute)
-                .labelsHidden().frame(width: 80, alignment: .leading)
+                .labelsHidden().frame(width: 90, alignment: .leading)
         }
     }
 
@@ -672,6 +682,8 @@ struct PresetPreferences: View {
                     .frame(width: 104).disabled(editor.draft.pointerSize == nil)
                 Text(PointerSize.text(editor.draft.pointerSize ?? settings.pointerSize)).monospacedDigit().frame(width: 28, alignment: .trailing)
             }
+            presetRow(L("透明度を下げる"), value: $editor.draft.reduceTransparency, off: L("オフ"), on: L("オン"), current: settings.reduceTransparency)
+            presetRow(L("音量変更時の音"), value: $editor.draft.volumeFeedback, off: L("オフ"), on: L("オン"), current: settings.volumeFeedback)
             presetRow(L("通知をオフ"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
             presetRow(L("タイマーを使う"), value: $editor.draft.timerEnabled, off: L("オフ"), on: L("オン"), current: countdown.enabled)
             HStack {
@@ -747,6 +759,8 @@ final class MacSettings: ObservableObject {
     @Published var showWeekday = true
     @Published var dark = false
     @Published var pointerSize = 1.0
+    @Published var reduceTransparency = false
+    @Published var volumeFeedback = false
     @Published var busy = false
     @Published var message = L("選択すると、Macのシステム設定を変更します。")
     /// System Events automation was refused; the views offer a button to the Automation pane.
@@ -771,6 +785,83 @@ final class MacSettings: ObservableObject {
         desktopHidden = (CFPreferencesCopyAppValue("CreateDesktop" as CFString, "com.apple.finder" as CFString) as? NSNumber)?.boolValue == false
         dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         pointerSize = PointerSize.current
+        reduceTransparency = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+        CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+        volumeFeedback = (CFPreferencesCopyAppValue(Self.volumeFeedbackKey, kCFPreferencesAnyApplication) as? NSNumber)?.boolValue ?? false
+    }
+
+    /// System Settings → Sound → "Play feedback when volume is changed" (global domain; measured by toggling the switch).
+    private static let volumeFeedbackKey = "com.apple.sound.beep.feedback" as CFString
+
+    func setVolumeFeedback(_ value: Bool) {
+        CFPreferencesSetAppValue(Self.volumeFeedbackKey, NSNumber(value: value ? 1 : 0), kCFPreferencesAnyApplication)
+        CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+        refresh()
+        if volumeFeedback == value {
+            error = false
+            message = value ? L("音量変更時のフィードバックをオンにしました。") : L("音量変更時のフィードバックをオフにしました。")
+        } else {
+            error = true
+            message = L("音量変更時のフィードバックを変更できませんでした。")
+        }
+    }
+
+    /// Asks first (deletion cannot be undone), then clears the default browser's history.
+    func clearBrowserHistory() {
+        guard !busy else { return }
+        guard let browser = BrowserHistory.defaultBrowser else { return }
+        if case .unsupported = browser.kind {
+            error = true
+            message = L("%@の履歴は削除できません。ブラウザーのメニューから削除してください。", browser.name)
+            return
+        }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = L("%@の閲覧履歴をすべて削除しますか？", browser.name)
+        alert.informativeText = L("ブックマーク・Cookie・ログイン状態は残ります。削除した履歴は元に戻せません。%@が起動中の場合は終了し、削除後にもう一度開きます。", browser.name)
+        alert.addButton(withTitle: L("削除"))
+        alert.addButton(withTitle: L("キャンセル"))
+        // Destructive: Return/Esc both stay on the safe side.
+        alert.buttons[0].keyEquivalent = ""
+        alert.buttons[1].keyEquivalent = "\r"
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        busy = true
+        error = false
+        message = L("%@の履歴を削除しています…", browser.name)
+        Task {
+            do {
+                let count = try await BrowserHistory.clear(browser)
+                message = count == 0 ? L("%@の履歴は見つかりませんでした。", browser.name) : L("%@の履歴を削除しました。", browser.name)
+            } catch {
+                self.error = true
+                message = error.localizedDescription
+            }
+            busy = false
+        }
+    }
+
+    /// Flips the System Settings switch (the preference write is refused without Full Disk Access). `then` runs afterwards on success.
+    func setReduceTransparency(_ value: Bool, then: (() -> Void)? = nil) {
+        guard !busy else { return }
+        busy = true
+        error = false
+        message = L("システム設定で透明度を変更しています…")
+        Task {
+            do {
+                try await SystemSettingsSwitch.set(pane: SystemSettingsSwitch.reduceTransparency.pane,
+                                                   identifier: SystemSettingsSwitch.reduceTransparency.identifier, to: value)
+                message = value ? L("透明度を下げました。") : L("透明度を元に戻しました。")
+                busy = false
+                refresh()
+                then?()
+            } catch {
+                self.error = true
+                message = error.localizedDescription
+                busy = false
+                refresh()
+            }
+        }
     }
 
     func setPointerSize(_ value: Double) {
@@ -930,12 +1021,17 @@ final class MacSettings: ObservableObject {
         if let value = preset.hideDock, value != dockHidden { setDockHidden(value); if error { return } }
         if let value = preset.hideDesktop, value != desktopHidden { setDesktopHidden(value); if error { return } }
         if let value = preset.pointerSize { setPointerSize(value); if error { return } }
+        if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
         if let value = preset.timerEnabled { countdown.enabled = value }
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
         if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
-        if let value = preset.notificationsOff { setNotificationsOff(value) }
-        else { message = L("「%@」を適用しました。", String(describing: preset.name)) }
+        // Transparency and notifications both run asynchronously; notifications wait for the System Settings step.
+        let finish = { [self] in
+            if let value = preset.notificationsOff { setNotificationsOff(value) }
+            else { message = L("「%@」を適用しました。", String(describing: preset.name)) }
+        }
+        if let value = preset.reduceTransparency, value != reduceTransparency { setReduceTransparency(value, then: finish) } else { finish() }
     }
 
     func setNotificationsOff(_ value: Bool) {
@@ -1029,6 +1125,17 @@ struct ManualControlsView: View {
             }
             Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
                 .font(.system(size: 12))
+            Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
+                .font(.system(size: 12)).disabled(settings.busy)
+            Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
+                .font(.system(size: 12))
+            HStack {
+                Label(L("ブラウザーの履歴"), systemImage: "clock.arrow.circlepath")
+                Spacer()
+                Text(BrowserHistory.defaultBrowser?.name ?? "").foregroundStyle(.secondary)
+                Button(L("削除…")) { settings.clearBrowserHistory() }
+            }
+            .font(.system(size: 12)).disabled(settings.busy)
             HStack {
                 Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
                 Spacer()

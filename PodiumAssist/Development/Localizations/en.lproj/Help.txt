@@ -7,6 +7,8 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 - **Clock**: switch the menu bar clock between Digital and Analog. You can also show or hide the Date and Day of Week (for the digital clock).
 - **Appearance**: switch the whole Mac between Light and Dark.
 - **Pointer Size**: change the mouse pointer size at once, from 1 (default) to 4. Reset to Default returns it to 1. The value in System Settings › Accessibility › Display does not change, so the pointer returns to that size when you log in again.
+- **Reduce transparency**: reduce the transparency of windows and menus across the Mac. PodiumAssist operates System Settings for this, so System Settings opens briefly (requires the Accessibility permission).
+- **Play feedback when volume is changed**: turn the sound played when you change the volume on or off. This is the same setting as in System Settings › Sound.
 
 ### Dock and Desktop
 - **Hide Dock (Automatically)**: turn Dock auto-hide on or off.
@@ -14,6 +16,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 - **Hide Desktop Icons**: hides the file icons on the desktop. Files are not deleted.
 
 ### Notifications and Presets
+- **Browser History**: Delete… removes all browsing history of the default browser (asks first; cannot be undone). Bookmarks, cookies, and sign-ins are kept. Works with Firefox and Chrome-based browsers (Chrome, Edge, Brave, Vivaldi, Arc). An open browser quits and opens again afterwards. Safari is not supported; use its History menu.
 - **Notifications**: OFF turns on Do Not Disturb; ON turns it off. Allowed notifications may still arrive.
 - **Presets**: in the Presets tab of the main window, apply a saved preset’s settings all at once. The preset you applied last shows a checkmark. The checkmark disappears when you change a setting in the Manual tab.
 
@@ -56,6 +59,9 @@ Open Settings in a separate window with the Settings… button in the main windo
 ## Permissions and Notifications
 ### Changing the Appearance (System Events)
 Changing the appearance uses System Events. Allow it when you are asked the first time. If you didn’t, allow PodiumAssist to control System Events in System Settings → Privacy & Security → Automation. PodiumAssist does not need Accessibility permission.
+
+### Reduce Transparency (Accessibility)
+Reduce transparency is switched by operating the switch in System Settings automatically (macOS does not apply a direct change to the setting). Allow it in Settings › Startup & Background › Accessibility. Other features do not need this permission.
 
 ### Switching Notifications (Shortcuts)
 PodiumAssist uses these two shortcuts in the Shortcuts app on your Mac. Create them with exactly these names.
