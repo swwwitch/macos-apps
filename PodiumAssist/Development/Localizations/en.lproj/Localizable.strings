@@ -186,3 +186,16 @@
 "解像度を変更できませんでした。" = "Could not change the resolution.";
 "解像度を %@ にしました。" = "Resolution set to %@.";
 "解像度" = "Resolution";
+"%@分" = "%@ min";
+"「%@」を削除しますか？" = "Delete “%@”?";
+"「個別操作」タブの「プリセットに保存…」で作れます。" = "Create one with Save to Preset… in the Manual tab.";
+"クリックすると、このプリセットをまとめて適用します。右クリックで名前の変更・並べ替え・アプリの編集・削除。" = "Click to apply this preset. Right-click to rename, reorder, edit apps, or delete.";
+"チェックした項目だけを、今の値でプリセットに保存します。チェックしない項目は、適用しても変わりません。" = "Saves the ticked items with their current values. Unticked items stay unchanged when the preset is applied.";
+"プリセットに保存" = "Save to Preset";
+"プリセットに保存…" = "Save to Preset…";
+"プリセット名を変更" = "Rename Preset";
+"今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。" = "Saves the current state to a new or existing preset. Choose the items to include when saving.";
+"保存先" = "Save To";
+"名前を変更…" = "Rename…";
+"変更" = "Rename";
+"開始時間 ＋ 所要時間 ＝ 終了時間。開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。" = "Start Time + Duration = End Time. Changing the start time or duration updates the end time; changing the end time updates the duration. Before the start the menu bar shows the time until it starts, then the time left. It stops at 00:00.";

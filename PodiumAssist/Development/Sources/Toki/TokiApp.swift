@@ -224,11 +224,12 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     private func prepareWindow() {
         guard controlsWindow == nil else { return }
-        // 600 fits the Timer tab; grow by however much taller the 個別操作 tab is, so the header stays put when switching tabs.
+        // Fit the tallest tab so the header stays put when switching tabs. 180 = everything around the tab panel
+        // (padding, header, tab picker, footer and the spacing between them).
         let panelWidth: CGFloat = 384  // 420 minus the 18pt side padding
         let timerHeight = NSHostingView(rootView: TimerPanel(countdown: countdown).frame(width: panelWidth)).fittingSize.height
-        let manualHeight = NSHostingView(rootView: ManualControlsView(settings: settings).padding(16).frame(width: panelWidth)).fittingSize.height
-        let size = NSSize(width: 420, height: 600 + max(0, ceil(manualHeight - timerHeight)))
+        let manualHeight = NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets).padding(16).frame(width: panelWidth)).fittingSize.height
+        let size = NSSize(width: 420, height: max(560, ceil(180 + max(timerHeight, manualHeight))))
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("セミナー・キャプチャ準備")
@@ -254,7 +255,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
-        let size = NSSize(width: 460, height: 880)
+        let size = NSSize(width: 460, height: 560)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
         window.standardWindowButton(.zoomButton)?.isHidden = true
@@ -471,9 +472,9 @@ struct MainView: View {
                 if tab == 1 {
                     TimerPanel(countdown: countdown)
                 } else if tab == 2 {
-                    ManualControlsView(settings: settings).padding(16)
+                    ManualControlsView(settings: settings, countdown: countdown, presets: presets).padding(16)
                 } else {
-                    PresetPicker(settings: settings, countdown: countdown, presets: presets, openPreferences: openPreferences)
+                    PresetPicker(settings: settings, countdown: countdown, presets: presets)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -501,40 +502,60 @@ struct PresetPicker: View {
     @ObservedObject var settings: MacSettings
     @ObservedObject var countdown: Countdown
     @ObservedObject var presets: PresetStore
-    let openPreferences: () -> Void
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
+    @State private var renaming: Preset?
+    @State private var newName = ""
+    @State private var deleting: Preset?
+    @State private var editingApps: (preset: Preset, launch: Bool)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             if presets.items.isEmpty {
                 Spacer()
-                Text(L("設定でプリセットを保存できます")).foregroundStyle(.secondary).frame(maxWidth: .infinity)
-                Button(L("設定…"), action: openPreferences).frame(maxWidth: .infinity)
+                Text(L("「個別操作」タブの「プリセットに保存…」で作れます。")).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                 Spacer()
             } else {
-                Text(L("プリセットをクリックすると、まとめて適用します。"))
-                    .font(.system(size: 11)).foregroundStyle(.secondary)
                 ScrollView {
                     VStack(spacing: 8) {
                         ForEach(presets.items) { preset in presetButton(preset) }
                     }
                 }
             }
-            Text(settings.message)
-                .font(.system(size: 11))
-                .foregroundStyle(settings.error ? Color.red : Color.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityLabel(settings.message)
-            if settings.automationDenied {
-                Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
-            }
+            StatusMessage(settings: settings)
         }
         .padding(12)
         .disabled(settings.busy)
+        .alert(L("プリセット名を変更"), isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField(L("プリセット名"), text: $newName)
+            Button(L("キャンセル"), role: .cancel) { renaming = nil }
+            Button(L("変更")) {
+                let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if var preset = renaming, !name.isEmpty { preset.name = name; presets.save(preset) }
+                renaming = nil
+            }
+        }
+        .confirmationDialog(L("「%@」を削除しますか？", deleting?.name ?? ""), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+            Button(L("削除"), role: .destructive) { if let preset = deleting { presets.remove(preset.id) }; deleting = nil }
+            Button(L("キャンセル"), role: .cancel) { deleting = nil }
+        }
+        .sheet(isPresented: Binding(get: { editingApps != nil }, set: { if !$0 { editingApps = nil } })) {
+            if let editing = editingApps {
+                PresetAppListEditor(title: L(editing.launch ? "起動アプリを編集…" : "終了アプリを編集…"),
+                    targets: Binding(get: { (editing.launch ? editing.preset.launchApps : editing.preset.quitAppTargets) ?? [] },
+                                     set: { list in
+                                         guard var preset = presets.items.first(where: { $0.id == editing.preset.id }) else { return }
+                                         if editing.launch { preset.launchApps = list } else { preset.quitAppTargets = list }
+                                         presets.save(preset)
+                                         editingApps = (preset, editing.launch)
+                                     }),
+                    done: { editingApps = nil })
+            }
+        }
     }
 
     private func presetButton(_ preset: Preset) -> some View {
         let selected = preset.id.uuidString == lastApplied
+        let index = presets.items.firstIndex { $0.id == preset.id } ?? 0
         return Button {
             lastApplied = preset.id.uuidString
             settings.apply(preset, countdown: countdown)
@@ -553,7 +574,36 @@ struct PresetPicker: View {
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+        .help(L("クリックすると、このプリセットをまとめて適用します。右クリックで名前の変更・並べ替え・アプリの編集・削除。"))
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
+        .contextMenu {
+            Button(L("名前を変更…")) { newName = preset.name; renaming = preset }
+            Divider()
+            Button(L("上へ移動")) { presets.move(preset.id, by: -1) }.disabled(index == 0)
+            Button(L("下へ移動")) { presets.move(preset.id, by: 1) }.disabled(index == presets.items.count - 1)
+            Divider()
+            Button(L("起動アプリを編集…") + " (\(preset.launchApps?.count ?? 0))") { editingApps = (preset, true) }
+            Button(L("終了アプリを編集…") + " (\(preset.quitAppTargets?.count ?? 0))") { editingApps = (preset, false) }
+            Divider()
+            Button(L("削除…")) { deleting = preset }
+        }
+    }
+}
+
+/// Result of the last action. Shown only when there is one; the standing explanations are tooltips.
+struct StatusMessage: View {
+    @ObservedObject var settings: MacSettings
+    var body: some View {
+        if !settings.message.isEmpty {
+            Text(settings.message)
+                .font(.system(size: 11))
+                .foregroundStyle(settings.error ? Color.red : Color.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityLabel(settings.message)
+        }
+        if settings.automationDenied {
+            Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
+        }
     }
 }
 
@@ -567,7 +617,6 @@ struct PreferencesView: View {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
                 SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
             })),
-            (L("プリセット"), AnyView(PresetPreferences(settings: settings, countdown: countdown, presets: presets))),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(.horizontal, 12).padding(.bottom, 10)
     }
@@ -578,8 +627,6 @@ struct TimerPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Toggle(L("タイマーを使う"), isOn: $countdown.enabled)
-            Text(L("開始時間 ＋ 所要時間 ＝ 終了時間"))
-                .font(.subheadline).foregroundStyle(.secondary)
             dateTimeRow(L("開始時間"), value: countdown.plan.start) { countdown.plan.start = $0; countdown.savePlan() }
             HStack {
                 Text(L("所要時間"))
@@ -597,10 +644,6 @@ struct TimerPanel: View {
                     countdown.plan.start = Self.combine(day: countdown.plan.start, time: Countdown.minuteNow); countdown.savePlan()
                 }
             }
-            Text(L("開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。"))
-                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            Text(L("開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。"))
-                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if !countdown.error.isEmpty { Text(countdown.error).foregroundStyle(.red).font(.caption) }
             Spacer()
             HStack {
@@ -610,6 +653,7 @@ struct TimerPanel: View {
                 Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent).disabled(!countdown.enabled)
             }
         }.padding(16)
+        .help(L("開始時間 ＋ 所要時間 ＝ 終了時間。開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。"))
     }
 
     /// Date and time in separate fields; each keeps the other's part of the value.
@@ -632,131 +676,6 @@ struct TimerPanel: View {
     }
 }
 
-@MainActor
-final class PresetDraft: ObservableObject {
-    @Published var editingApps = false
-    @Published var editingLaunchApps = true
-    @Published var draft = Preset()
-    @Published var status = ""
-}
-
-struct PresetPreferences: View {
-    @ObservedObject var settings: MacSettings
-    @ObservedObject var countdown: Countdown
-    @ObservedObject var presets: PresetStore
-    @StateObject private var editor = PresetDraft()
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(L("いつもの設定を保存")).font(.title2.bold())
-            HStack {
-                Menu(presets.items.first(where: { $0.id == editor.draft.id })?.name ?? L("保存済みから選択")) {
-                    ForEach(presets.items) { item in Button(item.name) { editor.draft = item; presets.remember(item.id); editor.status = "" } }
-                }.disabled(presets.items.isEmpty)
-                Button(L("新規")) { editor.draft = Preset(); presets.remember(nil); editor.status = "" }
-                Spacer()
-                let index = presets.items.firstIndex { $0.id == editor.draft.id }
-                Button { presets.move(editor.draft.id, by: -1) } label: { Image(systemName: "arrow.up") }
-                    .help(L("上へ移動")).accessibilityLabel(L("上へ移動"))
-                    .disabled(index == nil || index == 0)
-                Button { presets.move(editor.draft.id, by: 1) } label: { Image(systemName: "arrow.down") }
-                    .help(L("下へ移動")).accessibilityLabel(L("下へ移動"))
-                    .disabled(index == nil || index == presets.items.count - 1)
-            }
-            TextField(L("プリセット名"), text: $editor.draft.name)
-            Text(L("チェックした項目だけを一括変更します。"))
-                .font(.caption).foregroundStyle(.secondary)
-            presetRow(L("時計"), value: $editor.draft.clock, off: L("デジタル"), on: L("アナログ"), current: settings.analog)
-            presetRow(L("時計の日付"), value: $editor.draft.showDate, off: L("表示しない"), on: L("表示する"), current: settings.showDate)
-                .disabled(editor.draft.clock ?? settings.analog)
-                .opacity((editor.draft.clock ?? settings.analog) ? 0.4 : 1)
-            presetRow(L("時計の曜日"), value: $editor.draft.showWeekday, off: L("表示しない"), on: L("表示する"), current: settings.showWeekday)
-                .disabled(editor.draft.clock ?? settings.analog)
-                .opacity((editor.draft.clock ?? settings.analog) ? 0.4 : 1)
-            presetRow(L("外観"), value: $editor.draft.dark, off: L("ライト"), on: L("ダーク"), current: settings.dark)
-            presetRow(L("Dockを隠す"), value: $editor.draft.hideDock, off: L("オフ"), on: L("オン"), current: settings.dockHidden)
-            presetRow(L("Dockを完全非表示"), value: $editor.draft.killDock, off: L("オフ"), on: L("オン"), current: settings.dockKilled)
-            presetRow(L("デスクトップ非表示"), value: $editor.draft.hideDesktop, off: L("オフ"), on: L("オン"), current: settings.desktopHidden)
-            HStack {
-                Toggle(L("ポインタのサイズ"), isOn: Binding(get: { editor.draft.pointerSize != nil }, set: { editor.draft.pointerSize = $0 ? settings.pointerSize : nil }))
-                Spacer()
-                Slider(value: Binding(get: { editor.draft.pointerSize ?? settings.pointerSize }, set: { editor.draft.pointerSize = $0 }), in: PointerSize.range, step: 0.5)
-                    .frame(width: 104).disabled(editor.draft.pointerSize == nil)
-                Text(PointerSize.text(editor.draft.pointerSize ?? settings.pointerSize)).monospacedDigit().frame(width: 28, alignment: .trailing)
-            }
-            HStack {
-                Toggle(L("解像度"), isOn: Binding(get: { editor.draft.resolution != nil }, set: { editor.draft.resolution = $0 ? settings.resolution : nil }))
-                Spacer()
-                Picker(L("解像度"), selection: Binding(get: { editor.draft.resolution ?? settings.resolution }, set: { editor.draft.resolution = $0 })) {
-                    ForEach(DisplayResolution.choices, id: \.self) { Text($0.text).tag(Optional($0)) }
-                }
-                .labelsHidden().frame(width: 170).disabled(editor.draft.resolution == nil)
-            }
-            presetRow(L("透明度を下げる"), value: $editor.draft.reduceTransparency, off: L("オフ"), on: L("オン"), current: settings.reduceTransparency)
-            presetRow(L("音量変更時の音"), value: $editor.draft.volumeFeedback, off: L("オフ"), on: L("オン"), current: settings.volumeFeedback)
-            presetRow(L("通知をオフ"), value: $editor.draft.notificationsOff, off: L("解除"), on: L("抑える"), current: false)
-            presetRow(L("タイマーを使う"), value: $editor.draft.timerEnabled, off: L("オフ"), on: L("オン"), current: countdown.enabled)
-            HStack {
-                Toggle(L("タイマー所要時間"), isOn: Binding(get: { editor.draft.timerMinutes != nil }, set: { editor.draft.timerMinutes = $0 ? countdown.plan.minutes : nil }))
-                Spacer()
-                TextField(L("分"), value: Binding(get: { editor.draft.timerMinutes ?? 30 }, set: { editor.draft.timerMinutes = $0 }), format: .number.grouping(.never))
-                    .frame(width: 55).disabled(editor.draft.timerMinutes == nil)
-                Text(L("分"))
-            }
-            HStack {
-                Button(L("起動アプリを編集…")) { editor.editingLaunchApps = true; editor.editingApps = true }
-                Spacer()
-                Text("\(editor.draft.launchApps?.count ?? 0)")
-            }
-            HStack {
-                Button(L("終了アプリを編集…")) { editor.editingLaunchApps = false; editor.editingApps = true }
-                Spacer()
-                Text("\(editor.draft.quitAppTargets?.count ?? 0)")
-            }
-            Text(L("タイマーは所要時間を設定します。開始／予約は別操作です。"))
-                .font(.caption).foregroundStyle(.secondary)
-            Spacer(minLength: 0)
-            Text(editor.status).font(.caption).foregroundStyle(.secondary)
-            Text(settings.message).font(.caption).foregroundStyle(settings.error ? Color.red : Color.secondary)
-            if settings.automationDenied {
-                Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
-            }
-            HStack {
-                Button(L("削除")) { presets.remove(editor.draft.id); editor.draft = Preset(); editor.status = L("削除しました。") }
-                    .disabled(!presets.items.contains(where: { $0.id == editor.draft.id }))
-                Spacer()
-                Button(L("適用")) { settings.apply(editor.draft, countdown: countdown) }.disabled(settings.busy || !valid)
-                Button(L(isExisting ? "上書き保存" : "新規保存")) {
-                    let overwriting = isExisting
-                    editor.draft.name = editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                    presets.save(editor.draft)
-                    editor.status = L(overwriting ? "「%@」を上書き保存しました。" : "「%@」を保存しました。", editor.draft.name)
-                }
-                    .buttonStyle(.borderedProminent).disabled(!valid)
-            }
-        }.padding(.horizontal, 20).padding(.vertical, 10)
-        .onAppear { if let saved = presets.rememberedPreset { editor.draft = saved } }
-        .sheet(isPresented: $editor.editingApps) {
-            PresetAppListEditor(title: L(editor.editingLaunchApps ? "起動アプリを編集…" : "終了アプリを編集…"),
-                targets: Binding(get: { editor.editingLaunchApps ? (editor.draft.launchApps ?? []) : (editor.draft.quitAppTargets ?? []) },
-                                 set: { if editor.editingLaunchApps { editor.draft.launchApps = $0 } else { editor.draft.quitAppTargets = $0 } }),
-                done: { editor.editingApps = false })
-        }
-    }
-    private var isExisting: Bool { presets.items.contains { $0.id == editor.draft.id } }
-    private var valid: Bool {
-        let hasSelection = !(editor.draft.launchApps ?? []).isEmpty || !(editor.draft.quitAppTargets ?? []).isEmpty || editor.draft.showWeekday != nil || editor.draft.showDate != nil || editor.draft.clock != nil || editor.draft.dark != nil || editor.draft.hideDock != nil || editor.draft.killDock != nil || editor.draft.hideDesktop != nil || editor.draft.notificationsOff != nil || editor.draft.timerMinutes != nil || editor.draft.timerEnabled != nil
-        return (hasSelection || isExisting) && !editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (editor.draft.timerMinutes == nil || (1...10080).contains(editor.draft.timerMinutes!))
-    }
-    private func presetRow(_ title: String, value: Binding<Bool?>, off: String, on: String, current: Bool) -> some View {
-        HStack {
-            Toggle(title, isOn: Binding(get: { value.wrappedValue != nil }, set: { value.wrappedValue = $0 ? current : nil }))
-            Spacer()
-            Picker(title, selection: Binding(get: { value.wrappedValue ?? current }, set: { value.wrappedValue = $0 })) {
-                Text(off).tag(false); Text(on).tag(true)
-            }.labelsHidden().pickerStyle(.segmented).frame(width: 140).disabled(value.wrappedValue == nil)
-        }
-    }
-}
 
 @MainActor
 final class MacSettings: ObservableObject {
@@ -772,7 +691,7 @@ final class MacSettings: ObservableObject {
     @Published var volumeFeedback = false
     @Published var resolution: DisplayResolution?
     @Published var busy = false
-    @Published var message = L("選択すると、Macのシステム設定を変更します。")
+    @Published var message = ""
     /// System Events automation was refused; the views offer a button to the Automation pane.
     @Published var automationDenied = false
     static func openAutomationSettings() {
@@ -1105,6 +1024,9 @@ struct SettingsError: LocalizedError {
 /// Main window 「個別操作」 tab: switch each Mac setting directly (presets switch several at once).
 struct ManualControlsView: View {
     @ObservedObject var settings: MacSettings
+    @ObservedObject var countdown: Countdown
+    @ObservedObject var presets: PresetStore
+    @State private var saving = false
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
     @State private var pointerDraft = 1.0
@@ -1141,12 +1063,9 @@ struct ManualControlsView: View {
             .disabled(settings.busy)
             Toggle(L("Dockを隠す（自動非表示）"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
                 .font(.system(size: 12))
-            VStack(alignment: .leading, spacing: 3) {
-                Toggle(L("Dockを完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
-                    .font(.system(size: 12))
-                Text(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
-                    .font(.system(size: 10)).foregroundStyle(.secondary).padding(.leading, 20)
-            }
+            Toggle(L("Dockを完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
+                .font(.system(size: 12))
+                .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
             Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
                 .font(.system(size: 12))
             Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
@@ -1190,17 +1109,16 @@ struct ManualControlsView: View {
                 Button(L("オフ")) { manual { settings.setNotificationsOff(true) } }
                 Button(L("オン")) { manual { settings.setNotificationsOff(false) } }
             }.font(.system(size: 12)).disabled(settings.busy)
-            Text(L("通知オフは、おやすみモードを有効にします。"))
-                .font(.system(size: 10)).foregroundStyle(.secondary)
-            Text(settings.message)
-                .font(.system(size: 11))
-                .foregroundStyle(settings.error ? Color.red : Color.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityLabel(settings.message)
-            if settings.automationDenied {
-                Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
+            .help(L("通知オフは、おやすみモードを有効にします。"))
+            StatusMessage(settings: settings)
+            HStack {
+                Spacer()
+                Button(L("プリセットに保存…")) { saving = true }
+                    .help(L("今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。"))
             }
         }
+        .help(L("選択すると、Macのシステム設定を変更します。"))
+        .sheet(isPresented: $saving) { PresetSaveSheet(settings: settings, countdown: countdown, presets: presets) { saving = false } }
         .onAppear { settings.refresh() }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.refresh() }
     }

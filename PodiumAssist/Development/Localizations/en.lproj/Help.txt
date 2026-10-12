@@ -36,18 +36,18 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 - Turning off Use Timer stops it and leaves only the icon in the menu bar.
 
 ## Presets
-1. In the Presets tab of Settings, enter a Preset Name.
-2. Check the items to change and choose their values. Unchecked items are not changed.
-3. Click Save New (or Overwrite while editing a saved preset).
+1. In the Manual tab, set up the Mac the way you want to save it.
+2. Click Save to Preset…, and choose where to save it (a new preset or an existing one) and its name.
+3. Tick the items to include and click Save. Unticked items stay unchanged when the preset is applied.
 
-- The only timer item in a preset is the duration. Starting or scheduling the timer is a separate action, so applying a preset never starts the timer.
-- Use Edit Launch Apps… and Edit Quit Apps… to edit app lists that belong to the preset; click Done and then save the preset. Other presets are not affected. Apps that are already running are not opened again, and apps are not force quit; if there are unsaved documents, save them when the app asks.
-- Choose a preset and click ↑ or ↓ to change its position. The Presets tab of the main window uses the same order.
+- When you save to an existing preset, the items it already had start ticked. Its name, position, and app lists stay the same.
+- Right-click a button in the Presets tab of the main window to rename, move up or down, edit the launch or quit apps, or delete it.
+- Launch and quit apps are lists of each preset and do not affect other presets. Apps that are already running are not opened again, and apps are not force quit; if there are unsaved documents, save them when the app asks.
+- The timer items in a preset are Use timer and the duration. Starting or scheduling the timer is a separate action, so applying a preset never starts the timer.
 
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
-- **Presets**: see above
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window

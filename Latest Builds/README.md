@@ -18,7 +18,7 @@
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.11.4 | 40 | `jp.local.PandocDesk` |
 | [PrefsPreset](PrefsPreset.app) | 1.1.5 | 8 | `jp.dtp-transit.prefspreset` |
-| [PodiumAssist](PodiumAssist.app) | 3.2.25 | 48 | `jp.local.toki` |
+| [PodiumAssist](PodiumAssist.app) | 3.2.26 | 49 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.16 | 30 | `jp.dtp-transit.quickiconexporter` |
 
 最終ビルドの配置先は `/Applications` とこのフォルダです。過去のDMGは [DistributionArchive](../Shared/DistributionArchive/) へ退避しました。自動コピーは [BuildTools](../Shared/BuildTools/README.md)、共通ルールは [BASELINE](../Shared/AppStandards/BASELINE.md) を参照してください。
