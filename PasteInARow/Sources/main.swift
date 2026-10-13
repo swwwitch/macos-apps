@@ -12,13 +12,25 @@ final class Model: ObservableObject {
     @Published var hotkeyEnabled = UserDefaults.standard.object(forKey: "hotkeyEnabled") as? Bool ?? true
     @Published var paused = false
     @Published var shortcut = UserDefaults.standard.data(forKey: "pasteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .paste
+    @Published var addEnabled = UserDefaults.standard.object(forKey: "addEnabled") as? Bool ?? true
+    @Published var addShortcut = UserDefaults.standard.data(forKey: "addShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) }
+        .flatMap { $0 == .oldAdd ? nil : $0 } ?? .add
     @Published var trimIndent = UserDefaults.standard.object(forKey: "trimIndent") as? Bool ?? true
     @Published var stripMarkers = UserDefaults.standard.object(forKey: "stripMarkers") as? Bool ?? true
     /// Off by default, like the macro's local__notification = 0.
     @Published var notifyEach = UserDefaults.standard.object(forKey: "notifyEach") as? Bool ?? false
+    @Published var closeWhenEmpty = UserDefaults.standard.object(forKey: "closeWhenEmpty") as? Bool ?? true
+    /// Closes the main window (set by AppDelegate); called when the list runs out.
+    var closeMainWindow: (() -> Void)?
+    /// Shows the main window without taking focus from the front app (set by AppDelegate); called after ⌃⌥⌘C.
+    var revealMainWindow: (() -> Void)?
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var excluded = ExcludedAppList(ownID: Bundle.main.bundleIdentifier)
     @Published var recording = false
+    /// Which key is being recorded: false = ⌃⌥V (paste), true = ⌥C (add).
+    @Published var recordingAdd = false
+    @Published var addStatus = ""
+    @Published var addFailed = false
     @Published var status = L("ready")
     @Published var statusIsError = false
     @Published var hotkeyStatus = ""
@@ -27,24 +39,31 @@ final class Model: ObservableObject {
     @Published var loginStatus = ""
     @Published var loginOn = false
     @Published var accessibilityAllowed = AXIsProcessTrusted()
-    @Published var upcoming: [String] = []
-    @Published var upcomingLoaded = false
+    @Published var upcoming: [SlotItem] = []
+    /// The row the next ⌃⌥V pastes (starred rows stay, so it is not always the first).
+    @Published var nextIndex: Int?
     @Published var canRestart = false
     /// The app that was in front before PasteInARow; clicks in the window paste there.
     @Published var targetName: String?
     @Published var pasting = false
+    /// Row chosen in the window; Return pastes it (⌥ keeps it, ⌘ adds a line break).
+    @Published var selected: Int?
+    weak var mainWindow: NSWindow?
     private var target: NSRunningApplication?
     let hotkey = SingleHotKey(signature: 0x5053_5543)       // 'PSUC'
+    let addHotkey = SingleHotKey(signature: 0x5053_4144)    // 'PSAD'
     let paster = LinePaster()
     private let ownPID = ProcessInfo.processInfo.processIdentifier
     private var observers: [NSObjectProtocol] = []
     private var workspaceObserver: NSObjectProtocol?
     private var monitor: Any?
+    private var keyMonitor: Any?
     /// What is registered now; app switches re-register only when this changes.
     private var registeredState: String?
 
     init() {
         hotkey.action = { [weak self] in self?.trigger() }
+        addHotkey.action = { [weak self] in self?.addSelection() }
         // Event-driven: the hotkey is released while an excluded app (or PasteInARow itself) is in front (B13, B21).
         workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
             guard let self else { return }
@@ -62,8 +81,24 @@ final class Model: ObservableObject {
             guard let candidate = Shortcut.recorded(keyCode: event.keyCode, flags: event.modifierFlags, characters: event.charactersIgnoringModifiers) else {
                 self.recordMessage = L("invalidShortcut"); return nil
             }
-            self.shortcut = candidate; self.hotkeyEnabled = true
+            let other = self.recordingAdd ? self.shortcut : self.addShortcut
+            guard candidate.signature != other.signature else { self.recordMessage = L("duplicateShortcut"); return nil }
+            if self.recordingAdd { self.addShortcut = candidate; self.addEnabled = true }
+            else { self.shortcut = candidate; self.hotkeyEnabled = true }
             self.recording = false; self.recordMessage = ""; self.save(); return nil
+        }
+        // Return / ⌥Return / ⌘Return and ↑↓ in the main window (the list rows only select on click).
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, !self.recording, let window = self.mainWindow, event.window === window, window.attachedSheet == nil else { return event }
+            let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
+            switch event.keyCode {
+            case 36, 76:
+                guard flags.isSubset(of: [.command, .option]) else { return event }
+                self.pasteSelected(flags); return nil
+            case 125 where flags.isEmpty: self.moveSelection(1); return nil
+            case 126 where flags.isEmpty: self.moveSelection(-1); return nil
+            default: return event
+            }
         }
         refreshLogin(); refreshHotkey(); refreshQueue()
     }
@@ -71,9 +106,12 @@ final class Model: ObservableObject {
     func save() {
         defaults.set(hotkeyEnabled, forKey: "hotkeyEnabled")
         defaults.set(try? JSONEncoder().encode(shortcut), forKey: "pasteShortcut")
+        defaults.set(addEnabled, forKey: "addEnabled")
+        defaults.set(try? JSONEncoder().encode(addShortcut), forKey: "addShortcut")
         defaults.set(trimIndent, forKey: "trimIndent")
         defaults.set(stripMarkers, forKey: "stripMarkers")
         defaults.set(notifyEach, forKey: "notifyEach")
+        defaults.set(closeWhenEmpty, forKey: "closeWhenEmpty")
         defaults.set(keepRunning, forKey: "keepRunning")
         refreshHotkey(); refreshQueue()
     }
@@ -86,35 +124,47 @@ final class Model: ObservableObject {
     func refreshHotkey() {
         publishHotkeys()
         let wanted = hotkeyEnabled && !paused && !recording
+        let wantedAdd = addEnabled && !paused && !recording
         let front = !blocked(NSWorkspace.shared.frontmostApplication)
-        let state = "\(wanted):\(front):\(shortcut.signature)"
+        let state = "\(wanted):\(wantedAdd):\(front):\(shortcut.signature):\(addShortcut.signature)"
         guard state != registeredState else { return }
         registeredState = state
-        var result: OSStatus = noErr
-        if wanted {
-            // Registered to detect a conflict even while an excluded app is in front; then released at once so the key passes through.
-            result = hotkey.register(shortcut)
-            if !front { hotkey.register(nil) }
-        } else {
-            hotkey.register(nil)
+        // Registered to detect a conflict even while an excluded app is in front; then released at once so the key passes through.
+        func apply(_ key: SingleHotKey, _ value: Shortcut, _ on: Bool) -> OSStatus {
+            guard on else { key.register(nil); return noErr }
+            let result = key.register(value)
+            if !front { key.register(nil) }
+            return result
         }
+        let result = apply(hotkey, shortcut, wanted)
+        let addResult = apply(addHotkey, addShortcut, wantedAdd)
         hotkeyFailed = wanted && result != noErr
-        if !hotkeyEnabled { hotkeyStatus = L("hotkeyDisabled") }
-        else if paused { hotkeyStatus = L("hotkeyPaused") }
-        else if recording { hotkeyStatus = L("recordHint") }
-        else if hotkeyFailed { hotkeyStatus = String(format: L("hotkeyRegisterFailed"), shortcut.label, String(result)) }
-        else { hotkeyStatus = String(format: L("hotkeyActive"), shortcut.label) }
+        addFailed = wantedAdd && addResult != noErr
+        hotkeyStatus = describe(enabled: hotkeyEnabled, failed: hotkeyFailed, shortcut: shortcut, result: result, recordingThis: recording && !recordingAdd)
+        addStatus = describe(enabled: addEnabled, failed: addFailed, shortcut: addShortcut, result: addResult, recordingThis: recording && recordingAdd)
+    }
+    private func describe(enabled: Bool, failed: Bool, shortcut: Shortcut, result: OSStatus, recordingThis: Bool) -> String {
+        if !enabled { return L("hotkeyDisabled") }
+        if paused { return L("hotkeyPaused") }
+        if recordingThis { return L("recordHint") }
+        if failed { return String(format: L("hotkeyRegisterFailed"), shortcut.label, String(result)) }
+        return String(format: L("hotkeyActive"), shortcut.label)
     }
 
-    /// Declares the hotkey for HotkeyHound (shared registrations cannot be listed from outside).
+    /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
     func publishHotkeys() {
+        let scope = excluded.ids.isEmpty ? "all" : "except"
         HotkeyManifest.publish([
             HotkeyManifest.Item(id: "paste", title: L("pasteHotkey"), keyCode: Int(shortcut.code), modifiers: Int(shortcut.modifiers),
-                                enabled: hotkeyEnabled, scope: excluded.ids.isEmpty ? "all" : "except", apps: excluded.ids)
+                                enabled: hotkeyEnabled, scope: scope, apps: excluded.ids),
+            HotkeyManifest.Item(id: "add", title: L("addHotkey"), keyCode: Int(addShortcut.code), modifiers: Int(addShortcut.modifiers),
+                                enabled: addEnabled, scope: scope, apps: excluded.ids)
         ])
     }
 
-    func startRecording() {
+    func startRecording(add: Bool = false) {
+        if recording && recordingAdd != add { recording = false }
+        recordingAdd = add
         recording.toggle()
         recordMessage = recording ? L("recordHint") : ""
         refreshHotkey()
@@ -122,12 +172,38 @@ final class Model: ObservableObject {
     func resetShortcut() {
         shortcut = .paste; hotkeyEnabled = true; recording = false; recordMessage = ""; save()
     }
+    func resetAddShortcut() {
+        addShortcut = .add; addEnabled = true; recording = false; recordMessage = ""; save()
+    }
     func togglePause() { paused.toggle(); refreshHotkey() }
+
+    func addSelection() {
+        guard addEnabled, !paused, !recording, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
+        let pid = front.processIdentifier
+        paster.addSelection(appName: front.localizedName ?? "", pid: pid, trimIndent: trimIndent, stripMarkers: stripMarkers, stillTarget: { [weak self] in
+            guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
+            return self.addEnabled && !self.paused && !self.blocked(now)
+        }) { [weak self] outcome in
+            guard let self else { return }
+            switch outcome {
+            case .added(_, let count, let total):
+                self.revealMainWindow?()
+                self.status = String(format: L("added"), String(count), String(total)); self.statusIsError = false
+                let message = self.status
+                MainActor.assumeIsolated { TransientMessage.show(message) }
+            case .failed(let reason):
+                self.status = reason; self.statusIsError = true
+                NSSound.beep()
+                MainActor.assumeIsolated { TransientMessage.show(reason) }
+            }
+            self.refreshAccessibility(); self.refreshQueue()
+        }
+    }
 
     func trigger() {
         guard hotkeyEnabled, !paused, !recording, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
         let pid = front.processIdentifier
-        let outcome = paster.paste(.next, appName: front.localizedName ?? "", pid: pid, trimIndent: trimIndent, stripMarkers: stripMarkers, stillTarget: { [weak self] in
+        let outcome = paster.paste(.next, appName: front.localizedName ?? "", pid: pid, stillTarget: { [weak self] in
             guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
             return self.hotkeyEnabled && !self.paused && !self.blocked(now)
         })
@@ -137,6 +213,7 @@ final class Model: ObservableObject {
     func report(_ outcome: PasteOutcome) {
         switch outcome {
         case .pasted(let appName, let remaining, let next):
+            if remaining == 0 && closeWhenEmpty { closeMainWindow?() }
             status = remaining == 0 ? String(format: L("success.last"), appName) : String(format: L("success.pasted"), appName, String(remaining))
             statusIsError = false
             if notifyEach {
@@ -152,8 +229,6 @@ final class Model: ObservableObject {
             MainActor.assumeIsolated { TransientMessage.show(message) }
         }
         refreshAccessibility(); refreshQueue()
-        // The remainder is written back a moment later; show the clipboard state after that too.
-        DispatchQueue.main.asyncAfter(deadline: .now() + LinePaster.writeBackDelay + 0.1) { [weak self] in self?.refreshQueue() }
     }
     /// Click in the window (the KM macro 「02)非連続ペースト」): bring back the previous app, wait until it is in front,
     /// then paste there. The window is ordered front again without activating PasteInARow, so the next click is easy.
@@ -172,12 +247,13 @@ final class Model: ObservableObject {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
                     guard let self else { return }
                     self.pasting = false
-                    let outcome = self.paster.paste(pick, appName: target.localizedName ?? "", pid: pid, trimIndent: self.trimIndent, stripMarkers: self.stripMarkers, stillTarget: { [weak self] in
+                    let outcome = self.paster.paste(pick, appName: target.localizedName ?? "", pid: pid, stillTarget: { [weak self] in
                         guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
                         return !self.blocked(now)
                     })
                     self.report(outcome)
-                    window?.orderFrontRegardless()
+                    // Kept in front for the next click, unless the last line has just closed it.
+                    if window?.isVisible == true { window?.orderFrontRegardless() }
                 }
             } else if Date() >= deadline {
                 pasting = false
@@ -188,9 +264,22 @@ final class Model: ObservableObject {
         }
         wait()
     }
+    func moveSelection(_ step: Int) {
+        guard !upcoming.isEmpty else { return }
+        selected = max(0, min(upcoming.count - 1, (selected ?? -step.signum()) + step))
+    }
+    /// Return: paste the chosen row. ⌥ keeps it in the list, ⌘ adds a line break.
+    func pasteSelected(_ flags: NSEvent.ModifierFlags) {
+        guard let index = selected, upcoming.indices.contains(index) else { NSSound.beep(); return }
+        pasteFromWindow(.line(index: index, text: upcoming[index].text, newline: flags.contains(.command), keep: flags.contains(.option)), window: mainWindow)
+    }
     func clearQueue() {
-        if paster.clear() { status = L("cleared"); statusIsError = false }
+        paster.clear(); status = L("cleared"); statusIsError = false
         refreshQueue()
+        if closeWhenEmpty && upcoming.isEmpty { closeMainWindow?() }
+    }
+    func toggleStar(_ index: Int) {
+        paster.toggleStar(index); refreshQueue()
     }
 
     static func preview(_ line: String) -> String { line.count > 40 ? String(line.prefix(40)) + "…" : line }
@@ -201,8 +290,10 @@ final class Model: ObservableObject {
         refreshQueue()
     }
     func refreshQueue() {
-        let next = paster.upcoming(trimIndent: trimIndent, stripMarkers: stripMarkers)
-        upcoming = next.lines; upcomingLoaded = next.loaded
+        upcoming = paster.queue
+        nextIndex = paster.nextIndex
+        // Keep the chosen row where it is (it now holds the next line); start on the first row.
+        selected = upcoming.isEmpty ? nil : min(selected ?? 0, upcoming.count - 1)
         canRestart = paster.canRestart
     }
     func refreshAccessibility() { accessibilityAllowed = AXIsProcessTrusted() }
@@ -249,6 +340,7 @@ final class Model: ObservableObject {
     func stop() {
         hotkey.register(nil)
         if let monitor { NSEvent.removeMonitor(monitor) }
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
         observers.forEach { NotificationCenter.default.removeObserver($0) }
     }
@@ -293,41 +385,60 @@ struct StatusRow: View {
 /// content backgrounds, a line border and large semibold text. The first row is the next paste.
 struct QueueList: View {
     static let rowHeight: CGFloat = 56
-    let lines: [String]
-    /// Clicking a row pastes that line into the previous app; ⌥-click adds a line break (third argument).
-    let pick: (Int, String, Bool) -> Void
-    @State private var hovered: Int?
+    let lines: [SlotItem]
+    /// The row ⌃⌥V pastes next (filled number badge).
+    let nextIndex: Int?
+    /// Clicking a row only selects it; Return in the window pastes (see Model.pasteSelected).
+    @Binding var selected: Int?
+    /// ☆ → ★: a starred line stays in the slot after it is pasted.
+    let toggleStar: (Int) -> Void
     var body: some View {
         let colors = NSColor.alternatingContentBackgroundColors
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(lines.prefix(500).enumerated()), id: \.offset) { index, line in
-                    Button { pick(index, line, NSEvent.modifierFlags.contains(.option)) } label: {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(lines.prefix(500).enumerated()), id: \.offset) { index, item in
+                        let chosen = selected == index
+                        let next = nextIndex == index
                         HStack(spacing: 16) {
                             Text("\(index + 1)")
                                 .font(.system(size: 15, weight: .semibold, design: .rounded)).monospacedDigit()
-                                .foregroundColor(index == 0 ? .white : .secondary)
+                                .foregroundColor(next || chosen ? .white : .secondary)
                                 .frame(width: 32, height: 32)
-                                .background(Circle().fill(index == 0 ? Color.accentColor : Color.primary.opacity(0.08)))
-                            Text(line)
+                                .background(Circle().fill(chosen ? Color.white.opacity(0.25) : next ? Color.accentColor : Color.primary.opacity(0.08)))
+                            Text(item.text)
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(index == 0 || hovered == index ? .primary : .secondary)
+                                .foregroundColor(chosen ? .white : next ? .primary : .secondary)
                                 .lineLimit(1).truncationMode(.tail)
                             Spacer(minLength: 0)
+                            Button { toggleStar(index) } label: {
+                                Image(systemName: item.starred ? "star.fill" : "star")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(item.starred ? Color(nsColor: .systemYellow) : chosen ? .white.opacity(0.8) : .secondary)
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .help(L(item.starred ? "unstar" : "star"))
+                            .accessibilityLabel(L(item.starred ? "unstar" : "star"))
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.leading, 16).padding(.trailing, 10)
                         .frame(height: Self.rowHeight)
-                        .background(hovered == index ? Color(nsColor: .selectedContentBackgroundColor).opacity(0.18)
+                        .background(chosen ? Color(nsColor: .selectedContentBackgroundColor)
                                     : Color(nsColor: index.isMultiple(of: 2) && colors.count > 1 ? colors[1] : colors[0]))
                         .contentShape(Rectangle())
+                        .onTapGesture { selected = index }
+                        .id(index)
+                        .help(L("rowHint"))
+                        .accessibilityElement(children: .contain)
+                        .accessibilityLabel(String(format: L("ax.line"), String(index + 1), item.text) + (item.starred ? " ★" : ""))
+                        .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
+                        .accessibilityAction { selected = index }
+                        .accessibilityHint(L("rowHint"))
                     }
-                    .buttonStyle(.plain)
-                    .onHover { inside in hovered = inside ? index : (hovered == index ? nil : hovered) }
-                    .help(L("rowHint"))
-                    .accessibilityLabel(String(format: L("ax.line"), String(index + 1), line))
-                    .accessibilityHint(L("rowHint"))
                 }
             }
+            .onChange(of: selected) { value in if let value { proxy.scrollTo(value) } }
         }
         .background(Color(nsColor: colors[0]))
         .border(Color(nsColor: .separatorColor), width: 1)
@@ -346,8 +457,9 @@ struct MainView: View {
             if !model.accessibilityAllowed {
                 StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: AccessibilityText.text("title"),
                           value: AccessibilityText.text("denied"))
-            } else if model.hotkeyFailed {
-                StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: L("hotkeyRow"), value: model.hotkeyStatus)
+            } else if model.hotkeyFailed || model.addFailed {
+                StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: L("hotkeyRow"),
+                          value: model.hotkeyFailed ? model.hotkeyStatus : model.addStatus)
             }
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
@@ -363,9 +475,9 @@ struct MainView: View {
                         .background(Color(nsColor: .controlBackgroundColor))
                         .border(Color(nsColor: .separatorColor), width: 1)
                 } else {
-                    QueueList(lines: model.upcoming) { index, line, newline in model.pasteFromWindow(.line(index: index, text: line, newline: newline), window: mainWindow) }
+                    QueueList(lines: model.upcoming, nextIndex: model.nextIndex, selected: $model.selected) { model.toggleStar($0) }
                 }
-                Text(L(model.upcomingLoaded ? "queueLoaded" : "queuePreview") + "\n" + (model.targetName.map { String(format: L("clickTarget"), $0) } ?? L("clickNoTarget"))).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                Text(L("queueHint") + "\n" + (model.targetName.map { String(format: L("clickTarget"), $0) } ?? L("clickNoTarget"))).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
@@ -382,12 +494,16 @@ struct MainView: View {
 
 struct ShortcutRow: View {
     @ObservedObject var model: Model
+    /// false = ⌃⌥V (paste next line), true = ⌥C (add the selection).
+    var add = false
     var body: some View {
+        let shortcut = add ? model.addShortcut : model.shortcut
+        let recordingThis = model.recording && model.recordingAdd == add
         HStack {
-            Text(model.shortcut.label).font(.system(.body, design: .monospaced)).frame(width: 110).accessibilityLabel(L("currentKey") + " " + model.shortcut.label)
-            Button(model.recording ? L("cancelRecording") : L("change")) { model.startRecording() }
-            Button(L("resetShortcut")) { model.resetShortcut() }
-        }.disabled(!model.hotkeyEnabled && !model.recording)
+            Text(shortcut.label).font(.system(size: 14, weight: .medium)).tracking(3).frame(width: 110).accessibilityLabel(L("currentKey") + " " + shortcut.label)
+            Button(recordingThis ? L("cancelRecording") : L("change")) { model.startRecording(add: add) }
+            Button(L("resetShortcut")) { if add { model.resetAddShortcut() } else { model.resetShortcut() } }
+        }.disabled(!(add ? model.addEnabled : model.hotkeyEnabled) && !recordingThis)
     }
 }
 
@@ -465,11 +581,17 @@ struct Preferences: View {
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("pasteHotkey")) {
                     Toggle(L("enabled"), isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { _ in model.togglePause() }))
                     ShortcutRow(model: model)
                     Text(model.hotkeyStatus).font(.caption).foregroundColor(model.hotkeyFailed ? .red : .secondary).fixedSize(horizontal: false, vertical: true)
-                    if model.recording, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }
+                    if model.recording, !model.recordingAdd, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }
                     Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                SettingsSection(L("addHotkey")) {
+                    Toggle(L("enabled"), isOn: Binding(get: { model.addEnabled }, set: { model.addEnabled = $0; model.save() }))
+                    ShortcutRow(model: model, add: true)
+                    Text(model.addStatus).font(.caption).foregroundColor(model.addFailed ? .red : .secondary).fixedSize(horizontal: false, vertical: true)
+                    if model.recording, model.recordingAdd, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }
+                    Text(L("addHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
             (L("pasteTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
@@ -477,6 +599,10 @@ struct Preferences: View {
                     Toggle(L("trimIndent"), isOn: Binding(get: { model.trimIndent }, set: { model.trimIndent = $0; model.save() }))
                     Toggle(L("stripMarkers"), isOn: Binding(get: { model.stripMarkers }, set: { model.stripMarkers = $0; model.save() }))
                     Text(L("cleanupHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                SettingsSection(L("windowTitle")) {
+                    Toggle(L("closeWhenEmpty"), isOn: Binding(get: { model.closeWhenEmpty }, set: { model.closeWhenEmpty = $0; model.save() }))
+                    Text(L("closeWhenEmptyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 SettingsSection(L("notifyTitle")) {
                     Toggle(L("notifyEach"), isOn: Binding(get: { model.notifyEach }, set: { model.notifyEach = $0; model.save() }))
@@ -502,6 +628,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
+        model.closeMainWindow = { [weak self] in self?.mainWindow?.close() }
+        model.revealMainWindow = { [weak self] in self?.showMainWindow(activate: false) }
         AccessibilityText.neededOverride = [
             "前面のアプリへ「ペースト」（⌘V）を送るために使用します。未許可の場合、⌃⌥V を押しても1行ずつペーストできません。",
             "Used to send Paste (⌘V) to the front app. Without permission, ⌃⌥V cannot paste line by line.",
@@ -603,7 +731,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func applicationWillTerminate(_ notification: Notification) { model?.stop() }
 
     @objc func openMainWindow() { showMainWindow() }
-    func showMainWindow() {
+    /// `activate: false` (after ⌃⌥⌘C) puts the window in front without activating PasteInARow,
+    /// so the user can keep selecting and copying in the other app.
+    func showMainWindow(activate: Bool = true) {
         model.refreshAccessibility(); model.refreshQueue()
         if mainWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -634,9 +764,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
                 window.setFrame(frame, display: false)
             }
             mainWindow = window
+            model.mainWindow = window
         }
         if let window = mainWindow, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
-        NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil)
+        if activate { NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil) }
+        else { mainWindow?.orderFrontRegardless() }
     }
     @objc func showPreferences() {
         model.refreshLogin()

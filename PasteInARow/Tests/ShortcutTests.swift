@@ -14,6 +14,9 @@ struct ShortcutTests {
         precondition(recorded == Shortcut.paste, "\(String(describing: recorded))")
         let data = try! JSONEncoder().encode(Shortcut.paste)
         precondition(try! JSONDecoder().decode(Shortcut.self, from: data) == Shortcut.paste)
-        print("PASS: default ⌃⌥V (KM 9/6144), recorder refuses standard keys, labels, persistence")
+        precondition(Shortcut.add.code == 8 && Shortcut.add.modifiers == UInt32(controlKey | optionKey | cmdKey))
+        precondition(Shortcut.recorded(keyCode: 8, flags: [.control, .option, .command], characters: "c") == Shortcut.add)
+        precondition(Shortcut.add.signature != Shortcut.paste.signature)
+        print("PASS: default ⌃⌥V and ⌃⌥⌘C, (KM 9/6144), recorder refuses standard keys, labels, persistence")
     }
 }
