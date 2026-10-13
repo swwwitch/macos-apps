@@ -9,7 +9,7 @@ struct SettingsView: View {
             } }.formStyle(.grouped))),
             (L("書き出し"), AnyView(Form { Section(L("書き出し")) {
                 LabeledContent(L("保存先")) {
-                    Text(settings.outputDirectory.path(percentEncoded: false))
+                    Text(settings.outputDirectoryLabel)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 280, alignment: .trailing)
@@ -17,8 +17,8 @@ struct SettingsView: View {
 
                 HStack {
                     Spacer()
-                    Button(L("デスクトップに戻す")) {
-                        settings.restoreDesktop()
+                    if !OutputDirectoryPolicy.isSandboxed {
+                        Button(L("デスクトップに戻す")) { settings.restoreDesktop() }
                     }
                     Button(L("フォルダを選択…")) {
                         settings.chooseOutputDirectory()

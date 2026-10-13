@@ -11,6 +11,7 @@ struct ExportResult: Sendable {
 enum IconExportError: LocalizedError {
     case noBitmapRepresentation
     case cannotCreatePNG
+    case containerDestination
 
     var errorDescription: String? {
         switch self {
@@ -18,6 +19,8 @@ enum IconExportError: LocalizedError {
             return L("アイコンの画像データを取得できませんでした。")
         case .cannotCreatePNG:
             return L("PNGデータを作成できませんでした。")
+        case .containerDestination:
+            return L("アプリのコンテナ内には保存できません。通常のフォルダを選択してください。")
         }
     }
 }
@@ -28,6 +31,9 @@ enum IconExporter {
         to directoryURL: URL,
         rules: FilenameRules
     ) throws -> ExportResult {
+        guard OutputDirectoryPolicy.isUserDirectory(directoryURL) else {
+            throw IconExportError.containerDestination
+        }
         let image = bundledLegacyIcon(for: sourceURL) ?? NSWorkspace.shared.icon(forFile: sourceURL.path)
         let bitmap = try largestBitmap(from: image)
 

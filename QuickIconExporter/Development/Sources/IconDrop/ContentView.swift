@@ -126,7 +126,7 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             Text(L("書き出し先:"))
                 .foregroundStyle(.secondary)
-            Text(settings.outputDirectory.path(percentEncoded: false))
+            Text(settings.outputDirectoryLabel)
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()
@@ -186,7 +186,7 @@ struct ContentView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
         panel.treatsFilePackagesAsDirectories = false
-        guard let window = NSApp.keyWindow else { return }
+        guard let window = NSApp.keyWindow ?? MainWindow.current else { return }
         panel.beginSheetModal(for: window) { response in
             guard response == .OK else { return }
             let urls = panel.urls
@@ -197,6 +197,7 @@ struct ContentView: View {
 
     /// 書き出しは1件ずつバックグラウンドで行い、進捗を画面に反映する。
     private func export(urls: [URL]) async {
+        guard settings.prepareOutputDirectory() else { status = .idle; return }
         let rules = settings.filenameRules
         let directory = settings.outputDirectory
         var results: [ExportResult] = []

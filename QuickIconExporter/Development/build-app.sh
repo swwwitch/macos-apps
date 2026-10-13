@@ -24,10 +24,16 @@ if [[ ! -d "$compatible_sdk" ]]; then
     compatible_sdk="$(xcrun --sdk macosx --show-sdk-path)"
 fi
 
+APP_VARIANT_FLAGS=()
+if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
+    APP_VARIANT_FLAGS=(-Xswiftc -DAPP_STORE_BUILD)
+fi
+
 SDKROOT="$compatible_sdk" \
 CLANG_MODULE_CACHE_PATH="$build_stage/module-cache" \
 SWIFTPM_MODULECACHE_OVERRIDE="$build_stage/module-cache" \
 swift build "${UPDATE_SPM_FLAGS[@]}" -c release --scratch-path "$build_stage/build" \
+    "${APP_VARIANT_FLAGS[@]}" \
     --disable-sandbox \
     --cache-path "$build_stage/swiftpm-cache" \
     -debug-info-format none

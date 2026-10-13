@@ -96,6 +96,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let urls = pendingURLs
         pendingURLs.removeAll()
         lastExportError = nil
+        guard settings.prepareOutputDirectory() else {
+            lastExportError = L("保存先の選択をキャンセルしました。")
+            isProcessingExternalOpen = false
+            if !pendingURLs.isEmpty { processPendingURLs(in: application) }
+            return
+        }
         let rules = settings.filenameRules
         var results: [ExportResult] = []
 

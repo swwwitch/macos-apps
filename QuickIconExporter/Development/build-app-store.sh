@@ -18,6 +18,7 @@ rm -rf "$app_path"
 ditto "$export_dir/build/QuickIconExporter.app" "$app_path"
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $APP_BUNDLE_ID" "$app_path/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_STORE_VERSION:-1.0}" "$app_path/Contents/Info.plist"
 
 codesign \
     --force \

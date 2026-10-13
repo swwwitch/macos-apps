@@ -74,6 +74,10 @@ final class AppSettings: ObservableObject {
         }
     }
     private var isAccessingSecurityScopedOutput = false
+    @Published private(set) var requiresOutputDirectorySelection = OutputDirectoryPolicy.isSandboxed
+    var outputDirectoryLabel: String {
+        requiresOutputDirectorySelection ? L("保存先を選択してください") : outputDirectory.path(percentEncoded: false)
+    }
 
     @Published var filenamePrefix: String {
         didSet { UserDefaults.standard.set(filenamePrefix, forKey: Self.filenamePrefixKey) }
@@ -138,10 +142,15 @@ final class AppSettings: ObservableObject {
         playsCompletionSound = UserDefaults.standard.object(forKey: Self.playsCompletionSoundKey) as? Bool ?? false
 
         if let bookmark = UserDefaults.standard.data(forKey: Self.outputDirectoryBookmarkKey),
-           let bookmarkedURL = Self.resolveBookmark(bookmark) {
+           let bookmarkedURL = Self.resolveBookmark(bookmark),
+           OutputDirectoryPolicy.isUserDirectory(bookmarkedURL) {
             outputDirectory = bookmarkedURL
             isAccessingSecurityScopedOutput = bookmarkedURL.startAccessingSecurityScopedResource()
-        } else if let savedPath = UserDefaults.standard.string(forKey: Self.outputDirectoryKey),
+            requiresOutputDirectorySelection = OutputDirectoryPolicy.isSandboxed &&
+                (!isAccessingSecurityScopedOutput || !FileManager.default.isWritableFile(atPath: bookmarkedURL.path))
+        } else if !OutputDirectoryPolicy.isSandboxed,
+           let savedPath = UserDefaults.standard.string(forKey: Self.outputDirectoryKey),
+           OutputDirectoryPolicy.isUserDirectory(URL(fileURLWithPath: savedPath)),
            FileManager.default.fileExists(atPath: savedPath) {
             outputDirectory = URL(fileURLWithPath: savedPath, isDirectory: true)
         } else {
@@ -149,36 +158,40 @@ final class AppSettings: ObservableObject {
         }
     }
 
-    func chooseOutputDirectory() {
+    @discardableResult
+    func chooseOutputDirectory() -> Bool {
         let panel = NSOpenPanel()
         panel.title = L("書き出し先を選択")
         panel.prompt = L("選択")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.directoryURL = outputDirectory
+        panel.canCreateDirectories = true
+        if !requiresOutputDirectorySelection { panel.directoryURL = outputDirectory }
 
         if panel.runModal() == .OK, let selectedURL = panel.url {
-            setOutputDirectory(selectedURL)
+            return setOutputDirectory(selectedURL)
         }
+        return false
+    }
+
+    /// Shared by window drops, the file picker, Dock/Finder opens and Services.
+    func prepareOutputDirectory() -> Bool {
+        if !OutputDirectoryPolicy.isUserDirectory(outputDirectory) ||
+            (OutputDirectoryPolicy.isSandboxed && !FileManager.default.isWritableFile(atPath: outputDirectory.path)) {
+            requiresOutputDirectorySelection = true
+        }
+        return !requiresOutputDirectorySelection || chooseOutputDirectory()
     }
 
     func restoreDesktop() {
         let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
-        if ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil {
-            let panel = NSOpenPanel()
-            panel.title = L("デスクトップへのアクセスを許可")
-            panel.prompt = L("デスクトップを選択")
-            panel.message = L("QuickIconExporterがPNGを書き出せるよう、デスクトップを選択してください。")
-            panel.canChooseFiles = false
-            panel.canChooseDirectories = true
-            panel.allowsMultipleSelection = false
-            panel.directoryURL = desktop
-            if panel.runModal() == .OK, let selectedURL = panel.url {
-                setOutputDirectory(selectedURL)
-            }
+        if OutputDirectoryPolicy.isSandboxed {
+            // FileManager's Desktop is container-relative under App Sandbox.
+            // Let the system's standard folder picker grant the real destination.
+            chooseOutputDirectory()
         } else {
-            outputDirectory = desktop
+            setOutputDirectory(desktop)
         }
     }
 
@@ -219,21 +232,33 @@ final class AppSettings: ObservableObject {
         }
     }
 
-    private func setOutputDirectory(_ url: URL) {
+    @discardableResult
+    private func setOutputDirectory(_ url: URL) -> Bool {
+        guard OutputDirectoryPolicy.isUserDirectory(url) else {
+            let alert = NSAlert()
+            alert.messageText = L("保存先を選択してください")
+            alert.informativeText = L("アプリのコンテナ内には保存できません。通常のフォルダを選択してください。")
+            alert.runModal()
+            return false
+        }
         if isAccessingSecurityScopedOutput {
             outputDirectory.stopAccessingSecurityScopedResource()
             isAccessingSecurityScopedOutput = false
         }
 
         outputDirectory = url
+        // Never leave an old folder's bookmark paired with the newly selected path.
+        UserDefaults.standard.removeObject(forKey: Self.outputDirectoryBookmarkKey)
+        requiresOutputDirectorySelection = false
+        isAccessingSecurityScopedOutput = url.startAccessingSecurityScopedResource()
         if let bookmark = try? url.bookmarkData(
             options: .withSecurityScope,
             includingResourceValuesForKeys: nil,
             relativeTo: nil
         ) {
             UserDefaults.standard.set(bookmark, forKey: Self.outputDirectoryBookmarkKey)
-            isAccessingSecurityScopedOutput = url.startAccessingSecurityScopedResource()
         }
+        return true
     }
 
     private static func resolveBookmark(_ data: Data) -> URL? {

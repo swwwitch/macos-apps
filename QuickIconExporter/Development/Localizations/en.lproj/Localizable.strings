@@ -60,3 +60,7 @@
 "拡大／縮小" = "Zoom";
 "設定…" = "Settings…";
 "QuickIconExporterを終了" = "Quit QuickIconExporter";
+
+"保存先を選択してください" = "Choose an export folder";
+"アプリのコンテナ内には保存できません。通常のフォルダを選択してください。" = "Files cannot be saved inside an app container. Choose a regular folder.";
+"保存先の選択をキャンセルしました。" = "Export folder selection was cancelled.";
