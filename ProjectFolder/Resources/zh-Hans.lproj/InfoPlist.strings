@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "ProjectFolder";
+"NSAppleEventsUsageDescription" = "ProjectFolder 会读取最前面的 Finder 或 Path Finder 窗口的文件夹，并让 Path Finder 显示新文件夹。";

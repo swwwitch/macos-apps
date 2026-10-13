@@ -1,0 +1,7 @@
+このフォルダーのファイルは、ProjectFolder のプロジェクトでファイルを作るときの元になります。
+
+- 探す順番：構成の行で指定した名前（index.html < html5.html）→ 同じファイル名（_reset.scss）→ template.拡張子（template.scss）→ 見つからなければ空のファイル
+- テキストの中の {{project}}（フォルダー名・空欄ならプロジェクト名）、{{file}}（拡張子を除いたファイル名）、{{date}}（YYYY-MM-DD）を置き換えます
+- 同梱の白紙：docx・xlsx・pptx（Office）、pdf・ai（A4）、png・jpg・psd（1920×1080 の白）、svg・rtf・json・xml・csv・txt と html・css・scss・js・md の雛形
+- ほかの形式（.indd・.pages など）は、白紙の書類を template.拡張子 の名前でここに置けばそのままコピーします
+- アプリを更新しても、このフォルダーのファイルは上書きしません

@@ -15,7 +15,7 @@
 | [HotkeyHound](HotkeyHound.app) | 0.3.0 | 9 | `jp.dtp-transit.hotkeyhound` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.1.94 | 109 | `jp.local.FolderMover` |
-| [FolderMaker](FolderMaker.app) | 1.5.0 | 7 | `jp.dtp-transit.foldermaker` |
+| [ProjectFolder](ProjectFolder.app) | 1.9.0 | 13 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 16 | `local.takano.IdAsyncOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.1.0 | 59 | `jp.dtp-transit.kagetrimmer` |
