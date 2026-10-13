@@ -25,10 +25,10 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 ## Lists
 ### Lists Group
 - The Lists group contains Numbered List, Bulleted List, Circled Numbers, Letter List (A.), Markdown List and Remove List Markers. The list buttons wrap into as many columns as the window width allows.
-- List actions remove existing numbers and bullet markers before adding new ones. Blank lines and indentation are kept.
+- List actions remove existing numbers and bullet markers before adding new ones. Blank lines are kept; leading spaces and tabs are removed.
 - Markdown List adds “- ” to each line.
 - Circled Numbers adds ① to ㊿ (from 51 on, the (51) form). Letter List (A.) adds A. to Z., then AA., AB.…
-- Remove List Markers removes only the numbers and bullet markers at the start of lines and keeps the text, blank lines and indentation.
+- Remove List Markers removes only the numbers and bullet markers at the start of lines and keeps the text and blank lines. Leading spaces and tabs are removed too.
 ### Bracketed Lists
 - **⌃⌥1**: ［1］ バナナ
 - **⌃⌥4**: ［A］ バナナ
@@ -38,7 +38,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 2. Click a list style to apply it immediately. Apply to Selected Text applies it again.
 - The chosen style is saved. The preview is only a sample; the style is applied to the text currently selected in the target app.
 - Supported styles: black circled numbers (❶–⓴), kanji numerals (一、二、三、), formal kanji (壱 弐 参, with 拾 for ten), circled letters (Ⓐ–Ⓩ), Roman numerals (I. / i.), ✓, □, ✅ and Markdown task lists (- [ ]).
-- Blank lines and indentation are kept and existing list markers are replaced. Checked Markdown items are replaced with unchecked ones.
+- Blank lines are kept; leading spaces and tabs are removed and existing list markers are replaced. Checked Markdown items are replaced with unchecked ones.
 - From 21 for black circled numbers, from 27 for circled letters and from 4000 for Roman numerals, the (21) number form is used. Kanji numerals use 十, 百, 千, 万, 億 and 兆.
 
 ## Lines

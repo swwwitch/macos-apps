@@ -266,15 +266,15 @@ enum TextTransform: Int, CaseIterable {
         pattern: #"^(?:[-+*][\t 　]+\[[ xX]\][\t 　]*|[一二三四五六七八九十百千万億兆壱弐参拾]+、|[壱弐参四五六七八九拾百千万億兆]+(?=[\t 　])|[❶-❿⓫-⓴Ⓐ-Ⓩ]|[✓□✅]\uFE0F?|［(?:[0-9０-９]+|[A-Za-z]+)］|\[(?:[0-9]+|[A-Za-z]+)\]|[0-9０-９]+[.．](?![0-9０-９])|[A-Za-z]+[.．](?=[\t 　]|$)|[0-9０-９]+[)）、]|[(（][0-9０-９]+[)）]|[①-⑳㉑-㉟㊱-㊿]|[・･•●○▪◦‣⁃]|[-+*][\t 　]+)[\t 　]*"#
     )
 
-    private static func removingMarkers(_ line: String) -> (indent: String, body: String) {
-        let indent = String(line.prefix { $0 == " " || $0 == "\t" || $0 == "　" })
-        var body = String(line.dropFirst(indent.count))
+    // Leading spaces and tabs are dropped along with the markers.
+    private static func removingMarkers(_ line: String) -> String {
+        var body = String(line.drop { $0 == " " || $0 == "\t" || $0 == "　" })
         // Also repair prefixes accumulated by earlier versions or repeated pastes.
         while let match = marker.firstMatch(in: body, range: NSRange(body.startIndex..., in: body)),
               let range = Range(match.range, in: body) {
             body.removeSubrange(range)
         }
-        return (indent, body)
+        return body
     }
 
     var title: String {
@@ -462,11 +462,11 @@ enum TextTransform: Int, CaseIterable {
         var index = 0
         return normalized.components(separatedBy: "\n").map { line in
             guard !line.trimmingCharacters(in: .whitespaces).isEmpty else { return line }
-            let (indent, body) = Self.removingMarkers(line)
-            if self == .removeList { return indent + body }
-            guard !body.trimmingCharacters(in: .whitespaces).isEmpty else { return indent }
+            let body = Self.removingMarkers(line)
+            if self == .removeList { return body }
+            guard !body.trimmingCharacters(in: .whitespaces).isEmpty else { return "" }
             index += 1
-            return indent + prefix(index) + body
+            return prefix(index) + body
         }.joined(separator: "\n")
     }
 }

@@ -125,7 +125,7 @@ import Foundation
             let input = "  バナナ\n\nりんご\nパイン\n"
             let output = style.apply(input)
             precondition(style.apply(output) == output, "Special list must be idempotent: \(style)")
-            precondition(TextTransform.removeList.apply(output) == input, "Special list must be removable: \(style)")
+            precondition(TextTransform.removeList.apply(output) == "バナナ\n\nりんご\nパイン\n", "Special list must be removable: \(style)")
             precondition(TextTransform.number.apply(output) == TextTransform.number.apply(input))
         }
         let longList = Array(repeating: "果物", count: 4000).joined(separator: "\n")
@@ -198,25 +198,25 @@ import Foundation
             (.bullet, "1. りんご\n2.みかん\n・ぶどう", "・りんご\n・みかん\n・ぶどう"),
             (.number, "１．りんご\n（２）みかん\n(3) ぶどう\n4）なし\n5、もも", "1. りんご\n2. みかん\n3. ぶどう\n4. なし\n5. もも"),
             (.bullet, "●りんご\n• みかん\n- ぶどう\n* なし\n+ もも", "・りんご\n・みかん\n・ぶどう\n・なし\n・もも"),
-            (.number, "  7. りんご\n\t・みかん\n　⑳ぶどう", "  1. りんご\n\t2. みかん\n　3. ぶどう"),
+            (.number, "  7. りんご\n\t・みかん\n　⑳ぶどう", "1. りんご\n2. みかん\n3. ぶどう"),
             (.bullet, "1. ・2. りんご", "・りんご"),
             (.number, "3.14\n３．１４\n2026年\n-name\n本文・中黒", "1. 3.14\n2. ３．１４\n3. 2026年\n4. -name\n5. 本文・中黒"),
             (.number, "・\n1. \nりんご\n", "\n\n1. りんご\n"),
             (.join, "1. りんご\n・みかん", "1. りんご・みかん"),
             (.join, "", ""), (.number, "", ""), (.bullet, "", ""),
             (.removeList, "1. りんご\n・みかん\n③ぶどう", "りんご\nみかん\nぶどう"),
-            (.removeList, "  1. ・りんご\n\t●みかん\n\n　(3)ぶどう\n", "  りんご\n\tみかん\n\n　ぶどう\n"),
+            (.removeList, "  1. ・りんご\n\t●みかん\n\n　(3)ぶどう\n", "りんご\nみかん\n\nぶどう\n"),
             (.removeList, "3.14\n-name\n本文・中黒\n通常の文章", "3.14\n-name\n本文・中黒\n通常の文章"),
             (.removeList, "・\n1. \n \n", "\n\n \n"),
             (.removeList, "１．りんご\r\n- みかん", "りんご\nみかん"),
             (.removeList, "", ""),
             (.markdown, "1. りんご\n・みかん\n- ぶどう", "- りんご\n- みかん\n- ぶどう"),
-            (.markdown, "  ①りんご\n\n\t●みかん\n", "  - りんご\n\n\t- みかん\n"),
+            (.markdown, "  ①りんご\n\n\t●みかん\n", "- りんご\n\n- みかん\n"),
             (.markdown, "", ""),
             (.markdown, "3.14\n👩‍💻 café", "- 3.14\n- 👩‍💻 café"),
             (.circled, "バナナ\nりんご\nパイナップル", "① バナナ\n② りんご\n③ パイナップル"),
             (.alphabet, "① バナナ\n・りんご\n3. パイナップル", "A. バナナ\nB. りんご\nC. パイナップル"),
-            (.circled, "  Z. りんご\n\n\t- みかん\n", "  ① りんご\n\n\t② みかん\n"),
+            (.circled, "  Z. りんご\n\n\t- みかん\n", "① りんご\n\n② みかん\n"),
             (.removeList, "A. バナナ\nAA. りんご\nC.\nApple.com", "バナナ\nりんご\n\nApple.com"),
             (.alphabet, "", ""), (.circled, "", ""),
             (.addCommas, "2026年 2026年度 2026-10-06 2026/10/6 西暦：2026 2025〜2026年", "2026年 2026年度 2026-10-06 2026/10/6 西暦：2026 2025〜2026年"),
