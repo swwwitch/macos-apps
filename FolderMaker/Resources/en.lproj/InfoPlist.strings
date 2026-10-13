@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "FolderMaker";
+"NSAppleEventsUsageDescription" = "FolderMaker reads the folder of the front Finder or Path Finder window and asks Path Finder to show the new folder.";

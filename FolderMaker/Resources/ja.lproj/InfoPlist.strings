@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "FolderMaker";
+"NSAppleEventsUsageDescription" = "FolderMaker は前面のFinder・Path Finderウインドウのフォルダーを読み取り、Path Finderで新しいフォルダーを表示します。";

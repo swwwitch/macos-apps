@@ -9,7 +9,7 @@ import urllib.request
 VERSION = '2.10.0'
 SHA256 = 'c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c'
 ROOT = Path(__file__).resolve().parent
-TARGETS = ['BrowserSwitcher/Source', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'CarmaChameleon/Source', 'PDF2Keynote/Source', 'FileCaravan/Source', 'IdBackgroundOff/Source', 'CommandDee/Sources', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'MightyEdit/Source', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']
+TARGETS = ['BrowserSwitcher/Source', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'CarmaChameleon/Source', 'PDF2Keynote/Source', 'FileCaravan/Source', 'IdBackgroundOff/Source', 'CommandDee/Sources', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'MightyEdit/Source', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']
 
 def prepare():
     for target in TARGETS:

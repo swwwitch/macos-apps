@@ -1,7 +1,7 @@
 from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 source = Path(__file__).with_name("AppSurface.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']:
     target = root / relative / "AppSurface.swift"
     if not target.parent.is_dir():
         continue
@@ -9,7 +9,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(source)
 
 startup = Path(__file__).with_name("StartupWindow.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
     target = root / relative / 'StartupWindow.swift'
     if not target.parent.is_dir():
         continue
@@ -17,7 +17,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(startup)
 
 settings = Path(__file__).with_name("SettingsSection.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
     target = root / relative / "SettingsSection.swift"
     if not target.parent.is_dir():
         continue
@@ -25,7 +25,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
         target.write_bytes(settings)
 
 helpdoc = Path(__file__).with_name("HelpDocument.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset']:
     target = root / relative / "HelpDocument.swift"
     if not target.parent.is_dir():
         continue
@@ -34,7 +34,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
 
 activation = Path(__file__).with_name("WindowActivationPolicy.swift").read_bytes()
 # Menu-bar (accessory) apps only: regular apps keep their Dock icon.
-for relative in ['KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'CommandDee/Sources', 'MightyEdit/Source', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop']:
+for relative in ['KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'CommandDee/Sources', 'MightyEdit/Source', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop']:
     target = root / relative / "WindowActivationPolicy.swift"
     if not target.parent.is_dir():
         continue
@@ -42,7 +42,7 @@ for relative in ['KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow
         target.write_bytes(activation)
 
 about = Path(__file__).with_name("AboutSection.swift").read_bytes()
-for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'LinkMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
+for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI', 'FolderHopper/Development/Source', 'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'PodiumAssist/Development/Sources/Toki', 'MightyEdit/Source', 'KakkoReplace/Sources', 'CellCopyCleaner/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'FolderMaker/Sources', 'DocklessLauncher/Sources', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'FileCaravan/Source']:
     target = root / relative / "AboutSection.swift"
     if not target.parent.is_dir():
         continue

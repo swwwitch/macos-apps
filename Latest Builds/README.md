@@ -9,22 +9,25 @@
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
 | [CellCopyCleaner](CellCopyCleaner.app) | 1.1.1 | 4 | `jp.dtp-transit.cellcopycleaner` |
 | [PasteInARow](PasteInARow.app) | 1.4.3 | 13 | `jp.dtp-transit.pasteinarow` |
+| [PasteMatchStyle](PasteMatchStyle.app) | 1.0.0 | 1 | `jp.dtp-transit.pastematchstyle` |
+| [IncrementPaste](IncrementPaste.app) | 1.0.0 | 1 | `jp.dtp-transit.incrementpaste` |
 | [CommandDee](CommandDee.app) | 1.8.23 | 50 | `jp.local.CommandDee` |
 | [HotkeyHound](HotkeyHound.app) | 0.3.0 | 9 | `jp.dtp-transit.hotkeyhound` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.1.94 | 109 | `jp.local.FolderMover` |
+| [FolderMaker](FolderMaker.app) | 1.5.0 | 7 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
-| [IdBackgroundOff](IdBackgroundOff.app) | 1.1.0 | 15 | `local.takano.IdAsyncOff` |
-| [KageTrimmer](KageTrimmer.app) | 1.0.17 | 54 | `jp.dtp-transit.kagetrimmer` |
+| [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 16 | `local.takano.IdAsyncOff` |
+| [KageTrimmer](KageTrimmer.app) | 1.1.0 | 59 | `jp.dtp-transit.kagetrimmer` |
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.28 | 48 | `jp.local.SuperKakkoEdit` |
 | [LinkMaker](LinkMaker.app) | 1.2.6 | 9 | `jp.dtp-transit.linkmaker` |
-| [MightyEdit](MightyEdit.app) | 0.2.19 | 93 | `jp.local.TextPalette` |
+| [MightyEdit](MightyEdit.app) | 0.2.20 | 94 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |
-| [PrefsPreset](PrefsPreset.app) | 1.1.5 | 8 | `jp.dtp-transit.prefspreset` |
+| [PrefsPreset](PrefsPreset.app) | 1.1.6 | 9 | `jp.dtp-transit.prefspreset` |
 | [PodiumAssist](PodiumAssist.app) | 3.2.34 | 57 | `jp.local.toki` |
-| [QuickIconExporter](QuickIconExporter.app) | 1.0.16 | 30 | `jp.dtp-transit.quickiconexporter` |
+| [QuickIconExporter](QuickIconExporter.app) | 1.0.17 | 31 | `jp.dtp-transit.quickiconexporter` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.0.0 | 1 | `jp.dtp-transit.yohakutrimmer` |
 
 最終ビルドの配置先は `/Applications` とこのフォルダです。過去のDMGは [DistributionArchive](../Shared/DistributionArchive/) へ退避しました。自動コピーは [BuildTools](../Shared/BuildTools/README.md)、共通ルールは [BASELINE](../Shared/AppStandards/BASELINE.md) を参照してください。

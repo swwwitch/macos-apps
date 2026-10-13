@@ -7,7 +7,7 @@ copies = {
         'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset'],
     'Shared/Accessibility/AccessibilityPermission.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
         'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
-        'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound'],
+        'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'PasteMatchStyle/Sources'],
 }
 for source, targets in copies.items():
     data = (root / source).read_bytes()

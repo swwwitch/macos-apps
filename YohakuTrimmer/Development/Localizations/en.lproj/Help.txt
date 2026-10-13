@@ -1,0 +1,64 @@
+YohakuTrimmer crops away same-colored margins along the four edges of an image and saves the result as PNG.
+
+## How to Use
+1. Choose a **Color tolerance** (None, Low or High).
+2. Drop images onto the main window, or choose **File > Choose Images…** (⌘O). You can also use “Open With” in Finder or drop files onto the app icon in the Dock. Several images can be processed at once.
+
+- For each edge (top, bottom, left, right), the app checks one row or column at a time from the outside and removes it when every pixel matches that edge’s color. It stops at the first line with a different pixel.
+- An edge’s color is the color of the middle pixel of that edge in the original image. Each edge may have a different color. Transparent margins are removed too.
+- The image is only cropped; the remaining pixels are never scaled.
+
+## Color Tolerance
+For images whose margin color varies slightly, such as JPEG compression noise.
+
+- **None**: Only exactly the same color counts as margin.
+- **Low** (8): Colors within 8 steps (of 0–255) in each of RGB and opacity count as the same. Usually this is enough.
+- **High** (32): For noisy JPEGs and scans. Faint parts close to the margin color may also be cropped.
+
+## Where Files Are Saved
+The original image is never changed. The processed PNG is saved in the same folder as “original name-trim.png”. If a file with that name already exists, it is not replaced; the new file is numbered, such as “name-trim 2.png” and “name-trim 3.png”. Resolution (dpi) and image orientation are kept.
+
+## Skipped Images
+- An image with no margin on any edge shows “skipped (no margin)” and no file is created.
+- An image that is entirely one color shows “skipped (the whole image is one color)” and no file is created.
+
+## Settings
+Choose **Settings…** (⌘,) in the app menu. The Startup & Background tab has these options:
+
+- **Open at login**
+- **Hide main window at startup**
+- **Show in menu bar**
+- **Show app shortcut**: Shows the YohakuTrimmer window. It is off initially. When turned on, the initial key is ⌃⌥⌘Y. **Restore Defaults** returns to the initial state.
+
+## Keyboard Shortcuts
+- **⌘0**: Open Main Window
+- **⌘O**: Choose Images
+- **⌘,**: Settings
+- **⌘?**: Help
+- **⌘W**: Close Window
+- **⌘Z / ⇧⌘Z**: Undo / Redo (in text fields)
+- **⌘Q**: Quit YohakuTrimmer
+- **Show app shortcut** (when turned on in Settings): Shows the YohakuTrimmer window, even while you use another app
+
+## Permissions
+Accessibility permission is not required. If the app can’t write to the original image folder, it asks for access to that folder. Choose the folder that contains the original image and click **Allow Access**.
+
+## Launching and Quitting
+- Closing the window doesn’t quit the app. Show the window again from the Dock icon, **Open Main Window** in the menu bar icon (when **Show in menu bar** is on), or the Show app shortcut.
+- When launched at login, or when **Hide main window at startup** is on, the app starts without showing the main window.
+- When the app is launched by opening files, it shows the window, processes them, and quits afterward. When files are passed to the running app, it keeps running.
+- To quit, choose **Quit YohakuTrimmer** (⌘Q) in the app menu, or **Quit YohakuTrimmer** in the menu bar icon. You can’t quit while images are being processed; quit again after processing finishes.
+
+## Troubleshooting
+- Results appear below the drop area with the original and the cropped size.
+- If some margin remains, it has a faint pattern or noise. Raise the **Color tolerance**.
+- If too much is cropped, lower the **Color tolerance** or choose **None**.
+- If reading or saving fails, check the image format and the access permissions of the original image folder.
+- If the hotkey can’t be registered, another app may use the same combination. Choose another combination in Settings.
+- If the app doesn’t launch at login, put it in the Applications folder and check that it is allowed in System Settings > Login Items.
+- **Open the note Article** in the Help menu opens the app’s article on note in your browser.
+
+## Removing the App
+1. Turn off **Open at login**.
+2. Quit the app.
+3. Move YohakuTrimmer to the Trash.

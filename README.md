@@ -16,10 +16,12 @@
 | KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) |
 | YohakuTrimmer | 画像の余白（四辺の同じ色）を削除 | [Development/Sources](YohakuTrimmer/Development/Sources/) | [Development/build.sh](YohakuTrimmer/Development/build.sh) |
 | KeynoteSweeper | Keynoteの未使用マスター・非表示スライド・アニメーションの削除 | [Source](KeynoteSweeper/Source/) | [build.sh](KeynoteSweeper/build.sh) |
+| IncrementPaste | クリップボードの数字・日付・英字を1つ増やしてペースト（KMマクロ「increment-paste」の移植） | [Sources](IncrementPaste/Sources/) | [build.sh](IncrementPaste/build.sh) |
 | KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
 | LinkMaker | ブラウザーのページのタイトルとURLをコピー・保存・開き直し（KMマクロ「Make Link」の移植） | [Sources](LinkMaker/Sources/) | [build.sh](LinkMaker/build.sh) |
 | MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) |
 | PasteInARow | 複数行のテキストを1行ずつペースト（KMマクロ「01)連続ペースト」の移植） | [Sources](PasteInARow/Sources/) | [build.sh](PasteInARow/build.sh) |
+| PasteMatchStyle | どのアプリでも書式なしでペースト（KMマクロ「Paste and Match Style」「Universal Paste Without Style」の移植） | [Sources](PasteMatchStyle/Sources/) | [build.sh](PasteMatchStyle/build.sh) |
 | PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) |
 | CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
 | PodiumAssist | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumAssist/Development/Sources/Toki/) | [Development/build-app.sh](PodiumAssist/Development/build-app.sh) |
