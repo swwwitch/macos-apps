@@ -44,8 +44,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleDevelopmentRegion</key><string>en</string>
 <key>CFBundleLocalizations</key><array><string>ja</string><string>en</string><string>zh-Hans</string><string>ko</string></array>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.2.18</string>
-<key>CFBundleVersion</key><string>92</string>
+<key>CFBundleShortVersionString</key><string>0.2.19</string>
+<key>CFBundleVersion</key><string>93</string>
 <key>SWNoteArticleURL</key><string>https://note.com/swwwitch/n/n08be828d4393</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>

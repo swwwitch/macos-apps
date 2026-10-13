@@ -662,7 +662,6 @@ struct Preferences: View {
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("hotkeyTab")) {
                     Toggle(L("enabled"), isOn: Binding(get: { model.hotkeysEnabled }, set: { model.hotkeysEnabled = $0; model.save() }))
-                    Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { _ in model.togglePause() }))
                     Text(String(format: L("registeredCount"), String(model.hotkeys.registeredCount))).font(.caption).foregroundColor(.secondary)
                     Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }

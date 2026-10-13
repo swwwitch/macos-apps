@@ -249,7 +249,6 @@ struct Preferences: View {
             (L("shortcuts"), AnyView(GroupBox(label: Text(L("shortcuts"))) {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle(L("enabled"), isOn: Binding(get: { !model.disabled }, set: { model.disabled = !$0; model.save() }))
-                    Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { model.paused = $0; model.refreshHotkey() }))
                     HStack {
                         Text(L("operation"))
                         OperationPicker(selection: $model.selectedAction) { model.recording = false; model.recordingFront = false; model.refreshHotkey() }

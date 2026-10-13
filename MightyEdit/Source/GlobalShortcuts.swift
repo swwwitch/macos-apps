@@ -23,7 +23,6 @@ final class GlobalShortcuts: NSObject {
     private var preferences: NSWindow?
     private var preferenceRows: [(id: Int, editor: HotkeyEditor, scope: NSPopUpButton, error: NSTextField)] = []
     private var enabledCheckbox: NSButton?
-    private var pauseCheckbox: NSButton?
     private var handlerFailure: OSStatus?
     private let actions: [(id: Int, title: String, digit: Int)]
     private let perform: (Int) -> Void
@@ -246,9 +245,6 @@ final class GlobalShortcuts: NSObject {
             let enabled = NSButton(checkboxWithTitle: L("hotkey.enable"), target: self, action: #selector(toggleEnabled))
             column.addArrangedSubview(enabled)
             enabledCheckbox = enabled
-            let pause = NSButton(checkboxWithTitle: L("hotkey.pauseUntilRelaunch"), target: self, action: #selector(togglePause))
-            column.addArrangedSubview(pause)
-            pauseCheckbox = pause
             let note = NSTextField(wrappingLabelWithString: L("hotkey.note"))
             column.addArrangedSubview(note)
             note.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
@@ -341,7 +337,6 @@ final class GlobalShortcuts: NSObject {
 
     private func refreshPreferences() {
         enabledCheckbox?.state = UserDefaults.standard.bool(forKey: "shortcutsDisabled") ? .off : .on
-        pauseCheckbox?.state = paused ? .on : .off
         for row in preferenceRows {
             row.editor.load(binding(digit(row.id)))
             row.scope.selectItem(at: HotkeyScope.allCases.firstIndex(of: scope(row.id)) ?? 0)

@@ -141,7 +141,6 @@ struct Preferences: View {
             })),
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("hotkeyGeneral")) {
-                    Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { _ in model.togglePause() }))
                     Text(model.hotkeySummary).font(.caption).foregroundColor(model.hotkeyProblem ? .orange : .secondary)
                     if model.recording != nil { Text(model.recordMessage).font(.caption) }
                     Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)

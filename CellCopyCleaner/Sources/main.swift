@@ -294,7 +294,6 @@ struct Preferences: View {
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("cleanHotkey")) {
                     Toggle(L("enabled"), isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    Toggle(L("pause"), isOn: Binding(get: { model.paused }, set: { _ in model.togglePause() }))
                     ShortcutRow(model: model, shortcut: model.shortcut, enabled: model.hotkeyEnabled) { model.resetShortcut() }
                     Text(model.hotkeyStatus).font(.caption).foregroundColor(model.hotkeyFailed ? .red : .secondary).fixedSize(horizontal: false, vertical: true)
                     if model.recording, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }

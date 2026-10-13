@@ -38,7 +38,7 @@
 "loginApproval" = "请在系统设置中批准。";
 "hotkeyTab" = "快捷键";
 "fail.abc" = "无法切换到“ABC”输入法。请在系统设置 >“键盘”>“输入法”中添加 ABC。";
-"pausedStatus" = "已暂停。可从菜单栏或设置中恢复。";
+"pausedStatus" = "已暂停。可从菜单栏菜单中恢复。";
 "ver.newest" = "优先最新版本";
 "view.label" = "显示";
 "sort.flip" = "再次点按可在升序和降序之间切换";

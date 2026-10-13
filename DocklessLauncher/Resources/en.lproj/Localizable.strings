@@ -38,7 +38,7 @@
 "loginApproval" = "Approve in System Settings.";
 "hotkeyTab" = "Hotkeys";
 "fail.abc" = "Could not switch to the “ABC” input source. Add ABC in System Settings > Keyboard > Input Sources.";
-"pausedStatus" = "Paused. Resume from the menu bar or Settings.";
+"pausedStatus" = "Paused. Resume from the menu bar menu.";
 "ver.newest" = "Prefer the newest";
 "view.label" = "View";
 "sort.flip" = "Click again to switch between ascending and descending";
