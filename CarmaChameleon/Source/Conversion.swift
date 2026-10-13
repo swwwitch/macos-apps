@@ -102,7 +102,14 @@ struct ConversionOptions {
         var args = ["--output", output.path]
         if format.id == "pdf" {
             args += ["--pdf-engine", ConversionRunner.pdfExecutable(pdfEngine)?.path ?? pdfEngine]
-            if pdfEngine == "typst" { args += ["--to", "typst", "--variable", "mainfont=Hiragino Sans"] }
+            if pdfEngine == "typst" {
+                args += ["--to", "typst", "--variable", "mainfont=Hiragino Sans"]
+#if APP_STORE
+                // Pandoc extracts images into the container and emits absolute paths.
+                // Typst root controls path interpretation, not Sandbox permissions.
+                args += ["--pdf-engine-opt=--root=/"]
+#endif
+            }
             else { args += ["--variable", "CJKmainfont=Hiragino Sans"] }
         }
         else { args += ["--to", format.id] }
@@ -129,19 +136,42 @@ final class ConversionRunner: @unchecked Sendable {
         if let p, p.isRunning { p.terminate() }
     }
     var isCancelled: Bool { lock.lock(); defer { lock.unlock() }; return cancelled }
+    static var preferredPDFEngine: String {
+#if APP_STORE
+        return "typst"
+#else
+        return UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
+#endif
+    }
     static func engine() -> URL? {
+#if APP_STORE
+        return bundledExecutable("pandoc")
+#else
         let custom = UserDefaults.standard.string(forKey:"pandocPath") ?? ""
         if !custom.isEmpty { return FileManager.default.isExecutableFile(atPath:custom) ? URL(fileURLWithPath:custom) : nil }
         let managed = UserDefaults.standard.string(forKey:"managedPandocPath") ?? ""
         let paths = [managed, Bundle.main.url(forResource:"pandoc", withExtension:nil, subdirectory:"bin")?.path ?? "", "/opt/homebrew/bin/pandoc", "/usr/local/bin/pandoc"]
         return paths.first(where: { !$0.isEmpty && FileManager.default.isExecutableFile(atPath:$0) }).map { URL(fileURLWithPath:$0) }
+ #endif
     }
+    private static func bundledExecutable(_ name: String) -> URL? {
+        guard let url = Bundle.main.url(forResource:name, withExtension:nil, subdirectory:"bin"), FileManager.default.isExecutableFile(atPath:url.path) else { return nil }
+        return url
+    }
+#if APP_STORE
+    static let searchPath = (Bundle.main.resourceURL?.appendingPathComponent("bin").path ?? "") + ":/usr/bin:/bin"
+#else
     static let searchPath = "/opt/homebrew/bin:/usr/local/bin:/Library/TeX/texbin:/usr/bin:/bin"
+#endif
     static func pdfExecutable(_ name: String) -> URL? {
+#if APP_STORE
+        return name == "typst" ? bundledExecutable(name) : nil
+#else
         guard ["typst", "xelatex", "lualatex"].contains(name) else { return nil }
         var paths = searchPath.split(separator:":").map { String($0)+"/"+name }
         if name == "typst", let managed = UserDefaults.standard.string(forKey:"managedTypstPath"), !managed.isEmpty { paths.insert(managed, at:0) }
         return paths.first(where: { FileManager.default.isExecutableFile(atPath:$0) }).map { URL(fileURLWithPath:$0) }
+#endif
     }
     static func pdfAvailable(_ name: String) -> Bool { pdfExecutable(name) != nil }
     static func isPDF(_ url: URL) -> Bool { url.pathExtension.lowercased() == "pdf" }

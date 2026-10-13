@@ -526,13 +526,14 @@ if CommandLine.arguments.count > 2 {
     let textPDF = evidenceFolder.appendingPathComponent("Japanese-PDF.pdf")
     let extracted = try PDFImporter.html(from:textPDF,cancelled:{false})
     check(extracted.contains("日本語タイトル"),"PDF text layer import")
-    check(PDFImporter.pdftotext() != nil,"pdftotext found (brew install poppler)")
+    let hasPDFToText = PDFImporter.pdftotext() != nil
+    print(hasPDFToText ? "PDF text backend: pdftotext" : "PDF text backend: PDFKit fallback")
     for mode in PDFImporter.modes {
         var textOptions = ConversionOptions(); textOptions.format = OutputFormat.all.first { $0.id == "plain" }!; textOptions.pdfTextMode = mode
         let runner = ConversionRunner()
         let plain = try runner.convert(engine:engine,input:textPDF,folder:root,options:textOptions)
         let text = try String(contentsOf:plain,encoding:.utf8)
-        check(plain.pathExtension == "txt" && text.contains("日本語タイトル") && runner.warnings.isEmpty,"PDF to plain text with pdftotext (\(mode))")
+        check(plain.pathExtension == "txt" && text.contains("日本語タイトル") && (hasPDFToText ? runner.warnings.isEmpty : runner.warnings.count == 1),"PDF to plain text, available backend (\(mode))")
         try fm.removeItem(at:plain)
     }
     options = ConversionOptions(); options.format = OutputFormat.all.first { $0.id == "docx" }!

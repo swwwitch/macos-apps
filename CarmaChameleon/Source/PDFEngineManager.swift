@@ -13,7 +13,13 @@ import CryptoKit
     private var release: PandocRelease?
     nonisolated static var installRoot: URL { FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("PandocDesk/PDFEngines",isDirectory:true) }
     var updateNeeded: Bool { !latest.isEmpty && (version.isEmpty || version.compare(latest,options:.numeric) == .orderedAscending) }
-    var summary: String { version.isEmpty ? L("notInstalled") : latest.isEmpty ? L("notChecked") : updateNeeded ? L("updateAvailable") : L("upToDate") }
+    var summary: String {
+#if APP_STORE
+        return version.isEmpty ? L("notInstalled") : L("storeBundledEngine")
+#else
+        return version.isEmpty ? L("notInstalled") : latest.isEmpty ? L("notChecked") : updateNeeded ? L("updateAvailable") : L("upToDate")
+#endif
+    }
     func refresh() {
         let token = UUID(); refreshID = token
         let url = ConversionRunner.pdfExecutable("typst"); location = url?.path ?? L("notInstalled")
@@ -35,6 +41,7 @@ import CryptoKit
             return line.components(separatedBy:" ").dropFirst().first
         } catch { return nil }
     }
+    #if !APP_STORE
     func check() {
         guard !busy else { return }; busy = true; message = L("checking")
         Task {
@@ -81,6 +88,7 @@ import CryptoKit
             } catch { message = L("installFailed") + error.localizedDescription }
         }
     }
+    #endif
     private func failure(_ key:String) -> NSError { NSError(domain:"PandocDesk",code:1,userInfo:[NSLocalizedDescriptionKey:L(key)]) }
 }
 struct PDFEngineSettingsView: View {
@@ -95,11 +103,14 @@ struct PDFEngineSettingsView: View {
             if !manager.latest.isEmpty { Text(L("latest") + manager.latest).font(.caption) }
             HStack {
                 Button(L("refresh")) { manager.refresh() }
+                #if !APP_STORE
                 Button(L("checkLatest")) { manager.check() }
                 Button(L(manager.version.isEmpty ? "install" : "installUpdate")) { manager.install() }.disabled(manager.latest.isEmpty || !manager.updateNeeded)
+                #endif
                 if manager.busy { ProgressView().controlSize(.small) }
             }.disabled(manager.busy)
             if !manager.message.isEmpty { Text(manager.message).font(.caption).textSelection(.enabled) }
+            #if !APP_STORE
             Text(L("pdfInstallDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
             Divider()
             Text(L("texAlternative")).font(.caption).foregroundColor(.secondary)
@@ -111,6 +122,9 @@ struct PDFEngineSettingsView: View {
                 Text(L(ConversionRunner.pdfAvailable("lualatex") ? "detected" : "notInstalled"))
             }.font(.caption)
             Button(L("openMacTeX")) { NSWorkspace.shared.open(URL(string:"https://www.tug.org/mactex/mactex-download.html")!) }
+            #else
+            Text(L("storeEngineDetail")).font(.caption).foregroundColor(.secondary)
+            #endif
         }.onAppear { manager.refresh() }.onReceive(NotificationCenter.default.publisher(for:NSApplication.didBecomeActiveNotification)) { _ in manager.refresh() }
     }
 }

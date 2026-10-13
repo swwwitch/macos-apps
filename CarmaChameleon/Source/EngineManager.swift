@@ -17,7 +17,13 @@ struct PandocRelease: Decodable {
     private var release: PandocRelease?
     nonisolated static var installRoot: URL { FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("PandocDesk/Engines",isDirectory:true) }
     var updateNeeded: Bool { !latest.isEmpty && (version.isEmpty || version.compare(latest,options:.numeric) == .orderedAscending) }
-    var summary: String { version.isEmpty ? L("notInstalled") : latest.isEmpty ? L("notChecked") : updateNeeded ? L("updateAvailable") : L("upToDate") }
+    var summary: String {
+#if APP_STORE
+        return version.isEmpty ? L("notInstalled") : L("storeBundledEngine")
+#else
+        return version.isEmpty ? L("notInstalled") : latest.isEmpty ? L("notChecked") : updateNeeded ? L("updateAvailable") : L("upToDate")
+#endif
+    }
     func refresh() {
         let url = ConversionRunner.engine(); location = url?.path ?? L("notInstalled")
         guard let url else { version = ""; return }
@@ -37,6 +43,7 @@ struct PandocRelease: Decodable {
             return line.components(separatedBy:" ").dropFirst().first
         } catch { return nil }
     }
+    #if !APP_STORE
     func check() {
         guard !busy else { return }; busy = true; message = L("checking")
         Task {
@@ -82,6 +89,7 @@ struct PandocRelease: Decodable {
             } catch { message = L("installFailed") + error.localizedDescription }
         }
     }
+    #endif
     private func failure(_ key:String) -> NSError { NSError(domain:"PandocDesk",code:1,userInfo:[NSLocalizedDescriptionKey:L(key)]) }
 }
 struct EngineSettingsView: View {
@@ -94,15 +102,21 @@ struct EngineSettingsView: View {
             if !manager.latest.isEmpty { Text(L("latest") + manager.latest).font(.caption) }
             HStack {
                 Button(L("refresh")) { manager.refresh() }
+                #if !APP_STORE
                 Button(L("checkLatest")) { manager.check() }
                 Button(L(manager.version.isEmpty ? "install" : "installUpdate")) { manager.install() }.disabled(manager.latest.isEmpty || (!manager.updateNeeded && path.isEmpty))
+                #endif
                 if manager.busy { ProgressView().controlSize(.small) }
             }.disabled(manager.busy)
             if !manager.message.isEmpty { Text(manager.message).font(.caption).textSelection(.enabled) }
+            #if !APP_STORE
             Text(L("installDetail")).font(.caption).foregroundColor(.secondary)
             Divider()
             HStack { TextField(L("customPath"),text:$path).onSubmit { manager.refresh() }; Button(L("browse")) { let p = NSOpenPanel(); if p.runModal() == .OK { path = p.url!.path; manager.refresh() } } }.disabled(manager.busy)
             Button(L("useBundled")) { path = ""; UserDefaults.standard.removeObject(forKey:"managedPandocPath"); manager.refresh() }.disabled(manager.busy)
+            #else
+            Text(L("storeEngineDetail")).font(.caption).foregroundColor(.secondary)
+            #endif
         }.onAppear { manager.refresh() }.onReceive(NotificationCenter.default.publisher(for:NSApplication.didBecomeActiveNotification)) { _ in manager.refresh() }
     }
 }

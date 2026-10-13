@@ -143,6 +143,11 @@ HELP = {
 - **メニューバーに表示**（起動・常駐タブ、またはアプリメニューの「メニューバー設定…」）：メニューバーのアイコンを表示します（初期値オン）。アイコンのメニューには「メインウインドウを開く」「設定…」「ヘルプ」（「CarmaChameleonヘルプ」「note記事を開く」）「CarmaChameleonを終了」があります。
 - アプリ起動のホットキーは、ショートカットAppで「アプリを開く」にCarmaChameleonを指定して割り当てます。
 
+## 設定の同期
+- 設定の「設定の同期」タブで「同期フォルダーを設定...」を押し、iCloud DriveやDropboxなどのフォルダーを選びます。ほかのMacでも同じフォルダーを選ぶと、変換形式の並びと変換オプションがそろいます。
+- フォルダーには「CarmaChameleon-Settings.plist」が保存されます。保存先、PDFエンジン、各アプリやpandocの場所、PDFプリセットはMacごとに保持します。
+- 同期サービスでは、このフォルダーを常にこのMacに保存する（オフラインで使用可能にする）設定にしてください。
+
 ## ホットキー
 - **⌘O**：ファイルを選択
 - **⌘Return**：変換
@@ -312,6 +317,11 @@ HELP = {
 - While it keeps running, reopen the window from the Dock icon.
 - **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
 - For a launch shortcut, create an Open App action for CarmaChameleon in the Shortcuts app and assign a key.
+
+## Settings Sync
+- In Settings, open the Settings Sync tab, click Set Sync Folder... and choose a folder in iCloud Drive, Dropbox or similar. Choose the same folder on your other Macs to share the format list and conversion options.
+- The folder holds CarmaChameleon-Settings.plist. The output folder, PDF engine, app and pandoc locations and PDF presets stay per Mac.
+- With a sync service, keep this folder downloaded and available offline.
 
 ## Keyboard shortcuts
 - **Command-O**: choose files
@@ -483,6 +493,11 @@ HELP = {
 - **在菜单栏中显示**（“启动与后台”标签，或应用菜单中的“菜单栏设置…”）：显示菜单栏图标（默认开启）。图标菜单包含“打开主窗口”“设置…”“帮助”（“CarmaChameleon 帮助”“打开 note 文章”）和“退出 CarmaChameleon”。
 - 启动快捷键：在快捷指令中为 CarmaChameleon 创建“打开 App”并分配按键。
 
+## 设置同步
+- 在设置的“设置同步”标签中点按“设置同步文件夹...”，选择 iCloud 云盘、Dropbox 等中的文件夹。在其他 Mac 上选择同一文件夹，即可共享格式列表和转换选项。
+- 文件夹中会保存“CarmaChameleon-Settings.plist”。保存位置、PDF 引擎、各应用和 pandoc 的位置以及 PDF 预设在每台 Mac 上分别保留。
+- 使用同步服务时，请将此文件夹设为始终保留在本机（可离线使用）。
+
 ## 键盘快捷键
 - **⌘O**：选择文件
 - **⌘Return**：转换
@@ -652,6 +667,11 @@ HELP = {
 - 계속 실행 중에는 Dock 아이콘에서 윈도우를 다시 열 수 있습니다.
 - **메뉴 막대에 표시**(시작 및 백그라운드 탭 또는 앱 메뉴의 "메뉴 막대 설정…"): 메뉴 막대 아이콘을 표시합니다(기본값 켬). 아이콘 메뉴에는 "메인 윈도우 열기", "설정…", "도움말"("CarmaChameleon 도움말", "note 글 열기"), "CarmaChameleon 종료"가 있습니다.
 - 실행 단축키는 단축어 앱에서 CarmaChameleon를 여는 동작을 만들고 키를 지정하세요.
+
+## 설정 동기화
+- 설정의 ‘설정 동기화’ 탭에서 ‘동기화 폴더 설정...’을 누르고 iCloud Drive, Dropbox 등의 폴더를 선택합니다. 다른 Mac에서도 같은 폴더를 선택하면 형식 목록과 변환 옵션이 맞춰집니다.
+- 폴더에는 ‘CarmaChameleon-Settings.plist’가 저장됩니다. 저장 위치, PDF 엔진, 각 앱과 pandoc 위치, PDF 사전 설정은 Mac마다 유지합니다.
+- 동기화 서비스에서는 이 폴더를 항상 이 Mac에 보관(오프라인 사용 가능)하도록 설정하세요.
 
 ## 키보드 단축키
 - **⌘O**: 파일 선택

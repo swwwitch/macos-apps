@@ -113,7 +113,9 @@ checkLatest|最新版を確認|Check latest version|检查最新版本|최신 �
 install|インストール|Install|安装|설치
 installUpdate|最新版をインストール|Install latest version|安装最新版本|최신 버전 설치
 installDetail|公式GitHubから取得し、SHA-256を検証してユーザー領域に保存します。管理者権限は不要です。|Downloads from official GitHub, verifies SHA-256, and installs for this user without administrator privileges.|从官方 GitHub 下载并验证 SHA-256，安装到用户目录，无需管理员权限。|공식 GitHub에서 다운로드하고 SHA-256을 확인한 후 사용자 영역에 설치합니다. 관리자 권한은 필요하지 않습니다.
-waitInstall|処理が完了してから終了してください。|Wait for this operation to finish before quitting.|请等待操作完成后退出。|작업 완료 후 종료하세요.'''
+waitInstall|処理が完了してから終了してください。|Wait for this operation to finish before quitting.|请等待操作完成后退出。|작업 완료 후 종료하세요.
+syncNote|変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作を、このフォルダーに保存してほかのMacと共有します。|The format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion are saved in this folder and shared with your other Macs.|格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作会保存到此文件夹，并与你的其他 Mac 共享。|형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을 이 폴더에 저장해 다른 Mac과 공유합니다.
+syncPerMac|ログイン時の起動、常駐、メニューバー、保存先、PDFエンジン、pandoc・Illustrator・Photoshop・InDesignの場所、PDFプリセット、ウインドウ位置、同期フォルダーの場所はMacごとに保持します。|Login launch, background, menu bar, output folder, PDF engine, the pandoc, Illustrator, Photoshop and InDesign locations, PDF presets, window positions and the sync folder location stay per Mac.|登录时启动、后台运行、菜单栏、保存位置、PDF 引擎、pandoc、Illustrator、Photoshop 和 InDesign 的位置、PDF 预设、窗口位置和同步文件夹位置在每台 Mac 上分别保留。|로그인 시 실행, 백그라운드, 메뉴 막대, 저장 위치, PDF 엔진, pandoc·Illustrator·Photoshop·InDesign 위치, PDF 사전 설정, 윈도우 위치, 동기화 폴더 위치는 Mac마다 유지합니다.'''
 rows += """
 pdfEngineGroup|PDFエンジン（Typst）|PDF engine (Typst)|PDF 引擎（Typst）|PDF 엔진(Typst)
 pdfEngineInvalid|Typstを実行できません。再インストールしてください。|Could not run Typst. Reinstall it.|无法运行 Typst。请重新安装。|Typst를 실행할 수 없습니다. 다시 설치하세요.

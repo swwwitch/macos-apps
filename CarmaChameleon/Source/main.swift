@@ -15,7 +15,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     @Published var standalone = true
     @Published var wrap = "auto"
     @Published var htmlFormatting = HTMLFormatting(rawValue:UserDefaults.standard.string(forKey:"htmlFormatting") ?? "standard") ?? .standard { didSet { UserDefaults.standard.set(htmlFormatting.rawValue,forKey:"htmlFormatting") } }
-    @Published var pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst" { didSet { UserDefaults.standard.set(pdfEngine,forKey:"pdfEngine") } }
+    @Published var pdfEngine = ConversionRunner.preferredPDFEngine { didSet { UserDefaults.standard.set(pdfEngine,forKey:"pdfEngine") } }
     @Published var keynoteSlideSize = KeynoteSlideSize(rawValue:UserDefaults.standard.string(forKey:"keynoteSlideSize") ?? "") ?? .matchPDF { didSet { UserDefaults.standard.set(keynoteSlideSize.rawValue,forKey:"keynoteSlideSize") } }
     @Published var keynotePlacement = KeynotePlacement(rawValue:UserDefaults.standard.string(forKey:"keynotePlacement") ?? "") ?? .fit { didSet { UserDefaults.standard.set(keynotePlacement.rawValue,forKey:"keynotePlacement") } }
     @Published var keynoteBox = KeynotePageBox(rawValue:UserDefaults.standard.string(forKey:"keynoteBox") ?? "") ?? .crop { didSet { UserDefaults.standard.set(keynoteBox.rawValue,forKey:"keynoteBox") } }
@@ -76,6 +76,9 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     }
     /// clearAfter (⌘-click on 変換): files that converted are removed from the input list when done.
     func start(clearAfter: Bool = false) {
+#if APP_STORE
+        pdfEngine = "typst"
+#endif
         guard !busy, !files.isEmpty else { return }
         if let reason = format.unsupportedReason(for:files) { status = L(reason); return }
         guard let engine = ConversionRunner.engine() else { status = L("engineMissing"); return }
@@ -91,6 +94,15 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
             if destinationMode == "custom", folder == nil { chooseFolder() }
             guard destinationMode == "source" || folder != nil else { return }
         }
+#if APP_STORE
+        let destinations = destinationMode == "custom" && !renamesOriginals ? [folder].compactMap { $0 } : files.map { $0.deletingLastPathComponent() }
+        guard destinations.allSatisfy(StoreFolderAccess.isUserDocumentDestination) else { status = L("storeContainerDestination"); return }
+        do {
+            var required = files.map { $0.deletingLastPathComponent() }
+            if destinationMode == "custom", let folder { required.append(folder) }
+            guard try StoreFolderAccess.shared.authorize(required) else { return }
+        } catch { status = error.localizedDescription; return }
+#endif
         let customFolder = destinationMode == "custom" && !renamesOriginals ? folder : nil
         let shouldOpen = openAfterConversion; let shouldReveal = revealAfterConversion
         let inputs = files
@@ -158,6 +170,21 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
         }
     }
     func cancel() { runner?.cancel(); status = L("cancelling") }
+    /// Re-reads the synced settings after SettingsSync applied another Mac's values (the didSets write back the same values).
+    func reloadSyncedSettings() {
+        formatID = UserDefaults.standard.string(forKey:"format") ?? "docx"
+        htmlFormatting = HTMLFormatting(rawValue:UserDefaults.standard.string(forKey:"htmlFormatting") ?? "standard") ?? .standard
+        keynoteSlideSize = KeynoteSlideSize(rawValue:UserDefaults.standard.string(forKey:"keynoteSlideSize") ?? "") ?? .matchPDF
+        keynotePlacement = KeynotePlacement(rawValue:UserDefaults.standard.string(forKey:"keynotePlacement") ?? "") ?? .fit
+        keynoteBox = KeynotePageBox(rawValue:UserDefaults.standard.string(forKey:"keynoteBox") ?? "") ?? .crop
+        keepStructure = UserDefaults.standard.bool(forKey:"plainKeepStructure")
+        textOptions = MarkdownTextOptions.load()
+        pdfTextMode = UserDefaults.standard.string(forKey:"pdfTextMode") ?? "reading"
+        openAfterConversion = UserDefaults.standard.bool(forKey:"openAfterConversion")
+        revealAfterConversion = UserDefaults.standard.bool(forKey:"revealAfterConversion")
+        FormatPreferences.shared.reload()
+        ensureVisibleFormat()
+    }
 }
 
 /// Which output formats the main window lists, and in what order (Settings › 変換形式).
@@ -166,6 +193,11 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
     @Published var order: [String] { didSet { UserDefaults.standard.set(order,forKey:"formatOrder") } }
     @Published var hidden: Set<String> { didSet { UserDefaults.standard.set(Array(hidden).sorted(),forKey:"hiddenFormats") } }
     private init() {
+        (order, hidden) = Self.load()
+    }
+    /// After SettingsSync applied another Mac's format list.
+    func reload() { (order, hidden) = Self.load() }
+    private static func load() -> ([String], Set<String>) {
         let known = OutputFormat.all.map(\.id)
         let saved = (UserDefaults.standard.stringArray(forKey:"formatOrder") ?? []).filter { known.contains($0) }
         var list = saved
@@ -177,11 +209,10 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment:"") }
             let anchor = known[..<index].last { list.contains($0) }
             list.insert(id, at:anchor.flatMap { list.firstIndex(of:$0) }.map { $0 + 1 } ?? 0)
         }
-        order = list
         var hiddenList = Set(defaults.stringArray(forKey:"hiddenFormats") ?? Array(Self.defaultHidden))
         // 0.10: OpenDocument and LaTeX start hidden, once also for settings saved by an earlier version.
         if !defaults.bool(forKey:"formatsDefaultHidden") { hiddenList.formUnion(Self.defaultHidden); defaults.set(true,forKey:"formatsDefaultHidden") }
-        hidden = hiddenList.intersection(known)
+        return (list, hiddenList.intersection(known))
     }
     static let defaultHidden: Set<String> = ["odt","latex"]
     var ordered: [OutputFormat] { order.compactMap { id in OutputFormat.all.first { $0.id == id } } }
@@ -361,7 +392,11 @@ struct MainView: View {
                                 Text(L("keynoteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                             }
                             if (model.formatID == "pdf" && model.files.contains(where: { !OutputFormat.imageOnlyInputs.union(["ai"]).contains($0.pathExtension.lowercased()) })) || (model.formatID == "keynote" && model.files.contains(where: { !ConversionRunner.isPDF($0) })) {
-                                Picker(L("pdfEngine"),selection:$model.pdfEngine) { Text("Typst").tag("typst"); Text("XeLaTeX").tag("xelatex"); Text("LuaLaTeX").tag("lualatex") }
+                                Picker(L("pdfEngine"),selection:$model.pdfEngine) { Text("Typst").tag("typst");
+#if !APP_STORE
+ Text("XeLaTeX").tag("xelatex"); Text("LuaLaTeX").tag("lualatex")
+#endif
+ }
                                 Label(L(ConversionRunner.pdfAvailable(model.pdfEngine) ? "pdfReady" : "pdfMissing"),systemImage:"info.circle").font(.caption).foregroundColor(.secondary)
                                 Button(L("pdfSetup")) { (NSApp.delegate as? Delegate)?.showSettings() }
                             }
@@ -405,9 +440,9 @@ struct MainView: View {
                 Button(L("convert")) { let event = NSApp.currentEvent; model.start(clearAfter:event?.type == .leftMouseUp && event?.modifierFlags.contains(.command) == true) }.help(L("convertHelp")).keyboardShortcut(.return,modifiers:.command).buttonStyle(.borderedProminent).controlSize(.large).disabled(model.files.isEmpty || model.busy)
             }
         }.onReceive(NotificationCenter.default.publisher(for:NSApplication.didBecomeActiveNotification)) { _ in
-            model.pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
+            model.pdfEngine = ConversionRunner.preferredPDFEngine
         }.onReceive(pdfManager.$version) { _ in
-            model.pdfEngine = UserDefaults.standard.string(forKey:"pdfEngine") ?? "typst"
+            model.pdfEngine = ConversionRunner.preferredPDFEngine
         }.onReceive(FormatPreferences.shared.$hidden) { _ in DispatchQueue.main.async { model.ensureVisibleFormat() } }
         .padding(24).frame(minWidth:990,minHeight:670).background(Color(nsColor:AppSurface.color)).tint(appTint)
     }
@@ -515,6 +550,7 @@ struct SettingsView: View {
                 SettingsSection(L("engine")) { EngineSettingsView() }
                 SettingsSection(L("pdfEngineGroup")) { PDFEngineSettingsView() }
             })),
+            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
             (AboutSection.title, AnyView(AboutView())),
         ]).frame(minWidth:620,maxWidth:.infinity,minHeight:640,maxHeight:.infinity)
     }
@@ -641,6 +677,14 @@ struct FormatSettingsView: View {
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !isDuplicate else { return }
+        SettingsSync.shared.onImport = { [weak self] in Task { @MainActor in self?.model.reloadSyncedSettings() } }
+        // Paths, presets read from the local Adobe apps, the PDF engine and the output folder stay per Mac.
+        SettingsSync.shared.start(.init(
+            keys: ["format", "htmlFormatting", "keynoteSlideSize", "keynotePlacement", "keynoteBox", "plainKeepStructure", "plainStructureOptions",
+                   "pdfTextMode", "openAfterConversion", "revealAfterConversion", "formatOrder", "hiddenFormats", "aiMethod", "psdMethod",
+                   "csvDelimiter", "pdfCombineImages", "nameFile", "nameNumber", "nameLabel", "nameDelimiter", "namePad", "nameSingle", "nameGroupFolder"],
+            prefixes: ["raster", "svg", "utf16", "filename", "xlsx"],
+            note: L("syncNote"), perMac: L("syncPerMac")))
         buildMenus()
         window = NSWindow(contentRect:NSRect(x:0,y:0,width:1080,height:720),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
         window.title = "CarmaChameleon"; window.titleVisibility = .hidden; window.contentView = NSHostingView(rootView:MainView(model:model)); window.delegate = self; window.isReleasedWhenClosed = false
