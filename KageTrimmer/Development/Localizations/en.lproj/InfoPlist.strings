@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "KageTrimmer";
+"NSAppleEventsUsageDescription" = "Used to read the images selected in Finder or Path Finder when you press the shortcut.";

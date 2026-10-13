@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "KageTrimmer";
+"NSAppleEventsUsageDescription" = "ホットキーを押したときに、FinderまたはPath Finderで選択している画像を読み取るために使います。";

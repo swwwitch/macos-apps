@@ -73,7 +73,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showMainWindow()
     }
 
-    @objc private func showSettings() {
+    @objc func showSettings() {
         if settingsWindow == nil {
             let controller = ShortcutSettingsController(shortcut: shortcut)
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
@@ -90,6 +90,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func performShortcut() {
+        #if !APP_STORE
+        // Images selected in the frontmost Finder / Path Finder are processed in place; otherwise the window comes forward.
+        if let mainViewController, !mainViewController.isProcessing {
+            switch FileBrowserSelection.selectedFiles() {
+            case .files(let urls) where mainViewController.containsImages(urls):
+                mainViewController.process(urls, quietly: true) { [weak self] succeeded in
+                    if !succeeded { self?.showMainWindow() }
+                }
+                return
+            case .denied:
+                mainViewController.showStatus(L("FinderまたはPath Finderの選択を読み取れませんでした。システム設定の「プライバシーとセキュリティ」＞「オートメーション」で、KageTrimmerに許可してください。"))
+            default:
+                break
+            }
+        }
+        #endif
         showMainWindow()
     }
 
@@ -192,11 +208,12 @@ final class MainViewController: NSViewController {
     private let dropView = DropView()
     var isProcessing: Bool { dropView.isProcessing }
     private let borderCheck = NSButton(checkboxWithTitle: L("薄い罫線を付ける"), target: nil, action: nil)
-    private let choices = [(L("影なし"), 0), ("XS", 10), ("S", 27), ("L", 112)]
+    private let choices = ShadowSizes.choices
     private var radioButtons: [NSButton] = []
     private let status = NSTextField(labelWithString: L("処理後の画像は元ファイルと同じ場所に「-s.png」で保存されます"))
     private var addBorder = UserDefaults.standard.object(forKey: "addBorder") as? Bool ?? true
-    private var shadowSize = UserDefaults.standard.object(forKey: "shadowSize") as? Int ?? 27
+    // Starts from the default in Settings; a choice in the main window lasts until quit.
+    private var shadowSize = ShadowSizes.defaultSize
     private var outputFolderGrants: [String: URL] = [:]
 
     deinit {
@@ -207,6 +224,8 @@ final class MainViewController: NSViewController {
         let folders = Set(urls.map { $0.deletingLastPathComponent().standardizedFileURL })
         for folder in folders.sorted(by: { $0.path < $1.path }) {
             if outputFolderGrants[folder.path] != nil || FileManager.default.isWritableFile(atPath: folder.path) { continue }
+            // A hotkey run starts in the background; the panel needs the app in front.
+            NSApp.activate(ignoringOtherApps: true)
             let panel = NSOpenPanel()
             panel.title = L("元画像のフォルダへの保存を許可")
             panel.message = L("処理した画像を同じフォルダに「%@.png」で保存するため、元画像があるフォルダを選択してください。", String(describing: ShadowProcessor.outputSuffix(shadowSize: shadowSize)))
@@ -231,11 +250,7 @@ final class MainViewController: NSViewController {
         return true
     }
     override func loadView() {
-        if shadowSize == 40 || shadowSize == 43 {
-            shadowSize = 27
-            UserDefaults.standard.set(shadowSize, forKey: "shadowSize")
-        }
-        if !choices.map(\.1).contains(shadowSize) { shadowSize = 27 }
+        NotificationCenter.default.addObserver(self, selector: #selector(outputSettingsChanged(_:)), name: ShadowSizes.settingsChanged, object: nil)
         updateOutputDescription()
         view = AdaptiveBackgroundView(frame: NSRect(x: 0, y: 0, width: 540, height: 455), color: NSColor(srgbRed: 236.0 / 255, green: 236.0 / 255, blue: 236.0 / 255, alpha: 1), isMainBackground: true)
         let icon = NSImageView(image: currentAppIcon()); icon.imageScaling = .scaleProportionallyUpOrDown
@@ -243,7 +258,11 @@ final class MainViewController: NSViewController {
         let subtitle = NSTextField(labelWithString: L("スクリーンショットの影をコンパクトに")); subtitle.font = .systemFont(ofSize: 11); subtitle.textColor = .secondaryLabelColor
         let titleStack = NSStackView(views: [title, subtitle]); titleStack.orientation = .vertical; titleStack.alignment = .leading; titleStack.spacing = 2
         let spacer = NSView(); spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let header = NSStackView(views: [icon, titleStack, spacer]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
+        // Same as the other apps: a borderless gear button at the right of the header. Nil target reaches AppDelegate.
+        let settingsButton = NSButton(title: L("設定"), image: NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)!, target: nil, action: #selector(AppDelegate.showSettings))
+        settingsButton.isBordered = false; settingsButton.imagePosition = .imageLeading; settingsButton.toolTip = L("設定") + " (⌘,)"
+        settingsButton.refusesFirstResponder = true
+        let header = NSStackView(views: [icon, titleStack, spacer, settingsButton]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
         let sizeLabel = NSTextField(labelWithString: L("影の大きさ")); sizeLabel.font = .systemFont(ofSize: 12, weight: .medium)
         radioButtons = choices.map { name, size in
             let button = NSButton(radioButtonWithTitle: size == 0 ? name : "\(name)（\(size)）", target: self, action: #selector(sizeChanged(_:)))
@@ -269,6 +288,15 @@ final class MainViewController: NSViewController {
             status.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 22), status.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -22), status.topAnchor.constraint(equalTo: dropView.bottomAnchor, constant: 15)
         ])
     }
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        // The key-view loop focuses the first radio (影なし); Space or an arrow key would then switch the size unnoticed.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let window = self.view.window, let focused = window.firstResponder as? NSButton,
+                  self.radioButtons.contains(where: { $0 === focused }) else { return }
+            window.makeFirstResponder(nil)
+        }
+    }
     private func updateOutputDescription() {
         borderCheck.isEnabled = shadowSize != 0
         status.stringValue = (shadowSize == 0 ? L("影のない画像はスキップします。\n") : "") + L("処理後の画像は元ファイルと同じ場所に「%@.png」で保存されます", String(describing: ShadowProcessor.outputSuffix(shadowSize: shadowSize)))
@@ -277,21 +305,38 @@ final class MainViewController: NSViewController {
         shadowSize = sender.tag
         updateOutputDescription()
         for button in radioButtons { button.state = button === sender ? .on : .off }
-        UserDefaults.standard.set(shadowSize, forKey: "shadowSize")
+    }
+    /// A new default in Settings is applied to the main window too; a suffix change only updates the description.
+    @objc private func outputSettingsChanged(_ notification: Notification) {
+        if let size = notification.userInfo?[ShadowSizes.defaultKey] as? Int {
+            shadowSize = size
+            for button in radioButtons { button.state = button.tag == size ? .on : .off }
+        }
+        updateOutputDescription()
     }
     @objc private func borderChanged(_ sender: NSButton) {
         addBorder = sender.state == .on
         UserDefaults.standard.set(addBorder, forKey: "addBorder")
     }
+    private static func imageFiles(_ urls: [URL]) -> [URL] {
+        urls.filter { $0.isFileURL && UTType(filenameExtension: $0.pathExtension)?.conforms(to: .image) == true }
+    }
+    func containsImages(_ urls: [URL]) -> Bool { !Self.imageFiles(urls).isEmpty }
+    func showStatus(_ text: String) { status.stringValue = text }
     func process(_ urls: [URL], completion: (() -> Void)? = nil) {
-        let supported = urls.filter { $0.isFileURL && UTType(filenameExtension: $0.pathExtension)?.conforms(to: .image) == true }
+        process(urls, quietly: false) { _ in completion?() }
+    }
+    /// `quietly`: a hotkey run in the background. Success only plays a sound; the completion gets false when
+    /// anything failed or was skipped, so the caller can show the window with the results.
+    func process(_ urls: [URL], quietly: Bool, completion: @escaping (Bool) -> Void) {
+        let supported = Self.imageFiles(urls)
         guard !supported.isEmpty else {
             status.stringValue = L("画像ファイルをドロップしてください。")
-            completion?()
+            completion(false)
             return
         }
         guard authorizeOutputFolders(for: supported) else {
-            completion?()
+            completion(false)
             return
         }
         status.stringValue = L("処理しています…"); dropView.isProcessing = true
@@ -299,18 +344,20 @@ final class MainViewController: NSViewController {
         let size = shadowSize
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             var results: [String] = []
+            var allSucceeded = true
             for url in supported {
                 do {
                     let result = try ShadowProcessor.process(url: url, addBorderWhenMissing: border, shadowSize: size)
                     let action = size == 0 ? L("影を除去") : (result.hadShadow ? L("既存の影を軽量化") : L("影を追加"))
                     results.append("✓ \(result.output.lastPathComponent)（\(action)）")
-                } catch ShadowError.noShadow { results.append(L("− %@：影がないためスキップ", String(describing: url.lastPathComponent)))
-                } catch { results.append("⚠︎ \(url.lastPathComponent)：\(error.localizedDescription)") }
+                } catch ShadowError.noShadow { results.append(L("− %@：影がないためスキップ", String(describing: url.lastPathComponent))); allSucceeded = false
+                } catch { results.append("⚠︎ \(url.lastPathComponent)：\(error.localizedDescription)"); allSucceeded = false }
             }
             DispatchQueue.main.async {
                 self?.status.stringValue = results.joined(separator: "\n")
                 self?.dropView.isProcessing = false
-                completion?()
+                if quietly && allSucceeded { NSSound(named: "Glass")?.play() }
+                completion(allSucceeded)
             }
         }
     }
@@ -432,19 +479,140 @@ final class KageShortcut {
     }
 }
 
+#if !APP_STORE
+/// Reads the selection of the frontmost Finder or Path Finder with Apple Events (asks for Automation once).
+enum FileBrowserSelection {
+    enum Result { case notFileBrowser, files([URL]), denied, failed }
+    private static let finder = "com.apple.finder"
+    private static let pathFinders: Set<String> = ["com.cocoatech.PathFinder", "com.cocoatech.PathFinder-setapp"]
+
+    static func selectedFiles() -> Result {
+        guard let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+              bundleID == finder || pathFinders.contains(bundleID) else { return .notFileBrowser }
+        // Finder items convert through alias; Path Finder's fsItem has its own POSIX path. Empty selection gives "".
+        let item = bundleID == finder ? "POSIX path of (anItem as alias)" : "POSIX path of anItem"
+        let source = """
+        tell application id "\(bundleID)"
+            set out to ""
+            try
+                repeat with anItem in (get selection)
+                    set out to out & (\(item)) & linefeed
+                end repeat
+            end try
+            return out
+        end tell
+        """
+        var error: NSDictionary?
+        guard let output = NSAppleScript(source: source)?.executeAndReturnError(&error) else {
+            // -1743: not allowed in Automation.
+            return (error?[NSAppleScript.errorNumber] as? Int) == -1743 ? .denied : .failed
+        }
+        let paths = (output.stringValue ?? "").split(separator: "\n").map(String.init).filter { !$0.isEmpty }
+        return .files(paths.map { URL(fileURLWithPath: $0) })
+    }
+}
+#endif
+
+enum ShadowSizes {
+    static let choices = [(L("影なし"), 0), ("XS", 10), ("S", 27), ("L", 112)]
+    static let defaultKey = "defaultShadowSize"
+    static let settingsChanged = Notification.Name("KageTrimmerOutputSettingsChanged")
+    static var defaultSize: Int {
+        let saved = UserDefaults.standard.object(forKey: defaultKey) as? Int ?? 27
+        return choices.contains { $0.1 == saved } ? saved : 27
+    }
+}
+
+/// 「出力」 tab: the shadow size the main window starts with, and the file name suffix for each size.
+@MainActor final class OutputSettingsController: NSObject, NSTextFieldDelegate {
+    private let sizePopUp = NSPopUpButton()
+    private var suffixFields: [NSTextField] = []
+
+    func makeView() -> NSView {
+        sizePopUp.addItems(withTitles: ShadowSizes.choices.map { $0.1 == 0 ? $0.0 : "\($0.0)（\($0.1)）" })
+        sizePopUp.selectItem(at: ShadowSizes.choices.firstIndex { $0.1 == ShadowSizes.defaultSize } ?? 2)
+        sizePopUp.target = self; sizePopUp.action = #selector(defaultSizeChanged)
+        sizePopUp.setAccessibilityLabel(L("起動時の影の大きさ"))
+        let sizeLabel = NSTextField(labelWithString: L("起動時の影の大きさ"))
+        let sizeRow = NSStackView(views: [sizeLabel, sizePopUp]); sizeRow.spacing = 8; sizeRow.alignment = .firstBaseline
+        let sizeHelp = NSTextField(wrappingLabelWithString: L("メインウインドウはこの大きさで始まります。メインウインドウで選び直した大きさは、終了するまで使われます。"))
+        sizeHelp.font = .systemFont(ofSize: 11); sizeHelp.textColor = .secondaryLabelColor
+        let sizeGroup = SettingsUI.group(L("影の大きさ"), [sizeRow, sizeHelp])
+
+        let grid = NSGridView(numberOfColumns: 2, rows: 0)
+        grid.rowSpacing = 8; grid.columnSpacing = 8
+        for (name, size) in ShadowSizes.choices {
+            let label = NSTextField(labelWithString: name)
+            let field = NSTextField(string: UserDefaults.standard.string(forKey: ShadowProcessor.suffixKey(shadowSize: size)) ?? "")
+            field.placeholderString = ShadowProcessor.defaultOutputSuffix(shadowSize: size)
+            field.tag = size; field.delegate = self
+            field.setAccessibilityLabel(L("%@の接尾辞", String(describing: name)))
+            field.widthAnchor.constraint(equalToConstant: 180).isActive = true
+            grid.addRow(with: [label, field])
+            suffixFields.append(field)
+        }
+        grid.column(at: 0).xPlacement = .trailing
+        grid.rowAlignment = .firstBaseline
+        let suffixHelp = NSTextField(wrappingLabelWithString: L("影の大きさごとに、元の名前の後ろに付ける文字を指定します。空欄にするとデフォルトの接尾辞を使います。「/」と「:」は使えません。"))
+        suffixHelp.font = .systemFont(ofSize: 11); suffixHelp.textColor = .secondaryLabelColor
+        let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetSuffixes))
+        // The group stretches each row to its width; the spacer keeps the button at its natural size.
+        let resetSpacer = NSView(); resetSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let resetRow = NSStackView(views: [reset, resetSpacer])
+        let suffixGroup = SettingsUI.group(L("ファイル名の接尾辞"), [grid, suffixHelp, resetRow])
+
+        let stack = NSStackView(views: [sizeGroup, suffixGroup]); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
+        for group in [sizeGroup, suffixGroup] { group.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
+        return stack
+    }
+    @objc private func defaultSizeChanged() {
+        let size = ShadowSizes.choices[sizePopUp.indexOfSelectedItem].1
+        UserDefaults.standard.set(size, forKey: ShadowSizes.defaultKey)
+        NotificationCenter.default.post(name: ShadowSizes.settingsChanged, object: nil, userInfo: [ShadowSizes.defaultKey: size])
+    }
+    func controlTextDidChange(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else { return }
+        save(field)
+    }
+    func controlTextDidEndEditing(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else { return }
+        // Show what is actually used once editing ends: unusable characters removed.
+        field.stringValue = ShadowProcessor.sanitizedSuffix(field.stringValue)
+        save(field)
+    }
+    private func save(_ field: NSTextField) {
+        let suffix = ShadowProcessor.sanitizedSuffix(field.stringValue)
+        let key = ShadowProcessor.suffixKey(shadowSize: field.tag)
+        if suffix.isEmpty { UserDefaults.standard.removeObject(forKey: key) } else { UserDefaults.standard.set(suffix, forKey: key) }
+        NotificationCenter.default.post(name: ShadowSizes.settingsChanged, object: nil)
+    }
+    @objc private func resetSuffixes() {
+        for field in suffixFields {
+            field.stringValue = ""
+            UserDefaults.standard.removeObject(forKey: ShadowProcessor.suffixKey(shadowSize: field.tag))
+        }
+        NotificationCenter.default.post(name: ShadowSizes.settingsChanged, object: nil)
+    }
+}
+
 final class ShortcutSettingsController: NSViewController {
     private let shortcut: KageShortcut
     private let enabled = NSButton(checkboxWithTitle: L("ホットキーを有効にする"), target: nil, action: nil)
     private let modifiers = NSPopUpButton()
     private let key = NSPopUpButton()
     private let message = NSTextField(wrappingLabelWithString: "")
+    private let output = OutputSettingsController()
     init(shortcut: KageShortcut) { self.shortcut = shortcut; super.init(nibName: nil, bundle: nil) }
     required init?(coder: NSCoder) { fatalError() }
     override func loadView() {
         view = NSView(frame: NSRect(x: 0, y: 0, width: 520, height: 560))
         let title = NSTextField(labelWithString: SettingsUI.shortcutTitle)
         title.font = .systemFont(ofSize: 13, weight: .semibold)
+        #if APP_STORE
         let help = NSTextField(wrappingLabelWithString: L("KageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
+        #else
+        let help = NSTextField(wrappingLabelWithString: L("FinderまたはPath Finderで画像を選択しているときは、その画像をすぐに処理します。選択していないときはKageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
+        #endif
         help.textColor = .secondaryLabelColor
         modifiers.addItems(withTitles: KageShortcut.modifiers.map { $0.0 })
         key.addItems(withTitles: KageShortcut.keys.map { $0.0 })
@@ -456,7 +624,7 @@ final class ShortcutSettingsController: NSViewController {
         let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
         message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
         let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
-        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (AboutSection.title, AboutSection.view())], in: view)
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (L("出力"), output.makeView()), (AboutSection.title, AboutSection.view())], in: view)
         refresh()
         message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：⌃⌥⌘U（control + option + command + U）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
     }

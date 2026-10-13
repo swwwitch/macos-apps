@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "KageTrimmer";
+"NSAppleEventsUsageDescription" = "用于在按下快捷键时读取Finder或Path Finder中选择的图像。";

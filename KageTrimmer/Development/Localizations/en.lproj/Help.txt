@@ -16,7 +16,7 @@ The original image is never changed. The processed PNG is saved in the same fold
 - **S**: -s
 - **L**: -l
 
-If a file with the same name already exists, it is not replaced; a number is added instead, such as “name-s 2.png” and “name-s 3.png”. There is no setting to change the destination or the suffix.
+If a file with the same name already exists, it is not replaced; a number is added instead, such as “name-s 2.png” and “name-s 3.png”. You can change the suffixes in the Output tab of Settings.
 
 ## No Shadow
 No shadow removes existing shadows. Images without a shadow are skipped rather than given a shadow.
@@ -27,7 +27,9 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **Open at login**
 - **Hide main window at startup**
 - **Show in menu bar**
-- **Show app shortcut**: shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. Click **Restore Defaults** to go back to the default.
+- **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. Click **Restore Defaults** to go back to the default.
+
+In the Output tab you can choose the shadow size the main window starts with (S by default) and the file name suffix for each shadow size. A size chosen in the main window is used until you quit. Leave a suffix field empty to use the default suffix.
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window
@@ -37,9 +39,11 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **⌘W**: Close Window
 - **⌘Z / ⇧⌘Z**: Undo / Redo (when editing text fields)
 - **⌘Q**: Quit KageTrimmer
-- **⌃⌥⌘U** (default): Show the KageTrimmer window (works while you are using other apps)
+- **⌃⌥⌘U** (default): Process the images selected in Finder or Path Finder, or show the KageTrimmer window if nothing is selected (works while you are using other apps)
 
 ## Permissions
+The first time the shortcut processes selected images, macOS asks whether KageTrimmer may control Finder (or Path Finder). Click **Allow**. To change this later, use System Settings > Privacy & Security > Automation. A sound plays when processing finishes; if any image could not be processed (for example, it had no shadow), the window shows the results.
+
 KageTrimmer does not need Accessibility permission. If it cannot write to the original image’s folder, it asks for access to that folder. Choose the folder that contains the original image and click **Allow Access**.
 
 ## Opening and Quitting

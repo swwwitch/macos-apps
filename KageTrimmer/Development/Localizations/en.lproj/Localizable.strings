@@ -62,3 +62,11 @@
 "画像の処理中は終了できません" = "Can’t Quit While Processing Images";
 "処理が終わってから、もう一度終了してください。" = "Quit again after processing has finished.";
 "OK" = "OK";
+"出力" = "Output";
+"起動時の影の大きさ" = "Shadow size at launch";
+"メインウインドウはこの大きさで始まります。メインウインドウで選び直した大きさは、終了するまで使われます。" = "The main window starts with this size. A size chosen in the main window is used until you quit.";
+"ファイル名の接尾辞" = "File name suffix";
+"%@の接尾辞" = "Suffix for %@";
+"影の大きさごとに、元の名前の後ろに付ける文字を指定します。空欄にするとデフォルトの接尾辞を使います。「/」と「:」は使えません。" = "The text added after the original name for each shadow size. Leave a field empty to use the default suffix. “/” and “:” can’t be used.";
+"FinderまたはPath Finderで画像を選択しているときは、その画像をすぐに処理します。選択していないときはKageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。" = "When images are selected in Finder or Path Finder, they are processed right away. Otherwise the KageTrimmer window is shown. Available after closing the window until you quit the app.";
+"FinderまたはPath Finderの選択を読み取れませんでした。システム設定の「プライバシーとセキュリティ」＞「オートメーション」で、KageTrimmerに許可してください。" = "Couldn’t read the selection in Finder or Path Finder. Allow KageTrimmer in System Settings > Privacy & Security > Automation.";

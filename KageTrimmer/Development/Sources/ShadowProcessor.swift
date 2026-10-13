@@ -33,13 +33,27 @@ private final class RelatedOutputPresenter: NSObject, NSFilePresenter {
 }
 
 enum ShadowProcessor {
-    static func outputSuffix(shadowSize: Int) -> String {
+    static func defaultOutputSuffix(shadowSize: Int) -> String {
         switch shadowSize {
         case 0: return "-no-shadow"
         case 10: return "-xs"
         case 112: return "-l"
         default: return "-s"
         }
+    }
+
+    /// The suffix chosen in Settings, or the default when it is unset or empty.
+    static func outputSuffix(shadowSize: Int) -> String {
+        let saved = sanitizedSuffix(UserDefaults.standard.string(forKey: suffixKey(shadowSize: shadowSize)) ?? "")
+        return saved.isEmpty ? defaultOutputSuffix(shadowSize: shadowSize) : saved
+    }
+
+    static func suffixKey(shadowSize: Int) -> String { "outputSuffix.\(shadowSize)" }
+
+    /// "/" and ":" would leave the source folder or be shown as "/" in Finder; line breaks and outer spaces are dropped.
+    static func sanitizedSuffix(_ suffix: String) -> String {
+        suffix.components(separatedBy: CharacterSet(charactersIn: "/:").union(.newlines)).joined()
+            .trimmingCharacters(in: .whitespaces)
     }
 
     private static let ciContext = CIContext(options: [.cacheIntermediates: false])
