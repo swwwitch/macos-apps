@@ -40,6 +40,10 @@ rows = [
 ('barShow', '表示する', 'Show', '显示', '표시'),
 ('barHideAll', 'すべて非表示にする', 'Hide All', '全部隐藏', '모두 숨기기'),
 ('barFound', '%ld件のワークスペースを検出しました。反映はInDesignの次回起動からです。', 'Found %ld workspaces. Changes apply the next time InDesign starts.', '检测到 %ld 个工作区。更改将在下次启动 InDesign 时生效。', '작업 영역 %ld개를 찾았습니다. 변경 사항은 다음 InDesign 실행부터 적용됩니다.'),
+('barBuiltIn', 'InDesign標準', 'InDesign preset', 'InDesign 预设', 'InDesign 기본'),
+('barOrphan', '保存したワークスペースが無く、InDesignのメニューには出ないファイルです', 'Its workspace was deleted; InDesign does not list it', '其工作区已删除，InDesign 不会列出', '작업 영역이 삭제되어 InDesign 메뉴에 나오지 않는 파일입니다'),
+('barShowOrphans', '使われていないファイルも表示（%ld件）', 'Also show unused files (%ld)', '同时显示未使用的文件（%ld 个）', '사용하지 않는 파일도 표시(%ld개)'),
+('barOrphanHint', '削除したワークスペースの「名前_CurrentWorkspace.xml」が残っているものです。InDesignの「ワークスペース」メニューには出ません。', 'Leftover “name_CurrentWorkspace.xml” files of deleted workspaces. They are not in InDesign’s Workspace menu.', '已删除工作区遗留的“名称_CurrentWorkspace.xml”文件，不会出现在 InDesign 的“工作区”菜单中。', '삭제한 작업 영역의 \'이름_CurrentWorkspace.xml\' 파일이 남은 것입니다. InDesign의 \'작업 영역\' 메뉴에는 나오지 않습니다.'),
 ('barNotFound', 'ワークスペースが見つかりません', 'No workspaces found', '未找到工作区', '작업 영역을 찾을 수 없습니다'),
 ('barQuitFirst', 'InDesignの起動中は変更できません。InDesignは終了するときにワークスペースを書き戻すため、終了してから操作してください。', 'Cannot change while InDesign is running. InDesign writes its workspaces back when it quits, so quit it first.', 'InDesign 运行时无法更改。InDesign 退出时会写回工作区，请先退出 InDesign。', 'InDesign이 실행 중일 때는 변경할 수 없습니다. InDesign은 종료할 때 작업 영역을 다시 저장하므로 먼저 종료하세요.'),
 ('barNote', '保存したワークスペース（名前.xml）と現在の状態（名前_CurrentWorkspace.xml）の両方を書き換えます。アプリケーションフレームを使っているときは効きません。', 'Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed. Has no effect while the Application Frame is used.', '会同时修改已存储的工作区（名称.xml）和当前状态（名称_CurrentWorkspace.xml）。使用应用程序框架时无效。', '저장된 작업 영역(이름.xml)과 현재 상태(이름_CurrentWorkspace.xml)를 모두 변경합니다. 응용 프로그램 프레임을 사용할 때는 적용되지 않습니다.'),
@@ -82,6 +86,7 @@ InDesignのアプリ内の Contents/MacOS フォルダに、空のファイル D
 
 アプリケーションバー
 上部の「アプリケーションバー」に切り替えると、~/Library/Preferences/Adobe InDesign の各バージョンのワークスペースを一覧表示します。「非表示にする」で、ワークスペースのXMLにある <app-container-control-bar … is-closed="false"> を "true" に書き換えます（「表示する」で元に戻します）。保存したワークスペース（名前.xml）と現在の状態（名前_CurrentWorkspace.xml）の両方を書き換えます。
+一覧に出すのは、自分で保存したワークスペースとInDesign標準のワークスペースです。削除したワークスペースの現在の状態だけが残ったファイルは「使われていないファイルも表示」をオンにしたときだけ出します。Dropboxなどの競合コピーは表示しません。
 InDesignは終了するときにワークスペースを書き戻すため、InDesignの起動中は変更できません。終了してから操作してください。アプリケーションフレームを使っているときは効きません。管理者パスワードは不要です。
 参考：https://note.com/dtp_tranist/n/n08559ccb6a3b
 
@@ -118,6 +123,7 @@ Changes take effect the next time InDesign starts. Quit and reopen InDesign if i
 
 Application bar
 Switch to Application Bar at the top to list the workspaces of each version in ~/Library/Preferences/Adobe InDesign. Hide changes <app-container-control-bar … is-closed="false"> in the workspace XML to "true" (Show changes it back). Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed.
+The list shows your saved workspaces and InDesign presets. Leftover current-state files of deleted workspaces appear only with “Also show unused files”; Dropbox conflicted copies are never listed.
 InDesign writes its workspaces back when it quits, so changes are not allowed while InDesign is running. Quit it first. This has no effect while the Application Frame is used. No administrator password is needed.
 Reference (Japanese): https://note.com/dtp_tranist/n/n08559ccb6a3b
 

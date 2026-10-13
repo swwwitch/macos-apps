@@ -3,10 +3,14 @@ import Foundation
 /// One InDesign workspace: the saved file (`name.xml`) and/or its current state (`name_CurrentWorkspace.xml`).
 /// Built-in workspaces (初期設定 etc.) only have the current-state file; their saved copy lives inside the app.
 struct Workspace: Identifiable, Equatable {
+    /// `saved`: the user's own workspace (`name.xml` exists). `builtIn`: one of InDesign's presets.
+    /// `orphan`: only a current-state file is left — its workspace was deleted, so InDesign does not list it.
+    enum Kind: Equatable { case saved, builtIn, orphan }
     let version: String
     let locale: String
     let name: String
     let files: [URL]
+    var kind: Kind = .saved
     var id: String { (files.first?.deletingLastPathComponent().path ?? "") + "/" + name }
 }
 
@@ -25,8 +29,30 @@ enum ApplicationBar {
         FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Preferences/Adobe InDesign", isDirectory: true)
     }
 
-    /// `Version <n>/<locale>/Workspaces/*.xml`, newest version first. Conflicted copies ("…_CurrentWorkspace (… 競合コピー …).xml") are skipped.
-    static func discover(root: URL = root) -> [Workspace] {
+    /// Dropbox/iCloud conflicted copies, also when InDesign has loaded one and written its own current-state file
+    /// (`sw-left_CurrentWorkspace (… 競合コピー …)_CurrentWorkspace.xml`).
+    static func isConflictedCopy(_ name: String) -> Bool {
+        name.contains("競合コピー") || name.localizedCaseInsensitiveContains("conflicted copy") || name.contains(suffix)
+    }
+
+    /// Names of InDesign's preset workspaces per locale, from every installed InDesign
+    /// (`/Applications/Adobe InDesign <year>/Presets/InDesign_Workspaces/<locale>/*.xml`).
+    static func builtInNames(applications: URL = URL(fileURLWithPath: "/Applications", isDirectory: true)) -> [String: Set<String>] {
+        let fm = FileManager.default
+        var result: [String: Set<String>] = [:]
+        for folder in ((try? fm.contentsOfDirectory(atPath: applications.path)) ?? []) where folder.hasPrefix("Adobe InDesign") {
+            let presets = applications.appendingPathComponent(folder).appendingPathComponent("Presets/InDesign_Workspaces", isDirectory: true)
+            for locale in (try? fm.contentsOfDirectory(atPath: presets.path)) ?? [] {
+                let files = (try? fm.contentsOfDirectory(atPath: presets.appendingPathComponent(locale).path)) ?? []
+                result[locale, default: []].formUnion(files.filter { $0.hasSuffix(".xml") }.map { String($0.dropLast(4)) })
+            }
+        }
+        return result
+    }
+
+    /// `Version <n>/<locale>/Workspaces/*.xml`, newest version first. Conflicted copies are skipped.
+    /// Without `builtIn` (no InDesign presets found) nothing is marked as an orphan.
+    static func discover(root: URL = root, builtIn: [String: Set<String>] = builtInNames()) -> [Workspace] {
         let fm = FileManager.default
         var result: [Workspace] = []
         let versions = ((try? fm.contentsOfDirectory(atPath: root.path)) ?? []).filter { $0.hasPrefix("Version ") }
@@ -40,14 +66,18 @@ enum ApplicationBar {
                 var grouped: [String: [URL]] = [:]
                 for file in names where file.hasSuffix(".xml") {
                     var name = String(file.dropLast(4))
-                    if name.hasSuffix(suffix) { name = String(name.dropLast(suffix.count)) } else if name.contains(suffix) { continue }
+                    if name.hasSuffix(suffix) { name = String(name.dropLast(suffix.count)) }
+                    if isConflictedCopy(name) { continue }
                     let url = folder.appendingPathComponent(file)
                     guard isClosed(url) != nil else { continue }
                     grouped[name, default: []].append(url)
                 }
                 for (name, files) in grouped {
+                    let saved = files.contains { $0.lastPathComponent == name + ".xml" }
+                    let kind: Workspace.Kind = saved ? .saved
+                        : (builtIn[locale].map { $0.contains(name) } ?? true) ? .builtIn : .orphan
                     result.append(Workspace(version: String(version.dropFirst("Version ".count)), locale: locale, name: name,
-                                            files: files.sorted { $0.lastPathComponent < $1.lastPathComponent }))
+                                            files: files.sorted { $0.lastPathComponent < $1.lastPathComponent }, kind: kind))
                 }
             }
         }

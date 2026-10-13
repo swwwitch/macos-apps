@@ -35,6 +35,10 @@
 "barShow" = "표시";
 "barHideAll" = "모두 숨기기";
 "barFound" = "작업 영역 %ld개를 찾았습니다. 변경 사항은 다음 InDesign 실행부터 적용됩니다.";
+"barBuiltIn" = "InDesign 기본";
+"barOrphan" = "작업 영역이 삭제되어 InDesign 메뉴에 나오지 않는 파일입니다";
+"barShowOrphans" = "사용하지 않는 파일도 표시(%ld개)";
+"barOrphanHint" = "삭제한 작업 영역의 '이름_CurrentWorkspace.xml' 파일이 남은 것입니다. InDesign의 '작업 영역' 메뉴에는 나오지 않습니다.";
 "barNotFound" = "작업 영역을 찾을 수 없습니다";
 "barQuitFirst" = "InDesign이 실행 중일 때는 변경할 수 없습니다. InDesign은 종료할 때 작업 영역을 다시 저장하므로 먼저 종료하세요.";
 "barNote" = "저장된 작업 영역(이름.xml)과 현재 상태(이름_CurrentWorkspace.xml)를 모두 변경합니다. 응용 프로그램 프레임을 사용할 때는 적용되지 않습니다.";

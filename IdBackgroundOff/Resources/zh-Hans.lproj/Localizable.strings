@@ -35,6 +35,10 @@
 "barShow" = "显示";
 "barHideAll" = "全部隐藏";
 "barFound" = "检测到 %ld 个工作区。更改将在下次启动 InDesign 时生效。";
+"barBuiltIn" = "InDesign 预设";
+"barOrphan" = "其工作区已删除，InDesign 不会列出";
+"barShowOrphans" = "同时显示未使用的文件（%ld 个）";
+"barOrphanHint" = "已删除工作区遗留的“名称_CurrentWorkspace.xml”文件，不会出现在 InDesign 的“工作区”菜单中。";
 "barNotFound" = "未找到工作区";
 "barQuitFirst" = "InDesign 运行时无法更改。InDesign 退出时会写回工作区，请先退出 InDesign。";
 "barNote" = "会同时修改已存储的工作区（名称.xml）和当前状态（名称_CurrentWorkspace.xml）。使用应用程序框架时无效。";

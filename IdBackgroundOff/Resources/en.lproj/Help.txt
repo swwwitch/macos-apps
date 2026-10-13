@@ -10,6 +10,7 @@ Changes take effect the next time InDesign starts. Quit and reopen InDesign if i
 
 Application bar
 Switch to Application Bar at the top to list the workspaces of each version in ~/Library/Preferences/Adobe InDesign. Hide changes <app-container-control-bar … is-closed="false"> in the workspace XML to "true" (Show changes it back). Both the saved workspace (name.xml) and its current state (name_CurrentWorkspace.xml) are changed.
+The list shows your saved workspaces and InDesign presets. Leftover current-state files of deleted workspaces appear only with “Also show unused files”; Dropbox conflicted copies are never listed.
 InDesign writes its workspaces back when it quits, so changes are not allowed while InDesign is running. Quit it first. This has no effect while the Application Frame is used. No administrator password is needed.
 Reference (Japanese): https://note.com/dtp_tranist/n/n08559ccb6a3b
 

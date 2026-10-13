@@ -106,8 +106,19 @@ try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWo
 try! workspaceXML(true).write(to: wsFolder.appendingPathComponent("初期設定_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
 try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWorkspace (競合コピー).xml"), atomically: true, encoding: .utf8)
 try! "<workspace/>".write(to: wsFolder.appendingPathComponent("broken.xml"), atomically: true, encoding: .utf8)
-let spaces = ApplicationBar.discover(root: prefs)
-check(spaces.map(\.name).sorted() == ["sw", "初期設定"], "workspaces grouped, conflicted copy and files without the bar skipped (\(spaces.map(\.name)))")
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw-left_CurrentWorkspace (masahiro takano の競合コピー 2025-12-03)_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("abc_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+let presets = ["ja_JP": Set(["初期設定", "スタート"])]
+let spaces = ApplicationBar.discover(root: prefs, builtIn: presets)
+check(spaces.map(\.name).sorted() == ["abc", "sw", "初期設定"], "workspaces grouped, conflicted copies (also InDesign's own state of one) and files without the bar skipped (\(spaces.map(\.name)))")
+check(spaces.first { $0.name == "sw" }?.kind == .saved && spaces.first { $0.name == "初期設定" }?.kind == .builtIn
+      && spaces.first { $0.name == "abc" }?.kind == .orphan, "saved, preset and orphaned current-state files told apart")
+check(ApplicationBar.discover(root: prefs, builtIn: [:]).allSatisfy { $0.kind != .orphan }, "no presets found: nothing marked as orphan")
+let fakeApps = base.appendingPathComponent("FakeApps", isDirectory: true)
+let presetFolder = fakeApps.appendingPathComponent("Adobe InDesign 2026/Presets/InDesign_Workspaces/ja_JP", isDirectory: true)
+try! fm.createDirectory(at: presetFolder, withIntermediateDirectories: true)
+try! "".write(to: presetFolder.appendingPathComponent("拡張設定.xml"), atomically: true, encoding: .utf8)
+check(ApplicationBar.builtInNames(applications: fakeApps) == ["ja_JP": ["拡張設定"]], "preset names read from installed InDesign")
 let sw = spaces.first { $0.name == "sw" }!
 check(sw.files.count == 2 && sw.version == "21.0-J" && sw.locale == "ja_JP", "saved and current files grouped with version")
 check(ApplicationBar.state(of: sw) == .shown, "shown when is-closed is false")

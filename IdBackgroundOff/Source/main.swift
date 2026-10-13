@@ -14,6 +14,11 @@ final class Model: ObservableObject {
         didSet { UserDefaults.standard.set(mode.rawValue, forKey: "mode") }
     }
     @Published var workspaces: [Workspace] = []
+    /// Current-state files whose workspace was deleted are hidden unless this is on (not saved; off at launch).
+    @Published var showOrphans = false
+    /// What the list and 「すべて非表示にする」 work on.
+    var visibleWorkspaces: [Workspace] { showOrphans ? workspaces : workspaces.filter { $0.kind != .orphan } }
+    var orphanCount: Int { workspaces.filter { $0.kind == .orphan }.count }
     @Published var barStates: [String: BarState] = [:]
     @Published var barStatus = ""
     enum Mode: String { case background, applicationBar }
@@ -36,7 +41,10 @@ final class Model: ObservableObject {
         if status.isEmpty || resetStatus { status = apps.isEmpty ? L("notFound") : String(format: L("found"), apps.count) }
         workspaces = ApplicationBar.discover()
         barStates = Dictionary(uniqueKeysWithValues: workspaces.map { ($0.id, ApplicationBar.state(of: $0)) })
-        if barStatus.isEmpty || resetStatus { barStatus = workspaces.isEmpty ? L("barNotFound") : String(format: L("barFound"), workspaces.count) }
+        if barStatus.isEmpty || resetStatus {
+            let count = workspaces.count - orphanCount
+            barStatus = count == 0 ? L("barNotFound") : String(format: L("barFound"), count)
+        }
     }
 
     func setBar(_ selection: [Workspace], hidden: Bool) {
@@ -172,6 +180,10 @@ struct WorkspaceRow: View {
                 HStack(spacing: 6) {
                     Text(workspace.name).font(.system(size: 14, weight: .semibold))
                     Text("Version " + workspace.version + " · " + workspace.locale).font(.system(size: 12)).foregroundColor(.secondary)
+                    if workspace.kind == .builtIn { Text(L("barBuiltIn")).font(.system(size: 11)).foregroundColor(.secondary) }
+                }
+                if workspace.kind == .orphan {
+                    Label(L("barOrphan"), systemImage: "questionmark.folder").foregroundColor(.secondary).font(.system(size: 12))
                 }
                 switch state {
                 case .hidden: Label(L("barHidden"), systemImage: "checkmark.circle.fill").foregroundColor(.green).font(.system(size: 12))
@@ -201,7 +213,7 @@ struct ApplicationBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(spacing: 0) {
-                if model.workspaces.isEmpty {
+                if model.visibleWorkspaces.isEmpty {
                     VStack(spacing: 10) {
                         Image(systemName: "rectangle.topthird.inset.filled").font(.largeTitle).foregroundColor(.secondary)
                         Text(L("barNotFound")).font(.system(size: 14, weight: .medium))
@@ -209,9 +221,9 @@ struct ApplicationBarView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
-                            ForEach(model.workspaces) { workspace in
+                            ForEach(model.visibleWorkspaces) { workspace in
                                 WorkspaceRow(model: model, workspace: workspace)
-                                if workspace != model.workspaces.last { Divider().padding(.leading, 14) }
+                                if workspace != model.visibleWorkspaces.last { Divider().padding(.leading, 14) }
                             }
                         }
                     }
@@ -220,6 +232,10 @@ struct ApplicationBarView: View {
             .frame(maxWidth: .infinity, minHeight: 150, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .textBackgroundColor)))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.secondary.opacity(0.18)))
+            if model.orphanCount > 0 {
+                Toggle(String(format: L("barShowOrphans"), model.orphanCount), isOn: $model.showOrphans)
+                    .font(.system(size: 12)).help(L("barOrphanHint"))
+            }
             Text(model.inDesignRunning ? L("barQuitFirst") : L("barNote")).font(.system(size: 11))
                 .foregroundColor(model.inDesignRunning ? .orange : .secondary).fixedSize(horizontal: false, vertical: true)
             Text(model.barStatus).font(.system(size: 13)).lineLimit(3).textSelection(.enabled).frame(minHeight: 34, alignment: .topLeading)
@@ -227,9 +243,9 @@ struct ApplicationBarView: View {
                 Button(L("help")) { delegate.showHelp() }
                 Spacer()
                 Button(L("reload")) { model.refresh(resetStatus: true) }
-                Button(L("barHideAll")) { model.setBar(model.workspaces, hidden: true) }
+                Button(L("barHideAll")) { model.setBar(model.visibleWorkspaces, hidden: true) }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(model.inDesignRunning || !model.workspaces.contains { model.barStates[$0.id] == .shown })
+                    .disabled(model.inDesignRunning || !model.visibleWorkspaces.contains { model.barStates[$0.id] == .shown })
             }
         }
     }
