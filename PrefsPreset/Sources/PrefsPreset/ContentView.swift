@@ -77,6 +77,7 @@ struct ContentView: View {
     @State private var isTargeted = false
     @State private var selectedIDs = Set<String>()
     @AppStorage(showGuideKey) private var showGuide = true
+    @AppStorage(mainModeKey) private var mode = "list"
 
     var categories: [(name: String, symbol: String)] {
         let present = Set(store.entries.map(\.item.category))
@@ -88,7 +89,7 @@ struct ContentView: View {
             switch selection {
             case allKey: break
             case changedKey: if !e.isChanged { return false }
-            default: if e.item.category != selection { return false }
+            default: if e.item.category != selection && !(alsoShownIn[e.id]?.contains(selection) ?? false) { return false }
             }
             if search.isEmpty { return true }
             return [L(e.item.label), e.item.label, e.item.key, e.item.domains[0]]
@@ -99,16 +100,20 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            HStack(spacing: 12) {
-                sidebar
-                VStack(spacing: 8) {
-                    if showGuide { guide }
-                    tableBar
-                    table
+            if mode == "wizard" {
+                WizardView()
+            } else {
+                HStack(spacing: 12) {
+                    sidebar
+                    VStack(spacing: 8) {
+                        if showGuide { guide }
+                        tableBar
+                        table
+                    }
                 }
+                .padding(.horizontal, 16)
+                footer
             }
-            .padding(.horizontal, 16)
-            footer
         }
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: .all)
         .sheet(isPresented: $showAdd) { AddItemView() }
@@ -154,6 +159,13 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            // DocklessLauncher の「リスト／キーボード」と同じく、画面全体を切り替える
+            Picker(L("表示"), selection: $mode) {
+                Label(L("一覧"), systemImage: "list.bullet").tag("list")
+                Label(L("ウィザード"), systemImage: "wand.and.stars").tag("wizard")
+            }
+            .pickerStyle(.segmented).labelsHidden().fixedSize()
+            .help(L("一覧とウィザードを切り替える"))
             Button { openPreset() } label: { Label(L("開く…"), systemImage: "folder") }
                 .help(L("書き出したセットを開き、その値を「変更後」に入れる"))
             Button { savePreset() } label: { Label(L("書き出す…"), systemImage: "square.and.arrow.up") }
@@ -191,7 +203,7 @@ struct ContentView: View {
             Image(systemName: "info.circle").font(.title2).foregroundStyle(Color.accentColor)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
-                Text(markdown(L("**設定を変える**　「変更後」の列で値を選ぶか入力し、右下の「適用」を押します。")))
+                Text(markdown(L("**設定を変える**　「現在の値 / 変更後」の列で値を選ぶか入力し、右下の「適用」を押します。")))
                 Text(markdown(L("**新しいMacへ移す**　「書き出す…」で今の設定一式をファイルに保存し、新しいMacでそのファイルを「開く…」で読み込んで「適用」を押します。")))
                 Text(L("変更を取り消すには、行を右クリックして「現在の値に戻す」を選びます。"))
                     .foregroundStyle(.secondary)
@@ -239,15 +251,24 @@ struct ContentView: View {
                       : e.isChanged ? L("「適用」で書き換わります") : "")
             }
             .width(min: 220, ideal: 320)
-            TableColumn(L("現在の値")) { e in
-                Text(describe(e.current, e.item))
-                    .foregroundStyle(e.current == nil ? .secondary : .primary)
+            TableColumn(L("デフォルト")) { e in
+                Text(describeDefault(e.item) ?? "—")
+                    .foregroundStyle(.secondary)
             }
-            .width(min: 90, ideal: 140)
-            TableColumn(L("変更後")) { e in
-                ValueEditor(entry: e)
+            .width(min: 80, ideal: 120)
+            // 現在の値と変更後は1列にまとめる。変更した行だけ現在の値を添える
+            TableColumn(L("現在の値 / 変更後")) { e in
+                HStack(spacing: 6) {
+                    ValueEditor(entry: e)
+                    if e.isChanged {
+                        Text(L("現在：%@", describe(e.current, e.item)))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
             }
-            .width(min: 140, ideal: 180)
+            .width(min: 180, ideal: 260)
             TableColumn(L("ドメイン / キー")) { e in
                 Text("\(e.item.domains[0])  \(e.item.key)")
                     .font(.caption.monospaced())

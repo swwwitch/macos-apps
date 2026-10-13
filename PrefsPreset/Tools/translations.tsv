@@ -22,7 +22,7 @@ Macの設定をまとめて変更	Change Mac Settings at Once	批量更改 Mac �
 すべて	All	全部	전체
 変更した項目	Changed Items	已更改的项目	변경한 항목
 カテゴリ	Categories	类别	카테고리
-**設定を変える**　「変更後」の列で値を選ぶか入力し、右下の「適用」を押します。	**Change a setting**　Choose or type a value in the “New Value” column, then click “Apply” at the lower right.	**更改设置**　在“新值”列中选择或输入值，然后点按右下角的“应用”。	**설정 변경**　‘새 값’ 열에서 값을 고르거나 입력한 뒤 오른쪽 아래의 ‘적용’을 누릅니다.
+**設定を変える**　「現在の値 / 変更後」の列で値を選ぶか入力し、右下の「適用」を押します。	**Change a setting**　Choose or type a value in the “Current / New Value” column, then click “Apply” at the lower right.	**更改设置**　在“当前值 / 新值”列中选择或输入值，然后点按右下角的“应用”。	**설정 변경**　‘현재 값 / 새 값’ 열에서 값을 고르거나 입력한 뒤 오른쪽 아래의 ‘적용’을 누릅니다.
 **新しいMacへ移す**　「書き出す…」で今の設定一式をファイルに保存し、新しいMacでそのファイルを「開く…」で読み込んで「適用」を押します。	**Move to a new Mac**　Use “Export…” to save the current settings to a file, open that file on the new Mac with “Open…”, then click “Apply”.	**迁移到新 Mac**　用“导出…”将当前设置保存到文件，在新 Mac 上用“打开…”读取该文件，然后点按“应用”。	**새 Mac으로 옮기기**　‘내보내기…’로 현재 설정을 파일에 저장하고, 새 Mac에서 ‘열기…’로 그 파일을 읽은 뒤 ‘적용’을 누릅니다.
 変更を取り消すには、行を右クリックして「現在の値に戻す」を選びます。	To undo a change, right-click the row and choose “Revert to Current Value”.	要撤销更改，请右键点按该行并选择“恢复为当前值”。	변경을 취소하려면 행을 오른쪽 클릭하고 ‘현재 값으로 되돌리기’를 선택합니다.
 この説明を隠す（設定の「表示」タブで再表示できます）	Hide these instructions (show them again in the Display tab of Settings)	隐藏此说明（可在设置的“显示”标签中重新显示）	이 설명 숨기기(설정의 ‘표시’ 탭에서 다시 표시할 수 있음)
@@ -35,9 +35,10 @@ Macの設定をまとめて変更	Change Mac Settings at Once	批量更改 Mac �
 項目	Item	项目	항목
 変更あり	Changed	已更改	변경됨
 「適用」で書き換わります	Written when you click “Apply”	点按“应用”时写入	‘적용’을 누르면 기록됩니다
-現在の値	Current Value	当前值	현재 값
-変更後	New Value	新值	새 값
 ドメイン / キー	Domain / Key	域 / 键	도메인 / 키
+デフォルト	Default	默认值	기본값
+現在の値 / 変更後	Current / New Value	当前值 / 新值	현재 값 / 새 값
+現在：%@	Current: %@	当前：%@	현재: %@
 現在の値に戻す	Revert to Current Value	恢复为当前值	현재 값으로 되돌리기
 未設定（既定値）にする	Set to Not Set (Default)	设为未设置（默认值）	설정 안 함(기본값)으로 지정
 変更した項目はありません	No changes	没有更改的项目	변경한 항목 없음
@@ -332,3 +333,46 @@ F2	F2	F2	F2
 起動時のサウンドとキャップスロックインジケータの書き込みでは、管理者のパスワードを求められます。	Writing the startup sound and Caps Lock indicator settings asks for an administrator password.	写入启动声音和大写锁定指示器的设置时需要输入管理员密码。	시동 사운드와 Caps Lock 표시기 설정을 기록할 때 관리자 암호를 요구합니다.
 このMacでは管理者のパスワードなしに読み取れないため、PrefsPresetで最後に適用した値を「現在の値」に表示します。書き込みでは管理者のパスワードを求められます。	This setting cannot be read without an administrator password, so “Current Value” shows the value PrefsPreset last applied. Writing asks for an administrator password.	此设置无法在没有管理员密码的情况下读取，因此“当前值”显示 PrefsPreset 上次应用的值。写入时需要输入管理员密码。	이 설정은 관리자 암호 없이 읽을 수 없으므로 ‘현재 값’에는 PrefsPreset이 마지막으로 적용한 값을 표시합니다. 기록할 때 관리자 암호를 요구합니다.
 書き込みでは管理者のパスワードを求められます。	Writing asks for an administrator password.	写入时需要输入管理员密码。	기록할 때 관리자 암호를 요구합니다.
+言語設定	Language	语言	언어
+日本語	Japanese	日语	일본어
+英語	English	英语	영어
+Notion	Notion	Notion	Notion
+Miro	Miro	Miro	Miro
+Spotify	Spotify	Spotify	Spotify
+表示	View	显示	보기
+一覧	List	列表	목록
+ウィザード	Wizard	向导	마법사
+一覧とウィザードを切り替える	Switch between the list and the wizard	在列表和向导之间切换	목록과 마법사 간에 전환합니다
+やりたいことを選んでください	Choose what you want to do	选择你想做的事	원하는 작업을 선택하세요
+選んだカードの設定をまとめて書き込みます。細かく変えたいときは「一覧」に切り替えます。	The settings of the selected cards are written all at once. To fine-tune, switch to “List”.	所选卡片的设置将一次性写入。如需细调，请切换到“列表”。	선택한 카드의 설정을 한꺼번에 기록합니다. 세부 조정은 ‘목록’으로 전환하세요.
+設定済み	Already Set	已设置	설정됨
+カードを押して選びます	Click cards to select them	点按卡片进行选择	카드를 눌러 선택합니다
+%@件を選択中	%@ selected	已选择 %@ 项	%@개 선택됨
+選択を解除	Deselect All	取消选择	선택 해제
+選んだ設定を適用	Apply Selected	应用所选设置	선택한 설정 적용
+アニメーションと視差効果を無効化	Turn Off Animations and Motion	关闭动画和视差效果	애니메이션 및 시차 효과 끄기
+ウィンドウの開閉・Dock・Finder・Mission Control の動きを止め、視差効果を減らします。	Stops motion when opening and closing windows and in the Dock, Finder and Mission Control, and reduces motion effects.	停止窗口开关、程序坞、访达和调度中心的动画，并减弱动态效果。	윈도우 열기·닫기, Dock, Finder, Mission Control의 움직임을 멈추고 동작 효과를 줄입니다.
+Dockを限りなく無効化	Get the Dock Out of the Way	尽量停用程序坞	Dock 최대한 끄기
+Dockを隠し、ポインタを画面の端に寄せても出てこないようにします。起動中のアプリだけを小さく表示します。	Hides the Dock so it doesn’t appear when the pointer reaches the screen edge, and shows only running apps at a small size.	隐藏程序坞，指针移到屏幕边缘也不会出现；仅以小尺寸显示正在运行的 App。	Dock을 가려 포인터를 화면 가장자리에 가져가도 나타나지 않게 하고, 실행 중인 앱만 작게 표시합니다.
+ステージマネージャを無効化	Turn Off Stage Manager	关闭台前调度	스테이지 매니저 끄기
+ステージマネージャを切り、壁紙をクリックしてもデスクトップを表示しないようにします。	Turns off Stage Manager and stops clicking the wallpaper from revealing the desktop.	关闭台前调度，点按墙纸时不再显示桌面。	스테이지 매니저를 끄고 배경화면을 클릭해도 데스크탑이 표시되지 않게 합니다.
+Mission Controlを無効化	Turn Off Mission Control	关闭调度中心	Mission Control 끄기
+ジェスチャ・ショートカット（⌃↑ ⌃↓）・ウィンドウを上端へドラッグする操作で開かないようにします。	Stops Mission Control from opening with gestures, shortcuts (⌃↑ ⌃↓) or by dragging a window to the top of the screen.	不再通过手势、快捷键（⌃↑ ⌃↓）或将窗口拖到屏幕顶部来打开调度中心。	제스처, 단축키(⌃↑ ⌃↓), 윈도우를 화면 위쪽으로 드래그하는 동작으로 열리지 않게 합니다.
+英文の自動修正を無効化	Turn Off Automatic Text Correction	关闭英文自动更正	영문 자동 수정 끄기
+大文字化・スペルの自動変換・ピリオド・引用符・ダッシュの置換と、入力中の予測を切ります。	Turns off auto-capitalization, spelling correction, period, quote and dash substitution, and inline predictive text.	关闭自动大写、拼写自动更正、句号、引号和破折号替换，以及输入时的预测。	자동 대문자, 맞춤법 자동 수정, 마침표·따옴표·대시 대치와 입력 중 텍스트 예측을 끕니다.
+Siriを無効化	Turn Off Siri	关闭 Siri	Siri 끄기
+Siriを切り、メニューバーのアイコンと呼びかけでの起動を止めます。	Turns off Siri, its menu bar icon and voice activation.	关闭 Siri、菜单栏图标和语音唤醒。	Siri와 메뉴 막대 아이콘, 음성 호출을 끕니다.
+通知をオフ	Silence Notifications	关闭通知	알림 끄기
+通知は設定ファイルからは切り替えられないため、システム設定の「集中モード」を開きます。「おやすみモード」をオンにしてください。	Notifications can’t be changed through preference files, so this opens Focus in System Settings. Turn on Do Not Disturb there.	通知无法通过偏好设置文件更改，因此将打开系统设置中的“专注模式”。请在那里打开“勿扰模式”。	알림은 설정 파일로 바꿀 수 없으므로 시스템 설정의 ‘집중 모드’를 엽니다. ‘방해 금지 모드’를 켜세요.
+Siri	Siri	Siri	Siri
+ウィンドウのリサイズ時間（秒）	Window resize time (seconds)	窗口调整大小时间（秒）	윈도우 크기 조절 시간(초)
+入力中のテキストを予測	Show inline predictive text	输入时预测文本	입력 중 텍스트 예측
+スペルを自動変換（Web）	Correct spelling automatically (web)	自动更正拼写（网页）	맞춤법 자동 수정(웹)
+Mission Control のアニメーション時間	Mission Control animation duration	调度中心动画时长	Mission Control 애니메이션 시간
+ショートカット：Mission Control	Shortcut: Mission Control	快捷键：调度中心	단축키: Mission Control
+ショートカット：アプリケーションウインドウ	Shortcut: Application windows	快捷键：应用程序窗口	단축키: 애플리케이션 윈도우
+Siriを使う	Use Siri	使用 Siri	Siri 사용
+メニューバーにSiriを表示	Show Siri in menu bar	在菜单栏中显示 Siri	메뉴 막대에 Siri 표시
+「Siri」と呼びかけて使う	Listen for “Siri”	聆听“Siri”	‘Siri’ 듣기
+⌃↑	⌃↑	⌃↑	⌃↑
+⌃↓	⌃↓	⌃↓	⌃↓

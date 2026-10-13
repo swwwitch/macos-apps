@@ -167,6 +167,10 @@ func isBoolean(_ value: NSObject?) -> Bool {
 
 func choiceKey(_ value: NSObject) -> String {
     if let n = value as? NSNumber { return n.stringValue }
+    // AppleLanguages は言語の配列。先頭の言語で選択肢と照らす（en-JP は en）
+    if let a = value as? NSArray, let first = a.firstObject as? String {
+        return first.components(separatedBy: "-")[0]
+    }
     if let s = value as? String { return s }
     return ""
 }
@@ -182,6 +186,7 @@ func describe(_ value: NSObject?, _ item: PrefItem) -> String {
     switch value {
     case let n as NSNumber: return n.stringValue
     case let s as String: return s
+    case let a as NSArray where item.key == "AppleLanguages": return a.componentsJoined(by: ", ")
     case let a as NSArray: return L("配列（%@件）", String(a.count))
     case let d as NSDictionary: return L("辞書（%@件）", String(d.count))
     case let d as Data: return L("データ（%@バイト）", String(d.count))
@@ -192,6 +197,7 @@ func describe(_ value: NSObject?, _ item: PrefItem) -> String {
 
 /// 入力された文字列を、手本の値と同じ型の値にする。手本がなければ中身から推定する
 func makeValue(_ raw: String, like sample: NSObject?, item: PrefItem) -> NSObject {
+    if item.key == "AppleLanguages" { return [raw] as NSArray }
     if isBoolean(sample) { return NSNumber(value: raw == "1") }
     if sample is NSNumber {
         if let i = Int(raw) { return NSNumber(value: i) }
@@ -388,8 +394,9 @@ final class Store: ObservableObject {
         return url
     }
 
-    func apply() {
-        let list = changed
+    /// ids を渡すとその項目だけ書き込む（ウィザード）。省略すると変更した項目すべて
+    func apply(only ids: Set<String>? = nil) {
+        let list = changed.filter { ids?.contains($0.id) ?? true }
         guard !list.isEmpty, !isApplying else { return }
         isApplying = true
         defer { isApplying = false }

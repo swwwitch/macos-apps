@@ -8,9 +8,11 @@ src = Path(__file__).resolve().parent.parent / "Sources/PrefsPreset"
 keys = []
 def add(k):
     if k not in keys: keys.append(k)
-for f in ["PrefsPresetApp.swift", "ContentView.swift", "SettingsView.swift", "Store.swift", "MyPreset.swift"]:
+for f in ["PrefsPresetApp.swift", "ContentView.swift", "SettingsView.swift", "Store.swift", "MyPreset.swift", "Wizard.swift"]:
     for m in re.finditer(r'\bL\("((?:[^"\\]|\\.)*)"', (src / f).read_text()):
         add(m.group(1))
+for m in re.finditer(r'(?:title|detail): "([^"]+)"', (src / "Wizard.swift").read_text()):   # wizard cards
+    add(m.group(1))
 cat = (src / "Catalog.swift").read_text()
 for m in re.finditer(r'^\s*\("([^"]+)", "[^"]+"\),', cat, re.M):            # categoryOrder
     add(m.group(1))
