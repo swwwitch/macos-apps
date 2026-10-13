@@ -248,6 +248,7 @@ struct Preferences: View {
                     Text(L("excludedHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
+            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -270,6 +271,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
+        SettingsSync.shared.start(.init(
+            keys: ["shortcuts", "actionEnabled", "doubleTap", "browserEnabled", "simplifyURL", "associateID", "notifySuccess",
+                   "translateTarget", "paletteShortcut", "paletteHotkeyEnabled", "paletteMode"],
+            note: L("syncNote"), perMac: L("syncPerMac")))
         AccessibilityText.neededOverride = [
             "ブラウザーで表示中のページのタイトルとURLを読み取り、アドレスバーへの入力などのキー操作を送るために使用します。未許可の場合、ほとんどの機能が使えません。",
             "Used to read the title and URL of the page in your browser and to send keys such as typing into the address bar. Most functions are unavailable without permission.",

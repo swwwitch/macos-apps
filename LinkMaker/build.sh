@@ -4,6 +4,7 @@ cd "${0:A:h}"
 python3 ../Shared/MenuBarPresence/sync.py
 python3 ../Shared/HotkeyManifest/sync.py
 python3 ../Shared/AppStandards/sync-surface.py
+python3 ../Shared/SettingsSync/sync.py
 UPDATER_ROOT="$PWD/../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp/}linkmaker.XXXXXX")
@@ -13,7 +14,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift
          Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/LinkRules.swift Sources/LinkAction.swift Sources/Browser.swift Sources/LinkFiles.swift Sources/ActionRunner.swift Sources/Model.swift Sources/Palette.swift Sources/HotKey.swift
          Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift
-         Sources/HotkeyManifest.swift Sources/main.swift)
+         Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/main.swift)
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework CoreImage "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/LinkMaker"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"

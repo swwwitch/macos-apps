@@ -78,6 +78,14 @@ final class Model: ObservableObject {
         defaults.set(preferPathFinder, forKey: "preferPathFinder")
         refreshHotkeys()
     }
+    /// Re-reads the synced settings after SettingsSync applied another Mac's values; save() would otherwise write the old ones back.
+    func reload() {
+        recordingID = nil
+        entries = defaults.data(forKey: "entries").flatMap { try? JSONDecoder().decode([LaunchEntry].self, from: $0) } ?? []
+        hotkeysEnabled = defaults.object(forKey: "hotkeysEnabled") as? Bool ?? true
+        preferPathFinder = defaults.object(forKey: "preferPathFinder") as? Bool ?? true
+        save()
+    }
     func update(_ id: UUID, _ change: (inout LaunchEntry) -> Void) {
         guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
         change(&entries[index]); save()
@@ -693,6 +701,7 @@ struct Preferences: View {
                     }
                     Text(L("transfer.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                SettingsSection(SettingsSync.shared.title) { SettingsSyncView() }
             })),
             (AboutSection.title, AnyView(AboutView()))
         ])
@@ -712,6 +721,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
+        SettingsSync.shared.start(.init(
+            keys: ["entries", "hotkeysEnabled", "preferPathFinder", "listOrder", "listAscending", "viewMode"],
+            note: L("syncNote"), perMac: L("syncPerMac")))
         AccessibilityText.neededOverride = [
             "「URLによる条件」でブラウザーのページのURLを読み取り、キーをブラウザーへ渡すために使います。アプリの起動・切り替えには不要です。",
             "Used by the URL condition to read the browser's page URL and hand the key back to the browser. Not needed for launching or switching apps.",

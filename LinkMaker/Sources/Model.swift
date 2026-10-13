@@ -130,6 +130,30 @@ final class Model: ObservableObject {
         refreshHotkeys()
     }
 
+    /// Re-reads the synced settings after SettingsSync applied another Mac's values; save() would otherwise write the old ones back.
+    func reload() {
+        let saved = (defaults.data(forKey: "shortcuts").flatMap { try? JSONDecoder().decode([String: Shortcut].self, from: $0) }) ?? [:]
+        let enabled = defaults.dictionary(forKey: "actionEnabled") as? [String: Bool] ?? [:]
+        let taps = defaults.dictionary(forKey: "doubleTap") as? [String: Bool] ?? [:]
+        var newShortcuts: [LinkAction: Shortcut] = [:]
+        for action in LinkAction.allCases {
+            if let s = saved[action.rawValue] ?? action.defaultShortcut { newShortcuts[action] = s }
+            actionEnabled[action] = enabled[action.rawValue] ?? (action.defaultShortcut != nil)
+            doubleTap[action] = taps[action.rawValue] ?? action.defaultDoubleTap
+        }
+        shortcuts = newShortcuts
+        browserEnabled = defaults.dictionary(forKey: "browserEnabled") as? [String: Bool] ?? [:]
+        simplifyURL = defaults.object(forKey: "simplifyURL") as? Bool ?? true
+        associateID = defaults.string(forKey: "associateID") ?? Model.defaultAssociateID
+        notifySuccess = defaults.object(forKey: "notifySuccess") as? Bool ?? true
+        translateTarget = defaults.string(forKey: "translateTarget") ?? Model.systemLanguage
+        paletteShortcut = defaults.data(forKey: "paletteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? Model.defaultPaletteShortcut
+        paletteHotkeyEnabled = defaults.object(forKey: "paletteHotkeyEnabled") as? Bool ?? true
+        paletteMode = defaults.bool(forKey: "paletteMode")
+        recording = nil; recordingPalette = false
+        refreshHotkeys()
+    }
+
     // MARK: Browsers
 
     func isEnabled(_ browser: Browser) -> Bool { browserEnabled[browser.bundleID] ?? true }

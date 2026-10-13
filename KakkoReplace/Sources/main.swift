@@ -89,6 +89,19 @@ final class Model: ObservableObject {
         UserDefaults.standard.set(try? JSONEncoder().encode(frontShortcut), forKey: "bringToFrontShortcut")
         refreshHotkey()
     }
+    /// Re-reads the synced settings after SettingsSync applied another Mac's values; save() would otherwise write the old ones back.
+    func reload() {
+        let defaults = UserDefaults.standard
+        disabled = defaults.bool(forKey: "disabled")
+        paletteMode = defaults.bool(forKey: "paletteMode")
+        bindings = Shortcut.loadBindings()
+        forceWrap = defaults.bool(forKey: "forceWrap")
+        trimSpaces = defaults.bool(forKey: "trimSpaces")
+        frontEnabled = defaults.object(forKey: "bringToFrontEnabled") as? Bool ?? true
+        frontShortcut = defaults.data(forKey: "bringToFrontShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .bringToFront
+        recording = false; recordingFront = false
+        refreshHotkey()
+    }
     func allowed(_ app: NSRunningApplication?) -> Bool {
         guard let app, let id = app.bundleIdentifier else { return false }
         return !excluded.contains(id) && id != Bundle.main.bundleIdentifier
@@ -293,6 +306,7 @@ struct Preferences: View {
                     Button(L("addApp")) { model.addApp() }
                 }.padding(6)
             })),
+            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
             (AboutSection.title, AnyView(AboutView()))
         ])
             Text(model.status).font(.callout).fixedSize(horizontal: false, vertical: true).accessibilityLabel(L("status") + ": " + model.status)
@@ -324,6 +338,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var resultItem: NSMenuItem!
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
+        SettingsSync.shared.start(.init(
+            keys: ["bracketBindings", "disabled", "paletteMode", "forceWrap", "trimSpaces", "bringToFrontEnabled", "bringToFrontShortcut"],
+            note: L("syncNote"), perMac: L("syncPerMac")))
         WindowActivationPolicy.install()
         targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
         let main = NSMenu(); let root = NSMenuItem(); let appMenu = NSMenu()
