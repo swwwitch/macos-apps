@@ -11,6 +11,8 @@ struct BrowserState {
 }
 #if APP_STORE
 enum BrowserReader {
+    // Store builds select files explicitly and never read external browser state.
+    static let identifiers: Set<String> = []
     static func apps() -> [NSRunningApplication] { [] }
     static func read(_ app: NSRunningApplication) -> BrowserState {
         BrowserState(id: "opened-files", name: L("受け取ったファイル"))

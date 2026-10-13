@@ -13,6 +13,7 @@ placeholders match per key; the bundle contains the same Help.txt files and an
 Info.plist SWNoteArticleURL.
 """
 import plistlib
+import os
 import re
 import sys
 from pathlib import Path
@@ -81,7 +82,11 @@ def compare(name):
 
 compare("Localizable.strings")
 compare("InfoPlist.strings")
-sources = {language: check_help(ROOT / f"{language}.lproj" / "Help.txt") for language in LANGUAGES}
+sources = {language: check_help(
+    ROOT.parent / "AppStore" / f"Help-{language}.txt"
+    if os.environ.get("APP_STORE_BUILD") == "1"
+    else ROOT / f"{language}.lproj" / "Help.txt"
+) for language in LANGUAGES}
 headings = {language: sum(1 for line in (text or "").splitlines() if line.startswith("## ")) for language, text in sources.items()}
 if len(set(headings.values())) != 1:
     errors.append(f"Help.txt section counts differ: {headings}")

@@ -1,0 +1,20 @@
+FolderHopper for the App Store moves, copies and creates symbolic links for files you select.
+## Usage
+1. Choose items with Select Files….
+2. Select move, copy or symbolic-link mode.
+3. Choose Folder… executes the operation after choosing a destination. Use Return or double-click for favorites.
+- If asked for access, select the displayed source parent and destination folders. Cancelling does not run the operation.
+- Moving removes files from the original location. Same-name conflicts either keep both with a numbered name or stop, according to your setting. Files are not overwritten.
+- Finder and Path Finder selections, windows and history are not read. Automation permission is unnecessary.
+## Settings and Permissions
+- Open Settings with ⌘,. Configure login launch, hidden startup window, menu-bar presence, path display and conflict handling.
+- Selected-folder access is saved with bookmarks. Select folders again if access is lost.
+- Results remain visible in the main window without notification permission.
+## Keys and Quitting
+- ⌘0 reopens the main window, also available in the File menu.
+- ⌘W closes the active window and keeps the app running. ⌘Q quits.
+- Return runs, ⌥Return copies, ⌃Return creates links and ⌘? opens Help.
+## Troubleshooting
+- On failure, check the result and both folders. Completed files remain at the destination.
+- Moving to the same location, into the source folder itself or its descendants is prohibited.
+- Open the note article from Help. Updates are provided through the App Store.
