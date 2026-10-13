@@ -13,7 +13,7 @@ Moves or duplicates the files and folders selected in the Finder or Path Finder 
 ## Destinations
 - **Finder Windows**: The locations of windows open in the Finder or Path Finder.
 - **Choose / Desktop**: On the left, Choose Folder…: click the folder icon and select a destination folder to run the current mode (move, duplicate, or create links) right away. ⌘-click to bring the destination to the front with the processed items selected when it finishes. The next time, the panel opens at the last folder you chose. Click Desktop on the right (or press Return) to move (duplicate, or link) the selection straight to the Desktop.
-- **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run.
+- **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run. When sending to Applications, apps in Setapp (/Applications/Setapp) are linked with a symbolic link instead of being moved or duplicated.
 - **Recent Folders**: The recent-folder history saved by the Finder and Path Finder.
 
 ## Settings
@@ -45,7 +45,7 @@ Show the app with ⌃⌥⌘M by default. Available while the app is running and 
 - **Return**: Execute
 - **⌥Return**: Duplicate
 - **⌃Return**: Create symbolic links
-- **⌃⌥⌘⇧A**: Moves the items selected in Finder/Path Finder to the Applications folder without showing the window (while running, with Finder/Path Finder in front; follows **Duplicate** or **Create symbolic links** when turned on; turn it on or off in the File Operations tab of Settings)
+- **⌃⌥⌘⇧A** (default): Duplicates the items selected in Finder/Path Finder to the Applications folder without showing the window (never moves them; while running, with Finder/Path Finder in front; creates links when **Create symbolic links** is on; turn it on or off and change the key in the File Operations tab of Settings)
 - **Add ⌘**: Bring the destination to the front with the processed items selected
 - **Tab**: Switch between Finder Windows and Recent Folders
 - **←→**: Select a favorite

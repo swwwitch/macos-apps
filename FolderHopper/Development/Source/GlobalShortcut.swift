@@ -14,9 +14,14 @@ final class GlobalShortcut {
         ("O",31),("P",35),("Q",12),("R",15),("S",1),("T",17),("U",32),
         ("V",9),("W",13),("X",7),("Y",16),("Z",6),("Space",49)
     ]
-    /// ⌃⌥⌘⇧A: move the Finder/Path Finder selection to /Applications (fixed, hotkey ID 2).
-    static let applicationsShortcut = (key: UInt32(0), modifiers: UInt32(controlKey | optionKey | cmdKey | shiftKey))
-    /// Hotkey ID 1 shows the window; other IDs run app functions (e.g. 2 = move to Applications).
+    /// Individual modifiers of the copy-to-/Applications hotkey (ID 2), combined freely; the default is all four (⌃⌥⌘⇧A).
+    static let modifierFlags: [(String, UInt32)] = [
+        ("⌃", UInt32(controlKey)), ("⌥", UInt32(optionKey)), ("⌘", UInt32(cmdKey)), ("⇧", UInt32(shiftKey))
+    ]
+    static let applicationsDefaultModifiers = UInt32(controlKey | optionKey | cmdKey | shiftKey)
+    /// ⇧ alone (or nothing) would take over ordinary typing, so one of ⌃⌥⌘ is required.
+    static let requiredModifiers = UInt32(controlKey | optionKey | cmdKey)
+    /// Hotkey ID 1 shows the window; other IDs run app functions (e.g. 2 = copy to Applications).
     var actions: [UInt32: () -> Void] = [:]
     var action: (() -> Void)? {
         get { actions[1] }

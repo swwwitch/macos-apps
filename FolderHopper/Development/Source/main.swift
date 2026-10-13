@@ -130,7 +130,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let shortcutModifiers = NSPopUpButton()
     let shortcutKey = NSPopUpButton()
     let shortcutStatus = NSTextField(wrappingLabelWithString: "")
-    let applicationsShortcutEnabled = NSButton(checkboxWithTitle: L("⌃⌥⌘⇧Aで選択項目を「アプリケーション」へ移動"), target: nil, action: nil)
+    let applicationsShortcutEnabled = NSButton(checkboxWithTitle: L("ホットキーで選択項目を「アプリケーション」へ複製"), target: nil, action: nil)
+    let applicationsShortcutModifiers = GlobalShortcut.modifierFlags.map { NSButton(checkboxWithTitle: $0.0, target: nil, action: nil) }
+    let applicationsShortcutKey = NSPopUpButton()
     let applicationsShortcutStatus = NSTextField(wrappingLabelWithString: "")
     let loginEnabled = NSButton(checkboxWithTitle: L("ログイン時に自動起動"), target: nil, action: nil)
     let loginInBackground = NSButton(checkboxWithTitle: L("ログイン時はウインドウを表示せず、バックグラウンドで起動"), target: nil, action: nil)
@@ -415,7 +417,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation])
             #else
             applicationsShortcutStatus.font = .systemFont(ofSize: 12); applicationsShortcutStatus.textColor = .secondaryLabelColor
-            group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation, applicationsShortcutEnabled, applicationsShortcutStatus])
+            let applicationsKeys = NSStackView(views: applicationsShortcutModifiers + [applicationsShortcutKey]); applicationsKeys.spacing = 8
+            group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation, applicationsShortcutEnabled, applicationsKeys, applicationsShortcutStatus])
             #endif
             let limitRow = NSStackView(views: [NSTextField(labelWithString: L("最近使ったウインドウの数")), historyLimit, NSTextField(labelWithString: L("件（0＝すべて）"))])
             limitRow.spacing = 8
@@ -497,7 +500,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         filterRows()
     }
     func setupShortcut() {
-        UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12, "applicationsShortcutEnabled": true])
+        UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12, "applicationsShortcutEnabled": true, "applicationsShortcutModifiers": Int(GlobalShortcut.applicationsDefaultModifiers), "applicationsShortcutKeyIndex": 0])
         shortcutModifiers.addItems(withTitles: GlobalShortcut.modifiers.map { $0.0 })
         shortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
         shortcutModifiers.setAccessibilityLabel(L("ホットキーの修飾キー"))
@@ -516,29 +519,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         shortcutChanged()
         #if !APP_STORE
-        applicationsShortcutEnabled.state = UserDefaults.standard.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
-        applicationsShortcutEnabled.target = self; applicationsShortcutEnabled.action = #selector(applicationsShortcutChanged)
-        globalShortcut.actions[2] = { [weak self] in self?.moveSelectionToApplications() }
+        applicationsShortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
+        for (button, flag) in zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags) {
+            button.setAccessibilityLabel(L("「アプリケーション」へ複製するホットキーの修飾キー") + " " + flag.0)
+        }
+        applicationsShortcutKey.setAccessibilityLabel(L("「アプリケーション」へ複製するホットキーのキー"))
+        for control in [applicationsShortcutEnabled as NSControl, applicationsShortcutKey] + applicationsShortcutModifiers {
+            control.target = self; control.action = #selector(applicationsShortcutChanged)
+        }
+        restoreApplicationsShortcutControls()
+        globalShortcut.actions[2] = { [weak self] in self?.copySelectionToApplications() }
         applicationsShortcutChanged()
         #endif
     }
     #if !APP_STORE
-    /// ⌃⌥⌘⇧A (fixed): hotkey ID 2, independent of the window hotkey.
+    func restoreApplicationsShortcutControls() {
+        let defaults = UserDefaults.standard
+        applicationsShortcutEnabled.state = defaults.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
+        let shortcut = Self.savedApplicationsShortcut()
+        for (button, flag) in zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags) {
+            button.state = shortcut.modifiers & flag.1 != 0 ? .on : .off
+        }
+        applicationsShortcutKey.selectItem(at: shortcut.key)
+    }
+    /// Hotkey ID 2 (default ⌃⌥⌘⇧A), independent of the window hotkey.
     @objc func applicationsShortcutChanged() {
         let enabled = applicationsShortcutEnabled.state == .on
-        let shortcut = GlobalShortcut.applicationsShortcut
-        if globalShortcut.configure(id: 2, enabled: enabled, key: shortcut.key, modifiers: shortcut.modifiers) {
+        let modifiers = zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags).reduce(UInt32(0)) { $0 | ($1.0.state == .on ? $1.1.1 : 0) }
+        let key = applicationsShortcutKey.indexOfSelectedItem
+        if modifiers & GlobalShortcut.requiredModifiers == 0 {
+            restoreApplicationsShortcutControls()
+            applicationsShortcutStatus.stringValue = L("⌃・⌥・⌘のいずれかを含めてください。")
+        } else if globalShortcut.configure(id: 2, enabled: enabled, key: GlobalShortcut.keys[key].1, modifiers: modifiers) {
             UserDefaults.standard.set(enabled, forKey: "applicationsShortcutEnabled")
-            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を移動します。常駐中、Finder／Path Finderが前面のときに使用できます。")
+            UserDefaults.standard.set(Int(modifiers), forKey: "applicationsShortcutModifiers")
+            UserDefaults.standard.set(key, forKey: "applicationsShortcutKeyIndex")
+            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を複製します（移動はしません）。常駐中、Finder／Path Finderが前面のときに使用できます。")
         } else {
-            applicationsShortcutEnabled.state = .off
-            applicationsShortcutStatus.stringValue = L("⌃⌥⌘⇧Aは他のアプリが使用しているため登録できませんでした。")
+            restoreApplicationsShortcutControls()
+            applicationsShortcutStatus.stringValue = L("このキーは登録できませんでした。他の組み合わせを選んでください。")
         }
+        for button in applicationsShortcutModifiers { button.isEnabled = applicationsShortcutEnabled.state == .on }
+        applicationsShortcutKey.isEnabled = applicationsShortcutEnabled.state == .on
         publishHotkeys()
     }
-    /// Reads the frontmost Finder/Path Finder selection and moves it to /Applications without showing the window.
-    /// The window opens only to show an error; when there is nothing to move, a short message says why.
-    func moveSelectionToApplications() {
+    /// Saved modifier mask and key index of hotkey ID 2, falling back to ⌃⌥⌘⇧A when invalid.
+    static func savedApplicationsShortcut() -> (modifiers: UInt32, key: Int) {
+        let defaults = UserDefaults.standard
+        let all = GlobalShortcut.modifierFlags.reduce(UInt32(0)) { $0 | $1.1 }
+        let modifiers = UInt32(truncatingIfNeeded: defaults.integer(forKey: "applicationsShortcutModifiers")) & all
+        let key = defaults.integer(forKey: "applicationsShortcutKeyIndex")
+        return (modifiers & GlobalShortcut.requiredModifiers != 0 ? modifiers : GlobalShortcut.applicationsDefaultModifiers,
+                GlobalShortcut.keys.indices.contains(key) ? key : 0)
+    }
+    /// Reads the frontmost Finder/Path Finder selection and copies it to /Applications without showing the window.
+    /// Never moves: the 「複製」 checkbox is ignored; only 「シンボリックリンクとして作成」 turns it into links.
+    /// The window opens only to show an error; when there is nothing to copy, a short message says why.
+    func copySelectionToApplications() {
         guard !busy, window.attachedSheet == nil else {
             NSSound.beep(); MainActor.assumeIsolated { TransientMessage.show(L("FolderHopperは処理中です。完了してからもう一度お試しください。")) }; return
         }
@@ -560,7 +597,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                     return
                 }
                 if let reason = MoveEngine.destinationDisabledReason(state.files, into: destination.url) { self.showError(reason); return }
-                self.move(to: destination, source: state)
+                self.move(to: destination, source: state, copying: true, linking: self.symbolicLinks.state == .on)
             }
         }
     }
@@ -597,14 +634,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let defaults = UserDefaults.standard
         let modifier = defaults.integer(forKey: "shortcutModifierIndex"), key = defaults.integer(forKey: "shortcutKeyIndex")
         let apps = BrowserReader.identifiers.sorted()
-        let applications = GlobalShortcut.applicationsShortcut
+        let applications = Self.savedApplicationsShortcut()
         HotkeyManifest.publish([
             HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"),
                                 keyCode: Int(GlobalShortcut.keys[GlobalShortcut.keys.indices.contains(key) ? key : 12].1),
                                 modifiers: Int(GlobalShortcut.modifiers[GlobalShortcut.modifiers.indices.contains(modifier) ? modifier : 0].1),
                                 enabled: defaults.bool(forKey: "shortcutEnabled"), scope: "only", apps: apps),
-            HotkeyManifest.Item(id: "applicationsShortcut", title: L("選択項目を「アプリケーション」へ移動"),
-                                keyCode: Int(applications.key), modifiers: Int(applications.modifiers),
+            HotkeyManifest.Item(id: "applicationsShortcut", title: L("選択項目を「アプリケーション」へ複製"),
+                                keyCode: Int(GlobalShortcut.keys[applications.key].1),
+                                modifiers: Int(applications.modifiers),
                                 enabled: defaults.bool(forKey: "applicationsShortcutEnabled"), scope: "only", apps: apps)
         ])
         #endif
@@ -1164,7 +1202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let copying = event?.type == .keyDown && event?.modifierFlags.contains(.option) == true
         move(to: destination, bringForward: event?.modifierFlags.contains(.command) == true, copying: copying, linking: event?.type == .keyDown && event?.modifierFlags.contains(.control) == true)
     }
-    /// `source` overrides the window's chosen selection (the ⌃⌥⌘⇧A hotkey, which checks the destination itself).
+    /// `source` overrides the window's chosen selection (the copy-to-Applications hotkey, which checks the destination itself).
     func move(to destination: Destination, source requestedSource: BrowserState? = nil, bringForward: Bool = false, copying requestedCopy: Bool = false, linking requestedLink: Bool = false) {
         guard !busy, window.attachedSheet == nil, requestedSource != nil || disabledReason(destination) == nil,
               let source = requestedSource ?? chosen, !source.files.isEmpty else { return }
@@ -1186,19 +1224,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         queue.async {
             do {
                 // Links into /Applications overwrite an existing link of the same name (no numbered copy).
+                // Setapp apps sent to /Applications are always linked, also when the rest is moved or copied.
                 let intoApplications = destination.url.resolvingSymlinksInPath().standardizedFileURL.path == "/Applications"
-                let plan = try MoveEngine.plan(files, into: destination.url, renameConflicts: shouldRename, replaceSymbolicLinks: linking && intoApplications)
+                let plan = try MoveEngine.plan(files, into: destination.url, renameConflicts: shouldRename, replaceSymbolicLinks: linking && intoApplications,
+                                              linkSource: { intoApplications && MoveEngine.isSetappItem($0) })
                 let result = MoveEngine.execute(plan, asSymbolicLinks: linking, asCopies: copying)
                 DispatchQueue.main.async {
                     if !linking && !copying, let index = self.states.firstIndex(where: { $0.id == source.id }) {
-                        let moved = Set(result.done.map { $0.from.standardizedFileURL.path })
+                        let moved = Set(result.done.filter { !$0.isSymbolicLink }.map { $0.from.standardizedFileURL.path })
                         self.states[index].files.removeAll { moved.contains($0.standardizedFileURL.path) }
                     }
                     self.setBusy(false); self.sourceChanged()
-                    self.status.stringValue = copying ? L("%@項目を「%@」へ複製しました。", String(describing: result.done.count), String(describing: destination.url.lastPathComponent)) : linking ? L("「%@」に%@項目のリンクを作成しました。", String(describing: destination.url.lastPathComponent), String(describing: result.done.count)) : L("%@項目を「%@」へ移動しました。", String(describing: result.done.count), String(describing: destination.url.lastPathComponent))
+                    let message = Self.operationMessage(result.done, destination: destination.url, moving: !linking && !copying)
+                    self.status.stringValue = message
                     if let error = result.error { self.showError(L("%@項目を処理した後に停止しました。\n%@", String(describing: result.done.count), String(describing: error.localizedDescription))) }
                     else if result.done.count == files.count && self.pendingOpenFiles == nil {
-                        self.notifyOperation(count: result.done.count, destination: destination.url, linking: linking, copying: copying)
+                        self.notifyOperation(message)
                         if self.closeAfterOperation.state == .on {
                             let wasActive = NSApp.isActive
                             self.window.orderOut(nil)
@@ -1226,7 +1267,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             } catch { DispatchQueue.main.async { self.setBusy(false); self.status.stringValue = L("処理を中止しました。"); self.showError(error.localizedDescription) } }
         }
     }
-    func notifyOperation(count: Int, destination: URL, linking: Bool, copying: Bool) {
+    /// Links are counted separately, since Setapp apps are linked within a move or copy into /Applications.
+    static func operationMessage(_ done: [MovePair], destination: URL, moving: Bool) -> String {
+        let name = destination.lastPathComponent
+        let linked = done.filter { $0.isSymbolicLink }.count, others = done.count - linked
+        if linked == 0 { return moving ? L("%@項目を「%@」へ移動しました。", String(others), name) : L("%@項目を「%@」へ複製しました。", String(others), name) }
+        if others == 0 { return L("「%@」に%@項目のリンクを作成しました。", name, String(linked)) }
+        return moving ? L("%@項目を「%@」へ移動し、%@項目のリンクを作成しました。", String(others), name, String(linked))
+            : L("%@項目を「%@」へ複製し、%@項目のリンクを作成しました。", String(others), name, String(linked))
+    }
+    func notifyOperation(_ message: String) {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert]) { granted, error in
             guard granted else {
@@ -1238,10 +1288,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             }
             let content = UNMutableNotificationContent()
             content.title = "FolderHopper"
-            content.body = copying
-                ? L("%@項目を「%@」へ複製しました。", String(count), destination.lastPathComponent)
-                : linking ? L("「%@」に%@項目のリンクを作成しました。", destination.lastPathComponent, String(count))
-                : L("%@項目を「%@」へ移動しました。", String(count), destination.lastPathComponent)
+            content.body = message
             center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)) { error in
                 if let error { DispatchQueue.main.async { self.status.stringValue = L("通知できませんでした: ") + error.localizedDescription; self.status.isHidden = false } }
             }

@@ -12,7 +12,7 @@
 | [CommandDee](CommandDee.app) | 1.8.23 | 50 | `jp.local.CommandDee` |
 | [HotkeyHound](HotkeyHound.app) | 0.3.0 | 9 | `jp.dtp-transit.hotkeyhound` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
-| [FolderHopper](FolderHopper.app) | 0.1.93 | 108 | `jp.local.FolderMover` |
+| [FolderHopper](FolderHopper.app) | 0.1.94 | 109 | `jp.local.FolderMover` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.0 | 15 | `local.takano.IdAsyncOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.0.17 | 54 | `jp.dtp-transit.kagetrimmer` |

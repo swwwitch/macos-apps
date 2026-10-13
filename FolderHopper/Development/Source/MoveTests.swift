@@ -109,6 +109,17 @@ import Foundation
     precondition(copied.error == nil && copied.done.count == 1 && fm.fileExists(atPath: copySource.path))
     let copyText = try String(contentsOf: copyPlan[0].to)
     precondition(copyText == "copy content")
+    // Mixed copy: sources chosen by linkSource become links (replacing a same-named link); the rest are copied.
+    let mixedLinked = try file("linked.txt", in: newer), mixedCopied = try file("copied.txt", in: newer)
+    try fm.createSymbolicLink(atPath: target.appendingPathComponent("linked.txt").path, withDestinationPath: copySource.path)
+    let mixedPlan = try MoveEngine.plan([mixedLinked, mixedCopied], into: target, renameConflicts: true, linkSource: { $0 == mixedLinked })
+    precondition(mixedPlan[0].asLink == true && mixedPlan[0].replacesLink == true && mixedPlan[1].asLink == nil)
+    let mixed = MoveEngine.execute(mixedPlan, asCopies: true)
+    precondition(mixed.error == nil && mixed.done.map { $0.isSymbolicLink } == [true, false])
+    let mixedDestination = try fm.destinationOfSymbolicLink(atPath: mixedPlan[0].to.path)
+    precondition(mixedDestination == mixedLinked.path && !MoveEngine.isSymbolicLink(mixedPlan[1].to))
+    precondition(fm.fileExists(atPath: mixedLinked.path) && fm.fileExists(atPath: mixedCopied.path))
+    precondition(MoveEngine.isSetappItem(URL(fileURLWithPath: "/Applications/Setapp/CleanShot X.app")) && !MoveEngine.isSetappItem(URL(fileURLWithPath: "/Applications/Setapp")))
     // A partial failure reports completed items and preserves remaining sources.
     let partialA = try file("partial-a.txt", in: source)
     let partialB = try file("partial-b.txt", in: source)
@@ -117,6 +128,6 @@ import Foundation
     let partial = MoveEngine.execute(partialPlan)
     precondition(partial.error != nil && partial.done.count == 1)
     precondition(!fm.fileExists(atPath: partialA.path) && fm.fileExists(atPath: partialB.path))
-    print("PASS: move, copy, collisions, numbered names, symbolic links, link overwrite, partial failure")
+    print("PASS: move, copy, collisions, numbered names, symbolic links, link overwrite, mixed copy/link, partial failure")
  }
 }

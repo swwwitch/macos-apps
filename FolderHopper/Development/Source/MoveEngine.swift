@@ -6,6 +6,8 @@ struct MovePair: Codable {
     var isCopy: Bool? = nil
     /// The destination is an existing symbolic link that the new link replaces (links into /Applications).
     var replacesLink: Bool? = nil
+    /// Created as a symbolic link whatever the batch's operation (Setapp apps sent to /Applications).
+    var asLink: Bool? = nil
 }
 struct MoveFailure: LocalizedError {
     let message: String
@@ -44,12 +46,17 @@ enum MoveEngine {
     static func exists(_ url: URL) -> Bool {
         FileManager.default.fileExists(atPath: url.path) || (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
     }
+    /// Apps managed by Setapp live in /Applications/Setapp; a copy would not be updated or licensed, so they are linked.
+    static func isSetappItem(_ url: URL) -> Bool {
+        url.standardizedFileURL.path.hasPrefix("/Applications/Setapp/")
+    }
     static func isSymbolicLink(_ url: URL) -> Bool {
         (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
     }
     /// `replaceSymbolicLinks`: an existing symbolic link with the same name is overwritten instead of
     /// getting a numbered name (used when creating links in /Applications). Real files are never replaced.
-    static func plan(_ sources: [URL], into destination: URL, renameConflicts: Bool = false, replaceSymbolicLinks: Bool = false) throws -> [MovePair] {
+    /// `linkSource`: sources that become symbolic links in any operation; they also replace a same-named link.
+    static func plan(_ sources: [URL], into destination: URL, renameConflicts: Bool = false, replaceSymbolicLinks: Bool = false, linkSource: (URL) -> Bool = { _ in false }) throws -> [MovePair] {
         guard !sources.isEmpty else { throw MoveFailure(message: L("移動するファイルを選択してください。")) }
         let fm = FileManager.default
         let target = destination.resolvingSymlinksInPath().standardizedFileURL
@@ -77,7 +84,8 @@ enum MoveEngine {
                 return occupied.contains(name) || names.contains(name) || exists(url)
             }
             var replacesLink = false
-            if replaceSymbolicLinks, isSymbolicLink(output), !names.contains(output.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased()) {
+            let linked = linkSource(source)
+            if replaceSymbolicLinks || linked, isSymbolicLink(output), !names.contains(output.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased()) {
                 replacesLink = true
             } else if unavailable(output) {
                 guard renameConflicts else { throw MoveFailure(message: L("移動先に同名の項目があります: %@\n上書きせずに中止しました。", String(describing: source.lastPathComponent))) }
@@ -90,13 +98,14 @@ enum MoveEngine {
                 } while unavailable(output)
             }
             names.insert(output.lastPathComponent.precomposedStringWithCanonicalMapping.lowercased())
-            result.append(MovePair(from: source, to: output, replacesLink: replacesLink ? true : nil))
+            result.append(MovePair(from: source, to: output, replacesLink: replacesLink ? true : nil, asLink: linked ? true : nil))
         }
         return result
     }
     static func execute(_ plan: [MovePair], asSymbolicLinks: Bool = false, asCopies: Bool = false, didComplete: ((MovePair) throws -> Void)? = nil) -> (done: [MovePair], error: Error?) {
         var done: [MovePair] = []
         for pair in plan {
+            let asSymbolicLinks = asSymbolicLinks || pair.asLink == true
             do {
                 if let expected = pair.identity, identity(pair.from) != expected {
                     throw MoveFailure(message: L("項目が削除・置換されたため処理を中止しました: %@", String(describing: pair.from.lastPathComponent)))
