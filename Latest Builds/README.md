@@ -8,6 +8,7 @@
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.31 | 51 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
 | [CellCopyCleaner](CellCopyCleaner.app) | 1.1.0 | 3 | `jp.dtp-transit.cellcopycleaner` |
+| [PasteInARow](PasteInARow.app) | 1.1.1 | 5 | `jp.dtp-transit.pasteinarow` |
 | [CommandDee](CommandDee.app) | 1.8.23 | 50 | `jp.local.CommandDee` |
 | [HotkeyHound](HotkeyHound.app) | 0.3.0 | 9 | `jp.dtp-transit.hotkeyhound` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
