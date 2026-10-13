@@ -191,24 +191,109 @@ enum BrowserBridge {
     }
     enum ScriptError: Error { case denied, failed(String) }
 
-    /// Folder of the front Finder window, or nil (no window, or a window without a folder such as Recents).
-    static func frontFinderFolder() -> Result<URL?, ScriptError> {
-        let source = """
-        tell application id "com.apple.finder"
-            if (count of Finder windows) is 0 then return ""
-            try
-                return POSIX path of (target of front Finder window as alias)
-            on error
-                return ""
-            end try
-        end tell
-        """
-        switch run(source) {
-        case .denied: return .failure(.denied)
-        case .failed(let message): return .failure(.failed(message))
-        case .value(let path): return .success(path.isEmpty ? nil : URL(fileURLWithPath: path, isDirectory: true))
+    /// A file viewer whose windows can be listed: Finder, and Path Finder (App Store and Setapp builds).
+    struct FileViewer { let name: String; let bundleID: String; let pid: pid_t }
+
+    static func runningFileViewers() -> [FileViewer] {
+        let ids = ["com.apple.finder", "com.cocoatech.PathFinder", "com.cocoatech.PathFinder-setapp"]
+        return NSWorkspace.shared.runningApplications.compactMap { app in
+            guard let id = app.bundleIdentifier, ids.contains(id) else { return nil }
+            return FileViewer(name: id == "com.apple.finder" ? "Finder" : "Path Finder", bundleID: id, pid: app.processIdentifier)
         }
     }
+
+    /// Name of the viewer that refused Apple events in the last openFolderWindows(), for the error message.
+    private(set) static var deniedViewer = "Finder"
+
+    /// Folders of every open Finder / Path Finder window, front to back (the viewer whose window is in front comes first).
+    /// Windows without a folder (Recents, search results) are skipped. Denied only when no viewer could be asked.
+    static func openFolderWindows() -> Result<[URL], ScriptError> {
+        // Window order on screen decides which viewer is "in front"; owner PIDs are readable without Screen Recording.
+        let onScreen = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? [])
+            .filter { ($0[kCGWindowLayer as String] as? Int) == 0 }
+            .compactMap { $0[kCGWindowOwnerPID as String] as? pid_t }
+        let viewers = runningFileViewers().sorted {
+            (onScreen.firstIndex(of: $0.pid) ?? .max) < (onScreen.firstIndex(of: $1.pid) ?? .max)
+        }
+        var folders: [URL] = []
+        var denied: String?
+        var failure: String?
+        var asked = false
+        for viewer in viewers {
+            let windows = viewer.bundleID == "com.apple.finder" ? "Finder windows" : "finder windows"
+            let source = """
+            tell application id "\(viewer.bundleID)"
+                set out to ""
+                repeat with i from 1 to count of \(windows)
+                    try
+                        set out to out & POSIX path of (target of item i of \(windows) as alias) & linefeed
+                    on error
+                        try
+                            set out to out & POSIX path of (target of item i of \(windows)) & linefeed
+                        end try
+                    end try
+                end repeat
+                return out
+            end tell
+            """
+            switch run(source) {
+            case .denied: denied = denied ?? viewer.name
+            case .failed(let message): failure = failure ?? message
+            case .value(let text):
+                asked = true
+                for path in text.split(separator: "\n") {
+                    let url = URL(fileURLWithPath: String(path), isDirectory: true)
+                    if !folders.contains(url) { folders.append(url) }
+                }
+            }
+        }
+        if !asked, let denied { deniedViewer = denied; return .failure(.denied) }
+        if !asked, let failure { return .failure(.failed(failure)) }
+        return .success(folders)
+    }
+
+    /// Recent folders of Finder (FXRecentFolders) and Path Finder (PFFileHistoryManager), newest first, as FolderHopper reads them.
+    /// Read-only; other apps' preferences are never changed. Missing folders and packages are skipped.
+    static func recentFolders(limit: Int = 10) -> [URL] {
+        func preferences(_ domain: String) -> [String: Any] {
+            CFPreferencesCopyMultiple(nil, domain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String: Any] ?? [:]
+        }
+        func resolve(_ data: Data) -> URL? {
+            var stale = false
+            return try? URL(resolvingBookmarkData: data, options: [.withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale)
+        }
+        var urls = (preferences("com.apple.finder")["FXRecentFolders"] as? [[String: Any]] ?? []).compactMap { ($0["file-bookmark"] as? Data).flatMap(resolve) }
+        for domain in ["com.cocoatech.PathFinder-setapp", "com.cocoatech.PathFinder"] {
+            guard let data = preferences(domain)["PFFileHistoryManager"] as? Data,
+                  let decoder = try? NSKeyedUnarchiver(forReadingFrom: data) else { continue }
+            decoder.requiresSecureCoding = true
+            decoder.setClass(PFHistoryArchive.self, forClassName: "PFFileHistoryMgr")
+            let history = decoder.decodeObject(of: PFHistoryArchive.self, forKey: NSKeyedArchiveRootObjectKey)
+            decoder.finishDecoding()
+            urls += (history?.folders ?? []).compactMap(resolve)
+        }
+        var seen = Set<String>()
+        return Array(urls.filter {
+            let url = $0.standardizedFileURL
+            let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey])
+            return values?.isDirectory == true && values?.isPackage != true && seen.insert(url.path).inserted
+        }.prefix(limit))
+    }
+
+    /// Folder of the front Finder / Path Finder window, or nil (no window, or a window without a folder such as Recents).
+    static func frontFinderFolder() -> Result<URL?, ScriptError> {
+        openFolderWindows().map { $0.first }
+    }
+}
+
+/// Path Finder's folder history archive (class PFFileHistoryMgr), decoded with secure coding.
+final class PFHistoryArchive: NSObject, NSSecureCoding {
+    static var supportsSecureCoding: Bool { true }
+    let folders: [Data]
+    required init?(coder: NSCoder) {
+        folders = coder.decodeObject(of: [NSArray.self, NSData.self], forKey: "folders") as? [Data] ?? []
+    }
+    func encode(with coder: NSCoder) { coder.encode(folders, forKey: "folders") }
 }
 
 /// Clipboard contents kept in memory only while the macros' clipboard steps run (B10: never overwrite a newer copy).

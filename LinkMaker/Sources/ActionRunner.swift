@@ -26,6 +26,12 @@ final class ActionRunner {
         if title.isEmpty { title = URLComponents(string: url)?.host ?? url }
 
         switch action {
+        case .copyAsk:
+            // 「どの形式で？」: asked at the mouse pointer; Amazon items only on a product page.
+            let isAmazon = LinkRules.amazonASIN(page.url) != nil
+            let formats = LinkAction.copyFormats.filter { isAmazon || ($0 != .copyAmazon && $0 != .copyAmazonAffiliate) }
+            guard let picked = Self.askChoice(L("copyTitle"), formats.map { L($0.titleKey) }) else { completion(.success(L("cancelled"))); return }
+            run(formats[picked], browser: browser, app: app, completion: completion)
         case .copyURL: completion(copy(LinkRules.format(.url, title: title, url: url), L("done.copyURL")))
         case .copyTitleLine: completion(copy(LinkRules.format(.titleLine, title: title, url: url), L("done.copyText")))
         case .copyTitleSpace: completion(copy(LinkRules.format(.titleSpace, title: title, url: url), L("done.copyText")))
@@ -108,27 +114,66 @@ final class ActionRunner {
         }
     }
 
-    enum Destination: Int { case desktop = 1, finder, choose }
+    enum Destination { case desktop, folder(URL), choose }
 
-    /// Pop-up menu at the mouse pointer: デスクトップ／前面のFinderウインドウ（フォルダー名）／場所を指定…. nil = cancelled.
-    static func askDestination(finder: Result<URL?, BrowserBridge.ScriptError>) -> Destination? {
+    /// Pop-up menu at the mouse pointer: デスクトップ／開いているFinder・Path Finderのウインドウ（前面から順）／
+    /// 最近使ったフォルダー（FinderとPath Finderの履歴、ウインドウと重複しないもの）／場所を指定…. nil = cancelled.
+    static func askDestination(windows: Result<[URL], BrowserBridge.ScriptError>, recent: [URL]) -> Destination? {
         let menu = NSMenu(); menu.autoenablesItems = false
-        let header = menu.addItem(withTitle: L("whereTitle"), action: nil, keyEquivalent: ""); header.isEnabled = false
         let picker = MenuPicker()
-        func add(_ title: String, _ destination: Destination, enabled: Bool = true, symbol: String) {
+        func header(_ title: String) { menu.addItem(withTitle: title, action: nil, keyEquivalent: "").isEnabled = false }
+        func add(_ title: String, tag: Int, enabled: Bool = true, symbol: String) {
             let item = menu.addItem(withTitle: title, action: #selector(MenuPicker.pick(_:)), keyEquivalent: "")
-            item.target = picker; item.tag = destination.rawValue; item.isEnabled = enabled
+            item.target = picker; item.tag = tag; item.isEnabled = enabled
             item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
         }
-        add(L("where.desktop"), .desktop, symbol: "menubar.dock.rectangle")
-        switch finder {
-        case .success(let folder?): add(String(format: L("where.finder"), FileManager.default.displayName(atPath: folder.path)), .finder, symbol: "folder")
-        case .success(nil): add(L("where.finderNone"), .finder, enabled: false, symbol: "folder")
-        case .failure: add(L("where.finderDenied"), .finder, enabled: false, symbol: "folder")
+        var folders: [URL] = []
+        func addFolders(_ list: [URL]) {
+            for folder in list {
+                let item = menu.addItem(withTitle: String(format: L("where.finder"), FileManager.default.displayName(atPath: folder.path)),
+                                        action: #selector(MenuPicker.pick(_:)), keyEquivalent: "")
+                item.target = picker; item.tag = folders.count; item.toolTip = folder.path
+                item.image = NSWorkspace.shared.icon(forFile: folder.path)
+                item.image?.size = NSSize(width: 16, height: 16)
+                folders.append(folder)
+            }
         }
-        add(L("where.choose"), .choose, symbol: "ellipsis.circle")
+        header(L("whereTitle"))
+        add(L("where.desktop"), tag: -1, symbol: "menubar.dock.rectangle")
+        switch windows {
+        case .success(let list) where !list.isEmpty: addFolders(list)
+        case .success: add(L("where.finderNone"), tag: -9, enabled: false, symbol: "folder")
+        case .failure: add(L("where.finderDenied"), tag: -9, enabled: false, symbol: "folder")
+        }
+        let opened = Set(folders.map(\.standardizedFileURL.path))
+        let history = recent.filter { !opened.contains($0.standardizedFileURL.path) && $0.standardizedFileURL.path != LinkFiles.desktop.standardizedFileURL.path }
+        if !history.isEmpty {
+            menu.addItem(.separator())
+            header(L("where.recent"))
+            addFolders(history)
+        }
+        menu.addItem(.separator())
+        add(L("where.choose"), tag: -2, symbol: "ellipsis.circle")
         menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
-        return picker.picked.flatMap(Destination.init(rawValue:))
+        switch picker.picked {
+        case .some(-1): return .desktop
+        case .some(-2): return .choose
+        case let index? where folders.indices.contains(index): return .folder(folders[index])
+        default: return nil
+        }
+    }
+
+    /// Pop-up menu at the mouse pointer with a disabled header. Returns the picked index, nil = cancelled.
+    static func askChoice(_ title: String, _ items: [String]) -> Int? {
+        let menu = NSMenu(); menu.autoenablesItems = false
+        let header = menu.addItem(withTitle: title, action: nil, keyEquivalent: ""); header.isEnabled = false
+        let picker = MenuPicker()
+        for (index, text) in items.enumerated() {
+            let item = menu.addItem(withTitle: text, action: #selector(MenuPicker.pick(_:)), keyEquivalent: "")
+            item.target = picker; item.tag = index
+        }
+        menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+        return picker.picked
     }
 
     private func saveFile(_ action: LinkAction, title: String, ext: String, data: () throws -> Data, completion: @escaping (ActionOutcome) -> Void) {
@@ -145,27 +190,26 @@ final class ActionRunner {
             }
         }
         var destination: Destination
-        var finder: Result<URL?, BrowserBridge.ScriptError>?
         switch action {
         case .weblocDesktop, .qrDesktop: destination = .desktop
-        case .weblocFinder, .qrFinder: destination = .finder
+        case .weblocFinder, .qrFinder:
+            switch BrowserBridge.frontFinderFolder() {
+            case .success(let folder?): destination = .folder(folder)
+            case .success(nil): write(to: LinkFiles.desktop, reveal: true, note: "\n" + L("note.noFinderWindow")); return
+            case .failure(.denied): completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
+            case .failure(.failed(let message)): completion(.failure(L("fail.finder") + message)); return
+            }
         case .weblocChoose, .qrChoose: destination = .choose
         default:
-            // 「どこに？」: asked at the mouse pointer; the Finder item names the folder it will use.
-            finder = BrowserBridge.frontFinderFolder()
-            guard let picked = Self.askDestination(finder: finder!) else { completion(.success(L("cancelled"))); return }
+            // 「どこに？」: asked at the mouse pointer; every open Finder / Path Finder window, then their recent folders.
+            guard let picked = Self.askDestination(windows: BrowserBridge.openFolderWindows(), recent: BrowserBridge.recentFolders()) else { completion(.success(L("cancelled"))); return }
             destination = picked
         }
         switch destination {
         case .desktop:
             write(to: LinkFiles.desktop, reveal: false)
-        case .finder:
-            switch finder ?? BrowserBridge.frontFinderFolder() {
-            case .success(let folder?): write(to: folder, reveal: true)
-            case .success(nil): write(to: LinkFiles.desktop, reveal: true, note: "\n" + L("note.noFinderWindow"))
-            case .failure(.denied): completion(.failure(String(format: L("fail.automation"), "Finder")))
-            case .failure(.failed(let message)): completion(.failure(L("fail.finder") + message))
-            }
+        case .folder(let folder):
+            write(to: folder, reveal: true)
         case .choose:
             NSApp.activate(ignoringOtherApps: true)
             let panel = NSOpenPanel()
@@ -284,7 +328,7 @@ extension ActionRunner {
                 switch BrowserBridge.frontFinderFolder() {
                 case .success(let found?): folder = found
                 case .success(nil): folder = LinkFiles.desktop; note = "\n" + L("note.noFinderWindow")
-                case .failure(.denied): selection.restore(); completion(.failure(String(format: L("fail.automation"), "Finder"))); return
+                case .failure(.denied): selection.restore(); completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
                 case .failure(.failed(let message)): selection.restore(); completion(.failure(L("fail.finder") + message)); return
                 }
             }
@@ -309,7 +353,7 @@ extension ActionRunner {
                 switch BrowserBridge.frontFinderFolder() {
                 case .success(let found?): folder = found
                 case .success(nil): note = "\n" + L("note.noFinderWindow")
-                case .failure(.denied): completion(.failure(String(format: L("fail.automation"), "Finder"))); return
+                case .failure(.denied): completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
                 case .failure(.failed(let message)): completion(.failure(L("fail.finder") + message)); return
                 }
             }

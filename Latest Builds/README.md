@@ -17,7 +17,7 @@
 | [KageTrimmer](KageTrimmer.app) | 1.0.17 | 54 | `jp.dtp-transit.kagetrimmer` |
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.27 | 47 | `jp.local.SuperKakkoEdit` |
-| [LinkMaker](LinkMaker.app) | 1.2.3 | 6 | `jp.dtp-transit.linkmaker` |
+| [LinkMaker](LinkMaker.app) | 1.2.5 | 8 | `jp.dtp-transit.linkmaker` |
 | [MightyEdit](MightyEdit.app) | 0.2.18 | 92 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |

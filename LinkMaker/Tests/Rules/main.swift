@@ -70,7 +70,7 @@ expect(LinkRules.suggestedName(for: "https://www.example.com/x"), "example.com")
 expect(LinkRules.webSources(["https://dl.example/f.zip", "https://example.com/page", "https://dl.example/f.zip", "/local"]).joined(separator: " "), "https://dl.example/f.zip https://example.com/page")
 expect(LinkAction.allCases.filter(\.isGlobal).count == 11 && !LinkAction.copyURL.isGlobal, "selection group is global")
 expect(LinkAction.from(number: 27) == .searchClipboardLines && LinkAction.from(number: 38) == .fileWhereFrom, "existing numbers unchanged")
-expect(LinkAction.allCases.filter { $0.group == .copy }.last == .copyAmazonAffiliate, "affiliate follows the Amazon link")
+expect(LinkAction.listed(.copy) == [.copyAsk] + LinkAction.copyFormats, "combined copy first, affiliate follows the Amazon link")
 
 // Action table: unique numbers, KM default keys unique.
 let numbers = LinkAction.allCases.map(\.number)

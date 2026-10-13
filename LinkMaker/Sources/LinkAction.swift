@@ -15,12 +15,14 @@ enum LinkAction: String, CaseIterable, Codable {
     case copyAmazonAffiliate
     /// One webloc / QR code function each; the destination is asked when it runs.
     case weblocAsk, qrAsk
+    /// One copy function; the format is asked when it runs.
+    case copyAsk
 
     enum Group: String, CaseIterable { case copy, tabs, file, open, reopen, clipboard, selection }
 
     var group: Group {
         switch self {
-        case .copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate: return .copy
+        case .copyAsk, .copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate: return .copy
         case .tabsURLs, .tabsTitled, .tabsMarkdown: return .tabs
         case .weblocAsk, .weblocDesktop, .weblocFinder, .weblocChoose, .qrAsk, .qrDesktop, .qrFinder, .qrChoose: return .file
         case .reloadClean, .forceReload, .editMode, .translate, .newWindow, .privateWindow: return .open
@@ -46,11 +48,13 @@ enum LinkAction: String, CaseIterable, Codable {
     /// Listed actions in a group, in the order shown: the combined file functions first.
     static func listed(_ group: Group) -> [LinkAction] {
         let all = allCases.filter { $0.group == group && !$0.hotkeyOnly }
-        return group == .file ? [.weblocAsk, .qrAsk] : all
+        return group == .file ? [.weblocAsk, .qrAsk] : group == .copy ? [.copyAsk] + all.filter { $0 != .copyAsk } : all
     }
+    /// What the combined copy function offers, in menu order.
+    static let copyFormats: [LinkAction] = [.copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate]
     /// Settings → Hotkeys: everything, the combined file functions before the fixed-destination ones.
     static func inSettings(_ group: Group) -> [LinkAction] {
-        group == .file ? [.weblocAsk, .qrAsk] + allCases.filter(\.hotkeyOnly) : allCases.filter { $0.group == group }
+        group == .file ? [.weblocAsk, .qrAsk] + allCases.filter(\.hotkeyOnly) : listed(group)
     }
 
     /// Whether the action needs the page in front (title/URL); the clipboard actions do not.
@@ -98,6 +102,8 @@ enum LinkAction: String, CaseIterable, Codable {
         case .weblocAsk: return .km(13, Self.opt, "W")
         case .qrAsk: return .km(12, Self.opt, "Q")
         case .weblocFinder, .qrFinder: return nil
+        // ⌥C asks the format (no Keyboard Maestro macro; KM's ⌥C is only in non-browser groups).
+        case .copyAsk: return Shortcut(code: 8, modifiers: Self.opt, label: "⌥C")
         case .tabsMarkdown, .qrDesktop, .qrChoose, .searchClipboardLines, .selDictionary, .selJina,
              .selWeblocDesktop, .selWeblocFinder, .fileWhereFrom: return nil
         }
