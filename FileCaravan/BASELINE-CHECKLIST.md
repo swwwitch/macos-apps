@@ -96,4 +96,4 @@ B15/B16: About・ヘルプのサポート案内を4言語とも「同梱のREADM
 
 - 現行ソースは FileCaravan/。Bundle ID local.takano.FolderMover、履歴 FolderMover/History、ウインドウ位置キー FolderMoverMain は互換性のため保持。
 - メニュー・4言語ヘルプ・アイコン資産名・ビルド経路・申請原稿を変更。旧版・過去の検証記録は履歴として保持。
-- 配布と起動の検証結果は Rename-20261007.md を参照。
+- 配布と起動の検証結果は Docs/Rename-20261007.md を参照。
