@@ -1,7 +1,7 @@
 A menu bar app that controls your Mac’s display settings and a timer, for seminars and screen recordings. It does not appear in the Dock.
 
 ## How to Use
-Click the “screen + clock” icon in the menu bar to open the main window (Seminar & Capture Preparation). The main window has three tabs: Presets, Basic, and More Settings. In the Presets tab, click a large preset button to apply its settings all at once. The Basic tab has the clock, date, weekday, appearance, and the timer; More Settings has the other items, grouped into Display, Visibility, Distractions, Privacy, and Dock. You can switch the following one at a time:
+Click the “screen + clock” icon in the menu bar to open the main window (Seminar & Capture Preparation). The main window has three tabs: Presets, Basic, and More Settings. In the Presets tab, click a large preset button to apply its settings all at once. The Basic tab has the clock, date, weekday, appearance, and the timer; More Settings has the other items, grouped into Display, Visibility, Zoom, Distractions, Privacy, and Dock. You can switch the following one at a time:
 
 ### Display
 - **Clock**: switch the menu bar clock between Digital and Analog. You can also show or hide the Date and Day of Week (for the digital clock).
@@ -12,6 +12,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 - **Resolution**: change the resolution of the main display (the one with the menu bar). The list shows the same “looks like” sizes as System Settings. If a preset’s resolution is not available on the connected display, a message appears. Turn on Show all resolutions to also list the low-resolution modes. Choose Reset to Display Default to return to the display’s own default. Presets can save it as “Display default”, which works on any display.
 - **Reduce transparency**: reduce the transparency of windows and menus across the Mac. PodiumAssist operates System Settings for this, so System Settings opens briefly (requires the Accessibility permission).
 - **Reduce motion**: reduce on-screen motion such as zoom and parallax effects. Like Reduce transparency, PodiumAssist operates System Settings for this (requires the Accessibility permission).
+- **Zoom**: the same settings as System Settings › Accessibility › Zoom. Use keyboard shortcuts to zoom, Zoom style (Full Screen, Split Screen, Picture-in-Picture), and Maximum zoom (1 to 40) are changed by operating System Settings (requires the Accessibility permission). Maximum zoom moves the slider in Advanced…, so the pointer moves for a moment while it changes. Shortcut: Turn zoom on or off and Shortcut: Zoom in take effect at once.
 - **Play feedback when volume is changed**: turn the sound played when you change the volume on or off. This is the same setting as in System Settings › Sound.
 
 ### Dock and Desktop

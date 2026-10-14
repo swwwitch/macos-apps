@@ -11,7 +11,8 @@ struct PresetSaveSheet: View {
 
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
-             reduceTransparency, reduceMotion, volumeFeedback, notificationsOff, timerEnabled, timerMinutes
+             reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
+             volumeFeedback, notificationsOff, timerEnabled, timerMinutes
     }
 
     @State private var targetID: UUID?
@@ -53,6 +54,11 @@ struct PresetSaveSheet: View {
                     }
                     row(.reduceTransparency, L("透明度を下げる"), onOff(settings.reduceTransparency))
                     row(.reduceMotion, L("視差効果を減らす"), onOff(settings.reduceMotion))
+                    row(.zoomHotkeys, L("キーボードショートカットを使って拡大・縮小"), onOff(settings.zoomHotkeys))
+                    row(.zoomStyle, L("ズーム方法"), settings.zoomStyle.title)
+                    row(.zoomMaxFactor, L("最大拡大率"), settings.zoomMaxFactor.map(ZoomSettings.text) ?? "–")
+                    row(.zoomToggleShortcut, L("ショートカット：ズーム機能のオン／オフ"), Self.shortcutTitle(ZoomSettings.toggleShortcut, settings.zoomToggleShortcut))
+                    row(.zoomInShortcut, L("ショートカット：拡大"), Self.shortcutTitle(ZoomSettings.zoomInShortcut, settings.zoomInShortcut))
                     row(.volumeFeedback, L("音量を変更するときにフィードバックを再生"), onOff(settings.volumeFeedback))
                     HStack {
                         Toggle(L("通知"), isOn: binding(.notificationsOff))
@@ -78,6 +84,10 @@ struct PresetSaveSheet: View {
     }
 
     private func onOff(_ value: Bool) -> String { value ? L("オン") : L("オフ") }
+
+    private static func shortcutTitle(_ shortcut: ZoomSettings.Shortcut, _ value: String) -> String {
+        value == "off" ? L("オフ") : shortcut.choices.first { $0.value == value }?.title ?? L("その他")
+    }
 
     private func binding(_ item: Item) -> Binding<Bool> {
         Binding(get: { included.contains(item) }, set: { if $0 { included.insert(item) } else { included.remove(item) } })
@@ -137,6 +147,8 @@ struct PresetSaveSheet: View {
             .dark: preset.dark != nil, .hideDock: preset.hideDock != nil, .killDock: preset.killDock != nil,
             .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
             .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
+            .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
+            .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil,
             .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
         return Set(has.filter(\.value).map(\.key))
     }
@@ -157,6 +169,12 @@ struct PresetSaveSheet: View {
         preset.reduceTransparency = value(.reduceTransparency, settings.reduceTransparency)
         preset.reduceMotion = value(.reduceMotion, settings.reduceMotion)
         preset.volumeFeedback = value(.volumeFeedback, settings.volumeFeedback)
+        preset.zoomHotkeys = value(.zoomHotkeys, settings.zoomHotkeys)
+        preset.zoomStyle = value(.zoomStyle, settings.zoomStyle.rawValue)
+        // Not saved while macOS has no value yet (the slider was never moved).
+        preset.zoomMaxFactor = included.contains(.zoomMaxFactor) ? settings.zoomMaxFactor : nil
+        preset.zoomToggleShortcut = value(.zoomToggleShortcut, settings.zoomToggleShortcut)
+        preset.zoomInShortcut = value(.zoomInShortcut, settings.zoomInShortcut)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
         preset.timerEnabled = value(.timerEnabled, countdown.enabled)
         preset.timerMinutes = value(.timerMinutes, countdown.plan.minutes)

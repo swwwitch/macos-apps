@@ -393,6 +393,12 @@ struct Preset: Codable, Identifiable {
     var reduceTransparency: Bool? = nil
     var reduceMotion: Bool? = nil
     var volumeFeedback: Bool? = nil
+    var zoomHotkeys: Bool? = nil
+    /// ZoomSettings.Style raw value.
+    var zoomStyle: Int? = nil
+    var zoomMaxFactor: Double? = nil
+    var zoomToggleShortcut: String? = nil
+    var zoomInShortcut: String? = nil
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
     var notificationsOff: Bool? = nil
@@ -763,6 +769,11 @@ final class MacSettings: ObservableObject {
     @Published var reduceTransparency = false
     @Published var reduceMotion = false
     @Published var volumeFeedback = false
+    @Published var zoomHotkeys = false
+    @Published var zoomStyle = ZoomSettings.Style.fullScreen
+    @Published var zoomMaxFactor: Double?
+    @Published var zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
+    @Published var zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
     @Published var resolution: DisplayResolution?
     /// Do Not Disturb as PodiumAssist last set it: the Focus state itself is not readable without Full Disk Access.
     @Published var notificationsOff = UserDefaults.standard.bool(forKey: "notificationsOffLastSet") {
@@ -801,6 +812,11 @@ final class MacSettings: ObservableObject {
         reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
         volumeFeedback = (CFPreferencesCopyAppValue(Self.volumeFeedbackKey, kCFPreferencesAnyApplication) as? NSNumber)?.boolValue ?? false
+        zoomHotkeys = ZoomSettings.hotkeysEnabled
+        zoomStyle = ZoomSettings.style
+        zoomMaxFactor = ZoomSettings.maxFactor
+        zoomToggleShortcut = ZoomSettings.current(ZoomSettings.toggleShortcut)
+        zoomInShortcut = ZoomSettings.current(ZoomSettings.zoomInShortcut)
     }
 
     func setResolution(_ value: DisplayResolution) {
@@ -880,13 +896,20 @@ final class MacSettings: ObservableObject {
 
     /// Flips a System Settings switch (the preference write is refused without Full Disk Access). `then` runs afterwards on success.
     private func setSystemSwitch(_ target: (pane: String, identifier: String), to value: Bool, working: String, done: String, then: (() -> Void)?) {
+        inSystemSettings(working: working, done: done, then: then) {
+            try await SystemSettingsSwitch.set(pane: target.pane, identifier: target.identifier, to: value)
+        }
+    }
+
+    /// Runs a change that operates System Settings, showing `working` meanwhile. `then` runs afterwards on success.
+    private func inSystemSettings(working: String, done: String, then: (() -> Void)?, _ change: @escaping @MainActor () async throws -> Void) {
         guard !busy else { return }
         busy = true
         error = false
         message = working
         Task {
             do {
-                try await SystemSettingsSwitch.set(pane: target.pane, identifier: target.identifier, to: value)
+                try await change()
                 message = done
                 busy = false
                 refresh()
@@ -908,6 +931,34 @@ final class MacSettings: ObservableObject {
     func setReduceMotion(_ value: Bool, then: (() -> Void)? = nil) {
         setSystemSwitch(SystemSettingsSwitch.reduceMotion, to: value, working: L("システム設定で視差効果を変更しています…"),
                         done: value ? L("視差効果を減らしました。") : L("視差効果を元に戻しました。"), then: then)
+    }
+
+    /// Zoom items that live in System Settings; nil leaves an item as it is.
+    func setZoom(hotkeys: Bool? = nil, style: ZoomSettings.Style? = nil, maxFactor: Double? = nil, then: (() -> Void)? = nil) {
+        let done: String
+        if let hotkeys {
+            done = hotkeys ? L("キーボードショートカットでの拡大・縮小をオンにしました。") : L("キーボードショートカットでの拡大・縮小をオフにしました。")
+        } else if let style, maxFactor == nil {
+            done = L("ズーム方法を「%@」にしました。", style.title)
+        } else if let maxFactor, style == nil {
+            done = L("最大拡大率を%@にしました。", ZoomSettings.text(maxFactor))
+        } else {
+            done = L("ズーム機能の設定を変更しました。")
+        }
+        inSystemSettings(working: L("システム設定でズーム機能を変更しています…"), done: done, then: then) {
+            try await ZoomSettings.apply(hotkeys: hotkeys, style: style, maxFactor: maxFactor)
+        }
+    }
+
+    func setZoomShortcut(_ shortcut: ZoomSettings.Shortcut, to value: String) {
+        if ZoomSettings.setShortcut(shortcut, to: value) {
+            error = false
+            message = L("ショートカットを変更しました。")
+        } else {
+            error = true
+            message = L("ショートカットを変更できませんでした。")
+        }
+        refresh()
     }
 
     func setPointerSize(_ value: Double) {
@@ -1069,6 +1120,8 @@ final class MacSettings: ObservableObject {
         if let value = preset.pointerSize { setPointerSize(value); if error { return } }
         if let value = preset.resolution, value != resolution { setResolution(value); if error { return } }
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
+        if let value = preset.zoomToggleShortcut, value != zoomToggleShortcut { setZoomShortcut(ZoomSettings.toggleShortcut, to: value); if error { return } }
+        if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
         if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
         if let value = preset.timerEnabled { countdown.enabled = value }
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
@@ -1079,8 +1132,16 @@ final class MacSettings: ObservableObject {
             else { message = L("「%@」を適用しました。", String(describing: preset.name)) }
         }
         // System Settings steps run one after another (each opens the pane), then notifications.
+        let zoom = { [self] in
+            let hotkeys = preset.zoomHotkeys.flatMap { $0 != zoomHotkeys ? $0 : nil }
+            let style = preset.zoomStyle.flatMap(ZoomSettings.Style.init(rawValue:)).flatMap { $0 != zoomStyle ? $0 : nil }
+            let maxFactor = preset.zoomMaxFactor.flatMap { value in zoomMaxFactor.map { abs($0 - value) < 0.05 } == true ? nil : value }
+            if hotkeys != nil || style != nil || maxFactor != nil {
+                setZoom(hotkeys: hotkeys, style: style, maxFactor: maxFactor, then: finish)
+            } else { finish() }
+        }
         let motion = { [self] in
-            if let value = preset.reduceMotion, value != reduceMotion { setReduceMotion(value, then: finish) } else { finish() }
+            if let value = preset.reduceMotion, value != reduceMotion { setReduceMotion(value, then: zoom) } else { zoom() }
         }
         if let value = preset.reduceTransparency, value != reduceTransparency { setReduceTransparency(value, then: motion) } else { motion() }
     }
@@ -1141,6 +1202,7 @@ struct ManualControlsView: View {
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
     @State private var pointerDraft = 1.0
+    @State private var zoomDraft = 10.0
     /// Only widens the 解像度 menu; nothing on the Mac changes.
     @AppStorage("showAllResolutions") private var showAllResolutions = false
 
@@ -1196,6 +1258,35 @@ struct ManualControlsView: View {
                     .font(.system(size: 12))
                     .onAppear { pointerDraft = settings.pointerSize }
                     .onChange(of: settings.pointerSize) { pointerDraft = $0 }
+                }
+                category(L("ズーム機能")) {
+                    Toggle(L("キーボードショートカットを使って拡大・縮小"), isOn: Binding(get: { settings.zoomHotkeys }, set: { value in manual { settings.setZoom(hotkeys: value) } }))
+                        .font(.system(size: 12)).disabled(settings.busy)
+                    HStack {
+                        Label(L("ズーム方法"), systemImage: "plus.magnifyingglass").fixedSize()
+                        Spacer()
+                        Picker(L("ズーム方法"), selection: Binding(get: { settings.zoomStyle }, set: { value in manual { settings.setZoom(style: value) } })) {
+                            ForEach(ZoomSettings.Style.menuOrder, id: \.self) { Text($0.title).tag($0) }
+                        }
+                        .labelsHidden().frame(width: 170)
+                    }
+                    .font(.system(size: 12)).disabled(settings.busy)
+                    HStack {
+                        Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
+                        Spacer()
+                        // Applied when the knob is released: System Settings is operated once per change.
+                        Slider(value: $zoomDraft, in: ZoomSettings.maxFactorRange, step: 0.5) { editing in
+                            if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
+                        }
+                        .frame(width: 140)
+                        Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 32, alignment: .trailing)
+                    }
+                    .font(.system(size: 12)).disabled(settings.busy)
+                    .help(L("システム設定の「詳細…」のスライダーを動かします。変更中はポインタが一瞬動きます。"))
+                    .onAppear { zoomDraft = settings.zoomMaxFactor ?? zoomDraft }
+                    .onChange(of: settings.zoomMaxFactor) { if let value = $0 { zoomDraft = value } }
+                    zoomShortcutRow(L("ショートカット：ズーム機能のオン／オフ"), ZoomSettings.toggleShortcut, settings.zoomToggleShortcut)
+                    zoomShortcutRow(L("ショートカット：拡大"), ZoomSettings.zoomInShortcut, settings.zoomInShortcut)
                 }
                 category(L("集中を妨げるもの")) {
                     Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
@@ -1282,6 +1373,24 @@ struct ManualControlsView: View {
     private func manual(_ change: () -> Void) {
         lastApplied = ""
         change()
+    }
+
+    /// A zoom shortcut menu; a value set elsewhere that is not among the choices is listed as it is.
+    private func zoomShortcutRow(_ title: String, _ shortcut: ZoomSettings.Shortcut, _ current: String) -> some View {
+        HStack {
+            Label(title, systemImage: "keyboard").fixedSize()
+            Spacer()
+            Picker(title, selection: Binding(get: { current }, set: { value in manual { settings.setZoomShortcut(shortcut, to: value) } })) {
+                ForEach(shortcut.choices, id: \.value) { Text($0.title).tag($0.value) }
+                if current != "off", !shortcut.choices.contains(where: { $0.value == current }) {
+                    Text(L("その他")).tag(current)
+                }
+                Divider()
+                Text(L("オフ")).tag("off")
+            }
+            .labelsHidden().frame(width: 100)
+        }
+        .font(.system(size: 12)).disabled(settings.busy)
     }
 
     /// A titled group on the 「その他の設定」 tab.

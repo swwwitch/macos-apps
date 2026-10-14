@@ -23,6 +23,12 @@ import Foundation
   let loaded = PresetStore(defaults: defaults).items.first { $0.name == "Pointer" }
   precondition(loaded?.pointerSize == 2.5 && loaded?.resolution == DisplayResolution(width: 1920, height: 1080, hiDPI: true))
   restored.remove(pointer.id)
+  var zoom = Preset(); zoom.name = "Zoom"; zoom.zoomHotkeys = true; zoom.zoomStyle = ZoomSettings.Style.pictureInPicture.rawValue
+  zoom.zoomMaxFactor = 4; zoom.zoomToggleShortcut = "28,1572864"; zoom.zoomInShortcut = "off"; restored.save(zoom)
+  let zoomLoaded = PresetStore(defaults: defaults).items.first { $0.name == "Zoom" }
+  precondition(zoomLoaded?.zoomHotkeys == true && zoomLoaded?.zoomStyle == 1 && zoomLoaded?.zoomMaxFactor == 4)
+  precondition(zoomLoaded?.zoomToggleShortcut == "28,1572864" && zoomLoaded?.zoomInShortcut == "off")
+  restored.remove(zoom.id)
   var second = Preset(); second.name = "Second"; restored.save(second)
   restored.move(second.id, by: -1)
   precondition(PresetStore(defaults: defaults).items.map(\.name) == ["Second", "Test"])
