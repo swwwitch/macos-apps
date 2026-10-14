@@ -901,6 +901,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     @objc func quit() { NSApp.terminate(nil) }
 }
 
+// Apps launched through Launch Services inherit this process's environment. Started from a VS Code terminal,
+// it carries ELECTRON_RUN_AS_NODE=1, which makes Electron apps (Biscuit, Discord…) start as Node and quit at once.
+unsetenv("ELECTRON_RUN_AS_NODE")
+
 let app = NSApplication.shared
 SingleInstanceLaunch.enforce()
 let delegate = AppDelegate()

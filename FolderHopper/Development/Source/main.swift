@@ -572,7 +572,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         return (modifiers & GlobalShortcut.requiredModifiers != 0 ? modifiers : GlobalShortcut.applicationsDefaultModifiers,
                 GlobalShortcut.keys.indices.contains(key) ? key : 0)
     }
-    /// Reads the frontmost Finder/Path Finder selection and copies it to /Applications without showing the window.
+    /// Reads the frontmost Finder/Path Finder selection and copies it to /Applications without showing the window,
+    /// then brings /Applications forward in the same browser with the new items selected.
     /// Never moves: the 「複製」 checkbox is ignored; only 「シンボリックリンクとして作成」 turns it into links.
     /// The window opens only to show an error; when there is nothing to copy, a short message says why.
     func copySelectionToApplications() {
@@ -597,7 +598,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                     return
                 }
                 if let reason = MoveEngine.destinationDisabledReason(state.files, into: destination.url) { self.showError(reason); return }
-                self.move(to: destination, source: state, copying: true, linking: self.symbolicLinks.state == .on)
+                self.move(to: destination, source: state, bringForward: true, copying: true, linking: self.symbolicLinks.state == .on)
             }
         }
     }
