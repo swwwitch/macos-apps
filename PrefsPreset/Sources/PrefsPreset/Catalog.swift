@@ -84,6 +84,9 @@ let catalog: [PrefItem] = [
     item("全体", "フォルダを開くアプリ", g, "NSFileViewer"),
     item("全体", "フォントのアンチエイリアス閾値", g, "AppleAntiAliasingThreshold"),
     item("全体", "NSConvolutionOverride1", g, "NSConvolutionOverride1"),
+    // 西暦（gregorian）の週の始まり。システム設定の「言語と地域」と同じ
+    item("全体", "週の始まり", firstWeekdayDomain, "gregorian",
+         ["1": "日曜日", "2": "月曜日", "3": "火曜日", "4": "水曜日", "5": "木曜日", "6": "金曜日", "7": "土曜日"]),
 
     // キーボード
     item("キーボード", "キーのリピート速度", g, "KeyRepeat"),
@@ -96,6 +99,12 @@ let catalog: [PrefItem] = [
     flag("キーボード", "キャップスロックインジケータを表示する", featureFlagDomain, "redesigned_text_cursor"),
     // 1048576 は ⌘
     item("キーボード", "ショートカット：次のウインドウを操作対象にする", hotkeyDomain, "27", ["50,1048576": "⌘`", "off": "オフ"]),
+    // アプリのショートカット（すべてのアプリケーション）。メニュー項目名は日本語・英語の表記違いをまとめて書く
+    item("キーボード", "アプリのショートカット：別名で保存", appShortcutDomain,
+         "別名で保存…|Save As…|Save As...", ["@$s": "⌘⇧S"]),
+    // ⌘⌥⇧⌃M は押すことのない組み合わせ。⌘M でしまわないようにする
+    item("キーボード", "アプリのショートカット：しまう（最小化）", appShortcutDomain,
+         "しまう|最小化|Minimize|\u{1B}ウインドウ\u{1B}しまう|\u{1B}ウィンドウ\u{1B}最小化", ["@~^$m": "⌘⌥⇧⌃M（⌘Mを無効にする）"]),
 
     // 文字入力
     flag("文字入力", "長押しでアクセント文字を表示", g, "ApplePressAndHoldEnabled"),
@@ -286,6 +295,9 @@ let catalog: [PrefItem] = [
     item("言語設定", "Notion", "notion.id", "AppleLanguages", appLanguages),
     item("言語設定", "Miro", "com.electron.realtimeboard", "AppleLanguages", appLanguages),
     item("言語設定", "Spotify", "com.spotify.client", "AppleLanguages", appLanguages),
+    item("言語設定", "MacDown", "com.uranusjr.macdown", "AppleLanguages", appLanguages),
+    item("言語設定", "FontExplorer X Pro", "com.linotype.FontExplorerX", "AppleLanguages", appLanguages),
+    item("言語設定", "Ecamm Live", "com.ecamm.EcammLive", "AppleLanguages", appLanguages),
 
     // その他
     flag("その他", "ダウンロードしたアプリの確認ダイアログ", "com.apple.LaunchServices", "LSQuarantine"),
@@ -427,12 +439,15 @@ let alsoShownIn: [String: [String]] = {
         (g, "NSWindowShouldDragOnGesture", ["ウィンドウ管理"]),
         (d, "minimize-to-application", ["ウィンドウ管理"]),
         (hotkeyDomain, "27", ["ウィンドウ管理"]),
+        (appShortcutDomain, "しまう|最小化|Minimize|\u{1B}ウインドウ\u{1B}しまう|\u{1B}ウィンドウ\u{1B}最小化", ["ウィンドウ管理"]),
         (g, "NSWindowResizeTime", ["アニメーション"]),
         (d, "expose-animation-duration", ["アニメーション"]),
         // Finder
         (g, "AppleShowAllExtensions", ["Finder"]),
         (g, "com.apple.springing.delay", ["Finder"]),
         (g, "NSFileViewer", ["Finder"]),
+        // 週の始まりはシステム設定では「言語と地域」の中にある
+        (firstWeekdayDomain, "gregorian", ["言語設定"]),
         // キーボード・文字入力
         (featureFlagDomain, "redesigned_text_cursor", ["文字入力"]),
         (g, "ApplePressAndHoldEnabled", ["キーボード"]),

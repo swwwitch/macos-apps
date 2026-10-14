@@ -82,6 +82,7 @@
 "、" = ", ";
 "再起動：%@" = "Restarted: %@";
 "キャップスロックインジケータは、Macを再起動すると反映されます。" = "The Caps Lock indicator setting takes effect after you restart the Mac.";
+"アプリのショートカットは、各アプリを再起動すると反映されます。" = "App shortcuts take effect after you restart each app.";
 "キーボード・トラックパッドなど一部の設定は、ログインし直すと反映されます。" = "Some settings, such as keyboard and trackpad, take effect after you log in again.";
 "元の値は「%@」に保存しました。ファイルメニューの「開く…」で読み込んで適用すると元に戻せます。" = "The original values were saved to “%@”. To restore them, open it with File > Open… and apply it.";
 "適用しました" = "Applied";
@@ -162,6 +163,7 @@
 "フォルダを開くアプリ" = "App that opens folders";
 "フォントのアンチエイリアス閾値" = "Font anti-aliasing threshold";
 "NSConvolutionOverride1" = "NSConvolutionOverride1";
+"週の始まり" = "First day of week";
 "キーのリピート速度" = "Key repeat rate";
 "リピート入力認識までの時間" = "Delay until repeat";
 "F1、F2などを標準のファンクションキーとして使用" = "Use F1, F2, etc. as standard function keys";
@@ -169,6 +171,8 @@
 "キーボードナビゲーション" = "Keyboard navigation";
 "キャップスロックインジケータを表示する" = "Show Caps Lock indicator";
 "ショートカット：次のウインドウを操作対象にする" = "Shortcut: Move focus to next window";
+"アプリのショートカット：別名で保存" = "App shortcut: Save As";
+"アプリのショートカット：しまう（最小化）" = "App shortcut: Minimize";
 "長押しでアクセント文字を表示" = "Press and hold for accented characters";
 "文頭を自動的に大文字にする" = "Capitalize words automatically";
 "スペルを自動変換" = "Correct spelling automatically";
@@ -286,6 +290,9 @@
 "Notion" = "Notion";
 "Miro" = "Miro";
 "Spotify" = "Spotify";
+"MacDown" = "MacDown";
+"FontExplorer X Pro" = "FontExplorer X Pro";
+"Ecamm Live" = "Ecamm Live";
 "ダウンロードしたアプリの確認ダイアログ" = "Confirm before opening downloaded apps";
 "タップでクリック" = "Tap to click";
 "副ボタンのクリック（2本指）" = "Secondary click (two fingers)";
@@ -329,10 +336,19 @@
 "何もしない" = "Do Nothing";
 "フルスクリーン時" = "In Full Screen";
 "手動" = "Never";
+"日曜日" = "Sunday";
+"月曜日" = "Monday";
+"火曜日" = "Tuesday";
+"水曜日" = "Wednesday";
+"木曜日" = "Thursday";
+"金曜日" = "Friday";
+"土曜日" = "Saturday";
 "入力ソースを変更" = "Change Input Source";
 "絵文字と記号を表示" = "Show Emoji & Symbols";
 "音声入力を開始" = "Start Dictation";
 "⌘`" = "⌘`";
+"⌘⇧S" = "⌘⇧S";
+"⌘⌥⇧⌃M（⌘Mを無効にする）" = "⌘⌥⇧⌃M (disable ⌘M)";
 "弱い" = "Light";
 "中" = "Medium";
 "強い" = "Firm";

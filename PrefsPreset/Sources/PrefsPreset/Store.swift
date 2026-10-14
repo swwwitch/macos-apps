@@ -109,10 +109,53 @@ func writeHotkey(_ id: String, _ value: NSObject?) {
 /// 文字を持つキーの文字コード（キーコード → ASCII）。一覧の選択肢で使うもの
 private let hotkeyCharacters: [Int: Int] = [28: 56, 24: 61, 27: 45, 50: 96]
 
+/// アプリのショートカット（NSGlobalDomain の NSUserKeyEquivalents、システム設定の「すべてのアプリケーション」）
+/// キーはメニュー項目名を "|" でつないだもの（言語ごとの表記違い。"\u{1B}" 区切りはメニューのパス）。
+/// 先頭の名前から読み、すべての名前へ書く。値は "@$s" のような修飾キー記号＋キー
+let appShortcutDomain = "AppShortcuts"
+private let userKeyEquivalentsKey = "NSUserKeyEquivalents" as CFString
+
+func readAppShortcut(_ key: String) -> NSObject? {
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+    let all = CFPreferencesCopyAppValue(userKeyEquivalentsKey, kCFPreferencesAnyApplication) as? [String: Any]
+    return all?[key.components(separatedBy: "|")[0]] as? NSString
+}
+
+/// ほかのメニュー項目の割り当ては変えずに差し替える
+func writeAppShortcut(_ key: String, _ value: NSObject?) {
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+    var all = CFPreferencesCopyAppValue(userKeyEquivalentsKey, kCFPreferencesAnyApplication) as? [String: Any] ?? [:]
+    for title in key.components(separatedBy: "|") { all[title] = value as? String }
+    CFPreferencesSetAppValue(userKeyEquivalentsKey, all.isEmpty ? nil : all as CFPropertyList, kCFPreferencesAnyApplication)
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+}
+
+/// 週の始まり（NSGlobalDomain の AppleFirstWeekday、システム設定の「言語と地域」）。値は暦ごとの辞書なので、キーは暦の名前
+/// 値は曜日の番号（1が日曜日、2が月曜日）。未設定なら地域の既定に従う
+let firstWeekdayDomain = "FirstWeekday"
+private let firstWeekdayKey = "AppleFirstWeekday" as CFString
+
+func readFirstWeekday(_ calendar: String) -> NSObject? {
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+    let all = CFPreferencesCopyAppValue(firstWeekdayKey, kCFPreferencesAnyApplication) as? [String: Any]
+    return all?[calendar] as? NSNumber
+}
+
+/// ほかの暦の値は変えずに差し替える
+func writeFirstWeekday(_ calendar: String, _ value: NSObject?) {
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+    var all = CFPreferencesCopyAppValue(firstWeekdayKey, kCFPreferencesAnyApplication) as? [String: Any] ?? [:]
+    all[calendar] = value as? NSNumber
+    CFPreferencesSetAppValue(firstWeekdayKey, all.isEmpty ? nil : all as CFPropertyList, kCFPreferencesAnyApplication)
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+}
+
 /// 他のプロセスが書いた値も拾えるよう、同期してから読む
 func readValue(domain: String, key: String) -> NSObject? {
     if domain == nvramDomain { return readStartupSound() }
     if domain == hotkeyDomain { return readHotkey(key) }
+    if domain == appShortcutDomain { return readAppShortcut(key) }
+    if domain == firstWeekdayDomain { return readFirstWeekday(key) }
     if domain == featureFlagDomain { return readFeatureFlag(key) }
     let d = cfDomain(domain)
     CFPreferencesAppSynchronize(d)
@@ -124,6 +167,8 @@ func writeValue(_ value: NSObject?, domains: [String], key: String) {
     for domain in domains {
         if domain == nvramDomain { writeStartupSound(value); continue }
         if domain == hotkeyDomain { writeHotkey(key, value); continue }
+        if domain == appShortcutDomain { writeAppShortcut(key, value); continue }
+        if domain == firstWeekdayDomain { writeFirstWeekday(key, value); continue }
         if domain == featureFlagDomain { writeFeatureFlag(key, value); continue }
         let d = cfDomain(domain)
         CFPreferencesSetAppValue(key as CFString, value as CFPropertyList?, d)
@@ -142,14 +187,16 @@ func run(_ path: String, _ args: [String]) {
 }
 
 /// 書き換えたあと再起動が必要なプロセス
-func processToRestart(for domain: String) -> String? {
+func processesToRestart(for domain: String) -> [String] {
     switch domain {
-    case "com.apple.dock", "com.apple.spaces": return "Dock"
-    case "com.apple.finder", "com.apple.desktopservices": return "Finder"
-    case "com.apple.screencapture": return "SystemUIServer"
-    case "com.apple.controlcenter", "com.apple.menuextra.clock": return "ControlCenter"
-    case "com.apple.WindowManager": return "WindowManager"
-    default: return nil
+    case "com.apple.dock", "com.apple.spaces": return ["Dock"]
+    case "com.apple.finder", "com.apple.desktopservices": return ["Finder"]
+    case "com.apple.screencapture": return ["SystemUIServer"]
+    case "com.apple.controlcenter", "com.apple.menuextra.clock": return ["ControlCenter"]
+    case "com.apple.WindowManager": return ["WindowManager"]
+    // カレンダーのアプリと Dock のアイコンの週の並び
+    case firstWeekdayDomain: return ["Calendar", "Dock"]
+    default: return []
     }
 }
 
@@ -412,7 +459,7 @@ final class Store: ObservableObject {
         }
         run("/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings", ["-u"])
         let domains = Set(list.flatMap { $0.item.domains })
-        let processes = Set(domains.compactMap(processToRestart)).sorted()
+        let processes = Set(domains.flatMap(processesToRestart)).sorted()
         for name in processes { run("/usr/bin/killall", [name]) }
         refreshCurrent()
 
@@ -425,6 +472,9 @@ final class Store: ObservableObject {
         if !processes.isEmpty { body += "\n" + L("再起動：%@", processes.joined(separator: L("、"))) }
         if domains.contains(featureFlagDomain) {
             body += "\n\n" + L("キャップスロックインジケータは、Macを再起動すると反映されます。")
+        }
+        if domains.contains(appShortcutDomain) {
+            body += "\n\n" + L("アプリのショートカットは、各アプリを再起動すると反映されます。")
         }
         if domains.contains(where: needsLogout) {
             body += "\n\n" + L("キーボード・トラックパッドなど一部の設定は、ログインし直すと反映されます。")

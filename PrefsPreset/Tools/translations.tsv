@@ -339,6 +339,9 @@ F2	F2	F2	F2
 Notion	Notion	Notion	Notion
 Miro	Miro	Miro	Miro
 Spotify	Spotify	Spotify	Spotify
+MacDown	MacDown	MacDown	MacDown
+FontExplorer X Pro	FontExplorer X Pro	FontExplorer X Pro	FontExplorer X Pro
+Ecamm Live	Ecamm Live	Ecamm Live	Ecamm Live
 表示	View	显示	보기
 一覧	List	列表	목록
 ウィザード	Wizard	向导	마법사
@@ -376,3 +379,16 @@ Siriを使う	Use Siri	使用 Siri	Siri 사용
 「Siri」と呼びかけて使う	Listen for “Siri”	聆听“Siri”	‘Siri’ 듣기
 ⌃↑	⌃↑	⌃↑	⌃↑
 ⌃↓	⌃↓	⌃↓	⌃↓
+アプリのショートカット：別名で保存	App shortcut: Save As	应用快捷键：存储为	앱 단축키: 다른 이름으로 저장
+アプリのショートカット：しまう（最小化）	App shortcut: Minimize	应用快捷键：最小化	앱 단축키: 최소화
+⌘⇧S	⌘⇧S	⌘⇧S	⌘⇧S
+⌘⌥⇧⌃M（⌘Mを無効にする）	⌘⌥⇧⌃M (disable ⌘M)	⌘⌥⇧⌃M（停用 ⌘M）	⌘⌥⇧⌃M(⌘M 비활성화)
+アプリのショートカットは、各アプリを再起動すると反映されます。	App shortcuts take effect after you restart each app.	应用快捷键在重新启动各应用后生效。	앱 단축키는 각 앱을 다시 시작하면 반영됩니다.
+週の始まり	First day of week	每周的第一天	주의 시작 요일
+日曜日	Sunday	星期日	일요일
+月曜日	Monday	星期一	월요일
+火曜日	Tuesday	星期二	화요일
+水曜日	Wednesday	星期三	수요일
+木曜日	Thursday	星期四	목요일
+金曜日	Friday	星期五	금요일
+土曜日	Saturday	星期六	토요일
