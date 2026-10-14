@@ -5,7 +5,7 @@ import Foundation
 enum MarkdownHTML {
     /// lineAnchors: ブロックの手前に <span data-line="原稿の行番号（0始まり）"> を入れる（スクロール合わせ用）
     static func render(_ markdown: String, lineAnchors: Bool = false) -> String {
-        var lines = markdown.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: "\n")
+        var lines = markdown.normalizedLineBreaks.components(separatedBy: "\n")
         var offset = 0
         // YAML front matter is not shown.
         if lines.first?.trimmingCharacters(in: .whitespaces) == "---",
@@ -95,6 +95,24 @@ enum MarkdownHTML {
                 paragraph = []
                 continue
             }
+            // GitHub-style table: a header row followed by a delimiter row such as |---|:---:|.
+            if paragraph.isEmpty, line.contains("|"), index + 1 < lines.count,
+               let alignments = tableAlignments(lines[index + 1]) {
+                let header = tableCells(line)
+                if header.count == alignments.count {
+                    flushAll()
+                    mark(index)
+                    var rows: [[String]] = []
+                    index += 1
+                    while index + 1 < lines.count, lines[index + 1].contains("|"),
+                          !lines[index + 1].trimmingCharacters(in: .whitespaces).isEmpty {
+                        index += 1
+                        rows.append(tableCells(lines[index]))
+                    }
+                    html.append(renderTable(header: header, alignments: alignments, rows: rows))
+                    continue
+                }
+            }
             if let (level, title) = HeadingParser.atx(line) {
                 flushAll()
                 mark(index)
@@ -123,6 +141,61 @@ enum MarkdownHTML {
         }
         flushAll()
         return html.filter { !$0.isEmpty }.joined(separator: "\n")
+    }
+
+    // MARK: - Tables
+
+    /// 区切りの行（|---|:---:|---:|）なら列ごとの揃え（"left"・"center"・"right"・""）
+    static func tableAlignments(_ line: String) -> [String]? {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        guard trimmed.contains("-"),
+              trimmed.range(of: #"^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?$"#, options: .regularExpression) != nil else { return nil }
+        return tableCells(line).map { cell in
+            let left = cell.hasPrefix(":"), right = cell.hasSuffix(":")
+            return left && right ? "center" : right ? "right" : left ? "left" : ""
+        }
+    }
+
+    /// 行をセルに分ける。両端の | は外し、インラインコードの中の | と \| は区切りにしない
+    static func tableCells(_ line: String) -> [String] {
+        var trimmed = line.trimmingCharacters(in: .whitespaces)
+        if trimmed.hasPrefix("|") { trimmed.removeFirst() }
+        if trimmed.hasSuffix("|"), !trimmed.hasSuffix("\\|") { trimmed.removeLast() }
+        var cells: [String] = []
+        var current = ""
+        var inCode = false
+        var previous: Character?
+        for character in trimmed {
+            if character == "`" { inCode.toggle() }
+            if character == "|", !inCode, previous != "\\" {
+                cells.append(current)
+                current = ""
+            } else if character == "|", previous == "\\" {
+                current.removeLast()
+                current.append("|")
+            } else {
+                current.append(character)
+            }
+            previous = character
+        }
+        cells.append(current)
+        return cells.map { $0.trimmingCharacters(in: .whitespaces) }
+    }
+
+    private static func renderTable(header: [String], alignments: [String], rows: [[String]]) -> String {
+        func cell(_ tag: String, _ text: String, _ column: Int) -> String {
+            let align = column < alignments.count && !alignments[column].isEmpty ? " style=\"text-align: \(alignments[column])\"" : ""
+            return "<\(tag)\(align)>" + inline(text) + "</\(tag)>"
+        }
+        var html = "<table><thead><tr>" + header.enumerated().map { cell("th", $1, $0) }.joined() + "</tr></thead>"
+        if !rows.isEmpty {
+            html += "<tbody>" + rows.map { row in
+                // Rows are padded or cut to the header's column count, as on GitHub.
+                let cells = (0..<header.count).map { $0 < row.count ? row[$0] : "" }
+                return "<tr>" + cells.enumerated().map { cell("td", $1, $0) }.joined() + "</tr>"
+            }.joined() + "</tbody>"
+        }
+        return html + "</table>"
     }
 
     /// 入れ子のリスト。字下げの深さで階層を決める

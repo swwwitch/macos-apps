@@ -6,6 +6,8 @@ struct ContentView: View {
     @ObservedObject private var find = FindReplace.shared
     @AppStorage(MarkdownStore.levelsKey) private var storedLevels = "12345"
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
+    @AppStorage(MarkdownStore.editorStyleKey) private var editorStyle = SourceEditor.currentStyle
+    @AppStorage(MarkdownStore.editorAppearanceKey) private var editorAppearance = "auto"
     @AppStorage(MarkdownStore.fontSizeKey) private var fontSize = MarkdownStore.defaultFontSize
     /// 右ペインの表示：見出し／プレビュー。起動したときはいつもプレビュー
     @State private var rightPane = RightPane.preview.rawValue
@@ -123,7 +125,7 @@ struct ContentView: View {
                 FindReplaceBar()
                 Divider()
             }
-            SourceEditor(store: store, boldHeadings: boldHeadings, fontSize: fontSize)
+            SourceEditor(store: store, boldHeadings: boldHeadings, style: editorStyle, appearance: editorAppearance, fontSize: fontSize)
         }
     }
 

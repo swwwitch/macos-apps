@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSWindow.allowsAutomaticWindowTabbing = false
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        FormatAction.installHiddenKeys()
         DispatchQueue.main.async { [weak self] in
             MenuBarPresence.shared.install(name: "MarkdownKitchen", symbol: "number",
                 show: { self?.showWindow() },

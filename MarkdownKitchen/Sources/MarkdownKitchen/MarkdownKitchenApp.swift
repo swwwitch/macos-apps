@@ -45,13 +45,15 @@ struct MarkdownKitchenApp: App {
                 #endif
             }
             // No tab bar or View menu: the app has a single main window.
-            // 表示：文字の大きさ（ツールバー・タブバーの項目は無し）
+            // 表示：文字の大きさ、原稿の配色・表示・見出しの太字（ツールバー・タブバーの項目は無し）
             CommandGroup(replacing: .toolbar) {
                 Button(L("文字を大きく")) { MarkdownStore.changeFontSize(by: 1) }
                     .keyboardShortcut("+", modifiers: .command)
                 Button(L("文字を小さく")) { MarkdownStore.changeFontSize(by: -1) }
                     .keyboardShortcut("-", modifiers: .command)
                 Button(L("標準の文字サイズ")) { MarkdownStore.changeFontSize(by: 0) }
+                Divider()
+                EditorViewMenuItems()
                 Divider()
             }
             // Replaces SwiftUI's "New Window" ⌘N so only one main window can exist.

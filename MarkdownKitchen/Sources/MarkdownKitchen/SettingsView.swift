@@ -7,7 +7,6 @@ struct SettingsView: View {
                 LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                 MenuBarPresenceView()
             } }.formStyle(.grouped))),
-            (L("見出し"), AnyView(HeadingSettingsView())),
             (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
             (L("テーマ"), AnyView(DoorkeeperPresetsView())),
@@ -16,16 +15,32 @@ struct SettingsView: View {
     }
 }
 
-/// 原稿での見出しの表示（コピーの形式はメインウインドウの「コピー」で選ぶ）
-private struct HeadingSettingsView: View {
+/// 表示メニューの原稿欄の項目：配色・表示・見出しの太字（以前は設定の「見出し」タブ）
+struct EditorViewMenuItems: View {
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
+    @AppStorage(MarkdownStore.editorStyleKey) private var editorStyle = SourceEditor.currentStyle
+    @AppStorage(MarkdownStore.editorAppearanceKey) private var editorAppearance = "auto"
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            SettingsSection(L("表示")) {
-                Toggle(L("見出しを太字で表示"), isOn: $boldHeadings)
-            }
+        // Checked buttons rather than an inline Picker, which adds separators around the items.
+        Menu(L("原稿の配色")) {
+            choice(L("自動"), "auto", $editorAppearance)
+            choice(L("ライト"), "light", $editorAppearance)
+            choice(L("ダーク"), "dark", $editorAppearance)
+        }
+        Menu(L("原稿の表示")) {
+            choice(L("MacDown風"), "rich", $editorStyle)
+            choice(L("色分け"), "color", $editorStyle)
+            choice(L("プレーン"), "plain", $editorStyle)
+        }
+        // Used with 色分け only (MacDown style is always bold; Plain never is).
+        Toggle(L("見出しを太字で表示"), isOn: $boldHeadings)
+            .disabled(editorStyle != "color")
+    }
 
+    private func choice(_ title: String, _ value: String, _ selection: Binding<String>) -> some View {
+        Button { selection.wrappedValue = value } label: {
+            if selection.wrappedValue == value { Label(title, systemImage: "checkmark") } else { Text(title) }
         }
     }
 }
@@ -67,6 +82,12 @@ private struct AcknowledgmentsView: View {
                     }
                 }
                 .controlSize(.small)
+                Divider().padding(.vertical, 4)
+                Text("MacDown").font(.callout.weight(.semibold))
+                Text(L("メニューの構成・キーの割り当て・入力の補助・原稿の表示（MacDown風）を参考にしました。MacDown（MIT License）のコードは含んでいません。"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)

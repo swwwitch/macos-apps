@@ -15,6 +15,12 @@ final class MarkdownStore: ObservableObject {
     static let copyFormatKey = "markdownKitchen.copyFormat"
     /// 左の原稿で見出しを太字で表示する（初期値オン）
     static let boldHeadingsKey = "markdownKitchen.boldHeadings"
+    /// 原稿のMarkdownを色分けして表示する（初期値オン）
+    static let colorizeKey = "markdownKitchen.colorize"
+    /// 原稿欄の表示："rich"（MacDown風）・"color"（色分け）・"plain"（プレーン）
+    static let editorStyleKey = "markdownKitchen.editorStyle"
+    /// 原稿欄の配色："auto"（システムに合わせる）・"light"・"dark"
+    static let editorAppearanceKey = "markdownKitchen.editorAppearance"
     /// 左右のペインの文字サイズ（pt）
     static let fontSizeKey = "markdownKitchen.fontSize"
     /// HTML→Markdownで <div>・<table> の中を変換しない（初期値オン）
@@ -248,10 +254,11 @@ final class MarkdownStore: ObservableObject {
         editor.showFindIndicator(for: heading.range)
     }
 
-    /// 右ペインに出ている見出しを1段上げる（delta = -1、#を減らす）・下げる（+1）。
+    /// すべての見出しを1段上げる（delta = -1、#を減らす）・下げる（+1）。
     /// 原稿で範囲を選択していれば、その中の見出しだけ。まとめて1回の⌘Zで戻せる
     func shiftHeadings(by delta: Int, levels: Set<Int>) {
-        var targets = headings(levels: levels)
+        // Every level is shifted, whatever is checked in the right pane (levels is kept for the callers).
+        var targets = allHeadings
         if let selected = editor?.selectedRange(), selected.length > 0 {
             targets = targets.filter { NSIntersectionRange($0.range, selected).length > 0 || NSLocationInRange($0.range.location, selected) }
         }

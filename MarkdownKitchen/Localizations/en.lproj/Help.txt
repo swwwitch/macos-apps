@@ -18,12 +18,13 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - HTML at the start of a line (such as <h2 style="…">) is shown as is, so Doorkeeper headings appear in color.
 - Clicking a link in the preview opens it in your browser. Images are loaded from the internet.
 - Scrolling the source on the left scrolls the preview to the same place.
+- GitHub-style tables (a | header | … | row followed by a |---|---| delimiter row) and HTML tables (<table>) are shown with borders. :---, :---: and ---: in the delimiter row align left, center and right.
 - Code blocks are colored with highlight.js (the language after ``` is used, such as ```swift; otherwise it is detected). It is bundled, so nothing is downloaded. Copy HTML does not include the colors, only the language class.
 - Copy HTML above the preview (also in the Edit menu) copies the whole HTML shown in the preview.
 
 ## Raising and Lowering Headings
 - The raise and lower buttons on the Source bar on the left, or Tools > Raise All Headings One Level (⌘[) and Lower All Headings One Level (⌘]), remove or add one "#" for all headings in the source.
-- They affect the headings shown in the right pane (the checked levels). If text is selected in the source, only headings in the selection change.
+- They affect headings at every level, whatever is checked in the right pane. If text is selected in the source, only headings in the selection change.
 - If a level 1 heading would be raised or a level 6 heading lowered, nothing changes and the reason is shown.
 - Underlined (=== or ---) headings are rewritten with "#". For HTML headings only the tag number changes (<h2> to <h3> and so on). Undo (⌘Z) reverts the whole change.
 
@@ -57,12 +58,12 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 
 ## Format
 Choose from the Format menu in the menu bar or from the source’s right-click menu. Undo (⌘Z) reverts any of them.
-- **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘K), **Comment** (⌘/, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
-- **Heading 1–6 and Paragraph** (under Convert To in the right-click menu): turn the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘6) or a **Paragraph** (⌥⌘0, removes the “#”).
-- **Ordered List** (⇧⌘7), **Unordered List** (⇧⌘8), **Blockquote** (⇧⌘B): toggle the paragraph at the cursor; if it already has that form, it is turned back.
+- **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘E), **Strikethrough** (⇧⌘X, <s>…</s>), **Comment** (⇧⌘M or ⌥⌘M, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
+- **Heading 1–6 and Paragraph** (under Structure in the right-click menu): turn the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘4; keys for Headings 5 and 6 can be set in Hotkeys) or a **Paragraph** (⌥⌘0, removes the “#”).
+- **Ordered List** (⇧⌘7 or ⌥⌘5), **Unordered List** (⇧⌘8 or ⌥⌘6), **Blockquote** (⇧⌘9): toggle the paragraph at the cursor; if it already has that form, it is turned back. **Code Block** (⌥⌘8): wraps the selected lines (or the current line) in ```; choosing again removes the fences.
 - **Shift Right** (⌥⌘]) and **Shift Left** (⌥⌘[): move the selected lines by two spaces.
 - **Move Paragraph Up** (⌃⇧↑) and **Move Paragraph Down** (⌃⇧↓): swap the paragraph at the cursor (a block separated by blank lines; all selected paragraphs) with the one before or after. The blank lines between stay in place.
-- **Link** (⇧⌘K) and **Image** (⇧⌘I): make the selection [text](https://) with “https://” selected; a selected URL becomes [](URL).
+- **Link** (⌘K) and **Image** (⇧⌘I): make the selection [text](https://) with “https://” selected; a selected URL becomes [](URL).
 - **Horizontal Rule**: inserts --- after the current line (or on it, if blank), with blank lines around it. Assign a key in the Hotkeys tab of Settings.
 - **New Paragraph** (⌘↩): starts a new paragraph after a blank line below the current line.
 - **Copy HTML** (⌥⌘C, in the Edit menu and the right-click menu): copies the whole HTML shown in the preview.
@@ -85,10 +86,15 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 - Copy, or Edit > Copy Headings (⇧⌘C), copies all headings exactly as the list shows them.
 - Right-click a heading for **Show in Source** and **Copy This Heading**.
 
+## Source Display
+- Choose in the View menu.
+- **Source colors**: Auto (follows the system) / Light / Dark, for the source pane only.
+- **Source style**: **MacDown style** (larger bold headings by level; colors for headings, links, emphasis, code, quotes and list markers; proportional font; the default) / **Colored** (fixed-width with colors) / **Plain** (fixed-width, no styling). HTML headings such as <h2> count as headings; nothing inside <div> or <table> is colored.
+- **Show headings in bold**: used with Colored.
+
 ## Settings
 Open with the Settings button in the main window (⌘,).
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
-- **Headings**: Show headings in bold (heading lines in the source on the left; on by default)
 - **Hotkeys**: change the keys for format, convert, paragraph and heading commands (None, Default, Reset All). Keys used by the app’s standard commands or by another item cannot be assigned
 - **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
 - **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
@@ -99,14 +105,16 @@ Open with the Settings button in the main window (⌘,).
 - **⇧⌘S**: Save As
 - **⇧⌘C**: Copy Headings
 - **⌘[** / **⌘]**: Raise / Lower All Headings One Level
-- **⌘F**: Find and Replace (⌘G / ⇧⌘G next / previous, ⌘E Use Selection for Find, ⌘J Jump to Selection)
+- **⌘F**: Find and Replace (⌘G / ⇧⌘G next / previous, Use Selection for Find (assign a key in Hotkeys), ⌘J Jump to Selection)
 - Keys for format and heading commands can be changed in the Hotkeys tab of Settings.
-- **⌘B** / **⌘I** / **⌘K** / **⌘/**: Bold / Italic / Inline Code / Comment
-- **⌥⌘1**–**⌥⌘6** / **⌥⌘0**: Heading 1–6 / Paragraph
-- **⇧⌘7** / **⇧⌘8** / **⇧⌘B**: Ordered List / Unordered List / Blockquote
+- **⌘B** / **⌘I** / **⌘E** / **⇧⌘M** (**⌥⌘M**): Bold / Italic / Inline Code / Comment
+- **⇧⌘X**: Strikethrough
+- **⌥⌘8**: Code Block
+- **⌥⌘1**–**⌥⌘4** / **⌥⌘0**: Heading 1–4 / Paragraph
+- **⇧⌘7** (**⌥⌘5**) / **⇧⌘8** (**⌥⌘6**) / **⇧⌘9**: Ordered List / Unordered List / Blockquote
 - **⌥⌘]** / **⌥⌘[**: Shift Right / Shift Left
 - **⌃⇧↑** / **⌃⇧↓**: Move Paragraph Up / Down
-- **⇧⌘K** / **⇧⌘I**: Link / Image
+- **⌘K** / **⇧⌘I**: Link / Image
 - **⌘↩**: New Paragraph
 - **⌥⌘C**: Copy HTML
 - **⌘+** / **⌘−**: Bigger / Smaller Text
@@ -144,7 +152,7 @@ Open with the Settings button in the main window (⌘,).
 
 ## Acknowledgments
 - **highlight.js 11.9.0**: Copyright (c) 2006, Ivan Sagalaev. BSD 3-Clause License. Used to color code blocks in the preview. The full license opens from Show License in the About tab of Settings.
-- The typing helpers (such as continuing lists) follow the behavior of MacDown (MIT License). No MacDown code is included.
+- **MacDown**: the menu layout, key assignments, typing helpers (such as continuing lists) and the MacDown style of the source follow MacDown. No MacDown (MIT License) code is included.
 
 ## Removing the App
 1. Turn off Open at login.

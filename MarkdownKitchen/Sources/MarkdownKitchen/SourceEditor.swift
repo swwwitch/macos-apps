@@ -5,6 +5,17 @@ import SwiftUI
 struct SourceEditor: NSViewRepresentable {
     @ObservedObject var store: MarkdownStore
     var boldHeadings: Bool
+    var style: String = "rich"
+    var appearance: String = "auto"
+
+    /// 原稿欄だけの配色。nil はシステムに合わせる（系統の色はこの見た目で解決される）
+    static func appearance(_ setting: String) -> NSAppearance? {
+        switch setting {
+        case "light": return NSAppearance(named: .aqua)
+        case "dark": return NSAppearance(named: .darkAqua)
+        default: return nil
+        }
+    }
     var fontSize: Double
 
     func makeCoordinator() -> Coordinator { Coordinator(store: store) }
@@ -19,7 +30,7 @@ struct SourceEditor: NSViewRepresentable {
         textView.allowsUndo = true
         // Find and replace uses FindReplaceBar (the system find bar cannot be enlarged).
         textView.usesFindBar = false
-        textView.font = Self.regularFont(fontSize)
+        textView.font = style == "rich" ? .systemFont(ofSize: fontSize) : Self.regularFont(fontSize)
         textView.textColor = .textColor
         textView.backgroundColor = .textBackgroundColor
         textView.textContainerInset = NSSize(width: 6, height: 8)
@@ -44,6 +55,7 @@ struct SourceEditor: NSViewRepresentable {
         textView.delegate = context.coordinator
         textView.onDropFile = { url in store.load(url) }
         textView.setAccessibilityLabel(L("原稿"))
+        scroll.appearance = Self.appearance(appearance)
         scroll.documentView = textView
         store.editor = textView
         // Report the top visible line so the preview can follow.
@@ -55,9 +67,13 @@ struct SourceEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ scroll: NSScrollView, context: Context) {
+        let wanted = Self.appearance(appearance)
+        if scroll.appearance?.name != wanted?.name { scroll.appearance = wanted }
         guard let textView = scroll.documentView as? NSTextView else { return }
         // Only when the text changed elsewhere (e.g. restored before the view existed).
         let settingChanged = context.coordinator.boldHeadings != boldHeadings || context.coordinator.fontSize != fontSize
+            || context.coordinator.style != style
+        context.coordinator.style = style
         context.coordinator.boldHeadings = boldHeadings
         context.coordinator.fontSize = fontSize
         if textView.string != store.text {
@@ -71,21 +87,71 @@ struct SourceEditor: NSViewRepresentable {
     static func regularFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .regular) }
     static func headingFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .bold) }
 
-    /// 見出しの行だけ太字にする（boldがfalseなら全体を標準の太さに戻す）。属性の変更なのでUndoの履歴には載らない
-    @MainActor static func styleHeadings(_ textView: NSTextView, headings: [Heading], bold: Bool, size: Double) {
-        let regularFont = regularFont(size), headingFont = headingFont(size)
+    /// 原稿欄の表示："rich"（MacDown風：文字の大きさ・色）・"color"（等幅で色分け）・"plain"（等幅、飾りなし）
+    static var currentStyle: String {
+        let defaults = UserDefaults.standard
+        if let style = defaults.string(forKey: MarkdownStore.editorStyleKey) { return style }
+        // Earlier versions had an on/off switch for coloring.
+        return defaults.object(forKey: MarkdownStore.colorizeKey) as? Bool == false ? "plain" : "rich"
+    }
+
+    /// 2つの見た目で色を変える（ライト／ダーク）
+    private static func dynamic(_ light: NSColor, _ dark: NSColor) -> NSColor {
+        NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light }
+    }
+    private static let richHeading = dynamic(NSColor(srgbRed: 0.10, green: 0.50, blue: 0.52, alpha: 1), NSColor(srgbRed: 0.50, green: 0.80, blue: 0.80, alpha: 1))
+    private static let richLink = dynamic(NSColor(srgbRed: 0.24, green: 0.48, blue: 0.24, alpha: 1), NSColor(srgbRed: 0.58, green: 0.78, blue: 0.56, alpha: 1))
+    /// 見出しレベルごとの文字の大きさ（MacDown風）
+    private static let headingScale: [Int: CGFloat] = [1: 1.6, 2: 1.45, 3: 1.3, 4: 1.15, 5: 1.05, 6: 1.05]
+
+    /// 原稿の見た目。属性の変更なのでUndoの履歴には載らない
+    @MainActor static func styleHeadings(_ textView: NSTextView, headings: [Heading], bold: Bool, size: Double,
+                                         style: String = SourceEditor.currentStyle) {
+        let rich = style == "rich", plain = style == "plain"
+        let regularFont: NSFont = rich ? .systemFont(ofSize: size) : regularFont(size)
+        let boldFont: NSFont = rich ? .boldSystemFont(ofSize: size) : headingFont(size)
         guard let storage = textView.textStorage else { return }
         let length = storage.length
+        let whole = NSRange(location: 0, length: length)
         storage.beginEditing()
-        storage.addAttribute(.font, value: regularFont, range: NSRange(location: 0, length: length))
-        for heading in bold ? headings : [] {
-            for range in [heading.range, heading.underline].compactMap({ $0 }) where NSMaxRange(range) <= length {
-                storage.addAttribute(.font, value: headingFont, range: range)
+        storage.addAttribute(.font, value: regularFont, range: whole)
+        storage.addAttribute(.foregroundColor, value: NSColor.textColor, range: whole)
+        storage.removeAttribute(.backgroundColor, range: whole)
+        if !plain {
+            let italicFont = NSFontManager.shared.convert(regularFont, toHaveTrait: .italicFontMask)
+            let codeFont = rich ? Self.regularFont(size) : regularFont
+            for span in MarkdownSyntax.spans(in: storage.string, headings: headings) where NSMaxRange(span.range) <= length {
+                switch span.style {
+                case .heading: storage.addAttribute(.foregroundColor, value: rich ? richHeading : NSColor.systemBlue, range: span.range)
+                case .markup, .rule, .comment: storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: span.range)
+                case .strong: storage.addAttribute(.font, value: boldFont, range: span.range)
+                case .emphasis: storage.addAttribute(.font, value: italicFont, range: span.range)
+                case .link: storage.addAttribute(.foregroundColor, value: rich ? richLink : NSColor.systemTeal, range: span.range)
+                case .linkTarget: storage.addAttribute(.foregroundColor, value: rich ? richLink : NSColor.secondaryLabelColor, range: span.range)
+                case .quote: storage.addAttribute(.foregroundColor, value: NSColor.systemGreen, range: span.range)
+                case .listMarker: storage.addAttribute(.foregroundColor, value: NSColor.systemOrange, range: span.range)
+                case .code:
+                    // Code keeps a fixed-width font even in the MacDown style.
+                    storage.addAttribute(.font, value: codeFont, range: span.range)
+                    storage.addAttribute(.foregroundColor, value: NSColor.systemPink, range: span.range)
+                    storage.addAttribute(.backgroundColor, value: NSColor.systemPink.withAlphaComponent(0.08), range: span.range)
+                }
+            }
+            // Headings: larger by level in the MacDown style; bold there always, otherwise by the setting.
+            if rich || bold {
+                for heading in headings {
+                    let font: NSFont = rich ? .boldSystemFont(ofSize: size * (headingScale[heading.level] ?? 1)) : boldFont
+                    for range in [heading.range, heading.underline].compactMap({ $0 }) where NSMaxRange(range) <= length {
+                        storage.addAttribute(.font, value: font, range: range)
+                    }
+                }
             }
         }
         storage.endEditing()
-        // Typing continues in the regular weight unless the caret is inside a heading line.
+        // Typing continues in the plain style; the next restyle colors it.
         textView.typingAttributes[.font] = regularFont
+        textView.typingAttributes[.foregroundColor] = NSColor.textColor
+        textView.typingAttributes[.backgroundColor] = nil
     }
 
     @MainActor
@@ -93,6 +159,7 @@ struct SourceEditor: NSViewRepresentable {
         let store: MarkdownStore
         weak var textView: NSTextView?
         var boldHeadings = true
+        var style = "rich"
         var fontSize = MarkdownStore.defaultFontSize
         init(store: MarkdownStore) { self.store = store }
         @objc func didScroll(_ notification: Notification) {
@@ -111,7 +178,8 @@ struct SourceEditor: NSViewRepresentable {
             let character = layout.characterIndexForGlyph(at: glyph)
             let string = textView.string as NSString
             let paragraph = string.paragraphRange(for: NSRange(location: min(character, string.length), length: 0))
-            let line = string.substring(to: paragraph.location).utf16.reduce(0) { $1 == 10 ? $0 + 1 : $0 }
+            // Lines as the preview counts them (CR, CR+LF and LF are one line break each).
+            let line = string.substring(to: paragraph.location).normalizedLineBreaks.utf16.reduce(0) { $1 == 10 ? $0 + 1 : $0 }
             let glyphs = layout.glyphRange(forCharacterRange: paragraph, actualCharacterRange: nil)
             let rect = layout.boundingRect(forGlyphRange: glyphs, in: container)
             let fraction = rect.height > 0 ? min(max((point.y - rect.minY) / rect.height, 0), 1) : 0

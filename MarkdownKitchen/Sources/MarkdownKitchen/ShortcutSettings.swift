@@ -63,6 +63,8 @@ struct MenuShortcut: Codable, Equatable {
         .init("h", .command), .init("h", [.command, .option]), .init("o", .command), .init("s", .command), .init("s", [.command, .shift]),
         .init("z", .command), .init("z", [.command, .shift]), .init("x", .command), .init("c", .command), .init("v", .command),
         .init("a", .command), .init("?", .command),
+        // Hidden list keys (FormatAction.hiddenKeys).
+        .init("5", [.command, .option]), .init("6", [.command, .option]), .init("m", [.command, .option]),
         .init("+", .command), .init("-", .command),
     ]
 }

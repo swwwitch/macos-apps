@@ -175,5 +175,26 @@ expectTyped(typed("a\nb", 0, MarkdownFormat.horizontalRule("a\nb", selection: NS
 expectTyped(typed("a\n\nb", 0, MarkdownFormat.horizontalRule("a\n\nb", selection: NSRange(location: 2, length: 0))), "a\n\n---|\n\nb", "hr on blank line")
 expectTyped(typed("a", 0, MarkdownFormat.horizontalRule("a", selection: NSRange(location: 1, length: 0))), "a\n\n---|", "hr at end")
 if MarkdownHTML.render("```swift\nlet a = 1\n```\n~~~\nx\n~~~") != "<pre><code class=\"language-swift\">let a = 1</code></pre>\n<pre><code>x</code></pre>" { failures += 1; print("FAIL code language: \(MarkdownHTML.render("```swift\nlet a = 1\n```\n~~~\nx\n~~~"))") }
+func styles(_ text: String) -> [(String, MarkdownSyntax.Style)] {
+    MarkdownSyntax.spans(in: text, headings: HeadingParser.headings(in: text)).map { ((text as NSString).substring(with: $0.range), $0.style) }
+}
+let syn = styles("## 見出し\n- **太字** と `code` と [リンク](https://x.jp/)\n<h2 style=\"a\">HTML見出し</h2>\n<div><b>**中**</b></div>\n> 引用")
+func has(_ s: String, _ st: MarkdownSyntax.Style) -> Bool { syn.contains { $0.0 == s && $0.1 == st } }
+if !(has("## 見出し", .heading) && has("##", .markup) && has("-", .listMarker) && has("**太字**", .strong) && has("`code`", .code)
+     && has("[リンク](https://x.jp/)", .link) && has("https://x.jp/", .linkTarget) && has("<h2 style=\"a\">", .markup) && has("</h2>", .markup)
+     && has("> 引用", .quote)) { failures += 1; print("FAIL syntax spans: \(syn)") }
+if syn.contains(where: { $0.0.contains("中") }) { failures += 1; print("FAIL syntax inside div colored") }
+if syn.contains(where: { $0.0 == "<b>" }) { failures += 1; print("FAIL plain html tag colored") }
+let gfm = MarkdownHTML.render("| Tool | 説明 | 数 |\n|------|:---:|---:|\n| **A** | `a|b` と x\\|y | 1 |\n| B |\n\n後")
+if gfm != "<table><thead><tr><th>Tool</th><th style=\"text-align: center\">説明</th><th style=\"text-align: right\">数</th></tr></thead><tbody><tr><td><strong>A</strong></td><td style=\"text-align: center\"><code>a|b</code> と x|y</td><td style=\"text-align: right\">1</td></tr><tr><td>B</td><td style=\"text-align: center\"></td><td style=\"text-align: right\"></td></tr></tbody></table>\n<p>後</p>" { failures += 1; print("FAIL gfm table:\n\(gfm)") }
+if MarkdownHTML.render("a | b\nc") != "<p>a | b\nc</p>" { failures += 1; print("FAIL not a table") }
+// A blank line made of a lone CR (classic Mac) still separates blocks.
+if MarkdownHTML.render("前の段落\n\r## 見出し\r\n本文") != "<p>前の段落</p>\n<h2>見出し</h2>\n<p>本文</p>" { failures += 1; print("FAIL CR line breaks: \(MarkdownHTML.render("前の段落\n\r## 見出し\r\n本文"))") }
+if MarkdownTidy.apply([.blankLines], to: "a\r\r\r\rb") != "a\n\nb" { failures += 1; print("FAIL CR tidy") }
+expectFormat(applied("ab", MarkdownFormat.toggleStrikethrough("ab", selection: NSRange(location: 0, length: 2))), "<s>ab</s>", "ab", "strike on")
+expectFormat(applied("<s>ab</s>", MarkdownFormat.toggleStrikethrough("<s>ab</s>", selection: NSRange(location: 3, length: 2))), "ab", "ab", "strike off")
+expectFormat(applied("a\nb\nc", MarkdownFormat.toggleCodeBlock("a\nb\nc", selection: NSRange(location: 0, length: 3))), "```\na\nb\n```\nc", "a\nb", "code block on")
+expectFormat(applied("```\na\n```", MarkdownFormat.toggleCodeBlock("```\na\n```", selection: NSRange(location: 0, length: 9))), "a", "a", "code block off")
+expectTyped(typed("x\n\ny", 0, MarkdownFormat.toggleCodeBlock("x\n\ny", selection: NSRange(location: 2, length: 0))), "x\n```\n|\n```\ny", "code block on blank line")
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)

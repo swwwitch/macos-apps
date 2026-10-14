@@ -16,6 +16,11 @@ enum MarkdownFormat {
         toggle(text, selection: selection, open: marker, close: marker)
     }
 
+    /// <s>〜</s>（取り消し線）で囲む・外す
+    static func toggleStrikethrough(_ text: String, selection: NSRange) -> TextEdit {
+        toggle(text, selection: selection, open: "<s>", close: "</s>")
+    }
+
     /// <!-- --> で囲む・外す
     static func toggleComment(_ text: String, selection: NSRange) -> TextEdit {
         toggle(text, selection: selection, open: "<!-- ", close: " -->")
@@ -79,7 +84,7 @@ enum MarkdownFormat {
     static func setBlock(_ text: String, selection: NSRange, to block: Block) -> TextEdit {
         let string = text as NSString
         let range = lineRange(string, selection)
-        var lines = string.substring(with: range).components(separatedBy: "\n")
+        var lines = string.substring(with: range).normalizedLineBreaks.components(separatedBy: "\n")
         let trailingNewline = lines.last == "" && lines.count > 1
         if trailingNewline { lines.removeLast() }
         let content = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -119,11 +124,33 @@ enum MarkdownFormat {
         return TextEdit(range: range, replacement: replacement, selection: NSRange(location: range.location, length: length))
     }
 
+    /// 選択している行（選択がなければカーソルのある行）を ``` で囲む。囲まれていれば外す。空行には空の囲みを入れて中にカーソル
+    static func toggleCodeBlock(_ text: String, selection: NSRange) -> TextEdit {
+        let string = text as NSString
+        let range = lineRange(string, selection)
+        var lines = string.substring(with: range).normalizedLineBreaks.components(separatedBy: "\n")
+        let trailingNewline = lines.last == "" && lines.count > 1
+        if trailingNewline { lines.removeLast() }
+        let tail = trailingNewline ? "\n" : ""
+        if lines.count >= 2, lines[0].trimmingCharacters(in: .whitespaces).hasPrefix("```"),
+           lines[lines.count - 1].trimmingCharacters(in: .whitespaces).hasPrefix("```") {
+            let inner = lines[1..<(lines.count - 1)].joined(separator: "\n")
+            return TextEdit(range: range, replacement: inner + (inner.isEmpty ? "" : tail),
+                            selection: NSRange(location: range.location, length: (inner as NSString).length))
+        }
+        let body = lines.joined(separator: "\n")
+        if body.trimmingCharacters(in: .whitespaces).isEmpty {
+            return TextEdit(range: range, replacement: "```\n\n```" + tail, selection: NSRange(location: range.location + 4, length: 0))
+        }
+        return TextEdit(range: range, replacement: "```\n" + body + "\n```" + tail,
+                        selection: NSRange(location: range.location + 4, length: (body as NSString).length))
+    }
+
     /// 選択している行の字下げを増やす（半角スペース2つ）・減らす
     static func indent(_ text: String, selection: NSRange, outdent: Bool) -> TextEdit {
         let string = text as NSString
         let range = lineRange(string, selection)
-        var lines = string.substring(with: range).components(separatedBy: "\n")
+        var lines = string.substring(with: range).normalizedLineBreaks.components(separatedBy: "\n")
         let trailingNewline = lines.last == "" && lines.count > 1
         if trailingNewline { lines.removeLast() }
         lines = lines.map { line in
@@ -266,7 +293,7 @@ enum MarkdownFormat {
     /// location がコードブロック（```・~~~）の中か
     private static func insideCodeBlock(_ string: NSString, at location: Int) -> Bool {
         var fence: String?
-        for line in string.substring(to: min(location, string.length)).components(separatedBy: "\n").dropLast() {
+        for line in string.substring(to: min(location, string.length)).normalizedLineBreaks.components(separatedBy: "\n").dropLast() {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             if let open = fence {
                 if trimmed.hasPrefix(open) { fence = nil }

@@ -239,3 +239,15 @@ enum HeadingParser {
         return true
     }
 }
+
+extension String {
+    /// 改行をLFにそろえた文字列。CR+LF、CRだけ（古いMac）、U+2028・U+2029 もLF1つにする。
+    /// 原稿欄は CR も改行として表示するので、行で区切る処理はこれを通してから "\n" で分ける
+    var normalizedLineBreaks: String {
+        guard contains(where: { $0 == "\r" || $0 == "\u{2028}" || $0 == "\u{2029}" }) else { return self }
+        return replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+            .replacingOccurrences(of: "\u{2028}", with: "\n")
+            .replacingOccurrences(of: "\u{2029}", with: "\n")
+    }
+}

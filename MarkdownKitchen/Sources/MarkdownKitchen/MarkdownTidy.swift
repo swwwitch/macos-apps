@@ -24,7 +24,7 @@ enum MarkdownTidy {
     private static let japanese = #"[\p{Han}\p{Hiragana}\p{Katakana}\x{3000}-\x{303F}\x{30FC}\x{FF01}-\x{FF60}]"#
 
     static func apply(_ rules: [Rule], to text: String) -> String {
-        var lines = text.components(separatedBy: "\n")
+        var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
         let code = codeLines(lines)
         for rule in rules where rule != .blankLines && rule != .minifyHTML {
             for index in lines.indices where !code.contains(index) {
@@ -181,7 +181,7 @@ enum LineTools {
 
     /// 末尾の改行は行として扱わずに残す
     private static func map(_ text: String, _ transform: ([String]) -> [String]) -> String {
-        var lines = text.components(separatedBy: "\n")
+        var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
         let trailing = lines.count > 1 && lines.last == ""
         if trailing { lines.removeLast() }
         var result = transform(lines).joined(separator: "\n")

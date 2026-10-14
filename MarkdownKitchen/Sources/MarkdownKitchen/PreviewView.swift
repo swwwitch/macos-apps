@@ -57,7 +57,7 @@ struct PreviewView: NSViewRepresentable {
         func scroll(toLine line: Double) {
             guard loaded, let webView else { return }
             let argument = line.isInfinite ? "Infinity" : String(line)
-            let lines = (MarkdownStore.shared.text as NSString).components(separatedBy: "\n").count
+            let lines = MarkdownStore.shared.text.normalizedLineBreaks.components(separatedBy: "\n").count
             webView.evaluateJavaScript("mkScrollTo(\(argument), \(lines))")
         }
 
@@ -106,6 +106,9 @@ struct PreviewView: NSViewRepresentable {
             hr { border: none; border-top: 1px solid rgba(127,127,127,.35); }
             @media (prefers-color-scheme: dark) { body { color: #ddd; } a { color: #5ab0ff; } blockquote { color: #aaa; } }
             .hljs { background: transparent; }
+            table { border-collapse: collapse; margin: 1em 0; }
+            th, td { border: 1px solid rgba(127,127,127,.45); padding: .35em .7em; vertical-align: top; }
+            th { background: rgba(127,127,127,.12); }
             \(Self.highlightStyles)
             </style>
             <script>\(Self.highlightScript)</script>

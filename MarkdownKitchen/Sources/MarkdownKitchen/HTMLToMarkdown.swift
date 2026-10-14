@@ -12,7 +12,7 @@ enum HTMLToMarkdown {
         func flush() {
             if !chunk.isEmpty { output.append(convertChunk(chunk.joined(separator: "\n"), keep: keep)); chunk = [] }
         }
-        for line in text.components(separatedBy: "\n") {
+        for line in text.normalizedLineBreaks.components(separatedBy: "\n") {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             if let open = fence {
                 output.append(line)

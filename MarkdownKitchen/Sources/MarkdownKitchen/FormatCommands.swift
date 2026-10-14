@@ -4,9 +4,9 @@ import SwiftUI
 /// 書式の操作。メニューバーの「書式」と原稿の右クリックメニューで共有する
 enum FormatAction: CaseIterable {
     case copyHTML
-    case bold, italic, inlineCode, comment
+    case bold, italic, inlineCode, strikethrough, comment
     case heading1, heading2, heading3, heading4, heading5, heading6, paragraph
-    case orderedList, unorderedList, quote
+    case orderedList, unorderedList, quote, codeBlock
     case indent, outdent, moveParagraphUp, moveParagraphDown
     case link, image, horizontalRule, newParagraph
     // In the Edit menu, not in 書式.
@@ -18,19 +18,38 @@ enum FormatAction: CaseIterable {
 
     /// 設定の「ホットキー」タブの並び
     static var settingsGroups: [(title: String, actions: [FormatAction])] {
-        [(L("書式"), [.bold, .italic, .inlineCode, .comment]),
-         (L("変換"), [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph]),
-         (L("段落"), [.orderedList, .unorderedList, .quote, .indent, .outdent, .moveParagraphUp, .moveParagraphDown, .link, .image, .horizontalRule, .newParagraph]),
+        [(L("構造"), [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph, .orderedList, .unorderedList, .quote, .codeBlock]),
+         (L("インライン"), [.bold, .italic, .inlineCode, .strikethrough, .comment, .link, .image, .horizontalRule]),
+         (L("編集"), [.newParagraph, .indent, .outdent, .moveParagraphUp, .moveParagraphDown]),
          (L("コピー"), [.copyHeadings, .copyHTML]),
          (L("見出し"), [.raiseHeadings, .lowerHeadings]),
          (L("検索"), [.findReplace, .findNext, .findPrevious, .useSelectionForFind, .jumpToSelection])]
     }
 
+    /// 設定にもメニューにも出さない、もう一つのキー（⌥⌘5 番号付きリスト・⌥⌘6 箇条書き・⌥⌘M コメント）
+    static let hiddenKeys: [(MenuShortcut, FormatAction)] = [
+        (MenuShortcut("5", [.command, .option]), .orderedList),
+        (MenuShortcut("6", [.command, .option]), .unorderedList),
+        (MenuShortcut("m", [.command, .option]), .comment),
+    ]
+
+    /// メインウインドウが前面のときだけ、隠れたキーを受け取る
+    @MainActor static func installHiddenKeys() {
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            guard let window = MainWindow.current, NSApp.keyWindow === window,
+                  let key = event.characters(byApplyingModifiers: [])?.lowercased() else { return event }
+            let pressed = MenuShortcut(key, event.modifierFlags)
+            guard let action = hiddenKeys.first(where: { $0.0 == pressed })?.1 else { return event }
+            action.perform()
+            return nil
+        }
+    }
+
     /// メニューの区切り（この項目の前に区切り線）
     static let groups: [[FormatAction]] = [
-        [.bold, .italic, .inlineCode, .comment],
+        [.bold, .italic, .inlineCode, .strikethrough, .comment],
         [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph],
-        [.orderedList, .unorderedList, .quote],
+        [.orderedList, .unorderedList, .quote, .codeBlock],
         [.indent, .outdent],
         [.moveParagraphUp, .moveParagraphDown],
         [.link, .image, .horizontalRule, .newParagraph],
@@ -43,6 +62,7 @@ enum FormatAction: CaseIterable {
         case .bold: return L("太字")
         case .italic: return L("斜体")
         case .inlineCode: return L("インラインコード")
+        case .strikethrough: return L("取り消し線")
         case .comment: return L("コメント")
         case .heading1: return L("見出し%@", "1")
         case .heading2: return L("見出し%@", "2")
@@ -54,6 +74,7 @@ enum FormatAction: CaseIterable {
         case .orderedList: return L("番号付きリスト")
         case .unorderedList: return L("箇条書き")
         case .quote: return L("引用")
+        case .codeBlock: return L("コードブロック")
         case .indent: return L("字下げを増やす")
         case .outdent: return L("字下げを減らす")
         case .moveParagraphUp: return L("段落を上へ移動")
@@ -82,23 +103,25 @@ enum FormatAction: CaseIterable {
         case .copyHTML: return ("c", [.command, .option])
         case .bold: return ("b", .command)
         case .italic: return ("i", .command)
-        case .inlineCode: return ("k", .command)
-        case .comment: return ("/", .command)
+        case .inlineCode: return ("e", .command)
+        case .strikethrough: return ("x", [.command, .shift])
+        case .comment: return ("m", [.command, .shift])
         case .heading1: return ("1", [.command, .option])
         case .heading2: return ("2", [.command, .option])
         case .heading3: return ("3", [.command, .option])
         case .heading4: return ("4", [.command, .option])
-        case .heading5: return ("5", [.command, .option])
-        case .heading6: return ("6", [.command, .option])
+        case .heading5: return ("", [])  // ⌥⌘5 and ⌥⌘6 are hidden list keys (see FormatAction.hiddenKeys).
+        case .heading6: return ("", [])
         case .paragraph: return ("0", [.command, .option])
         case .orderedList: return ("7", [.command, .shift])
         case .unorderedList: return ("8", [.command, .shift])
-        case .quote: return ("b", [.command, .shift])
+        case .quote: return ("9", [.command, .shift])
+        case .codeBlock: return ("8", [.command, .option])
         case .indent: return ("]", [.command, .option])
         case .outdent: return ("[", [.command, .option])
         case .moveParagraphUp: return (MenuShortcut.upArrow, [.control, .shift])
         case .moveParagraphDown: return (MenuShortcut.downArrow, [.control, .shift])
-        case .link: return ("k", [.command, .shift])
+        case .link: return ("k", .command)
         case .image: return ("i", [.command, .shift])
         case .horizontalRule: return ("", [])  // No default key; one can be set in Settings > Hotkeys.
         case .newParagraph: return ("\r", .command)
@@ -108,7 +131,7 @@ enum FormatAction: CaseIterable {
         case .findReplace: return ("f", .command)
         case .findNext: return ("g", .command)
         case .findPrevious: return ("g", [.command, .shift])
-        case .useSelectionForFind: return ("e", .command)
+        case .useSelectionForFind: return ("", [])  // ⌘E is Inline Code; a key can be set in Settings > Hotkeys.
         case .jumpToSelection: return ("j", .command)
         }
     }
@@ -120,6 +143,7 @@ enum FormatAction: CaseIterable {
         case .bold: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "**") }
         case .italic: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "*") }
         case .inlineCode: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "`") }
+        case .strikethrough: store.format(title) { MarkdownFormat.toggleStrikethrough($0, selection: $1) }
         case .comment: store.format(title) { MarkdownFormat.toggleComment($0, selection: $1) }
         case .heading1, .heading2, .heading3, .heading4, .heading5, .heading6:
             let level = [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6].firstIndex(of: self)! + 1
@@ -128,6 +152,7 @@ enum FormatAction: CaseIterable {
         case .orderedList: store.format(title) { MarkdownFormat.setBlock($0, selection: $1, to: .orderedList) }
         case .unorderedList: store.format(title) { MarkdownFormat.setBlock($0, selection: $1, to: .unorderedList) }
         case .quote: store.format(title) { MarkdownFormat.setBlock($0, selection: $1, to: .quote) }
+        case .codeBlock: store.format(title) { MarkdownFormat.toggleCodeBlock($0, selection: $1) }
         case .indent: store.format(title) { MarkdownFormat.indent($0, selection: $1, outdent: false) }
         case .outdent: store.format(title) { MarkdownFormat.indent($0, selection: $1, outdent: true) }
         case .moveParagraphUp, .moveParagraphDown:
@@ -162,8 +187,8 @@ enum FormatAction: CaseIterable {
         for (index, group) in groups.enumerated() {
             if index > 0 { items.append(.separator()) }
             if index == convertGroup {
-                let parent = NSMenuItem(title: L("変換"), action: nil, keyEquivalent: "")
-                let submenu = NSMenu(title: L("変換"))
+                let parent = NSMenuItem(title: L("構造"), action: nil, keyEquivalent: "")
+                let submenu = NSMenu(title: L("構造"))
                 group.forEach { submenu.addItem($0.menuItem()) }
                 parent.submenu = submenu
                 items.append(parent)

@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
 アプリ名：MarkdownKitchen
-バージョン/build：1.26.1 (58)
+バージョン/build：1.34.0 (75)
 確認OS/CPU：macOS 26（Darwin 25.6.0）/ arm64
 確認日：2026-10-14
 

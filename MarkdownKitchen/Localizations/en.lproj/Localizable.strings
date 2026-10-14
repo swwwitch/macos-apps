@@ -33,7 +33,6 @@
 "原稿にこのレベルの見出しはありません" = "The source has no headings at this level";
 "Markdown（レベルが変わるところに空行）" = "Markdown (blank line where the level changes)";
 "ツリー（└ 見出し）" = "Tree (└ Heading)";
-"表示" = "Display";
 "見出しを太字で表示" = "Show headings in bold";
 "HTML→Markdown" = "HTML→Markdown";
 "HTMLをMarkdownに変換しました" = "Converted HTML to Markdown";
@@ -113,7 +112,6 @@
 "インラインコード" = "Inline Code";
 "コメント" = "Comment";
 "リンク" = "Link";
-"変換" = "Convert To";
 "太字" = "Bold";
 "字下げを増やす" = "Shift Right";
 "字下げを減らす" = "Shift Left";
@@ -180,3 +178,17 @@
 "謝辞" = "Acknowledgments";
 "プレビューのコードブロックの色分けに使っています。" = "Used to color code blocks in the preview.";
 "ライセンスを表示" = "Show License";
+"原稿の配色" = "Source colors";
+"自動" = "Auto";
+"ライト" = "Light";
+"ダーク" = "Dark";
+"原稿の表示" = "Source style";
+"MacDown風" = "MacDown style";
+"色分け" = "Colored";
+"プレーン" = "Plain";
+"メニューの構成・キーの割り当て・入力の補助・原稿の表示（MacDown風）を参考にしました。MacDown（MIT License）のコードは含んでいません。" = "The menu layout, key assignments, typing helpers and the MacDown style of the source follow MacDown. No MacDown (MIT License) code is included.";
+"インライン" = "Inline";
+"編集" = "Editing";
+"構造" = "Structure";
+"取り消し線" = "Strikethrough";
+"コードブロック" = "Code Block";
