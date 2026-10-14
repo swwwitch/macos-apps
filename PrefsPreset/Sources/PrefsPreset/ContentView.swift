@@ -6,6 +6,9 @@ let changedKey = "__changed"
 let unsetTag = "__unset"
 /// 主画面に操作手順を出すか（設定の「表示」タブで切り替える）
 let showGuideKey = "showGuide"
+/// 一覧に「ドメイン / キー」の列を出すか（一覧の上のチェックボックスで切り替える）
+let showDomainKeyKey = "showDomainKey"
+private let domainKeyColumn = "domainKey"
 
 /// 「変更後」の列。選択肢があればメニュー、なければ入力欄
 struct ValueEditor: View {
@@ -77,10 +80,12 @@ struct ContentView: View {
     @State private var isTargeted = false
     @State private var selectedIDs = Set<String>()
     @AppStorage(showGuideKey) private var showGuide = true
+    @AppStorage(showDomainKeyKey) private var showDomainKey = true
+    @State private var columns = TableColumnCustomization<Entry>()
     @AppStorage(mainModeKey) private var mode = "list"
 
     var categories: [(name: String, symbol: String)] {
-        let present = Set(store.entries.map(\.item.category))
+        let present = Set(store.entries.map(\.item.category) + alsoShownIn.values.joined())
         return categoryOrder.filter { present.contains($0.name) }
     }
 
@@ -224,19 +229,31 @@ struct ContentView: View {
         HStack(spacing: 8) {
             SearchField(placeholder: L("項目名・キーで検索"), text: $search)
                 .frame(maxWidth: 280)
+            Toggle(L("ドメイン / キー"), isOn: $showDomainKey)
+                .toggleStyle(.checkbox)
+                .help(L("一覧にドメインとキーの列を表示"))
             Spacer()
             MyPresetMenu()
             Button { loadRecommended() } label: { Label(L("おすすめの設定"), systemImage: "sparkles") }
                 .help(L("おすすめの設定を「変更後」に入れる"))
             Button { store.refreshCurrent() } label: { Label(L("読み直す"), systemImage: "arrow.clockwise") }
                 .help(L("現在の値を読み直す"))
-            Button { showAdd = true } label: { Label(L("項目を追加…"), systemImage: "plus") }
-                .help(L("一覧にないドメインとキーを追加"))
+            if selection == essentialsCategory {
+                Button { store.loadEssentials() } label: { Label(L("エッセンシャル設定の値を入れる"), systemImage: "star") }
+                    .help(L("エッセンシャル設定の値を「変更後」に入れる。値は行ごとに変えられる"))
+            }
+            if selection == languageCategory {
+                Button { chooseLanguageApp() } label: { Label(L("アプリを追加…"), systemImage: "plus") }
+                    .help(L("表示言語を選ぶアプリを追加"))
+            } else {
+                Button { showAdd = true } label: { Label(L("項目を追加…"), systemImage: "plus") }
+                    .help(L("一覧にないドメインとキーを追加"))
+            }
         }
     }
 
     private var table: some View {
-        Table(visible, selection: $selectedIDs) {
+        Table(visible, selection: $selectedIDs, columnCustomization: $columns) {
             TableColumn(L("項目")) { e in
                 HStack(spacing: 6) {
                     Image(systemName: "pencil.circle.fill")
@@ -276,10 +293,22 @@ struct ContentView: View {
                     .textSelection(.enabled)
             }
             .width(min: 160, ideal: 260)
+            .customizationID(domainKeyColumn)
+        }
+        // チェックボックスと、見出しの右クリックで隠した状態をそろえる
+        .onAppear { columns[visibility: domainKeyColumn] = showDomainKey ? .visible : .hidden }
+        .onChange(of: showDomainKey) { _, show in columns[visibility: domainKeyColumn] = show ? .visible : .hidden }
+        .onChange(of: columns) { _, c in
+            let show = c[visibility: domainKeyColumn] != .hidden
+            if show != showDomainKey { showDomainKey = show }
         }
         .contextMenu(forSelectionType: String.self) { ids in
             Button(L("現在の値に戻す")) { store.revert(Array(ids)) }
             Button(L("未設定（既定値）にする")) { ids.forEach { store.setTarget($0, .unset) } }
+            if !ids.isEmpty, ids.allSatisfy(store.isAddedLanguageApp) {
+                Divider()
+                Button(L("一覧から外す")) { store.removeLanguageApps(ids); selectedIDs.subtract(ids) }
+            }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay {

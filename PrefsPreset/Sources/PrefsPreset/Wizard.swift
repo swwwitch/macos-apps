@@ -17,9 +17,28 @@ struct WizardAction: Identifiable {
 }
 
 private func on(_ v: Bool) -> NSObject { NSNumber(value: v) }
-private let g = "NSGlobalDomain", dock = "com.apple.dock", finder = "com.apple.finder"
+private let g = "NSGlobalDomain", dock = "com.apple.dock", finder = "com.apple.finder", ua = "com.apple.universalaccess"
+
+/// エッセンシャル設定（ウィザードのカードと、一覧の同名カテゴリで使う）
+let essentialSettings: [(domain: String, key: String, value: NSObject)] = [
+    (g, "com.apple.swipescrolldirection", on(false)),
+    (g, "com.apple.mouse.scaling", NSNumber(value: 2.5)),
+    (featureFlagDomain, "redesigned_text_cursor", on(false)),
+    (g, "AppleShowAllExtensions", on(true)),
+    (finder, "FXPreferredViewStyle", "Nlsv" as NSString),
+    (finder, "FXDefaultSearchScope", "SCcf" as NSString),
+    (hotkeyDomain, "27", "50,1048576" as NSString),
+    ("com.apple.screencapture", "show-thumbnail", on(false)),
+    ("com.apple.controlcenter", "AutoHideMenuBarOption", NSNumber(value: 3)),
+    (firstWeekdayDomain, "gregorian", NSNumber(value: 2)),
+    (g, "AppleICUForce24HourTime", on(true)),
+    (wallpaperDomain, "AllSpacesAndDisplays", "gray50" as NSString),
+]
 
 let wizardActions: [WizardAction] = [
+    WizardAction(id: "essentials", title: "エッセンシャル設定",
+                 detail: "ナチュラルなスクロールを切り、拡張子の表示・Finder のリスト表示と現在のフォルダの検索・⌘` のウインドウ切り替え・メニューバーの常時表示・月曜始まりの24時間表示・黒50%の壁紙など、基本の設定をまとめてそろえます。",
+                 symbol: "star", tint: .brown, settings: essentialSettings),
     WizardAction(id: "animation", title: "アニメーションと視差効果を無効化",
                  detail: "ウィンドウの開閉・Dock・Finder・Mission Control の動きを止め、視差効果を減らします。",
                  symbol: "wand.and.rays", tint: .purple, settings: [
@@ -35,7 +54,7 @@ let wizardActions: [WizardAction] = [
         ("com.apple.universalaccess", "reduceMotion", on(true)),
     ]),
     WizardAction(id: "dock", title: "Dockを限りなく無効化",
-                 detail: "Dockを隠し、ポインタを画面の端に寄せても出てこないようにします。起動中のアプリだけを小さく表示します。",
+                 detail: "Dockを隠し、ポインタを画面の端に寄せても出てこないようにします。起動中のアプリだけを小さく表示し、ホットコーナーもすべて切ります。",
                  symbol: "dock.rectangle", tint: .orange, settings: [
         (dock, "autohide", on(true)),
         (dock, "autohide-delay", NSNumber(value: 1000)),
@@ -45,6 +64,11 @@ let wizardActions: [WizardAction] = [
         (dock, "tilesize", NSNumber(value: 16)),
         (dock, "magnification", on(false)),
         (dock, "launchanim", on(false)),
+        // ホットコーナーは 1 が「なし」
+        (dock, "wvous-tl-corner", NSNumber(value: 1)),
+        (dock, "wvous-tr-corner", NSNumber(value: 1)),
+        (dock, "wvous-bl-corner", NSNumber(value: 1)),
+        (dock, "wvous-br-corner", NSNumber(value: 1)),
     ]),
     WizardAction(id: "stage", title: "ステージマネージャを無効化",
                  detail: "ステージマネージャを切り、壁紙をクリックしてもデスクトップを表示しないようにします。",
@@ -62,6 +86,22 @@ let wizardActions: [WizardAction] = [
         (trackpadDomains[0], "TrackpadFourFingerVertSwipeGesture", NSNumber(value: 0)),
         (hotkeyDomain, "32", "off" as NSString),
         (hotkeyDomain, "33", "off" as NSString),
+    ]),
+    // 値は作者のMacの設定（2026-10-14）。拡大率は float のまま写す
+    WizardAction(id: "zoom", title: "画面ズームを有効に",
+                 detail: "F1 でズーム機能のオン／オフ、F2 で拡大、⌥⌘- で縮小できるようにします。フルスクリーンで拡大し、画像はスムーズにせず、トラックパッドとスクロールのジェスチャは使いません。",
+                 symbol: "plus.magnifyingglass", tint: .indigo, settings: [
+        (ua, "closeViewHotkeysEnabled", on(true)),
+        (ua, "closeViewTrackpadGestureZoomEnabled", on(false)),
+        (ua, "closeViewScrollWheelToggle", on(false)),
+        (ua, "closeViewZoomMode", NSNumber(value: 0)),
+        (ua, "closeViewZoomFocusFollowModeKey", NSNumber(value: 0)),
+        (ua, "closeViewNearPoint", NSNumber(value: 2.336353934151784)),
+        (ua, "closeViewFarPoint", NSNumber(value: 1.8903125)),
+        (hotkeyDomain, "15", "122,8388608" as NSString),
+        (hotkeyDomain, "17", "120,8388608" as NSString),
+        (hotkeyDomain, "19", "27,1572864" as NSString),
+        (ua, "closeViewSmoothImages", on(false)),
     ]),
     WizardAction(id: "textCorrection", title: "英文の自動修正を無効化",
                  detail: "大文字化・スペルの自動変換・ピリオド・引用符・ダッシュの置換と、入力中の予測を切ります。",

@@ -18,9 +18,11 @@ let customCategory = "追加した項目"
 /// カテゴリの並びとサイドバーのアイコン
 let categoryOrder: [(name: String, symbol: String)] = [
     ("全体", "macwindow"),
+    ("エッセンシャル設定", "star"),
     ("キーボード", "keyboard"),
     ("文字入力", "character.cursor.ibeam"),
     ("マウス", "computermouse"),
+    ("Mighty Mouse", "computermouse.fill"),
     ("トラックパッド", "rectangle.and.hand.point.up.left"),
     ("サウンド", "speaker.wave.2"),
     ("Dock", "dock.rectangle"),
@@ -32,7 +34,7 @@ let categoryOrder: [(name: String, symbol: String)] = [
     ("ズーム機能", "plus.magnifyingglass"),
     ("スクリーンショット", "camera.viewfinder"),
     ("メニューバー", "menubar.rectangle"),
-    ("時計", "clock"),
+    ("日付と時刻", "clock"),
     ("ターミナル", "terminal"),
     ("Siri", "waveform"),
     ("言語設定", "globe"),
@@ -59,7 +61,13 @@ private let hotCorner: KeyValuePairs<String, String> = [
     "11": "Launchpad", "12": "通知センター", "13": "画面をロック", "14": "クイックメモ",
 ]
 /// アプリごとの言語（AppleLanguages の先頭）。未設定ならシステムの言語に従う
+let mightyMouse = "com.apple.driver.AppleHIDMouse"
+private let mightyMouseButton: KeyValuePairs<String, String> = ["1": "主ボタン", "2": "副ボタン", "3": "アプリスイッチャー", "0": "オフ"]
+/// ウィザードの「エッセンシャル設定」の項目を集めて見せるカテゴリ（項目の本来のカテゴリはそれぞれ別）
+let essentialsCategory = "エッセンシャル設定"
 let appLanguages: KeyValuePairs<String, String> = ["ja": "日本語", "en": "英語"]
+/// 表示言語を選べるアプリのカテゴリ。「アプリを追加…」で項目を足せる
+let languageCategory = "言語設定"
 private let swipeGesture: KeyValuePairs<String, String> = ["0": "オフ", "1": "オン", "2": "オン"]
 
 let catalog: [PrefItem] = [
@@ -84,9 +92,8 @@ let catalog: [PrefItem] = [
     item("全体", "フォルダを開くアプリ", g, "NSFileViewer"),
     item("全体", "フォントのアンチエイリアス閾値", g, "AppleAntiAliasingThreshold"),
     item("全体", "NSConvolutionOverride1", g, "NSConvolutionOverride1"),
-    // 西暦（gregorian）の週の始まり。システム設定の「言語と地域」と同じ
-    item("全体", "週の始まり", firstWeekdayDomain, "gregorian",
-         ["1": "日曜日", "2": "月曜日", "3": "火曜日", "4": "水曜日", "5": "木曜日", "6": "金曜日", "7": "土曜日"]),
+    // すべての画面・操作スペースの壁紙。「そのほか」は読むだけで書かない
+    item("全体", "壁紙", wallpaperDomain, "AllSpacesAndDisplays", ["gray50": "カラー（黒50%）", "other": "そのほか"]),
 
     // キーボード
     item("キーボード", "キーのリピート速度", g, "KeyRepeat"),
@@ -120,6 +127,14 @@ let catalog: [PrefItem] = [
     item("マウス", "マウスの軌跡の速さ", g, "com.apple.mouse.scaling"),
     item("マウス", "ポインタのサイズ（1〜4）", "com.apple.universalaccess", "mouseDriverCursorSize"),
     flag("マウス", "ページ間をスワイプ（スクロール）", g, "AppleEnableSwipeNavigateWithScrolls"),
+
+    // Mighty Mouse（有線）。値の名前はシステム設定の表示と今の値を照らして確かめたものだけ（2026-10-14）
+    item("Mighty Mouse", "左ボタン", mightyMouse, "Button1", mightyMouseButton),
+    item("Mighty Mouse", "右ボタン", mightyMouse, "Button2", mightyMouseButton),
+    item("Mighty Mouse", "スクロールボール", mightyMouse, "Button3", mightyMouseButton),
+    item("Mighty Mouse", "サイドボタン", mightyMouse, "Button4", mightyMouseButton),
+    item("Mighty Mouse", "スクロール", mightyMouseScrollDomain, "ScrollV/ScrollH/ScrollS",
+         ["off": "オフ", "vertical": "垂直のみ", "both": "垂直および水平", "360": "360°"]),
 
     // トラックパッド
     item("トラックパッド", "トラックパッドの軌跡の速さ", g, "com.apple.trackpad.scaling"),
@@ -255,6 +270,8 @@ let catalog: [PrefItem] = [
          ["122,8388608": "F1", "120,8388608": "F2", "28,1572864": "⌥⌘8", "off": "オフ"]),
     item("ズーム機能", "ショートカット：拡大", hotkeyDomain, "17",
          ["120,8388608": "F2", "122,8388608": "F1", "24,1572864": "⌥⌘=", "off": "オフ"]),
+    item("ズーム機能", "ショートカット：縮小", hotkeyDomain, "19", ["27,1572864": "⌥⌘-", "off": "オフ"]),
+    flag("ズーム機能", "画像をスムーズにする", "com.apple.universalaccess", "closeViewSmoothImages"),
 
     // スクリーンショット
     item("スクリーンショット", "保存先", "com.apple.screencapture", "location"),
@@ -272,14 +289,20 @@ let catalog: [PrefItem] = [
     flag("メニューバー", "フルスクリーンでメニューバーを表示", g, "AppleMenuBarVisibleInFullscreen"),
     item("メニューバー", "メニューバーの文字サイズ", g, "AppleMenuBarFontSize", ["large": "大"]),
 
-    // 時計
-    flag("時計", "曜日を表示", "com.apple.menuextra.clock", "ShowDayOfWeek"),
-    flag("時計", "午前／午後を表示", "com.apple.menuextra.clock", "ShowAMPM"),
-    item("時計", "日付を表示", "com.apple.menuextra.clock", "ShowDate",
+    // 日付と時刻
+    // 西暦（gregorian）の週の始まり。システム設定の「言語と地域」と同じ
+    item("日付と時刻", "週の始まり", firstWeekdayDomain, "gregorian",
+         ["1": "日曜日", "2": "月曜日", "3": "火曜日", "4": "水曜日", "5": "木曜日", "6": "金曜日", "7": "土曜日"]),
+    // システム設定の「日付と時刻」の「24時間表示」。未設定なら地域の既定（日本は24時間）
+    flag("日付と時刻", "24時間表示", g, "AppleICUForce24HourTime"),
+    // メニューバーの時計（メニューバーにも表示）。午前／午後は12時間表示のときだけ効く
+    item("日付と時刻", "日付を表示", "com.apple.menuextra.clock", "ShowDate",
          ["0": "スペースがある場合", "1": "常に", "2": "しない"]),
-    flag("時計", "秒を表示", "com.apple.menuextra.clock", "ShowSeconds"),
-    flag("時計", "区切り文字を点滅", "com.apple.menuextra.clock", "FlashDateSeparators"),
-    flag("時計", "アナログ", "com.apple.menuextra.clock", "IsAnalog"),
+    flag("日付と時刻", "曜日を表示", "com.apple.menuextra.clock", "ShowDayOfWeek"),
+    flag("日付と時刻", "午前／午後を表示", "com.apple.menuextra.clock", "ShowAMPM"),
+    flag("日付と時刻", "秒を表示", "com.apple.menuextra.clock", "ShowSeconds"),
+    flag("日付と時刻", "区切り文字を点滅", "com.apple.menuextra.clock", "FlashDateSeparators"),
+    flag("日付と時刻", "アナログ", "com.apple.menuextra.clock", "IsAnalog"),
 
     // ターミナル
     item("ターミナル", "起動時のプロファイル", "com.apple.Terminal", "Startup Window Settings"),
@@ -329,6 +352,8 @@ let recommended: [(domain: String, key: String, value: NSObject)] = [
     ("com.apple.universalaccess", "closeViewFarPoint", NSNumber(value: 1.8903124999999998)),
     (hotkeyDomain, "15", "122,8388608" as NSString),
     (hotkeyDomain, "17", "120,8388608" as NSString),
+    (hotkeyDomain, "19", "27,1572864" as NSString),
+    ("com.apple.universalaccess", "closeViewSmoothImages", NSNumber(value: false)),
     (hotkeyDomain, "27", "50,1048576" as NSString),
     (featureFlagDomain, "redesigned_text_cursor", NSNumber(value: false)),
     // このMacの値（システム設定のスライダーで決めたもの）。float で保存されている
@@ -399,7 +424,8 @@ let factoryDefaults: [String: String] = {
         // ズーム機能
         (ua, "closeViewHotkeysEnabled", "0"), (ua, "closeViewTrackpadGestureZoomEnabled", "0"),
         (ua, "closeViewScrollWheelToggle", "0"),
-        (hotkeyDomain, "15", "28,1572864"), (hotkeyDomain, "17", "24,1572864"),
+        (hotkeyDomain, "15", "28,1572864"), (hotkeyDomain, "17", "24,1572864"), (hotkeyDomain, "19", "27,1572864"),
+        (ua, "closeViewSmoothImages", "1"),
         // スクリーンショット・メニューバー・時計
         (s, "type", "png"), (s, "show-thumbnail", "1"), (s, "disable-shadow", "0"), (s, "include-date", "1"),
         (s, "showsCursor", "0"),
@@ -446,13 +472,12 @@ let alsoShownIn: [String: [String]] = {
         (g, "AppleShowAllExtensions", ["Finder"]),
         (g, "com.apple.springing.delay", ["Finder"]),
         (g, "NSFileViewer", ["Finder"]),
-        // 週の始まりはシステム設定では「言語と地域」の中にある
-        (firstWeekdayDomain, "gregorian", ["言語設定"]),
         // キーボード・文字入力
         (featureFlagDomain, "redesigned_text_cursor", ["文字入力"]),
         (g, "ApplePressAndHoldEnabled", ["キーボード"]),
         (hotkeyDomain, "15", ["キーボード"]),
         (hotkeyDomain, "17", ["キーボード"]),
+        (hotkeyDomain, "19", ["キーボード"]),
         (hotkeyDomain, "32", ["キーボード"]),
         (hotkeyDomain, "33", ["キーボード"]),
         // マウス・トラックパッド（NSGlobalDomain の項目は両方に効く）
@@ -475,5 +500,6 @@ let alsoShownIn: [String: [String]] = {
         (c, "FlashDateSeparators", ["メニューバー"]),
         (c, "IsAnalog", ["メニューバー"]),
     ]
-    return Dictionary(pairs.map { ($0.0 + "\u{1}" + $0.1, $0.2) }, uniquingKeysWith: { a, b in a + b })
+    let essentials = essentialSettings.map { ($0.domain, $0.key, [essentialsCategory]) }
+    return Dictionary((pairs + essentials).map { ($0.0 + "\u{1}" + $0.1, $0.2) }, uniquingKeysWith: { a, b in a + b })
 }()

@@ -150,11 +150,93 @@ func writeFirstWeekday(_ calendar: String, _ value: NSObject?) {
     CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
 }
 
+/// 壁紙（~/Library/Application Support/com.apple.wallpaper/Store/Index.plist）。defaults では書けない非公開の形式
+/// 値は "gray50"（カラーの黒50%）か "other"（それ以外）。書き込んだら WallpaperAgent を再起動する
+let wallpaperDomain = "Wallpaper"
+private var wallpaperIndex: URL {
+    FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/com.apple.wallpaper/Store/Index.plist")
+}
+
+/// システム設定で「カラー」→ 黒50%（グレー 0.5・不透明度 1）を選んだときの中身（macOS 26 で実測、2026-10-14）
+private let gray50Configuration = Data(base64Encoded: "YnBsaXN0MDDSAQICA1R0eXBlW3N5c3RlbUNvbG9y0QQFXHNwYWNlR3JheVByb9AIDRIeIS4AAAAAAAABAQAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALw==")!
+private let gray50Options = Data(base64Encoded: "YnBsaXN0MDDRAQJWdmFsdWVz0QMEW2N1c3RvbUNvbG9y0QUGVWNvbG9y0QcIUl8w0QUJ0goLDA9aY29tcG9uZW50c1pjb2xvclNwYWNlog0OIz/gAAAAAAAAIz/wAAAAAAAATxArYnBsaXN0MDAQAQgAAAAAAAABAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAACggLEhUhJCotMDM4Q05RWmMAAAAAAAABAQAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAkQ==")!
+
+func readWallpaper() -> NSObject? {
+    guard let data = try? Data(contentsOf: wallpaperIndex),
+          let root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+          let all = root["AllSpacesAndDisplays"] as? [String: Any],
+          let content = (all["Linked"] as? [String: Any])?["Content"] as? [String: Any] else { return nil }
+    let choice = (content["Choices"] as? [[String: Any]])?.first
+    let isGray50 = (choice?["Configuration"] as? Data) == gray50Configuration
+        && (content["EncodedOptionValues"] as? Data) == gray50Options
+        && (root["Displays"] as? [String: Any] ?? [:]).isEmpty
+    return (isGray50 ? "gray50" : "other") as NSString
+}
+
+/// すべての画面・操作スペースに同じ壁紙を設定する。"gray50" 以外は書かない
+func writeWallpaper(_ value: NSObject?) {
+    guard value as? String == "gray50", let data = try? Data(contentsOf: wallpaperIndex),
+          var root = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return }
+    let now = Date()
+    let linked: [String: Any] = [
+        "Type": "linked",
+        "Linked": [
+            "Content": [
+                "Choices": [["Configuration": gray50Configuration, "Files": [Any](),
+                             "Provider": "com.apple.wallpaper.choice.color"]],
+                "EncodedOptionValues": gray50Options,
+                "Shuffle": "$null",
+            ] as [String: Any],
+            "LastSet": now, "LastUse": now,
+        ] as [String: Any],
+    ]
+    root["AllSpacesAndDisplays"] = linked
+    root["SystemDefault"] = linked
+    root["Displays"] = [String: Any]()
+    root["Spaces"] = [String: Any]()
+    guard let out = try? PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0) else { return }
+    try? out.write(to: wallpaperIndex, options: .atomic)
+}
+
+/// Mighty Mouse のスクロール。ScrollV・ScrollH・ScrollS の組を1つの値で扱う（システム設定で実測、2026-10-14）
+/// "off" は 0/0/1、"vertical" は 1/0/1（垂直のみ）、"both" は 1/1/1（垂直および水平）、"360" は 1/1/0
+let mightyMouseScrollDomain = "MightyMouseScroll"
+
+func readMightyMouseScroll() -> NSObject? {
+    let d = mightyMouse as CFString
+    CFPreferencesAppSynchronize(d)
+    guard let v = CFPreferencesCopyAppValue("ScrollV" as CFString, d) as? Int else { return nil }
+    let h = CFPreferencesCopyAppValue("ScrollH" as CFString, d) as? Int ?? 0
+    let s = CFPreferencesCopyAppValue("ScrollS" as CFString, d) as? Int ?? 1
+    if v == 0 { return "off" as NSString }
+    if h == 0 { return "vertical" as NSString }
+    return (s == 0 ? "360" : "both") as NSString
+}
+
+func writeMightyMouseScroll(_ value: NSObject?) {
+    let values: [Int]?
+    switch value as? String {
+    case "off": values = [0, 0, 1]
+    case "vertical": values = [1, 0, 1]
+    case "both": values = [1, 1, 1]
+    case "360": values = [1, 1, 0]
+    default: values = nil
+    }
+    let d = mightyMouse as CFString
+    for (i, key) in ["ScrollV", "ScrollH", "ScrollS"].enumerated() {
+        CFPreferencesSetAppValue(key as CFString, values.map { NSNumber(value: $0[i]) }, d)
+    }
+    CFPreferencesAppSynchronize(d)
+}
+
 /// 他のプロセスが書いた値も拾えるよう、同期してから読む
 func readValue(domain: String, key: String) -> NSObject? {
     if domain == nvramDomain { return readStartupSound() }
     if domain == hotkeyDomain { return readHotkey(key) }
     if domain == appShortcutDomain { return readAppShortcut(key) }
+    if domain == wallpaperDomain { return readWallpaper() }
+    if domain == mightyMouseScrollDomain { return readMightyMouseScroll() }
     if domain == firstWeekdayDomain { return readFirstWeekday(key) }
     if domain == featureFlagDomain { return readFeatureFlag(key) }
     let d = cfDomain(domain)
@@ -168,6 +250,8 @@ func writeValue(_ value: NSObject?, domains: [String], key: String) {
         if domain == nvramDomain { writeStartupSound(value); continue }
         if domain == hotkeyDomain { writeHotkey(key, value); continue }
         if domain == appShortcutDomain { writeAppShortcut(key, value); continue }
+        if domain == wallpaperDomain { writeWallpaper(value); continue }
+        if domain == mightyMouseScrollDomain { writeMightyMouseScroll(value); continue }
         if domain == firstWeekdayDomain { writeFirstWeekday(key, value); continue }
         if domain == featureFlagDomain { writeFeatureFlag(key, value); continue }
         let d = cfDomain(domain)
@@ -196,13 +280,14 @@ func processesToRestart(for domain: String) -> [String] {
     case "com.apple.WindowManager": return ["WindowManager"]
     // カレンダーのアプリと Dock のアイコンの週の並び
     case firstWeekdayDomain: return ["Calendar", "Dock"]
+    case wallpaperDomain: return ["WallpaperAgent"]
     default: return []
     }
 }
 
 /// ログインし直すまで反映されないことがあるドメイン
 func needsLogout(_ domain: String) -> Bool {
-    ["NSGlobalDomain", "com.apple.HIToolbox", "com.apple.spaces"].contains(domain) || trackpadDomains.contains(domain)
+    ["NSGlobalDomain", "com.apple.HIToolbox", "com.apple.spaces", mightyMouse, mightyMouseScrollDomain].contains(domain) || trackpadDomains.contains(domain)
 }
 
 // MARK: - 値の表示と変換
@@ -297,6 +382,7 @@ final class Store: ObservableObject {
 
     init() {
         entries = catalog.map { Entry(item: $0) }
+        for app in Store.savedLanguageApps { appendLanguageApp(bundleID: app.bundleID, name: app.name) }
         refreshCurrent()
     }
 
@@ -352,6 +438,11 @@ final class Store: ObservableObject {
         return count
     }
 
+    /// エッセンシャル設定の値を「変更後」に入れる。ほかの行の変更はそのまま
+    func loadEssentials() {
+        for s in essentialSettings { setTarget(s.domain + "\u{1}" + s.key, .value(s.value)) }
+    }
+
     /// 一覧にないドメインとキーを追加する
     func addCustom(domain: String, key: String, label: String) {
         let item = PrefItem(category: customCategory, label: label.isEmpty ? key : label,
@@ -360,6 +451,46 @@ final class Store: ObservableObject {
         if entries.contains(where: { $0.id == entry.id }) { return }
         entry.target = Target(entry.current)
         entries.append(entry)
+    }
+
+    // MARK: 言語設定のアプリ
+
+    /// 「アプリを追加…」で足したアプリ（Bundle ID と表示名）。次回の起動でも一覧に出す
+    private static let languageAppsKey = "languageApps"
+
+    static var savedLanguageApps: [(bundleID: String, name: String)] {
+        (UserDefaults.standard.array(forKey: languageAppsKey) as? [[String]] ?? [])
+            .compactMap { $0.count == 2 ? ($0[0], $0[1]) : nil }
+    }
+
+    func isAddedLanguageApp(_ id: String) -> Bool {
+        Store.savedLanguageApps.contains { $0.bundleID + "\u{1}AppleLanguages" == id }
+    }
+
+    @discardableResult
+    private func appendLanguageApp(bundleID: String, name: String, target: Target? = nil) -> Bool {
+        let item = PrefItem(category: languageCategory, label: name, domains: [bundleID],
+                            key: "AppleLanguages", choices: appLanguages)
+        guard !entries.contains(where: { $0.id == bundleID + "\u{1}AppleLanguages" }) else { return false }
+        var entry = Entry(item: item, current: readValue(domain: bundleID, key: "AppleLanguages"))
+        entry.target = target ?? Target(entry.current)
+        entries.append(entry)
+        return true
+    }
+
+    /// アプリを言語設定に足して、次回も出るように覚えておく。すでにあれば何もしない
+    func addLanguageApp(bundleID: String, name: String, target: Target? = nil) {
+        guard appendLanguageApp(bundleID: bundleID, name: name, target: target) else { return }
+        let list = Store.savedLanguageApps.map { [$0.bundleID, $0.name] } + [[bundleID, name]]
+        UserDefaults.standard.set(list, forKey: Store.languageAppsKey)
+    }
+
+    /// 足したアプリを一覧から外す（書き込んだ言語の設定はそのまま）
+    func removeLanguageApps(_ ids: Set<String>) {
+        let ids = ids.filter(isAddedLanguageApp)
+        let list = Store.savedLanguageApps.filter { !ids.contains($0.bundleID + "\u{1}AppleLanguages") }
+        UserDefaults.standard.set(list.map { [$0.bundleID, $0.name] }, forKey: Store.languageAppsKey)
+        entries.removeAll { ids.contains($0.id) }
     }
 
     // MARK: ファイル
@@ -409,6 +540,8 @@ final class Store: ObservableObject {
                 let target = Target(d["value"] as? NSObject)
                 if let i = entries.firstIndex(where: { $0.item.domains[0] == first && $0.item.key == key }) {
                     entries[i].target = target
+                } else if key == "AppleLanguages" {
+                    addLanguageApp(bundleID: first, name: d["label"] as? String ?? first, target: target)
                 } else {
                     let item = PrefItem(category: customCategory, label: d["label"] as? String ?? key,
                                         domains: domains, key: key, choices: [:])
@@ -517,6 +650,23 @@ func openPreset(_ url: URL? = nil) {
     guard let url = url ?? choosePresetFile() else { return }
     if Store.shared.load(from: url) {
         NotificationCenter.default.post(name: .presetLoaded, object: nil)
+    }
+}
+
+/// アプリを選んで「言語設定」に足す
+@MainActor
+func chooseLanguageApp() {
+    let panel = NSOpenPanel()
+    panel.allowedContentTypes = [.application]
+    panel.allowsMultipleSelection = true
+    panel.directoryURL = URL(fileURLWithPath: "/Applications")
+    panel.prompt = L("追加")
+    NSApp.activate(ignoringOtherApps: true)
+    guard panel.runModal() == .OK else { return }
+    for url in panel.urls {
+        guard let bundle = Bundle(url: url), let id = bundle.bundleIdentifier else { continue }
+        let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+        Store.shared.addLanguageApp(bundleID: id, name: name)
     }
 }
 

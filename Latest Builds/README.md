@@ -25,7 +25,7 @@
 | [MightyEdit](MightyEdit.app) | 0.2.20 | 94 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |
-| [PrefsPreset](PrefsPreset.app) | 1.1.8 | 11 | `jp.dtp-transit.prefspreset` |
+| [PrefsPreset](PrefsPreset.app) | 1.1.9 | 12 | `jp.dtp-transit.prefspreset` |
 | [PodiumAssist](PodiumAssist.app) | 3.2.34 | 57 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.17 | 31 | `jp.dtp-transit.quickiconexporter` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.0.0 | 1 | `jp.dtp-transit.yohakutrimmer` |
