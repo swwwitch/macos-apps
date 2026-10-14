@@ -1,0 +1,39 @@
+note2markdown — Export a note article as Markdown
+
+How to use
+1. Copy the URL of a note article (https://note.com/username/n/n…) and paste it into the field. Articles on custom domains and the bare article key (n + 12 characters) also work.
+2. Click Load (Return, ⌘R) to load the article and preview the Markdown.
+3. Click Export… (⌘S) and choose where to save the .md file. The file is named after the article title. The last folder is remembered.
+Copy Markdown (⇧⌘C) puts it on the clipboard. If you click Export… right after entering a URL, the article is loaded first.
+
+Conversion
+- The article title becomes a level-1 heading (# ). Headings in the body become ## and ###.
+- Line breaks inside a paragraph become hard breaks (two spaces at the end of the line).
+- Bold, italic, strikethrough, links, bulleted and numbered lists, quotes, code and rules become Markdown. The table of contents is left out.
+- Images become ![Image](URL), using the caption when there is one. Size parameters (?width=…) are removed from the URL.
+- Embeds become links: note articles use their title (see Settings), X (Twitter) posts “X (Twitter) link”, other sites the page title, attachments the file name, and YouTube a line with just the URL.
+
+Settings
+Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
+Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
+
+Hotkeys
+⌘R load, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
+
+Running and quitting
+Closing the main window does not quit the app. Click the Dock icon or choose File → Open Main Window to show it again. Quit with ⌘Q or Quit note2markdown in the app menu.
+
+Permissions
+No special permissions are needed (no Accessibility, Full Disk Access or administrator password).
+
+Troubleshooting
+“The article was not found”: check the URL and that the article is published.
+“This article cannot be loaded”: private, draft and members-only articles cannot be exported.
+Paid articles: only the free part is exported, even if you bought the article.
+Image, talk and video posts have no text body and cannot be exported.
+When a file with the same name exists, the save dialog asks whether to replace it.
+
+Privacy
+To load the article you enter, the app connects to note's public API (note.com/api/v3/notes/<key>). No login information or cookies are sent. Only the settings and the last export folder are stored (UserDefaults).
+Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
+Support: see the bundled README.md (Contents/Resources/README.md in the app).
