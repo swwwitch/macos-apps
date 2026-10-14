@@ -7,6 +7,9 @@ struct SourceEditor: NSViewRepresentable {
     var boldHeadings: Bool
     var style: String = "rich"
     var appearance: String = "auto"
+    var margin: String = "standard"
+    var fontName: String = ""
+    var lineSpacing: Double = MarkdownStore.defaultLineSpacing
 
     /// 原稿欄だけの配色。nil はシステムに合わせる（系統の色はこの見た目で解決される）
     static func appearance(_ setting: String) -> NSAppearance? {
@@ -30,10 +33,10 @@ struct SourceEditor: NSViewRepresentable {
         textView.allowsUndo = true
         // Find and replace uses FindReplaceBar (the system find bar cannot be enlarged).
         textView.usesFindBar = false
-        textView.font = style == "rich" ? .systemFont(ofSize: fontSize) : Self.regularFont(fontSize)
+        textView.font = Self.baseFont(fontSize, rich: style == "rich")
         textView.textColor = .textColor
-        textView.backgroundColor = .textBackgroundColor
-        textView.textContainerInset = NSSize(width: 6, height: 8)
+        textView.backgroundColor = Self.editorBackground
+        textView.textContainerInset = MarkdownStore.editorInset(margin)
         // Markdown must stay exactly as typed.
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
@@ -67,13 +70,19 @@ struct SourceEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ scroll: NSScrollView, context: Context) {
+        if let textView = scroll.documentView as? NSTextView, textView.textContainerInset != MarkdownStore.editorInset(margin) {
+            textView.textContainerInset = MarkdownStore.editorInset(margin)
+        }
         let wanted = Self.appearance(appearance)
         if scroll.appearance?.name != wanted?.name { scroll.appearance = wanted }
         guard let textView = scroll.documentView as? NSTextView else { return }
         // Only when the text changed elsewhere (e.g. restored before the view existed).
         let settingChanged = context.coordinator.boldHeadings != boldHeadings || context.coordinator.fontSize != fontSize
-            || context.coordinator.style != style
+            || context.coordinator.style != style || context.coordinator.fontName != fontName
+            || context.coordinator.lineSpacing != lineSpacing
+        context.coordinator.lineSpacing = lineSpacing
         context.coordinator.style = style
+        context.coordinator.fontName = fontName
         context.coordinator.boldHeadings = boldHeadings
         context.coordinator.fontSize = fontSize
         if textView.string != store.text {
@@ -87,6 +96,20 @@ struct SourceEditor: NSViewRepresentable {
     static func regularFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .regular) }
     static func headingFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .bold) }
 
+    /// 原稿欄のフォント。表示メニューの「原稿のフォント…」で選んだものがあればそれ、なければ
+    /// MacDown風はシステムのフォント、色分け・プレーンは等幅
+    @MainActor static func baseFont(_ size: Double, rich: Bool) -> NSFont {
+        if let name = UserDefaults.standard.string(forKey: MarkdownStore.editorFontKey), !name.isEmpty,
+           let font = NSFont(name: name, size: size) { return font }
+        return rich ? .systemFont(ofSize: size) : regularFont(size)
+    }
+
+    /// 同じフォントの太字（太字の無いフォントはそのまま）
+    @MainActor static func boldVersion(_ font: NSFont, size: CGFloat? = nil) -> NSFont {
+        let sized = size.map { NSFontManager.shared.convert(font, toSize: $0) } ?? font
+        return NSFontManager.shared.convert(sized, toHaveTrait: .boldFontMask)
+    }
+
     /// 原稿欄の表示："rich"（MacDown風：文字の大きさ・色）・"color"（等幅で色分け）・"plain"（等幅、飾りなし）
     static var currentStyle: String {
         let defaults = UserDefaults.standard
@@ -99,6 +122,9 @@ struct SourceEditor: NSViewRepresentable {
     private static func dynamic(_ light: NSColor, _ dark: NSColor) -> NSColor {
         NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light }
     }
+    /// 原稿欄の地と文字。ダークでは真っ黒・真っ白を避けて MacDown のように少し柔らかく
+    static let editorBackground = dynamic(.textBackgroundColor, NSColor(srgbRed: 0.17, green: 0.17, blue: 0.17, alpha: 1))
+    static let editorText = dynamic(.textColor, NSColor(srgbRed: 0.82, green: 0.82, blue: 0.82, alpha: 1))
     private static let richHeading = dynamic(NSColor(srgbRed: 0.10, green: 0.50, blue: 0.52, alpha: 1), NSColor(srgbRed: 0.50, green: 0.80, blue: 0.80, alpha: 1))
     private static let richLink = dynamic(NSColor(srgbRed: 0.24, green: 0.48, blue: 0.24, alpha: 1), NSColor(srgbRed: 0.58, green: 0.78, blue: 0.56, alpha: 1))
     /// 見出しレベルごとの文字の大きさ（MacDown風）
@@ -108,15 +134,18 @@ struct SourceEditor: NSViewRepresentable {
     @MainActor static func styleHeadings(_ textView: NSTextView, headings: [Heading], bold: Bool, size: Double,
                                          style: String = SourceEditor.currentStyle) {
         let rich = style == "rich", plain = style == "plain"
-        let regularFont: NSFont = rich ? .systemFont(ofSize: size) : regularFont(size)
-        let boldFont: NSFont = rich ? .boldSystemFont(ofSize: size) : headingFont(size)
+        let regularFont = baseFont(size, rich: rich)
+        let boldFont = boldVersion(regularFont)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = UserDefaults.standard.object(forKey: MarkdownStore.lineSpacingKey) as? Double ?? MarkdownStore.defaultLineSpacing
         guard let storage = textView.textStorage else { return }
         let length = storage.length
         let whole = NSRange(location: 0, length: length)
         storage.beginEditing()
         storage.addAttribute(.font, value: regularFont, range: whole)
-        storage.addAttribute(.foregroundColor, value: NSColor.textColor, range: whole)
+        storage.addAttribute(.foregroundColor, value: editorText, range: whole)
         storage.removeAttribute(.backgroundColor, range: whole)
+        storage.addAttribute(.paragraphStyle, value: paragraphStyle, range: whole)
         if !plain {
             let italicFont = NSFontManager.shared.convert(regularFont, toHaveTrait: .italicFontMask)
             let codeFont = rich ? Self.regularFont(size) : regularFont
@@ -140,7 +169,7 @@ struct SourceEditor: NSViewRepresentable {
             // Headings: larger by level in the MacDown style; bold there always, otherwise by the setting.
             if rich || bold {
                 for heading in headings {
-                    let font: NSFont = rich ? .boldSystemFont(ofSize: size * (headingScale[heading.level] ?? 1)) : boldFont
+                    let font: NSFont = rich ? boldVersion(regularFont, size: size * (headingScale[heading.level] ?? 1)) : boldFont
                     for range in [heading.range, heading.underline].compactMap({ $0 }) where NSMaxRange(range) <= length {
                         storage.addAttribute(.font, value: font, range: range)
                     }
@@ -150,8 +179,9 @@ struct SourceEditor: NSViewRepresentable {
         storage.endEditing()
         // Typing continues in the plain style; the next restyle colors it.
         textView.typingAttributes[.font] = regularFont
-        textView.typingAttributes[.foregroundColor] = NSColor.textColor
+        textView.typingAttributes[.foregroundColor] = editorText
         textView.typingAttributes[.backgroundColor] = nil
+        textView.typingAttributes[.paragraphStyle] = paragraphStyle
     }
 
     @MainActor
@@ -160,6 +190,8 @@ struct SourceEditor: NSViewRepresentable {
         weak var textView: NSTextView?
         var boldHeadings = true
         var style = "rich"
+        var fontName = ""
+        var lineSpacing = MarkdownStore.defaultLineSpacing
         var fontSize = MarkdownStore.defaultFontSize
         init(store: MarkdownStore) { self.store = store }
         @objc func didScroll(_ notification: Notification) {
@@ -231,8 +263,10 @@ final class DroppingTextView: NSTextView {
     /// 右クリックメニューの先頭に書式の項目を並べる
     override func menu(for event: NSEvent) -> NSMenu? {
         let menu = super.menu(for: event) ?? NSMenu()
-        let items = FormatAction.contextMenuItems() + [.separator()]
-        for (index, item) in items.enumerated() { menu.insertItem(item, at: index) }
+        let items = FormatAction.contextMenuItems()
+        guard !items.isEmpty else { return menu }
+        let all = items + [.separator()]
+        for (index, item) in all.enumerated() { menu.insertItem(item, at: index) }
         return menu
     }
 

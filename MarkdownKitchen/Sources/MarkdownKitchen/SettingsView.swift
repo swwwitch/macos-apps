@@ -10,6 +10,7 @@ struct SettingsView: View {
             (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
             (L("テーマ"), AnyView(DoorkeeperPresetsView())),
+            (L("右クリック"), AnyView(ContextMenuSettingsView())),
             (AboutSection.title, AnyView(VStack(spacing: 24) { AboutView(); AcknowledgmentsView() }))
         ]).padding(12)
     }
@@ -20,6 +21,9 @@ struct EditorViewMenuItems: View {
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
     @AppStorage(MarkdownStore.editorStyleKey) private var editorStyle = SourceEditor.currentStyle
     @AppStorage(MarkdownStore.editorAppearanceKey) private var editorAppearance = "auto"
+    @AppStorage(MarkdownStore.marginKey) private var margin = "standard"
+    @AppStorage(MarkdownStore.editorFontKey) private var editorFont = ""
+    @AppStorage(MarkdownStore.lineSpacingKey) private var lineSpacing = MarkdownStore.defaultLineSpacing
 
     var body: some View {
         // Checked buttons rather than an inline Picker, which adds separators around the items.
@@ -32,6 +36,22 @@ struct EditorViewMenuItems: View {
             choice(L("MacDown風"), "rich", $editorStyle)
             choice(L("色分け"), "color", $editorStyle)
             choice(L("プレーン"), "plain", $editorStyle)
+        }
+        Button(L("原稿のフォント…")) { EditorFontPicker.shared.show() }
+        Button(L("標準のフォントに戻す")) { editorFont = "" }
+            .disabled(editorFont.isEmpty)
+        Menu(L("行送り")) {
+            ForEach(MarkdownStore.lineSpacings, id: \.self) { value in
+                Button { lineSpacing = value } label: {
+                    let title = String(format: "%.1f", value)
+                    if lineSpacing == value { Label(title, systemImage: "checkmark") } else { Text(title) }
+                }
+            }
+        }
+        Menu(L("余白")) {
+            choice(L("狭い"), "narrow", $margin)
+            choice(L("標準"), "standard", $margin)
+            choice(L("広い"), "wide", $margin)
         }
         // Used with 色分け only (MacDown style is always bold; Plain never is).
         Toggle(L("見出しを太字で表示"), isOn: $boldHeadings)
@@ -93,6 +113,71 @@ private struct AcknowledgmentsView: View {
             .padding(12)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
+        }
+    }
+}
+
+/// 「原稿のフォント…」：標準のフォントパネルで選んだフォントと大きさを原稿欄に使う
+@MainActor
+final class EditorFontPicker: NSObject {
+    static let shared = EditorFontPicker()
+
+    func show() {
+        let defaults = UserDefaults.standard
+        let size = defaults.object(forKey: MarkdownStore.fontSizeKey) as? Double ?? MarkdownStore.defaultFontSize
+        let manager = NSFontManager.shared
+        // The panel reports to this object, not to the source text view (which would restyle its text).
+        manager.target = self
+        manager.setSelectedFont(SourceEditor.baseFont(size, rich: SourceEditor.currentStyle == "rich"), isMultiple: false)
+        manager.orderFrontFontPanel(self)
+    }
+
+    /// The font panel sends this to the font manager's target (changeFont: by selector).
+    @objc func changeFont(_ sender: Any?) {
+        do {
+            guard let manager = sender as? NSFontManager else { return }
+            let defaults = UserDefaults.standard
+            let size = defaults.object(forKey: MarkdownStore.fontSizeKey) as? Double ?? MarkdownStore.defaultFontSize
+            let font = manager.convert(SourceEditor.baseFont(size, rich: SourceEditor.currentStyle == "rich"))
+            defaults.set(font.fontName, forKey: MarkdownStore.editorFontKey)
+            let newSize = min(max(Double(font.pointSize), MarkdownStore.fontSizes.lowerBound), MarkdownStore.fontSizes.upperBound)
+            defaults.set(newSize, forKey: MarkdownStore.fontSizeKey)
+        }
+    }
+
+    @objc func validModesForFontPanel(_ fontPanel: NSFontPanel) -> NSFontPanel.ModeMask {
+        [.face, .size, .collection]
+    }
+}
+
+/// 設定の「右クリック」：原稿の右クリックメニューに出す書式の項目
+private struct ContextMenuSettingsView: View {
+    @State private var hidden: Set<String> = FormatAction.hiddenInContextMenu
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SettingsSection(L("右クリックメニューに表示する項目")) {
+                Text(L("チェックを外した項目は、原稿の右クリックメニューに出しません（メニューバーの「書式」はそのまま）。"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(Array(FormatAction.contextGroups.enumerated()), id: \.offset) { index, group in
+                    if index > 0 { Divider() }
+                    ForEach(group, id: \.self) { action in
+                        Toggle(action.title, isOn: Binding(
+                            get: { !hidden.contains(action.id) },
+                            set: { shown in
+                                if shown { hidden.remove(action.id) } else { hidden.insert(action.id) }
+                                UserDefaults.standard.set(Array(hidden).sorted(), forKey: FormatAction.contextHiddenKey)
+                            }))
+                    }
+                }
+            }
+            Button(L("すべて表示に戻す")) {
+                hidden = []
+                UserDefaults.standard.removeObject(forKey: FormatAction.contextHiddenKey)
+            }
+            .disabled(hidden.isEmpty)
         }
     }
 }

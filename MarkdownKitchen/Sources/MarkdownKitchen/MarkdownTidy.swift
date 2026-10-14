@@ -171,6 +171,179 @@ enum LineTools {
         }
     }
 
+    /// 段落の中の改行を消してつなぐ。前後がどちらも英数字・英語の記号なら半角スペースを1つ挟む。
+    /// 空行（段落の区切り）とコードブロックの中はそのまま
+    static func joinLines(_ text: String) -> String {
+        var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
+        let trailing = lines.count > 1 && lines.last == ""
+        if trailing { lines.removeLast() }
+        var result: [String] = []
+        var fence: String?
+        var joinable = false  // The last line in result can take the next one.
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if let open = fence {
+                result.append(line)
+                if trimmed.hasPrefix(open) { fence = nil }
+                continue
+            }
+            if let marker = ["```", "~~~"].first(where: { trimmed.hasPrefix($0) }) {
+                fence = marker
+                result.append(line)
+                joinable = false
+                continue
+            }
+            if trimmed.isEmpty {
+                result.append(line)
+                joinable = false
+                continue
+            }
+            if joinable, let last = result.last {
+                let head = last.replacingOccurrences(of: #"[ \t\x{3000}]+$"#, with: "", options: .regularExpression)
+                let tail = line.replacingOccurrences(of: #"^[ \t\x{3000}]+"#, with: "", options: .regularExpression)
+                result[result.count - 1] = head + (needsSpace(head.last, tail.first) ? " " : "") + tail
+            } else {
+                result.append(line)
+                joinable = true
+            }
+        }
+        var joined = result.joined(separator: "\n")
+        if trailing { joined += "\n" }
+        return joined
+    }
+
+    /// Markdownの要素（見出し・段落・リスト・引用・コード・表・HTML・水平線）が空行なしで隣り合うところに空行を入れる。
+    /// 見出しと水平線は前後とも。同じ段落・リスト・引用・表の行どうし、コードブロックの中、Setextの下線の前には入れない
+    static func separateBlocks(_ text: String) -> String {
+        enum Kind { case heading, rule, code, list, quote, table, html, text }
+        var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
+        let trailing = lines.count > 1 && lines.last == ""
+        if trailing { lines.removeLast() }
+        var result: [String] = []
+        var previous: Kind?  // Kind of the last non-blank line, nil after a blank line.
+        var fence: String?
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if let open = fence {
+                result.append(line)
+                if trimmed.hasPrefix(open) { fence = nil; previous = .code }
+                continue
+            }
+            if trimmed.isEmpty {
+                result.append(line)
+                previous = nil
+                continue
+            }
+            let kind: Kind
+            let indented = line.hasPrefix("  ") || line.hasPrefix("\t")
+            if let marker = ["```", "~~~"].first(where: { trimmed.hasPrefix($0) }) {
+                fence = marker
+                kind = .code
+            } else if previous == .text, trimmed.range(of: #"^(=+|-+)$"#, options: .regularExpression) != nil {
+                // A Setext underline makes the paragraph above a heading: no blank line before it, one after.
+                result.append(line)
+                previous = .heading
+                continue
+            } else if HeadingParser.atx(line) != nil || trimmed.range(of: #"^<h[1-6][\s>]"#, options: [.regularExpression, .caseInsensitive]) != nil {
+                kind = .heading
+            } else if trimmed.range(of: #"^([-*_])( *\1){2,}$"#, options: .regularExpression) != nil {
+                kind = .rule
+            } else if trimmed.range(of: #"^([-*+]|\d{1,9}[.)])[ \t]"#, options: .regularExpression) != nil || (previous == .list && indented) {
+                kind = .list
+            } else if trimmed.hasPrefix(">") {
+                kind = .quote
+            } else if trimmed.hasPrefix("|") {
+                kind = .table
+            } else if trimmed.hasPrefix("<") {
+                kind = .html
+            } else {
+                kind = previous == .list ? .list : previous == .quote ? .quote : .text  // Lazy continuation lines.
+            }
+            if let previous {
+                let separate = kind == .heading || kind == .rule || previous == .heading || previous == .rule
+                    || previous == .code || kind == .code || kind != previous
+                if separate { result.append("") }
+            }
+            result.append(line)
+            previous = fence == nil ? kind : .code
+        }
+        var joined = result.joined(separator: "\n")
+        if trailing { joined += "\n" }
+        return joined
+    }
+
+    /// 強制改行（行末の空白2つ以上・行末の \・<br>）と、段落の文章どうしの改行を改段落（空行）にする。
+    /// リスト・引用・表・見出し・Setextの下線・コードブロック・HTMLの行は分けない
+    static func hardBreaksToParagraphs(_ text: String) -> String {
+        var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
+        let trailing = lines.count > 1 && lines.last == ""
+        if trailing { lines.removeLast() }
+        var result: [String] = []
+        var fence: String?
+        for (index, line) in lines.enumerated() {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if let open = fence {
+                result.append(line)
+                if trimmed.hasPrefix(open) { fence = nil }
+                continue
+            }
+            if let marker = ["```", "~~~"].first(where: { trimmed.hasPrefix($0) }) {
+                fence = marker
+                result.append(line)
+                continue
+            }
+            if trimmed.hasPrefix("<") { result.append(line); continue }
+            // <br> inside the line splits it into paragraphs.
+            let ns = line as NSString
+            var pieces: [String] = []
+            var start = 0
+            for match in brTag.matches(in: line, range: NSRange(location: 0, length: ns.length)) {
+                pieces.append(ns.substring(with: NSRange(location: start, length: match.range.location - start)))
+                start = NSMaxRange(match.range)
+            }
+            pieces.append(ns.substring(from: start))
+            pieces = pieces.map { $0.replacingOccurrences(of: #"[ \t]+$"#, with: "", options: .regularExpression) }
+                .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            if pieces.isEmpty { result.append(""); continue }
+            for (offset, piece) in pieces.enumerated() {
+                if offset > 0 { result.append("") }
+                result.append(piece)
+            }
+            // A hard break, or a plain line break between two paragraph lines, becomes a paragraph break.
+            let hardBreak = line.hasSuffix("  ") || line.hasSuffix("\\")
+            let next = index + 1 < lines.count ? lines[index + 1] : ""
+            let nextHasText = !next.trimmingCharacters(in: .whitespaces).isEmpty
+            if result[result.count - 1].hasSuffix("\\") { result[result.count - 1].removeLast() }
+            if nextHasText, hardBreak || (isParagraphLine(line) && isParagraphLine(next) && !isSetextUnderline(next)) {
+                result.append("")
+            }
+        }
+        var joined = result.joined(separator: "\n")
+        if trailing { joined += "\n" }
+        return joined
+    }
+    /// 段落の文章の行か（リスト・引用・表・見出し・HTML・コードの囲み・水平線ではない）
+    private static func isParagraphLine(_ line: String) -> Bool {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, line.prefix(while: { $0 == " " }).count < 4 else { return false }
+        for prefix in [">", "|", "<", "#", "```", "~~~"] where trimmed.hasPrefix(prefix) { return false }
+        if trimmed.range(of: #"^([-*+]|\d{1,9}[.)])[ \t]"#, options: .regularExpression) != nil { return false }
+        if trimmed.range(of: #"^([-*_])( *\1){2,}$"#, options: .regularExpression) != nil { return false }
+        return !isSetextUnderline(line)
+    }
+
+    private static func isSetextUnderline(_ line: String) -> Bool {
+        line.trimmingCharacters(in: .whitespaces).range(of: #"^(=+|-+)$"#, options: .regularExpression) != nil
+    }
+
+    private static let brTag = try! NSRegularExpression(pattern: #"<br\s*/?>"#, options: .caseInsensitive)
+
+    /// 英数字・英語の記号どうしの境目だけ空白が要る（日本語を挟む境目は詰める）
+    private static func needsSpace(_ before: Character?, _ after: Character?) -> Bool {
+        guard let before, let after else { return false }
+        return before.isASCII && !before.isWhitespace && after.isASCII && !after.isWhitespace
+    }
+
     /// 数字を考えた順（Finderと同じ）で並べ替える
     static func sort(_ text: String, descending: Bool) -> String {
         map(text) { lines in

@@ -21,6 +21,32 @@ final class MarkdownStore: ObservableObject {
     static let editorStyleKey = "markdownKitchen.editorStyle"
     /// 原稿欄の配色："auto"（システムに合わせる）・"light"・"dark"
     static let editorAppearanceKey = "markdownKitchen.editorAppearance"
+    /// 左右のペインの余白："narrow"・"standard"・"wide"
+    static let marginKey = "markdownKitchen.margin"
+    /// 原稿欄のフォント（PostScript名）。空なら標準
+    static let editorFontKey = "markdownKitchen.editorFont"
+    /// 原稿欄の行送り（行の高さの倍率）
+    static let lineSpacingKey = "markdownKitchen.lineSpacing"
+    static let defaultLineSpacing = 1.2
+    static let lineSpacings = [1.1, 1.2, 1.3, 1.4, 1.5]
+
+    /// 原稿欄の余白（左右・上下、pt）
+    static func editorInset(_ margin: String) -> NSSize {
+        switch margin {
+        case "narrow": return NSSize(width: 6, height: 8)
+        case "wide": return NSSize(width: 28, height: 18)
+        default: return NSSize(width: 14, height: 12)
+        }
+    }
+
+    /// プレビューの余白（CSSの margin：上下 左右）
+    static func previewMargin(_ margin: String) -> String {
+        switch margin {
+        case "narrow": return "14px 18px"
+        case "wide": return "28px 40px"
+        default: return "18px 24px"
+        }
+    }
     /// 左右のペインの文字サイズ（pt）
     static let fontSizeKey = "markdownKitchen.fontSize"
     /// HTML→Markdownで <div>・<table> の中を変換しない（初期値オン）

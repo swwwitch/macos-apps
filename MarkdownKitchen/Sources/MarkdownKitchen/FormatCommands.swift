@@ -182,18 +182,31 @@ enum FormatAction: CaseIterable {
     // MARK: - Menus
 
     /// 右クリックメニューに入れる項目（キーは表示だけ）
+    /// 右クリックメニューの並び（先頭は「HTMLをコピー」）
+    static var contextGroups: [[FormatAction]] { [[.copyHTML]] + groups }
+    static let contextHiddenKey = "markdownKitchen.contextMenuHidden"
+
+    /// 設定の「右クリック」で外した項目
+    static var hiddenInContextMenu: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: contextHiddenKey) ?? [])
+    }
+
+    /// 右クリックメニューに入れる項目（設定で外したものは除く。空になった区切りは出さない）
     @MainActor static func contextMenuItems() -> [NSMenuItem] {
-        var items: [NSMenuItem] = [FormatAction.copyHTML.menuItem(), .separator()]
-        for (index, group) in groups.enumerated() {
-            if index > 0 { items.append(.separator()) }
-            if index == convertGroup {
+        let hidden = hiddenInContextMenu
+        var items: [NSMenuItem] = []
+        for (index, group) in contextGroups.enumerated() {
+            let shown = group.filter { !hidden.contains($0.id) }
+            guard !shown.isEmpty else { continue }
+            if !items.isEmpty { items.append(.separator()) }
+            if index == convertGroup + 1 {
                 let parent = NSMenuItem(title: L("構造"), action: nil, keyEquivalent: "")
                 let submenu = NSMenu(title: L("構造"))
-                group.forEach { submenu.addItem($0.menuItem()) }
+                shown.forEach { submenu.addItem($0.menuItem()) }
                 parent.submenu = submenu
                 items.append(parent)
             } else {
-                items.append(contentsOf: group.map { $0.menuItem() })
+                items.append(contentsOf: shown.map { $0.menuItem() })
             }
         }
         return items

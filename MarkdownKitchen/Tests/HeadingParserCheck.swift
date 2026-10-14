@@ -196,5 +196,14 @@ expectFormat(applied("<s>ab</s>", MarkdownFormat.toggleStrikethrough("<s>ab</s>"
 expectFormat(applied("a\nb\nc", MarkdownFormat.toggleCodeBlock("a\nb\nc", selection: NSRange(location: 0, length: 3))), "```\na\nb\n```\nc", "a\nb", "code block on")
 expectFormat(applied("```\na\n```", MarkdownFormat.toggleCodeBlock("```\na\n```", selection: NSRange(location: 0, length: 9))), "a", "a", "code block off")
 expectTyped(typed("x\n\ny", 0, MarkdownFormat.toggleCodeBlock("x\n\ny", selection: NSRange(location: 2, length: 0))), "x\n```\n|\n```\ny", "code block on blank line")
+if LineTools.joinLines("This is\na pen.\n日本語の\n文章と\nEnglish\n\n次の段落\n```\na\nb\n```\n") != "This is a pen.日本語の文章とEnglish\n\n次の段落\n```\na\nb\n```\n" { failures += 1; print("FAIL join lines: \(LineTools.joinLines("This is\na pen.\n日本語の\n文章と\nEnglish\n\n次の段落\n```\na\nb\n```\n").debugDescription)") }
+let blocksIn = "# A\n## B\n本文1\n本文2\n- a\n  続き\n- b\n> 引用\n> 2\n| x |\n|---|\n```\nc\n\nd\n```\n段落\n---\nタイトル\n===\n<div>x</div>\n後"
+let blocksOut = "# A\n\n## B\n\n本文1\n本文2\n\n- a\n  続き\n- b\n\n> 引用\n> 2\n\n| x |\n|---|\n\n```\nc\n\nd\n```\n\n段落\n---\n\nタイトル\n===\n\n<div>x</div>\n\n後"
+if LineTools.separateBlocks(blocksIn) != blocksOut { failures += 1; print("FAIL separate blocks:\n\(LineTools.separateBlocks(blocksIn))") }
+if LineTools.separateBlocks(blocksOut) != blocksOut { failures += 1; print("FAIL separate blocks idempotent") }
+let hb = LineTools.hardBreaksToParagraphs("一行目  \n二行目\\\nC<br>D<BR />E\n<div>a<br>b</div>\n```\nx  \ny\n```\n")
+if hb != "一行目\n\n二行目\n\nC\n\nD\n\nE\n<div>a<br>b</div>\n```\nx  \ny\n```\n" { failures += 1; print("FAIL hard breaks: \(hb.debugDescription)") }
+let plain = LineTools.hardBreaksToParagraphs("『入門ガイド』の出版から約2年。\nこの2年の間に、進化し。\n- a\n- b\n> q1\n> q2\nタイトル\n===\n本文")
+if plain != "『入門ガイド』の出版から約2年。\n\nこの2年の間に、進化し。\n- a\n- b\n> q1\n> q2\nタイトル\n===\n本文" { failures += 1; print("FAIL plain breaks: \(plain.debugDescription)") }
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)

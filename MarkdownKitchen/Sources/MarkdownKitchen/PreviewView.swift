@@ -6,6 +6,7 @@ import WebKit
 struct PreviewView: NSViewRepresentable {
     let markdown: String
     let fontSize: Double
+    var margin: String = "standard"
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -15,6 +16,7 @@ struct PreviewView: NSViewRepresentable {
         webView.setValue(false, forKey: "drawsBackground")
         webView.setAccessibilityLabel(L("プレビュー"))
         context.coordinator.webView = webView
+        context.coordinator.margin = MarkdownStore.previewMargin(margin)
         context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
         let coordinator = context.coordinator
         MarkdownStore.shared.onSourceScroll = { [weak coordinator] line in coordinator?.scroll(toLine: line) }
@@ -23,6 +25,7 @@ struct PreviewView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
+        context.coordinator.setMargin(MarkdownStore.previewMargin(margin))
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
@@ -36,6 +39,15 @@ struct PreviewView: NSViewRepresentable {
         private var shownBody: String?
         private var shownSize: Double?
         private var pending: (String, Double)?
+
+        /// 本文の余白（CSSの margin）
+        var margin = MarkdownStore.previewMargin("standard")
+
+        func setMargin(_ value: String) {
+            guard value != margin else { return }
+            margin = value
+            if loaded { webView?.evaluateJavaScript("document.body.style.margin = '\(value)';") }
+        }
 
         func update(body: String, fontSize: Double) {
             guard body != shownBody || fontSize != shownSize, let webView else { return }
@@ -63,6 +75,7 @@ struct PreviewView: NSViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             loaded = true
+            webView.evaluateJavaScript("document.body.style.margin = '\(margin)';")
             if let (body, size) = pending { pending = nil; update(body: body, fontSize: size) }
         }
 
@@ -95,7 +108,7 @@ struct PreviewView: NSViewRepresentable {
             <!doctype html><html style="font-size:\(fontSize)px"><head><meta charset="utf-8">
             <style>
             :root { color-scheme: light dark; }
-            body { font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 1rem; line-height: 1.7; margin: 14px 18px; color: #222; }
+            body { font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 1rem; line-height: 1.7; margin: 18px 24px; color: #222; }
             h1, h2, h3, h4, h5, h6 { line-height: 1.35; margin: 1.4em 0 .5em; }
             img { max-width: 100%; height: auto; }
             a { color: #0a6ed1; }

@@ -37,6 +37,9 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - **Remove Trailing Spaces**: two or more spaces that make a Markdown line break are kept as two when the next line has text.
 - **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all five).
 - **Minify HTML**: joins each HTML block (a run of lines starting with a tag, up to a blank line) into one line, removing line breaks and extra spaces, including spaces after “;” and “:” in style. Markdown and blocks containing <pre> or <textarea> are left alone. Not included in Apply All.
+- **Add Blank Lines Between Blocks**: inserts a blank line where headings, paragraphs, lists, quotes, code, tables, HTML and rules touch without one (always around headings and rules). Lines of the same paragraph, list, quote or table, and code blocks, are left alone.
+- **Hard Breaks to Paragraphs**: turns hard line breaks (two or more trailing spaces, a trailing \, or <br>) and plain line breaks between paragraph lines into separate paragraphs with blank lines. Lists, quotes, tables, headings, code blocks and lines starting with an HTML tag are not split.
+- **Remove Line Breaks**: joins the lines within each paragraph. A space is added where both sides are Latin letters, digits or ASCII punctuation; Japanese text is joined directly. Blank lines and code blocks are kept.
 - **Delete Duplicate Lines**: keeps only the first of identical lines (order kept, blank lines untouched). **Sort Lines (Ascending / Descending)**: sorts lines with numbers in natural order (2 before 10). With a selection, the whole lines it touches are used. Neither is part of Apply All.
 - **Insert Table of Contents**: builds a bulleted list from the headings at the checked levels and inserts it at the cursor.
 - Undo (⌘Z) reverts any of these.
@@ -91,12 +94,16 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 - **Source colors**: Auto (follows the system) / Light / Dark, for the source pane only.
 - **Source style**: **MacDown style** (larger bold headings by level; colors for headings, links, emphasis, code, quotes and list markers; proportional font; the default) / **Colored** (fixed-width with colors) / **Plain** (fixed-width, no styling). HTML headings such as <h2> count as headings; nothing inside <div> or <table> is colored.
 - **Show headings in bold**: used with Colored.
+- **Source Font…**: uses the font and size chosen in the Fonts panel for the source pane (code stays fixed-width). **Use Default Font** goes back (the system font for MacDown style, fixed-width for Colored and Plain).
+- **Line Spacing**: 1.1–1.5, the line height of the source pane (1.2 by default; the preview is unchanged).
+- **Margins**: Narrow / Standard / Wide, for both the source pane and the preview.
 
 ## Settings
 Open with the Settings button in the main window (⌘,).
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
 - **Hotkeys**: change the keys for format, convert, paragraph and heading commands (None, Default, Reset All). Keys used by the app’s standard commands or by another item cannot be assigned
 - **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
+- **Right-Click**: choose which format items appear in the source’s right-click menu (all by default)
 - **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
 
 ## Hotkeys

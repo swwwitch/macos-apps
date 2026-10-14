@@ -8,6 +8,9 @@ struct ContentView: View {
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
     @AppStorage(MarkdownStore.editorStyleKey) private var editorStyle = SourceEditor.currentStyle
     @AppStorage(MarkdownStore.editorAppearanceKey) private var editorAppearance = "auto"
+    @AppStorage(MarkdownStore.marginKey) private var margin = "standard"
+    @AppStorage(MarkdownStore.editorFontKey) private var editorFont = ""
+    @AppStorage(MarkdownStore.lineSpacingKey) private var lineSpacing = MarkdownStore.defaultLineSpacing
     @AppStorage(MarkdownStore.fontSizeKey) private var fontSize = MarkdownStore.defaultFontSize
     /// 右ペインの表示：見出し／プレビュー。起動したときはいつもプレビュー
     @State private var rightPane = RightPane.preview.rawValue
@@ -125,7 +128,7 @@ struct ContentView: View {
                 FindReplaceBar()
                 Divider()
             }
-            SourceEditor(store: store, boldHeadings: boldHeadings, style: editorStyle, appearance: editorAppearance, fontSize: fontSize)
+            SourceEditor(store: store, boldHeadings: boldHeadings, style: editorStyle, appearance: editorAppearance, margin: margin, fontName: editorFont, lineSpacing: lineSpacing, fontSize: fontSize)
         }
     }
 
@@ -199,7 +202,7 @@ struct ContentView: View {
             .background(.bar)
             Divider()
             if rightPane == RightPane.preview.rawValue {
-                PreviewView(markdown: store.text, fontSize: fontSize)
+                PreviewView(markdown: store.text, fontSize: fontSize, margin: margin)
                     .background(Color(nsColor: .textBackgroundColor))
             } else {
                 headingList
@@ -370,17 +373,33 @@ struct TidyRuleItems: View {
     }
 }
 
-/// Minify・重複行・並べ替え・HTML→Markdown・目次
+/// ツールの項目（整形のほか）。用途ごとに区切る：改行・空行／行の操作／変換／目次
+/// ツールメニューでは変換に Doorkeeper用に整形、見出しの区切りに上げ下げが加わる（原稿のバーには専用のボタンがある）
 struct TidyToolItems: View {
     let levels: Set<Int>
+    var inToolsMenu = false
     var body: some View {
-        Button(L("HTMLをMinify")) { MarkdownStore.shared.tidy([.minifyHTML]) }
+        // 改行・空行
+        Button(L("要素間に空行を入れる")) { MarkdownStore.shared.transformLines(L("要素間に空行を入れる"), done: L("要素間に空行を入れました"), LineTools.separateBlocks) }
+        Button(L("強制改行を改段落に")) { MarkdownStore.shared.transformLines(L("強制改行を改段落に"), done: L("強制改行を改段落にしました"), LineTools.hardBreaksToParagraphs) }
+        Button(L("改行を削除")) { MarkdownStore.shared.transformLines(L("改行を削除"), done: L("改行を削除しました"), LineTools.joinLines) }
+        Divider()
+        // 行の操作
         Button(L("重複行を削除")) { MarkdownStore.shared.transformLines(L("重複行を削除"), done: L("重複行を削除しました"), LineTools.removeDuplicates) }
         Button(L("並べ替え（昇順）")) { MarkdownStore.shared.transformLines(L("並べ替え（昇順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: false) } }
         Button(L("並べ替え（降順）")) { MarkdownStore.shared.transformLines(L("並べ替え（降順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: true) } }
-        Button(L("HTML→Markdown")) { MarkdownStore.shared.convertHTMLToMarkdown() }
         Divider()
+        // 変換
+        Button(L("HTML→Markdown")) { MarkdownStore.shared.convertHTMLToMarkdown() }
+        Button(L("HTMLをMinify")) { MarkdownStore.shared.tidy([.minifyHTML]) }
+        if inToolsMenu { Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() } }
+        Divider()
+        // 見出し
         Button(L("目次を挿入")) { MarkdownStore.shared.insertTableOfContents(levels: levels) }
+        if inToolsMenu {
+            ShortcutButton(action: .raiseHeadings)
+            ShortcutButton(action: .lowerHeadings)
+        }
     }
 }
 

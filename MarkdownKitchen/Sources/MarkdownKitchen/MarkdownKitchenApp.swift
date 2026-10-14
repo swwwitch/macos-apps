@@ -23,12 +23,7 @@ struct MarkdownKitchenApp: App {
             CommandMenu(L("ツール")) {
                 Menu(L("整形")) { TidyRuleItems() }
                 Divider()
-                TidyToolItems(levels: MarkdownStore.storedLevels)
-                Divider()
-                Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
-                Divider()
-                ShortcutButton(action: .raiseHeadings)
-                ShortcutButton(action: .lowerHeadings)
+                TidyToolItems(levels: MarkdownStore.storedLevels, inToolsMenu: true)
             }
             CommandGroup(replacing: .help) {
                 Button(L("MarkdownKitchenヘルプ")) { LocalHelp.shared.show() }
