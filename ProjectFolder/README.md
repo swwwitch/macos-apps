@@ -1,6 +1,6 @@
 # ProjectFolder
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.9.0-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.11.0-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ダイアログボックスでクライアント・地域・日付・備考を入力し、案件フォルダー（例：ricoh-osaka-20261014）を作るメニューバー常駐アプリ。Keyboard Maestro のマクロ「Folder Maker（案件）」（[KM](KM/)）の移植。
 
@@ -32,6 +32,12 @@
 - 作成後に Finder でも選択表示していた手順は省き、開くアプリを設定で選ぶ形にした。
 
 ## 更新履歴
+
+- 1.11.0（build 16, 2026-10-15）：AT-Recent のシンボリックリンクは1件ずつのときだけ作るように（一括作成・プロジェクトでは作らない）。設定の「一括作成・プロジェクトでも作る」を削除。
+
+- 1.10.1（build 15, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
+
+- 1.10.0（build 14, 2026-10-14）：アプリを呼び出すホットキーの初期値を ⇧⌥⌘N に。Finder・Path Finder（と ProjectFolder）が前面のときだけ登録し、ほかのアプリでは同じキーがそのアプリに届く。
 
 - 1.9.0（build 13, 2026-10-14）：一覧を木の形に（各段の名前だけを字下げして表示）。行頭の「-」を「/」と同じ階層の印に（一括作成・プロジェクトとも）、見出しの連結は「+」に変更。「*」で個数指定（takano-4*3 → 4・5・6、takano-*3 → 1〜3、A*3 → A・B・C）。空行で階層を区切る。
 

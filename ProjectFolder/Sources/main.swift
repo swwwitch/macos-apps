@@ -550,7 +550,7 @@ struct Preferences: View {
                             if $0 && model.appShortcut == nil { model.startRecording() } else { model.save() }
                         }))
                         Text(model.recording ? L("pressKey") : model.hotkeyLabel)
-                            .font(.system(.body, design: .monospaced)).frame(width: 90, alignment: .leading)
+                            .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
                             .foregroundColor(model.appHotkeyEnabled ? .primary : .secondary)
                             .accessibilityLabel(L("currentKey") + " " + model.hotkeyLabel)
                         Button(model.recording ? L("cancelRecording") : L("change")) { model.startRecording() }
@@ -599,8 +599,6 @@ struct Preferences: View {
                 SettingsSection(L("linkTitle")) {
                     Toggle(L("makeLink"), isOn: Binding(get: { model.makeLink }, set: { model.makeLink = $0; model.save() }))
                     FolderPicker(title: L("linkFolder"), path: $model.linkFolder) { model.save() }.disabled(!model.makeLink)
-                    Toggle(L("linkInBatch"), isOn: Binding(get: { model.linkInBatch }, set: { model.linkInBatch = $0; model.save() }))
-                        .disabled(!model.makeLink)
                     Text(L("makeLinkHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),

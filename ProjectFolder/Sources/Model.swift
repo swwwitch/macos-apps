@@ -54,8 +54,6 @@ final class Model: ObservableObject {
     @Published var linkFolder = UserDefaults.standard.string(forKey: "linkFolder") ?? Model.defaultLinkFolder
     @Published var closeAfter = UserDefaults.standard.object(forKey: "closeAfter") as? Bool ?? true
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
-    /// AT-Recent links for bulk and project creations too (top-level new folders / the project's folder).
-    @Published var linkInBatch = UserDefaults.standard.object(forKey: "linkInBatch") as? Bool ?? true
     /// Names are written NFC (Foundation writes NFD), so Dropbox and Windows see the usual spelling.
     @Published var normalizeNFC = UserDefaults.standard.object(forKey: "normalizeNFC") as? Bool ?? true
     /// Refuse names Windows cannot open (\ * ? " < > |, trailing dot or space, CON …).
@@ -71,9 +69,17 @@ final class Model: ObservableObject {
     /// 直前の作成を取り消す: what the last creation made (memory only).
     @Published var lastCreation: CreationRecord?
 
-    // MARK: App hotkey (アプリを呼び出すホットキー). Unassigned by default: every ⌃⌥⌘ letter but Y is taken on this Mac.
-    @Published var appShortcut = UserDefaults.standard.data(forKey: "appShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) }
-    @Published var appHotkeyEnabled = UserDefaults.standard.bool(forKey: "appHotkeyEnabled")
+    // MARK: App hotkey (アプリを呼び出すホットキー). ⇧⌥⌘N by default, only while Finder or Path Finder (or this app) is in front.
+    static let defaultShortcut = Shortcut.km(45, Shortcut.command | Shortcut.shift | Shortcut.option, "N")
+    /// Empty data means the key was cleared on purpose (a missing key means the default).
+    @Published var appShortcut: Shortcut? = {
+        guard let data = UserDefaults.standard.data(forKey: "appShortcut") else { return Model.defaultShortcut }
+        return try? JSONDecoder().decode(Shortcut.self, from: data)
+    }()
+    @Published var appHotkeyEnabled = UserDefaults.standard.object(forKey: "appHotkeyEnabled") as? Bool ?? true
+    /// Apps that must be in front for the hotkey to be registered.
+    static var hotkeyApps: [String] { ["com.apple.finder"] + FileViewers.pathFinderIDs + [Bundle.main.bundleIdentifier ?? ""] }
+    private var hotkeyRegistered = false
     @Published var recording = false
     @Published var recordMessage = ""
     @Published var hotkeyFailure: OSStatus?
@@ -104,6 +110,9 @@ final class Model: ObservableObject {
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
             self?.refreshLogin(); self?.refreshAccessibility(); self?.reloadLibraryIfChanged()
         })
+        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.updateHotkeyRegistration()
+        })
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, self.recording else { return event }
             if event.keyCode == 53 { self.recording = false; self.recordMessage = ""; self.refreshHotkey(); return nil }
@@ -129,10 +138,9 @@ final class Model: ObservableObject {
         defaults.set(linkFolder, forKey: "linkFolder")
         defaults.set(closeAfter, forKey: "closeAfter")
         defaults.set(keepRunning, forKey: "keepRunning")
-        defaults.set(linkInBatch, forKey: "linkInBatch")
         defaults.set(normalizeNFC, forKey: "normalizeNFC")
         defaults.set(windowsSafe, forKey: "windowsSafe")
-        defaults.set(appShortcut.flatMap { try? JSONEncoder().encode($0) }, forKey: "appShortcut")
+        defaults.set(appShortcut.flatMap { try? JSONEncoder().encode($0) } ?? Data(), forKey: "appShortcut")
         defaults.set(appHotkeyEnabled, forKey: "appHotkeyEnabled")
         refreshHotkey()
     }
@@ -339,23 +347,15 @@ final class Model: ObservableObject {
         guard !entries.isEmpty else { return report(L(project ? "project.empty" : "bulk.empty"), error: true) }
         busy = true
         defer { busy = false }
-        let rootExisted = FileManager.default.fileExists(atPath: parent.appendingPathComponent(projectRootName).path)
-        var made = Creator.make(entries, in: parent, projectName: project ? projectVariableName : "", nfc: normalizeNFC)
+        // AT-Recent links are made for 1件ずつ only.
+        let made = Creator.make(entries, in: parent, projectName: project ? projectVariableName : "", nfc: normalizeNFC)
         saveForm()
-        var warnings: [String] = []
-        if makeLink && linkInBatch {
-            // Bulk: each new top-level folder. Project: its folder, when it was made now.
-            let topLevel = made.record.items.filter { !$0.isFile && $0.url.deletingLastPathComponent().standardizedFileURL.path == parent.standardizedFileURL.path }.map(\.url)
-            let targets: [URL] = project ? (projectRootName.isEmpty || rootExisted ? [] : Array(topLevel.prefix(1))) : topLevel
-            for target in targets { if let warning = link(target, into: &made.record) { warnings.append(warning) } }
-        }
         if !made.record.items.isEmpty { lastCreation = made.record }
         var lines = [String(format: L("bulk.result"), String(made.created.count), parent.path)]
         if made.existing > 0 { lines.append(String(format: L("bulk.skippedExisting"), String(made.existing))) }
         if made.invalid > 0 { lines.append(String(format: L("bulk.skippedInvalid"), String(made.invalid))) }
         lines += made.failures
         if !made.missingTemplates.isEmpty { lines.append(String(format: L("template.missing"), made.missingTemplates.sorted().joined(separator: "、"))) }
-        lines += Array(Set(warnings)).sorted()
         let problem = !made.failures.isEmpty || made.created.isEmpty
         report(lines.joined(separator: "\n"), error: problem)
         guard !made.created.isEmpty else { return }
@@ -364,7 +364,7 @@ final class Model: ObservableObject {
             else { FileViewers.show(made.created[0], choice: viewer, reveal: true) }
         }
         // A project into an existing folder only fills what is missing, so existing items do not count as a problem there.
-        if !problem && made.invalid == 0 && made.missingTemplates.isEmpty && warnings.isEmpty && (project || made.existing == 0) {
+        if !problem && made.invalid == 0 && made.missingTemplates.isEmpty && (project || made.existing == 0) {
             if project { projectRoot = "" } else { bulkText = "" }
             onCreated?()
         }
@@ -453,16 +453,24 @@ final class Model: ObservableObject {
     }
     func clearShortcut() { appShortcut = nil; appHotkeyEnabled = false; recording = false; save() }
     func refreshHotkey() {
-        hotkeys.unregisterAll(); hotkeyFailure = nil
-        if appHotkeyEnabled, !recording, let appShortcut {
-            let status = hotkeys.register(1, appShortcut)
-            if status != noErr { hotkeyFailure = status }
-        }
+        hotkeys.unregisterAll(); hotkeyRegistered = false; hotkeyFailure = nil
+        updateHotkeyRegistration()
         var items: [HotkeyManifest.Item] = []
         if let appShortcut {
-            items.append(.init(id: "showApp", title: L("appHotkey"), keyCode: Int(appShortcut.code), modifiers: Int(appShortcut.modifiers), enabled: appHotkeyEnabled))
+            items.append(.init(id: "showApp", title: L("appHotkey"), keyCode: Int(appShortcut.code), modifiers: Int(appShortcut.modifiers),
+                               enabled: appHotkeyEnabled, scope: "only", apps: Model.hotkeyApps))
         }
         HotkeyManifest.publish(items)
+    }
+    /// Registers the hotkey only while one of hotkeyApps is in front, so other apps keep the key.
+    func updateHotkeyRegistration() {
+        let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? ""
+        let wanted = appHotkeyEnabled && !recording && appShortcut != nil && Model.hotkeyApps.contains(front)
+        if wanted == hotkeyRegistered { return }
+        hotkeys.unregisterAll(); hotkeyRegistered = false
+        guard wanted, let appShortcut else { return }
+        let status = hotkeys.register(1, appShortcut)
+        if status == noErr { hotkeyRegistered = true } else { hotkeyFailure = status }
     }
 
     // MARK: Permissions and login item
