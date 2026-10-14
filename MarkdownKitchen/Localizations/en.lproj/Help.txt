@@ -1,0 +1,111 @@
+MarkdownKitchen shows your Markdown source on the left and only its headings on the right.
+
+## How to Use
+### Add the source
+1. Type or paste Markdown into Source on the left.
+2. You can also load a file with File > Open File… (⌘O) or by dropping a .md file onto the left pane or the Dock icon.
+3. Headings appears on the right, indented by level. It updates as you type.
+
+### What counts as a heading
+- "# Heading" (ATX) and text underlined with "===" or "---" (Setext) are headings.
+- <h1> to <h6> at the start of a line (attributes such as style allowed) are also headings, up to the matching closing tag. Tags inside are removed for display. Headings nested in <div> and similar are not included.
+- "#" inside code blocks (``` or ~~~), leading YAML front matter, and HTML comments is ignored.
+- Click a heading on the right to select and show that line in the source.
+- Use the checkboxes (# to #####) at the top of the right pane to choose which levels to extract. Level 6 (######) is not shown. Checkboxes for levels missing from the source are dimmed.
+
+## Preview
+- Switch the right pane with Headings | Preview at its top. The preview shows the source as HTML and updates as you type.
+- HTML at the start of a line (such as <h2 style="…">) is shown as is, so Doorkeeper headings appear in color.
+- Clicking a link in the preview opens it in your browser. Images are loaded from the internet.
+- Scrolling the source on the left scrolls the preview to the same place.
+- Copy HTML above the preview (also in the Edit menu) copies the whole HTML shown in the preview.
+
+## Raising and Lowering Headings
+- The raise and lower buttons on the Source bar on the left, or Edit > Raise Headings One Level (⌘[) and Lower Headings One Level (⌘]), remove or add one "#" for all headings in the source.
+- They affect the headings shown in the right pane (the checked levels). If text is selected in the source, only headings in the selection change.
+- If a level 1 heading would be raised or a level 6 heading lowered, nothing changes and the reason is shown.
+- Underlined (=== or ---) headings are rewritten with "#". For HTML headings only the tag number changes (<h2> to <h3> and so on). Undo (⌘Z) reverts the whole change.
+
+## Reordering Sections
+- Drag a heading in the heading list on the right to move its section (up to the next heading of the same or a higher level, including body text and subheadings) within the source.
+- A section cannot be moved into itself. Undo (⌘Z) reverts the move.
+
+## Tidying and Table of Contents
+- Choose from Tidy on the Source bar (also in the Edit menu). Only the selection is changed if text is selected; otherwise the whole source. Code blocks are left alone.
+- **Remove Trailing Spaces**: two or more spaces that make a Markdown line break are kept as two when the next line has text.
+- **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all five).
+- **Minify HTML**: joins each HTML block (a run of lines starting with a tag, up to a blank line) into one line, removing line breaks and extra spaces, including spaces after “;” and “:” in style. Markdown and blocks containing <pre> or <textarea> are left alone. Not included in Apply All.
+- **Insert Table of Contents**: builds a bulleted list from the headings at the checked levels and inserts it at the cursor.
+- Undo (⌘Z) reverts any of these.
+
+## HTML to Markdown
+- HTML→Markdown in Tidy on the Source bar on the left (also in the Edit menu) rewrites HTML mixed into the source as Markdown.
+- Headings, paragraphs, line breaks, bold, italic, links, images, lists, quotes, code and rules are converted; other tags (span, div and so on) are removed and their contents kept.
+- Markdown and code blocks (``` or ~~~) are left as they are. If text is selected, only the selection is converted. Undo (⌘Z) reverts it.
+- With Ignore inside div elements and Ignore inside table elements on in the HTML→Markdown tab of Settings (both on by default), everything inside those elements, including nested ones, stays as HTML.
+
+## Format for Doorkeeper
+- Click Format for Doorkeeper on the Source bar (also in the Edit menu) and choose a theme (CSS Nite and DTP Transit by default) to replace ## and ### in the source with styled HTML headings (<h2 style="…"> and <h3 style="…">) for Doorkeeper event descriptions.
+- The theme used last is checked. Add or delete themes in the Themes tab of Settings (Edit Themes… in the menu): a name, a base color (hex such as #0AF; click the swatch for the color panel) and the h3 background strength (%). h2 gets white text on the base color; h3 gets base-color text and rules on a light background.
+- Headings already formatted with a theme (the same <h2 style="…"> / <h3 style="…"> decoration in another color) switch to the chosen theme without going back to Markdown. #### and deeper headings, body text, code blocks and HTML headings with other styles are not changed.
+- If text is selected, only the selection is converted. Undo (⌘Z) reverts it, and HTML→Markdown turns the headings back into Markdown.
+
+## Text Size
+- The Smaller Text and Bigger Text buttons in the header, or Edit > Bigger Text (⌘+), Smaller Text (⌘−) and Default Text Size, change the text size of both panes. The size is kept for next time.
+
+## Copying
+- Choose a format in the pop-up at the top of the right pane (Markdown (# Heading), Markdown (blank line where the level changes), Tree (└ Heading) or Text indented with tabs); the list then looks like that format.
+- Copy, or Edit > Copy Headings (⇧⌘C), copies all headings exactly as the list shows them.
+- Right-click a heading for **Show in Source** and **Copy This Heading**.
+
+## Settings
+Open with the Settings button in the main window (⌘,).
+- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Headings**: Show headings in bold (heading lines in the source on the left; on by default)
+- **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
+- **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
+
+## Hotkeys
+- **⌘O**: Open File
+- **⌘S**: Save
+- **⇧⌘S**: Save As
+- **⇧⌘C**: Copy Headings
+- **⌘[** / **⌘]**: Raise / Lower Headings One Level
+- **⌘F**: Find in the source
+- **⌘+** / **⌘−**: Bigger / Smaller Text
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: MarkdownKitchen Help
+- **⌘Q**: Quit MarkdownKitchen
+
+## Permissions
+- No Accessibility or other permissions are needed.
+- Files are written only when you choose Save or Save As…. The app does not use the network.
+
+## Keeping the source
+- The source on the left is kept by the app and comes back at the next launch.
+- Replacing the source by loading a file can be undone with Undo (⌘Z).
+- File > Save (⌘S) overwrites the loaded file; with no file loaded it works as Save As…. Save As… (⇧⌘S) writes to a file you choose, and later ⌘S saves there.
+- While the source is linked to a file, its name and folder appear below the Source bar. With unsaved changes it shows “Unsaved” and the close button shows a dot. Show in Finder reveals the file; Unlink keeps the source and removes the link (⌘S then works as Save As…).
+- The previous content is backed up before each overwrite in ~/Library/Application Support/MarkdownKitchen/Backups (latest 20); File > Show Backups Before Overwrite opens it. If another app changed the file after it was loaded, you are asked before it is overwritten.
+- The file keeps the encoding it was loaded with (UTF-8 if some characters cannot be represented).
+
+## Launching and Quitting
+- Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
+- With Show in menu bar on, the menu bar icon also offers Open Main Window, Settings… and Help.
+- To quit, choose Quit MarkdownKitchen (⌘Q) from the app menu.
+- Choose Check for Updates… in the app menu to look for a new version. Until distribution is set up, it shows that updates are being prepared and does not connect.
+
+## Troubleshooting
+- If a heading is missing, check that "#" is followed by a space and that its level is checked in the right pane.
+- If text is garbled, save the file as UTF-8 and load it again.
+
+## Help and the note Article
+- Open this help with Help > MarkdownKitchen Help (⌘?).
+- Help > Open the note Article opens the guide on note in your browser.
+
+## Removing the App
+1. Turn off Open at login.
+2. Choose Quit MarkdownKitchen.
+3. Move MarkdownKitchen to the Trash.

@@ -1,0 +1,115 @@
+import AppKit
+import SwiftUI
+import WebKit
+
+/// 右ペインのプレビュー。入力のたびにページを読み直さず本文だけ差し替えて、スクロール位置を保つ
+struct PreviewView: NSViewRepresentable {
+    let markdown: String
+    let fontSize: Double
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeNSView(context: Context) -> WKWebView {
+        let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        webView.navigationDelegate = context.coordinator
+        webView.setValue(false, forKey: "drawsBackground")
+        webView.setAccessibilityLabel(L("プレビュー"))
+        context.coordinator.webView = webView
+        context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
+        let coordinator = context.coordinator
+        MarkdownStore.shared.onSourceScroll = { [weak coordinator] line in coordinator?.scroll(toLine: line) }
+        return webView
+    }
+
+    func updateNSView(_ webView: WKWebView, context: Context) {
+        context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
+    }
+
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        MarkdownStore.shared.onSourceScroll = nil
+    }
+
+    @MainActor
+    final class Coordinator: NSObject, WKNavigationDelegate {
+        weak var webView: WKWebView?
+        private var loaded = false
+        private var shownBody: String?
+        private var shownSize: Double?
+        private var pending: (String, Double)?
+
+        func update(body: String, fontSize: Double) {
+            guard body != shownBody || fontSize != shownSize, let webView else { return }
+            guard loaded else {
+                if shownBody == nil {
+                    shownBody = body; shownSize = fontSize
+                    webView.loadHTMLString(Self.page(body: body, fontSize: fontSize), baseURL: URL(string: "https://localhost/"))
+                } else {
+                    pending = (body, fontSize)
+                }
+                return
+            }
+            shownBody = body; shownSize = fontSize
+            let json = (try? JSONEncoder().encode([body])).flatMap { String(data: $0, encoding: .utf8) } ?? "[\"\"]"
+            webView.evaluateJavaScript("document.body.innerHTML = \(json)[0]; document.documentElement.style.fontSize = '\(fontSize)px';")
+        }
+
+        /// 原稿の行に合わせてスクロールする（目印の span の間は行数で割り振る）
+        func scroll(toLine line: Double) {
+            guard loaded, let webView else { return }
+            let argument = line.isInfinite ? "Infinity" : String(line)
+            let lines = (MarkdownStore.shared.text as NSString).components(separatedBy: "\n").count
+            webView.evaluateJavaScript("mkScrollTo(\(argument), \(lines))")
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            loaded = true
+            if let (body, size) = pending { pending = nil; update(body: body, fontSize: size) }
+        }
+
+        /// リンクはブラウザで開き、プレビューの中では移動しない
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                     decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
+            if navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url {
+                NSWorkspace.shared.open(url)
+                decisionHandler(.cancel)
+            } else {
+                decisionHandler(.allow)
+            }
+        }
+
+        static func page(body: String, fontSize: Double) -> String {
+            """
+            <!doctype html><html style="font-size:\(fontSize)px"><head><meta charset="utf-8">
+            <style>
+            :root { color-scheme: light dark; }
+            body { font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 1rem; line-height: 1.7; margin: 14px 18px; color: #222; }
+            h1, h2, h3, h4, h5, h6 { line-height: 1.35; margin: 1.4em 0 .5em; }
+            img { max-width: 100%; height: auto; }
+            a { color: #0a6ed1; }
+            code { font-family: ui-monospace, Menlo, monospace; font-size: .9em; background: rgba(127,127,127,.15); padding: .1em .3em; border-radius: 3px; }
+            pre { background: rgba(127,127,127,.12); padding: .8em 1em; border-radius: 6px; overflow-x: auto; }
+            pre code { background: none; padding: 0; }
+            blockquote { margin: 1em 0; padding: 0 1em; border-left: 3px solid rgba(127,127,127,.4); color: #666; }
+            hr { border: none; border-top: 1px solid rgba(127,127,127,.35); }
+            @media (prefers-color-scheme: dark) { body { color: #ddd; } a { color: #5ab0ff; } blockquote { color: #aaa; } }
+            </style>
+            <script>
+            function mkScrollTo(line, total) {
+              var max = document.documentElement.scrollHeight - window.innerHeight;
+              if (line === Infinity) { window.scrollTo(0, max); return; }
+              var marks = document.querySelectorAll('span[data-line]');
+              function top(m) { var e = m.nextElementSibling || m; return e.getBoundingClientRect().top + window.scrollY; }
+              var prev = null, next = null;
+              for (var i = 0; i < marks.length; i++) {
+                if (+marks[i].dataset.line <= line) prev = marks[i]; else { next = marks[i]; break; }
+              }
+              var y0 = prev ? top(prev) : 0, l0 = prev ? +prev.dataset.line : 0;
+              var y1 = next ? top(next) : document.documentElement.scrollHeight, l1 = next ? +next.dataset.line : total;
+              var y = l1 > l0 ? y0 + (y1 - y0) * (line - l0) / (l1 - l0) : y0;
+              window.scrollTo(0, Math.max(0, Math.min(max, y - 12)));
+            }
+            </script></head><body>\(body)</body></html>
+            """
+        }
+    }
+}

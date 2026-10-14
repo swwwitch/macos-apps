@@ -1,0 +1,51 @@
+import AppKit
+// Usage: swift GenerateIcon.swift <output folder>  → MarkdownKitchen.png (1024px)
+let root = URL(fileURLWithPath: CommandLine.arguments[1])
+let image = NSImage(size: NSSize(width: 1024, height: 1024))
+image.lockFocus()
+// Mustard tile shared with the other sw_app icons (same as BundleIDInspector).
+let box = NSBezierPath(roundedRect: NSRect(x: 54, y: 54, width: 916, height: 916), xRadius: 220, yRadius: 220)
+let shadow = NSShadow(); shadow.shadowColor = NSColor.black.withAlphaComponent(0.10); shadow.shadowBlurRadius = 0; shadow.shadowOffset = NSSize(width: 0, height: -12)
+NSGraphicsContext.saveGraphicsState(); shadow.set()
+NSGradient(starting: NSColor(srgbRed: 0.99, green: 0.79, blue: 0.095, alpha: 1), ending: NSColor(srgbRed: 0.97, green: 0.75, blue: 0.075, alpha: 1))!.draw(in: box, angle: -75)
+NSGraphicsContext.restoreGraphicsState()
+let brown = NSColor(srgbRed: 0.36, green: 0.25, blue: 0.085, alpha: 1)
+let paper = NSColor(srgbRed: 1, green: 0.985, blue: 0.95, alpha: 1)
+let fold = NSColor(srgbRed: 0.93, green: 0.88, blue: 0.78, alpha: 1)
+// Cream sheet with a folded corner: the Markdown document.
+let sheet = NSRect(x: 230, y: 185, width: 564, height: 654)
+let corner: CGFloat = 130
+let page = NSBezierPath()
+page.move(to: NSPoint(x: sheet.minX + 40, y: sheet.minY))
+page.line(to: NSPoint(x: sheet.maxX - 40, y: sheet.minY))
+page.appendArc(from: NSPoint(x: sheet.maxX, y: sheet.minY), to: NSPoint(x: sheet.maxX, y: sheet.minY + 40), radius: 40)
+page.line(to: NSPoint(x: sheet.maxX, y: sheet.maxY - corner))
+page.line(to: NSPoint(x: sheet.maxX - corner, y: sheet.maxY))
+page.line(to: NSPoint(x: sheet.minX + 40, y: sheet.maxY))
+page.appendArc(from: NSPoint(x: sheet.minX, y: sheet.maxY), to: NSPoint(x: sheet.minX, y: sheet.maxY - 40), radius: 40)
+page.line(to: NSPoint(x: sheet.minX, y: sheet.minY + 40))
+page.appendArc(from: NSPoint(x: sheet.minX, y: sheet.minY), to: NSPoint(x: sheet.minX + 40, y: sheet.minY), radius: 40)
+page.close()
+NSGraphicsContext.saveGraphicsState(); shadow.set(); paper.setFill(); page.fill(); NSGraphicsContext.restoreGraphicsState()
+let dogEar = NSBezierPath()
+dogEar.move(to: NSPoint(x: sheet.maxX - corner, y: sheet.maxY))
+dogEar.line(to: NSPoint(x: sheet.maxX - corner, y: sheet.maxY - corner + 24))
+dogEar.appendArc(from: NSPoint(x: sheet.maxX - corner, y: sheet.maxY - corner), to: NSPoint(x: sheet.maxX - corner + 24, y: sheet.maxY - corner), radius: 24)
+dogEar.line(to: NSPoint(x: sheet.maxX, y: sheet.maxY - corner))
+dogEar.close()
+fold.setFill(); dogEar.fill()
+// "#" names Markdown headings.
+let hash = NSAttributedString(string: "#", attributes: [.font: NSFont.systemFont(ofSize: 290, weight: .heavy), .foregroundColor: brown])
+let hashSize = hash.size()
+hash.draw(at: NSPoint(x: 300, y: 690 - hashSize.height / 2))
+// Heading outline: bars indented by level, getting shorter.
+let mustard = NSColor(srgbRed: 0.93, green: 0.69, blue: 0.055, alpha: 1)
+func bar(_ x: CGFloat, _ y: CGFloat, _ width: CGFloat, _ height: CGFloat, _ color: NSColor) {
+    color.setFill(); NSBezierPath(roundedRect: NSRect(x: x, y: y, width: width, height: height), xRadius: height / 2, yRadius: height / 2).fill()
+}
+bar(300, 470, 420, 62, brown)
+bar(370, 375, 350, 50, mustard)
+bar(370, 290, 290, 50, mustard)
+image.unlockFocus()
+let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
+try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("MarkdownKitchen.png"))
