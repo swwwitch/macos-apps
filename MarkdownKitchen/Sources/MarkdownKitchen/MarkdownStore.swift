@@ -40,6 +40,7 @@ final class MarkdownStore: ObservableObject {
             isEdited = true
             UserDefaults.standard.set(true, forKey: Self.editedKey)
             UserDefaults.standard.set(text, forKey: Self.textKey)
+            if FindReplace.shared.isVisible { FindReplace.shared.refresh() }
         }
     }
     @Published private(set) var allHeadings: [Heading]
@@ -315,6 +316,24 @@ final class MarkdownStore: ObservableObject {
         }
     }
 
+    /// 行単位の操作（選択にかかる行、なければ全文）
+    func transformLines(_ actionName: String, done: String, _ transform: @escaping (String) -> String) {
+        if let editor {
+            // Extend the selection to whole lines, so a partly selected line is handled as a whole.
+            let string = editor.string as NSString
+            let selection = editor.selectedRange()
+            if selection.length > 0 {
+                var range = string.lineRange(for: selection)
+                if NSMaxRange(selection) > selection.location,
+                   string.substring(with: NSRange(location: NSMaxRange(selection) - 1, length: 1)) == "\n" {
+                    range = string.lineRange(for: NSRange(location: selection.location, length: selection.length - 1))
+                }
+                editor.setSelectedRange(range)
+            }
+        }
+        transformSource(actionName: actionName, unchanged: L("変わる行はありません"), done: done, transform)
+    }
+
     /// 見出しの目次（箇条書き）をカーソルの位置に入れる
     func insertTableOfContents(levels: Set<Int>) {
         let list = headings(levels: levels)
@@ -352,6 +371,30 @@ final class MarkdownStore: ObservableObject {
         }
         replace(edit.range, with: edit.text, actionName: L("見出しの移動"))
         message = L("「%@」を移動しました", shown[from].title)
+    }
+
+    /// メインウインドウを前に出す（しまっていれば戻す）
+    func bringMainWindowForward() {
+        if let window = MainWindow.current, !window.isVisible || window.isMiniaturized {
+            (NSApp.delegate as? AppDelegate)?.showWindow()
+        }
+    }
+
+    /// 検索・置換からの置き換え（Undoに残す）
+    func replaceForFind(_ range: NSRange, with replacement: String, actionName: String) {
+        replace(range, with: replacement, actionName: actionName)
+    }
+
+    /// 書式を変える（選択した文字・カーソルのある段落）。メインウインドウが前面のときだけ
+    func format(_ actionName: String, _ make: (String, NSRange) -> TextEdit) {
+        guard let editor, editor.window?.isKeyWindow == true else {
+            NSSound.beep()
+            return
+        }
+        let edit = make(editor.string, editor.selectedRange())
+        replace(edit.range, with: edit.replacement, actionName: actionName)
+        editor.setSelectedRange(edit.selection)
+        editor.scrollRangeToVisible(edit.selection)
     }
 
     /// 範囲を置き換えてUndoの履歴に残す

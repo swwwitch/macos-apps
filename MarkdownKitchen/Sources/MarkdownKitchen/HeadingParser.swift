@@ -72,7 +72,8 @@ enum HeadingParser {
     enum Format: String, CaseIterable {
         /// markdownSpaced: レベルが変わるところに空行を入れる（同じレベルが続く間は詰める）
         /// tree: いちばん浅いレベルを基準に、深い見出しへ「└ 」（さらに深いと全角スペースで字下げ）
-        case markdown, markdownSpaced, tree, indented
+        /// simpleTOC: いちばん浅いレベルに「1. 」の通し番号、深い見出しは全角スペースで字下げ（記号なし）
+        case markdown, markdownSpaced, tree, simpleTOC, indented
     }
 
     static func render(_ headings: [Heading], format: Format) -> String {
@@ -86,11 +87,21 @@ enum HeadingParser {
             case .tree:
                 let depth = heading.level - base
                 lines.append(depth == 0 ? heading.title : String(repeating: "\u{3000}", count: depth - 1) + "└ " + heading.title)
+            case .simpleTOC:
+                lines.append(simpleTOCPrefix(headings, index: index, base: base) + heading.title)
             case .indented:
                 lines.append(String(repeating: "\t", count: heading.level - 1) + heading.title)
             }
         }
         return lines.joined(separator: "\n")
+    }
+
+    /// シンプル目次の行頭：いちばん浅いレベルは「n. 」、深い見出しは深さの分の全角スペース
+    static func simpleTOCPrefix(_ headings: [Heading], index: Int, base: Int) -> String {
+        let depth = headings[index].level - base
+        if depth > 0 { return String(repeating: "\u{3000}", count: depth) }
+        let number = headings[...index].filter { $0.level == base }.count
+        return "\(number). "
     }
 
     /// 見出しを1段上げ（delta = -1）・下げ（+1）たときの置き換え。範囲は後ろから順に並べる。

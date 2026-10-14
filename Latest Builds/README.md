@@ -23,7 +23,7 @@
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.28 | 48 | `jp.local.SuperKakkoEdit` |
 | [LinkMaker](LinkMaker.app) | 1.2.6 | 9 | `jp.dtp-transit.linkmaker` |
-| [MarkdownKitchen](MarkdownKitchen.app) | 1.14.0 | 32 | `jp.dtp-transit.markdownkitchen` |
+| [MarkdownKitchen](MarkdownKitchen.app) | 1.21.0 | 45 | `jp.dtp-transit.markdownkitchen` |
 | [MightyEdit](MightyEdit.app) | 0.2.20 | 94 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |

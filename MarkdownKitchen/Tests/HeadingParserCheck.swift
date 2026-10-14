@@ -109,5 +109,67 @@ if rethemed != rethemeExpected { failures += 1; print("FAIL retheme:\n\(rethemed
 if DoorkeeperHTML.convert(rethemed, styles: dtpStyles) != rethemed { failures += 1; print("FAIL retheme idempotent") }
 expectTidy([.minifyHTML], "本文\n\n<div style=\"padding: 1px 20px;  margin: 0;\">\n  <h3 style=\"color: #0AF;\">谷口\n  正樹</h3>\n  <p>a</p>\n</div>\n\n## 見出し\n<pre>\n x\n</pre>", "本文\n\n<div style=\"padding:1px 20px;margin:0;\"><h3 style=\"color:#0AF;\">谷口 正樹</h3><p>a</p></div>\n\n## 見出し\n<pre>\n x\n</pre>", "minify html")
 if MarkdownTidy.Rule.standard.contains(.minifyHTML) { failures += 1; print("FAIL minify in standard") }
+func applied(_ text: String, _ edit: TextEdit) -> (String, String) {
+    let result = (text as NSString).replacingCharacters(in: edit.range, with: edit.replacement)
+    return (result, (result as NSString).substring(with: edit.selection))
+}
+func expectFormat(_ got: (String, String), _ text: String, _ selected: String, _ note: String) {
+    if got.0 != text || got.1 != selected { failures += 1; print("FAIL format \(note): \(got.0.debugDescription) sel=\(got.1.debugDescription)") }
+}
+let s1 = "abc 太字 def"
+expectFormat(applied(s1, MarkdownFormat.toggleWrap(s1, selection: NSRange(location: 4, length: 2), marker: "**")), "abc **太字** def", "太字", "bold on")
+let s2 = "abc **太字** def"
+expectFormat(applied(s2, MarkdownFormat.toggleWrap(s2, selection: NSRange(location: 6, length: 2), marker: "**")), "abc 太字 def", "太字", "bold off (outside)")
+expectFormat(applied(s2, MarkdownFormat.toggleWrap(s2, selection: NSRange(location: 4, length: 6), marker: "**")), "abc 太字 def", "太字", "bold off (inside)")
+expectFormat(applied(s2, MarkdownFormat.toggleWrap(s2, selection: NSRange(location: 6, length: 2), marker: "*")), "abc ***太字*** def", "太字", "italic inside bold")
+expectFormat(applied("ab", MarkdownFormat.toggleWrap("ab", selection: NSRange(location: 1, length: 0), marker: "`")), "a``b", "", "empty selection")
+expectFormat(applied("x", MarkdownFormat.toggleComment("x", selection: NSRange(location: 0, length: 1))), "<!-- x -->", "x", "comment")
+expectFormat(applied("見る", MarkdownFormat.link("見る", selection: NSRange(location: 0, length: 2), image: false)), "[見る](https://)", "https://", "link")
+let url = "https://x.jp/"
+expectFormat(applied(url, MarkdownFormat.link(url, selection: NSRange(location: 0, length: 13), image: true)), "![](https://x.jp/)", "", "image from url")
+let doc2 = "前\n## 古い見出し\n後"
+expectFormat(applied(doc2, MarkdownFormat.setBlock(doc2, selection: NSRange(location: 4, length: 0), to: .heading(3))), "前\n### 古い見出し\n後", "### 古い見出し", "heading 3")
+expectFormat(applied(doc2, MarkdownFormat.setBlock(doc2, selection: NSRange(location: 4, length: 0), to: .paragraph)), "前\n古い見出し\n後", "古い見出し", "paragraph")
+let lst = "a\nb\n\nc"
+expectFormat(applied(lst, MarkdownFormat.setBlock(lst, selection: NSRange(location: 0, length: 6), to: .orderedList)), "1. a\n2. b\n\n3. c", "1. a\n2. b\n\n3. c", "ordered")
+let ul = "- a\n- b"
+expectFormat(applied(ul, MarkdownFormat.setBlock(ul, selection: NSRange(location: 0, length: 7), to: .unorderedList)), "a\nb", "a\nb", "unordered off")
+expectFormat(applied(ul, MarkdownFormat.setBlock(ul, selection: NSRange(location: 0, length: 7), to: .orderedList)), "1. a\n2. b", "1. a\n2. b", "unordered to ordered")
+expectFormat(applied("a\nb\n", MarkdownFormat.setBlock("a\nb\n", selection: NSRange(location: 0, length: 4), to: .quote)), "> a\n> b\n", "> a\n> b", "quote on")
+expectFormat(applied("> a\n> b", MarkdownFormat.setBlock("> a\n> b", selection: NSRange(location: 2, length: 0), to: .quote)), "> a\n> b".replacingOccurrences(of: "> a", with: "a"), "a", "quote off one line")
+expectFormat(applied("- a\n- b", MarkdownFormat.indent("- a\n- b", selection: NSRange(location: 4, length: 1), outdent: false)), "- a\n  - b", "  - b", "indent")
+expectFormat(applied("  - b", MarkdownFormat.indent("  - b", selection: NSRange(location: 3, length: 0), outdent: true)), "- b", "- b", "outdent")
+expectFormat(applied("ab\ncd", MarkdownFormat.newParagraph("ab\ncd", selection: NSRange(location: 1, length: 0))), "ab\n\n\ncd", "", "new paragraph")
+func typed(_ text: String, _ caret: Int, _ edit: TextEdit?) -> String? {
+    guard let edit else { return nil }
+    let result = (text as NSString).replacingCharacters(in: edit.range, with: edit.replacement) as NSString
+    return result.substring(to: edit.selection.location) + "|" + result.substring(from: edit.selection.location)
+}
+func expectTyped(_ got: String?, _ expected: String?, _ note: String) {
+    if got != expected { failures += 1; print("FAIL typing \(note): \(String(describing: got).debugDescription)") }
+}
+expectTyped(typed("- a", 3, MarkdownFormat.continueList("- a", selection: NSRange(location: 3, length: 0))), "- a\n- |", "bullet")
+expectTyped(typed("  3. a", 6, MarkdownFormat.continueList("  3. a", selection: NSRange(location: 6, length: 0))), "  3. a\n  4. |", "ordered")
+expectTyped(typed("- [x] a", 7, MarkdownFormat.continueList("- [x] a", selection: NSRange(location: 7, length: 0))), "- [x] a\n- [ ] |", "task")
+expectTyped(typed("> a", 3, MarkdownFormat.continueList("> a", selection: NSRange(location: 3, length: 0))), "> a\n> |", "quote")
+expectTyped(typed("- a\n- ", 6, MarkdownFormat.continueList("- a\n- ", selection: NSRange(location: 6, length: 0))), "- a\n|", "empty item ends list")
+expectTyped(typed("text", 4, MarkdownFormat.continueList("text", selection: NSRange(location: 4, length: 0))), nil, "plain line")
+expectTyped(typed("```\n- a", 7, MarkdownFormat.continueList("```\n- a", selection: NSRange(location: 7, length: 0))), nil, "in code")
+expectTyped(typed("- a\n- b", 7, MarkdownFormat.tab("- a\n- b", selection: NSRange(location: 7, length: 0), outdent: false)), "- a\n  - b|", "tab indents list")
+expectTyped(typed("  - b", 5, MarkdownFormat.tab("  - b", selection: NSRange(location: 5, length: 0), outdent: true)), "- b|", "backtab outdents")
+expectTyped(typed("text", 2, MarkdownFormat.tab("text", selection: NSRange(location: 2, length: 0), outdent: false)), nil, "plain tab")
+expectTyped(typed("    code", 8, MarkdownFormat.continueList("    code", selection: NSRange(location: 8, length: 0))), "    code\n    |", "indented line keeps indent")
+expectTyped(typed("    ", 4, MarkdownFormat.continueList("    ", selection: NSRange(location: 4, length: 0))), nil, "blank indented line")
+let paras = "# A\n\nB1\nB2\n\n\nC\n"
+// Caret in B ("B2", offset 1) moves up: the caret stays on the same character.
+expectTyped(typed(paras, 0, MarkdownFormat.moveParagraph(paras, selection: NSRange(location: 7, length: 0), up: true)), "B1|\nB2\n\n# A\n\n\nC\n", "move paragraph up")
+expectTyped(typed(paras, 0, MarkdownFormat.moveParagraph(paras, selection: NSRange(location: 7, length: 0), up: false)), "# A\n\nC\n\n\nB1|\nB2\n", "move paragraph down")
+expectTyped(typed(paras, 0, MarkdownFormat.moveParagraph(paras, selection: NSRange(location: 1, length: 0), up: true)), nil, "first paragraph cannot go up")
+expectTyped(typed(paras, 0, MarkdownFormat.moveParagraph(paras, selection: NSRange(location: 0, length: 9), up: false)), "C\n\n\n|# A\n\nB1\nB2\n", "move two selected paragraphs down")
+let toc2 = HeadingParser.render(HeadingParser.headings(in: "## 書体名の由来\n### イタリック\n#### 細目\n### Futura\n## 記号のトリビア\n### セリフ"), format: .simpleTOC)
+if toc2 != "1. 書体名の由来\n\u{3000}イタリック\n\u{3000}\u{3000}細目\n\u{3000}Futura\n2. 記号のトリビア\n\u{3000}セリフ" { failures += 1; print("FAIL simple toc: \(toc2.debugDescription)") }
+if LineTools.removeDuplicates("a\nb\na\n\n\nb\nc\n") != "a\nb\n\n\nc\n" { failures += 1; print("FAIL dedupe") }
+if LineTools.sort("item10\nitem2\nB\na\n", descending: false) != "a\nB\nitem2\nitem10\n" { failures += 1; print("FAIL sort: \(LineTools.sort("item10\nitem2\nB\na\n", descending: false).debugDescription)") }
+if LineTools.sort("1\n3\n2", descending: true) != "3\n2\n1" { failures += 1; print("FAIL sort desc") }
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)

@@ -18,6 +18,7 @@ struct MarkdownKitchenApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 960, height: 640)
         .commands {
+            FormatMenuCommands()
             CommandGroup(replacing: .help) {
                 Button(L("MarkdownKitchenヘルプ")) { LocalHelp.shared.show() }
                     .keyboardShortcut("?", modifiers: .command)
@@ -49,18 +50,20 @@ struct MarkdownKitchenApp: App {
             }
             CommandGroup(after: .pasteboard) {
                 Divider()
-                Button(L("見出しをコピー")) {
-                    let format = HeadingParser.Format(rawValue: UserDefaults.standard.string(forKey: MarkdownStore.copyFormatKey) ?? "") ?? .markdown
-                    MarkdownStore.shared.copyHeadings(levels: MarkdownStore.storedLevels, format: format)
+                Menu(L("検索")) {
+                    ShortcutButton(action: .findReplace)
+                    ShortcutButton(action: .findNext)
+                    ShortcutButton(action: .findPrevious)
+                    Divider()
+                    ShortcutButton(action: .useSelectionForFind)
+                    ShortcutButton(action: .jumpToSelection)
                 }
-                .keyboardShortcut("c", modifiers: [.command, .shift])
                 Divider()
-                Button(L("見出しを1段上げる")) { MarkdownStore.shared.shiftHeadings(by: -1, levels: MarkdownStore.storedLevels) }
-                    .keyboardShortcut("[", modifiers: .command)
-                Button(L("見出しを1段下げる")) { MarkdownStore.shared.shiftHeadings(by: 1, levels: MarkdownStore.storedLevels) }
-                    .keyboardShortcut("]", modifiers: .command)
+                ShortcutButton(action: .copyHeadings)
+                Divider()
+                ShortcutButton(action: .raiseHeadings)
+                ShortcutButton(action: .lowerHeadings)
                 Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
-                Button(L("HTMLをコピー")) { MarkdownStore.shared.copyHTML() }
                 Menu(L("整形")) { TidyMenuItems(levels: MarkdownStore.storedLevels) }
                 Divider()
                 Button(L("文字を大きく")) { MarkdownStore.changeFontSize(by: 1) }

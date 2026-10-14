@@ -8,6 +8,7 @@ struct SettingsView: View {
                 MenuBarPresenceView()
             } }.formStyle(.grouped))),
             (L("見出し"), AnyView(HeadingSettingsView())),
+            (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
             (L("テーマ"), AnyView(DoorkeeperPresetsView())),
             (AboutSection.title, AnyView(AboutView()))

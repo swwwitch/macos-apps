@@ -159,6 +159,37 @@ enum MarkdownTidy {
     }
 }
 
+/// 行の並べ替えと重複の削除（行単位の操作。「すべて整える」には含めない）
+enum LineTools {
+    /// 同じ内容の行は最初の1行だけ残す。空行はそのまま
+    static func removeDuplicates(_ text: String) -> String {
+        var seen = Set<String>()
+        return map(text) { lines in
+            lines.filter { line in
+                line.trimmingCharacters(in: .whitespaces).isEmpty || seen.insert(line).inserted
+            }
+        }
+    }
+
+    /// 数字を考えた順（Finderと同じ）で並べ替える
+    static func sort(_ text: String, descending: Bool) -> String {
+        map(text) { lines in
+            let sorted = lines.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+            return descending ? sorted.reversed() : sorted
+        }
+    }
+
+    /// 末尾の改行は行として扱わずに残す
+    private static func map(_ text: String, _ transform: ([String]) -> [String]) -> String {
+        var lines = text.components(separatedBy: "\n")
+        let trailing = lines.count > 1 && lines.last == ""
+        if trailing { lines.removeLast() }
+        var result = transform(lines).joined(separator: "\n")
+        if trailing { result += "\n" }
+        return result
+    }
+}
+
 /// 見出し単位（その見出しから、次の同じか上のレベルの見出しの手前まで）で原稿を並べ替える
 enum SectionMover {
     static func sectionRange(of heading: Heading, in all: [Heading], length: Int) -> NSRange {

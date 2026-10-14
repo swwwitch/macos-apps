@@ -3,11 +3,12 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject private var store = MarkdownStore.shared
+    @ObservedObject private var find = FindReplace.shared
     @AppStorage(MarkdownStore.levelsKey) private var storedLevels = "12345"
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
     @AppStorage(MarkdownStore.fontSizeKey) private var fontSize = MarkdownStore.defaultFontSize
-    /// 右ペインの表示：見出し／プレビュー
-    @AppStorage("markdownKitchen.rightPane") private var rightPane = RightPane.headings.rawValue
+    /// 右ペインの表示：見出し／プレビュー。起動したときはいつもプレビュー
+    @State private var rightPane = RightPane.preview.rawValue
 
     private enum RightPane: String { case headings, preview }
     @AppStorage(MarkdownStore.copyFormatKey) private var copyFormat = HeadingParser.Format.markdown.rawValue
@@ -118,6 +119,10 @@ struct ContentView: View {
             }
             Divider()
             if let url = store.fileURL { linkedFileBar(url) }
+            if find.isVisible {
+                FindReplaceBar()
+                Divider()
+            }
             SourceEditor(store: store, boldHeadings: boldHeadings, fontSize: fontSize)
         }
     }
@@ -238,7 +243,7 @@ struct ContentView: View {
                         ForEach(Array(headings.enumerated()), id: \.element.id) { index, heading in
                             // Same layout as the copied text: blank line where the level changes (spaced format).
                             let gap = format == .markdownSpaced && index > 0 && headings[index - 1].level != heading.level
-                            row(heading, base: base)
+                            row(heading, base: base, index: index)
                                 .padding(.top, gap ? fontSize * 1.2 : 0)
                                 .tag(heading.id)
                         }
@@ -278,7 +283,7 @@ struct ContentView: View {
     }
 
     /// 一覧の1行。選んだ形式のコピー結果と同じ見た目にする
-    private func row(_ heading: Heading, base: Int) -> some View {
+    private func row(_ heading: Heading, base: Int, index: Int) -> some View {
         let depth = heading.level - base
         return HStack(spacing: 0) {
             switch format {
@@ -292,11 +297,16 @@ struct ContentView: View {
                         .font(.system(size: fontSize))
                         .foregroundStyle(.secondary)
                 }
+            case .simpleTOC:
+                // Numbered top-level entries are bold, as in the copied table of contents.
+                Text(HeadingParser.simpleTOCPrefix(headings, index: index, base: base))
+                    .font(.system(size: fontSize, weight: depth == 0 ? .semibold : .regular))
             case .indented:
                 EmptyView()
             }
             Text(heading.title.isEmpty ? " " : heading.title)
-                .font(.system(size: fontSize, weight: heading.level <= 2 ? .semibold : .regular))
+                .font(.system(size: fontSize, weight: (format == .simpleTOC ? depth == 0 : heading.level <= 2) ? .semibold : .regular))
+                .foregroundStyle(format == .simpleTOC && depth > 0 ? .secondary : .primary)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
@@ -348,6 +358,9 @@ struct TidyMenuItems: View {
         Button(L("すべて整える")) { MarkdownStore.shared.tidy(MarkdownTidy.Rule.standard) }
         Divider()
         Button(L("HTMLをMinify")) { MarkdownStore.shared.tidy([.minifyHTML]) }
+        Button(L("重複行を削除")) { MarkdownStore.shared.transformLines(L("重複行を削除"), done: L("重複行を削除しました"), LineTools.removeDuplicates) }
+        Button(L("並べ替え（昇順）")) { MarkdownStore.shared.transformLines(L("並べ替え（昇順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: false) } }
+        Button(L("並べ替え（降順）")) { MarkdownStore.shared.transformLines(L("並べ替え（降順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: true) } }
         Button(L("HTML→Markdown")) { MarkdownStore.shared.convertHTMLToMarkdown() }
         Divider()
         Button(L("目次を挿入")) { MarkdownStore.shared.insertTableOfContents(levels: levels) }
@@ -361,6 +374,7 @@ extension HeadingParser.Format {
         case .markdown: return L("Markdown（# 見出し）")
         case .markdownSpaced: return L("Markdown（レベルが変わるところに空行）")
         case .tree: return L("ツリー（└ 見出し）")
+        case .simpleTOC: return L("シンプル目次")
         case .indented: return L("タブで字下げしたテキスト")
         }
     }

@@ -14,7 +14,7 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - Use the checkboxes (# to #####) at the top of the right pane to choose which levels to extract. Level 6 (######) is not shown. Checkboxes for levels missing from the source are dimmed.
 
 ## Preview
-- Switch the right pane with Headings | Preview at its top. The preview shows the source as HTML and updates as you type.
+- Switch the right pane with Headings | Preview at its top. The app starts in Preview. The preview shows the source as HTML and updates as you type.
 - HTML at the start of a line (such as <h2 style="…">) is shown as is, so Doorkeeper headings appear in color.
 - Clicking a link in the preview opens it in your browser. Images are loaded from the internet.
 - Scrolling the source on the left scrolls the preview to the same place.
@@ -35,6 +35,7 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - **Remove Trailing Spaces**: two or more spaces that make a Markdown line break are kept as two when the next line has text.
 - **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all five).
 - **Minify HTML**: joins each HTML block (a run of lines starting with a tag, up to a blank line) into one line, removing line breaks and extra spaces, including spaces after “;” and “:” in style. Markdown and blocks containing <pre> or <textarea> are left alone. Not included in Apply All.
+- **Delete Duplicate Lines**: keeps only the first of identical lines (order kept, blank lines untouched). **Sort Lines (Ascending / Descending)**: sorts lines with numbers in natural order (2 before 10). With a selection, the whole lines it touches are used. Neither is part of Apply All.
 - **Insert Table of Contents**: builds a bulleted list from the headings at the checked levels and inserts it at the cursor.
 - Undo (⌘Z) reverts any of these.
 
@@ -53,8 +54,31 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 ## Text Size
 - The Smaller Text and Bigger Text buttons in the header, or Edit > Bigger Text (⌘+), Smaller Text (⌘−) and Default Text Size, change the text size of both panes. The size is kept for next time.
 
+## Format
+Choose from the Format menu in the menu bar or from the source’s right-click menu. Undo (⌘Z) reverts any of them.
+- **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘K), **Comment** (⌘/, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
+- **Convert To**: turns the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘6) or a **Paragraph** (⌥⌘0, removes the “#”).
+- **Ordered List** (⇧⌘7), **Unordered List** (⇧⌘8), **Blockquote** (⇧⌘B): toggle the paragraph at the cursor; if it already has that form, it is turned back.
+- **Shift Right** (⌥⌘]) and **Shift Left** (⌥⌘[): move the selected lines by two spaces.
+- **Move Paragraph Up** (⌃⇧↑) and **Move Paragraph Down** (⌃⇧↓): swap the paragraph at the cursor (a block separated by blank lines; all selected paragraphs) with the one before or after. The blank lines between stay in place.
+- **Link** (⇧⌘K) and **Image** (⇧⌘I): make the selection [text](https://) with “https://” selected; a selected URL becomes [](URL).
+- **New Paragraph** (⌘↩): starts a new paragraph after a blank line below the current line.
+- **Copy HTML** (⌥⌘C): copies the whole HTML shown in the preview.
+- **Return**: on a list line (-, *, +, 1., and task items - [ ]) or a quote (>), the next line gets the same marker (the next number for ordered lists). On an empty item the marker is removed and the list ends. An indented line continues with the same indent. Inside code blocks Return is a plain line break.
+- **Tab** / **⇧Tab**: on list lines or a multi-line selection, shift right / left.
+
+## Find and Replace
+- Edit > Find > **Find and Replace…** (⌘F) shows the find and replace fields above the source. With text selected (within one line), that text becomes the search. Matches are highlighted in yellow with a count (such as 3 / 12).
+- Press Return in the search field, or use **Find Next** (⌘G) and **Find Previous** (⇧⌘G), to step through matches; the search wraps around.
+- **Match Case** (the Aa button): treat uppercase and lowercase as different.
+- **Regular Expression** (the .* button): search with a regular expression; use $1 or \1 in the replacement ($0 is the whole match). An invalid pattern shows “Invalid pattern”.
+- **Replace** (Return in the replace field): replaces the selected match and finds the next. **Replace All**: replaces every match. Undo (⌘Z) reverts either.
+- **Done** (Esc) closes the bar. **Use Selection for Find** (⌘E) makes the selection the search; **Jump to Selection** (⌘J) scrolls back to the cursor or selection.
+- Find keys can also be changed in the Hotkeys tab of Settings.
+
 ## Copying
-- Choose a format in the pop-up at the top of the right pane (Markdown (# Heading), Markdown (blank line where the level changes), Tree (└ Heading) or Text indented with tabs); the list then looks like that format.
+- Choose a format in the pop-up at the top of the right pane (Markdown (# Heading), Markdown (blank line where the level changes), Tree (└ Heading), Simple Table of Contents or Text indented with tabs); the list then looks like that format.
+- **Simple Table of Contents**: numbers the top-level headings “1. ”, “2. ”… and indents deeper headings with full-width spaces, without markers.
 - Copy, or Edit > Copy Headings (⇧⌘C), copies all headings exactly as the list shows them.
 - Right-click a heading for **Show in Source** and **Copy This Heading**.
 
@@ -62,6 +86,7 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 Open with the Settings button in the main window (⌘,).
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
 - **Headings**: Show headings in bold (heading lines in the source on the left; on by default)
+- **Hotkeys**: change the keys for format, convert, paragraph and heading commands (None, Default, Reset All). Keys used by the app’s standard commands or by another item cannot be assigned
 - **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
 - **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
 
@@ -71,7 +96,16 @@ Open with the Settings button in the main window (⌘,).
 - **⇧⌘S**: Save As
 - **⇧⌘C**: Copy Headings
 - **⌘[** / **⌘]**: Raise / Lower Headings One Level
-- **⌘F**: Find in the source
+- **⌘F**: Find and Replace (⌘G / ⇧⌘G next / previous, ⌘E Use Selection for Find, ⌘J Jump to Selection)
+- Keys for format and heading commands can be changed in the Hotkeys tab of Settings.
+- **⌘B** / **⌘I** / **⌘K** / **⌘/**: Bold / Italic / Inline Code / Comment
+- **⌥⌘1**–**⌥⌘6** / **⌥⌘0**: Heading 1–6 / Paragraph
+- **⇧⌘7** / **⇧⌘8** / **⇧⌘B**: Ordered List / Unordered List / Blockquote
+- **⌥⌘]** / **⌥⌘[**: Shift Right / Shift Left
+- **⌃⇧↑** / **⌃⇧↓**: Move Paragraph Up / Down
+- **⇧⌘K** / **⇧⌘I**: Link / Image
+- **⌘↩**: New Paragraph
+- **⌥⌘C**: Copy HTML
 - **⌘+** / **⌘−**: Bigger / Smaller Text
 - **⌘0**: Open Main Window
 - **⌘,**: Settings

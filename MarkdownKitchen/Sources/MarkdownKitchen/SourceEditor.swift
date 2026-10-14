@@ -17,8 +17,8 @@ struct SourceEditor: NSViewRepresentable {
         textView.isRichText = false
         textView.importsGraphics = false
         textView.allowsUndo = true
-        textView.usesFindBar = true
-        textView.isIncrementalSearchingEnabled = true
+        // Find and replace uses FindReplaceBar (the system find bar cannot be enlarged).
+        textView.usesFindBar = false
         textView.font = Self.regularFont(fontSize)
         textView.textColor = .textColor
         textView.backgroundColor = .textBackgroundColor
@@ -140,6 +140,34 @@ final class DroppingTextView: NSTextView {
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
         fileURL(sender) != nil ? .copy : super.draggingUpdated(sender)
     }
+    // Return continues lists and quotes; Tab and ⇧Tab indent list lines (as in MacDown).
+    override func insertNewline(_ sender: Any?) {
+        guard let edit = MarkdownFormat.continueList(string, selection: selectedRange()) else { return super.insertNewline(sender) }
+        apply(edit)
+    }
+    override func insertTab(_ sender: Any?) {
+        guard let edit = MarkdownFormat.tab(string, selection: selectedRange(), outdent: false) else { return super.insertTab(sender) }
+        apply(edit)
+    }
+    override func insertBacktab(_ sender: Any?) {
+        guard let edit = MarkdownFormat.tab(string, selection: selectedRange(), outdent: true) else { return super.insertBacktab(sender) }
+        apply(edit)
+    }
+    /// insertText(_:replacementRange:) は Undo に載り、入力の続きとしてまとまる
+    private func apply(_ edit: TextEdit) {
+        insertText(edit.replacement, replacementRange: edit.range)
+        setSelectedRange(edit.selection)
+        scrollRangeToVisible(edit.selection)
+    }
+
+    /// 右クリックメニューの先頭に書式の項目を並べる
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = super.menu(for: event) ?? NSMenu()
+        let items = FormatAction.contextMenuItems() + [.separator()]
+        for (index, item) in items.enumerated() { menu.insertItem(item, at: index) }
+        return menu
+    }
+
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         if let url = fileURL(sender) {
             onDropFile?(url)
