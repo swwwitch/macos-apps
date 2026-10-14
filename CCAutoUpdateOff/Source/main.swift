@@ -111,7 +111,7 @@ final class Model: ObservableObject {
     }
 
     func valueText(_ value: AutoUpdateValue) -> String {
-        switch value { case .some(false): return L("stateOff"); case .some(true): return L("stateOn"); case .none: return L("stateDefault") }
+        value == false ? L("stateOff") : L("stateOn")
     }
 }
 
@@ -135,7 +135,8 @@ struct StateBadge: View {
         switch value {
         case .some(false): Label(L("stateOff"), systemImage: "checkmark.circle.fill").foregroundColor(.green)
         case .some(true): Label(L("stateOn"), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
-        case .none: Label(L("stateDefault"), systemImage: "exclamationmark.triangle").foregroundColor(.orange)
+        // No value: Creative Cloud shows the switch as on.
+        case .none: Label(L("stateOn"), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
         }
     }
 }

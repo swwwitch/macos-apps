@@ -53,7 +53,8 @@ check(state([section(global: "true", [("ILST", "false"), ("IDSN", "false")])]).l
 check(state([section(global: "true", [])]).level == .caution, "global on, no apps → caution")
 let onState = state([section(global: "true", [("ILST", "false"), ("PHSP", "true"), ("ACR", nil)])])
 check(onState.level == .on, "global on + app on → on")
-check(onState.appsOn.map(\.sapCode) == ["ACR", "PHSP"], "apps on include not-set, sorted by name")
+check(onState.appsOn.map(\.sapCode) == ["ACR", "PHSP"], "missing app value = on (as Creative Cloud shows it), sorted by name")
+let fresh = state([section(global: nil, [("ACR", nil), ("PHSP", nil)])])
 check(state([section(global: nil, [("ACR", nil)])]).level == .on, "fresh user (nothing set) → on")
 check(state([]).level == .unknown, "no file → unknown")
 
@@ -69,7 +70,7 @@ let broken = CCAutoUpdate.read(files: CCAutoUpdate.prefsFiles(in: folder))
 check(broken.files.count == 1 && broken.invalid.count == 1 && broken.level == .unknown, "broken file → unknown, default.prefs ignored")
 
 // Messages and daily mail.
-check(CCAutoUpdate.appList(onState, separator: "、") == "Camera Raw、Photoshop", "app list")
+check(CCAutoUpdate.appList(fresh, separator: "、") == "Camera Raw、Photoshop", "app list")
 check(CCAutoUpdate.signature(onState) == "ACR,PHSP" && CCAutoUpdate.signature(merged) == "ILST", "signature")
 var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: "Asia/Tokyo")!
 let morning = calendar.date(from: DateComponents(year: 2026, month: 10, day: 14, hour: 8))!

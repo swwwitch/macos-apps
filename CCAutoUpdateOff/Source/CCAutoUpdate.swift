@@ -6,7 +6,7 @@ typealias AutoUpdateValue = Bool?
 /// One app row of 環境設定 → アプリ → 自動更新.
 struct CCApp: Identifiable, Equatable {
     let sapCode: String
-    /// Value in the prefs; nil when the app has no autoUpdatePreference yet.
+    /// Value in the prefs; nil when the app has no autoUpdatePreference (Creative Cloud shows it as on).
     var value: AutoUpdateValue
     /// 詳細オプション → 以前のバージョンを削除 (`removeOlderVersions`; missing → the global default).
     var removeOld = false
@@ -155,6 +155,8 @@ enum CCAutoUpdate {
             globals.append(parsed.global)
             removeOldDefaults.append(parsed.removeOldDefault)
             for (code, value, old) in parsed.apps {
+                // No value = on: Creative Cloud clears every per-app value when the global switch is turned off,
+                // and shows apps without a value as on (checked against its Preferences, 2026-10-14).
                 values[code, default: []].append(value)
                 // Checked in any user's file counts.
                 if old ?? parsed.removeOldDefault { removeOld[code] = true }

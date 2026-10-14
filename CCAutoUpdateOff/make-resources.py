@@ -9,7 +9,6 @@ rows = [
 ('globalRow', '自動更新（全体）', 'Auto-update (all apps)', '自动更新（全部）', '자동 업데이트(전체)'),
 ('stateOff', 'オフ', 'Off', '关闭', '끔'),
 ('stateOn', 'オン', 'On', '开启', '켬'),
-('stateDefault', '未設定（オン）', 'Not set (on)', '未设置（开启）', '미설정(켬)'),
 ('levelOff', '自動更新（全体）はオフです。アプリは自動更新されません。', 'Auto-update is off. No app updates automatically.', '自动更新已关闭。应用不会自动更新。', '자동 업데이트가 꺼져 있습니다. 앱은 자동으로 업데이트되지 않습니다.'),
 ('levelCaution', '自動更新（全体）はオンですが、アプリはすべてオフです。新しく入れたアプリは自動更新されることがあります。', 'Auto-update is on, but every app is off. Newly installed apps may update automatically.', '自动更新已开启，但所有应用均为关闭。新安装的应用可能会自动更新。', '자동 업데이트는 켜져 있지만 모든 앱이 꺼져 있습니다. 새로 설치한 앱은 자동 업데이트될 수 있습니다.'),
 ('levelOn', '自動更新されるアプリがあります：%@', 'These apps update automatically: %@', '以下应用会自动更新：%@', '자동 업데이트되는 앱이 있습니다: %@'),
@@ -26,7 +25,7 @@ rows = [
 ('notifyTab', '通知・メール', 'Notifications & Mail', '通知与邮件', '알림 및 메일'),
 ('notifySection', '通知', 'Notifications', '通知', '알림'),
 ('notifyToggle', '自動更新がオンになったら通知する', 'Notify when auto-update turns on', '自动更新开启时通知', '자동 업데이트가 켜지면 알림'),
-('notifyHint', 'オンになったとき（新しいアプリが未設定で増えたときを含む）に1回通知します。通知をクリックするとCreative Cloudを開きます。', 'Notifies once when it turns on, including when a new app appears as Not set. Clicking the notification opens Creative Cloud.', '开启时（包括新应用以未设置状态出现时）通知一次。点击通知会打开 Creative Cloud。', '켜졌을 때(새 앱이 미설정으로 추가된 경우 포함) 한 번 알립니다. 알림을 클릭하면 Creative Cloud를 엽니다.'),
+('notifyHint', 'オンになったとき（新しいアプリが増えたときを含む）に1回通知します。通知をクリックするとCreative Cloudを開きます。', 'Notifies once when it turns on, including when a new app appears. Clicking the notification opens Creative Cloud.', '开启时（包括新增应用时）通知一次。点击通知会打开 Creative Cloud。', '켜졌을 때(새 앱이 추가된 경우 포함) 한 번 알립니다. 알림을 클릭하면 Creative Cloud를 엽니다.'),
 ('notifyDenied', '通知が許可されていません。システム設定の［通知］でCCAutoUpdateOffを許可してください。', 'Notifications are not allowed. Allow CCAutoUpdateOff in System Settings → Notifications.', '未允许通知。请在系统设置的“通知”中允许 CCAutoUpdateOff。', '알림이 허용되지 않았습니다. 시스템 설정의 알림에서 CCAutoUpdateOff를 허용하세요.'),
 ('openNotificationSettings', '通知の設定を開く', 'Open Notification Settings', '打开通知设置', '알림 설정 열기'),
 ('notifyTest', 'テスト通知', 'Send Test Notification', '发送测试通知', '테스트 알림'),
@@ -96,14 +95,14 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 表示の意味
 - オフ：自動更新しない
 - オン：自動更新する
-- 未設定（オン）：まだ一度も切り替えていない項目。Creative Cloudはオンとして扱います
-全体の「自動更新」がオフなら、アプリは自動更新されません。このとき一覧のアプリ別の「自動更新」は「—」と表示します。全体がオンで、オン（未設定を含む）のアプリが1つでもあると「自動更新されるアプリがあります」と表示し、知らせます。全体がオンでアプリがすべてオフのときは、新しく入れたアプリが自動更新されることがあるため注意として表示します（通知・メールはしません）。
+設定ファイルに値が書かれていないアプリも、Creative Cloudの画面ではオンになるため「オン」と表示します。全体の「自動更新」をオフにすると、Creative Cloudはアプリごとの値を消すため、全体をオンに戻すと各アプリはオンに戻ります
+全体の「自動更新」がオフなら、アプリは自動更新されません。このとき一覧のアプリ別の「自動更新」は「—」と表示します。全体がオンで、オンのアプリが1つでもあると「自動更新されるアプリがあります」と表示し、知らせます。全体がオンでアプリがすべてオフのときは、新しく入れたアプリが自動更新されることがあるため注意として表示します（通知・メールはしません）。
 
 オフにするには
 「Creative Cloudを開く」で起動し、［環境設定］→［アプリ］でスイッチを切り替えます。全体の「自動更新」をオフにすると、アプリ別のスイッチは操作できなくなります。アプリ別に切り替えたいときは、先に全体をオンにしてください。
 
 通知
-設定の「通知・メール」→「通知」で、自動更新がオンになったときにmacOSの通知を出せます（初期値はオン）。同じ状態の間は繰り返しません。新しいアプリが未設定で増えたときは改めて通知します。通知をクリックするとCreative Cloudを開きます。初回にmacOSが通知の許可を求めます。
+設定の「通知・メール」→「通知」で、自動更新がオンになったときにmacOSの通知を出せます（初期値はオン）。同じ状態の間は繰り返しません。新しいアプリが増えたときは改めて通知します。通知をクリックするとCreative Cloudを開きます。初回にmacOSが通知の許可を求めます。
 
 以前のバージョンを削除
 設定の「知らせる内容」で「「以前のバージョンを削除」がオンのアプリも知らせる」をオンにすると（初期値はオン）、各アプリの［詳細オプション］→「以前のバージョンを削除」（設定ファイルの removeOlderVersions）がオンのアプリも通知・メールの対象になります。一覧の「以前のバージョンを削除」列で、アプリごとの状態を確認できます。自動更新が効いているアプリだけが対象です。自動更新（全体）やそのアプリの自動更新がオフのときは、Creative Cloudでも［詳細オプション］を操作できないため、一覧では「—」と表示します。全体がオフのときは、アプリの行を薄く表示します。
@@ -137,14 +136,14 @@ Auto-update in Creative Cloud Preferences → Apps, and each app's switch, are s
 What the states mean
 - Off: no automatic updates
 - On: updates automatically
-- Not set (on): never switched; Creative Cloud treats it as on
-If the global Auto-update is off, nothing updates, and the per-app Auto-update column shows “—”. If it is on and at least one app is on (or not set), the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
+Apps without a value in the settings file are shown as On, as in Creative Cloud. Turning the global switch off clears every app's value, so turning it back on turns every app back on
+If the global Auto-update is off, nothing updates, and the per-app Auto-update column shows “—”. If it is on and at least one app is on, the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
 
 Turning it off
 Choose Open Creative Cloud and use the switches in Preferences → Apps. With the global switch off, the per-app switches cannot be changed; turn the global switch on first if you want to change them.
 
 Notifications
-Notifications & Mail → Notifications shows a macOS notification when auto-update turns on (on by default). It is not repeated while nothing changes, and is sent again when a new app appears as Not set. Clicking it opens Creative Cloud. macOS asks for permission the first time.
+Notifications & Mail → Notifications shows a macOS notification when auto-update turns on (on by default). It is not repeated while nothing changes, and is sent again when a new app appears. Clicking it opens Creative Cloud. macOS asks for permission the first time.
 
 Remove previous versions
 With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too. Only apps whose auto-update is in effect count; otherwise the list shows “—” (Creative Cloud greys the option out). While the global switch is off, the app rows are dimmed.
@@ -178,14 +177,14 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 状态说明
 - 关闭：不自动更新
 - 开启：自动更新
-- 未设置（开启）：从未切换过，Creative Cloud 视为开启
-全部“自动更新”关闭时不会自动更新，列表中各应用的“自动更新”显示为“—”。全部开启且有任一应用开启（含未设置）时会提醒。全部开启但所有应用关闭时显示注意（不通知、不发邮件），因为新安装的应用可能会自动更新。
+设置文件中没有值的应用在 Creative Cloud 中也显示为开启，因此显示为“开启”。关闭全部开关时 Creative Cloud 会清除各应用的值，重新打开后各应用都会恢复为开启
+全部“自动更新”关闭时不会自动更新，列表中各应用的“自动更新”显示为“—”。全部开启且有任一应用开启时会提醒。全部开启但所有应用关闭时显示注意（不通知、不发邮件），因为新安装的应用可能会自动更新。
 
 如何关闭
 点击“打开 Creative Cloud”，在“偏好设置 → 应用”中切换开关。全部开关关闭时无法更改各应用的开关，如需更改请先打开全部开关。
 
 通知
-“通知与邮件 → 通知”会在自动更新开启时显示 macOS 通知（默认开启）。状态不变时不会重复；新应用以未设置状态出现时会再次通知。点击通知会打开 Creative Cloud。首次会请求通知权限。
+“通知与邮件 → 通知”会在自动更新开启时显示 macOS 通知（默认开启）。状态不变时不会重复；新增应用时会再次通知。点击通知会打开 Creative Cloud。首次会请求通知权限。
 
 删除以前的版本
 开启“同时提醒开启了删除以前的版本的应用”（默认开启）后，各应用“高级选项 → 删除以前的版本”（removeOlderVersions）开启的应用也会被提醒。仅针对自动更新生效的应用，否则列表显示“—”（Creative Cloud 中也无法操作）。全部开关关闭时，各应用行会变淡显示。
@@ -219,14 +218,14 @@ Creative Cloud 환경설정 → 앱의 자동 업데이트와 앱별 스위치�
 상태의 의미
 - 끔: 자동 업데이트하지 않음
 - 켬: 자동 업데이트함
-- 미설정(켬): 한 번도 전환하지 않은 항목으로, Creative Cloud는 켬으로 취급합니다
-전체 자동 업데이트가 꺼져 있으면 업데이트되지 않으며, 목록의 앱별 자동 업데이트는 "—"로 표시합니다. 전체가 켜져 있고 켜진(미설정 포함) 앱이 하나라도 있으면 알립니다. 전체가 켜져 있지만 모든 앱이 꺼져 있으면, 새로 설치한 앱이 자동 업데이트될 수 있어 주의로 표시합니다(알림·메일 없음).
+설정 파일에 값이 없는 앱도 Creative Cloud에서는 켬으로 표시되므로 "켬"으로 표시합니다. 전체를 끄면 Creative Cloud가 앱별 값을 지우므로, 전체를 다시 켜면 각 앱도 켬으로 돌아갑니다
+전체 자동 업데이트가 꺼져 있으면 업데이트되지 않으며, 목록의 앱별 자동 업데이트는 "—"로 표시합니다. 전체가 켜져 있고 켜진 앱이 하나라도 있으면 알립니다. 전체가 켜져 있지만 모든 앱이 꺼져 있으면, 새로 설치한 앱이 자동 업데이트될 수 있어 주의로 표시합니다(알림·메일 없음).
 
 끄는 방법
 Creative Cloud 열기로 실행하고 환경설정 → 앱에서 스위치를 변경하세요. 전체 스위치가 꺼져 있으면 앱별 스위치를 변경할 수 없으니 먼저 전체를 켜세요.
 
 알림
-알림 및 메일 → 알림에서 자동 업데이트가 켜지면 macOS 알림을 표시합니다(기본값 켬). 상태가 같으면 반복하지 않으며, 새 앱이 미설정으로 추가되면 다시 알립니다. 알림을 클릭하면 Creative Cloud를 엽니다. 처음에 알림 권한을 요청합니다.
+알림 및 메일 → 알림에서 자동 업데이트가 켜지면 macOS 알림을 표시합니다(기본값 켬). 상태가 같으면 반복하지 않으며, 새 앱이 추가되면 다시 알립니다. 알림을 클릭하면 Creative Cloud를 엽니다. 처음에 알림 권한을 요청합니다.
 
 이전 버전 제거
 "이전 버전 제거"가 켜진 앱도 알림을 켜면(기본값 켬) 각 앱의 고급 옵션 → 이전 버전 제거(removeOlderVersions)가 켜진 앱도 알림과 메일 대상이 됩니다. 자동 업데이트가 적용되는 앱만 대상이며, 그 외에는 목록에 "—"로 표시합니다(Creative Cloud에서도 조작할 수 없음). 전체가 꺼져 있으면 앱 행을 흐리게 표시합니다.

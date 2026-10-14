@@ -4,7 +4,7 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 
 紹介記事：[Creative Cloudの自動更新がオンになっていたら知らせてくれるアプリ「CCAutoUpdateOff」を作りました（note）](https://note.com/dtp_tranist/n/n22872a3cbb8d)
 
-- 対象ファイル：`~/Library/Application Support/Adobe/OOBE/com.adobe.accc.apps.<ユーザーID>.prefs`（`Apps_Panel_Pref` の中の `ccmPreferences` XML）。全体は `prodPref/autoUpdatePreferences/autoUpdateEnabled`、アプリ別は各 `app` の `autoUpdatePreference`。値が無いものはCreative Cloudがオンとして扱う。
+- 対象ファイル：`~/Library/Application Support/Adobe/OOBE/com.adobe.accc.apps.<ユーザーID>.prefs`（`Apps_Panel_Pref` の中の `ccmPreferences` XML）。全体は `prodPref/autoUpdatePreferences/autoUpdateEnabled`、アプリ別は各 `app` の `autoUpdatePreference`。値が無いアプリはCreative Cloudの画面と同じくオンとして扱う。
 - Creative Cloudは［環境設定］→［アプリ］でスイッチを切り替えた瞬間にファイルを書き込み、画面に出すアプリだけを `app` エントリに残す（2026-10-14実測）。フォルダーの変更（DispatchSource）、1時間ごと、スリープ復帰、アプリのアクティブ化、メニューバーのメニューを開いたときに読み直す。
 - 判定：全体がオフ＝オフ。全体がオンでオン（未設定を含む）のアプリあり＝オン（知らせる）。全体がオンでアプリがすべてオフ＝注意（表示のみ）。
 - 通知（初期値オン）：オンになったとき、またはオンのアプリの組み合わせが変わったときに1回。クリックでCreative Cloudを開く。
@@ -30,6 +30,15 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。Intel実機での動作は未確認です。
 
 ## 更新履歴
+
+### 1.2.7（build 10、2026-10-14）
+
+- 値の書かれていないアプリの扱いを「オン」に戻した（1.2.6の「全体に値があればオフ」は誤り。Creative Cloudの画面では値のないアプリはオン、明示的に false のアプリだけオフ。ユーザーのスクリーンショットで確認）。全体をオフにするとCCはアプリ別の値を消すため、全体をオンに戻すと各アプリはオンに戻る。
+- 「未設定（オン）」の表記をやめ、Creative Cloudの画面どおり「オン」と表示。
+
+### 1.2.6（build 9、2026-10-14）
+
+- 値のないアプリを「オフ」として扱う変更（誤り、1.2.7で取り消し）。
 
 ### 1.2.5（build 8、2026-10-14）
 
