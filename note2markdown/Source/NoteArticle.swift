@@ -24,7 +24,8 @@ struct NoteArticle {
         guard let components = URLComponents(string: text), let scheme = components.scheme?.lowercased(),
               scheme == "http" || scheme == "https", components.host?.isEmpty == false else { return nil }
         let parts = components.path.split(separator: "/").map(String.init)
-        for (index, part) in parts.enumerated() where part == "n" && index + 1 < parts.count {
+        // …/n/<key> (articles) and editor.note.com/notes/<key>/edit (the editor).
+        for (index, part) in parts.enumerated() where (part == "n" || part == "notes") && index + 1 < parts.count {
             let candidate = parts[index + 1]
             if candidate.range(of: #"^n[0-9a-z]{12}$"#, options: .regularExpression) != nil { return candidate }
         }

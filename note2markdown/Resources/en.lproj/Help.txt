@@ -2,8 +2,10 @@ note2markdown — Export a note article as Markdown
 
 How to use
 1. Copy the URL of a note article (https://note.com/username/n/n…) and paste it into the field. Articles on custom domains and the bare article key (n + 12 characters) also work.
-2. Click Load (Return, ⌘R) to load the article and preview the Markdown.
+2. Press ⌘Return (or Return in the field) to load the article and preview the Markdown.
 3. Click Export… (⌘S) and choose where to save the .md file. The file is named after the article title. The last folder is remembered.
+From Browser (⌘L) puts the note article shown in the front browser window (Safari, Chrome, Firefox, Edge, Brave, Arc, Vivaldi and others) into the field and loads it. It needs the Accessibility permission.
+You can also drag the icon (favicon) in the browser’s address bar, or a link, onto the window (no permission needed).
 Copy Markdown (⇧⌘C) puts it on the clipboard. If you click Export… right after entering a URL, the article is loaded first.
 
 Conversion
@@ -18,13 +20,13 @@ Output: Use the titles of embedded note articles as link text (on by default). W
 Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
 
 Hotkeys
-⌘R load, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
+⌘Return load, ⌘L load from the front browser, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
 
 Running and quitting
 Closing the main window does not quit the app. Click the Dock icon or choose File → Open Main Window to show it again. Quit with ⌘Q or Quit note2markdown in the app menu.
 
 Permissions
-No special permissions are needed (no Accessibility, Full Disk Access or administrator password).
+Only From Browser needs the Accessibility permission (to read the URL of the page in the browser). Check it and open System Settings in the Startup & Background tab of Settings. Entering a URL works without it. No Full Disk Access or administrator password is used.
 
 Troubleshooting
 “The article was not found”: check the URL and that the article is published.

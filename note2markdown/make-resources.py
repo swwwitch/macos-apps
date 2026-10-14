@@ -7,16 +7,26 @@ rows = [
 ('subtitle', '記事のURLを入力すると、タイトルを見出し1にしたMarkdownファイルに書き出します。', 'Enter the article URL to write it to a Markdown file with the title as a level-1 heading.', '输入文章 URL，将其写入以标题为一级标题的 Markdown 文件。', '글 URL을 입력하면 제목을 제목 1로 한 Markdown 파일로 내보냅니다.'),
 ('urlPlaceholder', 'https://note.com/ユーザー名/n/n0123456789ab', 'https://note.com/username/n/n0123456789ab', 'https://note.com/用户名/n/n0123456789ab', 'https://note.com/사용자이름/n/n0123456789ab'),
 ('urlLabel', 'note記事のURL', 'note article URL', 'note 文章 URL', 'note 글 URL'),
+('clearURL', 'URLを消去', 'Clear URL', '清除 URL', 'URL 지우기'),
 ('load', '読み込む', 'Load', '载入', '불러오기'),
 ('cancel', 'キャンセル', 'Cancel', '取消', '취소'),
 ('export', '書き出す…', 'Export…', '导出…', '내보내기…'),
 ('copyMarkdown', 'Markdownをコピー', 'Copy Markdown', '拷贝 Markdown', 'Markdown 복사하기'),
+('fromBrowser', 'ブラウザーから', 'From Browser', '从浏览器', '브라우저에서'),
+('fromBrowserHelp', '最前面のブラウザーで表示中のnote記事を読み込みます', 'Load the note article shown in the front browser window', '载入最前面浏览器中显示的 note 文章', '맨 앞 브라우저에 표시된 note 글을 불러옵니다'),
+('fromBrowserMenu', '最前面のブラウザーから読み込む', 'Load from Front Browser', '从最前面的浏览器载入', '맨 앞 브라우저에서 불러오기'),
+('errorNoAccess', '「ブラウザーから」にはアクセシビリティの許可が必要です。システム設定で note2markdown を許可してください。', 'From Browser needs the Accessibility permission. Allow note2markdown in System Settings.', '“从浏览器”需要辅助功能权限。请在系统设置中允许 note2markdown。', '브라우저에서를 사용하려면 손쉬운 사용 권한이 필요합니다. 시스템 설정에서 note2markdown을 허용하세요.'),
+('errorNoBrowser', '開いているブラウザーのウインドウが見つかりません。', 'No open browser window was found.', '找不到打开的浏览器窗口。', '열려 있는 브라우저 윈도우를 찾을 수 없습니다.'),
+('errorNoBrowserURL', '%@ で表示中のページのURLを読み取れませんでした。', 'Could not read the URL of the page in %@.', '无法读取 %@ 中页面的 URL。', '%@에 표시된 페이지의 URL을 읽을 수 없습니다.'),
+('errorBrowserNotNote', '%1$@ で表示中のページはnote記事ではありません：%2$@', 'The page in %1$@ is not a note article: %2$@', '%1$@ 中的页面不是 note 文章：%2$@', '%1$@에 표시된 페이지는 note 글이 아닙니다: %2$@'),
+('errorDropNotNote', 'ドロップしたものはnote記事のURLではありません：%@', 'What you dropped is not a note article URL: %@', '拖放的内容不是 note 文章 URL：%@', '드롭한 항목은 note 글 URL이 아닙니다: %@'),
+('dropLabel', 'Markdownのプレビュー（note記事のURLをドロップして読み込み）', 'Markdown preview (drop a note article URL to load it)', 'Markdown 预览（拖放 note 文章 URL 以载入）', 'Markdown 미리 보기(note 글 URL을 드롭하여 불러오기)'),
 ('loadMenu', '記事を読み込む', 'Load Article', '载入文章', '글 불러오기'),
 ('exportMenu', 'Markdownを書き出す…', 'Export Markdown…', '导出 Markdown…', 'Markdown 내보내기…'),
 ('exportTitle', 'Markdownを書き出す', 'Export Markdown', '导出 Markdown', 'Markdown 내보내기'),
 ('revealInFinder', 'Finderで表示', 'Show in Finder', '在访达中显示', 'Finder에서 보기'),
 ('previewLabel', 'Markdownのプレビュー', 'Markdown preview', 'Markdown 预览', 'Markdown 미리 보기'),
-('emptyPreview', 'note記事のURLを入力して「読み込む」をクリックすると、ここにMarkdownが表示されます。', 'Enter a note article URL and click Load to see the Markdown here.', '输入 note 文章 URL 并点按“载入”，Markdown 将显示在这里。', 'note 글 URL을 입력하고 불러오기를 클릭하면 여기에 Markdown이 표시됩니다.'),
+('emptyPreview', 'note記事のURLを入力して⌘Returnを押すと、ここにMarkdownが表示されます。\nブラウザーのアドレスバーのアイコン（ファビコン）をここへドラッグ＆ドロップしても読み込めます。', 'Enter a note article URL and press ⌘Return to see the Markdown here.\nYou can also drag the icon (favicon) in the browser’s address bar here.', '输入 note 文章 URL 并按 ⌘Return，Markdown 将显示在这里。\n也可以将浏览器地址栏中的图标（网站图标）拖放到这里。', 'note 글 URL을 입력하고 ⌘Return을 누르면 여기에 Markdown이 표시됩니다.\n브라우저 주소 막대의 아이콘(파비콘)을 여기로 드래그 앤 드롭해도 불러올 수 있습니다.'),
 ('statusLoading', '読み込み中…', 'Loading…', '正在载入…', '불러오는 중…'),
 ('statusLoaded', '読み込みました：%@', 'Loaded: %@', '已载入：%@', '불러왔습니다: %@'),
 ('statusPaid', '有料記事です。無料で読める部分だけを書き出します。', 'This is a paid article. Only the free part is exported.', '这是付费文章。仅导出免费部分。', '유료 글입니다. 무료로 읽을 수 있는 부분만 내보냅니다.'),
@@ -71,8 +81,10 @@ helptexts = [
 
 使い方
 1. note記事のURL（https://note.com/ユーザー名/n/n… の形）をコピーし、入力欄にペーストします。独自ドメインの記事のURLや、記事キー（n＋英数字12文字）だけでも使えます。
-2. 「読み込む」（Return、⌘R）で記事を読み込み、Markdownをプレビューに表示します。
+2. ⌘Return（入力欄ではReturnでも可）で記事を読み込み、Markdownをプレビューに表示します。
 3. 「書き出す…」（⌘S）で保存先を選ぶと、.mdファイルに書き出します。ファイル名は記事のタイトルです。前回の保存先を覚えています。
+「ブラウザーから」（⌘L）を押すと、最前面のブラウザー（Safari・Chrome・Firefox・Edge・Brave・Arc・Vivaldiなど）で表示中のnote記事を入力欄に入れて読み込みます。初回はアクセシビリティの許可が必要です。
+ブラウザーのアドレスバーのアイコン（ファビコン）やリンクをウインドウへドラッグ＆ドロップしても読み込めます（許可は不要）。
 「Markdownをコピー」（⇧⌘C）でクリップボードに入れることもできます。URLを入れてすぐ「書き出す…」を押した場合は、読み込んでから保存先を聞きます。
 
 変換のしかた
@@ -87,13 +99,13 @@ helptexts = [
 「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、ウインドウを閉じても終了しない（初期値オン）、メニューバーに表示（初期値オフ）。
 
 ホットキー
-⌘Rで読み込む、⌘Sで書き出す、⇧⌘CでMarkdownをコピー、⌘,で設定、⌘0で「メインウインドウを開く」、⌘Wでウインドウを閉じる、⌘Qで終了、⌘?でこのヘルプを開きます。読み込み中はEscでキャンセルできます。
+⌘Returnで読み込む、⌘Lでブラウザーから読み込む、⌘Sで書き出す、⇧⌘CでMarkdownをコピー、⌘,で設定、⌘0で「メインウインドウを開く」、⌘Wでウインドウを閉じる、⌘Qで終了、⌘?でこのヘルプを開きます。読み込み中はEscでキャンセルできます。
 
 常駐と終了
 メインウインドウを閉じてもアプリは終了しません。Dockのアイコンをクリックするか、ファイルメニューの「メインウインドウを開く」で再表示します。終了は⌘Q、またはアプリメニューの「note2markdownを終了」です。
 
 権限
-特別な許可は不要です（アクセシビリティ、フルディスクアクセス、管理者パスワードは使いません）。
+「ブラウザーから」を使うときだけ、アクセシビリティの許可が必要です（ブラウザーで表示中のページのURLを読み取るため）。設定の「起動・常駐」タブで状態を確認し、システム設定を開けます。URLを入力して使う場合は許可は不要です。フルディスクアクセスや管理者パスワードは使いません。
 
 困ったとき
 「記事が見つかりません」：URLが正しいか、記事が公開中か確認してください。
@@ -110,8 +122,10 @@ helptexts = [
 
 How to use
 1. Copy the URL of a note article (https://note.com/username/n/n…) and paste it into the field. Articles on custom domains and the bare article key (n + 12 characters) also work.
-2. Click Load (Return, ⌘R) to load the article and preview the Markdown.
+2. Press ⌘Return (or Return in the field) to load the article and preview the Markdown.
 3. Click Export… (⌘S) and choose where to save the .md file. The file is named after the article title. The last folder is remembered.
+From Browser (⌘L) puts the note article shown in the front browser window (Safari, Chrome, Firefox, Edge, Brave, Arc, Vivaldi and others) into the field and loads it. It needs the Accessibility permission.
+You can also drag the icon (favicon) in the browser’s address bar, or a link, onto the window (no permission needed).
 Copy Markdown (⇧⌘C) puts it on the clipboard. If you click Export… right after entering a URL, the article is loaded first.
 
 Conversion
@@ -126,13 +140,13 @@ Output: Use the titles of embedded note articles as link text (on by default). W
 Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
 
 Hotkeys
-⌘R load, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
+⌘Return load, ⌘L load from the front browser, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
 
 Running and quitting
 Closing the main window does not quit the app. Click the Dock icon or choose File → Open Main Window to show it again. Quit with ⌘Q or Quit note2markdown in the app menu.
 
 Permissions
-No special permissions are needed (no Accessibility, Full Disk Access or administrator password).
+Only From Browser needs the Accessibility permission (to read the URL of the page in the browser). Check it and open System Settings in the Startup & Background tab of Settings. Entering a URL works without it. No Full Disk Access or administrator password is used.
 
 Troubleshooting
 “The article was not found”: check the URL and that the article is published.
@@ -149,8 +163,10 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 
 使用方法
 1. 拷贝 note 文章的 URL（https://note.com/用户名/n/n…），粘贴到输入框。也支持自定义域名的文章 URL 或仅文章键（n＋12 个字符）。
-2. 点按“载入”（Return、⌘R）载入文章并预览 Markdown。
+2. 按 ⌘Return（在输入框中也可按 Return）载入文章并预览 Markdown。
 3. 点按“导出…”（⌘S）并选择保存位置，即可写入 .md 文件。文件名为文章标题。会记住上次的文件夹。
+“从浏览器”（⌘L）会将最前面浏览器（Safari、Chrome、Firefox、Edge、Brave、Arc、Vivaldi 等）中显示的 note 文章填入输入框并载入。需要辅助功能权限。
+也可以将浏览器地址栏中的图标（网站图标）或链接拖放到窗口中载入（无需权限）。
 “拷贝 Markdown”（⇧⌘C）可将其放入剪贴板。输入 URL 后直接点按“导出…”时，会先载入文章。
 
 转换方式
@@ -165,13 +181,13 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 “启动与后台”：登录时启动（关）、启动时不显示主窗口（关）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
 
 快捷键
-⌘R 载入，⌘S 导出，⇧⌘C 拷贝 Markdown，⌘, 设置，⌘0 打开主窗口，⌘W 关闭窗口，⌘Q 退出，⌘? 本帮助。载入中按 Esc 取消。
+⌘Return 载入，⌘L 从浏览器载入，⌘S 导出，⇧⌘C 拷贝 Markdown，⌘, 设置，⌘0 打开主窗口，⌘W 关闭窗口，⌘Q 退出，⌘? 本帮助。载入中按 Esc 取消。
 
 运行与退出
 关闭主窗口不会退出应用。点按 Dock 图标或选择“文件 → 打开主窗口”可再次显示。使用 ⌘Q 或应用菜单中的“退出 note2markdown”退出。
 
 权限
-不需要特殊权限（不使用辅助功能、完全磁盘访问权限或管理员密码）。
+仅“从浏览器”需要辅助功能权限（用于读取浏览器中页面的 URL）。可在设置的“启动与后台”中查看状态并打开系统设置。输入 URL 时无需此权限。不使用完全磁盘访问权限或管理员密码。
 
 故障排除
 “找不到文章”：请检查 URL 以及文章是否已发布。
@@ -188,8 +204,10 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 
 사용 방법
 1. note 글의 URL(https://note.com/사용자이름/n/n…)을 복사하여 입력란에 붙여넣습니다. 독자 도메인 글의 URL이나 글 키(n＋12자)만으로도 사용할 수 있습니다.
-2. 불러오기(Return, ⌘R)로 글을 불러오고 Markdown을 미리 봅니다.
+2. ⌘Return(입력란에서는 Return도 가능)으로 글을 불러오고 Markdown을 미리 봅니다.
 3. 내보내기…(⌘S)에서 저장 위치를 선택하면 .md 파일로 내보냅니다. 파일 이름은 글 제목입니다. 마지막 폴더를 기억합니다.
+브라우저에서(⌘L)를 누르면 맨 앞 브라우저(Safari, Chrome, Firefox, Edge, Brave, Arc, Vivaldi 등)에 표시된 note 글을 입력란에 넣고 불러옵니다. 손쉬운 사용 권한이 필요합니다.
+브라우저 주소 막대의 아이콘(파비콘)이나 링크를 윈도우로 드래그 앤 드롭해도 불러옵니다(권한 불필요).
 Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. URL을 입력하고 바로 내보내기…를 누르면 먼저 글을 불러옵니다.
 
 변환 방식
@@ -204,13 +222,13 @@ Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. UR
 시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), 윈도우를 닫아도 종료하지 않음(켬), 메뉴 막대에 표시(끔).
 
 단축키
-⌘R 불러오기, ⌘S 내보내기, ⇧⌘C Markdown 복사하기, ⌘, 설정, ⌘0 메인 윈도우 열기, ⌘W 윈도우 닫기, ⌘Q 종료, ⌘? 이 도움말. 불러오는 중에는 Esc로 취소할 수 있습니다.
+⌘Return 불러오기, ⌘L 브라우저에서 불러오기, ⌘S 내보내기, ⇧⌘C Markdown 복사하기, ⌘, 설정, ⌘0 메인 윈도우 열기, ⌘W 윈도우 닫기, ⌘Q 종료, ⌘? 이 도움말. 불러오는 중에는 Esc로 취소할 수 있습니다.
 
 실행과 종료
 메인 윈도우를 닫아도 앱은 종료되지 않습니다. Dock 아이콘을 클릭하거나 파일 → 메인 윈도우 열기로 다시 표시합니다. ⌘Q 또는 앱 메뉴의 note2markdown 종료로 끝냅니다.
 
 권한
-특별한 권한은 필요하지 않습니다(손쉬운 사용, 전체 디스크 접근 권한, 관리자 암호를 사용하지 않음).
+브라우저에서를 사용할 때만 손쉬운 사용 권한이 필요합니다(브라우저에 표시된 페이지의 URL을 읽기 위해). 설정의 시작 및 백그라운드 탭에서 상태를 확인하고 시스템 설정을 열 수 있습니다. URL을 입력해 사용할 때는 필요하지 않습니다. 전체 디스크 접근 권한이나 관리자 암호는 사용하지 않습니다.
 
 문제 해결
 "글을 찾을 수 없습니다": URL이 올바른지, 글이 공개 중인지 확인하세요.

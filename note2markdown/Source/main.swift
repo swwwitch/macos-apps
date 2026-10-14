@@ -13,6 +13,8 @@ final class Model: ObservableObject {
         case loaded
         case saved(URL)
         case failed(String)
+        /// 最前面のブラウザーから読み込む needs the Accessibility permission.
+        case needsAccess
     }
 
     @Published var urlText = ""
@@ -45,6 +47,52 @@ final class Model: ObservableObject {
         case .loaded: return article.map { $0.price > 0 ? L("statusPaid") : String(format: L("statusLoaded"), $0.title) } ?? ""
         case .saved(let url): return String(format: L("statusSaved"), url.path)
         case .failed(let message): return message
+        case .needsAccess: return L("errorNoAccess")
+        }
+    }
+
+    /// A URL dropped on the window (the favicon in a browser's address bar, a link or plain text): loads it.
+    func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard !isLoading, let provider = providers.first else { return false }
+        let accept: (String?) -> Void = { text in
+            DispatchQueue.main.async {
+                let value = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                guard NoteArticle.key(from: value) != nil else {
+                    self.status = .failed(value.isEmpty ? L("errorInvalidURL") : String(format: L("errorDropNotNote"), value))
+                    return
+                }
+                self.urlText = value
+                self.load()
+            }
+        }
+        if provider.canLoadObject(ofClass: URL.self) {
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in accept(url?.absoluteString) }
+            return true
+        }
+        if provider.canLoadObject(ofClass: String.self) {
+            _ = provider.loadObject(ofClass: String.self) { text, _ in accept(text) }
+            return true
+        }
+        return false
+    }
+
+    /// Puts the URL of the front browser window in the field and loads it.
+    func loadFromBrowser() {
+        guard !isLoading else { return }
+        switch FrontBrowser.currentURL() {
+        case .failure(.notTrusted):
+            status = .needsAccess
+        case .failure(.noBrowser):
+            status = .failed(L("errorNoBrowser"))
+        case .failure(.noURL(let browser)):
+            status = .failed(String(format: L("errorNoBrowserURL"), browser))
+        case .success(let page):
+            guard NoteArticle.key(from: page.url) != nil else {
+                status = .failed(String(format: L("errorBrowserNotNote"), page.browser, page.url))
+                return
+            }
+            urlText = page.url
+            load()
         }
     }
 
@@ -173,6 +221,7 @@ struct PreviewText: NSViewRepresentable {
 struct ContentView: View {
     @ObservedObject var model: Model
     @FocusState private var urlFocused: Bool
+    @State private var dropTargeted = false
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Header().frame(height: 48)
@@ -183,16 +232,35 @@ struct ContentView: View {
                     .focused($urlFocused)
                     .disabled(model.isLoading)
                     .accessibilityLabel(L("urlLabel"))
+                    // Clear button inside the field, like a search field's.
+                    .overlay(alignment: .trailing) {
+                        if !model.urlText.isEmpty && !model.isLoading {
+                            Button {
+                                model.urlText = ""
+                                urlFocused = true
+                            } label: {
+                                Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 6)
+                            .help(L("clearURL"))
+                            .accessibilityLabel(L("clearURL"))
+                        }
+                    }
+                Button { model.loadFromBrowser() } label: { Label(L("fromBrowser"), systemImage: "safari") }
+                    .disabled(model.isLoading)
+                    .help(L("fromBrowserHelp"))
+                // Loading is ⌘Return (File menu); the button only appears to cancel a load in progress.
                 if model.isLoading {
                     Button(L("cancel")) { model.cancel() }.keyboardShortcut(.cancelAction)
-                } else {
-                    Button(L("load")) { model.load() }.disabled(!model.validInput)
                 }
             }
             HStack(alignment: .top, spacing: 6) {
                 if model.isLoading { ProgressView().controlSize(.small) }
                 if case .failed(let message) = model.status, !message.isEmpty {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                } else if model.status == .needsAccess {
+                    Image(systemName: "lock.fill").foregroundColor(.orange)
                 } else if case .saved = model.status {
                     Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
                 }
@@ -201,6 +269,10 @@ struct ContentView: View {
                 Spacer()
                 if case .saved(let url) = model.status {
                     Button(L("revealInFinder")) { NSWorkspace.shared.activateFileViewerSelecting([url]) }.controlSize(.small)
+                } else if model.status == .needsAccess {
+                    Button(AccessibilityText.text("open")) {
+                        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+                    }.controlSize(.small)
                 }
             }
             .frame(minHeight: 18)
@@ -216,7 +288,8 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, minHeight: 220, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .textBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.secondary.opacity(0.18)))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(dropTargeted ? Color.accentColor : Color.secondary.opacity(0.18), lineWidth: dropTargeted ? 3 : 1))
+            .accessibilityLabel(L("dropLabel"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             HStack {
                 Button(L("help")) { delegate.showHelp() }
@@ -228,6 +301,8 @@ struct ContentView: View {
             }
         }
         .padding(20).frame(minWidth: 600, minHeight: 500).background(Color(nsColor: AppSurface.color))
+        // Drop a URL anywhere in the window (e.g. the favicon in a browser's address bar).
+        .onDrop(of: [.url, .plainText], isTargeted: $dropTargeted) { model.handleDrop($0) }
         // Start in the URL field (otherwise the first button takes the focus).
         .onAppear { DispatchQueue.main.async { urlFocused = true } }
     }
@@ -237,12 +312,17 @@ struct Preferences: View {
     @ObservedObject var model: Model
     var body: some View {
         SettingsTabs(sections: [
-            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
-                LoginAtLaunchView()
-                StartupWindowView()
-                Toggle(L("keepRunning"), isOn: $model.keepRunning)
-                Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                MenuBarPresenceView()
+            (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
+                SettingsSection(SettingsUI.launchTitle) {
+                    LoginAtLaunchView()
+                    StartupWindowView()
+                    Toggle(L("keepRunning"), isOn: $model.keepRunning)
+                    Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    MenuBarPresenceView()
+                }
+                SettingsSection(AccessibilityText.text("title")) {
+                    AccessibilityPermissionView(required: true, showsTitle: false)
+                }
             })),
             (L("outputTab"), AnyView(SettingsSection(L("outputSection")) {
                 Toggle(L("embedTitles"), isOn: $model.fetchEmbedTitles)
@@ -266,6 +346,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             other.activate(options: [.activateAllWindows, .activateIgnoringOtherApps]); NSApp.terminate(nil); return
         }
         let loginLaunch = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
+        AccessibilityText.neededOverride = [
+            "最前面のブラウザーで表示中のページのURLを読み取るために使用します。未許可の場合、「ブラウザーから」は使えません（URLの入力による書き出しは使えます）。",
+            "Used to read the URL of the page in the front browser window. Without permission, From Browser is unavailable (entering a URL still works).",
+            "用于读取最前面浏览器窗口中页面的 URL。未获授权时无法使用“从浏览器”（仍可输入 URL 导出）。",
+            "맨 앞 브라우저 윈도우에 표시된 페이지의 URL을 읽는 데 사용합니다. 권한이 없으면 브라우저에서를 사용할 수 없습니다(URL 입력으로 내보내기는 가능)."
+        ]
         installMenus()
         mainWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 600), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         mainWindow.title = ""; mainWindow.titleVisibility = .hidden; mainWindow.isReleasedWhenClosed = false; mainWindow.delegate = self
@@ -302,7 +388,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         let file = submenu(L("file"))
         add(file, L("openMainWindow"), #selector(showMain), "0")
         file.addItem(.separator())
-        add(file, L("loadMenu"), #selector(loadArticle), "r")
+        add(file, L("loadMenu"), #selector(loadArticle), "\r")
+        add(file, L("fromBrowserMenu"), #selector(loadFromBrowser), "l")
         add(file, L("exportMenu"), #selector(exportArticle), "s")
         add(file, L("copyMarkdown"), #selector(copyMarkdown), "C")
         file.addItem(.separator())
@@ -321,6 +408,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         MainActor.assumeIsolated {
             switch item.action {
             case #selector(loadArticle), #selector(exportArticle), #selector(copyMarkdown): return !model.isLoading && model.validInput
+            case #selector(loadFromBrowser): return !model.isLoading
             default: return true
             }
         }
@@ -328,6 +416,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     @objc func loadArticle() { showMain(); MainActor.assumeIsolated { model.load() } }
+    @objc func loadFromBrowser() { showMain(); MainActor.assumeIsolated { model.loadFromBrowser() } }
     @objc func exportArticle() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow) } }
     @objc func copyMarkdown() { MainActor.assumeIsolated { model.copy() } }
     @objc func showPreferences() {

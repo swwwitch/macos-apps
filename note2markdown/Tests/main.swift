@@ -19,6 +19,7 @@ func md(_ html: String, title: String = "", titles: [String: String] = [:]) -> S
 check("key note.com", NoteArticle.key(from: "https://note.com/dtp_tranist/n/n22872a3cbb8d") ?? "nil", "n22872a3cbb8d")
 check("key query", NoteArticle.key(from: " https://note.com/dtp_tranist/n/n22872a3cbb8d?magazine_key=m1#x \n") ?? "nil", "n22872a3cbb8d")
 check("key custom domain", NoteArticle.key(from: "https://example.jp/n/n0123456789ab") ?? "nil", "n0123456789ab")
+check("key editor", NoteArticle.key(from: "https://editor.note.com/notes/n0123456789ab/edit/") ?? "nil", "n0123456789ab")
 check("key bare", NoteArticle.key(from: "n0123456789ab") ?? "nil", "n0123456789ab")
 check("key profile", NoteArticle.key(from: "https://note.com/dtp_tranist") ?? "nil", "nil")
 check("key magazine", NoteArticle.key(from: "https://note.com/swwwitch/m/m057948d2fbeb") ?? "nil", "nil")
