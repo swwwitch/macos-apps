@@ -1,6 +1,6 @@
 # 保管中の最新ビルド
 
-2026-10-14に各アプリのInfo.plistから読み取った一覧です（25本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
+2026-10-14に各アプリのInfo.plistから読み取った一覧です（26本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
 
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
@@ -18,6 +18,7 @@
 | [ProjectFolder](ProjectFolder.app) | 1.9.0 | 13 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 16 | `local.takano.IdAsyncOff` |
+| [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.2.2 | 5 | `local.takano.CCAutoUpdateOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.2.2 | 62 | `jp.dtp-transit.kagetrimmer` |
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.28 | 48 | `jp.local.SuperKakkoEdit` |
@@ -26,7 +27,7 @@
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |
 | [PrefsPreset](PrefsPreset.app) | 1.1.9 | 12 | `jp.dtp-transit.prefspreset` |
-| [PodiumAssist](PodiumAssist.app) | 3.2.34 | 57 | `jp.local.toki` |
+| [PodiumAssist](PodiumAssist.app) | 3.2.35 | 58 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.17 | 31 | `jp.dtp-transit.quickiconexporter` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.0.0 | 1 | `jp.dtp-transit.yohakutrimmer` |
 

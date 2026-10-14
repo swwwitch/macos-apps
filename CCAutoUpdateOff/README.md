@@ -1,0 +1,53 @@
+# CCAutoUpdateOff
+
+macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブアプリ。Creative Cloudのアプリの自動更新がオンになっていないかを見張り、オンなら通知・メールで知らせます。Creative Cloudの設定は変更しません（1.1.0から読み取り専用）。
+
+- 対象ファイル：`~/Library/Application Support/Adobe/OOBE/com.adobe.accc.apps.<ユーザーID>.prefs`（`Apps_Panel_Pref` の中の `ccmPreferences` XML）。全体は `prodPref/autoUpdatePreferences/autoUpdateEnabled`、アプリ別は各 `app` の `autoUpdatePreference`。値が無いものはCreative Cloudがオンとして扱う。
+- Creative Cloudは［環境設定］→［アプリ］でスイッチを切り替えた瞬間にファイルを書き込み、画面に出すアプリだけを `app` エントリに残す（2026-10-14実測）。フォルダーの変更（DispatchSource）、1時間ごと、スリープ復帰、アプリのアクティブ化、メニューバーのメニューを開いたときに読み直す。
+- 判定：全体がオフ＝オフ。全体がオンでオン（未設定を含む）のアプリあり＝オン（知らせる）。全体がオンでアプリがすべてオフ＝注意（表示のみ）。
+- 通知（初期値オン）：オンになったとき、またはオンのアプリの組み合わせが変わったときに1回。クリックでCreative Cloudを開く。
+- メール送信（初期値オフ）：オンの間、1日1回。「メール」アプリの既定アカウントからAppleScriptで送る（Automationの許可が必要）。テスト送信あり。
+- 「以前のバージョンを削除」がオンのアプリも知らせる（初期値オン、設定で切り替え）。
+- 常駐（初期値オン）、ログイン時に起動（初期値オフ）、メニューバーのアイコンで状態表示（初期値表示）。⌘,で設定。
+- ［環境設定］→［アプリ］を直接開くURLスキームはCreative Cloudに無いため、Creative Cloudを開くだけ。
+- 4言語（日本語・英語・簡体字中国語・韓国語）の表示とオフラインヘルプ（⌘?）。アプリ自身は外部通信なし（メール送信オン時のみ「メール」アプリが送信）。
+
+## 開発
+
+```sh
+./build.sh   # build/CCAutoUpdateOff.app
+./test.sh    # 疑似設定ファイルで読み取り・判定・複数ユーザーの統合・メール文面と送信日の判定を検証
+```
+
+文字列・ヘルプ・Info.plistは `make-resources.py`、アイコンは `Assets/make-icon.sh`（`GenerateIcon.swift`）から再生成します。共有の `AppHeader.swift`・`AppSurface.swift`・`HelpDocument.swift`・`SettingsSection.swift`・`AboutSection.swift`・`WindowActivationPolicy.swift`・`LoginAtLaunch.swift` をビルド時に参照します。
+
+## 制限
+
+組織の管理者が自動更新をロックしている場合は管理者の設定が優先されます。メールはMacが起動・ログイン中で、このアプリが動いているときだけ送れます（スリープ中の分は復帰後）。
+
+このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。Intel実機での動作は未確認です。
+
+## 更新履歴
+
+### 1.2.2（build 5、2026-10-14）
+
+- メール本文の各アプリを「自動更新：オン／以前のバージョンを削除：オフ」の形にした。
+
+### 1.2.1（build 4、2026-10-14）
+
+- 一覧を「アプリ名｜自動更新｜以前のバージョンを削除」の3列にした。
+
+### 1.2.0（build 3、2026-10-14）
+
+- 「以前のバージョンを削除」（各アプリの詳細オプション、removeOlderVersions。未記録なら globalAURemoveOld）がオンのアプリも通知・メールで知らせる設定を追加（初期値オン）。
+- アイコンを雲のモチーフに変更。メニューバーの状態アイコンも雲（icloud系）に。
+- 一覧のアプリ名の横のSAPコード（ACR、DRWVなど）を表示しないようにした。
+
+### 1.1.0（build 2、2026-10-14）
+
+- 設定を書き換える方式をやめ、読み取り専用の見張りに変更。自動更新がオンなら通知（初期値オン）と1日1回のメール（「メール」アプリ経由、初期値オフ）で知らせる。設定画面（⌘,）に「起動・常駐」「通知・メール」「情報」。常駐・ログイン起動・メニューバーの状態アイコンを追加。
+- 一覧はCreative Cloudが設定ファイルに残すアプリだけにした（インストール済みデータベースの参照を廃止）。
+
+### 1.0.0（build 1、2026-10-14）
+
+- 初版。

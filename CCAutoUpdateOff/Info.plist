@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>CCAutoUpdateOff</string>
+	<key>CFBundleExecutable</key>
+	<string>CCAutoUpdateOff</string>
+	<key>CFBundleIconFile</key>
+	<string>CCAutoUpdateOff.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.takano.CCAutoUpdateOff</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>CCAutoUpdateOff</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.2.2</string>
+	<key>CFBundleVersion</key>
+	<string>5</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Sends the auto-update status by mail through the Mail app.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+</dict>
+</plist>
