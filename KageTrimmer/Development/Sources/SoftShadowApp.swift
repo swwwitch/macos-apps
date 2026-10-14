@@ -32,6 +32,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainViewController = controller
         window.contentViewController = controller
         window.center()
+        FolderWatcher.shared.onCapture = { [weak self] urls in self?.processWatched(urls) }
+        FolderWatcher.shared.restart()
         // A login launch stays quiet; files handed over at launch still show the window.
         if (!StartupWindow.hidden && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         if !pendingOpenURLs.isEmpty {
@@ -87,6 +89,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Window screenshots added to the watched folder: processed in the background like a hotkey run,
+    /// without bringing the window forward. Waits while another batch is being processed.
+    private func processWatched(_ urls: [URL]) {
+        guard let mainViewController else { return }
+        if mainViewController.isProcessing {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.processWatched(urls) }
+            return
+        }
+        mainViewController.process(urls, quietly: true) { _ in }
     }
 
     private func performShortcut() {
@@ -602,6 +615,7 @@ final class ShortcutSettingsController: NSViewController {
     private let key = NSPopUpButton()
     private let message = NSTextField(wrappingLabelWithString: "")
     private let output = OutputSettingsController()
+    private let folderWatch = FolderWatchSettingsController()
     init(shortcut: KageShortcut) { self.shortcut = shortcut; super.init(nibName: nil, bundle: nil) }
     required init?(coder: NSCoder) { fatalError() }
     override func loadView() {
@@ -624,7 +638,7 @@ final class ShortcutSettingsController: NSViewController {
         let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
         message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
         let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
-        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (L("出力"), output.makeView()), (AboutSection.title, AboutSection.view())], in: view)
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (L("出力"), output.makeView()), (L("フォルダ監視"), folderWatch.makeView()), (AboutSection.title, AboutSection.view())], in: view)
         refresh()
         message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：⌃⌥⌘U（control + option + command + U）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
     }

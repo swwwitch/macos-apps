@@ -31,6 +31,10 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 
 In the Output tab you can choose the shadow size the main window starts with (S by default) and the file name suffix for each shadow size. A size chosen in the main window is used until you quit. Leave a suffix field empty to use the default suffix.
 
+Turn on **Watch a folder and process automatically** in the Folder Watch tab to process window screenshots added to the folder automatically, with the shadow size selected in the main window (off by default). The folder starts as the macOS screenshot location. macOS screenshots are identified by how they were taken; CleanShot X and similar tools by their “Screenshot” information and shadow. Screenshots of a selected area or the whole screen are not processed. A sound plays when processing finishes.
+
+To process windows captured with CleanShot X, set the window background to Transparent and the save location to the watched folder in CleanShot X settings (windows captured with a background can’t be recognized).
+
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window
 - **⌘O**: Choose Images

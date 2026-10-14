@@ -73,8 +73,15 @@ enum ShadowProcessor {
         let contentImage: CGImage
         if detection.hadShadow, let cropped = image.cropping(to: detection.contentRect) {
             // A rectangular crop still contains pieces of the old shadow in rounded corners.
-            // Remove those translucent shadow pixels before applying the replacement shadow.
-            contentImage = stripExistingShadow(from: cropped) ?? cropped
+            // Remove them first on a slightly larger area: the shadow beside the edge is measured from the pixels outside.
+            let rect = detection.contentRect
+            let margin = rect.insetBy(dx: -4, dy: -4).intersection(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+            if let wider = image.cropping(to: margin), let stripped = stripExistingShadow(from: wider),
+               let trimmed = stripped.cropping(to: rect.offsetBy(dx: -margin.minX, dy: -margin.minY)) {
+                contentImage = trimmed
+            } else {
+                contentImage = cropped
+            }
         } else {
             contentImage = image
         }
@@ -130,9 +137,11 @@ enum ShadowProcessor {
         return candidate
     }
 
-    /// Keeps the original opaque pixels and their nearby antialiasing fringe exactly as-is.
-    /// Everything farther away is the original shadow and is cleared. No corner geometry is
-    /// inferred or redrawn, so the source window corners cannot be clipped.
+    /// Removes the old shadow but keeps the window's own antialiased edge (and its thin dark outline).
+    /// A fringe pixel is the window composited over a black shadow, so its premultiplied colour is the
+    /// window's alone and only the alpha mixes: a = w + s(1 - w). The shadow alpha s is the strongest
+    /// pure-shadow pixel (2 px or more from the window) within 3 px, which changes smoothly along the
+    /// edge, and w = (a - s) / (1 - s) is kept. Opaque pixels stay byte-for-byte; nothing is blurred.
     private static func stripExistingShadow(from image: CGImage) -> CGImage? {
         let width = image.width, height = image.height, bytesPerRow = width * 4
         var pixels = [UInt8](repeating: 0, count: bytesPerRow * height)
@@ -146,71 +155,47 @@ enum ShadowProcessor {
         }
         guard drewImage else { return nil }
         let original = pixels
-        func originalAlpha(_ x: Int, _ y: Int) -> UInt8 { original[y * bytesPerRow + x * 4 + 3] }
+        func isOpaque(_ x: Int, _ y: Int) -> Bool {
+            x >= 0 && x < width && y >= 0 && y < height && original[y * bytesPerRow + x * 4 + 3] >= 245
+        }
+        // Past the antialiasing (no opaque pixel closer than 2 px) only the shadow remains.
+        var pureShadow = [Bool](repeating: false, count: width * height)
         for y in 0..<height {
-            for x in 0..<width where originalAlpha(x, y) < 245 {
-                var touchesWindow = false
-                for nearbyY in max(0, y - 2)...min(height - 1, y + 2) {
-                    for nearbyX in max(0, x - 2)...min(width - 1, x + 2) where originalAlpha(nearbyX, nearbyY) >= 245 {
-                        touchesWindow = true; break
-                    }
-                    if touchesWindow { break }
+            for x in 0..<width where !isOpaque(x, y) {
+                var nearWindow = isOpaque(x - 2, y) || isOpaque(x + 2, y) || isOpaque(x, y - 2) || isOpaque(x, y + 2)
+                for nearbyY in (y - 1)...(y + 1) where !nearWindow {
+                    for nearbyX in (x - 1)...(x + 1) where isOpaque(nearbyX, nearbyY) { nearWindow = true; break }
                 }
-                if !touchesWindow {
-                    let offset = y * bytesPerRow + x * 4
-                    pixels[offset] = 0; pixels[offset + 1] = 0; pixels[offset + 2] = 0; pixels[offset + 3] = 0
-                }
+                pureShadow[y * width + x] = !nearWindow
             }
         }
-        // The surviving translucent fringe contains the window's hairline and
-        // antialiasing. Smooth only that fringe with a tiny 3x3 Gaussian kernel.
-        // Fully opaque source pixels remain byte-for-byte unchanged, so the
-        // image itself is never resampled; this only removes stair-stepping on
-        // the transparent rounded outline left after the old shadow is cleared.
-        let cleaned = pixels
-        func cleanedAlpha(_ x: Int, _ y: Int) -> UInt8 {
-            guard x >= 0, x < width, y >= 0, y < height else { return 0 }
-            return cleaned[y * bytesPerRow + x * 4 + 3]
-        }
-        let gaussianWeights = [
-            [1, 2, 1],
-            [2, 4, 2],
-            [1, 2, 1]
-        ]
+        let radius = 3
         for y in 0..<height {
-            for x in 0..<width where cleanedAlpha(x, y) < 245 {
-                // Only the surviving fringe and its immediately adjacent
-                // transparent pixel can receive blur coverage. This keeps the
-                // pass proportional to the perimeter instead of searching a
-                // wide neighbourhood for every transparent corner pixel.
-                var nearCleanedEdge = cleanedAlpha(x, y) > 0
-                if !nearCleanedEdge {
-                    for nearbyY in max(0, y - 1)...min(height - 1, y + 1) {
-                        for nearbyX in max(0, x - 1)...min(width - 1, x + 1)
-                        where cleanedAlpha(nearbyX, nearbyY) > 0 {
-                            nearCleanedEdge = true
-                            break
-                        }
-                        if nearCleanedEdge { break }
+            for x in 0..<width where !isOpaque(x, y) {
+                let offset = y * bytesPerRow + x * 4
+                if pureShadow[y * width + x] {
+                    pixels[offset] = 0; pixels[offset + 1] = 0; pixels[offset + 2] = 0; pixels[offset + 3] = 0
+                    continue
+                }
+                var shadow = -1.0
+                for nearbyY in max(0, y - radius)...min(height - 1, y + radius) {
+                    for nearbyX in max(0, x - radius)...min(width - 1, x + radius) where pureShadow[nearbyY * width + nearbyX] {
+                        shadow = max(shadow, Double(original[nearbyY * bytesPerRow + nearbyX * 4 + 3]))
                     }
                 }
-                guard nearCleanedEdge else { continue }
-
-                let outputOffset = y * bytesPerRow + x * 4
-                for channel in 0..<4 {
-                    var weightedTotal = 0
-                    var totalWeight = 0
-                    for kernelY in -1...1 {
-                        for kernelX in -1...1 {
-                            let sampleX = x + kernelX, sampleY = y + kernelY
-                            let weight = gaussianWeights[kernelY + 1][kernelX + 1]
-                            totalWeight += weight
-                            guard sampleX >= 0, sampleX < width, sampleY >= 0, sampleY < height else { continue }
-                            weightedTotal += Int(cleaned[sampleY * bytesPerRow + sampleX * 4 + channel]) * weight
-                        }
-                    }
-                    pixels[outputOffset + channel] = UInt8((weightedTotal + totalWeight / 2) / totalWeight)
+                // Surrounded by the window (a translucent spot inside it): not shadow, keep as-is.
+                guard shadow >= 0 else { continue }
+                let alpha = Double(original[offset + 3])
+                shadow = min(alpha, shadow)
+                let windowAlpha = shadow < 255 ? (alpha - shadow) / (1 - shadow / 255) : 0
+                // A few levels of leftover estimate error would show as a faint ring around the window.
+                guard windowAlpha >= 6 else {
+                    pixels[offset] = 0; pixels[offset + 1] = 0; pixels[offset + 2] = 0; pixels[offset + 3] = 0
+                    continue
                 }
+                let newAlpha = UInt8(min(255, windowAlpha.rounded()))
+                for channel in 0..<3 { pixels[offset + channel] = min(original[offset + channel], newAlpha) }
+                pixels[offset + 3] = newAlpha
             }
         }
         return pixels.withUnsafeMutableBytes { storage in
