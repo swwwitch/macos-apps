@@ -100,12 +100,12 @@ struct ContentView: View {
                 // Raising/lowering rewrites the source, so the buttons sit on the source pane.
                 Button { store.shiftHeadings(by: -1, levels: levels) } label: { Image(systemName: "decrease.indent") }
                     .disabled(headings.isEmpty)
-                    .help(L("見出しを1段上げる（#を1つ減らす、⌘[）"))
-                    .accessibilityLabel(L("見出しを1段上げる"))
+                    .help(L("すべての見出しを1段上げる（#を1つ減らす、⌘[）"))
+                    .accessibilityLabel(L("すべての見出しを1段上げる"))
                 Button { store.shiftHeadings(by: 1, levels: levels) } label: { Image(systemName: "increase.indent") }
                     .disabled(headings.isEmpty)
-                    .help(L("見出しを1段下げる（#を1つ増やす、⌘]）"))
-                    .accessibilityLabel(L("見出しを1段下げる"))
+                    .help(L("すべての見出しを1段下げる（#を1つ増やす、⌘]）"))
+                    .accessibilityLabel(L("すべての見出しを1段下げる"))
                 Menu(L("整形")) { TidyMenuItems(levels: levels) }
                     .menuStyle(.button)
                     .fixedSize()
@@ -345,9 +345,18 @@ struct ContentView: View {
     }
 }
 
-/// 「整形」メニューの項目（原稿のバーと編集メニューで共有）
+/// 原稿のバーの「整形」メニュー（6項目とその他を続けて並べる）
 struct TidyMenuItems: View {
     let levels: Set<Int>
+    var body: some View {
+        TidyRuleItems()
+        Divider()
+        TidyToolItems(levels: levels)
+    }
+}
+
+/// 整形の6項目（ツールメニューでは「整形」のサブメニュー）
+struct TidyRuleItems: View {
     var body: some View {
         Button(L("行末の空白を削除")) { MarkdownStore.shared.tidy([.trailingSpaces]) }
         Button(L("連続する空行を1行に")) { MarkdownStore.shared.tidy([.blankLines]) }
@@ -356,7 +365,13 @@ struct TidyMenuItems: View {
         Button(L("和欧間のスペースを削除")) { MarkdownStore.shared.tidy([.japaneseLatinSpaces]) }
         Divider()
         Button(L("すべて整える")) { MarkdownStore.shared.tidy(MarkdownTidy.Rule.standard) }
-        Divider()
+    }
+}
+
+/// Minify・重複行・並べ替え・HTML→Markdown・目次
+struct TidyToolItems: View {
+    let levels: Set<Int>
+    var body: some View {
         Button(L("HTMLをMinify")) { MarkdownStore.shared.tidy([.minifyHTML]) }
         Button(L("重複行を削除")) { MarkdownStore.shared.transformLines(L("重複行を削除"), done: L("重複行を削除しました"), LineTools.removeDuplicates) }
         Button(L("並べ替え（昇順）")) { MarkdownStore.shared.transformLines(L("並べ替え（昇順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: false) } }

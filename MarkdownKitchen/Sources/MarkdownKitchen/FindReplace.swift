@@ -45,6 +45,13 @@ final class FindReplace: ObservableObject {
         if let editor { editor.window?.makeFirstResponder(editor) }
     }
 
+    /// 検索欄の末尾に正規表現の記号を足し、正規表現をオンにする
+    func insertSearchToken(_ token: String) {
+        query += token
+        useRegex = true
+        focusRequest += 1
+    }
+
     /// 選んでいる文字を検索語にする（バーは開く）
     func useSelection() {
         guard let editor else { return }
@@ -180,12 +187,20 @@ struct FindReplaceBar: View {
         // The two fields share a grid column, so they are always the same width.
         Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 6) {
             GridRow {
-                TextField(L("検索"), text: $find.query)
-                    .textFieldStyle(.roundedBorder)
-                    .focused($queryFocused)
-                    .onSubmit { find.findNext() }
-                    .accessibilityLabel(L("検索"))
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: 4) {
+                    TextField(L("検索"), text: $find.query)
+                        .textFieldStyle(.roundedBorder)
+                        .focused($queryFocused)
+                        .onSubmit { find.findNext() }
+                        .accessibilityLabel(L("検索"))
+                    // Helpers (like InDesign's @ menu): regex tokens, so choosing one turns on (.*).
+                    helperMenu(L("検索の特殊文字")) {
+                        Button(L("改行")) { find.insertSearchToken(#"\n"#) }
+                        Button(L("タブ")) { find.insertSearchToken(#"\t"#) }
+                        Button(L("空行")) { find.insertSearchToken(#"^[ \t]*\n"#) }
+                    }
+                }
+                .frame(maxWidth: .infinity)
                 HStack(spacing: 6) {
                 Text(status)
                     .font(.callout.monospacedDigit())
@@ -212,11 +227,22 @@ struct FindReplaceBar: View {
                 .fixedSize()
             }
             GridRow {
-                TextField(L("置換"), text: $find.replacement)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit { find.replaceCurrent() }
-                    .accessibilityLabel(L("置換"))
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: 4) {
+                    TextField(L("置換"), text: $find.replacement)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit { find.replaceCurrent() }
+                        .accessibilityLabel(L("置換"))
+                    // Group references work only with regular expressions.
+                    helperMenu(find.useRegex ? L("置換の特殊文字") : L("置換の特殊文字（正規表現のときに使えます）")) {
+                        Button(L("見つかったテキスト")) { find.replacement += "$0" }
+                        Divider()
+                        ForEach(1...5, id: \.self) { number in
+                            Button(L("検索結果%@", String(number))) { find.replacement += "$\(number)" }
+                        }
+                    }
+                    .disabled(!find.useRegex)
+                }
+                .frame(maxWidth: .infinity)
                 HStack(spacing: 6) {
                 Button(L("置き換え")) { find.replaceCurrent() }
                     .disabled(find.matches.isEmpty)
@@ -236,6 +262,15 @@ struct FindReplaceBar: View {
         .onExitCommand { find.close() }
         .onChange(of: find.focusRequest) { _, _ in queryFocused = true }
         .onAppear { queryFocused = true }
+    }
+
+    /// 欄の右の「@」メニュー
+    private func helperMenu<Content: View>(_ help: String, @ViewBuilder content: () -> Content) -> some View {
+        Menu { content() } label: { Image(systemName: "at") }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .help(help)
+            .accessibilityLabel(help)
     }
 
     private var status: String {

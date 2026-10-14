@@ -52,7 +52,12 @@ enum MarkdownHTML {
                 while index < lines.count, !lines[index].trimmingCharacters(in: .whitespaces).hasPrefix(fence) {
                     code.append(lines[index]); index += 1
                 }
-                html.append("<pre><code>" + escape(code.joined(separator: "\n")) + "</code></pre>")
+                // The info string's first word (```swift) becomes the language class for highlight.js.
+                let language = trimmed.dropFirst(fence.count).trimmingCharacters(in: .whitespaces)
+                    .prefix { !$0.isWhitespace && !"{`".contains($0) }
+                    .filter { $0.isLetter || $0.isNumber || "+#-_.".contains($0) }
+                let attribute = language.isEmpty ? "" : " class=\"language-\(language.lowercased())\""
+                html.append("<pre><code\(attribute)>" + escape(code.joined(separator: "\n")) + "</code></pre>")
                 continue
             }
             if trimmed.isEmpty {

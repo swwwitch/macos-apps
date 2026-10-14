@@ -30,6 +30,8 @@ cp "$build_stage/build/release/MarkdownKitchen" "$contents_dir/MacOS/MarkdownKit
 cp Info.plist "$contents_dir/Info.plist"
 cp Assets/MarkdownKitchen.icns "$contents_dir/Resources/MarkdownKitchen.icns"
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
+# highlight.js 11.9.0 (BSD-3-Clause) for code blocks in the preview.
+cp -R Resources/highlight "$contents_dir/Resources/highlight"
 printf 'APPL????' > "$contents_dir/PkgInfo"
 python3 Tests/check-localization.py --app "$app_dir"
 embed_updates "$app_dir"

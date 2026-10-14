@@ -138,6 +138,27 @@ enum MarkdownFormat {
         return TextEdit(range: range, replacement: replacement, selection: NSRange(location: range.location, length: length))
     }
 
+    /// 水平線（---）を入れる。空行ならその行に、文字のある行ならその後ろに。前後は空行で区切る（Setextの下線と取り違えないため）
+    static func horizontalRule(_ text: String, selection: NSRange) -> TextEdit {
+        let string = text as NSString
+        var start = 0, end = 0, contentsEnd = 0
+        string.getLineStart(&start, end: &end, contentsEnd: &contentsEnd, for: NSRange(location: NSMaxRange(selection), length: 0))
+        let line = string.substring(with: NSRange(location: start, length: contentsEnd - start))
+        func isBlank(_ range: NSRange) -> Bool { string.substring(with: range).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        if line.trimmingCharacters(in: .whitespaces).isEmpty {
+            let previousBlank = start == 0 || isBlank(string.lineRange(for: NSRange(location: start - 1, length: 0)))
+            let nextBlank = end >= string.length || isBlank(string.lineRange(for: NSRange(location: end, length: 0)))
+            let insertion = (previousBlank ? "" : "\n") + "---" + (nextBlank ? "" : "\n")
+            let range = NSRange(location: start, length: contentsEnd - start)
+            let caret = start + (previousBlank ? 0 : 1) + 3  // end of "---"
+            return TextEdit(range: range, replacement: insertion, selection: NSRange(location: caret, length: 0))
+        }
+        let nextBlank = end >= string.length || isBlank(string.lineRange(for: NSRange(location: end, length: 0)))
+        let insertion = "\n\n---" + (nextBlank ? "" : "\n")
+        return TextEdit(range: NSRange(location: contentsEnd, length: 0), replacement: insertion,
+                        selection: NSRange(location: contentsEnd + 5, length: 0))
+    }
+
     /// カーソルのある行の末尾に空行を挟んで新しい段落を始める
     static func newParagraph(_ text: String, selection: NSRange) -> TextEdit {
         let string = text as NSString

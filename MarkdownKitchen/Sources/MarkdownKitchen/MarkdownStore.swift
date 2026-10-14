@@ -265,7 +265,7 @@ final class MarkdownStore: ObservableObject {
             NSSound.beep()
             return
         }
-        let actionName = delta < 0 ? L("見出しを1段上げる") : L("見出しを1段下げる")
+        let actionName = delta < 0 ? L("すべての見出しを1段上げる") : L("すべての見出しを1段下げる")
         if let editor, let storage = editor.textStorage {
             // Edit > 取り消す follows the first responder; without this, ⌘Z stays disabled after a button click.
             editor.window?.makeFirstResponder(editor)

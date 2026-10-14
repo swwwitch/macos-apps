@@ -11,7 +11,7 @@ struct SettingsView: View {
             (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
             (L("テーマ"), AnyView(DoorkeeperPresetsView())),
-            (AboutSection.title, AnyView(AboutView()))
+            (AboutSection.title, AnyView(VStack(spacing: 24) { AboutView(); AcknowledgmentsView() }))
         ]).padding(12)
     }
 }
@@ -43,6 +43,35 @@ private struct HTMLToMarkdownSettingsView: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+/// 「情報」タブの下の謝辞（同梱しているオープンソースの著作権表示）。AboutSection は共通部品なので、ここで足す
+private struct AcknowledgmentsView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(L("謝辞")).font(.system(size: 13, weight: .semibold)).padding(.leading, 4)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("highlight.js 11.9.0").font(.callout.weight(.semibold))
+                Text("Copyright (c) 2006, Ivan Sagalaev. BSD 3-Clause License.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                Text(L("プレビューのコードブロックの色分けに使っています。"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(L("ライセンスを表示")) {
+                    if let url = Bundle.main.url(forResource: "LICENSE", withExtension: nil, subdirectory: "highlight") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .controlSize(.small)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.primary.opacity(0.08)))
         }
     }
 }

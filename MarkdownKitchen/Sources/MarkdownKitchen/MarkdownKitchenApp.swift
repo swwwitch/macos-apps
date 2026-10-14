@@ -19,6 +19,17 @@ struct MarkdownKitchenApp: App {
         .defaultSize(width: 960, height: 640)
         .commands {
             FormatMenuCommands()
+            // 「ツール」：整形・HTML→Markdown・目次（原稿のバーの「整形」と同じ項目）、Doorkeeper用に整形、すべての見出しの上げ下げ
+            CommandMenu(L("ツール")) {
+                Menu(L("整形")) { TidyRuleItems() }
+                Divider()
+                TidyToolItems(levels: MarkdownStore.storedLevels)
+                Divider()
+                Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
+                Divider()
+                ShortcutButton(action: .raiseHeadings)
+                ShortcutButton(action: .lowerHeadings)
+            }
             CommandGroup(replacing: .help) {
                 Button(L("MarkdownKitchenヘルプ")) { LocalHelp.shared.show() }
                     .keyboardShortcut("?", modifiers: .command)
@@ -34,7 +45,15 @@ struct MarkdownKitchenApp: App {
                 #endif
             }
             // No tab bar or View menu: the app has a single main window.
-            CommandGroup(replacing: .toolbar) {}
+            // 表示：文字の大きさ（ツールバー・タブバーの項目は無し）
+            CommandGroup(replacing: .toolbar) {
+                Button(L("文字を大きく")) { MarkdownStore.changeFontSize(by: 1) }
+                    .keyboardShortcut("+", modifiers: .command)
+                Button(L("文字を小さく")) { MarkdownStore.changeFontSize(by: -1) }
+                    .keyboardShortcut("-", modifiers: .command)
+                Button(L("標準の文字サイズ")) { MarkdownStore.changeFontSize(by: 0) }
+                Divider()
+            }
             // Replaces SwiftUI's "New Window" ⌘N so only one main window can exist.
             CommandGroup(replacing: .newItem) {
                 Button(L("メインウインドウを開く")) { appDelegate.showWindow() }
@@ -50,6 +69,10 @@ struct MarkdownKitchenApp: App {
             }
             CommandGroup(after: .pasteboard) {
                 Divider()
+                // "Copy as …" commands sit with Copy, as in other Mac apps.
+                ShortcutButton(action: .copyHeadings)
+                ShortcutButton(action: .copyHTML)
+                Divider()
                 Menu(L("検索")) {
                     ShortcutButton(action: .findReplace)
                     ShortcutButton(action: .findNext)
@@ -58,19 +81,6 @@ struct MarkdownKitchenApp: App {
                     ShortcutButton(action: .useSelectionForFind)
                     ShortcutButton(action: .jumpToSelection)
                 }
-                Divider()
-                ShortcutButton(action: .copyHeadings)
-                Divider()
-                ShortcutButton(action: .raiseHeadings)
-                ShortcutButton(action: .lowerHeadings)
-                Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
-                Menu(L("整形")) { TidyMenuItems(levels: MarkdownStore.storedLevels) }
-                Divider()
-                Button(L("文字を大きく")) { MarkdownStore.changeFontSize(by: 1) }
-                    .keyboardShortcut("+", modifiers: .command)
-                Button(L("文字を小さく")) { MarkdownStore.changeFontSize(by: -1) }
-                    .keyboardShortcut("-", modifiers: .command)
-                Button(L("標準の文字サイズ")) { MarkdownStore.changeFontSize(by: 0) }
             }
             // SwiftUI's "Close" lives in the save group; the shared menu names it "Close Window".
             // SwiftUI already separates this group from the one above.

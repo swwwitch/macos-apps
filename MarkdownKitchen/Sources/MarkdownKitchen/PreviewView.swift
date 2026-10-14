@@ -50,7 +50,7 @@ struct PreviewView: NSViewRepresentable {
             }
             shownBody = body; shownSize = fontSize
             let json = (try? JSONEncoder().encode([body])).flatMap { String(data: $0, encoding: .utf8) } ?? "[\"\"]"
-            webView.evaluateJavaScript("document.body.innerHTML = \(json)[0]; document.documentElement.style.fontSize = '\(fontSize)px';")
+            webView.evaluateJavaScript("document.body.innerHTML = \(json)[0]; document.documentElement.style.fontSize = '\(fontSize)px'; mkHighlight();")
         }
 
         /// 原稿の行に合わせてスクロールする（目印の span の間は行数で割り振る）
@@ -77,6 +77,19 @@ struct PreviewView: NSViewRepresentable {
             }
         }
 
+        /// 同梱の highlight.js（Resources/highlight）。見つからなければ色付けなし
+        static let highlightScript: String = resource("highlight.min", "js")
+        /// GitHub 風の配色。ダークモードでは github-dark
+        static let highlightStyles: String = resource("github.min", "css")
+            + "\n@media (prefers-color-scheme: dark) {\n" + resource("github-dark.min", "css") + "\n}"
+
+        private static func resource(_ name: String, _ type: String) -> String {
+            guard let url = Bundle.main.url(forResource: name, withExtension: type, subdirectory: "highlight"),
+                  let text = try? String(contentsOf: url, encoding: .utf8) else { return "" }
+            // A literal "</script>" inside the inline script would end it early.
+            return text.replacingOccurrences(of: "</script", with: "<\\/script")
+        }
+
         static func page(body: String, fontSize: Double) -> String {
             """
             <!doctype html><html style="font-size:\(fontSize)px"><head><meta charset="utf-8">
@@ -92,8 +105,18 @@ struct PreviewView: NSViewRepresentable {
             blockquote { margin: 1em 0; padding: 0 1em; border-left: 3px solid rgba(127,127,127,.4); color: #666; }
             hr { border: none; border-top: 1px solid rgba(127,127,127,.35); }
             @media (prefers-color-scheme: dark) { body { color: #ddd; } a { color: #5ab0ff; } blockquote { color: #aaa; } }
+            .hljs { background: transparent; }
+            \(Self.highlightStyles)
             </style>
+            <script>\(Self.highlightScript)</script>
             <script>
+            // Code blocks get syntax colors (highlight.js, bundled; blocks without a language are detected).
+            function mkHighlight() {
+              if (!window.hljs) return;
+              hljs.configure({ ignoreUnescapedHTML: true });
+              document.querySelectorAll('pre code:not([data-highlighted])').forEach(function (block) { hljs.highlightElement(block); });
+            }
+            document.addEventListener('DOMContentLoaded', mkHighlight);
             function mkScrollTo(line, total) {
               var max = document.documentElement.scrollHeight - window.innerHeight;
               if (line === Infinity) { window.scrollTo(0, max); return; }

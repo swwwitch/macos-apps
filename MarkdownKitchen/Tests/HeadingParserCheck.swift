@@ -171,5 +171,9 @@ if toc2 != "1. 書体名の由来\n\u{3000}イタリック\n\u{3000}\u{3000}細�
 if LineTools.removeDuplicates("a\nb\na\n\n\nb\nc\n") != "a\nb\n\n\nc\n" { failures += 1; print("FAIL dedupe") }
 if LineTools.sort("item10\nitem2\nB\na\n", descending: false) != "a\nB\nitem2\nitem10\n" { failures += 1; print("FAIL sort: \(LineTools.sort("item10\nitem2\nB\na\n", descending: false).debugDescription)") }
 if LineTools.sort("1\n3\n2", descending: true) != "3\n2\n1" { failures += 1; print("FAIL sort desc") }
+expectTyped(typed("a\nb", 0, MarkdownFormat.horizontalRule("a\nb", selection: NSRange(location: 1, length: 0))), "a\n\n---|\n\nb", "hr after line")
+expectTyped(typed("a\n\nb", 0, MarkdownFormat.horizontalRule("a\n\nb", selection: NSRange(location: 2, length: 0))), "a\n\n---|\n\nb", "hr on blank line")
+expectTyped(typed("a", 0, MarkdownFormat.horizontalRule("a", selection: NSRange(location: 1, length: 0))), "a\n\n---|", "hr at end")
+if MarkdownHTML.render("```swift\nlet a = 1\n```\n~~~\nx\n~~~") != "<pre><code class=\"language-swift\">let a = 1</code></pre>\n<pre><code>x</code></pre>" { failures += 1; print("FAIL code language: \(MarkdownHTML.render("```swift\nlet a = 1\n```\n~~~\nx\n~~~"))") }
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)

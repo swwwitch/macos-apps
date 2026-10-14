@@ -8,7 +8,7 @@ enum FormatAction: CaseIterable {
     case heading1, heading2, heading3, heading4, heading5, heading6, paragraph
     case orderedList, unorderedList, quote
     case indent, outdent, moveParagraphUp, moveParagraphDown
-    case link, image, newParagraph
+    case link, image, horizontalRule, newParagraph
     // In the Edit menu, not in 書式.
     case copyHeadings, raiseHeadings, lowerHeadings
     case findReplace, findNext, findPrevious, useSelectionForFind, jumpToSelection
@@ -18,23 +18,24 @@ enum FormatAction: CaseIterable {
 
     /// 設定の「ホットキー」タブの並び
     static var settingsGroups: [(title: String, actions: [FormatAction])] {
-        [(L("書式"), [.copyHTML, .bold, .italic, .inlineCode, .comment]),
+        [(L("書式"), [.bold, .italic, .inlineCode, .comment]),
          (L("変換"), [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph]),
-         (L("段落"), [.orderedList, .unorderedList, .quote, .indent, .outdent, .moveParagraphUp, .moveParagraphDown, .link, .image, .newParagraph]),
-         (L("見出し"), [.copyHeadings, .raiseHeadings, .lowerHeadings]),
+         (L("段落"), [.orderedList, .unorderedList, .quote, .indent, .outdent, .moveParagraphUp, .moveParagraphDown, .link, .image, .horizontalRule, .newParagraph]),
+         (L("コピー"), [.copyHeadings, .copyHTML]),
+         (L("見出し"), [.raiseHeadings, .lowerHeadings]),
          (L("検索"), [.findReplace, .findNext, .findPrevious, .useSelectionForFind, .jumpToSelection])]
     }
 
     /// メニューの区切り（この項目の前に区切り線）
     static let groups: [[FormatAction]] = [
-        [.copyHTML],
         [.bold, .italic, .inlineCode, .comment],
         [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph],
         [.orderedList, .unorderedList, .quote],
-        [.indent, .outdent, .moveParagraphUp, .moveParagraphDown],
-        [.link, .image, .newParagraph],
+        [.indent, .outdent],
+        [.moveParagraphUp, .moveParagraphDown],
+        [.link, .image, .horizontalRule, .newParagraph],
     ]
-    static let convertGroup = 2
+    static let convertGroup = 1
 
     var title: String {
         switch self {
@@ -59,10 +60,11 @@ enum FormatAction: CaseIterable {
         case .moveParagraphDown: return L("段落を下へ移動")
         case .link: return L("リンク")
         case .image: return L("画像")
+        case .horizontalRule: return L("水平線")
         case .newParagraph: return L("新しい段落")
         case .copyHeadings: return L("見出しをコピー")
-        case .raiseHeadings: return L("見出しを1段上げる")
-        case .lowerHeadings: return L("見出しを1段下げる")
+        case .raiseHeadings: return L("すべての見出しを1段上げる")
+        case .lowerHeadings: return L("すべての見出しを1段下げる")
         case .findReplace: return L("検索と置換…")
         case .findNext: return L("次を検索")
         case .findPrevious: return L("前を検索")
@@ -73,7 +75,7 @@ enum FormatAction: CaseIterable {
 
     /// キー（⌘0・⌘1 は「メインウインドウを開く」、⌘[ ⌘] は見出しの上げ下げで使うため ⌥ を足す）
     /// 初期値のキー
-    var defaultShortcut: MenuShortcut? { MenuShortcut(key.0, key.1) }
+    var defaultShortcut: MenuShortcut? { key.0.isEmpty ? nil : MenuShortcut(key.0, key.1) }
 
     private var key: (String, NSEvent.ModifierFlags) {
         switch self {
@@ -98,6 +100,7 @@ enum FormatAction: CaseIterable {
         case .moveParagraphDown: return (MenuShortcut.downArrow, [.control, .shift])
         case .link: return ("k", [.command, .shift])
         case .image: return ("i", [.command, .shift])
+        case .horizontalRule: return ("", [])  // No default key; one can be set in Settings > Hotkeys.
         case .newParagraph: return ("\r", .command)
         case .copyHeadings: return ("c", [.command, .shift])
         case .raiseHeadings: return ("[", .command)
@@ -136,6 +139,7 @@ enum FormatAction: CaseIterable {
             }
         case .link: store.format(title) { MarkdownFormat.link($0, selection: $1, image: false) }
         case .image: store.format(title) { MarkdownFormat.link($0, selection: $1, image: true) }
+        case .horizontalRule: store.format(title) { MarkdownFormat.horizontalRule($0, selection: $1) }
         case .newParagraph: store.format(title) { MarkdownFormat.newParagraph($0, selection: $1) }
         case .copyHeadings:
             let format = HeadingParser.Format(rawValue: UserDefaults.standard.string(forKey: MarkdownStore.copyFormatKey) ?? "") ?? .markdown
@@ -154,7 +158,7 @@ enum FormatAction: CaseIterable {
 
     /// 右クリックメニューに入れる項目（キーは表示だけ）
     @MainActor static func contextMenuItems() -> [NSMenuItem] {
-        var items: [NSMenuItem] = []
+        var items: [NSMenuItem] = [FormatAction.copyHTML.menuItem(), .separator()]
         for (index, group) in groups.enumerated() {
             if index > 0 { items.append(.separator()) }
             if index == convertGroup {
@@ -199,11 +203,8 @@ struct FormatMenuCommands: Commands {
         CommandMenu(L("書式")) {
             ForEach(Array(FormatAction.groups.enumerated()), id: \.offset) { index, group in
                 if index > 0 { Divider() }
-                if index == FormatAction.convertGroup {
-                    Menu(L("変換")) { items(group) }
-                } else {
-                    items(group)
-                }
+                // Headings 1–6 and Paragraph sit directly in the menu (the context menu keeps 変換 as a submenu).
+                items(group)
             }
         }
     }

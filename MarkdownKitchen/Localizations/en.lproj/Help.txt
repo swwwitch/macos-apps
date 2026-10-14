@@ -18,10 +18,11 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - HTML at the start of a line (such as <h2 style="…">) is shown as is, so Doorkeeper headings appear in color.
 - Clicking a link in the preview opens it in your browser. Images are loaded from the internet.
 - Scrolling the source on the left scrolls the preview to the same place.
+- Code blocks are colored with highlight.js (the language after ``` is used, such as ```swift; otherwise it is detected). It is bundled, so nothing is downloaded. Copy HTML does not include the colors, only the language class.
 - Copy HTML above the preview (also in the Edit menu) copies the whole HTML shown in the preview.
 
 ## Raising and Lowering Headings
-- The raise and lower buttons on the Source bar on the left, or Edit > Raise Headings One Level (⌘[) and Lower Headings One Level (⌘]), remove or add one "#" for all headings in the source.
+- The raise and lower buttons on the Source bar on the left, or Tools > Raise All Headings One Level (⌘[) and Lower All Headings One Level (⌘]), remove or add one "#" for all headings in the source.
 - They affect the headings shown in the right pane (the checked levels). If text is selected in the source, only headings in the selection change.
 - If a level 1 heading would be raised or a level 6 heading lowered, nothing changes and the reason is shown.
 - Underlined (=== or ---) headings are rewritten with "#". For HTML headings only the tag number changes (<h2> to <h3> and so on). Undo (⌘Z) reverts the whole change.
@@ -31,7 +32,7 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - A section cannot be moved into itself. Undo (⌘Z) reverts the move.
 
 ## Tidying and Table of Contents
-- Choose from Tidy on the Source bar (also in the Edit menu). Only the selection is changed if text is selected; otherwise the whole source. Code blocks are left alone.
+- Choose from Tidy on the Source bar or from the Tools menu in the menu bar (in Tools, the five items below and Apply All are in the Tidy submenu). Only the selection is changed if text is selected; otherwise the whole source. Code blocks are left alone.
 - **Remove Trailing Spaces**: two or more spaces that make a Markdown line break are kept as two when the next line has text.
 - **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all five).
 - **Minify HTML**: joins each HTML block (a run of lines starting with a tag, up to a blank line) into one line, removing line breaks and extra spaces, including spaces after “;” and “:” in style. Markdown and blocks containing <pre> or <textarea> are left alone. Not included in Apply All.
@@ -40,30 +41,31 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - Undo (⌘Z) reverts any of these.
 
 ## HTML to Markdown
-- HTML→Markdown in Tidy on the Source bar on the left (also in the Edit menu) rewrites HTML mixed into the source as Markdown.
+- HTML→Markdown in Tidy on the Source bar on the left (also in the Tools menu) rewrites HTML mixed into the source as Markdown.
 - Headings, paragraphs, line breaks, bold, italic, links, images, lists, quotes, code and rules are converted; other tags (span, div and so on) are removed and their contents kept.
 - Markdown and code blocks (``` or ~~~) are left as they are. If text is selected, only the selection is converted. Undo (⌘Z) reverts it.
 - With Ignore inside div elements and Ignore inside table elements on in the HTML→Markdown tab of Settings (both on by default), everything inside those elements, including nested ones, stays as HTML.
 
 ## Format for Doorkeeper
-- Click Format for Doorkeeper on the Source bar (also in the Edit menu) and choose a theme (CSS Nite and DTP Transit by default) to replace ## and ### in the source with styled HTML headings (<h2 style="…"> and <h3 style="…">) for Doorkeeper event descriptions.
+- Click Format for Doorkeeper on the Source bar (also in the Tools menu) and choose a theme (CSS Nite and DTP Transit by default) to replace ## and ### in the source with styled HTML headings (<h2 style="…"> and <h3 style="…">) for Doorkeeper event descriptions.
 - The theme used last is checked. Add or delete themes in the Themes tab of Settings (Edit Themes… in the menu): a name, a base color (hex such as #0AF; click the swatch for the color panel) and the h3 background strength (%). h2 gets white text on the base color; h3 gets base-color text and rules on a light background.
 - Headings already formatted with a theme (the same <h2 style="…"> / <h3 style="…"> decoration in another color) switch to the chosen theme without going back to Markdown. #### and deeper headings, body text, code blocks and HTML headings with other styles are not changed.
 - If text is selected, only the selection is converted. Undo (⌘Z) reverts it, and HTML→Markdown turns the headings back into Markdown.
 
 ## Text Size
-- The Smaller Text and Bigger Text buttons in the header, or Edit > Bigger Text (⌘+), Smaller Text (⌘−) and Default Text Size, change the text size of both panes. The size is kept for next time.
+- The Smaller Text and Bigger Text buttons in the header, or View > Bigger Text (⌘+), Smaller Text (⌘−) and Default Text Size, change the text size of both panes. The size is kept for next time.
 
 ## Format
 Choose from the Format menu in the menu bar or from the source’s right-click menu. Undo (⌘Z) reverts any of them.
 - **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘K), **Comment** (⌘/, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
-- **Convert To**: turns the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘6) or a **Paragraph** (⌥⌘0, removes the “#”).
+- **Heading 1–6 and Paragraph** (under Convert To in the right-click menu): turn the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘6) or a **Paragraph** (⌥⌘0, removes the “#”).
 - **Ordered List** (⇧⌘7), **Unordered List** (⇧⌘8), **Blockquote** (⇧⌘B): toggle the paragraph at the cursor; if it already has that form, it is turned back.
 - **Shift Right** (⌥⌘]) and **Shift Left** (⌥⌘[): move the selected lines by two spaces.
 - **Move Paragraph Up** (⌃⇧↑) and **Move Paragraph Down** (⌃⇧↓): swap the paragraph at the cursor (a block separated by blank lines; all selected paragraphs) with the one before or after. The blank lines between stay in place.
 - **Link** (⇧⌘K) and **Image** (⇧⌘I): make the selection [text](https://) with “https://” selected; a selected URL becomes [](URL).
+- **Horizontal Rule**: inserts --- after the current line (or on it, if blank), with blank lines around it. Assign a key in the Hotkeys tab of Settings.
 - **New Paragraph** (⌘↩): starts a new paragraph after a blank line below the current line.
-- **Copy HTML** (⌥⌘C): copies the whole HTML shown in the preview.
+- **Copy HTML** (⌥⌘C, in the Edit menu and the right-click menu): copies the whole HTML shown in the preview.
 - **Return**: on a list line (-, *, +, 1., and task items - [ ]) or a quote (>), the next line gets the same marker (the next number for ordered lists). On an empty item the marker is removed and the list ends. An indented line continues with the same indent. Inside code blocks Return is a plain line break.
 - **Tab** / **⇧Tab**: on list lines or a multi-line selection, shift right / left.
 
@@ -73,6 +75,7 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 - **Match Case** (the Aa button): treat uppercase and lowercase as different.
 - **Regular Expression** (the .* button): search with a regular expression; use $1 or \1 in the replacement ($0 is the whole match). An invalid pattern shows “Invalid pattern”.
 - **Replace** (Return in the replace field): replaces the selected match and finds the next. **Replace All**: replaces every match. Undo (⌘Z) reverts either.
+- The **@** menu beside the search field inserts **Line Break** (\n), **Tab** (\t) and **Blank Line** (^[ \t]*\n; an empty replacement deletes blank lines) and turns on regular expressions. The **@** menu beside the replace field inserts **Found Text** ($0) and **Found Text 1–5** ($1–$5) when regular expressions are on.
 - **Done** (Esc) closes the bar. **Use Selection for Find** (⌘E) makes the selection the search; **Jump to Selection** (⌘J) scrolls back to the cursor or selection.
 - Find keys can also be changed in the Hotkeys tab of Settings.
 
@@ -95,7 +98,7 @@ Open with the Settings button in the main window (⌘,).
 - **⌘S**: Save
 - **⇧⌘S**: Save As
 - **⇧⌘C**: Copy Headings
-- **⌘[** / **⌘]**: Raise / Lower Headings One Level
+- **⌘[** / **⌘]**: Raise / Lower All Headings One Level
 - **⌘F**: Find and Replace (⌘G / ⇧⌘G next / previous, ⌘E Use Selection for Find, ⌘J Jump to Selection)
 - Keys for format and heading commands can be changed in the Hotkeys tab of Settings.
 - **⌘B** / **⌘I** / **⌘K** / **⌘/**: Bold / Italic / Inline Code / Comment
@@ -138,6 +141,10 @@ Open with the Settings button in the main window (⌘,).
 ## Help and the note Article
 - Open this help with Help > MarkdownKitchen Help (⌘?).
 - Help > Open the note Article opens the guide on note in your browser.
+
+## Acknowledgments
+- **highlight.js 11.9.0**: Copyright (c) 2006, Ivan Sagalaev. BSD 3-Clause License. Used to color code blocks in the preview. The full license opens from Show License in the About tab of Settings.
+- The typing helpers (such as continuing lists) follow the behavior of MacDown (MIT License). No MacDown code is included.
 
 ## Removing the App
 1. Turn off Open at login.
