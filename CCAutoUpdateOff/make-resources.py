@@ -55,7 +55,7 @@ rows = [
 ('targetSection', '知らせる内容', 'What to report', '提醒内容', '알릴 내용'),
 ('targetAutoUpdate', '自動更新がオンのアプリ（常に対象）', 'Apps with auto-update on (always)', '开启自动更新的应用（始终）', '자동 업데이트가 켜진 앱(항상)'),
 ('removeOldToggle', '「以前のバージョンを削除」がオンのアプリも知らせる', 'Also report apps with “Remove previous versions” on', '同时提醒开启了“删除以前的版本”的应用', '"이전 버전 제거"가 켜진 앱도 알림'),
-('removeOldHint', 'Creative Cloudの［環境設定］→［アプリ］→ 各アプリの［詳細オプション］の項目です。オンだと、更新したときに古いバージョンが削除されます（自動更新がオフでも手動の更新で削除されます）。', 'The option under Advanced options for each app in Creative Cloud Preferences → Apps. When on, the old version is removed on update (also on manual updates while auto-update is off).', '位于 Creative Cloud“偏好设置 → 应用”中各应用的“高级选项”。开启后，更新时会删除旧版本（即使关闭自动更新，手动更新也会删除）。', 'Creative Cloud 환경설정 → 앱에서 각 앱의 고급 옵션 항목입니다. 켜져 있으면 업데이트할 때 이전 버전이 제거됩니다(자동 업데이트가 꺼져 있어도 수동 업데이트 시 제거).'),
+('removeOldHint', 'Creative Cloudの［環境設定］→［アプリ］→ 各アプリの［詳細オプション］の項目です。オンだと、更新したときに古いバージョンが削除されます。自動更新が効いているアプリだけが対象です（自動更新がオフのアプリはCreative Cloudでも操作できません）。', 'The option under Advanced options for each app in Creative Cloud Preferences → Apps. When on, the old version is removed when the app auto-updates. Only apps whose auto-update is in effect count (Creative Cloud greys the option out otherwise).', '位于 Creative Cloud“偏好设置 → 应用”中各应用的“高级选项”。开启后，自动更新时会删除旧版本。仅针对自动更新生效的应用（否则 Creative Cloud 中也无法操作）。', 'Creative Cloud 환경설정 → 앱에서 각 앱의 고급 옵션 항목입니다. 켜져 있으면 자동 업데이트할 때 이전 버전이 제거됩니다. 자동 업데이트가 적용되는 앱만 대상입니다(그 외에는 Creative Cloud에서도 조작할 수 없음).'),
 ('columnApp', 'アプリ名', 'App', '应用', '앱'),
 ('globalRowShort', '自動更新', 'Auto-update', '自动更新', '자동 업데이트'),
 ('removeOldShortTitle', '以前のバージョンを削除', 'Remove previous versions', '删除以前的版本', '이전 버전 제거'),
@@ -97,7 +97,7 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 - オフ：自動更新しない
 - オン：自動更新する
 - 未設定（オン）：まだ一度も切り替えていない項目。Creative Cloudはオンとして扱います
-全体の「自動更新」がオフなら、アプリは自動更新されません。全体がオンで、オン（未設定を含む）のアプリが1つでもあると「自動更新されるアプリがあります」と表示し、知らせます。全体がオンでアプリがすべてオフのときは、新しく入れたアプリが自動更新されることがあるため注意として表示します（通知・メールはしません）。
+全体の「自動更新」がオフなら、アプリは自動更新されません。このとき一覧のアプリ別の「自動更新」は「—」と表示します。全体がオンで、オン（未設定を含む）のアプリが1つでもあると「自動更新されるアプリがあります」と表示し、知らせます。全体がオンでアプリがすべてオフのときは、新しく入れたアプリが自動更新されることがあるため注意として表示します（通知・メールはしません）。
 
 オフにするには
 「Creative Cloudを開く」で起動し、［環境設定］→［アプリ］でスイッチを切り替えます。全体の「自動更新」をオフにすると、アプリ別のスイッチは操作できなくなります。アプリ別に切り替えたいときは、先に全体をオンにしてください。
@@ -106,7 +106,7 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 設定の「通知・メール」→「通知」で、自動更新がオンになったときにmacOSの通知を出せます（初期値はオン）。同じ状態の間は繰り返しません。新しいアプリが未設定で増えたときは改めて通知します。通知をクリックするとCreative Cloudを開きます。初回にmacOSが通知の許可を求めます。
 
 以前のバージョンを削除
-設定の「知らせる内容」で「「以前のバージョンを削除」がオンのアプリも知らせる」をオンにすると（初期値はオン）、各アプリの［詳細オプション］→「以前のバージョンを削除」（設定ファイルの removeOlderVersions）がオンのアプリも通知・メールの対象になります。一覧の「以前のバージョンを削除」列で、アプリごとの状態を確認できます。自動更新がオフでも、手動で更新したときに古いバージョンが削除されるためです。
+設定の「知らせる内容」で「「以前のバージョンを削除」がオンのアプリも知らせる」をオンにすると（初期値はオン）、各アプリの［詳細オプション］→「以前のバージョンを削除」（設定ファイルの removeOlderVersions）がオンのアプリも通知・メールの対象になります。一覧の「以前のバージョンを削除」列で、アプリごとの状態を確認できます。自動更新が効いているアプリだけが対象です。自動更新（全体）やそのアプリの自動更新がオフのときは、Creative Cloudでも［詳細オプション］を操作できないため、一覧では「—」と表示します。全体がオフのときは、アプリの行を薄く表示します。
 
 メール送信
 設定の「メール送信」をオンにして宛先を入れると、自動更新がオンの間、1日1回メールで知らせます（初期値はオフ）。Macの「メール」アプリに設定したアカウントから送ります。最初の1回だけ、macOSが「メール」の制御の許可を求めます。「テスト送信」で届くか確認してください。Macがスリープしている間は送れないため、復帰後に送ります。
@@ -138,7 +138,7 @@ What the states mean
 - Off: no automatic updates
 - On: updates automatically
 - Not set (on): never switched; Creative Cloud treats it as on
-If the global Auto-update is off, nothing updates. If it is on and at least one app is on (or not set), the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
+If the global Auto-update is off, nothing updates, and the per-app Auto-update column shows “—”. If it is on and at least one app is on (or not set), the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
 
 Turning it off
 Choose Open Creative Cloud and use the switches in Preferences → Apps. With the global switch off, the per-app switches cannot be changed; turn the global switch on first if you want to change them.
@@ -147,7 +147,7 @@ Notifications
 Notifications & Mail → Notifications shows a macOS notification when auto-update turns on (on by default). It is not repeated while nothing changes, and is sent again when a new app appears as Not set. Clicking it opens Creative Cloud. macOS asks for permission the first time.
 
 Remove previous versions
-With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too, because the old version is removed even on a manual update.
+With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too. Only apps whose auto-update is in effect count; otherwise the list shows “—” (Creative Cloud greys the option out). While the global switch is off, the app rows are dimmed.
 
 Mail
 Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. While the Mac is asleep nothing can be sent; it goes out after waking.
@@ -179,7 +179,7 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 - 关闭：不自动更新
 - 开启：自动更新
 - 未设置（开启）：从未切换过，Creative Cloud 视为开启
-全部“自动更新”关闭时不会自动更新。全部开启且有任一应用开启（含未设置）时会提醒。全部开启但所有应用关闭时显示注意（不通知、不发邮件），因为新安装的应用可能会自动更新。
+全部“自动更新”关闭时不会自动更新，列表中各应用的“自动更新”显示为“—”。全部开启且有任一应用开启（含未设置）时会提醒。全部开启但所有应用关闭时显示注意（不通知、不发邮件），因为新安装的应用可能会自动更新。
 
 如何关闭
 点击“打开 Creative Cloud”，在“偏好设置 → 应用”中切换开关。全部开关关闭时无法更改各应用的开关，如需更改请先打开全部开关。
@@ -188,7 +188,7 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 “通知与邮件 → 通知”会在自动更新开启时显示 macOS 通知（默认开启）。状态不变时不会重复；新应用以未设置状态出现时会再次通知。点击通知会打开 Creative Cloud。首次会请求通知权限。
 
 删除以前的版本
-开启“同时提醒开启了删除以前的版本的应用”（默认开启）后，各应用“高级选项 → 删除以前的版本”（removeOlderVersions）开启的应用也会被提醒，因为即使手动更新也会删除旧版本。
+开启“同时提醒开启了删除以前的版本的应用”（默认开启）后，各应用“高级选项 → 删除以前的版本”（removeOlderVersions）开启的应用也会被提醒。仅针对自动更新生效的应用，否则列表显示“—”（Creative Cloud 中也无法操作）。全部开关关闭时，各应用行会变淡显示。
 
 发送邮件
 开启“发送邮件”并填写地址后，自动更新开启期间每天发送一封邮件（默认关闭）。使用“邮件”应用中设置的账户发送，首次会请求控制“邮件”的权限。请用“发送测试邮件”确认。Mac 睡眠时无法发送，会在唤醒后发送。
@@ -220,7 +220,7 @@ Creative Cloud 환경설정 → 앱의 자동 업데이트와 앱별 스위치�
 - 끔: 자동 업데이트하지 않음
 - 켬: 자동 업데이트함
 - 미설정(켬): 한 번도 전환하지 않은 항목으로, Creative Cloud는 켬으로 취급합니다
-전체 자동 업데이트가 꺼져 있으면 업데이트되지 않습니다. 전체가 켜져 있고 켜진(미설정 포함) 앱이 하나라도 있으면 알립니다. 전체가 켜져 있지만 모든 앱이 꺼져 있으면, 새로 설치한 앱이 자동 업데이트될 수 있어 주의로 표시합니다(알림·메일 없음).
+전체 자동 업데이트가 꺼져 있으면 업데이트되지 않으며, 목록의 앱별 자동 업데이트는 "—"로 표시합니다. 전체가 켜져 있고 켜진(미설정 포함) 앱이 하나라도 있으면 알립니다. 전체가 켜져 있지만 모든 앱이 꺼져 있으면, 새로 설치한 앱이 자동 업데이트될 수 있어 주의로 표시합니다(알림·메일 없음).
 
 끄는 방법
 Creative Cloud 열기로 실행하고 환경설정 → 앱에서 스위치를 변경하세요. 전체 스위치가 꺼져 있으면 앱별 스위치를 변경할 수 없으니 먼저 전체를 켜세요.
@@ -229,7 +229,7 @@ Creative Cloud 열기로 실행하고 환경설정 → 앱에서 스위치를 �
 알림 및 메일 → 알림에서 자동 업데이트가 켜지면 macOS 알림을 표시합니다(기본값 켬). 상태가 같으면 반복하지 않으며, 새 앱이 미설정으로 추가되면 다시 알립니다. 알림을 클릭하면 Creative Cloud를 엽니다. 처음에 알림 권한을 요청합니다.
 
 이전 버전 제거
-"이전 버전 제거"가 켜진 앱도 알림을 켜면(기본값 켬) 각 앱의 고급 옵션 → 이전 버전 제거(removeOlderVersions)가 켜진 앱도 알림과 메일 대상이 됩니다. 수동으로 업데이트해도 이전 버전이 제거되기 때문입니다.
+"이전 버전 제거"가 켜진 앱도 알림을 켜면(기본값 켬) 각 앱의 고급 옵션 → 이전 버전 제거(removeOlderVersions)가 켜진 앱도 알림과 메일 대상이 됩니다. 자동 업데이트가 적용되는 앱만 대상이며, 그 외에는 목록에 "—"로 표시합니다(Creative Cloud에서도 조작할 수 없음). 전체가 꺼져 있으면 앱 행을 흐리게 표시합니다.
 
 메일 보내기
 메일 보내기를 켜고 주소를 입력하면 자동 업데이트가 켜져 있는 동안 하루 한 번 메일로 알립니다(기본값 끔). Mail 앱에 설정된 계정으로 보내며, 처음 한 번 Mail 제어 권한을 요청합니다. 테스트 메일 보내기로 확인하세요. Mac이 잠자기 중이면 깨어난 후 보냅니다.
@@ -259,7 +259,7 @@ for idx, lang in enumerate(LANGS):
     (folder / 'Localizable.strings').write_text('\n'.join(json.dumps(k, ensure_ascii=False) + ' = ' + json.dumps(v, ensure_ascii=False) + ';' for k, v in values.items()) + '\n')
     (folder / 'Help.txt').write_text(helptexts[idx] + '\n')
     (folder / 'InfoPlist.strings').write_text('"NSAppleEventsUsageDescription" = ' + json.dumps(APPLE_EVENTS[idx], ensure_ascii=False) + ';\n')
-info = {'CFBundleName': 'CCAutoUpdateOff', 'CFBundleDisplayName': 'CCAutoUpdateOff', 'CFBundleIdentifier': 'local.takano.CCAutoUpdateOff', 'CFBundleExecutable': 'CCAutoUpdateOff', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'CCAutoUpdateOff.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.utilities', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1', 'NSAppleEventsUsageDescription': 'Sends the auto-update status by mail through the Mail app.'}
+info = {'CFBundleName': 'CCAutoUpdateOff', 'CFBundleDisplayName': 'CCAutoUpdateOff', 'CFBundleIdentifier': 'local.takano.CCAutoUpdateOff', 'CFBundleExecutable': 'CCAutoUpdateOff', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'CCAutoUpdateOff.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.utilities', 'SWNoteArticleURL': 'https://note.com/dtp_tranist/n/n22872a3cbb8d', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1', 'NSAppleEventsUsageDescription': 'Sends the auto-update status by mail through the Mail app.'}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.
 plist_path = root / 'Info.plist'; current = plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
 info.update({k: current[k] for k in ('CFBundleShortVersionString', 'CFBundleVersion') if k in current})

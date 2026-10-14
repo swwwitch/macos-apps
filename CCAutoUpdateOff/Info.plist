@@ -24,9 +24,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.2</string>
+	<string>1.2.5</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>8</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -43,5 +43,7 @@
 	<string>NSApplication</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/dtp_tranist/n/n22872a3cbb8d</string>
 </dict>
 </plist>

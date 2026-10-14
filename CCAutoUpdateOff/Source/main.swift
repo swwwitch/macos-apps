@@ -103,8 +103,8 @@ final class Model: ObservableObject {
 
     private func mailBody(host: String) -> String {
         var lines = [String(format: L("mailIntro"), host), "", L("globalRow") + L("colon") + valueText(state.global)]
-        lines += state.apps.map { "- " + $0.name + "\n    " + L("globalRowShort") + L("colon") + valueText($0.value)
-            + L("mailFieldSeparator") + L("removeOldShortTitle") + L("colon") + ($0.removeOld ? L("stateOn") : L("stateOff")) }
+        lines += state.apps.map { "- " + $0.name + "\n    " + L("globalRowShort") + L("colon") + (state.autoUpdateActive($0) ? valueText($0.value) : "—")
+            + L("mailFieldSeparator") + L("removeOldShortTitle") + L("colon") + (state.removeOldActive($0) ? ($0.removeOld ? L("stateOn") : L("stateOff")) : "—") }
         if !removeOldText.isEmpty { lines += ["", removeOldText] }
         lines += ["", L("mailHowTo"), "", "— CCAutoUpdateOff"]
         return lines.joined(separator: "\n")
@@ -171,18 +171,26 @@ struct Row: View {
     let value: AutoUpdateValue
     /// nil: no per-app value (the global row).
     var removeOld: Bool?
+    /// The global switch is off, so the per-app auto-update value has no effect (Creative Cloud greys it out): dimmed, shown as —.
+    var inactive = false
+    /// 以前のバージョンを削除 has no effect (auto-update not active for this app): shown as —.
+    var removeOldInactive = false
     var bold = false
     var body: some View {
         HStack(spacing: 10) {
             Text(title).font(.system(size: 13, weight: bold ? .semibold : .regular)).lineLimit(1).truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            StateBadge(value: value).font(.system(size: 12)).frame(width: Columns.autoUpdate, alignment: .leading)
             Group {
-                if let removeOld { RemoveOldBadge(on: removeOld) } else { Text("—").foregroundColor(.secondary) }
+                if inactive { Text("—").foregroundColor(.secondary) } else { StateBadge(value: value) }
+            }
+            .font(.system(size: 12)).frame(width: Columns.autoUpdate, alignment: .leading)
+            Group {
+                if let removeOld, !inactive, !removeOldInactive { RemoveOldBadge(on: removeOld) } else { Text("—").foregroundColor(.secondary) }
             }
             .font(.system(size: 12)).frame(width: Columns.removeOld, alignment: .leading)
         }
         .padding(.horizontal, 14).padding(.vertical, 8)
+        .opacity(inactive ? 0.4 : 1)
         .accessibilityElement(children: .combine)
     }
 }
@@ -234,7 +242,8 @@ struct ContentView: View {
                     ScrollView {
                         VStack(spacing: 0) {
                             ForEach(model.state.apps) { app in
-                                Row(title: app.name, value: app.value, removeOld: app.removeOld)
+                                Row(title: app.name, value: app.value, removeOld: app.removeOld, inactive: !model.state.autoUpdateActive(app),
+                                    removeOldInactive: !model.state.removeOldActive(app))
                                 if app != model.state.apps.last { Divider().padding(.leading, 14) }
                             }
                         }

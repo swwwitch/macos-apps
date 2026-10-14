@@ -44,8 +44,13 @@ struct CCState: Equatable {
     }
     /// Apps that will update automatically (empty unless `level == .on`).
     var appsOn: [CCApp] { level == .on ? apps.filter(\.isOn) : [] }
-    /// Apps with 以前のバージョンを削除 checked (applies to manual updates too, so it does not depend on `level`).
-    var appsRemovingOld: [CCApp] { level == .unknown ? [] : apps.filter(\.removeOld) }
+    /// Whether the app's own auto-update switch takes effect (Creative Cloud greys it out while the global switch is off).
+    func autoUpdateActive(_ app: CCApp) -> Bool { level != .unknown && global != false }
+    /// 以前のバージョンを削除 is part of the auto-update options: it only matters while the app actually auto-updates
+    /// (Creative Cloud greys out 詳細オプション otherwise).
+    func removeOldActive(_ app: CCApp) -> Bool { autoUpdateActive(app) && app.isOn }
+    /// Apps that will remove the previous version when they auto-update.
+    var appsRemovingOld: [CCApp] { apps.filter { removeOldActive($0) && $0.removeOld } }
 }
 
 /// Reads the Creative Cloud apps preferences (never writes them):

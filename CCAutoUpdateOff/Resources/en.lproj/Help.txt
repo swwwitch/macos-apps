@@ -7,7 +7,7 @@ What the states mean
 - Off: no automatic updates
 - On: updates automatically
 - Not set (on): never switched; Creative Cloud treats it as on
-If the global Auto-update is off, nothing updates. If it is on and at least one app is on (or not set), the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
+If the global Auto-update is off, nothing updates, and the per-app Auto-update column shows “—”. If it is on and at least one app is on (or not set), the app reports it. If it is on but every app is off, a caution is shown because newly installed apps may update (no notification or mail).
 
 Turning it off
 Choose Open Creative Cloud and use the switches in Preferences → Apps. With the global switch off, the per-app switches cannot be changed; turn the global switch on first if you want to change them.
@@ -16,7 +16,7 @@ Notifications
 Notifications & Mail → Notifications shows a macOS notification when auto-update turns on (on by default). It is not repeated while nothing changes, and is sent again when a new app appears as Not set. Clicking it opens Creative Cloud. macOS asks for permission the first time.
 
 Remove previous versions
-With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too, because the old version is removed even on a manual update.
+With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too. Only apps whose auto-update is in effect count; otherwise the list shows “—” (Creative Cloud greys the option out). While the global switch is off, the app rows are dimmed.
 
 Mail
 Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. While the Mac is asleep nothing can be sent; it goes out after waking.

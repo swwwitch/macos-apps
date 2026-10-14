@@ -18,7 +18,7 @@
 | [ProjectFolder](ProjectFolder.app) | 1.9.0 | 13 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 16 | `local.takano.IdAsyncOff` |
-| [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.2.2 | 5 | `local.takano.CCAutoUpdateOff` |
+| [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.2.5 | 8 | `local.takano.CCAutoUpdateOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.2.2 | 62 | `jp.dtp-transit.kagetrimmer` |
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.3.28 | 48 | `jp.local.SuperKakkoEdit` |
