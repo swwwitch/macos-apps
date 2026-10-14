@@ -5,7 +5,7 @@ enum MenuTitles {
     static let key = "menuTitles"
 
     /// The KM macro 「Universal Paste Without Style」 (in its order), the titles of 「Paste and Match Style」,
-    /// Word's English title, and the macOS zh/ko titles (AppKit MenuCommands.loctable).
+    /// Word's English title, Excel's titles, and the macOS zh/ko titles (AppKit MenuCommands.loctable).
     static let initial = [
         "Paste and Match Style",
         "ペーストしてスタイルを合わせる",
@@ -21,6 +21,8 @@ enum MenuTitles {
         "貼り付け先の書式に合わせる",
         "スタイルなしペースト",
         "Paste and Match Formatting",
+        "Paste and Match Destination Formatting",
+        "貼り付けて書式設定に合わせる",
         "粘贴并匹配样式",
         "붙여넣고 스타일 일치"
     ]
