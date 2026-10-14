@@ -223,6 +223,14 @@ struct SourceEditor: NSViewRepresentable {
             store.text = textView.string
             SourceEditor.styleHeadings(textView, headings: store.allHeadings, bold: boldHeadings, size: fontSize)
         }
+
+        func textViewDidChangeSelection(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            let range = textView.selectedRange()
+            let selected = range.length > 0 ? (textView.string as NSString).substring(with: range) : ""
+            // Publish only on change, so moving the caret does not redraw the window.
+            if store.selectedText != selected { store.selectedText = selected }
+        }
     }
 }
 
@@ -263,11 +271,20 @@ final class DroppingTextView: NSTextView {
     /// 右クリックメニューの先頭に書式の項目を並べる
     override func menu(for event: NSEvent) -> NSMenu? {
         let menu = super.menu(for: event) ?? NSMenu()
-        let items = FormatAction.contextMenuItems()
+        var items = FormatAction.contextMenuItems()
+        if selectedRange().length > 0 {
+            let rewrite = NSMenuItem(title: L("文字数を指定して書き直す…"), action: #selector(rewriteSelection(_:)), keyEquivalent: "")
+            rewrite.target = self
+            items = [rewrite] + (items.isEmpty ? [] : [.separator()]) + items
+        }
         guard !items.isEmpty else { return menu }
         let all = items + [.separator()]
         for (index, item) in all.enumerated() { menu.insertItem(item, at: index) }
         return menu
+    }
+
+    @objc func rewriteSelection(_ sender: Any?) {
+        MarkdownStore.shared.beginRewrite()
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {

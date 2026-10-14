@@ -17,13 +17,14 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - Switch the right pane with Headings | Preview at its top. The app starts in Preview. The preview shows the source as HTML and updates as you type.
 - HTML at the start of a line (such as <h2 style="…">) is shown as is, so Doorkeeper headings appear in color.
 - Clicking a link in the preview opens it in your browser. Images are loaded from the internet.
+- Bare URLs (starting with https://, http:// or www.) also become links in the preview. Text wrapped in ~~ is shown with a strikethrough.
 - Scrolling the source on the left scrolls the preview to the same place.
 - GitHub-style tables (a | header | … | row followed by a |---|---| delimiter row) and HTML tables (<table>) are shown with borders. :---, :---: and ---: in the delimiter row align left, center and right.
 - Code blocks are colored with highlight.js (the language after ``` is used, such as ```swift; otherwise it is detected). It is bundled, so nothing is downloaded. Copy HTML does not include the colors, only the language class.
 - Copy HTML above the preview (also in the Edit menu) copies the whole HTML shown in the preview.
 
 ## Raising and Lowering Headings
-- The raise and lower buttons on the Source bar on the left, or Tools > Raise All Headings One Level (⌘[) and Lower All Headings One Level (⌘]), remove or add one "#" for all headings in the source.
+- The raise and lower buttons on the Source bar on the left, or Tools > Change All Heading Levels > Raise One Level (⌘[) and Lower One Level (⌘]), remove or add one "#" for all headings in the source.
 - They affect headings at every level, whatever is checked in the right pane. If text is selected in the source, only headings in the selection change.
 - If a level 1 heading would be raised or a level 6 heading lowered, nothing changes and the reason is shown.
 - Underlined (=== or ---) headings are rewritten with "#". For HTML headings only the tag number changes (<h2> to <h3> and so on). Undo (⌘Z) reverts the whole change.
@@ -33,15 +34,24 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 - A section cannot be moved into itself. Undo (⌘Z) reverts the move.
 
 ## Tidying and Table of Contents
-- Choose from Tidy on the Source bar or from the Tools menu in the menu bar (in Tools, the five items below and Apply All are in the Tidy submenu). Only the selection is changed if text is selected; otherwise the whole source. Code blocks are left alone.
+- Choose from Tidy on the Source bar or from the Tools menu in the menu bar (in Tools, they are in the Tidy submenu; the eight items above Apply All run together with it, and the items below it run only when chosen). Only the selection is changed if text is selected; otherwise the whole source. Code blocks are left alone.
+- **Add Space After Marks**: adds a space where a mark runs into the text, as in “##Heading”, “-item” or “1.item” (→ “## Heading”, “- item”, “1. item”). Lines such as **bold**, *italic*, ---, “-5” or “1.5” are left alone.
+- **Remove Leading Spaces**: removes spaces and tabs (including full-width spaces) at the start of text lines. Indentation is kept for list items and the indented lines under them (nested or continued), indented code after a blank line, and inside <pre>.
+- **Change twitter.com to x.com**: replaces twitter.com (also with www. or mobile.) in URLs and text with x.com. Not included in Apply All.
+- **Remove UTM Parameters**: removes parameters starting with utm_ (utm_source, utm_medium and so on) from URLs. Other parameters and anything after # are kept. Not included in Apply All.
+- **Wrap in div Block**: converts the selected lines (or the whole text) from Markdown to HTML, wraps them in a gray box (<div style="background-color: #efefef; …">…</div>) and minifies the result into one line. The box's background, padding, corner radius and bottom margin can be changed in the Themes tab of Settings.
 - **Remove Trailing Spaces**: two or more spaces that make a Markdown line break are kept as two when the next line has text.
-- **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all five).
+- **Empty Whitespace-Only Lines**: lines with only spaces or tabs (including full-width spaces) become blank lines.
+- **Collapse Blank Lines**, **Use “-” for List Markers** (* and +), **Make Letters and Digits Half-width** (full-width letters and digits only), **Remove Spaces Between Japanese and Latin** (half-width spaces between Japanese text and Latin letters or digits; inline code is left alone), **Apply All** (all eight).
+- **Remove Blank Lines**: removes every blank line (including lines with only spaces or tabs). Code blocks are left alone. Not included in Apply All.
 - **Minify HTML**: joins each HTML block (a run of lines starting with a tag, up to a blank line) into one line, removing line breaks and extra spaces, including spaces after “;” and “:” in style. Markdown and blocks containing <pre> or <textarea> are left alone. Not included in Apply All.
 - **Add Blank Lines Between Blocks**: inserts a blank line where headings, paragraphs, lists, quotes, code, tables, HTML and rules touch without one (always around headings and rules). Lines of the same paragraph, list, quote or table, and code blocks, are left alone.
 - **Hard Breaks to Paragraphs**: turns hard line breaks (two or more trailing spaces, a trailing \, or <br>) and plain line breaks between paragraph lines into separate paragraphs with blank lines. Lists, quotes, tables, headings, code blocks and lines starting with an HTML tag are not split.
 - **Remove Line Breaks**: joins the lines within each paragraph. A space is added where both sides are Latin letters, digits or ASCII punctuation; Japanese text is joined directly. Blank lines and code blocks are kept.
 - **Delete Duplicate Lines**: keeps only the first of identical lines (order kept, blank lines untouched). **Sort Lines (Ascending / Descending)**: sorts lines with numbers in natural order (2 before 10). With a selection, the whole lines it touches are used. Neither is part of Apply All.
 - **Insert Table of Contents**: builds a bulleted list from the headings at the checked levels and inserts it at the cursor.
+- **Rewrite to Length…**: rewrites the selected text to about the target number of characters (counted without markup, tags and line breaks, as at the bottom left). Choose it from the Tools menu or the right-click menu. It uses the Apple Intelligence model on this Mac, so your text is not sent anywhere (macOS 26 or later with Apple Intelligence on). If the result is more than 10% off, it tries up to three times and shows the closest one. You can edit the result before choosing Replace, and undo with ⌘Z.
+- **HTML Link…**: enter a URL and text to insert <a href="URL">text</a>. The selected text goes into Text (and into URL if it is a URL). A URL on the clipboard is filled in as the URL.
 - Undo (⌘Z) reverts any of these.
 
 ## HTML to Markdown
@@ -61,9 +71,9 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 
 ## Format
 Choose from the Format menu in the menu bar or from the source’s right-click menu. Undo (⌘Z) reverts any of them.
-- **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘E), **Strikethrough** (⇧⌘X, <s>…</s>), **Comment** (⇧⌘M or ⌥⌘M, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
+- **Bold** (⌘B), **Italic** (⌘I), **Inline Code** (⌘E), **Strikethrough** (⇧⌘X, <s>…</s>), **Underline** (⌘U, <u>…</u>), **Comment** (⇧⌘M or ⌥⌘M, <!-- -->): wrap the selected text; choosing again removes the marks. With no selection, the marks are inserted with the cursor between them.
 - **Heading 1–6 and Paragraph** (under Structure in the right-click menu): turn the paragraph at the cursor (all selected lines) into **Heading 1–6** (⌥⌘1–⌥⌘4; keys for Headings 5 and 6 can be set in Hotkeys) or a **Paragraph** (⌥⌘0, removes the “#”).
-- **Ordered List** (⇧⌘7 or ⌥⌘5), **Unordered List** (⇧⌘8 or ⌥⌘6), **Blockquote** (⇧⌘9): toggle the paragraph at the cursor; if it already has that form, it is turned back. **Code Block** (⌥⌘8): wraps the selected lines (or the current line) in ```; choosing again removes the fences.
+- **Ordered List** (⇧⌘7 or ⌥⌘5), **Unordered List** (⇧⌘8 or ⌥⌘6), **Blockquote** (⇧⌘9): toggle the paragraph at the cursor; if it already has that form, it is turned back. **Fenced Code Block** (⌥⌘8): wraps the selected lines (or the current line) in ```; choosing again removes the fences.
 - **Shift Right** (⌥⌘]) and **Shift Left** (⌥⌘[): move the selected lines by two spaces.
 - **Move Paragraph Up** (⌃⇧↑) and **Move Paragraph Down** (⌃⇧↓): swap the paragraph at the cursor (a block separated by blank lines; all selected paragraphs) with the one before or after. The blank lines between stay in place.
 - **Link** (⌘K) and **Image** (⇧⌘I): make the selection [text](https://) with “https://” selected; a selected URL becomes [](URL).
@@ -116,7 +126,8 @@ Open with the Settings button in the main window (⌘,).
 - Keys for format and heading commands can be changed in the Hotkeys tab of Settings.
 - **⌘B** / **⌘I** / **⌘E** / **⇧⌘M** (**⌥⌘M**): Bold / Italic / Inline Code / Comment
 - **⇧⌘X**: Strikethrough
-- **⌥⌘8**: Code Block
+- **⌘U**: Underline
+- **⌥⌘8**: Fenced Code Block
 - **⌥⌘1**–**⌥⌘4** / **⌥⌘0**: Heading 1–4 / Paragraph
 - **⇧⌘7** (**⌥⌘5**) / **⇧⌘8** (**⌥⌘6**) / **⇧⌘9**: Ordered List / Unordered List / Blockquote
 - **⌥⌘]** / **⌥⌘[**: Shift Right / Shift Left

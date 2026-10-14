@@ -21,6 +21,11 @@ enum MarkdownFormat {
         toggle(text, selection: selection, open: "<s>", close: "</s>")
     }
 
+    /// <u>〜</u>（下線）で囲む・外す
+    static func toggleUnderline(_ text: String, selection: NSRange) -> TextEdit {
+        toggle(text, selection: selection, open: "<u>", close: "</u>")
+    }
+
     /// <!-- --> で囲む・外す
     static func toggleComment(_ text: String, selection: NSRange) -> TextEdit {
         toggle(text, selection: selection, open: "<!-- ", close: " -->")

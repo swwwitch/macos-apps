@@ -98,6 +98,12 @@ final class MarkdownStore: ObservableObject {
     static let editedKey = "markdownKitchen.fileEdited"
 
     @Published var message: String?
+    /// 原稿で選択している文字列（選択がなければ空）。左下の「選択範囲」に使う
+    @Published var selectedText = ""
+    /// 「文字数を指定して書き直す」のシートに渡す範囲（開いているあいだだけ）
+    @Published var rewriteRequest: RewriteRequest?
+    /// 「HTMLリンク...」のシートに渡す範囲
+    @Published var htmlLinkRequest: HTMLLinkRequest?
     /// 左ペインのテキストビュー。読み込みをUndoに載せる・見出しへ移動するために使う
     weak var editor: NSTextView?
     /// 原稿のスクロール（いちばん上に見えている行、末尾なら .infinity）をプレビューへ伝える
@@ -338,7 +344,7 @@ final class MarkdownStore: ObservableObject {
             NSSound.beep()
             return
         }
-        transformSource(actionName: L("Doorkeeper用に整形"), unchanged: L("変換する見出し（## ・###）はありません"),
+        transformSource(actionName: L("Doorkeeper用に整形"), unchanged: L("変換する見出し（##・###）はありません"),
                         done: L("見出しをHTMLに変換しました（%@）", preset.name)) { DoorkeeperHTML.convert($0, styles: styles) }
     }
 
@@ -428,6 +434,56 @@ final class MarkdownStore: ObservableObject {
         replace(edit.range, with: edit.replacement, actionName: actionName)
         editor.setSelectedRange(edit.selection)
         editor.scrollRangeToVisible(edit.selection)
+    }
+
+    /// 選択した文章の書き直しを始める（シートを開く）
+    func beginRewrite() {
+        guard let editor, editor.selectedRange().length > 0 else {
+            message = L("書き直す範囲を選択してください")
+            NSSound.beep()
+            return
+        }
+        let range = editor.selectedRange()
+        rewriteRequest = RewriteRequest(range: range, original: (editor.string as NSString).substring(with: range))
+    }
+
+    /// 書き直した文章で、開いた時点の選択範囲を置き換える（Undoに残す）
+    func applyRewrite(_ request: RewriteRequest, with replacement: String) {
+        let string = text as NSString
+        guard NSMaxRange(request.range) <= string.length, string.substring(with: request.range) == request.original else {
+            message = L("原稿が変わったため、置き換えられませんでした")
+            NSSound.beep()
+            return
+        }
+        replace(request.range, with: replacement, actionName: L("書き直し"))
+        let selection = NSRange(location: request.range.location, length: (replacement as NSString).length)
+        editor?.setSelectedRange(selection)
+        editor?.scrollRangeToVisible(selection)
+        message = L("書き直しました")
+    }
+
+    /// HTMLリンクのシートを開く（選択した文字をテキストに使う。選択がなければカーソルの位置に入れる）
+    func beginHTMLLink() {
+        guard let editor, editor.window?.isKeyWindow == true else {
+            NSSound.beep()
+            return
+        }
+        let range = editor.selectedRange()
+        htmlLinkRequest = HTMLLinkRequest(range: range, selectedText: (editor.string as NSString).substring(with: range))
+    }
+
+    /// 開いた時点の選択範囲を <a> タグに置き換える（Undoに残す）
+    func insertHTMLLink(_ request: HTMLLinkRequest, tag: String) {
+        let string = text as NSString
+        guard NSMaxRange(request.range) <= string.length, string.substring(with: request.range) == request.selectedText else {
+            message = L("原稿が変わったため、置き換えられませんでした")
+            NSSound.beep()
+            return
+        }
+        replace(request.range, with: tag, actionName: L("HTMLリンク"))
+        let selection = NSRange(location: request.range.location, length: (tag as NSString).length)
+        editor?.setSelectedRange(selection)
+        editor?.scrollRangeToVisible(selection)
     }
 
     /// 範囲を置き換えてUndoの履歴に残す

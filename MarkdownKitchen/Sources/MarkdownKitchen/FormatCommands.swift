@@ -4,7 +4,7 @@ import SwiftUI
 /// 書式の操作。メニューバーの「書式」と原稿の右クリックメニューで共有する
 enum FormatAction: CaseIterable {
     case copyHTML
-    case bold, italic, inlineCode, strikethrough, comment
+    case bold, italic, inlineCode, strikethrough, underline, comment
     case heading1, heading2, heading3, heading4, heading5, heading6, paragraph
     case orderedList, unorderedList, quote, codeBlock
     case indent, outdent, moveParagraphUp, moveParagraphDown
@@ -19,7 +19,7 @@ enum FormatAction: CaseIterable {
     /// 設定の「ホットキー」タブの並び
     static var settingsGroups: [(title: String, actions: [FormatAction])] {
         [(L("構造"), [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph, .orderedList, .unorderedList, .quote, .codeBlock]),
-         (L("インライン"), [.bold, .italic, .inlineCode, .strikethrough, .comment, .link, .image, .horizontalRule]),
+         (L("インライン"), [.bold, .italic, .inlineCode, .strikethrough, .underline, .comment, .link, .image, .horizontalRule]),
          (L("編集"), [.newParagraph, .indent, .outdent, .moveParagraphUp, .moveParagraphDown]),
          (L("コピー"), [.copyHeadings, .copyHTML]),
          (L("見出し"), [.raiseHeadings, .lowerHeadings]),
@@ -47,7 +47,7 @@ enum FormatAction: CaseIterable {
 
     /// メニューの区切り（この項目の前に区切り線）
     static let groups: [[FormatAction]] = [
-        [.bold, .italic, .inlineCode, .strikethrough, .comment],
+        [.bold, .italic, .inlineCode, .strikethrough, .underline, .comment],
         [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6, .paragraph],
         [.orderedList, .unorderedList, .quote, .codeBlock],
         [.indent, .outdent],
@@ -63,6 +63,7 @@ enum FormatAction: CaseIterable {
         case .italic: return L("斜体")
         case .inlineCode: return L("インラインコード")
         case .strikethrough: return L("取り消し線")
+        case .underline: return L("下線")
         case .comment: return L("コメント")
         case .heading1: return L("見出し%@", "1")
         case .heading2: return L("見出し%@", "2")
@@ -90,7 +91,7 @@ enum FormatAction: CaseIterable {
         case .findNext: return L("次を検索")
         case .findPrevious: return L("前を検索")
         case .useSelectionForFind: return L("選択部分を検索に使用")
-        case .jumpToSelection: return L("選択部分へスクロール")
+        case .jumpToSelection: return L("選択部分へジャンプ")
         }
     }
 
@@ -105,6 +106,7 @@ enum FormatAction: CaseIterable {
         case .italic: return ("i", .command)
         case .inlineCode: return ("e", .command)
         case .strikethrough: return ("x", [.command, .shift])
+        case .underline: return ("u", .command)
         case .comment: return ("m", [.command, .shift])
         case .heading1: return ("1", [.command, .option])
         case .heading2: return ("2", [.command, .option])
@@ -144,6 +146,7 @@ enum FormatAction: CaseIterable {
         case .italic: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "*") }
         case .inlineCode: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "`") }
         case .strikethrough: store.format(title) { MarkdownFormat.toggleStrikethrough($0, selection: $1) }
+        case .underline: store.format(title) { MarkdownFormat.toggleUnderline($0, selection: $1) }
         case .comment: store.format(title) { MarkdownFormat.toggleComment($0, selection: $1) }
         case .heading1, .heading2, .heading3, .heading4, .heading5, .heading6:
             let level = [.heading1, .heading2, .heading3, .heading4, .heading5, .heading6].firstIndex(of: self)! + 1
@@ -183,7 +186,10 @@ enum FormatAction: CaseIterable {
 
     /// 右クリックメニューに入れる項目（キーは表示だけ）
     /// 右クリックメニューの並び（先頭は「HTMLをコピー」）
-    static var contextGroups: [[FormatAction]] { [[.copyHTML]] + groups }
+    /// 右クリックメニューの区切り。字下げは Tab・⇧Tab で足りるので、書式メニューだけに出す
+    static var contextGroups: [[FormatAction]] {
+        [[.copyHTML]] + groups.map { $0.filter { $0 != .indent && $0 != .outdent } }.filter { !$0.isEmpty }
+    }
     static let contextHiddenKey = "markdownKitchen.contextMenuHidden"
 
     /// 設定の「右クリック」で外した項目

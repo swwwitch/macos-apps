@@ -45,6 +45,8 @@ struct ContentView: View {
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
         // The window registers itself after the first layout pass.
         .onAppear { DispatchQueue.main.async { store.refreshDocumentEdited() } }
+        .sheet(item: $store.rewriteRequest) { RewriteSheet(request: $0) }
+        .sheet(item: $store.htmlLinkRequest) { HTMLLinkSheet(request: $0) }
     }
 
     private var header: some View {
@@ -115,7 +117,7 @@ struct ContentView: View {
                     .menuStyle(.button)
                     .fixedSize()
                     .disabled(store.text.isEmpty)
-                    .help(L("行末の空白・空行・リストの記号・英数字・和欧間のスペースの整理、HTML→Markdown、目次の挿入。範囲を選択していればその中だけ（⌘Zで戻せます）"))
+                    .help(L("スペース・空行・記号の整理、改行や行の操作、HTMLの変換、目次の挿入。範囲を選択していればその中だけ（⌘Zで戻せます）"))
                 Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
                     .menuStyle(.button)
                     .fixedSize()
@@ -226,7 +228,7 @@ struct ContentView: View {
             .menuStyle(.button)
             .fixedSize()
             .help(L("一覧の見た目とコピーの形式"))
-            .accessibilityLabel(L("表示とコピーの形式"))
+            .accessibilityLabel(L("一覧の見た目とコピーの形式"))
             Button(L("コピー")) { copy(format) }
                 .disabled(headings.isEmpty)
                 .help(L("表示中の形式で見出しをまとめてコピー（⇧⌘C）"))
@@ -331,18 +333,34 @@ struct ContentView: View {
 
     private var footer: some View {
         HStack(spacing: 8) {
-            Text(store.message ?? L("%@行・%@文字", String(lineCount), String(store.text.count)))
+            Text(store.message ?? statsText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.middle)
+                .help(rawStatsText)
             Spacer()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }
 
-    private var lineCount: Int { store.text.isEmpty ? 0 : HeadingParser.splitLines(store.text).count }
+    /// 本文（記号・タグ・空行を除く）の行数・文字数。選択していれば選択範囲も同じ数え方で続ける
+    private var statsText: String {
+        let content = TextStats.content(store.text)
+        var parts = [L("%@行・%@文字", String(content.lines), String(content.characters))]
+        if !store.selectedText.isEmpty {
+            let selected = TextStats.content(store.selectedText)
+            parts.append(L("選択範囲：%@行・%@文字", String(selected.lines), String(selected.characters)))
+        }
+        return parts.joined(separator: "   ")
+    }
+
+    /// ツールチップ：原稿をそのまま数えた行数・文字数
+    private var rawStatsText: String {
+        let raw = TextStats.raw(store.text)
+        return L("原稿全体：%@行・%@文字（記号・タグ・空行を含む）", String(raw.lines), String(raw.characters))
+    }
 
     private func copy(_ format: HeadingParser.Format) {
         copyFormat = format.rawValue
@@ -363,13 +381,23 @@ struct TidyMenuItems: View {
 /// 整形の6項目（ツールメニューでは「整形」のサブメニュー）
 struct TidyRuleItems: View {
     var body: some View {
-        Button(L("行末の空白を削除")) { MarkdownStore.shared.tidy([.trailingSpaces]) }
+        // 「すべて整える」でまとめて実行するもの
+        Button(L("行頭のスペースを削除")) { MarkdownStore.shared.tidy([.leadingSpaces]) }
+        Button(L("行末のスペースを削除")) { MarkdownStore.shared.tidy([.trailingSpaces]) }
+        Button(L("スペースやタブだけの行を空に")) { MarkdownStore.shared.tidy([.whitespaceLines]) }
         Button(L("連続する空行を1行に")) { MarkdownStore.shared.tidy([.blankLines]) }
+        Button(L("記号のあとにスペースを入れる")) { MarkdownStore.shared.tidy([.markerSpaces]) }
         Button(L("リストの記号を「-」にそろえる")) { MarkdownStore.shared.tidy([.listMarkers]) }
         Button(L("英数字を半角に")) { MarkdownStore.shared.tidy([.halfwidthAlphanumerics]) }
         Button(L("和欧間のスペースを削除")) { MarkdownStore.shared.tidy([.japaneseLatinSpaces]) }
         Divider()
         Button(L("すべて整える")) { MarkdownStore.shared.tidy(MarkdownTidy.Rule.standard) }
+        Divider()
+        // 「すべて整える」に入れないもの（文章を変えるので、選んだときだけ）
+        Button(L("空行を削除")) { MarkdownStore.shared.tidy([.removeBlankLines]) }
+        Button(L("twitter.comをx.comに")) { MarkdownStore.shared.tidy([.twitterToX]) }
+        Button(L("utmパラメーターを削除")) { MarkdownStore.shared.tidy([.removeUTM]) }
+        Button(L("divブロックで囲む")) { MarkdownStore.shared.transformLines(L("divブロックで囲む"), done: L("divブロックで囲みました"), LineTools.wrapInDiv) }
     }
 }
 
@@ -379,6 +407,10 @@ struct TidyToolItems: View {
     let levels: Set<Int>
     var inToolsMenu = false
     var body: some View {
+        // 書き直し
+        Button(L("文字数を指定して書き直す…")) { MarkdownStore.shared.beginRewrite() }
+        Button(L("HTMLリンク…")) { MarkdownStore.shared.beginHTMLLink() }
+        Divider()
         // 改行・空行
         Button(L("要素間に空行を入れる")) { MarkdownStore.shared.transformLines(L("要素間に空行を入れる"), done: L("要素間に空行を入れました"), LineTools.separateBlocks) }
         Button(L("強制改行を改段落に")) { MarkdownStore.shared.transformLines(L("強制改行を改段落に"), done: L("強制改行を改段落にしました"), LineTools.hardBreaksToParagraphs) }
@@ -397,8 +429,10 @@ struct TidyToolItems: View {
         // 見出し
         Button(L("目次を挿入")) { MarkdownStore.shared.insertTableOfContents(levels: levels) }
         if inToolsMenu {
-            ShortcutButton(action: .raiseHeadings)
-            ShortcutButton(action: .lowerHeadings)
+            Menu(L("見出しレベルの変更（すべて）")) {
+                ShortcutButton(action: .raiseHeadings, title: L("1段上げる"))
+                ShortcutButton(action: .lowerHeadings, title: L("1段下げる"))
+            }
         }
     }
 }

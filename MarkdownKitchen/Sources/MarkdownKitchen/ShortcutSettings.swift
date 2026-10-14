@@ -126,9 +126,11 @@ final class ShortcutStore: ObservableObject {
 /// 割り当てたキーを付けたメニュー項目（割り当てが変わるとメニューも変わる）
 struct ShortcutButton: View {
     let action: FormatAction
+    /// サブメニューの中で短く出す名前（なければ action.title）
+    var title: String?
     @ObservedObject private var store = ShortcutStore.shared
     var body: some View {
-        Button(action.title) { action.perform() }
+        Button(title ?? action.title) { action.perform() }
             .keyboardShortcut(store.shortcut(for: action)?.swiftUI)
     }
 }

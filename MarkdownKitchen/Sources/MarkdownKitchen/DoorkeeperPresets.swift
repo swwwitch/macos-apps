@@ -117,3 +117,74 @@ private struct PresetRow: View {
         return String(format: "#%02X%02X%02X", Int(round(rgb.redComponent * 255)), Int(round(rgb.greenComponent * 255)), Int(round(rgb.blueComponent * 255)))
     }
 }
+
+/// 設定の「テーマ」：「divブロックで囲む」の囲みの背景色と余白
+struct DivBoxSettingsView: View {
+    private typealias Box = LineTools.DivBox
+    @AppStorage(LineTools.DivBox.backgroundKey) private var background = LineTools.DivBox.defaultBackground
+    @AppStorage(LineTools.DivBox.paddingKey) private var padding = LineTools.DivBox.defaultPadding
+    @AppStorage(LineTools.DivBox.radiusKey) private var radius = LineTools.DivBox.defaultRadius
+    @AppStorage(LineTools.DivBox.marginKey) private var margin = LineTools.DivBox.defaultMargin
+
+    private var swatch: Color {
+        guard let (r, g, b) = DoorkeeperHTML.rgb(background) else { return .clear }
+        return Color(red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255)
+    }
+
+    var body: some View {
+        SettingsSection(L("divブロック")) {
+            Text(L("ツールの「divブロックで囲む」で使う囲みの見た目です。余白はCSSの書き方（例：1px 20px 15px）で入れます。"))
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 8) {
+                GridRow {
+                    Text(L("背景色")).gridColumnAlignment(.trailing)
+                    HStack(spacing: 8) {
+                        ColorPicker(L("背景色"), selection: Binding(get: { swatch }, set: { background = hex($0) }), supportsOpacity: false)
+                            .labelsHidden()
+                        TextField(Box.defaultBackground, text: $background)
+                            .font(.system(.body, design: .monospaced))
+                            .frame(width: 90)
+                            .accessibilityLabel(L("背景色"))
+                        if DoorkeeperHTML.rgb(background) == nil {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                                .help(L("#0AF や #993366 の形で入力してください"))
+                                .accessibilityLabel(L("#0AF や #993366 の形で入力してください"))
+                        }
+                    }
+                }
+                row(L("内側の余白（padding）"), $padding, Box.defaultPadding)
+                row(L("角の丸み（border-radius）"), $radius, Box.defaultRadius)
+                row(L("下の余白（margin-bottom）"), $margin, Box.defaultMargin)
+            }
+            Text(LineTools.divOpen)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+            Button(L("初期値に戻す")) {
+                background = Box.defaultBackground
+                padding = Box.defaultPadding
+                radius = Box.defaultRadius
+                margin = Box.defaultMargin
+            }
+            .disabled(background == Box.defaultBackground && padding == Box.defaultPadding && radius == Box.defaultRadius && margin == Box.defaultMargin)
+        }
+    }
+
+    private func row(_ title: String, _ value: Binding<String>, _ placeholder: String) -> some View {
+        GridRow {
+            Text(title)
+            TextField(placeholder, text: value)
+                .font(.system(.body, design: .monospaced))
+                .frame(width: 160)
+                .accessibilityLabel(title)
+        }
+    }
+
+    private func hex(_ color: Color) -> String {
+        guard let rgb = NSColor(color).usingColorSpace(.sRGB) else { return background }
+        return String(format: "#%02X%02X%02X", Int(round(rgb.redComponent * 255)), Int(round(rgb.greenComponent * 255)), Int(round(rgb.blueComponent * 255)))
+    }
+}

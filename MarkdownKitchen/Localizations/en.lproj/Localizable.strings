@@ -2,6 +2,8 @@
 "%@件" = "%@ items";
 "%@件の見出しをコピーしました" = "Copied %@ headings";
 "%@行・%@文字" = "%@ lines · %@ characters";
+"原稿全体：%@行・%@文字（記号・タグ・空行を含む）" = "Whole source: %@ lines · %@ characters (including markup, tags and blank lines)";
+"選択範囲：%@行・%@文字" = "Selection: %@ lines · %@ characters";
 "MarkdownKitchenヘルプ" = "MarkdownKitchen Help";
 "Markdownを整形・加工" = "Format and Rework Markdown";
 "Markdownファイルを選択" = "Choose a Markdown File";
@@ -37,7 +39,7 @@
 "HTML→Markdown" = "HTML→Markdown";
 "HTMLをMarkdownに変換しました" = "Converted HTML to Markdown";
 "変換するHTMLはありません" = "No HTML to convert";
-"変換する見出し（## ・###）はありません" = "No ## or ### headings to convert";
+"変換する見出し（##・###）はありません" = "No ## or ### headings to convert";
 "見出しをHTMLに変換しました（%@）" = "Converted headings to HTML (%@)";
 "## と ### を、ここで決めた色の装飾付きHTML見出しに変換します。h2は基本カラーの背景に白文字、h3は基本カラーの文字・罫線と淡い背景です。" = "Converts ## and ### into styled HTML headings in these colors. h2 gets white text on the base color; h3 gets base-color text and rules on a light background.";
 "#0AF や #993366 の形で入力してください" = "Enter a color such as #0AF or #993366";
@@ -57,7 +59,6 @@
 "div要素内は無視" = "Ignore inside div elements";
 "右ペインの表示" = "Right pane";
 "プレビュー" = "Preview";
-"表示とコピーの形式" = "Display and copy format";
 "一覧の見た目とコピーの形式" = "How the list looks and what Copy produces";
 "表示中の形式で見出しをまとめてコピー（⇧⌘C）" = "Copy all headings in the shown format (⇧⌘C)";
 "「%@」はほかのアプリで変更されています" = "“%@” was changed by another app";
@@ -80,6 +81,7 @@
 "すべて整える" = "Apply All";
 "オンにした要素は、開始タグから終了タグまで（入れ子も含む）をHTMLのまま残します。" = "Checked elements are left as HTML from the start tag to the end tag (including nested ones).";
 "プレビューと同じHTMLを全文コピーします" = "Copies the whole HTML shown in the preview";
+"記号のあとにスペースを入れる" = "Add Space After Marks";
 "リストの記号を「-」にそろえる" = "Use “-” for List Markers";
 "変換しない要素" = "Elements to leave as HTML";
 "整える箇所はありません" = "Nothing to tidy";
@@ -88,10 +90,13 @@
 "目次にする見出しがありません" = "No headings for a table of contents";
 "目次を挿入" = "Insert Table of Contents";
 "英数字を半角に" = "Make Letters and Digits Half-width";
-"行末の空白を削除" = "Remove Trailing Spaces";
+"行頭のスペースを削除" = "Remove Leading Spaces";
+"行末のスペースを削除" = "Remove Trailing Spaces";
+"スペースやタブだけの行を空に" = "Empty Whitespace-Only Lines";
 "見出しの中には移動できません" = "Cannot move a section into itself";
 "見出しの移動" = "Move Section";
 "連続する空行を1行に" = "Collapse Blank Lines";
+"空行を削除" = "Remove Blank Lines";
 "Doorkeeper用に整形" = "Format for Doorkeeper";
 "ファイルが見つかりません" = "File not found";
 "未保存" = "Unsaved";
@@ -102,7 +107,11 @@
 "「%@」との連携を解除しました" = "Unlinked from “%@”";
 "原稿を整え、見出しとプレビューで確かめる" = "Tidy the source, then check it with headings and preview";
 "和欧間のスペースを削除" = "Remove Spaces Between Japanese and Latin";
-"行末の空白・空行・リストの記号・英数字・和欧間のスペースの整理、HTML→Markdown、目次の挿入。範囲を選択していればその中だけ（⌘Zで戻せます）" = "Tidy trailing spaces, blank lines, list markers, letters/digits and Japanese–Latin spaces, convert HTML to Markdown, or insert a table of contents; only the selection if text is selected (Undo with ⌘Z)";
+"twitter.comをx.comに" = "Change twitter.com to x.com";
+"utmパラメーターを削除" = "Remove UTM Parameters";
+"divブロックで囲む" = "Wrap in div Block";
+"divブロックで囲みました" = "Wrapped in a div block";
+"スペース・空行・記号の整理、改行や行の操作、HTMLの変換、目次の挿入。範囲を選択していればその中だけ（⌘Zで戻せます）" = "Tidy spaces, blank lines and marks, work with line breaks and lines, convert HTML, or insert a table of contents; only the selection if text is selected (Undo with ⌘Z)";
 "テーマ" = "Themes";
 "新しいテーマ" = "New Theme";
 "テーマがありません" = "No themes";
@@ -138,7 +147,7 @@
 "検索" = "Find";
 "検索と置換…" = "Find and Replace…";
 "次を検索" = "Find Next";
-"選択部分へスクロール" = "Jump to Selection";
+"選択部分へジャンプ" = "Jump to Selection";
 "選択部分を検索に使用" = "Use Selection for Find";
 "項目のキーをクリックして、新しいキーを押します（⌘か⌃を含む組み合わせ）。Escで取り消し。" = "Click an item’s key, then press the new keys (a combination with ⌘ or ⌃). Esc cancels.";
 "%@件を置き換えました" = "Replaced %@";
@@ -170,6 +179,9 @@
 "見つかったテキスト" = "Found Text";
 "検索結果%@" = "Found Text %@";
 "ツール" = "Tools";
+"見出しレベルの変更（すべて）" = "Change All Heading Levels";
+"1段上げる" = "Raise One Level";
+"1段下げる" = "Lower One Level";
 "すべての見出しを1段上げる" = "Raise All Headings One Level";
 "すべての見出しを1段下げる" = "Lower All Headings One Level";
 "すべての見出しを1段上げる（#を1つ減らす、⌘[）" = "Raise all headings one level (one fewer #, ⌘[)";
@@ -191,7 +203,8 @@
 "編集" = "Editing";
 "構造" = "Structure";
 "取り消し線" = "Strikethrough";
-"コードブロック" = "Code Block";
+"下線" = "Underline";
+"コードブロック" = "Fenced Code Block";
 "余白" = "Margins";
 "狭い" = "Narrow";
 "標準" = "Standard";
@@ -209,3 +222,45 @@
 "強制改行を改段落に" = "Hard Breaks to Paragraphs";
 "強制改行を改段落にしました" = "Turned hard breaks into paragraphs";
 "行送り" = "Line Spacing";
+
+/* 文字数を指定して書き直す */
+"文字数を指定して書き直す…" = "Rewrite to Length…";
+"文字数を指定して書き直す" = "Rewrite to Length";
+"元の文章：%@文字" = "Original: %@ characters";
+"目標の文字数" = "Target length";
+"文字くらい" = "characters (approx.)";
+"書き直しています（%@回目）…" = "Rewriting (attempt %@)…";
+"中止" = "Stop";
+"書き直す" = "Rewrite";
+"もう一度書き直す" = "Rewrite Again";
+"書き直した文章" = "Rewritten text";
+"書き直した文章：%@文字（目標との差 %@%%）" = "Rewritten: %@ characters (%@%% from target)";
+"Mac内のApple Intelligenceのモデルで書き直します（原稿は外部に送りません）。文字数はMarkdownの記号・HTMLのタグ・改行を除いて数えます。" = "Rewrites with the Apple Intelligence model on this Mac (your text is not sent anywhere). Characters are counted without Markdown markup, HTML tags or line breaks.";
+"置き換える" = "Replace";
+"書き直せませんでした：%@" = "Could not rewrite: %@";
+"このMacはApple Intelligenceに対応していません。" = "This Mac does not support Apple Intelligence.";
+"システム設定の「Apple IntelligenceとSiri」で、Apple Intelligenceをオンにしてください。" = "Turn on Apple Intelligence in System Settings > Apple Intelligence & Siri.";
+"Apple Intelligenceのモデルを準備しています。しばらくしてからお試しください。" = "The Apple Intelligence model is being prepared. Try again later.";
+"Apple Intelligenceのモデルを使えません。" = "The Apple Intelligence model is not available.";
+"macOS 26以降とApple Intelligenceが必要です。" = "Requires macOS 26 or later and Apple Intelligence.";
+"書き直す範囲を選択してください" = "Select the text to rewrite";
+"原稿が変わったため、置き換えられませんでした" = "The source changed, so the text was not replaced";
+"書き直し" = "Rewrite";
+"書き直しました" = "Rewritten";
+
+/* HTMLリンク */
+"HTMLリンク…" = "HTML Link…";
+"HTMLリンク" = "HTML Link";
+"リンク先" = "URL";
+"テキスト" = "Text";
+"（空ならリンク先を使います）" = "(the URL if empty)";
+"挿入" = "Insert";
+
+/* divブロック */
+"divブロック" = "div Block";
+"ツールの「divブロックで囲む」で使う囲みの見た目です。余白はCSSの書き方（例：1px 20px 15px）で入れます。" = "The look of the box used by Tools > Wrap in div Block. Enter spacing as in CSS (for example, 1px 20px 15px).";
+"背景色" = "Background";
+"内側の余白（padding）" = "Padding";
+"角の丸み（border-radius）" = "Corner radius (border-radius)";
+"下の余白（margin-bottom）" = "Bottom margin (margin-bottom)";
+"初期値に戻す" = "Restore Defaults";

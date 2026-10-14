@@ -241,6 +241,7 @@ enum MarkdownHTML {
 
     static func inline(_ text: String) -> String {
         var codes: [String] = []
+        var links: [String] = []
         // Code spans first, so their contents are not formatted.
         var text = replace(#"`([^`]+)`"#, in: text) { groups in
             codes.append("<code>" + escape(groups[1]) + "</code>")
@@ -256,11 +257,44 @@ enum MarkdownHTML {
         text = replace(#"\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)"#, in: text) { groups in
             "<a href=\"\(groups[2])\">\(groups[1])</a>"
         }
+        text = autolinkURLs(text, links: &links)
+        // GFM strikethrough (the Format menu writes <s>, which passes through as HTML).
+        text = replace(#"~~(?!\s)(.+?)(?<!\s)~~"#, in: text) { groups in "<del>" + groups[1] + "</del>" }
         text = replace(#"\*\*(.+?)\*\*|__(.+?)__"#, in: text) { groups in "<strong>" + groups[1] + groups[2] + "</strong>" }
         text = replace(#"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?!\*)|(?<![\w_])_(?!\s)(.+?)(?<!\s)_(?![\w_])"#, in: text) { groups in
             "<em>" + groups[1] + groups[2] + "</em>"
         }
+        for (index, link) in links.enumerated() { text = text.replacingOccurrences(of: "\u{FFFD}\(index)\u{FFFD}", with: link) }
         for (index, code) in codes.enumerated() { text = text.replacingOccurrences(of: "\u{FFFC}\(index)\u{FFFC}", with: code) }
+        return text
+    }
+
+    /// 自動リンク：URLだけの文字列（https://・http://・www.）をリンクにする。タグ・リンクの中は変えない。
+    /// できたリンクは記号に置き換えておき（強調の _ や * で崩さないため）、最後に戻す
+    private static func autolinkURLs(_ text: String, links: inout [String]) -> String {
+        var tags: [String] = []
+        // Existing links and tags are kept as they are.
+        var text = replace(#"(?is)<a\b[^>]*>.*?</a\s*>|<[^>]+>"#, in: text) { groups in
+            tags.append(groups[0])
+            return "\u{FFFE}\(tags.count - 1)\u{FFFE}"
+        }
+        // ASCII only, so a URL followed directly by Japanese text ends at the Japanese.
+        text = replace(#"(?<![A-Za-z0-9/@.\-])(?:https?://|www\.)[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+"#, in: text) { groups in
+            var url = groups[0]
+            var trailing = ""
+            // Punctuation at the end belongs to the sentence; a ")" only when it is not balanced.
+            while let last = url.last {
+                if ".,:;!?'\"*_~".contains(last) || (last == ")" && url.filter({ $0 == ")" }).count > url.filter({ $0 == "(" }).count) {
+                    trailing = String(last) + trailing
+                    url.removeLast()
+                } else { break }
+            }
+            guard url.contains(".") || url.hasPrefix("http"), !url.hasSuffix("://") else { return groups[0] }
+            let href = url.hasPrefix("www.") ? "http://" + url : url
+            links.append("<a href=\"\(href.replacingOccurrences(of: "\"", with: "%22"))\">\(url)</a>")
+            return "\u{FFFD}\(links.count - 1)\u{FFFD}" + trailing
+        }
+        for (index, tag) in tags.enumerated() { text = text.replacingOccurrences(of: "\u{FFFE}\(index)\u{FFFE}", with: tag) }
         return text
     }
 

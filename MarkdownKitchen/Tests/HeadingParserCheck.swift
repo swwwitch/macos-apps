@@ -78,6 +78,13 @@ func expectTidy(_ rules: [MarkdownTidy.Rule], _ source: String, _ expected: Stri
     let got = MarkdownTidy.apply(rules, to: source)
     if got != expected { failures += 1; print("FAIL tidy \(note): \(got.debugDescription)") }
 }
+expectTidy([.markerSpaces], "##見出し\n# ok\n-箇条書き\n  +項目\n*項目\n*斜体*\n**太字**\n---\n-5度\n1.項目\n2)項目\n1.5倍\n2026.10.15\n####### 7\n```\n#!x\n```", "## 見出し\n# ok\n- 箇条書き\n  + 項目\n* 項目\n*斜体*\n**太字**\n---\n-5度\n1. 項目\n2) 項目\n1.5倍\n2026.10.15\n####### 7\n```\n#!x\n```", "marker spaces")
+expectTidy([.removeUTM], "[a](https://ex.com/p?utm_source=x&utm_medium=y) https://ex.com/?id=3&UTM_campaign=z#top\n<a href=\"https://ex.com/?a=1&amp;utm_source=n&amp;b=2\">x</a> https://ex.com/?utm_term=a&q=1\nhttps://ex.com/?q=utm_x", "[a](https://ex.com/p) https://ex.com/?id=3#top\n<a href=\"https://ex.com/?a=1&amp;b=2\">x</a> https://ex.com/?q=1\nhttps://ex.com/?q=utm_x", "remove utm")
+expectTidy([.twitterToX], "https://twitter.com/a\n[X](https://www.Twitter.com/b) mobile.twitter.com/c\napi.twitter.com nottwitter.com twitter.community\n```\ntwitter.com\n```", "https://x.com/a\n[X](https://x.com/b) x.com/c\napi.twitter.com nottwitter.com twitter.community\n```\ntwitter.com\n```", "twitter to x")
+expectTidy([.leadingSpaces], "\u{3000}段落\n  続き\n- a\n  - 子\n  続き\n\n    code\n    code2\n\n本文\n<pre>\n  x\n</pre>\n\u{3000}後", "段落\n続き\n- a\n  - 子\n  続き\n\n    code\n    code2\n\n本文\n<pre>\n  x\n</pre>\n後", "leading spaces keep lists and code")
+expectTidy([.leadingSpaces], "  a\n\tb\n\u{3000}c\n```\n  x\n```", "a\nb\nc\n```\n  x\n```", "leading spaces")
+expectTidy([.removeBlankLines], "a\n\n \nb\n```\nx\n\ny\n```\n\nc", "a\nb\n```\nx\n\ny\n```\nc", "remove blank lines")
+expectTidy([.whitespaceLines], "a\n  \n\t\n\u{3000}\n b \n```\n  \n```", "a\n\n\n\n b \n```\n  \n```", "whitespace-only lines")
 expectTidy([.trailingSpaces], "a   \nb  \n\nc\t\n```\nx  \n```", "a  \nb\n\nc\n```\nx  \n```", "trailing spaces keep hard break and code")
 expectTidy([.blankLines], "a\n\n\n\nb\n```\n\n\n\n```", "a\n\nb\n```\n\n\n\n```", "blank lines")
 expectTidy([.listMarkers], "* a\n  + b\n* * *\n*強調*", "- a\n  - b\n* * *\n*強調*", "list markers")
@@ -205,5 +212,27 @@ let hb = LineTools.hardBreaksToParagraphs("一行目  \n二行目\\\nC<br>D<BR /
 if hb != "一行目\n\n二行目\n\nC\n\nD\n\nE\n<div>a<br>b</div>\n```\nx  \ny\n```\n" { failures += 1; print("FAIL hard breaks: \(hb.debugDescription)") }
 let plain = LineTools.hardBreaksToParagraphs("『入門ガイド』の出版から約2年。\nこの2年の間に、進化し。\n- a\n- b\n> q1\n> q2\nタイトル\n===\n本文")
 if plain != "『入門ガイド』の出版から約2年。\n\nこの2年の間に、進化し。\n- a\n- b\n> q1\n> q2\nタイトル\n===\n本文" { failures += 1; print("FAIL plain breaks: \(plain.debugDescription)") }
+let divWrapped = LineTools.wrapInDiv("## 見出し\n\n本文の**太字**\n\n- a\n- b\n")
+if divWrapped != LineTools.divOpen + "<h2>見出し</h2><p>本文の<strong>太字</strong></p><ul><li>a</li><li>b</li></ul></div>\n" { failures += 1; print("FAIL div wrap: \(divWrapped.debugDescription)") }
+let statsSource = "## 見出し\n\n**太字**と`code`\n\n<h2 style=\"color: red\">HTML見出し</h2>\n\n- a &amp; b\n\n| x | y |\n|---|---|\n| 1 | 2 |\n"
+let statsPlain = TextStats.plainText(statsSource).components(separatedBy: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+if statsPlain != ["見出し", "太字とcode", "HTML見出し", "a & b", "x y", "1 2"] { failures += 1; print("FAIL plain text: \(statsPlain)") }
+let statsCount = TextStats.content(statsSource)
+if statsCount.lines != 6 || statsCount.characters != 3 + 7 + 7 + 5 + 3 + 3 { failures += 1; print("FAIL content stats: \(statsCount)") }
+if TextStats.raw("a\n\nb").lines != 3 || TextStats.raw("").lines != 0 { failures += 1; print("FAIL raw stats") }
+let autolinkCases: [(String, String)] = [
+    ("詳細は https://example.com/a_b_c です。", "詳細は <a href=\"https://example.com/a_b_c\">https://example.com/a_b_c</a> です。"),
+    ("https://example.com/です", "<a href=\"https://example.com/\">https://example.com/</a>です"),
+    ("(see www.example.com).", "(see <a href=\"http://www.example.com\">www.example.com</a>)."),
+    ("https://ja.wikipedia.org/wiki/A_(B)", "<a href=\"https://ja.wikipedia.org/wiki/A_(B)\">https://ja.wikipedia.org/wiki/A_(B)</a>"),
+    ("[文字](https://example.com) と <https://a.jp>", "<a href=\"https://example.com\">文字</a> と <a href=\"https://a.jp\">https://a.jp</a>"),
+    ("**https://example.com**", "<strong><a href=\"https://example.com\">https://example.com</a></strong>"),
+    ("~~古い~~ 新しい", "<del>古い</del> 新しい"),
+    ("`https://example.com`", "<code>https://example.com</code>"),
+    ("https://a.com/?x=1&y=2", "<a href=\"https://a.com/?x=1&amp;y=2\">https://a.com/?x=1&amp;y=2</a>"),
+]
+for (source, expected) in autolinkCases where MarkdownHTML.inline(source) != expected {
+    failures += 1; print("FAIL autolink: \(MarkdownHTML.inline(source))")
+}
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)

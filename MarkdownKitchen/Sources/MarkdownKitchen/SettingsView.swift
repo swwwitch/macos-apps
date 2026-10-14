@@ -9,7 +9,7 @@ struct SettingsView: View {
             } }.formStyle(.grouped))),
             (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
-            (L("テーマ"), AnyView(DoorkeeperPresetsView())),
+            (L("テーマ"), AnyView(VStack(alignment: .leading, spacing: 16) { DoorkeeperPresetsView(); DivBoxSettingsView() })),
             (L("右クリック"), AnyView(ContextMenuSettingsView())),
             (AboutSection.title, AnyView(VStack(spacing: 24) { AboutView(); AcknowledgmentsView() }))
         ]).padding(12)

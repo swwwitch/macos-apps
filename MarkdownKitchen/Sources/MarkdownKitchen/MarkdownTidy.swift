@@ -5,19 +5,31 @@ enum MarkdownTidy {
     enum Rule: String, CaseIterable {
         /// 行末の空白を削除（Markdownの改行になる2個以上の空白は、次の行が本文なら2個にそろえて残す）
         case trailingSpaces
+        /// 本文の行頭のスペース・タブ（全角スペースも）を削除。リストの中と続きの行・字下げのコード・<pre>の中は残す
+        case leadingSpaces
+        /// スペース・タブだけの行を空行にする
+        case whitespaceLines
         /// 3行以上続く空行を1行に
         case blankLines
+        /// 空行をすべて削除（コードブロックの中は残す）。「すべて整える」には含めない
+        case removeBlankLines
+        /// 見出し・リストの記号のあとにスペースを入れる（##見出し → ## 見出し、-項目 → - 項目、1.項目 → 1. 項目）
+        case markerSpaces
         /// リストの記号（* と +）を「-」にそろえる
         case listMarkers
         /// 全角の英数字を半角に
         case halfwidthAlphanumerics
         /// 和欧間のスペース（日本語と半角英数字のあいだの半角スペース）を削除。インラインコードの中は変えない
         case japaneseLatinSpaces
+        /// twitter.com（www.・mobile. も）を x.com に。「すべて整える」には含めない
+        case twitterToX
+        /// URLの utm_ で始まるパラメーター（utm_source など）を削除。「すべて整える」には含めない
+        case removeUTM
         /// HTMLの部分（行頭がタグで始まり空行までのまとまり）の改行と空白を詰める。「すべて整える」には含めない
         case minifyHTML
 
-        /// 「すべて整える」で実行するもの（Minifyは除く）
-        static let standard: [Rule] = allCases.filter { $0 != .minifyHTML }
+        /// 「すべて整える」で実行するもの（Minify・空行を削除・x.comへの置き換え・utmパラメーターの削除は除く）
+        static let standard: [Rule] = allCases.filter { ![.minifyHTML, .removeBlankLines, .twitterToX, .removeUTM].contains($0) }
     }
 
     /// 日本語の文字（漢字・かな・全角の記号と句読点）
@@ -26,7 +38,8 @@ enum MarkdownTidy {
     static func apply(_ rules: [Rule], to text: String) -> String {
         var lines = text.normalizedLineBreaks.components(separatedBy: "\n")
         let code = codeLines(lines)
-        for rule in rules where rule != .blankLines && rule != .minifyHTML {
+        if rules.contains(.leadingSpaces) { lines = removeLeadingSpaces(lines, code: code) }
+        for rule in rules where ![.blankLines, .removeBlankLines, .minifyHTML, .leadingSpaces].contains(rule) {
             for index in lines.indices where !code.contains(index) {
                 let next = index + 1 < lines.count ? lines[index + 1] : ""
                 lines[index] = tidy(lines[index], rule: rule, nextLine: next)
@@ -35,17 +48,31 @@ enum MarkdownTidy {
         if rules.contains(.minifyHTML) {
             lines = minifyHTML(lines, code: codeLines(lines))
         }
-        if rules.contains(.blankLines) {
+        if rules.contains(.blankLines) || rules.contains(.removeBlankLines) {
+            let limit = rules.contains(.removeBlankLines) ? 0 : 1
             var result: [String] = []
             var blanks = 0
             for (index, line) in lines.enumerated() {
                 let blank = !code.contains(index) && line.trimmingCharacters(in: .whitespaces).isEmpty
                 blanks = blank ? blanks + 1 : 0
-                if blanks <= 1 { result.append(line) }
+                if blanks <= limit { result.append(line) }
             }
             lines = result
         }
         return lines.joined(separator: "\n")
+    }
+
+    /// URLから utm_ で始まるパラメーターを外す。ほかのパラメーター・#以降・閉じかっこ（リンクの終わり）はそのまま
+    static func removingUTM(_ url: String) -> String {
+        guard let question = url.firstIndex(of: "?") else { return url }
+        let rest = url[url.index(after: question)...]
+        let tailStart = rest.firstIndex(where: { "#)".contains($0) }) ?? rest.endIndex
+        let query = String(rest[..<tailStart])
+        // In HTML, parameters are separated by "&amp;".
+        let separator = query.contains("&amp;") ? "&amp;" : "&"
+        let kept = query.components(separatedBy: separator).filter { !$0.lowercased().hasPrefix("utm_") && !$0.isEmpty }
+        let base = String(url[..<question])
+        return base + (kept.isEmpty ? "" : "?" + kept.joined(separator: separator)) + String(rest[tailStart...])
     }
 
     private static func tidy(_ line: String, rule: Rule, nextLine: String) -> String {
@@ -56,6 +83,35 @@ enum MarkdownTidy {
             let hardBreak = spaces >= 2 && line.hasSuffix("  ") && !body.isEmpty
                 && !nextLine.trimmingCharacters(in: .whitespaces).isEmpty
             return hardBreak ? body + "  " : body
+        case .twitterToX:
+            // Other subdomains (api.twitter.com) and look-alikes (nottwitter.com) are left alone.
+            return line.replacingOccurrences(of: #"(?i)(?<![\w.\-])(?:www\.|mobile\.)?twitter\.com(?![\w\-])"#, with: "x.com", options: .regularExpression)
+        case .markerSpaces:
+            // Headings: "#" to "######" right before the text.
+            if line.range(of: #"^ {0,3}#{1,6}[^\s#]"#, options: .regularExpression) != nil {
+                return line.replacingOccurrences(of: #"^( {0,3}#{1,6})"#, with: "$1 ", options: .regularExpression)
+            }
+            // Bullets: not "---", "**bold**" or "*italic*", and not "-5" (a number).
+            if line.range(of: #"^\s*[-+][^\s\d\-+]"#, options: .regularExpression) != nil
+                || (line.range(of: #"^\s*\*[^\s*]"#, options: .regularExpression) != nil
+                    && line.trimmingCharacters(in: .whitespaces).dropFirst().contains("*") == false) {
+                return line.replacingOccurrences(of: #"^(\s*[-+*])"#, with: "$1 ", options: .regularExpression)
+            }
+            // Numbered: "1.項目" but not "1.5" or "2026.10.15".
+            if line.range(of: #"^\s*\d{1,9}[.)][^\s\d.)]"#, options: .regularExpression) != nil {
+                return line.replacingOccurrences(of: #"^(\s*\d{1,9}[.)])"#, with: "$1 ", options: .regularExpression)
+            }
+            return line
+        case .removeUTM:
+            guard line.range(of: "utm_", options: .caseInsensitive) != nil,
+                  let regex = try? NSRegularExpression(pattern: #"https?://[^\s<>"'\]]+"#) else { return line }
+            let result = NSMutableString(string: line)
+            for match in regex.matches(in: line, range: NSRange(location: 0, length: (line as NSString).length)).reversed() {
+                result.replaceCharacters(in: match.range, with: removingUTM((line as NSString).substring(with: match.range)))
+            }
+            return result as String
+        case .whitespaceLines:
+            return line.trimmingCharacters(in: CharacterSet(charactersIn: " \t\u{3000}")).isEmpty ? "" : line
         case .listMarkers:
             // "* * *" is a thematic break, not a list.
             if line.range(of: #"^ *([-*_])( *\1){2,} *$"#, options: .regularExpression) != nil { return line }
@@ -81,7 +137,7 @@ enum MarkdownTidy {
                 if let range = text.range(of: "\u{FFFC}") { text.replaceSubrange(range, with: code) }
             }
             return text
-        case .blankLines, .minifyHTML:
+        case .blankLines, .removeBlankLines, .minifyHTML, .leadingSpaces:
             return line
         }
     }
@@ -142,6 +198,43 @@ enum MarkdownTidy {
     }
 
     /// コードブロックに含まれる行（囲みの行を含む）
+    /// 本文の行頭のスペースを消す。字下げに意味がある行は残す：
+    /// リストの項目と、その下の字下げした行（入れ子・続きの行）／空行のあとの4スペース・タブで始まるコード／<pre>〜</pre>
+    private static func removeLeadingSpaces(_ lines: [String], code: Set<Int>) -> [String] {
+        var result = lines
+        var inList = false
+        var inIndentedCode = false
+        var inPre = false
+        var previousBlank = true
+        for (index, line) in lines.enumerated() {
+            let blank = line.trimmingCharacters(in: .whitespaces).isEmpty
+            defer { previousBlank = blank }
+            if code.contains(index) { inList = false; inIndentedCode = false; continue }
+            if inPre || line.range(of: "<pre", options: .caseInsensitive) != nil {
+                inPre = line.range(of: "</pre>", options: .caseInsensitive) == nil
+                continue
+            }
+            if blank { continue }
+            let indented = line.hasPrefix(" ") || line.hasPrefix("\t")
+            if line.range(of: #"^\s*([-*+]|\d{1,9}[.)])(\s|$)"#, options: .regularExpression) != nil {
+                inList = true
+                inIndentedCode = false
+                continue
+            }
+            // Under a list item: indented lines (nested or continued) and lines right after it.
+            if inList, indented || !previousBlank { continue }
+            inList = false
+            if inIndentedCode, indented { continue }
+            if previousBlank, line.hasPrefix("    ") || line.hasPrefix("\t") {
+                inIndentedCode = true
+                continue
+            }
+            inIndentedCode = false
+            result[index] = line.replacingOccurrences(of: #"^[ \t\x{3000}]+"#, with: "", options: .regularExpression)
+        }
+        return result
+    }
+
     private static func codeLines(_ lines: [String]) -> Set<Int> {
         var result = Set<Int>()
         var fence: String?
@@ -161,6 +254,51 @@ enum MarkdownTidy {
 
 /// 行の並べ替えと重複の削除（行単位の操作。「すべて整える」には含めない）
 enum LineTools {
+    /// 「divブロックで囲む」の囲みの見た目（設定の「テーマ」タブ）。キーと初期値
+    enum DivBox {
+        static let backgroundKey = "markdownKitchen.divBackground"
+        static let paddingKey = "markdownKitchen.divPadding"
+        static let radiusKey = "markdownKitchen.divRadius"
+        static let marginKey = "markdownKitchen.divMarginBottom"
+        static let defaultBackground = "#efefef"
+        static let defaultPadding = "1px 20px 15px"
+        static let defaultRadius = "5px"
+        static let defaultMargin = "1em"
+
+        static func value(_ key: String, _ fallback: String) -> String {
+            let value = UserDefaults.standard.string(forKey: key)?.trimmingCharacters(in: .whitespaces) ?? ""
+            return value.isEmpty ? fallback : value
+        }
+    }
+
+    /// 「divブロックで囲む」の開始タグ
+    static var divOpen: String {
+        let style = [
+            "background-color: " + DivBox.value(DivBox.backgroundKey, DivBox.defaultBackground),
+            "padding: " + DivBox.value(DivBox.paddingKey, DivBox.defaultPadding),
+            "border-radius: " + DivBox.value(DivBox.radiusKey, DivBox.defaultRadius),
+            "margin-bottom: " + DivBox.value(DivBox.marginKey, DivBox.defaultMargin),
+        ].joined(separator: "; ") + ";"
+        return "<div style=\"\(style.replacingOccurrences(of: "\"", with: "'"))\">"
+    }
+
+    /// divブロックで囲む：選択したMarkdownをHTMLにし、divで囲んでMinifyする（1行のHTMLになる）
+    static func wrapInDiv(_ text: String) -> String {
+        let trailingNewline = text.normalizedLineBreaks.hasSuffix("\n")
+        // Blank lines would split the block, and Minify works on one block at a time.
+        let html = MarkdownHTML.render(text).components(separatedBy: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+        let open = divOpen
+        let wrapped = ([open] + html + ["</div>"]).joined(separator: "\n")
+        // Line breaks next to block tags would be left as spaces ("<li>a </li>").
+        var minified = MarkdownTidy.apply([.minifyHTML], to: wrapped)
+            .replacingOccurrences(of: #"\s+(</(?:p|li|ul|ol|h[1-6]|blockquote|pre|table|thead|tbody|tr|td|th|div)>)"#, with: "$1", options: .regularExpression)
+            .replacingOccurrences(of: #"(<(?:p|li|ul|ol|h[1-6]|blockquote|table|thead|tbody|tr|td|th)\b[^>]*>)\s+"#, with: "$1", options: .regularExpression)
+        // The div keeps its style as written ("; " and ": "); Minify only joins the lines inside.
+        if let end = minified.firstIndex(of: ">") { minified = open + minified[minified.index(after: end)...] }
+        return minified + (trailingNewline ? "\n" : "")
+    }
+
     /// 同じ内容の行は最初の1行だけ残す。空行はそのまま
     static func removeDuplicates(_ text: String) -> String {
         var seen = Set<String>()
