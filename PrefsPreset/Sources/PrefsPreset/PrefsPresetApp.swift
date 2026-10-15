@@ -43,7 +43,7 @@ struct PrefsPresetApp: App {
                     .keyboardShortcut("o", modifiers: .command)
                 Button(L("書き出す…")) { savePreset() }
                     .keyboardShortcut("s", modifiers: .command)
-                Button(L("おすすめの設定を読み込む")) { loadRecommended() }
+                Button(L("エッセンシャル設定の値を入れる")) { loadEssentials(showChanged: true) }
                 Divider()
                 Button(L("現在の設定をマイプリセットに保存…")) { MyPreset.save() }
                 Button(L("マイプリセットを読み込む")) { MyPreset.load() }

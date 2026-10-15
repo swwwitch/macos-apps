@@ -99,7 +99,7 @@ struct ShortcutRow: View {
             }))
             .frame(width: 250, alignment: .leading)
             Text(model.recording == action ? L("pressKey") : model.label(action))
-                .font(.system(.body, design: .monospaced)).frame(width: 96, alignment: .leading)
+                .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
                 .foregroundColor(enabled ? .primary : .secondary)
                 .accessibilityLabel(L("currentKey") + " " + model.label(action))
             Button(model.recording == action ? L("cancelRecording") : L("change")) { model.startRecording(action) }
@@ -165,7 +165,7 @@ struct Preferences: View {
                         Toggle(L("showPalette"), isOn: Binding(get: { model.paletteHotkeyEnabled }, set: { model.paletteHotkeyEnabled = $0; model.save() }))
                             .frame(width: 250, alignment: .leading)
                         Text(model.recordingPalette ? L("pressKey") : model.paletteShortcut.label)
-                            .font(.system(.body, design: .monospaced)).frame(width: 80, alignment: .leading)
+                            .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
                             .foregroundColor(model.paletteHotkeyEnabled ? .primary : .secondary)
                             .accessibilityLabel(L("currentKey") + " " + model.paletteShortcut.label)
                         Button(model.recordingPalette ? L("cancelRecording") : L("change")) { model.startRecordingPalette() }

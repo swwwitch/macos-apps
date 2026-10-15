@@ -40,6 +40,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var linePrefix = ""
     var lineSuffix = ""
     var wrapCount = 40
+    /// 日付スペシャル: the selection the menu was built from and the chosen candidate.
+    private var dateChoice: (source: String, result: String)?
     var specialPanel: SpecialListPanel?
     var statusItem: NSStatusItem!
     let message = NSTextField(wrappingLabelWithString: L("app.ready"))
@@ -100,7 +102,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         statusItem.menu = menu
 
         let defaults: [TextTransform: Int] = [.minify: 28, .sum: 29, .join: 26, .joinAll: 27, .number: 1, .circled: 3, .alphabet: 4, .bullet: 6, .markdown: 7,
-                                             .addCommas: 10, .removeCommas: 11, .bracketNumber: 12, .bracketAlphabet: 13]
+                                             .addCommas: 10, .removeCommas: 11, .dateSpecial: 12, .bracketAlphabet: 13,
+                                             .invertSign: HotkeyBinding(key: 27, modifiers: UInt32(controlKey)).encoded]
         // 0.2.17: ⌃⌥⌘Y, palette-only by default (HotkeyScope.paletteDefaults). ⌃⌥⌘D until 0.2.14 was also CommandDee's
         // palette key (both apps received it); ⌃⌥⌘V in 0.2.16 met a Keyboard Maestro macro. A key set by the user is kept.
         let displayShortcut = (id: 10000, title: L("hotkey.toggleDisplay"), digit: HotkeyBinding(key: 16, modifiers: UInt32(cmdKey | controlKey | optionKey)).encoded)
@@ -291,7 +294,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         target.textColor = .secondaryLabelColor
         column.addArrangedSubview(target)
         let symbols = ["arrow.turn.up.left", "list.number", "list.bullet", "text.alignleft", "text.badge.minus", "1.circle", "a.square", "plus.circle", "minus.circle", "line.3.horizontal.decrease", "arrow.up.and.down.text.horizontal", "plus.circle", "minus.circle", "number", "a.square", "arrow.down.right.and.arrow.up.left", "arrow.triangle.merge", "textformat.abc", "textformat", "arrow.left.and.right.righttriangle.left.righttriangle.right", "arrow.left.and.right", "sum", "textformat.size.larger", "textformat.size.smaller", "textformat.abc", "textformat"]
-        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc"]
+        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc", .invertSign: "plusminus", .dateSpecial: "calendar.badge.clock", .dateSpecialPadded: "calendar.badge.plus"]
         let groups = PaletteConfiguration.groups
         for (title, operations) in groups {
             var buttons: [PaletteButton] = []
@@ -321,6 +324,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     case .camelCase: button.toolTip = L("tip.camelCase")
                     case .titleCase: button.toolTip = L("tip.titleCase")
                     case .sum: button.toolTip = L("tip.sum")
+                    case .invertSign: button.toolTip = L("tip.invertSign")
+                    case .dateSpecial: button.toolTip = L("tip.dateSpecial")
+                    case .dateSpecialPadded: button.toolTip = L("tip.dateSpecialPadded")
                     case .wrapLines: button.toolTip = L("tip.wrapLines")
                     case .toggleDateFormat: button.toolTip = L("tip.toggleDateFormat")
                     case .randomLines: button.toolTip = L("tip.randomLines")
@@ -694,6 +700,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         wrapPanel?.orderFrontRegardless()
     }
 
+    /// Lists the date variants of the selection at the pointer; choosing one runs the transform again,
+    /// which re-reads the selection and replaces it only while it is still the same text.
+    private func showDateMenu(for text: String, operation: TextTransform) {
+        let candidates = DateTransform.variants(text, padded: operation == .dateSpecialPadded)
+        guard !candidates.isEmpty else { message.stringValue = L("msg.noDate"); return }
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        for (index, group) in candidates.enumerated() {
+            if index > 0 { menu.addItem(.separator()) }
+            for candidate in group {
+                let title = candidate.replacingOccurrences(of: "\n", with: " ")
+                let item = NSMenuItem(title: title.count > 80 ? String(title.prefix(80)) + "..." : title,
+                                      action: #selector(chooseDate(_:)), keyEquivalent: "")
+                item.target = self
+                item.representedObject = [text, candidate]
+                item.tag = operation.rawValue
+                menu.addItem(item)
+            }
+        }
+        menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+    }
+
+    @objc private func chooseDate(_ sender: NSMenuItem) {
+        guard let pair = sender.representedObject as? [String], pair.count == 2 else { return }
+        dateChoice = (pair[0], pair[1])
+        let button = NSButton()
+        button.tag = sender.tag
+        transform(button)
+        dateChoice = nil
+    }
+
     @objc func showSpecialLists() {
         targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
         if specialPanel == nil {
@@ -774,6 +811,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     @objc func revealApplication() {
         NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
+    }
+
+    /// Web content: pastes over the real selection, then selects the result with ⇧← (the arrow keys count characters,
+    /// not the drifting AX indices). Queued transforms are dropped because the result cannot be read back.
+    private func pasteOverWebSelection(_ result: String, pid: pid_t, appName: String?, previous: [[NSPasteboard.PasteboardType: Data]]) {
+        pendingTransforms.removeAll()
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        guard pasteboard.setString(result, forType: .string) else { WebSelection.restore(previous); message.stringValue = L("msg.clipboardFailed"); return }
+        let change = pasteboard.changeCount
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, !ExcludedApps.shared.isExcluded(pid: pid),
+              WebSelection.sendKey(9, flags: .maskCommand, pid: pid) else {
+            WebSelection.restore(previous); message.stringValue = L("msg.noTarget"); return
+        }
+        busy = true
+        message.stringValue = L("msg.pasteSent", appName ?? L("target.appLong"))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid {
+                for _ in 0..<result.count { _ = WebSelection.sendKey(123, flags: .maskShift, pid: pid) }
+            }
+            // The target reads the clipboard asynchronously; restore after it has had time to paste.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+                if pasteboard.changeCount == change { WebSelection.restore(previous) }
+                self?.busy = false
+            }
+        }
     }
 
     private func selectReplacement(in element: AXUIElement, application: AXUIElement,
@@ -862,12 +925,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             message.stringValue = L("msg.noAccess"); return
         }
         let element = unsafeBitCast(value, to: AXUIElement.self)
-        var selected: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selected) == .success,
-              let text = selected as? String, !text.isEmpty else {
+        // Web content (Safari, Chrome, Firefox, Electron apps such as Notion, Google Docs) cannot be read through AX
+        // reliably (measured in KakkoReplace): Safari's index ranges drift in long documents so AXSelectedText names
+        // other text, and Google Docs shows only a stand-in field holding one space. Its selection is copied with ⌘C.
+        let web = WebSelection.isWebContent(element)
+        var copiedClipboard: [[NSPasteboard.PasteboardType: Data]]?
+        let selectedText: String?
+        if web {
+            let copied = WebSelection.copy(pid: app.processIdentifier)
+            selectedText = copied?.text
+            copiedClipboard = copied?.previous
+        } else {
+            var selected: CFTypeRef?
+            selectedText = AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selected) == .success ? selected as? String : nil
+        }
+        guard let text = selectedText, !text.isEmpty else {
+            if let copiedClipboard { WebSelection.restore(copiedClipboard) }
             message.stringValue = L("msg.selectText"); return
         }
+        if operation == .dateSpecial || operation == .dateSpecialPadded, dateChoice?.source != text {
+            if let copiedClipboard { WebSelection.restore(copiedClipboard) }
+            dateChoice = nil
+            showDateMenu(for: text, operation: operation)
+            return
+        }
         if operation == .countText {
+            if let copiedClipboard { WebSelection.restore(copiedClipboard) }
             countPanel?.close()
             countPanel = LineToolsPanel(statistics: LineTools.statistics(text))
             countPanel?.orderFrontRegardless()
@@ -881,19 +964,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 result = TypographyOption.applyAll(text, options: typographyOptions)
             } else if operation == .wrapLines {
                 result = TextTransform.wrappedText(text, count: wrapCount)
+            } else if operation == .dateSpecial || operation == .dateSpecialPadded, let dateChoice {
+                self.dateChoice = nil
+                result = dateChoice.result
             } else {
                 result = operation == .sum ? try TextTransform.summedText(text) : operation.apply(text)
             }
         } catch {
+            if let copiedClipboard { WebSelection.restore(copiedClipboard) }
             message.stringValue = error.localizedDescription
             return
         }
-        guard result != text else { message.stringValue = L("msg.noChange"); return }
+        guard result != text else {
+            if let copiedClipboard { WebSelection.restore(copiedClipboard) }
+            message.stringValue = L("msg.noChange"); return
+        }
         let pasteboard = NSPasteboard.general
         if copyOnly {
             pasteboard.clearContents()
             pasteboard.setString(result, forType: .string)
             message.stringValue = L("msg.copied")
+            return
+        }
+        if let copiedClipboard {
+            pasteOverWebSelection(result, pid: app.processIdentifier, appName: app.localizedName, previous: copiedClipboard)
             return
         }
         // Require a concrete nonempty range before sending Paste; never replace an entire field.
@@ -1006,6 +1100,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             // A no-op or failed continuation must not leave actions for a later selection.
             if !self.busy { self.pendingTransforms.removeAll() }
         }
+    }
+}
+
+/// Selection handling for web content, shared in approach with KakkoReplace's Editor.
+private enum WebSelection {
+    /// Web content carries text markers or DOM attributes; Notion's page editor has only the DOM ones (measured).
+    static func isWebContent(_ element: AXUIElement) -> Bool {
+        var names: CFArray?
+        guard AXUIElementCopyAttributeNames(element, &names) == .success, let names = names as? [String] else { return false }
+        return names.contains { ["AXSelectedTextMarkerRange", "AXDOMClassList", "AXDOMIdentifier", "ChromeAXNodeId"].contains($0) }
+    }
+    /// Sends ⌘C and returns the copied text with the clipboard it replaced, or nil when nothing was copied
+    /// (no selection) — the clipboard is then left untouched.
+    static func copy(pid: pid_t) -> (text: String, previous: [[NSPasteboard.PasteboardType: Data]])? {
+        let pasteboard = NSPasteboard.general
+        let previous = items()
+        let before = pasteboard.changeCount
+        guard sendKey(8, flags: .maskCommand, pid: pid) else { return nil }
+        let deadline = Date().addingTimeInterval(0.5)
+        while pasteboard.changeCount == before, Date() < deadline { usleep(20_000) }
+        guard pasteboard.changeCount != before else { return nil }
+        return (pasteboard.string(forType: .string) ?? "", previous)
+    }
+    static func items() -> [[NSPasteboard.PasteboardType: Data]] {
+        (NSPasteboard.general.pasteboardItems ?? []).map { item in
+            var saved: [NSPasteboard.PasteboardType: Data] = [:]
+            for type in item.types { if let data = item.data(forType: type) { saved[type] = data } }
+            return saved
+        }
+    }
+    static func restore(_ saved: [[NSPasteboard.PasteboardType: Data]]) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        let items = saved.map { entry -> NSPasteboardItem in
+            let item = NSPasteboardItem()
+            for (type, data) in entry { item.setData(data, forType: type) }
+            return item
+        }
+        if !items.isEmpty { pasteboard.writeObjects(items) }
+    }
+    static func sendKey(_ key: CGKeyCode, flags: CGEventFlags, pid: pid_t) -> Bool {
+        guard let source = CGEventSource(stateID: .privateState),
+              let down = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: false) else { return false }
+        down.flags = flags; up.flags = flags
+        down.postToPid(pid); up.postToPid(pid)
+        return true
     }
 }
 

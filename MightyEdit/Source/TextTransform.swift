@@ -24,6 +24,9 @@ enum TextTransform: Int, CaseIterable {
     case removeDatePadding
     case trimLineEdges, sortLineLength, countText, affixLines
     case minifyBody
+    case invertSign
+    case dateSpecial
+    case dateSpecialPadded
 
     static let specialLists: [TextTransform] = [.blackCircled, .kanji, .formalKanji, .circledAlphabet, .romanUpper, .romanLower, .checkmark, .emptyBox, .checkedBox, .taskList]
 
@@ -146,6 +149,27 @@ enum TextTransform: Int, CaseIterable {
             case .precision: return L("err.sumPrecision")
             }
         }
+    }
+
+    /// Flips the sign of the number at the start of each line (after indentation): -12 → 12, 12 → -12, +3 → -3.
+    /// Zero and lines without a leading number stay as they are; the rest of the line is kept.
+    static func invertedSigns(_ text: String) -> String {
+        let regex = try! NSRegularExpression(pattern: #"^([ \t　]*)([-−－+＋]?)([0-9０-９][0-9０-９,，]*(?:[.．][0-9０-９]+)?)"#,
+                                             options: .anchorsMatchLines)
+        let source = text as NSString
+        var result = ""
+        var location = 0
+        for match in regex.matches(in: text, range: NSRange(location: 0, length: source.length)) {
+            let sign = source.substring(with: match.range(at: 2))
+            let number = source.substring(with: match.range(at: 3))
+            guard number.contains(where: { $0 != "0" && $0 != "０" && $0.isNumber }) else { continue }
+            let fullwidth = sign == "－" || sign == "＋" || (sign.isEmpty && number.first.map { !$0.isASCII } == true)
+            let replacement = ["-", "−", "－"].contains(sign) ? "" : (fullwidth ? "－" : "-")
+            let signRange = match.range(at: 2)
+            result += source.substring(with: NSRange(location: location, length: signRange.location - location)) + replacement
+            location = signRange.location + signRange.length
+        }
+        return result + source.substring(from: location)
     }
 
     static func summedText(_ text: String) throws -> String {
@@ -323,6 +347,9 @@ enum TextTransform: Int, CaseIterable {
         case .removeJapaneseSpaces: return L("op.removeJapaneseSpaces")
         case .addJapaneseSpaces: return L("op.addJapaneseSpaces")
         case .sum: return L("op.sum")
+        case .invertSign: return L("op.invertSign")
+        case .dateSpecial: return L("op.dateSpecial")
+        case .dateSpecialPadded: return L("op.dateSpecialPadded")
         case .fullwidthWestern: return L("op.fullwidthWestern")
         case .halfwidthWestern: return L("op.halfwidthWestern")
         case .capitalizeWords: return L("op.capitalizeWords")
@@ -392,10 +419,11 @@ enum TextTransform: Int, CaseIterable {
         if self == .wrapLines { return Self.wrappedText(text, count: 40) }
         if [.fullwidthWestern, .halfwidthWestern, .capitalizeWords, .titleCase].contains(self) { return formatWestern(text) }
         if self == .sum { return (try? Self.summedText(text)) ?? text }
+        if self == .invertSign { return Self.invertedSigns(text) }
         if [.narrowAlphanumerics, .widenKana, .removeJapaneseSpaces, .addJapaneseSpaces].contains(self) { return formatTypography(text) }
         if self == .trimLineEdges { return LineTools.trim(text) }
         if self == .sortLineLength { return LineTools.sortByLength(text) }
-        if self == .countText || self == .affixLines { return text } // Handled by the panel; never replace with a count.
+        if self == .countText || self == .affixLines || self == .dateSpecial || self == .dateSpecialPadded { return text } // Handled by a panel or menu.
         if self == .beautify { return HTMLMinifier.beautify(text) }
         if self == .minify { return HTMLMinifier.minify(text) }
         if self == .minifyBody { return HTMLMinifier.minifyBody(text) }

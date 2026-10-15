@@ -79,6 +79,16 @@ let tomorrow = calendar.date(from: DateComponents(year: 2026, month: 10, day: 15
 check(CCAutoUpdate.mailDue(onState, lastSent: nil, now: morning, calendar: calendar), "first mail due")
 check(!CCAutoUpdate.mailDue(onState, lastSent: morning, now: night, calendar: calendar), "same day not again")
 check(CCAutoUpdate.mailDue(onState, lastSent: night, now: tomorrow, calendar: calendar), "next day due")
+let nine = 9 * 60
+let earlyToday = calendar.date(from: DateComponents(year: 2026, month: 10, day: 14, hour: 7))!
+let afterNine = calendar.date(from: DateComponents(year: 2026, month: 10, day: 14, hour: 9, minute: 5))!
+check(!CCAutoUpdate.mailDue(onState, lastSent: nil, minutes: nine, now: morning, calendar: calendar), "before send time → not yet")
+check(CCAutoUpdate.mailDue(onState, lastSent: nil, minutes: nine, now: afterNine, calendar: calendar), "after send time → due")
+check(CCAutoUpdate.mailDue(onState, lastSent: earlyToday, minutes: nine, now: afterNine, calendar: calendar), "sent before today's time → due again")
+check(!CCAutoUpdate.mailDue(onState, lastSent: afterNine, minutes: nine, now: night, calendar: calendar), "sent after today's time → not again")
+check(!CCAutoUpdate.mailDue(onState, lastSent: afterNine, minutes: nine, now: tomorrow, calendar: calendar), "next day before time → not yet")
+check(CCAutoUpdate.nextMailSlot(minutes: nine, after: morning, calendar: calendar) == calendar.date(bySettingHour: 9, minute: 0, second: 0, of: morning)!, "next slot today")
+check(CCAutoUpdate.nextMailSlot(minutes: nine, after: afterNine, calendar: calendar) == calendar.date(from: DateComponents(year: 2026, month: 10, day: 15, hour: 9))!, "next slot tomorrow")
 check(!CCAutoUpdate.mailDue(merged.level == .on ? state([section(global: "false", [])]) : merged, lastSent: nil, now: morning, calendar: calendar), "off → no mail")
 check(CCAutoUpdate.appleScriptLiteral("a\"b\\c\nd") == "\"a\\\"b\\\\c\" & linefeed & \"d\"", "AppleScript literal")
 let script = CCAutoUpdate.mailScript(to: "me@example.com", subject: "件名", body: "1行目\n2行目")

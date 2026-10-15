@@ -427,20 +427,15 @@ final class Store: ObservableObject {
 
     func revertAll() { revert(entries.map(\.id)) }
 
-    /// おすすめの設定を「変更後」に入れる。ほかの行の変更はそのまま。現在の値と異なる件数を返す
-    func loadRecommended() -> Int {
+    /// エッセンシャル設定の値を「変更後」に入れる。ほかの行の変更はそのまま。現在の値と異なる件数を返す
+    func loadEssentials() -> Int {
         var count = 0
-        for r in recommended {
-            guard let i = entries.firstIndex(where: { $0.item.domains[0] == r.domain && $0.item.key == r.key }) else { continue }
-            entries[i].target = .value(r.value)
+        for s in essentialSettings {
+            guard let i = index(s.domain + "\u{1}" + s.key) else { continue }
+            entries[i].target = .value(s.value)
             if entries[i].isChanged { count += 1 }
         }
         return count
-    }
-
-    /// エッセンシャル設定の値を「変更後」に入れる。ほかの行の変更はそのまま
-    func loadEssentials() {
-        for s in essentialSettings { setTarget(s.domain + "\u{1}" + s.key, .value(s.value)) }
     }
 
     /// 一覧にないドメインとキーを追加する
@@ -676,11 +671,12 @@ func showBackupFolder() {
     NSWorkspace.shared.open(Store.backupFolder)
 }
 
+/// showChanged が true なら、入れたあと「変更した項目」を表示する（ファイルメニューから）
 @MainActor
-func loadRecommended() {
-    if Store.shared.loadRecommended() == 0 {
-        Store.shared.message = (L("おすすめの設定"), L("おすすめの設定は、このMacにすべて適用済みです。"))
-    } else {
+func loadEssentials(showChanged: Bool) {
+    if Store.shared.loadEssentials() == 0 {
+        Store.shared.message = (L("エッセンシャル設定"), L("エッセンシャル設定は、このMacにすべて適用済みです。"))
+    } else if showChanged {
         NotificationCenter.default.post(name: .presetLoaded, object: nil)
     }
 }

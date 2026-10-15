@@ -1,6 +1,6 @@
 # PasteInARow
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.4.3-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.4.4-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ⌃⌥⌘C で選択中の文字を行に分けてスロットに追加し、⌃⌥V で上から1行ずつ、またはウインドウから好きな行をペーストするメニューバー常駐アプリ。Keyboard Maestro のマクロ「01)連続ペースト」「02)非連続ペースト」（直下の .kmmacros）の移植。
 
@@ -28,5 +28,6 @@
 
 ## 更新履歴
 
+- 1.4.4（build 14, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 - 1.4.3（build 13, 2026-10-13）：⌃⌥⌘C で追加するスロット、★、選んで Return でペースト（1.1.1〜1.4.3 をまとめて記録）。
 - 1.1.1（2026-10-13）：最初の公開版。複数行を1行ずつペースト。

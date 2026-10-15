@@ -33,6 +33,24 @@ let essentialSettings: [(domain: String, key: String, value: NSObject)] = [
     (firstWeekdayDomain, "gregorian", NSNumber(value: 2)),
     (g, "AppleICUForce24HourTime", on(true)),
     (wallpaperDomain, "AllSpacesAndDisplays", "gray50" as NSString),
+    // 以下は旧「おすすめの設定」から移したもの
+    (g, "NSAutomaticCapitalizationEnabled", on(false)),
+    (g, "NSAutomaticPeriodSubstitutionEnabled", on(false)),
+    (g, "NSAutomaticQuoteSubstitutionEnabled", on(false)),
+    (g, "NSAutomaticDashSubstitutionEnabled", on(false)),
+    (g, "AppleKeyboardUIMode", NSNumber(value: 2)),
+    ("com.apple.screencapture", "type", "png" as NSString),
+    (nvramDomain, "StartupMute", on(false)),
+    (dock, "expose-group-apps", on(false)),
+    // spans-displays は true で「ディスプレイごとに個別の操作スペース」がオフ
+    ("com.apple.spaces", "spans-displays", on(true)),
+    ("com.apple.WindowManager", "GloballyEnabled", on(false)),
+    ("com.apple.Terminal", "FocusFollowsMouse", on(true)),
+    (finder, "AnimateWindowZoom", on(false)),
+    (finder, "AnimateInfoPanes", on(false)),
+    (ua, "reduceMotion", on(true)),
+    // このMacの値（システム設定のスライダーで決めたもの）。float で保存されている
+    (ua, "mouseDriverCursorSize", NSNumber(value: Float(1.803315))),
 ]
 
 let wizardActions: [WizardAction] = [

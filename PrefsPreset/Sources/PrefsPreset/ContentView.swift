@@ -234,12 +234,10 @@ struct ContentView: View {
                 .help(L("一覧にドメインとキーの列を表示"))
             Spacer()
             MyPresetMenu()
-            Button { loadRecommended() } label: { Label(L("おすすめの設定"), systemImage: "sparkles") }
-                .help(L("おすすめの設定を「変更後」に入れる"))
             Button { store.refreshCurrent() } label: { Label(L("読み直す"), systemImage: "arrow.clockwise") }
                 .help(L("現在の値を読み直す"))
             if selection == essentialsCategory {
-                Button { store.loadEssentials() } label: { Label(L("エッセンシャル設定の値を入れる"), systemImage: "star") }
+                Button { loadEssentials(showChanged: false) } label: { Label(L("エッセンシャル設定の値を入れる"), systemImage: "star") }
                     .help(L("エッセンシャル設定の値を「変更後」に入れる。値は行ごとに変えられる"))
             }
             if selection == languageCategory {

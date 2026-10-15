@@ -500,7 +500,7 @@ struct ShortcutRow: View {
         let shortcut = add ? model.addShortcut : model.shortcut
         let recordingThis = model.recording && model.recordingAdd == add
         HStack {
-            Text(shortcut.label).font(.system(size: 14, weight: .medium)).tracking(3).frame(width: 110).accessibilityLabel(L("currentKey") + " " + shortcut.label)
+            Text(shortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading).accessibilityLabel(L("currentKey") + " " + shortcut.label)
             Button(recordingThis ? L("cancelRecording") : L("change")) { model.startRecording(add: add) }
             Button(L("resetShortcut")) { if add { model.resetAddShortcut() } else { model.resetShortcut() } }
         }.disabled(!(add ? model.addEnabled : model.hotkeyEnabled) && !recordingThis)

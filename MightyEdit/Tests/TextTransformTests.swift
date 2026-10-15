@@ -111,6 +111,27 @@ import Foundation
             precondition(actual == expected, "Date \(operation): \(actual) != \(expected)")
         }
         print("Passed \(dateCases.count) date cases")
+        let october = [
+            ["2026年10月14日", "2026年10月14日（水）", "2026年10月14日（水曜日）", "2026年10月14日 水曜日"],
+            ["令和8年10月14日", "令和8年10月14日（水）", "令和8年10月14日（水曜日）"], ["R8.10.14", "R8/10/14"],
+            ["10月14日（水）", "10月14日（水曜日）", "10/14（水）"], ["2026-10-14", "2026/10/14", "2026/10/14（水）", "2026.10.14", "20261014"],
+            ["Oct 14, 2026", "October 14, 2026", "Wed, Oct 14, 2026"], ["２０２６年１０月１４日", "二〇二六年十月十四日", "令和八年十月十四日"]]
+        func without(_ removed: String) -> [[String]] { october.map { $0.filter { $0 != removed } } }
+        for input in ["2026/10/14", "2026.10.14", "20261014", "10/14", "2026-10-14", "2026年10月14日（水）"] {
+            precondition(DateTransform.variants(input, currentYear: 2026) == without(input), "variants \(input)")
+        }
+        precondition(DateTransform.variants("本文のみ 2026/13/40 12345678 2026.2.30", currentYear: 2026).isEmpty)
+        precondition(DateTransform.variants("No.20261014-1", currentYear: 2026)[0][0] == "No.2026年10月14日-1")
+        let first = DateTransform.variants("令和元年5月1日と1/2", currentYear: 2026)
+        precondition(first[0][0] == "2019年5月1日と2026年1月2日" && first[3][0] == "5月1日（水）と1月2日（金）")
+        precondition(!first.joined().contains { $0.contains("05月") || $0.contains("/05/") })
+        let paddedFirst = DateTransform.variants("令和元年5月1日と1/2", padded: true, currentYear: 2026)
+        precondition(paddedFirst[0].prefix(2) == ["2019年05月01日と2026年01月02日", "2019年5月1日と2026年1月2日"])
+        precondition(paddedFirst[3] == first[3] && paddedFirst[4].contains("2019/05/01と2026/01/02"))
+        precondition(DateTransform.variants("2026/10/14", padded: true, currentYear: 2026) == without("2026/10/14"))
+        precondition(DateTransform.variants("1989-01-07", currentYear: 2026)[6] == ["１９８９年１月７日", "一九八九年一月七日", "昭和六十四年一月七日"])
+        precondition(DateTransform.variants("1868-01-01", currentYear: 2026).count == 5) // No era groups before 1873.
+        precondition(DateTransform.variants("本文のみ", currentYear: 2026).isEmpty)
         let wraps: [(String, Int, String)] = [
             ("abcdef", 3, "abc\ndef"), ("abc", 3, "abc"),
             ("あいうえお", 2, "あい\nうえ\nお"),
@@ -243,6 +264,8 @@ import Foundation
             (.addPeriod, "文章\n既存。\n  本文  \n\t\n", "文章。\n既存。\n  本文。  \n\t\n"),
             (.removePeriod, "文中。文章。\n末尾。。  \n空白なし\n", "文中。文章\n末尾  \n空白なし\n"),
             (.addPeriod, "", ""), (.removePeriod, "", ""),
+            (.invertSign, "12\n-3.5円\n  1,200 件 -4\n+7\n0\n−8\n１２\n－３\n本文 5\n\n", "-12\n3.5円\n  -1,200 件 -4\n-7\n0\n8\n－１２\n３\n本文 5\n\n"),
+            (.invertSign, "0.00\n-0\n00.10", "0.00\n-0\n-00.10"), (.invertSign, "", ""),
             (.bracketNumber, "1. バナナ\n・りんご\nC. パイン", "［1］ バナナ\n［2］ りんご\n［3］ パイン"),
             (.bracketAlphabet, "［1］ バナナ\n② りんご", "［A］ バナナ\n［B］ りんご"),
             (.number, "［1］ バナナ\n［B］ りんご", "1. バナナ\n2. りんご"),

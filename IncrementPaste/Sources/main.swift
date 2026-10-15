@@ -345,7 +345,7 @@ struct ShortcutRow: View {
     @ObservedObject var model: Model
     var body: some View {
         HStack {
-            Text(model.shortcut.label).font(.system(size: 14, weight: .medium)).tracking(3).frame(width: 110).accessibilityLabel(L("currentKey") + " " + model.shortcut.label)
+            Text(model.shortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading).accessibilityLabel(L("currentKey") + " " + model.shortcut.label)
             Button(model.recording ? L("cancelRecording") : L("change")) { model.startRecording() }
             Button(L("resetShortcut")) { model.resetShortcut() }
         }.disabled(!model.hotkeyEnabled && !model.recording)

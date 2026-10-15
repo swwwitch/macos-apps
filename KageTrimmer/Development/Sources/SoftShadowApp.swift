@@ -42,7 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pendingOpenURLs.removeAll()
             quitAfterPendingOpen = false
             DispatchQueue.main.async {
-                controller.process(urls) {
+                controller.process(urls) { _ in
                     if shouldQuit { NSApp.terminate(nil) }
                 }
             }
@@ -99,7 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.processWatched(urls) }
             return
         }
-        mainViewController.process(urls, quietly: true) { _ in }
+        mainViewController.process(urls)
     }
 
     private func performShortcut() {
@@ -108,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let mainViewController, !mainViewController.isProcessing {
             switch FileBrowserSelection.selectedFiles() {
             case .files(let urls) where mainViewController.containsImages(urls):
-                mainViewController.process(urls, quietly: true) { [weak self] succeeded in
+                mainViewController.process(urls) { [weak self] succeeded in
                     if !succeeded { self?.showMainWindow() }
                 }
                 return
@@ -291,7 +291,7 @@ final class MainViewController: NSViewController {
         let headerPanel = AppSurfaceView(frame: .zero)
         headerPanel.translatesAutoresizingMaskIntoConstraints = false; header.translatesAutoresizingMaskIntoConstraints = false
         optionsStack.translatesAutoresizingMaskIntoConstraints = false; dropView.translatesAutoresizingMaskIntoConstraints = false; status.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(headerPanel); headerPanel.addSubview(header); view.addSubview(optionsStack); view.addSubview(dropView); view.addSubview(status)
+        view.addSubview(headerPanel); view.addSubview(header); view.addSubview(optionsStack); view.addSubview(dropView); view.addSubview(status)
         NSLayoutConstraint.activate([
             headerPanel.leadingAnchor.constraint(equalTo: view.leadingAnchor), headerPanel.trailingAnchor.constraint(equalTo: view.trailingAnchor), headerPanel.topAnchor.constraint(equalTo: view.topAnchor), headerPanel.heightAnchor.constraint(equalToConstant: 82),
             header.leadingAnchor.constraint(equalTo: headerPanel.leadingAnchor, constant: 22), header.trailingAnchor.constraint(equalTo: headerPanel.trailingAnchor, constant: -22), header.centerYAnchor.constraint(equalTo: headerPanel.centerYAnchor),
@@ -336,12 +336,9 @@ final class MainViewController: NSViewController {
     }
     func containsImages(_ urls: [URL]) -> Bool { !Self.imageFiles(urls).isEmpty }
     func showStatus(_ text: String) { status.stringValue = text }
-    func process(_ urls: [URL], completion: (() -> Void)? = nil) {
-        process(urls, quietly: false) { _ in completion?() }
-    }
-    /// `quietly`: a hotkey run in the background. Success only plays a sound; the completion gets false when
-    /// anything failed or was skipped, so the caller can show the window with the results.
-    func process(_ urls: [URL], quietly: Bool, completion: @escaping (Bool) -> Void) {
+    /// The completion gets false when anything failed or was skipped, so a background run (hotkey, folder watch)
+    /// can show the window with the results. What happens after success follows the 「出力」 settings.
+    func process(_ urls: [URL], completion: @escaping (Bool) -> Void = { _ in }) {
         let supported = Self.imageFiles(urls)
         guard !supported.isEmpty else {
             status.stringValue = L("画像ファイルをドロップしてください。")
@@ -355,21 +352,31 @@ final class MainViewController: NSViewController {
         status.stringValue = L("処理しています…"); dropView.isProcessing = true
         let border = addBorder
         let size = shadowSize
+        let trashesOriginals = SuccessActions.trashesOriginals
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             var results: [String] = []
+            var outputs: [URL] = []
             var allSucceeded = true
             for url in supported {
                 do {
                     let result = try ShadowProcessor.process(url: url, addBorderWhenMissing: border, shadowSize: size)
                     let action = size == 0 ? L("影を除去") : (result.hadShadow ? L("既存の影を軽量化") : L("影を追加"))
                     results.append("✓ \(result.output.lastPathComponent)（\(action)）")
+                    outputs.append(result.output)
+                    // Only the original of an image that was written; to the Trash so it can be put back.
+                    if trashesOriginals, result.output.standardizedFileURL != url.standardizedFileURL {
+                        do { try FileManager.default.trashItem(at: url, resultingItemURL: nil) } catch {
+                            results.append(L("⚠︎ %@：元の画像をゴミ箱に入れられませんでした", String(describing: url.lastPathComponent))); allSucceeded = false
+                        }
+                    }
                 } catch ShadowError.noShadow { results.append(L("− %@：影がないためスキップ", String(describing: url.lastPathComponent))); allSucceeded = false
                 } catch { results.append("⚠︎ \(url.lastPathComponent)：\(error.localizedDescription)"); allSucceeded = false }
             }
             DispatchQueue.main.async {
                 self?.status.stringValue = results.joined(separator: "\n")
                 self?.dropView.isProcessing = false
-                if quietly && allSucceeded { NSSound(named: "Glass")?.play() }
+                if allSucceeded && SuccessActions.playsSound { NSSound(named: "Glass")?.play() }
+                if !outputs.isEmpty && SuccessActions.revealsOutputs { NSWorkspace.shared.activateFileViewerSelecting(outputs) }
                 completion(allSucceeded)
             }
         }
@@ -536,7 +543,17 @@ enum ShadowSizes {
     }
 }
 
-/// 「出力」 tab: the shadow size the main window starts with, and the file name suffix for each size.
+/// 「出力」 tab: what happens after images are processed. All off by default.
+enum SuccessActions {
+    static let soundKey = "playSoundOnSuccess"
+    static let revealKey = "revealOutputsOnSuccess"
+    static let trashKey = "trashOriginalsOnSuccess"
+    static var playsSound: Bool { UserDefaults.standard.bool(forKey: soundKey) }
+    static var revealsOutputs: Bool { UserDefaults.standard.bool(forKey: revealKey) }
+    static var trashesOriginals: Bool { UserDefaults.standard.bool(forKey: trashKey) }
+}
+
+/// 「出力」 tab: the shadow size the main window starts with, the file name suffix for each size, and what happens after success.
 @MainActor final class OutputSettingsController: NSObject, NSTextFieldDelegate {
     private let sizePopUp = NSPopUpButton()
     private var suffixFields: [NSTextField] = []
@@ -574,14 +591,32 @@ enum ShadowSizes {
         let resetRow = NSStackView(views: [reset, resetSpacer])
         let suffixGroup = SettingsUI.group(L("ファイル名の接尾辞"), [grid, suffixHelp, resetRow])
 
-        let stack = NSStackView(views: [sizeGroup, suffixGroup]); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
-        for group in [sizeGroup, suffixGroup] { group.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
+        let successChecks = [
+            (L("サウンドを鳴らす"), SuccessActions.soundKey),
+            (L("書き出した画像をFinderで選択する"), SuccessActions.revealKey),
+            (L("元の画像をゴミ箱に入れる"), SuccessActions.trashKey)
+        ].map { title, key -> NSButton in
+            let check = NSButton(checkboxWithTitle: title, target: self, action: #selector(successActionChanged(_:)))
+            check.identifier = NSUserInterfaceItemIdentifier(key)
+            check.state = UserDefaults.standard.bool(forKey: key) ? .on : .off
+            return check
+        }
+        let successHelp = NSTextField(wrappingLabelWithString: L("サウンドはすべての画像を処理できたときに鳴ります。ゴミ箱に入れるのは、書き出しに成功した画像の元ファイルだけです。"))
+        successHelp.font = .systemFont(ofSize: 11); successHelp.textColor = .secondaryLabelColor
+        let successGroup = SettingsUI.group(L("処理に成功したとき"), successChecks + [successHelp])
+
+        let stack = NSStackView(views: [sizeGroup, suffixGroup, successGroup]); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
+        for group in [sizeGroup, suffixGroup, successGroup] { group.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         return stack
     }
     @objc private func defaultSizeChanged() {
         let size = ShadowSizes.choices[sizePopUp.indexOfSelectedItem].1
         UserDefaults.standard.set(size, forKey: ShadowSizes.defaultKey)
         NotificationCenter.default.post(name: ShadowSizes.settingsChanged, object: nil, userInfo: [ShadowSizes.defaultKey: size])
+    }
+    @objc private func successActionChanged(_ sender: NSButton) {
+        guard let key = sender.identifier?.rawValue else { return }
+        UserDefaults.standard.set(sender.state == .on, forKey: key)
     }
     func controlTextDidChange(_ notification: Notification) {
         guard let field = notification.object as? NSTextField else { return }

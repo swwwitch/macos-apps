@@ -245,7 +245,7 @@ struct Preferences: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle(L("frontEnable"), isOn: Binding(get: { model.frontEnabled }, set: { model.frontEnabled = $0; model.save() }))
                     HStack {
-                        Text(model.frontShortcut.label).font(.system(.body, design: .monospaced)).frame(width: 120)
+                        Text(model.frontShortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
                         Button(model.recordingFront ? L("cancelRecording") : L("change")) {
                             model.recordingFront.toggle(); model.recording = model.recordingFront; model.refreshHotkey()
                         }
@@ -267,7 +267,7 @@ struct Preferences: View {
                         OperationPicker(selection: $model.selectedAction) { model.recording = false; model.recordingFront = false; model.refreshHotkey() }
                     }
                     HStack {
-                        Text(model.shortcut?.label ?? L("unassigned")).font(.system(.body, design: .monospaced)).frame(width: 120)
+                        Text(model.shortcut?.label ?? L("unassigned")).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
                         Button(model.recording && !model.recordingFront ? L("cancelRecording") : L("change")) {
                             model.recording = model.recordingFront || !model.recording; model.recordingFront = false; model.refreshHotkey()
                         }

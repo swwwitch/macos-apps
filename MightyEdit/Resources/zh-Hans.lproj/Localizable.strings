@@ -57,6 +57,7 @@
 "msg.selectInApp" = "请在要操作的应用中选择文字";
 "msg.noAccess" = "无法获取此应用中的所选文字";
 "msg.selectText" = "请选择文字（不支持无法获取所选内容的应用）";
+"msg.noDate" = "未找到日期";
 "msg.noChange" = "没有需要更改的文字";
 "msg.copied" = "已拷贝处理后的文字";
 "msg.noRange" = "无法确认所选范围。请使用“复制而不替换”。";
@@ -136,6 +137,9 @@
 "op.removeJapaneseSpaces" = "删除日文与西文间空格";
 "op.addJapaneseSpaces" = "在日文与西文间添加空格";
 "op.sum" = "数值求和";
+"op.invertSign" = "正负反转";
+"op.dateSpecial" = "日期特别";
+"op.dateSpecialPadded" = "日期特别（补零）";
 "op.fullwidthWestern" = "字母数字和符号转全角";
 "op.halfwidthWestern" = "字母数字和符号转半角";
 "op.capitalizeWords" = "单词首字母大写";
@@ -179,6 +183,8 @@
 "tip.countText" = "在单独窗口中显示字数和行数（不更改文本）";
 "tip.affixLines" = "在每行开头和结尾添加指定文字（包括空行）";
 "tip.date" = "转换所选文本中的日期（保留不存在的日期）";
+"tip.dateSpecial" = "在菜单中列出所选文本中日期的各种格式，并替换为所选格式";
+"tip.dateSpecialPadded" = "与日期特别相同，并同时列出月日补零的格式（如 2026年01月02日）";
 "tip.narrowAlphanumerics" = "仅将全角字母和数字转为半角（保留符号和假名）";
 "tip.widenKana" = "将半角假名转为全角（合并浊音和半浊音符号）";
 "tip.removeJapaneseSpaces" = "删除日文与半角字母数字之间的半角和全角空格";
@@ -189,6 +195,7 @@
 "tip.camelCase" = "hello world → helloWorld（支持空格、连字符和下划线分隔）";
 "tip.titleCase" = "英文标题格式（首尾及主要单词大写）";
 "tip.sum" = "对所选范围内的数字求和，并在原文下方添加空行和合计";
+"tip.invertSign" = "反转每行开头数字的正负（-12→12、12→-12；0 和之后的数字不变）";
 "tip.wrapLines" = "按指定字数折行（保留现有换行）";
 "tip.toggleDateFormat" = "在 yyyy年mm月dd日 与 yyyy-mm-dd 之间转换（月日补足两位）";
 "tip.randomLines" = "按行随机排列（保留空行和重复行）";
@@ -207,7 +214,7 @@
 "tip.addCommas" = "用逗号每三位分隔数字的整数部分";
 "tip.removeCommas" = "删除数字中的千位分隔逗号";
 "tip.removeList" = "删除行首的编号和项目符号";
-"tip.number" = "Control+1：1. ／ Control+Option+1：［1］";
+"tip.number" = "Control+1：1.";
 "tip.alphabet" = "Control+4：A. ／ Control+Option+4：［A］";
 "tip.specialLists" = "更多列表：在单独窗口中选择列表类型并应用";
 "tip.specialTypography" = "批量整理：选择项目并一次应用";

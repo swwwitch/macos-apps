@@ -30,7 +30,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Circled Numbers adds ① to ㊿ (from 51 on, the (51) form). Letter List (A.) adds A. to Z., then AA., AB.…
 - Remove List Markers removes only the numbers and bullet markers at the start of lines and keeps the text and blank lines. Leading spaces and tabs are removed too.
 ### Bracketed Lists
-- **⌃⌥1**: ［1］ バナナ
+- ［1］ バナナ (no default hotkey)
 - **⌃⌥4**: ［A］ バナナ
 - Existing list markers are replaced. Switching back to the normal style and Remove List Markers also work.
 ### More Lists
@@ -103,6 +103,11 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Japanese eras Meiji, Taisho, Showa, Heisei and Reiwa are supported, including the dates of each era change and the 元年 (first year) notation. Dates before Meiji 6 (the old calendar) are not converted. Dates that do not exist, or era years that do not match the era change dates, are left unchanged.
 - Remove Year removes only the year. Add Current Year adds this year to dates without a year, such as 10月6日 or 10-06.
 - The current year and weekdays are determined in Japan time. Add Weekday treats a date without a year as this year. An existing weekday is replaced, not duplicated. Half-width letters and digits are supported.
+### Date Special
+- Date Special (⌃⌥1) shows the dates in the selection converted to each format in a menu at the pointer, and replaces the selection with the one you choose. Separators divide the menu into groups.
+- Formats: Western year (2026年10月14日（水）), Japanese era (令和8年10月14日), abbreviated era (R8.10.14), month and day (10/14（水）), numeric (2026-10-14, 2026/10/14, 2026.10.14, 20261014), English (Oct 14, 2026), full-width and kanji numerals (二〇二六年十月十四日).
+- Months and days are shown without zero padding (2026年1月2日). Date Special (Zero-Padded) also lists the zero-padded forms (such as 2026年01月02日).
+- 2026/10/14, 2026.10.14, 20261014 and 10/14 are also accepted. Dates without a year are treated as this year.
 
 ## Numbers and Periods
 ### Digit Grouping
@@ -115,6 +120,9 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Sum Numbers picks up half- and full-width numbers in the selection, understands decimals, signs and thousands separators, and adds them up.
 - The original text is kept, and a blank line and 合計：… are added below it. If there are no numbers, or too many digits to add exactly, the text is not changed and a message is shown.
 - Item numbers, dates and an earlier total in the selection are also added, so select only the range you want to total. Unit conversion and formulas are not supported.
+### Invert Sign
+- Invert Sign flips the sign of the number at the start of each line (12 → -12, -3.5円 → 3.5円). Later numbers and the rest of the line are kept.
+- Half- and full-width digits, thousands separators and decimals are supported. Zero values and lines that do not start with a number are not changed.
 ### Periods at Line End
 - Add “。” at Line End adds 。 to the end of every line except blank lines. Lines that already end with 。 are not changed.
 - Remove “。” at Line End removes 。 at the end of each line. 。 within sentences and trailing spaces are kept.
@@ -135,7 +143,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - **⌃4**: Letter List (A.)
 - **⌃6**: Bulleted List
 - **⌃7**: Markdown List
-- **⌃⌥1**: ［1］ bracketed list
+- **⌃⌥1**: Date Special
 - **⌃⌥4**: ［A］ bracketed list
 - **⌃,**: Add Commas
 - **⌃⌥,**: Remove Commas
@@ -143,6 +151,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - **⌃⌥⌘-**: Remove All Line Breaks
 - **⌃⌥⇧⌘-**: Minify
 - **⌃⌘=**: Sum Numbers (on JIS keyboards, also press Shift to type =)
+- **⌃-**: Invert Sign
 ### Using Hotkeys
 - Select text in the target app, then press the key; it runs at once (only once while held). With the default scope “All Apps”, hotkeys work even while the palette is hidden.
 - Each hotkey has a scope. On the Hotkeys tab of Settings, choose “All Apps” (default) or “Only While Palette Is Shown” in the pop-up menu below the action name; it is saved immediately (no need to click Apply). You can also choose it in each action’s submenu under Hotkeys in the menu bar, where palette-only actions are marked “(Only While Palette Is Shown)”.

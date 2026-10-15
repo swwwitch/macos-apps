@@ -1,6 +1,6 @@
 # PasteMatchStyle
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.0.0-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.0.2-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ⇧⌘V で、前面のアプリに「ペーストしてスタイルを合わせる」などのメニュー項目があればそれを、無ければクリップボードの文字だけをペーストするメニューバー常駐アプリ。Keyboard Maestro のマクロ「Paste and Match Style」「Universal Paste Without Style」（直下の .kmmacros）の移植。
 
@@ -28,5 +28,6 @@
 
 ## 更新履歴
 
+- 1.0.2（build 3, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 - 1.0.1（build 2, 2026-10-14）：Excel の「貼り付けて書式設定に合わせる」をメニュー項目名の初期値に追加。
 - 1.0.0（build 1, 2026-10-14）：最初の版。

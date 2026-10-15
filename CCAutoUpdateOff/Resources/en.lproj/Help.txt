@@ -19,7 +19,7 @@ Remove previous versions
 With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too. Only apps whose auto-update is in effect count; otherwise the list shows “—” (Creative Cloud greys the option out). While the global switch is off, the app rows are dimmed.
 
 Mail
-Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. While the Mac is asleep nothing can be sent; it goes out after waking.
+Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). Send at sets the time (9:00 by default); if it turns on after that time, the mail goes out when it is noticed. It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. If the Mac is asleep at the send time, it goes out after waking.
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.

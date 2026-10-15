@@ -71,7 +71,7 @@ PrefsPresetのセットファイルではありません。	This is not a PrefsP
 元の値は「%@」に保存しました。ファイルメニューの「開く…」で読み込んで適用すると元に戻せます。	The original values were saved to “%@”. To restore them, open it with File > Open… and apply it.	原始值已保存到“%@”。在“文件”菜单中用“打开…”读取并应用即可恢复。	원래 값은 ‘%@’에 저장했습니다. 파일 메뉴의 ‘열기…’로 읽어 적용하면 되돌릴 수 있습니다.
 適用しました	Applied	已应用	적용했습니다
 一部の設定を適用できませんでした	Some Settings Could Not Be Applied	部分设置无法应用	일부 설정을 적용할 수 없습니다
-全体	General	通用	일반
+一般	General	通用	일반
 キーボード	Keyboard	键盘	키보드
 サウンド	Sound	声音	사운드
 Dock	Dock	程序坞	Dock
@@ -281,10 +281,6 @@ BMP	BMP	BMP	BMP
 ターミナル	Terminal	终端	터미널
 マウス	Mouse	鼠标	마우스
 トラックパッド	Trackpad	触控板	트랙패드
-おすすめの設定	Recommended Settings	推荐设置	추천 설정
-おすすめの設定を「変更後」に入れる	Put the recommended settings in “New Value”	将推荐设置填入“新值”	추천 설정을 ‘새 값’에 넣습니다
-おすすめの設定を読み込む	Load Recommended Settings	载入推荐设置	추천 설정 불러오기
-おすすめの設定は、このMacにすべて適用済みです。	All recommended settings are already applied on this Mac.	推荐设置已全部应用到这台 Mac。	추천 설정이 이 Mac에 모두 적용되어 있습니다.
 起動時にサウンドを再生	Play sound on startup	启动时播放声音	시동 시 사운드 재생
 ホットコーナー	Hot Corners	触发角	핫 코너
 文字入力	Text Input	文本输入	텍스트 입력
@@ -422,3 +418,4 @@ Mighty Mouse	Mighty Mouse	Mighty Mouse	Mighty Mouse
 360°	360°	360°	360°
 エッセンシャル設定の値を入れる	Fill In Essentials	填入必备设置的值	필수 설정 값 채우기
 エッセンシャル設定の値を「変更後」に入れる。値は行ごとに変えられる	Puts the Essentials values in “New Value.” You can change each row’s value.	将必备设置的值填入“更改后”。可逐行更改值。	필수 설정 값을 ‘변경 후’에 넣습니다. 값은 행마다 바꿀 수 있습니다.
+エッセンシャル設定は、このMacにすべて適用済みです。	All Essentials are already applied on this Mac.	必备设置已全部应用到这台 Mac。	필수 설정이 이 Mac에 모두 적용되어 있습니다.

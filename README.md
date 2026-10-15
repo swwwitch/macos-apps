@@ -9,6 +9,7 @@
 | BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) |
 | BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) |
 | CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
+| CCAutoUpdateOff | Creative Cloudのアプリの自動更新がオンになっていないかを見張って通知 | [Source](CCAutoUpdateOff/Source/) | [build.sh](CCAutoUpdateOff/build.sh) |
 | CellCopyCleaner | Excel等のセルをコピーしたとき付く「"」とセル内改行を除去（KMマクロの移植） | [Sources](CellCopyCleaner/Sources/) | [build.sh](CellCopyCleaner/build.sh) |
 | CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
 | DocklessLauncher（旧 AppLauncher） | ホットキーでアプリを起動・前面化 | [Sources](DocklessLauncher/Sources/) | [build.sh](DocklessLauncher/build.sh) |
@@ -22,8 +23,10 @@
 | KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
 | KeynoteSweeper | Keynoteの未使用マスター・非表示スライド・アニメーションの削除 | [Source](KeynoteSweeper/Source/) | [build.sh](KeynoteSweeper/build.sh) |
 | LinkMaker | ブラウザーのページのタイトルとURLをコピー・保存・開き直し（KMマクロ「Make Link」の移植） | [Sources](LinkMaker/Sources/) | [build.sh](LinkMaker/build.sh) |
+| ListMatch | 2つのリストを比べ、片方にしかないもの・共通の項目を表示（メールアドレス・CSVの列にも対応） | [Source](ListMatch/Source/) | [build.sh](ListMatch/build.sh) |
 | MarkdownKitchen | Markdownの整形・加工（左に原稿、右に見出しだけを表示） | [Sources](MarkdownKitchen/Sources/MarkdownKitchen/) | [build.sh](MarkdownKitchen/build.sh) |
 | MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) |
+| note2markdown | note記事をMarkdownファイルに書き出す | [Source](note2markdown/Source/) | [build.sh](note2markdown/build.sh) |
 | PasteInARow | 複数行のテキストを1行ずつペースト（KMマクロ「01)連続ペースト」の移植） | [Sources](PasteInARow/Sources/) | [build.sh](PasteInARow/build.sh) |
 | PasteMatchStyle | どのアプリでも書式なしでペースト（KMマクロ「Paste and Match Style」「Universal Paste Without Style」の移植） | [Sources](PasteMatchStyle/Sources/) | [build.sh](PasteMatchStyle/build.sh) |
 | PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) |
@@ -36,7 +39,7 @@
 ## ファイルの置き場所
 
 - 各アプリ直下：README、ビルド入口、ソース・素材・テスト。既存のビルド経路を保持。
-- `Latest Builds/`：現在保管している25本のアプリ。バージョン一覧は同フォルダのREADME。
+- `Latest Builds/`：現在保管している29本のアプリ。バージョン一覧は同フォルダのREADME。
 - 各アプリの `Backups/` と `Shared/Backups/Build/`：置換前のバックアップ。ソースとして編集しない。
 - 各アプリの `ReleaseArchive/` と `Shared/DistributionArchive/`：過去のZIP・DMG。現行アプリと区別する。
 - 各アプリの `Docs/`：検証記録（`Docs/Verification/`）・サポート／プライバシーポリシーの原稿（`Docs/SupportPrivacy/`）・スクリーンショット・申請メモ。既存のVerificationやRecheckフォルダは保持。

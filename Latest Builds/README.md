@@ -1,36 +1,37 @@
 # 保管中の最新ビルド
 
-2026-10-14に各アプリのInfo.plistから読み取った一覧です（26本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
+2026-10-15に各アプリのInfo.plistから読み取った一覧です（29本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
 
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
-| [DocklessLauncher](DocklessLauncher.app) | 1.8.1 | 17 | `jp.dtp-transit.applauncher` |
+| [DocklessLauncher](DocklessLauncher.app) | 1.8.2 | 18 | `jp.dtp-transit.applauncher` |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.31 | 51 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
-| [CellCopyCleaner](CellCopyCleaner.app) | 1.1.1 | 4 | `jp.dtp-transit.cellcopycleaner` |
-| [PasteInARow](PasteInARow.app) | 1.4.3 | 13 | `jp.dtp-transit.pasteinarow` |
-| [PasteMatchStyle](PasteMatchStyle.app) | 1.0.0 | 1 | `jp.dtp-transit.pastematchstyle` |
-| [IncrementPaste](IncrementPaste.app) | 1.0.0 | 1 | `jp.dtp-transit.incrementpaste` |
+| [CellCopyCleaner](CellCopyCleaner.app) | 1.1.2 | 5 | `jp.dtp-transit.cellcopycleaner` |
+| [PasteInARow](PasteInARow.app) | 1.4.4 | 14 | `jp.dtp-transit.pasteinarow` |
+| [PasteMatchStyle](PasteMatchStyle.app) | 1.0.2 | 3 | `jp.dtp-transit.pastematchstyle` |
+| [IncrementPaste](IncrementPaste.app) | 1.0.1 | 2 | `jp.dtp-transit.incrementpaste` |
 | [CommandDee](CommandDee.app) | 1.8.23 | 50 | `jp.local.CommandDee` |
-| [HotkeyHound](HotkeyHound.app) | 0.3.0 | 9 | `jp.dtp-transit.hotkeyhound` |
+| [HotkeyHound](HotkeyHound.app) | 0.3.1 | 10 | `jp.dtp-transit.hotkeyhound` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.2.25 | 39 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.1.94 | 109 | `jp.local.FolderMover` |
-| [ProjectFolder](ProjectFolder.app) | 1.9.0 | 13 | `jp.dtp-transit.foldermaker` |
+| [ProjectFolder](ProjectFolder.app) | 1.10.1 | 15 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.0.14 | 29 | `local.takano.FolderMover` |
-| [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 16 | `local.takano.IdAsyncOff` |
-| [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.2.7 | 10 | `local.takano.CCAutoUpdateOff` |
-| [KageTrimmer](KageTrimmer.app) | 1.2.2 | 62 | `jp.dtp-transit.kagetrimmer` |
+| [IdBackgroundOff](IdBackgroundOff.app) | 1.1.1 | 17 | `local.takano.IdAsyncOff` |
+| [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.3.0 | 11 | `local.takano.CCAutoUpdateOff` |
+| [KageTrimmer](KageTrimmer.app) | 1.3.0 | 63 | `jp.dtp-transit.kagetrimmer` |
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.0.5 | 6 | `jp.local.KeynoteSweeper` |
-| [KakkoReplace](KakkoReplace.app) | 0.3.28 | 48 | `jp.local.SuperKakkoEdit` |
-| [LinkMaker](LinkMaker.app) | 1.2.6 | 9 | `jp.dtp-transit.linkmaker` |
+| [KakkoReplace](KakkoReplace.app) | 0.3.32 | 52 | `jp.local.SuperKakkoEdit` |
+| [LinkMaker](LinkMaker.app) | 1.2.7 | 10 | `jp.dtp-transit.linkmaker` |
 | [MarkdownKitchen](MarkdownKitchen.app) | 1.42.0 | 98 | `jp.dtp-transit.markdownkitchen` |
-| [MightyEdit](MightyEdit.app) | 0.2.20 | 94 | `jp.local.TextPalette` |
+| [MightyEdit](MightyEdit.app) | 0.2.28 | 102 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.1.4 | 18 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.14.0 | 43 | `jp.local.PandocDesk` |
 | [PrefsPreset](PrefsPreset.app) | 1.1.9 | 12 | `jp.dtp-transit.prefspreset` |
 | [PodiumAssist](PodiumAssist.app) | 3.2.35 | 58 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.17 | 31 | `jp.dtp-transit.quickiconexporter` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.0.0 | 1 | `jp.dtp-transit.yohakutrimmer` |
+| [note2markdown](note2markdown.app) | 1.1.2 | 4 | `jp.dtp-transit.note2markdown` |
 | [ListMatch](ListMatch.app) | 1.5.0 | 7 | `jp.dtp-transit.listdiff` |
 
 最終ビルドの配置先は `/Applications` とこのフォルダです。過去のDMGは [DistributionArchive](../Shared/DistributionArchive/) へ退避しました。自動コピーは [BuildTools](../Shared/BuildTools/README.md)、共通ルールは [BASELINE](../Shared/AppStandards/BASELINE.md) を参照してください。

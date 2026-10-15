@@ -466,7 +466,7 @@ struct EntryRow: View {
             .accessibilityAction(named: Text(L("row.launchNow"))) { model.launch(entry) }
             Button(action: { model.startRecording(entry.id) }) {
                 Text(recording ? L("row.pressKey") : (entry.shortcut.map { $0.label + (entry.doubleTap ? " ×2" : "") } ?? L("row.noKey")))
-                    .font(.system(.body, design: .monospaced)).frame(minWidth: 96)
+                    .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
             }
             .help(recording ? L("recordHint") : L("row.recordHelp"))
             .accessibilityLabel(L("row.key") + " " + (entry.shortcut?.label ?? L("row.noKey")))

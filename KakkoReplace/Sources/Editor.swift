@@ -23,23 +23,7 @@ final class Editor {
         guard let v = AXValueCreate(.cfRange, &r) else { return false }
         return AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, v) == .success
     }
-    /// The element's text in the coordinates of AXSelectedTextRange. Chrome's contenteditable (note editor) puts "\n"
-    /// between paragraphs in AXValue but leaves them out of the ranges and AXStringForRange (measured), so its text is
-    /// read without them. Native text views return AXValue itself.
-    func text(_ element: AXUIElement) -> String? {
-        guard let value = attribute(element, kAXValueAttribute) as? String else { return nil }
-        guard value.contains("\n") else { return value }
-        if string(element, length: value.utf16.count) == value { return value }
-        let joined = value.replacingOccurrences(of: "\n", with: "")
-        return string(element, length: joined.utf16.count) == joined ? joined : value
-    }
-    private func string(_ element: AXUIElement, length: Int) -> String? {
-        var r = CFRange(location: 0, length: length)
-        guard let span = AXValueCreate(.cfRange, &r) else { return nil }
-        var value: CFTypeRef?
-        guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString, span, &value) == .success else { return nil }
-        return value as? String
-    }
+    func text(_ element: AXUIElement) -> String? { attribute(element, kAXValueAttribute) as? String }
     func focused(_ pid: pid_t) -> AXUIElement? {
         let app = AXUIElementCreateApplication(pid)
         AXUIElementSetMessagingTimeout(app, 0.35)
@@ -51,8 +35,15 @@ final class Editor {
         busy = true; defer { busy = false }
         guard AXIsProcessTrusted() else { return L("permissionNeeded") }
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
-              let element = focused(pid), attribute(element, kAXSubroleAttribute) as? String != "AXSecureTextField",
-              let original = range(element), let value = text(element),
+              let element = focused(pid), attribute(element, kAXSubroleAttribute) as? String != "AXSecureTextField" else { return L("unsupported") }
+        // Web content (Safari, Chrome, Firefox, Electron apps such as Notion) cannot be edited reliably through AX
+        // (measured): the index ranges drift from AXValue (Safari 7 characters after a few headings, Firefox skips list
+        // bullets), writes are ignored (Safari, Chrome) or replace other text (Firefox: the last paragraph), and Google Docs
+        // exposes only a stand-in field holding one space. It is edited with ⌘C/⌘V and arrow keys instead.
+        if isWebContent(element) {
+            return performViaCopy(markedSelection(element), element: element, pid: pid, action: action, force: force, trimSpaces: trimSpaces)
+        }
+        guard let original = range(element), let value = text(element),
               original.location <= value.utf16.count, original.length <= value.utf16.count - original.location else { return L("unsupported") }
         for key in [kAXSelectedTextAttribute, kAXSelectedTextRangeAttribute] {
             var settable: DarwinBoolean = false
@@ -71,9 +62,94 @@ final class Editor {
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, let current = focused(pid), CFEqual(current, element), select(edit.selection, on: element) else { return L("partial") }
         return L("success")
     }
+    /// Web content carries text markers or DOM attributes; Notion's page editor has only the DOM ones (measured).
+    private func isWebContent(_ element: AXUIElement) -> Bool {
+        var names: CFArray?
+        guard AXUIElementCopyAttributeNames(element, &names) == .success, let names = names as? [String] else { return false }
+        return names.contains { ["AXSelectedTextMarkerRange", "AXDOMClassList", "AXDOMIdentifier", "ChromeAXNodeId"].contains($0) }
+    }
+    /// The selected text as the text markers of web content report it, or nil where they are not available.
+    private func markedSelection(_ element: AXUIElement) -> String? {
+        guard let markers = attribute(element, "AXSelectedTextMarkerRange") else { return nil }
+        var value: CFTypeRef?
+        guard AXUIElementCopyParameterizedAttributeValue(element, "AXStringForTextMarkerRange" as CFString, markers, &value) == .success else { return nil }
+        return value as? String
+    }
+    /// Copies the selection with ⌘C, pastes the edit over it and selects with arrow keys. The result cannot be read
+    /// back reliably, and there is no restore (the target's ⌘Z undoes it). An empty marker selection skips the copy;
+    /// Google Docs' stand-in always reports " ", so its selection is copied. Without markers, nothing copied means no selection.
+    private func performViaCopy(_ marked: String?, element: AXUIElement, pid: pid_t, action: String, force: Bool, trimSpaces: Bool) -> String {
+        recovery = nil
+        var copied = ""
+        if marked != "" {
+            let pasteboard = NSPasteboard.general
+            let saved = pendingClipboard.flatMap { $0.change == pasteboard.changeCount ? $0.items : nil } ?? clipboardItems()
+            let before = pasteboard.changeCount
+            guard let source = CGEventSource(stateID: .privateState),
+                  let down = CGEvent(keyboardEventSource: source, virtualKey: 8, keyDown: true),
+                  let up = CGEvent(keyboardEventSource: source, virtualKey: 8, keyDown: false) else { return L("failed") }
+            down.flags = .maskCommand; up.flags = .maskCommand
+            down.postToPid(pid); up.postToPid(pid)
+            let deadline = Date().addingTimeInterval(0.5)
+            while pasteboard.changeCount == before, Date() < deadline { usleep(20_000) }
+            if pasteboard.changeCount != before {
+                copied = pasteboard.string(forType: .string) ?? ""
+                // paste() restores the user's clipboard, not the copied text.
+                pendingClipboard = (saved, pasteboard.changeCount)
+            } else if marked != nil && marked != " " {
+                // A known selection that did not copy must not be pasted over (it would be deleted).
+                return L("failed")
+            }
+        }
+        let edit = BracketEdit.make(copied, at: 0, action: action, force: force, trimSpaces: trimSpaces)
+        guard edit.replacement != copied else { restoreClipboard(); return L("unchanged") }
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, let current = focused(pid), CFEqual(current, element) else { restoreClipboard(); return L("cancelled") }
+        guard paste(edit.replacement, pid: pid) else { restoreClipboard(); return L("failed") }
+        usleep(150_000)
+        return selectByKeys(edit, pid: pid) ? L("success") : L("partial")
+    }
+    private func clipboardItems() -> [[NSPasteboard.PasteboardType: Data]] {
+        (NSPasteboard.general.pasteboardItems ?? []).map { item in
+            var saved: [NSPasteboard.PasteboardType: Data] = [:]
+            for type in item.types { if let data = item.data(forType: type) { saved[type] = data } }
+            return saved
+        }
+    }
+    /// Puts back the clipboard held in pendingClipboard unless something else copied meanwhile.
+    private func restoreClipboard() {
+        let pasteboard = NSPasteboard.general
+        guard let pending = pendingClipboard, pending.change == pasteboard.changeCount else { return }
+        pendingClipboard = nil
+        pasteboard.clearContents()
+        let items = pending.items.map { saved -> NSPasteboardItem in
+            let item = NSPasteboardItem()
+            for (type, data) in saved { item.setData(data, forType: type) }
+            return item
+        }
+        if !items.isEmpty { pasteboard.writeObjects(items) }
+    }
+    /// After a paste the caret follows the replacement; ← moves it back to the end of `edit.selection`, ⇧← selects it.
+    /// Counted in characters, as the arrow keys move.
+    private func selectByKeys(_ edit: BracketEdit, pid: pid_t) -> Bool {
+        let replacement = edit.replacement as NSString
+        let selection = edit.selection
+        guard NSMaxRange(selection) <= replacement.length,
+              let source = CGEventSource(stateID: .privateState) else { return false }
+        let tail = replacement.substring(from: NSMaxRange(selection)).count
+        let inner = replacement.substring(with: selection).count
+        for (count, flags) in [(tail, CGEventFlags()), (inner, CGEventFlags.maskShift)] {
+            for _ in 0..<count {
+                guard let down = CGEvent(keyboardEventSource: source, virtualKey: 123, keyDown: true),
+                      let up = CGEvent(keyboardEventSource: source, virtualKey: 123, keyDown: false) else { return false }
+                down.flags = flags; up.flags = flags
+                down.postToPid(pid); up.postToPid(pid)
+            }
+        }
+        return true
+    }
     enum WriteResult { case success, unverified, failed }
-    /// Replaces the selection through AX. Chrome's contenteditable (e.g. the note editor) reports success but keeps
-    /// the text (measured), so when the text is still unchanged the replacement is pasted with ⌘V instead (as MightyEdit does).
+    /// Replaces the selection through AX. When a native field reports success but keeps the text, the replacement is
+    /// pasted with ⌘V instead (as MightyEdit does).
     /// Returns the text read back after the edit, for the recovery check.
     private func write(_ replacement: String, at location: Int, to element: AXUIElement, pid: pid_t, before: String, expected: String) -> (WriteResult, String?) {
         let status = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, replacement as CFString)
@@ -85,9 +161,8 @@ final class Editor {
         guard paste(replacement, pid: pid), let after = waitForEdit(replacement, at: location, in: element, before: before, expected: expected, seconds: 1) else { return (.failed, nil) }
         return (.success, after)
     }
-    /// Polls every 20 ms; native text views update synchronously, Chrome after about 50 ms.
-    /// Chrome reports an empty paragraph as "\n" and drops it once text goes in, so a changed value that holds
-    /// `inserted` at `location` also counts (measured: "\n" + （） → "（）").
+    /// Polls every 20 ms; native text views update synchronously. A changed value that holds `inserted` at `location`
+    /// also counts, for fields that normalise the rest of the text.
     private func waitForEdit(_ inserted: String, at location: Int, in element: AXUIElement, before: String, expected: String, seconds: TimeInterval) -> String? {
         let deadline = Date().addingTimeInterval(seconds)
         while true {
@@ -103,7 +178,7 @@ final class Editor {
             usleep(20_000)
         }
     }
-    /// Chrome applies a new selection about 30 ms later (measured), so the readback is polled.
+    /// Some fields apply a new selection a little later, so the readback is polled.
     private func select(_ selection: NSRange, on element: AXUIElement) -> Bool {
         guard setRange(selection, on: element) else { return false }
         let deadline = Date().addingTimeInterval(0.3)
@@ -126,11 +201,7 @@ final class Editor {
         }
         let pasteboard = NSPasteboard.general
         // A paste within the restore delay keeps the user's clipboard from the first one, not our own text.
-        let previous = pendingClipboard.flatMap { $0.change == pasteboard.changeCount ? $0.items : nil } ?? (pasteboard.pasteboardItems ?? []).map { item in
-            var saved: [NSPasteboard.PasteboardType: Data] = [:]
-            for type in item.types { if let data = item.data(forType: type) { saved[type] = data } }
-            return saved
-        }
+        let previous = pendingClipboard.flatMap { $0.change == pasteboard.changeCount ? $0.items : nil } ?? clipboardItems()
         guard let source = CGEventSource(stateID: .privateState),
               let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else { return false }
@@ -145,14 +216,7 @@ final class Editor {
         // The target reads the clipboard asynchronously; restore after it has had time to paste.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             guard pasteboard.changeCount == change else { return }
-            self?.pendingClipboard = nil
-            pasteboard.clearContents()
-            let items = previous.map { saved -> NSPasteboardItem in
-                let item = NSPasteboardItem()
-                for (type, data) in saved { item.setData(data, forType: type) }
-                return item
-            }
-            if !items.isEmpty { pasteboard.writeObjects(items) }
+            self?.restoreClipboard()
         }
         return true
     }

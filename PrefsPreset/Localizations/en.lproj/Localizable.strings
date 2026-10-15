@@ -3,7 +3,7 @@
 "メインウインドウを開く" = "Open Main Window";
 "開く…" = "Open…";
 "書き出す…" = "Export…";
-"おすすめの設定を読み込む" = "Load Recommended Settings";
+"エッセンシャル設定の値を入れる" = "Fill In Essentials";
 "現在の設定をマイプリセットに保存…" = "Save Current Settings as My Preset…";
 "マイプリセットを読み込む" = "Load My Preset";
 "マイプリセットのフォルダを表示" = "Show My Preset Folder";
@@ -39,11 +39,8 @@
 "項目名・キーで検索" = "Search by item name or key";
 "ドメイン / キー" = "Domain / Key";
 "一覧にドメインとキーの列を表示" = "Show the domain and key column in the list";
-"おすすめの設定" = "Recommended Settings";
-"おすすめの設定を「変更後」に入れる" = "Put the recommended settings in “New Value”";
 "読み直す" = "Reload";
 "現在の値を読み直す" = "Read the current values again";
-"エッセンシャル設定の値を入れる" = "Fill In Essentials";
 "エッセンシャル設定の値を「変更後」に入れる。値は行ごとに変えられる" = "Puts the Essentials values in “New Value.” You can change each row’s value.";
 "アプリを追加…" = "Add App…";
 "表示言語を選ぶアプリを追加" = "Add an app whose display language you want to choose";
@@ -93,7 +90,8 @@
 "元の値は「%@」に保存しました。ファイルメニューの「開く…」で読み込んで適用すると元に戻せます。" = "The original values were saved to “%@”. To restore them, open it with File > Open… and apply it.";
 "適用しました" = "Applied";
 "一部の設定を適用できませんでした" = "Some Settings Could Not Be Applied";
-"おすすめの設定は、このMacにすべて適用済みです。" = "All recommended settings are already applied on this Mac.";
+"エッセンシャル設定" = "Essentials";
+"エッセンシャル設定は、このMacにすべて適用済みです。" = "All Essentials are already applied on this Mac.";
 "マイプリセットを保存できませんでした" = "Could Not Save My Preset";
 "iCloud Driveが使えません。システム設定でiCloud Driveをオンにするか、設定の「マイプリセット」タブで保存先を変えてください。" = "iCloud Drive is not available. Turn on iCloud Drive in System Settings, or change the location in the My Preset tab of Settings.";
 "マイプリセットを今の設定で上書きしますか？" = "Replace My Preset with the current settings?";
@@ -117,7 +115,6 @@
 "%@件を選択中" = "%@ selected";
 "選択を解除" = "Deselect All";
 "選んだ設定を適用" = "Apply Selected";
-"エッセンシャル設定" = "Essentials";
 "ナチュラルなスクロールを切り、拡張子の表示・Finder のリスト表示と現在のフォルダの検索・⌘` のウインドウ切り替え・メニューバーの常時表示・月曜始まりの24時間表示・黒50%の壁紙など、基本の設定をまとめてそろえます。" = "Turns off natural scrolling and sets up the basics in one go: file extensions shown, Finder list view searching the current folder, ⌘` to switch windows, an always-visible menu bar, 24-hour time with weeks starting on Monday, a 50% black wallpaper, and more.";
 "アニメーションと視差効果を無効化" = "Turn Off Animations and Motion";
 "ウィンドウの開閉・Dock・Finder・Mission Control の動きを止め、視差効果を減らします。" = "Stops motion when opening and closing windows and in the Dock, Finder and Mission Control, and reduces motion effects.";
@@ -135,7 +132,7 @@
 "Siriを切り、メニューバーのアイコンと呼びかけでの起動を止めます。" = "Turns off Siri, its menu bar icon and voice activation.";
 "通知をオフ" = "Silence Notifications";
 "通知は設定ファイルからは切り替えられないため、システム設定の「集中モード」を開きます。「おやすみモード」をオンにしてください。" = "Notifications can’t be changed through preference files, so this opens Focus in System Settings. Turn on Do Not Disturb there.";
-"全体" = "General";
+"一般" = "General";
 "キーボード" = "Keyboard";
 "文字入力" = "Text Input";
 "マウス" = "Mouse";
@@ -155,7 +152,6 @@
 "ターミナル" = "Terminal";
 "Siri" = "Siri";
 "言語設定" = "Language";
-"その他" = "Other";
 "追加した項目" = "Added Items";
 "すべてのファイル名拡張子を表示" = "Show all filename extensions";
 "スクロールバーの表示" = "Show scroll bars";
@@ -174,6 +170,7 @@
 "フォルダを開くアプリ" = "App that opens folders";
 "フォントのアンチエイリアス閾値" = "Font anti-aliasing threshold";
 "NSConvolutionOverride1" = "NSConvolutionOverride1";
+"ダウンロードしたアプリの確認ダイアログ" = "Confirm before opening downloaded apps";
 "壁紙" = "Wallpaper";
 "キーのリピート速度" = "Key repeat rate";
 "リピート入力認識までの時間" = "Delay until repeat";
@@ -313,7 +310,6 @@
 "MacDown" = "MacDown";
 "FontExplorer X Pro" = "FontExplorer X Pro";
 "Ecamm Live" = "Ecamm Live";
-"ダウンロードしたアプリの確認ダイアログ" = "Confirm before opening downloaded apps";
 "タップでクリック" = "Tap to click";
 "副ボタンのクリック（2本指）" = "Secondary click (two fingers)";
 "副ボタンのクリック（右下隅）" = "Secondary click (bottom right corner)";
@@ -394,6 +390,7 @@
 "書類" = "Documents";
 "最近の項目" = "Recents";
 "iCloud Drive" = "iCloud Drive";
+"その他" = "Other";
 "すべて同時に" = "All at Once";
 "1つずつ" = "One at a Time";
 "フルスクリーン" = "Full Screen";

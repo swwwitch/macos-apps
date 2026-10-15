@@ -1,6 +1,6 @@
 # DocklessLauncher
 
-macOS 13以降 / Apple Silicon。1.8.0 (build 16)。紹介記事：https://note.com/swwwitch/n/n3bce910ced54
+macOS 13以降 / Apple Silicon。1.8.2 (build 18)。紹介記事：https://note.com/swwwitch/n/n3bce910ced54
 
 旧名 AppLauncher（2026-10-13 に改名。Bundle ID と設定の保存先 jp.dtp-transit.applauncher は据え置き）。
 
@@ -52,3 +52,7 @@ macOS 13以降 / Apple Silicon。1.8.0 (build 16)。紹介記事：https://note.
 2026-10-13：1.5.0 (8) 設定の「ホットキー」タブで落ちる不具合を修正（%@ に数値を渡していた。1.0.0から。check_resources.py に再発防止の検査を追加）。全5タブを開いて落ちないことを確認。
 
 2026-10-13：1.4.0 (6) ビルド・自動テスト合格、両配置先一致、起動と登録32件の読み込みを確認。バージョン選択は実在の InDesign 2025/2026・Illustrator 8本で確認。ホットキー（ダブルタップ含む）での実機動作は未確認。
+
+## 更新履歴
+
+- 1.8.2（build 18, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。

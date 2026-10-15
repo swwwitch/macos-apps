@@ -1,6 +1,6 @@
 # LinkMaker
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.3-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.7-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ブラウザーで表示中のページのタイトルとURLを、ホットキーでコピー・ファイル書き出し・開き直しするメニューバー常駐アプリ。Keyboard Maestro のマクログループ「Make Link」「Make Link (misc)」（[Reference](Reference/)）の移植。
 
@@ -31,6 +31,8 @@
 - 未移植：タブ切り替え・タブを閉じる系、Notion・Biscuit・Notefile専用、カンマ削除ペースト、セル内改行の「"」削除（CellCopyCleaner）、デフォルトブラウザーの変更（BrowserSwitcher）、クリップボードで起動するマクロ（KMで無効）。
 
 ## 更新履歴
+
+- 1.2.7（build 10, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 
 - 1.2.5（build 8, 2026-10-13）：書き出し先のメニューに「最近使ったフォルダー」（FinderとPath Finderの履歴から最大10件。開いているウインドウ・デスクトップと重複するものは除く）を追加。読み方はFolderHopperと同じ。
 

@@ -17,8 +17,9 @@ let customCategory = "追加した項目"
 
 /// カテゴリの並びとサイドバーのアイコン
 let categoryOrder: [(name: String, symbol: String)] = [
-    ("全体", "macwindow"),
+    ("一般", "macwindow"),
     ("エッセンシャル設定", "star"),
+    ("表示", "textformat"),
     ("キーボード", "keyboard"),
     ("文字入力", "character.cursor.ibeam"),
     ("マウス", "computermouse"),
@@ -38,7 +39,6 @@ let categoryOrder: [(name: String, symbol: String)] = [
     ("ターミナル", "terminal"),
     ("Siri", "waveform"),
     ("言語設定", "globe"),
-    ("その他", "ellipsis.circle"),
     (customCategory, "plus.circle"),
 ]
 
@@ -71,29 +71,31 @@ let languageCategory = "言語設定"
 private let swipeGesture: KeyValuePairs<String, String> = ["0": "オフ", "1": "オン", "2": "オン"]
 
 let catalog: [PrefItem] = [
-    // 全体
-    flag("全体", "すべてのファイル名拡張子を表示", g, "AppleShowAllExtensions"),
-    item("全体", "スクロールバーの表示", g, "AppleShowScrollBars",
+    // 一般
+    flag("一般", "すべてのファイル名拡張子を表示", g, "AppleShowAllExtensions"),
+    item("一般", "スクロールバーの表示", g, "AppleShowScrollBars",
          ["Automatic": "自動", "WhenScrolling": "スクロール時", "Always": "常に"]),
-    item("全体", "タイトルバーのダブルクリック", g, "AppleActionOnDoubleClick",
+    item("一般", "タイトルバーのダブルクリック", g, "AppleActionOnDoubleClick",
          ["Maximize": "ズーム", "Fill": "フィル", "Minimize": "しまう", "None": "何もしない"]),
-    flag("全体", "ダブルクリックでしまう（旧設定）", g, "AppleMiniaturizeOnDoubleClick"),
-    item("全体", "書類をタブで開く", g, "AppleWindowTabbingMode",
+    flag("一般", "ダブルクリックでしまう（旧設定）", g, "AppleMiniaturizeOnDoubleClick"),
+    item("一般", "書類をタブで開く", g, "AppleWindowTabbingMode",
          ["always": "常に", "fullscreen": "フルスクリーン時", "manual": "手動"]),
-    flag("全体", "アプリ終了時にウィンドウを保持", g, "NSQuitAlwaysKeepsWindows"),
-    item("全体", "最近使った項目の数", g, "NSRecentDocumentsLimit"),
-    flag("全体", "ウィンドウを開くアニメーション", g, "NSAutomaticWindowAnimationsEnabled"),
-    item("全体", "Quick Look のアニメーション時間", g, "QLPanelAnimationDuration"),
-    item("全体", "ウィンドウのリサイズ時間（秒）", g, "NSWindowResizeTime"),
-    item("全体", "ツールチップ表示までの時間（ms）", g, "NSInitialToolTipDelay"),
-    flag("全体", "⌃⌘ドラッグでウィンドウを移動", g, "NSWindowShouldDragOnGesture"),
-    flag("全体", "保存パネルを展開して開く", g, "NSNavPanelExpandedStateForSaveMode"),
-    item("全体", "スプリングロードの遅延（秒）", g, "com.apple.springing.delay"),
-    item("全体", "フォルダを開くアプリ", g, "NSFileViewer"),
-    item("全体", "フォントのアンチエイリアス閾値", g, "AppleAntiAliasingThreshold"),
-    item("全体", "NSConvolutionOverride1", g, "NSConvolutionOverride1"),
+    flag("一般", "アプリ終了時にウィンドウを保持", g, "NSQuitAlwaysKeepsWindows"),
+    item("一般", "最近使った項目の数", g, "NSRecentDocumentsLimit"),
+    flag("一般", "ウィンドウを開くアニメーション", g, "NSAutomaticWindowAnimationsEnabled"),
+    item("一般", "Quick Look のアニメーション時間", g, "QLPanelAnimationDuration"),
+    item("一般", "ウィンドウのリサイズ時間（秒）", g, "NSWindowResizeTime"),
+    item("アニメーション", "ツールチップ表示までの時間（ms）", g, "NSInitialToolTipDelay"),
+    flag("一般", "⌃⌘ドラッグでウィンドウを移動", g, "NSWindowShouldDragOnGesture"),
+    flag("一般", "保存パネルを展開して開く", g, "NSNavPanelExpandedStateForSaveMode"),
+    item("一般", "スプリングロードの遅延（秒）", g, "com.apple.springing.delay"),
+    item("一般", "フォルダを開くアプリ", g, "NSFileViewer"),
+    // 表示（文字の描画）
+    item("表示", "フォントのアンチエイリアス閾値", g, "AppleAntiAliasingThreshold"),
+    item("表示", "NSConvolutionOverride1", g, "NSConvolutionOverride1"),
     // すべての画面・操作スペースの壁紙。「そのほか」は読むだけで書かない
-    item("全体", "壁紙", wallpaperDomain, "AllSpacesAndDisplays", ["gray50": "カラー（黒50%）", "other": "そのほか"]),
+    flag("一般", "ダウンロードしたアプリの確認ダイアログ", "com.apple.LaunchServices", "LSQuarantine"),
+    item("一般", "壁紙", wallpaperDomain, "AllSpacesAndDisplays", ["gray50": "カラー（黒50%）", "other": "そのほか"]),
 
     // キーボード
     item("キーボード", "キーのリピート速度", g, "KeyRepeat"),
@@ -322,42 +324,6 @@ let catalog: [PrefItem] = [
     item("言語設定", "FontExplorer X Pro", "com.linotype.FontExplorerX", "AppleLanguages", appLanguages),
     item("言語設定", "Ecamm Live", "com.ecamm.EcammLive", "AppleLanguages", appLanguages),
 
-    // その他
-    flag("その他", "ダウンロードしたアプリの確認ダイアログ", "com.apple.LaunchServices", "LSQuarantine"),
-]
-
-/// アプリに同梱する「おすすめの設定」。読み込むと「変更後」に入る（書き込むのは「適用」を押したとき）
-let recommended: [(domain: String, key: String, value: NSObject)] = [
-    (g, "NSAutomaticCapitalizationEnabled", NSNumber(value: false)),
-    (g, "NSAutomaticPeriodSubstitutionEnabled", NSNumber(value: false)),
-    (g, "NSAutomaticQuoteSubstitutionEnabled", NSNumber(value: false)),
-    (g, "NSAutomaticDashSubstitutionEnabled", NSNumber(value: false)),
-    (g, "AppleKeyboardUIMode", NSNumber(value: 2)),
-    ("com.apple.screencapture", "type", "png" as NSString),
-    (nvramDomain, "StartupMute", NSNumber(value: false)),
-    ("com.apple.dock", "expose-group-apps", NSNumber(value: false)),
-    // spans-displays は true で「ディスプレイごとに個別の操作スペース」がオフ
-    ("com.apple.spaces", "spans-displays", NSNumber(value: true)),
-    ("com.apple.WindowManager", "GloballyEnabled", NSNumber(value: false)),
-    ("com.apple.Terminal", "FocusFollowsMouse", NSNumber(value: true)),
-    ("com.apple.finder", "AnimateWindowZoom", NSNumber(value: false)),
-    ("com.apple.finder", "AnimateInfoPanes", NSNumber(value: false)),
-    ("com.apple.universalaccess", "reduceMotion", NSNumber(value: true)),
-    ("com.apple.universalaccess", "closeViewHotkeysEnabled", NSNumber(value: true)),
-    ("com.apple.universalaccess", "closeViewTrackpadGestureZoomEnabled", NSNumber(value: false)),
-    ("com.apple.universalaccess", "closeViewScrollWheelToggle", NSNumber(value: false)),
-    ("com.apple.universalaccess", "closeViewZoomMode", NSNumber(value: 0)),
-    ("com.apple.universalaccess", "closeViewZoomFocusFollowModeKey", NSNumber(value: 0)),
-    ("com.apple.universalaccess", "closeViewNearPoint", NSNumber(value: 2.336353934151787)),
-    ("com.apple.universalaccess", "closeViewFarPoint", NSNumber(value: 1.8903124999999998)),
-    (hotkeyDomain, "15", "122,8388608" as NSString),
-    (hotkeyDomain, "17", "120,8388608" as NSString),
-    (hotkeyDomain, "19", "27,1572864" as NSString),
-    ("com.apple.universalaccess", "closeViewSmoothImages", NSNumber(value: false)),
-    (hotkeyDomain, "27", "50,1048576" as NSString),
-    (featureFlagDomain, "redesigned_text_cursor", NSNumber(value: false)),
-    // このMacの値（システム設定のスライダーで決めたもの）。float で保存されている
-    ("com.apple.universalaccess", "mouseDriverCursorSize", NSNumber(value: Float(1.803315))),
 ]
 
 /// macOS のデフォルト値（「デフォルト」の列に出す）。値は choices のキーと同じ書き方。
@@ -366,7 +332,7 @@ let factoryDefaults: [String: String] = {
     let s = "com.apple.screencapture", d = "com.apple.dock", f = "com.apple.finder", w = "com.apple.WindowManager"
     let ua = "com.apple.universalaccess", c = "com.apple.menuextra.clock", tp = trackpadDomains[0]
     let pairs: [(String, String, String)] = [
-        // 全体
+        // 一般
         (g, "AppleShowAllExtensions", "0"), (g, "AppleShowScrollBars", "Automatic"),
         (g, "AppleActionOnDoubleClick", "Maximize"), (g, "AppleMiniaturizeOnDoubleClick", "0"),
         (g, "AppleWindowTabbingMode", "fullscreen"), (g, "NSQuitAlwaysKeepsWindows", "0"),

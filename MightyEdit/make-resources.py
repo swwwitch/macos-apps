@@ -77,6 +77,7 @@ msg.reselectUnsupported|加工後の自動選択に対応していない入力�
 msg.selectInApp|操作するアプリで文字を選択してください|Select text in the app you want to edit|请在要操作的应用中选择文字|편집할 앱에서 텍스트를 선택하세요
 msg.noAccess|このアプリの選択文字を取得できません|Cannot read the selected text in this app|无法获取此应用中的所选文字|이 앱에서 선택한 텍스트를 가져올 수 없습니다
 msg.selectText|文字を選択してください（選択取得に非対応のアプリでは使用不可）|Select some text (apps that don’t expose their selection are not supported)|请选择文字（不支持无法获取所选内容的应用）|텍스트를 선택하세요(선택 영역을 가져올 수 없는 앱은 지원하지 않음)
+msg.noDate|日付が見つかりません|No date found|未找到日期|날짜를 찾을 수 없습니다
 msg.noChange|変更する文字がありません|Nothing to change|没有需要更改的文字|변경할 텍스트가 없습니다
 msg.copied|加工した文字をコピーしました|Copied the converted text|已拷贝处理后的文字|변환한 텍스트를 복사했습니다
 msg.noRange|選択範囲を確認できません。「置き換えずにコピー」をお使いください|Cannot confirm the selection. Use “Copy Without Replacing”.|无法确认所选范围。请使用“复制而不替换”。|선택 영역을 확인할 수 없습니다. ‘대치하지 않고 복사’를 사용하세요.
@@ -156,6 +157,9 @@ op.widenKana|半角カナを全角に|Half-width Kana to Full-width|半角假名
 op.removeJapaneseSpaces|和欧間のスペースを削除|Remove Japanese–Latin Spaces|删除日文与西文间空格|일본어·로마자 사이 공백 삭제
 op.addJapaneseSpaces|和欧間にスペースを追加|Add Japanese–Latin Spaces|在日文与西文间添加空格|일본어·로마자 사이 공백 추가
 op.sum|数値を合計|Sum Numbers|数值求和|숫자 합계
+op.invertSign|正負反転|Invert Sign|正负反转|부호 반전
+op.dateSpecial|日付スペシャル|Date Special|日期特别|날짜 스페셜
+op.dateSpecialPadded|日付スペシャル（ゼロ埋めあり）|Date Special (Zero-Padded)|日期特别（补零）|날짜 스페셜(0 채움)
 op.fullwidthWestern|英数字・記号を全角に|Letters/Symbols to Full-width|字母数字和符号转全角|영숫자·기호를 전각으로
 op.halfwidthWestern|英数字・記号を半角に|Letters/Symbols to Half-width|字母数字和符号转半角|영숫자·기호를 반각으로
 op.capitalizeWords|単語の先頭を大文字に|Capitalize Words|单词首字母大写|단어 첫 글자 대문자
@@ -199,6 +203,8 @@ tip.sortLineLength|文字数の少ない順。すでに少ない順なら多い�
 tip.countText|選択テキストの文字数・行数を別ウインドウに表示（本文は変更しない）|Shows the character and line count in a separate window (text is not changed)|在单独窗口中显示字数和行数（不更改文本）|글자 수·줄 수를 별도 윈도우에 표시(본문은 변경하지 않음)
 tip.affixLines|指定文字を各行の先頭・末尾へ追加（空行も対象）|Adds the specified text to the start and end of each line (including blank lines)|在每行开头和结尾添加指定文字（包括空行）|지정한 문자를 각 줄 앞뒤에 추가(빈 줄 포함)
 tip.date|選択テキスト内の日付を変換（存在しない日付は保持）|Converts dates in the selection (invalid dates are kept)|转换所选文本中的日期（保留不存在的日期）|선택한 텍스트의 날짜를 변환(존재하지 않는 날짜는 유지)
+tip.dateSpecial|選択テキスト内の日付を変換した候補をメニューで表示し、選んだ形式に置き換え|Shows the dates in the selection converted to each format in a menu and replaces them with the one you choose|在菜单中列出所选文本中日期的各种格式，并替换为所选格式|선택한 텍스트의 날짜를 각 형식으로 변환한 후보를 메뉴에 표시하고 선택한 형식으로 대치
+tip.dateSpecialPadded|日付スペシャルの候補に、月日をゼロ埋めした形（2026年01月02日など）も加えて表示|Like Date Special, also listing forms with zero-padded months and days (such as 2026年01月02日)|与日期特别相同，并同时列出月日补零的格式（如 2026年01月02日）|날짜 스페셜과 같으며, 월일을 0으로 채운 형식(2026年01月02日 등)도 함께 표시
 tip.narrowAlphanumerics|全角の英字・数字だけを半角に変換（記号やカナは保持）|Converts only full-width letters and digits to half-width (symbols and kana are kept)|仅将全角字母和数字转为半角（保留符号和假名）|전각 영문자·숫자만 반각으로 변환(기호와 가나는 유지)
 tip.widenKana|半角カナを全角に変換（濁点・半濁点を結合）|Converts half-width kana to full-width (combining voiced sound marks)|将半角假名转为全角（合并浊音和半浊音符号）|반각 가나를 전각으로 변환(탁점·반탁점 결합)
 tip.removeJapaneseSpaces|日本語と半角英数字の間の半角・全角スペースを削除|Removes half- and full-width spaces between Japanese and Latin letters/digits|删除日文与半角字母数字之间的半角和全角空格|일본어와 반각 영숫자 사이의 반각·전각 공백 삭제
@@ -209,6 +215,7 @@ tip.capitalizeWords|英語の各単語の先頭を大文字、残りを小文字
 tip.camelCase|hello world → helloWorld（空白・ハイフン・アンダースコア区切りに対応）|hello world → helloWorld (spaces, hyphens and underscores are separators)|hello world → helloWorld（支持空格、连字符和下划线分隔）|hello world → helloWorld(공백·하이픈·밑줄 구분 지원)
 tip.titleCase|英語のタイトル形式（先頭・末尾と主要語を大文字に）|English title case (first, last and major words capitalized)|英文标题格式（首尾及主要单词大写）|영어 제목 형식(처음·끝과 주요 단어를 대문자로)
 tip.sum|選択範囲の数字を合算し、元の文章の下に空行と合計を追加|Adds up the numbers in the selection and appends a blank line and the total|对所选范围内的数字求和，并在原文下方添加空行和合计|선택 영역의 숫자를 합산하고 원문 아래에 빈 줄과 합계를 추가
+tip.invertSign|各行の先頭の数値の正負を反転（-12→12、12→-12。0と2つ目以降の数値はそのまま）|Inverts the sign of the number at the start of each line (-12→12, 12→-12; zero and later numbers unchanged)|反转每行开头数字的正负（-12→12、12→-12；0 和之后的数字不变）|각 줄 맨 앞 숫자의 부호를 반전(-12→12, 12→-12. 0과 이후 숫자는 그대로)
 tip.wrapLines|文字数を指定して各行を折り返す（既存の改行は保持）|Wraps each line at a set number of characters (existing line breaks are kept)|按指定字数折行（保留现有换行）|지정한 글자 수로 각 줄을 줄 바꿈(기존 줄 바꿈 유지)
 tip.toggleDateFormat|yyyy年mm月dd日とyyyy-mm-ddを相互変換（月日を2桁に揃える）|Converts between yyyy年mm月dd日 and yyyy-mm-dd (two-digit month and day)|在 yyyy年mm月dd日 与 yyyy-mm-dd 之间转换（月日补足两位）|yyyy年mm月dd日와 yyyy-mm-dd를 상호 변환(월·일을 두 자리로)
 tip.randomLines|行単位でランダムに並べ替え（空行・重複行も保持）|Shuffles lines randomly (blank and duplicate lines are kept)|按行随机排列（保留空行和重复行）|줄 단위로 무작위 정렬(빈 줄·중복 줄 유지)
@@ -227,7 +234,7 @@ tip.removePeriod|各行の末尾の。を削除（文中は保持）|Removes 。
 tip.addCommas|数値の整数部分を3桁ごとにカンマで区切る|Groups the integer part of numbers with commas every three digits|用逗号每三位分隔数字的整数部分|숫자의 정수 부분을 세 자리마다 쉼표로 구분
 tip.removeCommas|数値の桁区切りカンマを削除する|Removes digit-grouping commas from numbers|删除数字中的千位分隔逗号|숫자의 자릿수 구분 쉼표 삭제
 tip.removeList|行頭の番号や箇条書き記号を削除|Removes numbers and bullet markers at the start of lines|删除行首的编号和项目符号|줄 앞의 번호나 글머리 기호 삭제
-tip.number|Control＋1：1. ／ Control＋Option＋1：［1］|Control+1: 1. / Control+Option+1: ［1］|Control+1：1. ／ Control+Option+1：［1］|Control+1: 1. / Control+Option+1: ［1］
+tip.number|Control＋1：1.|Control+1: 1.|Control+1：1.|Control+1: 1.
 tip.alphabet|Control＋4：A. ／ Control＋Option＋4：［A］|Control+4: A. / Control+Option+4: ［A］|Control+4：A. ／ Control+Option+4：［A］|Control+4: A. / Control+Option+4: ［A］
 tip.specialLists|その他のリスト：別ウインドウでリストの種類を選んで適用|More Lists: choose a list style in a separate window and apply it|更多列表：在单独窗口中选择列表类型并应用|기타 목록: 별도 윈도우에서 목록 종류를 선택하여 적용
 tip.specialTypography|まとめて整形：項目を選んでまとめて適用|Batch Formatting: choose items and apply them together|批量整理：选择项目并一次应用|일괄 정리: 항목을 선택하여 한꺼번에 적용

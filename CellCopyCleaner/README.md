@@ -1,6 +1,6 @@
 # CellCopyCleaner
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.1.1-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.1.2-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 Microsoft Excel・Googleスプレッドシートでセルを選んで ⌥⌘C を押すと、セル内改行で付く「"」などを取り除いてクリップボードに入れ直すメニューバー常駐アプリ。Keyboard Maestro のマクロ「コピー時、セル内改行使用時に付加される「"」を削除」の移植。
 
@@ -27,4 +27,5 @@ Microsoft Excel・Googleスプレッドシートでセルを選んで ⌥⌘C �
 
 ## 更新履歴
 
+- 1.1.2（build 5, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 - 1.1.1（build 4, 2026-10-13）：現行版。一時停止を設定から外し、メニューバーのメニューだけに。これより前の履歴は記録なし。

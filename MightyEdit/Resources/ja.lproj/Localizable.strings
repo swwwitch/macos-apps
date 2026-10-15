@@ -57,6 +57,7 @@
 "msg.selectInApp" = "操作するアプリで文字を選択してください";
 "msg.noAccess" = "このアプリの選択文字を取得できません";
 "msg.selectText" = "文字を選択してください（選択取得に非対応のアプリでは使用不可）";
+"msg.noDate" = "日付が見つかりません";
 "msg.noChange" = "変更する文字がありません";
 "msg.copied" = "加工した文字をコピーしました";
 "msg.noRange" = "選択範囲を確認できません。「置き換えずにコピー」をお使いください";
@@ -136,6 +137,9 @@
 "op.removeJapaneseSpaces" = "和欧間のスペースを削除";
 "op.addJapaneseSpaces" = "和欧間にスペースを追加";
 "op.sum" = "数値を合計";
+"op.invertSign" = "正負反転";
+"op.dateSpecial" = "日付スペシャル";
+"op.dateSpecialPadded" = "日付スペシャル（ゼロ埋めあり）";
 "op.fullwidthWestern" = "英数字・記号を全角に";
 "op.halfwidthWestern" = "英数字・記号を半角に";
 "op.capitalizeWords" = "単語の先頭を大文字に";
@@ -179,6 +183,8 @@
 "tip.countText" = "選択テキストの文字数・行数を別ウインドウに表示（本文は変更しない）";
 "tip.affixLines" = "指定文字を各行の先頭・末尾へ追加（空行も対象）";
 "tip.date" = "選択テキスト内の日付を変換（存在しない日付は保持）";
+"tip.dateSpecial" = "選択テキスト内の日付を変換した候補をメニューで表示し、選んだ形式に置き換え";
+"tip.dateSpecialPadded" = "日付スペシャルの候補に、月日をゼロ埋めした形（2026年01月02日など）も加えて表示";
 "tip.narrowAlphanumerics" = "全角の英字・数字だけを半角に変換（記号やカナは保持）";
 "tip.widenKana" = "半角カナを全角に変換（濁点・半濁点を結合）";
 "tip.removeJapaneseSpaces" = "日本語と半角英数字の間の半角・全角スペースを削除";
@@ -189,6 +195,7 @@
 "tip.camelCase" = "hello world → helloWorld（空白・ハイフン・アンダースコア区切りに対応）";
 "tip.titleCase" = "英語のタイトル形式（先頭・末尾と主要語を大文字に）";
 "tip.sum" = "選択範囲の数字を合算し、元の文章の下に空行と合計を追加";
+"tip.invertSign" = "各行の先頭の数値の正負を反転（-12→12、12→-12。0と2つ目以降の数値はそのまま）";
 "tip.wrapLines" = "文字数を指定して各行を折り返す（既存の改行は保持）";
 "tip.toggleDateFormat" = "yyyy年mm月dd日とyyyy-mm-ddを相互変換（月日を2桁に揃える）";
 "tip.randomLines" = "行単位でランダムに並べ替え（空行・重複行も保持）";
@@ -207,7 +214,7 @@
 "tip.addCommas" = "数値の整数部分を3桁ごとにカンマで区切る";
 "tip.removeCommas" = "数値の桁区切りカンマを削除する";
 "tip.removeList" = "行頭の番号や箇条書き記号を削除";
-"tip.number" = "Control＋1：1. ／ Control＋Option＋1：［1］";
+"tip.number" = "Control＋1：1.";
 "tip.alphabet" = "Control＋4：A. ／ Control＋Option＋4：［A］";
 "tip.specialLists" = "その他のリスト：別ウインドウでリストの種類を選んで適用";
 "tip.specialTypography" = "まとめて整形：項目を選んでまとめて適用";

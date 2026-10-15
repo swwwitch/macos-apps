@@ -35,7 +35,8 @@ rows = [
 ('mailSection', 'メール送信', 'Mail', '发送邮件', '메일 보내기'),
 ('mailToggle', '自動更新がオンの間、1日1回メールで知らせる', 'Email me once a day while auto-update is on', '自动更新开启期间每天发送一封邮件', '자동 업데이트가 켜져 있는 동안 하루 한 번 메일로 알림'),
 ('mailTo', '宛先 :', 'To:', '收件人：', '받는 사람:'),
-('mailHint', 'Macの「メール」アプリに設定したアカウントから送ります（最初の1回だけ「メール」の制御の許可を求められます）。Macがスリープ中のときは、復帰後に送ります。', 'Sent from the account set up in the Mail app (macOS asks once for permission to control Mail). If the Mac is asleep, it is sent after it wakes.', '使用“邮件”应用中设置的账户发送（首次会请求控制“邮件”的权限）。Mac 睡眠时会在唤醒后发送。', 'Mac의 Mail 앱에 설정된 계정으로 보냅니다(처음 한 번 Mail 제어 권한을 요청합니다). Mac이 잠자기 상태이면 깨어난 후 보냅니다.'),
+('mailTime', '送信時刻 :', 'Send at:', '发送时间：', '보낼 시각:'),
+('mailHint', 'Macの「メール」アプリに設定したアカウントから送ります（最初の1回だけ「メール」の制御の許可を求められます）。指定した時刻を過ぎてから送ります。その時刻にMacがスリープ中のときは、復帰後に送ります。', 'Sent from the account set up in the Mail app (macOS asks once for permission to control Mail). Sent after the time you set; if the Mac is asleep then, it is sent after it wakes.', '使用“邮件”应用中设置的账户发送（首次会请求控制“邮件”的权限）。在设定的时间之后发送；届时 Mac 处于睡眠状态则在唤醒后发送。', 'Mac의 Mail 앱에 설정된 계정으로 보냅니다(처음 한 번 Mail 제어 권한을 요청합니다). 지정한 시각이 지나면 보내며, 그때 Mac이 잠자기 상태이면 깨어난 후 보냅니다.'),
 ('mailTest', 'テスト送信', 'Send Test Mail', '发送测试邮件', '테스트 메일 보내기'),
 ('mailSending', '送信中...', 'Sending...', '正在发送...', '보내는 중...'),
 ('mailSent', '%1$@ に送信しました（%2$@）。', 'Sent to %1$@ (%2$@).', '已发送到 %1$@（%2$@）。', '%1$@(으)로 보냈습니다(%2$@).'),
@@ -108,7 +109,7 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 設定の「知らせる内容」で「「以前のバージョンを削除」がオンのアプリも知らせる」をオンにすると（初期値はオン）、各アプリの［詳細オプション］→「以前のバージョンを削除」（設定ファイルの removeOlderVersions）がオンのアプリも通知・メールの対象になります。一覧の「以前のバージョンを削除」列で、アプリごとの状態を確認できます。自動更新が効いているアプリだけが対象です。自動更新（全体）やそのアプリの自動更新がオフのときは、Creative Cloudでも［詳細オプション］を操作できないため、一覧では「—」と表示します。全体がオフのときは、アプリの行を薄く表示します。
 
 メール送信
-設定の「メール送信」をオンにして宛先を入れると、自動更新がオンの間、1日1回メールで知らせます（初期値はオフ）。Macの「メール」アプリに設定したアカウントから送ります。最初の1回だけ、macOSが「メール」の制御の許可を求めます。「テスト送信」で届くか確認してください。Macがスリープしている間は送れないため、復帰後に送ります。
+設定の「メール送信」をオンにして宛先を入れると、自動更新がオンの間、1日1回メールで知らせます（初期値はオフ）。「送信時刻」で送る時刻を指定できます（初期値は9:00）。その時刻を過ぎてからオンになった日は、気づいた時点で送ります。Macの「メール」アプリに設定したアカウントから送ります。最初の1回だけ、macOSが「メール」の制御の許可を求めます。「テスト送信」で届くか確認してください。送信時刻にMacがスリープしている場合は、復帰後に送ります。
 
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、Macにログインしたときに自動で起動します（初期値はオフ）。メニューバーのアイコンは状態を表します：雲にチェック＝オフ、雲に「!」＝注意（以前のバージョンを削除がオンを含む）、塗りつぶした雲に「!」＝自動更新されるアプリあり、斜線の雲＝読み取れない。
@@ -149,7 +150,7 @@ Remove previous versions
 With “Also report apps with Remove previous versions on” (on by default), apps whose Advanced options → Remove previous versions (removeOlderVersions) is checked are reported too. Only apps whose auto-update is in effect count; otherwise the list shows “—” (Creative Cloud greys the option out). While the global switch is off, the app rows are dimmed.
 
 Mail
-Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. While the Mac is asleep nothing can be sent; it goes out after waking.
+Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). Send at sets the time (9:00 by default); if it turns on after that time, the mail goes out when it is noticed. It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. If the Mac is asleep at the send time, it goes out after waking.
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
@@ -190,7 +191,7 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 开启“同时提醒开启了删除以前的版本的应用”（默认开启）后，各应用“高级选项 → 删除以前的版本”（removeOlderVersions）开启的应用也会被提醒。仅针对自动更新生效的应用，否则列表显示“—”（Creative Cloud 中也无法操作）。全部开关关闭时，各应用行会变淡显示。
 
 发送邮件
-开启“发送邮件”并填写地址后，自动更新开启期间每天发送一封邮件（默认关闭）。使用“邮件”应用中设置的账户发送，首次会请求控制“邮件”的权限。请用“发送测试邮件”确认。Mac 睡眠时无法发送，会在唤醒后发送。
+开启“发送邮件”并填写地址后，自动更新开启期间每天发送一封邮件（默认关闭）。可在“发送时间”中指定时间（默认 9:00）；若在该时间之后才开启，则在检测到时发送。使用“邮件”应用中设置的账户发送，首次会请求控制“邮件”的权限。请用“发送测试邮件”确认。发送时间时 Mac 处于睡眠状态，会在唤醒后发送。
 
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。菜单栏图标表示状态：云朵带勾＝关闭，云朵带“!”＝注意（含删除以前的版本），实心云朵带“!”＝有应用会自动更新，带斜线的云朵＝无法读取。
@@ -231,7 +232,7 @@ Creative Cloud 열기로 실행하고 환경설정 → 앱에서 스위치를 �
 "이전 버전 제거"가 켜진 앱도 알림을 켜면(기본값 켬) 각 앱의 고급 옵션 → 이전 버전 제거(removeOlderVersions)가 켜진 앱도 알림과 메일 대상이 됩니다. 자동 업데이트가 적용되는 앱만 대상이며, 그 외에는 목록에 "—"로 표시합니다(Creative Cloud에서도 조작할 수 없음). 전체가 꺼져 있으면 앱 행을 흐리게 표시합니다.
 
 메일 보내기
-메일 보내기를 켜고 주소를 입력하면 자동 업데이트가 켜져 있는 동안 하루 한 번 메일로 알립니다(기본값 끔). Mail 앱에 설정된 계정으로 보내며, 처음 한 번 Mail 제어 권한을 요청합니다. 테스트 메일 보내기로 확인하세요. Mac이 잠자기 중이면 깨어난 후 보냅니다.
+메일 보내기를 켜고 주소를 입력하면 자동 업데이트가 켜져 있는 동안 하루 한 번 메일로 알립니다(기본값 끔). 보낼 시각에서 시각을 지정할 수 있습니다(기본값 9:00). 그 시각 이후에 켜진 날은 감지한 시점에 보냅니다. Mail 앱에 설정된 계정으로 보내며, 처음 한 번 Mail 제어 권한을 요청합니다. 테스트 메일 보내기로 확인하세요. 보낼 시각에 Mac이 잠자기 중이면 깨어난 후 보냅니다.
 
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔). 메뉴 막대 아이콘은 상태를 나타냅니다: 체크 표시 구름=끔, ! 구름=주의(이전 버전 제거 포함), 채워진 ! 구름=자동 업데이트되는 앱 있음, 사선 구름=읽을 수 없음.

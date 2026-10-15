@@ -57,6 +57,7 @@
 "msg.selectInApp" = "Select text in the app you want to edit";
 "msg.noAccess" = "Cannot read the selected text in this app";
 "msg.selectText" = "Select some text (apps that don’t expose their selection are not supported)";
+"msg.noDate" = "No date found";
 "msg.noChange" = "Nothing to change";
 "msg.copied" = "Copied the converted text";
 "msg.noRange" = "Cannot confirm the selection. Use “Copy Without Replacing”.";
@@ -136,6 +137,9 @@
 "op.removeJapaneseSpaces" = "Remove Japanese–Latin Spaces";
 "op.addJapaneseSpaces" = "Add Japanese–Latin Spaces";
 "op.sum" = "Sum Numbers";
+"op.invertSign" = "Invert Sign";
+"op.dateSpecial" = "Date Special";
+"op.dateSpecialPadded" = "Date Special (Zero-Padded)";
 "op.fullwidthWestern" = "Letters/Symbols to Full-width";
 "op.halfwidthWestern" = "Letters/Symbols to Half-width";
 "op.capitalizeWords" = "Capitalize Words";
@@ -179,6 +183,8 @@
 "tip.countText" = "Shows the character and line count in a separate window (text is not changed)";
 "tip.affixLines" = "Adds the specified text to the start and end of each line (including blank lines)";
 "tip.date" = "Converts dates in the selection (invalid dates are kept)";
+"tip.dateSpecial" = "Shows the dates in the selection converted to each format in a menu and replaces them with the one you choose";
+"tip.dateSpecialPadded" = "Like Date Special, also listing forms with zero-padded months and days (such as 2026年01月02日)";
 "tip.narrowAlphanumerics" = "Converts only full-width letters and digits to half-width (symbols and kana are kept)";
 "tip.widenKana" = "Converts half-width kana to full-width (combining voiced sound marks)";
 "tip.removeJapaneseSpaces" = "Removes half- and full-width spaces between Japanese and Latin letters/digits";
@@ -189,6 +195,7 @@
 "tip.camelCase" = "hello world → helloWorld (spaces, hyphens and underscores are separators)";
 "tip.titleCase" = "English title case (first, last and major words capitalized)";
 "tip.sum" = "Adds up the numbers in the selection and appends a blank line and the total";
+"tip.invertSign" = "Inverts the sign of the number at the start of each line (-12→12, 12→-12; zero and later numbers unchanged)";
 "tip.wrapLines" = "Wraps each line at a set number of characters (existing line breaks are kept)";
 "tip.toggleDateFormat" = "Converts between yyyy年mm月dd日 and yyyy-mm-dd (two-digit month and day)";
 "tip.randomLines" = "Shuffles lines randomly (blank and duplicate lines are kept)";
@@ -207,7 +214,7 @@
 "tip.addCommas" = "Groups the integer part of numbers with commas every three digits";
 "tip.removeCommas" = "Removes digit-grouping commas from numbers";
 "tip.removeList" = "Removes numbers and bullet markers at the start of lines";
-"tip.number" = "Control+1: 1. / Control+Option+1: ［1］";
+"tip.number" = "Control+1: 1.";
 "tip.alphabet" = "Control+4: A. / Control+Option+4: ［A］";
 "tip.specialLists" = "More Lists: choose a list style in a separate window and apply it";
 "tip.specialTypography" = "Batch Formatting: choose items and apply them together";

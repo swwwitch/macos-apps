@@ -197,11 +197,29 @@ enum CCAutoUpdate {
         return old.isEmpty ? on : on + "|old:" + old
     }
 
-    /// Whether today's mail is due: something to report, and none sent on this calendar day yet.
-    static func mailDue(_ state: CCState, watchRemoveOld: Bool = false, lastSent: Date?, now: Date = Date(), calendar: Calendar = .current) -> Bool {
+    /// Default send time: 9:00, in minutes after midnight.
+    static let defaultMailTime = 9 * 60
+
+    /// Today's send time (`minutes` after midnight) on the day of `now`.
+    static func mailSlot(minutes: Int, on now: Date, calendar: Calendar = .current) -> Date {
+        calendar.date(bySettingHour: minutes / 60, minute: minutes % 60, second: 0, of: now) ?? now
+    }
+
+    /// The next send time after `now`, for the one-shot timer.
+    static func nextMailSlot(minutes: Int, after now: Date, calendar: Calendar = .current) -> Date {
+        let today = mailSlot(minutes: minutes, on: now, calendar: calendar)
+        if today > now { return today }
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
+        return mailSlot(minutes: minutes, on: tomorrow, calendar: calendar)
+    }
+
+    /// Whether today's mail is due: something to report, today's send time has passed, and none sent since then.
+    static func mailDue(_ state: CCState, watchRemoveOld: Bool = false, lastSent: Date?, minutes: Int = 0, now: Date = Date(), calendar: Calendar = .current) -> Bool {
         guard alerting(state, watchRemoveOld: watchRemoveOld) else { return false }
+        let slot = mailSlot(minutes: minutes, on: now, calendar: calendar)
+        guard now >= slot else { return false }
         guard let lastSent else { return true }
-        return !calendar.isDate(lastSent, inSameDayAs: now)
+        return lastSent < slot
     }
 
     /// AppleScript string literal (quotes and backslashes escaped; line breaks via `linefeed`).

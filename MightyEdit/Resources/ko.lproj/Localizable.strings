@@ -57,6 +57,7 @@
 "msg.selectInApp" = "편집할 앱에서 텍스트를 선택하세요";
 "msg.noAccess" = "이 앱에서 선택한 텍스트를 가져올 수 없습니다";
 "msg.selectText" = "텍스트를 선택하세요(선택 영역을 가져올 수 없는 앱은 지원하지 않음)";
+"msg.noDate" = "날짜를 찾을 수 없습니다";
 "msg.noChange" = "변경할 텍스트가 없습니다";
 "msg.copied" = "변환한 텍스트를 복사했습니다";
 "msg.noRange" = "선택 영역을 확인할 수 없습니다. ‘대치하지 않고 복사’를 사용하세요.";
@@ -136,6 +137,9 @@
 "op.removeJapaneseSpaces" = "일본어·로마자 사이 공백 삭제";
 "op.addJapaneseSpaces" = "일본어·로마자 사이 공백 추가";
 "op.sum" = "숫자 합계";
+"op.invertSign" = "부호 반전";
+"op.dateSpecial" = "날짜 스페셜";
+"op.dateSpecialPadded" = "날짜 스페셜(0 채움)";
 "op.fullwidthWestern" = "영숫자·기호를 전각으로";
 "op.halfwidthWestern" = "영숫자·기호를 반각으로";
 "op.capitalizeWords" = "단어 첫 글자 대문자";
@@ -179,6 +183,8 @@
 "tip.countText" = "글자 수·줄 수를 별도 윈도우에 표시(본문은 변경하지 않음)";
 "tip.affixLines" = "지정한 문자를 각 줄 앞뒤에 추가(빈 줄 포함)";
 "tip.date" = "선택한 텍스트의 날짜를 변환(존재하지 않는 날짜는 유지)";
+"tip.dateSpecial" = "선택한 텍스트의 날짜를 각 형식으로 변환한 후보를 메뉴에 표시하고 선택한 형식으로 대치";
+"tip.dateSpecialPadded" = "날짜 스페셜과 같으며, 월일을 0으로 채운 형식(2026年01月02日 등)도 함께 표시";
 "tip.narrowAlphanumerics" = "전각 영문자·숫자만 반각으로 변환(기호와 가나는 유지)";
 "tip.widenKana" = "반각 가나를 전각으로 변환(탁점·반탁점 결합)";
 "tip.removeJapaneseSpaces" = "일본어와 반각 영숫자 사이의 반각·전각 공백 삭제";
@@ -189,6 +195,7 @@
 "tip.camelCase" = "hello world → helloWorld(공백·하이픈·밑줄 구분 지원)";
 "tip.titleCase" = "영어 제목 형식(처음·끝과 주요 단어를 대문자로)";
 "tip.sum" = "선택 영역의 숫자를 합산하고 원문 아래에 빈 줄과 합계를 추가";
+"tip.invertSign" = "각 줄 맨 앞 숫자의 부호를 반전(-12→12, 12→-12. 0과 이후 숫자는 그대로)";
 "tip.wrapLines" = "지정한 글자 수로 각 줄을 줄 바꿈(기존 줄 바꿈 유지)";
 "tip.toggleDateFormat" = "yyyy年mm月dd日와 yyyy-mm-dd를 상호 변환(월·일을 두 자리로)";
 "tip.randomLines" = "줄 단위로 무작위 정렬(빈 줄·중복 줄 유지)";
@@ -207,7 +214,7 @@
 "tip.addCommas" = "숫자의 정수 부분을 세 자리마다 쉼표로 구분";
 "tip.removeCommas" = "숫자의 자릿수 구분 쉼표 삭제";
 "tip.removeList" = "줄 앞의 번호나 글머리 기호 삭제";
-"tip.number" = "Control+1: 1. / Control+Option+1: ［1］";
+"tip.number" = "Control+1: 1.";
 "tip.alphabet" = "Control+4: A. / Control+Option+4: ［A］";
 "tip.specialLists" = "기타 목록: 별도 윈도우에서 목록 종류를 선택하여 적용";
 "tip.specialTypography" = "일괄 정리: 항목을 선택하여 한꺼번에 적용";

@@ -145,9 +145,9 @@ private struct CustomSourceEditor: View {
                     HStack(spacing: 8) {
                         Button { record(hotkey.id) } label: {
                             Text(recordingID == hotkey.id ? L("キーを押す…") : hotkey.combo?.display ?? L("クリックして設定"))
-                                .frame(width: 98)
+                                .lineLimit(1).fixedSize().frame(minWidth: 98)
                         }
-                        .frame(width: 110, alignment: .leading)
+                        .frame(minWidth: 110, alignment: .leading)
                         TextField("", text: $hotkey.title).textFieldStyle(.roundedBorder)
                         TextField("", text: $hotkey.scope).textFieldStyle(.roundedBorder).frame(width: 190)
                         Button { source.hotkeys.removeAll { $0.id == hotkey.id } } label: { Image(systemName: "minus.circle") }

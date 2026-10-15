@@ -266,7 +266,7 @@ struct ShortcutRow: View {
     let reset: () -> Void
     var body: some View {
         HStack {
-            Text(shortcut.label).font(.system(.body, design: .monospaced)).frame(width: 110).accessibilityLabel(L("currentKey") + " " + shortcut.label)
+            Text(shortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading).accessibilityLabel(L("currentKey") + " " + shortcut.label)
             Button(model.recording ? L("cancelRecording") : L("change")) { model.startRecording() }
             Button(L("resetShortcut"), action: reset)
         }.disabled(!enabled && !model.recording)

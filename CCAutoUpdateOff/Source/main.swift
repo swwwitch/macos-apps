@@ -17,6 +17,13 @@ final class Model: ObservableObject {
     /// メール送信 (once a day while on). Off by default.
     @Published var mailEnabled: Bool { didSet { defaults.set(mailEnabled, forKey: "mailEnabled"); check() } }
     @Published var mailAddress: String { didSet { defaults.set(mailAddress, forKey: "mailAddress") } }
+    /// Send time, minutes after midnight (9:00 by default).
+    @Published var mailTime: Int { didSet { defaults.set(mailTime, forKey: "mailTime"); scheduleMailTimer(); check() } }
+    /// `mailTime` as a Date for the time picker.
+    var mailTimeDate: Date {
+        get { CCAutoUpdate.mailSlot(minutes: mailTime, on: Date()) }
+        set { let c = Calendar.current.dateComponents([.hour, .minute], from: newValue); mailTime = (c.hour ?? 0) * 60 + (c.minute ?? 0) }
+    }
     /// Stay running after the main window is closed (needed to keep watching). On by default.
     @Published var keepRunning: Bool { didSet { defaults.set(keepRunning, forKey: "keepRunning") } }
     /// Also report apps with 以前のバージョンを削除 checked. On by default.
@@ -31,12 +38,14 @@ final class Model: ObservableObject {
         set { defaults.set(newValue, forKey: "notifiedSignature") }
     }
     private let mailQueue = DispatchQueue(label: "CCAutoUpdateOff.mail")
+    private var mailTimer: Timer?
     var onChange: (() -> Void)?
 
     init() {
         notifyEnabled = defaults.object(forKey: "notifyEnabled") as? Bool ?? true
         mailEnabled = defaults.bool(forKey: "mailEnabled")
         mailAddress = defaults.string(forKey: "mailAddress") ?? ""
+        mailTime = defaults.object(forKey: "mailTime") as? Int ?? CCAutoUpdate.defaultMailTime
         keepRunning = defaults.object(forKey: "keepRunning") as? Bool ?? true
         watchRemoveOld = defaults.object(forKey: "watchRemoveOld") as? Bool ?? true
     }
@@ -59,7 +68,19 @@ final class Model: ObservableObject {
             notifiedSignature = signature
             if notifyEnabled { Notifier.shared.post(title: notifyTitle(), body: notifyBody()) }
         }
-        if mailEnabled, CCAutoUpdate.isValidAddress(mailAddress), CCAutoUpdate.mailDue(state, watchRemoveOld: watchRemoveOld, lastSent: lastMail) { sendMail(test: false) }
+        if mailEnabled, CCAutoUpdate.isValidAddress(mailAddress),
+           CCAutoUpdate.mailDue(state, watchRemoveOld: watchRemoveOld, lastSent: lastMail, minutes: mailTime) { sendMail(test: false) }
+    }
+
+    /// Wakes at the next send time (the hourly recheck alone could be up to an hour late). Re-armed after each firing.
+    func scheduleMailTimer() {
+        mailTimer?.invalidate()
+        let fire = CCAutoUpdate.nextMailSlot(minutes: mailTime, after: Date())
+        let timer = Timer(fire: fire.addingTimeInterval(1), interval: 0, repeats: false) { [weak self] _ in
+            self?.check(); self?.scheduleMailTimer()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        mailTimer = timer
     }
 
     private func notifyTitle() -> String { state.level == .on ? L("notifyTitle") : L("removeOldTitle") }
@@ -295,6 +316,10 @@ struct NotifySettings: View {
             SettingsSection(L("mailSection")) {
                 Toggle(L("mailToggle"), isOn: $model.mailEnabled)
                 HStack {
+                    Text(L("mailTime"))
+                    DatePicker("", selection: $model.mailTimeDate, displayedComponents: .hourAndMinute).labelsHidden().fixedSize()
+                }
+                HStack {
                     Text(L("mailTo"))
                     TextField("name@example.com", text: $model.mailAddress).textFieldStyle(.roundedBorder).frame(maxWidth: 280)
                 }
@@ -376,8 +401,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 help: { [weak self] in self?.showHelp() })
         }
         model.check()
+        model.scheduleMailTimer()
         watcher.start()
-        // Daily mail while on, and a safety net if a file event was missed.
+        // Safety net if a file event or the send-time timer was missed.
         timer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in self?.recheck() }
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(recheck), name: NSWorkspace.didWakeNotification, object: nil)
         if !loginLaunch && !StartupWindow.hidden { showMain() }
@@ -439,7 +465,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     func menuWillOpen(_ menu: NSMenu) { model.check() }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
-    @objc func recheck() { watcher.start(); model.check() }
+    @objc func recheck() { watcher.start(); model.scheduleMailTimer(); model.check() }
     @objc func openCreativeCloud() { Mailer.openCreativeCloud() }
     @objc func showPreferences() {
         if preferences == nil {

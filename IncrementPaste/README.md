@@ -1,6 +1,6 @@
 # IncrementPaste
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.0.0-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.0.1-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ⌥V を押すたびに、クリップボードの数字・日付・英字を1つ進めてペーストするメニューバー常駐アプリ。Keyboard Maestro のマクロ「increment-paste」（[increment-paste.kmmacros](increment-paste.kmmacros)）の移植。
 
@@ -28,4 +28,5 @@
 
 ## 更新履歴
 
+- 1.0.1（build 2, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 - 1.0.0（build 1, 2026-10-14）：最初の版。

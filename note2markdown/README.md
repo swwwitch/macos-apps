@@ -3,7 +3,7 @@
 macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブアプリ。note記事のURLを入力すると、その記事をMarkdownファイルに書き出します。記事のタイトルは見出し1（`# `）になります。
 
 - 取得元：noteの公開API `https://note.com/api/v3/notes/<記事キー>`（`name`＝タイトル、`body`＝本文HTML）。ブラウザーやPandocは使わない。URLは `https://note.com/<ユーザー名>/n/<記事キー>`、独自ドメインの `…/n/<記事キー>`、記事キーだけのいずれでもよい。
-- 変換：Keyboard Maestroのマクロ「Markdown整形（Google Chrome）」（`参考/`）の整形内容をSwiftで実装。本文HTMLを木構造に読み込んで変換する（`Source/NoteMarkdown.swift`）。
+- 変換：Keyboard Maestroのマクロ「Markdown整形（Google Chrome）」（`Reference/`）の整形内容をSwiftで実装。本文HTMLを木構造に読み込んで変換する（`Source/NoteMarkdown.swift`）。
   - 見出し・段落・太字・斜体・取り消し線・リンク（リンク内の太字は外す）・箇条書き／番号付きリスト（入れ子可）・引用・コードブロック・区切り線。段落内の `<br>` は行末スペース2つの改行。目次（`<table-of-contents>`）と空段落は書き出さない。
   - 画像：`![画像](URL)`。キャプションがあれば代替テキストに。`assets.st-note.com` のURLからサイズ指定（`?width=…`）を外す。
   - 埋め込み：note記事 `- [記事タイトル](URL)`（タイトルはAPIで取得、設定でオフにすると「note記事へのリンク」）、X `- [Twitter（現「X」）リンク](URL)`、外部記事 `- [ページタイトル](URL)`、添付ファイル `- [ファイル名](URL)`、YouTubeはURLだけの行、そのほか（gist・GitHub等）は `- <URL>`。

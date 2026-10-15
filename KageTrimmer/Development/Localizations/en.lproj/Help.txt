@@ -31,7 +31,9 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 
 In the Output tab you can choose the shadow size the main window starts with (S by default) and the file name suffix for each shadow size. A size chosen in the main window is used until you quit. Leave a suffix field empty to use the default suffix.
 
-Turn on **Watch a folder and process automatically** in the Folder Watch tab to process window screenshots added to the folder automatically, with the shadow size selected in the main window (off by default). The folder starts as the macOS screenshot location. macOS screenshots are identified by how they were taken; CleanShot X and similar tools by their “Screenshot” information and shadow. Screenshots of a selected area or the whole screen are not processed. A sound plays when processing finishes.
+Under “When processing succeeds” you can choose to play a sound, select the saved images in Finder, and move the original images to the Trash (all off by default). The sound plays when every image was processed. Only the originals of images that were saved are moved to the Trash, and you can put them back from there.
+
+Turn on **Watch a folder and process automatically** in the Folder Watch tab to process window screenshots added to the folder automatically, with the shadow size selected in the main window (off by default). The folder starts as the macOS screenshot location. macOS screenshots are identified by how they were taken; CleanShot X and similar tools by their “Screenshot” information and shadow. Screenshots of a selected area or the whole screen are not processed.
 
 To process windows captured with CleanShot X, set the window background to Transparent and the save location to the watched folder in CleanShot X settings (windows captured with a background can’t be recognized).
 
@@ -46,7 +48,7 @@ To process windows captured with CleanShot X, set the window background to Trans
 - **⌃⌥⌘U** (default): Process the images selected in Finder or Path Finder, or show the KageTrimmer window if nothing is selected (works while you are using other apps)
 
 ## Permissions
-The first time the shortcut processes selected images, macOS asks whether KageTrimmer may control Finder (or Path Finder). Click **Allow**. To change this later, use System Settings > Privacy & Security > Automation. A sound plays when processing finishes; if any image could not be processed (for example, it had no shadow), the window shows the results.
+The first time the shortcut processes selected images, macOS asks whether KageTrimmer may control Finder (or Path Finder). Click **Allow**. To change this later, use System Settings > Privacy & Security > Automation. If any image could not be processed (for example, it had no shadow), the window shows the results.
 
 KageTrimmer does not need Accessibility permission. If it cannot write to the original image’s folder, it asks for access to that folder. Choose the folder that contains the original image and click **Allow Access**.
 
