@@ -31,5 +31,6 @@
 | [PodiumAssist](PodiumAssist.app) | 3.2.35 | 58 | `jp.local.toki` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.0.17 | 31 | `jp.dtp-transit.quickiconexporter` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.0.0 | 1 | `jp.dtp-transit.yohakutrimmer` |
+| [ListMatch](ListMatch.app) | 1.5.0 | 7 | `jp.dtp-transit.listdiff` |
 
 最終ビルドの配置先は `/Applications` とこのフォルダです。過去のDMGは [DistributionArchive](../Shared/DistributionArchive/) へ退避しました。自動コピーは [BuildTools](../Shared/BuildTools/README.md)、共通ルールは [BASELINE](../Shared/AppStandards/BASELINE.md) を参照してください。
