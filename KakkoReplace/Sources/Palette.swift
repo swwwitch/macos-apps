@@ -83,7 +83,7 @@ final class BracketPalette: NSPanel {
         force.state = model.forceWrap ? .on : .off; result.stringValue = model.status
         for button in actionButtons {
             let id = button.identifier!.rawValue
-            button.toolTip = OperationGroup.displayTitle(id) + "  " + (model.bindings[id]?.label ?? L("unassigned"))
+            button.toolTip = OperationGroup.displayTitle(id) + "  " + (model.bindings[id].map { KeyCombo($0).label } ?? HotkeyText.unset)
         }
     }
     @objc private func openSettings() { (NSApp.delegate as? AppDelegate)?.showPreferences() }

@@ -52,7 +52,6 @@
 "keynoteNotRunning" = "Keynote 未运行。请在 Keynote 中打开演示文稿。";
 "noDocument" = "Keynote 中没有打开的演示文稿。";
 "automationDenied" = "KeynoteSweeper 未被允许控制 Keynote。请在“自动化”设置中打开。";
-"accessibilityDenied" = "删除母版和对象动画需要辅助功能权限。请在系统设置中允许 KeynoteSweeper。";
 "allHidden" = "所有幻灯片都已隐藏，因此未删除幻灯片。";
 "editorUnavailable" = "无法打开 Keynote 的“编辑幻灯片布局”。请检查 Keynote 中是否有打开的对话框。";
 "documentChanged" = "Keynote 最前面的演示文稿已改变，已停止。";

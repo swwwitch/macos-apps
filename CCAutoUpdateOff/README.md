@@ -11,6 +11,7 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 - メール送信（初期値オフ）：オンの間、1日1回、指定した時刻（初期値 9:00）を過ぎてから。「メール」アプリの既定アカウントからAppleScriptで送る（Automationの許可が必要）。テスト送信あり。
 - 自動更新が効いていて「以前のバージョンを削除」もオンのアプリも知らせる（初期値オン、設定で切り替え）。全体がオフならアプリの行を薄く表示し、効かない値は「—」。
 - 常駐（初期値オン）、ログイン時に起動（初期値オフ）、メニューバーのアイコンで状態表示（初期値表示）。⌘,で設定。
+- 設定の「設定の共有」タブ（共通部品 Shared/SettingsSync）：知らせる内容・通知・メール送信（宛先・送信時刻）を `CCAutoUpdateOff-Settings.plist` に書き出し・読み込み、iCloud Drive・Dropbox などのフォルダーで同期。ログイン起動・常駐・メニューバーはMacごと。
 - ［環境設定］→［アプリ］を直接開くURLスキームはCreative Cloudに無いため、Creative Cloudを開くだけ。
 - 4言語（日本語・英語・簡体字中国語・韓国語）の表示とオフラインヘルプ（⌘?）。アプリ自身は外部通信なし（メール送信オン時のみ「メール」アプリが送信）。
 
@@ -21,7 +22,7 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 ./test.sh    # 疑似設定ファイルで読み取り・判定・複数ユーザーの統合・メール文面と送信日の判定を検証
 ```
 
-文字列・ヘルプ・Info.plistは `make-resources.py`、アイコンは `Assets/make-icon.sh`（`GenerateIcon.swift`）から再生成します。共有の `AppHeader.swift`・`AppSurface.swift`・`HelpDocument.swift`・`SettingsSection.swift`・`AboutSection.swift`・`WindowActivationPolicy.swift`・`LoginAtLaunch.swift` をビルド時に参照します。
+文字列・ヘルプ・Info.plistは `make-resources.py`、アイコンは `Assets/make-icon.sh`（`GenerateIcon.swift`）から再生成します。共有の `AppHeader.swift`・`AppSurface.swift`・`HelpDocument.swift`・`SettingsSection.swift`・`AboutSection.swift`・`WindowActivationPolicy.swift`・`LoginAtLaunch.swift`・`SettingsSync.swift` をビルド時に参照します。
 
 ## 制限
 
@@ -30,6 +31,14 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。Intel実機での動作は未確認です。
 
 ## 更新履歴
+
+### 1.3.2（build 13、2026-10-17）
+
+- 設定の文言を共通にそろえた（「ウインドウを閉じても常駐」、「設定…」「送信中…」の省略記号）。共通部品（設定の共有）の更新を取り込んだ。
+
+### 1.3.1（build 12、2026-10-16）
+
+- 設定に「設定の共有」タブを追加（書き出し・読み込みと、iCloud Drive・Dropboxなどでの同期。知らせる内容・通知・メール送信の設定が対象）。
 
 ### 1.3.0（build 11、2026-10-15）
 

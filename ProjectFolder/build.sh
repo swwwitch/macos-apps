@@ -4,17 +4,20 @@ cd "${0:A:h}"
 python3 ../Shared/MenuBarPresence/sync.py
 python3 ../Shared/HotkeyManifest/sync.py
 python3 ../Shared/AppStandards/sync-surface.py
+python3 ../Shared/SettingsSync/sync.py
+python3 ../Shared/LoginAtLaunch/sync.py
+python3 ../Shared/HotkeyRecorder/sync.py
 UPDATER_ROOT="$PWD/../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp/}projectfolder.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/ProjectFolder.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift
-         Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/FolderName.swift Sources/Project.swift Sources/FileTemplates.swift Sources/Library.swift Sources/Creation.swift Sources/FileViewers.swift Sources/Model.swift Sources/HotKey.swift
+SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift Sources/SettingsSync.swift
+         Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/FolderName.swift Sources/Project.swift Sources/FileTemplates.swift Sources/Library.swift Sources/Creation.swift Sources/FileViewers.swift Sources/Model.swift Sources/HotKey.swift Sources/ShortcutCombo.swift Sources/HotkeyRecorder.swift
          Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift
          Sources/HotkeyManifest.swift Sources/main.swift)
-xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/ProjectFolder"
+xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework UniformTypeIdentifiers "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/ProjectFolder"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"
 if [[ ! -f Assets/ProjectFolder.icns || Assets/draw-icon.swift -nt Assets/ProjectFolder.icns || Assets/package-icon.py -nt Assets/ProjectFolder.icns ]]; then

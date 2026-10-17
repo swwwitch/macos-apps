@@ -1,8 +1,8 @@
 import Foundation
 var count = 0
 func test(_ source: String, _ offset: Int, _ replacement: String, _ location: Int, _ length: Int,
-          action: String = "round", force: Bool = false, trim: Bool = false) {
-    let edit = BracketEdit.make(source, at: offset, action: action, force: force, trimSpaces: trim)
+          action: String = "round", force: Bool = false, trim: Bool = false, paragraphEnd: Bool = false) {
+    let edit = BracketEdit.make(source, at: offset, action: action, force: force, trimSpaces: trim, paragraphEnd: paragraphEnd)
     precondition(edit.replacement == replacement, "Wrong replacement (\(action)): \(source) -> \(edit.replacement), expected \(replacement)")
     precondition(edit.selection == NSRange(location: location, length: length), "Wrong range: \(source)")
     count += 1
@@ -38,6 +38,10 @@ test("😀", 4, " 😀 ", 5, 2, action: "spaces")
 test("", 0, "  ", 1, 0, action: "spaces")
 test(" a ", 0, "（ a ）", 1, 3)
 test(" a ", 0, "（a）", 1, 1, trim: true)
+test("文字列", 4, "（文字列）", 9, 0, paragraphEnd: true)
+test("（a）", 0, "「（a）」", 5, 0, action: "corner", force: true, paragraphEnd: true)
+test("［a］", 0, "（a）", 0, 3, paragraphEnd: true)
+test("", 2, "（）", 3, 0, paragraphEnd: true)
 test("前 ［ a ］ 後", 0, "前（a）後", 0, 5, trim: true)
 test("［\na\t］", 0, "（\na\t）", 0, 5, trim: true)
 test("<div>x</div>", 0, "<!-- <div>x</div> -->", 5, 12, action: "html")

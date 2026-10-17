@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
+@MainActor
 final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
     @Published var hotkeyEnabled = UserDefaults.standard.object(forKey: "hotkeyEnabled") as? Bool ?? true
@@ -25,20 +26,14 @@ final class Model: ObservableObject {
     /// Shows the main window without taking focus from the front app (set by AppDelegate); called after ⌃⌥⌘C.
     var revealMainWindow: (() -> Void)?
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
-    @Published var excluded = ExcludedAppList(ownID: Bundle.main.bundleIdentifier)
-    @Published var recording = false
-    /// Which key is being recorded: false = ⌃⌥V (paste), true = ⌥C (add).
-    @Published var recordingAdd = false
     @Published var addStatus = ""
     @Published var addFailed = false
     @Published var status = L("ready")
     @Published var statusIsError = false
     @Published var hotkeyStatus = ""
     @Published var hotkeyFailed = false
-    @Published var recordMessage = ""
     @Published var loginStatus = ""
     @Published var loginOn = false
-    @Published var accessibilityAllowed = AXIsProcessTrusted()
     @Published var upcoming: [SlotItem] = []
     /// The row the next ⌃⌥V pastes (starred rows stay, so it is not always the first).
     @Published var nextIndex: Int?
@@ -50,55 +45,53 @@ final class Model: ObservableObject {
     @Published var selected: Int?
     weak var mainWindow: NSWindow?
     private var target: NSRunningApplication?
-    let hotkey = SingleHotKey(signature: 0x5053_5543)       // 'PSUC'
-    let addHotkey = SingleHotKey(signature: 0x5053_4144)    // 'PSAD'
+    /// 1 = paste the next line (⌃⌥V), 2 = add the selection (⌃⌥⌘C). Paused by HotkeySet while a key is recorded.
+    let hotkeys = HotkeySet(signature: "PSUC")
     let paster = LinePaster()
     private let ownPID = ProcessInfo.processInfo.processIdentifier
     private var observers: [NSObjectProtocol] = []
     private var workspaceObserver: NSObjectProtocol?
-    private var monitor: Any?
     private var keyMonitor: Any?
     /// What is registered now; app switches re-register only when this changes.
     private var registeredState: String?
 
     init() {
-        hotkey.action = { [weak self] in self?.trigger() }
-        addHotkey.action = { [weak self] in self?.addSelection() }
+        hotkeys.action = { [weak self] number in if number == 2 { self?.addSelection() } else { self?.trigger() } }
+        // After recording, register again so a conflict with another app is reported.
+        HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
+            guard let self, !recording else { return }
+            self.registeredState = nil; self.refreshHotkey()
+        }
         // Event-driven: the hotkey is released while an excluded app (or PasteInARow itself) is in front (B13, B21).
         workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
-            guard let self else { return }
-            if let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication, app.processIdentifier != self.ownPID {
-                self.target = app; self.targetName = app.localizedName
+            let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                if let app, app.processIdentifier != self.ownPID {
+                    self.target = app; self.targetName = app.localizedName
+                }
+                self.refreshHotkey()
             }
-            self.refreshHotkey()
         }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshLogin(); self?.refreshAccessibility(); self?.refreshHotkey(); self?.refreshQueue()
+            MainActor.assumeIsolated { self?.refreshLogin(); self?.refreshHotkey(); self?.refreshQueue() }
         })
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, self.recording else { return event }
-            if event.keyCode == 53 { self.recording = false; self.recordMessage = ""; self.refreshHotkey(); return nil }
-            guard let candidate = Shortcut.recorded(keyCode: event.keyCode, flags: event.modifierFlags, characters: event.charactersIgnoringModifiers) else {
-                self.recordMessage = L("invalidShortcut"); return nil
-            }
-            let other = self.recordingAdd ? self.shortcut : self.addShortcut
-            guard candidate.signature != other.signature else { self.recordMessage = L("duplicateShortcut"); return nil }
-            if self.recordingAdd { self.addShortcut = candidate; self.addEnabled = true }
-            else { self.shortcut = candidate; self.hotkeyEnabled = true }
-            self.recording = false; self.recordMessage = ""; self.save(); return nil
-        }
         // Return / ⌥Return / ⌘Return and ↑↓ in the main window (the list rows only select on click).
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, !self.recording, let window = self.mainWindow, event.window === window, window.attachedSheet == nil else { return event }
             let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
-            switch event.keyCode {
-            case 36, 76:
-                guard flags.isSubset(of: [.command, .option]) else { return event }
-                self.pasteSelected(flags); return nil
-            case 125 where flags.isEmpty: self.moveSelection(1); return nil
-            case 126 where flags.isEmpty: self.moveSelection(-1); return nil
-            default: return event
+            let keyCode = event.keyCode, eventWindow = event.window
+            let handled = MainActor.assumeIsolated { () -> Bool in
+                guard let self, let window = self.mainWindow, eventWindow === window, window.attachedSheet == nil else { return false }
+                switch keyCode {
+                case 36, 76:
+                    guard flags.isSubset(of: [.command, .option]) else { return false }
+                    self.pasteSelected(flags); return true
+                case 125 where flags.isEmpty: self.moveSelection(1); return true
+                case 126 where flags.isEmpty: self.moveSelection(-1); return true
+                default: return false
+                }
             }
+            return handled ? nil : event
         }
         refreshLogin(); refreshHotkey(); refreshQueue()
     }
@@ -116,69 +109,79 @@ final class Model: ObservableObject {
         refreshHotkey(); refreshQueue()
     }
 
+    /// Re-reads the shared settings after SettingsSync applied them; save() would otherwise write the old values back.
+    func reload() {
+        hotkeyEnabled = defaults.object(forKey: "hotkeyEnabled") as? Bool ?? true
+        shortcut = defaults.data(forKey: "pasteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .paste
+        addEnabled = defaults.object(forKey: "addEnabled") as? Bool ?? true
+        addShortcut = defaults.data(forKey: "addShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) }
+            .flatMap { $0 == .oldAdd ? nil : $0 } ?? .add
+        trimIndent = defaults.object(forKey: "trimIndent") as? Bool ?? true
+        stripMarkers = defaults.object(forKey: "stripMarkers") as? Bool ?? true
+        notifyEach = defaults.object(forKey: "notifyEach") as? Bool ?? false
+        closeWhenEmpty = defaults.object(forKey: "closeWhenEmpty") as? Bool ?? true
+        refreshHotkey(); refreshQueue()
+    }
+
     /// The hotkey passes through to the front app while it is excluded or PasteInARow itself.
     func blocked(_ app: NSRunningApplication?) -> Bool {
-        excluded.blocksHotkeys(bundleID: app?.bundleIdentifier, pid: app?.processIdentifier, ownPID: ownPID)
+        MainActor.assumeIsolated { ExcludedApps.shared.blocksHotkeys(bundleID: app?.bundleIdentifier, pid: app?.processIdentifier) }
     }
 
     func refreshHotkey() {
         publishHotkeys()
-        let wanted = hotkeyEnabled && !paused && !recording
-        let wantedAdd = addEnabled && !paused && !recording
+        let wanted = hotkeyEnabled && !paused
+        let wantedAdd = addEnabled && !paused
         let front = !blocked(NSWorkspace.shared.frontmostApplication)
         let state = "\(wanted):\(wantedAdd):\(front):\(shortcut.signature):\(addShortcut.signature)"
         guard state != registeredState else { return }
         registeredState = state
         // Registered to detect a conflict even while an excluded app is in front; then released at once so the key passes through.
-        func apply(_ key: SingleHotKey, _ value: Shortcut, _ on: Bool) -> OSStatus {
-            guard on else { key.register(nil); return noErr }
-            let result = key.register(value)
-            if !front { key.register(nil) }
+        func apply(_ number: UInt32, _ value: Shortcut, _ on: Bool) -> OSStatus {
+            guard on else { hotkeys.unregister(number); return noErr }
+            let result = hotkeys.register(number, value.combo)
+            if !front { hotkeys.unregister(number) }
             return result
         }
-        let result = apply(hotkey, shortcut, wanted)
-        let addResult = apply(addHotkey, addShortcut, wantedAdd)
+        let result = apply(1, shortcut, wanted)
+        let addResult = apply(2, addShortcut, wantedAdd)
         hotkeyFailed = wanted && result != noErr
         addFailed = wantedAdd && addResult != noErr
-        hotkeyStatus = describe(enabled: hotkeyEnabled, failed: hotkeyFailed, shortcut: shortcut, result: result, recordingThis: recording && !recordingAdd)
-        addStatus = describe(enabled: addEnabled, failed: addFailed, shortcut: addShortcut, result: addResult, recordingThis: recording && recordingAdd)
+        hotkeyStatus = describe(enabled: hotkeyEnabled, failed: hotkeyFailed, shortcut: shortcut)
+        addStatus = describe(enabled: addEnabled, failed: addFailed, shortcut: addShortcut)
     }
-    private func describe(enabled: Bool, failed: Bool, shortcut: Shortcut, result: OSStatus, recordingThis: Bool) -> String {
+    private func describe(enabled: Bool, failed: Bool, shortcut: Shortcut) -> String {
         if !enabled { return L("hotkeyDisabled") }
         if paused { return L("hotkeyPaused") }
-        if recordingThis { return L("recordHint") }
-        if failed { return String(format: L("hotkeyRegisterFailed"), shortcut.label, String(result)) }
+        if failed { return HotkeyText.registerFailed }
         return String(format: L("hotkeyActive"), shortcut.label)
     }
 
     /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
     func publishHotkeys() {
-        let scope = excluded.ids.isEmpty ? "all" : "except"
+        let excludedIDs = MainActor.assumeIsolated { ExcludedApps.shared.ids }
+        let scope = excludedIDs.isEmpty ? "all" : "except"
         HotkeyManifest.publish([
             HotkeyManifest.Item(id: "paste", title: L("pasteHotkey"), keyCode: Int(shortcut.code), modifiers: Int(shortcut.modifiers),
-                                enabled: hotkeyEnabled, scope: scope, apps: excluded.ids),
+                                enabled: hotkeyEnabled, scope: scope, apps: excludedIDs),
             HotkeyManifest.Item(id: "add", title: L("addHotkey"), keyCode: Int(addShortcut.code), modifiers: Int(addShortcut.modifiers),
-                                enabled: addEnabled, scope: scope, apps: excluded.ids)
+                                enabled: addEnabled, scope: scope, apps: excludedIDs)
         ])
     }
 
-    func startRecording(add: Bool = false) {
-        if recording && recordingAdd != add { recording = false }
-        recordingAdd = add
-        recording.toggle()
-        recordMessage = recording ? L("recordHint") : ""
-        refreshHotkey()
+    /// The two 「ホットキー」 fields: the stored Shortcut (JSON with code, modifiers, label) as a KeyCombo.
+    var pasteCombo: KeyCombo? {
+        get { shortcut.combo }
+        set { if let newValue { shortcut = Shortcut(newValue); save() } }
     }
-    func resetShortcut() {
-        shortcut = .paste; hotkeyEnabled = true; recording = false; recordMessage = ""; save()
-    }
-    func resetAddShortcut() {
-        addShortcut = .add; addEnabled = true; recording = false; recordMessage = ""; save()
+    var addCombo: KeyCombo? {
+        get { addShortcut.combo }
+        set { if let newValue { addShortcut = Shortcut(newValue); save() } }
     }
     func togglePause() { paused.toggle(); refreshHotkey() }
 
     func addSelection() {
-        guard addEnabled, !paused, !recording, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
+        guard addEnabled, !paused, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
         let pid = front.processIdentifier
         paster.addSelection(appName: front.localizedName ?? "", pid: pid, trimIndent: trimIndent, stripMarkers: stripMarkers, stillTarget: { [weak self] in
             guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
@@ -196,12 +199,12 @@ final class Model: ObservableObject {
                 NSSound.beep()
                 MainActor.assumeIsolated { TransientMessage.show(reason) }
             }
-            self.refreshAccessibility(); self.refreshQueue()
+            self.refreshQueue()
         }
     }
 
     func trigger() {
-        guard hotkeyEnabled, !paused, !recording, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
+        guard hotkeyEnabled, !paused, let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else { return }
         let pid = front.processIdentifier
         let outcome = paster.paste(.next, appName: front.localizedName ?? "", pid: pid, stillTarget: { [weak self] in
             guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
@@ -228,7 +231,7 @@ final class Model: ObservableObject {
             let message = reason
             MainActor.assumeIsolated { TransientMessage.show(message) }
         }
-        refreshAccessibility(); refreshQueue()
+        refreshQueue()
     }
     /// Click in the window (the KM macro 「02)非連続ペースト」): bring back the previous app, wait until it is in front,
     /// then paste there. The window is ordered front again without activating PasteInARow, so the next click is easy.
@@ -236,7 +239,7 @@ final class Model: ObservableObject {
         guard !pasting else { return }
         guard let target, !target.isTerminated else { report(.failed(L("fail.noTarget"))); return }
         guard !blocked(target) else { report(.failed(String(format: L("fail.excludedTarget"), target.localizedName ?? ""))); return }
-        guard AXIsProcessTrusted() else { report(.failed(L("fail.access"))); return }
+        guard AXIsProcessTrusted() else { report(.failed(AccessibilityText.text("blocked"))); return }
         pasting = true
         target.activate()
         let pid = target.processIdentifier
@@ -296,26 +299,9 @@ final class Model: ObservableObject {
         selected = upcoming.isEmpty ? nil : min(selected ?? 0, upcoming.count - 1)
         canRestart = paster.canRestart
     }
-    func refreshAccessibility() { accessibilityAllowed = AXIsProcessTrusted() }
 
-    func addExcluded(_ urls: [URL]) -> [String] {
-        var rejected: [String] = []
-        for url in urls {
-            let name = appDisplayName(url)
-            switch excluded.add(Bundle(url: url)?.bundleIdentifier) {
-            case .added: break
-            case .duplicate: rejected.append(String(format: L("excluded.duplicate"), name))
-            case .own: rejected.append(L("excluded.own"))
-            case .invalid: rejected.append(String(format: L("excluded.invalid"), name))
-            }
-        }
-        excluded.save(); registeredState = nil; refreshHotkey()
-        return rejected
-    }
-    func removeExcluded(_ ids: Set<String>) {
-        ids.forEach { excluded.remove($0) }
-        excluded.save(); registeredState = nil; refreshHotkey()
-    }
+    /// The 「対象外アプリ」 list changed: register the hotkeys again for the front app.
+    func excludedAppsChanged() { registeredState = nil; refreshHotkey() }
 
     func refreshLogin() {
         let state = SMAppService.mainApp.status
@@ -338,24 +324,11 @@ final class Model: ObservableObject {
     }
 
     func stop() {
-        hotkey.register(nil)
-        if let monitor { NSEvent.removeMonitor(monitor) }
+        hotkeys.unregisterAll()
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
         observers.forEach { NotificationCenter.default.removeObserver($0) }
     }
-}
-
-func appDisplayName(_ url: URL) -> String {
-    let name = FileManager.default.displayName(atPath: url.path)
-    return name.hasSuffix(".app") ? String(name.dropLast(4)) : name
-}
-/// Name and icon of an installed app; a missing app shows its Bundle ID.
-func appInfo(_ bundleID: String) -> (name: String, icon: NSImage, missing: Bool) {
-    if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
-        return (appDisplayName(url), NSWorkspace.shared.icon(forFile: url.path), false)
-    }
-    return (bundleID, NSWorkspace.shared.icon(for: .applicationBundle), true)
 }
 
 /// Shared header (AppHeader.swift): current bundle icon, functional title and subtitle.
@@ -454,7 +427,7 @@ struct MainView: View {
         VStack(alignment: .leading, spacing: 16) {
             HeaderView().fixedSize(horizontal: false, vertical: true)
             // The status block is hidden; only a problem that stops ⌃⌥V is shown here (B09, B27).
-            if !model.accessibilityAllowed {
+            if !AccessibilitySection.isTrusted {
                 StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: AccessibilityText.text("title"),
                           value: AccessibilityText.text("denied"))
             } else if model.hotkeyFailed || model.addFailed {
@@ -492,74 +465,6 @@ struct MainView: View {
     }
 }
 
-struct ShortcutRow: View {
-    @ObservedObject var model: Model
-    /// false = ⌃⌥V (paste next line), true = ⌥C (add the selection).
-    var add = false
-    var body: some View {
-        let shortcut = add ? model.addShortcut : model.shortcut
-        let recordingThis = model.recording && model.recordingAdd == add
-        HStack {
-            Text(shortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading).accessibilityLabel(L("currentKey") + " " + shortcut.label)
-            Button(recordingThis ? L("cancelRecording") : L("change")) { model.startRecording(add: add) }
-            Button(L("resetShortcut")) { if add { model.resetAddShortcut() } else { model.resetShortcut() } }
-        }.disabled(!(add ? model.addEnabled : model.hotkeyEnabled) && !recordingThis)
-    }
-}
-
-/// 対象外アプリ (B21): Bundle IDs with name and icon, add from /Applications, remove the selection.
-struct ExcludedAppsView: View {
-    @ObservedObject var model: Model
-    @State private var selection = Set<String>()
-    @State private var rejected: [String] = []
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(L("excluded.explanation")).fixedSize(horizontal: false, vertical: true)
-            List(selection: $selection) {
-                ForEach(model.excluded.ids, id: \.self) { id in
-                    let info = appInfo(id)
-                    HStack(spacing: 8) {
-                        Image(nsImage: info.icon).resizable().frame(width: 24, height: 24).accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(info.name).lineLimit(1)
-                            Text(info.missing ? L("excluded.missing") : id).font(.caption).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle)
-                        }
-                    }
-                    .help(id)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel(info.name + ", " + id)
-                }
-            }
-            .frame(height: 200)
-            .accessibilityLabel(L("excluded.title"))
-            HStack {
-                Button(L("excluded.add")) { add() }
-                Button(L("excluded.remove")) { model.removeExcluded(selection); selection = [] }.disabled(selection.isEmpty)
-            }
-            Text(model.excluded.ids.isEmpty ? L("excluded.none") : String(format: L("excluded.count"), String(model.excluded.ids.count)))
-                .font(.caption).foregroundColor(.secondary)
-            if !rejected.isEmpty {
-                Text(rejected.joined(separator: "\n")).font(.caption).foregroundColor(.red).fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-    private func add() {
-        let picker = NSOpenPanel()
-        picker.title = L("excluded.pickerTitle")
-        picker.prompt = L("excluded.add")
-        picker.allowedContentTypes = [.applicationBundle]
-        picker.allowsMultipleSelection = true
-        picker.canChooseDirectories = false
-        picker.directoryURL = URL(fileURLWithPath: "/Applications")
-        let completion: (NSApplication.ModalResponse) -> Void = { response in
-            guard response == .OK else { return }
-            rejected = model.addExcluded(picker.urls)
-        }
-        if let window = NSApp.keyWindow { picker.beginSheetModal(for: window, completionHandler: completion) }
-        else { picker.begin(completionHandler: completion) }
-    }
-}
-
 struct Preferences: View {
     @ObservedObject var model: Model
     var body: some View {
@@ -574,23 +479,21 @@ struct Preferences: View {
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
                     MenuBarPresenceView()
                 }
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: true, showsTitle: false)
-                }
+                AccessibilitySection()
             })),
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("pasteHotkey")) {
-                    Toggle(L("enabled"), isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    ShortcutRow(model: model)
-                    Text(model.hotkeyStatus).font(.caption).foregroundColor(model.hotkeyFailed ? .red : .secondary).fixedSize(horizontal: false, vertical: true)
-                    if model.recording, !model.recordingAdd, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
+                    HotkeyField(id: "paste", combo: Binding(get: { model.pasteCombo }, set: { model.pasteCombo = $0 }),
+                                defaultCombo: Shortcut.paste.combo, others: [(L("addHotkey"), model.addShortcut.combo)],
+                                registered: !model.hotkeyFailed, isEnabled: model.hotkeyEnabled)
                     Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 SettingsSection(L("addHotkey")) {
-                    Toggle(L("enabled"), isOn: Binding(get: { model.addEnabled }, set: { model.addEnabled = $0; model.save() }))
-                    ShortcutRow(model: model, add: true)
-                    Text(model.addStatus).font(.caption).foregroundColor(model.addFailed ? .red : .secondary).fixedSize(horizontal: false, vertical: true)
-                    if model.recording, model.recordingAdd, !model.recordMessage.isEmpty { Text(model.recordMessage).font(.caption) }
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.addEnabled }, set: { model.addEnabled = $0; model.save() }))
+                    HotkeyField(id: "add", combo: Binding(get: { model.addCombo }, set: { model.addCombo = $0 }),
+                                defaultCombo: Shortcut.add.combo, others: [(L("pasteHotkey"), model.shortcut.combo)],
+                                registered: !model.addFailed, isEnabled: model.addEnabled)
                     Text(L("addHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
@@ -609,7 +512,8 @@ struct Preferences: View {
                     Text(L("notifyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
-            (L("excluded.title"), AnyView(SettingsSection(L("excluded.title")) { ExcludedAppsView(model: model) })),
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -617,6 +521,7 @@ struct Preferences: View {
     }
 }
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWindowDelegate, NSMenuItemValidation {
     var model: Model!
     var item: NSStatusItem!
@@ -627,9 +532,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var resultItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        ExcludedApps.shared.configure(explanation: L("excluded.explanation"), initial: ExcludedDefaults.initial)
         model = Model()
+        ExcludedApps.shared.onChange = { [weak self] in self?.model.excludedAppsChanged() }
         model.closeMainWindow = { [weak self] in self?.mainWindow?.close() }
         model.revealMainWindow = { [weak self] in self?.showMainWindow(activate: false) }
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
+        SettingsSync.shared.start(.init(
+            keys: ["hotkeyEnabled", "pasteShortcut", "addEnabled", "addShortcut", "trimIndent", "stripMarkers", "notifyEach", "closeWhenEmpty"],
+            note: StartupWindow.text("ホットキーと貼り付け方を書き出し・同期します。", "Exports and syncs the hotkeys and the paste options.",
+                                     "导出并同步快捷键和粘贴方式。", "단축키와 붙여넣기 방식을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバー・対象外アプリはMacごとに設定します。",
+                                       "Launch at login, staying open, the menu bar icon and excluded apps are set on each Mac.",
+                                       "登录时启动、常驻、菜单栏图标和排除的应用需在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 상주, 메뉴 막대 아이콘, 제외할 앱은 Mac마다 설정합니다.")))
         AccessibilityText.neededOverride = [
             "前面のアプリへ「ペースト」（⌘V）を送るために使用します。未許可の場合、⌃⌥V を押しても1行ずつペーストできません。",
             "Used to send Paste (⌘V) to the front app. Without permission, ⌃⌥V cannot paste line by line.",
@@ -734,7 +650,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     /// `activate: false` (after ⌃⌥⌘C) puts the window in front without activating PasteInARow,
     /// so the user can keep selecting and copying in the other app.
     func showMainWindow(activate: Bool = true) {
-        model.refreshAccessibility(); model.refreshQueue()
+        model.refreshQueue()
         if mainWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it (BASELINE「主画面の背景とタイトルバー」).
@@ -802,7 +718,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
 let app = NSApplication.shared
 SingleInstanceLaunch.enforce()
-let delegate = AppDelegate()
+let delegate = MainActor.assumeIsolated { AppDelegate() }
 app.setActivationPolicy(.accessory)
 app.delegate = delegate
 app.run()
@@ -831,4 +747,10 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+/// First launch list of 「対象外アプリ」 (Tests/check_km_macro.py compares it with the macro).
+enum ExcludedDefaults {
+    /// First launch: the apps the KM macro group excluded (Illustrator, Path Finder, Keynote).
+    static let initial = ["com.adobe.illustrator", "com.cocoatech.PathFinder-setapp", "com.apple.iWork.Keynote", "com.apple.Keynote"]
 }

@@ -24,6 +24,9 @@ Turn on Mail and enter an address to get one mail a day while auto-update is on 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
 
+Sharing settings
+In the Sharing tab of Settings, Export… and Import… save and load what to report, notifications and mail (address and send time) as CCAutoUpdateOff-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
+
 Shortcuts
 ⌘, settings, ⌘R reload, ⌘0 open the main window, ⌘W close the window, ⌘Q quit, ⌘? this help.
 

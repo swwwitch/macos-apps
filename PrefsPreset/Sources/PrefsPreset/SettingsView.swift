@@ -5,17 +5,17 @@ struct SettingsView: View {
 
     var body: some View {
         SettingsTabs(sections: [
-            (SettingsUI.launchTitle, AnyView(Form { Section(SettingsUI.launchTitle) {
+            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
                 LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                 MenuBarPresenceView()
-            } }.formStyle(.grouped))),
+            })),
             (SettingsUI.displayTitle, AnyView(SettingsSection(L("メインウインドウ")) {
                 Toggle(L("操作手順を表示"), isOn: $showGuide)
                 Text(L("一覧の上に、値の変え方と新しいMacへの移し方を表示します。"))
                     .font(.caption).foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             })),
-            (L("マイプリセット"), AnyView(MyPresetSettings())),
+            (SettingsSync.shared.tabTitle, AnyView(PrefsPresetSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
     }

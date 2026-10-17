@@ -55,7 +55,7 @@ final class LinePaster {
 
     /// `stillTarget` is checked right before ⌘V is sent (B21).
     func paste(_ pick: Pick, appName: String, pid: pid_t, stillTarget: () -> Bool) -> PasteOutcome {
-        guard AXIsProcessTrusted() else { return .failed(L("fail.access")) }
+        guard AXIsProcessTrusted() else { return .failed(AccessibilityText.text("blocked")) }
         guard !queue.isEmpty else { return .failed(L("fail.empty")) }
         guard stillTarget() else { return .failed(L("fail.target")) }
         guard let events = CGEventSource(stateID: .privateState),
@@ -101,7 +101,7 @@ final class LinePaster {
     func addSelection(appName: String, pid: pid_t, trimIndent: Bool, stripMarkers: Bool,
                       stillTarget: () -> Bool, completion: @escaping (AddOutcome) -> Void) {
         guard !adding else { return }
-        guard AXIsProcessTrusted() else { completion(.failed(L("fail.access"))); return }
+        guard AXIsProcessTrusted() else { completion(.failed(AccessibilityText.text("blocked"))); return }
         guard stillTarget() else { completion(.failed(L("fail.target"))); return }
         let pasteboard = NSPasteboard.general
         let saved = takeSnapshot()

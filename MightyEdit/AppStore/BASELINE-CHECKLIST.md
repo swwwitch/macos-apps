@@ -28,8 +28,8 @@
 | B17 | プライバシー | 未確認 | |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 未確認 | |
 | B19 | マスタード基調の共通アイコン | 未確認 | |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 未確認 | |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 未確認 | |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 一部確認（2026-10-17） | 0.2.30：「起動・常駐」の起動グループの下・「操作」の上に AccessibilitySection.group()。パレットの未許可メッセージは AccessibilityText.text("blocked")、判定は AccessibilitySection.isTrusted。画面の目視は未確認 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 一部確認（2026-10-17） | 0.2.30：共通 ExcludedApps（excludedBundleIDs、旧キーなし）。ホットキー解除は blocksHotkeys、実行直前は excludes。ビルド・起動確認済み、一覧の操作は未確認 |
 
 ## 確認記録
 
@@ -43,6 +43,8 @@
 - /Applicationsのアプリを起動して動作確認：未実施
 
 | B22 | 起動時にメインウインドウを表示しない | 未確認 | 設定保存、OFF/ON起動、明示的再表示、ファイル受け渡しを確認 |
+| B29 | 設定の書き出し・読み込みと同期 | 一部確認（2026-10-16） | 0.2.29 (103)：「設定の共有」タブ（SettingsSync.sharingPage を高さ追従ラッパーで表示）。旧同期の端末ID・最終同期日時・iCloudSyncEnabled を移行し実機の defaults で引き継ぎを確認。test.sh 全PASS、ビルド・両配置・起動確認済み。書き出し・読み込み・同期の画面操作は未確認 |
+| HK | ホットキーの記録欄 | 確認（2026-10-17） | 0.2.31：機能の各ホットキーと「起動・常駐」のパレット呼び出しを HotkeyField.control に。保存形式は shortcutDigit-*・paletteInvocation.*（binding）のまま（HotkeyBinding ⇄ KeyCombo、Tests/HotkeyBindingTests.swift）。登録は独自の Carbon のまま onRecordingChanged で記録中は外す。HotkeyEditor（チェックボックス＋ポップアップ）は削除。画面の操作は未確認 |
 
 ## 2026-10-08 verification
 Compile and ad-hoc signature verification passed. Existing transformation/duplication tests passed. Runtime UI, sandbox file permissions, login launch and deployment remain unverified. No final distribution or upload.

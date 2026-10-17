@@ -3,14 +3,15 @@ import SwiftUI
 struct SettingsView: View {
     var body: some View {
         SettingsTabs(sections: [
-            (SettingsUI.launchTitle, AnyView(VStack(spacing: 16) {
-                Form { Section(SettingsUI.launchTitle) {
+            (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
+                SettingsSection(SettingsUI.launchTitle) {
                     LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                     MenuBarPresenceView()
-                } }.formStyle(.grouped)
-                SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
+                }
+                AccessibilitySection()
             })),
             (L("照合元"), AnyView(SourcesSettings())),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
     }
@@ -52,6 +53,10 @@ private struct SourcesSettings: View {
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+        }
+        .onChange(of: store.settingsRevision) {
+            order = HotkeySource.ordered
+            revision += 1
         }
         .sheet(item: $editing) { source in
             CustomSourceEditor(source: source) { saved in

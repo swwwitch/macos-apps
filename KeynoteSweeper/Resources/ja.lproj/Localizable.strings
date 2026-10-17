@@ -52,7 +52,6 @@
 "keynoteNotRunning" = "Keynoteが起動していません。Keynoteで書類を開いてください。";
 "noDocument" = "Keynoteで書類が開かれていません。";
 "automationDenied" = "Keynoteの操作が許可されていません。システム設定の「オートメーション」でKeynoteSweeperのKeynoteをオンにしてください。";
-"accessibilityDenied" = "マスターとオブジェクトのアニメーションの削除にはアクセシビリティの許可が必要です。システム設定でKeynoteSweeperを許可してください。";
 "allHidden" = "すべてのスライドが非表示のため、スライドは削除しませんでした。";
 "editorUnavailable" = "Keynoteの［スライドレイアウトを編集］を開けませんでした。Keynoteでダイアログボックスが開いていないか確認してください。";
 "documentChanged" = "Keynoteの最前面の書類が変わったため中止しました。";

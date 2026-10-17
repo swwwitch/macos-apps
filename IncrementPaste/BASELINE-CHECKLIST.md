@@ -30,15 +30,17 @@
 | B17 | プライバシー | 実装済み | 外部通信なし（更新は未設定のため通信しない）、クリップボードは保存しない |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 一部 | deploy_both.pyで両配置先に配置し署名・内容一致を確認。更新は配信先・公開鍵が未設定のため準備中（稼働していない）。Developer ID・公証は未実施 |
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（白いカードの「1」＋茶色の円に白い＋）、Assets.carも付与 |
-| B20 | 共通UI統一 | 実装済み・実機未確認 | タブ：起動・常駐（＋アクセシビリティ）／ホットキー／増やし方／対象外アプリ／情報。アプリ起動のホットキーは他アプリ同様未搭載 |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 初期値はKMマクロの除外と同じ（Illustrator・Excel・InDesign・ScreenFlow、check_km_macro.pyで照合） |
+| B20 | 共通UI統一 | 実装済み・実機未確認 | タブ：起動・常駐（＋アクセシビリティ）／ホットキー／増やし方／対象外アプリ／情報。アプリ起動のホットキーは他アプリ同様未搭載。2026-10-17：アクセシビリティを共通の AccessibilitySection() に（起動グループの直下）、判定は AccessibilitySection.isTrusted、未許可の失敗表示は AccessibilityText.text("blocked")。独自の accessibilityAllowed / refreshAccessibility は削除 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 初期値はKMマクロの除外と同じ（Illustrator・Excel・InDesign・ScreenFlow、check_km_macro.pyで照合）。2026-10-17：共通部品 ExcludedApps に移行（ExcludedAppList.swift・独自ビュー・appInfo() を削除、initial は ExcludedDefaults.initial、キー excludedBundleIDs のまま・旧キーなし、onChange でホットキー再登録）。既存の一覧が残ることを defaults read で確認 |
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindow共通部品 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs、contentMinSize、即時反映 |
-| B25 | アプリ情報と目印 | 一部 | 情報タブ、著作権、SWAppFamily。SWNoteArticleURLは専用記事がないためまとめのURL |
+| B25 | アプリ情報と目印 | 一部 | 情報タブ、著作権、SWAppFamily。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |
 | B26 | 証明書での署名 | 実装済み | TeamIdentifier PL9S9PXX96（build.sh） |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗時はビープ＋画面表示、戻せないときメニュー無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：hotkeyEnabled・incrementShortcut・step・dates・letters・firstAsIs・notifyEach。onImport でモデルを読み直しホットキーを再登録。GUI操作での書き出し・読み込み・同期は未確認 |
+| — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：HotkeyField（id increment、初期値 ⌥V、allowsOption）。保存は従来の incrementShortcut（JSON: code・modifiers・label）のまま ShortcutCombo.swift で KeyCombo と相互変換（ComboTests で往復を確認）。登録は共通の HotkeySet（"INCP"）。独自の ShortcutRow・NSEventモニター・SingleHotKey・Shortcut.recorded と関連の文字列を削除 |
 
 ## 確認記録
 

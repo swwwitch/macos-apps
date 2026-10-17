@@ -8,6 +8,15 @@ import UniformTypeIdentifiers
     @Published var deleteHidden = UserDefaults.standard.object(forKey: "deleteHiddenSlides") as? Bool ?? true { didSet { defaults.set(deleteHidden, forKey: "deleteHiddenSlides") } }
     @Published var removeTransitions = UserDefaults.standard.bool(forKey: "removeTransitions") { didSet { defaults.set(removeTransitions, forKey: "removeTransitions") } }
     @Published var removeBuilds = UserDefaults.standard.bool(forKey: "removeBuilds") { didSet { defaults.set(removeBuilds, forKey: "removeBuilds") } }
+    /// Keys shared by 設定の共有. Startup, residency and the menu bar stay per Mac.
+    nonisolated static let sharedKeys: Set<String> = ["deleteUnusedLayouts", "deleteHiddenSlides", "removeTransitions", "removeBuilds"]
+    /// Re-reads the shared settings after an import so the next save does not write the old values back.
+    func reloadSharedSettings() {
+        deleteLayouts = defaults.object(forKey: "deleteUnusedLayouts") as? Bool ?? true
+        deleteHidden = defaults.object(forKey: "deleteHiddenSlides") as? Bool ?? true
+        removeTransitions = defaults.bool(forKey: "removeTransitions")
+        removeBuilds = defaults.bool(forKey: "removeBuilds")
+    }
     private var checkboxRequest: SweepOptions {
         SweepOptions(deleteUnusedLayouts: deleteLayouts, deleteHiddenSlides: deleteHidden, removeTransitions: removeTransitions, removeBuilds: removeBuilds)
     }
@@ -105,7 +114,7 @@ import UniformTypeIdentifiers
         let options = planned.options
         guard !options.isEmpty else { status = String(format: L("nothingToDelete"), snapshot.documentName); return false }
         if options.deleteHiddenSlides && snapshot.allHidden { status = L("allHidden"); return false }
-        if (options.deleteUnusedLayouts || options.removeBuilds) && !AXIsProcessTrusted() { status = L("accessibilityDenied"); showAccessibilityHelp = true; return false }
+        if (options.deleteUnusedLayouts || options.removeBuilds) && !AccessibilitySection.isTrusted { status = AccessibilityText.text("blocked"); showAccessibilityHelp = true; return false }
         showAccessibilityHelp = false
         guard quiet || confirm(snapshot: snapshot, options: options, counts: planned) else { return false }
         let worker = Sweeper(); sweeper = worker
@@ -335,9 +344,9 @@ struct SettingsView: View {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app"))
                 }
             }
-            SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
+            AccessibilitySection()
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        })), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 680, maxHeight: .infinity)
+        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 680, maxHeight: .infinity)
     }
 }
 
@@ -404,6 +413,16 @@ struct SettingsView: View {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onQuietProblem = { [weak self] in self?.show() }
         MenuBarPresence.shared.install(name: "KeynoteSweeper", symbol: "sparkles.rectangle.stack", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
+            note: StartupWindow.text("削除する項目のチェックボックスの選択を書き出し・同期します。",
+                                     "Exports and syncs the checkbox choices of what to delete.",
+                                     "导出并同步要删除项目的复选框选择。",
+                                     "삭제할 항목의 체크박스 선택을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
+                                       "Open at login, keep running and the menu bar icon are set on each Mac.",
+                                       "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         services = ServiceProvider(delegate: self)
         NSApp.servicesProvider = services
         NSUpdateDynamicServices()

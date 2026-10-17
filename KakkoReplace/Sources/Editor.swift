@@ -33,7 +33,7 @@ final class Editor {
     func perform(pid: pid_t, action: String = "round", force: Bool = false, trimSpaces: Bool = false) -> String {
         guard !busy else { return L("busy") }
         busy = true; defer { busy = false }
-        guard AXIsProcessTrusted() else { return L("permissionNeeded") }
+        guard AccessibilitySection.isTrusted else { return AccessibilityText.text("blocked") }
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
               let element = focused(pid), attribute(element, kAXSubroleAttribute) as? String != "AXSecureTextField" else { return L("unsupported") }
         // Web content (Safari, Chrome, Firefox, Electron apps such as Notion) cannot be edited reliably through AX
@@ -41,7 +41,7 @@ final class Editor {
         // bullets), writes are ignored (Safari, Chrome) or replace other text (Firefox: the last paragraph), and Google Docs
         // exposes only a stand-in field holding one space. It is edited with ⌘C/⌘V and arrow keys instead.
         if isWebContent(element) {
-            return performViaCopy(markedSelection(element), element: element, pid: pid, action: action, force: force, trimSpaces: trimSpaces)
+            return performViaCopy(markedSelection(element), paragraphEnd: markedSelectionEndsParagraph(element), element: element, pid: pid, action: action, force: force, trimSpaces: trimSpaces)
         }
         guard let original = range(element), let value = text(element),
               original.location <= value.utf16.count, original.length <= value.utf16.count - original.location else { return L("unsupported") }
@@ -51,7 +51,8 @@ final class Editor {
         }
         let selected = (value as NSString).substring(with: original)
         guard attribute(element, kAXSelectedTextAttribute) as? String == selected else { return L("unsupported") }
-        let edit = BracketEdit.make(selected, at: original.location, action: action, force: force, trimSpaces: trimSpaces)
+        let edit = BracketEdit.make(selected, at: original.location, action: action, force: force, trimSpaces: trimSpaces,
+                                    paragraphEnd: endsParagraph(value, at: NSMaxRange(original)))
         let expected = (value as NSString).replacingCharacters(in: original, with: edit.replacement)
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, let current = focused(pid), CFEqual(current, element), range(element) == original,
               text(element) == value else { return L("cancelled") }
@@ -75,10 +76,31 @@ final class Editor {
         guard AXUIElementCopyParameterizedAttributeValue(element, "AXStringForTextMarkerRange" as CFString, markers, &value) == .success else { return nil }
         return value as? String
     }
+    /// True at the end of the text or before a line or paragraph break.
+    private func endsParagraph(_ value: String, at index: Int) -> Bool {
+        let s = value as NSString
+        guard index < s.length else { return true }
+        guard let next = UnicodeScalar(s.character(at: index)) else { return false }
+        return CharacterSet.newlines.contains(next)
+    }
+    /// Whether the text-marker selection ends a paragraph: the next character is a break, or there is none. False where markers are not available.
+    private func markedSelectionEndsParagraph(_ element: AXUIElement) -> Bool {
+        func parameterized(_ key: String, _ argument: CFTypeRef) -> CFTypeRef? {
+            var value: CFTypeRef?
+            guard AXUIElementCopyParameterizedAttributeValue(element, key as CFString, argument, &value) == .success else { return nil }
+            return value
+        }
+        guard let markers = attribute(element, "AXSelectedTextMarkerRange"),
+              let end = parameterized("AXEndTextMarkerForTextMarkerRange", markers) else { return false }
+        guard let next = parameterized("AXNextTextMarkerForTextMarker", end), !CFEqual(next, end) else { return true }
+        guard let span = parameterized("AXTextMarkerRangeForUnorderedTextMarkers", [end, next] as CFArray),
+              let following = parameterized("AXStringForTextMarkerRange", span) as? String else { return false }
+        return following.isEmpty || following.unicodeScalars.allSatisfy { CharacterSet.newlines.contains($0) }
+    }
     /// Copies the selection with ⌘C, pastes the edit over it and selects with arrow keys. The result cannot be read
     /// back reliably, and there is no restore (the target's ⌘Z undoes it). An empty marker selection skips the copy;
     /// Google Docs' stand-in always reports " ", so its selection is copied. Without markers, nothing copied means no selection.
-    private func performViaCopy(_ marked: String?, element: AXUIElement, pid: pid_t, action: String, force: Bool, trimSpaces: Bool) -> String {
+    private func performViaCopy(_ marked: String?, paragraphEnd: Bool, element: AXUIElement, pid: pid_t, action: String, force: Bool, trimSpaces: Bool) -> String {
         recovery = nil
         var copied = ""
         if marked != "" {
@@ -101,7 +123,7 @@ final class Editor {
                 return L("failed")
             }
         }
-        let edit = BracketEdit.make(copied, at: 0, action: action, force: force, trimSpaces: trimSpaces)
+        let edit = BracketEdit.make(copied, at: 0, action: action, force: force, trimSpaces: trimSpaces, paragraphEnd: paragraphEnd)
         guard edit.replacement != copied else { restoreClipboard(); return L("unchanged") }
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, let current = focused(pid), CFEqual(current, element) else { restoreClipboard(); return L("cancelled") }
         guard paste(edit.replacement, pid: pid) else { restoreClipboard(); return L("failed") }

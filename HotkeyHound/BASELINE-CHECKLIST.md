@@ -28,8 +28,10 @@
 | B17 | プライバシー | 実装済み | 通信なし、ローカルの設定を読むだけ |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置確認済み | deploy_both.py で両方 0.1.0 (2) signature/content match。更新配信先は未設定（Updater は準備中表示） |
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/GenerateIcon.swift（BundleIDInspector と同じタイル、キーキャップ⌘＋虫めがね） |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | SettingsView：起動・常駐（＋アクセシビリティ区画）／照合元／情報 |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 他アプリに作用しない（読むだけ） |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | SettingsView：起動・常駐（＋アクセシビリティ区画）／照合元／情報。2026-10-17 0.3.3(12)：起動・常駐を Form(.grouped) から SettingsSection に変更し、その下に AccessibilitySection()。理由は AccessibilityText.neededOverride（4言語）。メイン画面の判定を AccessibilitySection.isTrusted に（独自の KeyRecorderStatus を削除）。ビルド・配置・起動確認、見た目は未確認 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 他アプリに作用しない（読むだけ）。2026-10-17 再確認：適用外のまま（他アプリに作用しない）。ExcludedApps は使わない |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 0.3.2(11)：SettingsView に「設定の共有」タブ（情報の直前）、AppDelegate.startSettingsSync。共有: source.order・source.*・customSources・lookup.hideInactive（独自の照合元は merge で「追加する」）。Macごと: ログイン起動・起動時非表示・メニューバー・lookup.target/lookup.app。onImport で CustomSources のキャッシュ破棄＋HotkeyStore.reload、設定画面の一覧を作り直す。build.sh 成功・check-localization PASS・両配置 0.3.2(11) 一致・起動確認。書き出し/読み込み/同期の操作は未確認 |
+| ホットキーの記録欄 | 共通の HotkeyField（Shared/HotkeyRecorder） | 適用外 | 2026-10-17：設定で割り当てるホットキー（機能・アプリ呼び出し）が無い。キーを扱うのはアプリ本体の照合（KeyRecorder）と独自の照合元の一覧の登録で、どちらも調べる対象のキーを控えるもの。アプリ独自の KeyCombo 型が共通部品と同名のため、取り込むなら改名が要る |
 
 ## 確認記録
 

@@ -81,12 +81,17 @@ final class ShortcutStore: ObservableObject {
     }
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: Self.key),
-           let saved = try? JSONDecoder().decode([String: MenuShortcut?].self, from: data) {
-            overrides = saved
-        } else {
-            overrides = [:]
-        }
+        overrides = Self.stored
+    }
+
+    private static var stored: [String: MenuShortcut?] {
+        UserDefaults.standard.data(forKey: key).flatMap { try? JSONDecoder().decode([String: MenuShortcut?].self, from: $0) } ?? [:]
+    }
+
+    /// 設定の読み込み・同期の後に UserDefaults から読み直す（古い割り当てで書き戻さない）
+    func reload() {
+        let saved = Self.stored
+        if saved != overrides { overrides = saved }
     }
 
     private func save() {
@@ -98,27 +103,16 @@ final class ShortcutStore: ObservableObject {
         return action.defaultShortcut
     }
 
-    func isCustomized(_ action: FormatAction) -> Bool { overrides[action.id] != nil }
 
-    /// 割り当てる。アプリの標準のキーやほかの項目と重なるときは、その理由を返して割り当てない
-    func assign(_ shortcut: MenuShortcut?, to action: FormatAction) -> String? {
-        if let shortcut {
-            if MenuShortcut.reserved.contains(shortcut) {
-                return L("%@はアプリの標準のキーで使われています", shortcut.display)
-            }
-            if let other = FormatAction.allCases.first(where: { $0 != action && self.shortcut(for: $0) == shortcut }) {
-                return L("%@は「%@」で使われています", shortcut.display, other.title)
-            }
-        }
+    /// 割り当てる（nil＝キーなし）。重なりは設定の記録欄（HotkeyField の others）で断っている
+    func set(_ shortcut: MenuShortcut?, for action: FormatAction) {
         if shortcut == action.defaultShortcut {
             overrides.removeValue(forKey: action.id)
         } else {
             overrides[action.id] = .some(shortcut)
         }
-        return nil
     }
 
-    func reset(_ action: FormatAction) { overrides.removeValue(forKey: action.id) }
     func resetAll() { overrides = [:] }
     var hasCustomizations: Bool { !overrides.isEmpty }
 }
@@ -135,16 +129,13 @@ struct ShortcutButton: View {
     }
 }
 
-/// 設定の「ホットキー」タブ
+/// 設定の「ホットキー」タブ。記録欄は全アプリ共通の HotkeyField（保存は MenuShortcut のまま）
 struct ShortcutSettingsView: View {
     @ObservedObject private var store = ShortcutStore.shared
-    @State private var recording: FormatAction?
-    @State private var problem: (FormatAction, String)?
-    @State private var monitor: Any?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L("項目のキーをクリックして、新しいキーを押します（⌘か⌃を含む組み合わせ）。Escで取り消し。"))
+            Text(L("書式・変換などのメニュー項目のキーです。MarkdownKitchenが前面のときだけ効きます。"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -153,66 +144,30 @@ struct ShortcutSettingsView: View {
                     ForEach(group.actions, id: \.self) { action in row(action) }
                 }
             }
-            Button(L("すべて初期値に戻す")) { stopRecording(); store.resetAll(); problem = nil }
+            Button(L("すべて初期値に戻す")) { HotkeyRecorder.shared.stop(); store.resetAll() }
                 .disabled(!store.hasCustomizations)
         }
-        .onDisappear { stopRecording() }
+        .onDisappear { HotkeyRecorder.shared.stop() }
     }
 
     private func row(_ action: FormatAction) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: 8) {
-                Text(action.title)
-                    .frame(width: 150, alignment: .trailing)
-                Button {
-                    recording == action ? stopRecording() : startRecording(action)
-                } label: {
-                    Text(recording == action ? L("キーを押してください…") : (store.shortcut(for: action)?.display ?? L("なし")))
-                        .font(.system(.body, design: .rounded))
-                        .frame(minWidth: 130)
-                }
-                .accessibilityLabel(L("%@のキー", action.title))
-                Button(L("なし")) { stopRecording(); problem = nil; _ = store.assign(nil, to: action) }
-                    .disabled(store.shortcut(for: action) == nil)
-                Button(L("初期値")) { stopRecording(); problem = nil; store.reset(action) }
-                    .disabled(!store.isCustomized(action))
-                    .help(action.defaultShortcut.map { L("初期値：%@", $0.display) } ?? L("初期値：なし"))
-            }
-            if let problem, problem.0 == action {
-                Label(problem.1, systemImage: "exclamationmark.triangle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .padding(.leading, 158)
-            }
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(action.title)
+                .frame(width: 150, alignment: .trailing)
+            HotkeyField(id: "markdownKitchen.shortcut." + action.id,
+                        combo: Binding(get: { store.shortcut(for: action)?.combo },
+                                       set: { store.set($0.flatMap(MenuShortcut.init(combo:)), for: action) }),
+                        defaultCombo: action.defaultShortcut?.combo,
+                        allowsClear: true,
+                        others: others(action))
         }
     }
 
-    private func startRecording(_ action: FormatAction) {
-        stopRecording()
-        problem = nil
-        recording = action
-        // Key equivalents are matched later, so a local monitor sees the keys first and keeps them from the menus.
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard let action = recording else { return event }
-            let flags = event.modifierFlags.intersection([.command, .option, .shift, .control])
-            if event.keyCode == 53, flags.isEmpty { stopRecording(); return nil }
-            guard flags.contains(.command) || flags.contains(.control) else { NSSound.beep(); return nil }
-            // The key without Shift: ⇧⌘7 is recorded as "7", not "&" or "'".
-            var key = event.characters(byApplyingModifiers: [])?.lowercased() ?? ""
-            if event.keyCode == 36 || event.keyCode == 76 { key = "\r" }
-            guard key.count == 1 else { NSSound.beep(); return nil }
-            let shortcut = MenuShortcut(key, flags)
-            stopRecording()
-            if let message = store.assign(shortcut, to: action) {
-                problem = (action, message)
-                NSSound.beep()
-            }
-            return nil
+    /// 重ねられないキー：ほかの項目のキーと、アプリの標準のキー（メニューの共通構成・ファイル・編集・文字サイズなど）
+    private func others(_ action: FormatAction) -> [(String, KeyCombo)] {
+        let items = FormatAction.allCases.filter { $0 != action }.compactMap { other in
+            store.shortcut(for: other)?.combo.map { (other.title, $0) }
         }
-    }
-
-    private func stopRecording() {
-        recording = nil
-        if let monitor { NSEvent.removeMonitor(monitor); self.monitor = nil }
+        return items + MenuShortcut.reserved.compactMap { reserved in reserved.combo.map { (L("アプリの標準のキー"), $0) } }
     }
 }

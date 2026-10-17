@@ -42,9 +42,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.42.0</string>
+	<string>1.43.5</string>
 	<key>CFBundleVersion</key>
-	<string>98</string>
+	<string>104</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
@@ -58,6 +58,6 @@
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>
-	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+	<string>https://note.com/swwwitch/n/nbaa36fbc768a</string>
 </dict>
 </plist>

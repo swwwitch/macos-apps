@@ -32,7 +32,7 @@ rows=[
 ('changedSource','確認中に項目が変更されました。選び直してください。','An item changed during scanning. Please scan again.','检查期间项目已更改。请重新检查。','확인 중 항목이 변경되었습니다. 다시 확인하세요.'),
 ('changedFolder','フォルダが変更・切断されました。接続と履歴を確認してください。','A folder changed or disconnected. Check the connection and history.','文件夹已更改或断开连接。请检查连接和记录。','폴더가 변경되거나 연결이 끊어졌습니다. 연결과 기록을 확인하세요.'),
 ('journalError','履歴を保存できないため、移動を開始しませんでした。','Move did not start because history could not be saved.','无法保存记录，因此未开始移动。','기록을 저장할 수 없어 이동하지 않았습니다.'),
-('launchGroup','起動・常駐','Launch & presence','启动与驻留','실행 및 상주'),('resident','ウインドウを閉じても常駐','Keep running after closing','保持运行','계속 실행'),('residentDetail','ウインドウを閉じても動作を続けます。Dockから再表示できます。','Keep running after closing the window. Reopen from the Dock.','关闭窗口后继续运行。可从 Dock 重新打开。','창을 닫아도 실행합니다. Dock에서 다시 열 수 있습니다.'),
+('launchGroup','起動・常駐','Launch & presence','启动与驻留','실행 및 상주'),('resident','ウインドウを閉じても常駐','Keep running after closing the window','关闭窗口后继续运行','윈도우를 닫아도 계속 실행'),('residentDetail','ウインドウを閉じても動作を続けます。Dockから再表示できます。','Keep running after closing the window. Reopen from the Dock.','关闭窗口后继续运行。可从 Dock 重新打开。','창을 닫아도 실행합니다. Dock에서 다시 열 수 있습니다.'),
 ('launchShortcut','アプリ起動のキーボードショートカット','App launch keyboard shortcut','应用启动键盘快捷键','앱 실행 키보드 단축키'),('systemSettings','システムで設定…','Configure in Shortcuts…','在快捷指令中设置…','단축어에서 설정…'),
 ('shortcutDetail','「ショートカット」で「アプリを開く → FileCaravan」を作成し、キーボードショートカットを割り当てます。未起動時も使えます。','In Shortcuts, create “Open App → FileCaravan” and assign a keyboard shortcut. This also launches the app when it is not running.','在快捷指令中创建“打开 App → FileCaravan”并分配键盘快捷键。未运行时也可启动。','단축어에서 “앱 열기 → FileCaravan”을 만들고 키보드 단축키를 지정하세요. 앱이 꺼져 있어도 실행할 수 있습니다.'),
 ('privacy','プライバシー・履歴','Privacy & history','隐私与记录','개인정보 및 기록'),('privacyDetail','外部通信なし。履歴には移動したファイルのパスを保存します。不要な履歴はFinderで削除できます。','No network access. History stores file paths locally. Delete unneeded history in Finder.','无网络通信。记录在本地保存文件路径。可在访达删除不需要的记录。','네트워크 통신을 하지 않습니다. 기록에 파일 경로를 로컬로 저장합니다. Finder에서 불필요한 기록을 삭제할 수 있습니다.'),
@@ -40,8 +40,6 @@ rows=[
 ('helpItem','FileCaravanヘルプ','FileCaravan Help','FileCaravan 帮助','FileCaravan 도움말'),('services','サービス','Services','服务','서비스'),('hideApp','FileCaravanを隠す','Hide FileCaravan','隐藏 FileCaravan','FileCaravan 가리기'),('hideOthers','ほかを隠す','Hide Others','隐藏其他','기타 가리기'),('showAll','すべてを表示','Show All','全部显示','모두 보기'),
 ('window','ウインドウ','Window','窗口','윈도우'),('minimize','しまう','Minimize','最小化','최소화'),('zoom','拡大／縮小','Zoom','缩放','확대/축소'),('bringAllToFront','すべてを手前に移動','Bring All to Front','前置全部窗口','모두 앞으로 가져오기'),
 ('busyQuit','移動処理中は終了できません。','A move is still in progress.','正在移动，无法退出。','이동 중에는 종료할 수 없습니다.'),('busyQuitDetail','「停止」で現在の処理を安全に終えてから、もう一度終了してください。','Choose Stop to finish the current batch safely, then quit again.','点击停止以安全完成当前批次，然后再次退出。','중지를 눌러 현재 배치를 안전하게 끝낸 뒤 다시 종료하세요.'),('continue','続ける','Continue','继续','계속'),('support','サポート：同梱のREADME.md','Support: see the bundled README.md','支持：请参阅随附的 README.md','지원: 함께 제공된 README.md 참조'),
-('login','ログイン時に起動','Launch at login','登录时启动','로그인 시 실행'),('loginOpen','ログイン項目を開く','Open Login Items','打开登录项','로그인 항목 열기'),('loginOn','Macへのログイン時に自動起動します。','Launches automatically when you log in.','登录时自动启动。','로그인 시 자동 실행합니다.'),
-('loginApproval','システム設定のログイン項目で許可してください。','Allow the app in System Settings → Login Items.','请在系统设置的登录项中允许此应用。','시스템 설정의 로그인 항목에서 허용하세요.'),('loginMissing','ログイン起動は未登録です。オンにすると登録します。','Login launch is not registered. Turn it on to register.','登录启动尚未注册。开启后即可注册。','로그인 실행이 등록되지 않았습니다. 켜면 등록됩니다.'),('loginOff','自動起動はオフです。','Launch at login is off.','登录时启动已关闭。','로그인 시 실행이 꺼져 있습니다.'),('loginError','設定を変更できませんでした：','Could not change the setting: ','无法更改设置：','설정을 변경할 수 없습니다: '),
 ]
 # Help markup (rendered by Shared/AppStandards/HelpDocument.swift): ## section, ### subsection, - bullet, 1. step, **bold**.
 helptexts=[
@@ -75,6 +73,11 @@ helptexts=[
 ### メニューバー
 - 設定の「起動・常駐」→「メニューバーに表示」、またはアプリメニューの「メニューバー設定…」で、メニューバーにアイコンを表示します。初期値はオフです。
 - アイコンのメニューから「メインウインドウを開く」「設定…」「ヘルプ」（FileCaravanヘルプ／note記事を開く）「FileCaravanを終了」を選べます。
+
+## 設定の共有
+- 設定の「設定の共有」タブで、移動の項目（サブフォルダも含める・隠しファイルも含める・実行後に移動先フォルダを開く）と「Dropboxのパスを簡易表示」を書き出し・読み込みできます（「書き出す…」「読み込む…」、FileCaravan-Settings.plist）。読み込むと確認のうえ設定を置き換えます。
+- 「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。
+- 移動元・移動先のフォルダ、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。
 
 ## キーボードショートカット
 - **⌘,**：設定
@@ -152,6 +155,11 @@ helptexts=[
 - Turn on Settings → Launch & presence → Show in menu bar, or use Menu Bar Settings… in the app menu, to show an icon in the menu bar. Off by default.
 - The icon's menu offers Open Main Window, Settings…, Help (FileCaravan Help / Open the note Article) and Quit FileCaravan.
 
+## Sharing Settings
+- In the Sharing tab of Settings, Export… and Import… save and load the move options (Include subfolders, Include hidden items, Open destination after moving) and Shorten Dropbox paths as FileCaravan-Settings.plist. Importing asks first, then replaces the settings.
+- Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins).
+- The source and destination folders, open at login, keep running and the menu bar icon are set on each Mac.
+
 ## Keyboard Shortcuts
 - **⌘,**: Settings
 - **⌘0**: Open Main Window
@@ -227,6 +235,11 @@ helptexts=[
 ### 菜单栏
 - 在设置的“启动与驻留”中开启“在菜单栏中显示”，或使用应用菜单中的“菜单栏设置…”，即可在菜单栏显示图标。默认关闭。
 - 图标菜单提供“打开主窗口”“设置…”“帮助”（FileCaravan 帮助／打开 note 文章）和“退出 FileCaravan”。
+
+## 设置共享
+- 在设置的“设置共享”标签中，可以导出和导入移动选项（包含子文件夹、包含隐藏项目、移动后打开目标文件夹）以及“简化 Dropbox 路径”（“导出…”“导入…”，FileCaravan-Settings.plist）。导入时会先确认，再替换设置。
+- 在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。
+- 源文件夹和目标文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
 
 ## 键盘快捷键
 - **⌘,**：设置
@@ -304,6 +317,11 @@ helptexts=[
 - 설정의 실행 및 상주에서 메뉴 막대에 표시를 켜거나 앱 메뉴의 메뉴 막대 설정…을 사용하면 메뉴 막대에 아이콘을 표시합니다. 기본값은 꺼짐입니다.
 - 아이콘 메뉴에서 메인 윈도우 열기, 설정…, 도움말(FileCaravan 도움말 / note 글 열기), FileCaravan 종료를 선택할 수 있습니다.
 
+## 설정 공유
+- 설정의 설정 공유 탭에서 이동 옵션(하위 폴더 포함, 숨김 항목 포함, 이동 후 대상 폴더 열기)과 Dropbox 경로 간략 표시를 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, FileCaravan-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다.
+- 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선).
+- 원본·대상 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.
+
 ## 키보드 단축키
 - **⌘,**: 설정
 - **⌘0**: 메인 윈도우 열기
@@ -355,13 +373,8 @@ for idx,lang in enumerate(['ja','en','zh-Hans','ko']):
     values={r[0]:r[idx+1] for r in rows}; values['helpContent']=helptexts[idx]
     (folder/'Localizable.strings').write_text('\n'.join(json.dumps(k,ensure_ascii=False)+' = '+json.dumps(v,ensure_ascii=False)+';' for k,v in values.items())+'\n')
     (folder/'Help.txt').write_text(helptexts[idx] + '\n')
-info={'CFBundleName':'FileCaravan','CFBundleDisplayName':'FileCaravan','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FileCaravan','CFBundlePackageType':'APPL','CFBundleIconFile':'FileCaravan.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication','LSApplicationCategoryType':'public.app-category.utilities','SWNoteArticleURL':'https://note.com/swwwitch/n/n3b88097a8bf4'}
+info={'CFBundleName':'FileCaravan','CFBundleDisplayName':'FileCaravan','CFBundleIdentifier':'local.takano.FolderMover','CFBundleExecutable':'FileCaravan','CFBundlePackageType':'APPL','CFBundleIconFile':'FileCaravan.icns','LSMinimumSystemVersion':'13.0','LSMultipleInstancesProhibited':True,'NSHighResolutionCapable':True,'CFBundleDevelopmentRegion':'en','CFBundleLocalizations':['ja','en','zh-Hans','ko'],'NSPrincipalClass':'NSApplication','LSApplicationCategoryType':'public.app-category.utilities','SWNoteArticleURL':'https://note.com/swwwitch/n/n3b88097a8bf4','NSHumanReadableCopyright':'© 2026 swwwitch','SWAppFamily':'swwwitch'}
 # Version and build come only from the existing Info.plist, so regeneration never reverts them.
 plist_path=root/'Info.plist'; current=plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
 info.update({k:current[k] for k in ('CFBundleShortVersionString','CFBundleVersion') if k in current})
 plist_path.write_bytes(plistlib.dumps(info))
-p=root/'Source/LoginAtLaunch.swift';s=p.read_text()
-for literal,key in [('ログイン時に起動','login'),('ログイン項目を開く','loginOpen'),('Macへのログイン時に自動起動します。','loginOn'),('システム設定のログイン項目で許可してください。','loginApproval'),('アプリをアプリケーションフォルダに移動して再起動してください。','loginMissing'),('自動起動はOFFです。','loginOff')]:
-    s=s.replace('"'+literal+'"','L("'+key+'")')
-s=s.replace('"設定を変更できませんでした：\\(error.localizedDescription)"','L("loginError") + error.localizedDescription')
-if s!=p.read_text(): p.write_text(s)

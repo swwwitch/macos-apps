@@ -23,14 +23,14 @@ PrefsPreset lists your Mac settings (Dock, Finder, trackpad, keyboard and more) 
 
 ### Use Essentials
 - Select “Essentials” in the sidebar and click “Fill In Essentials” (or choose the same item from the File menu) to put the following values in “New Value”. You can change each row before clicking “Apply”. The Essentials card in the wizard applies the same values at once.
-- Turns off natural scrolling; sets mouse tracking speed to 2.5 and the pointer size to about 1.8; shows all filename extensions; sets Finder’s default view to List and search scope to the current folder; sets “Move focus to next window” to ⌘`; saves screenshots as PNG without the floating thumbnail; never hides the menu bar; starts weeks on Monday; uses 24-hour time; sets the wallpaper to the 50% black color; turns off automatic capitalization, period with double-space, smart quotes and smart dashes; turns on keyboard navigation; turns off “Group windows by application” and “Displays have separate Spaces” in Mission Control; turns off Stage Manager; turns on Terminal window focus under the pointer; turns off window zoom, Get Info animation and the parallax effect; turns off the Caps Lock indicator (takes effect after restarting the Mac) and the startup sound (both ask for an administrator password).
+- Turns off natural scrolling; sets mouse tracking speed to 2.5 and the pointer size to about 1.8; shows all filename extensions; sets Finder’s default view to List and search scope to the current folder; sets “Move focus to next window” to ⌘`; saves screenshots as PNG without the floating thumbnail; never hides the menu bar; starts weeks on Monday; uses 24-hour time; sets the wallpaper to the 50% black color; turns off automatic capitalization, period with double-space, smart quotes and smart dashes; turns on keyboard navigation; turns off Stage Manager; turns off window zoom and Get Info animation; turns off widgets on the desktop and in Stage Manager; sets opening documents in tabs to Never; turns off the Caps Lock indicator (takes effect after restarting the Mac) and the startup sound (both ask for an administrator password).
 - Changes you made to other rows are kept.
 ### Save My Preset and use it on the next Mac
-1. Choose “Save Current Settings as My Preset…” from “My Preset” above the list. The current value of every item is saved as “My Preset.prefspreset” in the PrefsPreset folder in iCloud Drive.
-2. On the new Mac after a clean install, sign in to your Apple Account and choose “Load My Preset” from “My Preset” in PrefsPreset.
+1. Choose “Save Current Settings as My Preset…” from “My Preset” above the list. The current value of every item is saved as “PrefsPreset-My Preset.prefspreset” in the sync folder chosen under Sharing in Settings, or as “My Preset.prefspreset” in the PrefsPreset folder in iCloud Drive if no sync folder is chosen.
+2. On the new Mac after a clean install, make the same sync folder (or iCloud Drive with your Apple Account) available, then choose “Load My Preset” from “My Preset” in PrefsPreset.
 3. Items that differ go into “New Value”. Review them and click “Apply”.
-- When you save again, the previous one is kept as “My Preset (previous).prefspreset”.
-- Change the location in the My Preset tab of Settings.
+- When you save again, the previous one is kept as “… (previous).prefspreset”.
+- You can also save and load it in the Sharing tab of Settings. Because it changes macOS settings, it is never applied automatically, even in the sync folder.
 
 ## When Changes Take Effect
 - After applying, Dock, Finder, SystemUIServer, ControlCenter and WindowManager are restarted as needed.
@@ -47,7 +47,7 @@ PrefsPreset lists your Mac settings (Dock, Finder, trackpad, keyboard and more) 
 Open with the “Settings” button in the main window, or “Settings…” (⌘,) in the app menu.
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
 - **Display**: Show instructions in the main window
-- **My Preset**: Save location (iCloud Drive by default)
+- **Sharing**: export this app’s display settings (instructions, Domain / Key column, list or wizard) and the apps added to Language to a file and import it on another Mac. Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. macOS settings themselves are exported as presets (.prefspreset). My Preset is also saved in the sync folder and can be saved and loaded from this tab (it is never applied automatically). Open at login, the startup window and the menu bar stay on each Mac.
 
 ## Hotkeys
 - **⌘O**: Open

@@ -33,10 +33,12 @@
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchControl内のStartupWindowControl。 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、通常アプリ（Dock常時表示）、⌘0/⌘1（MenuBarPresence）。 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | リサイズ可・最小サイズ、タブ復元、即時反映、タイトル「設定」。 |
-| B25 | アプリ情報と目印 | 一部未設定 | NSHumanReadableCopyright・SWAppFamily あり。SWNoteArticleURL は紹介記事が無いため未設定（まとめページへ）。 |
+| B25 | アプリ情報と目印 | 実装済み | NSHumanReadableCopyright・SWAppFamily・SWNoteArticleURL（https://note.com/swwwitch/n/n27269d6eaf5b、1.5.1）。 |
 | B26 | 証明書での署名 | 実装済み | build.sh でチーム証明書署名、TeamIdentifier=PL9S9PXX96。 |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗は状態欄に理由を表示、結果が空のときコピーのボタン・メニューは無効。 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰。 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.5.1：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー dimCommon・ignoreCase・ignoreWidth・splitAtSpaces・splitAtCommas・splitAtTabs・sortResults・emailOnly・leftColumn・rightColumn・leftSkipHeader・rightSkipHeader。keepRunning・ログイン起動・起動時非表示・メニューバー・旧 splitAtSeparators はMacごと（リスト内容は保存しない）。onImport で Model.reloadSharedSettings()（変わった値だけ代入）。ビルド・test.sh 81/81 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：グローバルホットキーも「アプリを呼び出すホットキー」も無い（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）。設定にホットキーを割り当てる欄が無いため HotkeyField は使わない。 |
 
 ## 確認記録（2026-10-15）
 
@@ -70,3 +72,9 @@
 - ListDiff → ListMatch。対応表：フォルダー ListDiff/ → ListMatch/、ListDiff.app → ListMatch.app、実行ファイル・アイコン（ListMatch.icns）・メニュー・ヘルプ・常駐メニュー名・バックアップのフォルダー（Application Support/ListMatch/Backups）、Shared/MenuBarPresence/sync.py・Shared/Updater/prepare.py の登録。
 - 変更しないもの：Bundle ID jp.dtp-transit.listdiff、UserDefaults のキー、ウインドウ・分割位置の保存名（ListDiffMain・ListDiffSplit・ListDiffSettings）。
 - 旧 /Applications/ListDiff.app と Latest Builds/ListDiff.app は ListMatch/Backups へ退避。
+
+## 設定の共通化 第2弾（2026-10-17）
+
+- B20：常駐の文言を「ウインドウを閉じても常駐」に（韓国語も「계속 실행」に）。アクセシビリティは使わないため置かない。onImport の MainActor.assumeIsolated を削除（共通部品の @MainActor 化）。
+- B21：適用外のまま。
+- 1.5.2（build 9）：ビルド・test.sh 81/81 通過、両配置・起動確認。

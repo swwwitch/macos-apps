@@ -23,7 +23,7 @@ The original PDF is never changed. Existing names get a number ("name 2.key"); n
 Settings (Command-comma) › Startup & Background:
 - Open at login (off by default)
 - Hide main window at startup
-- Keep running after closing
+- Keep running after closing the window
 - Show in menu bar
 - App launch keyboard shortcut
 While it keeps running, reopen it from the Dock or the menu bar icon.
@@ -37,6 +37,9 @@ While it keeps running, reopen it from the Dock or the menu bar icon.
 - **Command-?**: Help
 - **Command-Q**: quit
 ※ Quitting is blocked during a conversion; wait for it or cancel first.
+
+## Sharing settings
+In the Sharing tab of Settings, Export… and Import… save and load the slide size, placement, page box, background removal and open-after settings as PDF2Keynote-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The save location, Keynote theme and masters (including the per-background assignments), open at login, keep running and the menu bar icon are set on each Mac.
 
 ## Permission
 On the first conversion macOS asks to allow PDF2Keynote to control Keynote. Choose Allow. If you declined, turn on Keynote for PDF2Keynote in System Settings › Privacy & Security › Automation. Settings and the error message have a button to open it. Accessibility and Full Disk Access are not needed.

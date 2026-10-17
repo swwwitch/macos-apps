@@ -3,14 +3,15 @@ import SwiftUI
 struct SettingsView: View {
     var body: some View {
         SettingsTabs(sections: [
-            (SettingsUI.launchTitle, AnyView(Form { Section(SettingsUI.launchTitle) {
+            (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
                 LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                 MenuBarPresenceView()
-            } }.formStyle(.grouped))),
+            })),
             (L("ホットキー"), AnyView(ShortcutSettingsView())),
             (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
             (L("テーマ"), AnyView(VStack(alignment: .leading, spacing: 16) { DoorkeeperPresetsView(); DivBoxSettingsView() })),
             (L("右クリック"), AnyView(ContextMenuSettingsView())),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(VStack(spacing: 24) { AboutView(); AcknowledgmentsView() }))
         ]).padding(12)
     }
@@ -178,6 +179,9 @@ private struct ContextMenuSettingsView: View {
                 UserDefaults.standard.removeObject(forKey: FormatAction.contextHiddenKey)
             }
             .disabled(hidden.isEmpty)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AppDelegate.settingsImported)) { _ in
+            hidden = FormatAction.hiddenInContextMenu
         }
     }
 }

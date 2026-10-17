@@ -17,6 +17,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 help: { [weak self] in LocalHelp.shared.show() })
         } }
         NSApp.setActivationPolicy(.accessory)
+        // 「設定の共有」: file naming and after-export actions. The output folder, login and menu bar stay per Mac.
+        SettingsSync.shared.onImport = { AppSettings.shared.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(
+            keys: AppSettings.sharedKeys,
+            note: StartupWindow.text("ファイル名の付け方と、書き出し後の動作を書き出し・同期します。",
+                                     "Exports and syncs the file naming and what happens after export.",
+                                     "导出并同步文件命名方式以及导出后的操作。",
+                                     "파일 이름 규칙과 내보낸 뒤의 동작을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("保存先・ログイン時の起動・メニューバーはMacごとに設定します。",
+                                       "The save location, login launch and the menu bar are set on each Mac.",
+                                       "保存位置、登录时启动和菜单栏需在每台 Mac 上分别设置。",
+                                       "저장 위치, 로그인 시 실행, 메뉴 막대는 Mac마다 설정합니다.")))
         WindowActivationPolicy.install()
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()

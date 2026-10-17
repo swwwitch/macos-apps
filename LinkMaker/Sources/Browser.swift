@@ -38,7 +38,7 @@ enum BrowserBridge {
     /// Title and URL of the focused tab. URL from the web area (DocklessLauncher's method); the title from the web area,
     /// falling back to the window title.
     static func page(pid: pid_t) -> PageInfo? {
-        guard AXIsProcessTrusted() else { return nil }
+        guard AccessibilitySection.isTrusted else { return nil }
         let app = AXUIElementCreateApplication(pid)
         // Chrome and Firefox build their accessibility tree on request.
         AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)

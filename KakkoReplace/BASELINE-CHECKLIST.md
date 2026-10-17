@@ -28,7 +28,7 @@
 | B17 | プライバシー | 実装済み・一部検証済み | 外部通信なし、クリップボードなし、本文ログなし。復元用全文はメモリのみ・終了で破棄。ヘルプに記載。 |
 | B18 | 更新・配布 | 実装済み・一部検証済み | 更新確認入口は準備中。build.shで0.1.0/1、macOS13/arm64、ad-hoc署名と厳密検査を確認。Developer ID、公証、更新配信先/鍵、DMGは未設定/未実施。 |
 | B19 | マスタード基調の共通アイコン | 実装済み・一部検証済み | Assets/draw-icon.swift/package-icon.py。Shared/DesignAssets/app-icons-mustard-final.pngを実見し色・角丸・白地・茶色モチーフを合わせて生成、PNG目視確認。Finderでの最終アイコン表示は未確認。 |
-| B20 | 環境設定のカテゴリ別グルーピング | 実機確認済み | Sources/main.swift Preferences。一般・ショートカット・対象外のアプリの3カテゴリを実機画面とAXツリーで確認。 |
+| B20 | 共通UI統一・アクセシビリティは起動・常駐タブの区画 | 実装済み・実機未確認 | 2026-10-17 0.3.35：起動グループの下に AccessibilitySection()（判定 AccessibilitySection.isTrusted、未許可時の文言 AccessibilityText.text("blocked")）。ホットキー・パレット・カッコのオプションの各タブを GroupBox から SettingsSection に。ビルド・test.sh 合格、配置・起動確認、画面表示は未確認（以前の確認：一般・ショートカット・対象外のアプリの3カテゴリを実機画面とAXツリーで確認） |
 
 ## 確認記録
 
@@ -113,3 +113,6 @@ SuperKakkoReplace → KakkoReplace。アプリ単位の開発フォルダー、�
 - B02：notFoundでも /Applications・~/Applications 内なら通常のOFF表示。移動の案内はそれ以外の場所のときのみ。
 - B21/B10：環境設定・メニューバーからの復元にも対象外のアプリ・停止中・記録中の確認を追加。対象外は復元せず4言語で表示。
 - B15/B16：ヘルプの設定場所を「起動・常駐」へ修正、古いバージョン表記を削除、「対象外のアプリ」に統一。
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 0.3.34 (54)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys: bracketBindings, disabled, paletteMode, forceWrap, trimSpaces（パレットを前面に出すホットキーは起動・常駐の項目なので除外）。一覧が無いので merge なし（置き換えのみ）。onImport＝Model.reload()＋palette.refresh()。ビルド・test.sh 合格、両配置先 0.3.34 (54)・署名一致、/Applications 版の起動を pgrep で確認。画面操作は未確認 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 2026-10-17 0.3.35：共通部品 ExcludedApps（タブ・中身・文言、説明は exclusionsHint 4言語）。キー excludedBundleIDs、旧キー excluded を legacyKeys で引き継ぎ（defaults read で作成を確認、旧キーは残す）。判定 blocksHotkeys（対象外アプリと自身）、onChange でホットキー再登録。画面操作は未確認 |
+| — | ホットキーの記録欄 | 実装済み・実機未確認 | 2026-10-17 0.3.38（初期値に戻すの重複確認を取り込み）／0.3.37：設定「ホットキー」（操作を選んで1欄、id は bracket.<操作>、allowsClear、初期値は記事の割り当て）と「起動・常駐」の「パレットを前面に出す」を HotkeyField に。保存は bracketBindings／bringToFrontShortcut の Shortcut JSON のまま（KeyCombo と相互変換、defaults の bracketBindings のハッシュが配置前後で同一）。登録は独自の HotKey／FrontHotKey のまま、HotkeyRecorder.shared.onRecordingChanged で記録中は外す。others に他の操作とパレットのキー。トグルは HotkeyText.enable。独自の NSEvent 記録と関連文言15キーを削除。test.sh 合格、配置・起動確認。記録操作は未確認 |

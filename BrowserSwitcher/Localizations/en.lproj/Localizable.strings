@@ -21,16 +21,9 @@
 "表示するブラウザーがありません。設定で除外を解除できます。" = "No browsers to show. Restore excluded browsers in Settings.";
 "Tab・↑↓で選択、Escで隠す。\n⌘＋Return／⌘＋クリック／ダブルクリックで実行。" = "Tab / ↑↓: Select · Esc: Hide\n⌘Return / ⌘Click / Double-click: Apply";
 "切り替える" = "Switch";
-"⌃・⌥・⌘のいずれかを選んでください。" = "Choose at least one of ⌃, ⌥ or ⌘.";
-"標準操作と重なるため別の組み合わせを選んでください。" = "This conflicts with a standard shortcut. Choose another combination.";
-"登録機能を開始できません。アプリを再起動してください。" = "Could not start shortcut registration. Restart the app.";
-"登録できません（%@）。現在：%@" = "Could not register (%@). Current: %@";
-"保存しました：%@\nEscで隠す／⌘Qで終了" = "Saved: %@\nEsc: Hide / ⌘Q: Quit";
 "設定" = "Settings";
 "呼び出しホットキー" = "Activation Shortcut";
 "適用" = "Apply";
-"現在：%@　Escで隠す／⌘Qで終了" = "Current: %@ · Esc: Hide / ⌘Q: Quit";
-"初期値に戻す" = "Restore Defaults";
 "一覧から除外するブラウザー" = "Browsers to Exclude";
 "チェックしたブラウザーを非表示にします。変更は自動保存されます。" = "Checked browsers are hidden. Changes are saved automatically.";
 "ブラウザーが見つかりません。" = "No browsers found.";
@@ -53,3 +46,4 @@
 "%@ヘルプ" = "%@ Help";
 "メインウインドウを開く" = "Open Main Window";
 "切り替え中は設定を開けません。完了してからお試しください。" = "Settings can’t open while switching. Try again when it finishes.";
+"続けて2回押すとメインウインドウを開きます。Escで隠す／⌘Qで終了" = "Press it twice in a row to open the main window. Esc hides it; ⌘Q quits.";

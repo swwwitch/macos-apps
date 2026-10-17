@@ -14,15 +14,20 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 
 ### Startup & Background Tab
 - Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
-- **Show app shortcut**: select modifier keys (⌃⌥⇧⌘) and a key; the change takes effect immediately.
-- At least one of ⌃, ⌥ or ⌘ is required, and combinations that conflict with standard shortcuts cannot be used.
-- **Restore Defaults** returns to ⌃⌥Q.
+- **Show app shortcut**: click Change… and press the keys to assign; the change takes effect immediately (Esc cancels).
+- At least one of ⌃, ⌥ or ⌘ is required, and keys used by standard commands such as ⌘C or by Lock Screen (⌃⌘Q) cannot be assigned. A registration failure is shown under the field.
+- **Reset to Default** returns to ⌃⌥⌘B.
 
 ### Display Tab
 - Browsers checked under **Browsers to Exclude** are hidden from the list.
 
+### Sharing Tab
+- **Export & Import**: “Export…” saves the settings to BrowserSwitcher-Settings.plist for moving to another Mac or keeping a backup. “Import…” replaces the settings with the file’s after asking.
+- **Settings Sync**: “Set Sync Folder…” saves the settings in a folder you choose (iCloud Drive, Dropbox, etc.) and shares them with your other Macs. If several Macs change settings, the most recent save wins.
+- The browsers excluded from the list are shared. Login launch, startup display, the menu bar icon and the show app shortcut are set per Mac.
+
 ## Keyboard Shortcuts
-By default, show the app by pressing ⌃⌥Q twice (within 0.4 seconds). Hold Control and Option and press Q twice. A custom shortcut also works with a double press.
+By default, show the app by pressing ⌃⌥⌘B twice (within 0.4 seconds). Hold Control, Option and Command and press B twice. A custom shortcut also works with a double press.
 
 - **Tab / ↑↓**: Select
 - **⌘Return**: Switch

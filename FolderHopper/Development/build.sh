@@ -3,6 +3,9 @@ set -euo pipefail
 cd "${0:A:h}"
 python3 ../../Shared/MenuBarPresence/sync.py
 python3 ../../Shared/HotkeyManifest/sync.py
+python3 ../../Shared/SettingsSync/sync.py
+python3 ../../Shared/LoginAtLaunch/sync.py
+python3 ../../Shared/HotkeyRecorder/sync.py
 python3 "../../Shared/AppStandards/sync-surface.py"
 python3 check-localization.py
 UPDATER_ROOT="$PWD/../../Shared/Updater"
@@ -13,7 +16,7 @@ bundle="$stage/FolderHopper.app"
 mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
 cp ../Assets/FolderHopper-Mustard.icns "$bundle/Contents/Resources/FolderHopper-Mustard.icns"
 cp Info.plist "$bundle/Contents/Info.plist"
-xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift Source/FolderAccess.swift -module-cache-path "$stage/module-cache" -target arm64-apple-macosx13.0 -swift-version 5 -O -framework AppKit -framework Carbon -framework ServiceManagement -framework UserNotifications Source/Localization.swift Source/LaunchPolicy.swift Source/GlobalShortcut.swift Source/HotkeyManifest.swift Source/History.swift Source/MoveEngine.swift Source/Browser.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/AboutSection.swift Source/main.swift -o "$bundle/Contents/MacOS/FolderMover"
+xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift Source/FolderAccess.swift -module-cache-path "$stage/module-cache" -target arm64-apple-macosx13.0 -swift-version 5 -O -framework AppKit -framework Carbon -framework ServiceManagement -framework UserNotifications Source/Localization.swift Source/LaunchPolicy.swift Source/GlobalShortcut.swift Source/HotkeyManifest.swift Source/History.swift Source/MoveEngine.swift Source/Browser.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/AboutSection.swift ../../Shared/LoginAtLaunch/LoginAtLaunch.swift Source/SettingsSync.swift Source/HotkeyRecorder.swift Source/main.swift -o "$bundle/Contents/MacOS/FolderMover"
 cp -R Localizations/*.lproj "$bundle/Contents/Resources/"
 if [[ "${APP_STORE_BUILD:-0}" == 1 ]]; then
   for language in ja en zh-Hans ko; do

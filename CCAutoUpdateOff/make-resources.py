@@ -19,8 +19,8 @@ rows = [
 ('note', '切り替えはCreative Cloudの［環境設定］→［アプリ］で行います。このアプリは設定ファイルを読むだけで、変更しません。', 'Change the switches in Creative Cloud Preferences → Apps. This app only reads the settings file and never changes it.', '请在 Creative Cloud 的“偏好设置 → 应用”中切换。本应用只读取设置文件，不做更改。', '스위치는 Creative Cloud 환경설정 → 앱에서 변경합니다. 이 앱은 설정 파일을 읽기만 하고 변경하지 않습니다.'),
 ('reload', '再読み込み', 'Reload', '重新载入', '새로 고침'),
 ('openCC', 'Creative Cloudを開く', 'Open Creative Cloud', '打开 Creative Cloud', 'Creative Cloud 열기'),
-('settingsButton', '設定...', 'Settings...', '设置...', '설정...'),
-('settings', '設定...', 'Settings...', '设置...', '설정...'),
+('settingsButton', '設定…', 'Settings…', '设置…', '설정…'),
+('settings', '設定…', 'Settings…', '设置…', '설정…'),
 ('settingsTitle', 'CCAutoUpdateOff 設定', 'CCAutoUpdateOff Settings', 'CCAutoUpdateOff 设置', 'CCAutoUpdateOff 설정'),
 ('notifyTab', '通知・メール', 'Notifications & Mail', '通知与邮件', '알림 및 메일'),
 ('notifySection', '通知', 'Notifications', '通知', '알림'),
@@ -38,7 +38,7 @@ rows = [
 ('mailTime', '送信時刻 :', 'Send at:', '发送时间：', '보낼 시각:'),
 ('mailHint', 'Macの「メール」アプリに設定したアカウントから送ります（最初の1回だけ「メール」の制御の許可を求められます）。指定した時刻を過ぎてから送ります。その時刻にMacがスリープ中のときは、復帰後に送ります。', 'Sent from the account set up in the Mail app (macOS asks once for permission to control Mail). Sent after the time you set; if the Mac is asleep then, it is sent after it wakes.', '使用“邮件”应用中设置的账户发送（首次会请求控制“邮件”的权限）。在设定的时间之后发送；届时 Mac 处于睡眠状态则在唤醒后发送。', 'Mac의 Mail 앱에 설정된 계정으로 보냅니다(처음 한 번 Mail 제어 권한을 요청합니다). 지정한 시각이 지나면 보내며, 그때 Mac이 잠자기 상태이면 깨어난 후 보냅니다.'),
 ('mailTest', 'テスト送信', 'Send Test Mail', '发送测试邮件', '테스트 메일 보내기'),
-('mailSending', '送信中...', 'Sending...', '正在发送...', '보내는 중...'),
+('mailSending', '送信中…', 'Sending…', '正在发送…', '보내는 중…'),
 ('mailSent', '%1$@ に送信しました（%2$@）。', 'Sent to %1$@ (%2$@).', '已发送到 %1$@（%2$@）。', '%1$@(으)로 보냈습니다(%2$@).'),
 ('mailTestSent', '%1$@ にテストメールを送信しました（%2$@）。届いたか確認してください。', 'Test mail sent to %1$@ (%2$@). Check that it arrived.', '已向 %1$@ 发送测试邮件（%2$@）。请确认是否收到。', '%1$@(으)로 테스트 메일을 보냈습니다(%2$@). 도착했는지 확인하세요.'),
 ('mailInvalidAddress', 'メールアドレスを確認してください。', 'Check the email address.', '请检查邮件地址。', '메일 주소를 확인하세요.'),
@@ -61,7 +61,7 @@ rows = [
 ('removeOldShortTitle', '以前のバージョンを削除', 'Remove previous versions', '删除以前的版本', '이전 버전 제거'),
 ('colon', '：', ': ', '：', ': '),
 ('mailFieldSeparator', '／', ' / ', '／', ' / '),
-('keepRunning', 'ウインドウを閉じても常駐する', 'Keep running after closing the window', '关闭窗口后继续运行', '윈도우를 닫아도 계속 실행'),
+('keepRunning', 'ウインドウを閉じても常駐', 'Keep running after closing the window', '关闭窗口后继续运行', '윈도우를 닫아도 계속 실행'),
 ('keepRunningHint', '見張りを続けるには常駐が必要です。オフにすると、ウインドウを閉じたときに終了します。', 'Watching needs the app to keep running. When off, closing the window quits the app.', '持续监视需要应用保持运行。关闭此项后，关闭窗口即退出。', '감시를 계속하려면 앱이 실행 중이어야 합니다. 끄면 윈도우를 닫을 때 종료합니다.'),
 ('about', 'CCAutoUpdateOffについて', 'About CCAutoUpdateOff', '关于 CCAutoUpdateOff', 'CCAutoUpdateOff에 관하여'),
 ('services', 'サービス', 'Services', '服务', '서비스'),
@@ -114,6 +114,9 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、Macにログインしたときに自動で起動します（初期値はオフ）。メニューバーのアイコンは状態を表します：雲にチェック＝オフ、雲に「!」＝注意（以前のバージョンを削除がオンを含む）、塗りつぶした雲に「!」＝自動更新されるアプリあり、斜線の雲＝読み取れない。
 
+設定の共有
+設定の「設定の共有」タブで、知らせる内容・通知・メール送信（宛先と送信時刻）の設定を書き出し・読み込みできます（「書き出す…」「読み込む…」、CCAutoUpdateOff-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
+
 ショートカット
 ⌘,で設定、⌘Rで再読み込み、⌘0で「メインウインドウを開く」、⌘Wでウインドウを閉じる、⌘Qで終了、⌘?でこのヘルプを開きます。
 
@@ -154,6 +157,9 @@ Turn on Mail and enter an address to get one mail a day while auto-update is on 
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
+
+Sharing settings
+In the Sharing tab of Settings, Export… and Import… save and load what to report, notifications and mail (address and send time) as CCAutoUpdateOff-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
 
 Shortcuts
 ⌘, settings, ⌘R reload, ⌘0 open the main window, ⌘W close the window, ⌘Q quit, ⌘? this help.
@@ -196,6 +202,9 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。菜单栏图标表示状态：云朵带勾＝关闭，云朵带“!”＝注意（含删除以前的版本），实心云朵带“!”＝有应用会自动更新，带斜线的云朵＝无法读取。
 
+设置共享
+在设置的“设置共享”标签中，可以导出和导入提醒内容、通知和发送邮件（收件人与发送时间）的设置（“导出…”“导入…”，CCAutoUpdateOff-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
+
 快捷键
 ⌘, 设置，⌘R 重新载入，⌘0 打开主窗口，⌘W 关闭窗口，⌘Q 退出，⌘? 打开本帮助。
 
@@ -236,6 +245,9 @@ Creative Cloud 열기로 실행하고 환경설정 → 앱에서 스위치를 �
 
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔). 메뉴 막대 아이콘은 상태를 나타냅니다: 체크 표시 구름=끔, ! 구름=주의(이전 버전 제거 포함), 채워진 ! 구름=자동 업데이트되는 앱 있음, 사선 구름=읽을 수 없음.
+
+설정 공유
+설정의 설정 공유 탭에서 알릴 내용, 알림, 메일 보내기(받는 사람과 보낼 시각) 설정을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, CCAutoUpdateOff-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.
 
 단축키
 ⌘, 설정, ⌘R 새로 고침, ⌘0 메인 윈도우 열기, ⌘W 윈도우 닫기, ⌘Q 종료, ⌘? 이 도움말.

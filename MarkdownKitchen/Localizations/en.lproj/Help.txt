@@ -111,12 +111,14 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 ## Settings
 Open with the Settings button in the main window (⌘,).
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
-- **Hotkeys**: change the keys for format, convert, paragraph and heading commands (None, Default, Reset All). Keys used by the app’s standard commands or by another item cannot be assigned
+- **Hotkeys**: change the keys for format, convert, paragraph and heading commands . Click Change… and press keys that include ⌘ or ⌃ (Esc cancels). Reset to Default, Clear (no key; shown as None) and Reset All below are also available. Standard keys such as ⌘C, the app’s standard keys and keys used by another item cannot be assigned. The keys work only while MarkdownKitchen is in front
 - **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
 - **Right-Click**: choose which format items appear in the source’s right-click menu (all by default)
 - **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
+- **Sharing**: export the editor display, heading copy format, hotkeys, HTML→Markdown, themes and right-click settings to a file and import it on another Mac (Add adds only themes you do not have yet; Replace uses the file’s settings). Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. The source text, the open file, open at login, the startup window and the menu bar stay on each Mac.
 
 ## Hotkeys
+- **⌘N**: New
 - **⌘O**: Open File
 - **⌘S**: Save
 - **⇧⌘S**: Save As
@@ -150,6 +152,7 @@ Open with the Settings button in the main window (⌘,).
 - The source on the left is kept by the app and comes back at the next launch.
 - Replacing the source by loading a file can be undone with Undo (⌘Z).
 - File > Save (⌘S) overwrites the loaded file; with no file loaded it works as Save As…. Save As… (⇧⌘S) writes to a file you choose, and later ⌘S saves there.
+- File > New (⌘N) clears the source and removes the link to the file. If there are unsaved changes, you are asked whether to save them. You can undo the clearing with ⌘Z.
 - While the source is linked to a file, its name and folder appear below the Source bar. With unsaved changes it shows “Unsaved” and the close button shows a dot. Show in Finder reveals the file; Unlink keeps the source and removes the link (⌘S then works as Save As…).
 - The previous content is backed up before each overwrite in ~/Library/Application Support/MarkdownKitchen/Backups (latest 20); File > Show Backups Before Overwrite opens it. If another app changed the file after it was loaded, you are asked before it is overwritten.
 - The file keeps the encoding it was loaded with (UTF-8 if some characters cannot be represented).

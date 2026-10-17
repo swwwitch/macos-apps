@@ -3,13 +3,15 @@ set -euo pipefail
 cd "$(dirname "$0")"
 python3 ../../Shared/MenuBarPresence/sync.py
 python3 "../../Shared/AppStandards/sync-surface.py"
+python3 ../../Shared/SettingsSync/sync.py
+python3 ../../Shared/LoginAtLaunch/sync.py
 UPDATER_ROOT="$PWD/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d /private/tmp/podiumassist-build.XXXXXX)
 trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/PodiumAssist.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-xcrun swiftc Sources/Toki/AppSurface.swift Sources/Toki/StartupWindow.swift Sources/Toki/SettingsSection.swift Sources/Toki/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Sources/Toki/UpdateSupport.swift Sources/Toki/AccessibilityPermission.swift Sources/Toki/QuitApps.swift Sources/Toki/LaunchApps.swift Sources/Toki/PointerSize.swift Sources/Toki/SystemSettingsSwitch.swift Sources/Toki/ZoomSettings.swift Sources/Toki/BrowserHistory.swift Sources/Toki/DisplayResolution.swift Sources/Toki/NetworkSpeed.swift Sources/Toki/PresetSaveSheet.swift -parse-as-library Sources/Toki/HelpDocument.swift Sources/Toki/LocalHelp.swift Sources/Toki/TokiApp.swift Sources/Toki/Localization.swift Sources/Toki/LoginAtLaunch.swift Sources/Toki/WindowActivationPolicy.swift Sources/Toki/AboutSection.swift -sdk "$(xcrun --sdk macosx --show-sdk-path)" -target "$(uname -m)-apple-macosx13.0" -module-cache-path "$STAGING/module-cache" -O -o "$APP/Contents/MacOS/Toki"
+xcrun swiftc Sources/Toki/AppSurface.swift Sources/Toki/StartupWindow.swift Sources/Toki/SettingsSection.swift Sources/Toki/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Sources/Toki/UpdateSupport.swift Sources/Toki/AccessibilityPermission.swift Sources/Toki/QuitApps.swift Sources/Toki/LaunchApps.swift Sources/Toki/PointerSize.swift Sources/Toki/SystemSettingsSwitch.swift Sources/Toki/ZoomSettings.swift Sources/Toki/BrowserHistory.swift Sources/Toki/DisplayResolution.swift Sources/Toki/NetworkSpeed.swift Sources/Toki/PresetSaveSheet.swift Sources/Toki/SettingsSync.swift -parse-as-library Sources/Toki/HelpDocument.swift Sources/Toki/LocalHelp.swift Sources/Toki/TokiApp.swift Sources/Toki/Localization.swift Sources/Toki/LoginAtLaunch.swift Sources/Toki/WindowActivationPolicy.swift Sources/Toki/AboutSection.swift -sdk "$(xcrun --sdk macosx --show-sdk-path)" -target "$(uname -m)-apple-macosx13.0" -module-cache-path "$STAGING/module-cache" -O -o "$APP/Contents/MacOS/Toki"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp ../Assets/Toki-Mustard.icns "$APP/Contents/Resources/Toki-Mustard.icns"
 cp -R Localizations/*.lproj "$APP/Contents/Resources/"

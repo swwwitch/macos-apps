@@ -36,6 +36,12 @@ final class Model: ObservableObject {
         fetchEmbedTitles = defaults.object(forKey: "fetchEmbedTitles") as? Bool ?? true
     }
 
+    /// Re-reads the shared settings after an import (設定の共有) so the next save does not write the old value back.
+    func reloadSharedSettings() {
+        let embed = defaults.object(forKey: "fetchEmbedTitles") as? Bool ?? true
+        if embed != fetchEmbedTitles { fetchEmbedTitles = embed }
+    }
+
     var isLoading: Bool { status == .loading }
     var isCurrent: Bool { !markdown.isEmpty && loadedInput == urlText.trimmingCharacters(in: .whitespacesAndNewlines) }
     var validInput: Bool { NoteArticle.key(from: urlText) != nil }
@@ -47,7 +53,7 @@ final class Model: ObservableObject {
         case .loaded: return article.map { $0.price > 0 ? L("statusPaid") : String(format: L("statusLoaded"), $0.title) } ?? ""
         case .saved(let url): return String(format: L("statusSaved"), url.path)
         case .failed(let message): return message
-        case .needsAccess: return L("errorNoAccess")
+        case .needsAccess: return AccessibilityText.text("blocked")
         }
     }
 
@@ -314,20 +320,19 @@ struct Preferences: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
+                    // LoginAtLaunchView already includes 起動時にメインウインドウを表示しない.
                     LoginAtLaunchView()
-                    StartupWindowView()
                     Toggle(L("keepRunning"), isOn: $model.keepRunning)
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     MenuBarPresenceView()
                 }
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: true, showsTitle: false)
-                }
+                AccessibilitySection()
             })),
             (L("outputTab"), AnyView(SettingsSection(L("outputSection")) {
                 Toggle(L("embedTitles"), isOn: $model.fetchEmbedTitles)
                 Text(L("embedTitlesHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -364,6 +369,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 settings: { [weak self] in self?.showPreferences() },
                 help: { [weak self] in self?.showHelp() })
         }
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: ["fetchEmbedTitles"], prefixes: [],
+            note: StartupWindow.text("「出力」タブの設定を書き出し・同期します。",
+                                     "Exports and syncs the Output tab setting.",
+                                     "导出并同步“输出”标签的设置。",
+                                     "출력 탭의 설정을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("最後の保存先フォルダー、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
+                                       "The last export folder, open at login, keep running and the menu bar icon are set on each Mac.",
+                                       "上次导出的文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "마지막 내보내기 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         if !loginLaunch && !StartupWindow.hidden { showMain() }
     }
 

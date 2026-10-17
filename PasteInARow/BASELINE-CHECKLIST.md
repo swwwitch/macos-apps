@@ -28,8 +28,8 @@
 | B17 | プライバシー | 実装済み | 外部通信は更新確認のみ（未設定のため通信なし） |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 一部 | /ApplicationsとLatest Buildsへ配置、版・署名・内容一致を確認。Sparkleの配信先・鍵は未設定（準備中表示） |
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（マスタード地＋行リスト＋矢印バッジ）、目視確認 |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐／ホットキー／ペースト／対象外アプリ／情報のタブ |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 初期値はKMマクロの除外アプリ（Illustrator・Path Finder・Keynote）。対象外が前面のときはホットキーを解除、送信直前にも再確認（ExcludedTests PASS） |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐／ホットキー／ペースト／対象外アプリ／情報のタブ。2026-10-17：アクセシビリティを共通の AccessibilitySection() に（起動グループの直下）、判定は AccessibilitySection.isTrusted、未許可の失敗表示は AccessibilityText.text("blocked")。独自の accessibilityAllowed / refreshAccessibility は削除 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 初期値はKMマクロの除外アプリ（Illustrator・Path Finder・Keynote）。対象外が前面のときはホットキーを解除、送信直前にも再確認（ExcludedTests PASS）。2026-10-17：共通部品 ExcludedApps に移行（ExcludedAppList.swift・独自ビュー・appInfo() を削除、initial は ExcludedDefaults.initial、キー excludedBundleIDs のまま・旧キーなし、onChange でホットキー再登録）。既存の一覧が残ることを defaults read で確認 |
 
 ## 確認記録
 
@@ -45,7 +45,9 @@
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy、⌘0 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ記憶・フォーカス枠なし）、最小サイズ |
-| B25 | アプリ情報と目印 | 実装済み | Info.plistにSWNoteArticleURL（専用記事が無いのでまとめページ）・著作権・SWAppFamily |
+| B25 | アプリ情報と目印 | 実装済み | Info.plistにSWNoteArticleURL・著作権・SWAppFamily。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |
 | B26 | 証明書での署名 | 実装済み | TeamIdentifier=PL9S9PXX96 を確認 |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗はビープ＋TransientMessage、やり直し不可時はメニュー無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央、画面外復帰、accessibilityLabel |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：hotkeyEnabled・pasteShortcut・addEnabled・addShortcut・trimIndent・stripMarkers・notifyEach・closeWhenEmpty。onImport でモデルを読み直しホットキーを再登録。GUI操作での書き出し・読み込み・同期は未確認 |
+| — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：HotkeyField 2つ（paste ⌃⌥V／add ⌃⌥⌘C、others で相互の重複を断る）。保存は pasteShortcut・addShortcut の JSON のまま、ShortcutCombo.swift で変換（ComboTests）。登録は HotkeySet（"PSUC"、1・2）。独自の ShortcutRow・記録モニター・SingleHotKey・重複/失敗の文言を削除 |

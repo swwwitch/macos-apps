@@ -42,6 +42,28 @@ enum CustomSources {
         return list
     }
 
+    /// 設定の読み込み・同期で書き換わったときに読み直す
+    static func invalidate() {
+        lock.lock(); defer { lock.unlock() }
+        cache = nil
+    }
+
+    /// 読み込んだ設定ファイルの独自の照合元のうち、まだ無いもの（IDで判定）を今の一覧に足す（SettingsSync の「追加する」）
+    static func merge(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
+        func decode(_ value: Any?) -> [CustomSource] {
+            (value as? Data).flatMap { try? JSONDecoder().decode([CustomSource].self, from: $0) } ?? []
+        }
+        var list = decode(current[key])
+        let new = decode(file[key]).filter { item in !list.contains { $0.id == item.id } }
+        let values = NSMutableDictionary(dictionary: current)
+        guard !new.isEmpty else { return (values, 0) }
+        list += new
+        if let data = try? JSONEncoder().encode(list) { values[key] = data }
+        // 足した照合元のオン／オフも引き継ぐ
+        for item in new { let toggle = item.source.settingKey; if let value = file[toggle] { values[toggle] = value } }
+        return (values, new.count)
+    }
+
     static func save(_ list: [CustomSource]) {
         lock.lock(); defer { lock.unlock() }
         if let data = try? JSONEncoder().encode(list) { UserDefaults.standard.set(data, forKey: key) }

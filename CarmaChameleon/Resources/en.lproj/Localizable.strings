@@ -43,7 +43,7 @@
 "success" = "Conversion complete";
 "failed" = "Conversion failed";
 "partial" = "Some conversions failed";
-"resident" = "Keep running after closing";
+"resident" = "Keep running after closing the window";
 "residentDetail" = "Reopen from the menu bar or Dock.";
 "launchShortcut" = "App launch keyboard shortcut";
 "openShortcuts" = "Open Shortcuts";
@@ -80,13 +80,6 @@
 "copy" = "Copy";
 "paste" = "Paste";
 "selectAll" = "Select All";
-"login" = "Launch at login";
-"loginOpen" = "Open Login Items";
-"loginOn" = "Launches automatically at login.";
-"loginApproval" = "Approve in System Settings.";
-"loginMissing" = "Launch from Applications.";
-"loginOff" = "Launch at login is off.";
-"loginError" = "Could not change setting: ";
 "notInstalled" = "Not installed";
 "notChecked" = "Latest version not checked";
 "updateAvailable" = "Update available";
@@ -109,7 +102,7 @@
 "installUpdate" = "Install latest version";
 "installDetail" = "Downloads from official GitHub, verifies SHA-256, and installs for this user without administrator privileges.";
 "waitInstall" = "Wait for this operation to finish before quitting.";
-"syncNote" = "The format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion are saved in this folder and shared with your other Macs.";
+"syncNote" = "Exports and syncs the format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion.";
 "syncPerMac" = "Login launch, background, menu bar, output folder, PDF engine, the pandoc, Illustrator, Photoshop and InDesign locations, PDF presets, window positions and the sync folder location stay per Mac.";
 "pdfEngineGroup" = "PDF engine (Typst)";
 "pdfEngineInvalid" = "Could not run Typst. Reinstall it.";

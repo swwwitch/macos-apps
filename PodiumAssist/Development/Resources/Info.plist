@@ -24,25 +24,25 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.2.35</string>
+	<string>3.2.37</string>
 	<key>CFBundleVersion</key>
-	<string>58</string>
+	<string>60</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSLocationUsageDescription</key>
-	<string>ネットワーク速度の一覧に、接続中のWi-Fiのネットワーク名を表示するために使います。</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>ネットワーク速度の一覧に、接続中のWi-Fiのネットワーク名を表示するために使います。</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Mac全体のライト／ダーク外観を切り換えるために、System Eventsを操作します。</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 swwwitch</string>
+	<key>NSLocationUsageDescription</key>
+	<string>ネットワーク速度の一覧に、接続中のWi-Fiのネットワーク名を表示するために使います。</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ネットワーク速度の一覧に、接続中のWi-Fiのネットワーク名を表示するために使います。</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>

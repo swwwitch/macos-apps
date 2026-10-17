@@ -36,6 +36,9 @@ let categoryOrder: [(name: String, symbol: String)] = [
     ("スクリーンショット", "camera.viewfinder"),
     ("メニューバー", "menubar.rectangle"),
     ("日付と時刻", "clock"),
+    ("連係", "iphone"),
+    ("セキュリティ", "lock.shield"),
+    ("Spotlight", "magnifyingglass"),
     ("ターミナル", "terminal"),
     ("Siri", "waveform"),
     ("言語設定", "globe"),
@@ -78,8 +81,8 @@ let catalog: [PrefItem] = [
     item("一般", "タイトルバーのダブルクリック", g, "AppleActionOnDoubleClick",
          ["Maximize": "ズーム", "Fill": "フィル", "Minimize": "しまう", "None": "何もしない"]),
     flag("一般", "ダブルクリックでしまう（旧設定）", g, "AppleMiniaturizeOnDoubleClick"),
-    item("一般", "書類をタブで開く", g, "AppleWindowTabbingMode",
-         ["always": "常に", "fullscreen": "フルスクリーン時", "manual": "手動"]),
+    item("一般", "書類を開くときはタブで開く", g, "AppleWindowTabbingMode",
+         ["always": "常に", "fullscreen": "フルスクリーン時", "manual": "しない"]),
     flag("一般", "アプリ終了時にウィンドウを保持", g, "NSQuitAlwaysKeepsWindows"),
     item("一般", "最近使った項目の数", g, "NSRecentDocumentsLimit"),
     flag("一般", "ウィンドウを開くアニメーション", g, "NSAutomaticWindowAnimationsEnabled"),
@@ -96,6 +99,10 @@ let catalog: [PrefItem] = [
     // すべての画面・操作スペースの壁紙。「そのほか」は読むだけで書かない
     flag("一般", "ダウンロードしたアプリの確認ダイアログ", "com.apple.LaunchServices", "LSQuarantine"),
     item("一般", "壁紙", wallpaperDomain, "AllSpacesAndDisplays", ["gray50": "カラー（黒50%）", "other": "そのほか"]),
+    item("一般", "コンピュータ名", computerNameDomain, "ComputerName"),
+    item("一般", "ローカルホスト名", computerNameDomain, "LocalHostName"),
+    item("一般", "AirDrop", "com.apple.sharingd", "DiscoverableMode",
+         ["Off": "受信しない", "Contacts Only": "連絡先のみ", "Everyone": "すべての人（10分間）"]),
 
     // キーボード
     item("キーボード", "キーのリピート速度", g, "KeyRepeat"),
@@ -245,10 +252,11 @@ let catalog: [PrefItem] = [
     flag("ウィンドウ管理", "タイル表示したウィンドウに余白", "com.apple.WindowManager", "EnableTiledWindowMargins"),
     flag("ウィンドウ管理", "壁紙クリックでデスクトップを表示", "com.apple.WindowManager", "EnableStandardClickToShowDesktop"),
     flag("ウィンドウ管理", "デスクトップ項目を隠す", "com.apple.WindowManager", "StandardHideDesktopIcons"),
-    flag("ウィンドウ管理", "ウィジェットを隠す", "com.apple.WindowManager", "StandardHideWidgets"),
+    // 値が 1 で隠す（システム設定の「ウィジェットを表示」のチェックが外れる）
+    item("ウィンドウ管理", "ウィジェットを表示：デスクトップに", "com.apple.WindowManager", "StandardHideWidgets", ["0": "オン", "1": "オフ"]),
     flag("ウィンドウ管理", "ステージマネージャ", "com.apple.WindowManager", "GloballyEnabled"),
     flag("ウィンドウ管理", "ステージマネージャでデスクトップ項目を隠す", "com.apple.WindowManager", "HideDesktop"),
-    flag("ウィンドウ管理", "ステージマネージャでウィジェットを隠す", "com.apple.WindowManager", "StageManagerHideWidgets"),
+    item("ウィンドウ管理", "ウィジェットを表示：ステージマネージャ使用時", "com.apple.WindowManager", "StageManagerHideWidgets", ["0": "オン", "1": "オフ"]),
     flag("ウィンドウ管理", "ステージマネージャで最近使ったアプリを隠す", "com.apple.WindowManager", "AutoHide"),
     item("ウィンドウ管理", "アプリのウィンドウを表示", "com.apple.WindowManager", "AppWindowGroupingBehavior",
          ["0": "すべて同時に", "1": "1つずつ"]),
@@ -290,6 +298,26 @@ let catalog: [PrefItem] = [
          ["0": "常に", "1": "デスクトップのみ", "2": "フルスクリーンのみ", "3": "しない"]),
     flag("メニューバー", "フルスクリーンでメニューバーを表示", g, "AppleMenuBarVisibleInFullscreen"),
     item("メニューバー", "メニューバーの文字サイズ", g, "AppleMenuBarFontSize", ["large": "大"]),
+
+    // 連係（Mac と iPhone）
+    flag("連係", "このMacとiCloudデバイス間でのHandoffを許可", handoffDomain, "ActivityAdvertisingAllowed"),
+    flag("連係", "iPhoneウィジェット", "com.apple.chronod", "remoteWidgetsEnabled"),
+    flag("連係", "iPhoneからのライブアクティビティを許可", "com.apple.controlcenter", "RemoteLiveActivitiesEnabled"),
+    // ユニバーサルコントロール（ディスプレイ → 詳細設定）。ByHost の Disable が 1 でオフ（システム設定で実測、2026-10-17）
+    item("連係", "ポインタとキーボードを近くにあるすべてのMacまたはiPad間で移動することを許可", "ByHost/com.apple.universalcontrol", "Disable",
+         ["0": "オン", "1": "オフ"]),
+
+    // セキュリティ。ファイアウォールとディスプレイは管理者のパスワード、パスワードの要求はログインパスワードで書き込む
+    flag("セキュリティ", "ファイアウォール", firewallDomain, "globalstate"),
+    flag("セキュリティ", "ステルスモード", firewallDomain, "stealthmode"),
+    item("セキュリティ", "スクリーンセーバ・ディスプレイオフ後にパスワードを要求", screenLockDomain, "delay",
+         ["0": "すぐに", "5": "5秒後", "60": "1分後", "300": "5分後", "900": "15分後", "3600": "1時間後", "28800": "8時間後", "off": "しない"]),
+    item("セキュリティ", "ディスプレイをオフにするまで（分・バッテリー）", displaySleepDomain, "b"),
+    item("セキュリティ", "ディスプレイをオフにするまで（分・電源アダプタ）", displaySleepDomain, "c"),
+    flag("セキュリティ", "プリンタ共有", printerSharingDomain, "_share_printers"),
+
+    // Spotlight（検索結果に出す項目）
+    flag("Spotlight", "関連コンテンツを表示", spotlightRuleDomain, "Custom.relatedContents"),
 
     // 日付と時刻
     // 西暦（gregorian）の週の始まり。システム設定の「言語と地域」と同じ
@@ -401,6 +429,10 @@ let factoryDefaults: [String: String] = {
         // ターミナル・その他
         ("com.apple.Terminal", "Startup Window Settings", "Basic"), ("com.apple.Terminal", "Default Window Settings", "Basic"),
         ("com.apple.Terminal", "FocusFollowsMouse", "0"), ("com.apple.LaunchServices", "LSQuarantine", "1"),
+        (handoffDomain, "ActivityAdvertisingAllowed", "1"), ("com.apple.chronod", "remoteWidgetsEnabled", "1"),
+        ("com.apple.controlcenter", "RemoteLiveActivitiesEnabled", "1"), (spotlightRuleDomain, "Custom.relatedContents", "1"),
+        (firewallDomain, "globalstate", "0"), (firewallDomain, "stealthmode", "0"), (printerSharingDomain, "_share_printers", "0"),
+        ("com.apple.sharingd", "DiscoverableMode", "Contacts Only"), ("ByHost/com.apple.universalcontrol", "Disable", "0"),
     ]
     return Dictionary(pairs.map { ($0.0 + "\u{1}" + $0.1, $0.2) }, uniquingKeysWith: { a, _ in a })
 }()
@@ -458,6 +490,13 @@ let alsoShownIn: [String: [String]] = {
         (d, "wvous-tr-corner", ["Mission Control"]),
         (d, "wvous-bl-corner", ["Mission Control"]),
         (d, "wvous-br-corner", ["Mission Control"]),
+        // セキュリティ
+        ("com.apple.LaunchServices", "LSQuarantine", ["セキュリティ"]),
+        ("com.apple.sharingd", "DiscoverableMode", ["セキュリティ", "連係"]),
+        // 連係の項目は、システム設定で置かれている場所にも出す
+        (handoffDomain, "ActivityAdvertisingAllowed", ["一般"]),
+        ("com.apple.chronod", "remoteWidgetsEnabled", ["ウィンドウ管理"]),
+        ("com.apple.controlcenter", "RemoteLiveActivitiesEnabled", ["メニューバー"]),
         // 時計はメニューバーの項目
         (c, "ShowDayOfWeek", ["メニューバー"]),
         (c, "ShowAMPM", ["メニューバー"]),

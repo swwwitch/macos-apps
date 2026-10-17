@@ -37,9 +37,6 @@ menu.help|ヘルプ|Help|帮助|도움말
 menu.appHelp|CommandDeeヘルプ|CommandDee Help|CommandDee 帮助|CommandDee 도움말
 shortcut.palette|パレットを表示／隠す|Show / Hide Palette|显示／隐藏面板|팔레트 보기/가리기
 settings.paletteHotkeyNote|CommandDeeが常駐している間、どのアプリからでもパレットを表示・隠すことができます。「ホットキーを有効にする」の切り替えとは別に動作します。|While CommandDee is running, this key shows or hides the palette from any app. It works independently of Enable Shortcuts.|CommandDee 在后台运行时，可从任意应用显示或隐藏面板。此功能与“启用快捷键”的开关无关。|CommandDee가 실행 중인 동안 어느 앱에서든 팔레트를 보이거나 가릴 수 있습니다. '단축키 활성화'와는 별도로 작동합니다.
-settings.resetPaletteHotkey|⌃⌥⌘Dに戻す|Reset to ⌃⌥⌘D|恢复为 ⌃⌥⌘D|⌃⌥⌘D로 재설정
-settings.paletteHotkeyActive|%@ でパレットを表示・隠す|Press %@ to show or hide the palette|按 %@ 显示或隐藏面板|%@ 키로 팔레트 보기/가리기
-settings.paletteHotkeyFailed|%1$@ を登録できませんでした（エラー %2$d）。別のキーを選んでください|Could not register %1$@ (error %2$d). Choose another key.|无法注册 %1$@（错误 %2$d）。请选择其他按键。|%1$@을(를) 등록할 수 없습니다(오류 %2$d). 다른 키를 선택하세요.
 menu.showPalette|パレットを表示|Show Palette|显示面板|팔레트 보기
 menu.hidePalette|パレットを隠す|Hide Palette|隐藏面板|팔레트 가리기
 palette.subtitle|実行後の名前を確かめてからクリック|Check the resulting name, then click|确认结果名称后再点击|결과 이름을 확인한 후 클릭
@@ -61,7 +58,6 @@ status.initial|ファイル／フォルダを選択して ⌘D|Select files or f
 status.tooltip|CommandDee — バージョン・日付付きで複製|CommandDee — Duplicate with a version or date|CommandDee — 添加版本号或日期并复制|CommandDee — 버전 또는 날짜를 붙여 복제
 status.noSelection|ファイル／フォルダが選択されていません|No files or folders are selected|未选择文件或文件夹|선택된 파일 또는 폴더가 없습니다
 status.selectionFailed|選択の取得に失敗しました|Could not get the selection|无法获取所选项目|선택 항목을 가져오지 못했습니다
-status.needsAccessibility|アクセシビリティの許可が必要です|Accessibility permission is required|需要辅助功能权限|손쉬운 사용 권한이 필요합니다
 status.enabled|ホットキー有効|Shortcuts enabled|快捷键已启用|단축키 활성화됨
 status.paused|一時停止中|Paused|已暂停|일시 정지됨
 progress.duplicate|%d項目を複製中…|Duplicating %d items…|正在复制 %d 个项目…|%d개 항목 복제 중…
@@ -92,9 +88,6 @@ settings.skipFolder|読み飛ばす親フォルダ名|Parent folder name to skip
 settings.skipFolderPlaceholder|空欄の場合は、直上の親フォルダ名を使用|If empty, the name of the immediate parent folder is used|留空时使用直接上级文件夹的名称|비워 두면 바로 위 상위 폴더 이름을 사용
 settings.resetSkipFolder|ログインユーザー名に戻す|Reset to Login User Name|恢复为登录用户名|로그인 사용자 이름으로 재설정
 settings.resetShortcuts|ホットキーを初期値に戻す|Restore Default Shortcuts|恢复默认快捷键|기본 단축키로 복원
-settings.shortcutInvalid|このキーは使えません。⌘・⌃・⌥のいずれかと組み合わせてください（Escでキャンセル）|This key can’t be used. Combine it with ⌘, ⌃, or ⌥ (Esc to cancel).|无法使用此键。请与 ⌘、⌃ 或 ⌥ 组合使用（按 Esc 取消）。|이 키는 사용할 수 없습니다. ⌘, ⌃, ⌥ 중 하나와 함께 누르십시오(Esc로 취소).
-settings.shortcutDuplicate|「%@」はほかの操作に割り当て済みです|“%@” is already assigned to another action.|“%@”已分配给其他操作。|“%@”은(는) 이미 다른 동작에 지정되어 있습니다.
-settings.recordShortcut|キーを入力（Escでキャンセル）|Type a shortcut (Esc to cancel)|按下快捷键（按 Esc 取消）|키 입력(Esc로 취소)
 shortcut.unset|未設定|Not Set|未设置|설정 안 됨
 shortcut.version|連番で複製|Duplicate with next version|复制并递增版本号|다음 버전으로 복제
 shortcut.date|日付付きで複製|Duplicate with date|复制并添加日期|날짜를 붙여 복제
@@ -170,11 +163,12 @@ help_texts = {
 メニューバーのアイコンから「設定…」（⌘,）を選びます。
 - **区切り文字**：接尾辞（v番号・edited・日付・親フォルダ名）の前に付ける文字を、ハイフン（-）かアンダースコア（_）から選べます。v番号・edited・日付は選んだ文字で区切られたものだけを読み取ります。親フォルダ名はどちらで付いていても外せます。
 - **接尾辞の並び順**：v番号・edited・日付の順番を選べます。既存の名前も読み取り、次の操作から指定順で出力します。
-- **機能のホットキー**：ボタンを押して、修飾キーと文字キーを入力すると変更できます。Escでキャンセル。同じ組み合わせは重複して登録できません。
+- **機能のホットキー**：「変更…」を押してから割り当てるキーを押すと変更できます（⌘か⌃を含める。Escで取り消し）。「初期値に戻す」「割り当てを解除」も使えます。同じキーはほかの操作やパレットのホットキーと重複して登録できません。
 - **読み飛ばす親フォルダ名**：完全一致で上の階層を参照します。空欄で無効化できます。
+- **設定の共有**：「書き出す…」で設定を CommandDee-Settings.plist に保存し、「読み込む…」で確認してから置き換えます。「同期フォルダーを設定…」で選んだフォルダー（iCloud Drive・Dropboxなど）でほかのMacと同期できます。共有するのは機能のホットキーとその有効／無効、区切り文字、接尾辞の並び順、ステータスの語、読み飛ばす親フォルダ名です。ログイン時の起動・起動時の表示・メニューバー・パレットのホットキー・アクセシビリティはMacごとに設定します。
 
 ## アクセス許可
-- 初回はアクセシビリティを許可してください。このウインドウの「アクセシビリティ設定を開く」から設定を開けます。
+- 初回はアクセシビリティを許可してください。このウインドウの「アクセシビリティ設定を開く」か、設定の「起動・常駐」タブの「アクセシビリティ」で許可状態の確認と設定を開けます。未許可の間はホットキーが働かず、状態に「アクセシビリティが未許可のため実行できませんでした」と表示します。
 - 操作時に表示される、Finder／Path Finderの操作許可も必要です。
 
 ## 常駐と終了
@@ -238,11 +232,12 @@ help_texts = {
 Choose Settings… (⌘,) from the menu bar icon.
 - **Separator**: choose a hyphen (-) or an underscore (_) before each suffix (version number, "edited", date, parent folder name). Version numbers, "edited" and dates are read only after the chosen separator; a parent folder name is removed after either one.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
-- **Action Shortcuts**: click a button and type a modifier key with a character key to change it. Press Esc to cancel. A combination that is already in use cannot be assigned twice.
+- **Action Shortcuts**: click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key used by another action or the palette cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
+- **Sharing**: “Export…” saves the settings to CommandDee-Settings.plist, and “Import…” replaces them after asking. “Set Sync Folder…” syncs with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). Shared: the action shortcuts and whether they are on, the separator, the suffix order, the status words and the parent folder name to skip. Login launch, startup display, the menu bar icon, the palette shortcut and Accessibility are set per Mac.
 
 ## Permissions
-- On first use, allow Accessibility. Click Open Accessibility Settings in this window to open the settings.
+- On first use, allow Accessibility. Click Open Accessibility Settings in this window, or use Accessibility on the Startup & Background tab of Settings to check the status and open the settings. Until it is allowed, the shortcuts do not work and the status says Accessibility is not allowed.
 - You also need to allow control of Finder / Path Finder when macOS asks.
 
 ## Running in the Background and Quitting
@@ -306,11 +301,12 @@ Choose Settings… (⌘,) from the menu bar icon.
 在菜单栏图标中选择“设置…”（⌘,）。
 - **分隔符**：可选择在后缀（版本号、edited、日期、父文件夹名称）前使用连字符（-）或下划线（_）。版本号、edited 和日期只读取以所选分隔符分隔的部分；父文件夹名称无论用哪种分隔符都可移除。
 - **后缀顺序**：可选择版本号、edited 和日期的顺序。也会读取现有名称，从下一次操作起按指定顺序输出。
-- **功能快捷键**：点击按钮，然后按下修饰键和字符键即可更改。按 Esc 取消。不能重复登记相同的组合。
+- **功能快捷键**：点击“更改…”后按下要分配的按键即可更改（需包含 ⌘ 或 ⌃；按 Esc 取消）。也可使用“恢复默认”和“清除”。不能与其他操作或面板快捷键重复。
 - **要跳过的父文件夹名称**：按完全一致匹配并参照上一级文件夹。留空即可停用。
+- **设置共享**：“导出…”将设置保存为 CommandDee-Settings.plist，“导入…”在确认后替换设置。使用“设置同步文件夹…”选择的文件夹（iCloud 云盘、Dropbox 等）可与其他 Mac 同步。共享的内容：功能快捷键及其开关、分隔符、后缀顺序、状态词和要跳过的父文件夹名称。登录时启动、启动时的显示、菜单栏图标、面板快捷键和辅助功能在每台 Mac 上分别设置。
 
 ## 权限
-- 首次使用时请允许辅助功能权限。可点击本窗口中的“打开辅助功能设置”打开设置。
+- 首次使用时请允许辅助功能权限。可点击本窗口中的“打开辅助功能设置”，或在设置的“启动与后台”标签页的“辅助功能”中确认状态并打开设置。未授权期间快捷键不起作用，状态中会显示未获得辅助功能授权。
 - 操作时 macOS 询问的 Finder／Path Finder 控制权限也需要允许。
 
 ## 后台运行与退出
@@ -374,11 +370,12 @@ Choose Settings… (⌘,) from the menu bar icon.
 메뉴 막대 아이콘에서 ‘설정…’(⌘,)을 선택합니다.
 - **구분 문자**: 접미사(버전 번호, edited, 날짜, 상위 폴더 이름) 앞에 붙일 문자를 하이픈(-) 또는 밑줄(_) 중에서 선택할 수 있습니다. 버전 번호, edited, 날짜는 선택한 문자로 구분된 것만 읽습니다. 상위 폴더 이름은 어느 쪽으로 붙어 있어도 제거할 수 있습니다.
 - **접미사 순서**: 버전 번호, edited, 날짜의 순서를 선택할 수 있습니다. 기존 이름도 읽어 다음 작업부터 지정한 순서로 출력합니다.
-- **기능 단축키**: 버튼을 누른 후 보조 키와 문자 키를 입력하면 변경할 수 있습니다. Esc로 취소합니다. 같은 조합은 중복 등록할 수 없습니다.
+- **기능 단축키**: ‘변경…’을 누른 다음 지정할 키를 누르면 변경할 수 있습니다(⌘ 또는 ⌃ 포함, Esc로 취소). ‘기본값으로 되돌리기’와 ‘지우기’도 사용할 수 있습니다. 다른 동작이나 팔레트 단축키와 중복해서 지정할 수 없습니다.
 - **건너뛸 상위 폴더 이름**: 완전히 일치할 때 위 단계의 폴더를 참조합니다. 비워 두면 사용하지 않습니다.
+- **설정 공유**: ‘내보내기…’로 설정을 CommandDee-Settings.plist에 저장하고, ‘가져오기…’는 확인 후 바꿉니다. ‘동기화 폴더 설정…’으로 선택한 폴더(iCloud Drive, Dropbox 등)로 다른 Mac과 동기화할 수 있습니다. 공유하는 항목: 기능 단축키와 사용 여부, 구분 문자, 접미사 순서, 상태 단어, 건너뛸 상위 폴더 이름. 로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 팔레트 단축키, 손쉬운 사용은 Mac마다 설정합니다.
 
 ## 권한
-- 처음 사용할 때 손쉬운 사용 권한을 허용하세요. 이 윈도우의 ‘손쉬운 사용 설정 열기’로 설정을 열 수 있습니다.
+- 처음 사용할 때 손쉬운 사용 권한을 허용하세요. 이 윈도우의 ‘손쉬운 사용 설정 열기’나 설정의 ‘시작 및 백그라운드’ 탭에 있는 ‘손쉬운 사용’에서 상태를 확인하고 설정을 열 수 있습니다. 허용되기 전에는 단축키가 작동하지 않으며 상태에 손쉬운 사용 권한이 없다고 표시합니다.
 - 작업 시 표시되는 Finder／Path Finder 제어 허용도 필요합니다.
 
 ## 백그라운드 실행과 종료

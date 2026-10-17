@@ -7,11 +7,12 @@ final class PaletteShortcut: NSObject {
     private var reference: EventHotKeyRef?
     private let show: (pid_t?) -> Void
     private var invocationPID: pid_t?
-    private let enabled = NSButton(checkboxWithTitle: L("palette.enableShortcut"), target: nil, action: nil)
-    private let modifiers = NSPopUpButton()
-    private let key = NSPopUpButton()
-    private let status = NSTextField(wrappingLabelWithString: "")
-    private var editor: HotkeyEditor?
+    private let enabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: nil, action: nil)
+    /// False when the key could not be registered; the settings field shows the shared message.
+    private var registered = true
+    private var recording = false
+    /// The action keys (GlobalShortcuts), offered to the field so the same key is not assigned twice.
+    var actionCombos: () -> [(String, KeyCombo)] = { [] }
     private let prefix = "paletteInvocation."
     /// True while the front app is excluded or MightyEdit itself (B21): keys pass through.
     var hotkeysBlocked: () -> Bool = { false }
@@ -30,10 +31,6 @@ final class PaletteShortcut: NSObject {
     init(show: @escaping (pid_t?) -> Void) {
         self.show = show
         super.init()
-        modifiers.addItems(withTitles: combinations.map { $0.0 })
-        key.addItems(withTitles: keys.map { $0.0 })
-        modifiers.setAccessibilityLabel(L("palette.axModifiers"))
-        key.setAccessibilityLabel(L("palette.axKey"))
         let defaults = UserDefaults.standard
         enabled.state = defaults.object(forKey: prefix + "enabled") == nil || defaults.bool(forKey: prefix + "enabled") ? .on : .off
         // Migrate only the legacy default; explicit editor bindings and disabled state survive.
@@ -54,11 +51,7 @@ final class PaletteShortcut: NSObject {
             }
             defaults.set(true, forKey: prefix + "defaultControlE20261008")
         }
-        let combination = (defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1
-        modifiers.selectItem(at: combinations.indices.contains(combination) ? combination : 1)
-        key.selectItem(withTitle: defaults.string(forKey: prefix + "key") ?? "E")
-        if key.indexOfSelectedItem < 0 { key.selectItem(withTitle: "E") }
-        for control in [enabled as NSControl, modifiers, key] { control.target = self; control.action = #selector(changed) }
+        enabled.target = self; enabled.action = #selector(changed)
         var types = [EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
                      EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased))]
         let result = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
@@ -81,8 +74,10 @@ final class PaletteShortcut: NSObject {
             }
             return noErr
         }, types.count, &types, Unmanaged.passUnretained(self).toOpaque(), &handler)
-        if result == noErr { register() }
-        else { status.stringValue = L("palette.initFailed", String(result)) }
+        if result == noErr { register() } else { registered = false }
+        MainActor.assumeIsolated {
+            HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.recording = recording; self?.register() }
+        }
     }
     deinit {
         if let reference { UnregisterEventHotKey(reference) }
@@ -92,25 +87,26 @@ final class PaletteShortcut: NSObject {
         let heading = NSTextField(labelWithString: SettingsUI.launchTitle)
         heading.font = .boldSystemFont(ofSize: 18)
         let label = NSTextField(labelWithString: L("palette.bringToFront"))
-        let editor = HotkeyEditor(title: L("palette.shortcutTitle"), binding: currentBinding) { [weak self] binding in
-            guard let self else { return false }
-            self.enabled.state = binding == nil ? .off : .on
-            UserDefaults.standard.set(binding?.encoded ?? -1, forKey: self.prefix + "binding")
-            self.changed()
-            return true
-        }
-        self.editor = editor
-        let row = NSStackView(views: [editor]); row.spacing = 8
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        let field = HotkeyField.control(id: "paletteInvocation",
+                                        get: { [weak self] in self?.currentBinding?.combo },
+                                        set: { [weak self] combo in
+                                            guard let self, let combo else { return }
+                                            UserDefaults.standard.set(HotkeyBinding(combo).encoded, forKey: self.prefix + "binding")
+                                            self.register()
+                                        },
+                                        defaultCombo: Self.defaultBinding.combo,
+                                        others: { [weak self] in self?.actionCombos() ?? [] },
+                                        registered: { [weak self] in self?.registered ?? true },
+                                        isEnabled: { [weak self] in self?.enabled.state == .on })
         let note = NSTextField(wrappingLabelWithString: L("palette.shortcutNote"))
-        let reset = NSButton(title: L("palette.resetShortcut"), target: self, action: #selector(resetDefault))
-        reset.bezelStyle = .rounded
         let login = LoginAtLaunchControl()
         let resident = NSButton(checkboxWithTitle: L("palette.resident"), target: self, action: #selector(changeResident(_:)))
         resident.state = UserDefaults.standard.object(forKey: "paletteResident") == nil || UserDefaults.standard.bool(forKey: "paletteResident") ? .on : .off
         let residentNote = NSTextField(wrappingLabelWithString: L("palette.residentNote"))
         residentNote.font = .systemFont(ofSize: 11); residentNote.textColor = .secondaryLabelColor
-        let group = SettingsUI.group(SettingsUI.launchTitle, [login, resident, residentNote, MenuBarPresence.shared.settingsControl(), enabled, label, row, status, reset, note])
-        let permission = AccessibilityPermissionControl(required: true)
+        let group = SettingsUI.group(SettingsUI.launchTitle, [login, resident, residentNote, MenuBarPresence.shared.settingsControl(), label, enabled, field, note])
+        let permission = AccessibilitySection.group()
         let quit = SettingsUI.quitRestartGroup()
         let stack = NSStackView(views: [group, permission, quit])
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
@@ -123,7 +119,6 @@ final class PaletteShortcut: NSObject {
             stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 24),
             group.widthAnchor.constraint(equalTo: stack.widthAnchor),
             permission.widthAnchor.constraint(equalTo: stack.widthAnchor),
-            permission.heightAnchor.constraint(equalToConstant: 180),
             quit.widthAnchor.constraint(equalTo: stack.widthAnchor),
             stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -24)
         ])
@@ -138,41 +133,35 @@ final class PaletteShortcut: NSObject {
     @objc private func changed() {
         let defaults = UserDefaults.standard
         defaults.set(enabled.state == .on, forKey: prefix + "enabled")
-        defaults.set(modifiers.indexOfSelectedItem, forKey: prefix + "modifiers")
-        defaults.set(key.titleOfSelectedItem, forKey: prefix + "key")
         register()
     }
-    private var currentBinding: HotkeyBinding? {
-        if let saved = UserDefaults.standard.object(forKey: prefix + "binding") as? Int { return HotkeyBinding.decode(saved) }
-        return HotkeyBinding(key: keys[key.indexOfSelectedItem].1, modifiers: combinations[modifiers.indexOfSelectedItem].1)
+    static let defaultBinding = HotkeyBinding(key: 14, modifiers: UInt32(controlKey | optionKey | cmdKey))   // ⌃⌥⌘E
+    /// The saved key: paletteInvocation.binding, else the older modifiers index + key title (kept as they were).
+    var currentBinding: HotkeyBinding? {
+        let defaults = UserDefaults.standard
+        if let saved = defaults.object(forKey: prefix + "binding") as? Int { return HotkeyBinding.decode(saved) }
+        let combination = (defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1
+        let title = defaults.string(forKey: prefix + "key") ?? "E"
+        return HotkeyBinding(key: (keys.first { $0.0 == title } ?? ("E", 14)).1,
+                             modifiers: combinations[combinations.indices.contains(combination) ? combination : 1].1)
     }
-    /// Re-reads the saved binding after iCloud sync replaced it.
+    /// Re-reads the saved binding after settings were imported or synced.
     func reloadFromDefaults() {
         let defaults = UserDefaults.standard
         enabled.state = defaults.object(forKey: prefix + "enabled") == nil || defaults.bool(forKey: prefix + "enabled") ? .on : .off
-        let combination = (defaults.object(forKey: prefix + "modifiers") as? Int) ?? 1
-        modifiers.selectItem(at: combinations.indices.contains(combination) ? combination : 1)
-        key.selectItem(withTitle: defaults.string(forKey: prefix + "key") ?? "E")
-        if key.indexOfSelectedItem < 0 { key.selectItem(withTitle: "E") }
-        editor?.load(currentBinding)
         register()
-    }
-    @objc private func resetDefault() {
-        UserDefaults.standard.removeObject(forKey: prefix + "binding")
-        enabled.state = .on; modifiers.selectItem(at: 1); key.selectItem(withTitle: "E"); changed(); editor?.load(currentBinding)
     }
     private func register() {
         if let reference { UnregisterEventHotKey(reference) }; reference = nil
         blockedState = hotkeysBlocked()
         publishManifest()
-        guard enabled.state == .on else { status.stringValue = L("status.disabled"); return }
-        guard handler != nil else { status.stringValue = L("palette.notInitialized"); return }
-        guard let binding = currentBinding else { status.stringValue = L("status.disabled"); return }
+        defer { MainActor.assumeIsolated { HotkeyRecorder.shared.touch() } }
+        guard enabled.state == .on, !recording, let binding = currentBinding else { if handler != nil { registered = true }; return }
+        guard handler != nil else { registered = false; return }
         let actual = binding.actual
         let result = RegisterEventHotKey(actual.key, actual.modifiers,
                                         EventHotKeyID(signature: 0x4D45504C, id: 1), GetApplicationEventTarget(), 0, &reference)
-        status.stringValue = result == noErr ? L("palette.enabledStatus", binding.label) : L("palette.registerFailed", String(result))
-        status.textColor = result == noErr ? .secondaryLabelColor : .systemRed
+        registered = result == noErr
         // Conflicts are checked above; while blocked the key goes to the front app.
         if blockedState, let registered = reference { UnregisterEventHotKey(registered); reference = nil }
     }

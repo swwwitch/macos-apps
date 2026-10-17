@@ -23,7 +23,7 @@ final class PlainPaster {
     /// `stillTarget` is checked before the menu item is pressed and again right before ⌘V is sent (B21).
     func paste(appName: String, pid: pid_t, useMenu: Bool, titles: [String], restoreClipboard: Bool,
                stillTarget: () -> Bool) -> PasteOutcome {
-        guard AXIsProcessTrusted() else { return .failed(L("fail.access")) }
+        guard AXIsProcessTrusted() else { return .failed(AccessibilityText.text("blocked")) }
         let pasteboard = NSPasteboard.general
         guard let text = pasteboard.string(forType: .string), !text.isEmpty else { return .failed(L("fail.noText")) }
         guard stillTarget() else { return .failed(L("fail.target")) }

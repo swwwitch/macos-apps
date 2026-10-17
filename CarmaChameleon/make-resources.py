@@ -48,7 +48,7 @@ cancelled|中止しました（完成済みの出力は保持）|Cancelled (comp
 success|変換が完了しました|Conversion complete|转换完成|변환 완료
 failed|変換に失敗しました|Conversion failed|转换失败|변환 실패
 partial|一部の変換に失敗しました|Some conversions failed|部分转换失败|일부 변환 실패
-resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
+resident|ウインドウを閉じても常駐|Keep running after closing the window|关闭窗口后继续运行|창을 닫아도 계속 실행
 residentDetail|閉じた後もメニューバーやDockから再表示できます。|Reopen from the menu bar or Dock.|可从菜单栏或 Dock 再次打开。|메뉴 막대 또는 Dock에서 다시 열 수 있습니다.
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
 openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기
@@ -85,13 +85,6 @@ cut|カット|Cut|剪切|오려두기
 copy|コピー|Copy|拷贝|복사하기
 paste|ペースト|Paste|粘贴|붙여넣기
 selectAll|すべてを選択|Select All|全选|모두 선택
-login|ログイン時に起動|Launch at login|登录时启动|로그인 시 실행
-loginOpen|ログイン項目を開く|Open Login Items|打开登录项|로그인 항목 열기
-loginOn|ログイン時に自動起動します。|Launches automatically at login.|登录时自动启动。|로그인 시 자동 실행합니다.
-loginApproval|システム設定で許可してください。|Approve in System Settings.|请在系统设置中允许。|시스템 설정에서 허용하세요.
-loginMissing|アプリケーションフォルダから起動してください。|Launch from Applications.|请从应用程序文件夹启动。|응용 프로그램 폴더에서 실행하세요.
-loginOff|自動起動はオフです。|Launch at login is off.|登录启动已关闭。|자동 실행이 꺼져 있습니다.
-loginError|変更できませんでした：|Could not change setting: |无法更改设置：|설정 변경 실패: 
 notInstalled|未インストール|Not installed|未安装|설치되지 않음
 notChecked|最新版は未確認|Latest version not checked|尚未检查最新版本|최신 버전 미확인
 updateAvailable|更新があります|Update available|有可用更新|업데이트 있음
@@ -114,7 +107,7 @@ install|インストール|Install|安装|설치
 installUpdate|最新版をインストール|Install latest version|安装最新版本|최신 버전 설치
 installDetail|公式GitHubから取得し、SHA-256を検証してユーザー領域に保存します。管理者権限は不要です。|Downloads from official GitHub, verifies SHA-256, and installs for this user without administrator privileges.|从官方 GitHub 下载并验证 SHA-256，安装到用户目录，无需管理员权限。|공식 GitHub에서 다운로드하고 SHA-256을 확인한 후 사용자 영역에 설치합니다. 관리자 권한은 필요하지 않습니다.
 waitInstall|処理が完了してから終了してください。|Wait for this operation to finish before quitting.|请等待操作完成后退出。|작업 완료 후 종료하세요.
-syncNote|変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作を、このフォルダーに保存してほかのMacと共有します。|The format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion are saved in this folder and shared with your other Macs.|格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作会保存到此文件夹，并与你的其他 Mac 共享。|형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을 이 폴더에 저장해 다른 Mac과 공유합니다.
+syncNote|変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作を書き出し・同期します。|Exports and syncs the format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion.|导出并同步格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作。|형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을 내보내고 동기화합니다.
 syncPerMac|ログイン時の起動、常駐、メニューバー、保存先、PDFエンジン、pandoc・Illustrator・Photoshop・InDesignの場所、PDFプリセット、ウインドウ位置、同期フォルダーの場所はMacごとに保持します。|Login launch, background, menu bar, output folder, PDF engine, the pandoc, Illustrator, Photoshop and InDesign locations, PDF presets, window positions and the sync folder location stay per Mac.|登录时启动、后台运行、菜单栏、保存位置、PDF 引擎、pandoc、Illustrator、Photoshop 和 InDesign 的位置、PDF 预设、窗口位置和同步文件夹位置在每台 Mac 上分别保留。|로그인 시 실행, 백그라운드, 메뉴 막대, 저장 위치, PDF 엔진, pandoc·Illustrator·Photoshop·InDesign 위치, PDF 사전 설정, 윈도우 위치, 동기화 폴더 위치는 Mac마다 유지합니다.'''
 rows += """
 pdfEngineGroup|PDFエンジン（Typst）|PDF engine (Typst)|PDF 引擎（Typst）|PDF 엔진(Typst)
@@ -423,6 +416,6 @@ from help_text import HELP
 helptexts=[HELP[l] for l in ['ja','en','zh-Hans','ko']]
 for lang,text in zip(['ja','en','zh-Hans','ko'],helptexts): (root/'Resources'/f'{lang}.lproj'/'Help.txt').write_text(text)
 for lang,text in zip(['ja','en','zh-Hans','ko'],['Keynote形式で書き出すときはKeynoteに、Illustratorで.aiを変換するときはIllustratorに、Photoshopで.psdを変換するときはPhotoshopに、InDesignで.inddを変換するときはInDesignに作業を依頼します。', 'CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.', 'CarmaChameleon 会在导出 Keynote 时让 Keynote 创建演示文稿，在用 Illustrator 转换 .ai 时让 Illustrator 导出，在用 Photoshop 转换 .psd 时让 Photoshop 导出，在转换 .indd 时让 InDesign 导出。', 'CarmaChameleon는 Keynote로 내보낼 때 Keynote에, Illustrator로 .ai를 변환할 때 Illustrator에, Photoshop으로 .psd를 변환할 때 Photoshop에, .indd를 변환할 때 InDesign에 작업을 요청합니다.']): (root/'Resources'/f'{lang}.lproj'/'InfoPlist.strings').write_text(f'"NSAppleEventsUsageDescription" = {json.dumps(text,ensure_ascii=False)};\n')
-info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.14.0',CFBundleVersion='43',SWNoteArticleURL='https://note.com/swwwitch/n/nd6df5482fd00',SWAppFamily='swwwitch',NSHumanReadableCopyright='© 2026 swwwitch',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
+info=dict(CFBundleName='CarmaChameleon',CFBundleDisplayName='CarmaChameleon',CFBundleExecutable='CarmaChameleon',CFBundleIdentifier='jp.local.PandocDesk',CFBundlePackageType='APPL',CFBundleShortVersionString='0.14.2',CFBundleVersion='45',SWNoteArticleURL='https://note.com/swwwitch/n/nd6df5482fd00',SWAppFamily='swwwitch',NSHumanReadableCopyright='© 2026 swwwitch',NSAppleEventsUsageDescription='CarmaChameleon asks Keynote to create presentations, Illustrator to export .ai files, Photoshop to export .psd files, and InDesign to export .indd files when you choose those options.',CFBundleIconFile='CarmaChameleon.icns',CFBundleDevelopmentRegion='en',CFBundleLocalizations=['ja','en','zh-Hans','ko'],LSMinimumSystemVersion='13.0',NSHighResolutionCapable=True,LSMultipleInstancesProhibited=True,CFBundleDocumentTypes=[dict(CFBundleTypeName='Documents',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',LSItemContentTypes=['public.text','org.openxmlformats.wordprocessingml.document','org.idpf.epub-container','com.adobe.pdf','public.comma-separated-values-text','public.tab-separated-values-text','org.openxmlformats.spreadsheetml.sheet','com.adobe.illustrator.ai-image','com.adobe.photoshop-image','public.image'])])
 info['CFBundleDocumentTypes'].append(dict(CFBundleTypeName='InDesign Markup',CFBundleTypeRole='Viewer',LSHandlerRank='Alternate',CFBundleTypeExtensions=['idml','indd','srt']))
 with open(root/'Info.plist','wb') as f: plistlib.dump(info,f)

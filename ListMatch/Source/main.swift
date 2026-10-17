@@ -67,6 +67,29 @@ final class Model: ObservableObject {
         rightSkipHeader = flag("rightSkipHeader", true)
     }
 
+    /// Keys shared by 設定の共有: the comparison options and per-list column choices. 常駐 and the lists stay per Mac.
+    nonisolated static let sharedKeys: Set<String> = ["dimCommon", "ignoreCase", "ignoreWidth", "splitAtSpaces", "splitAtCommas", "splitAtTabs",
+                                                      "sortResults", "emailOnly", "leftColumn", "rightColumn", "leftSkipHeader", "rightSkipHeader"]
+
+    /// Re-reads the shared settings after an import so the next save does not write the old values back.
+    /// Only changed values are assigned, so unchanged separators do not rewrite the lists.
+    func reloadSharedSettings() {
+        func flag(_ key: String, _ fallback: Bool) -> Bool { defaults.object(forKey: key) as? Bool ?? fallback }
+        if case let v = flag("dimCommon", true), v != dimCommon { dimCommon = v }
+        if case let v = flag("ignoreCase", true), v != ignoreCase { ignoreCase = v }
+        if case let v = flag("ignoreWidth", false), v != ignoreWidth { ignoreWidth = v }
+        if case let v = flag("sortResults", false), v != sortResults { sortResults = v }
+        if case let v = defaults.integer(forKey: "leftColumn"), v != leftColumn { leftColumn = v }
+        if case let v = defaults.integer(forKey: "rightColumn"), v != rightColumn { rightColumn = v }
+        if case let v = flag("leftSkipHeader", true), v != leftSkipHeader { leftSkipHeader = v }
+        if case let v = flag("rightSkipHeader", true), v != rightSkipHeader { rightSkipHeader = v }
+        // Separators and the unit last: turning them on rewrites the lists one item per line, as when chosen by hand.
+        if case let v = flag("emailOnly", false), v != emailOnly { emailOnly = v }
+        if case let v = flag("splitAtSpaces", false), v != splitAtSpaces { splitAtSpaces = v }
+        if case let v = flag("splitAtCommas", false), v != splitAtCommas { splitAtCommas = v }
+        if case let v = flag("splitAtTabs", false), v != splitAtTabs { splitAtTabs = v }
+    }
+
     var options: ListComparison.Options {
         ListComparison.Options(ignoreCase: ignoreCase, ignoreWidth: ignoreWidth, splitAtSpaces: splitAtSpaces, splitAtCommas: splitAtCommas, splitAtTabs: splitAtTabs, sortResults: sortResults, emailOnly: emailOnly)
     }
@@ -702,6 +725,7 @@ struct Preferences: View {
                     Text(L("sortResultsHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -733,6 +757,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 settings: { [weak self] in self?.showPreferences() },
                 help: { [weak self] in self?.showHelp() })
         }
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
+            note: StartupWindow.text("比較の設定（区切り文字・比較の単位・列・見出し行を含む）を書き出し・同期します。リストの内容は含みません。",
+                                     "Exports and syncs the comparison settings, including separators, the comparison unit, columns and header rows. The lists are not included.",
+                                     "导出并同步比较设置（包括分隔符、比较单位、列和标题行）。不包含列表内容。",
+                                     "비교 설정(구분 문자, 비교 단위, 열, 머리글 행 포함)을 내보내고 동기화합니다. 목록 내용은 포함하지 않습니다."),
+            perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
+                                       "Open at login, keep running and the menu bar icon are set on each Mac.",
+                                       "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         if !loginLaunch && !StartupWindow.hidden { showMain() }
     }
 

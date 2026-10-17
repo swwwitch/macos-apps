@@ -7,7 +7,7 @@ xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/LinkRules.swift S
 "$STAGING/rules-tests"
 xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/LaunchPolicy.swift Tests/LaunchTests.swift -o "$STAGING/launch-tests"
 "$STAGING/launch-tests"
-xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/HotKey.swift Tests/ShortcutTests.swift -o "$STAGING/shortcut-tests"
+xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/HotKey.swift Sources/HotkeyRecorder.swift Sources/StartupWindow.swift Sources/SettingsSection.swift Sources/ShortcutCombo.swift Tests/ShortcutTests.swift -o "$STAGING/shortcut-tests"
 "$STAGING/shortcut-tests"
 python3 Tests/check_resources.py
 python3 Tests/check_km_macro.py

@@ -28,15 +28,17 @@
 | B17 | プライバシー | 実装済み | 外部通信なし。NSAppleEventsUsageDescription に用途 |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 一部 | deploy_both.py で両方に配置、版・署名・内容一致を確認、/Applications版の起動と主画面表示を確認。更新配信先・鍵は未設定（準備中表示）。Developer ID配布時は apple-events のエンタイトルメントが必要（未設定） |
 | B19 | マスタード基調の共通アイコン | 実装済み | マスタードのタイル＋白いフォルダー＋「＋」のバッジ（Assets/draw-icon.swift）。Finder表示は未確認 |
-| B20 | 共通UI統一 | 実装済み・実機未確認 | タブ：起動・常駐（ログイン・起動時非表示・常駐・メニューバー・呼び出しホットキー／アクセシビリティ／オートメーション／操作）、作成先、作成後、情報 |
+| B20 | 共通UI統一 | 実装済み・実機未確認 | タブ：起動・常駐（ログイン・起動時非表示・常駐・メニューバー・呼び出しホットキー／アクセシビリティ／オートメーション／操作）、作成先、作成後、情報。2026-10-17：アクセシビリティを共通の AccessibilitySection() に（起動グループの直下）、判定は AccessibilitySection.isTrusted、未許可の失敗表示は AccessibilityText.text("blocked")。独自の accessibilityAllowed / refreshAccessibility は削除 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 他アプリの文字や操作には作用しない（Finder・Path Finder にフォルダーを問い合わせるだけ）。呼び出しホットキーは Finder・Path Finder・自身が前面のときだけ登録し、ほかのアプリのキーを奪わない |
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindow 共通部品 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | WindowActivationPolicy、⌘0／⌘1 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ復元）、最小 640×520 |
-| B25 | アプリ情報と目印 | 実装済み・実機確認済み（タグ） | 情報タブ、Info.plist の3キー（専用記事は未作成のためまとめのURL）。Finderタグ swwwitch を mdls で確認 |
+| B25 | アプリ情報と目印 | 実装済み・実機確認済み（タグ） | 情報タブ、Info.plist の3キー。Finderタグ swwwitch を mdls で確認。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |
 | B26 | 証明書での署名 | 実機確認済み | TeamIdentifier=PL9S9PXX96（codesign -dv） |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | esc でキャンセル、失敗はウインドウ内に理由＋ビープ、入力に問題があれば作成ボタンを無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：openAfter・viewer・revealInParent・closeAfter・addToFinderSidebar・addToSidebar・makeLink・normalizeNFC・windowsSafe（projects・namingRule は Library.json の共有フォルダーで共有するため対象外）。onImport で reloadSharedSettings() により作成後・名前の確認の値を読み直す。GUI操作での書き出し・読み込み・同期は未確認 |
+| — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：「起動・常駐」の「アプリを呼び出すホットキー」を HotkeyField（初期値 ⇧⌥⌘N、allowsClear）に。保存は appShortcut（JSON、空データ＝解除）のまま、ShortcutCombo.swift で変換（ComboTests）。登録は共通の HotkeySet（"FMKR"、アプリ側の HotKeySet は削除）、初回案内の「ホットキーを設定」も共通の記録を開始。独自の記録モニター・ボタン・文言を削除 |
 
 ## 確認記録
 

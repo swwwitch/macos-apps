@@ -28,7 +28,9 @@ Choose **Settings…** (⌘,) in the app menu. The Startup & Background tab has 
 - **Open at login**
 - **Hide main window at startup**
 - **Show in menu bar**
-- **Show app shortcut**: Shows the YohakuTrimmer window. It is off initially. When turned on, the initial key is ⌃⌥⌘Y. **Restore Defaults** returns to the initial state.
+- **Show app shortcut**: When images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the YohakuTrimmer window. It is off initially. To use it, turn on **Enable hotkey** (the initial key is ⌃⌥⌘Y). To change the key, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘Y.
+
+In the Sharing tab you can share the color tolerance. **Export…** saves YohakuTrimmer-Settings.plist, and **Import…** loads it on another Mac (after you confirm the replacement). Under Settings Sync, choose a folder in iCloud Drive, Dropbox or elsewhere, and Macs that use the same folder keep the setting in step automatically. Login launch, the menu bar and the hotkey are set on each Mac.
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window
@@ -38,10 +40,12 @@ Choose **Settings…** (⌘,) in the app menu. The Startup & Background tab has 
 - **⌘W**: Close Window
 - **⌘Z / ⇧⌘Z**: Undo / Redo (in text fields)
 - **⌘Q**: Quit YohakuTrimmer
-- **Show app shortcut** (when turned on in Settings): Shows the YohakuTrimmer window, even while you use another app
+- **Show app shortcut** (when turned on in Settings): Processes the images selected in Finder or Path Finder, or shows the YohakuTrimmer window if nothing is selected, even while you use another app
 
 ## Permissions
 Accessibility permission is not required. If the app can’t write to the original image folder, it asks for access to that folder. Choose the folder that contains the original image and click **Allow Access**.
+
+The first time the shortcut processes selected images, macOS asks whether YohakuTrimmer may control Finder (or Path Finder). Click **Allow**. To change this later, use System Settings > Privacy & Security > Automation. If any image could not be processed (for example, it had no margin), the window shows the results.
 
 ## Launching and Quitting
 - Closing the window doesn’t quit the app. Show the window again from the Dock icon, **Open Main Window** in the menu bar icon (when **Show in menu bar** is on), or the Show app shortcut.

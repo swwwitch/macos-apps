@@ -1,6 +1,6 @@
 # LinkMaker
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.7-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.13-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ブラウザーで表示中のページのタイトルとURLを、ホットキーでコピー・ファイル書き出し・開き直しするメニューバー常駐アプリ。Keyboard Maestro のマクログループ「Make Link」「Make Link (misc)」（[Reference](Reference/)）の移植。
 
@@ -22,6 +22,12 @@
 | Sources/Palette.swift | パレット（KakkoReplace の BracketPalette と同じ作り。フォーカスを奪わない浮動パネル） |
 | Sources/main.swift | 画面・メニュー、パレットの表示制御 |
 
+## 設定の共有
+
+- 設定の「設定の共有」タブ（共通部品 Shared/SettingsSync）で、ホットキー（shortcuts・actionEnabled・doubleTap）、パレット（paletteShortcut・paletteHotkeyEnabled・paletteMode・paletteSimple・paletteSimpleActions）、対象ブラウザー、出力の設定（simplifyURL・associateID・translateTarget・notifySuccess）を LinkMaker-Settings.plist に書き出し・読み込み（置き換え）し、iCloud Drive・Dropbox などのフォルダーで同期する。
+- ログイン起動・常駐・メニューバー・対象外アプリ・書き出し先のフォルダー・ウインドウ位置はMacごと。
+- 対象外アプリは共通部品 Shared/ExcludedApps（キー excludedBundleIDs、1.2.10 までの excludedApps を引き継ぐ）。アクセシビリティは「起動・常駐」の共通グループ（AccessibilitySection）。
+
 ## 移植の差分
 
 - QRコードは外部API（api.qrserver.com）ではなくMac内で生成。
@@ -31,6 +37,19 @@
 - 未移植：タブ切り替え・タブを閉じる系、Notion・Biscuit・Notefile専用、カンマ削除ペースト、セル内改行の「"」削除（CellCopyCleaner）、デフォルトブラウザーの変更（BrowserSwitcher）、クリップボードで起動するマクロ（KMで無効）。
 
 ## 更新履歴
+
+- 1.2.13（build 16, 2026-10-17）：ホットキーの記録欄で ⌥だけ・⌥⇧だけのキーも記録できるように（初期値の ⌥S・⌥G などを記録し直せる。共通部品の allowsOption）。［初期値に戻す］は、そのキーをほかの機能やパレットで使っていれば戻さない。
+
+- 1.2.12（build 15, 2026-10-17）：パレットのホットキーの初期値を ⌃⇧⌘K から ⌃⌥⌘M に変更（ヘルプも合わせた）。
+- 1.2.12（build 15, 2026-10-17）：設定の機能ごとのホットキーとパレットのホットキーを、全アプリ共通の記録欄（［変更…／記録をキャンセル］［初期値に戻す］［割り当てを解除］、⌘か⌃を含むキーだけ・標準キーと重複を断る、登録失敗は共通の文言）に。保存形式（shortcuts・paletteShortcut）は変えない。記録中は機能とパレットのホットキーを外す。対象外アプリの「初期値に戻す」は共通部品の reset(to:) に。
+
+- 1.2.11（build 14, 2026-10-17）：設定の「対象外アプリ」を全アプリ共通の部品に（追加…・削除、アイコンとBundle ID表示。今の一覧は引き継ぎ、「初期値に戻す」は残した）。アクセシビリティを共通のグループと文言にし、メインウインドウの独自の許可状態の行を外した。常駐の英語表記をそろえた。
+
+- 1.2.10（build 13, 2026-10-16）：設定の「設定の同期」タブを、全アプリ共通の「設定の共有」タブ（書き出し・読み込みと、iCloud Drive・Dropbox などでの同期）に置き換え。「情報」とヘルプの解説記事を専用記事（https://note.com/swwwitch/n/n8b43a7eba379）に変更。
+
+- 1.2.9（build 12, 2026-10-16）：パレットに「簡易モード」を追加（MightyEditと同じく上部のメニューで「全部入り」と切り替え。表示するボタンは設定の「パレット」で選ぶ。隠した機能もホットキー・メニューバーから使える）。設定のホットキー表示で ⌃⇧⌘ が詰まって見えていたのを字間を空けて修正。「対象ブラウザー」のチェックボックスとアイコン・名前の天地をそろえた。
+
+- 1.2.8（build 11, 2026-10-16）：画面・ヘルプからKeyboard Maestroマクロに関する説明を削除。
 
 - 1.2.7（build 10, 2026-10-14）：設定のショートカットの表示が狭く、⌃⌥⇧⌘ を含むキーが切れていたのを修正（文字の幅に合わせて広がる。全アプリで統一）。
 

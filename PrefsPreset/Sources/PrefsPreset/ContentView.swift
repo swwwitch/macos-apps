@@ -127,7 +127,7 @@ struct ContentView: View {
             Button(L("キャンセル"), role: .cancel) {}
         } message: {
             if store.changed.contains(where: { !administratorDomains.isDisjoint(with: $0.item.domains) }) {
-                Text(L("元の値はバックアップします。DockやFinderなどは再起動します。") + "\n\n" + L("起動時のサウンドとキャップスロックインジケータの書き込みでは、管理者のパスワードを求められます。"))
+                Text(L("元の値はバックアップします。DockやFinderなどは再起動します。") + "\n\n" + L("起動時のサウンド・ファイアウォール・コンピュータ名など一部の設定の書き込みでは、管理者のパスワードを求められます。"))
             } else {
                 Text(L("元の値はバックアップします。DockやFinderなどは再起動します。"))
             }
@@ -262,7 +262,8 @@ struct ContentView: View {
                     Text(L(e.item.label)).fontWeight(e.isChanged ? .semibold : .regular)
                 }
                 .help(e.item.domains.contains(featureFlagDomain) ? L("このMacでは管理者のパスワードなしに読み取れないため、PrefsPresetで最後に適用した値を「現在の値」に表示します。書き込みでは管理者のパスワードを求められます。")
-                      : e.item.domains.contains(nvramDomain) ? L("書き込みでは管理者のパスワードを求められます。")
+                      : e.item.domains.contains(screenLockDomain) ? L("書き込みではログインパスワードを求められます。")
+                      : !administratorDomains.isDisjoint(with: e.item.domains) ? L("書き込みでは管理者のパスワードを求められます。")
                       : e.isChanged ? L("「適用」で書き換わります") : "")
             }
             .width(min: 220, ideal: 320)

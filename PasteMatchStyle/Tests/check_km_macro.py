@@ -23,7 +23,7 @@ def menus(node):
 specific = set(menus(plistlib.loads(matching.read_bytes())))
 assert specific <= set(initial), specific - set(initial)
 km_apps = sorted({t['BundleIdentifier'] for t in group['Targeting']['TargetingApps']})
-lists = (root / 'Sources/ExcludedAppList.swift').read_text()
+lists = (root / 'Sources/main.swift').read_text()
 excluded = sorted(re.findall(r'"([\w.-]+)"', re.search(r'static let initial = \[(.*?)\]', lists).group(1)))
 assert excluded == km_apps, (excluded, km_apps)
 print(f'PASS: {len(km_titles)} macro titles in order + {len(specific)} app-specific titles covered; excluded defaults = KM; ⇧⌘V')

@@ -23,9 +23,6 @@
 "menu.appHelp" = "CommandDee Help";
 "shortcut.palette" = "Show / Hide Palette";
 "settings.paletteHotkeyNote" = "While CommandDee is running, this key shows or hides the palette from any app. It works independently of Enable Shortcuts.";
-"settings.resetPaletteHotkey" = "Reset to ⌃⌥⌘D";
-"settings.paletteHotkeyActive" = "Press %@ to show or hide the palette";
-"settings.paletteHotkeyFailed" = "Could not register %1$@ (error %2$d). Choose another key.";
 "menu.showPalette" = "Show Palette";
 "menu.hidePalette" = "Hide Palette";
 "palette.subtitle" = "Check the resulting name, then click";
@@ -47,7 +44,6 @@
 "status.tooltip" = "CommandDee — Duplicate with a version or date";
 "status.noSelection" = "No files or folders are selected";
 "status.selectionFailed" = "Could not get the selection";
-"status.needsAccessibility" = "Accessibility permission is required";
 "status.enabled" = "Shortcuts enabled";
 "status.paused" = "Paused";
 "progress.duplicate" = "Duplicating %d items…";
@@ -78,9 +74,6 @@
 "settings.skipFolderPlaceholder" = "If empty, the name of the immediate parent folder is used";
 "settings.resetSkipFolder" = "Reset to Login User Name";
 "settings.resetShortcuts" = "Restore Default Shortcuts";
-"settings.shortcutInvalid" = "This key can’t be used. Combine it with ⌘, ⌃, or ⌥ (Esc to cancel).";
-"settings.shortcutDuplicate" = "“%@” is already assigned to another action.";
-"settings.recordShortcut" = "Type a shortcut (Esc to cancel)";
 "shortcut.unset" = "Not Set";
 "shortcut.version" = "Duplicate with next version";
 "shortcut.date" = "Duplicate with date";

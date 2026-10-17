@@ -29,6 +29,11 @@
 - Turn on Settings → Launch & presence → Show in menu bar, or use Menu Bar Settings… in the app menu, to show an icon in the menu bar. Off by default.
 - The icon's menu offers Open Main Window, Settings…, Help (FileCaravan Help / Open the note Article) and Quit FileCaravan.
 
+## Sharing Settings
+- In the Sharing tab of Settings, Export… and Import… save and load the move options (Include subfolders, Include hidden items, Open destination after moving) and Shorten Dropbox paths as FileCaravan-Settings.plist. Importing asks first, then replaces the settings.
+- Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins).
+- The source and destination folders, open at login, keep running and the menu bar icon are set on each Mac.
+
 ## Keyboard Shortcuts
 - **⌘,**: Settings
 - **⌘0**: Open Main Window

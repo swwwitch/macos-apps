@@ -26,12 +26,126 @@ func readStartupSound() -> NSObject? {
     return NSNumber(value: !output.contains("%01"))
 }
 
-/// 管理者権限でシェルコマンドを実行する。認証ダイアログでキャンセルされたら false
-@discardableResult
-func runAsAdministrator(_ command: String) -> Bool {
+/// 適用中に溜める管理者権限のコマンド。nil のときはその場で実行する
+private var administratorBatch: [(command: String, onSuccess: () -> Void)]?
+
+/// 管理者権限でシェルコマンドを実行する。認証ダイアログでキャンセルされたら onSuccess を呼ばない
+/// 適用中（beginAdministratorBatch〜commitAdministratorBatch）は溜めておき、パスワードを1回だけ求める
+func runAsAdministrator(_ command: String, onSuccess: @escaping () -> Void = {}) {
+    if administratorBatch != nil {
+        administratorBatch?.append((command, onSuccess))
+        return
+    }
+    if executeAsAdministrator(command) { onSuccess() }
+}
+
+private func executeAsAdministrator(_ command: String) -> Bool {
+    let literal = command.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
     var error: NSDictionary?
-    NSAppleScript(source: "do shell script \"\(command)\" with administrator privileges")?.executeAndReturnError(&error)
+    NSAppleScript(source: "do shell script \"\(literal)\" with administrator privileges")?.executeAndReturnError(&error)
     return error == nil
+}
+
+func beginAdministratorBatch() { administratorBatch = [] }
+
+func commitAdministratorBatch() {
+    guard let batch = administratorBatch else { return }
+    administratorBatch = nil
+    guard !batch.isEmpty, executeAsAdministrator(batch.map(\.command).joined(separator: " && ")) else { return }
+    batch.forEach { $0.onSuccess() }
+}
+
+/// シェルの引数として ' で囲む
+func shellQuoted(_ s: String) -> String { "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
+
+/// コマンドを実行して標準出力と標準エラーをまとめて返す。起動できなければ nil
+func output(_ path: String, _ args: [String]) -> String? {
+    let p = Process()
+    let pipe = Pipe()
+    p.executableURL = URL(fileURLWithPath: path)
+    p.arguments = args
+    p.standardOutput = pipe
+    p.standardError = pipe
+    guard (try? p.run()) != nil else { return nil }
+    let text = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    p.waitUntilExit()
+    return text
+}
+
+/// ファイアウォール（ネットワーク → ファイアウォール）。キーは "globalstate" と "stealthmode"、値はオンの真偽
+/// 読むのは誰でもできる。「すべての着信接続をブロック」（State = 2）もオンとして読む
+let firewallDomain = "Firewall"
+private let socketFilter = "/usr/libexec/ApplicationFirewall/socketfilterfw"
+
+func readFirewall(_ key: String) -> NSObject? {
+    guard let text = output(socketFilter, ["--get" + key]) else { return nil }
+    if key == "globalstate" {
+        guard let state = text.firstMatch(of: #/State = (\d)/#)?.1 else { return nil }
+        return NSNumber(value: state != "0")
+    }
+    return NSNumber(value: text.contains(" on"))
+}
+
+func writeFirewall(_ key: String, _ value: NSObject?) {
+    guard let enabled = (value as? NSNumber)?.boolValue else { return }
+    runAsAdministrator("\(socketFilter) --set\(key) \(enabled ? "on" : "off")")
+}
+
+/// ロック画面の「スクリーンセーバの開始後またはディスプレイがオフになったあとにパスワードを要求」
+/// 値は秒数の文字列（"0" はすぐに）か "off"。書き込みにはログインパスワードが要る（管理者権限ではなくこのユーザーの設定）
+let screenLockDomain = "ScreenLock"
+
+func readScreenLock() -> NSObject? {
+    guard let text = output("/usr/sbin/sysadminctl", ["-screenLock", "status"]) else { return nil }
+    if let seconds = text.firstMatch(of: #/delay is (\d+) seconds/#)?.1 { return String(seconds) as NSString }
+    if text.contains("immediate") { return "0" as NSString }
+    if text.contains("off") { return "off" as NSString }
+    return nil
+}
+
+func writeScreenLock(_ value: NSObject?) {
+    guard let raw = value as? String else { return }
+    let alert = NSAlert()
+    alert.messageText = L("ログインパスワードを入力してください")
+    alert.informativeText = L("「スクリーンセーバ・ディスプレイオフ後にパスワードを要求」の変更には、このユーザーのログインパスワードが要ります。")
+    let field = NSSecureTextField(frame: NSRect(x: 0, y: 0, width: 240, height: 24))
+    alert.accessoryView = field
+    alert.addButton(withTitle: L("OK"))
+    alert.addButton(withTitle: L("キャンセル"))
+    alert.window.initialFirstResponder = field
+    NSApp.activate(ignoringOtherApps: true)
+    guard alert.runModal() == .alertFirstButtonReturn, !field.stringValue.isEmpty else { return }
+    run("/usr/sbin/sysadminctl", ["-screenLock", raw == "0" ? "immediate" : raw, "-password", field.stringValue])
+}
+
+/// プリンタ共有（一般 → 共有）。cupsctl の _share_printers を真偽で扱う。書き込みには管理者権限が要る
+let printerSharingDomain = "PrinterSharing"
+
+func readPrinterSharing() -> NSObject? {
+    guard let text = output("/usr/sbin/cupsctl", []),
+          let value = text.firstMatch(of: #/_share_printers=(\d)/#)?.1 else { return nil }
+    return NSNumber(value: value == "1")
+}
+
+func writePrinterSharing(_ value: NSObject?) {
+    guard let enabled = (value as? NSNumber)?.boolValue else { return }
+    runAsAdministrator("/usr/sbin/cupsctl --\(enabled ? "" : "no-")share-printers")
+}
+
+/// ディスプレイをオフにするまでの時間（分、0 はしない）。キーは pmset の電源の種類 "b"（バッテリー）と "c"（電源アダプタ）
+let displaySleepDomain = "DisplaySleep"
+
+func readDisplaySleep(_ key: String) -> NSObject? {
+    guard let text = output("/usr/bin/pmset", ["-g", "custom"]) else { return nil }
+    let heading = key == "b" ? "Battery Power:" : "AC Power:"
+    guard let section = text.components(separatedBy: heading).dropFirst().first?.components(separatedBy: " Power:").first,
+          let minutes = section.firstMatch(of: #/displaysleep\s+(\d+)/#)?.1, let n = Int(minutes) else { return nil }
+    return NSNumber(value: n)
+}
+
+func writeDisplaySleep(_ key: String, _ value: NSObject?) {
+    guard let n = (value as? NSNumber)?.intValue, ["b", "c"].contains(key) else { return }
+    runAsAdministrator("/usr/bin/pmset -\(key) displaysleep \(n)")
 }
 
 /// /Library/Preferences/FeatureFlags/Domain/UIKit.plist（root のみ読み書きできる）。キーは機能フラグ名、値は Enabled の真偽
@@ -50,12 +164,11 @@ func writeFeatureFlag(_ key: String, _ value: NSObject?) {
     case let enabled?: command = "/usr/bin/defaults write \(featureFlagFile) \(key) -dict-add Enabled -bool \(enabled ? "YES" : "NO")"
     case nil: command = "/usr/bin/defaults delete \(featureFlagFile) \(key)"
     }
-    guard runAsAdministrator(command) else { return }
-    UserDefaults.standard.set(value, forKey: featureFlagMemoKey(key))
+    runAsAdministrator(command) { UserDefaults.standard.set(value, forKey: featureFlagMemoKey(key)) }
 }
 
 /// 管理者のパスワードを求める保存先
-let administratorDomains: Set<String> = [nvramDomain, featureFlagDomain]
+let administratorDomains: Set<String> = [nvramDomain, featureFlagDomain, computerNameDomain, firewallDomain, displaySleepDomain, printerSharingDomain]
 
 /// NVRAM の書き込みには管理者権限が要る。認証ダイアログを出し、キャンセルされたら書かない
 func writeStartupSound(_ value: NSObject?) {
@@ -230,8 +343,85 @@ func writeMightyMouseScroll(_ value: NSObject?) {
     CFPreferencesAppSynchronize(d)
 }
 
+/// Handoff（一般 → AirDrop と Handoff）。ByHost の useractivityd にある送信・受信の2つのキーを1つの値で扱う
+let handoffDomain = "Handoff"
+private let userActivityDomain = "com.apple.coreservices.useractivityd" as CFString
+private let handoffKeys = ["ActivityAdvertisingAllowed", "ActivityReceivingAllowed"]
+
+func readHandoff() -> NSObject? {
+    CFPreferencesSynchronize(userActivityDomain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+    return CFPreferencesCopyValue(handoffKeys[0] as CFString, userActivityDomain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost) as? NSObject
+}
+
+func writeHandoff(_ value: NSObject?) {
+    for key in handoffKeys {
+        CFPreferencesSetValue(key as CFString, value as CFPropertyList?, userActivityDomain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+    }
+    CFPreferencesSynchronize(userActivityDomain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+}
+
+/// Spotlight の検索結果の項目（com.apple.Spotlight の EnabledPreferenceRules）。キーは規則名、配列に入っていればオン
+let spotlightRuleDomain = "SpotlightRules"
+private let spotlightDomain = "com.apple.Spotlight" as CFString
+private let spotlightRulesKey = "EnabledPreferenceRules" as CFString
+
+func readSpotlightRule(_ rule: String) -> NSObject? {
+    CFPreferencesAppSynchronize(spotlightDomain)
+    guard let rules = CFPreferencesCopyAppValue(spotlightRulesKey, spotlightDomain) as? [String] else { return nil }
+    return NSNumber(value: rules.contains(rule))
+}
+
+/// ほかの規則は残したまま足し引きする。nil は書かない（配列ごと消すとほかの項目まで既定に戻る）
+func writeSpotlightRule(_ rule: String, _ value: NSObject?) {
+    guard let enabled = (value as? NSNumber)?.boolValue else { return }
+    CFPreferencesAppSynchronize(spotlightDomain)
+    var rules = CFPreferencesCopyAppValue(spotlightRulesKey, spotlightDomain) as? [String] ?? []
+    rules.removeAll { $0 == rule }
+    if enabled { rules.insert(rule, at: 0) }
+    CFPreferencesSetAppValue(spotlightRulesKey, rules as CFArray, spotlightDomain)
+    CFPreferencesAppSynchronize(spotlightDomain)
+}
+
+/// コンピュータ名（一般 → 情報 → 名前）とローカルホスト名。キーは scutil の名前。書き込みには管理者権限が要る
+let computerNameDomain = "ComputerName"
+
+func readComputerName(_ key: String) -> NSObject? {
+    let p = Process()
+    let pipe = Pipe()
+    p.executableURL = URL(fileURLWithPath: "/usr/sbin/scutil")
+    p.arguments = ["--get", key]
+    p.standardOutput = pipe
+    p.standardError = FileHandle.nullDevice
+    guard (try? p.run()) != nil else { return nil }
+    let output = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    p.waitUntilExit()
+    guard p.terminationStatus == 0 else { return nil }
+    return output.trimmingCharacters(in: .newlines) as NSString
+}
+
+/// 空・未設定にはしない
+func writeComputerName(_ key: String, _ value: NSObject?) {
+    guard let name = value as? String, !name.isEmpty else { return }
+    runAsAdministrator("/usr/sbin/scutil --set \(key) \(shellQuoted(name))")
+}
+
+/// "ByHost/<ドメイン>" は ~/Library/Preferences/ByHost の、このMacだけの設定
+private let byHostPrefix = "ByHost/"
+
 /// 他のプロセスが書いた値も拾えるよう、同期してから読む
 func readValue(domain: String, key: String) -> NSObject? {
+    if domain.hasPrefix(byHostPrefix) {
+        let d = String(domain.dropFirst(byHostPrefix.count)) as CFString
+        CFPreferencesSynchronize(d, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+        return CFPreferencesCopyValue(key as CFString, d, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost) as? NSObject
+    }
+    if domain == handoffDomain { return readHandoff() }
+    if domain == spotlightRuleDomain { return readSpotlightRule(key) }
+    if domain == computerNameDomain { return readComputerName(key) }
+    if domain == firewallDomain { return readFirewall(key) }
+    if domain == screenLockDomain { return readScreenLock() }
+    if domain == displaySleepDomain { return readDisplaySleep(key) }
+    if domain == printerSharingDomain { return readPrinterSharing() }
     if domain == nvramDomain { return readStartupSound() }
     if domain == hotkeyDomain { return readHotkey(key) }
     if domain == appShortcutDomain { return readAppShortcut(key) }
@@ -247,6 +437,19 @@ func readValue(domain: String, key: String) -> NSObject? {
 /// nil を渡すとキーを削除して既定値に戻す
 func writeValue(_ value: NSObject?, domains: [String], key: String) {
     for domain in domains {
+        if domain.hasPrefix(byHostPrefix) {
+            let d = String(domain.dropFirst(byHostPrefix.count)) as CFString
+            CFPreferencesSetValue(key as CFString, value as CFPropertyList?, d, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+            CFPreferencesSynchronize(d, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+            continue
+        }
+        if domain == handoffDomain { writeHandoff(value); continue }
+        if domain == spotlightRuleDomain { writeSpotlightRule(key, value); continue }
+        if domain == computerNameDomain { writeComputerName(key, value); continue }
+        if domain == firewallDomain { writeFirewall(key, value); continue }
+        if domain == screenLockDomain { writeScreenLock(value); continue }
+        if domain == displaySleepDomain { writeDisplaySleep(key, value); continue }
+        if domain == printerSharingDomain { writePrinterSharing(value); continue }
         if domain == nvramDomain { writeStartupSound(value); continue }
         if domain == hotkeyDomain { writeHotkey(key, value); continue }
         if domain == appShortcutDomain { writeAppShortcut(key, value); continue }
@@ -281,6 +484,11 @@ func processesToRestart(for domain: String) -> [String] {
     // カレンダーのアプリと Dock のアイコンの週の並び
     case firstWeekdayDomain: return ["Calendar", "Dock"]
     case wallpaperDomain: return ["WallpaperAgent"]
+    // iPhone ウィジェット
+    case "com.apple.chronod": return ["chronod"]
+    case handoffDomain: return ["useractivityd"]
+    case "com.apple.sharingd": return ["sharingd"]
+    case "ByHost/com.apple.universalcontrol": return ["UniversalControl"]
     default: return []
     }
 }
@@ -386,6 +594,17 @@ final class Store: ObservableObject {
         refreshCurrent()
     }
 
+    /// 設定の共有（読み込み・同期）で languageApps が変わった後に、言語設定に足したアプリの行をそろえる。
+    /// 外れたアプリの行を除き、増えたアプリの行を足す（ほかの行の「変更後」はそのまま）
+    func reloadLanguageApps() {
+        let saved = Store.savedLanguageApps
+        let savedIDs = Set(saved.map { $0.bundleID + "\u{1}AppleLanguages" })
+        let removed = languageAppIDs.subtracting(savedIDs)
+        if !removed.isEmpty { entries.removeAll { removed.contains($0.id) } }
+        languageAppIDs.subtract(removed)
+        for app in saved { appendLanguageApp(bundleID: app.bundleID, name: app.name) }
+    }
+
     var changed: [Entry] { entries.filter(\.isChanged) }
 
     /// 現在の値を読み直す。変更していない項目は「変更後」も追従させる
@@ -451,7 +670,9 @@ final class Store: ObservableObject {
     // MARK: 言語設定のアプリ
 
     /// 「アプリを追加…」で足したアプリ（Bundle ID と表示名）。次回の起動でも一覧に出す
-    private static let languageAppsKey = "languageApps"
+    static let languageAppsKey = "languageApps"
+    /// 足したアプリとして一覧に出している行（設定の読み込みで外れたものを除くため）
+    private var languageAppIDs: Set<String> = []
 
     static var savedLanguageApps: [(bundleID: String, name: String)] {
         (UserDefaults.standard.array(forKey: languageAppsKey) as? [[String]] ?? [])
@@ -470,6 +691,7 @@ final class Store: ObservableObject {
         var entry = Entry(item: item, current: readValue(domain: bundleID, key: "AppleLanguages"))
         entry.target = target ?? Target(entry.current)
         entries.append(entry)
+        languageAppIDs.insert(entry.id)
         return true
     }
 
@@ -486,6 +708,7 @@ final class Store: ObservableObject {
         let list = Store.savedLanguageApps.filter { !ids.contains($0.bundleID + "\u{1}AppleLanguages") }
         UserDefaults.standard.set(list.map { [$0.bundleID, $0.name] }, forKey: Store.languageAppsKey)
         entries.removeAll { ids.contains($0.id) }
+        languageAppIDs.subtract(ids)
     }
 
     // MARK: ファイル
@@ -582,9 +805,11 @@ final class Store: ObservableObject {
             message = (L("バックアップできなかったため中止しました"), error.localizedDescription)
             return
         }
+        beginAdministratorBatch()
         for e in list {
             writeValue(e.target.object, domains: e.item.domains, key: e.item.key)
         }
+        commitAdministratorBatch()
         run("/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings", ["-u"])
         let domains = Set(list.flatMap { $0.item.domains })
         let processes = Set(domains.flatMap(processesToRestart)).sorted()

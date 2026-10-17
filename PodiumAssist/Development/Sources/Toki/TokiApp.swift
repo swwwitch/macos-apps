@@ -69,6 +69,12 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
+        SettingsSync.shared.onImport = { [weak self] in
+            self?.presets.reload()
+            self?.countdown.reloadEnabled()
+        }
+        SettingsSync.shared.start(.init(keys: PresetStore.syncedKeys, note: L("syncNote"), perMac: L("syncPerMac"),
+                                        merge: PresetStore.merged))
         AccessibilityText.neededOverride = [
             "「透明度を下げる」「視差効果を減らす」の切り替えで、システム設定のスイッチを操作するために使用します。未許可の場合、この2つだけ利用できません。",
             "Used to turn the Reduce transparency and Reduce motion switches in System Settings on or off. Without permission, only these two are unavailable.",
@@ -348,6 +354,11 @@ final class Countdown: ObservableObject {
     static var minuteNow: Date { Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970 / 60) * 60) }
     var end: Date? { running?.end }
 
+    /// Re-reads 「タイマーを使う」 after SettingsSync applied another Mac's value.
+    func reloadEnabled() {
+        let value = (UserDefaults.standard.object(forKey: "timerEnabled") as? Bool) ?? true
+        if value != enabled { enabled = value }
+    }
     func savePlan() {
         if let data = try? JSONEncoder().encode(plan) { UserDefaults.standard.set(data, forKey: "timerPlan") }
     }
@@ -446,6 +457,23 @@ final class PresetStore: ObservableObject {
         persist()
     }
     func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
+    /// UserDefaults keys exported and synced by 設定の共有; the rest (timer plan, window tab, last applied preset) stays per Mac.
+    static let syncedKeys: Set<String> = ["presets", "timerEnabled"]
+    /// 「追加する」 in 設定の共有: presets whose id is not in the list yet are appended; this Mac's other values stay.
+    static func merged(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
+        let decode = { (value: Any?) in (value as? Data).flatMap { try? JSONDecoder().decode([Preset].self, from: $0) } ?? [] }
+        let mine = decode(current["presets"])
+        let ids = Set(mine.map(\.id))
+        let added = decode(file["presets"]).filter { !ids.contains($0.id) }
+        let values = NSMutableDictionary(dictionary: file)
+        values.addEntries(from: current as? [AnyHashable: Any] ?? [:])
+        values["presets"] = try? JSONEncoder().encode(mine + added)
+        return (values, added.count)
+    }
+    /// Re-reads the list after SettingsSync applied another Mac's presets.
+    func reload() {
+        items = defaults.data(forKey: "presets").flatMap { try? JSONDecoder().decode([Preset].self, from: $0) } ?? []
+    }
     private func persist() {
         if let data = try? JSONEncoder().encode(items) { defaults.set(data, forKey: "presets") }
     }
@@ -645,7 +673,7 @@ struct StatusMessage: View {
             .help(settings.message)
             .accessibilityLabel(settings.message)
         if settings.automationDenied {
-            Button(L("オートメーションの設定を開く…")) { MacSettings.openAutomationSettings() }
+            Button(L("オートメーション設定を開く")) { MacSettings.openAutomationSettings() }
         }
     }
 }
@@ -658,8 +686,9 @@ struct PreferencesView: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
-                SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: true, showsTitle: false) }
+                AccessibilitySection()
             })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
     }
@@ -1252,7 +1281,7 @@ struct ManualControlsView: View {
                         }
                         .frame(width: 96)
                         Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
-                        Button(L("標準に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
+                        Button(L("初期値に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
                             .disabled(settings.pointerSize == 1)
                     }
                     .font(.system(size: 12))

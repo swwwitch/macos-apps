@@ -1,171 +1,154 @@
 import AppKit
+import SwiftUI
 import UniformTypeIdentifiers
 
-/// Settings tab and front-app checks for 対象外アプリ (B21). Mirrors KakkoReplace's
-/// excluded list: Bundle ID, no duplicates, hotkeys released while an excluded app is front.
-final class ExcludedApps: NSObject, NSTableViewDataSource, NSTableViewDelegate {
+// Canonical source: Shared/ExcludedApps/ExcludedApps.swift (copied by Shared/ExcludedApps/sync.py).
+/// The shared 「対象外アプリ」 list (B21): apps this app never acts on, identified by Bundle ID.
+/// Per Mac: the key is never exported or synced. Each app sets its explanation and first-launch list with configure().
+@MainActor
+final class ExcludedApps: ObservableObject {
     static let shared = ExcludedApps()
-    static var title: String { L("excluded.title") }
-    static var reason: String { L("excluded.reason") }
-    private(set) var list = ExcludedAppList(ownID: Bundle.main.bundleIdentifier ?? "jp.local.TextPalette")
-    /// Called when the front app changes or the list is edited; owners re-check hotkey registration.
+    static let key = "excludedBundleIDs"
+    static var title: String { StartupWindow.text("対象外アプリ", "Excluded Apps", "排除的应用", "제외할 앱") }
+
+    @Published private(set) var ids: [String] = []
+    @Published fileprivate(set) var rejected: [String] = []
+    /// What being excluded means in this app, already localized.
+    private(set) var explanation = ""
+    /// Called after the list changed (re-register hotkeys, refresh menus).
     var onChange: (() -> Void)?
-    private let ownPID = ProcessInfo.processInfo.processIdentifier
-    private var observer: NSObjectProtocol?
-    private var table: NSTableView?
-    private var removeButton: NSButton?
-    private let note = NSTextField(wrappingLabelWithString: "")
+    private let defaults = UserDefaults.standard
+    private var ownID: String? { Bundle.main.bundleIdentifier }
 
-    func start() {
-        guard observer == nil else { return }
-        observer = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification,
-                                                                      object: nil, queue: .main) { [weak self] _ in self?.onChange?() }
-    }
-    deinit { if let observer { NSWorkspace.shared.notificationCenter.removeObserver(observer) } }
-
-    func isExcluded(_ app: NSRunningApplication?) -> Bool { list.excludes(app?.bundleIdentifier) }
-    func isExcluded(pid: pid_t?) -> Bool { isExcluded(pid.flatMap { NSRunningApplication(processIdentifier: $0) }) }
-    var hotkeysBlocked: Bool {
-        let front = NSWorkspace.shared.frontmostApplication
-        return list.blocksHotkeys(bundleID: front?.bundleIdentifier, pid: front?.processIdentifier, ownPID: ownPID)
-    }
-
-    @MainActor func settingsView() -> NSView {
-        let heading = NSTextField(labelWithString: Self.title)
-        heading.font = .boldSystemFont(ofSize: 18)
-        let explanation = NSTextField(wrappingLabelWithString: L("excluded.explanation"))
-        let table = NSTableView()
-        let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("app"))
-        column.title = L("excluded.column")
-        table.addTableColumn(column)
-        table.headerView = nil
-        table.rowHeight = 36
-        table.allowsMultipleSelection = true
-        table.usesAlternatingRowBackgroundColors = true
-        table.dataSource = self; table.delegate = self
-        table.setAccessibilityLabel(L("excluded.axList"))
-        self.table = table
-        let scroll = NSScrollView()
-        scroll.documentView = table
-        scroll.hasVerticalScroller = true
-        scroll.borderType = .bezelBorder
-        scroll.heightAnchor.constraint(equalToConstant: 200).isActive = true
-        let add = NSButton(title: L("excluded.add"), target: self, action: #selector(addApplications))
-        let remove = NSButton(title: L("excluded.remove"), target: self, action: #selector(removeSelected))
-        for button in [add, remove] { button.bezelStyle = .rounded }
-        remove.isEnabled = false
-        removeButton = remove
-        let buttons = NSStackView(views: [add, remove]); buttons.spacing = 8
-        note.font = .systemFont(ofSize: 12)
-        note.textColor = .secondaryLabelColor
-        let group = SettingsUI.group(Self.title, [explanation, scroll, buttons, note])
-        let stack = NSStackView(views: [heading, group])
-        stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 14
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        let document = ExcludedAppsDocumentView(); document.translatesAutoresizingMaskIntoConstraints = false
-        document.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: document.leadingAnchor, constant: 24),
-            stack.trailingAnchor.constraint(equalTo: document.trailingAnchor, constant: -24),
-            stack.topAnchor.constraint(equalTo: document.topAnchor, constant: 24),
-            stack.bottomAnchor.constraint(equalTo: document.bottomAnchor, constant: -24),
-            group.widthAnchor.constraint(equalTo: stack.widthAnchor)
-        ])
-        let page = NSScrollView(); page.hasVerticalScroller = true; page.drawsBackground = false
-        page.documentView = document
-        document.widthAnchor.constraint(equalTo: page.contentView.widthAnchor).isActive = true
-        refresh()
-        return page
-    }
-
-    private func refresh() {
-        table?.reloadData()
-        removeButton?.isEnabled = !(table?.selectedRowIndexes.isEmpty ?? true)
-        note.stringValue = list.ids.isEmpty ? L("excluded.none") : L("excluded.count", String(list.ids.count))
-    }
-    private func commit() { list.save(); refresh(); onChange?() }
-
-    /// Name and icon come from the installed app; a missing app shows its Bundle ID.
-    private func describe(_ id: String) -> (name: String, icon: NSImage, missing: Bool) {
-        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
-            let name = Self.displayName(url)
-            return (name, NSWorkspace.shared.icon(forFile: url.path), false)
+    /// legacyKeys: keys older versions used ("excluded", "excludedApps"); their list is carried over once.
+    func configure(explanation: String, initial: [String] = [], legacyKeys: [String] = []) {
+        self.explanation = explanation
+        if defaults.object(forKey: Self.key) == nil,
+           let old = legacyKeys.lazy.compactMap({ self.defaults.stringArray(forKey: $0) }).first {
+            defaults.set(old, forKey: Self.key)
         }
-        return (id, NSWorkspace.shared.icon(for: .applicationBundle), true)
+        ids = defaults.stringArray(forKey: Self.key) ?? initial
     }
 
-    private static func displayName(_ url: URL) -> String {
-        let name = FileManager.default.displayName(atPath: url.path)
-        return name.hasSuffix(".app") ? String(name.dropLast(4)) : name
+    /// Bundle IDs compare case-insensitively, as Launch Services does.
+    private static func same(_ a: String?, _ b: String) -> Bool { a?.caseInsensitiveCompare(b) == .orderedSame }
+    func excludes(_ bundleID: String?) -> Bool { ids.contains { Self.same(bundleID, $0) } }
+
+    /// Global hotkeys stay unregistered while the front app is excluded or this app itself,
+    /// so the keystroke reaches that app. An unknown front app (nil) keeps them registered.
+    func blocksHotkeys(bundleID: String?, pid: Int32?) -> Bool {
+        if let pid, pid == ProcessInfo.processInfo.processIdentifier { return true }
+        if let ownID, Self.same(bundleID, ownID) { return true }
+        return excludes(bundleID)
+    }
+    /// The front app right now, checked again just before acting.
+    var frontAppExcluded: Bool {
+        let app = NSWorkspace.shared.frontmostApplication
+        return blocksHotkeys(bundleID: app?.bundleIdentifier, pid: app?.processIdentifier)
     }
 
-    func numberOfRows(in tableView: NSTableView) -> Int { list.ids.count }
-    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let id = list.ids[row]
-        let info = describe(id)
-        let icon = NSImageView(image: info.icon)
-        icon.imageScaling = .scaleProportionallyUpOrDown
-        icon.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        icon.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        icon.setAccessibilityElement(false)
-        let name = NSTextField(labelWithString: info.name)
-        name.lineBreakMode = .byTruncatingTail
-        let detail = NSTextField(labelWithString: info.missing ? L("excluded.missing") : id)
-        detail.font = .systemFont(ofSize: 11); detail.textColor = .secondaryLabelColor
-        detail.lineBreakMode = .byTruncatingMiddle
-        let text = NSStackView(views: [name, detail]); text.orientation = .vertical; text.alignment = .leading; text.spacing = 0
-        text.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        let row = NSStackView(views: [icon, text]); row.spacing = 8; row.alignment = .centerY
-        row.edgeInsets = NSEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
-        row.toolTip = id
-        row.setAccessibilityElement(true); row.setAccessibilityLabel(L("fmt.nameDetail", info.name, id))
-        return row
+    func add(_ urls: [URL]) {
+        var messages: [String] = []
+        for url in urls {
+            let name = Self.displayName(url)
+            guard let id = Bundle(url: url)?.bundleIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines), !id.isEmpty else {
+                messages.append(String(format: StartupWindow.text("%@ のBundle IDを読み取れませんでした。", "Could not read the Bundle ID of %@.",
+                                                                  "无法读取 %@ 的 Bundle ID。", "%@의 Bundle ID를 읽을 수 없습니다."), name)); continue
+            }
+            if let ownID, Self.same(id, ownID) {
+                messages.append(String(format: StartupWindow.text("%@自身は追加できません。", "%@ itself cannot be added.",
+                                                                  "不能添加 %@ 本身。", "%@ 자체는 추가할 수 없습니다."), name)); continue
+            }
+            if excludes(id) {
+                messages.append(String(format: StartupWindow.text("%@ はすでに登録されています。", "%@ is already in the list.",
+                                                                  "%@ 已在列表中。", "%@은(는) 이미 목록에 있습니다."), name)); continue
+            }
+            ids.append(id)
+        }
+        rejected = messages
+        save()
     }
-    func tableViewSelectionDidChange(_ notification: Notification) {
-        removeButton?.isEnabled = !(table?.selectedRowIndexes.isEmpty ?? true)
+    func remove(_ selection: Set<String>) {
+        ids.removeAll { id in selection.contains { Self.same(id, $0) } }
+        rejected = []
+        save()
+    }
+    /// 「初期値に戻す」: replaces the list with the app's first-launch list and runs onChange.
+    func reset(to initial: [String]) {
+        ids = initial
+        rejected = []
+        save()
+    }
+    private func save() {
+        defaults.set(ids, forKey: Self.key)
+        onChange?()
     }
 
-    @objc private func removeSelected() {
-        guard let table else { return }
-        let ids = table.selectedRowIndexes.compactMap { list.ids.indices.contains($0) ? list.ids[$0] : nil }
-        guard !ids.isEmpty else { return }
-        ids.forEach { list.remove($0) }
-        table.deselectAll(nil)
-        commit()
+    static func displayName(_ url: URL) -> String {
+        FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+    }
+    static func info(_ bundleID: String) -> (name: String, icon: NSImage, missing: Bool) {
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+            return (displayName(url), NSWorkspace.shared.icon(forFile: url.path), false)
+        }
+        return (bundleID, NSWorkspace.shared.icon(for: .applicationBundle), true)
     }
 
-    @objc private func addApplications() {
+    /// AppKit settings page (SettingsUI.tabs).
+    func page() -> NSView { SettingsHostingPage(observing: self) { ExcludedAppsView() } }
+}
+
+/// Contents of the 「対象外アプリ」 tab: SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
+struct ExcludedAppsView: View {
+    @ObservedObject private var store = ExcludedApps.shared
+    @State private var selection = Set<String>()
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if !store.explanation.isEmpty { Text(store.explanation).fixedSize(horizontal: false, vertical: true) }
+            List(selection: $selection) {
+                ForEach(store.ids, id: \.self) { id in
+                    let info = ExcludedApps.info(id)
+                    HStack(spacing: 8) {
+                        Image(nsImage: info.icon).resizable().frame(width: 24, height: 24).accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(info.name).lineLimit(1)
+                            Text(info.missing ? StartupWindow.text("このMacにありません", "Not on this Mac", "此 Mac 上没有", "이 Mac에 없음") : id)
+                                .font(.caption).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle)
+                        }
+                    }
+                    .help(id)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(info.name + ", " + id)
+                }
+            }
+            .frame(height: 200)
+            .accessibilityLabel(ExcludedApps.title)
+            HStack {
+                Button(StartupWindow.text("追加…", "Add…", "添加…", "추가…")) { add() }
+                Button(StartupWindow.text("削除", "Remove", "移除", "제거")) { store.remove(selection); selection = [] }.disabled(selection.isEmpty)
+            }
+            Text(store.ids.isEmpty
+                 ? StartupWindow.text("対象外アプリはありません。", "No excluded apps.", "没有排除的应用。", "제외할 앱이 없습니다.")
+                 : String(format: StartupWindow.text("%@個のアプリを対象外にしています。", "%@ apps are excluded.", "已排除 %@ 个应用。", "%@개의 앱을 제외하고 있습니다."), String(store.ids.count)))
+                .font(.caption).foregroundColor(.secondary)
+            if !store.rejected.isEmpty {
+                Text(store.rejected.joined(separator: "\n")).font(.caption).foregroundColor(.red).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+    private func add() {
         let picker = NSOpenPanel()
-        picker.title = L("excluded.pickerTitle")
-        picker.prompt = L("action.add")
+        picker.title = StartupWindow.text("対象外にするアプリを選択", "Choose Apps to Exclude", "选择要排除的应用", "제외할 앱 선택")
+        picker.prompt = StartupWindow.text("追加", "Add", "添加", "추가")
         picker.allowedContentTypes = [.applicationBundle]
         picker.allowsMultipleSelection = true
         picker.canChooseDirectories = false
         picker.directoryURL = URL(fileURLWithPath: "/Applications")
-        let completion: (NSApplication.ModalResponse) -> Void = { [weak self] response in
-            guard let self, response == .OK else { return }
-            var rejected: [String] = []
-            for url in picker.urls {
-                let name = Self.displayName(url)
-                switch self.list.add(Bundle(url: url)?.bundleIdentifier) {
-                case .added: break
-                case .duplicate: rejected.append(L("excluded.duplicate", name))
-                case .own: rejected.append(L("excluded.own"))
-                case .invalid: rejected.append(L("excluded.invalid", name))
-                }
-            }
-            self.commit()
-            guard !rejected.isEmpty else { return }
-            let alert = NSAlert()
-            alert.messageText = L("excluded.rejectedTitle")
-            alert.informativeText = rejected.joined(separator: "\n")
-            DispatchQueue.main.async { // after the open panel's sheet has ended
-                if let window = self.table?.window { alert.beginSheetModal(for: window) } else { alert.runModal() }
-            }
+        let completion: (NSApplication.ModalResponse) -> Void = { response in
+            guard response == .OK else { return }
+            MainActor.assumeIsolated { store.add(picker.urls) }
         }
-        if let window = table?.window { picker.beginSheetModal(for: window, completionHandler: completion) }
+        if let window = NSApp.keyWindow { picker.beginSheetModal(for: window, completionHandler: completion) }
         else { picker.begin(completionHandler: completion) }
     }
 }
-
-private final class ExcludedAppsDocumentView: NSView { override var isFlipped: Bool { true } }

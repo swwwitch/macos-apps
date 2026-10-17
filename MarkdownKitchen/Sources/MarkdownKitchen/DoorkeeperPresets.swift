@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class DoorkeeperPresets: ObservableObject {
     static let shared = DoorkeeperPresets()
-    static let key = "markdownKitchen.doorkeeperPresets"
+    nonisolated static let key = "markdownKitchen.doorkeeperPresets"
 
     @Published var items: [DoorkeeperPreset] {
         didSet { save() }
@@ -18,13 +18,33 @@ final class DoorkeeperPresets: ObservableObject {
     var current: DoorkeeperPreset? { items.first { $0.id == selectedID } ?? items.first }
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: Self.key),
-           let saved = try? JSONDecoder().decode([DoorkeeperPreset].self, from: data) {
-            items = saved
-        } else {
-            items = DoorkeeperPreset.defaults
-        }
+        items = Self.stored
         selectedID = UserDefaults.standard.string(forKey: Self.selectedKey).flatMap(UUID.init)
+    }
+
+    private static var stored: [DoorkeeperPreset] {
+        UserDefaults.standard.data(forKey: key).flatMap { try? JSONDecoder().decode([DoorkeeperPreset].self, from: $0) } ?? DoorkeeperPreset.defaults
+    }
+
+    /// 設定の読み込み・同期の後に UserDefaults から読み直す（古い一覧で書き戻さない）
+    func reload() {
+        let saved = Self.stored
+        if saved != items { items = saved }
+        let id = UserDefaults.standard.string(forKey: Self.selectedKey).flatMap(UUID.init)
+        if id != selectedID { selectedID = id }
+    }
+
+    /// 読み込んだ設定ファイルのテーマのうち、まだ無いもの（IDで判定）を今の一覧に足す（SettingsSync の「追加する」）
+    nonisolated static func merge(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
+        func decode(_ value: Any?) -> [DoorkeeperPreset]? { (value as? Data).flatMap { try? JSONDecoder().decode([DoorkeeperPreset].self, from: $0) } }
+        let values = NSMutableDictionary(dictionary: current)
+        // 一覧を保存していなければ既定のテーマが使われている
+        var list = decode(current[key]) ?? DoorkeeperPreset.defaults
+        let new = (decode(file[key]) ?? []).filter { item in !list.contains { $0.id == item.id } }
+        guard !new.isEmpty else { return (values, 0) }
+        list += new
+        if let data = try? JSONEncoder().encode(list) { values[key] = data }
+        return (values, new.count)
     }
 
     private func save() {

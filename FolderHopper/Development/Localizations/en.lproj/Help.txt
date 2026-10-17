@@ -20,11 +20,11 @@ Moves or duplicates the files and folders selected in the Finder or Path Finder 
 Open **Settings…** from the app menu (⌘,) or with the **Settings…** button in the window.
 
 ### Startup & Background Tab
-- **Launch at login**
-- **Launch in the background at login**
+- **Open at login** (the status is shown below it; Open Login Items appears when System Settings needs approval)
 - **Hide main window at startup**
+- **Launch in the background at login**
 - **Show in menu bar**
-- **Show window with a keyboard shortcut** (choose the modifier keys and key)
+- **Show app shortcut**: turn on Enable hotkey, click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels, Reset to Default returns to ⌃⌥⌘M). A registration failure is shown under the field.
 
 ### Display Tab
 - **Shorten Dropbox paths**
@@ -33,11 +33,16 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 
 ### File Operations Tab
 - **When a file with the same name exists**: choose Keep both by adding a number or Stop without overwriting. When creating symbolic links in the Applications folder, an existing symbolic link with the same name is replaced without adding a number (apps and files with the same name are never replaced).
-- You can also set **Close window after completion (keep running)**.
+- You can also set **Close window after completion (keep running)**. The Duplicate Selection to Applications hotkey is set in the same kind of field with Change… (default ⌃⌥⌘⇧A).
 
 ### History Tab
 - Set **Number of recent folders** (0 = all).
 - Tidy the list with **Clear Recent Folders** and **Restore**. Clearing affects only this app’s list; the Finder and Path Finder history is not changed.
+
+### Sharing Tab
+- **Export & Import**: “Export…” saves the settings to FolderHopper-Settings.plist, and “Import…” replaces the settings with the file’s after asking.
+- **Settings Sync**: “Set Sync Folder…” shares the settings with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). If several Macs change settings, the most recent save wins.
+- Shared: path display, which destinations are shown, same-name file handling, closing after an operation, the number of recent windows and the copy-to-Applications shortcut. Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders and hidden history items are set per Mac.
 
 ## Keyboard Shortcuts
 Show the app with ⌃⌥⌘M by default. Available while the app is running and Finder/Path Finder is in front; in other apps the keys pass through to that app.
@@ -75,6 +80,6 @@ Show the app with ⌃⌥⌘M by default. Available while the app is running and 
 - Choose **Open the note Article** from the Help menu to open the guide article on note in your browser.
 
 ## Uninstalling
-1. Turn off **Launch at login**.
+1. Turn off **Open at login**.
 2. Quit the app.
 3. Move the app to the Trash.

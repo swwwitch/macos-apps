@@ -550,7 +550,7 @@ struct SettingsView: View {
                 SettingsSection(L("engine")) { EngineSettingsView() }
                 SettingsSection(L("pdfEngineGroup")) { PDFEngineSettingsView() }
             })),
-            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).frame(minWidth:620,maxWidth:.infinity,minHeight:640,maxHeight:.infinity)
     }

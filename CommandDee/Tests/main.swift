@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Carbon
 
 let fm = FileManager.default
 let root = fm.temporaryDirectory.appendingPathComponent("CommandDee-tests-" + UUID().uuidString)
@@ -234,10 +235,16 @@ Shortcut.save(changedShortcuts, defaults: prefs)
 try check(Shortcut.load(defaults: prefs) == changedShortcuts, "custom shortcut round trip persistence")
 prefs.set(Data("invalid".utf8), forKey: Shortcut.storageKey)
 try check(Shortcut.load(defaults: prefs) == Shortcut.defaults, "invalid saved shortcut fallback")
-let plainKey = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: "z", charactersIgnoringModifiers: "z", isARepeat: false, keyCode: 6)!
-try check(Shortcut.capture(plainKey) == nil, "plain typing cannot become shortcut")
-let customKey = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [.control, .option], timestamp: 0, windowNumber: 0, context: nil, characters: "z", charactersIgnoringModifiers: "z", isARepeat: false, keyCode: 6)!
-try check(Shortcut.capture(customKey) == changedShortcuts[1], "capture alternate key and modifier combination")
+// Shared hotkey field (Carbon KeyCombo form) ↔ saved JSON form: every default survives the round trip.
+for value in Shortcut.defaults + [Shortcut.paletteDefault, changedShortcuts[1]] {
+    let back = Shortcut(keyCode: value.keyCode, carbonModifiers: value.carbonModifiers, label: value.label)
+    try check(back == value, "carbon round trip \(value.label)")
+}
+try check(Shortcut.defaults[2].carbonModifiers == UInt32(controlKey | cmdKey), "⌃⌘D carbon modifiers")
+// fn (F-keys, arrows) is ignored when matching; other modifiers must match exactly.
+let f5 = Shortcut(keyCode: 96, carbonModifiers: UInt32(controlKey), label: "⌃F5")
+try check(f5.matches(keyCode: 96, flags: [.control, .function]), "fn ignored when matching")
+try check(!f5.matches(keyCode: 96, flags: [.control, .shift]), "extra modifier does not match")
 
 // All six orders read existing metadata in any order and retain version families.
 for (index, order) in NamingSettings.orders.enumerated() {

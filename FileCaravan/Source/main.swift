@@ -192,6 +192,7 @@ struct SettingsView: View {
             Text(L("privacyDetail")).font(.caption).foregroundColor(.secondary)
             Button(L("historyFolder")) { delegate.openHistory() }
             })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12).frame(minWidth: 620, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
@@ -214,6 +215,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.hidden { showMain() }
+        // Options are @AppStorage, so the views follow imported values; refresh the model-driven views too.
+        SettingsSync.shared.onImport = { [weak self] in self?.model.objectWillChange.send() }
+        SettingsSync.shared.start(.init(keys: ["folders", "hidden", "openDestinationAfterMove", "shortenDropboxPaths"], prefixes: [],
+            note: StartupWindow.text("移動の項目（サブフォルダ・隠しファイル・実行後に移動先を開く）と表示の設定を書き出し・同期します。",
+                                     "Exports and syncs the move options (subfolders, hidden items, open destination) and display settings.",
+                                     "导出并同步移动选项（子文件夹、隐藏项目、移动后打开目标文件夹）和显示设置。",
+                                     "이동 옵션(하위 폴더, 숨김 항목, 이동 후 대상 폴더 열기)과 표시 설정을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("移動元・移動先のフォルダ、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
+                                       "The source and destination folders, open at login, keep running and the menu bar icon are set on each Mac.",
+                                       "源文件夹和目标文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "원본·대상 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         MainActor.assumeIsolated {
             MenuBarPresence.shared.install(name: "FileCaravan", symbol: "shippingbox",
                 show: { [weak self] in self?.showMain() },

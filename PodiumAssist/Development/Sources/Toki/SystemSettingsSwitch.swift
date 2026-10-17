@@ -23,7 +23,7 @@ enum SystemSettingsSwitch {
     /// closed again only when it was opened for this change.
     @MainActor
     static func withPane(_ pane: String, _ body: (AXUIElement) async throws -> Void) async throws {
-        guard AXIsProcessTrusted() else { throw SettingsError(L("アクセシビリティの許可が必要です。［設定…］の「起動・常駐」で許可してください。")) }
+        guard AccessibilitySection.isTrusted else { throw SettingsError(AccessibilityText.text("blocked")) }
         guard let url = URL(string: pane) else { return }
         let wasRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: settingsBundleID).isEmpty
         NSWorkspace.shared.open(url)

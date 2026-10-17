@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 /// Settings-only shared grouping. Does not alter persisted values or actions.
@@ -214,3 +215,44 @@ final class RememberedTabView: NSTabView {
         if remembers, let tabViewItem { UserDefaults.standard.set(indexOfTabViewItem(tabViewItem), forKey: Self.key) }
     }
 }
+
+/// SwiftUI content as an AppKit settings page (SettingsUI.tabs), at the height its wrapped text needs for the page width.
+/// An intrinsic-size NSHostingView measures text unwrapped, which clipped wrapped notes. `observing` re-measures on change.
+@MainActor final class SettingsHostingPage<Content: View>: NSView {
+    private let content: () -> Content
+    private let host: NSHostingView<Content>
+    private var height: NSLayoutConstraint!
+    private var measuredWidth: CGFloat?
+    private var observation: AnyCancellable?
+
+    init<Object: ObservableObject>(observing object: Object?, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        host = NSHostingView(rootView: content())
+        super.init(frame: .zero)
+        host.sizingOptions = []
+        host.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(host)
+        height = heightAnchor.constraint(equalToConstant: host.fittingSize.height)
+        NSLayoutConstraint.activate([
+            host.leadingAnchor.constraint(equalTo: leadingAnchor), host.trailingAnchor.constraint(equalTo: trailingAnchor),
+            host.topAnchor.constraint(equalTo: topAnchor), host.bottomAnchor.constraint(equalTo: bottomAnchor), height
+        ])
+        observation = object?.objectWillChange.sink { [weak self] _ in
+            DispatchQueue.main.async { MainActor.assumeIsolated { self?.measuredWidth = nil; self?.needsLayout = true } }
+        }
+    }
+    convenience init(@ViewBuilder content: @escaping () -> Content) {
+        self.init(observing: nil as SettingsHostingPageNoObject?, content: content)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func layout() {
+        super.layout()
+        let width = bounds.width
+        guard width > 0, measuredWidth != width else { return }
+        measuredWidth = width
+        let needed = ceil(NSHostingController(rootView: content()).sizeThatFits(in: NSSize(width: width, height: 100_000)).height)
+        if abs(height.constant - needed) > 0.5 { height.constant = needed }
+    }
+}
+final class SettingsHostingPageNoObject: ObservableObject {}

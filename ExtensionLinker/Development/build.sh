@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 python3 ../../Shared/MenuBarPresence/sync.py
 python3 "../../Shared/AppStandards/sync-surface.py"
+python3 ../../Shared/SettingsSync/sync.py
 python3 check-localization.py
 UPDATER_ROOT="$PWD/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
@@ -24,8 +25,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>39</string>
-<key>CFBundleShortVersionString</key><string>0.2.25</string>
+<key>CFBundleVersion</key><string>41</string>
+<key>CFBundleShortVersionString</key><string>0.2.27</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>

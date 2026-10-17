@@ -27,6 +27,8 @@ Open Settings with the Settings button in the main window (⌘,). Changes take e
 - **On Completion**: Show in Finder after export (on by default), Hide app after export (off by default), Show notification (off by default), Play a sound (off by default)
 - **Shortcuts**: how to export from Services
 
+In the Sharing tab you can share the file naming and what happens after export. **Export…** saves QuickIconExporter-Settings.plist, and **Import…** loads it on another Mac (after you confirm the replacement). Under Settings Sync, choose a folder in iCloud Drive, Dropbox or elsewhere, and Macs that use the same folder keep these settings in step automatically. The save location, login launch and the menu bar are set on each Mac.
+
 ## Keyboard Shortcuts
 - **⌘O**: Choose Files
 - **⌘0**: Open Main Window

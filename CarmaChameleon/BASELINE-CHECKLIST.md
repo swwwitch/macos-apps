@@ -28,7 +28,7 @@
 | B17 | プライバシー | ソース確認済み | 文書のサービス送信なし。更新時GitHub通信、形式によって参照画像取得ありとヘルプ明記。 |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置・署名・起動確認済み | deploy.py。/ApplicationsとLatest Buildsのバージョン0.1.0 build1、SHA256ファイル一覧、codesign --deep --strict一致。/Applications起動・ファイル受け渡し確認。初回配置のため旧版なし。ad-hoc署名、公証/配信更新未設定を表示。 |
 | B19 | マスタード基調の共通アイコン | 実機確認済み | 既存mustard-final画像を実見し、AppKit図形で2枚の文書と矢印を作成。主画面で同じicns表示を確認。Finder/アプリ情報でのアイコン実見は未確認。 |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティの別グループ | 実機確認済み | 共通SettingsSectionとStartupWindow使用。ログイン→起動非表示→常駐→起動ショートカットの順をUI確認。pandocは独立グループ。AXグループは不要。 |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティの別グループ | 実装済み・実機未確認 | 2026-10-17 0.14.2：独自の LoginAtLaunch.swift を外し Shared/LoginAtLaunch/LoginAtLaunch.swift を直接コンパイル（起動時非表示は共通部品内の1か所）。常駐の英語表記をそろえた。アクセシビリティは使わないため区画なし。以前の確認：ログイン→起動非表示→常駐→起動ショートカットの順をUI確認。今回の画面表示は未確認 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | Keynote出力ではKeynoteに新規プレゼンテーションを作らせるが、変換を押したときだけで、ほかのアプリの文字・操作には作用しない。ユーザーが選択した文書から新しい文書を生成するだけで、外部アプリのキーを横取りしない。 |
 
 ## 確認記録
@@ -86,3 +86,5 @@ HTML整形のPickerをradioGroupへ変更。選択値・保存キー・変換ロ
 ## 2026-10-07 0.2.3 / build 7
 
 変換形式をユーザー指定のPDF/plain/idml/html5/gfm/pptx/docx/epub3/rtf/latex/odt順へ変更。保存済みIDと既定docxを維持するためdefaultFormatを明示し、配列先頭への依存を解除。ビルド・署名検証成功。待機中の旧版を通常終了し、バックアップ後に両配置先へ配置、版/build/署名/内容一致確認。/Applications版の実画面で全11形式の順序とHTML選択保持を確認。変換ロジックは変更なし。
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 0.14.1 (44)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys は既存のまま（format・変換オプション・formatOrder/hiddenFormats・aiMethod/psdMethod・name*・prefixes raster/svg/utf16/filename/xlsx）。merge なし（置き換えのみ）。onImport＝reloadSyncedSettings()。ビルド成功、test.sh は変換テスト151件合格・末尾の文言検査が既存の store* キー未登録で失敗（今回の変更とは無関係）。両配置先 0.14.1 (44)・署名一致、/Applications 版の起動を pgrep で確認。画面操作は未確認 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：グローバルホットキーは無い（RegisterEventHotKey・独自のキー記録なし）。「アプリ起動のホットキー」は macOS のショートカット App（「アプリを開く」）に任せ、設定には［ショートカットを開く］ボタンだけを置く。変更なし（0.14.2 のまま） |

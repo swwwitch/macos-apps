@@ -52,7 +52,6 @@
 "keynoteNotRunning" = "Keynote가 실행 중이 아닙니다. Keynote에서 프레젠테이션을 여세요.";
 "noDocument" = "Keynote에 열린 프레젠테이션이 없습니다.";
 "automationDenied" = "KeynoteSweeper가 Keynote를 제어하도록 허용되지 않았습니다. 자동화 설정에서 켜세요.";
-"accessibilityDenied" = "마스터와 객체 애니메이션을 삭제하려면 손쉬운 사용 권한이 필요합니다. 시스템 설정에서 KeynoteSweeper를 허용하세요.";
 "allHidden" = "모든 슬라이드가 숨겨져 있어 슬라이드를 삭제하지 않았습니다.";
 "editorUnavailable" = "Keynote의 슬라이드 레이아웃 편집을 열 수 없습니다. Keynote에 열린 대화상자가 있는지 확인하세요.";
 "documentChanged" = "Keynote 맨 앞의 프레젠테이션이 바뀌어 중지했습니다.";
@@ -60,7 +59,7 @@
 "keynoteError" = "Keynote 오류:";
 "quitBusy" = "끝날 때까지 기다리거나 취소한 후 종료하세요.";
 "ok" = "확인";
-"resident" = "창을 닫아도 계속 실행";
+"resident" = "윈도우를 닫아도 계속 실행";
 "residentDetail" = "Dock 또는 메뉴 막대에서 다시 열 수 있습니다. 끄면 창을 닫을 때 종료됩니다.";
 "launchShortcut" = "앱 실행 키보드 단축키";
 "openShortcuts" = "단축어 열기";

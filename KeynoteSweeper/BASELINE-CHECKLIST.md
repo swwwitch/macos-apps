@@ -30,6 +30,8 @@
 | B19 | マスタード基調の共通アイコン | 実機確認済み | `Assets/GenerateIcon.swift`（PDF2Keynoteと同じ地色・縁・影）。モチーフはスタンド付きスクリーンとほうき。512pxで確認 |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | SettingsTabsの「起動・常駐」にLaunchPresenceSection、同じタブ内の別区画に「アクセシビリティ」（共通部品、理由はアプリ固有に差し替え）と「Keynoteの操作」 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 操作するのはKeynoteだけで、ユーザーが削除を押したときだけ動く。ほかのアプリの文字・操作には作用しない |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.0.6：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー deleteUnusedLayouts・deleteHiddenSlides・removeTransitions・removeBuilds。resident・ログイン起動・起動時非表示・メニューバーはMacごと。onImport で Model.reloadSharedSettings()。ビルド・test.sh 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：機能のホットキーは無く（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）、「アプリ起動のキーボードショートカット」は LaunchPresenceSection からmacOSの「ショートカット」アプリを開いて「アプリを開く」に割り当てる方式。アプリ内で記録する欄が無いため HotkeyField は使わない。 |
 
 ## 確認記録
 
@@ -44,3 +46,9 @@
 - トランジション削除：`test.sh --keynote` で2枚から削除、自動送り・待ち時間の保持を確認
 - オブジェクトのアニメーション削除：利用者から受け取ったビルド付きサンプルの一時コピーで `test.sh --builds` 合格（スライド5の4個を1.95秒、元のスライドに戻る、スライド・マスター不変）。Keynoteの［取り消す］で戻ることを実測
 - 配置・起動確認：2026-10-08 実施（/Applicationsの版を起動）。利用者が開発ビルドで画面・サービス・アニメーション削除を確認済み
+
+## 設定の共通化 第2弾（2026-10-17）
+
+- B20：アクセシビリティを AccessibilitySection() に。未許可時の文言は独自の accessibilityDenied を削除し AccessibilityText.text("blocked")（判定は AccessibilitySection.isTrusted）。test.sh は共通部品を一緒にコンパイルするよう変更。常駐の英中韓を共通表記に。オートメーションの表示は今回は変更なし。
+- B21：適用外のまま。
+- 1.0.7（build 8）：ビルド・test.sh 通過、両配置・起動確認。設定画面の表示は未確認。

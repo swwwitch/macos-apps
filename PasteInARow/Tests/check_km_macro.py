@@ -18,7 +18,7 @@ source = (root / 'Sources/LineRules.swift').read_text()
 swift = re.findall(r'#"(.*?)"#', source)
 assert swift == active[:-2], (swift, active[:-2])
 km_apps = sorted({t['BundleIdentifier'] for t in group['Targeting']['TargetingApps']})
-lists = (root / 'Sources/ExcludedAppList.swift').read_text()
+lists = (root / 'Sources/main.swift').read_text()
 initial = sorted(re.findall(r'"([\w.-]+)"', re.search(r'static let initial = \[(.*?)\]', lists).group(1)))
 assert initial == km_apps, (initial, km_apps)
 assert macro['Actions'][2]['Variable'] == 'local__notification' and macro['Actions'][2]['Text'] == '0'

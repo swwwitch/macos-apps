@@ -5,6 +5,8 @@ python3 ../Shared/MenuBarPresence/sync.py
 python3 ../Shared/HotkeyManifest/sync.py
 python3 ../Shared/AppStandards/sync-surface.py
 python3 ../Shared/SettingsSync/sync.py
+python3 ../Shared/LoginAtLaunch/sync.py
+python3 ../Shared/ExcludedApps/sync.py
 UPDATER_ROOT="$PWD/../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp/}applauncher.XXXXXX")
@@ -14,7 +16,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift
          Sources/LaunchPolicy.swift Sources/LaunchEntry.swift Sources/HotKey.swift Sources/Launcher.swift Sources/AccessibilityPermission.swift Sources/URLCondition.swift Sources/KeyboardLayout.swift Sources/KeyboardView.swift
          Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift
-         Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/main.swift)
+         Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/ExcludedApps.swift Sources/main.swift)
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/DocklessLauncher"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"

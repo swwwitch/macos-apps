@@ -52,7 +52,6 @@
 "keynoteNotRunning" = "Keynote is not running. Open a presentation in Keynote.";
 "noDocument" = "No presentation is open in Keynote.";
 "automationDenied" = "KeynoteSweeper is not allowed to control Keynote. Turn on Keynote for KeynoteSweeper in Automation settings.";
-"accessibilityDenied" = "Deleting masters and object animations needs Accessibility permission. Allow KeynoteSweeper in System Settings.";
 "allHidden" = "Every slide is hidden, so no slides were deleted.";
 "editorUnavailable" = "Could not open Edit Slide Layouts in Keynote. Check for an open dialog in Keynote.";
 "documentChanged" = "Stopped because the front Keynote presentation changed.";
@@ -60,7 +59,7 @@
 "keynoteError" = "Keynote reported an error: ";
 "quitBusy" = "Wait for it to finish, or cancel before quitting.";
 "ok" = "OK";
-"resident" = "Keep running after closing";
+"resident" = "Keep running after closing the window";
 "residentDetail" = "Reopen from the Dock or menu bar. When off, closing the window quits.";
 "launchShortcut" = "App launch keyboard shortcut";
 "openShortcuts" = "Open Shortcuts";

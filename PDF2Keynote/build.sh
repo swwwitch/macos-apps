@@ -14,8 +14,8 @@ python3 ../Shared/KeynoteExport/compile.py "$app/Contents/Resources/Keynote.scpt
 cp Assets/PDF2Keynote.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework PDFKit "${UPDATE_SWIFT_FLAGS[@]}" \
-  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift \
-  Source/{UpdateSupport,ConversionRunner,LaunchPolicy,LoginAtLaunch,main}.swift -o "$app/Contents/MacOS/PDF2Keynote"
+  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/KeynoteExport/KeynoteExport.swift ../Shared/KeynoteExport/PDFBackground.swift ../Shared/SettingsSync/SettingsSync.swift \
+  ../Shared/LoginAtLaunch/LoginAtLaunch.swift Source/{UpdateSupport,ConversionRunner,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/PDF2Keynote"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

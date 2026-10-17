@@ -138,7 +138,13 @@ struct KeyCapView: View {
                 guard canDrag, let code = key.code else { return NSItemProvider() }
                 return NSItemProvider(object: "\(KeyCapView.dragPrefix)\(code)" as NSString)
             }
-            .onDrop(of: [.plainText], isTargeted: Binding(get: { dropTargeted }, set: { dropTargeted = $0 && canDrop })) { providers in
+            // Also takes apps from Finder: assigned to this key, or just added while every modifier set is shown.
+            .onDrop(of: [.plainText] + AppDrop.types, isTargeted: Binding(get: { dropTargeted }, set: { dropTargeted = $0 && canDrop })) { providers in
+                let apps = AppDrop.load(providers) { urls in
+                    if let shortcut = newShortcut, urls.count == 1 { model.assignApp(urls[0], to: shortcut) }
+                    else if !urls.isEmpty { model.addApps(urls) }
+                }
+                if apps { return true }
                 guard canDrop, let modifiers, let target = key.code, let provider = providers.first else { return false }
                 _ = provider.loadObject(ofClass: NSString.self) { object, _ in
                     guard let text = object as? String, text.hasPrefix(KeyCapView.dragPrefix),

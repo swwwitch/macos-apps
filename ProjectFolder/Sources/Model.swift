@@ -5,6 +5,7 @@ import ApplicationServices
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
 /// The form, settings, the app hotkey and folder creation.
+@MainActor
 final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
 
@@ -80,11 +81,10 @@ final class Model: ObservableObject {
     /// Apps that must be in front for the hotkey to be registered.
     static var hotkeyApps: [String] { ["com.apple.finder"] + FileViewers.pathFinderIDs + [Bundle.main.bundleIdentifier ?? ""] }
     private var hotkeyRegistered = false
-    @Published var recording = false
-    @Published var recordMessage = ""
     @Published var hotkeyFailure: OSStatus?
     var onAppHotkey: (() -> Void)?
-    let hotkeys = HotKeySet(signature: 0x464D_4B52)  // 'FMKR'
+    /// Paused by HotkeySet while a key is recorded in Settings.
+    let hotkeys = HotkeySet(signature: "FMKR")
 
     // MARK: State
     @Published var status = L("ready")
@@ -92,7 +92,6 @@ final class Model: ObservableObject {
     @Published var busy = false
     @Published var loginStatus = ""
     @Published var loginOn = false
-    @Published var accessibilityAllowed = AXIsProcessTrusted()
     var onCreated: (() -> Void)?
 
     /// The macro's destination (Dropbox-shared) when it exists here, else Documents.
@@ -103,25 +102,17 @@ final class Model: ObservableObject {
     static var defaultLinkFolder: String { NSString(string: "~/sw Dropbox/takano masahiro/Dropbox-shared/AT-Recent").expandingTildeInPath }
 
     private var observers: [NSObjectProtocol] = []
-    private var monitor: Any?
 
     init() {
         hotkeys.action = { [weak self] _ in self?.onAppHotkey?() }
+        // After recording, register again so a conflict with another app is reported.
+        HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in if !recording { self?.refreshHotkey() } }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshLogin(); self?.refreshAccessibility(); self?.reloadLibraryIfChanged()
+            MainActor.assumeIsolated { self?.refreshLogin(); self?.reloadLibraryIfChanged() }
         })
         observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.updateHotkeyRegistration()
+            MainActor.assumeIsolated { self?.updateHotkeyRegistration() }
         })
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, self.recording else { return event }
-            if event.keyCode == 53 { self.recording = false; self.recordMessage = ""; self.refreshHotkey(); return nil }
-            guard let candidate = Shortcut.recorded(keyCode: event.keyCode, flags: event.modifierFlags, characters: event.charactersIgnoringModifiers) else {
-                self.recordMessage = L("invalidShortcut"); return nil
-            }
-            self.appShortcut = candidate; self.appHotkeyEnabled = true
-            self.recording = false; self.recordMessage = ""; self.save(); return nil
-        }
         Library.sharedPath = sharedFolder
         reloadLibraryIfChanged()
         refreshLogin(); refreshHotkey()
@@ -143,6 +134,18 @@ final class Model: ObservableObject {
         defaults.set(appShortcut.flatMap { try? JSONEncoder().encode($0) } ?? Data(), forKey: "appShortcut")
         defaults.set(appHotkeyEnabled, forKey: "appHotkeyEnabled")
         refreshHotkey()
+    }
+    /// Re-reads the settings shared by SettingsSync (projects and the naming rule are shared through Library.json instead).
+    func reloadSharedSettings() {
+        openAfter = defaults.object(forKey: "openAfter") as? Bool ?? true
+        revealInParent = defaults.bool(forKey: "revealInParent")
+        viewer = FileViewers.Choice(rawValue: defaults.string(forKey: "viewer") ?? "") ?? .automatic
+        addToSidebar = defaults.bool(forKey: "addToSidebar")
+        addToFinderSidebar = defaults.bool(forKey: "addToFinderSidebar")
+        makeLink = defaults.object(forKey: "makeLink") as? Bool ?? FileManager.default.fileExists(atPath: Model.defaultLinkFolder)
+        closeAfter = defaults.object(forKey: "closeAfter") as? Bool ?? true
+        normalizeNFC = defaults.object(forKey: "normalizeNFC") as? Bool ?? true
+        windowsSafe = defaults.object(forKey: "windowsSafe") as? Bool ?? true
     }
     func saveForm() {
         defaults.set(client.trimmingCharacters(in: .whitespacesAndNewlines), forKey: "client")
@@ -423,7 +426,7 @@ final class Model: ObservableObject {
         func message(_ error: FileViewers.SidebarError, finder: Bool) -> String {
             switch error {
             case .noPathFinder: return L("sidebar.noPathFinder")
-            case .noAccessibility: return L("sidebar.noAccessibility")
+            case .noAccessibility: return AccessibilityText.text("blocked")
             case .denied: return L("sidebar.denied")
             case .revealFailed(let text): return L("sidebar.failed") + text
             case .menuNotFound: return L(finder ? "sidebar.finderMenuNotFound" : "sidebar.menuNotFound")
@@ -446,12 +449,22 @@ final class Model: ObservableObject {
 
     // MARK: App hotkey
 
-    var hotkeyLabel: String { appShortcut?.label ?? L("noKey") }
-    func startRecording() {
-        recording.toggle(); recordMessage = recording ? L("pressKeyHint") : ""
-        refreshHotkey()
+    /// The 「アプリを呼び出すホットキー」 field: the stored Shortcut (JSON; empty data = cleared on purpose) as a KeyCombo.
+    var appCombo: KeyCombo? {
+        get { appShortcut?.combo }
+        set {
+            appShortcut = newValue.map { Shortcut($0) }
+            appHotkeyEnabled = newValue != nil
+            save()
+        }
     }
-    func clearShortcut() { appShortcut = nil; appHotkeyEnabled = false; recording = false; save() }
+    static let appHotkeyFieldID = "appHotkey"
+    /// Starts recording the app hotkey (from the toggle with no key yet, or from the first-launch offer).
+    func recordAppHotkey() {
+        let recorder = HotkeyRecorder.shared
+        guard recorder.recordingID != Self.appHotkeyFieldID else { return }
+        recorder.start(Self.appHotkeyFieldID) { [weak self] combo in self?.appCombo = combo; recorder.touch(); return nil }
+    }
     func refreshHotkey() {
         hotkeys.unregisterAll(); hotkeyRegistered = false; hotkeyFailure = nil
         updateHotkeyRegistration()
@@ -465,17 +478,16 @@ final class Model: ObservableObject {
     /// Registers the hotkey only while one of hotkeyApps is in front, so other apps keep the key.
     func updateHotkeyRegistration() {
         let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? ""
-        let wanted = appHotkeyEnabled && !recording && appShortcut != nil && Model.hotkeyApps.contains(front)
+        let wanted = appHotkeyEnabled && appShortcut != nil && Model.hotkeyApps.contains(front)
         if wanted == hotkeyRegistered { return }
         hotkeys.unregisterAll(); hotkeyRegistered = false
         guard wanted, let appShortcut else { return }
-        let status = hotkeys.register(1, appShortcut)
+        let status = hotkeys.register(1, appShortcut.combo)
         if status == noErr { hotkeyRegistered = true } else { hotkeyFailure = status }
     }
 
     // MARK: Permissions and login item
 
-    func refreshAccessibility() { accessibilityAllowed = AXIsProcessTrusted() }
 
     func refreshLogin() {
         let state = SMAppService.mainApp.status
@@ -499,7 +511,6 @@ final class Model: ObservableObject {
 
     func stop() {
         hotkeys.unregisterAll()
-        if let monitor { NSEvent.removeMonitor(monitor) }
         observers.forEach { NotificationCenter.default.removeObserver($0) }
     }
 }

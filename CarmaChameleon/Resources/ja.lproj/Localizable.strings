@@ -80,13 +80,6 @@
 "copy" = "コピー";
 "paste" = "ペースト";
 "selectAll" = "すべてを選択";
-"login" = "ログイン時に起動";
-"loginOpen" = "ログイン項目を開く";
-"loginOn" = "ログイン時に自動起動します。";
-"loginApproval" = "システム設定で許可してください。";
-"loginMissing" = "アプリケーションフォルダから起動してください。";
-"loginOff" = "自動起動はオフです。";
-"loginError" = "変更できませんでした：";
 "notInstalled" = "未インストール";
 "notChecked" = "最新版は未確認";
 "updateAvailable" = "更新があります";
@@ -109,7 +102,7 @@
 "installUpdate" = "最新版をインストール";
 "installDetail" = "公式GitHubから取得し、SHA-256を検証してユーザー領域に保存します。管理者権限は不要です。";
 "waitInstall" = "処理が完了してから終了してください。";
-"syncNote" = "変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作を、このフォルダーに保存してほかのMacと共有します。";
+"syncNote" = "変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作を書き出し・同期します。";
 "syncPerMac" = "ログイン時の起動、常駐、メニューバー、保存先、PDFエンジン、pandoc・Illustrator・Photoshop・InDesignの場所、PDFプリセット、ウインドウ位置、同期フォルダーの場所はMacごとに保持します。";
 "pdfEngineGroup" = "PDFエンジン（Typst）";
 "pdfEngineInvalid" = "Typstを実行できません。再インストールしてください。";

@@ -31,6 +31,9 @@ Comparison: Dim common items (on by default; items also in the other list are sh
 Separators are chosen above the lists (next to Compare by): Space, Comma and Tab besides line breaks (all off by default; full-width spaces and commas included). When you turn a separator on, load a file or paste, the list is rearranged one item per line (⌘Z undoes it; a linked file is marked Unsaved and does not change until you save). Typing is not rearranged. Setting changes apply to the results right away.
 Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
 
+Sharing settings
+In the Sharing tab, Export… and Import… save and load the Compare tab settings and the separator, comparison unit, column and header-row choices as ListMatch-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, keep running and the menu bar icon are set on each Mac. The lists themselves are not included.
+
 Hotkeys
 ⌘O load a file into the left list, ⌥⌘O load a file into the right list, ⌘S save the left list, ⌥⌘S save the right list, ⇧⌘S merge and save, ⇧⌘L copy the items only in the left list, ⇧⌘R copy the items only in the right list, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Undo (⌘Z), Redo (⇧⌘Z), cut, copy and paste work in the lists.
 

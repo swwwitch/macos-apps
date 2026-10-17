@@ -7,6 +7,9 @@ final class LinkPalette: NSPanel {
     let model: Model
     let result = NSTextField(wrappingLabelWithString: "")
     private var buttons: [NSButton] = []
+    private var sections: [(box: NSBox, grid: PaletteButtonGrid)] = []
+    /// 「簡易モード／全部入り」 (MightyEdit's profile picker at the top of its palette).
+    private let profilePicker = NSPopUpButton()
     private var watchers: Set<AnyCancellable> = []
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
@@ -39,6 +42,12 @@ final class LinkPalette: NSPanel {
             button.bezelStyle = .rounded; button.controlSize = .small; button.refusesFirstResponder = true
             utilities.addArrangedSubview(button)
         }
+        profilePicker.addItems(withTitles: [L("paletteProfile.simple"), L("paletteProfile.full")])
+        profilePicker.controlSize = .small; profilePicker.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        profilePicker.refusesFirstResponder = true
+        profilePicker.target = self; profilePicker.action = #selector(pickProfile(_:))
+        profilePicker.setAccessibilityLabel(L("paletteProfile"))
+        utilities.addArrangedSubview(profilePicker)
         utilities.spacing = 6; column.addArrangedSubview(utilities)
 
         for group in LinkAction.Group.allCases {
@@ -57,6 +66,7 @@ final class LinkPalette: NSPanel {
             box.contentView = NSView(); box.contentView!.addSubview(grid)
             NSLayoutConstraint.activate([grid.leadingAnchor.constraint(equalTo: box.contentView!.leadingAnchor), grid.trailingAnchor.constraint(equalTo: box.contentView!.trailingAnchor), grid.topAnchor.constraint(equalTo: box.contentView!.topAnchor), grid.bottomAnchor.constraint(equalTo: box.contentView!.bottomAnchor)])
             column.addArrangedSubview(box); box.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
+            sections.append((box, grid))
         }
         result.font = .systemFont(ofSize: 11); result.setAccessibilityLabel(L("lastResult"))
         result.maximumNumberOfLines = 4; result.lineBreakMode = .byTruncatingTail
@@ -72,6 +82,7 @@ final class LinkPalette: NSPanel {
         // The result line and the key hints follow the model.
         model.$status.receive(on: RunLoop.main).sink { [weak self] status in self?.result.stringValue = status }.store(in: &watchers)
         model.$shortcuts.combineLatest(model.$actionEnabled).receive(on: RunLoop.main).sink { [weak self] _ in self?.refresh() }.store(in: &watchers)
+        model.$paletteSimple.combineLatest(model.$simpleActions).receive(on: RunLoop.main).sink { [weak self] _ in self?.applyProfile() }.store(in: &watchers)
         model.$busy.receive(on: RunLoop.main).sink { [weak self] busy in self?.buttons.forEach { $0.isEnabled = !busy } }.store(in: &watchers)
         refresh()
     }
@@ -82,6 +93,22 @@ final class LinkPalette: NSPanel {
             guard let action = LinkAction(rawValue: button.identifier!.rawValue) else { continue }
             button.toolTip = L(action.titleKey) + "  " + (model.isActive(action) ? model.label(action) : L("noKey"))
         }
+    }
+
+    /// Hides the buttons left out of 「簡易モード」 and the groups left empty; their hotkeys keep working.
+    private func applyProfile() {
+        profilePicker.selectItem(at: model.paletteSimple ? 0 : 1)
+        for section in sections {
+            for button in section.grid.buttons {
+                button.isHidden = LinkAction(rawValue: button.identifier!.rawValue).map { !model.showsInPalette($0) } ?? false
+            }
+            section.box.isHidden = section.grid.visibleButtons.isEmpty
+            section.grid.reflow()
+        }
+    }
+    @objc private func pickProfile(_ sender: NSPopUpButton) {
+        model.paletteSimple = sender.indexOfSelectedItem == 0
+        model.save()
     }
 
     @objc private func run(_ sender: NSButton) {
@@ -124,12 +151,14 @@ final class PaletteButtonGrid: NSView {
         super.setFrameSize(newSize)
         if changed { updateGridHeight(); needsLayout = true }
     }
+    var visibleButtons: [NSButton] { buttons.filter { !$0.isHidden } }
+    func reflow() { updateGridHeight(); needsLayout = true }
     private var columns: Int { Self.columnCount(for: bounds.width, buttonWidth: buttonWidth) }
     /// Buttons share the row's width so a narrow palette still fills it.
     private var cellWidth: CGFloat { columns == 1 ? max(buttonWidth, bounds.width) : (bounds.width - CGFloat(columns - 1) * 8) / CGFloat(columns) }
     private func updateGridHeight() {
         guard gridHeight != nil else { return }
-        let rows = (buttons.count + columns - 1) / columns
+        let rows = (visibleButtons.count + columns - 1) / columns
         let height = CGFloat(rows) * buttonHeight + CGFloat(max(0, rows - 1)) * 8
         if gridHeight.constant != height { gridHeight.constant = height }
     }
@@ -137,7 +166,7 @@ final class PaletteButtonGrid: NSView {
         super.layout()
         updateGridHeight()
         let width = min(cellWidth, max(bounds.width, 1))
-        for (index, button) in buttons.enumerated() {
+        for (index, button) in visibleButtons.enumerated() {
             button.frame = NSRect(x: CGFloat(index % columns) * (width + 8), y: CGFloat(index / columns) * (buttonHeight + 8), width: width, height: buttonHeight)
         }
     }

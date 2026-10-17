@@ -1,7 +1,8 @@
 import AppKit
 import Carbon
 
-/// A key combination in Carbon terms (CellCopyCleaner's Shortcut).
+/// The stored form of a hotkey (UserDefaults JSON: code, modifiers, label). Recording and registering use the shared
+/// HotkeyField and HotkeySet (Shared/HotkeyRecorder); ShortcutCombo.swift converts to and from KeyCombo.
 struct Shortcut: Codable, Equatable, Hashable {
     var code: UInt32
     var modifiers: UInt32
@@ -17,70 +18,5 @@ struct Shortcut: Codable, Equatable, Hashable {
     static func prefix(_ m: UInt32) -> String {
         (m & control != 0 ? "⌃" : "") + (m & option != 0 ? "⌥" : "") + (m & shift != 0 ? "⇧" : "") + (m & command != 0 ? "⌘" : "")
     }
-
-    /// Keys that the recorder refuses: no ⌘/⌥/⌃, or a standard ⌘ editing/window/quit key (⌘A ⌘Z ⌘X ⌘C ⌘V ⌘Q ⌘W ⌘,).
-    static let standardCommandKeys: Set<UInt16> = [0, 6, 7, 8, 9, 12, 13, 43]
-    static func recorded(keyCode: UInt16, flags: NSEvent.ModifierFlags, characters: String?) -> Shortcut? {
-        let flags = flags.intersection([.command, .option, .control, .shift])
-        guard !flags.intersection([.command, .option, .control]).isEmpty,
-              !(flags == .command && standardCommandKeys.contains(keyCode)),
-              let key = characters, !key.isEmpty else { return nil }
-        var mods: UInt32 = 0
-        if flags.contains(.command) { mods |= command }
-        if flags.contains(.shift) { mods |= shift }
-        if flags.contains(.option) { mods |= option }
-        if flags.contains(.control) { mods |= control }
-        return Shortcut(code: UInt32(keyCode), modifiers: mods, label: prefix(mods) + key.uppercased())
-    }
-
-    var cgFlags: CGEventFlags {
-        var flags: CGEventFlags = []
-        if modifiers & Shortcut.command != 0 { flags.insert(.maskCommand) }
-        if modifiers & Shortcut.option != 0 { flags.insert(.maskAlternate) }
-        if modifiers & Shortcut.control != 0 { flags.insert(.maskControl) }
-        if modifiers & Shortcut.shift != 0 { flags.insert(.maskShift) }
-        return flags
-    }
 }
 
-/// Several Carbon hotkeys sharing one handler; each is identified by a small number.
-final class HotKeySet {
-    var action: ((UInt32) -> Void)?
-    private let signature: OSType
-    private var references: [UInt32: EventHotKeyRef] = [:]
-    private var handler: EventHandlerRef?
-    private var handlerStatus: OSStatus = noErr
-    init(signature: OSType) {
-        self.signature = signature
-        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        handlerStatus = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
-            guard let context, let event else { return OSStatus(eventNotHandledErr) }
-            let owner = Unmanaged<HotKeySet>.fromOpaque(context).takeUnretainedValue()
-            var id = EventHotKeyID()
-            guard GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil,
-                                    MemoryLayout<EventHotKeyID>.size, nil, &id) == noErr,
-                  id.signature == owner.signature else { return OSStatus(eventNotHandledErr) }
-            let number = id.id
-            DispatchQueue.main.async { owner.action?(number) }
-            return noErr
-        }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
-    }
-    var registered: Set<UInt32> { Set(references.keys) }
-    @discardableResult
-    func register(_ number: UInt32, _ shortcut: Shortcut) -> OSStatus {
-        unregister(number)
-        guard handlerStatus == noErr else { return handlerStatus }
-        var reference: EventHotKeyRef?
-        let status = RegisterEventHotKey(shortcut.code, shortcut.modifiers, EventHotKeyID(signature: signature, id: number), GetApplicationEventTarget(), 0, &reference)
-        if status == noErr, let reference { references[number] = reference }
-        return status
-    }
-    func unregister(_ number: UInt32) {
-        if let reference = references.removeValue(forKey: number) { UnregisterEventHotKey(reference) }
-    }
-    func unregisterAll() { for number in Array(references.keys) { unregister(number) } }
-    deinit {
-        unregisterAll()
-        if let handler { RemoveEventHandler(handler) }
-    }
-}

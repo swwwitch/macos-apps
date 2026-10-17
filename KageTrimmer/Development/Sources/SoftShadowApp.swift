@@ -2,7 +2,7 @@ import AppKit
 import UniformTypeIdentifiers
 import Carbon
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+@MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
     private let shortcut = KageShortcut()
     private var settingsWindow: NSWindow?
     private var window: NSWindow!
@@ -34,6 +34,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         FolderWatcher.shared.onCapture = { [weak self] urls in self?.processWatched(urls) }
         FolderWatcher.shared.restart()
+        // 「設定の共有」: shadow, border, suffixes and success actions. The hotkey, login, menu bar and folder watch stay per Mac.
+        SettingsSync.shared.onImport = { [weak self] in
+            self?.mainViewController?.reloadSharedSettings()
+            (self?.settingsWindow?.contentViewController as? ShortcutSettingsController)?.reloadSharedSettings()
+        }
+        SettingsSync.shared.start(.init(
+            keys: ["addBorder", ShadowSizes.defaultKey, SuccessActions.soundKey, SuccessActions.revealKey, SuccessActions.trashKey],
+            prefixes: ["outputSuffix."],  // ShadowProcessor.suffixKey(shadowSize:)
+            note: StartupWindow.text("影の大きさ・罫線・ファイル名の接尾辞・処理に成功したときの動作を書き出し・同期します。",
+                                     "Exports and syncs the shadow size, border, file name suffixes and what happens after success.",
+                                     "导出并同步阴影大小、边框、文件名后缀以及处理成功后的操作。",
+                                     "그림자 크기, 테두리, 파일 이름 접미사, 처리에 성공했을 때의 동작을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・メニューバー・ホットキー・フォルダ監視はMacごとに設定します。",
+                                       "Login launch, the menu bar, the hotkey and folder watching are set on each Mac.",
+                                       "登录时启动、菜单栏、快捷键和文件夹监视需在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 메뉴 막대, 단축키, 폴더 감시는 Mac마다 설정합니다.")))
         // A login launch stays quiet; files handed over at launch still show the window.
         if (!StartupWindow.hidden && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         if !pendingOpenURLs.isEmpty {
@@ -327,6 +343,14 @@ final class MainViewController: NSViewController {
         }
         updateOutputDescription()
     }
+    /// Settings imported or synced from another Mac: the border and the starting shadow size.
+    func reloadSharedSettings() {
+        addBorder = UserDefaults.standard.object(forKey: "addBorder") as? Bool ?? true
+        borderCheck.state = addBorder ? .on : .off
+        shadowSize = ShadowSizes.defaultSize
+        for button in radioButtons { button.state = button.tag == shadowSize ? .on : .off }
+        updateOutputDescription()
+    }
     @objc private func borderChanged(_ sender: NSButton) {
         addBorder = sender.state == .on
         UserDefaults.standard.set(addBorder, forKey: "addBorder")
@@ -428,74 +452,41 @@ final class DropView: NSView {
     }
 }
 
-final class KageShortcut {
-    static let modifiers: [(String, UInt32)] = [
-        ("⌃⌥⌘", UInt32(controlKey | optionKey | cmdKey)),
-        ("⌃⌥", UInt32(controlKey | optionKey)),
-        ("⌥⌘", UInt32(optionKey | cmdKey)),
-        ("⌃⌘", UInt32(controlKey | cmdKey))
-    ]
-    static let keys: [(String, UInt32)] = [
-        ("A",0),("B",11),("C",8),("D",2),("E",14),("F",3),("G",5),
-        ("H",4),("I",34),("J",38),("K",40),("L",37),("M",46),("N",45),
-        ("O",31),("P",35),("Q",12),("R",15),("S",1),("T",17),("U",32),
-        ("V",9),("W",13),("X",7),("Y",16),("Z",6),("Space",49)
-    ]
-    var enabled = UserDefaults.standard.object(forKey: "shortcutEnabled") as? Bool ?? true
-    var key = UInt32(UserDefaults.standard.object(forKey: "shortcutKey") as? Int ?? 32)
-    var flags = UInt32(UserDefaults.standard.object(forKey: "shortcutModifiers") as? Int ?? Int(controlKey | optionKey | cmdKey))
-    var registrationSucceeded = true
+/// 「アプリを呼び出すホットキー」. Stored as before (shortcutEnabled / shortcutKey / shortcutModifiers, Carbon values);
+/// registered through the shared HotkeySet, which steps aside while the settings field records a key.
+@MainActor final class KageShortcut {
+    static let defaultCombo = KeyCombo(code: 32, modifiers: UInt32(controlKey | optionKey | cmdKey))
+    private(set) var enabled = UserDefaults.standard.object(forKey: "shortcutEnabled") as? Bool ?? true
+    private(set) var combo = KageShortcut.storedCombo(key: UserDefaults.standard.object(forKey: "shortcutKey") as? Int,
+                                                modifiers: UserDefaults.standard.object(forKey: "shortcutModifiers") as? Int)
+    private(set) var registrationSucceeded = true
+    var action: (() -> Void)?
+    private let hotkeys = HotkeySet(signature: "KAGE")
+    init() { hotkeys.action = { [weak self] _ in self?.action?() } }
+    /// Saved Carbon key code and modifiers → KeyCombo; missing values fall back to the initial key.
+    nonisolated static func storedCombo(key: Int?, modifiers: Int?) -> KeyCombo {
+        KeyCombo(code: UInt32(key ?? Int(defaultCombo.code)), modifiers: UInt32(modifiers ?? Int(defaultCombo.modifiers)))
+    }
     func restore() {
-        registrationSucceeded = configure(enabled: enabled, key: key, modifiers: flags)
+        register()
         publish()
     }
-    func save(enabled: Bool, key: UInt32, flags: UInt32) -> Bool {
-        guard configure(enabled: enabled, key: key, modifiers: flags) else { return false }
-        self.enabled = enabled; self.key = key; self.flags = flags
-        registrationSucceeded = true
+    /// Saves even when registration fails, so the field shows the key with the shared failure message.
+    func save(enabled: Bool, combo: KeyCombo) {
+        self.enabled = enabled; self.combo = combo
         UserDefaults.standard.set(enabled, forKey: "shortcutEnabled")
-        UserDefaults.standard.set(Int(key), forKey: "shortcutKey")
-        UserDefaults.standard.set(Int(flags), forKey: "shortcutModifiers")
+        UserDefaults.standard.set(Int(combo.code), forKey: "shortcutKey")
+        UserDefaults.standard.set(Int(combo.modifiers), forKey: "shortcutModifiers")
+        register()
         publish()
-        return true
+    }
+    private func register() {
+        if enabled { registrationSucceeded = hotkeys.register(1, combo) == noErr }
+        else { hotkeys.unregister(1); registrationSucceeded = true }
     }
     /// Declares the hotkey to HotkeyHound (Shared/HotkeyManifest). `enabled` is the setting, not whether registration succeeded.
     private func publish() {
-        HotkeyManifest.publish([HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(key), modifiers: Int(flags), enabled: enabled)])
-    }
-    var action: (() -> Void)?
-    private var reference: EventHotKeyRef?
-    private var handler: EventHandlerRef?
-    private var current: (UInt32, UInt32)?
-    init() {
-        var type = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
-            guard let event, let context else { return OSStatus(eventNotHandledErr) }
-            var id = EventHotKeyID()
-            let status = GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
-            guard status == noErr, id.signature == 0x4B414745 else { return OSStatus(eventNotHandledErr) }
-            let owner = Unmanaged<KageShortcut>.fromOpaque(context).takeUnretainedValue()
-            owner.action?()
-            return noErr
-        }, 1, &type, Unmanaged.passUnretained(self).toOpaque(), &handler)
-    }
-    // Register the replacement first so a conflict leaves the previous shortcut working.
-    func configure(enabled: Bool, key: UInt32, modifiers: UInt32) -> Bool {
-        guard handler != nil else { return false }
-        if enabled, let current, current.0 == key, current.1 == modifiers { return true }
-        var replacement: EventHotKeyRef?
-        if enabled {
-            let result = RegisterEventHotKey(key, modifiers, EventHotKeyID(signature: 0x4B414745, id: 1), GetApplicationEventTarget(), OptionBits(kEventHotKeyExclusive), &replacement)
-            guard result == noErr else { return false }
-        }
-        if let reference { UnregisterEventHotKey(reference) }
-        reference = replacement
-        current = enabled ? (key, modifiers) : nil
-        return true
-    }
-    deinit {
-        if let reference { UnregisterEventHotKey(reference) }
-        if let handler { RemoveEventHandler(handler) }
+        HotkeyManifest.publish([HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: enabled)])
     }
 }
 
@@ -557,6 +548,7 @@ enum SuccessActions {
 @MainActor final class OutputSettingsController: NSObject, NSTextFieldDelegate {
     private let sizePopUp = NSPopUpButton()
     private var suffixFields: [NSTextField] = []
+    private var successChecks: [NSButton] = []
 
     func makeView() -> NSView {
         sizePopUp.addItems(withTitles: ShadowSizes.choices.map { $0.1 == 0 ? $0.0 : "\($0.0)（\($0.1)）" })
@@ -585,13 +577,13 @@ enum SuccessActions {
         grid.rowAlignment = .firstBaseline
         let suffixHelp = NSTextField(wrappingLabelWithString: L("影の大きさごとに、元の名前の後ろに付ける文字を指定します。空欄にするとデフォルトの接尾辞を使います。「/」と「:」は使えません。"))
         suffixHelp.font = .systemFont(ofSize: 11); suffixHelp.textColor = .secondaryLabelColor
-        let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetSuffixes))
+        let reset = NSButton(title: L("初期値に戻す"), target: self, action: #selector(resetSuffixes))
         // The group stretches each row to its width; the spacer keeps the button at its natural size.
         let resetSpacer = NSView(); resetSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         let resetRow = NSStackView(views: [reset, resetSpacer])
         let suffixGroup = SettingsUI.group(L("ファイル名の接尾辞"), [grid, suffixHelp, resetRow])
 
-        let successChecks = [
+        successChecks = [
             (L("サウンドを鳴らす"), SuccessActions.soundKey),
             (L("書き出した画像をFinderで選択する"), SuccessActions.revealKey),
             (L("元の画像をゴミ箱に入れる"), SuccessActions.trashKey)
@@ -608,6 +600,14 @@ enum SuccessActions {
         let stack = NSStackView(views: [sizeGroup, suffixGroup, successGroup]); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
         for group in [sizeGroup, suffixGroup, successGroup] { group.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         return stack
+    }
+    /// Shows values imported or synced from another Mac.
+    func reload() {
+        sizePopUp.selectItem(at: ShadowSizes.choices.firstIndex { $0.1 == ShadowSizes.defaultSize } ?? 2)
+        for field in suffixFields { field.stringValue = UserDefaults.standard.string(forKey: ShadowProcessor.suffixKey(shadowSize: field.tag)) ?? "" }
+        for check in successChecks {
+            if let key = check.identifier?.rawValue { check.state = UserDefaults.standard.bool(forKey: key) ? .on : .off }
+        }
     }
     @objc private func defaultSizeChanged() {
         let size = ShadowSizes.choices[sizePopUp.indexOfSelectedItem].1
@@ -645,10 +645,7 @@ enum SuccessActions {
 
 final class ShortcutSettingsController: NSViewController {
     private let shortcut: KageShortcut
-    private let enabled = NSButton(checkboxWithTitle: L("ホットキーを有効にする"), target: nil, action: nil)
-    private let modifiers = NSPopUpButton()
-    private let key = NSPopUpButton()
-    private let message = NSTextField(wrappingLabelWithString: "")
+    private let enabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: nil, action: nil)
     private let output = OutputSettingsController()
     private let folderWatch = FolderWatchSettingsController()
     init(shortcut: KageShortcut) { self.shortcut = shortcut; super.init(nibName: nil, bundle: nil) }
@@ -663,39 +660,19 @@ final class ShortcutSettingsController: NSViewController {
         let help = NSTextField(wrappingLabelWithString: L("FinderまたはPath Finderで画像を選択しているときは、その画像をすぐに処理します。選択していないときはKageTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
         #endif
         help.textColor = .secondaryLabelColor
-        modifiers.addItems(withTitles: KageShortcut.modifiers.map { $0.0 })
-        key.addItems(withTitles: KageShortcut.keys.map { $0.0 })
-        for control in [modifiers, key] { control.target = self; control.action = #selector(changed) }
-        modifiers.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("修飾キー", "Modifier keys", "修饰键", "보조 키"))
-        key.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("キー", "Key", "按键", "키"))
-        enabled.target = self; enabled.action = #selector(changed)
-        let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetShortcut))
-        let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
-        message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
-        let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
-        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (L("出力"), output.makeView()), (L("フォルダ監視"), folderWatch.makeView()), (AboutSection.title, AboutSection.view())], in: view)
-        refresh()
-        message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：⌃⌥⌘U（control + option + command + U）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
-    }
-    private func refresh() {
+        enabled.target = self; enabled.action = #selector(enabledChanged)
         enabled.state = shortcut.enabled ? .on : .off
-        modifiers.selectItem(at: KageShortcut.modifiers.firstIndex { $0.1 == shortcut.flags } ?? 0)
-        key.selectItem(at: KageShortcut.keys.firstIndex { $0.1 == shortcut.key } ?? 20)
-        modifiers.isEnabled = shortcut.enabled; key.isEnabled = shortcut.enabled
+        let shortcut = self.shortcut
+        let field = HotkeyField.control(id: "shortcut", get: { shortcut.combo }, set: { combo in
+            if let combo { shortcut.save(enabled: shortcut.enabled, combo: combo) }
+        }, defaultCombo: KageShortcut.defaultCombo, registered: { shortcut.registrationSucceeded }, isEnabled: { shortcut.enabled })
+        let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, field, help])
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (L("出力"), output.makeView()), (L("フォルダ監視"), folderWatch.makeView()), (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()), (AboutSection.title, AboutSection.view())], in: view)
     }
-    @objc private func changed() {
-        apply(enabled: enabled.state == .on, key: KageShortcut.keys[key.indexOfSelectedItem].1, flags: KageShortcut.modifiers[modifiers.indexOfSelectedItem].1)
-    }
-    @objc private func resetShortcut() {
-        apply(enabled: true, key: 32, flags: UInt32(controlKey | optionKey | cmdKey))
-    }
-    private func apply(enabled: Bool, key: UInt32, flags: UInt32) {
-        if shortcut.save(enabled: enabled, key: key, flags: flags) {
-            message.stringValue = enabled ? L("保存しました。変更はすぐに反映されます。") : L("ホットキーを無効にしました。")
-        } else {
-            message.stringValue = L("この組み合わせは登録できません。以前の設定を保持しています。")
-        }
-        refresh()
+    func reloadSharedSettings() { if isViewLoaded { output.reload() } }
+    @objc private func enabledChanged() {
+        shortcut.save(enabled: enabled.state == .on, combo: shortcut.combo)
+        HotkeyRecorder.shared.touch()
     }
 }
 

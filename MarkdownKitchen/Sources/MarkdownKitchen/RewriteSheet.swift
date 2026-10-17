@@ -35,7 +35,7 @@ struct RewriteSheet: View {
                 Spacer()
                 if running {
                     ProgressView().controlSize(.small)
-                    Text(L("書き直しています（%@回目）...", String(attempt))).foregroundStyle(.secondary)
+                    Text(L("書き直しています（%@回目）…", String(attempt))).foregroundStyle(.secondary)
                     Button(L("中止")) { stop() }
                 } else {
                     Button(result.isEmpty ? L("書き直す") : L("もう一度書き直す"), action: start)

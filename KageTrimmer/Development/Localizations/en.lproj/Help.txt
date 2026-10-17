@@ -27,7 +27,7 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 - **Open at login**
 - **Hide main window at startup**
 - **Show in menu bar**
-- **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. Click **Restore Defaults** to go back to the default.
+- **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. To change it, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘U. Turn off **Enable hotkey** if you do not use it.
 
 In the Output tab you can choose the shadow size the main window starts with (S by default) and the file name suffix for each shadow size. A size chosen in the main window is used until you quit. Leave a suffix field empty to use the default suffix.
 
@@ -36,6 +36,8 @@ Under “When processing succeeds” you can choose to play a sound, select the 
 Turn on **Watch a folder and process automatically** in the Folder Watch tab to process window screenshots added to the folder automatically, with the shadow size selected in the main window (off by default). The folder starts as the macOS screenshot location. macOS screenshots are identified by how they were taken; CleanShot X and similar tools by their “Screenshot” information and shadow. Screenshots of a selected area or the whole screen are not processed.
 
 To process windows captured with CleanShot X, set the window background to Transparent and the save location to the watched folder in CleanShot X settings (windows captured with a background can’t be recognized).
+
+In the Sharing tab you can share the shadow size, border, file name suffixes and what happens after success. **Export…** saves KageTrimmer-Settings.plist, and **Import…** loads it on another Mac (after you confirm the replacement). Under Settings Sync, choose a folder in iCloud Drive, Dropbox or elsewhere, and Macs that use the same folder keep these settings in step automatically. Login launch, the menu bar, the hotkey and folder watching are set on each Mac.
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window

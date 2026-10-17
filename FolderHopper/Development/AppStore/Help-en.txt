@@ -8,6 +8,7 @@ FolderHopper for the App Store moves, copies and creates symbolic links for file
 - Finder and Path Finder selections, windows and history are not read. Automation permission is unnecessary.
 ## Settings and Permissions
 - Open Settings with ⌘,. Configure login launch, hidden startup window, menu-bar presence, path display and conflict handling.
+- The Sharing tab exports and imports the settings as FolderHopper-Settings.plist and syncs them with your other Macs through a folder such as iCloud Drive or Dropbox. Shared: path display, which destinations are shown, same-name file handling, closing after an operation, the number of recent windows and the copy-to-Applications shortcut. Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders and hidden history items are set per Mac.
 - Selected-folder access is saved with bookmarks. Select folders again if access is lost.
 - Results remain visible in the main window without notification permission.
 ## Keys and Quitting

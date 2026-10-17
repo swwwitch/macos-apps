@@ -10,7 +10,7 @@
 | ID | 項目 | 状態 | ソース・検証証拠・残件または適用外の理由 |
 | --- | --- | --- | --- |
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift + LSMultipleInstancesProhibited。launchDate/PIDで既存インスタンスへ戻す。別コピー起動の実機検証は後述。ファイルopenイベントは未提供。 |
-| B02 | ログイン起動設定 | 実装済み・実機未確認 | Source/LoginAtLaunch.swift。SMAppServiceの状態を読み取り、ON/OFF・承認待ち・未登録・失敗を表示。設定画面のOFFは実機確認。登録ON、再ログイン、OS側OFFは未確認。 |
+| B02 | ログイン起動設定 | 実装済み・実機未確認 | 1.0.16から Shared/LoginAtLaunch/LoginAtLaunch.swift（旧 Source/LoginAtLaunch.swift）。SMAppServiceの状態を読み取り、ON/OFF・承認待ち・未登録・失敗を表示。設定画面のOFFは実機確認。登録ON、再ログイン、OS側OFFは未確認。 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.swift。ログインAppleEventではshowMainを呼ばない。実際の再ログイン未確認。 |
 | B04 | 常駐と再表示 | 実装済み・実機未確認 | main.swift。常駐初期ON、閉じると非表示、Dock/再オープン/⌘0で再表示。設定保持を確認。常駐OFF終了は未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | main.swift applicationShouldTerminate。移動中は終了拒否して理由と停止を提示。待機時⌘Qでプロセス終了を確認。処理中終了ダイアログは未確認。 |
@@ -30,6 +30,8 @@
 | B19 | マスタード基調の共通アイコン | 実機確認済み | Shared/DesignAssets/app-icons-mustard-final.pngを実際に参照。Assets/GenerateIcon.swiftでマスタード背景・白い積層書類/フォルダ・茶色矢印を作成。現行.icnsはメインヘッダーで表示確認。Finder/情報ウインドウは未確認。 |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティの別グループ | 実機確認済み | Shared/AppStandards/LaunchPresenceSection.swiftを新設して再利用可能に。ログイン起動→常駐→アプリ起動ショートカットの順。プライバシー/履歴を別グループ。起動キーはOSショートカット設定への導線と手順。AX不要につき許可グループなし。 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | ユーザーが明示指定したフォルダを自アプリ内で処理。前面アプリの選択やキー入力には作用しない。外部アプリ連携/グローバルキー監視がないのでBundle ID除外設定は対象にならない。 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.0.15：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー folders・hidden・openDestinationAfterMove・shortenDropboxPaths。source・destination・resident・ログイン起動・起動時非表示・メニューバー・securityScopedFolders.v1 はMacごと。onImport はモデルの再描画（設定は@AppStorage）。通常版のビルド・test.sh・配置・起動確認、App Store版（サンドボックス）のビルドを確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：機能のホットキーは無く（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）、「アプリ起動のキーボードショートカット」は LaunchPresenceSection からmacOSの「ショートカット」アプリを開いて「アプリを開く」に割り当てる方式。アプリ内で記録する欄が無いため HotkeyField は使わない。 |
 
 ## 確認記録
 
@@ -97,3 +99,10 @@ B15/B16: About・ヘルプのサポート案内を4言語とも「同梱のREADM
 - 現行ソースは FileCaravan/。Bundle ID local.takano.FolderMover、履歴 FolderMover/History、ウインドウ位置キー FolderMoverMain は互換性のため保持。
 - メニュー・4言語ヘルプ・アイコン資産名・ビルド経路・申請原稿を変更。旧版・過去の検証記録は履歴として保持。
 - 配布と起動の検証結果は Docs/Rename-20261007.md を参照。
+
+## 設定の共通化 第2弾（2026-10-17）
+
+- B02：独自の Source/LoginAtLaunch.swift（未登録でも「アプリケーションフォルダに移動して…」と出る）を Shared/LoginAtLaunch/LoginAtLaunch.swift の直接コンパイルに置き換え。旧ファイルは Backups/replaced-20261017/、login* のローカライズ文字列と make-resources.py の書き換え処理を削除。
+- B20：常駐の英中韓を共通の表記に。アクセシビリティは使わないため置かない。
+- B21：適用外のまま。
+- 1.0.16（build 31）：通常版のビルド・test.sh 通過、両配置・起動確認。App Store版（APP_STORE_BUILD=1）もビルド成功（提出なし）。ログイン起動の状態表示の実機確認は未確認。

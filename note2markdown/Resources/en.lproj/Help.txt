@@ -19,6 +19,9 @@ Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
 Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
 
+Sharing settings
+In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
+
 Hotkeys
 ⌘Return load, ⌘L load from the front browser, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
 

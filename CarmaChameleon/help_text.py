@@ -143,10 +143,11 @@ HELP = {
 - **メニューバーに表示**（起動・常駐タブ、またはアプリメニューの「メニューバー設定…」）：メニューバーのアイコンを表示します（初期値オン）。アイコンのメニューには「メインウインドウを開く」「設定…」「ヘルプ」（「CarmaChameleonヘルプ」「note記事を開く」）「CarmaChameleonを終了」があります。
 - アプリ起動のホットキーは、ショートカットAppで「アプリを開く」にCarmaChameleonを指定して割り当てます。
 
-## 設定の同期
-- 設定の「設定の同期」タブで「同期フォルダーを設定...」を押し、iCloud DriveやDropboxなどのフォルダーを選びます。ほかのMacでも同じフォルダーを選ぶと、変換形式の並びと変換オプションがそろいます。
-- フォルダーには「CarmaChameleon-Settings.plist」が保存されます。保存先、PDFエンジン、各アプリやpandocの場所、PDFプリセットはMacごとに保持します。
-- 同期サービスでは、このフォルダーを常にこのMacに保存する（オフラインで使用可能にする）設定にしてください。
+## 設定の共有
+- 設定の「設定の共有」タブで、変換形式の並びと表示、変換オプション（テキスト・HTML・Keynote・PDF・画像・SVG・表・UTF-16・ファイル名・書き出し名）、Illustrator・Photoshopの変換方法、変換後の動作をほかのMacと共有できます。
+- **書き出し・読み込み**：「書き出す…」で「CarmaChameleon-Settings.plist」に書き出し、ほかのMacで「読み込む…」からそのファイルを選びます。このMacの設定がファイルの内容に置き換わります。キャンセルすると何も変わりません。
+- **設定の同期**：「同期フォルダーを設定…」を押し、iCloud DriveやDropboxなどのフォルダーを選びます。ほかのMacでも同じフォルダーを選ぶと、変更が自動でそろいます。同期サービスでは、このフォルダーを常にこのMacに保存する（オフラインで使用可能にする）設定にしてください。
+- ログイン時の起動、常駐、メニューバー、保存先、PDFエンジン、pandoc・Illustrator・Photoshop・InDesignの場所、PDFプリセット、ウインドウ位置はMacごとに保持します。
 
 ## ホットキー
 - **⌘O**：ファイルを選択
@@ -318,10 +319,11 @@ HELP = {
 - **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
 - For a launch shortcut, create an Open App action for CarmaChameleon in the Shortcuts app and assign a key.
 
-## Settings Sync
-- In Settings, open the Settings Sync tab, click Set Sync Folder... and choose a folder in iCloud Drive, Dropbox or similar. Choose the same folder on your other Macs to share the format list and conversion options.
-- The folder holds CarmaChameleon-Settings.plist. The output folder, PDF engine, app and pandoc locations and PDF presets stay per Mac.
-- With a sync service, keep this folder downloaded and available offline.
+## Sharing settings
+- In Settings > Sharing, share the format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion with your other Macs.
+- **Export & Import**: “Export…” writes CarmaChameleon-Settings.plist; on another Mac, choose that file with “Import…”; this Mac’s settings are replaced with the file’s. Cancel changes nothing.
+- **Settings Sync**: click “Set Sync Folder…” and choose a folder in iCloud Drive, Dropbox or similar. Choose the same folder on your other Macs to keep changes in step automatically. With a sync service, keep this folder downloaded and available offline.
+- Login launch, background, menu bar, output folder, PDF engine, the pandoc, Illustrator, Photoshop and InDesign locations, PDF presets and window positions stay per Mac.
 
 ## Keyboard shortcuts
 - **Command-O**: choose files
@@ -493,10 +495,11 @@ HELP = {
 - **在菜单栏中显示**（“启动与后台”标签，或应用菜单中的“菜单栏设置…”）：显示菜单栏图标（默认开启）。图标菜单包含“打开主窗口”“设置…”“帮助”（“CarmaChameleon 帮助”“打开 note 文章”）和“退出 CarmaChameleon”。
 - 启动快捷键：在快捷指令中为 CarmaChameleon 创建“打开 App”并分配按键。
 
-## 设置同步
-- 在设置的“设置同步”标签中点按“设置同步文件夹...”，选择 iCloud 云盘、Dropbox 等中的文件夹。在其他 Mac 上选择同一文件夹，即可共享格式列表和转换选项。
-- 文件夹中会保存“CarmaChameleon-Settings.plist”。保存位置、PDF 引擎、各应用和 pandoc 的位置以及 PDF 预设在每台 Mac 上分别保留。
-- 使用同步服务时，请将此文件夹设为始终保留在本机（可离线使用）。
+## 设置共享
+- 在设置的“设置共享”标签中，可以与其他 Mac 共享格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作。
+- **导出与导入**：点按“导出…”写入“CarmaChameleon-Settings.plist”，在其他 Mac 上用“导入…”选择该文件，此 Mac 的设置将被替换为文件中的设置。取消则不做任何更改。
+- **设置同步**：点按“设置同步文件夹…”，选择 iCloud 云盘、Dropbox 等中的文件夹。在其他 Mac 上选择同一文件夹，更改会自动保持一致。使用同步服务时，请将此文件夹设为始终保留在本机（可离线使用）。
+- 登录时启动、后台运行、菜单栏、保存位置、PDF 引擎、pandoc、Illustrator、Photoshop 和 InDesign 的位置、PDF 预设和窗口位置在每台 Mac 上分别保留。
 
 ## 键盘快捷键
 - **⌘O**：选择文件
@@ -668,10 +671,11 @@ HELP = {
 - **메뉴 막대에 표시**(시작 및 백그라운드 탭 또는 앱 메뉴의 "메뉴 막대 설정…"): 메뉴 막대 아이콘을 표시합니다(기본값 켬). 아이콘 메뉴에는 "메인 윈도우 열기", "설정…", "도움말"("CarmaChameleon 도움말", "note 글 열기"), "CarmaChameleon 종료"가 있습니다.
 - 실행 단축키는 단축어 앱에서 CarmaChameleon를 여는 동작을 만들고 키를 지정하세요.
 
-## 설정 동기화
-- 설정의 ‘설정 동기화’ 탭에서 ‘동기화 폴더 설정...’을 누르고 iCloud Drive, Dropbox 등의 폴더를 선택합니다. 다른 Mac에서도 같은 폴더를 선택하면 형식 목록과 변환 옵션이 맞춰집니다.
-- 폴더에는 ‘CarmaChameleon-Settings.plist’가 저장됩니다. 저장 위치, PDF 엔진, 각 앱과 pandoc 위치, PDF 사전 설정은 Mac마다 유지합니다.
-- 동기화 서비스에서는 이 폴더를 항상 이 Mac에 보관(오프라인 사용 가능)하도록 설정하세요.
+## 설정 공유
+- 설정의 ‘설정 공유’ 탭에서 형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을(를) 다른 Mac과 공유할 수 있습니다.
+- **내보내기 및 가져오기**: ‘내보내기…’로 ‘CarmaChameleon-Settings.plist’에 내보내고, 다른 Mac에서 ‘가져오기…’로 그 파일을 선택하면 이 Mac의 설정이 파일의 설정으로 바뀝니다. 취소하면 아무것도 바뀌지 않습니다.
+- **설정 동기화**: ‘동기화 폴더 설정…’을 누르고 iCloud Drive, Dropbox 등의 폴더를 선택합니다. 다른 Mac에서도 같은 폴더를 선택하면 변경 사항이 자동으로 맞춰집니다. 동기화 서비스에서는 이 폴더를 항상 이 Mac에 보관(오프라인 사용 가능)하도록 설정하세요.
+- 로그인 시 실행, 백그라운드, 메뉴 막대, 저장 위치, PDF 엔진, pandoc·Illustrator·Photoshop·InDesign 위치, PDF 사전 설정, 윈도우 위치은(는) Mac마다 유지합니다.
 
 ## 키보드 단축키
 - **⌘O**: 파일 선택

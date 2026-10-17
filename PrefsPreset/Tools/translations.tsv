@@ -86,7 +86,7 @@ Finder	Finder	访达	Finder
 スクロールバーの表示	Show scroll bars	显示滚动条	스크롤 막대 보기
 タイトルバーのダブルクリック	Double-click a window’s title bar to	连按窗口标题栏以	윈도우 제목 막대를 이중 클릭하여
 ダブルクリックでしまう（旧設定）	Double-click to minimize (legacy)	连按以最小化（旧设置）	이중 클릭하여 최소화(이전 설정)
-書類をタブで開く	Prefer tabs when opening documents	打开文稿时首选标签页	문서를 열 때 탭 선호
+書類を開くときはタブで開く	Prefer tabs when opening documents	打开文稿时首选标签页	문서를 열 때 탭 선호
 アプリ終了時にウィンドウを保持	Keep windows when quitting an app	退出应用时保留窗口	앱 종료 시 윈도우 유지
 最近使った項目の数	Number of recent items	最近使用的项目数	최근 항목 수
 ウィンドウを開くアニメーション	Window opening animation	窗口打开动画	윈도우 열기 애니메이션
@@ -173,10 +173,10 @@ optionキーを押しながらタイル表示	Hold Option key while dragging win
 タイル表示したウィンドウに余白	Tiled windows have margins	平铺的窗口有边距	타일 배열된 윈도우에 여백 두기
 壁紙クリックでデスクトップを表示	Click wallpaper to reveal desktop	点按墙纸以显示桌面	배경화면을 클릭하여 데스크탑 보기
 デスクトップ項目を隠す	Hide desktop items	隐藏桌面项目	데스크탑 항목 가리기
-ウィジェットを隠す	Hide widgets	隐藏小组件	위젯 가리기
+ウィジェットを表示：デスクトップに	Show widgets: On Desktop	显示小组件：在桌面上	위젯 보기: 데스크탑에서
 ステージマネージャ	Stage Manager	台前调度	스테이지 매니저
 ステージマネージャでデスクトップ項目を隠す	Hide desktop items in Stage Manager	在台前调度中隐藏桌面项目	스테이지 매니저에서 데스크탑 항목 가리기
-ステージマネージャでウィジェットを隠す	Hide widgets in Stage Manager	在台前调度中隐藏小组件	스테이지 매니저에서 위젯 가리기
+ウィジェットを表示：ステージマネージャ使用時	Show widgets: In Stage Manager	显示小组件：在台前调度中	위젯 보기: 스테이지 매니저에서
 ステージマネージャで最近使ったアプリを隠す	Hide recent apps in Stage Manager	在台前调度中隐藏最近使用的应用	스테이지 매니저에서 최근 사용한 앱 가리기
 アプリのウィンドウを表示	Show windows from an application	显示应用程序的窗口	응용 프로그램의 윈도우 보기
 保存先	Save location	存储位置	저장 위치
@@ -237,7 +237,6 @@ Launchpad	Launchpad	启动台	Launchpad
 フィル	Fill	填充	채우기
 何もしない	Do Nothing	不执行任何操作	아무것도 안 함
 フルスクリーン時	In Full Screen	全屏幕时	전체 화면에서
-手動	Never	永不	안 함
 入力ソースを変更	Change Input Source	更改输入法	입력 소스 변경
 絵文字と記号を表示	Show Emoji & Symbols	显示表情与符号	이모티콘 및 기호 보기
 音声入力を開始	Start Dictation	开始听写	받아쓰기 시작
@@ -290,7 +289,7 @@ BMP	BMP	BMP	BMP
 マイプリセットのフォルダを表示	Show My Preset Folder	显示我的预设文件夹	내 프리셋 폴더 보기
 マイプリセット	My Preset	我的预设	내 프리셋
 マイプリセットを保存できませんでした	Could Not Save My Preset	无法存储我的预设	내 프리셋을 저장할 수 없습니다
-iCloud Driveが使えません。システム設定でiCloud Driveをオンにするか、設定の「マイプリセット」タブで保存先を変えてください。	iCloud Drive is not available. Turn on iCloud Drive in System Settings, or change the location in the My Preset tab of Settings.	iCloud 云盘不可用。请在系统设置中打开 iCloud 云盘，或在设置的“我的预设”标签中更改存储位置。	iCloud Drive를 사용할 수 없습니다. 시스템 설정에서 iCloud Drive를 켜거나, 설정의 ‘내 프리셋’ 탭에서 저장 위치를 바꾸세요.
+iCloud Driveが使えません。システム設定でiCloud Driveをオンにするか、設定の「設定の共有」で同期フォルダーを選んでください。	iCloud Drive is not available. Turn on iCloud Drive in System Settings, or choose a sync folder under Sharing in Settings.	iCloud 云盘不可用。请在系统设置中打开 iCloud 云盘，或在设置的“设置共享”中选择同步文件夹。	iCloud Drive를 사용할 수 없습니다. 시스템 설정에서 iCloud Drive를 켜거나, 설정의 ‘설정 공유’에서 동기화 폴더를 선택하십시오.
 マイプリセットを今の設定で上書きしますか？	Replace My Preset with the current settings?	要用当前设置替换我的预设吗？	현재 설정으로 내 프리셋을 덮어쓸까요?
 前回のマイプリセットは「%@」として残します。	The previous My Preset is kept as “%@”.	上一次的我的预设将保留为“%@”。	이전 내 프리셋은 ‘%@’로 남겨 둡니다.
 上書き	Replace	替换	덮어쓰기
@@ -298,12 +297,8 @@ iCloud Driveが使えません。システム設定でiCloud Driveをオンに�
 %@件の設定を「%@」に保存しました。新しいMacでは「マイプリセットを読み込む」を選び、「適用」を押します。	Saved %@ settings to “%@”. On a new Mac, choose “Load My Preset”, then click “Apply”.	已将 %@ 项设置存储到“%@”。在新 Mac 上选择“载入我的预设”，然后点按“应用”。	%@개의 설정을 ‘%@’에 저장했습니다. 새 Mac에서는 ‘내 프리셋 불러오기’를 선택한 뒤 ‘적용’을 누릅니다.
 マイプリセットがありません	No My Preset	没有我的预设	내 프리셋이 없습니다
 「%@」が見つかりません。iCloud Driveの同期が終わっていない場合は、しばらく待ってからもう一度選んでください。	“%@” was not found. If iCloud Drive has not finished syncing, wait a moment and try again.	找不到“%@”。如果 iCloud 云盘尚未完成同步，请稍候再试。	‘%@’을(를) 찾을 수 없습니다. iCloud Drive 동기화가 끝나지 않았다면 잠시 후 다시 선택하세요.
-選択	Choose	选择	선택
 最終保存：%@	Last saved: %@	上次存储：%@	마지막 저장: %@
 今のMacの設定一式をiCloud Driveに保存し、新しいMacで読み込む	Save this Mac’s settings to iCloud Drive and load them on a new Mac	将这台 Mac 的设置存储到 iCloud 云盘，并在新 Mac 上载入	이 Mac의 설정을 iCloud Drive에 저장하고 새 Mac에서 불러옵니다
-変更…	Change…	更改…	변경…
-iCloud Driveに戻す	Use iCloud Drive	恢复为 iCloud 云盘	iCloud Drive로 되돌리기
-新しいMacでは既定のiCloud Driveを探します。別のフォルダに変えた場合は、新しいMacでも同じフォルダを指定し直してください。	On a new Mac, the app looks in iCloud Drive. If you choose another folder, choose the same folder again on the new Mac.	在新 Mac 上会在 iCloud 云盘中查找。如果更改为其他文件夹，请在新 Mac 上重新指定同一文件夹。	새 Mac에서는 기본 위치인 iCloud Drive를 찾습니다. 다른 폴더로 바꾼 경우 새 Mac에서도 같은 폴더를 다시 지정하세요.
 ターミナルのウインドウフォーカスを使用	Focus Terminal windows under the pointer	使用终端窗口焦点（跟随指针）	포인터 아래 터미널 윈도우에 초점
 アニメーション	Animation	动画	애니메이션
 視差効果	Parallax effect	视差效果	시차 효과
@@ -326,7 +321,6 @@ F2	F2	F2	F2
 カーソルに追従	Follow the pointer	跟随指针	포인터 따라가기
 キャップスロックインジケータを表示する	Show Caps Lock indicator	显示大写锁定指示器	Caps Lock 표시기 보기
 キャップスロックインジケータは、Macを再起動すると反映されます。	The Caps Lock indicator setting takes effect after you restart the Mac.	大写锁定指示器的设置在重新启动 Mac 后生效。	Caps Lock 표시기 설정은 Mac을 재시동하면 반영됩니다.
-起動時のサウンドとキャップスロックインジケータの書き込みでは、管理者のパスワードを求められます。	Writing the startup sound and Caps Lock indicator settings asks for an administrator password.	写入启动声音和大写锁定指示器的设置时需要输入管理员密码。	시동 사운드와 Caps Lock 표시기 설정을 기록할 때 관리자 암호를 요구합니다.
 このMacでは管理者のパスワードなしに読み取れないため、PrefsPresetで最後に適用した値を「現在の値」に表示します。書き込みでは管理者のパスワードを求められます。	This setting cannot be read without an administrator password, so “Current Value” shows the value PrefsPreset last applied. Writing asks for an administrator password.	此设置无法在没有管理员密码的情况下读取，因此“当前值”显示 PrefsPreset 上次应用的值。写入时需要输入管理员密码。	이 설정은 관리자 암호 없이 읽을 수 없으므로 ‘현재 값’에는 PrefsPreset이 마지막으로 적용한 값을 표시합니다. 기록할 때 관리자 암호를 요구합니다.
 書き込みでは管理者のパスワードを求められます。	Writing asks for an administrator password.	写入时需要输入管理员密码。	기록할 때 관리자 암호를 요구합니다.
 言語設定	Language	语言	언어
@@ -403,7 +397,7 @@ F1 でズーム機能のオン／オフ、F2 で拡大、⌥⌘- で縮小でき
 そのほか	Other	其他	기타
 24時間表示	24-hour time	24 小时制时间	24시간 시간
 エッセンシャル設定	Essentials	必备设置	필수 설정
-ナチュラルなスクロールを切り、拡張子の表示・Finder のリスト表示と現在のフォルダの検索・⌘` のウインドウ切り替え・メニューバーの常時表示・月曜始まりの24時間表示・黒50%の壁紙など、基本の設定をまとめてそろえます。	Turns off natural scrolling and sets up the basics in one go: file extensions shown, Finder list view searching the current folder, ⌘` to switch windows, an always-visible menu bar, 24-hour time with weeks starting on Monday, a 50% black wallpaper, and more.	关闭自然滚动，并一次性设好基本设置：显示扩展名、Finder 列表视图并搜索当前文件夹、⌘` 切换窗口、始终显示菜单栏、周一开始的 24 小时制、50% 黑色墙纸等。	자연스러운 스크롤을 끄고 확장자 표시, Finder 목록 보기와 현재 폴더 검색, ⌘`로 윈도우 전환, 메뉴 막대 항상 표시, 월요일 시작의 24시간제, 검정 50% 배경화면 등 기본 설정을 한꺼번에 맞춥니다.
+ナチュラルなスクロールのオフ、拡張子の表示、Finder のリスト表示、⌘` のウインドウ切り替え、月曜始まりの24時間表示、黒50%の壁紙など、基本の設定をまとめてそろえます。	Sets up the basics in one go: natural scrolling off, file extensions shown, Finder list view, ⌘` to switch windows, 24-hour time with weeks starting on Monday, a 50% black wallpaper, and more.	一次性设好基本设置：关闭自然滚动、显示扩展名、Finder 列表视图、⌘` 切换窗口、周一开始的 24 小时制、50% 黑色墙纸等。	자연스러운 스크롤 끄기, 확장자 표시, Finder 목록 보기, ⌘`로 윈도우 전환, 월요일 시작의 24시간제, 검정 50% 배경화면 등 기본 설정을 한꺼번에 맞춥니다.
 左ボタン	Left button	左键	왼쪽 버튼
 右ボタン	Right button	右键	오른쪽 버튼
 スクロールボール	Scroll ball	滚动球	스크롤 볼
@@ -419,3 +413,43 @@ Mighty Mouse	Mighty Mouse	Mighty Mouse	Mighty Mouse
 エッセンシャル設定の値を入れる	Fill In Essentials	填入必备设置的值	필수 설정 값 채우기
 エッセンシャル設定の値を「変更後」に入れる。値は行ごとに変えられる	Puts the Essentials values in “New Value.” You can change each row’s value.	将必备设置的值填入“更改后”。可逐行更改值。	필수 설정 값을 ‘변경 후’에 넣습니다. 값은 행마다 바꿀 수 있습니다.
 エッセンシャル設定は、このMacにすべて適用済みです。	All Essentials are already applied on this Mac.	必备设置已全部应用到这台 Mac。	필수 설정이 이 Mac에 모두 적용되어 있습니다.
+このMacとiCloudデバイス間でのHandoffを許可	Allow Handoff between this Mac and your iCloud devices	允许在这台 Mac 和你的 iCloud 设备之间使用“接力”	이 Mac과 iCloud 기기 간의 Handoff 허용
+コンピュータ名	Computer name	电脑名称	컴퓨터 이름
+ローカルホスト名	Local hostname	本地主机名	로컬 호스트 이름
+iPhoneウィジェット	iPhone widgets	iPhone 小组件	iPhone 위젯
+iPhoneからのライブアクティビティを許可	Allow Live Activities from iPhone	允许来自 iPhone 的实时活动	iPhone의 실시간 현황 허용
+関連コンテンツを表示	Show related content	显示相关内容	관련 콘텐츠 보기
+Spotlight	Spotlight	聚焦	Spotlight
+フォルダを表示	Show Folder	显示文件夹	폴더 보기
+macOSの設定一式（.prefspreset）を、設定の同期のフォルダーに保存します。同期フォルダーを選んでいなければ iCloud Drive の PrefsPreset フォルダに保存します。macOSの設定を書き換えるため、自動では適用しません。新しいMacでは読み込んでから「適用」を押します。	Saves all macOS settings (.prefspreset) in the Settings Sync folder, or in the PrefsPreset folder in iCloud Drive if no sync folder is chosen. Because it changes macOS settings, it is never applied automatically. On a new Mac, load it and click Apply.	将整套 macOS 设置（.prefspreset）保存到设置同步的文件夹中；未选择同步文件夹时保存到 iCloud 云盘的 PrefsPreset 文件夹。由于会更改 macOS 设置，不会自动应用。在新 Mac 上载入后点按“应用”。	macOS 설정 일체(.prefspreset)를 설정 동기화 폴더에 저장합니다. 동기화 폴더를 선택하지 않았으면 iCloud Drive의 PrefsPreset 폴더에 저장합니다. macOS 설정을 바꾸므로 자동으로 적용하지 않습니다. 새 Mac에서는 불러온 뒤 ‘적용’을 누릅니다.
+起動時のサウンド・ファイアウォール・コンピュータ名など一部の設定の書き込みでは、管理者のパスワードを求められます。	Writing some settings, such as the startup sound, firewall and computer name, asks for an administrator password.	写入启动声音、防火墙、电脑名称等部分设置时需要输入管理员密码。	시동 사운드, 방화벽, 컴퓨터 이름 등 일부 설정을 기록할 때 관리자 암호를 요구합니다.
+書き込みではログインパスワードを求められます。	Writing asks for your login password.	写入时需要输入登录密码。	기록할 때 로그인 암호를 요구합니다.
+ログインパスワードを入力してください	Enter Your Login Password	请输入登录密码	로그인 암호를 입력하십시오
+「スクリーンセーバ・ディスプレイオフ後にパスワードを要求」の変更には、このユーザーのログインパスワードが要ります。	Changing “Require password after screen saver or display off” needs this user’s login password.	更改“屏幕保护程序或显示器关闭后要求输入密码”需要此用户的登录密码。	‘화면 보호기·디스플레이 끄기 후 암호 요구’를 변경하려면 이 사용자의 로그인 암호가 필요합니다.
+OK	OK	好	확인
+セキュリティを強化	Tighten Security	加强安全性	보안 강화
+セキュリティ	Security	安全性	보안
+AirDrop	AirDrop	隔空投送	AirDrop
+ファイアウォール	Firewall	防火墙	방화벽
+ステルスモード	Stealth mode	隐身模式	스텔스 모드
+スクリーンセーバ・ディスプレイオフ後にパスワードを要求	Require password after screen saver or display off	屏幕保护程序或显示器关闭后要求输入密码	화면 보호기·디스플레이 끄기 후 암호 요구
+ディスプレイをオフにするまで（分・バッテリー）	Turn display off after (minutes, battery)	关闭显示器前的时间（分钟，电池）	디스플레이 끄기까지(분, 배터리)
+ディスプレイをオフにするまで（分・電源アダプタ）	Turn display off after (minutes, power adapter)	关闭显示器前的时间（分钟，电源适配器）	디스플레이 끄기까지(분, 전원 어댑터)
+受信しない	No One	不接收	수신 끔
+連絡先のみ	Contacts Only	仅限联系人	연락처만
+すべての人（10分間）	Everyone for 10 Minutes	所有人（10 分钟）	모든 사람(10분 동안)
+すぐに	Immediately	立即	즉시
+5秒後	After 5 seconds	5 秒后	5초 후
+1分後	After 1 minute	1 分钟后	1분 후
+5分後	After 5 minutes	5 分钟后	5분 후
+15分後	After 15 minutes	15 分钟后	15분 후
+1時間後	After 1 hour	1 小时后	1시간 후
+8時間後	After 8 hours	8 小时后	8시간 후
+ファイアウォールとステルスモードをオンにし、AirDrop で受信しない・プリンタを共有しないようにします。ダウンロードしたアプリの確認ダイアログを出し、ディスプレイはバッテリーで2分・電源アダプタで10分でオフ、オフになったらすぐにパスワードを要求します。	Turns on the firewall and stealth mode, stops receiving via AirDrop and stops printer sharing. Shows the confirmation for downloaded apps, turns the display off after 2 minutes on battery and 10 minutes on power adapter, and requires a password immediately after it turns off.	打开防火墙和隐身模式，停止通过隔空投送接收并关闭打印机共享。显示下载应用的确认对话框，使用电池时 2 分钟、使用电源适配器时 10 分钟后关闭显示器，关闭后立即要求输入密码。	방화벽과 스텔스 모드를 켜고 AirDrop 수신과 프린터 공유를 끕니다. 다운로드한 앱의 확인 대화상자를 표시하고, 디스플레이는 배터리에서 2분·전원 어댑터에서 10분 후에 끄며, 꺼지면 즉시 암호를 요구합니다.
+プリンタ共有	Printer Sharing	打印机共享	프린터 공유
+FileVaultをオン	Turn On FileVault	打开文件保险箱	FileVault 켜기
+ディスクを暗号化します。設定ファイルからは切り替えられないため、システム設定の「プライバシーとセキュリティ」を開きます。FileVault の「オンにする…」を押してください。	Encrypts the disk. It can’t be changed through settings files, so this opens Privacy & Security in System Settings. Click “Turn On…” for FileVault.	加密磁盘。无法通过设置文件更改，因此会打开系统设置的“隐私与安全性”。请点按文件保险箱的“打开…”。	디스크를 암호화합니다. 설정 파일로는 바꿀 수 없으므로 시스템 설정의 ‘개인정보 보호 및 보안’을 엽니다. FileVault의 ‘켜기…’를 누르십시오.
+共有サービスをオフ	Turn Off Sharing Services	关闭共享服务	공유 서비스 끄기
+システム設定の「共有」を開きます。使っていなければ、リモートログイン・画面共有・ファイル共有・Bluetooth 共有・リモートマネジメントをすべてオフにしてください。	Opens Sharing in System Settings. If you don’t use them, turn off Remote Login, Screen Sharing, File Sharing, Bluetooth Sharing and Remote Management.	打开系统设置的“共享”。如果不使用，请关闭远程登录、屏幕共享、文件共享、蓝牙共享和远程管理。	시스템 설정의 ‘공유’를 엽니다. 사용하지 않는다면 원격 로그인, 화면 공유, 파일 공유, Bluetooth 공유, 원격 관리를 모두 끄십시오.
+連係	Continuity	连续互通	연속성
+ポインタとキーボードを近くにあるすべてのMacまたはiPad間で移動することを許可	Allow your pointer and keyboard to move between any nearby Mac or iPad	允许在附近的任何 Mac 或 iPad 之间移动指针和键盘	근처에 있는 모든 Mac 또는 iPad 간에 포인터와 키보드 이동 허용

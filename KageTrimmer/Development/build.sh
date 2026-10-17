@@ -4,6 +4,8 @@ ROOT="${0:A:h}"
 python3 "$ROOT/../../Shared/MenuBarPresence/sync.py"
 python3 "$ROOT/../../Shared/HotkeyManifest/sync.py"
 python3 "$ROOT/../../Shared/AppStandards/sync-surface.py"
+python3 "$ROOT/../../Shared/SettingsSync/sync.py"
+python3 "$ROOT/../../Shared/HotkeyRecorder/sync.py"
 UPDATER_ROOT="$ROOT/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 BUILD=$(mktemp -d /private/tmp/kagetrimmer-build.XXXXXX)
@@ -14,7 +16,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 xcrun swiftc "$ROOT/Sources/AppSurface.swift" "$ROOT/Sources/StartupWindow.swift" "$ROOT/Sources/SettingsSection.swift" "$ROOT/Sources/AboutSection.swift" "$ROOT/Sources/MenuBarPresence.swift" "${UPDATE_SWIFT_FLAGS[@]}" "$ROOT/Sources/UpdateSupport.swift" "$ROOT/Sources/AccessibilityPermission.swift" -parse-as-library -O -target arm64-apple-macos14.0 \
   -module-cache-path "$BUILD/ModuleCache" \
   -framework Carbon -framework AppKit -framework CoreImage -framework ImageIO -framework UniformTypeIdentifiers \
-  "$ROOT/Sources/HelpDocument.swift" "$ROOT/Sources/LocalHelp.swift" "$ROOT/Sources/SoftShadowApp.swift" "$ROOT/Sources/ShadowProcessor.swift" "$ROOT/Sources/FolderWatcher.swift" "$ROOT/Sources/Localization.swift" "$ROOT/Sources/LoginAtLaunch.swift" "$ROOT/Sources/HotkeyManifest.swift" \
+  "$ROOT/Sources/HelpDocument.swift" "$ROOT/Sources/LocalHelp.swift" "$ROOT/Sources/SoftShadowApp.swift" "$ROOT/Sources/ShadowProcessor.swift" "$ROOT/Sources/FolderWatcher.swift" "$ROOT/Sources/Localization.swift" "$ROOT/Sources/LoginAtLaunch.swift" "$ROOT/Sources/HotkeyManifest.swift" "$ROOT/Sources/SettingsSync.swift" "$ROOT/Sources/HotkeyRecorder.swift" \
   -o "$APP/Contents/MacOS/KageTrimmer"
 cp "$ROOT/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/PkgInfo" "$APP/Contents/PkgInfo"

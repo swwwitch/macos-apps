@@ -37,6 +37,22 @@ struct InputFile: Identifiable, Equatable {
     @Published var destinationMode = UserDefaults.standard.string(forKey: "destinationMode") ?? "source" { didSet { defaults.set(destinationMode, forKey: "destinationMode") } }
     @Published var folder: URL? = UserDefaults.standard.string(forKey: "outputFolder").map { URL(fileURLWithPath: $0) } { didSet { defaults.set(folder?.path, forKey: "outputFolder") } }
     @Published var openAfter = UserDefaults.standard.object(forKey: "openAfter") as? Bool ?? true { didSet { defaults.set(openAfter, forKey: "openAfter") } }
+    /// Keys shared by 設定の共有. The save location (destinationMode, outputFolder), Keynote themes and masters (theme, master,
+    /// masterForBackground: the installed themes differ per Mac), startup, residency and the menu bar stay per Mac.
+    nonisolated static let sharedKeys: Set<String> = ["slideSize", "placement", "pageBox", "removeBackground", "openAfter"]
+    /// Re-reads the shared settings after an import so the next save does not write the old values back. Only changed values are assigned.
+    func reloadSharedSettings() {
+        let size = KeynoteSlideSize(rawValue: defaults.string(forKey: "slideSize") ?? "") ?? .matchPDF
+        if size != slideSize { slideSize = size }
+        let place = KeynotePlacement(rawValue: defaults.string(forKey: "placement") ?? "") ?? .fit
+        if place != placement { placement = place }
+        let pageBox = KeynotePageBox(rawValue: defaults.string(forKey: "pageBox") ?? "") ?? .crop
+        if pageBox != box { box = pageBox }
+        let remove = defaults.bool(forKey: "removeBackground")
+        if remove != removeBackground { removeBackground = remove }
+        let open = defaults.object(forKey: "openAfter") as? Bool ?? true
+        if open != openAfter { openAfter = open }
+    }
     @Published var busy = false
     @Published var status = ""
     @Published var details = ""
@@ -353,7 +369,7 @@ struct SettingsView: View {
                 }
             }
             SettingsSection(L("permission")) { KeynotePermissionView() }
-        })), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
+        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
     }
 }
 
@@ -390,6 +406,16 @@ struct SettingsView: View {
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 860, height: 600)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         MenuBarPresence.shared.install(name: "PDF2Keynote", symbol: "rectangle.on.rectangle.angled", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
+            note: StartupWindow.text("スライドサイズ・配置・使用する枠・背景を取り除く・変換後に開く の設定を書き出し・同期します。",
+                                     "Exports and syncs the slide size, placement, page box, background removal and open-after settings.",
+                                     "导出并同步幻灯片尺寸、放置方式、使用的框、移除背景以及转换后打开的设置。",
+                                     "슬라이드 크기, 배치, 사용할 상자, 배경 제거, 변환 후 열기 설정을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("保存先、Keynoteのテーマとマスター、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
+                                       "The save location, Keynote theme and masters, open at login, keep running and the menu bar icon are set on each Mac.",
+                                       "保存位置、Keynote 主题和母版、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "저장 위치, Keynote 테마와 마스터, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         launched = true
         if !pendingFiles.isEmpty { model.add(pendingFiles); pendingFiles = [] }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)

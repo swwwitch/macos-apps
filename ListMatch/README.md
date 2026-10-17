@@ -12,9 +12,12 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 - 「マージして保存…」（⇧⌘S、ウインドウ下）：左右のリストを重複なしでまとめ（左の順＋右にしかないもの）、1行1項目のUTF-8で新しいファイルに保存。
 - 結果は「コピー」ボタン（⇧⌘L・⇧⌘R）で1行1項目のテキストとしてクリップボードへ。「左右のリストを消去」（ファイルとの連携も外す）。
 - テキストファイル（UTF-8・UTF-16・Shift_JIS）をペインにドロップ、または ⌘O（左）・⌥⌘O（右）で読み込み。
-- 貼り付けたリストは保存しない（メモリ上だけ）。外部通信なし。ウインドウを閉じても終了しない（設定で変更可、初期値オン）。ログイン時に起動（初期値オフ）・起動時にメインウインドウを表示しない（初期値オフ）・メニューバー表示（初期値オフ）。
+- 貼り付けたリストは保存しない（メモリ上だけ）。外部通信なし。ウインドウを閉じても常駐（設定で変更可、初期値オン）。ログイン時に起動（初期値オフ）・起動時にメインウインドウを表示しない（初期値オフ）・メニューバー表示（初期値オフ）。
 - Bundle ID は `jp.dtp-transit.listdiff`（旧名 ListDiff のまま、設定を引き継ぐため）。
+- 設定の「設定の共有」タブ（共通部品 Shared/SettingsSync）：「比較」タブの設定と区切り文字・比較の単位・列・見出し行の選択を `ListMatch-Settings.plist` に書き出し・読み込み、iCloud Drive・Dropbox などのフォルダーで同期。ログイン起動・常駐・メニューバーはMacごと、リストの内容は含まない。
 - 4言語（日本語・英語・簡体字中国語・韓国語）。アクセシビリティなどの許可は不要。
+
+紹介記事：https://note.com/swwwitch/n/n27269d6eaf5b
 
 参考：https://note.com/dtp_tranist/n/n8bce4ba5104f（Keyboard Maestroでリストの差分を取る方法）
 
@@ -25,15 +28,24 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）のネイティブア
 ./test.sh    # 比較ロジックの単体テスト
 ```
 
-文字列・ヘルプ・Info.plistは `make-resources.py`、アイコンは `Assets/make-icon.sh`（`GenerateIcon.swift`）から再生成します。共有の `AppHeader.swift`・`AppSurface.swift`・`StartupWindow.swift`・`HelpDocument.swift`・`SettingsSection.swift`・`AboutSection.swift`・`LoginAtLaunch.swift` をビルド時に参照します。`MenuBarPresence.swift`・`UpdateSupport.swift` は共通部品のコピーです（`Shared/MenuBarPresence/sync.py`・`Shared/Updater/prepare.py` に登録済み）。
+文字列・ヘルプ・Info.plistは `make-resources.py`、アイコンは `Assets/make-icon.sh`（`GenerateIcon.swift`）から再生成します。共有の `AppHeader.swift`・`AppSurface.swift`・`StartupWindow.swift`・`HelpDocument.swift`・`SettingsSection.swift`・`AboutSection.swift`・`LoginAtLaunch.swift`・`SettingsSync.swift` をビルド時に参照します。`MenuBarPresence.swift`・`UpdateSupport.swift` は共通部品のコピーです（`Shared/MenuBarPresence/sync.py`・`Shared/Updater/prepare.py` に登録済み）。
 
 ## 制限
 
 行の中の空白（「a @x.jp」など）は区別します。Excelなどのファイルは直接読めないので、テキスト（CSV）で書き出してください。
 
-このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。紹介記事（SWNoteArticleURL）は未設定のため、「note記事を開く」はアプリのまとめページを開きます。
+このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。ヘルプメニューの「note記事を開く」と設定の「情報」タブは紹介記事（SWNoteArticleURL）を開きます。
 
 ## 更新履歴
+
+### 1.5.2（build 9、2026-10-17）
+
+- 常駐の表記を「ウインドウを閉じても常駐」にそろえ、共通部品（設定の共有）の更新を取り込んだ。
+
+### 1.5.1（build 8、2026-10-16）
+
+- 設定に「設定の共有」タブを追加（書き出し・読み込みと、iCloud Drive・Dropboxなどでの同期。比較の設定・区切り文字・列の選択が対象）。
+- 紹介記事（SWNoteArticleURL）を設定し、「note記事を開く」と「情報」タブから開けるようにした。
 
 ### 1.5.0（build 7、2026-10-15）
 

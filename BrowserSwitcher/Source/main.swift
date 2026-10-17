@@ -89,20 +89,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     var window: BrowserWindow!
     var hotKey: EventHotKeyRef?
     var hotKeyHandler: EventHandlerRef?
-    var shortcutKey = UInt32(kVK_ANSI_Q)
-    var shortcutModifiers = UInt32(controlKey | optionKey)
+    static let defaultShortcut = KeyCombo(code: UInt32(kVK_ANSI_B), modifiers: UInt32(controlKey | optionKey | cmdKey))
+    var shortcutKey = AppDelegate.defaultShortcut.code
+    var shortcutModifiers = AppDelegate.defaultShortcut.modifiers
+    /// False after RegisterEventHotKey failed; the settings field shows the shared message.
+    var shortcutRegistered = true
     var shortcutSerial: UInt32 = 1
     var shortcutTap = ShortcutDoubleTap()
-    var shortcutKeyMenu: NSPopUpButton?
-    var shortcutModifierButtons: [NSButton] = []
-    var shortcutStatus: NSTextField?
-    let modifierChoices: [(String, UInt32)] = [("⌃", UInt32(controlKey)), ("⌥", UInt32(optionKey)), ("⇧", UInt32(shiftKey)), ("⌘", UInt32(cmdKey))]
-    let shortcutKeys: [(String, UInt32)] = [
-        ("A",0),("B",11),("C",8),("D",2),("E",14),("F",3),("G",5),("H",4),("I",34),("J",38),("K",40),("L",37),("M",46),("N",45),("O",31),("P",35),("Q",12),("R",15),("S",1),("T",17),("U",32),("V",9),("W",13),("X",7),("Y",16),("Z",6),
-        ("0",29),("1",18),("2",19),("3",20),("4",21),("5",23),("6",22),("7",26),("8",28),("9",25),
-        ("F1",122),("F2",120),("F3",99),("F4",118),("F5",96),("F6",97),("F7",98),("F8",100),("F9",101),("F10",109),("F11",103),("F12",111)
-    ]
-
     let stack = NSStackView()
     let status = NSTextField(wrappingLabelWithString: "")
     var items: [Browser] = []
@@ -113,6 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     var busy = false
     var preferencesWindow: NSWindow?
     var preferenceBrowsers: [Browser] = []
+    var exclusionCheckboxes: [NSButton] = []
     var excludedIDs: Set<String> {
         get { Set(UserDefaults.standard.stringArray(forKey: "excludedBrowserIDs") ?? []) }
         set { UserDefaults.standard.set(newValue.sorted(), forKey: "excludedBrowserIDs") }
@@ -197,15 +191,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         window.center()
         if !StartupWindow.hidden { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         registerGlobalShortcut()
+        SettingsSync.shared.onImport = { [weak self] in
+            guard let self else { return }
+            self.refresh()
+            for checkbox in self.exclusionCheckboxes where self.preferenceBrowsers.indices.contains(checkbox.tag) {
+                checkbox.state = self.excludedIDs.contains(self.preferenceBrowsers[checkbox.tag].id.lowercased()) ? .on : .off
+            }
+        }
+        SettingsSync.shared.start(.init(
+            keys: ["excludedBrowserIDs"],
+            note: StartupWindow.text("一覧から除外するブラウザーを書き出し・同期します。",
+                                     "Exports and syncs the browsers hidden from the list.",
+                                     "导出并同步从列表中排除的浏览器。",
+                                     "목록에서 제외할 브라우저를 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・アプリを呼び出すホットキーはMacごとに設定します。",
+                                       "Login launch, startup display, the menu bar icon and the show app shortcut are set per Mac.",
+                                       "登录时启动、启动时的显示、菜单栏图标和显示应用快捷键在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 앱 표시 단축키는 Mac마다 설정합니다.")))
     }
     var shortcutName: String {
-        let keys = modifierChoices.filter { shortcutModifiers & $0.1 != 0 }.map { $0.0 }.joined() + (shortcutKeys.first { $0.1 == shortcutKey }?.0 ?? "Q")
-        return L("%@（2回押す）", keys)
+        L("%@（2回押す）", KeyCombo(code: shortcutKey, modifiers: shortcutModifiers).label)
     }
     func registerGlobalShortcut() {
         if let saved = UserDefaults.standard.dictionary(forKey: "callShortcut"),
            let code = saved["key"] as? NSNumber, let modifiers = saved["modifiers"] as? NSNumber,
-           shortcutKeys.contains(where: { $0.1 == code.uint32Value }),
            modifiers.uint32Value & UInt32(controlKey | optionKey | cmdKey) != 0 {
             shortcutKey = code.uint32Value
             shortcutModifiers = modifiers.uint32Value
@@ -233,6 +242,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         } else {
             registered = installed
         }
+        shortcutRegistered = registered == noErr
+        // While the settings field records a key, the call shortcut is released so the keystroke reaches the field.
+        MainActor.assumeIsolated { HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.suspendShortcut(recording) } }
         if registered != noErr {
             let alert = NSAlert()
             alert.messageText = L("ホットキーを登録できませんでした")
@@ -345,48 +357,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         actions.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         window.setContentSize(NSSize(width: 400, height: 210 + max(1, min(items.count, 6)) * 80))
     }
-    @objc func applyShortcut() {
-        guard let menu = shortcutKeyMenu, shortcutKeys.indices.contains(menu.indexOfSelectedItem) else { return }
-        let modifiers = shortcutModifierButtons.filter { $0.state == .on }.reduce(UInt32(0)) { $0 | modifierChoices[$1.tag].1 }
-        setShortcut(key: shortcutKeys[menu.indexOfSelectedItem].1, modifiers: modifiers)
+    /// Recording pauses the call shortcut; it comes back when recording ends.
+    func suspendShortcut(_ suspended: Bool) {
+        if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }
+        guard !suspended, hotKeyHandler != nil else { return }
+        shortcutSerial &+= 1
+        shortcutRegistered = RegisterEventHotKey(shortcutKey, shortcutModifiers, EventHotKeyID(signature: 0x42535754, id: shortcutSerial),
+                                                 GetApplicationEventTarget(), 0, &hotKey) == noErr
     }
-    @objc func resetShortcut() {
-        setShortcut(key: UInt32(kVK_ANSI_Q), modifiers: UInt32(controlKey | optionKey))
-    }
-    func setShortcut(key: UInt32, modifiers: UInt32) {
-        guard modifiers & UInt32(controlKey | optionKey | cmdKey) != 0 else {
-            shortcutStatus?.stringValue = L("⌃・⌥・⌘のいずれかを選んでください。")
-            return
-        }
-        // Reserve app commands and the macOS lock-screen shortcut.
-        if (modifiers == UInt32(cmdKey) && [UInt32(12),13,4,46].contains(key)) ||
-           (modifiers == UInt32(controlKey | cmdKey) && key == UInt32(kVK_ANSI_Q)) {
-            shortcutStatus?.stringValue = L("標準操作と重なるため別の組み合わせを選んでください。")
-            return
-        }
-        if key != shortcutKey || modifiers != shortcutModifiers || hotKey == nil {
-            guard hotKeyHandler != nil else {
-                shortcutStatus?.stringValue = L("登録機能を開始できません。アプリを再起動してください。")
-                return
-            }
-            var replacement: EventHotKeyRef?
-            let result = RegisterEventHotKey(key, modifiers, EventHotKeyID(signature: 0x42535754, id: shortcutSerial &+ 1), GetApplicationEventTarget(), 0, &replacement)
-            guard result == noErr else {
-                shortcutStatus?.stringValue = L("登録できません（%@）。現在：%@", String(describing: result), String(describing: shortcutName))
-                return
-            }
-            if let hotKey = hotKey { UnregisterEventHotKey(hotKey) }
-            hotKey = replacement
-            shortcutSerial &+= 1
-            shortcutKey = key
-            shortcutModifiers = modifiers
-        }
+    /// Saves the key from the settings field (same {key, modifiers} dictionary as before) and registers it.
+    func setShortcut(_ combo: KeyCombo) {
+        shortcutKey = combo.code
+        shortcutModifiers = combo.modifiers
         shortcutTap = ShortcutDoubleTap()
-        UserDefaults.standard.set(["key": Int(key), "modifiers": Int(modifiers)], forKey: "callShortcut")
-        for button in shortcutModifierButtons { button.state = modifiers & modifierChoices[button.tag].1 != 0 ? .on : .off }
-        shortcutKeyMenu?.selectItem(at: shortcutKeys.firstIndex { $0.1 == key } ?? 16)
-        shortcutStatus?.stringValue = L("保存しました：%@\nEscで隠す／⌘Qで終了", String(describing: shortcutName))
+        UserDefaults.standard.set(["key": Int(combo.code), "modifiers": Int(combo.modifiers)], forKey: "callShortcut")
+        // Recording is still on when the field commits; registration happens when it ends (suspendShortcut(false)).
+        if MainActor.assumeIsolated({ HotkeyRecorder.shared.recordingID == nil }) { suspendShortcut(false) }
         publishHotkeys()
+    }
+    /// Keys that stay with macOS or the app (screen lock, hide, minimize), refused like a duplicate.
+    var reservedShortcuts: [(String, KeyCombo)] {
+        [(StartupWindow.text("画面をロック", "Lock Screen", "锁定屏幕", "화면 잠금"), KeyCombo(code: UInt32(kVK_ANSI_Q), modifiers: UInt32(controlKey | cmdKey))),
+         (StartupWindow.text("隠す", "Hide", "隐藏", "가리기"), KeyCombo(code: UInt32(kVK_ANSI_H), modifiers: UInt32(cmdKey))),
+         (StartupWindow.text("しまう", "Minimize", "最小化", "최소화"), KeyCombo(code: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey)))]
     }
     @objc func showAbout() {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
@@ -425,40 +418,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let shortcutTitle = NSTextField(labelWithString: SettingsUI.shortcutTitle)
         shortcutTitle.font = .systemFont(ofSize: 13, weight: .semibold)
         launch.addArrangedSubview(shortcutTitle)
-        let shortcutRow = NSStackView()
-        shortcutRow.orientation = .horizontal
-        shortcutRow.spacing = 8
-        shortcutModifierButtons = []
-        for (index, choice) in modifierChoices.enumerated() {
-            // Each change takes effect at once; invalid combinations only show a message and keep the current hotkey.
-            let checkbox = NSButton(checkboxWithTitle: choice.0, target: self, action: #selector(applyShortcut))
-            checkbox.tag = index
-            checkbox.state = shortcutModifiers & choice.1 != 0 ? .on : .off
-            checkbox.toolTip = ["Control", "Option", "Shift", "Command"][index]
-            shortcutModifierButtons.append(checkbox)
-            shortcutRow.addArrangedSubview(checkbox)
+        let field = MainActor.assumeIsolated {
+            HotkeyField.control(id: "callShortcut",
+                                get: { [weak self] in self.map { KeyCombo(code: $0.shortcutKey, modifiers: $0.shortcutModifiers) } },
+                                set: { [weak self] combo in if let combo { self?.setShortcut(combo) } },
+                                defaultCombo: AppDelegate.defaultShortcut,
+                                others: { [weak self] in self?.reservedShortcuts ?? [] },
+                                registered: { [weak self] in self?.shortcutRegistered ?? true })
         }
-        let keyMenu = NSPopUpButton()
-        keyMenu.addItems(withTitles: shortcutKeys.map { $0.0 })
-        keyMenu.selectItem(at: shortcutKeys.firstIndex { $0.1 == shortcutKey } ?? 16)
-        keyMenu.target = self
-        keyMenu.action = #selector(applyShortcut)
-        shortcutKeyMenu = keyMenu
-        shortcutRow.addArrangedSubview(keyMenu)
-        launch.addArrangedSubview(shortcutRow)
-        let infoRow = NSStackView()
-        infoRow.orientation = .horizontal
-        infoRow.spacing = 8
-        let shortcutInfo = NSTextField(wrappingLabelWithString: L("現在：%@　Escで隠す／⌘Qで終了", String(describing: shortcutName)))
-        shortcutInfo.font = .systemFont(ofSize: 11)
-        shortcutInfo.widthAnchor.constraint(equalToConstant: 264).isActive = true
-        shortcutInfo.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        shortcutStatus = shortcutInfo
-        infoRow.addArrangedSubview(shortcutInfo)
-        let reset = NSButton(title: L("初期値に戻す"), target: self, action: #selector(resetShortcut))
-        reset.bezelStyle = .rounded
-        infoRow.addArrangedSubview(reset)
-        launch.addArrangedSubview(infoRow)
+        launch.addArrangedSubview(field)
+        field.widthAnchor.constraint(equalTo: launch.widthAnchor).isActive = true
+        let shortcutNote = NSTextField(wrappingLabelWithString: L("続けて2回押すとメインウインドウを開きます。Escで隠す／⌘Qで終了"))
+        shortcutNote.font = .systemFont(ofSize: 11)
+        shortcutNote.textColor = .secondaryLabelColor
+        launch.addArrangedSubview(shortcutNote)
         let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [launch]) }
         let title = NSTextField(labelWithString: L("一覧から除外するブラウザー"))
         title.font = .boldSystemFont(ofSize: 17)
@@ -469,11 +442,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         list.alignment = .leading
         list.spacing = 0
         list.edgeInsets = NSEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        exclusionCheckboxes = []
         for (index, browser) in preferenceBrowsers.enumerated() {
             let checkbox = NSButton(checkboxWithTitle: browser.name, target: self, action: #selector(toggleExclusion(_:)))
             checkbox.tag = index
             checkbox.state = excludedIDs.contains(browser.id.lowercased()) ? .on : .off
             checkbox.font = .systemFont(ofSize: 15)
+            exclusionCheckboxes.append(checkbox)
             list.addArrangedSubview(checkbox)
             checkbox.heightAnchor.constraint(equalToConstant: 44).isActive = true
         }
@@ -501,7 +476,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let tabArea = NSView(frame: NSRect(x: 0, y: 52, width: content.bounds.width, height: content.bounds.height - 52))
         tabArea.autoresizingMask = [.width, .height]
         content.addSubview(tabArea)
-        MainActor.assumeIsolated { SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsUI.displayTitle, browsersGroup), (AboutSection.title, AboutSection.view())], in: tabArea) }
+        MainActor.assumeIsolated { SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsUI.displayTitle, browsersGroup), (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()), (AboutSection.title, AboutSection.view())], in: tabArea) }
         // Let the browsers page fill its tab so the list stretches with the window instead of leaving blank space below.
         if let document = browsersGroup.superview, let page = document.enclosingScrollView {
             let fill = document.heightAnchor.constraint(equalTo: page.contentView.heightAnchor)

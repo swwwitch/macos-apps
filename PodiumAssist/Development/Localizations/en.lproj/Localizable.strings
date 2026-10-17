@@ -115,7 +115,7 @@
 "ヘルプ" = "Help";
 "PodiumAssistヘルプ" = "PodiumAssist Help";
 "キャンセル" = "Cancel";
-"オートメーションの設定を開く…" = "Open Automation Settings…";
+"オートメーション設定を開く" = "Open Automation Settings";
 "その他の設定" = "More Settings";
 "基本設定" = "Basic";
 "ディスプレイ" = "Display";
@@ -129,8 +129,7 @@
 "ポインタのサイズ" = "Pointer Size";
 "ポインタのサイズを%@にしました。" = "Pointer size set to %@.";
 "ポインタのサイズを変更できませんでした。" = "Could not change the pointer size.";
-"標準に戻す" = "Reset to Default";
-"アクセシビリティの許可が必要です。［設定…］の「起動・常駐」で許可してください。" = "Accessibility permission is required. Allow it in Settings › Startup & Background.";
+"初期値に戻す" = "Reset to Default";
 "システム設定の項目が見つかりませんでした。" = "Could not find the item in System Settings.";
 "システム設定を変更できませんでした。" = "Could not change System Settings.";
 "音量変更時のフィードバックをオンにしました。" = "Volume change feedback turned on.";
@@ -219,3 +218,5 @@
 "ショートカットを変更できませんでした。" = "Could not change the shortcut.";
 "ズーム方法を変更できませんでした。" = "Could not change the zoom style.";
 "最大拡大率を変更できませんでした。" = "Could not change the maximum zoom.";
+"syncNote" = "Exports and syncs the presets (included items, values, apps to open or quit) and Use Timer. Resolutions or apps missing on another Mac are skipped when a preset is applied.";
+"syncPerMac" = "Login launch, background, menu bar, Accessibility, the timer's start time and duration, window positions and tabs, the last applied preset and the sync folder location stay per Mac.";

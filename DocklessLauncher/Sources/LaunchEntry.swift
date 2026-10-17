@@ -117,6 +117,16 @@ enum VersionRules {
 enum EntryRules {
     /// An app's single-press entry and its double-tap entry are separate rows.
     static func slot(_ entry: LaunchEntry) -> String { entry.bundleID + (entry.doubleTap ? "×2" : "") }
+    /// Appends rows for app slots not yet in `entries`, with new ids (a single and a double-tap row are separate slots).
+    static func adding(_ new: [LaunchEntry], to entries: [LaunchEntry]) -> (entries: [LaunchEntry], added: Int) {
+        var result = entries
+        var slots = Set(entries.map(slot))
+        for var entry in new where slots.insert(slot(entry)).inserted {
+            entry.id = UUID()
+            result.append(entry)
+        }
+        return (result, result.count - entries.count)
+    }
 
     /// Browsers whose page URL is checked for `skipURLs`.
     static let browsers: Set<String> = ["com.google.Chrome", "com.apple.Safari", "org.mozilla.firefox",
@@ -240,7 +250,8 @@ enum EntryRules {
     }
 }
 
-/// The file written by「書き出す…」: the list and the settings that belong with it. JSON, extension .docklesslauncher.
+/// The file written by「書き出す…」 up to 1.10.0: the list and the settings that belong with it. JSON, extension .docklesslauncher.
+/// Now only read (設定の共有 imports it); new exports are DocklessLauncher-Settings.plist.
 struct SettingsFile: Codable, Equatable {
     static let format = "DocklessLauncher"
     static let fileExtension = "docklesslauncher"
@@ -270,12 +281,7 @@ struct SettingsFile: Codable, Equatable {
     /// with new ids (a single and a double-tap row are separate slots); excluded apps are combined; the rest is kept.
     func applied(to entries: [LaunchEntry], excluded: [String], replace: Bool) -> (entries: [LaunchEntry], excluded: [String], added: Int) {
         if replace { return (self.entries, self.excluded, self.entries.count) }
-        var result = entries
-        var slots = Set(entries.map(EntryRules.slot))
-        for var entry in self.entries where slots.insert(EntryRules.slot(entry)).inserted {
-            entry.id = UUID()
-            result.append(entry)
-        }
-        return (result, Array(Set(excluded + self.excluded)).sorted(), result.count - entries.count)
+        let result = EntryRules.adding(self.entries, to: entries)
+        return (result.entries, Array(Set(excluded + self.excluded)).sorted(), result.added)
     }
 }

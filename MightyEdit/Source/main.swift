@@ -115,7 +115,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             guard let front = NSWorkspace.shared.frontmostApplication,
                   front.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
             // Re-check at key release: never act on an excluded app (B21).
-            guard !ExcludedApps.shared.isExcluded(front) else { self.message.stringValue = ExcludedApps.reason; return }
+            guard !isExcludedApp(front) else { self.message.stringValue = L("excluded.reason"); return }
             self.targetSession.bind(frontPID: front.processIdentifier)
             if id == TextTransform.affixLines.rawValue { self.showAffixPanel(); return }
             if id == TextTransform.wrapLines.rawValue { self.showWrapPanel(); return }
@@ -421,9 +421,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self?.shortcuts?.reloadConfiguration()
         }
         paletteShortcut = PaletteShortcut { [weak self] pid in self?.presentPalette(targetPID: pid) }
+        // Each hotkey field refuses the other owner's keys too.
+        shortcuts?.paletteCombo = { [weak self] in self?.paletteShortcut?.currentBinding?.combo }
+        paletteShortcut?.actionCombos = { [weak self] in self?.shortcuts?.actionCombos ?? [] }
+        ExcludedApps.shared.configure(explanation: L("excluded.explanation"))
         shortcuts?.additionalPreferenceTabs = [(SettingsUI.launchTitle, paletteShortcut!.settingsView())] + settingsViews.tabs()
-            + [(L("tab.autoShow"), autoShow.makeSettingsView()), (ExcludedApps.title, ExcludedApps.shared.settingsView())]
-            + [(L("tab.options"), MainActor.assumeIsolated { SettingsUI.page(SettingsSync.shared.settingsView()) })]
+            + [(L("tab.autoShow"), autoShow.makeSettingsView()), (ExcludedApps.title, SettingsUI.page(ExcludedApps.shared.page()))]
+            + [(SettingsSync.shared.tabTitle, MainActor.assumeIsolated { SettingsUI.page(SettingsSync.shared.sharingPage()) })]
             + [(AboutSection.title, MainActor.assumeIsolated { AboutSection.view() })]
         SettingsSync.shared.onImport = { [weak self] in
             guard let self else { return }
@@ -432,23 +436,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self.settingsViews.editProfile(.saved)
             self.settingsViews.onChange?()
             self.paletteShortcut?.reloadFromDefaults()
+            self.autoShow.reloadFromDefaults()
+            self.copyOnly = UserDefaults.standard.bool(forKey: "copyOnly")
+            self.statusItem.menu?.items.first { $0.action == #selector(self.toggleCopy(_:)) }?.state = self.copyOnly ? .on : .off
+            // The line, wrap and list panels read their last values when created.
+            for panel in [self.affixPanel, self.wrapPanel, self.specialPanel] as [NSPanel?] { panel?.orderOut(nil) }
+            self.affixPanel = nil; self.wrapPanel = nil; self.specialPanel = nil
+            self.updateTarget()
         }
-        SettingsSync.shared.start()
+        migrateLegacySettingsSync()
+        SettingsSync.shared.start(.init(
+            keys: ["paletteProfile", "paletteDisplayMode", "specialTypographyOptions", "shortcutsDisabled",
+                   "copyOnly", "lineAffixPrefix", "lineAffixSuffix", "specialListStyle", "wrapCharacterCount",
+                   "autoShowEnabled", "autoShowApplications"],
+            prefixes: ["paletteVisible.", "specialListEnabled-", "shortcutDigit-", "shortcutScope-", "paletteInvocation."],
+            note: L("sharing.note"), perMac: L("sharing.perMac")))
         // Excluded apps and MightyEdit itself get their keystrokes back (B21).
-        shortcuts?.hotkeysBlocked = { ExcludedApps.shared.hotkeysBlocked }
+        shortcuts?.hotkeysBlocked = { Self.frontAppBlocksHotkeys }
         // Palette-only hotkeys follow the palette's visibility (show, hide, close, app hide).
         shortcuts?.paletteVisible = { [weak self] in self?.panel?.isVisible == true }
         for name in [NSApplication.didHideNotification, NSApplication.didUnhideNotification] {
             NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.shortcuts?.refreshForPaletteVisibility() }
         }
-        paletteShortcut?.hotkeysBlocked = { ExcludedApps.shared.hotkeysBlocked }
-        ExcludedApps.shared.onChange = { [weak self] in
+        paletteShortcut?.hotkeysBlocked = { Self.frontAppBlocksHotkeys }
+        let refreshForFrontApp = { [weak self] in
             self?.shortcuts?.refreshForFrontApp(); self?.paletteShortcut?.refreshForFrontApp(); self?.updateTarget()
         }
-        ExcludedApps.shared.start()
+        ExcludedApps.shared.onChange = refreshForFrontApp
+        // Hotkeys are released and taken back as the front app crosses the excluded boundary.
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { refreshForFrontApp() }
+        }
         paletteShortcut?.refreshForFrontApp()
         autoShow.showPalette = { [weak self] in
-            guard !ExcludedApps.shared.isExcluded(NSWorkspace.shared.frontmostApplication) else { return }
+            guard !isExcludedApp(NSWorkspace.shared.frontmostApplication) else { return }
             self?.showPalette()
         }
         autoShow.externalAppActivated = { [weak self] app in
@@ -489,22 +510,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in self?.updateTarget() }
     }
 
+    /// Excluded apps and MightyEdit itself get their keystrokes back (B21).
+    static var frontAppBlocksHotkeys: Bool {
+        let front = NSWorkspace.shared.frontmostApplication
+        return MainActor.assumeIsolated { ExcludedApps.shared.blocksHotkeys(bundleID: front?.bundleIdentifier, pid: front?.processIdentifier) }
+    }
+
     func updateTarget() {
         let boundApp = targetSession.targetPID.flatMap { NSRunningApplication(processIdentifier: $0) }
         let name = boundApp?.localizedName ?? L("target.app")
-        let excluded = ExcludedApps.shared.isExcluded(boundApp)
+        let excluded = isExcludedApp(boundApp)
         target.stringValue = excluded ? L("target.excluded", name) : L("target.normal", name, copyOnly ? L("target.copy") : L("target.replace"))
-        let trusted = AXIsProcessTrusted()
+        let trusted = AccessibilitySection.isTrusted
         permissionButton.isHidden = trusted
         if !trusted {
-            message.stringValue = L("msg.needPermission")
+            message.stringValue = AccessibilityText.text("blocked")
         } else if wasTrusted != true {
             message.stringValue = L("msg.permissionOK")
         }
         wasTrusted = trusted
-        if trusted && !excluded && message.stringValue == ExcludedApps.reason { message.stringValue = L("app.ready") }
+        if trusted && !excluded && message.stringValue == L("excluded.reason") { message.stringValue = L("app.ready") }
         // Excluded apps are not inspected; the palette stays dimmed for them.
-        if panel.isVisible && (excluded || ExcludedApps.shared.isExcluded(NSWorkspace.shared.frontmostApplication)) { panel.alphaValue = 0.45; return }
+        if panel.isVisible && (excluded || isExcludedApp(NSWorkspace.shared.frontmostApplication)) { panel.alphaValue = 0.45; return }
         // Dim only on a definite read-only/non-text focus; unknown custom editors stay usable.
         if panel.isVisible && trusted { panel.alphaValue = focusedTextIsEditable() == false ? 0.45 : 1 }
         else { panel.alphaValue = 1 }
@@ -711,7 +738,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if index > 0 { menu.addItem(.separator()) }
             for candidate in group {
                 let title = candidate.replacingOccurrences(of: "\n", with: " ")
-                let item = NSMenuItem(title: title.count > 80 ? String(title.prefix(80)) + "..." : title,
+                let item = NSMenuItem(title: title.count > 80 ? String(title.prefix(80)) + "…" : title,
                                       action: #selector(chooseDate(_:)), keyEquivalent: "")
                 item.target = self
                 item.representedObject = [text, candidate]
@@ -771,7 +798,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         updateTarget()
         // Menu-bar invocation over an excluded app shows the reason instead of acting.
-        if ExcludedApps.shared.isExcluded(pid: targetSession.targetPID) { message.stringValue = ExcludedApps.reason }
+        if isExcludedApp(pid: targetSession.targetPID) { message.stringValue = L("excluded.reason") }
         if panel.isMiniaturized { panel.deminiaturize(nil) }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(panel.frame) }) {
             panel.center()
@@ -821,7 +848,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         pasteboard.clearContents()
         guard pasteboard.setString(result, forType: .string) else { WebSelection.restore(previous); message.stringValue = L("msg.clipboardFailed"); return }
         let change = pasteboard.changeCount
-        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, !ExcludedApps.shared.isExcluded(pid: pid),
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, !isExcludedApp(pid: pid),
               WebSelection.sendKey(9, flags: .maskCommand, pid: pid) else {
             WebSelection.restore(previous); message.stringValue = L("msg.noTarget"); return
         }
@@ -845,7 +872,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // Retry every 30 ms (about 0.75 s in total) so a following hotkey can continue quickly.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
             guard let self, NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
-                  !ExcludedApps.shared.isExcluded(pid: pid) else { return }
+                  !isExcludedApp(pid: pid) else { return }
             var focused: CFTypeRef?
             guard AXUIElementCopyAttributeValue(application, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
                   let focused, CFEqual(focused, element) else { return }
@@ -899,7 +926,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if busy {
             if let app = NSWorkspace.shared.frontmostApplication,
                app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-               !ExcludedApps.shared.isExcluded(app), pendingTransforms.count < 8 {
+               !isExcludedApp(app), pendingTransforms.count < 8 {
                 pendingTransforms.append((sender.tag, app.processIdentifier))
             }
             return
@@ -909,7 +936,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             message.stringValue = L("msg.selectInApp"); return
         }
         // B21: check before reading the selection; panels and hotkeys all pass through here.
-        guard !ExcludedApps.shared.isExcluded(app) else { message.stringValue = ExcludedApps.reason; return }
+        guard !isExcludedApp(app) else { message.stringValue = L("excluded.reason"); return }
         if panel.isVisible || specialPanel?.isVisible == true || typographyPanel?.isVisible == true || wrapPanel?.isVisible == true || affixPanel?.isVisible == true {
             guard targetSession.targetPID == app.processIdentifier else {
                 hidePalette()
@@ -999,7 +1026,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             message.stringValue = L("msg.noRange"); return
         }
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier,
-              !ExcludedApps.shared.isExcluded(NSWorkspace.shared.frontmostApplication),
+              !isExcludedApp(NSWorkspace.shared.frontmostApplication),
               let source = CGEventSource(stateID: .privateState),
               let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else {
@@ -1083,7 +1110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             var selection = CFRange()
             guard next.pid == app.processIdentifier,
                   NSWorkspace.shared.frontmostApplication?.processIdentifier == next.pid,
-                  !ExcludedApps.shared.isExcluded(pid: next.pid),
+                  !isExcludedApp(pid: next.pid),
                   AXUIElementCopyAttributeValue(application, kAXFocusedUIElementAttribute as CFString, &currentFocus) == .success,
                   let currentFocus, CFEqual(currentFocus, element),
                   AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &currentText) == .success,
@@ -1149,6 +1176,36 @@ private enum WebSelection {
         return true
     }
 }
+
+/// One-time move from MightyEdit's own sync (before 0.2.29) to the shared SettingsSync.
+/// The device ID and last sync date carry over, so the first check does not take this Mac's own
+/// file for another Mac's and overwrite newer local settings.
+func migrateLegacySettingsSync() {
+    let defaults = UserDefaults.standard
+    for (old, new) in [("iCloudSyncDeviceID", "settingsSyncDeviceID"), ("iCloudSyncLastDate", "settingsSyncLastDate")] {
+        guard let value = defaults.object(forKey: old) else { continue }
+        if defaults.object(forKey: new) == nil { defaults.set(value, forKey: new) }
+        defaults.removeObject(forKey: old)
+    }
+    // The first version synced only to iCloud Drive/MightyEdit/Settings.plist.
+    let legacyICloudKey = "iCloudSyncEnabled"
+    guard defaults.bool(forKey: legacyICloudKey) else { return }
+    defaults.removeObject(forKey: legacyICloudKey)
+    guard defaults.string(forKey: "settingsSyncFolder") == nil else { return }
+    let legacy = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs/MightyEdit", isDirectory: true)
+    let old = legacy.appendingPathComponent("Settings.plist"), new = legacy.appendingPathComponent("MightyEdit-Settings.plist")
+    if FileManager.default.fileExists(atPath: old.path), !FileManager.default.fileExists(atPath: new.path) {
+        try? FileManager.default.moveItem(at: old, to: new)
+    }
+    defaults.set(legacy.path, forKey: "settingsSyncFolder")
+}
+
+/// 対象外アプリ (B21) checks for MightyEdit's main-thread code that is not marked @MainActor; the shared list is main-actor isolated.
+func isExcludedApp(_ app: NSRunningApplication?) -> Bool {
+    MainActor.assumeIsolated { ExcludedApps.shared.excludes(app?.bundleIdentifier) }
+}
+func isExcludedApp(pid: pid_t?) -> Bool { isExcludedApp(pid.flatMap { NSRunningApplication(processIdentifier: $0) }) }
 
 let app = NSApplication.shared
 SingleInstanceLaunch.enforce()

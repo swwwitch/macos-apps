@@ -17,7 +17,7 @@ final class ActionRunner {
             BrowserBridge.key(code, flags, to: pid)
             completion(.silent); return
         }
-        guard var page = BrowserBridge.page(pid: pid) else { completion(.failure(L("fail.access"))); return }
+        guard var page = BrowserBridge.page(pid: pid) else { completion(.failure(AccessibilityText.text("blocked"))); return }
         if page.url.isEmpty, let url = BrowserBridge.addressBarURL(pid: pid) { page.url = url }
         guard !page.url.isEmpty else { completion(.failure(String(format: L("fail.noURL"), browser.name))); return }
         guard !LinkRules.isEmptyPage(title: page.title, url: page.url) else { completion(.failure(L("fail.emptyPage"))); return }

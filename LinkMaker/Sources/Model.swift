@@ -22,27 +22,30 @@ final class Model: ObservableObject {
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var paused = false
     /// Apps where the 「選択した文字列から」 functions never take their keys (the misc group's excluded apps).
-    @Published var excludedApps = UserDefaults.standard.stringArray(forKey: "excludedApps") ?? Model.defaultExcludedApps
     static let defaultExcludedApps = ["com.adobe.illustrator", "com.adobe.InDesign", "com.adobe.Photoshop", "com.microsoft.Word"]
-    @Published var recording: LinkAction?
-    /// Recording the palette hotkey (kept apart from the function hotkeys).
-    @Published var recordingPalette = false
+    /// True while the shared HotkeyRecorder records a key; every hotkey stays unregistered meanwhile.
+    @Published var recording = false
     @Published var paletteShortcut = UserDefaults.standard.data(forKey: "paletteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? Model.defaultPaletteShortcut
     @Published var paletteHotkeyEnabled = UserDefaults.standard.object(forKey: "paletteHotkeyEnabled") as? Bool ?? true
     /// Show the palette instead of the main window at launch and on reopen (KakkoReplace's paletteMode).
     @Published var paletteMode = UserDefaults.standard.bool(forKey: "paletteMode")
     @Published var paletteFailure: OSStatus?
-    /// ⌃⇧⌘K: free in Keyboard Maestro and the other sw_app apps on 2026-10-13 (⌥⇧⌘U is KakkoReplace's palette).
-    static let defaultPaletteShortcut = Shortcut.km(40, 4864, "K")
+    /// 「簡易モード」: the palette shows only the chosen buttons (MightyEdit's palette profiles). Off = 「全部入り」.
+    @Published var paletteSimple = UserDefaults.standard.bool(forKey: "paletteSimple")
+    @Published var simpleActions = Model.savedSimpleActions()
+    static let defaultSimpleActions: Set<LinkAction> = [.copyAsk, .copyURL, .copyMarkdown, .tabsURLs, .weblocAsk, .reloadClean, .editMode]
+    static func savedSimpleActions() -> Set<LinkAction> {
+        UserDefaults.standard.stringArray(forKey: "paletteSimpleActions").map { Set($0.compactMap(LinkAction.init(rawValue:))) } ?? defaultSimpleActions
+    }
+    /// ⌃⌥⌘M (2026-10-17, was ⌃⇧⌘K). FolderHopper uses the same key in Finder and Path Finder.
+    static let defaultPaletteShortcut = Shortcut.km(46, 6400, "M")
     var onPaletteHotkey: (() -> Void)?
-    @Published var recordMessage = ""
     @Published var failures: [LinkAction: OSStatus] = [:]
     @Published var duplicates: Set<LinkAction> = []
     @Published var status = L("ready")
     @Published var statusIsError = false
     @Published var loginStatus = ""
     @Published var loginOn = false
-    @Published var accessibilityAllowed = AXIsProcessTrusted()
     @Published var busy = false
 
     let hotkeys = HotKeySet(signature: 0x4D4B_4C4B)        // 'MKLK'
@@ -54,7 +57,6 @@ final class Model: ObservableObject {
     private(set) var lastExternalPID: pid_t?
     private var observers: [NSObjectProtocol] = []
     private var workspaceObserver: NSObjectProtocol?
-    private var monitor: Any?
     private var registeredState: String?
 
     static var systemLanguage: String {
@@ -95,18 +97,8 @@ final class Model: ObservableObject {
             self?.refreshHotkeys()
         }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshLogin(); self?.refreshAccessibility(); self?.refreshHotkeys()
+            self?.refreshLogin(); self?.refreshHotkeys()
         })
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, self.recording != nil || self.recordingPalette else { return event }
-            if event.keyCode == 53 { self.recording = nil; self.recordingPalette = false; self.recordMessage = ""; self.refreshHotkeys(); return nil }
-            guard let candidate = Shortcut.recorded(keyCode: event.keyCode, flags: event.modifierFlags, characters: event.charactersIgnoringModifiers) else {
-                self.recordMessage = L("invalidShortcut"); return nil
-            }
-            if let action = self.recording { self.shortcuts[action] = candidate; self.actionEnabled[action] = true }
-            else { self.paletteShortcut = candidate; self.paletteHotkeyEnabled = true }
-            self.recording = nil; self.recordingPalette = false; self.recordMessage = ""; self.save(); return nil
-        }
         if let front = NSWorkspace.shared.frontmostApplication, isEnabledBrowser(front) { lastBrowserPID = front.processIdentifier }
         if let front = NSWorkspace.shared.frontmostApplication, front.processIdentifier != ProcessInfo.processInfo.processIdentifier { lastExternalPID = front.processIdentifier }
         refreshLogin(); refreshHotkeys()
@@ -118,7 +110,6 @@ final class Model: ObservableObject {
         defaults.set(Dictionary(uniqueKeysWithValues: actionEnabled.map { ($0.key.rawValue, $0.value) }), forKey: "actionEnabled")
         defaults.set(Dictionary(uniqueKeysWithValues: doubleTap.map { ($0.key.rawValue, $0.value) }), forKey: "doubleTap")
         defaults.set(browserEnabled, forKey: "browserEnabled")
-        defaults.set(excludedApps, forKey: "excludedApps")
         defaults.set(simplifyURL, forKey: "simplifyURL")
         defaults.set(associateID, forKey: "associateID")
         defaults.set(notifySuccess, forKey: "notifySuccess")
@@ -127,6 +118,8 @@ final class Model: ObservableObject {
         defaults.set(try? JSONEncoder().encode(paletteShortcut), forKey: "paletteShortcut")
         defaults.set(paletteHotkeyEnabled, forKey: "paletteHotkeyEnabled")
         defaults.set(paletteMode, forKey: "paletteMode")
+        defaults.set(paletteSimple, forKey: "paletteSimple")
+        defaults.set(simpleActions.map(\.rawValue).sorted(), forKey: "paletteSimpleActions")
         refreshHotkeys()
     }
 
@@ -150,9 +143,20 @@ final class Model: ObservableObject {
         paletteShortcut = defaults.data(forKey: "paletteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? Model.defaultPaletteShortcut
         paletteHotkeyEnabled = defaults.object(forKey: "paletteHotkeyEnabled") as? Bool ?? true
         paletteMode = defaults.bool(forKey: "paletteMode")
-        recording = nil; recordingPalette = false
+        paletteSimple = defaults.bool(forKey: "paletteSimple")
+        simpleActions = Model.savedSimpleActions()
+        MainActor.assumeIsolated { HotkeyRecorder.shared.stop() }
         refreshHotkeys()
     }
+
+    // MARK: Palette
+
+    func showsInPalette(_ action: LinkAction) -> Bool { !paletteSimple || simpleActions.contains(action) }
+    func setSimple(_ action: LinkAction, _ shown: Bool) {
+        if shown { simpleActions.insert(action) } else { simpleActions.remove(action) }
+        save()
+    }
+    func resetSimpleActions() { simpleActions = Model.defaultSimpleActions; save() }
 
     // MARK: Browsers
 
@@ -168,18 +172,13 @@ final class Model: ObservableObject {
     func isExcluded(_ app: NSRunningApplication?) -> Bool {
         guard let app else { return true }
         if app.processIdentifier == ProcessInfo.processInfo.processIdentifier { return true }
-        return excludedApps.contains(app.bundleIdentifier ?? "")
+        return MainActor.assumeIsolated { ExcludedApps.shared.excludes(app.bundleIdentifier) }
     }
-    /// Adds apps chosen in an open panel; bundle IDs already listed are skipped.
-    func addExcludedApps(_ urls: [URL]) {
-        for url in urls {
-            guard let id = Bundle(url: url)?.bundleIdentifier, !excludedApps.contains(id) else { continue }
-            excludedApps.append(id)
-        }
-        save()
+    /// 「初期値に戻す」 under the shared list: Illustrator, InDesign, Photoshop and Word again.
+    func resetExcludedApps() {
+        // reset(to:) saves and runs onChange (hotkeys and the palette are refreshed there).
+        MainActor.assumeIsolated { ExcludedApps.shared.reset(to: Model.defaultExcludedApps) }
     }
-    func removeExcludedApp(_ id: String) { excludedApps.removeAll { $0 == id }; save() }
-    func resetExcludedApps() { excludedApps = Model.defaultExcludedApps; save() }
 
     // MARK: Hotkeys
 
@@ -205,7 +204,7 @@ final class Model: ObservableObject {
     /// A registered key went down (DocklessLauncher's pressed): without a double-tap function the single one runs at once;
     /// with one, a second press within `doubleTapInterval` runs it, otherwise the single function runs after the wait.
     func pressed(_ shortcut: Shortcut) {
-        guard !paused, recording == nil, !recordingPalette else { return }
+        guard !paused, !recording else { return }
         let front = NSWorkspace.shared.frontmostApplication
         let live = LinkAction.allCases.filter { isActive($0) && !duplicates.contains($0) && shortcuts[$0]?.signature == shortcut.signature && applies($0, front: front) }
         let single = live.first { !isDouble($0) }
@@ -232,7 +231,7 @@ final class Model: ObservableObject {
         duplicates = Set(byTrigger.values.filter { $0.count > 1 }.flatMap { $0 })
         refreshPaletteHotkey()
         if paletteHotkeyEnabled { duplicates.formUnion(active.filter { shortcuts[$0]!.signature == paletteShortcut.signature }) }
-        let wanted = !paused && recording == nil && !recordingPalette
+        let wanted = !paused && !recording
         let frontApp = NSWorkspace.shared.frontmostApplication
         let usable = active.filter { !duplicates.contains($0) }
         // Registered only while one of the key's functions applies to the app in front (B13, B21).
@@ -265,7 +264,7 @@ final class Model: ObservableObject {
     /// Registered in every app; not affected by the browser check or the pause (it only shows the palette).
     private var paletteRegistered: String?
     func refreshPaletteHotkey() {
-        let state = paletteHotkeyEnabled && !recordingPalette ? paletteShortcut.signature : ""
+        let state = paletteHotkeyEnabled && !recording ? paletteShortcut.signature : ""
         guard state != paletteRegistered else { return }
         paletteRegistered = state
         paletteHotkey.unregisterAll()
@@ -275,12 +274,23 @@ final class Model: ObservableObject {
             if result != noErr { paletteFailure = result }
         }
     }
-    func startRecordingPalette() {
-        recordingPalette.toggle(); recording = nil
-        recordMessage = recordingPalette ? L("recordHint") : ""
-        refreshHotkeys()
+    /// Keys HotkeyField must refuse for `action` (nil = the palette): enabled functions with the same tap count, and the palette.
+    /// A single-press and a double-tap function may share a key, as before.
+    func otherHotkeys(except action: LinkAction?) -> [(String, KeyCombo)] {
+        var result: [(String, KeyCombo)] = LinkAction.allCases.compactMap { other in
+            guard other != action, isActive(other), let shortcut = shortcuts[other] else { return nil }
+            if let action, isDouble(other) != isDouble(action) { return nil }
+            if action == nil, isDouble(other) { return nil }
+            return (L(other.titleKey), KeyCombo(shortcut))
+        }
+        if action != nil, paletteHotkeyEnabled { result.append((L("showPalette"), KeyCombo(paletteShortcut))) }
+        return result
     }
-    func resetPaletteShortcut() { paletteShortcut = Model.defaultPaletteShortcut; paletteHotkeyEnabled = true; save() }
+    /// From HotkeyField: a recorded key turns the function on; clearing turns it off.
+    func setShortcut(_ action: LinkAction, _ combo: KeyCombo?) {
+        if let combo { shortcuts[action] = Shortcut(combo); actionEnabled[action] = true } else { clearShortcut(action) }
+        save()
+    }
 
     /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
     func publishHotkeys() {
@@ -289,7 +299,7 @@ final class Model: ObservableObject {
             guard let s = shortcuts[action] else { return nil }
             return HotkeyManifest.Item(id: action.rawValue, title: L(action.titleKey), keyCode: Int(s.code), modifiers: Int(s.modifiers),
                                        enabled: actionEnabled[action] ?? false, scope: action.isGlobal ? "except" : "only",
-                                       apps: action.isGlobal ? excludedApps : apps, note: isDouble(action) ? L("doubleTapNote") : nil)
+                                       apps: action.isGlobal ? MainActor.assumeIsolated { ExcludedApps.shared.ids } : apps, note: isDouble(action) ? L("doubleTapNote") : nil)
         }
         items.append(HotkeyManifest.Item(id: "palette", title: L("showPalette"), keyCode: Int(paletteShortcut.code), modifiers: Int(paletteShortcut.modifiers),
                                          enabled: paletteHotkeyEnabled))
@@ -304,12 +314,6 @@ final class Model: ObservableObject {
     }
     var hotkeyProblem: Bool { !failures.isEmpty || !duplicates.isEmpty }
 
-    func startRecording(_ action: LinkAction) {
-        recording = recording == action ? nil : action
-        recordingPalette = false
-        recordMessage = recording != nil ? L("recordHint") : ""
-        refreshHotkeys()
-    }
     func resetShortcut(_ action: LinkAction) {
         if let s = action.defaultShortcut { shortcuts[action] = s } else { shortcuts[action] = nil }
         doubleTap[action] = action.defaultDoubleTap
@@ -337,7 +341,7 @@ final class Model: ObservableObject {
             if app?.processIdentifier == ProcessInfo.processInfo.processIdentifier, let pid = lastExternalPID { app = NSRunningApplication(processIdentifier: pid) }
             guard let app, !app.isTerminated else { report(.failure(L("fail.noApp"))); return }
             guard !isExcluded(app) else { report(.failure(String(format: L("fail.excluded"), app.localizedName ?? ""))); return }
-            guard AXIsProcessTrusted() else { report(.failure(L("fail.access"))); return }
+            guard AccessibilitySection.isTrusted else { report(.failure(AccessibilityText.text("blocked"))); return }
             busy = true
             let run = { [weak self] in
                 if fromHotkey, NSWorkspace.shared.frontmostApplication?.processIdentifier != app.processIdentifier {
@@ -351,7 +355,7 @@ final class Model: ObservableObject {
         }
         if action.needsPage || action.group == .tabs {
             guard let app = target, let browser = Browser.find(app.bundleIdentifier) else { report(.failure(L("fail.noBrowser"))); return }
-            guard AXIsProcessTrusted() || action.group == .tabs else { report(.failure(L("fail.access"))); return }
+            guard AccessibilitySection.isTrusted || action.group == .tabs else { report(.failure(AccessibilityText.text("blocked"))); return }
             busy = true
             let run = { [weak self] in
                 // Checked again right before acting: the front app may have changed since the key press (B21).
@@ -382,10 +386,7 @@ final class Model: ObservableObject {
         case .silent:
             break
         }
-        refreshAccessibility()
     }
-
-    func refreshAccessibility() { accessibilityAllowed = AXIsProcessTrusted() }
 
     // MARK: Login item
 
@@ -411,7 +412,6 @@ final class Model: ObservableObject {
 
     func stop() {
         hotkeys.unregisterAll(); paletteHotkey.unregisterAll()
-        if let monitor { NSEvent.removeMonitor(monitor) }
         if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
         observers.forEach { NotificationCenter.default.removeObserver($0) }
     }

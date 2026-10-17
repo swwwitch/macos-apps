@@ -23,9 +23,6 @@
 "menu.appHelp" = "CommandDee 帮助";
 "shortcut.palette" = "显示／隐藏面板";
 "settings.paletteHotkeyNote" = "CommandDee 在后台运行时，可从任意应用显示或隐藏面板。此功能与“启用快捷键”的开关无关。";
-"settings.resetPaletteHotkey" = "恢复为 ⌃⌥⌘D";
-"settings.paletteHotkeyActive" = "按 %@ 显示或隐藏面板";
-"settings.paletteHotkeyFailed" = "无法注册 %1$@（错误 %2$d）。请选择其他按键。";
 "menu.showPalette" = "显示面板";
 "menu.hidePalette" = "隐藏面板";
 "palette.subtitle" = "确认结果名称后再点击";
@@ -47,7 +44,6 @@
 "status.tooltip" = "CommandDee — 添加版本号或日期并复制";
 "status.noSelection" = "未选择文件或文件夹";
 "status.selectionFailed" = "无法获取所选项目";
-"status.needsAccessibility" = "需要辅助功能权限";
 "status.enabled" = "快捷键已启用";
 "status.paused" = "已暂停";
 "progress.duplicate" = "正在复制 %d 个项目…";
@@ -78,9 +74,6 @@
 "settings.skipFolderPlaceholder" = "留空时使用直接上级文件夹的名称";
 "settings.resetSkipFolder" = "恢复为登录用户名";
 "settings.resetShortcuts" = "恢复默认快捷键";
-"settings.shortcutInvalid" = "无法使用此键。请与 ⌘、⌃ 或 ⌥ 组合使用（按 Esc 取消）。";
-"settings.shortcutDuplicate" = "“%@”已分配给其他操作。";
-"settings.recordShortcut" = "按下快捷键（按 Esc 取消）";
 "shortcut.unset" = "未设置";
 "shortcut.version" = "复制并递增版本号";
 "shortcut.date" = "复制并添加日期";

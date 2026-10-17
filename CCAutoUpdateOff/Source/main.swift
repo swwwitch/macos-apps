@@ -50,6 +50,18 @@ final class Model: ObservableObject {
         watchRemoveOld = defaults.object(forKey: "watchRemoveOld") as? Bool ?? true
     }
 
+    /// Keys shared by 設定の共有 (export/import and sync). 常駐・ログイン起動・メニューバー stay per Mac.
+    static let sharedKeys: Set<String> = ["notifyEnabled", "mailEnabled", "mailAddress", "mailTime", "watchRemoveOld"]
+
+    /// Re-reads the shared settings after an import so the next save does not write the old values back.
+    func reloadSharedSettings() {
+        notifyEnabled = defaults.object(forKey: "notifyEnabled") as? Bool ?? true
+        mailAddress = defaults.string(forKey: "mailAddress") ?? ""
+        watchRemoveOld = defaults.object(forKey: "watchRemoveOld") as? Bool ?? true
+        mailTime = defaults.object(forKey: "mailTime") as? Int ?? CCAutoUpdate.defaultMailTime
+        mailEnabled = defaults.bool(forKey: "mailEnabled")
+    }
+
     /// The 以前のバージョンを削除 line, or "" when not watched or none checked.
     var removeOldText: String {
         let list = CCAutoUpdate.removeOldList(state, separator: L("listSeparator"))
@@ -350,6 +362,7 @@ struct Preferences: View {
                 MenuBarPresenceView()
             })),
             (L("notifyTab"), AnyView(NotifySettings(model: model))),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -402,7 +415,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         model.check()
         model.scheduleMailTimer()
-        watcher.start()
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
+            note: StartupWindow.text("知らせる内容・通知・メール送信（宛先と送信時刻）の設定を書き出し・同期します。",
+                                     "Exports and syncs what to report, notifications and mail (address and send time).",
+                                     "导出并同步提醒内容、通知和发送邮件（收件人与发送时间）的设置。",
+                                     "알릴 내용, 알림, 메일 보내기(받는 사람과 보낼 시각) 설정을 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。",
+                                       "Open at login, staying in the background and the menu bar icon are set on each Mac.",
+                                       "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         // Safety net if a file event or the send-time timer was missed.
         timer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in self?.recheck() }
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(recheck), name: NSWorkspace.didWakeNotification, object: nil)

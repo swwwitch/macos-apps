@@ -195,6 +195,25 @@ final class AppSettings: ObservableObject {
         }
     }
 
+    /// Keys shared by 「設定の共有」: file naming and what happens after export. The output folder stays per Mac.
+    static let sharedKeys: Set<String> = [filenamePrefixKey, iconNamePositionKey, filenameSeparatorKey, spaceReplacementKey,
+                                         removesUnwantedCharactersKey, showsCompletionNotificationKey, playsCompletionSoundKey,
+                                         "revealsInFinder", "hidesAfterExport"]
+
+    /// Reads the shared settings again after an import or a sync from another Mac.
+    func reloadSharedSettings() {
+        let defaults = UserDefaults.standard
+        filenamePrefix = defaults.object(forKey: Self.filenamePrefixKey) == nil ? "icon" : defaults.string(forKey: Self.filenamePrefixKey) ?? "icon"
+        iconNamePosition = IconNamePosition(rawValue: defaults.string(forKey: Self.iconNamePositionKey) ?? "") ?? .beforeFilename
+        filenameSeparator = FilenameSeparator(rawValue: defaults.string(forKey: Self.filenameSeparatorKey) ?? "") ?? .hyphen
+        spaceReplacement = SpaceReplacement(rawValue: defaults.string(forKey: Self.spaceReplacementKey) ?? "") ?? .hyphen
+        removesUnwantedCharacters = defaults.object(forKey: Self.removesUnwantedCharactersKey) as? Bool ?? true
+        showsCompletionNotification = defaults.object(forKey: Self.showsCompletionNotificationKey) as? Bool ?? false
+        playsCompletionSound = defaults.object(forKey: Self.playsCompletionSoundKey) as? Bool ?? false
+        revealsInFinder = defaults.object(forKey: "revealsInFinder") as? Bool ?? true
+        hidesAfterExport = defaults.object(forKey: "hidesAfterExport") as? Bool ?? false
+    }
+
     func restoreFilenameDefaults() {
         filenamePrefix = "icon"
         iconNamePosition = .beforeFilename

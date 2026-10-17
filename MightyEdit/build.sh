@@ -3,6 +3,10 @@ set -eu
 cd "${0:A:h}"
 python3 ../Shared/MenuBarPresence/sync.py
 python3 ../Shared/HotkeyManifest/sync.py
+python3 ../Shared/SettingsSync/sync.py
+python3 ../Shared/ExcludedApps/sync.py
+python3 ../Shared/LoginAtLaunch/sync.py
+python3 ../Shared/HotkeyRecorder/sync.py
 python3 "../Shared/AppStandards/sync-surface.py"
 # B15: regenerate ja/en/zh-Hans/ko resources from the single table (validates keys and placeholders).
 python3 make-resources.py
@@ -32,7 +36,7 @@ STAGING=$(mktemp -d "${TMPDIR:-/tmp/}textpalette.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/MightyEdit.app"
 mkdir -p "$APP/Contents/MacOS"
-xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/HelpDocument.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework ApplicationServices -framework Carbon Source/Localization.swift Source/LocalizationFallback.swift Source/LineTools.swift Source/LineToolsPanel.swift Source/HTMLMinifier.swift Source/TextTransform.swift Source/AccessibilityPermission.swift Source/TypographyOption.swift Source/TypographyPanel.swift Source/PaletteConfiguration.swift Source/AppAutoShow.swift Source/PaletteTargetSession.swift Source/DateTransform.swift Source/LocalHelp.swift Source/PaletteButton.swift Source/ResponsiveButtonGrid.swift Source/HotkeyEditor.swift Source/HotkeyReleaseGate.swift Source/HotkeyScope.swift Source/GlobalShortcuts.swift Source/PaletteShortcut.swift Source/HotkeyManifest.swift Source/ExcludedAppList.swift Source/ExcludedApps.swift ../Shared/LoginAtLaunch/LoginAtLaunch.swift Source/WrapPanel.swift Source/SpecialListPanel.swift Source/ContinuationSelection.swift Source/SettingsSync.swift Source/WindowActivationPolicy.swift Source/AboutSection.swift Source/main.swift -o "$APP/Contents/MacOS/MightyEdit"
+xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/HelpDocument.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework ApplicationServices -framework Carbon Source/Localization.swift Source/LocalizationFallback.swift Source/LineTools.swift Source/LineToolsPanel.swift Source/HTMLMinifier.swift Source/TextTransform.swift Source/AccessibilityPermission.swift Source/TypographyOption.swift Source/TypographyPanel.swift Source/PaletteConfiguration.swift Source/AppAutoShow.swift Source/PaletteTargetSession.swift Source/DateTransform.swift Source/LocalHelp.swift Source/PaletteButton.swift Source/ResponsiveButtonGrid.swift Source/HotkeyEditor.swift Source/HotkeyRecorder.swift Source/HotkeyReleaseGate.swift Source/HotkeyScope.swift Source/GlobalShortcuts.swift Source/PaletteShortcut.swift Source/HotkeyManifest.swift Source/ExcludedApps.swift ../Shared/LoginAtLaunch/LoginAtLaunch.swift Source/WrapPanel.swift Source/SpecialListPanel.swift Source/ContinuationSelection.swift Source/SettingsSync.swift Source/WindowActivationPolicy.swift Source/AboutSection.swift Source/main.swift -o "$APP/Contents/MacOS/MightyEdit"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -44,8 +48,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleDevelopmentRegion</key><string>en</string>
 <key>CFBundleLocalizations</key><array><string>ja</string><string>en</string><string>zh-Hans</string><string>ko</string></array>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.2.28</string>
-<key>CFBundleVersion</key><string>102</string>
+<key>CFBundleShortVersionString</key><string>0.2.31</string>
+<key>CFBundleVersion</key><string>105</string>
 <key>SWNoteArticleURL</key><string>https://note.com/swwwitch/n/n08be828d4393</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>

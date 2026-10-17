@@ -53,6 +53,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Sharing**: “Export…” writes the presets and Use Timer to PodiumAssist-Settings.plist; “Import…” on another Mac reads it (Add appends only presets you do not have, Replace uses the file’s settings). In Settings Sync, choose a folder in iCloud Drive, Dropbox or similar to keep your other Macs in sync automatically. Login launch, background, menu bar, the timer’s start time and duration, and the last applied preset stay per Mac
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window

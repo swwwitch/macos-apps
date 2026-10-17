@@ -182,7 +182,7 @@ private struct LookupView: View {
 
     private var hint: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if !KeyRecorderStatus.trusted {
+            if !AccessibilitySection.isTrusted {
                 Label(L("アクセシビリティが未許可のため、ほかのアプリが先に受け取るキーは記録できません。設定から許可してください。"),
                       systemImage: "exclamationmark.triangle")
                     .font(.callout)
@@ -238,10 +238,6 @@ private struct LookupView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }
-}
-
-enum KeyRecorderStatus {
-    static var trusted: Bool { AXIsProcessTrusted() }
 }
 
 // MARK: - 行

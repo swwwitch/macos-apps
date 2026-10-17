@@ -1,25 +1,33 @@
 import AppKit
 import SwiftUI
 
-/// マイプリセット：今のMacの設定一式を、クリーンインストールで消えない場所（既定は iCloud Drive）に1つ保存しておく
+/// マイプリセット：今のMacの設定一式を、クリーンインストールで消えない場所に1つ保存しておく
+/// 保存先は「設定の共有」の同期フォルダー。未設定なら iCloud Drive の PrefsPreset フォルダ。
+/// macOS の設定を書き換えるので、同期フォルダーに置いても自動では適用しない（読み込んで「適用」を押す）
 @MainActor
 enum MyPreset {
-    /// 保存先フォルダを変えたときだけ UserDefaults に入る。新しいMacでは既定の iCloud Drive に戻る
-    static let folderKey = "myPresetFolder"
-    static let fileName = "My Preset.prefspreset"
-    static let previousName = "My Preset (previous).prefspreset"
+    /// 1.1.10 までの保存先の指定（設定の「マイプリセット」タブ）。読み込みで見つからないときだけ探す
+    private static let legacyFolderKey = "myPresetFolder"
+    private static let legacyFileName = "My Preset.prefspreset"
 
     static var iCloudDrive: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs")
     }
     static var defaultFolder: URL { iCloudDrive.appendingPathComponent("PrefsPreset") }
-    static var folder: URL {
-        if let path = UserDefaults.standard.string(forKey: folderKey) { return URL(fileURLWithPath: path) }
-        return defaultFolder
-    }
+    static var usesICloud: Bool { !SettingsSync.shared.enabled }
+    static var folder: URL { SettingsSync.shared.folder ?? defaultFolder }
+    /// 同期フォルダーはほかのアプリの設定ファイルと並ぶので、「<アプリ名>-Settings.plist」に合わせてアプリ名を付ける
+    static var fileName: String { usesICloud ? legacyFileName : "PrefsPreset-My Preset.prefspreset" }
+    static var previousName: String { fileName.replacingOccurrences(of: ".prefspreset", with: " (previous).prefspreset") }
     static var file: URL { folder.appendingPathComponent(fileName) }
-    static var usesICloud: Bool { UserDefaults.standard.string(forKey: folderKey) == nil }
+
+    /// 保存先に無いときに読む、以前の保存先のファイル
+    private static var legacyFiles: [URL] {
+        var folders = [defaultFolder]
+        if let path = UserDefaults.standard.string(forKey: legacyFolderKey) { folders.insert(URL(fileURLWithPath: path), at: 0) }
+        return folders.map { $0.appendingPathComponent(legacyFileName) }.filter { $0 != file }
+    }
 
     /// 最後に保存した日時（ファイルが無ければ nil）
     static var savedDate: Date? {
@@ -31,7 +39,7 @@ enum MyPreset {
         let store = Store.shared
         if usesICloud, !FileManager.default.fileExists(atPath: iCloudDrive.path) {
             store.message = (L("マイプリセットを保存できませんでした"),
-                             L("iCloud Driveが使えません。システム設定でiCloud Driveをオンにするか、設定の「マイプリセット」タブで保存先を変えてください。"))
+                             L("iCloud Driveが使えません。システム設定でiCloud Driveをオンにするか、設定の「設定の共有」で同期フォルダーを選んでください。"))
             return
         }
         if FileManager.default.fileExists(atPath: file.path) {
@@ -63,12 +71,13 @@ enum MyPreset {
 
     /// マイプリセットの値を「変更後」に入れる
     static func load() {
-        guard FileManager.default.fileExists(atPath: file.path) else {
+        let found = ([file] + legacyFiles).first { FileManager.default.fileExists(atPath: $0.path) }
+        guard let found else {
             Store.shared.message = (L("マイプリセットがありません"),
                                     L("「%@」が見つかりません。iCloud Driveの同期が終わっていない場合は、しばらく待ってからもう一度選んでください。", file.path))
             return
         }
-        openPreset(file)
+        openPreset(found)
     }
 
     static func showFolder() {
@@ -79,21 +88,6 @@ enum MyPreset {
             NSWorkspace.shared.open(folder)
         }
     }
-
-    static func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.canCreateDirectories = true
-        panel.prompt = L("選択")
-        panel.directoryURL = folder
-        NSApp.activate(ignoringOtherApps: true)
-        if panel.runModal() == .OK, let url = panel.url {
-            UserDefaults.standard.set(url.path, forKey: folderKey)
-        }
-    }
-
-    static func resetFolder() { UserDefaults.standard.removeObject(forKey: folderKey) }
 }
 
 /// 一覧の上のマイプリセットのメニュー
@@ -116,24 +110,27 @@ struct MyPresetMenu: View {
     }
 }
 
-/// 設定の「マイプリセット」タブ
-struct MyPresetSettings: View {
-    @AppStorage(MyPreset.folderKey) private var folderPath: String?
+/// 設定の「設定の共有」タブ：共通の「書き出し・読み込み」「設定の同期」に、マイプリセットの節を足す
+struct PrefsPresetSharingView: View {
+    @ObservedObject private var sync = SettingsSync.shared
 
     var body: some View {
-        SettingsSection(L("保存先")) {
-            Text(MyPreset.folder.path)
-                .font(.callout.monospaced())
-                .textSelection(.enabled)
-                .fixedSize(horizontal: false, vertical: true)
-            HStack {
-                Button(L("変更…")) { MyPreset.chooseFolder() }
-                Button(L("iCloud Driveに戻す")) { MyPreset.resetFolder() }
-                    .disabled(folderPath == nil)
+        VStack(alignment: .leading, spacing: 16) {
+            SettingsSharingView()
+            SettingsSection(L("マイプリセット")) {
+                Text(MyPreset.file.path)
+                    .font(.callout.monospaced())
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    Button(L("現在の設定をマイプリセットに保存…")) { MyPreset.save() }
+                    Button(L("マイプリセットを読み込む")) { MyPreset.load() }
+                    Button(L("フォルダを表示")) { MyPreset.showFolder() }
+                }
+                Text(L("macOSの設定一式（.prefspreset）を、設定の同期のフォルダーに保存します。同期フォルダーを選んでいなければ iCloud Drive の PrefsPreset フォルダに保存します。macOSの設定を書き換えるため、自動では適用しません。新しいMacでは読み込んでから「適用」を押します。"))
+                    .font(.caption).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Text(L("新しいMacでは既定のiCloud Driveを探します。別のフォルダに変えた場合は、新しいMacでも同じフォルダを指定し直してください。"))
-                .font(.caption).foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

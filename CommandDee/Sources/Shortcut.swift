@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 
 struct Shortcut: Codable, Equatable {
     let keyCode: UInt16
@@ -82,13 +83,33 @@ struct Shortcut: Codable, Equatable {
     static func save(_ values: [Shortcut], defaults: UserDefaults = .standard) {
         if let data = try? JSONEncoder().encode(values) { defaults.set(data, forKey: storageKey) }
     }
-    static func capture(_ event: NSEvent) -> Shortcut? {
-        let flags = event.modifierFlags.intersection(mask)
-        guard !flags.intersection([.command, .control, .option]).isEmpty,
-              let key = event.charactersIgnoringModifiers, !key.isEmpty else { return nil }
-        let prefix = (flags.contains(.control) ? "⌃" : "") + (flags.contains(.option) ? "⌥" : "")
-            + (flags.contains(.shift) ? "⇧" : "") + (flags.contains(.command) ? "⌘" : "")
-            + (flags.contains(.function) ? "fn " : "")
-        return Shortcut(keyCode: event.keyCode, modifiers: flags.rawValue, label: prefix + key.uppercased())
+}
+
+/// The shared hotkey field (Shared/HotkeyRecorder) works in Carbon terms; the saved JSON keeps NSEvent flags and the label.
+extension Shortcut {
+    /// Carbon modifier bits (cmdKey etc.) for RegisterEventHotKey, HotkeyManifest and KeyCombo; fn has no Carbon bit.
+    var carbonModifiers: UInt32 {
+        let flags = NSEvent.ModifierFlags(rawValue: modifiers)
+        var value: UInt32 = 0
+        if flags.contains(.command) { value |= UInt32(cmdKey) }
+        if flags.contains(.shift) { value |= UInt32(shiftKey) }
+        if flags.contains(.option) { value |= UInt32(optionKey) }
+        if flags.contains(.control) { value |= UInt32(controlKey) }
+        return value
+    }
+    /// A key recorded by the shared field; `label` is the field's (⌃⌥⇧⌘ + key, the same order as before).
+    init(keyCode: UInt16, carbonModifiers: UInt32, label: String) {
+        var flags: NSEvent.ModifierFlags = []
+        if carbonModifiers & UInt32(cmdKey) != 0 { flags.insert(.command) }
+        if carbonModifiers & UInt32(shiftKey) != 0 { flags.insert(.shift) }
+        if carbonModifiers & UInt32(optionKey) != 0 { flags.insert(.option) }
+        if carbonModifiers & UInt32(controlKey) != 0 { flags.insert(.control) }
+        self.init(keyCode: keyCode, modifiers: flags.rawValue, label: label)
+    }
+    var isUnset: Bool { keyCode == UInt16.max }
+    /// Same key, ignoring fn (F-keys and arrows report it; the shared field does not record it).
+    func matches(keyCode: UInt16, flags: NSEvent.ModifierFlags) -> Bool {
+        let mine = NSEvent.ModifierFlags(rawValue: modifiers).intersection([.command, .shift, .option, .control])
+        return self.keyCode == keyCode && mine == flags.intersection([.command, .shift, .option, .control])
     }
 }

@@ -2,7 +2,7 @@ import AppKit
 import UniformTypeIdentifiers
 import Carbon
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+@MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
     private let shortcut = YohakuShortcut()
     private var settingsWindow: NSWindow?
     private var window: NSWindow!
@@ -32,6 +32,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainViewController = controller
         window.contentViewController = controller
         window.center()
+        // 「設定の共有」: the color tolerance. The hotkey, login and menu bar stay per Mac.
+        SettingsSync.shared.onImport = { [weak self] in self?.mainViewController?.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(
+            keys: ["tolerance"],
+            note: StartupWindow.text("色の許容範囲を書き出し・同期します。",
+                                     "Exports and syncs the color tolerance.",
+                                     "导出并同步颜色容差。",
+                                     "색상 허용 범위를 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・メニューバー・ホットキーはMacごとに設定します。",
+                                       "Login launch, the menu bar and the hotkey are set on each Mac.",
+                                       "登录时启动、菜单栏和快捷键需在每台 Mac 上分别设置。",
+                                       "로그인 시 실행, 메뉴 막대, 단축키는 Mac마다 설정합니다.")))
         // A login launch stays quiet; files handed over at launch still show the window.
         if (!StartupWindow.hidden && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         if !pendingOpenURLs.isEmpty {
@@ -40,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pendingOpenURLs.removeAll()
             quitAfterPendingOpen = false
             DispatchQueue.main.async {
-                controller.process(urls) {
+                controller.process(urls) { _ in
                     if shouldQuit { NSApp.terminate(nil) }
                 }
             }
@@ -90,6 +102,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func performShortcut() {
+        #if !APP_STORE
+        // Images selected in the frontmost Finder / Path Finder are processed in place; otherwise the window comes forward.
+        if let mainViewController, !mainViewController.isProcessing {
+            switch FileBrowserSelection.selectedFiles() {
+            case .files(let urls) where mainViewController.containsImages(urls):
+                mainViewController.process(urls) { [weak self] succeeded in
+                    if !succeeded { self?.showMainWindow() }
+                }
+                return
+            case .denied:
+                mainViewController.showStatus(L("FinderまたはPath Finderの選択を読み取れませんでした。システム設定の「プライバシーとセキュリティ」＞「オートメーション」で、YohakuTrimmerに許可してください。"))
+            default:
+                break
+            }
+        }
+        #endif
         showMainWindow()
     }
 
@@ -205,6 +233,8 @@ final class MainViewController: NSViewController {
         let folders = Set(urls.map { $0.deletingLastPathComponent().standardizedFileURL })
         for folder in folders.sorted(by: { $0.path < $1.path }) {
             if outputFolderGrants[folder.path] != nil || FileManager.default.isWritableFile(atPath: folder.path) { continue }
+            // A hotkey run starts in the background; the panel needs the app in front.
+            NSApp.activate(ignoringOtherApps: true)
             let panel = NSOpenPanel()
             panel.title = L("元画像のフォルダへの保存を許可")
             panel.message = L("処理した画像を同じフォルダに「%@.png」で保存するため、元画像があるフォルダを選択してください。", MarginProcessor.outputSuffix)
@@ -265,39 +295,52 @@ final class MainViewController: NSViewController {
     private static var outputDescription: String {
         L("処理後の画像は元ファイルと同じ場所に「%@.png」で保存されます", MarginProcessor.outputSuffix)
     }
+    /// The tolerance imported or synced from another Mac.
+    func reloadSharedSettings() {
+        let saved = UserDefaults.standard.object(forKey: "tolerance") as? Int ?? MarginProcessor.defaultTolerance
+        tolerance = choices.map(\.1).contains(saved) ? saved : MarginProcessor.defaultTolerance
+        for button in radioButtons { button.state = button.tag == tolerance ? .on : .off }
+    }
     @objc private func toleranceChanged(_ sender: NSButton) {
         tolerance = sender.tag
         for button in radioButtons { button.state = button === sender ? .on : .off }
         UserDefaults.standard.set(tolerance, forKey: "tolerance")
     }
-    func process(_ urls: [URL], completion: (() -> Void)? = nil) {
-        let supported = urls.filter { $0.isFileURL && UTType(filenameExtension: $0.pathExtension)?.conforms(to: .image) == true }
+    private static func imageFiles(_ urls: [URL]) -> [URL] {
+        urls.filter { $0.isFileURL && UTType(filenameExtension: $0.pathExtension)?.conforms(to: .image) == true }
+    }
+    func containsImages(_ urls: [URL]) -> Bool { !Self.imageFiles(urls).isEmpty }
+    func showStatus(_ text: String) { status.stringValue = text }
+    /// The completion gets false when anything failed or was skipped, so a hotkey run can show the window with the results.
+    func process(_ urls: [URL], completion: @escaping (Bool) -> Void = { _ in }) {
+        let supported = Self.imageFiles(urls)
         guard !supported.isEmpty else {
             status.stringValue = L("画像ファイルをドロップしてください。")
-            completion?()
+            completion(false)
             return
         }
         guard authorizeOutputFolders(for: supported) else {
-            completion?()
+            completion(false)
             return
         }
         status.stringValue = L("処理しています…"); dropView.isProcessing = true
         let tolerance = tolerance
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             var results: [String] = []
+            var allSucceeded = true
             for url in supported {
                 do {
                     let result = try MarginProcessor.process(url: url, tolerance: tolerance)
                     let size = "\(result.originalSize.0)×\(result.originalSize.1) → \(result.trimmedSize.0)×\(result.trimmedSize.1)"
                     results.append("✓ \(result.output.lastPathComponent)（\(size)）")
-                } catch MarginError.noMargin { results.append(L("− %@：余白がないためスキップ", url.lastPathComponent))
-                } catch MarginError.onlyMargin { results.append(L("− %@：全体が同じ色のためスキップ", url.lastPathComponent))
-                } catch { results.append("⚠︎ \(url.lastPathComponent)：\(error.localizedDescription)") }
+                } catch MarginError.noMargin { results.append(L("− %@：余白がないためスキップ", url.lastPathComponent)); allSucceeded = false
+                } catch MarginError.onlyMargin { results.append(L("− %@：全体が同じ色のためスキップ", url.lastPathComponent)); allSucceeded = false
+                } catch { results.append("⚠︎ \(url.lastPathComponent)：\(error.localizedDescription)"); allSucceeded = false }
             }
             DispatchQueue.main.async {
                 self?.status.stringValue = results.joined(separator: "\n")
                 self?.dropView.isProcessing = false
-                completion?()
+                completion(allSucceeded)
             }
         }
     }
@@ -348,124 +391,67 @@ final class DropView: NSView {
     }
 }
 
-final class YohakuShortcut {
-    static let modifiers: [(String, UInt32)] = [
-        ("⌃⌥⌘", UInt32(controlKey | optionKey | cmdKey)),
-        ("⌃⌥", UInt32(controlKey | optionKey)),
-        ("⌥⌘", UInt32(optionKey | cmdKey)),
-        ("⌃⌘", UInt32(controlKey | cmdKey))
-    ]
-    static let keys: [(String, UInt32)] = [
-        ("A",0),("B",11),("C",8),("D",2),("E",14),("F",3),("G",5),
-        ("H",4),("I",34),("J",38),("K",40),("L",37),("M",46),("N",45),
-        ("O",31),("P",35),("Q",12),("R",15),("S",1),("T",17),("U",32),
-        ("V",9),("W",13),("X",7),("Y",16),("Z",6),("Space",49)
-    ]
-    var enabled = UserDefaults.standard.object(forKey: "shortcutEnabled") as? Bool ?? false
-    var key = UInt32(UserDefaults.standard.object(forKey: "shortcutKey") as? Int ?? 16)
-    var flags = UInt32(UserDefaults.standard.object(forKey: "shortcutModifiers") as? Int ?? Int(controlKey | optionKey | cmdKey))
-    var registrationSucceeded = true
+/// 「アプリを呼び出すホットキー」. Stored as before (shortcutEnabled / shortcutKey / shortcutModifiers, Carbon values);
+/// registered through the shared HotkeySet, which steps aside while the settings field records a key.
+@MainActor final class YohakuShortcut {
+    static let defaultCombo = KeyCombo(code: 16, modifiers: UInt32(controlKey | optionKey | cmdKey))
+    private(set) var enabled = UserDefaults.standard.object(forKey: "shortcutEnabled") as? Bool ?? false
+    private(set) var combo = YohakuShortcut.storedCombo(key: UserDefaults.standard.object(forKey: "shortcutKey") as? Int,
+                                                modifiers: UserDefaults.standard.object(forKey: "shortcutModifiers") as? Int)
+    private(set) var registrationSucceeded = true
+    var action: (() -> Void)?
+    private let hotkeys = HotkeySet(signature: "YHKU")
+    init() { hotkeys.action = { [weak self] _ in self?.action?() } }
+    /// Saved Carbon key code and modifiers → KeyCombo; missing values fall back to the initial key.
+    nonisolated static func storedCombo(key: Int?, modifiers: Int?) -> KeyCombo {
+        KeyCombo(code: UInt32(key ?? Int(defaultCombo.code)), modifiers: UInt32(modifiers ?? Int(defaultCombo.modifiers)))
+    }
     func restore() {
-        registrationSucceeded = configure(enabled: enabled, key: key, modifiers: flags)
+        register()
         publish()
     }
-    func save(enabled: Bool, key: UInt32, flags: UInt32) -> Bool {
-        guard configure(enabled: enabled, key: key, modifiers: flags) else { return false }
-        self.enabled = enabled; self.key = key; self.flags = flags
-        registrationSucceeded = true
+    /// Saves even when registration fails, so the field shows the key with the shared failure message.
+    func save(enabled: Bool, combo: KeyCombo) {
+        self.enabled = enabled; self.combo = combo
         UserDefaults.standard.set(enabled, forKey: "shortcutEnabled")
-        UserDefaults.standard.set(Int(key), forKey: "shortcutKey")
-        UserDefaults.standard.set(Int(flags), forKey: "shortcutModifiers")
+        UserDefaults.standard.set(Int(combo.code), forKey: "shortcutKey")
+        UserDefaults.standard.set(Int(combo.modifiers), forKey: "shortcutModifiers")
+        register()
         publish()
-        return true
+    }
+    private func register() {
+        if enabled { registrationSucceeded = hotkeys.register(1, combo) == noErr }
+        else { hotkeys.unregister(1); registrationSucceeded = true }
     }
     /// Declares the hotkey to HotkeyHound (Shared/HotkeyManifest). `enabled` is the setting, not whether registration succeeded.
     private func publish() {
-        HotkeyManifest.publish([HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(key), modifiers: Int(flags), enabled: enabled)])
-    }
-    var action: (() -> Void)?
-    private var reference: EventHotKeyRef?
-    private var handler: EventHandlerRef?
-    private var current: (UInt32, UInt32)?
-    init() {
-        var type = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
-            guard let event, let context else { return OSStatus(eventNotHandledErr) }
-            var id = EventHotKeyID()
-            let status = GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
-            guard status == noErr, id.signature == 0x59484B55 else { return OSStatus(eventNotHandledErr) }
-            let owner = Unmanaged<YohakuShortcut>.fromOpaque(context).takeUnretainedValue()
-            owner.action?()
-            return noErr
-        }, 1, &type, Unmanaged.passUnretained(self).toOpaque(), &handler)
-    }
-    // Register the replacement first so a conflict leaves the previous shortcut working.
-    func configure(enabled: Bool, key: UInt32, modifiers: UInt32) -> Bool {
-        guard handler != nil else { return false }
-        if enabled, let current, current.0 == key, current.1 == modifiers { return true }
-        var replacement: EventHotKeyRef?
-        if enabled {
-            let result = RegisterEventHotKey(key, modifiers, EventHotKeyID(signature: 0x59484B55, id: 1), GetApplicationEventTarget(), OptionBits(kEventHotKeyExclusive), &replacement)
-            guard result == noErr else { return false }
-        }
-        if let reference { UnregisterEventHotKey(reference) }
-        reference = replacement
-        current = enabled ? (key, modifiers) : nil
-        return true
-    }
-    deinit {
-        if let reference { UnregisterEventHotKey(reference) }
-        if let handler { RemoveEventHandler(handler) }
+        HotkeyManifest.publish([HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: enabled)])
     }
 }
 
 final class ShortcutSettingsController: NSViewController {
     private let shortcut: YohakuShortcut
-    private let enabled = NSButton(checkboxWithTitle: L("ホットキーを有効にする"), target: nil, action: nil)
-    private let modifiers = NSPopUpButton()
-    private let key = NSPopUpButton()
-    private let message = NSTextField(wrappingLabelWithString: "")
+    private let enabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: nil, action: nil)
     init(shortcut: YohakuShortcut) { self.shortcut = shortcut; super.init(nibName: nil, bundle: nil) }
     required init?(coder: NSCoder) { fatalError() }
     override func loadView() {
         view = NSView(frame: NSRect(x: 0, y: 0, width: 520, height: 560))
         let title = NSTextField(labelWithString: SettingsUI.shortcutTitle)
         title.font = .systemFont(ofSize: 13, weight: .semibold)
-        let help = NSTextField(wrappingLabelWithString: L("YohakuTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
+        let help = NSTextField(wrappingLabelWithString: L("FinderまたはPath Finderで画像を選択しているときは、その画像をすぐに処理します。選択していないときはYohakuTrimmerのウインドウを表示します。ウインドウを閉じても、アプリを終了するまでは使用できます。"))
         help.textColor = .secondaryLabelColor
-        modifiers.addItems(withTitles: YohakuShortcut.modifiers.map { $0.0 })
-        key.addItems(withTitles: YohakuShortcut.keys.map { $0.0 })
-        for control in [modifiers, key] { control.target = self; control.action = #selector(changed) }
-        modifiers.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("修飾キー", "Modifier keys", "修饰键", "보조 키"))
-        key.setAccessibilityLabel(SettingsUI.shortcutTitle + "：" + StartupWindow.text("キー", "Key", "按键", "키"))
-        enabled.target = self; enabled.action = #selector(changed)
-        let reset = NSButton(title: L("デフォルトに戻す"), target: self, action: #selector(resetShortcut))
-        let row = NSStackView(views: [modifiers, key, reset]); row.spacing = 10
-        message.font = .systemFont(ofSize: 11); message.textColor = .secondaryLabelColor
-        let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, row, message, help])
-        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (AboutSection.title, AboutSection.view())], in: view)
-        refresh()
-        message.stringValue = shortcut.registrationSucceeded ? L("デフォルト：オフ（有効にするときの初期キーは⌃⌥⌘Y）") : L("登録できませんでした。別のキーの組み合わせを選択してください。")
-    }
-    private func refresh() {
+        enabled.target = self; enabled.action = #selector(enabledChanged)
         enabled.state = shortcut.enabled ? .on : .off
-        modifiers.selectItem(at: YohakuShortcut.modifiers.firstIndex { $0.1 == shortcut.flags } ?? 0)
-        key.selectItem(at: YohakuShortcut.keys.firstIndex { $0.1 == shortcut.key } ?? 24)
-        modifiers.isEnabled = shortcut.enabled; key.isEnabled = shortcut.enabled
+        let shortcut = self.shortcut
+        let field = HotkeyField.control(id: "shortcut", get: { shortcut.combo }, set: { combo in
+            if let combo { shortcut.save(enabled: shortcut.enabled, combo: combo) }
+        }, defaultCombo: YohakuShortcut.defaultCombo, registered: { shortcut.registrationSucceeded }, isEnabled: { shortcut.enabled })
+        let launchGroup = SettingsUI.group(SettingsUI.launchTitle, [LoginAtLaunchControl(), MenuBarPresence.shared.settingsControl(), title, enabled, field, help])
+        SettingsUI.tabs([(SettingsUI.launchTitle, launchGroup), (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()), (AboutSection.title, AboutSection.view())], in: view)
     }
-    @objc private func changed() {
-        apply(enabled: enabled.state == .on, key: YohakuShortcut.keys[key.indexOfSelectedItem].1, flags: YohakuShortcut.modifiers[modifiers.indexOfSelectedItem].1)
-    }
-    @objc private func resetShortcut() {
-        apply(enabled: false, key: 16, flags: UInt32(controlKey | optionKey | cmdKey))
-    }
-    private func apply(enabled: Bool, key: UInt32, flags: UInt32) {
-        if shortcut.save(enabled: enabled, key: key, flags: flags) {
-            message.stringValue = enabled ? L("保存しました。変更はすぐに反映されます。") : L("ホットキーを無効にしました。")
-        } else {
-            message.stringValue = L("この組み合わせは登録できません。以前の設定を保持しています。")
-        }
-        refresh()
+    @objc private func enabledChanged() {
+        shortcut.save(enabled: enabled.state == .on, combo: shortcut.combo)
+        HotkeyRecorder.shared.touch()
     }
 }
 
@@ -513,6 +499,40 @@ private func addStandardApplicationCommands(to menu: NSMenu, name: String) {
     menu.addItem(.separator())
     menu.addItem(withTitle: L("%@を終了", String(describing: name)), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 }
+
+#if !APP_STORE
+/// Reads the selection of the frontmost Finder or Path Finder with Apple Events (asks for Automation once).
+enum FileBrowserSelection {
+    enum Result { case notFileBrowser, files([URL]), denied, failed }
+    private static let finder = "com.apple.finder"
+    private static let pathFinders: Set<String> = ["com.cocoatech.PathFinder", "com.cocoatech.PathFinder-setapp"]
+
+    static func selectedFiles() -> Result {
+        guard let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+              bundleID == finder || pathFinders.contains(bundleID) else { return .notFileBrowser }
+        // Finder items convert through alias; Path Finder's fsItem has its own POSIX path. Empty selection gives "".
+        let item = bundleID == finder ? "POSIX path of (anItem as alias)" : "POSIX path of anItem"
+        let source = """
+        tell application id "\(bundleID)"
+            set out to ""
+            try
+                repeat with anItem in (get selection)
+                    set out to out & (\(item)) & linefeed
+                end repeat
+            end try
+            return out
+        end tell
+        """
+        var error: NSDictionary?
+        guard let output = NSAppleScript(source: source)?.executeAndReturnError(&error) else {
+            // -1743: not allowed in Automation.
+            return (error?[NSAppleScript.errorNumber] as? Int) == -1743 ? .denied : .failed
+        }
+        let paths = (output.stringValue ?? "").split(separator: "\n").map(String.init).filter { !$0.isEmpty }
+        return .files(paths.map { URL(fileURLWithPath: $0) })
+    }
+}
+#endif
 
 // Bundle identity, rather than the bundle path or build number, defines one app.
 @MainActor

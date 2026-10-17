@@ -6,11 +6,26 @@ import UniformTypeIdentifiers
 struct DutiGUIApp: App {
     init() {
         SingleInstanceLaunch.enforce()
+        // 「設定の共有」: the extension list (added and removed extensions). The associations themselves are applied per Mac.
+        DispatchQueue.main.async {
+            SettingsSync.shared.onImport = { AssociationStore.shared.reloadExtensions() }
+            SettingsSync.shared.start(.init(
+                keys: ["additionalExtensions", "removedExtensions"],
+                note: StartupWindow.text("拡張子の一覧（追加・削除した拡張子）を書き出し・同期します。",
+                                         "Exports and syncs the extension list (extensions you added or removed).",
+                                         "导出并同步扩展名列表（添加或删除的扩展名）。",
+                                         "확장자 목록(추가하거나 삭제한 확장자)을 내보내고 동기화합니다."),
+                perMac: StartupWindow.text("ファイルの関連付け・ログイン時の起動・メニューバーはMacごとに設定します。",
+                                           "File associations, login launch and the menu bar are set on each Mac.",
+                                           "文件关联、登录时启动和菜单栏需在每台 Mac 上分别设置。",
+                                           "파일 연결, 로그인 시 실행, 메뉴 막대는 Mac마다 설정합니다."),
+                merge: { file, current in AssociationStore.mergeSharedExtensions(file: file, current: current) }))
+        }
         #if DIRECT_UPDATES && !APP_STORE
         DispatchQueue.main.async { AppUpdates.shared.start() }
         #endif
     }
-    @StateObject private var store = AssociationStore()
+    @StateObject private var store = AssociationStore.shared
     #if DIRECT_UPDATES && !APP_STORE
     @ObservedObject private var updates = AppUpdates.shared
     #endif

@@ -28,8 +28,8 @@
 | B17 | プライバシー | 実装済み・実機未確認 | 外部通信なし（更新は配信先未設定で無効）。操作ログを残さない |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置済み | 2026-10-12 /Applications と Latest Builds に 1.0.0 (1) を配置、署名・内容一致（deploy_both）。更新配信は未設定 |
 | B19 | マスタード基調の共通アイコン | 実装済み・実機未確認 | マスタードタイル＋白いキーキャップ＋2×2のアプリタイル（Assets/draw-icon.swift） |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐タブに共通部品（StartupWindowView・MenuBarPresenceView）。アクセシビリティは不要のため区画なし。アプリ自身を呼ぶキーは一覧にDocklessLauncherを登録して代用（ヘルプに記載） |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 設定「対象外のアプリ」（Bundle ID）。前面が対象外ならホットキーを全解除し、押下時にも再確認 |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐タブに共通部品（StartupWindowView・MenuBarPresenceView）。2026-10-17 1.10.2：アクセシビリティは URLによる条件で使うため起動グループの下に AccessibilitySection()（理由は neededOverride、判定は AccessibilitySection.isTrusted）。以前は required:false で「不要」と表示されていた。アプリ自身を呼ぶキーは一覧にDocklessLauncherを登録して代用（ヘルプに記載）。ビルド・配置・起動確認、画面表示は未確認 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 2026-10-17 1.10.2：共通部品 ExcludedApps（タブ・中身・文言）。キー excludedBundleIDs、旧キー excluded を legacyKeys で引き継ぎ（defaults read で excludedBundleIDs の作成を確認、旧キーは残す）。onChange でホットキー再登録。前面が対象外ならホットキーを全解除し、押下時にも ExcludedApps.shared.excludes で再確認。画面操作は未確認 |
 
 ## 確認記録
 
@@ -49,3 +49,5 @@
 | B26 | 証明書での署名 | 未確認 | TeamIdentifier=PL9S9PXX96、再ビルド後も許可が残る、ログインキーチェーン |
 | B27 | 取消と失敗の伝え方 | 未確認 | パレット・シート・確認のEsc、ビープだけの箇所がない、実行不可のメニューは無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 未確認 | 初回中央・画面外復帰、ボタンとドロップ領域のaccessibilityLabel、tintのコントラスト、視差効果を減らす |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 1.10.1 (21)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys: entries, hotkeysEnabled, preferPathFinder, listOrder, listAscending, viewMode。merge（無いアプリの行だけ追加）、legacyExtensions docklesslauncher/applauncher＋legacyImport（SettingsFile）。onImport＝Model.reload()。ビルド・test.sh 合格、両配置先 1.10.1 (21)・署名一致、/Applications 版の起動を pgrep で確認。書き出し・読み込み・同期の画面操作は未確認 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：設定画面で割り当てるホットキー（機能・アプリ呼び出し）が無い。キーを扱うのは一覧の行とキーボード表示（エントリーごとのキー割り当て）で、アプリ本体の機能のため共通の HotkeyField は使わない。記録ルール（⌘・⌥・⌃のどれか必須、⌘C等の標準キー拒否、Escで取消）は独自の Shortcut.recorded で同じ（ただし共通部品は 2026-10-17 から ⌘か⌃必須になったので、⌥だけのキーを許す点は異なる）。アプリを呼び出すキーは一覧に自分を登録して代用。変更なし（1.10.2 のまま） |

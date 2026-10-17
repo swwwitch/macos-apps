@@ -21,6 +21,51 @@ final class GlobalShortcut {
     static let applicationsDefaultModifiers = UInt32(controlKey | optionKey | cmdKey | shiftKey)
     /// ⇧ alone (or nothing) would take over ordinary typing, so one of ⌃⌥⌘ is required.
     static let requiredModifiers = UInt32(controlKey | optionKey | cmdKey)
+    /// Window hotkey default: ⌃⌥⌘M (popup indices 0 / 12 until 0.1.96).
+    static let windowDefault = (code: UInt32(46), modifiers: UInt32(controlKey | optionKey | cmdKey))
+    static let applicationsDefault = (code: UInt32(0), modifiers: applicationsDefaultModifiers)
+    /// Saved form since 0.1.97: ["code": key code, "modifiers": Carbon modifiers] under shortcutCombo / applicationsShortcutCombo.
+    static func stored(_ value: Any?) -> (code: UInt32, modifiers: UInt32)? {
+        guard let dictionary = value as? [String: Any], let code = (dictionary["code"] as? NSNumber)?.uint32Value,
+              let modifiers = (dictionary["modifiers"] as? NSNumber)?.uint32Value, modifiers & requiredModifiers != 0 else { return nil }
+        return (code, modifiers)
+    }
+    static func storable(code: UInt32, modifiers: UInt32) -> [String: Int] { ["code": Int(code), "modifiers": Int(modifiers)] }
+    /// Until 0.1.96 the window hotkey was saved as popup indices into `modifiers` and `keys`.
+    static func legacyWindow(modifierIndex: Int, keyIndex: Int) -> (code: UInt32, modifiers: UInt32) {
+        (keys.indices.contains(keyIndex) ? keys[keyIndex].1 : windowDefault.code,
+         modifiers.indices.contains(modifierIndex) ? modifiers[modifierIndex].1 : windowDefault.modifiers)
+    }
+    /// Until 0.1.96 the copy-to-Applications hotkey was saved as a modifier mask and a popup index into `keys`.
+    static func legacyApplications(modifiers mask: Int, keyIndex: Int) -> (code: UInt32, modifiers: UInt32) {
+        let all = modifierFlags.reduce(UInt32(0)) { $0 | $1.1 }
+        let modifiers = UInt32(truncatingIfNeeded: mask) & all
+        return (keys.indices.contains(keyIndex) ? keys[keyIndex].1 : applicationsDefault.code,
+                modifiers & requiredModifiers != 0 ? modifiers : applicationsDefaultModifiers)
+    }
+    /// One-time move to the new keys; the old keys are left as they are.
+    static func migrate(_ defaults: UserDefaults) {
+        if defaults.object(forKey: "shortcutCombo") == nil {
+            let old = legacyWindow(modifierIndex: (defaults.object(forKey: "shortcutModifierIndex") as? Int) ?? 0,
+                                   keyIndex: (defaults.object(forKey: "shortcutKeyIndex") as? Int) ?? 12)
+            defaults.set(storable(code: old.code, modifiers: old.modifiers), forKey: "shortcutCombo")
+        }
+        if defaults.object(forKey: "applicationsShortcutCombo") == nil {
+            let old = legacyApplications(modifiers: (defaults.object(forKey: "applicationsShortcutModifiers") as? Int) ?? Int(applicationsDefaultModifiers),
+                                         keyIndex: (defaults.object(forKey: "applicationsShortcutKeyIndex") as? Int) ?? 0)
+            defaults.set(storable(code: old.code, modifiers: old.modifiers), forKey: "applicationsShortcutCombo")
+        }
+    }
+    /// While the settings field records a key, every hotkey is released so the keystroke reaches the field.
+    var suspended = false {
+        didSet {
+            guard suspended != oldValue else { return }
+            if suspended {
+                for reference in references.values { UnregisterEventHotKey(reference) }
+                references.removeAll()
+            } else { refresh() }
+        }
+    }
     /// Hotkey ID 1 shows the window; other IDs run app functions (e.g. 2 = copy to Applications).
     var actions: [UInt32: () -> Void] = [:]
     var action: (() -> Void)? {
@@ -49,6 +94,7 @@ final class GlobalShortcut {
     // The key is registered even outside `activeApps` to report conflicts, then released by `refresh`.
     func configure(id: UInt32 = 1, enabled: Bool, key: UInt32, modifiers: UInt32) -> Bool {
         guard handler != nil else { return false }
+        if suspended { wanted[id] = enabled ? (key, modifiers) : nil; return true }
         if enabled, let existing = wanted[id], existing == (key, modifiers) { refresh(); return true }
         var replacement: EventHotKeyRef?
         if enabled {
@@ -63,7 +109,7 @@ final class GlobalShortcut {
     }
     /// Call when the frontmost app changes: registers the wanted keys over `activeApps`, releases them elsewhere.
     func refresh(frontmost: String? = NSWorkspace.shared.frontmostApplication?.bundleIdentifier) {
-        let active = activeApps.isEmpty || activeApps.contains(frontmost ?? "")
+        let active = !suspended && (activeApps.isEmpty || activeApps.contains(frontmost ?? ""))
         for (id, shortcut) in wanted {
             if active, references[id] == nil {
                 var reference: EventHotKeyRef?

@@ -9,27 +9,22 @@ final class Model: ObservableObject {
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var paletteMode = UserDefaults.standard.bool(forKey: "paletteMode")
     @Published var paused = false
-    @Published var excluded = UserDefaults.standard.stringArray(forKey: "excluded") ?? []
     @Published var bindings = Shortcut.loadBindings()
-    @Published var selectedAction = "round"
     @Published var forceWrap = UserDefaults.standard.bool(forKey: "forceWrap")
     @Published var trimSpaces = UserDefaults.standard.bool(forKey: "trimSpaces")
     @Published var registrationFailures: [String: OSStatus] = [:]
-    var shortcut: Shortcut? { bindings[selectedAction] }
     var statusChanged: ((String) -> Void)?
     @Published var status = L("ready") { didSet { statusChanged?(status) } }
+    /// True while the shared HotkeyRecorder records a key (set by its onRecordingChanged); hotkeys stay unregistered.
     @Published var recording = false
-    @Published var recordingFront = false
     @Published var frontEnabled = UserDefaults.standard.object(forKey: "bringToFrontEnabled") as? Bool ?? true
     @Published var frontShortcut = UserDefaults.standard.data(forKey: "bringToFrontShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .bringToFront
-    @Published var frontStatus = ""
     @Published var frontFailed = false
     @Published var loginStatus = ""
     @Published var loginOn = false
     let hotkey = HotKey()
     let frontHotkey = FrontHotKey()
     let editor = Editor()
-    var monitor: Any?
     var observers: [NSObjectProtocol] = []
     var workspaceObserver: NSObjectProtocol?
     var departureObserver: NSObjectProtocol?
@@ -49,39 +44,12 @@ final class Model: ObservableObject {
             if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication { (NSApp.delegate as? AppDelegate)?.applicationDeactivated(app) }
         }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in self?.refreshLogin(); self?.refreshHotkey() })
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, self.recording else { return event }
-            if event.keyCode == 53 { self.recording = false; self.recordingFront = false; self.refreshHotkey(); return nil }
-            let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
-            // Preserve standard editing, window and quit shortcuts.
-            let standard: Set<UInt16> = [0, 6, 7, 8, 9, 12, 13, 43]
-            guard !flags.intersection([.command, .option, .control]).isEmpty,
-                  !(flags == .command && standard.contains(event.keyCode)),
-                  let key = event.charactersIgnoringModifiers, !key.isEmpty else { self.status = L("invalidShortcut"); return nil }
-            var mods: UInt32 = 0
-            if flags.contains(.command) { mods |= UInt32(cmdKey) }
-            if flags.contains(.shift) { mods |= UInt32(shiftKey) }
-            if flags.contains(.option) { mods |= UInt32(optionKey) }
-            if flags.contains(.control) { mods |= UInt32(controlKey) }
-            let prefix = (flags.contains(.control) ? "⌃" : "") + (flags.contains(.option) ? "⌥" : "") + (flags.contains(.shift) ? "⇧" : "") + (flags.contains(.command) ? "⌘" : "")
-            let candidate = Shortcut(code: UInt32(event.keyCode), modifiers: mods, label: prefix + (event.keyCode == 25 ? "9" : key.uppercased()))
-            if self.recordingFront {
-                guard !self.bindings.values.contains(where: { $0.signature == candidate.signature }) else { self.status = L("duplicateShortcut"); return nil }
-                self.frontShortcut = candidate; self.frontEnabled = true
-                self.recording = false; self.recordingFront = false; self.save(); return nil
-            }
-            guard !self.bindings.contains(where: { $0.key != self.selectedAction && $0.value.signature == candidate.signature }),
-                  !(self.frontEnabled && self.frontShortcut.signature == candidate.signature) else { self.status = L("duplicateShortcut"); return nil }
-            self.bindings[self.selectedAction] = candidate
-            self.recording = false; self.save(); return nil
-        }
         refreshLogin(); refreshHotkey()
     }
     func save() {
         UserDefaults.standard.set(paletteMode, forKey: "paletteMode")
         UserDefaults.standard.set(keepRunning, forKey: "keepRunning")
         UserDefaults.standard.set(disabled, forKey: "disabled")
-        UserDefaults.standard.set(excluded, forKey: "excluded")
         UserDefaults.standard.set(try? JSONEncoder().encode(bindings), forKey: "bracketBindings")
         UserDefaults.standard.set(forceWrap, forKey: "forceWrap")
         UserDefaults.standard.set(trimSpaces, forKey: "trimSpaces")
@@ -99,12 +67,13 @@ final class Model: ObservableObject {
         trimSpaces = defaults.bool(forKey: "trimSpaces")
         frontEnabled = defaults.object(forKey: "bringToFrontEnabled") as? Bool ?? true
         frontShortcut = defaults.data(forKey: "bringToFrontShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .bringToFront
-        recording = false; recordingFront = false
+        MainActor.assumeIsolated { HotkeyRecorder.shared.stop() }
         refreshHotkey()
     }
+    /// Excluded apps (shared 対象外アプリ list) and KakkoReplace itself are never edited.
     func allowed(_ app: NSRunningApplication?) -> Bool {
         guard let app, let id = app.bundleIdentifier else { return false }
-        return !excluded.contains(id) && id != Bundle.main.bundleIdentifier
+        return !MainActor.assumeIsolated { ExcludedApps.shared.blocksHotkeys(bundleID: id, pid: app.processIdentifier) }
     }
     func refreshHotkey() {
         refreshFrontHotkey()
@@ -115,7 +84,7 @@ final class Model: ObservableObject {
         registeredState = state
         if active {
             registrationFailures = hotkey.register(bindings)
-            if !registrationFailures.isEmpty { status = L("registrationFailed") }
+            if !registrationFailures.isEmpty { status = HotkeyText.registerFailed }
         } else { _ = hotkey.register([:]) }
     }
     /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
@@ -125,7 +94,7 @@ final class Model: ObservableObject {
         var items = BracketAction.ids.compactMap { id -> HotkeyManifest.Item? in
             guard let shortcut = bindings[id] else { return nil }
             return HotkeyManifest.Item(id: id, title: actionTitle(id), keyCode: Int(shortcut.code), modifiers: Int(shortcut.modifiers),
-                                       enabled: !disabled, scope: "except", apps: excluded + own)
+                                       enabled: !disabled, scope: "except", apps: MainActor.assumeIsolated { ExcludedApps.shared.ids } + own)
         }
         items.append(HotkeyManifest.Item(id: "bringToFront", title: L("frontTitle"), keyCode: Int(frontShortcut.code), modifiers: Int(frontShortcut.modifiers),
                                          enabled: frontEnabled, scope: "except", apps: own))
@@ -140,15 +109,15 @@ final class Model: ObservableObject {
         registeredFrontState = state
         let result = frontHotkey.register(frontEnabled ? frontShortcut : nil, blocked: blocked)
         frontFailed = frontEnabled && result != noErr
-        frontStatus = !frontEnabled ? L("frontDisabled") : result == noErr ? String(format: L("frontEnabledStatus"), frontShortcut.label) : String(format: L("frontRegisterFailed"), String(result))
     }
-    func resetFrontShortcut() {
-        frontShortcut = .bringToFront; frontEnabled = true; recording = false; recordingFront = false; save()
-    }
-    func resetShortcut() {
-        let candidate = Shortcut.articleDefaults[selectedAction]
-        if let candidate, bindings.contains(where: { $0.key != selectedAction && $0.value.signature == candidate.signature }) { status = L("duplicateShortcut"); return }
-        bindings[selectedAction] = candidate; recording = false; save()
+    /// The app's other hotkeys with their titles, so HotkeyField refuses a key already in use.
+    func otherHotkeys(except id: String) -> [(String, KeyCombo)] {
+        var result = BracketAction.ids.compactMap { other -> (String, KeyCombo)? in
+            guard other != id, let shortcut = bindings[other] else { return nil }
+            return (OperationGroup.displayTitle(other), KeyCombo(shortcut))
+        }
+        if id != "bringToFront", frontEnabled { result.append((L("frontTitle"), KeyCombo(frontShortcut))) }
+        return result
     }
     /// Runs as soon as the hotkey is pressed (MightyEdit's performOnPress); editing goes through AX, so held
     /// modifiers do not leak into the target. The gate stays closed until the trigger key is up, so key repeat never runs it twice.
@@ -207,18 +176,8 @@ final class Model: ObservableObject {
         do { if value { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }; refreshLogin() }
         catch { refreshLogin(); loginStatus = L("loginFailed") + error.localizedDescription }
     }
-    func addApp() {
-        let panel = NSOpenPanel(); panel.allowedContentTypes = [.application]; panel.allowsMultipleSelection = true
-        panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        guard panel.runModal() == .OK else { return }
-        for url in panel.urls {
-            if let id = Bundle(url: url)?.bundleIdentifier, !excluded.contains(id) { excluded.append(id) }
-        }
-        excluded.sort(); save()
-    }
     func stop() {
         _ = hotkey.register([:])
-        if let monitor { NSEvent.removeMonitor(monitor) }
         if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
         observers.forEach { NotificationCenter.default.removeObserver($0) }
     }
@@ -231,7 +190,6 @@ struct Preferences: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
-                VStack(alignment: .leading, spacing: 8) {
                     Toggle(L("login"), isOn: Binding(get: { model.loginOn }, set: { model.changeLogin($0) }))
                     Text(model.loginStatus).font(.caption).foregroundColor(.secondary)
                     Button(L("loginSettings")) { SMAppService.openSystemSettingsLoginItems() }
@@ -239,74 +197,41 @@ struct Preferences: View {
                     Toggle(L("keepRunning"), isOn: Binding(get: { model.keepRunning }, set: { model.keepRunning = $0; model.save() }))
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
                     MenuBarPresenceView()
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
                 }
                 SettingsSection(L("frontTitle")) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle(L("frontEnable"), isOn: Binding(get: { model.frontEnabled }, set: { model.frontEnabled = $0; model.save() }))
-                    HStack {
-                        Text(model.frontShortcut.label).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
-                        Button(model.recordingFront ? L("cancelRecording") : L("change")) {
-                            model.recordingFront.toggle(); model.recording = model.recordingFront; model.refreshHotkey()
-                        }
-                        Button(L("frontReset")) { model.resetFrontShortcut() }
-                    }.disabled(!model.frontEnabled && !model.recordingFront)
-                    Text(model.frontStatus).font(.caption).foregroundColor(model.frontFailed ? .red : .secondary)
-                    Text(model.recordingFront ? L("recordHint") : L("frontNote")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.frontEnabled }, set: { model.frontEnabled = $0; model.save() }))
+                    HotkeyField(id: "bringToFront",
+                                combo: Binding(get: { KeyCombo(model.frontShortcut) },
+                                               set: { model.frontShortcut = $0.map(Shortcut.init) ?? .bringToFront; model.save() }),
+                                defaultCombo: KeyCombo(Shortcut.bringToFront), others: model.otherHotkeys(except: "bringToFront"),
+                                registered: !model.frontFailed, isEnabled: model.frontEnabled)
+                    Text(L("frontNote")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: true, showsTitle: false)
+                AccessibilitySection()
+            })),
+            (L("shortcuts"), AnyView(VStack(alignment: .leading, spacing: 16) {
+                SettingsSection(L("shortcuts")) {
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { !model.disabled }, set: { model.disabled = !$0; model.save() }))
+                    Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                ForEach(OperationGroup.all, id: \.titleKey) { group in
+                    SettingsSection(L(group.titleKey)) {
+                        ForEach(group.ids, id: \.self) { id in ShortcutRow(model: model, id: id) }
+                    }
                 }
             })),
-            (L("shortcuts"), AnyView(GroupBox(label: Text(L("shortcuts"))) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle(L("enabled"), isOn: Binding(get: { !model.disabled }, set: { model.disabled = !$0; model.save() }))
-                    HStack {
-                        Text(L("operation"))
-                        OperationPicker(selection: $model.selectedAction) { model.recording = false; model.recordingFront = false; model.refreshHotkey() }
-                    }
-                    HStack {
-                        Text(model.shortcut?.label ?? L("unassigned")).font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
-                        Button(model.recording && !model.recordingFront ? L("cancelRecording") : L("change")) {
-                            model.recording = model.recordingFront || !model.recording; model.recordingFront = false; model.refreshHotkey()
-                        }
-                        Button(L("resetShortcut")) { model.resetShortcut() }
-                        Button(L("disableBinding")) { model.bindings.removeValue(forKey: model.selectedAction); model.recording = false; model.save() }
-                    }
-                    if let code = model.registrationFailures[model.selectedAction] { Text(L("registrationFailed") + " (\(code))").font(.caption) }
-                    Text(model.recording && !model.recordingFront ? L("recordHint") : L("shortcutHint")).font(.caption).foregroundColor(.secondary)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
+            (L("palette"), AnyView(SettingsSection(L("palette")) {
+                Toggle(L("paletteMode"), isOn: Binding(get: { model.paletteMode }, set: { model.paletteMode = $0; model.save(); if $0 { (NSApp.delegate as? AppDelegate)?.showPalette() } }))
+                Text(L("paletteModeHint")).font(.caption).foregroundColor(.secondary)
+                Button(L("palette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
             })),
-            (L("palette"), AnyView(GroupBox(label: Text(L("palette"))) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle(L("paletteMode"), isOn: Binding(get: { model.paletteMode }, set: { model.paletteMode = $0; model.save(); if $0 { (NSApp.delegate as? AppDelegate)?.showPalette() } }))
-                    Text(L("paletteModeHint")).font(.caption).foregroundColor(.secondary)
-                    Button(L("palette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
+            (L("bracketOptions"), AnyView(SettingsSection(L("bracketOptions")) {
+                Toggle(L("forceWrap"), isOn: Binding(get: { model.forceWrap }, set: { model.forceWrap = $0; model.save() }))
+                Toggle(L("trimSpaces"), isOn: Binding(get: { model.trimSpaces }, set: { model.trimSpaces = $0; model.save() }))
+                Button(L("palette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
             })),
-            (L("bracketOptions"), AnyView(GroupBox(label: Text(L("bracketOptions"))) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle(L("forceWrap"), isOn: Binding(get: { model.forceWrap }, set: { model.forceWrap = $0; model.save() }))
-                    Toggle(L("trimSpaces"), isOn: Binding(get: { model.trimSpaces }, set: { model.trimSpaces = $0; model.save() }))
-                    Button(L("palette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(6)
-            })),
-            (L("exclusions"), AnyView(GroupBox(label: Text(L("exclusions"))) {
-                VStack(alignment: .leading) {
-                    List {
-                        ForEach(model.excluded, id: \.self) { id in
-                            HStack {
-                                Text(appName(id)).lineLimit(1).help(id)
-                                Spacer()
-                                Button(L("remove")) { model.excluded.removeAll { $0 == id }; model.save() }
-                            }
-                        }
-                    }.frame(height: 100)
-                    Button(L("addApp")) { model.addApp() }
-                }.padding(6)
-            })),
-            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
             Text(model.status).font(.callout).fixedSize(horizontal: false, vertical: true).accessibilityLabel(L("status") + ": " + model.status)
@@ -337,10 +262,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     let menu = NSMenu()
     var resultItem: NSMenuItem!
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Configured before the model registers hot keys; 0.3.34 and earlier kept the list under "excluded".
+        ExcludedApps.shared.configure(explanation: L("exclusionsHint"), legacyKeys: ["excluded"])
         model = Model()
+        // The bracket and palette hotkeys keep their own registration (HotKey / FrontHotKey); release them while a key is recorded.
+        HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
+            guard let model = self?.model else { return }
+            model.recording = recording
+            model.refreshHotkey()
+        }
+        ExcludedApps.shared.onChange = { [weak self] in self?.model.refreshHotkey() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
         SettingsSync.shared.start(.init(
-            keys: ["bracketBindings", "disabled", "paletteMode", "forceWrap", "trimSpaces", "bringToFrontEnabled", "bringToFrontShortcut"],
+            keys: ["bracketBindings", "disabled", "paletteMode", "forceWrap", "trimSpaces"],
             note: L("syncNote"), perMac: L("syncPerMac")))
         WindowActivationPolicy.install()
         targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
@@ -520,4 +454,12 @@ private enum SingleInstanceLaunch {
         }
         exit(0)
     }
+}
+
+/// Storage stays [String: Shortcut] JSON (bracketBindings, bringToFrontShortcut); the shared field works in KeyCombo.
+extension KeyCombo {
+    init(_ shortcut: Shortcut) { self.init(code: shortcut.code, modifiers: shortcut.modifiers) }
+}
+extension Shortcut {
+    init(_ combo: KeyCombo) { self.init(code: combo.code, modifiers: combo.modifiers, label: combo.label) }
 }

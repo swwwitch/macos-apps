@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
         KeyNames.prepare()
+        startSettingsSync()
         DispatchQueue.main.async { [weak self] in
             MenuBarPresence.shared.install(name: "HotkeyHound", symbol: "keyboard.badge.eye",
                 show: { self?.showWindow() },
@@ -41,4 +42,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc func showSettings() { SettingsWindow.shared.show() }
+
+    /// 設定の共有：照合元の選択・並び順・独自の照合元と「無効なホットキーを非表示」を書き出し・同期する
+    private func startSettingsSync() {
+        SettingsSync.shared.onImport = { HotkeyStore.shared.settingsImported() }
+        SettingsSync.shared.start(.init(
+            keys: [HotkeySource.orderKey, CustomSources.key, "lookup.hideInactive"],
+            prefixes: ["source."],
+            note: StartupWindow.text("照合元の選択・並び順・独自の照合元と、「無効なホットキーを非表示」を書き出し・同期します。",
+                                     "Exports and syncs which sources are checked, their order, custom sources and “Hide inactive hotkeys”.",
+                                     "导出并同步所选来源、来源顺序、自定来源和“隐藏无效的快捷键”。",
+                                     "선택한 출처, 출처 순서, 사용자 출처와 ‘비활성 단축키 숨기기’를 내보내고 동기화합니다."),
+            perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・照合する範囲（指定したアプリ）はMacごとに設定します。",
+                                       "Open at login, startup window, menu bar and the apps to check are set on each Mac.",
+                                       "登录时打开、启动时的窗口、菜单栏和要检查的应用在每台 Mac 上分别设置。",
+                                       "로그인 시 열기, 시작 시 윈도우, 메뉴 막대, 확인할 앱은 Mac마다 설정합니다."),
+            merge: CustomSources.merge))
+    }
 }

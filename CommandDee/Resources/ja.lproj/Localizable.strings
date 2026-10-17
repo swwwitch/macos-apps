@@ -23,9 +23,6 @@
 "menu.appHelp" = "CommandDeeヘルプ";
 "shortcut.palette" = "パレットを表示／隠す";
 "settings.paletteHotkeyNote" = "CommandDeeが常駐している間、どのアプリからでもパレットを表示・隠すことができます。「ホットキーを有効にする」の切り替えとは別に動作します。";
-"settings.resetPaletteHotkey" = "⌃⌥⌘Dに戻す";
-"settings.paletteHotkeyActive" = "%@ でパレットを表示・隠す";
-"settings.paletteHotkeyFailed" = "%1$@ を登録できませんでした（エラー %2$d）。別のキーを選んでください";
 "menu.showPalette" = "パレットを表示";
 "menu.hidePalette" = "パレットを隠す";
 "palette.subtitle" = "実行後の名前を確かめてからクリック";
@@ -47,7 +44,6 @@
 "status.tooltip" = "CommandDee — バージョン・日付付きで複製";
 "status.noSelection" = "ファイル／フォルダが選択されていません";
 "status.selectionFailed" = "選択の取得に失敗しました";
-"status.needsAccessibility" = "アクセシビリティの許可が必要です";
 "status.enabled" = "ホットキー有効";
 "status.paused" = "一時停止中";
 "progress.duplicate" = "%d項目を複製中…";
@@ -78,9 +74,6 @@
 "settings.skipFolderPlaceholder" = "空欄の場合は、直上の親フォルダ名を使用";
 "settings.resetSkipFolder" = "ログインユーザー名に戻す";
 "settings.resetShortcuts" = "ホットキーを初期値に戻す";
-"settings.shortcutInvalid" = "このキーは使えません。⌘・⌃・⌥のいずれかと組み合わせてください（Escでキャンセル）";
-"settings.shortcutDuplicate" = "「%@」はほかの操作に割り当て済みです";
-"settings.recordShortcut" = "キーを入力（Escでキャンセル）";
 "shortcut.unset" = "未設定";
 "shortcut.version" = "連番で複製";
 "shortcut.date" = "日付付きで複製";

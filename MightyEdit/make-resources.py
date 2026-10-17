@@ -59,14 +59,12 @@ ax.accessibilitySettings|アクセシビリティ設定|Accessibility Settings|�
 tip.openAccessibility|アクセシビリティ設定を開く|Open Accessibility Settings|打开辅助功能设置|손쉬운 사용 설정 열기
 about.support|サポート：同梱のREADME|Support: bundled README|支持：附带的 README|지원: 포함된 README
 fmt.labelValue|%1$@：%2$@|%1$@: %2$@|%1$@：%2$@|%1$@: %2$@
-fmt.nameDetail|%1$@（%2$@）|%1$@ (%2$@)|%1$@（%2$@）|%1$@(%2$@)
 target.app|アプリ|App|应用|앱
 target.appLong|対象アプリ|the target app|目标应用|대상 앱
 target.excluded|対象：%@（対象外のアプリ）|Target: %@ (excluded app)|目标：%@（排除的应用）|대상: %@(제외된 앱)
 target.normal|対象：%1$@  ·  %2$@|Target: %1$@  ·  %2$@|目标：%1$@  ·  %2$@|대상: %1$@  ·  %2$@
 target.copy|コピー|Copy|复制|복사
 target.replace|選択範囲を置換|Replace selection|替换所选内容|선택 영역 대치
-msg.needPermission|選択文字の操作には許可が必要です。設定でMightyEditをオンにしてください。|Permission is required to edit selected text. Turn on MightyEdit in System Settings.|处理所选文字需要权限。请在系统设置中打开 MightyEdit。|선택한 텍스트를 다루려면 권한이 필요합니다. 시스템 설정에서 MightyEdit를 켜세요.
 msg.permissionOK|許可を確認しました。対象アプリで文字を選択してください。|Permission confirmed. Select text in the target app.|已确认权限。请在目标应用中选择文字。|권한을 확인했습니다. 대상 앱에서 텍스트를 선택하세요.
 msg.targetChangedReselect|対象アプリが切り替わりました。選択し直して呼び出してください。|The target app changed. Select the text again and reopen this window.|目标应用已切换。请重新选择文字后再打开此窗口。|대상 앱이 바뀌었습니다. 텍스트를 다시 선택한 후 다시 여세요.
 msg.targetChangedReopen|対象アプリが切り替わりました。パレットを呼び出し直してください。|The target app changed. Show the palette again.|目标应用已切换。请重新调出面板。|대상 앱이 바뀌었습니다. 팔레트를 다시 불러오세요.
@@ -105,27 +103,8 @@ group.more|追加の操作|More Actions|更多操作|추가 동작
 special.lists|その他のリスト|More Lists|更多列表|기타 목록
 tab.special|スペシャル|Special|特殊|스페셜
 tab.autoShow|自動表示|Auto Show|自动显示|자동 표시
-tab.options|オプション|Options|选项|옵션
-sync.title|設定の同期|Settings Sync|设置同步|설정 동기화
-sync.noFolder|同期フォルダーが設定されていません|No sync folder set|未设置同步文件夹|동기화 폴더가 설정되지 않음
-sync.note|パレットの表示モード・表示するボタン・ボタンの表示方法・スペシャルの項目・機能のホットキー・パレット呼び出しのホットキーを、このフォルダーに保存してほかのMacと共有します。フォルダーはこのMacの中でも、iCloud DriveやDropboxなど同期サービスの中でも構いません。同期サービスでは、このフォルダーを常にこのMacに保存する（オフラインで使用可能にする）設定にしてください。|The palette mode, visible buttons, button style, Special items, action hotkeys and the palette shortcut are saved in this folder and shared with your other Macs. The folder can be local or inside a sync service such as iCloud Drive or Dropbox. With a sync service, keep this folder downloaded and available offline.|面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键和调出面板的快捷键会保存到此文件夹，并与其他 Mac 共享。文件夹可以在本机，也可以在 iCloud 云盘、Dropbox 等同步服务中。使用同步服务时，请将此文件夹设为始终保留在本机（可离线使用）。|팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키를 이 폴더에 저장해 다른 Mac과 공유합니다. 폴더는 이 Mac 안이나 iCloud Drive, Dropbox 같은 동기화 서비스 안에 둘 수 있습니다. 동기화 서비스에서는 이 폴더를 항상 이 Mac에 보관(오프라인 사용 가능)하도록 설정하세요.
-sync.perMac|ログイン時の起動、常駐、アクセシビリティ、ウインドウ位置、自動表示、対象外アプリ、同期フォルダーの場所はMacごとに保持します。複数のMacで変更した場合は、後から保存した内容が優先されます。|Login launch, background, Accessibility, window positions, auto show, excluded apps and the sync folder location stay per Mac. If several Macs change settings, the most recent save wins.|登录时启动、后台运行、辅助功能、窗口位置、自动显示、排除的应用和同步文件夹的位置在每台 Mac 上分别保留。多台 Mac 修改时以最后保存的内容为准。|로그인 시 실행, 백그라운드, 손쉬운 사용, 윈도우 위치, 자동 표시, 제외 앱, 동기화 폴더 위치는 Mac마다 유지합니다. 여러 Mac에서 변경하면 나중에 저장한 내용이 우선합니다.
-sync.choose|同期フォルダーを設定...|Set Sync Folder...|设置同步文件夹...|동기화 폴더 설정...
-sync.choosePrompt|このフォルダーで同期|Sync with This Folder|使用此文件夹同步|이 폴더로 동기화
-sync.chooseMessage|設定を保存して共有するフォルダーを選んでください（iCloud Drive・Dropboxなど）|Choose a folder to save and share settings (iCloud Drive, Dropbox, etc.)|选择用于保存和共享设置的文件夹（iCloud 云盘、Dropbox 等）|설정을 저장하고 공유할 폴더를 선택하세요(iCloud Drive, Dropbox 등)
-sync.reveal|Finderで表示|Reveal in Finder|在 Finder 中显示|Finder에서 보기
-sync.now|今すぐ同期|Sync Now|立即同步|지금 동기화
-sync.stop|同期を停止|Stop Syncing|停止同步|동기화 중지
-sync.off|同期していません|Not syncing|未同步|동기화하지 않음
-sync.waiting|同期の準備中...|Preparing to sync...|正在准备同步...|동기화 준비 중...
-sync.last|最終同期：%@|Last synced: %@|上次同步：%@|마지막 동기화: %@
-sync.failed|同期フォルダーに保存できませんでした|Could not save to the sync folder|无法保存到同步文件夹|동기화 폴더에 저장하지 못했습니다
-sync.unavailable|同期フォルダーが見つかりません。同期サービスが動いているか確認するか、フォルダーを設定し直してください。|The sync folder cannot be found. Check that the sync service is running, or set the folder again.|找不到同步文件夹。请确认同步服务正在运行，或重新设置文件夹。|동기화 폴더를 찾을 수 없습니다. 동기화 서비스가 실행 중인지 확인하거나 폴더를 다시 설정하세요.
-sync.conflictTitle|このフォルダーには保存済みの設定があります|This folder already has saved settings|此文件夹中已有保存的设置|이 폴더에 저장된 설정이 있습니다
-sync.conflictDetail|「%@」で保存した設定と、このMacの設定が異なります。どちらを使いますか？|The settings saved on “%@” differ from this Mac’s settings. Which do you want to use?|在“%@”上保存的设置与这台 Mac 的设置不同。要使用哪一个？|“%@”에서 저장한 설정이 이 Mac의 설정과 다릅니다. 어느 쪽을 사용하시겠습니까?
-sync.useCloud|保存済みの設定を使う|Use Saved Settings|使用已保存的设置|저장된 설정 사용
-sync.useLocal|このMacの設定を使う|Use This Mac’s Settings|使用这台 Mac 的设置|이 Mac의 설정 사용
-sync.cancel|キャンセル|Cancel|取消|취소
+sharing.note|パレットの表示モード・表示するボタン・ボタンの表示方法・スペシャルの項目・機能のホットキー・パレット呼び出しのホットキー・自動表示・置き換えずにコピー・行頭行末／折り返し／リストのパネルの入力値を共有します。|Shares the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap and list panels.|共享面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键、调出面板的快捷键、自动显示、复制而不替换，以及行首行尾、换行和列表面板中的输入值。|팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키, 자동 표시, 대치하지 않고 복사, 행 앞뒤·줄 바꿈·목록 패널의 입력값을 공유합니다.
+sharing.perMac|ログイン時の起動、起動時の表示、常駐、メニューバー、アクセシビリティ、ウインドウ位置、対象外アプリ、同期フォルダーの場所はMacごとに保持します。|Login launch, startup display, background, the menu bar icon, Accessibility, window positions, excluded apps and the sync folder location stay per Mac.|登录时启动、启动时的显示、后台运行、菜单栏图标、辅助功能、窗口位置、排除的应用和同步文件夹的位置在每台 Mac 上分别保留。|로그인 시 실행, 시작 시 표시, 백그라운드, 메뉴 막대 아이콘, 손쉬운 사용, 윈도우 위치, 제외 앱, 동기화 폴더 위치는 Mac마다 유지합니다.
 display.heading|モードごとの表示設定|Display Settings by Mode|按模式设置显示|모드별 표시 설정
 display.modeToEdit|設定するモード|Mode to configure|要设置的模式|설정할 모드
 display.itemsHeading|表示するカテゴリ・ボタン|Categories and Buttons to Show|要显示的类别和按钮|표시할 카테고리 및 버튼
@@ -240,7 +219,6 @@ tip.specialLists|その他のリスト：別ウインドウでリストの種類
 tip.specialTypography|まとめて整形：項目を選んでまとめて適用|Batch Formatting: choose items and apply them together|批量整理：选择项目并一次应用|일괄 정리: 항목을 선택하여 한꺼번에 적용
 hotkey.none|無効|None|无|없음
 hotkey.plus|＋|+|+|+
-hotkey.keypad|テンキー|Keypad|小键盘|키패드
 hotkey.toggleDisplay|表示形式を切り替え|Switch Button Style|切换按钮样式|버튼 스타일 전환
 hotkey.menuFailure|（登録失敗：%@）| (registration failed: %@)|（注册失败：%@）| (등록 실패: %@)
 hotkey.scopeSuffix|（%@）| (%@)|（%@）| (%@)
@@ -250,50 +228,20 @@ hotkey.pause|一時停止|Pause|暂停|일시 정지
 hotkey.pauseUntilRelaunch|一時停止（再起動で解除）|Pause (until relaunch)|暂停（重新启动后解除）|일시 정지(다시 시작하면 해제)
 hotkey.reset|割り当てを初期値に戻す|Reset to Default Assignments|将分配恢复为默认值|할당을 기본값으로 재설정
 hotkey.failureNote|登録失敗：ほかのキーを選んでください|Registration failed: choose another key|注册失败：请选择其他按键|등록 실패: 다른 키를 선택하세요
-hotkey.note|修飾キーとキーを選び「適用」で保存します。「無効」を選ぶと解除できます。同じキーを複数の操作には割り当てられません。登録失敗時は別のキーを選んでください。操作名の下の適用範囲は選ぶとすぐ保存します。「パレット表示中のみ」はパレットを隠している間はキーを登録せず、前面のアプリへそのまま通します。|Choose modifier keys and a key, then click Apply to save. Choose None to remove a hotkey. The same key cannot be assigned to more than one action. If registration fails, choose another key. The scope under each action name is saved as soon as you choose it. “Only While Palette Is Shown” leaves the key unregistered while the palette is hidden, so it goes straight to the front app.|选择修饰键和按键，然后点击“应用”保存。选择“无”可取消分配。同一按键不能分配给多个操作。注册失败时请选择其他按键。操作名称下方的适用范围在选择后立即保存。“仅在显示面板时”在面板隐藏期间不注册按键，按键会直接传给前台应用。|수정자 키와 키를 선택하고 ‘적용’을 눌러 저장합니다. ‘없음’을 선택하면 해제됩니다. 같은 키를 여러 동작에 할당할 수 없습니다. 등록에 실패하면 다른 키를 선택하세요. 동작 이름 아래의 적용 범위는 선택하는 즉시 저장됩니다. ‘팔레트가 표시된 동안만’은 팔레트가 숨겨진 동안 키를 등록하지 않으므로 키가 앞쪽 앱으로 그대로 전달됩니다.
+hotkey.note|「変更…」を押してから割り当てるキーを押します（⌘か⌃を含める。Escで取り消し）。「初期値に戻す」「割り当てを解除」も使えます。同じキーはほかの操作やパレット呼び出しに割り当てられません。登録できなかったときは欄の下に表示します。操作名の下の適用範囲は選ぶとすぐ保存します。「パレット表示中のみ」はパレットを隠している間はキーを登録せず、前面のアプリへそのまま通します。|Click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key already used by another action or by Show palette cannot be assigned. A registration failure is shown under the field. The scope under each action name is saved as soon as you choose it. “Only While Palette Is Shown” leaves the key unregistered while the palette is hidden, so it goes straight to the front app.|点击“更改…”后按下要分配的按键（需包含 ⌘ 或 ⌃；按 Esc 取消）。也可使用“恢复默认”和“清除”。已用于其他操作或调出面板的按键无法分配。无法注册时会在栏下方显示。操作名称下方的适用范围在选择后立即保存。“仅在显示面板时”在面板隐藏期间不注册按键，按键会直接传给前台应用。|‘변경…’을 누른 다음 지정할 키를 누릅니다(⌘ 또는 ⌃ 포함, Esc로 취소). ‘기본값으로 되돌리기’와 ‘지우기’도 사용할 수 있습니다. 다른 동작이나 팔레트 호출에 쓰이는 키는 지정할 수 없습니다. 등록하지 못하면 필드 아래에 표시합니다. 동작 이름 아래의 적용 범위는 선택하는 즉시 저장됩니다. ‘팔레트가 표시된 동안만’은 팔레트가 숨겨진 동안 키를 등록하지 않으므로 키가 앞쪽 앱으로 그대로 전달됩니다.
 hotkey.axScope|%@の適用範囲|Scope for %@|%@的适用范围|%@ 적용 범위
 hotkey.scopeTip|このホットキーが働く範囲。選ぶとすぐ保存します|Where this hotkey works. Saved as soon as you choose.|此快捷键的作用范围。选择后立即保存|이 단축키가 작동하는 범위. 선택하는 즉시 저장됩니다
-hotkey.rowFailure|登録失敗（%@）：別のキーを選んでください|Registration failed (%@): choose another key|注册失败（%@）：请选择其他按键|등록 실패(%@): 다른 키를 선택하세요
-hotkey.axKey|%@のキー|Key for %@|%@的按键|%@ 키
-hotkey.apply|適用|Apply|应用|적용
-hotkey.axApply|%@に適用|Apply %@|应用到%@|%@에 적용
-hotkey.reservedTitle|%@は標準の操作に使われているため設定できません。|%@ is used by a standard command and cannot be assigned.|%@用于标准操作，无法设置。|%@은(는) 표준 명령에 사용되므로 설정할 수 없습니다.
-hotkey.reservedDetail|⌘A（すべてを選択）・⌘Z（取り消す）・⌘X（カット）・⌘C（コピー）・⌘V（ペースト）・⌘W（閉じる）・⌘,（設定）・⌘Q（終了）は使用できません。Control・Option・Shiftを組み合わせてください。|⌘A (Select All), ⌘Z (Undo), ⌘X (Cut), ⌘C (Copy), ⌘V (Paste), ⌘W (Close), ⌘, (Settings) and ⌘Q (Quit) cannot be used. Add Control, Option or Shift.|不能使用 ⌘A（全选）、⌘Z（撤销）、⌘X（剪切）、⌘C（拷贝）、⌘V（粘贴）、⌘W（关闭）、⌘,（设置）和 ⌘Q（退出）。请组合 Control、Option 或 Shift。|⌘A(모두 선택), ⌘Z(실행 취소), ⌘X(오려두기), ⌘C(복사하기), ⌘V(붙여넣기), ⌘W(닫기), ⌘,(설정), ⌘Q(종료)는 사용할 수 없습니다. Control, Option, Shift를 조합하세요.
-hotkey.needModifier|Control・Option・Commandのいずれかを選んでください。|Choose Control, Option or Command.|请选择 Control、Option 或 Command 中的一个。|Control, Option, Command 중 하나를 선택하세요.
-hotkey.inUse|このホットキーは別の操作に割り当てられています。|This hotkey is already assigned to another action.|此快捷键已分配给其他操作。|이 단축키는 다른 동작에 할당되어 있습니다.
 scope.global|すべてのアプリ|All Apps|所有应用|모든 앱
 scope.palette|パレット表示中のみ|Only While Palette Is Shown|仅在显示面板时|팔레트가 표시된 동안만
 hotkey.manifestPaletteOnly|パレット表示中だけ|Only while the palette is shown|仅在显示面板时|팔레트가 표시된 동안만
-palette.enableShortcut|パレットを前面に出すホットキーを有効にする|Enable the shortcut that brings the palette to the front|启用将面板置于前面的快捷键|팔레트를 앞으로 가져오는 단축키 활성화
-palette.axModifiers|パレット呼び出しの修飾キー|Modifier keys for showing the palette|调出面板的修饰键|팔레트 호출 수정자 키
-palette.axKey|パレット呼び出しのキー|Key for showing the palette|调出面板的按键|팔레트 호출 키
-palette.initFailed|ホットキーの初期化に失敗しました（%@）。|Could not initialize the shortcut (%@).|快捷键初始化失败（%@）。|단축키를 초기화하지 못했습니다(%@).
 palette.bringToFront|パレットを前面に出す|Bring palette to front|将面板置于前面|팔레트를 앞으로 가져오기
 palette.shortcutTitle|パレット呼び出し|Show palette|调出面板|팔레트 호출
 palette.shortcutNote|MightyEditが常駐している間、ほかのアプリからパレットを呼び出せます。未起動のアプリを起動する機能ではありません。機能実行用ホットキーの無効化・一時停止とは別に動作します。|While MightyEdit is running, you can bring up the palette from any app. This does not launch MightyEdit when it is not running. It works independently of disabling or pausing the action hotkeys.|MightyEdit 在后台运行时，可从其他应用调出面板。此功能不会启动未运行的应用，并且与停用或暂停功能快捷键无关。|MightyEdit가 실행 중인 동안 다른 앱에서 팔레트를 불러올 수 있습니다. 실행 중이 아닌 앱을 실행하는 기능은 아닙니다. 기능 단축키의 비활성화·일시 정지와는 별도로 작동합니다.
-palette.resetShortcut|初期値（⌃⌥⌘E）に戻す|Reset to Default (⌃⌥⌘E)|恢复默认值（⌃⌥⌘E）|기본값(⌃⌥⌘E)으로 재설정
-palette.resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
+palette.resident|ウインドウを閉じても常駐|Keep running when the window is closed|关闭窗口后继续运行|창을 닫아도 계속 실행
 palette.residentNote|パレットを閉じてもMightyEditを終了せず、メニューバーから再表示できます。オフのときは閉じるボタンで終了します。|Closing the palette keeps MightyEdit running; show it again from the menu bar. When off, the close button quits MightyEdit.|关闭面板后 MightyEdit 不会退出，可从菜单栏再次显示。关闭此选项时，点击关闭按钮会退出。|팔레트를 닫아도 MightyEdit는 종료되지 않으며 메뉴 막대에서 다시 표시할 수 있습니다. 끄면 닫기 버튼으로 종료합니다.
-status.disabled|無効|Disabled|已停用|비활성화됨
-palette.notInitialized|初期化に失敗しています。再起動してください。|Initialization failed. Relaunch MightyEdit.|初始化失败。请重新启动。|초기화에 실패했습니다. 다시 시작하세요.
-palette.enabledStatus|有効：%@|Enabled: %@|已启用：%@|활성화됨: %@
-palette.registerFailed|登録失敗（%@）：ほかのホットキーを選んでください。|Registration failed (%@): choose another shortcut.|注册失败（%@）：请选择其他快捷键。|등록 실패(%@): 다른 단축키를 선택하세요.
-excluded.title|対象外アプリ|Excluded Apps|排除的应用|제외된 앱
 excluded.reason|対象外のアプリのため実行しません|Not run because this app is excluded|此应用已被排除，不执行|제외된 앱이므로 실행하지 않습니다
 excluded.explanation|一覧のアプリが前面のときは、文字の加工を実行せず、機能とパレット呼び出しのホットキーを解除してキー操作をそのアプリへ通します。ほかのアプリへ切り替えると元に戻ります。一覧から外してもアプリ本体には影響しません。|While an app in this list is in front, MightyEdit does not convert text and releases its action hotkeys and palette shortcut so keystrokes go to that app. Switching to another app restores them. Removing an app from the list does not affect the app itself.|当列表中的应用位于前台时，不处理文字，并解除功能快捷键和调出面板的快捷键，按键直接传给该应用。切换到其他应用后恢复。从列表中移除不会影响应用本身。|목록의 앱이 앞쪽에 있을 때는 텍스트를 변환하지 않고 기능 단축키와 팔레트 호출 단축키를 해제하여 키 입력을 그 앱에 전달합니다. 다른 앱으로 전환하면 원래대로 돌아갑니다. 목록에서 제거해도 앱 자체에는 영향이 없습니다.
-excluded.column|アプリ|App|应用|앱
-excluded.axList|対象外アプリの一覧|List of excluded apps|排除的应用列表|제외된 앱 목록
-excluded.add|追加…|Add…|添加…|추가…
-excluded.remove|一覧から外す|Remove from List|从列表中移除|목록에서 제거
-excluded.none|対象外のアプリはありません。|No apps are excluded.|没有排除的应用。|제외된 앱이 없습니다.
-excluded.count|%@個のアプリを対象外にしています。|%@ app(s) excluded.|已排除 %@ 个应用。|앱 %@개를 제외하고 있습니다.
-excluded.missing|アプリが見つかりません|App not found|找不到应用|앱을 찾을 수 없음
-excluded.pickerTitle|対象外にするアプリを選択|Choose Apps to Exclude|选择要排除的应用|제외할 앱 선택
 action.add|追加|Add|添加|추가
-excluded.duplicate|「%@」はすでに一覧にあります。|“%@” is already in the list.|“%@”已在列表中。|‘%@’은(는) 이미 목록에 있습니다.
-excluded.own|MightyEdit自身は追加できません。MightyEditが前面のときは、もともとホットキーを解除しています。|MightyEdit itself cannot be added. Its hotkeys are already released while MightyEdit is in front.|不能添加 MightyEdit 本身。MightyEdit 位于前台时本来就会解除快捷键。|MightyEdit 자체는 추가할 수 없습니다. MightyEdit가 앞쪽에 있을 때는 원래 단축키를 해제합니다.
-excluded.invalid|「%@」はBundle IDを読み取れないため追加できません。|“%@” cannot be added because its bundle ID cannot be read.|无法读取“%@”的 Bundle ID，因此无法添加。|‘%@’은(는) Bundle ID를 읽을 수 없어 추가할 수 없습니다.
-excluded.rejectedTitle|追加できないアプリがありました|Some apps could not be added|部分应用无法添加|추가할 수 없는 앱이 있습니다
 auto.heading|指定アプリでパレットを自動表示|Show the Palette Automatically in Chosen Apps|在指定应用中自动显示面板|지정한 앱에서 팔레트 자동 표시
 auto.enable|自動表示を有効にする|Enable auto show|启用自动显示|자동 표시 활성화
 auto.explanation|指定したアプリを前面にすると、パレットを表示します。MightyEditが起動している間に動作します。|Shows the palette when a chosen app comes to the front. Works while MightyEdit is running.|当指定的应用切换到前台时显示面板。在 MightyEdit 运行期间有效。|지정한 앱이 앞쪽으로 오면 팔레트를 표시합니다. MightyEdit가 실행 중인 동안 작동합니다.

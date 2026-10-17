@@ -8,10 +8,6 @@ func appIcon(for bundleID: String) -> NSImage? {
     return NSWorkspace.shared.icon(forFile: url.path)
 }
 func groupTitle(_ group: LinkAction.Group) -> String { L("group." + group.rawValue) }
-func appName(for bundleID: String) -> String {
-    guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return bundleID }
-    return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
-}
 
 /// Shared header (AppHeader.swift): current bundle icon, functional title and subtitle.
 struct HeaderView: NSViewRepresentable {
@@ -45,9 +41,6 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     StatusRow(symbol: model.hotkeyProblem ? "exclamationmark.triangle.fill" : (model.paused ? "pause.circle" : "keyboard"),
                               tint: model.hotkeyProblem ? .orange : .secondary, title: L("hotkeyRow"), value: model.hotkeySummary)
-                    StatusRow(symbol: model.accessibilityAllowed ? "checkmark.circle.fill" : "minus.circle",
-                              tint: model.accessibilityAllowed ? .green : .secondary, title: AccessibilityText.text("title"),
-                              value: AccessibilityText.text(model.accessibilityAllowed ? "allowed" : "denied"))
                     StatusRow(symbol: model.statusIsError ? "xmark.octagon.fill" : "link",
                               tint: model.statusIsError ? .red : .secondary, title: L("lastResult"), value: model.status)
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(8)
@@ -63,7 +56,7 @@ struct MainView: View {
                                         Text(L(action.titleKey))
                                         Spacer()
                                         Text(model.isActive(action) ? model.label(action) : L("noKey"))
-                                            .font(.system(.body, design: .monospaced)).foregroundColor(.secondary)
+                                            .font(.system(.body, design: .monospaced)).tracking(1.5).foregroundColor(.secondary)
                                     }
                                     .accessibilityElement(children: .combine)
                                 }
@@ -86,31 +79,23 @@ struct MainView: View {
     }
 }
 
+/// One function: its on/off switch, the shared hotkey field and the double-tap switch.
 struct ShortcutRow: View {
     @ObservedObject var model: Model
     let action: LinkAction
     var body: some View {
         let enabled = model.actionEnabled[action] ?? false
-        HStack(spacing: 8) {
-            Toggle(L(action.titleKey), isOn: Binding(get: { enabled }, set: {
-                model.actionEnabled[action] = $0
-                if $0 && model.shortcuts[action] == nil { model.startRecording(action) }
-                model.save()
-            }))
-            .frame(width: 250, alignment: .leading)
-            Text(model.recording == action ? L("pressKey") : model.label(action))
-                .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
-                .foregroundColor(enabled ? .primary : .secondary)
-                .accessibilityLabel(L("currentKey") + " " + model.label(action))
-            Button(model.recording == action ? L("cancelRecording") : L("change")) { model.startRecording(action) }
-            Button(L("resetShortcut")) { model.resetShortcut(action) }
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Toggle(L(action.titleKey), isOn: Binding(get: { enabled }, set: { model.actionEnabled[action] = $0; model.save() }))
+                .frame(width: 250, alignment: .leading)
+            HotkeyField(id: "action." + action.rawValue,
+                        combo: Binding(get: { model.shortcuts[action].map(KeyCombo.init) }, set: { model.setShortcut(action, $0) }),
+                        defaultCombo: action.defaultShortcut.map(KeyCombo.init), allowsClear: true,
+                        others: model.otherHotkeys(except: action),
+                        registered: model.failures[action] == nil && !model.duplicates.contains(action), isEnabled: enabled,
+                        allowsOption: true)  // the defaults include ⌥ alone (⌥S, ⌥G, …)
             Toggle(L("doubleTap"), isOn: Binding(get: { model.isDouble(action) }, set: { model.setDoubleTap(action, $0) }))
                 .help(L("doubleTapHint"))
-            if let status = model.failures[action] {
-                Label(String(format: L("registerFailed"), String(status)), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange).font(.caption)
-            } else if model.duplicates.contains(action) {
-                Label(L("duplicateShortcut"), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange).font(.caption)
-            }
         }
     }
 }
@@ -129,9 +114,7 @@ struct Preferences: View {
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
                     MenuBarPresenceView()
                 }
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: true, showsTitle: false)
-                }
+                AccessibilitySection()
                 SettingsSection(L("automationTitle")) {
                     Text(L("automationHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Button(L("automationOpen")) {
@@ -142,7 +125,6 @@ struct Preferences: View {
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("hotkeyGeneral")) {
                     Text(model.hotkeySummary).font(.caption).foregroundColor(model.hotkeyProblem ? .orange : .secondary)
-                    if model.recording != nil { Text(model.recordMessage).font(.caption) }
                     Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Button(L("resetAll")) { model.resetAllShortcuts() }
                 }
@@ -161,35 +143,52 @@ struct Preferences: View {
                     Button(L("showPalette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
                 }
                 SettingsSection(L("paletteHotkey")) {
-                    HStack(spacing: 8) {
-                        Toggle(L("showPalette"), isOn: Binding(get: { model.paletteHotkeyEnabled }, set: { model.paletteHotkeyEnabled = $0; model.save() }))
-                            .frame(width: 250, alignment: .leading)
-                        Text(model.recordingPalette ? L("pressKey") : model.paletteShortcut.label)
-                            .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
-                            .foregroundColor(model.paletteHotkeyEnabled ? .primary : .secondary)
-                            .accessibilityLabel(L("currentKey") + " " + model.paletteShortcut.label)
-                        Button(model.recordingPalette ? L("cancelRecording") : L("change")) { model.startRecordingPalette() }
-                        Button(L("resetShortcut")) { model.resetPaletteShortcut() }
-                    }
-                    if let status = model.paletteFailure {
-                        Label(String(format: L("registerFailed"), String(status)), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange).font(.caption)
-                    }
-                    if model.recordingPalette { Text(model.recordMessage).font(.caption) }
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.paletteHotkeyEnabled }, set: { model.paletteHotkeyEnabled = $0; model.save() }))
+                    HotkeyField(id: "palette",
+                                combo: Binding(get: { KeyCombo(model.paletteShortcut) },
+                                               set: { model.paletteShortcut = $0.map(Shortcut.init) ?? Model.defaultPaletteShortcut; model.save() }),
+                                defaultCombo: KeyCombo(Model.defaultPaletteShortcut), others: model.otherHotkeys(except: nil),
+                                registered: model.paletteFailure == nil, isEnabled: model.paletteHotkeyEnabled, allowsOption: true)
                     Text(L("paletteHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                SettingsSection(L("paletteSimpleTitle")) {
+                    HStack(spacing: 8) {
+                        Text(L("paletteProfile"))
+                        Picker(L("paletteProfile"), selection: Binding(get: { model.paletteSimple }, set: { model.paletteSimple = $0; model.save() })) {
+                            Text(L("paletteProfile.simple")).tag(true)
+                            Text(L("paletteProfile.full")).tag(false)
+                        }.labelsHidden().fixedSize()
+                    }
+                    Text(L("paletteSimpleHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    ForEach(LinkAction.Group.allCases, id: \.self) { group in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(groupTitle(group)).font(.system(size: 12, weight: .semibold)).foregroundColor(.secondary)
+                            LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], alignment: .leading, spacing: 4) {
+                                ForEach(LinkAction.listed(group), id: \.self) { action in
+                                    Toggle(L(action.titleKey), isOn: Binding(get: { model.simpleActions.contains(action) }, set: { model.setSimple(action, $0) }))
+                                        .accessibilityLabel(groupTitle(group) + " " + L(action.titleKey))
+                                }
+                            }
+                        }
+                    }
+                    Button(L("resetSimple")) { model.resetSimpleActions() }
                 }
             })),
             (L("browsersTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("browsersTab")) {
                     ForEach(Browser.all, id: \.bundleID) { browser in
-                        Toggle(isOn: Binding(get: { model.isEnabled(browser) }, set: { model.setEnabled(browser, $0) })) {
-                            HStack(spacing: 8) {
-                                if let icon = appIcon(for: browser.bundleID) { Image(nsImage: icon).resizable().frame(width: 20, height: 20).accessibilityHidden(true) }
-                                else { Image(systemName: "app.dashed").frame(width: 20, height: 20).accessibilityHidden(true) }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(browser.name)
-                                    Text(browser.bundleID + (browser.isInstalled ? "" : " — " + L("notInstalled"))).font(.caption).foregroundColor(.secondary)
-                                }
+                        // The checkbox is centred with the icon and both text lines (a labelled Toggle puts it on the first line).
+                        HStack(alignment: .center, spacing: 8) {
+                            Toggle(browser.name, isOn: Binding(get: { model.isEnabled(browser) }, set: { model.setEnabled(browser, $0) })).labelsHidden()
+                            Group {
+                                if let icon = appIcon(for: browser.bundleID) { Image(nsImage: icon).resizable().aspectRatio(contentMode: .fit) }
+                                else { Image(systemName: "app.dashed").font(.system(size: 18)).foregroundColor(.secondary) }
+                            }.frame(width: 24, height: 24).accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(browser.name)
+                                Text(browser.bundleID + (browser.isInstalled ? "" : " — " + L("notInstalled"))).font(.caption).foregroundColor(.secondary)
                             }
+                            .onTapGesture { model.setEnabled(browser, !model.isEnabled(browser)) }
                         }
                     }
                     Text(L("browsersHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -221,34 +220,11 @@ struct Preferences: View {
                     Text(L("notifyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
-            (L("excludedTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(L("excludedTab")) {
-                    ForEach(model.excludedApps, id: \.self) { id in
-                        HStack(spacing: 8) {
-                            if let icon = appIcon(for: id) { Image(nsImage: icon).resizable().frame(width: 20, height: 20).accessibilityHidden(true) }
-                            else { Image(systemName: "app.dashed").frame(width: 20, height: 20).accessibilityHidden(true) }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(appName(for: id))
-                                Text(id).font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Button(L("remove")) { model.removeExcludedApp(id) }.accessibilityLabel(L("remove") + " " + appName(for: id))
-                        }
-                    }
-                    if model.excludedApps.isEmpty { Text(L("excludedEmpty")).foregroundColor(.secondary) }
-                    HStack {
-                        Button(L("addApp")) {
-                            let panel = NSOpenPanel()
-                            panel.allowedContentTypes = [.application]; panel.allowsMultipleSelection = true
-                            panel.directoryURL = URL(fileURLWithPath: "/Applications")
-                            if panel.runModal() == .OK { model.addExcludedApps(panel.urls) }
-                        }
-                        Button(L("resetExcluded")) { model.resetExcludedApps() }
-                    }
-                    Text(L("excludedHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) {
+                ExcludedAppsView()
+                Button(L("resetExcluded")) { model.resetExcludedApps() }
             })),
-            (SettingsSync.shared.title, AnyView(SettingsSection(SettingsSync.shared.title) { SettingsSyncView() })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -270,11 +246,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var resultItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Configured before the model registers hot keys; 1.2.10 and earlier kept the list under "excludedApps".
+        ExcludedApps.shared.configure(explanation: L("excludedHint"), initial: Model.defaultExcludedApps, legacyKeys: ["excludedApps"])
         model = Model()
+        // Function and palette hotkeys keep their own registration (HotKeySet); release them while a key is recorded.
+        HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
+            guard let model = self?.model else { return }
+            model.recording = recording
+            model.refreshHotkeys()
+        }
+        ExcludedApps.shared.onChange = { [weak self] in self?.model.refreshHotkeys(); self?.followFrontApp(NSWorkspace.shared.frontmostApplication) }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
         SettingsSync.shared.start(.init(
             keys: ["shortcuts", "actionEnabled", "doubleTap", "browserEnabled", "simplifyURL", "associateID", "notifySuccess",
-                   "translateTarget", "paletteShortcut", "paletteHotkeyEnabled", "paletteMode"],
+                   "translateTarget", "paletteShortcut", "paletteHotkeyEnabled", "paletteMode", "paletteSimple", "paletteSimpleActions"],
             note: L("syncNote"), perMac: L("syncPerMac")))
         AccessibilityText.neededOverride = [
             "ブラウザーで表示中のページのタイトルとURLを読み取り、アドレスバーへの入力などのキー操作を送るために使用します。未許可の場合、ほとんどの機能が使えません。",
@@ -446,7 +431,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         else { palette.orderOut(nil) }
     }
     func showMainWindow() {
-        model.refreshAccessibility()
         if mainWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 600), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it (BASELINE「主画面の背景とタイトルバー」).
@@ -514,7 +498,7 @@ app.setActivationPolicy(.accessory)
 app.delegate = delegate
 app.run()
 
-// Reused from CellCopyCleaner (BrowserSwitcher origin). Oldest process wins on simultaneous launch.
+// Reused from SpreadsheetHelper (BrowserSwitcher origin). Oldest process wins on simultaneous launch.
 private enum SingleInstanceLaunch {
     static func enforce() {
         let current = NSRunningApplication.current

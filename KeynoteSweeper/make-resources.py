@@ -56,7 +56,6 @@ keynoteMissing|Keynoteが見つかりません。App StoreからKeynoteをイン
 keynoteNotRunning|Keynoteが起動していません。Keynoteで書類を開いてください。|Keynote is not running. Open a presentation in Keynote.|Keynote 未运行。请在 Keynote 中打开演示文稿。|Keynote가 실행 중이 아닙니다. Keynote에서 프레젠테이션을 여세요.
 noDocument|Keynoteで書類が開かれていません。|No presentation is open in Keynote.|Keynote 中没有打开的演示文稿。|Keynote에 열린 프레젠테이션이 없습니다.
 automationDenied|Keynoteの操作が許可されていません。システム設定の「オートメーション」でKeynoteSweeperのKeynoteをオンにしてください。|KeynoteSweeper is not allowed to control Keynote. Turn on Keynote for KeynoteSweeper in Automation settings.|KeynoteSweeper 未被允许控制 Keynote。请在“自动化”设置中打开。|KeynoteSweeper가 Keynote를 제어하도록 허용되지 않았습니다. 자동화 설정에서 켜세요.
-accessibilityDenied|マスターとオブジェクトのアニメーションの削除にはアクセシビリティの許可が必要です。システム設定でKeynoteSweeperを許可してください。|Deleting masters and object animations needs Accessibility permission. Allow KeynoteSweeper in System Settings.|删除母版和对象动画需要辅助功能权限。请在系统设置中允许 KeynoteSweeper。|마스터와 객체 애니메이션을 삭제하려면 손쉬운 사용 권한이 필요합니다. 시스템 설정에서 KeynoteSweeper를 허용하세요.
 allHidden|すべてのスライドが非表示のため、スライドは削除しませんでした。|Every slide is hidden, so no slides were deleted.|所有幻灯片都已隐藏，因此未删除幻灯片。|모든 슬라이드가 숨겨져 있어 슬라이드를 삭제하지 않았습니다.
 editorUnavailable|Keynoteの［スライドレイアウトを編集］を開けませんでした。Keynoteでダイアログボックスが開いていないか確認してください。|Could not open Edit Slide Layouts in Keynote. Check for an open dialog in Keynote.|无法打开 Keynote 的“编辑幻灯片布局”。请检查 Keynote 中是否有打开的对话框。|Keynote의 슬라이드 레이아웃 편집을 열 수 없습니다. Keynote에 열린 대화상자가 있는지 확인하세요.
 documentChanged|Keynoteの最前面の書類が変わったため中止しました。|Stopped because the front Keynote presentation changed.|Keynote 最前面的演示文稿已改变，已停止。|Keynote 맨 앞의 프레젠테이션이 바뀌어 중지했습니다.
@@ -64,7 +63,7 @@ interrupted|Keynoteから別のアプリに切り替わったため中止しま�
 keynoteError|Keynoteでエラーが発生しました：|Keynote reported an error: |Keynote 报告错误：|Keynote 오류:
 quitBusy|削除中です。完了を待つか、キャンセルしてから終了してください。|Wait for it to finish, or cancel before quitting.|请等待完成，或取消后再退出。|끝날 때까지 기다리거나 취소한 후 종료하세요.
 ok|OK|OK|好|확인
-resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
+resident|ウインドウを閉じても常駐|Keep running after closing the window|关闭窗口后继续运行|윈도우를 닫아도 계속 실행
 residentDetail|閉じた後もDockやメニューバーから再表示できます。オフにすると閉じたときに終了します。|Reopen from the Dock or menu bar. When off, closing the window quits.|可从 Dock 或菜单栏再次打开。关闭此项时，关闭窗口即退出。|Dock 또는 메뉴 막대에서 다시 열 수 있습니다. 끄면 창을 닫을 때 종료됩니다.
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
 openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기

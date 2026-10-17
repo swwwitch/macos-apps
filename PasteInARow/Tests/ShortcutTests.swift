@@ -6,17 +6,10 @@ struct ShortcutTests {
     static func main() {
         precondition(Shortcut.paste.code == 9)
         precondition(Shortcut.paste.modifiers == UInt32(controlKey | optionKey))
-        // Standard ⌘V/⌘C/⌘Q are refused; modifier-less keys are refused.
-        precondition(Shortcut.recorded(keyCode: 9, flags: .command, characters: "v") == nil)
-        precondition(Shortcut.recorded(keyCode: 12, flags: .command, characters: "q") == nil)
-        precondition(Shortcut.recorded(keyCode: 9, flags: .shift, characters: "v") == nil)
-        let recorded = Shortcut.recorded(keyCode: 9, flags: [.control, .option], characters: "v")
-        precondition(recorded == Shortcut.paste, "\(String(describing: recorded))")
         let data = try! JSONEncoder().encode(Shortcut.paste)
         precondition(try! JSONDecoder().decode(Shortcut.self, from: data) == Shortcut.paste)
         precondition(Shortcut.add.code == 8 && Shortcut.add.modifiers == UInt32(controlKey | optionKey | cmdKey))
-        precondition(Shortcut.recorded(keyCode: 8, flags: [.control, .option, .command], characters: "c") == Shortcut.add)
         precondition(Shortcut.add.signature != Shortcut.paste.signature)
-        print("PASS: default ⌃⌥V and ⌃⌥⌘C, (KM 9/6144), recorder refuses standard keys, labels, persistence")
+        print("PASS: default ⌃⌥V and ⌃⌥⌘C, (KM 9/6144), labels, persistence")
     }
 }

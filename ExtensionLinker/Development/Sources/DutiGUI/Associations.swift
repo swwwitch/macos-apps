@@ -135,6 +135,8 @@ enum AssociationSortColumn { case fileExtension, application }
 
 @MainActor
 final class AssociationStore: ObservableObject {
+    /// One store for the main window, Settings and 「設定の共有」.
+    static let shared = AssociationStore()
     @Published var rows: [Association] = []
     @Published var query = ""
     @Published var status = ""
@@ -150,15 +152,41 @@ final class AssociationStore: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        let extra = defaults.stringArray(forKey: savedKey) ?? []
-        let removed = Set(defaults.stringArray(forKey: removedKey) ?? [])
-        let extensions = Array(Set((Preset.all.map(\.ext) + extra).map(AssociationService.canonicalExtension)).subtracting(removed)).sorted(by: AssociationService.extensionPrecedes)
-        rows = extensions.map { ext in
+        rows = savedExtensions.map { ext in
             var row = Association(ext: ext)
             row.reloadCurrent()
             return row
         }
         status = L("現在の設定を読み込みました。")
+    }
+    /// The preset's extensions plus the added ones, minus the removed ones.
+    private var savedExtensions: [String] {
+        let extra = defaults.stringArray(forKey: savedKey) ?? []
+        let removed = Set(defaults.stringArray(forKey: removedKey) ?? [])
+        return Array(Set((Preset.all.map(\.ext) + extra).map(AssociationService.canonicalExtension)).subtracting(removed)).sorted(by: AssociationService.extensionPrecedes)
+    }
+    /// Rebuilds the list after 「設定の共有」 imported or synced the extension list. Rows still listed keep pending changes.
+    func reloadExtensions() {
+        guard !applying else { return }
+        let existing = Dictionary(rows.map { ($0.ext, $0) }, uniquingKeysWith: { first, _ in first })
+        rows = savedExtensions.map { ext in
+            if let row = existing[ext] { return row }
+            var row = Association(ext: ext)
+            row.reloadCurrent()
+            return row
+        }
+    }
+    /// 「追加する」 on import: the file's added extensions join this Mac's list, and extensions it lists are no longer removed.
+    nonisolated static func mergeSharedExtensions(file: NSDictionary, current: NSDictionary) -> (values: NSDictionary, added: Int) {
+        let fileExtra = file["additionalExtensions"] as? [String] ?? []
+        let currentExtra = current["additionalExtensions"] as? [String] ?? []
+        let currentRemoved = current["removedExtensions"] as? [String] ?? []
+        let newExtra = fileExtra.filter { !currentExtra.contains($0) }
+        let restored = currentRemoved.filter { fileExtra.contains($0) }
+        let values = NSMutableDictionary(dictionary: current)
+        values["additionalExtensions"] = currentExtra + newExtra
+        values["removedExtensions"] = currentRemoved.filter { !fileExtra.contains($0) }
+        return (values, Set(newExtra + restored).count)
     }
     func sort(by column: AssociationSortColumn) {
         if sortColumn == column { sortAscending.toggle() }

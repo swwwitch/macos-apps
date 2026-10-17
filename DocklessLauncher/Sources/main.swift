@@ -11,7 +11,6 @@ final class Model: ObservableObject {
     @Published var entries: [LaunchEntry] = UserDefaults.standard.data(forKey: "entries").flatMap { try? JSONDecoder().decode([LaunchEntry].self, from: $0) } ?? []
     @Published var hotkeysEnabled = UserDefaults.standard.object(forKey: "hotkeysEnabled") as? Bool ?? true
     @Published var paused = false
-    @Published var excluded = UserDefaults.standard.stringArray(forKey: "excluded") ?? []
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     /// Finder entries go to Path Finder while it is running (on by default, as requested).
     @Published var preferPathFinder = UserDefaults.standard.object(forKey: "preferPathFinder") as? Bool ?? true
@@ -73,7 +72,6 @@ final class Model: ObservableObject {
     func save() {
         defaults.set(try? JSONEncoder().encode(entries), forKey: "entries")
         defaults.set(hotkeysEnabled, forKey: "hotkeysEnabled")
-        defaults.set(excluded, forKey: "excluded")
         defaults.set(keepRunning, forKey: "keepRunning")
         defaults.set(preferPathFinder, forKey: "preferPathFinder")
         refreshHotkeys()
@@ -95,7 +93,7 @@ final class Model: ObservableObject {
         publishHotkeys()
         duplicates = EntryRules.duplicates(in: entries)
         let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        let active = hotkeysEnabled && !paused && recordingID == nil && !(front.map(excluded.contains) ?? false)
+        let active = hotkeysEnabled && !paused && recordingID == nil && !Self.excludes(front)
         // Rows whose front-app condition does not hold are left out, so their key reaches the app in front.
         let items = active ? usable(front: front).compactMap(\.shortcut) : []
         let state = items.map(\.signature).joined(separator: ",") + ":\(active)"
@@ -117,7 +115,7 @@ final class Model: ObservableObject {
         HotkeyManifest.publish(entries.compactMap { entry in
             guard let shortcut = entry.shortcut else { return nil }
             return HotkeyManifest.Item(id: entry.id.uuidString, title: String(format: L("manifestTitle"), entry.name), keyCode: Int(shortcut.code),
-                                       modifiers: Int(shortcut.modifiers), enabled: hotkeysEnabled && entry.enabled, scope: "except", apps: excluded + own)
+                                       modifiers: Int(shortcut.modifiers), enabled: hotkeysEnabled && entry.enabled, scope: "except", apps: Self.excludedIDs + own)
         })
     }
 
@@ -154,11 +152,11 @@ final class Model: ObservableObject {
         // Re-check right before acting: the front app may have changed since the key went down.
         let frontApp = NSWorkspace.shared.frontmostApplication
         let front = frontApp?.bundleIdentifier
-        if let front, excluded.contains(front) { return }
+        if Self.excludes(front) { return }
         guard EntryRules.applies(entry, front: front) else { return }
         // URL condition: a browser showing a listed page gets the key back instead.
         if !entry.skipURLs.isEmpty, let frontApp, let front, EntryRules.browsers.contains(front), let shortcut = entry.shortcut {
-            if !AXIsProcessTrusted() {
+            if !AccessibilitySection.isTrusted {
                 status = L("url.noPermission"); statusIsError = true
             } else if let url = URLCondition.frontURL(pid: frontApp.processIdentifier), EntryRules.urlMatches(url, patterns: entry.skipURLs) {
                 URLCondition.passThrough(shortcut, taps: entry.doubleTap ? 2 : 1, to: frontApp.processIdentifier)
@@ -216,46 +214,19 @@ final class Model: ObservableObject {
         guard panel.runModal() == .OK else { return }
         addApps(panel.urls)
     }
-    /// Writes the list, excluded apps and the Path Finder setting to a .docklesslauncher file.
-    func exportSettings() {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [UTType(filenameExtension: SettingsFile.fileExtension) ?? .json]
-        panel.nameFieldStringValue = "DocklessLauncher." + SettingsFile.fileExtension
-        panel.message = L("transfer.exportPanel")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        do {
-            try SettingsFile(entries: entries, excluded: excluded, preferPathFinder: preferPathFinder).encoded().write(to: url, options: .atomic)
-            status = String(format: L("transfer.exported"), String(entries.count), url.lastPathComponent); statusIsError = false
-        } catch {
-            status = L("transfer.exportFailed") + error.localizedDescription; statusIsError = true; NSSound.beep()
-        }
+    /// 「追加する」 in 設定の共有: rows for app slots not yet registered are appended; this Mac's other settings stay.
+    static func mergeSettings(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
+        let decode = { (value: Any?) in (value as? Data).flatMap { try? JSONDecoder().decode([LaunchEntry].self, from: $0) } ?? [] }
+        let result = EntryRules.adding(decode(file["entries"]), to: decode(current["entries"]))
+        let values = NSMutableDictionary(dictionary: file)
+        values.addEntries(from: current as? [AnyHashable: Any] ?? [:])
+        values["entries"] = try? JSONEncoder().encode(result.entries)
+        return (values, result.added)
     }
-    /// Reads a .docklesslauncher (or older .applauncher) file and asks whether to add its rows or replace the list. Nothing changes on Cancel.
-    func importSettings() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [UTType(filenameExtension: SettingsFile.fileExtension) ?? .json,
-                                     UTType(filenameExtension: SettingsFile.legacyExtension) ?? .json, .json]
-        panel.allowsMultipleSelection = false
-        panel.message = L("transfer.importPanel")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        let file: SettingsFile
-        do { file = try SettingsFile.decode(Data(contentsOf: url)) }
-        catch { status = L("transfer.unreadable"); statusIsError = true; NSSound.beep(); return }
-        let alert = NSAlert()
-        alert.messageText = String(format: L("transfer.askTitle"), String(file.entries.count))
-        alert.informativeText = String(format: L("transfer.askBody"), String(entries.count))
-        alert.addButton(withTitle: L("transfer.add"))      // default: keeps everything already registered
-        alert.addButton(withTitle: L("transfer.replace"))
-        alert.addButton(withTitle: L("cancel")).keyEquivalent = "\u{1b}"
-        let answer = alert.runModal()
-        guard answer == .alertFirstButtonReturn || answer == .alertSecondButtonReturn else { return }
-        let replace = answer == .alertSecondButtonReturn
-        let result = file.applied(to: entries, excluded: excluded, replace: replace)
-        recordingID = nil
-        entries = result.entries; excluded = result.excluded
-        if replace { preferPathFinder = file.preferPathFinder }
-        status = String(format: L(replace ? "transfer.replaced" : "transfer.added"), String(result.added)); statusIsError = false
-        save()
+    /// A .docklesslauncher (or older .applauncher) file from 1.10.0 and earlier, as UserDefaults values. Excluded apps stay per Mac.
+    static func legacySettings(_ data: Data) -> NSDictionary? {
+        guard let file = try? SettingsFile.decode(data), let entries = try? JSONEncoder().encode(file.entries) else { return nil }
+        return ["entries": entries, "preferPathFinder": file.preferPathFinder]
     }
     /// From the keyboard view: drag key `a` onto key `b` (same modifiers). Undoable with ⌘Z; undoing swaps back.
     func swapKeys(_ a: UInt32, _ b: UInt32, modifiers: UInt32, undoManager: UndoManager?) {
@@ -276,7 +247,15 @@ final class Model: ObservableObject {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.application]; panel.allowsMultipleSelection = false
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
         panel.message = String(format: L("kb.assignPanel"), shortcut.label)
-        guard panel.runModal() == .OK, let url = panel.url, let id = Bundle(url: url)?.bundleIdentifier else { return }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        assignApp(url, to: shortcut)
+    }
+    /// An app dropped on a key, or chosen in the panel above.
+    func assignApp(_ url: URL, to shortcut: Shortcut) {
+        if let other = entries.first(where: { $0.enabled && $0.frontRule == .none && !$0.doubleTap && $0.shortcut == shortcut }) {
+            status = String(format: L("duplicateShortcut"), shortcut.label, other.name); statusIsError = true; NSSound.beep(); return
+        }
+        guard let id = Bundle(url: url)?.bundleIdentifier else { status = L("addedNone"); statusIsError = true; NSSound.beep(); return }
         let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
         entries.append(LaunchEntry(bundleID: id, name: name, path: url.path, shortcut: shortcut))
         status = String(format: L("kb.assigned"), shortcut.label, name); statusIsError = false
@@ -305,7 +284,7 @@ final class Model: ObservableObject {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         let patterns = EntryRules.urlPatterns(from: text.string)
         update(id) { $0.skipURLs = patterns }
-        if !patterns.isEmpty && !AXIsProcessTrusted() { status = L("url.noPermission"); statusIsError = true }
+        if !patterns.isEmpty && !AccessibilitySection.isTrusted { status = L("url.noPermission"); statusIsError = true }
     }
     /// Apps for the row's front-app condition (several can be chosen; they replace the current ones).
     func chooseFrontApps(_ id: UUID) {
@@ -338,6 +317,28 @@ final class Model: ObservableObject {
         }
         update(id) { $0.path = url.path; $0.versionMode = .path }
     }
+    /// An app dropped on a row takes the row's place; the key, conditions and options stay.
+    /// Another copy of the same app (e.g. InDesign 2025) switches the row to "this path", as chooseAppPath does.
+    func replaceApp(_ id: UUID, with url: URL, undoManager: UndoManager?) {
+        guard let old = entries.first(where: { $0.id == id }) else { return }
+        guard let bundleID = Bundle(url: url)?.bundleIdentifier else { status = L("addedNone"); statusIsError = true; NSSound.beep(); return }
+        let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+        guard bundleID != old.bundleID || url.path != old.path else { return }
+        update(id) { entry in
+            if bundleID == entry.bundleID { entry.versionMode = .path }
+            entry.bundleID = bundleID; entry.name = name; entry.path = url.path
+        }
+        status = String(format: L("row.replaced"), old.name, name); statusIsError = false
+        undoManager?.registerUndo(withTarget: self) { model in model.restore(old, undoManager: undoManager) }
+        undoManager?.setActionName(L("row.replaceAction"))
+    }
+    /// Undo for replaceApp: puts the saved row back (and offers redo the same way).
+    private func restore(_ entry: LaunchEntry, undoManager: UndoManager?) {
+        guard let current = entries.first(where: { $0.id == entry.id }) else { return }
+        update(entry.id) { $0 = entry }
+        undoManager?.registerUndo(withTarget: self) { model in model.restore(current, undoManager: undoManager) }
+        undoManager?.setActionName(L("row.replaceAction"))
+    }
     /// A folder or file the app opens after launching. Saved with "~" for the home folder.
     func chooseOpenPath(_ id: UUID) {
         let panel = NSOpenPanel()
@@ -356,13 +357,9 @@ final class Model: ObservableObject {
         save()
     }
 
-    func addExcluded() {
-        let panel = NSOpenPanel(); panel.allowedContentTypes = [.application]; panel.allowsMultipleSelection = true
-        panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        guard panel.runModal() == .OK else { return }
-        for url in panel.urls { if let id = Bundle(url: url)?.bundleIdentifier, !excluded.contains(id) { excluded.append(id) } }
-        excluded.sort(); save()
-    }
+    /// The shared 対象外アプリ list (B21); the model runs on the main thread.
+    static var excludedIDs: [String] { MainActor.assumeIsolated { ExcludedApps.shared.ids } }
+    static func excludes(_ bundleID: String?) -> Bool { MainActor.assumeIsolated { ExcludedApps.shared.excludes(bundleID) } }
 
     func refreshLogin() {
         let state = SMAppService.mainApp.status
@@ -410,6 +407,9 @@ struct HeaderView: NSViewRepresentable {
 struct EntryRow: View {
     @ObservedObject var model: Model
     let entry: LaunchEntry
+    /// An app from Finder is over this row.
+    @State private var dropTargeted = false
+    @Environment(\.undoManager) private var undoManager
     var recording: Bool { model.recordingID == entry.id }
     var installed: Bool { Launcher.isInstalled(entry) }
     var problem: String? {
@@ -477,6 +477,14 @@ struct EntryRow: View {
         }
         .padding(.vertical, 3)
         .opacity(entry.enabled ? 1 : 0.55)
+        .background(RoundedRectangle(cornerRadius: 5).stroke(Color.accentColor, lineWidth: 2).padding(-2).opacity(dropTargeted ? 1 : 0))
+        // One app dropped on a row replaces its app; several are added as new rows.
+        .onDrop(of: AppDrop.types, isTargeted: $dropTargeted) { providers in
+            AppDrop.load(providers) { urls in
+                if urls.count == 1 { model.replaceApp(entry.id, with: urls[0], undoManager: undoManager) }
+                else if !urls.isEmpty { model.addApps(urls) }
+            }
+        }
         // Right-click: the same items as the … menu.
         .contextMenu { menuItems }
     }
@@ -519,6 +527,28 @@ struct EntryMenuItems: View {
         Button(L("row.reveal")) { if let url = Launcher.appURL(for: entry) { NSWorkspace.shared.activateFileViewerSelecting([url]) } }.disabled(!installed)
         Divider()
         Button(L("row.remove")) { model.remove(entry.id) }
+    }
+}
+
+/// Finder drops: collects the .app URLs (in drop order) and hands them over on the main thread.
+enum AppDrop {
+    static let types = [UTType.fileURL]
+    static func load(_ providers: [NSItemProvider], _ done: @escaping ([URL]) -> Void) -> Bool {
+        let files = providers.filter { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }
+        guard !files.isEmpty else { return false }
+        let group = DispatchGroup()
+        var found = [URL?](repeating: nil, count: files.count)
+        for (i, provider) in files.enumerated() {
+            group.enter()
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                DispatchQueue.main.async {
+                    if let url, url.pathExtension == "app" { found[i] = url }
+                    group.leave()
+                }
+            }
+        }
+        group.notify(queue: .main) { done(found.compactMap { $0 }) }
+        return true
     }
 }
 
@@ -615,15 +645,6 @@ struct MainView: View {
             .background(Color(nsColor: .textBackgroundColor))
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(dropTargeted ? Color.accentColor : Color(nsColor: .separatorColor), lineWidth: dropTargeted ? 2 : 1))
             .clipShape(RoundedRectangle(cornerRadius: 6))
-            .onDrop(of: [UTType.fileURL.identifier], isTargeted: $dropTargeted) { providers in
-                for provider in providers {
-                    _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                        guard let url, url.pathExtension == "app" else { return }
-                        DispatchQueue.main.async { model.addApps([url]) }
-                    }
-                }
-                return true
-            }
             }
             if model.recordingID != nil {
                 Text(model.recordMessage).font(.callout).foregroundColor(.secondary)
@@ -645,6 +666,10 @@ struct MainView: View {
         .padding(.horizontal, 20).padding(.vertical, 22)
         .frame(minWidth: 640, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity, alignment: .topLeading)
         .background(Color(nsColor: AppSurface.color))
+        // Apps dropped anywhere in the window are added (a key in the keyboard view takes them itself).
+        .onDrop(of: AppDrop.types, isTargeted: $dropTargeted) { providers in
+            AppDrop.load(providers) { urls in if !urls.isEmpty { model.addApps(urls) } }
+        }
     }
 }
 
@@ -663,9 +688,7 @@ struct Preferences: View {
                     MenuBarPresenceView()
                 }
                 // Needed only for the URL condition; launching and switching work without it.
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: false, showsTitle: false)
-                }
+                AccessibilitySection()
             })),
             (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("hotkeyTab")) {
@@ -678,31 +701,8 @@ struct Preferences: View {
                     Text(L("preferPathFinderHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
-            (L("exclusions"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(L("exclusions")) {
-                    List {
-                        ForEach(model.excluded, id: \.self) { id in
-                            HStack {
-                                Text(appName(id)).lineLimit(1).help(id)
-                                Spacer()
-                                Button(L("removeExcluded")) { model.excluded.removeAll { $0 == id }; model.save() }
-                            }
-                        }
-                    }.frame(height: 140)
-                    Button(L("addExcluded")) { model.addExcluded() }
-                    Text(L("exclusionsHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-            })),
-            (L("transfer.tab"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(L("transfer.tab")) {
-                    HStack {
-                        Button(L("transfer.export")) { model.exportSettings() }
-                        Button(L("transfer.import")) { model.importSettings() }
-                    }
-                    Text(L("transfer.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-                SettingsSection(SettingsSync.shared.title) { SettingsSyncView() }
-            })),
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -720,11 +720,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var resultItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Configured before the model registers hot keys; 1.10 and earlier kept the list under "excluded".
+        ExcludedApps.shared.configure(explanation: L("exclusionsHint"), legacyKeys: ["excluded"])
         model = Model()
+        ExcludedApps.shared.onChange = { [weak self] in self?.model.refreshHotkeys() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(
             keys: ["entries", "hotkeysEnabled", "preferPathFinder", "listOrder", "listAscending", "viewMode"],
-            note: L("syncNote"), perMac: L("syncPerMac")))
+            note: L("syncNote"), perMac: L("syncPerMac"),
+            merge: Model.mergeSettings,
+            legacyExtensions: [SettingsFile.fileExtension, SettingsFile.legacyExtension], legacyImport: Model.legacySettings))
         AccessibilityText.neededOverride = [
             "「URLによる条件」でブラウザーのページのURLを読み取り、キーをブラウザーへ渡すために使います。アプリの起動・切り替えには不要です。",
             "Used by the URL condition to read the browser's page URL and hand the key back to the browser. Not needed for launching or switching apps.",

@@ -80,13 +80,6 @@
 "copy" = "복사하기";
 "paste" = "붙여넣기";
 "selectAll" = "모두 선택";
-"login" = "로그인 시 실행";
-"loginOpen" = "로그인 항목 열기";
-"loginOn" = "로그인 시 자동 실행합니다.";
-"loginApproval" = "시스템 설정에서 허용하세요.";
-"loginMissing" = "응용 프로그램 폴더에서 실행하세요.";
-"loginOff" = "자동 실행이 꺼져 있습니다.";
-"loginError" = "설정 변경 실패: ";
 "notInstalled" = "설치되지 않음";
 "notChecked" = "최신 버전 미확인";
 "updateAvailable" = "업데이트 있음";
@@ -109,7 +102,7 @@
 "installUpdate" = "최신 버전 설치";
 "installDetail" = "공식 GitHub에서 다운로드하고 SHA-256을 확인한 후 사용자 영역에 설치합니다. 관리자 권한은 필요하지 않습니다.";
 "waitInstall" = "작업 완료 후 종료하세요.";
-"syncNote" = "형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을 이 폴더에 저장해 다른 Mac과 공유합니다.";
+"syncNote" = "형식 목록의 순서와 표시, 변환 옵션(텍스트, HTML, Keynote, PDF, 이미지, SVG, 표, UTF-16, 파일 이름, 내보내기 이름), Illustrator와 Photoshop 변환 방법, 변환 후 동작을 내보내고 동기화합니다.";
 "syncPerMac" = "로그인 시 실행, 백그라운드, 메뉴 막대, 저장 위치, PDF 엔진, pandoc·Illustrator·Photoshop·InDesign 위치, PDF 사전 설정, 윈도우 위치, 동기화 폴더 위치는 Mac마다 유지합니다.";
 "pdfEngineGroup" = "PDF 엔진(Typst)";
 "pdfEngineInvalid" = "Typst를 실행할 수 없습니다. 다시 설치하세요.";

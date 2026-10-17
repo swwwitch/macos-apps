@@ -22,23 +22,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     private var paletteShortcut = Shortcut.loadPalette()
     /// The six action keys followed by the palette key; settings rows and recording use this order.
     private var allShortcuts: [Shortcut] { shortcuts + [paletteShortcut] }
-    private var shortcutButtons: [NSButton] = []
-    private let shortcutMessage: NSTextField = {
-        let label = NSTextField(wrappingLabelWithString: "")
-        label.textColor = .systemRed
-        label.font = .systemFont(ofSize: 12)
-        return label
-    }()
-    private var recordingShortcut: Int?
+    /// False after the palette key could not be registered; its settings field shows the shared message.
+    private var paletteRegistered = true
     private var lastResult = L("status.initial")
     private var palette: CommandPalette?
     private var paletteHotkey: PaletteHotkey?
-    private let paletteHotkeyStatus: NSTextField = {
-        let label = NSTextField(wrappingLabelWithString: "")
-        label.font = .systemFont(ofSize: 12)
-        return label
-    }()
     private weak var fileMenuPaletteItem: NSMenuItem?
+
+    /// Settings imported from a file or another Mac (「設定の共有」).
+    private func startSettingsSync() {
+        MainActor.assumeIsolated {
+            SettingsSync.shared.onImport = { [weak self] in
+                guard let self else { return }
+                self.shortcuts = Shortcut.load()
+                self.enabled = UserDefaults.standard.object(forKey: "shortcutsEnabled") as? Bool ?? true
+                self.palette?.refreshShortcutLabels(self.shortcuts)
+                self.palette?.refresh()
+                self.publishHotkeys()
+                self.updateStatus()
+                HotkeyRecorder.shared.touch()
+                self.refreshNamingControls()
+                self.skippedFolderField.stringValue = ParentFolderSettings.skippedName()
+                self.statusField.stringValue = NamingSettings.statuses().joined(separator: ", ")
+            }
+            SettingsSync.shared.start(.init(
+                keys: [Shortcut.storageKey, "shortcutsEnabled", NamingSettings.key, NamingSettings.separatorKey,
+                       NamingSettings.statusKey, ParentFolderSettings.key],
+                note: StartupWindow.text("機能のホットキーとその有効／無効、区切り文字、接尾辞の並び順、ステータスの語、読み飛ばす親フォルダ名を書き出し・同期します。",
+                                         "Exports and syncs the action shortcuts and whether they are on, the separator, the suffix order, the status words and the parent folder name to skip.",
+                                         "导出并同步功能快捷键及其开关、分隔符、后缀顺序、状态词和要跳过的父文件夹名称。",
+                                         "기능 단축키와 사용 여부, 구분 문자, 접미사 순서, 상태 단어, 건너뛸 상위 폴더 이름을 내보내고 동기화합니다."),
+                perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・パレットのホットキー・アクセシビリティはMacごとに設定します。",
+                                           "Login launch, startup display, the menu bar icon, the palette shortcut and Accessibility are set per Mac.",
+                                           "登录时启动、启动时的显示、菜单栏图标、面板快捷键和辅助功能在每台 Mac 上分别设置。",
+                                           "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 팔레트 단축키, 손쉬운 사용은 Mac마다 설정합니다.")))
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AccessibilityText.neededOverride = [
@@ -58,27 +77,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         installApplicationMenu()
         localKeys = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
-            if let index = self.recordingShortcut {
-                if event.keyCode == 53 { self.recordingShortcut = nil; self.refreshShortcutButtons(); return nil }
-                guard let shortcut = Shortcut.capture(event) else { self.showShortcutMessage(L("settings.shortcutInvalid"), palette: index == self.shortcuts.count); return nil }
-                guard !self.allShortcuts.enumerated().contains(where: { $0.offset != index && $0.element.keyCode == shortcut.keyCode && $0.element.modifiers == shortcut.modifiers }) else {
-                    self.showShortcutMessage(L("settings.shortcutDuplicate", shortcut.displayLabel), palette: index == self.shortcuts.count); return nil
-                }
-                self.shortcutMessage.stringValue = ""
-                if index < self.shortcuts.count {
-                    self.shortcuts[index] = shortcut
-                    Shortcut.save(self.shortcuts)
-                    self.palette?.refreshShortcutLabels(self.shortcuts)
-                    self.publishHotkeys()
-                } else {
-                    self.paletteShortcut = shortcut
-                    Shortcut.savePalette(shortcut)
-                    self.registerPaletteHotkey()
-                }
-                self.recordingShortcut = nil
-                self.refreshShortcutButtons()
-                return nil
-            }
             guard event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command else { return event }
             switch event.charactersIgnoringModifiers?.lowercased() {
             case "q": NSApp.terminate(nil); return nil
@@ -113,6 +111,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         if UserDefaults.standard.bool(forKey: CommandPalette.visibleKey) { palette?.show() }
         paletteHotkey = PaletteHotkey { [weak self] in self?.togglePalette() }
         registerPaletteHotkey()
+        // While a settings field records a key, the palette key is released so the keystroke reaches the field.
+        MainActor.assumeIsolated {
+            HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
+                if recording { self?.paletteHotkey?.unregister() } else { self?.registerPaletteHotkey() }
+            }
+        }
+        startSettingsSync()
         if !StartupWindow.hidden && !UserDefaults.standard.bool(forKey: "didShowIntroduction") {
             showPreferences()
             UserDefaults.standard.set(true, forKey: "didShowIntroduction")
@@ -217,7 +222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }
 
     private func installTap() {
-        guard tap == nil, AXIsProcessTrusted() else { return }
+        guard tap == nil, AccessibilitySection.isTrusted else { return }
         let mask = (CGEventMask(1) << CGEventType.keyDown.rawValue) | (CGEventMask(1) << CGEventType.keyUp.rawValue)
         guard let port = CGEvent.tapCreate(tap: .cgAnnotatedSessionEventTap, place: .headInsertEventTap,
             options: .defaultTap, eventsOfInterest: mask, callback: { _, type, event, context in
@@ -244,8 +249,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             return Unmanaged.passUnretained(event)
         }
         if swallowedKeys.contains(keyCode) && event.getIntegerValueField(.keyboardEventAutorepeat) != 0 { return nil }
-        let modifiers = event.flags.intersection([.maskCommand, .maskShift, .maskAlternate, .maskControl, .maskSecondaryFn])
-        guard let shortcutIndex = shortcuts.firstIndex(where: { Int64($0.keyCode) == keyCode && $0.modifiers == UInt(modifiers.rawValue) }) else { return Unmanaged.passUnretained(event) }
+        let flags = NSEvent.ModifierFlags(rawValue: UInt(event.flags.rawValue))
+        guard let shortcutIndex = shortcuts.firstIndex(where: { $0.matches(keyCode: UInt16(truncatingIfNeeded: keyCode), flags: flags) }) else { return Unmanaged.passUnretained(event) }
         let mode = Shortcut.modes[shortcutIndex]
         guard enabled,
               let app = NSWorkspace.shared.frontmostApplication,
@@ -384,10 +389,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
 
     /// Registers the palette key and shows the result under its row in Settings (and on the menu items).
     private func registerPaletteHotkey() {
-        let ok = paletteHotkey?.register(paletteShortcut) ?? false
-        paletteHotkeyStatus.stringValue = ok ? L("settings.paletteHotkeyActive", paletteShortcut.displayLabel)
-            : L("settings.paletteHotkeyFailed", paletteShortcut.displayLabel, Int(paletteHotkey?.lastStatus ?? 0))
-        paletteHotkeyStatus.textColor = ok ? .secondaryLabelColor : .systemRed
+        paletteRegistered = paletteHotkey?.register(paletteShortcut) ?? false
+        MainActor.assumeIsolated { HotkeyRecorder.shared.touch() }
         if let item = fileMenuPaletteItem { applyPaletteKey(to: item) }
         publishHotkeys()
     }
@@ -403,18 +406,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         let palette = HotkeyManifest.Item(id: Shortcut.paletteStorageKey, title: L("shortcut.palette"), keyCode: Int(paletteShortcut.keyCode),
                                           modifiers: Int(paletteShortcut.carbonModifiers))
         HotkeyManifest.publish(([palette] + actions).filter { $0.keyCode != Int(UInt16.max) })
-    }
-
-    @objc private func resetPaletteHotkey() {
-        if recordingShortcut == shortcuts.count { recordingShortcut = nil }
-        // The default may already be used by an action key; then leave the current key.
-        guard !shortcuts.contains(where: { $0.keyCode == Shortcut.paletteDefault.keyCode && $0.modifiers == Shortcut.paletteDefault.modifiers }) else {
-            showShortcutMessage(L("settings.shortcutDuplicate", Shortcut.paletteDefault.displayLabel), palette: true); return
-        }
-        paletteShortcut = Shortcut.paletteDefault
-        Shortcut.savePalette(paletteShortcut)
-        registerPaletteHotkey()
-        refreshShortcutButtons()
     }
 
     @objc private func togglePalette() {
@@ -443,8 +434,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }
 
     private func updateStatus() {
-        let ready = AXIsProcessTrusted() && tap.map { CGEvent.tapIsEnabled(tap: $0) } == true
-        statusLabel.stringValue = !ready ? L("status.needsAccessibility") : (enabled ? L("status.enabled") : L("status.paused"))
+        let ready = AccessibilitySection.isTrusted && tap.map { CGEvent.tapIsEnabled(tap: $0) } == true
+        statusLabel.stringValue = !ready ? AccessibilityText.text("blocked") : (enabled ? L("status.enabled") : L("status.paused"))
         item.button?.appearsDisabled = !enabled || !ready
         item.button?.toolTip = "CommandDee\n\(statusLabel.stringValue)\n\(lastResult)"
     }
@@ -513,14 +504,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             keyRows.orientation = .vertical
             keyRows.alignment = .leading
             keyRows.spacing = 10
-            for (index, shortcut) in shortcuts.enumerated() {
+            for index in shortcuts.indices {
                 let label = NSTextField(labelWithString: Shortcut.titles[index])
-                label.widthAnchor.constraint(equalToConstant: 190).isActive = true
-                let button = NSButton(title: shortcut.displayLabel, target: self, action: #selector(recordShortcut(_:)))
-                button.tag = index
-                button.widthAnchor.constraint(equalToConstant: 150).isActive = true
-                shortcutButtons.append(button)
-                keyRows.addArrangedSubview(NSStackView(views: [label, button]))
+                let field = shortcutField(index)
+                keyRows.addArrangedSubview(label)
+                keyRows.addArrangedSubview(field)
+                field.widthAnchor.constraint(equalTo: keyRows.widthAnchor).isActive = true
             }
             let orderTitle = NSTextField(labelWithString: L("settings.suffixOrder"))
             orderTitle.font = .systemFont(ofSize: 17, weight: .semibold)
@@ -538,22 +527,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             orderPopup.action = #selector(changeSuffixOrder)
             let resetKeys = NSButton(title: L("settings.resetShortcuts"), target: self, action: #selector(resetShortcuts))
             let helpButton = NSButton(title: L("menu.help"), target: self, action: #selector(showHelp))
-            let access = AccessibilityPermissionControl(required: true)
-            // Palette hotkey row (tag = shortcuts.count) lives here, like MightyEdit's palette shortcut.
+            let access = MainActor.assumeIsolated { AccessibilitySection.group() }
+            // Palette hotkey (the app-calling key) lives here, like MightyEdit's palette shortcut.
             let paletteLabel = NSTextField(labelWithString: L("shortcut.palette"))
-            paletteLabel.widthAnchor.constraint(equalToConstant: 190).isActive = true
-            let paletteButton = NSButton(title: paletteShortcut.displayLabel, target: self, action: #selector(recordShortcut(_:)))
-            paletteButton.tag = shortcuts.count
-            paletteButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
-            shortcutButtons.append(paletteButton)
-            let paletteRow = NSStackView(views: [paletteLabel, paletteButton])
+            paletteLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+            let paletteField = shortcutField(nil)
             let paletteNote = NSTextField(wrappingLabelWithString: L("settings.paletteHotkeyNote"))
             paletteNote.font = .systemFont(ofSize: 11)
             paletteNote.textColor = .secondaryLabelColor
-            let paletteReset = NSButton(title: L("settings.resetPaletteHotkey"), target: self, action: #selector(resetPaletteHotkey))
             let launchGroup = MainActor.assumeIsolated { SettingsUI.group(SettingsUI.launchTitle, [login, MenuBarPresence.shared.settingsControl(),
-                                                                                                   paletteRow, paletteHotkeyStatus, paletteReset, paletteNote]) }
-            let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, shortcutMessage, resetKeys]) }
+                                                                                                   paletteLabel, paletteField, paletteNote]) }
+            let keyGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.actionShortcuts"), [keyRows, resetKeys]) }
             let nameGroup = MainActor.assumeIsolated { SettingsUI.group(L("settings.fileNames"), [separatorTitle, separatorRow, orderTitle, orderPopup, title, skippedFolderField, reset,
                                                                                                  statusTitle, statusField, statusNote, resetStatuses]) }
             let accessPage = NSStackView(views: [launchGroup, access, helpButton])
@@ -562,7 +546,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             launchGroup.widthAnchor.constraint(equalTo: accessPage.widthAnchor).isActive = true
             MainActor.assumeIsolated { SettingsUI.tabs([
                 (SettingsUI.launchTitle, accessPage), (L("settings.hotkeys"), keyGroup),
-                (L("settings.fileNames"), nameGroup), (AboutSection.title, AboutSection.view())
+                (L("settings.fileNames"), nameGroup), (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()),
+                (AboutSection.title, AboutSection.view())
             ], in: panel.contentView!) }
             panel.center()
             preferencesWindow = panel
@@ -595,33 +580,55 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         UserDefaults.standard.set(NamingSettings.orders[index], forKey: NamingSettings.key)
     }
 
-    @objc private func recordShortcut(_ sender: NSButton) {
-        recordingShortcut = sender.tag
-        shortcutMessage.stringValue = ""
-        refreshShortcutButtons()
-    }
-
-    /// Why the pressed key was not accepted, shown under the shortcut list (not just a beep).
-    private func showShortcutMessage(_ text: String, palette: Bool = false) {
-        NSSound.beep()
-        if palette { paletteHotkeyStatus.stringValue = text; paletteHotkeyStatus.textColor = .systemRed; return }
-        shortcutMessage.stringValue = text
-    }
-
-    private func refreshShortcutButtons() {
-        for (index, button) in shortcutButtons.enumerated() {
-            button.title = recordingShortcut == index ? L("settings.recordShortcut") : allShortcuts[index].displayLabel
-        }
-    }
-
     @objc private func resetShortcuts() {
-        recordingShortcut = nil
-        shortcutMessage.stringValue = ""
+        MainActor.assumeIsolated { HotkeyRecorder.shared.stop() }
         shortcuts = Shortcut.defaults
         Shortcut.save(shortcuts)
         palette?.refreshShortcutLabels(shortcuts)
         publishHotkeys()
-        refreshShortcutButtons()
+        MainActor.assumeIsolated { HotkeyRecorder.shared.touch() }
+    }
+
+    private static func combo(_ shortcut: Shortcut) -> KeyCombo? {
+        shortcut.isUnset ? nil : KeyCombo(code: UInt32(shortcut.keyCode), modifiers: shortcut.carbonModifiers)
+    }
+    private static func shortcut(_ combo: KeyCombo?) -> Shortcut {
+        combo.map { Shortcut(keyCode: UInt16($0.code), carbonModifiers: $0.modifiers, label: $0.label) } ?? Shortcut.unset
+    }
+    /// The shared hotkey field (Shared/HotkeyRecorder): `index` is an action key, nil the palette key.
+    /// The JSON in keyboardShortcutsV2 / paletteShortcut is kept as it was.
+    private func shortcutField(_ index: Int?) -> NSView {
+        let fallback = index.map { Shortcut.defaults[$0] } ?? Shortcut.paletteDefault
+        return MainActor.assumeIsolated {
+            HotkeyField.control(id: index.map { "action\($0)" } ?? "palette",
+                                get: { [weak self] in
+                                    guard let self else { return nil }
+                                    return Self.combo(index.map { self.shortcuts[$0] } ?? self.paletteShortcut)
+                                },
+                                set: { [weak self] combo in
+                                    guard let self else { return }
+                                    if let index {
+                                        self.shortcuts[index] = Self.shortcut(combo)
+                                        Shortcut.save(self.shortcuts)
+                                        self.palette?.refreshShortcutLabels(self.shortcuts)
+                                        self.publishHotkeys()
+                                    } else if let combo {
+                                        self.paletteShortcut = Self.shortcut(combo)
+                                        Shortcut.savePalette(self.paletteShortcut)
+                                        // While recording, the key is registered when recording ends (onRecordingChanged).
+                                        if HotkeyRecorder.shared.recordingID == nil { self.registerPaletteHotkey() }
+                                    }
+                                },
+                                defaultCombo: Self.combo(fallback),
+                                allowsClear: index != nil,
+                                others: { [weak self] in
+                                    guard let self else { return [] }
+                                    let titled = zip(Shortcut.titles, self.shortcuts).map { ($0.0, $0.1) } + [(L("shortcut.palette"), self.paletteShortcut)]
+                                    let mine = index ?? self.shortcuts.count
+                                    return titled.enumerated().compactMap { offset, pair in offset == mine ? nil : Self.combo(pair.1).map { (pair.0, $0) } }
+                                },
+                                registered: { [weak self] in index != nil || (self?.paletteRegistered ?? true) })
+        }
     }
 
     func controlTextDidChange(_ notification: Notification) {

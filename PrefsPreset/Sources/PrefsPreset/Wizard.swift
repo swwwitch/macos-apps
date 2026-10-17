@@ -41,21 +41,20 @@ let essentialSettings: [(domain: String, key: String, value: NSObject)] = [
     (g, "AppleKeyboardUIMode", NSNumber(value: 2)),
     ("com.apple.screencapture", "type", "png" as NSString),
     (nvramDomain, "StartupMute", on(false)),
-    (dock, "expose-group-apps", on(false)),
-    // spans-displays は true で「ディスプレイごとに個別の操作スペース」がオフ
-    ("com.apple.spaces", "spans-displays", on(true)),
     ("com.apple.WindowManager", "GloballyEnabled", on(false)),
-    ("com.apple.Terminal", "FocusFollowsMouse", on(true)),
     (finder, "AnimateWindowZoom", on(false)),
     (finder, "AnimateInfoPanes", on(false)),
-    (ua, "reduceMotion", on(true)),
     // このMacの値（システム設定のスライダーで決めたもの）。float で保存されている
     (ua, "mouseDriverCursorSize", NSNumber(value: Float(1.803315))),
+    // 値が true でウィジェットを隠す（「ウィジェットを表示」がオフ）
+    ("com.apple.WindowManager", "StandardHideWidgets", on(true)),
+    ("com.apple.WindowManager", "StageManagerHideWidgets", on(true)),
+    (g, "AppleWindowTabbingMode", "manual" as NSString),
 ]
 
 let wizardActions: [WizardAction] = [
     WizardAction(id: "essentials", title: "エッセンシャル設定",
-                 detail: "ナチュラルなスクロールを切り、拡張子の表示・Finder のリスト表示と現在のフォルダの検索・⌘` のウインドウ切り替え・メニューバーの常時表示・月曜始まりの24時間表示・黒50%の壁紙など、基本の設定をまとめてそろえます。",
+                 detail: "ナチュラルなスクロールのオフ、拡張子の表示、Finder のリスト表示、⌘` のウインドウ切り替え、月曜始まりの24時間表示、黒50%の壁紙など、基本の設定をまとめてそろえます。",
                  symbol: "star", tint: .brown, settings: essentialSettings),
     WizardAction(id: "animation", title: "アニメーションと視差効果を無効化",
                  detail: "ウィンドウの開閉・Dock・Finder・Mission Control の動きを止め、視差効果を減らします。",
@@ -121,6 +120,28 @@ let wizardActions: [WizardAction] = [
         (hotkeyDomain, "19", "27,1572864" as NSString),
         (ua, "closeViewSmoothImages", on(false)),
     ]),
+    // ディスプレイの時間は作者のMacの設定（2026-10-17）
+    WizardAction(id: "security", title: "セキュリティを強化",
+                 detail: "ファイアウォールとステルスモードをオンにし、AirDrop で受信しない・プリンタを共有しないようにします。ダウンロードしたアプリの確認ダイアログを出し、ディスプレイはバッテリーで2分・電源アダプタで10分でオフ、オフになったらすぐにパスワードを要求します。",
+                 symbol: "lock.shield", tint: .gray, settings: [
+        (firewallDomain, "globalstate", on(true)),
+        (firewallDomain, "stealthmode", on(true)),
+        ("com.apple.sharingd", "DiscoverableMode", "Off" as NSString),
+        ("com.apple.LaunchServices", "LSQuarantine", on(true)),
+        (printerSharingDomain, "_share_printers", on(false)),
+        (screenLockDomain, "delay", "0" as NSString),
+        (displaySleepDomain, "b", NSNumber(value: 2)),
+        (displaySleepDomain, "c", NSNumber(value: 10)),
+    ]),
+    // FileVault の有効化はパスワードと復旧キーの扱いが要り、共有サービスの状態は管理者権限がないと読めないので、システム設定を開く
+    WizardAction(id: "fileVault", title: "FileVaultをオン",
+                 detail: "ディスクを暗号化します。設定ファイルからは切り替えられないため、システム設定の「プライバシーとセキュリティ」を開きます。FileVault の「オンにする…」を押してください。",
+                 symbol: "lock.doc", tint: .gray, settings: [],
+                 settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?FileVault")),
+    WizardAction(id: "sharing", title: "共有サービスをオフ",
+                 detail: "システム設定の「共有」を開きます。使っていなければ、リモートログイン・画面共有・ファイル共有・Bluetooth 共有・リモートマネジメントをすべてオフにしてください。",
+                 symbol: "person.2.slash", tint: .gray, settings: [],
+                 settingsURL: URL(string: "x-apple.systempreferences:com.apple.Sharing-Settings.extension")),
     WizardAction(id: "textCorrection", title: "英文の自動修正を無効化",
                  detail: "大文字化・スペルの自動変換・ピリオド・引用符・ダッシュの置換と、入力中の予測を切ります。",
                  symbol: "character.cursor.ibeam", tint: .green, settings: [

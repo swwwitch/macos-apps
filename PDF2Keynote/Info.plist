@@ -41,9 +41,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.4</string>
+	<string>1.1.6</string>
 	<key>CFBundleVersion</key>
-	<string>18</string>
+	<string>20</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
@@ -54,11 +54,11 @@
 	<string>PDF2Keynote asks Keynote to create a presentation and place each PDF page on a slide.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-	<key>SWNoteArticleURL</key>
-	<string>https://note.com/swwwitch/n/neb86181a2773</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 swwwitch</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/n/neb86181a2773</string>
 </dict>
 </plist>

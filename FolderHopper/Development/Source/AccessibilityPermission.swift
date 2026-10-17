@@ -43,6 +43,7 @@ enum AccessibilityText {
         "request": ["許可を要求…", "Ask for Permission…", "请求授权…", "권한 요청…"],
         "open": ["アクセシビリティ設定を開く", "Open Accessibility Settings", "打开辅助功能设置", "손쉬운 사용 설정 열기"],
         "hint": ["変更後にこの画面へ戻ると状態を再確認します。反映されない場合はアプリを再起動してください。", "Return to this window to refresh the status. If it has not changed, restart the app.", "返回此窗口时将重新检查状态。如未更新，请重新启动应用。", "이 창으로 돌아오면 상태를 다시 확인합니다. 반영되지 않으면 앱을 다시 시작하세요."],
+        "blocked": ["アクセシビリティが未許可のため実行できませんでした。設定の「起動・常駐」で許可してください。", "Could not run because Accessibility is not allowed. Allow it in Settings → Startup & Background.", "未获得辅助功能授权，无法执行。请在设置的“启动与后台”中授权。", "손쉬운 사용 권한이 없어 실행하지 못했습니다. 설정의 ‘시작 및 백그라운드’에서 허용하세요."],
         "failed": ["システム設定を開けませんでした。「プライバシーとセキュリティ」→「アクセシビリティ」を手動で開いてください。", "Could not open System Settings. Open Privacy & Security → Accessibility manually.", "无法打开系统设置。请手动打开“隐私与安全性”→“辅助功能”。", "시스템 설정을 열 수 없습니다. 개인정보 보호 및 보안 → 손쉬운 사용을 직접 여세요."]
     ]
 }
@@ -128,4 +129,20 @@ struct AccessibilityPermissionView: NSViewRepresentable {
 
 final class AccessibilityPreferencesDocumentView: NSView {
     override var isFlipped: Bool { true }
+}
+
+/// The standard 「アクセシビリティ」 group of the 「起動・常駐」 tab, for apps that need the permission (B20).
+/// Apps that do not use Accessibility show nothing. The reason goes in AccessibilityText.neededOverride at launch.
+struct AccessibilitySection: View {
+    /// false while the features that need the permission are off (the reason then says it is not needed now).
+    var required = true
+    var body: some View {
+        SettingsSection(AccessibilityText.text("title")) { AccessibilityPermissionView(required: required, showsTitle: false) }
+    }
+    /// Checked just before acting; never prompts.
+    static var isTrusted: Bool { AXIsProcessTrusted() }
+    /// AppKit form (SettingsUI.tabs pages).
+    @MainActor static func group() -> NSBox {
+        SettingsUI.group(AccessibilityText.text("title"), [AccessibilityPermissionControl(required: true, showsTitle: false)])
+    }
 }

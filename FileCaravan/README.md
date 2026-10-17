@@ -12,6 +12,7 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 - Finderの代表タグ色をフォルダアイコンに反映（FolderHopperと同方式）。カスタムアイコンは優先。アプリへ戻ると更新。
 - ログイン起動初期オフ、常駐初期オン。Dockから再表示。⌘W/⌘,/⌘Q。
 - 起動のホットキーはmacOS「ショートカット」の「アプリを開く」経由でユーザーが設定します。アプリ内のキー録音・自動登録はありません。
+- 設定の「設定の共有」タブ（共通部品 Shared/SettingsSync）：サブフォルダ・隠し項目・実行後に移動先を開く・Dropboxのパスの簡易表示を `FileCaravan-Settings.plist` に書き出し・読み込み、iCloud Drive・Dropbox などのフォルダーで同期。移動元・移動先・ログイン起動・常駐・メニューバーはMacごと。App Store版ではフォルダーをセキュリティスコープ付きブックマークで保持。
 
 ## 開発
 
@@ -20,7 +21,7 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 ./test.sh
 ```
 
-`build/FileCaravan.app` に生成します。日本語/英語/簡体字中国語/韓国語リソースは `make-resources.py` から再生成できます。アイコンは `Assets/GenerateIcon.swift` から作成したオリジナルです。共有のAppHeader/AppSurface/LaunchPresenceSectionをビルド時に参照し、LoginAtLaunchControlとLaunchPolicyは既存実装から転用してローカライズしています。
+`build/FileCaravan.app` に生成します。日本語/英語/簡体字中国語/韓国語リソースは `make-resources.py` から再生成できます。アイコンは `Assets/GenerateIcon.swift` から作成したオリジナルです。共有のAppHeader/AppSurface/LaunchPresenceSectionをビルド時に参照し、ログイン起動は共通部品 `Shared/LoginAtLaunch/LoginAtLaunch.swift` を直接コンパイルし、LaunchPolicyは既存実装から転用しています。
 
 ## 制限・復元
 
@@ -43,6 +44,14 @@ macOS 13以降 / Apple Silicon向けのネイティブアプリ。左右のカ�
 `APP_STORE_BUILD=1 ./build.sh` で別の `StoreBuild/FileCaravan.app` を生成。詳細と未完了の検証は [AppStore/README.md](AppStore/README.md)。配布用署名と審査提出は未完了です。
 
 ## 更新履歴
+
+### 1.0.16（build 31、2026-10-17）
+
+- ログイン起動を共通部品（Shared/LoginAtLaunch）に置き換えた。未登録なのに「アプリケーションフォルダに移動して再起動してください」と出る不具合を解消。常駐の英語・中国語・韓国語の表記をそろえ、共通部品（設定の共有）の更新を取り込んだ。
+
+### 1.0.15（build 30、2026-10-16）
+
+- 設定に「設定の共有」タブを追加（書き出し・読み込みと、iCloud Drive・Dropboxなどでの同期。移動の項目と表示の設定が対象）。
 
 ### 1.0.14（build 29、2026-10-10）
 

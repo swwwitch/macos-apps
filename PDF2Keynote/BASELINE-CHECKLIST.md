@@ -10,7 +10,7 @@
 | ID | 項目 | 状態 | ソース・検証証拠・残件または適用外の理由 |
 | --- | --- | --- | --- |
 | B01 | 二重起動防止 | 一部実機確認済み | `main.swift` applicationWillFinishLaunching＋LSMultipleInstancesProhibited。`open -n` で2回目を起動してもプロセスは1つのまま。`open -a` でのPDF受け渡しも確認。別フォルダのコピーからの起動は未確認 |
-| B02 | ログイン起動設定 | 一部実機確認済み | `Source/LoginAtLaunch.swift`。初期値OFF。設定画面でON→「ログイン時に自動起動します」、OFF→「自動起動はオフです」を実機確認し、OFFに戻した（sfltoolでdisabledを確認）。未登録のときに出ていた誤った「アプリケーションフォルダに移動」表示を1.0.3で修正。再ログイン・OS側での無効化は未確認 |
+| B02 | ログイン起動設定 | 一部実機確認済み | 1.1.6から `Shared/LoginAtLaunch/LoginAtLaunch.swift`（旧 `Source/LoginAtLaunch.swift`）。初期値OFF。設定画面でON→「ログイン時に自動起動します」、OFF→「自動起動はオフです」を実機確認し、OFFに戻した（sfltoolでdisabledを確認）。未登録のときに出ていた誤った「アプリケーションフォルダに移動」表示を1.0.3で修正。再ログイン・OS側での無効化は未確認 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | `LaunchPolicy.isLoginLaunch` で主画面を出さない |
 | B04 | 常駐と再表示 | 一部実機確認済み | 「ウインドウを閉じても常駐」初期値ON。Dock再オープン・メニューバー（共通MenuBarPresence、初回に追加の案内を表示：実機で表示を確認）から再表示。⌘Wでメインウインドウを閉じてもプロセスは残り、アプリを開き直すとウインドウが戻ることを実機確認。メニューバーからの再表示は未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 変換中はapplicationShouldTerminateで終了を止め、理由を表示。アプリメニューに⌘Q |
@@ -45,3 +45,13 @@
 - /Applicationsのアプリを起動して動作確認：起動とPDFの受け取りを確認
 
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | 共通StartupWindow（LoginAtLaunchControl内）。ファイル受け渡し時は表示 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.1.5：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー slideSize・placement・pageBox・removeBackground・theme・master・masterForBackground・openAfter。destinationMode・outputFolder・resident・ログイン起動・起動時非表示・メニューバーはMacごと。onImport で Model.reloadSharedSettings()（変わった値だけ代入）。ビルド・test.sh 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：機能のホットキーは無く（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）、「アプリ起動のキーボードショートカット」は LaunchPresenceSection からmacOSの「ショートカット」アプリを開いて「アプリを開く」に割り当てる方式。アプリ内で記録する欄が無いため HotkeyField は使わない。 |
+
+## 設定の共通化 第2弾（2026-10-17）
+
+- B02：独自の Source/LoginAtLaunch.swift を Shared/LoginAtLaunch/LoginAtLaunch.swift の直接コンパイルに置き換え（旧ファイルは Backups/replaced-20261017/、login* のローカライズ文字列を削除）。
+- B29：theme・master・masterForBackground を共有キーから外した（Keynoteのテーマ・マスターはMacごと）。
+- B20：常駐の英中韓を共通の表記に。アクセシビリティは使わないため置かない。オートメーションの表示は今回は変更なし。
+- B21：適用外のまま。
+- 1.1.6（build 20）：ビルド・test.sh 通過、両配置・起動確認。

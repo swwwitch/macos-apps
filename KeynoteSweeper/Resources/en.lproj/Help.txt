@@ -38,7 +38,7 @@ Keynote's Edit › Undo (Command-Z) restores deletions one at a time. The file i
 Settings (Command-comma) › Startup & Background:
 - Open at login (off by default)
 - Hide main window at startup
-- Keep running after closing
+- Keep running after closing the window
 - Show in menu bar
 - App launch keyboard shortcut
 The same tab shows the Accessibility and Keynote control permissions. Your checkbox choices are kept between launches.
@@ -54,6 +54,9 @@ While it keeps running, reopen it from the Dock or the menu bar icon.
 - **Command-?**: Help
 - **Command-Q**: quit
 ※ Quitting is blocked while deleting; wait or cancel first.
+
+## Sharing settings
+In the Sharing tab of Settings, Export… and Import… save and load the checkbox choices of what to delete as KeynoteSweeper-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, keep running and the menu bar icon are set on each Mac.
 
 ## Permissions
 - **Automation (Keynote)**: reads the presentation and deletes hidden slides. Choose Allow when asked. If you declined, turn on Keynote for KeynoteSweeper in System Settings › Privacy & Security › Automation.

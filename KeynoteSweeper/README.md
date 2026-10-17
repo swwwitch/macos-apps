@@ -11,6 +11,8 @@ Keynoteの最前面の書類から、使用されていないマスター（ス�
 
 Keynoteの［Keynote］＞［サービス］にも「使用されていないマスターを削除」「非表示のスライドを削除」「トランジションを削除」「オブジェクトのアニメーションを削除」「すべてのアニメーションを削除」を出す（Info.plist の NSServices、NSRequiredContext で Keynote 前面時のみ・既定で有効）。サービスは最前面の書類が対象で、確認のダイアログボックスもウインドウも出さずに削除する（失敗・一部失敗のときだけウインドウを表示）。Keynoteが応答を待つため処理は非同期で始める。項目名を変えたら `pbs -flush && pbs -update`（キャッシュが残る）。
 
+設定の「設定の共有」タブ（共通部品 Shared/SettingsSync）で、削除する項目のチェックボックスの選択を `KeynoteSweeper-Settings.plist` に書き出し・読み込み、iCloud Drive・Dropbox などのフォルダーで同期できる。ログイン起動・常駐・メニューバーはMacごと。
+
 ## しくみ
 
 - 書類の読み取りと非表示のスライドの削除は、NSAppleScriptからKeynoteへのApple Events（`delete (every slide whose skipped is true)`）。
@@ -43,3 +45,13 @@ Keynoteの［Keynote］＞［サービス］にも「使用されていないマ
 - `Source/main.swift`：主画面・設定・メニュー
 - `make-resources.py` / `help_text.py`：4言語の文字列とヘルプを生成
 - `Assets/GenerateIcon.swift`：アイコン（マスタード基調、スクリーンとほうき）
+
+## 更新履歴
+
+### 1.0.7（build 8、2026-10-17）
+
+- 設定のアクセシビリティを共通部品（AccessibilitySection）にし、未許可で実行できなかったときの文言を共通の文言にそろえた。常駐の表記をそろえ、共通部品（設定の共有）の更新を取り込んだ。
+
+### 1.0.6（build 7、2026-10-16）
+
+- 設定に「設定の共有」タブを追加（書き出し・読み込みと、iCloud Drive・Dropboxなどでの同期。削除する項目の選択が対象）。

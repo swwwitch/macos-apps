@@ -67,7 +67,7 @@
 "keynoteError" = "Keynote 오류:";
 "quitBusy" = "변환이 끝날 때까지 기다리거나 취소한 후 종료하세요.";
 "ok" = "확인";
-"resident" = "창을 닫아도 계속 실행";
+"resident" = "윈도우를 닫아도 계속 실행";
 "residentDetail" = "Dock 또는 메뉴 막대에서 다시 열 수 있습니다. 끄면 창을 닫을 때 종료됩니다.";
 "launchShortcut" = "앱 실행 키보드 단축키";
 "openShortcuts" = "단축어 열기";
@@ -79,13 +79,6 @@
 "permUnknown" = "확인 안 됨(Keynote 실행 중 확인 가능)";
 "permAsk" = "권한 확인";
 "permOpen" = "자동화 설정 열기";
-"login" = "로그인 시 실행";
-"loginOpen" = "로그인 항목 열기";
-"loginOn" = "로그인할 때 자동으로 실행합니다.";
-"loginApproval" = "시스템 설정의 로그인 항목에서 허용하세요.";
-"loginMissing" = "앱을 응용 프로그램 폴더로 옮긴 후 다시 실행하세요.";
-"loginOff" = "로그인 시 실행 안 함.";
-"loginError" = "설정을 변경할 수 없습니다:";
 "openMainWindow" = "메인 윈도우 열기";
 "settings" = "설정…";
 "settingsWindow" = "설정";

@@ -80,13 +80,6 @@
 "copy" = "拷贝";
 "paste" = "粘贴";
 "selectAll" = "全选";
-"login" = "登录时启动";
-"loginOpen" = "打开登录项";
-"loginOn" = "登录时自动启动。";
-"loginApproval" = "请在系统设置中允许。";
-"loginMissing" = "请从应用程序文件夹启动。";
-"loginOff" = "登录启动已关闭。";
-"loginError" = "无法更改设置：";
 "notInstalled" = "未安装";
 "notChecked" = "尚未检查最新版本";
 "updateAvailable" = "有可用更新";
@@ -109,7 +102,7 @@
 "installUpdate" = "安装最新版本";
 "installDetail" = "从官方 GitHub 下载并验证 SHA-256，安装到用户目录，无需管理员权限。";
 "waitInstall" = "请等待操作完成后退出。";
-"syncNote" = "格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作会保存到此文件夹，并与你的其他 Mac 共享。";
+"syncNote" = "导出并同步格式列表的顺序与显示、转换选项（文本、HTML、Keynote、PDF、图像、SVG、表格、UTF-16、文件名、导出名称）、Illustrator 和 Photoshop 的转换方式以及转换后的操作。";
 "syncPerMac" = "登录时启动、后台运行、菜单栏、保存位置、PDF 引擎、pandoc、Illustrator、Photoshop 和 InDesign 的位置、PDF 预设、窗口位置和同步文件夹位置在每台 Mac 上分别保留。";
 "pdfEngineGroup" = "PDF 引擎（Typst）";
 "pdfEngineInvalid" = "无法运行 Typst。请重新安装。";

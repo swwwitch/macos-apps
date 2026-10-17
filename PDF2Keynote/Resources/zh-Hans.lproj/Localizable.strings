@@ -79,13 +79,6 @@
 "permUnknown" = "未确认（Keynote 运行时可确认）";
 "permAsk" = "检查权限";
 "permOpen" = "打开自动化设置";
-"login" = "登录时启动";
-"loginOpen" = "打开登录项";
-"loginOn" = "登录时自动启动。";
-"loginApproval" = "请在系统设置的登录项中允许。";
-"loginMissing" = "请将应用移到“应用程序”文件夹并重新启动。";
-"loginOff" = "登录时不启动。";
-"loginError" = "无法更改设置：";
 "openMainWindow" = "打开主窗口";
 "settings" = "设置…";
 "settingsWindow" = "设置";

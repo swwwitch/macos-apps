@@ -5,6 +5,9 @@ python3 ../Shared/MenuBarPresence/sync.py
 python3 ../Shared/HotkeyManifest/sync.py
 python3 ../Shared/AppStandards/sync-surface.py
 python3 ../Shared/SettingsSync/sync.py
+python3 ../Shared/LoginAtLaunch/sync.py
+python3 ../Shared/ExcludedApps/sync.py
+python3 ../Shared/HotkeyRecorder/sync.py
 UPDATER_ROOT="$PWD/../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 STAGING=$(mktemp -d "${TMPDIR:-/tmp/}linkmaker.XXXXXX")
@@ -14,7 +17,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift
          Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/LinkRules.swift Sources/LinkAction.swift Sources/Browser.swift Sources/LinkFiles.swift Sources/ActionRunner.swift Sources/Model.swift Sources/Palette.swift Sources/HotKey.swift
          Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift
-         Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/main.swift)
+         Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/ExcludedApps.swift Sources/HotkeyRecorder.swift Sources/ShortcutCombo.swift Sources/main.swift)
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework CoreImage "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/LinkMaker"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"
@@ -27,7 +30,7 @@ embed_updates "$APP"
 # macOS 26: Assets.car avoids the gray frame; the original .icns stays for the in-window header.
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$APP"
 xattr -cr "$APP"
-# Same certificate as CellCopyCleaner (team PL9S9PXX96, login keychain) so the Accessibility grant
+# Same certificate as SpreadsheetHelper (team PL9S9PXX96, login keychain) so the Accessibility grant
 # survives rebuilds. LINKMAKER_DISTRIBUTION=developer-id signs for distribution and never falls back.
 SIGNING_IDENTITY="${LINKMAKER_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
 SIGNING_OPTIONS=(--timestamp=none)

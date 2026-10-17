@@ -21,7 +21,11 @@ final class GlobalShortcuts: NSObject {
     }
     let menu = NSMenu(title: L("menu.hotkeys"))
     private var preferences: NSWindow?
-    private var preferenceRows: [(id: Int, editor: HotkeyEditor, scope: NSPopUpButton, error: NSTextField)] = []
+    private var preferenceRows: [(id: Int, scope: NSPopUpButton)] = []
+    /// While a settings field records a key, every hotkey is released so the keystroke reaches the field.
+    private var recording = false
+    /// The palette key (PaletteShortcut), offered to the fields so the same key is not assigned twice.
+    var paletteCombo: () -> KeyCombo? = { nil }
     private var enabledCheckbox: NSButton?
     private var handlerFailure: OSStatus?
     private let actions: [(id: Int, title: String, digit: Int)]
@@ -89,6 +93,9 @@ final class GlobalShortcuts: NSObject {
         }, 1, &type, Unmanaged.passUnretained(self).toOpaque(), &handler)
         if status != noErr { handlerFailure = status; actions.forEach { failures[$0.id] = status }; rebuildMenu() }
         else { register() }
+        MainActor.assumeIsolated {
+            HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.recording = recording; self?.register() }
+        }
     }
 
     deinit {
@@ -139,7 +146,7 @@ final class GlobalShortcuts: NSObject {
         visibleState = paletteVisible()
         if let handlerFailure {
             actions.forEach { failures[$0.id] = handlerFailure }
-        } else if !paused && !UserDefaults.standard.bool(forKey: "shortcutsDisabled") {
+        } else if !paused && !recording && !UserDefaults.standard.bool(forKey: "shortcutsDisabled") {
             var used = Set<String>()
             for action in actions {
                 guard actionEnabled(action.id) else { continue }
@@ -198,7 +205,7 @@ final class GlobalShortcuts: NSObject {
                 item.target = self
                 item.representedObject = [action.id, choice]
                 item.state = value == choice ? .on : .off
-                item.isEnabled = choice < 0 || !actions.contains { $0.id != action.id && binding(digit($0.id))?.actual == binding(choice)?.actual }
+                item.isEnabled = choice < 0 || !actions.contains { $0.id != action.id && binding(digit($0.id))?.combo == binding(choice)?.combo }
             }
             options.addItem(.separator())
             for choice in HotkeyScope.allCases {
@@ -242,7 +249,7 @@ final class GlobalShortcuts: NSObject {
             let heading = NSTextField(labelWithString: L("menu.hotkeys"))
             heading.font = .boldSystemFont(ofSize: 18)
             column.addArrangedSubview(heading)
-            let enabled = NSButton(checkboxWithTitle: L("hotkey.enable"), target: self, action: #selector(toggleEnabled))
+            let enabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: self, action: #selector(toggleEnabled))
             column.addArrangedSubview(enabled)
             enabledCheckbox = enabled
             let note = NSTextField(wrappingLabelWithString: L("hotkey.note"))
@@ -284,20 +291,13 @@ final class GlobalShortcuts: NSObject {
                 label.widthAnchor.constraint(equalTo: nameColumn.widthAnchor).isActive = true
                 row.alignment = .top
                 row.addArrangedSubview(nameColumn)
-                let editor = HotkeyEditor(title: action.title, binding: binding(digit(action.id))) { [weak self] selection in
-                    guard let self else { return false }
-                    if let selection, self.actions.contains(where: { $0.id != action.id && self.binding(self.digit($0.id))?.actual == selection.actual }) { return false }
-                    UserDefaults.standard.set(selection?.encoded ?? -1, forKey: "shortcutDigit-\(action.id)")
-                    self.register()
-                    return true
-                }
-                row.addArrangedSubview(editor)
+                let field = hotkeyField(action)
+                field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+                field.widthAnchor.constraint(greaterThanOrEqualToConstant: 380).isActive = true
+                row.distribution = .fill
+                row.addArrangedSubview(field)
                 items.append(row)
-                let error = NSTextField(wrappingLabelWithString: "")
-                error.textColor = .secondaryLabelColor
-                error.font = .systemFont(ofSize: 11)
-                items.append(error)
-                preferenceRows.append((action.id, editor, scopeMenu, error))
+                preferenceRows.append((action.id, scopeMenu))
                 }
                 let group = MainActor.assumeIsolated { SettingsUI.group(PaletteConfiguration.displayName(for: category), items) }
                 column.addArrangedSubview(group)
@@ -338,11 +338,36 @@ final class GlobalShortcuts: NSObject {
     private func refreshPreferences() {
         enabledCheckbox?.state = UserDefaults.standard.bool(forKey: "shortcutsDisabled") ? .off : .on
         for row in preferenceRows {
-            row.editor.load(binding(digit(row.id)))
             row.scope.selectItem(at: HotkeyScope.allCases.firstIndex(of: scope(row.id)) ?? 0)
-            row.error.stringValue = failures[row.id].map { L("hotkey.rowFailure", String($0)) } ?? ""
-            row.error.isHidden = failures[row.id] == nil
         }
+        if preferences != nil { MainActor.assumeIsolated { HotkeyRecorder.shared.touch() } }
+    }
+
+    /// The shared hotkey field (Shared/HotkeyRecorder) for one action; shortcutDigit-<id> keeps its saved form.
+    private func hotkeyField(_ action: (id: Int, title: String, digit: Int)) -> NSView {
+        MainActor.assumeIsolated {
+            HotkeyField.control(id: "action-\(action.id)",
+                                get: { [weak self] in self.flatMap { $0.binding($0.digit(action.id))?.combo } },
+                                set: { [weak self] combo in
+                                    UserDefaults.standard.set(combo.map { HotkeyBinding($0).encoded } ?? -1, forKey: "shortcutDigit-\(action.id)")
+                                    self?.register()
+                                },
+                                defaultCombo: binding(action.digit)?.combo,
+                                allowsClear: true,
+                                others: { [weak self] in
+                                    guard let self else { return [] }
+                                    let mine = self.actions.compactMap { other -> (String, KeyCombo)? in
+                                        guard other.id != action.id, let combo = self.binding(self.digit(other.id))?.combo else { return nil }
+                                        return (other.title, combo)
+                                    }
+                                    return mine + (self.paletteCombo().map { [(L("palette.shortcutTitle"), $0)] } ?? [])
+                                },
+                                registered: { [weak self] in self?.failures[action.id] == nil })
+        }
+    }
+    /// The action keys, for the palette key's field.
+    var actionCombos: [(String, KeyCombo)] {
+        actions.compactMap { action in binding(digit(action.id)).map { (action.title, $0.combo) } }
     }
 
     @objc private func choose(_ item: NSMenuItem) {
@@ -381,7 +406,7 @@ enum HotkeyManifestParts {
     static func publish() { HotkeyManifest.publish(palette + actions) }
     /// Excluded apps (B21) release every hotkey while they are in front.
     static func item(_ id: String, _ title: String, _ binding: HotkeyBinding) -> HotkeyManifest.Item {
-        let excluded = ExcludedApps.shared.list.ids
+        let excluded = MainActor.assumeIsolated { ExcludedApps.shared.ids }
         return HotkeyManifest.Item(id: id, title: title, keyCode: Int(binding.key), modifiers: Int(binding.modifiers),
                                    scope: excluded.isEmpty ? "all" : "except", apps: excluded)
     }

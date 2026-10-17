@@ -41,9 +41,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.9</string>
+	<string>1.1.14</string>
 	<key>CFBundleVersion</key>
-	<string>12</string>
+	<string>17</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -61,14 +61,14 @@
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>jp.dtp-transit.prefspreset</string>
-			<key>UTTypeDescription</key>
-			<string>PrefsPreset Preset</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>com.apple.xml-property-list</string>
 			</array>
+			<key>UTTypeDescription</key>
+			<string>PrefsPreset Preset</string>
+			<key>UTTypeIdentifier</key>
+			<string>jp.dtp-transit.prefspreset</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

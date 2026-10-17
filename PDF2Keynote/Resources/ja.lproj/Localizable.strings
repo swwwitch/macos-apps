@@ -79,13 +79,6 @@
 "permUnknown" = "未確認（Keynoteの起動中に確認できます）";
 "permAsk" = "許可を確認";
 "permOpen" = "オートメーション設定を開く";
-"login" = "ログイン時に起動";
-"loginOpen" = "ログイン項目を開く";
-"loginOn" = "Macへのログイン時に自動起動します。";
-"loginApproval" = "システム設定のログイン項目で許可してください。";
-"loginMissing" = "アプリをアプリケーションフォルダに移動して再起動してください。";
-"loginOff" = "自動起動はオフです。";
-"loginError" = "設定を変更できませんでした：";
 "openMainWindow" = "メインウインドウを開く";
 "settings" = "設定…";
 "settingsWindow" = "設定";

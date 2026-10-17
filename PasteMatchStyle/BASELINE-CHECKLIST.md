@@ -28,15 +28,17 @@
 | B17 | プライバシー | 実装済み | 外部通信は更新確認のみ（未設定のため通信なし） |
 | B18 | 更新・配布・最終版の配置 | 一部 | /ApplicationsとLatest Buildsへ配置、版・署名・内容一致を確認。Sparkleの配信先・鍵は未設定（準備中表示） |
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（マスタード地＋クリップボード＋「T」バッジ）、目視確認 |
-| B20 | 設定のカテゴリ・共通UI | 実装済み・実機未確認 | 起動・常駐／ホットキー／ペースト／対象外アプリ／情報のタブ |
-| B21 | 対象外アプリ | 実装済み・実機未確認 | 初期値はKMマクログループ「Smart Paste」の除外アプリ（Illustrator・Path Finder・Keynote、check_km_macro PASS）。前面のときはホットキーを解除、メニュー実行前と⌘V送信直前にも再確認 |
+| B20 | 設定のカテゴリ・共通UI | 実装済み・実機未確認 | 起動・常駐／ホットキー／ペースト／対象外アプリ／情報のタブ。2026-10-17：アクセシビリティを共通の AccessibilitySection() に（起動グループの直下）、判定は AccessibilitySection.isTrusted、未許可の失敗表示は AccessibilityText.text("blocked")。独自の accessibilityAllowed / refreshAccessibility は削除 |
+| B21 | 対象外アプリ | 実装済み・実機未確認 | 初期値はKMマクログループ「Smart Paste」の除外アプリ（Illustrator・Path Finder・Keynote、check_km_macro PASS）。前面のときはホットキーを解除、メニュー実行前と⌘V送信直前にも再確認。2026-10-17：共通部品 ExcludedApps に移行（ExcludedAppList.swift・独自ビュー・appInfo() を削除、initial は ExcludedDefaults.initial、キー excludedBundleIDs のまま・旧キーなし、onChange でホットキー再登録）。既存の一覧が残ることを defaults read で確認 |
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy、⌘0 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ記憶・フォーカス枠なし）、最小サイズ |
-| B25 | アプリ情報と目印 | 実装済み | SWNoteArticleURL（専用記事が無いのでまとめページ）・著作権・SWAppFamily |
+| B25 | アプリ情報と目印 | 実装済み | SWNoteArticleURL・著作権・SWAppFamily。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |
 | B26 | 証明書での署名 | 実装済み | TeamIdentifier=PL9S9PXX96 を確認 |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗はビープ＋TransientMessage、クリップボードに文字が無いときは「書式を取り除く」を無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央、画面外復帰、accessibilityLabel |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：hotkeyEnabled・pasteShortcut・useMenu・menuTitles・restoreClipboard。onImport でモデルを読み直しホットキーを再登録。GUI操作での書き出し・読み込み・同期は未確認 |
+| — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：HotkeyField（paste ⇧⌘V）。保存は pasteShortcut の JSON のまま、ShortcutCombo.swift で変換（ComboTests）。登録は HotkeySet（"PMSS"）。独自の ShortcutRow・記録モニター・SingleHotKey と関連の文字列を削除 |
 
 ## 確認記録
 

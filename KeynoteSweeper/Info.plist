@@ -42,9 +42,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.5</string>
+	<string>1.0.7</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>8</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
@@ -55,6 +55,8 @@
 	<string>KeynoteSweeper reads the front Keynote presentation and deletes the hidden slides you choose.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -148,8 +150,6 @@
 			</dict>
 		</dict>
 	</array>
-	<key>NSHumanReadableCopyright</key>
-	<string>© 2026 swwwitch</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>

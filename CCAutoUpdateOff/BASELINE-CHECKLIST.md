@@ -33,6 +33,8 @@
 | B20 | 共通UI統一 | 適用外 | 設定項目なし。 |
 | B21 | 対象外アプリ | 適用外 | 他アプリのキー入力・前面アプリに作用しない。 |
 | B22 | 起動時にメインウインドウを表示しない | 適用外 | B02に同じ。 |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.3.1：設定の「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー notifyEnabled・mailEnabled・mailAddress・mailTime・watchRemoveOld。keepRunning・ログイン起動・起動時非表示・メニューバー・lastMailDate・notifiedSignature はMacごと。onImport で Model.reloadSharedSettings()。ビルド・test.sh 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
+| — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：グローバルホットキーも「アプリを呼び出すホットキー」も無い（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）。設定にホットキーを割り当てる欄が無いため HotkeyField は使わない。 |
 
 ## 確認記録（2026-10-14）
 
@@ -84,3 +86,9 @@
 ## 1.2.7（build 10、2026-10-14）
 
 - 1.2.6の判断は誤り。ユーザーのスクリーンショット（CCの［環境設定］→［アプリ］）で、値のないアプリ（Camera Raw・Dreamweaver・InDesign等）はオン、明示的に false の Illustrator だけオフと確認。値なし＝オンに戻し、「未設定（オン）」表記を「オン」に統一。test.sh 全項目通過。
+
+## 設定の共通化 第2弾（2026-10-17）
+
+- B20：常駐の文言を「ウインドウを閉じても常駐」、「設定…」「送信中…」の省略記号を「…」に。アクセシビリティは使わないため置かない。共通の SettingsSync（@MainActor 化）で再ビルド。
+- B21：適用外のまま（他アプリに作用しない）。
+- 1.3.2（build 13）：ビルド・test.sh 通過、/Applications と Latest Builds に配置、起動中だったため終了→置換→起動し直し、pgrep で確認。

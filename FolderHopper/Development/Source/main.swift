@@ -117,7 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let status = NSTextField(wrappingLabelWithString: "")
     /// Shown under the status while Finder / Path Finder automation is refused.
     lazy var automationButton: NSButton = {
-        let button = NSButton(title: L("オートメーションの設定を開く…"), target: self, action: #selector(openAutomationSettings))
+        let button = NSButton(title: L("オートメーション設定を開く"), target: self, action: #selector(openAutomationSettings))
         button.bezelStyle = .rounded; button.isHidden = true
         return button
     }()
@@ -126,17 +126,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let showChooser = NSButton(checkboxWithTitle: L("「指定・デスクトップ」セクションを表示"), target: nil, action: nil)
     var preferencesWindow: NSWindow?
     let globalShortcut = GlobalShortcut()
-    let shortcutEnabled = NSButton(checkboxWithTitle: L("ホットキーでウインドウを表示"), target: nil, action: nil)
-    let shortcutModifiers = NSPopUpButton()
-    let shortcutKey = NSPopUpButton()
-    let shortcutStatus = NSTextField(wrappingLabelWithString: "")
-    let applicationsShortcutEnabled = NSButton(checkboxWithTitle: L("ホットキーで選択項目を「アプリケーション」へ複製"), target: nil, action: nil)
-    let applicationsShortcutModifiers = GlobalShortcut.modifierFlags.map { NSButton(checkboxWithTitle: $0.0, target: nil, action: nil) }
-    let applicationsShortcutKey = NSPopUpButton()
-    let applicationsShortcutStatus = NSTextField(wrappingLabelWithString: "")
-    let loginEnabled = NSButton(checkboxWithTitle: L("ログイン時に自動起動"), target: nil, action: nil)
+    let shortcutEnabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: nil, action: nil)
+    let applicationsShortcutEnabled = NSButton(checkboxWithTitle: HotkeyText.enable, target: nil, action: nil)
+    /// False after registration failed; the settings field shows the shared message.
+    var shortcutRegistered = true
+    var applicationsShortcutRegistered = true
     let loginInBackground = NSButton(checkboxWithTitle: L("ログイン時はウインドウを表示せず、バックグラウンドで起動"), target: nil, action: nil)
-    let loginStatus = NSTextField(wrappingLabelWithString: "")
     let renameConflicts = NSPopUpButton()
     let historyLimit = NSTextField(string: "0")
     let closeAfterOperation = NSButton(checkboxWithTitle: L("処理完了後にウインドウを閉じる（常駐は継続）"), target: nil, action: nil)
@@ -182,7 +177,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         showChooser.target = self; showChooser.action = #selector(chooserVisibilityChanged)
         showFavorites.state = UserDefaults.standard.bool(forKey: "showFavorites") ? .on : .off
         showFavorites.target = self; showFavorites.action = #selector(favoritesVisibilityChanged)
-        loginEnabled.target = self; loginEnabled.action = #selector(loginChanged)
         renameConflicts.target = self; renameConflicts.action = #selector(renameConflictsChanged)
         UserDefaults.standard.register(defaults: ["renameConflicts": true, "historyDisplayLimit": 0, "closeAfterOperation": true])
         renameConflicts.addItems(withTitles: [L("別名にして両方残す（連番を付ける）"), L("処理を中止する（上書きしない）")])
@@ -193,7 +187,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         historyLimit.setAccessibilityLabel(L("最近使ったウインドウの数"))
         closeAfterOperation.state = UserDefaults.standard.bool(forKey: "closeAfterOperation") ? .on : .off
         closeAfterOperation.target = self; closeAfterOperation.action = #selector(closeAfterChanged)
-        updateLoginStatus()
+        startSettingsSync()
         window.center()
         if (!StartupWindow.hidden || pendingOpenFiles != nil) && !LaunchPolicy.shouldStayInBackground(loginLaunch: loginLaunch, enabled: loginInBackground.state == .on, hasFiles: pendingOpenFiles != nil) {
             requestTransfer()
@@ -222,7 +216,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     func applicationDidBecomeActive(_ notification: Notification) {
         guard uiReady else { return }
-        updateLoginStatus()
         activationRefresh?.cancel()
         let refresh = DispatchWorkItem { [weak self] in
             guard let self, NSApp.isActive, self.window.isVisible,
@@ -384,6 +377,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
         uiReady = true
     }
+    /// 「設定の共有」: shared keys and re-reading them after an import (file or another Mac).
+    func startSettingsSync() {
+        MainActor.assumeIsolated {
+            SettingsSync.shared.onImport = { [weak self] in
+                guard let self else { return }
+                let defaults = UserDefaults.standard
+                self.showChooser.state = defaults.bool(forKey: "showChooser") ? .on : .off
+                self.showFavorites.state = defaults.bool(forKey: "showFavorites") ? .on : .off
+                self.shortenDropbox.state = defaults.bool(forKey: "shortenDropboxPaths") ? .on : .off
+                self.renameConflicts.selectItem(at: defaults.bool(forKey: "renameConflicts") ? 0 : 1)
+                self.historyLimit.integerValue = defaults.integer(forKey: "historyDisplayLimit")
+                self.closeAfterOperation.state = defaults.bool(forKey: "closeAfterOperation") ? .on : .off
+                #if !APP_STORE
+                self.applicationsShortcutEnabled.state = defaults.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
+                self.applyShortcut(id: 2)
+                #endif
+                self.filterRows()
+            }
+            let note: String
+            #if APP_STORE
+            note = StartupWindow.text("パス表示・移動先の表示項目・同名ファイルの扱い・処理後に閉じる・最近使ったウインドウの数を書き出し・同期します。",
+                                      "Exports and syncs path display, which destinations are shown, same-name file handling, closing after an operation and the number of recent windows.",
+                                      "导出并同步路径显示、目标位置的显示项目、同名文件的处理、处理后关闭和最近使用的窗口数量。",
+                                      "경로 표시, 이동 위치 표시 항목, 같은 이름 파일 처리, 처리 후 닫기, 최근 윈도우 수를 내보내고 동기화합니다.")
+            #else
+            note = StartupWindow.text("パス表示・移動先の表示項目・同名ファイルの扱い・処理後に閉じる・最近使ったウインドウの数・「アプリケーション」へ複製するホットキーを書き出し・同期します。",
+                                      "Exports and syncs path display, which destinations are shown, same-name file handling, closing after an operation, the number of recent windows and the copy-to-Applications shortcut.",
+                                      "导出并同步路径显示、目标位置的显示项目、同名文件的处理、处理后关闭、最近使用的窗口数量，以及复制到“应用程序”的快捷键。",
+                                      "경로 표시, 이동 위치 표시 항목, 같은 이름 파일 처리, 처리 후 닫기, 최근 윈도우 수, ‘응용 프로그램’으로 복제하는 단축키를 내보내고 동기화합니다.")
+            #endif
+            SettingsSync.shared.start(.init(
+                keys: ["shortenDropboxPaths", "showChooser", "showFavorites", "renameConflicts", "closeAfterOperation", "historyDisplayLimit",
+                       "applicationsShortcutEnabled", "applicationsShortcutCombo"],
+                note: note,
+                perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・アプリを呼び出すホットキー・お気に入りフォルダー・非表示にした履歴はMacごとに設定します。",
+                                           "Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders and hidden history items are set per Mac.",
+                                           "登录时启动、启动时的显示、菜单栏图标、显示应用快捷键、收藏的文件夹和已隐藏的历史记录在每台 Mac 上分别设置。",
+                                           "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 앱 표시 단축키, 즐겨찾는 폴더, 숨긴 기록은 Mac마다 설정합니다.")))
+        }
+    }
     @objc func showAbout() {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
@@ -407,18 +440,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             func group(_ title: String, _ controls: [NSView]) {
                 sections.append((title, MainActor.assumeIsolated { SettingsUI.group(title, controls) }))
             }
-            loginStatus.font = .systemFont(ofSize: 12); loginStatus.textColor = .secondaryLabelColor
-            let keys = NSStackView(views: [shortcutModifiers, shortcutKey]); keys.spacing = 8
-            shortcutStatus.font = .systemFont(ofSize: 12); shortcutStatus.textColor = .secondaryLabelColor
-            group(SettingsUI.launchTitle, [loginEnabled, loginInBackground, loginStatus, MainActor.assumeIsolated { StartupWindowControl() }, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutEnabled, keys, shortcutStatus])
+            let shortcutTitle = NSTextField(labelWithString: SettingsUI.shortcutTitle)
+            shortcutTitle.font = .systemFont(ofSize: 13, weight: .semibold)
+            let shortcutNote = NSTextField(wrappingLabelWithString: L("常駐中、Finder／Path Finderが前面のときに使用できます。アプリを終了した場合は、先に起動してください。"))
+            shortcutNote.font = .systemFont(ofSize: 12); shortcutNote.textColor = .secondaryLabelColor
+            group(SettingsUI.launchTitle, [MainActor.assumeIsolated { LoginAtLaunchControl() }, loginInBackground, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutTitle, shortcutEnabled, shortcutField(id: 1), shortcutNote])
             group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites])
             let conflictLabel = NSTextField(labelWithString: L("移動先に同名のファイルがあるとき"))
             #if APP_STORE
             group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation])
             #else
-            applicationsShortcutStatus.font = .systemFont(ofSize: 12); applicationsShortcutStatus.textColor = .secondaryLabelColor
-            let applicationsKeys = NSStackView(views: applicationsShortcutModifiers + [applicationsShortcutKey]); applicationsKeys.spacing = 8
-            group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation, applicationsShortcutEnabled, applicationsKeys, applicationsShortcutStatus])
+            let applicationsTitle = NSTextField(labelWithString: L("選択項目を「アプリケーション」へ複製"))
+            applicationsTitle.font = .systemFont(ofSize: 13, weight: .semibold)
+            let applicationsNote = NSTextField(wrappingLabelWithString: L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を複製します（移動はしません）。常駐中、Finder／Path Finderが前面のときに使用できます。"))
+            applicationsNote.font = .systemFont(ofSize: 12); applicationsNote.textColor = .secondaryLabelColor
+            group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation, applicationsTitle, applicationsShortcutEnabled, shortcutField(id: 2), applicationsNote])
             #endif
             let limitRow = NSStackView(views: [NSTextField(labelWithString: L("最近使ったウインドウの数")), historyLimit, NSTextField(labelWithString: L("件（0＝すべて）"))])
             limitRow.spacing = 8
@@ -429,6 +465,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             historyHelp.font = .systemFont(ofSize: 12); historyHelp.textColor = .secondaryLabelColor
             group(L("履歴"), [limitRow, NSStackView(views: [clear, restore]), historyHelp])
 
+            sections.append(MainActor.assumeIsolated { (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()) })
             sections.append((AboutSection.title, MainActor.assumeIsolated { AboutSection.view() }))
             MainActor.assumeIsolated { SettingsUI.tabs(sections, in: panel.contentView!) }
             panel.center()
@@ -440,28 +477,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         return true
     }
-    func updateLoginStatus() {
-        let state = SMAppService.mainApp.status
-        loginEnabled.state = state == .enabled || state == .requiresApproval ? .on : .off
-        loginInBackground.isEnabled = loginEnabled.state == .on
-        switch state {
-        case .enabled: loginStatus.stringValue = L("自動起動は有効です。")
-        case .requiresApproval: loginStatus.stringValue = L("システム設定 → 一般 → ログイン項目で許可してください。")
-        default: loginStatus.stringValue = L("Macへのログイン時にFolderHopperを起動します。")
-        }
-    }
     @objc func loginBackgroundChanged() {
         UserDefaults.standard.set(loginInBackground.state == .on, forKey: "loginInBackground")
-    }
-    @objc func loginChanged() {
-        do {
-            if loginEnabled.state == .on { try SMAppService.mainApp.register() }
-            else { try SMAppService.mainApp.unregister() }
-            updateLoginStatus()
-        } catch {
-            updateLoginStatus()
-            loginStatus.stringValue = L("自動起動の変更に失敗しました: %@", String(describing: error.localizedDescription))
-        }
     }
     @objc func renameConflictsChanged() {
         UserDefaults.standard.set(renameConflicts.indexOfSelectedItem == 0, forKey: "renameConflicts")
@@ -500,15 +517,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         filterRows()
     }
     func setupShortcut() {
-        UserDefaults.standard.register(defaults: ["shortcutEnabled": true, "shortcutModifierIndex": 0, "shortcutKeyIndex": 12, "applicationsShortcutEnabled": true, "applicationsShortcutModifiers": Int(GlobalShortcut.applicationsDefaultModifiers), "applicationsShortcutKeyIndex": 0])
-        shortcutModifiers.addItems(withTitles: GlobalShortcut.modifiers.map { $0.0 })
-        shortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
-        shortcutModifiers.setAccessibilityLabel(L("ホットキーの修飾キー"))
-        shortcutKey.setAccessibilityLabel(L("ホットキーのキー"))
-        for control in [shortcutEnabled as NSControl, shortcutModifiers, shortcutKey] {
-            control.target = self; control.action = #selector(shortcutChanged)
-        }
-        restoreShortcutControls()
+        let defaults = UserDefaults.standard
+        defaults.register(defaults: ["shortcutEnabled": true, "applicationsShortcutEnabled": true])
+        GlobalShortcut.migrate(defaults)
         // Both hotkeys work only while Finder / Path Finder is frontmost; other apps keep the keys.
         globalShortcut.activeApps = BrowserReader.identifiers
         globalShortcut.action = { [weak self] in
@@ -517,61 +528,70 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                BrowserReader.apps().contains(where: { $0.bundleIdentifier == id }) { self.lastBrowser = id }
             if !self.busy { self.requestTransfer() }
         }
-        shortcutChanged()
+        // While a settings field records a key, both hotkeys are released.
+        MainActor.assumeIsolated { HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.globalShortcut.suspended = recording } }
+        shortcutEnabled.state = defaults.bool(forKey: "shortcutEnabled") ? .on : .off
+        shortcutEnabled.target = self; shortcutEnabled.action = #selector(shortcutEnabledChanged(_:))
+        applyShortcut(id: 1)
         #if !APP_STORE
-        applicationsShortcutKey.addItems(withTitles: GlobalShortcut.keys.map { $0.0 })
-        for (button, flag) in zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags) {
-            button.setAccessibilityLabel(L("「アプリケーション」へ複製するホットキーの修飾キー") + " " + flag.0)
-        }
-        applicationsShortcutKey.setAccessibilityLabel(L("「アプリケーション」へ複製するホットキーのキー"))
-        for control in [applicationsShortcutEnabled as NSControl, applicationsShortcutKey] + applicationsShortcutModifiers {
-            control.target = self; control.action = #selector(applicationsShortcutChanged)
-        }
-        restoreApplicationsShortcutControls()
+        applicationsShortcutEnabled.state = defaults.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
+        applicationsShortcutEnabled.target = self; applicationsShortcutEnabled.action = #selector(shortcutEnabledChanged(_:))
         globalShortcut.actions[2] = { [weak self] in self?.copySelectionToApplications() }
-        applicationsShortcutChanged()
+        applyShortcut(id: 2)
         #endif
     }
-    #if !APP_STORE
-    func restoreApplicationsShortcutControls() {
-        let defaults = UserDefaults.standard
-        applicationsShortcutEnabled.state = defaults.bool(forKey: "applicationsShortcutEnabled") ? .on : .off
-        let shortcut = Self.savedApplicationsShortcut()
-        for (button, flag) in zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags) {
-            button.state = shortcut.modifiers & flag.1 != 0 ? .on : .off
-        }
-        applicationsShortcutKey.selectItem(at: shortcut.key)
+    /// 1 = show the window (「起動・常駐」), 2 = copy the selection to /Applications (「ファイル操作」, default ⌃⌥⌘⇧A).
+    private static func keys(_ id: UInt32) -> (enabled: String, combo: String) {
+        id == 1 ? ("shortcutEnabled", "shortcutCombo") : ("applicationsShortcutEnabled", "applicationsShortcutCombo")
     }
-    /// Hotkey ID 2 (default ⌃⌥⌘⇧A), independent of the window hotkey.
-    @objc func applicationsShortcutChanged() {
-        let enabled = applicationsShortcutEnabled.state == .on
-        let modifiers = zip(applicationsShortcutModifiers, GlobalShortcut.modifierFlags).reduce(UInt32(0)) { $0 | ($1.0.state == .on ? $1.1.1 : 0) }
-        let key = applicationsShortcutKey.indexOfSelectedItem
-        if modifiers & GlobalShortcut.requiredModifiers == 0 {
-            restoreApplicationsShortcutControls()
-            applicationsShortcutStatus.stringValue = L("⌃・⌥・⌘のいずれかを含めてください。")
-        } else if globalShortcut.configure(id: 2, enabled: enabled, key: GlobalShortcut.keys[key].1, modifiers: modifiers) {
-            UserDefaults.standard.set(enabled, forKey: "applicationsShortcutEnabled")
-            UserDefaults.standard.set(Int(modifiers), forKey: "applicationsShortcutModifiers")
-            UserDefaults.standard.set(key, forKey: "applicationsShortcutKeyIndex")
-            applicationsShortcutStatus.stringValue = L("ウインドウを表示せず、Finder／Path Finderで選択中の項目を複製します（移動はしません）。常駐中、Finder／Path Finderが前面のときに使用できます。")
+    func savedShortcut(id: UInt32) -> KeyCombo? {
+        GlobalShortcut.stored(UserDefaults.standard.object(forKey: Self.keys(id).combo)).map { KeyCombo(code: $0.code, modifiers: $0.modifiers) }
+    }
+    /// Registers hotkey `id` from the saved values; a key that cannot be registered stays saved and the field says so.
+    func applyShortcut(id: UInt32) {
+        let enabled = UserDefaults.standard.bool(forKey: Self.keys(id).enabled)
+        var registered = true
+        if enabled, let combo = savedShortcut(id: id) {
+            registered = globalShortcut.configure(id: id, enabled: true, key: combo.code, modifiers: combo.modifiers)
+            if !registered { _ = globalShortcut.configure(id: id, enabled: false, key: 0, modifiers: 0) }
         } else {
-            restoreApplicationsShortcutControls()
-            applicationsShortcutStatus.stringValue = L("このキーは登録できませんでした。他の組み合わせを選んでください。")
+            _ = globalShortcut.configure(id: id, enabled: false, key: 0, modifiers: 0)
         }
-        for button in applicationsShortcutModifiers { button.isEnabled = applicationsShortcutEnabled.state == .on }
-        applicationsShortcutKey.isEnabled = applicationsShortcutEnabled.state == .on
+        if id == 1 { shortcutRegistered = registered } else { applicationsShortcutRegistered = registered }
         publishHotkeys()
+        MainActor.assumeIsolated { HotkeyRecorder.shared.touch() }
     }
-    /// Saved modifier mask and key index of hotkey ID 2, falling back to ⌃⌥⌘⇧A when invalid.
-    static func savedApplicationsShortcut() -> (modifiers: UInt32, key: Int) {
-        let defaults = UserDefaults.standard
-        let all = GlobalShortcut.modifierFlags.reduce(UInt32(0)) { $0 | $1.1 }
-        let modifiers = UInt32(truncatingIfNeeded: defaults.integer(forKey: "applicationsShortcutModifiers")) & all
-        let key = defaults.integer(forKey: "applicationsShortcutKeyIndex")
-        return (modifiers & GlobalShortcut.requiredModifiers != 0 ? modifiers : GlobalShortcut.applicationsDefaultModifiers,
-                GlobalShortcut.keys.indices.contains(key) ? key : 0)
+    @objc func shortcutEnabledChanged(_ sender: NSButton) {
+        let id: UInt32 = sender === shortcutEnabled ? 1 : 2
+        UserDefaults.standard.set(sender.state == .on, forKey: Self.keys(id).enabled)
+        applyShortcut(id: id)
     }
+    /// The shared hotkey field (Shared/HotkeyRecorder) for hotkey `id`.
+    func shortcutField(id: UInt32) -> NSView {
+        let fallback = id == 1 ? GlobalShortcut.windowDefault : GlobalShortcut.applicationsDefault
+        let other: UInt32 = id == 1 ? 2 : 1
+        let otherTitle = id == 1 ? L("選択項目を「アプリケーション」へ複製") : L("メインウインドウを開く")
+        return MainActor.assumeIsolated {
+            HotkeyField.control(id: id == 1 ? "shortcut" : "applicationsShortcut",
+                                get: { [weak self] in self?.savedShortcut(id: id) },
+                                set: { [weak self] combo in
+                                    guard let self, let combo else { return }
+                                    UserDefaults.standard.set(GlobalShortcut.storable(code: combo.code, modifiers: combo.modifiers), forKey: Self.keys(id).combo)
+                                    // Registered after the recording ends and the other hotkeys are back.
+                                    DispatchQueue.main.async { self.applyShortcut(id: id) }
+                                },
+                                defaultCombo: KeyCombo(code: fallback.code, modifiers: fallback.modifiers),
+                                others: { [weak self] in
+                                    #if APP_STORE
+                                    if other == 2 { return [] }
+                                    #endif
+                                    return self?.savedShortcut(id: other).map { [(otherTitle, $0)] } ?? []
+                                },
+                                registered: { [weak self] in (id == 1 ? self?.shortcutRegistered : self?.applicationsShortcutRegistered) ?? true },
+                                isEnabled: { UserDefaults.standard.bool(forKey: Self.keys(id).enabled) })
+        }
+    }
+    #if !APP_STORE
     /// Reads the frontmost Finder/Path Finder selection and copies it to /Applications without showing the window,
     /// then brings /Applications forward in the same browser with the new items selected.
     /// Never moves: the 「複製」 checkbox is ignored; only 「シンボリックリンクとして作成」 turns it into links.
@@ -603,47 +623,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
     }
     #endif
-    func restoreShortcutControls() {
-        let defaults = UserDefaults.standard
-        shortcutEnabled.state = defaults.bool(forKey: "shortcutEnabled") ? .on : .off
-        let modifier = defaults.integer(forKey: "shortcutModifierIndex")
-        let key = defaults.integer(forKey: "shortcutKeyIndex")
-        shortcutModifiers.selectItem(at: GlobalShortcut.modifiers.indices.contains(modifier) ? modifier : 0)
-        shortcutKey.selectItem(at: GlobalShortcut.keys.indices.contains(key) ? key : 12)
-    }
-    @objc func shortcutChanged() {
-        let enabled = shortcutEnabled.state == .on
-        let modifier = shortcutModifiers.indexOfSelectedItem
-        let key = shortcutKey.indexOfSelectedItem
-        if globalShortcut.configure(enabled: enabled, key: GlobalShortcut.keys[key].1, modifiers: GlobalShortcut.modifiers[modifier].1) {
-            UserDefaults.standard.set(enabled, forKey: "shortcutEnabled")
-            UserDefaults.standard.set(modifier, forKey: "shortcutModifierIndex")
-            UserDefaults.standard.set(key, forKey: "shortcutKeyIndex")
-            shortcutStatus.stringValue = L("常駐中、Finder／Path Finderが前面のときに使用できます。アプリを終了した場合は、先に起動してください。")
-        } else {
-            restoreShortcutControls()
-            shortcutStatus.stringValue = L("このキーは登録できませんでした。他の組み合わせを選んでください。")
-        }
-        shortcutModifiers.isEnabled = shortcutEnabled.state == .on
-        shortcutKey.isEnabled = shortcutEnabled.state == .on
-        publishHotkeys()
-    }
     /// Declares both hotkeys to HotkeyHound (Shared/HotkeyManifest). `enabled` is the saved setting, not whether registration succeeded.
     /// The App Store build writes nothing (sandboxed), so the body is direct-distribution only.
     func publishHotkeys() {
         #if !APP_STORE
         let defaults = UserDefaults.standard
-        let modifier = defaults.integer(forKey: "shortcutModifierIndex"), key = defaults.integer(forKey: "shortcutKeyIndex")
         let apps = BrowserReader.identifiers.sorted()
-        let applications = Self.savedApplicationsShortcut()
+        let window = savedShortcut(id: 1) ?? KeyCombo(code: GlobalShortcut.windowDefault.code, modifiers: GlobalShortcut.windowDefault.modifiers)
+        let applications = savedShortcut(id: 2) ?? KeyCombo(code: GlobalShortcut.applicationsDefault.code, modifiers: GlobalShortcut.applicationsDefault.modifiers)
         HotkeyManifest.publish([
-            HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"),
-                                keyCode: Int(GlobalShortcut.keys[GlobalShortcut.keys.indices.contains(key) ? key : 12].1),
-                                modifiers: Int(GlobalShortcut.modifiers[GlobalShortcut.modifiers.indices.contains(modifier) ? modifier : 0].1),
+            HotkeyManifest.Item(id: "shortcut", title: L("メインウインドウを開く"), keyCode: Int(window.code), modifiers: Int(window.modifiers),
                                 enabled: defaults.bool(forKey: "shortcutEnabled"), scope: "only", apps: apps),
             HotkeyManifest.Item(id: "applicationsShortcut", title: L("選択項目を「アプリケーション」へ複製"),
-                                keyCode: Int(GlobalShortcut.keys[applications.key].1),
-                                modifiers: Int(applications.modifiers),
+                                keyCode: Int(applications.code), modifiers: Int(applications.modifiers),
                                 enabled: defaults.bool(forKey: "applicationsShortcutEnabled"), scope: "only", apps: apps)
         ])
         #endif
@@ -1187,7 +1179,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     func showError(_ message: String, automation: Bool = false) {
         presentDestinations()
         let alert = NSAlert(); alert.messageText = L("処理できませんでした"); alert.informativeText = message
-        if automation { alert.addButton(withTitle: L("OK")); alert.addButton(withTitle: L("オートメーションの設定を開く…")) }
+        if automation { alert.addButton(withTitle: L("OK")); alert.addButton(withTitle: L("オートメーション設定を開く")) }
         alert.beginSheetModal(for: window) { [weak self] response in
             if automation && response == .alertSecondButtonReturn { self?.openAutomationSettings() }
         }

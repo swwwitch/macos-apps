@@ -41,6 +41,8 @@ final class HotkeyStore: ObservableObject {
     @Published private(set) var reserved = false
     @Published private(set) var interceptors: [InterceptorInfo] = []
     @Published var message: String?
+    /// 設定の読み込み・同期で照合元が書き換わったら増える（設定画面の一覧を作り直す）
+    @Published private(set) var settingsRevision = 0
 
     private var loadTask: Task<Void, Never>?
     private var observers: [NSObjectProtocol] = []
@@ -103,6 +105,13 @@ final class HotkeyStore: ObservableObject {
     }
 
     /// 前回の読み込みが古ければ読み直す（記録のたびに呼ぶ）
+    /// 設定の共有（読み込み・同期）で UserDefaults が書き換わった後に、照合元と結果を読み直す
+    func settingsImported() {
+        CustomSources.invalidate()
+        settingsRevision += 1
+        reload()
+    }
+
     func reloadIfNeeded() {
         if loadedAt == nil || menusAreStale || Date().timeIntervalSince(loadedAt ?? .distantPast) > 30 { reload() } else { refreshLiveState() }
     }

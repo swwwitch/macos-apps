@@ -544,27 +544,18 @@ struct Preferences: View {
                     Toggle(L("keepRunning"), isOn: Binding(get: { model.keepRunning }, set: { model.keepRunning = $0; model.save() }))
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
                     MenuBarPresenceView()
-                    HStack(spacing: 8) {
-                        Toggle(SettingsUI.shortcutTitle, isOn: Binding(get: { model.appHotkeyEnabled }, set: {
-                            model.appHotkeyEnabled = $0
-                            if $0 && model.appShortcut == nil { model.startRecording() } else { model.save() }
-                        }))
-                        Text(model.recording ? L("pressKey") : model.hotkeyLabel)
-                            .font(.system(.body, design: .monospaced)).lineLimit(1).fixedSize().frame(minWidth: 96, alignment: .leading)
-                            .foregroundColor(model.appHotkeyEnabled ? .primary : .secondary)
-                            .accessibilityLabel(L("currentKey") + " " + model.hotkeyLabel)
-                        Button(model.recording ? L("cancelRecording") : L("change")) { model.startRecording() }
-                        Button(L("clearShortcut")) { model.clearShortcut() }.disabled(model.appShortcut == nil)
-                    }
-                    if let status = model.hotkeyFailure {
-                        Label(String(format: L("registerFailed"), String(status)), systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange).font(.caption)
-                    }
-                    if model.recording { Text(model.recordMessage).font(.caption) }
+                    Text(SettingsUI.shortcutTitle).padding(.top, 4)
+                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.appHotkeyEnabled }, set: {
+                        model.appHotkeyEnabled = $0
+                        model.save()
+                        if $0 && model.appShortcut == nil { model.recordAppHotkey() }
+                    }))
+                    HotkeyField(id: Model.appHotkeyFieldID, combo: Binding(get: { model.appCombo }, set: { model.appCombo = $0 }),
+                                defaultCombo: Model.defaultShortcut.combo, allowsClear: true,
+                                registered: model.hotkeyFailure == nil, isEnabled: model.appHotkeyEnabled)
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
-                SettingsSection(AccessibilityText.text("title")) {
-                    AccessibilityPermissionView(required: model.needsAccessibility, showsTitle: false)
-                }
+                AccessibilitySection(required: model.needsAccessibility)
                 SettingsSection(L("automationTitle")) {
                     Text(L("automationHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Button(L("automationOpen")) {
@@ -617,6 +608,7 @@ struct Preferences: View {
                     Text(L("shared.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
@@ -624,6 +616,7 @@ struct Preferences: View {
     }
 }
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuItemValidation {
     var model: Model!
     var item: NSStatusItem!
@@ -634,6 +627,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         model = Model()
+        // Projects and the naming rule stay with Library.json (「プロジェクト」 › 共有フォルダー), so they are not listed here.
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(
+            keys: ["openAfter", "viewer", "revealInParent", "closeAfter", "addToFinderSidebar", "addToSidebar", "makeLink", "normalizeNFC", "windowsSafe"],
+            note: StartupWindow.text("作成後の動作（表示・サイドバー・シンボリックリンク）と名前の確認（NFC・Windows）を書き出し・同期します。プロジェクトと名前の規則は「プロジェクト」タブの共有フォルダーで共有します。",
+                                     "Exports and syncs what happens after creating (display, sidebar, symbolic link) and the name checks (NFC, Windows). Projects and the naming rule are shared through the shared folder in the Projects tab.",
+                                     "导出并同步创建后的操作（显示、边栏、符号链接）和名称检查（NFC、Windows）。项目和命名规则通过“项目”标签页中的共享文件夹共享。",
+                                     "만든 후 동작(표시, 사이드바, 심볼릭 링크)과 이름 확인(NFC, Windows)을 내보내고 동기화합니다. 프로젝트와 이름 규칙은 ‘프로젝트’ 탭의 공유 폴더로 공유합니다."),
+            perMac: StartupWindow.text("作成先・シンボリックリンクの置き場所・共有フォルダー・アプリを呼び出すホットキー・ログイン時の起動・常駐・メニューバーはMacごとに設定します。",
+                                       "The location, the symbolic link folder, the shared folder, the app hotkey, launch at login, staying open and the menu bar icon are set on each Mac.",
+                                       "位置、符号链接文件夹、共享文件夹、打开应用的快捷键、登录时启动、常驻和菜单栏图标需在每台 Mac 上分别设置。",
+                                       "위치, 심볼릭 링크 폴더, 공유 폴더, 앱을 여는 단축키, 로그인 시 실행, 상주, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         // Bundled file templates that are missing from the user's folder (never overwrites theirs).
         FileTemplates.installDefaults()
         AccessibilityText.neededOverride = [
@@ -851,7 +856,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         switch alert.runModal() {
         case .alertFirstButtonReturn:
             showPreferencesTab(SettingsUI.launchTitle)
-            if !model.recording { model.startRecording() }
+            model.recordAppHotkey()
         case .alertSecondButtonReturn:
             MainActor.assumeIsolated { MenuBarPresence.shared.showSettings() }
         default: break
@@ -887,7 +892,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
 let app = NSApplication.shared
 SingleInstanceLaunch.enforce()
-let delegate = AppDelegate()
+let delegate = MainActor.assumeIsolated { AppDelegate() }
 app.setActivationPolicy(.accessory)
 app.delegate = delegate
 app.run()

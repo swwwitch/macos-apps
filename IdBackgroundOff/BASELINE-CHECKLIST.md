@@ -50,3 +50,5 @@
 - 配布確認：既存Bundle IDを照合し、Shared/Backups/Buildへ既存版を保存後、/ApplicationsとLatest Buildsへ配置。両配置先のバージョン・build・署名・ファイル内容一致をdeploy_both.pyで確認。
 - 実機確認：Apple Silicon上で/Applications版を起動し、主画面とInDesign一覧の表示を確認。Intel実機での起動・管理者認証・InDesign操作は未確認。
 - InDesign本体へのマーカーファイル追加・削除は今回の検証では実施していない。
+
+| B29 | 設定の書き出し・読み込みと同期 | 適用外 | 設定画面が無く、保存値は主画面のタブ（mode）とこのMacのInDesignの場所（addedApps）だけで共有する対象が無い（2026-10-16） |

@@ -32,6 +32,11 @@ Open **Settings…** from the app menu (⌘,).
 - Add or remove the extensions shown in the main window.
 - Removing an extension from the list does not change its macOS association.
 
+### Sharing Tab
+- **Export…** saves the extension list (extensions you added or removed) as ExtensionLinker-Settings.plist, and **Import…** loads it on another Mac. When importing, choose Add (add to the current list) or Replace.
+- Under Settings Sync, choose a folder in iCloud Drive, Dropbox or elsewhere, and Macs that use the same folder keep the extension list in step automatically.
+- File associations (the default apps in macOS), login launch and the menu bar are set on each Mac. Preset files are handled from the Presets menu.
+
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window (also after closing it)
 - **⌘R**: Reload current settings

@@ -15,7 +15,6 @@ rows = [
 ('fromBrowser', 'ブラウザーから', 'From Browser', '从浏览器', '브라우저에서'),
 ('fromBrowserHelp', '最前面のブラウザーで表示中のnote記事を読み込みます', 'Load the note article shown in the front browser window', '载入最前面浏览器中显示的 note 文章', '맨 앞 브라우저에 표시된 note 글을 불러옵니다'),
 ('fromBrowserMenu', '最前面のブラウザーから読み込む', 'Load from Front Browser', '从最前面的浏览器载入', '맨 앞 브라우저에서 불러오기'),
-('errorNoAccess', '「ブラウザーから」にはアクセシビリティの許可が必要です。システム設定で note2markdown を許可してください。', 'From Browser needs the Accessibility permission. Allow note2markdown in System Settings.', '“从浏览器”需要辅助功能权限。请在系统设置中允许 note2markdown。', '브라우저에서를 사용하려면 손쉬운 사용 권한이 필요합니다. 시스템 설정에서 note2markdown을 허용하세요.'),
 ('errorNoBrowser', '開いているブラウザーのウインドウが見つかりません。', 'No open browser window was found.', '找不到打开的浏览器窗口。', '열려 있는 브라우저 윈도우를 찾을 수 없습니다.'),
 ('errorNoBrowserURL', '%@ で表示中のページのURLを読み取れませんでした。', 'Could not read the URL of the page in %@.', '无法读取 %@ 中页面的 URL。', '%@에 표시된 페이지의 URL을 읽을 수 없습니다.'),
 ('errorBrowserNotNote', '%1$@ で表示中のページはnote記事ではありません：%2$@', 'The page in %1$@ is not a note article: %2$@', '%1$@ 中的页面不是 note 文章：%2$@', '%1$@에 표시된 페이지는 note 글이 아닙니다: %2$@'),
@@ -47,7 +46,7 @@ rows = [
 ('outputSection', 'Markdown', 'Markdown', 'Markdown', 'Markdown'),
 ('embedTitles', '埋め込まれたnote記事のタイトルをリンクの文字にする', 'Use the titles of embedded note articles as link text', '将嵌入的 note 文章标题用作链接文字', '삽입된 note 글의 제목을 링크 텍스트로 사용'),
 ('embedTitlesHint', 'オフにすると「note記事へのリンク」と書き出します。オンのときは、埋め込まれた記事ごとにnoteへタイトルを問い合わせます。', 'When off, they are written as “Link to the note article”. When on, note is asked for the title of each embedded article.', '关闭时写为“note 文章链接”。开启时会向 note 查询每篇嵌入文章的标题。', '끄면 "note 글 링크"로 씁니다. 켜면 삽입된 글마다 note에 제목을 조회합니다.'),
-('keepRunning', 'ウインドウを閉じても終了しない', 'Keep running after closing the window', '关闭窗口后继续运行', '윈도우를 닫아도 종료하지 않음'),
+('keepRunning', 'ウインドウを閉じても常駐', 'Keep running after closing the window', '关闭窗口后继续运行', '윈도우를 닫아도 계속 실행'),
 ('keepRunningHint', 'オフにすると、メインウインドウを閉じたときに終了します。', 'When off, closing the main window quits the app.', '关闭此项后，关闭主窗口即退出。', '끄면 메인 윈도우를 닫을 때 종료합니다.'),
 ('settingsButton', '設定…', 'Settings…', '设置…', '설정…'),
 ('settings', '設定…', 'Settings…', '设置…', '설정…'),
@@ -96,7 +95,10 @@ helptexts = [
 
 設定
 「出力」タブ：埋め込まれたnote記事のタイトルをリンクの文字にする（初期値オン）。オフにすると「note記事へのリンク」と書き出し、記事ごとの問い合わせをしません。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、ウインドウを閉じても終了しない（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+
+設定の共有
+「設定の共有」タブで、「出力」タブの設定（埋め込まれたnote記事のタイトル取得）を書き出し・読み込みできます（「書き出す…」「読み込む…」、note2markdown-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。最後の保存先フォルダー、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。
 
 ホットキー
 ⌘Returnで読み込む、⌘Lでブラウザーから読み込む、⌘Sで書き出す、⇧⌘CでMarkdownをコピー、⌘,で設定、⌘0で「メインウインドウを開く」、⌘Wでウインドウを閉じる、⌘Qで終了、⌘?でこのヘルプを開きます。読み込み中はEscでキャンセルできます。
@@ -139,6 +141,9 @@ Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
 Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
 
+Sharing settings
+In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
+
 Hotkeys
 ⌘Return load, ⌘L load from the front browser, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
 
@@ -180,6 +185,9 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 “输出”：将嵌入的 note 文章标题用作链接文字（默认开启）。关闭时写为“note 文章链接”，不进行额外请求。
 “启动与后台”：登录时启动（关）、启动时不显示主窗口（关）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
 
+设置共享
+在“设置共享”标签中，可以导出和导入“输出”标签的设置（获取嵌入的 note 文章标题）（“导出…”“导入…”，note2markdown-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。上次导出的文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
+
 快捷键
 ⌘Return 载入，⌘L 从浏览器载入，⌘S 导出，⇧⌘C 拷贝 Markdown，⌘, 设置，⌘0 打开主窗口，⌘W 关闭窗口，⌘Q 退出，⌘? 本帮助。载入中按 Esc 取消。
 
@@ -219,7 +227,10 @@ Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. UR
 
 설정
 출력: 삽입된 note 글의 제목을 링크 텍스트로 사용(기본값 켬). 끄면 "note 글 링크"로 쓰고 추가 조회를 하지 않습니다.
-시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), 윈도우를 닫아도 종료하지 않음(켬), 메뉴 막대에 표시(끔).
+시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
+
+설정 공유
+설정 공유 탭에서 출력 탭의 설정(삽입된 note 글의 제목 가져오기)을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, note2markdown-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 마지막 내보내기 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.
 
 단축키
 ⌘Return 불러오기, ⌘L 브라우저에서 불러오기, ⌘S 내보내기, ⇧⌘C Markdown 복사하기, ⌘, 설정, ⌘0 메인 윈도우 열기, ⌘W 윈도우 닫기, ⌘Q 종료, ⌘? 이 도움말. 불러오는 중에는 Esc로 취소할 수 있습니다.
@@ -248,8 +259,8 @@ for idx, lang in enumerate(LANGS):
     (folder / 'Localizable.strings').write_text('\n'.join(json.dumps(k, ensure_ascii=False) + ' = ' + json.dumps(v, ensure_ascii=False) + ';' for k, v in values.items()) + '\n')
     (folder / 'Help.txt').write_text(helptexts[idx] + '\n')
     (folder / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "note2markdown";\n')
-info = {'CFBundleName': 'note2markdown', 'CFBundleDisplayName': 'note2markdown', 'CFBundleIdentifier': 'jp.dtp-transit.note2markdown', 'CFBundleExecutable': 'note2markdown', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'note2markdown.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.productivity', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1'}
+info = {'CFBundleName': 'note2markdown', 'CFBundleDisplayName': 'note2markdown', 'CFBundleIdentifier': 'jp.dtp-transit.note2markdown', 'CFBundleExecutable': 'note2markdown', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'note2markdown.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.productivity', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'SWNoteArticleURL': 'https://note.com/swwwitch/n/n003d1941c652', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1'}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.
 plist_path = root / 'Info.plist'; current = plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
-info.update({k: current[k] for k in ('CFBundleShortVersionString', 'CFBundleVersion', 'SWNoteArticleURL') if k in current})
+info.update({k: current[k] for k in ('CFBundleShortVersionString', 'CFBundleVersion') if k in current})
 plist_path.write_bytes(plistlib.dumps(info))

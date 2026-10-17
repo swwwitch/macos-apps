@@ -165,6 +165,37 @@ final class MarkdownStore: ObservableObject {
         message = nil
     }
 
+    /// 原稿を空にしてファイルとの連携も外す（新規）。未保存の変更があれば保存するか確かめる。空にするのは⌘Zで戻せる
+    func newFile() {
+        bringMainWindowForward()
+        if isEdited && !text.isEmpty {
+            let alert = NSAlert()
+            alert.messageText = fileName.map { L("「%@」への変更を保存しますか？", $0) } ?? L("原稿への変更を保存しますか？")
+            alert.informativeText = L("保存しない場合、原稿は空になります（取り消す（⌘Z）で戻せます）。")
+            alert.addButton(withTitle: L("保存"))
+            alert.addButton(withTitle: L("キャンセル"))
+            alert.addButton(withTitle: L("保存しない"))
+            alert.buttons[1].keyEquivalent = "\u{1b}"
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                save()
+                // The save panel was canceled or writing failed.
+                guard !isEdited else { return }
+            case .alertThirdButtonReturn:
+                break
+            default:
+                return
+            }
+        }
+        replaceAll(with: "")
+        editor?.undoManager?.setActionName(L("新規"))
+        fileURL = nil
+        fileDate = nil
+        fileEncoding = .utf8
+        markSaved()
+        message = L("新しい原稿を作成しました")
+    }
+
     /// ファイルとの連携を外す。原稿は残し、以後の⌘Sは「別名で保存…」
     func unlinkFile() {
         guard let name = fileName else { return }

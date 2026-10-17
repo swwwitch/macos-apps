@@ -129,7 +129,7 @@ final class DutiEnvironment: ObservableObject {
 #if APP_STORE
 struct EnvironmentView: View {
     @ObservedObject var store: AssociationStore
-    var body: some View { SettingsTabs(sections: [(SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true) })), (L("拡張子"), AnyView(ExtensionSettingsView(store: store))), (AboutSection.title, AnyView(AboutView()))]).padding(12) }
+    var body: some View { SettingsTabs(sections: [(SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true) })), (L("拡張子"), AnyView(ExtensionSettingsView(store: store))), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).padding(12) }
 }
 #else
 struct EnvironmentView: View {
@@ -140,6 +140,7 @@ struct EnvironmentView: View {
             (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() })),
             (L("インストール"), AnyView(environmentBody)),
             (L("拡張子"), AnyView(ExtensionSettingsView(store: store))),
+            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
     }

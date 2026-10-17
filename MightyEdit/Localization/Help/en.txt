@@ -159,16 +159,16 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Enabling or disabling all hotkeys, pausing, turning off single actions and excluded apps work the same regardless of scope. Duplicate keys are detected even while the palette is hidden. “Reset to Default Assignments” also resets the scope to “All Apps”.
 ### Changing Hotkeys
 1. Open Settings… in the menu bar, or press **⌘,** while MightyEdit is the active app.
-2. On the Hotkeys tab, check ⌃, ⌥, ⇧ or ⌘ for an action and choose a letter, digit, symbol, F1–F20, arrow, navigation or keypad key.
-3. Click Apply.
-- Choose None and apply to remove a hotkey. Pausing and resetting to the defaults are also available. Existing assignments are kept. Registration errors appear under the action.
+2. On the Hotkeys tab, click Change… for an action and press the keys to assign (include ⌘ or ⌃; Esc cancels). The key is saved at once.
+3. Reset to Default restores the original key and Clear removes it. Standard keys such as ⌘C and keys used by another action or by Show palette cannot be assigned; the reason appears under the field.
+- Pausing and resetting all assignments are also available. Existing assignments are kept. A registration failure appears under the action’s field. The Show palette key is changed with the same kind of field on Startup & Background.
 - Switch Button Style is at the top of the Hotkeys tab. The hotkeys for Wrap at Character Count and Batch Formatting open their windows.
 - Hotkeys in the menu bar lets you switch to Control+number, Control+, or Control+Option+,, turn off single actions, enable or disable all hotkeys, pause, and reset assignments. Settings are saved; a pause is cleared when MightyEdit relaunches.
 - ⌘A, ⌘Z, ⌘X, ⌘C, ⌘V, ⌘W, ⌘, and ⌘Q with ⌘ alone cannot be assigned as hotkeys.
 - If registration fails, the menu shows an error. If macOS (for example Mission Control) uses the same key, choose another one. Not every conflict with other apps can be detected.
 
 ## Settings
-- Settings has six tabs: Startup & Background, Hotkeys, Display, Special, Auto Show and Excluded Apps.
+- Settings has eight tabs: Startup & Background, Hotkeys, Display, Special, Auto Show, Excluded Apps, Sharing and About.
 ### Display
 - Hide categories and individual buttons; hidden actions still work with hotkeys. Even if everything is hidden, you can open Settings from the menu bar and restore them.
 ### Special
@@ -180,16 +180,17 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - A closed palette reappears the next time you switch to a chosen app, and hides when you switch to another app. Showing the palette in another app makes that app the new target.
 - The palette appears without taking focus and does not convert text. This works only while MightyEdit is running; it does not launch MightyEdit when it is not running or at login.
 ### Excluded Apps
-- Choose apps where MightyEdit should never act. Click Add… to choose apps in /Applications, select rows and click Remove from List to remove them.
-- The list shows each app’s icon, name and bundle ID. Apps are identified by bundle ID; the same app twice and MightyEdit itself cannot be added (a reason is shown). The list is saved and kept after relaunching and updating. If an app has been deleted, “App not found” and its bundle ID are shown. Removing an app from the list does not affect the app itself.
+- Choose apps where MightyEdit should never act. Click Add… to choose apps in /Applications, select rows and click Remove to remove them. The list is kept per Mac and is not exported or synced.
+- The list shows each app’s icon, name and bundle ID. Apps are identified by bundle ID; the same app twice and MightyEdit itself cannot be added (a reason is shown). The list is saved and kept after relaunching and updating. If an app is not on this Mac, “Not on this Mac” is shown. Removing an app from the list does not affect the app itself.
 - While an excluded app is in front, the action hotkeys and the palette shortcut are released so keystrokes go straight to that app. The same happens while MightyEdit itself, for example its Settings, is in front. Switching to another app turns them back on.
 - Right before converting (when you press a key, click a button or before sending Paste), MightyEdit checks the front app again. If it is excluded, MightyEdit neither reads the selection nor pastes, and the palette shows “Not run because this app is excluded”.
 - If you show the palette from the menu bar over an excluded app, the same reason appears and the palette is dimmed. Auto show never shows the palette in excluded apps.
 
-### Options (Settings Sync)
-- Use “Set Sync Folder...” to choose a folder where the palette mode, visible buttons, button style, Special items and hotkeys are saved and shared with your other Macs. The folder can be inside a sync service such as iCloud Drive or Dropbox, or on this Mac. The chooser opens in your Dropbox folder when Dropbox is installed.
-- With a sync service, keep this folder downloaded and available offline. “Reveal in Finder” shows the saved file (MightyEdit-Settings.plist), and “Stop Syncing” stops syncing (the file is kept).
-- Login launch, background, Accessibility, window positions, auto show, excluded apps and the sync folder location stay per Mac.
+### Sharing
+- Export & Import: “Export…” saves the settings to MightyEdit-Settings.plist for moving to another Mac or keeping a backup. “Import…” replaces the settings with the chosen file after asking. The file in a sync folder can be imported too.
+- Settings Sync: use “Set Sync Folder…” to choose a folder (inside a sync service such as iCloud Drive or Dropbox, or on this Mac) where the settings are saved and shared with your other Macs. With a sync service, keep this folder downloaded and available offline. “Reveal in Finder” shows the saved file, and “Stop Syncing” stops syncing (the file is kept).
+- Shared: the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap and list panels.
+- Login launch, startup display, background, the menu bar icon, Accessibility, window positions, excluded apps and the sync folder location stay per Mac.
 - If the folder already has different settings, you can choose which to use. After that, the most recent save wins.
 
 ## Running in the Background and Quitting

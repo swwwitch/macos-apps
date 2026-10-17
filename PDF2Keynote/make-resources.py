@@ -71,7 +71,7 @@ timeout|Keynoteが応答しません。Keynoteでダイアログボックスが�
 keynoteError|Keynoteでエラーが発生しました：|Keynote reported an error: |Keynote 报告错误：|Keynote 오류:
 quitBusy|変換中です。完了を待つか、キャンセルしてから終了してください。|Wait for the conversion, or cancel it before quitting.|请等待转换完成，或取消后再退出。|변환이 끝날 때까지 기다리거나 취소한 후 종료하세요.
 ok|OK|OK|好|확인
-resident|ウインドウを閉じても常駐|Keep running after closing|关闭窗口后继续运行|창을 닫아도 계속 실행
+resident|ウインドウを閉じても常駐|Keep running after closing the window|关闭窗口后继续运行|윈도우를 닫아도 계속 실행
 residentDetail|閉じた後もDockやメニューバーから再表示できます。オフにすると閉じたときに終了します。|Reopen from the Dock or menu bar. When off, closing the window quits.|可从 Dock 或菜单栏再次打开。关闭此项时，关闭窗口即退出。|Dock 또는 메뉴 막대에서 다시 열 수 있습니다. 끄면 창을 닫을 때 종료됩니다.
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
 openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기
@@ -83,13 +83,6 @@ permDenied|未許可|Not allowed|未允许|허용 안 됨
 permUnknown|未確認（Keynoteの起動中に確認できます）|Unknown (checked while Keynote is running)|未确认（Keynote 运行时可确认）|확인 안 됨(Keynote 실행 중 확인 가능)
 permAsk|許可を確認|Check permission|检查权限|권한 확인
 permOpen|オートメーション設定を開く|Open Automation Settings|打开自动化设置|자동화 설정 열기
-login|ログイン時に起動|Open at login|登录时启动|로그인 시 실행
-loginOpen|ログイン項目を開く|Open Login Items|打开登录项|로그인 항목 열기
-loginOn|Macへのログイン時に自動起動します。|Opens automatically when you log in.|登录时自动启动。|로그인할 때 자동으로 실행합니다.
-loginApproval|システム設定のログイン項目で許可してください。|Approve it in Login Items in System Settings.|请在系统设置的登录项中允许。|시스템 설정의 로그인 항목에서 허용하세요.
-loginMissing|アプリをアプリケーションフォルダに移動して再起動してください。|Move the app to Applications and relaunch it.|请将应用移到“应用程序”文件夹并重新启动。|앱을 응용 프로그램 폴더로 옮긴 후 다시 실행하세요.
-loginOff|自動起動はオフです。|Not opening at login.|登录时不启动。|로그인 시 실행 안 함.
-loginError|設定を変更できませんでした：|Could not change the setting: |无法更改设置：|설정을 변경할 수 없습니다:
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정

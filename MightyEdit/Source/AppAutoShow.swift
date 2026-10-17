@@ -23,6 +23,13 @@ final class AppAutoShow: NSObject {
            let saved = try? JSONDecoder().decode([Target].self, from: data) { targets = saved }
         super.init()
     }
+    /// Settings imported from a file or another Mac.
+    func reloadFromDefaults() {
+        targets = UserDefaults.standard.data(forKey: "autoShowApplications")
+            .flatMap { try? JSONDecoder().decode([Target].self, from: $0) } ?? []
+        toggle?.state = UserDefaults.standard.bool(forKey: "autoShowEnabled") ? .on : .off
+        refresh()
+    }
     func start() {
         guard observer == nil else { return }
         departureObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didDeactivateApplicationNotification, object: nil, queue: .main) { [weak self] notification in

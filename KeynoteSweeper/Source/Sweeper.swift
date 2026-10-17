@@ -55,7 +55,7 @@ enum SweepError: LocalizedError, Equatable {
         case .keynoteMissing: return L("keynoteMissing")
         case .noDocument: return L("noDocument")
         case .automationDenied: return L("automationDenied")
-        case .accessibilityDenied: return L("accessibilityDenied")
+        case .accessibilityDenied: return AccessibilityText.text("blocked")
         case .allHidden: return L("allHidden")
         case .editorUnavailable: return L("editorUnavailable")
         case .documentChanged: return L("documentChanged")

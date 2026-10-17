@@ -1,7 +1,7 @@
 import AppKit
 import Carbon
 
-/// A key combination in Carbon terms (CellCopyCleaner's Shortcut).
+/// A key combination in Carbon terms (SpreadsheetHelper's Shortcut).
 struct Shortcut: Codable, Equatable, Hashable {
     var code: UInt32
     var modifiers: UInt32
@@ -16,21 +16,6 @@ struct Shortcut: Codable, Equatable, Hashable {
     }
     static func prefix(_ m: UInt32) -> String {
         (m & control != 0 ? "⌃" : "") + (m & option != 0 ? "⌥" : "") + (m & shift != 0 ? "⇧" : "") + (m & command != 0 ? "⌘" : "")
-    }
-
-    /// Keys that the recorder refuses: no ⌘/⌥/⌃, or a standard ⌘ editing/window/quit key (⌘A ⌘Z ⌘X ⌘C ⌘V ⌘Q ⌘W ⌘,).
-    static let standardCommandKeys: Set<UInt16> = [0, 6, 7, 8, 9, 12, 13, 43]
-    static func recorded(keyCode: UInt16, flags: NSEvent.ModifierFlags, characters: String?) -> Shortcut? {
-        let flags = flags.intersection([.command, .option, .control, .shift])
-        guard !flags.intersection([.command, .option, .control]).isEmpty,
-              !(flags == .command && standardCommandKeys.contains(keyCode)),
-              let key = characters, !key.isEmpty else { return nil }
-        var mods: UInt32 = 0
-        if flags.contains(.command) { mods |= command }
-        if flags.contains(.shift) { mods |= shift }
-        if flags.contains(.option) { mods |= option }
-        if flags.contains(.control) { mods |= control }
-        return Shortcut(code: UInt32(keyCode), modifiers: mods, label: prefix(mods) + key.uppercased())
     }
 
     var cgFlags: CGEventFlags {

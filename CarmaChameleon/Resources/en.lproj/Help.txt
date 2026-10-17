@@ -141,10 +141,11 @@
 - **Show in menu bar** (Startup & Background tab, or Menu Bar Settings… in the app menu): shows the menu bar icon (on by default). Its menu has Open Main Window, Settings…, Help (CarmaChameleon Help, Open the note Article) and Quit CarmaChameleon.
 - For a launch shortcut, create an Open App action for CarmaChameleon in the Shortcuts app and assign a key.
 
-## Settings Sync
-- In Settings, open the Settings Sync tab, click Set Sync Folder... and choose a folder in iCloud Drive, Dropbox or similar. Choose the same folder on your other Macs to share the format list and conversion options.
-- The folder holds CarmaChameleon-Settings.plist. The output folder, PDF engine, app and pandoc locations and PDF presets stay per Mac.
-- With a sync service, keep this folder downloaded and available offline.
+## Sharing settings
+- In Settings > Sharing, share the format list and visibility, conversion options (text, HTML, Keynote, PDF, image, SVG, tables, UTF-16, filenames, export names), the Illustrator and Photoshop methods and what happens after conversion with your other Macs.
+- **Export & Import**: “Export…” writes CarmaChameleon-Settings.plist; on another Mac, choose that file with “Import…”; this Mac’s settings are replaced with the file’s. Cancel changes nothing.
+- **Settings Sync**: click “Set Sync Folder…” and choose a folder in iCloud Drive, Dropbox or similar. Choose the same folder on your other Macs to keep changes in step automatically. With a sync service, keep this folder downloaded and available offline.
+- Login launch, background, menu bar, output folder, PDF engine, the pandoc, Illustrator, Photoshop and InDesign locations, PDF presets and window positions stay per Mac.
 
 ## Keyboard shortcuts
 - **Command-O**: choose files

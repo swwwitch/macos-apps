@@ -1,5 +1,4 @@
 import SwiftUI
-import AppKit
 
 // Grouping is presentation-only. Action IDs and saved key bindings stay unchanged.
 struct OperationGroup {
@@ -23,40 +22,23 @@ struct OperationGroup {
     }
 }
 
-struct OperationPicker: NSViewRepresentable {
-    @Binding var selection: String
-    var onChange: () -> Void
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
-    func makeNSView(context: Context) -> NSPopUpButton {
-        let popup = NSPopUpButton(frame: .zero, pullsDown: false)
-        let menu = NSMenu(); menu.autoenablesItems = false
-        for (index, group) in OperationGroup.all.enumerated() {
-            if index > 0 { menu.addItem(.separator()) }
-            let heading = NSMenuItem(title: L(group.titleKey), action: nil, keyEquivalent: "")
-            heading.isEnabled = false
-            menu.addItem(heading)
-            for id in group.ids {
-                let item = NSMenuItem(title: OperationGroup.displayTitle(id), action: nil, keyEquivalent: "")
-                item.representedObject = id; item.indentationLevel = 1
-                menu.addItem(item)
-            }
-        }
-        popup.menu = menu; popup.target = context.coordinator; popup.action = #selector(Coordinator.changed(_:))
-        popup.setAccessibilityLabel(L("operation"))
-        popup.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        return popup
-    }
-    func updateNSView(_ popup: NSPopUpButton, context: Context) {
-        context.coordinator.parent = self
-        if let item = popup.itemArray.first(where: { $0.representedObject as? String == selection }) { popup.select(item) }
-    }
-    final class Coordinator: NSObject {
-        var parent: OperationPicker
-        init(_ parent: OperationPicker) { self.parent = parent }
-        @objc func changed(_ popup: NSPopUpButton) {
-            guard let id = popup.selectedItem?.representedObject as? String, BracketAction.ids.contains(id) else { return }
-            parent.selection = id
-            parent.onChange()
+/// One operation in the hotkey list: its title and the shared hotkey field.
+/// The group heading already says full/half width, so the row shows the plain title.
+struct ShortcutRow: View {
+    @ObservedObject var model: Model
+    let id: String
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(actionTitle(id)).frame(width: 200, alignment: .leading)
+            HotkeyField(id: "bracket." + id,
+                        combo: Binding(get: { model.bindings[id].map(KeyCombo.init) },
+                                       set: { combo in
+                                           if let combo { model.bindings[id] = Shortcut(combo) } else { model.bindings.removeValue(forKey: id) }
+                                           model.save()
+                                       }),
+                        defaultCombo: Shortcut.articleDefaults[id].map(KeyCombo.init), allowsClear: true,
+                        others: model.otherHotkeys(except: id),
+                        registered: model.registrationFailures[id] == nil, isEnabled: !model.disabled)
         }
     }
 }

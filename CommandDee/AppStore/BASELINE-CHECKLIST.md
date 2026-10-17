@@ -28,8 +28,8 @@
 | B17 | プライバシー | 未確認 | |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 未確認 | |
 | B19 | マスタード基調の共通アイコン | 未確認 | |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 未確認 | |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 未確認 | |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 一部確認（2026-10-17） | 1.8.25：「起動・常駐」の起動グループの下・「操作」の上に AccessibilitySection.group()（理由は neededOverride）。判定は AccessibilitySection.isTrusted、未許可の状態表示は AccessibilityText.text("blocked")。画面の目視は未確認 |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外（2026-10-17） | 操作対象は Finder／Path Finder の選択項目だけで、ほかのアプリには作用しない |
 
 ## 確認記録
 
@@ -43,6 +43,8 @@
 - /Applicationsのアプリを起動して動作確認：未実施
 
 | B22 | 起動時にメインウインドウを表示しない | 未確認 | 設定保存、OFF/ON起動、明示的再表示、ファイル受け渡しを確認 |
+| B29 | 設定の書き出し・読み込みと同期 | 一部確認（2026-10-16） | 1.8.24 (51)：「設定の共有」タブ（SettingsSync.sharingPage を高さ追従ラッパーで表示）。共有＝機能のホットキー・有効／無効・区切り文字・並び順・ステータスの語・読み飛ばす親フォルダ名。test.sh PASS、ビルド・両配置・起動確認済み、既存設定の変化なし。書き出し・読み込み・同期の画面操作は未確認 |
+| HK | ホットキーの記録欄 | 確認（2026-10-17） | 1.8.26：機能6件とパレットを HotkeyField.control に。保存形式は keyboardShortcutsV2・paletteShortcut のまま（Shortcut ⇄ KeyCombo、往復テストを Tests/main.swift に追加）。登録は独自（イベントタップ／PaletteHotkey）のまま onRecordingChanged でパレットのキーを外す。画面の操作は未確認 |
 
 ## 2026-10-08 verification
 Compile and ad-hoc signature verification passed. Existing transformation/duplication tests passed. Runtime UI, sandbox file permissions, login launch and deployment remain unverified. No final distribution or upload.
