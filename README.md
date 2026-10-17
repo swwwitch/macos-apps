@@ -10,7 +10,7 @@
 | BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) |
 | CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
 | CCAutoUpdateOff | Creative Cloudのアプリの自動更新がオンになっていないかを見張って通知 | [Source](CCAutoUpdateOff/Source/) | [build.sh](CCAutoUpdateOff/build.sh) |
-| CellCopyCleaner | Excel等のセルをコピーしたとき付く「"」とセル内改行を除去（KMマクロの移植） | [Sources](CellCopyCleaner/Sources/) | [build.sh](CellCopyCleaner/build.sh) |
+| SpreadsheetHelper | Excel・Googleスプレッドシートの補助：コピー時に付く「"」の除去、行・列の挿入と削除などのショートカット（KMマクロの移植。旧名 CellCopyCleaner） | [Sources](SpreadsheetHelper/Sources/) | [build.sh](SpreadsheetHelper/build.sh) |
 | CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
 | DocklessLauncher（旧 AppLauncher） | ホットキーでアプリを起動・前面化 | [Sources](DocklessLauncher/Sources/) | [build.sh](DocklessLauncher/build.sh) |
 | ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
