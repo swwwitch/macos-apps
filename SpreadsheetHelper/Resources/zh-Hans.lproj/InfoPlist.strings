@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "SpreadsheetHelper";
+"NSAppleEventsUsageDescription" = "用于在 Excel 中设置对齐方式（左对齐、右对齐、跨列居中）和跳到 A1。";

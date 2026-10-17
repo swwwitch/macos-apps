@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "SpreadsheetHelper";
+"NSAppleEventsUsageDescription" = "Excel의 맞춤(왼쪽·오른쪽·선택 영역의 가운데로) 설정과 A1로 이동에 사용합니다.";

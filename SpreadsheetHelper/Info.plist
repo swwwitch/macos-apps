@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>SpreadsheetHelper</string>
+	<key>CFBundleExecutable</key>
+	<string>SpreadsheetHelper</string>
+	<key>CFBundleIconFile</key>
+	<string>SpreadsheetHelper</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.spreadsheethelper</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>SpreadsheetHelper</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.4.4</string>
+	<key>CFBundleVersion</key>
+	<string>13</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Used to set alignment in Excel (left, right, center across selection) and to jump to A1.</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/n/ncd57481762a9</string>
+</dict>
+</plist>

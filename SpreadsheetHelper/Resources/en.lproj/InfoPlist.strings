@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "SpreadsheetHelper";
+"NSAppleEventsUsageDescription" = "Used to set alignment in Excel (left, right, center across selection) and to jump to A1.";

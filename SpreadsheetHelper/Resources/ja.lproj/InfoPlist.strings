@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "SpreadsheetHelper";
+"NSAppleEventsUsageDescription" = "Excelの書式設定（左寄せ・右揃え・選択範囲内で中央）とA1へのジャンプに使用します。";
