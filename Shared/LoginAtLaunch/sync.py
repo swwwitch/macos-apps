@@ -1,5 +1,5 @@
 """Copy the canonical LoginAtLaunch.swift and AccessibilityPermission.swift into apps that keep local copies.
-FileCaravan, CarmaChameleon and PDF2Keynote keep their own localized (L()-based) LoginAtLaunch and are not touched."""
+CarmaChameleon, FileCaravan, PDF2Keynote and the other direct-compile apps build Shared/LoginAtLaunch/LoginAtLaunch.swift as is."""
 from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 copies = {
@@ -7,7 +7,8 @@ copies = {
         'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BundleIDInspector/Sources/BundleIDInspector', 'HotkeyHound/Sources/HotkeyHound', 'PrefsPreset/Sources/PrefsPreset', 'MarkdownKitchen/Sources/MarkdownKitchen'],
     'Shared/Accessibility/AccessibilityPermission.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
         'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
-        'KakkoReplace/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'PasteMatchStyle/Sources'],
+        'KakkoReplace/Sources', 'DocklessLauncher/Sources', 'LinkMaker/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'PasteMatchStyle/Sources',
+        'IncrementPaste/Sources', 'PasteInARow/Sources', 'SpreadsheetHelper/Sources', 'ProjectFolder/Sources'],
 }
 for source, targets in copies.items():
     data = (root / source).read_bytes()

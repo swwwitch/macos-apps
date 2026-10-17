@@ -70,6 +70,7 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 | B26 | 証明書での署名 | ローカルビルドもアドホックではなくチームの証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可を引き継ぐ。秘密鍵はログインキーチェーンに置く（システムキーチェーンだと署名のたびに管理者認証が出る）。配布はDeveloper ID＋Hardened Runtime＋公証とし、証明書が無いときは別の署名に切り替えず止める。 |
 | B27 | 取消と失敗の伝え方 | パレット・シート・確認ダイアログはEscで閉じる（cancelOperation、`.cancelAction`、確認の取消ボタンにEsc）。ビープだけで終わらせず、見える場所（ウインドウの状態欄・パレット・アラート）に理由を出す。実行できない状況ではメニュー項目を無効にする。 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 位置の保存が無い初回は中央に出し、復元した位置が画面外なら戻す（SwiftUIのWindowGroupも含め、visibleFrameで判定）。自作描画・画像だけのボタン・ドロップ領域にaccessibilityLabel（`.help`だけにしない）。固定色のtintはダークモードでコントラストを確かめる。アニメーションは「視差効果を減らす」に従う。 |
+| B29 | 設定の書き出し・読み込みと同期 | 共有できる設定を持つアプリは、設定の「情報」の直前に「設定の共有」タブを置き、共通部品 Shared/SettingsSync の `SettingsSharingView`（AppKitは `SettingsSync.shared.sharingPage()`）で「書き出し・読み込み」（書き出す…／読み込む…、`<App>-Settings.plist`）と「設定の同期」（iCloud Drive・Dropbox などのフォルダー）を表示する。書き出しと同期の対象キーは同じ `SettingsSync.Configuration` で指定し、ログイン起動・常駐・対象外アプリ・ファイルパス・ウインドウ位置・アプリを呼び出すホットキーなどMac固有の値は含めない。読み込みは確認してから置き換え（一覧を持つアプリは `merge` で「追加する」も）、`onImport` で画面とモデルを読み直す。同期フォルダーのファイルも読み込める。共有する設定が無いアプリは理由付きで適用外。 |
 
 ## 既存部品の扱い
 
@@ -160,3 +161,11 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 - **ウインドウ**メニュー（ヘルプの前）：「しまう」（performMiniaturize:、キーは設定しない＝⌘Mを割り当てない）・「拡大／縮小」・「すべてを手前に移動」を置き、`NSApp.windowsMenu` に設定してウインドウの一覧を表示する。SwiftUIは標準のウインドウメニューの「しまう」から⌘Mを外す（`CommandGroup(replacing: .windowSize)` でキーなしの項目に置き換える）。主画面は●●●の黄色ボタンでしまえるようにし、miniaturizableを外さない。
 - **アップデートを確認…**：全アプリに共通の更新機能（Shared/Updater、Sparkle）を組み込み、アプリメニューに「アップデートを確認…」「アップデートを自動確認」を置く。配信先と署名鍵が未設定の間は準備中と表示し、通信しない（B18）。App Store版には含めない。
 - **メニューバーアイコン**：全アプリに共通部品MenuBarPresenceを組み込み、アプリメニューの「メニューバー設定…」と常駐メニューを用意する。表示の既定はアプリの従来の動作を保つ（独自アイコンを持つアプリは表示、持たないアプリは利用者が選んだときだけ表示）。
+
+## 設定の共通部品（2026-10-16）
+
+- **対象外アプリ（B21）**：Shared/ExcludedApps/ExcludedApps.swift を使う。タブ名は `ExcludedApps.title`（対象外アプリ）、中身は `SettingsSection(ExcludedApps.title) { ExcludedAppsView() }`（AppKitは `ExcludedApps.shared.page()`）。キーは `excludedBundleIDs`（Macごと、書き出し・同期しない）。旧キーは `configure(legacyKeys:)` で引き継ぐ。判定は `excludes(_:)`・`blocksHotkeys(bundleID:pid:)`、実行直前は `frontAppExcluded`。
+- **アクセシビリティ（B20）**：権限を使うアプリだけ、「起動・常駐」タブの起動グループの下に `AccessibilitySection()`（AppKitは `AccessibilitySection.group()`）を置く。理由は `AccessibilityText.neededOverride`（ja/en/zh/ko）。判定は `AccessibilitySection.isTrusted`（要求しない）、実行できなかったときの文言は `AccessibilityText.text("blocked")`。アプリ独自の状態表示・文言を別に作らない。
+- **AppKitの設定ページ**：SwiftUIの中身は `SettingsHostingPage(observing:) { … }` で包み、幅に合わせて高さを決める（NSHostingViewのintrinsicContentSizeは折り返し前の高さで、文章が切れる）。
+- **文言**：常駐は「ウインドウを閉じても常駐」、既定値へ戻すボタンは「初期値に戻す」（範囲を付けるなら「すべて初期値に戻す」等）、システム設定を開くボタンは「オートメーション設定を開く」「アクセシビリティ設定を開く」（…を付けない）。ボタン・メニューの省略記号は「…」。
+- **ホットキーの記録欄**：設定でホットキーを割り当てる箇所（機能のホットキー、「起動・常駐」のアプリを呼び出すホットキー）は Shared/HotkeyRecorder/HotkeyRecorder.swift の `HotkeyField`（AppKitは `HotkeyField.control(...)`）を使う。並びは［キー表示］［変更…／記録をキャンセル］［初期値に戻す］［割り当てを解除］、未設定は「未設定」、有効化は `HotkeyText.enable`「ホットキーを有効にする」。⌘か⌃を含むキーだけを受け付け（⌥だけ・⌥⇧だけは文字入力と重なるため。アプリの初期値が⌥だけのキーを使う場合だけ `allowsOption: true`）、⌘C等の標準キーとアプリ内の重複は断る（Escで取り消し）。登録は `HotkeySet` を使い、記録中はアプリ自身のホットキーを自動で外す（独自の登録を残すアプリは `HotkeyRecorder.shared.onRecordingChanged` で外す）。登録に失敗したら `registered: false` で共通の文言を出す。保存形式は各アプリのまま `KeyCombo` に変換する。ポップアップで修飾キーとキーを選ぶ方式・「適用」ボタンは使わない。アプリ本体の機能として一覧の中でキーを扱う画面（DocklessLauncherの一覧、HotkeyHoundの照合）や、macOSのショートカット・サービスに任せるアプリは理由付きで適用外。
