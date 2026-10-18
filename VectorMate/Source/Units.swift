@@ -182,14 +182,27 @@ enum UnitSettings {
                     return .controlNotFound
                 }
                 guard from != to else { continue }
-                AXUIElementSetAttributeValue(popup, kAXFocusedAttribute as CFString, kCFBooleanTrue)
-                Thread.sleep(forTimeInterval: 0.15)
+                guard focus(popup) else { return .controlNotFound }
                 for _ in 0..<abs(to - from) { AX.key(to > from ? kVK_DownArrow : kVK_UpArrow); Thread.sleep(forTimeInterval: 0.08) }
                 Thread.sleep(forTimeInterval: 0.15)
                 guard wanted.contains(AX.string(popup, kAXValueAttribute) ?? "") else { return .notChanged }
             }
             return nil
         })
+    }
+
+    /// Setting AXFocused on a popup succeeds but leaves the focus where it was (measured 2026-10-18, the arrow keys then
+    /// went to 一般), so Tab moves it: 一般 → 線 → 文字 → 東アジア in order.
+    private static func focus(_ popup: AXUIElement) -> Bool {
+        for attempt in 0...8 {
+            if isFocused(popup) { return true }
+            if attempt < 8 { AX.key(kVK_Tab); Thread.sleep(forTimeInterval: 0.15) }
+        }
+        return false
+    }
+    private static func isFocused(_ el: AXUIElement) -> Bool {
+        var value: CFTypeRef?
+        return AXUIElementCopyAttributeValue(el, kAXFocusedAttribute as CFString, &value) == .success && (value as? Bool) == true
     }
 }
 
