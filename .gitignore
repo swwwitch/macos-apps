@@ -42,5 +42,6 @@ Shared/BuildBackups/
 *.log
 Shared/BuildTools/Verification-*/
 Shared/BuildTools/deployment-*.json
+Shared/BuildTools/Logs/
 Shared/ReleasePreparation/
 PDF2Keynote/Tests/KeynoteOutput/

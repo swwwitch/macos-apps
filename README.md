@@ -6,6 +6,7 @@
 
 | アプリ | 用途 | ソース | ビルド |
 | --- | --- | --- | --- |
+| VectorMate（旧 AiHelper） | Illustratorの補助：メトリクスとプロポーショナルメトリクスの連動、UIの明るさ・表示・シェイプ形成・バックグラウンドの切り替え、単位パレット | [Source](VectorMate/Source/) | [build.sh](VectorMate/build.sh) |
 | BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) |
 | BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) |
 | CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
@@ -39,7 +40,7 @@
 ## ファイルの置き場所
 
 - 各アプリ直下：README、ビルド入口、ソース・素材・テスト。既存のビルド経路を保持。
-- `Latest Builds/`：現在保管している29本のアプリ。バージョン一覧は同フォルダのREADME。
+- `Latest Builds/`：現在保管している30本のアプリ。バージョン一覧は同フォルダのREADME。
 - 各アプリの `Backups/` と `Shared/Backups/Build/`：置換前のバックアップ。ソースとして編集しない。
 - 各アプリの `ReleaseArchive/` と `Shared/DistributionArchive/`：過去のZIP・DMG。現行アプリと区別する。
 - 各アプリの `Docs/`：検証記録（`Docs/Verification/`）・サポート／プライバシーポリシーの原稿（`Docs/SupportPrivacy/`）・スクリーンショット・申請メモ。既存のVerificationやRecheckフォルダは保持。
@@ -50,6 +51,6 @@
 
 [AGENTS.md](AGENTS.md)、[共通仕様](Shared/AppStandards/BASELINE.md)、[確認表テンプレート](Shared/AppStandards/CHECKLIST-TEMPLATE.md)を参照してください。新規アプリにも共通仕様を適用します。正式アプリ名のディレクトリを使い、名称整合だけでBundle IDや設定保存先を変更しません。
 
-アプリ名単位のフォルダはビルドスクリプトが参照するため、そのまま使用します。旧版は削除せず退避し、移動前後のSHA-256を確認します。移動履歴は [organization-20261007.json](Shared/OrganizationLogs/organization-20261007.json)、[organization-20261014.md](Shared/OrganizationLogs/organization-20261014.md)。
+アプリ名単位のフォルダはビルドスクリプトが参照するため、そのまま使用します。旧版は削除せず退避し、移動前後のSHA-256を確認します。移動履歴は [organization-20261007.json](Shared/OrganizationLogs/organization-20261007.json)、[organization-20261014.md](Shared/OrganizationLogs/organization-20261014.md)、[organization-20261018.md](Shared/OrganizationLogs/organization-20261018.md)。
 
 CommandDeeは親Gitへ統合済み。整理作業ではコミット・pushを行っていません。

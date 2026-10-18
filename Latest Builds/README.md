@@ -1,9 +1,10 @@
 # 保管中の最新ビルド
 
-2026-10-17に各アプリのInfo.plistから読み取った一覧です（29本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
+2026-10-17に各アプリのInfo.plistから読み取った一覧です（30本、表と実物の一致を確認）。ビルド・配置に伴い更新してください。表は動作検証・公証済みを意味しません。
 
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
+| [VectorMate](VectorMate.app) | 2.3.7 | 35 | `jp.dtp-transit.vectormate` |
 | [DocklessLauncher](DocklessLauncher.app) | 1.10.2 | 22 | `jp.dtp-transit.applauncher` |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.35 | 55 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |
