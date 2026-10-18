@@ -33,7 +33,7 @@
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | ユーザーの指示で通常アプリ（.regular、常に⌘TabとDockに表示）。WindowActivationPolicyは使わない。Dockからの開き直しは applicationShouldHandleReopen、MenuBarPresence（⌘1） |
 | B24 | 設定ウインドウのふるまい | 一部 | 最小サイズ（sizingOptions .minSize）。タブ復元は SettingsTabs 任せ。Escで閉じるは未確認 |
-| B25 | アプリ情報と目印 | 実装済み | 情報タブ、SWNoteArticleURL（専用記事が無いのでまとめページ）、コピーライト、SWAppFamily |
+| B25 | アプリ情報と目印 | 実装済み | 情報タブ、SWNoteArticleURL（専用記事）、コピーライト、SWAppFamily |
 | B26 | 証明書での署名 | 実装済み | build.sh（301A41C0…、PL9S9PXX96）。developer-id 時は Entitlements.plist（apple-events） |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗はビープ＋TransientMessage＋結果欄 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰 |

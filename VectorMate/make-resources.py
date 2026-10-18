@@ -424,7 +424,7 @@ info = {'CFBundleName': 'VectorMate', 'CFBundleDisplayName': 'VectorMate', 'CFBu
         'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'VectorMate.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True,
         'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS,
         'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.graphics-design',
-        'SWNoteArticleURL': 'https://note.com/swwwitch/m/m057948d2fbeb', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch',
+        'SWNoteArticleURL': 'https://note.com/dtp_tranist/n/n8554a434e90a', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch',
         'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1', 'NSAppleEventsUsageDescription': APPLE_EVENTS[1]}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.
 plist_path = root / 'Info.plist'; current = plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
