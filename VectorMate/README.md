@@ -33,6 +33,15 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）の常駐アプリ（
 - ［OK］の前にチェックボックスがすべて外れたことを確かめる。Illustratorが起動していないときは起動しない。
 - 日本語版で実機確認済み（2026-10-18）。英語版のメニュー名・ラベルは未検証。
 
+### 関連付け
+
+複数の版のIllustrator（2021〜2026 はすべて Bundle ID `com.adobe.illustrator`）がインストールされているとき、Illustratorに関連付けられた拡張子をまとめて指定の版で開くようにします（ExtensionLinker 0.2.29 の「アプリの版」から移植。Illustratorのみ）。
+
+- 対象は .ai・.ait・.eps・.svg のうちチェックしたもの（設定 versionExtensions、初期値はすべて）。ほかのアプリに関連付けられていた拡張子もIllustratorに変わる。各行に今開くアプリ（版）を表示。
+- 公開APIは版を記録しない（`LSHandlerPreferredVersions = "-"`）ため、`~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist` の LSHandlers に `LSHandlerPreferredVersions.LSHandlerRoleAll = <CFBundleVersion>` を書き、`killall lsd`。動的UTI（.ait・.aia など）は拡張子（LSHandlerContentTag）で記録。
+- 書き込む前に、記録と LSCopyDefaultRoleHandlerForContentType の食い違い（lsd がまだ保存していない変更）がないことを確かめる。変更前の記録は `~/Library/Application Support/VectorMate/LaunchServicesBackups` に10世代。
+- 再起動後、urlForApplication(toOpen:) が期待する版になるまで最大5秒待って確かめ、確かめられなければ元の記録に戻す。
+
 ## 権限
 
 - オートメーション（Adobe Illustrator）：`do javascript`。osascript を子プロセスで使う（タイムアウト5秒＋強制終了）。
@@ -52,6 +61,26 @@ Assets/make-icon.sh                  # アイコン
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。
 
 ## 更新履歴
+
+### 2.4.4（build 41、2026-10-18）
+
+- 「関連付け」タブの見出しを「ファイルを開くIllustratorのバージョン」に変更。
+
+### 2.4.3（build 40、2026-10-18）
+
+- メインウインドウのタブ名「アプリの版」を「関連付け」に変更。
+
+### 2.4.2（build 39、2026-10-18）
+
+- 「アプリの版」の対象を .ai・.ait・.eps・.svg のチェックボックスで選ぶようにした。
+
+### 2.4.1（build 38、2026-10-18）
+
+- 「アプリの版」を設定からメインウインドウのタブに移した。
+
+### 2.4.0（build 37、2026-10-18）
+
+- メインウインドウに「アプリの版」タブを追加。複数の版のIllustratorがインストールされているとき、Illustratorに関連付けられた拡張子をまとめて指定の版で開くようにする（ExtensionLinker から移植）。
 
 ### 2.3.8（build 36、2026-10-18）
 

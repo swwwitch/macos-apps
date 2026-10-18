@@ -183,6 +183,23 @@ rows = [
 ('hotkey.quickHint', '初期値は ⌃⌥⌘Q。Illustratorが前面のときだけ使えます。', 'Default ⌃⌥⌘Q. Works only while Illustrator is in front.', '默认 ⌃⌥⌘Q。仅在 Illustrator 位于前台时可用。', '기본값 ⌃⌥⌘Q. Illustrator가 앞에 있을 때만 작동합니다.'),
 ('on', 'オン', 'On', '开', '켬'),
 ('off', 'オフ', 'Off', '关', '끔'),
+('cancel', 'キャンセル', 'Cancel', '取消', '취소'),
+('version.tab', '関連付け', 'Associations', '关联', '연결'),
+('version.title', 'ファイルを開くIllustratorのバージョン', 'Illustrator Version for Opening Files', '打开文件的 Illustrator 版本', '파일을 여는 Illustrator 버전'),
+('version.detail', '複数の版のIllustratorがインストールされているとき、チェックした拡張子をまとめて指定の版のIllustratorで開くようにします（ほかのアプリに関連付けられていた拡張子もIllustratorに変わります）。', 'When several versions of Illustrator are installed, opens the checked extensions in the chosen version of Illustrator (extensions associated with another app are switched to Illustrator too).', '安装了多个版本的 Illustrator 时，让勾选的扩展名都用指定版本的 Illustrator 打开（原本关联其他应用的扩展名也会改为 Illustrator）。', 'Illustrator가 여러 버전 설치되어 있을 때 체크한 확장자를 모두 지정한 버전의 Illustrator로 엽니다(다른 앱에 연결된 확장자도 Illustrator로 바뀝니다).'),
+('version.none', '複数の版のIllustratorは見つかりません。', 'Only one version of Illustrator was found.', '未找到多个版本的 Illustrator。', 'Illustrator가 여러 버전 설치되어 있지 않습니다.'),
+('version.open', '開く版 :', 'Open with:', '打开版本：', '열 버전:'),
+('version.newest', '最新版（自動）', 'Newest (automatic)', '最新版本（自动）', '최신 버전(자동)'),
+('version.apply', '切り替える', 'Switch', '切换', '전환'),
+('version.applying', '切り替え中...', 'Switching...', '正在切换...', '전환 중...'),
+('version.done', '%ld種類の拡張子を切り替えました。', 'Switched %ld extension(s).', '已切换 %ld 种扩展名。', '확장자 %ld개를 전환했습니다.'),
+('version.hint', '最新版（自動）は、インストールされている版のうち最も新しい版で開きます。Finderの［情報を見る］などでアプリを選び直すと、その拡張子は最新版（自動）に戻ります。', 'Newest (automatic) opens files in the newest installed version. Choosing the app again elsewhere (e.g. Get Info in the Finder) resets that extension to Newest.', '“最新版本（自动）”会用已安装的最新版本打开。在访达的“显示简介”等处重新选择应用后，该扩展名会恢复为“最新版本（自动）”。', '최신 버전(자동)은 설치된 버전 중 가장 새로운 버전으로 엽니다. Finder의 정보 가져오기 등에서 앱을 다시 선택하면 그 확장자는 최신 버전(자동)으로 돌아갑니다.'),
+('version.confirmTitle', '拡張子を開く版を切り替えますか？', 'Switch the version that opens these extensions?', '要切换打开这些扩展名的版本吗？', '이 확장자를 여는 버전을 전환할까요?'),
+('version.confirmMessage', '対象 : %@\n\nmacOSの関連付けの記録に版を書き込み、関連付けを管理するシステムの処理（lsd）を再起動します。変更前の記録は ~/Library/Application Support/VectorMate に保存します。', 'Extensions: %@\n\nThe version is written into macOS’s file association record and the system process that manages it (lsd) is restarted. The previous record is kept in ~/Library/Application Support/VectorMate.', '对象：%@\n\n会将版本写入 macOS 的文件关联记录，并重新启动管理关联的系统进程（lsd）。更改前的记录保存在 ~/Library/Application Support/VectorMate。', '대상: %@\n\nmacOS의 파일 연결 기록에 버전을 쓰고, 연결을 관리하는 시스템 프로세스(lsd)를 다시 시작합니다. 변경 전 기록은 ~/Library/Application Support/VectorMate에 저장합니다.'),
+('version.failTitle', '版を切り替えられません', 'Could not switch the version', '无法切换版本', '버전을 전환할 수 없습니다'),
+('version.failConfirm', '版の切り替えを確認できなかったため、元に戻しました。', 'The switch could not be confirmed, so it was undone.', '无法确认版本切换，已恢复原状。', '전환을 확인하지 못해 원래대로 되돌렸습니다.'),
+('version.failRead', '関連付けの記録を読み込めませんでした。', 'The file association record could not be read.', '无法读取文件关联记录。', '파일 연결 기록을 읽을 수 없습니다.'),
+('version.failPending', 'macOSが関連付けの変更をまだ保存していません。数分待ってからもう一度実行してください。', 'macOS has not saved a recent association change yet. Wait a few minutes and try again.', 'macOS 尚未保存最近的关联更改。请等待几分钟后重试。', 'macOS가 최근 연결 변경을 아직 저장하지 않았습니다. 몇 분 후 다시 시도하세요.'),
 ('reload', '再読み込み', 'Reload', '重新载入', '새로 고침'),
 ('listSeparator', '・', ', ', '、', ', '),
 ('fail.automation', 'Illustratorを操作する許可がありません。システム設定の［プライバシーとセキュリティ］→［オートメーション］でVectorMateの「Adobe Illustrator」をオンにしてください。', 'Not allowed to control Illustrator. Turn on Adobe Illustrator for VectorMate in System Settings → Privacy & Security → Automation.', '没有控制 Illustrator 的权限。请在系统设置的“隐私与安全性 → 自动化”中为 VectorMate 打开“Adobe Illustrator”。', 'Illustrator 제어 권한이 없습니다. 시스템 설정의 개인정보 보호 및 보안 → 자동화에서 VectorMate의 Adobe Illustrator를 켜세요.'),
@@ -249,6 +266,9 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。
 
+関連付け（タブ）
+複数の版のIllustratorがインストールされているとき、チェックした拡張子（.ai・.ait・.eps・.svg から選択）をまとめて、指定の版のIllustratorで開くようにします。ほかのアプリに関連付けられていた拡張子もIllustratorに変わります。「開く版」で選んで［切り替える］を押すと、macOSの関連付けの記録に版を書き込み、関連付けを管理するシステムの処理（lsd）を再起動します。変更前の記録は ~/Library/Application Support/VectorMate に10世代まで保存します。最新版（自動）に戻すと、インストールされている最も新しい版で開きます。macOSが直前の関連付けの変更をまだ保存していないときは、数分待ってから実行してください。
+
 設定の共有
 設定の「設定の共有」タブで、メトリクスの設定・ホットキー・単位セット・単位パレットのモードを書き出し・読み込みできます（「書き出す…」「読み込む…」、VectorMate-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
 
@@ -297,6 +317,9 @@ Radio buttons for Pick Color From in the Shape Builder Tool Options (Color Swatc
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default).
+
+Associations tab
+When several versions of Illustrator are installed, the checked extensions (.ai, .ait, .eps, .svg) are switched together to open in the chosen version of Illustrator, including ones associated with another app. Pick it in Open with and click Switch: the version is written into macOS’s file association record and lsd, the system process that manages it, is restarted. Up to 10 previous records are kept in ~/Library/Application Support/VectorMate. Newest (automatic) opens files in the newest installed version. If macOS has not saved a recent association change yet, wait a few minutes and try again.
 
 Sharing settings
 In the Sharing tab of Settings, Export… and Import… save and load the Metrics options, hotkeys, unit sets and Units Palette mode (VectorMate-Settings.plist). Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
@@ -347,6 +370,9 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。
 
+关联（标签页）
+安装了多个版本的 Illustrator 时，将勾选的扩展名（从 .ai、.ait、.eps、.svg 中选择）一并改为用指定版本的 Illustrator 打开，原本关联其他应用的扩展名也会改为 Illustrator。在“打开版本”中选择后点按“切换”，会将版本写入 macOS 的文件关联记录，并重新启动管理关联的系统进程（lsd）。更改前的记录最多保存 10 份到 ~/Library/Application Support/VectorMate。“最新版本（自动）”用已安装的最新版本打开。若 macOS 尚未保存最近的关联更改，请等待几分钟后重试。
+
 设置共享
 在设置的“设置共享”标签中，可以导出和导入度量标准设置、快捷键、单位组合和单位面板的模式（VectorMate-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
 
@@ -395,6 +421,9 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔).
+
+연결(탭)
+Illustrator가 여러 버전 설치되어 있을 때 체크한 확장자(.ai, .ait, .eps, .svg 중 선택)를 한꺼번에 지정한 버전의 Illustrator로 열도록 합니다. 다른 앱에 연결된 확장자도 Illustrator로 바뀝니다. 열 버전에서 고르고 전환을 누르면 macOS의 파일 연결 기록에 버전을 쓰고 연결을 관리하는 시스템 프로세스(lsd)를 다시 시작합니다. 변경 전 기록은 ~/Library/Application Support/VectorMate에 10개까지 보관합니다. 최신 버전(자동)은 설치된 가장 새로운 버전으로 엽니다. macOS가 최근 연결 변경을 아직 저장하지 않았다면 몇 분 후 다시 시도하세요.
 
 설정 공유
 설정의 설정 공유 탭에서 메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드를 내보내고 가져올 수 있습니다(VectorMate-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.

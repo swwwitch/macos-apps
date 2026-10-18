@@ -610,7 +610,8 @@ struct MainView: View {
                     }
                     Note(text: L("file.detail"))
                     ResultRow(result: model.fileResult)
-                }))
+                })),
+                ("version", L("version.tab"), AnyView(VersionSwitchView()))
             ])
             HStack {
                 Button(L("help")) { (NSApp.delegate as? AppDelegate)?.showHelp() }
