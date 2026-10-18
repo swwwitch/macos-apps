@@ -63,12 +63,21 @@ final class Model: ObservableObject {
     /// Shows or hides クイック環境設定. ⌃⌥⌘Q by default (Keyboard Maestro has macros on it; set per Mac if they collide).
     @Published var quickCombo: KeyCombo? { didSet { store(quickCombo, "quickHotkey"); refreshHotkeys() } }
     var onQuickHotkey: (() -> Void)?
+    /// アプリ起動のホットキー: shows the main window from any app while VectorMate runs. ⌃⌥⌘; by default; per Mac (not shared).
+    @Published var launchCombo: KeyCombo? { didSet { store(launchCombo, "launchHotkey"); refreshHotkeys() } }
+    var onLaunchHotkey: (() -> Void)?
+    /// その他 → トリミング表示でもガイドを表示する: while Illustrator is in front, ⌘; runs the menu command showguide
+    /// (表示 → ガイド), which also works in トリミング表示. Off by default.
+    @Published var guideInTrim: Bool { didSet { defaults.set(guideInTrim, forKey: "guideInTrimView"); refreshHotkeys() } }
+    static let guideCombo = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.command)
+    static let guideNumber: UInt32 = 6
     @Published var failedHotkeys: Set<UInt32> = []
     static let brighterDefault = KeyCombo(code: UInt32(kVK_F2), modifiers: KeyCombo.shift)
     static let darkerDefault = KeyCombo(code: UInt32(kVK_F1), modifiers: KeyCombo.shift)
     static let paletteDefault = KeyCombo(code: UInt32(kVK_ANSI_U), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
     static let quickDefault = KeyCombo(code: UInt32(kVK_ANSI_Q), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
-    static let brighterNumber: UInt32 = 1, darkerNumber: UInt32 = 2, paletteNumber: UInt32 = 3, quickNumber: UInt32 = 4
+    static let launchDefault = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
+    static let brighterNumber: UInt32 = 1, darkerNumber: UInt32 = 2, paletteNumber: UInt32 = 3, quickNumber: UInt32 = 4, launchNumber: UInt32 = 5
     let hotkeys = HotkeySet(signature: "VcMt")
     private var registeredState: String?
     private var activation: NSObjectProtocol?
@@ -91,10 +100,12 @@ final class Model: ObservableObject {
         // Up to 2.2 the unset key was saved as null; 2.3 gives it the default ⌃⌥⌘Q once.
         if !defaults.bool(forKey: "quickDefaultApplied") { defaults.removeObject(forKey: "quickHotkey"); defaults.set(true, forKey: "quickDefaultApplied") }
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
+        launchCombo = defaults.data(forKey: "launchHotkey") == nil ? Self.launchDefault : Self.load("launchHotkey")
+        guideInTrim = defaults.bool(forKey: "guideInTrimView")
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
-            if number == Self.paletteNumber { self?.onPaletteHotkey?() } else if number == Self.quickNumber { self?.onQuickHotkey?() } else { self?.stepBrightness(number == Self.brighterNumber ? 1 : -1, fromHotkey: true) }
+            if number == Self.guideNumber { self?.showGuides() } else if number == Self.launchNumber { self?.onLaunchHotkey?() } else if number == Self.paletteNumber { self?.onPaletteHotkey?() } else if number == Self.quickNumber { self?.onQuickHotkey?() } else { self?.stepBrightness(number == Self.brighterNumber ? 1 : -1, fromHotkey: true) }
         }
         // After recording, register again so a conflict with another app is reported.
         HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
@@ -157,7 +168,7 @@ final class Model: ObservableObject {
     func refreshHotkeys() {
         let front = Illustrator.isIllustrator(NSWorkspace.shared.frontmostApplication)
         let pairs = [(Self.brighterNumber, brighterCombo), (Self.darkerNumber, darkerCombo), (Self.paletteNumber, paletteCombo), (Self.quickNumber, quickCombo)]
-        let state = "\(hotkeysEnabled):\(front):\(pairs.map { "\($0.0)=\($0.1?.label ?? "-")" })"
+        let state = "\(hotkeysEnabled):\(front):\(pairs.map { "\($0.0)=\($0.1?.label ?? "-")" }):\(launchCombo?.label ?? "-"):\(guideInTrim)"
         guard state != registeredState else { return }
         registeredState = state
         var failed: Set<UInt32> = []
@@ -167,6 +178,12 @@ final class Model: ObservableObject {
             if hotkeys.register(number, combo) != noErr { failed.insert(number) }
             if !front { hotkeys.unregister(number) }
         }
+        // The launch key works in every app, and apart from 「ホットキーを使う」.
+        if let launchCombo {
+            if hotkeys.register(Self.launchNumber, launchCombo) != noErr { failed.insert(Self.launchNumber) }
+        } else { hotkeys.unregister(Self.launchNumber) }
+        // ⌘; is Illustrator's own key, so it is taken only while Illustrator is in front and the option is on.
+        if guideInTrim && front { _ = hotkeys.register(Self.guideNumber, Self.guideCombo) } else { hotkeys.unregister(Self.guideNumber) }
         failedHotkeys = failed
         publishHotkeys()
     }
@@ -176,16 +193,35 @@ final class Model: ObservableObject {
         let apps = [Illustrator.bundlePrefix]
         let entries: [(String, String, KeyCombo?)] = [("brighter", L("hotkey.brighter"), brighterCombo), ("darker", L("hotkey.darker"), darkerCombo),
                                                       ("palette", L("hotkey.palette"), paletteCombo), ("quick", L("hotkey.quick"), quickCombo)]
-        HotkeyManifest.publish(entries.compactMap { id, title, combo in
+        var items = entries.compactMap { id, title, combo in
             combo.map { HotkeyManifest.Item(id: id, title: title, keyCode: Int($0.code), modifiers: Int($0.modifiers), enabled: hotkeysEnabled, scope: "only", apps: apps) }
-        })
+        }
+        if guideInTrim {
+            items.append(HotkeyManifest.Item(id: "guide", title: L("other.guide"), keyCode: Int(Self.guideCombo.code), modifiers: Int(Self.guideCombo.modifiers),
+                                             enabled: true, scope: "only", apps: apps))
+        }
+        if let launchCombo {
+            items.append(HotkeyManifest.Item(id: "launch", title: L("launch.hotkey"), keyCode: Int(launchCombo.code), modifiers: Int(launchCombo.modifiers), enabled: true))
+        }
+        HotkeyManifest.publish(items)
     }
 
     /// The app's hotkeys with their titles, for refusing the same key twice.
     func otherHotkeys(except number: UInt32) -> [(String, KeyCombo)] {
         let all: [(UInt32, String, KeyCombo?)] = [(Self.brighterNumber, L("hotkey.brighter"), brighterCombo), (Self.darkerNumber, L("hotkey.darker"), darkerCombo),
-                                                  (Self.paletteNumber, L("hotkey.palette"), paletteCombo), (Self.quickNumber, L("hotkey.quick"), quickCombo)]
+                                                  (Self.paletteNumber, L("hotkey.palette"), paletteCombo), (Self.quickNumber, L("hotkey.quick"), quickCombo),
+                                                  (Self.launchNumber, L("launch.hotkey"), launchCombo)]
         return all.compactMap { entry in entry.0 == number ? nil : entry.2.map { (entry.1, $0) } }
+    }
+
+    /// ⌘; with その他 on: app.executeMenuCommand('showguide') in the Illustrator in front.
+    func showGuides() {
+        guard let app = Illustrator.running else { return }
+        DispatchQueue.global(qos: .userInitiated).async {
+            if case .failed(let message) = Illustrator.run(javascript: "app.executeMenuCommand('showguide'); \"\"", in: app) {
+                diagnostics.log("showguide failed: \(message, privacy: .public)")
+            }
+        }
     }
 
     // MARK: Illustrator settings
@@ -411,7 +447,8 @@ final class Model: ObservableObject {
 
     /// Keys shared by 設定の共有 (export/import and sync). 起動・常駐・メニューバー stay per Mac.
     static let sharedKeys: Set<String> = ["metricsEnabled", "metricsOffEnabled", "notifyApplied", "hotkeysEnabled",
-                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", UnitSet.storeKey, "unitPaletteDetail"]
+                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", UnitSet.storeKey, "unitPaletteDetail",
+                                          "guideInTrimView"]
     /// Re-reads the shared settings after SettingsSync applied them, so the next save does not write the old values back.
     func reloadSharedSettings() {
         metricsEnabled = defaults.object(forKey: "metricsEnabled") as? Bool ?? true
@@ -424,6 +461,7 @@ final class Model: ObservableObject {
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
         unitSets = UnitSet.load()
         unitDetail = defaults.bool(forKey: "unitPaletteDetail")
+        guideInTrim = defaults.bool(forKey: "guideInTrimView")
     }
 
     func stop() {
@@ -611,7 +649,11 @@ struct MainView: View {
                     Note(text: L("file.detail"))
                     ResultRow(result: model.fileResult)
                 })),
-                ("version", L("version.tab"), AnyView(VersionSwitchView()))
+                ("version", L("version.tab"), AnyView(VersionSwitchView())),
+                ("other", L("tab.other"), AnyView(FeaturePage(title: L("other.title")) {
+                    Toggle(L("other.guide"), isOn: $model.guideInTrim)
+                    Note(text: L("other.guideDetail"))
+                }))
             ])
             HStack {
                 Button(L("help")) { (NSApp.delegate as? AppDelegate)?.showHelp() }
@@ -643,6 +685,11 @@ struct Preferences: View {
                     StartupWindowView()
                     Toggle(L("keepRunning"), isOn: $model.keepRunning)
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    Text(L("launch.hotkey"))
+                    HotkeyField(id: "launch", combo: $model.launchCombo, defaultCombo: Model.launchDefault, allowsClear: true,
+                                others: model.otherHotkeys(except: Model.launchNumber),
+                                registered: !model.failedHotkeys.contains(Model.launchNumber), isEnabled: true)
+                    Text(L("launch.hotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     MenuBarPresenceView()
                 }
                 AccessibilitySection()
@@ -733,6 +780,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         model.onChange = { [weak self] in self?.updateStatusItem() }
         model.onPaletteHotkey = { [weak self] in self?.unitPalette.toggle() }
         model.onQuickHotkey = { [weak self] in self?.quickPalette.toggle() }
+        model.onLaunchHotkey = { [weak self] in self?.showMain() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
             note: StartupWindow.text("メトリクスの設定・ホットキー・単位セット・単位パレットのモードを書き出し・同期します。",

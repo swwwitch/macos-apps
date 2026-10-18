@@ -156,7 +156,8 @@ final class UnitPalette: NSObject, NSTableViewDataSource, NSTableViewDelegate, N
         actions.insertArrangedSubview(edit, at: 0)
         let stack = NSStackView(views: [mode, scroll, status, actions])
         stack.orientation = .vertical
-        stack.alignment = .leading
+        // The other rows are as wide as the stack, so only モード is centered.
+        stack.alignment = .centerX
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
         let content = panel.contentView!

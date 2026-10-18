@@ -93,13 +93,14 @@ enum MetricsScript {
 
     /// `tell application "<path>" to do javascript "<js>"` for osascript's standard input.
     static func appleScript(appPath: String, javascript: String, timeout: Int) -> String {
-        func quoted(_ value: String) -> String {
-            "\"" + value.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
-        }
-        return """
+        """
         with timeout of \(timeout) seconds
             tell application \(quoted(appPath)) to do javascript \(quoted(javascript))
         end timeout
         """
+    }
+    /// An AppleScript string literal.
+    static func quoted(_ value: String) -> String {
+        "\"" + value.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
     }
 }

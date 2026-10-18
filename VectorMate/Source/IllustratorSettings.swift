@@ -122,11 +122,13 @@ struct PreferencesPane {
             dialog = AX.wait(50) { Self.find(root) }
         }
         guard let dialog else { return .failure(.dialogNotFound) }
-        // Right after opening, the previous pane's controls can linger: wait for this pane's heading.
-        guard AX.wait(50, { AX.find(in: dialog, depth: 6) { AX.role($0) == kAXStaticTextRole && headings.contains(AX.string($0, kAXValueAttribute) ?? "") } }) != nil else {
-            close(dialog, root, ok: false); return .failure(.dialogNotFound)
-        }
+        guard showsHeading(dialog) else { close(dialog, root, ok: false); return .failure(.dialogNotFound) }
         return .success(dialog)
+    }
+
+    /// Right after opening, the previous pane's controls can linger: waits for this pane's heading.
+    func showsHeading(_ dialog: AXUIElement, tries: Int = 50) -> Bool {
+        AX.wait(tries, { AX.find(in: dialog, depth: 6) { AX.role($0) == kAXStaticTextRole && headings.contains(AX.string($0, kAXValueAttribute) ?? "") } }) != nil
     }
 
     func close(_ dialog: AXUIElement, _ root: AXUIElement, ok: Bool) {

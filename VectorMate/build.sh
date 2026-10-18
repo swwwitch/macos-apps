@@ -8,6 +8,8 @@ trap 'rm -rf "$stage"' EXIT
 app="$stage/VectorMate.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp Info.plist "$app/Contents/Info.plist"
+# Localizable.strings are generated from make-resources.py.
+python3 make-resources.py >/dev/null
 cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Resources/PrivacyInfo.xcprivacy README.md Assets/VectorMate.icns "$app/Contents/Resources/"
 # Shared parts are compiled straight from Shared (no local copies to keep in sync).

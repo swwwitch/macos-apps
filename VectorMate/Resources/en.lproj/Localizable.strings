@@ -196,6 +196,12 @@
 "fail.script" = "No result from Illustrator: %@";
 "openAutomation" = "Open Automation Settings";
 "keepRunning" = "Keep running after closing the window";
+"tab.other" = "Other";
+"other.title" = "Guides";
+"other.guide" = "Show guides in Trim View too";
+"other.guideDetail" = "While Illustrator is in front, ⌘; shows or hides the guides (menu command showguide).";
+"launch.hotkey" = "App launch hotkey";
+"launch.hotkeyHint" = "Default ⌃⌥⌘;. While the app keeps running, it opens the main window from any app.";
 "keepRunningHint" = "Watching for Metrics needs the app to keep running. When off, closing the main window quits the app.";
 "settingsButton" = "Settings…";
 "settings" = "Settings…";

@@ -55,6 +55,7 @@ struct UnitSet: Codable, Identifiable, Equatable {
 /// popup (AXComboBox: its items are AXUnknown children with the names in the description; 一般 has the focus on open,
 /// measured 2026-10-18) is moved with the arrow keys from its current item to the wanted one; OK only when all four
 /// show the wanted unit. In 詳細 mode the increments are written from JavaScript in points first, so OK keeps them.
+/// That is the fallback: first the quick way of SetUnits-*.applescript (ai-scripts) is tried, see `quickSet`.
 enum UnitSettings {
     static let unitKeys = ["rulerType", "strokeUnits", "text/units", "text/asianunits"]
     static let incrementKeys = ["cursorKeyLength", "ovalRadius", "text/sizeIncrement", "text/riseIncrement"]
@@ -133,16 +134,11 @@ enum UnitSettings {
     static func apply(_ set: UnitSet, detail: Bool) -> Result<Applied, SettingsFailure> {
         guard let app = runningIllustrator() else { return .failure(.notRunning) }
         guard AXIsProcessTrusted() else { return .failure(.notTrusted) }
-        if detail {
-            let writes = incrementKeys.indices.map { index -> String in
-                let code = set.units[incrementUnitIndex[index]]
-                return "p.setRealPreference(\"\(incrementKeys[index])\", \(set.increments[index] * (units.indices.contains(code) ? units[code].points : 1)));"
-            }
-            if case .failure(let failure) = evaluate("(function () { var p = app.preferences; " + writes.joined(separator: " ") + " return \"\"; })()", in: app) {
-                return .failure(failure)
-            }
-        }
-        if let failure = setPopups(set.units, in: app) { return .failure(failure) }
+        let writes = detail ? incrementKeys.indices.map { index -> String in
+            let code = set.units[incrementUnitIndex[index]]
+            return "p.setRealPreference(\"\(incrementKeys[index])\", \(set.increments[index] * (units.indices.contains(code) ? units[code].points : 1)));"
+        } : []
+        if let failure = setUnits(set.units, writes: writes, in: app) { return .failure(failure) }
         var skipped = false
         if detail, set.hasDocumentSettings {
             switch DocumentSettings.apply(set, in: app) {
@@ -160,12 +156,82 @@ enum UnitSettings {
     static func applyUnits(_ targets: [Int?]) -> Result<State, SettingsFailure> {
         guard let app = runningIllustrator() else { return .failure(.notRunning) }
         guard AXIsProcessTrusted() else { return .failure(.notTrusted) }
-        if let failure = setPopups(targets, in: app) { return .failure(failure) }
+        if let failure = setUnits(targets, writes: [], in: app) { return .failure(failure) }
         switch read(app) {
         case .success(let after):
             return targets.indices.allSatisfy { targets[$0] == nil || after.units[$0] == targets[$0] } ? .success(after) : .failure(.notChanged)
         case .failure(let failure): return .failure(failure)
         }
+    }
+
+    /// The quick way, then (when the units read back differ) the popups one by one. `writes` are JavaScript statements on `p`
+    /// (app.preferences) run first, the increments of 詳細 mode.
+    private static func setUnits(_ targets: [Int?], writes: [String], in app: NSRunningApplication) -> SettingsFailure? {
+        switch quickSet(targets, writes: writes, in: app) {
+        case .failure(.automationDenied): return .automationDenied
+        case .success:
+            if case .success(let after) = read(app), targets.indices.allSatisfy({ targets[$0] == nil || after.units[$0] == targets[$0] }) { return nil }
+            diagnostics.log("units: quick way did not match, falling back")
+        case .failure(.dialogNotFound):
+            // Illustrator did not come to the front (another app took it): opening the pane from the menu would fail too.
+            diagnostics.log("units: the pane did not open")
+            return .dialogNotFound
+        case .failure(let failure):
+            diagnostics.log("units: quick way failed (\(String(describing: failure), privacy: .public)), falling back")
+        }
+        if !writes.isEmpty, case .failure(let failure) = evaluate("(function () { var p = app.preferences; " + writes.joined(separator: " ") + " return \"\"; })()", in: app) {
+            return failure
+        }
+        return setPopups(targets, in: app)
+    }
+
+    /// SetUnits-*.applescript (ai-scripts): each unit is written from JavaScript as its neighbor in the popup, the 単位 pane is
+    /// opened with the menu command unitundoPref (not waiting for it: the dialog box blocks the script), and one arrow key per
+    /// popup moves it to the wanted unit, Tab between them (一般 has the focus on open). No item names are read, so no language
+    /// is assumed; the caller checks the result from JavaScript.
+    private static func quickSet(_ targets: [Int?], writes: [String], in app: NSRunningApplication) -> Result<Void, SettingsFailure> {
+        guard let path = app.bundleURL?.path else { return .failure(.failed("no bundle")) }
+        var statements = writes
+        var keys: [Int?] = []
+        for index in 0..<4 {
+            guard let code = targets[index] else { keys.append(nil); continue }
+            let list = choices[index]
+            guard let at = list.firstIndex(of: code), list.count > 1 else { return .failure(.controlNotFound) }
+            let neighbor = at > 0 ? list[at - 1] : list[at + 1]
+            keys.append(at > 0 ? kVK_DownArrow : kVK_UpArrow)
+            statements.append("p.setIntegerPreference(\"\(unitKeys[index])\", \(neighbor));")
+        }
+        guard bringToFront(app) else { return .failure(.failed("activate")) }
+        let javascript = "(function () { var p = app.preferences; " + statements.joined(separator: " ") + " return \"\"; })()"
+        let source = """
+        with timeout of 5 seconds
+            tell application \(MetricsScript.quoted(path))
+                do javascript \(MetricsScript.quoted(javascript))
+                ignoring application responses
+                    execute menu command menu command string "unitundoPref"
+                end ignoring
+            end tell
+        end timeout
+        """
+        switch Illustrator.run(appleScript: source) {
+        case .output: break
+        case .automationDenied: return .failure(.automationDenied)
+        case .timedOut: return .failure(.failed("timeout"))
+        case .failed(let message): return .failure(.failed(message))
+        }
+        let root = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetMessagingTimeout(root, 3)
+        guard let dialog = AX.wait(50, { PreferencesPane.find(root) }) else { return .failure(.dialogNotFound) }
+        guard pane.showsHeading(dialog, tries: 30) else { pane.close(dialog, root, ok: false); return .failure(.dialogNotFound) }
+        let popups = AX.elements(dialog).filter { AX.role($0) == kAXComboBoxRole && !AX.elements($0).isEmpty }
+        guard popups.count >= 4, isFocused(popups[0]) else { pane.close(dialog, root, ok: false); return .failure(.controlNotFound) }
+        let last = keys.lastIndex { $0 != nil } ?? 0
+        for index in 0...last {
+            if let key = keys[index] { AX.key(key) }
+            if index < last { AX.key(kVK_Tab) }
+        }
+        pane.close(dialog, root, ok: true)
+        return .success(())
     }
 
     /// Opens the 単位 pane, moves each popup with a target to it, and presses OK only when all of them match.

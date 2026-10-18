@@ -196,6 +196,12 @@
 "fail.script" = "Illustratorから結果を受け取れませんでした：%@";
 "openAutomation" = "オートメーション設定を開く";
 "keepRunning" = "ウインドウを閉じても常駐";
+"tab.other" = "その他";
+"other.title" = "ガイド";
+"other.guide" = "トリミング表示でもガイドを表示する";
+"other.guideDetail" = "Illustratorが前面のとき、⌘; で［表示］→［ガイド］の表示・非表示を切り替えます（メニューコマンド showguide）。";
+"launch.hotkey" = "アプリ起動のホットキー";
+"launch.hotkeyHint" = "初期値は ⌃⌥⌘;。常駐中なら、どのアプリが前面でもメインウインドウを開きます。";
 "keepRunningHint" = "プロポーショナルメトリクスの見張りを続けるには常駐が必要です。オフにすると、メインウインドウを閉じたときに終了します。";
 "settingsButton" = "設定…";
 "settings" = "設定…";

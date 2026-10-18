@@ -196,6 +196,12 @@
 "fail.script" = "未能从 Illustrator 获得结果：%@";
 "openAutomation" = "打开自动化设置";
 "keepRunning" = "关闭窗口后继续运行";
+"tab.other" = "其他";
+"other.title" = "参考线";
+"other.guide" = "在剪切视图中也显示参考线";
+"other.guideDetail" = "Illustrator 位于前台时，⌘; 显示或隐藏参考线（菜单命令 showguide）。";
+"launch.hotkey" = "启动应用快捷键";
+"launch.hotkeyHint" = "默认 ⌃⌥⌘;。应用常驻时，无论哪个应用在前台都会打开主窗口。";
 "keepRunningHint" = "持续监视需要应用保持运行。关闭此项后，关闭主窗口即退出。";
 "settingsButton" = "设置…";
 "settings" = "设置…";

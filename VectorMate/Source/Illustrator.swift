@@ -28,13 +28,18 @@ enum Illustrator {
     /// The app is addressed by its path, so the Illustrator in front is used even when several versions are open.
     static func run(javascript: String, in app: NSRunningApplication, timeout: Int = 5) -> ScriptResult {
         guard let path = app.bundleURL?.path else { return .failed("no bundle") }
+        return run(appleScript: MetricsScript.appleScript(appPath: path, javascript: javascript, timeout: timeout), timeout: timeout)
+    }
+
+    /// Runs an AppleScript source through osascript (off the main thread).
+    static func run(appleScript source: String, timeout: Int = 5) -> ScriptResult {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
         process.arguments = ["-"]
         let input = Pipe(), output = Pipe(), error = Pipe()
         process.standardInput = input; process.standardOutput = output; process.standardError = error
         do { try process.run() } catch { return .failed(error.localizedDescription) }
-        input.fileHandleForWriting.write(MetricsScript.appleScript(appPath: path, javascript: javascript, timeout: timeout).data(using: .utf8)!)
+        input.fileHandleForWriting.write(source.data(using: .utf8)!)
         try? input.fileHandleForWriting.close()
         let killer = DispatchWorkItem { if process.isRunning { process.terminate() } }
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(timeout + 3), execute: killer)
