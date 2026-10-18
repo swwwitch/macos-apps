@@ -71,6 +71,12 @@ final class Model: ObservableObject {
     @Published var guideInTrim: Bool { didSet { defaults.set(guideInTrim, forKey: "guideInTrimView"); refreshHotkeys() } }
     static let guideCombo = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.command)
     static let guideNumber: UInt32 = 6
+    /// ツール: a modifier key (⌃ by default) tapped twice selects the Selection tool; the Artboard / Gradient tool opens its panel. Off by default.
+    @Published var doubleTap: Bool { didSet { defaults.set(doubleTap, forKey: "controlDoubleTapSelect"); refreshToolWatcher() } }
+    @Published var tapKey: ToolWatcher.TapKey { didSet { defaults.set(tapKey.rawValue, forKey: "doubleTapKey"); refreshToolWatcher() } }
+    @Published var artboardPanel: Bool { didSet { defaults.set(artboardPanel, forKey: "artboardToolPanel"); refreshToolWatcher() } }
+    @Published var gradientPanel: Bool { didSet { defaults.set(gradientPanel, forKey: "gradientToolPanel"); refreshToolWatcher() } }
+    let toolWatcher = ToolWatcher()
     @Published var failedHotkeys: Set<UInt32> = []
     static let brighterDefault = KeyCombo(code: UInt32(kVK_F2), modifiers: KeyCombo.shift)
     static let darkerDefault = KeyCombo(code: UInt32(kVK_F1), modifiers: KeyCombo.shift)
@@ -102,6 +108,10 @@ final class Model: ObservableObject {
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
         launchCombo = defaults.data(forKey: "launchHotkey") == nil ? Self.launchDefault : Self.load("launchHotkey")
         guideInTrim = defaults.bool(forKey: "guideInTrimView")
+        doubleTap = defaults.bool(forKey: "controlDoubleTapSelect")
+        tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
+        artboardPanel = defaults.bool(forKey: "artboardToolPanel")
+        gradientPanel = defaults.bool(forKey: "gradientToolPanel")
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
@@ -118,7 +128,12 @@ final class Model: ObservableObject {
         }
         watcher.turnOff = metricsOffEnabled
         refreshWatcher()
+        refreshToolWatcher()
         refreshHotkeys()
+    }
+
+    func refreshToolWatcher() {
+        toolWatcher.options = ToolWatcher.Options(doubleTap: doubleTap, tapKey: tapKey, artboardPanel: artboardPanel, gradientPanel: gradientPanel)
     }
 
     private static func load(_ key: String) -> KeyCombo? {
@@ -141,6 +156,7 @@ final class Model: ObservableObject {
         guard now != trusted else { return }
         trusted = now
         watcher.restart()
+        toolWatcher.restart()
         onChange?()
     }
 
@@ -448,7 +464,7 @@ final class Model: ObservableObject {
     /// Keys shared by 設定の共有 (export/import and sync). 起動・常駐・メニューバー stay per Mac.
     static let sharedKeys: Set<String> = ["metricsEnabled", "metricsOffEnabled", "notifyApplied", "hotkeysEnabled",
                                           "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", UnitSet.storeKey, "unitPaletteDetail",
-                                          "guideInTrimView"]
+                                          "guideInTrimView", "controlDoubleTapSelect", "doubleTapKey", "artboardToolPanel", "gradientToolPanel"]
     /// Re-reads the shared settings after SettingsSync applied them, so the next save does not write the old values back.
     func reloadSharedSettings() {
         metricsEnabled = defaults.object(forKey: "metricsEnabled") as? Bool ?? true
@@ -462,6 +478,10 @@ final class Model: ObservableObject {
         unitSets = UnitSet.load()
         unitDetail = defaults.bool(forKey: "unitPaletteDetail")
         guideInTrim = defaults.bool(forKey: "guideInTrimView")
+        doubleTap = defaults.bool(forKey: "controlDoubleTapSelect")
+        tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
+        artboardPanel = defaults.bool(forKey: "artboardToolPanel")
+        gradientPanel = defaults.bool(forKey: "gradientToolPanel")
     }
 
     func stop() {
@@ -636,6 +656,20 @@ struct MainView: View {
                     if model.shapeSource == nil { Note(text: model.shapeNoDocument ? L("fail.noDocument") : model.notRunningText) }
                     Note(text: L("shape.detail"))
                     ResultRow(result: model.toolResult)
+                    GroupTitle(text: L("tool.selectTitle")).padding(.top, 8)
+                    Toggle(L("tool.doubleTap"), isOn: $model.doubleTap)
+                    HStack(spacing: 6) {
+                        Text(L("tool.tapKey"))
+                        Picker("", selection: $model.tapKey) {
+                            ForEach(ToolWatcher.TapKey.allCases, id: \.self) { Text($0.label).tag($0) }
+                        }.labelsHidden().fixedSize()
+                    }.disabled(!model.doubleTap).padding(.leading, 20)
+                    Note(text: L("tool.controlDoubleTapDetail"))
+                    GroupTitle(text: L("tool.panelTitle")).padding(.top, 8)
+                    Toggle(L("tool.artboardPanel"), isOn: $model.artboardPanel)
+                    Toggle(L("tool.gradientPanel"), isOn: $model.gradientPanel)
+                    Note(text: L("tool.panelDetail"))
+                    if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel) { Note(text: AccessibilityText.text("blocked")) }
                 })),
                 ("file", L("tab.file"), AnyView(FeaturePage(title: L("file.title")) {
                     ForEach(FileHandling.Item.allCases, id: \.self) { item in

@@ -24,6 +24,13 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）の常駐アプリ（
 
 ［シェイプ形成ツールオプション］の「次のカラーを利用」を「スウォッチ」「オブジェクト」に切り替えます。状態は `Planar/MergeTool/PaintFills`（0：オブジェクト、1：スウォッチ）。`app.selectTool("Adobe Shape Builder Tool")` → Return でオプション（AXLayoutArea「〜オプション」）を開き、両方の項目を持つポップアップを AXPress して矢印キーと Return で選び［OK］（SetAiMenuState.applescript の applyToolOption と同じ）。ドキュメントが必要で、ツールはシェイプ形成ツールのまま。
 
+### ツールの切り替え・パネル
+
+「ツール」タブ。いずれも初期値オフ、Illustratorが前面のときだけ、アクセシビリティの許可が必要。
+
+- 修飾キーのダブルタップで選択ツール：選んだキー（control・option・command・shift、初期値 control。設定 doubleTapKey）だけを0.3秒以内に押して離し、0.35秒以内にもう一度で `app.selectTool('Adobe Select Tool')`。ほかのキー・クリック・修飾キーを挟むと数えない（flagsChanged のグローバル監視）。
+- アートボードツール → アートボードパネル、グラデーションツール → グラデーションパネル：クリック・キー（⌘以外）の0.35秒後、修飾キーをすべて離した0.35秒後と1秒後（Keyboard Maestro のホットキーはキーが届かず、マクロの selectTool が終わるのを待つ）、Illustratorが前面に来たときに `app.getSelectedToolName()`（非公開。2026で実測、名前は `Adobe Crop Tool`／`Adobe Gradient Vector Tool`）で読み、ほかのツールから切り替わったときだけ `executeMenuCommand('Adobe Artboard Palette'／'Adobe Gradient Palette')`。メニューはパネルの表示・非表示を切り替えるので、［ウィンドウ］の項目に ✓ が無いときだけ実行（AXMenuItemMarkChar）。
+
 ### バックグラウンド保存・書き出しをオフ
 
 ［設定］→［ファイル管理］の「バックグラウンドで保存」「バックグラウンドで書き出し」をオフにします（参考：`jsx/AppleScript/DisableBackgroundSaveExport.applescript`、`helpers/SetAiMenuState.applescript`、`jsx/preference/ViewToggles.jsx`）。
@@ -61,6 +68,15 @@ Assets/make-icon.sh                  # アイコン
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。
 
 ## 更新履歴
+
+### 2.7.1（build 50、2026-10-19）
+
+- Keyboard Maestro などのホットキーで app.selectTool を実行したときに、アートボード・グラデーションパネルが開かなかったのを修正（修飾キーを離したときもツールを読み直す）。
+- 選択ツールに切り替えるダブルタップのキーを control・option・command・shift から選べるようにした。
+
+### 2.7.0（build 49、2026-10-19）
+
+- 「ツール」タブに「修飾キーのダブルタップで選択ツールに切り替える」（キーは control・option・command・shift から選択）「アートボードツールを選んだらアートボードパネルを開く」「グラデーションツールを選んだらグラデーションパネルを開く」を追加（初期値オフ、設定の共有の対象）。
 
 ### 2.6.1（build 48、2026-10-18）
 

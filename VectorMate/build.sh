@@ -20,7 +20,7 @@ SHARED=(../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface
 for arch in arm64 x86_64; do
   xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target "$arch-apple-macosx13.0" -module-cache-path "$stage/cache" \
     -framework AppKit -framework SwiftUI -framework Carbon -framework ServiceManagement -framework ApplicationServices \
-    "${SHARED[@]}" Source/MetricsScript.swift Source/Illustrator.swift Source/IllustratorSettings.swift Source/Units.swift Source/UnitPalette.swift Source/UnitSetsEditor.swift Source/QuickPrefs.swift Source/VersionPinning.swift Source/LaunchPolicy.swift Source/main.swift -o "$stage/VectorMate-$arch"
+    "${SHARED[@]}" Source/MetricsScript.swift Source/Illustrator.swift Source/IllustratorSettings.swift Source/Units.swift Source/UnitPalette.swift Source/UnitSetsEditor.swift Source/QuickPrefs.swift Source/ToolWatch.swift Source/VersionPinning.swift Source/LaunchPolicy.swift Source/main.swift -o "$stage/VectorMate-$arch"
 done
 xcrun lipo -create "$stage/VectorMate-arm64" "$stage/VectorMate-x86_64" -output "$app/Contents/MacOS/VectorMate"
 xcrun lipo -verify_arch arm64 "$app/Contents/MacOS/VectorMate"

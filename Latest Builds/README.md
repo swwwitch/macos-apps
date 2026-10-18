@@ -4,7 +4,7 @@
 
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
-| [VectorMate](VectorMate.app) | 2.6.1 | 48 | `jp.dtp-transit.vectormate` |
+| [VectorMate](VectorMate.app) | 2.7.1 | 50 | `jp.dtp-transit.vectormate` |
 | [DocklessLauncher](DocklessLauncher.app) | 1.10.2 | 22 | `jp.dtp-transit.applauncher` |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.6.35 | 55 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.0.10 | 11 | `jp.dtp-transit.bundleidinspector` |

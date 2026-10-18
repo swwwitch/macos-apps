@@ -50,6 +50,14 @@ rows = [
 ('shape.detail', '［シェイプ形成ツールオプション］の「次のカラーを利用」を切り替えます。ツールオプションを開いて選ぶので、ドキュメントを開いておいてください。ツールはシェイプ形成ツールに切り替わります。', 'Switches Pick Color From in the Shape Builder Tool Options. The tool options are opened, so a document must be open. The Shape Builder tool becomes active.', '切换“形状生成器工具选项”中的“拾色来源”。会打开工具选项，因此需要打开文档。工具会切换为形状生成器工具。', '도형 구성 도구 옵션의 색상 선택 위치를 전환합니다. 도구 옵션을 열기 때문에 도큐먼트가 열려 있어야 합니다. 도구는 도형 구성 도구로 바뀝니다.'),
 ('shape.swatches', 'スウォッチ', 'Color Swatches', '色板', '색상 견본'),
 ('shape.artwork', 'オブジェクト', 'Artwork', '图稿', '아트워크'),
+('tool.selectTitle', '選択ツール', 'Selection Tool', '选择工具', '선택 도구'),
+('tool.doubleTap', '修飾キーのダブルタップで選択ツールに切り替える', 'Double-tap a modifier key to switch to the Selection tool', '连按两下修饰键切换到选择工具', '보조 키를 두 번 탭하면 선택 도구로 전환'),
+('tool.tapKey', 'キー :', 'Key:', '按键：', '키:'),
+('tool.controlDoubleTapDetail', 'Illustratorが前面のとき、選んだキーだけを2回続けて軽く押すと app.selectTool(\'Adobe Select Tool\') を実行します。ほかのキーやクリックを挟むと数えません。', 'While Illustrator is in front, tapping the chosen key alone twice runs app.selectTool(\'Adobe Select Tool\'). Another key or a click in between cancels it.', 'Illustrator 位于前台时，单独连按两下所选的键会执行 app.selectTool(\'Adobe Select Tool\')。中间按其他键或点按则不计。', 'Illustrator가 앞에 있을 때 선택한 키만 두 번 가볍게 누르면 app.selectTool(\'Adobe Select Tool\')를 실행합니다. 사이에 다른 키나 클릭이 있으면 세지 않습니다.'),
+('tool.panelTitle', 'ツールに合わせてパネルを開く', 'Open Panels for Tools', '按工具打开面板', '도구에 맞춰 패널 열기'),
+('tool.artboardPanel', 'アートボードツールを選んだらアートボードパネルを開く', 'Open the Artboards panel with the Artboard tool', '选择画板工具时打开“画板”面板', '대지 도구를 선택하면 대지 패널 열기'),
+('tool.gradientPanel', 'グラデーションツールを選んだらグラデーションパネルを開く', 'Open the Gradient panel with the Gradient tool', '选择渐变工具时打开“渐变”面板', '그레이디언트 도구를 선택하면 그레이디언트 패널 열기'),
+('tool.panelDetail', 'クリックやキーの後にツールを読み、ほかのツールから切り替わったときだけ開きます（［ウィンドウ］メニューに ✓ が付いていれば何もしません）。', 'The tool is read after clicks and keys; the panel opens only when the tool is switched to from another one (nothing happens when the Window menu item already has a checkmark).', '在点按或按键后读取工具，仅在从其他工具切换过来时打开（“窗口”菜单中已有 ✓ 时不执行任何操作）。', '클릭이나 키 입력 뒤에 도구를 읽고, 다른 도구에서 전환했을 때만 엽니다(윈도우 메뉴에 ✓가 있으면 아무것도 하지 않습니다).'),
 ('shape.menuSwatches', 'シェイプ形成ツールのカラー：スウォッチ', 'Shape Builder Color: Color Swatches', '形状生成器颜色：色板', '도형 구성 색상: 색상 견본'),
 ('shape.menuArtwork', 'シェイプ形成ツールのカラー：オブジェクト', 'Shape Builder Color: Artwork', '形状生成器颜色：图稿', '도형 구성 색상: 아트워크'),
 ('shape.done', '「次のカラーを利用」を「%@」にしました', 'Pick Color From is now %@', '“拾色来源”已设为“%@”', '색상 선택 위치를 %@(으)로 바꿨습니다'),
@@ -268,6 +276,8 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 
 ツール（タブ）
 ［シェイプ形成ツールオプション］の「次のカラーを利用」を「スウォッチ」「オブジェクト」のラジオボタンで切り替えます。シェイプ形成ツールを選んでツールオプションを開き、一覧から選んで［OK］を押します（ドキュメントを開いておいてください。ツールはシェイプ形成ツールに切り替わります）。操作中はキーボードやマウスに触れないでください。
+「修飾キーのダブルタップで選択ツールに切り替える」をオンにすると、Illustratorが前面のとき、選んだキー（control・option・command・shift。初期値は control）だけを2回続けて軽く押すと選択ツールにします（app.selectTool('Adobe Select Tool')。ほかのキーやクリックを挟むと数えません）。
+「アートボードツールを選んだらアートボードパネルを開く」「グラデーションツールを選んだらグラデーションパネルを開く」をオンにすると、クリックやキーの後にツールを読み、ほかのツールから切り替わったときだけ［ウィンドウ］メニューのパネルを開きます（✓ が付いていれば何もしません）。いずれも初期値はオフで、アクセシビリティの許可が必要です。
 
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。
@@ -320,6 +330,8 @@ A floating palette opened with Show Units Palette (menu bar, File menu, the Unit
 
 Tools tab
 Radio buttons for Pick Color From in the Shape Builder Tool Options (Color Swatches or Artwork). The Shape Builder tool is selected, its options are opened, the item is picked and OK is pressed (a document must be open; the Shape Builder tool stays selected). Do not touch the keyboard or mouse meanwhile.
+Double-tap a modifier key to switch to the Selection tool: while Illustrator is in front, tapping the chosen key (Control, Option, Command or Shift; Control by default) alone twice selects the Selection tool (app.selectTool('Adobe Select Tool'); another key or a click in between cancels it).
+Open the Artboards / Gradient panel with the Artboard / Gradient tool: the tool is read after clicks and keys, and the panel opens from the Window menu only when the tool is switched to from another one (nothing happens when the item already has a checkmark). All are off by default and need the Accessibility permission.
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default).
@@ -372,6 +384,8 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 
 工具（标签）
 用单选按钮切换“形状生成器工具选项”中的“拾色来源”（色板或图稿）。会选择形状生成器工具、打开其选项、选择项目并按“好”（需要打开文档；工具会保持为形状生成器工具）。操作期间请勿触碰键盘和鼠标。
+打开“连按两下修饰键切换到选择工具”后，Illustrator 位于前台时，单独连按两下所选的键（Control、Option、Command 或 Shift，默认为 Control）会切换到选择工具（app.selectTool('Adobe Select Tool')；中间按其他键或点按则不计）。
+打开“选择画板工具时打开‘画板’面板”“选择渐变工具时打开‘渐变’面板”后，会在点按或按键后读取工具，仅在从其他工具切换过来时从“窗口”菜单打开面板（已有 ✓ 时不执行任何操作）。默认均为关，需要辅助功能权限。
 
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。
@@ -424,6 +438,8 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 
 도구(탭)
 도형 구성 도구 옵션의 색상 선택 위치(색상 견본 또는 아트워크)를 라디오 버튼으로 전환합니다. 도형 구성 도구를 선택하고 옵션을 열어 항목을 고른 뒤 확인을 누릅니다(도큐먼트가 열려 있어야 하며, 도구는 도형 구성 도구로 남습니다). 조작 중에는 키보드와 마우스를 만지지 마세요.
+보조 키를 두 번 탭하면 선택 도구로 전환을 켜면, Illustrator가 앞에 있을 때 선택한 키(Control, Option, Command, Shift. 기본값은 Control)만 두 번 가볍게 누르면 선택 도구로 바꿉니다(app.selectTool('Adobe Select Tool'). 사이에 다른 키나 클릭이 있으면 세지 않습니다).
+대지 도구·그레이디언트 도구를 선택하면 패널 열기를 켜면, 클릭이나 키 입력 뒤에 도구를 읽고 다른 도구에서 전환했을 때만 윈도우 메뉴의 패널을 엽니다(✓가 있으면 아무것도 하지 않습니다). 모두 기본값은 끔이며 손쉬운 사용 권한이 필요합니다.
 
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔).

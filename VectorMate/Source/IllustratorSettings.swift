@@ -278,9 +278,11 @@ enum InterfaceMenus {
     /// オールドスクール設定. The toolbar's two columns cannot be set: the toolbar panel is not exposed to Accessibility.
     static let oldSchool: State = [.advancedToolbar: true, .contextualTaskBar: false, .controlBar: true, .snapToGlyph: false, .helpBar: false, .applicationBar: false]
 
-    private static func menuItem(_ root: AXUIElement, _ item: Item) -> AXUIElement? {
+    private static func menuItem(_ root: AXUIElement, _ item: Item) -> AXUIElement? { menuItem(root, paths: paths[item]!) }
+    /// The menu item at the first of `paths` that exists (Japanese first, then English).
+    static func menuItem(_ root: AXUIElement, paths: [[String]]) -> AXUIElement? {
         guard let bar = AX.element(root, kAXMenuBarAttribute) else { return nil }
-        for path in paths[item]! {
+        for path in paths {
             var level = AX.elements(bar)
             var found: AXUIElement?
             for name in path {
@@ -292,7 +294,7 @@ enum InterfaceMenus {
         }
         return nil
     }
-    private static func isChecked(_ el: AXUIElement) -> Bool { !(AX.string(el, "AXMenuItemMarkChar") ?? "").isEmpty }
+    static func isChecked(_ el: AXUIElement) -> Bool { !(AX.string(el, "AXMenuItemMarkChar") ?? "").isEmpty }
 
     /// Reads every checkmark without opening a menu (no dialog box; Illustrator stays where it is).
     static func read() -> Result<State, SettingsFailure> {
