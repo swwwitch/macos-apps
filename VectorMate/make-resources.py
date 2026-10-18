@@ -131,7 +131,7 @@ rows = [
 ('sets.reset', 'すべて初期値に戻す', 'Reset All to Defaults', '全部恢复默认', '모두 기본값으로 되돌리기'),
 ('sets.resetConfirm', '単位セットを初期値（プリント（pt）・プリント（級）・ウェブ・プレゼン）に戻しますか？', 'Reset the unit sets to the defaults (Print (pt), Print (Q), Web, Presentation)?', '要将单位组合恢复为默认（印刷（pt）、印刷（级）、网页、演示）吗？', '단위 세트를 기본값(인쇄(pt), 인쇄(급), 웹, 프레젠테이션)으로 되돌릴까요?'),
 ('sets.hint', '単位は「基本」「詳細」のどちらでも変わります。増減量とドキュメントの設定は、単位パレットのモードが「詳細」のときだけ変わります（「変更しない」の項目はそのまま。ドキュメントの設定は開いているドキュメントに対して行います）。増減量は、キー入力・角丸の半径は一般、サイズ/行送りは文字、ベースラインシフトは東アジア言語の単位で指定します。', 'Units change in both Basic and Detailed mode. The increments and document settings change only in Detailed mode (items set to Leave unchanged stay as they are; document settings apply to the open document). Keyboard increment and corner radius are in the General unit, size/leading in the Type unit, baseline shift in the East Asian unit.', '单位在“基本”和“详细”模式下都会更改。增量和文档设置仅在“详细”模式下更改（“不更改”的项目保持原样；文档设置作用于打开的文档）。键盘增量和圆角半径使用常规单位，大小/行距使用文字单位，基线偏移使用东亚文字单位。', '단위는 기본과 상세 모두에서 바뀝니다. 증감량과 도큐먼트 설정은 상세 모드에서만 바뀝니다(변경 안 함 항목은 그대로이며, 도큐먼트 설정은 열린 도큐먼트에 적용). 키보드 증감과 모퉁이 반경은 일반 단위, 크기/행간은 문자 단위, 기준선 이동은 동아시아 단위로 지정합니다.'),
-('sets.name', '名前', 'Name', '名称', '이름'),
+('sets.name', 'セット名', 'Set Name', '组名称', '세트 이름'),
 ('sets.detailTitle', '詳細（増減量）', 'Detailed (increments)', '详细（增量）', '상세(증감량)'),
 ('sets.otherTitle', 'その他（カラーモード、プレビュー）', 'Other (color mode, preview)', '其他（颜色模式、预览）', '기타(색상 모드, 미리 보기)'),
 ('sets.colorMode', 'カラーモード', 'Color mode', '颜色模式', '색상 모드'),

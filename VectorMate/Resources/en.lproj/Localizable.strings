@@ -121,7 +121,7 @@
 "sets.reset" = "Reset All to Defaults";
 "sets.resetConfirm" = "Reset the unit sets to the defaults (Print (pt), Print (Q), Web, Presentation)?";
 "sets.hint" = "Units change in both Basic and Detailed mode. The increments and document settings change only in Detailed mode (items set to Leave unchanged stay as they are; document settings apply to the open document). Keyboard increment and corner radius are in the General unit, size/leading in the Type unit, baseline shift in the East Asian unit.";
-"sets.name" = "Name";
+"sets.name" = "Set Name";
 "sets.detailTitle" = "Detailed (increments)";
 "sets.otherTitle" = "Other (color mode, preview)";
 "sets.colorMode" = "Color mode";
