@@ -1,0 +1,77 @@
+Removes part of an image, closes up the rest, draws break lines along the cut, and saves it as PNG, JPEG or PSD. It is the bitmap version of the Illustrator script Trim with Break Lines (TrimWithBreakLine).
+
+## How to use
+1. Drop an image on the main window, or choose **File** > **Open Image to Trim…** (⌘O). You can also use Open With in Finder, drop on the Dock icon, or paste an image (⌘V).
+2. Drag over the **Original** to draw the area to remove (the mask shape in Illustrator). Drag a blue guide (the top and bottom edges, or left and right for a left-right split) to move just that edge. Drag inside the area to move it, or outside it to draw a new one. Right after opening, a wide area sits across the middle of the image.
+3. Adjust **Mask shape**, **Cut edge** and **Break lines** on the right. The **Preview** updates right away. **Transparent**, **White**, **Gray** and **Black** at its top right change what fills transparent areas (also in the saved or copied image). On the original, the parts that go away are dimmed and the cut edges are shown in red.
+4. Choose **Save as PNG…** (⌘S; the format chosen under **File format** on the right), or **Copy** (⇧⌘C) to put it on the clipboard.
+
+## How the image is split
+- When the area spans more of the image across, the image is split into top and bottom; when it spans more of it vertically, into left and right (decided by how much of the image it covers, not by its own shape).
+- When the area reaches an edge of the image, only that side is kept and the rest is trimmed away; the gap is not used then. An area from the top edge to the bottom edge (or left to right) cannot be split.
+- The image is trimmed to the width of the area (its height for a left-right split).
+- When closing up, the top part (or the left part) stays and the other one moves.
+
+## Mask shape
+- **Width** and **Height**: scale the drawn area from its center (%). Along the split direction this sets the area to remove; along the cut edge, the size the image is trimmed to.
+- **Offset**: moves the area to remove (pixels). Positive values move it down (or right), negative values up (or left).
+
+## Cut edge
+- Choose the shape: **Flag** (wavy), **Rise** (curving up toward one side), **Straight** (a slanted line) or **Jagged**.
+- **Bend**: how much it bends (-100 to 100%), relative to the image height (the width for a left-right split). 0 cuts straight across; negative values reverse the direction. For Straight, it is the slant.
+- **Size** and **Ridges**: the height of the jagged ridges (pixels) and how many there are from end to end. When either is 0, the cut is straight.
+- **Gap**: the distance between the two parts after closing up (pixels). The space between them is transparent.
+
+## Break lines
+- **Add break lines**: draws a line along the cut edge of each part.
+- **Color** and **Weight**: the color can include opacity (black at first). The weight is in pixels.
+- **Cap**: **Butt** or **Round**. A round cap rounds the line ends (each dash when dashed).
+- **Line style** and **Segments**: with **Dashed**, the cut edge is filled with that many dashes. Dash and gap are equal, and both ends finish with a dash.
+
+Group with parts from the Illustrator version does not apply to bitmaps and is left out. The settings carry over to the next launch. **Restore All Defaults** resets these items (the drawn area stays).
+
+## Saving and copying
+The result is saved as **PNG** (the default), **JPEG** or **PSD**, as chosen under **File format** on the right. With the **Transparent** background, transparent areas and the areas outside the cut and in the gap stay transparent; with **White**, **Gray** or **Black** they are filled with that color. JPEG cannot hold transparency, so it is filled with white even with **Transparent** (quality 90%). PSD is saved as a single image without layers. Copy always uses PNG. Parts move by whole pixels, so the remaining pixels are never scaled. The resolution (dpi) is kept, and a photo's orientation is applied to the saved image. The original is not changed. Where and under what name it is saved is set in the Output tab of the settings. Save to **The original image's folder** (the default), **Desktop**, **A chosen folder** or **Ask each time**; except with Ask each time, it saves without asking. The name is the original name plus “-breakline” (you can change it); an existing file is never replaced, and the new one is numbered like “name-breakline 2.png”. With **Open the saved file** on in the Output tab, the file opens in the default app for its format after saving. The original itself cannot be chosen as the destination.
+
+## Settings
+Open them with **Settings…** (⌘,) in the app menu. The Startup & Background tab has:
+
+- **Open at login** (off at first)
+- **Hide main window at startup** (off at first)
+- **Keep running after closing the window** (on at first; when off, closing the main window quits)
+- **Show in menu bar**
+
+The Output tab sets where files are saved and how they are named (see Saving and copying above). In the Sharing tab, **Export…** saves the mask shape, cut edge, break line, file name and save location settings to BreaklineTrimmer-Settings.plist and **Import…** reads them on another Mac. Settings Sync with a folder such as iCloud Drive or Dropbox keeps Macs that use the same folder in step. Images and drawn areas are not included. Open at login, keep running, the menu bar and the chosen folder are set on each Mac.
+
+## Hotkeys
+- **⌘O**: Open Image to Trim
+- **⌘S**: Save (PNG, JPEG or PSD)
+- **⇧⌘C**: Copy the result image
+- **⌘C / ⌘V**: outside text fields, copy the result image / paste an image to open it
+- **⌘0**: Open the main window
+- **⌘,**: Settings
+- **⌘?**: Help
+- **⌘W**: Close the window
+- **⌘Q**: Quit BreaklineTrimmer
+
+The app uses no global hotkeys.
+
+## Permissions
+No special permission is needed. The app reads only the images you open, drop or paste, and writes only the file you choose to save. It does not connect to the internet (Check for Updates shows that updates are being prepared until a distribution feed is set, and does not connect).
+
+## Running and quitting
+- With **Keep running after closing the window** on, closing the window does not quit the app, and the open image and area stay as they are. Show the window again from the Dock icon, **File** > **Open Main Window** (⌘0), or the menu bar icon (when shown).
+- When opened at login, or with **Hide main window at startup** on, the app starts without showing the main window. It shows the window when files are handed to it.
+- To quit, choose **Quit BreaklineTrimmer** (⌘Q) in the app menu. The app cannot quit while saving; quit again after the save finishes.
+
+## Troubleshooting
+- If you see “The area covers the image from its top edge to its bottom edge”, draw the area again and leave one of the ends clear.
+- If the image is split the wrong way, draw the area longer in the direction you want to cut across.
+- If the curve of the cut is too big, lower **Bend** (it is a share of the image height or width).
+- If an image does not open, check that Preview can open it, then export it as PNG or JPEG and open that.
+- Help > **Open the note Article** opens the app's introduction on note in your browser.
+
+## Uninstalling
+1. Turn off **Open at login**.
+2. Quit the app.
+3. Move BreaklineTrimmer to the Trash.
