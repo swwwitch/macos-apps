@@ -240,7 +240,6 @@ struct ApplicationBarView: View {
                 .foregroundColor(model.inDesignRunning ? .orange : .secondary).fixedSize(horizontal: false, vertical: true)
             Text(model.barStatus).font(.system(size: 13)).lineLimit(3).textSelection(.enabled).frame(minHeight: 34, alignment: .topLeading)
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 Spacer()
                 Button(L("reload")) { model.refresh(resetStatus: true) }
                 Button(L("barHideAll")) { model.setBar(model.visibleWorkspaces, hidden: true) }
@@ -301,7 +300,6 @@ struct ContentView: View {
             Text(L("updateNote")).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             Text(model.status).font(.system(size: 13)).lineLimit(3).textSelection(.enabled).frame(minHeight: 34, alignment: .topLeading)
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 Button(L("addApp")) { model.add() }
                 Spacer()
                 Button(L("reload")) { model.refresh(resetStatus: true) }

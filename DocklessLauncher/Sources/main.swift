@@ -660,7 +660,6 @@ struct MainView: View {
                 Button(L("addApp")) { model.chooseApps() }
                 Spacer()
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 22)

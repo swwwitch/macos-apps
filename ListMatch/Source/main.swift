@@ -574,7 +574,6 @@ struct ContentView: View {
             SplitPanes(top: ListsArea(model: model), bottom: ResultsArea(model: model), autosaveName: "ListDiffSplit")
                 .frame(maxHeight: .infinity)
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 Button(L("settingsButton")) { delegate.showPreferences() }
                 Spacer()
                 Button(L("clear")) { model.clear() }.disabled(!model.hasText).help(L("clearHelp"))

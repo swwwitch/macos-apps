@@ -454,7 +454,6 @@ struct MainView: View {
             }
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Spacer()
                 Button(L("restart")) { model.restart() }.disabled(!model.canRestart).help(L("restartHint"))
             }

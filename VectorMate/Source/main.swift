@@ -690,7 +690,6 @@ struct MainView: View {
                 }))
             ])
             HStack {
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.showHelp() }
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
                 Button(L("palette.title")) { (NSApp.delegate as? AppDelegate)?.showUnitPalette() }
                 Button(L("quick.title")) { (NSApp.delegate as? AppDelegate)?.showQuickPalette() }

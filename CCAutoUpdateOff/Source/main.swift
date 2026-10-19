@@ -290,7 +290,6 @@ struct ContentView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             Text(L("note")).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 Button(L("settingsButton")) { delegate.showPreferences() }
                 Spacer()
                 Button(L("reload")) { model.check() }

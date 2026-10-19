@@ -165,7 +165,6 @@ struct ContentView: View {
                 }
             }.frame(minHeight: 45, alignment: .topLeading)
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 if let url = model.progress.journal { Button(L("showHistory")) { NSWorkspace.shared.activateFileViewerSelecting([url]) } }
                 Spacer()
                 if model.busy { Button(L(model.stopping ? "stoppingShort" : "stop")) { model.stop() }.disabled(model.stopping).keyboardShortcut(.cancelAction) }

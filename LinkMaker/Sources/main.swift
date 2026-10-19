@@ -68,7 +68,6 @@ struct MainView: View {
             Text(L("mainHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Spacer()
                 Button(L("showPalette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
             }

@@ -209,18 +209,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let settingsButton = NSButton(title: L("menu.settings"), target: self, action: #selector(showPreferences))
         settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: L("settings.window"))
         settingsButton.toolTip = L("tip.settings")
-        let helpButton = NSButton(title: L("help"), target: LocalHelp.shared, action: #selector(LocalHelp.show))
-        helpButton.image = NSImage(systemSymbolName: "questionmark.circle", accessibilityDescription: L("help"))
-        helpButton.toolTip = L("tip.help")
-        for button in [settingsButton, helpButton] {
-            button.bezelStyle = .rounded
-            button.imagePosition = .imageLeading
-            button.font = .systemFont(ofSize: 11)
-            button.controlSize = .small
-            button.refusesFirstResponder = true
-            button.setAccessibilityLabel(button.title)
-        }
-        utilityRow = NSStackView(views: [settingsButton, helpButton])
+        settingsButton.bezelStyle = .rounded
+        settingsButton.imagePosition = .imageLeading
+        settingsButton.font = .systemFont(ofSize: 11)
+        settingsButton.controlSize = .small
+        settingsButton.refusesFirstResponder = true
+        settingsButton.setAccessibilityLabel(settingsButton.title)
+        utilityRow = NSStackView(views: [settingsButton])
         utilityRow.spacing = 8
         displayRow = NSStackView(views: [displayPicker, profilePicker])
         displayRow.spacing = 6

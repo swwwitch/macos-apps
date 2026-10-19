@@ -226,7 +226,6 @@ struct MainView: View {
             Spacer(minLength: 0)
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Spacer()
                 Button(L("strip")) { model.stripClipboard() }.help(L("stripHint"))
             }

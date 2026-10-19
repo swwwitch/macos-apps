@@ -330,7 +330,6 @@ struct MainView: View {
             }
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Spacer()
                 Button(L("restore")) { model.restoreOriginal() }.disabled(!model.canRestore).help(L("restoreHint"))
             }

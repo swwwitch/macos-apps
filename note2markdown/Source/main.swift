@@ -298,7 +298,6 @@ struct ContentView: View {
             .accessibilityLabel(L("dropLabel"))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             HStack {
-                Button(L("help")) { delegate.showHelp() }
                 Button(L("settingsButton")) { delegate.showPreferences() }
                 Spacer()
                 Button(L("copyMarkdown")) { model.copy() }.disabled(model.isLoading || !model.validInput)

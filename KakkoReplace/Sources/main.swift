@@ -236,7 +236,6 @@ struct Preferences: View {
         ])
             Text(model.status).font(.callout).fixedSize(horizontal: false, vertical: true).accessibilityLabel(L("status") + ": " + model.status)
             HStack {
-                Button(L("help")) { (NSApp.delegate as? AppDelegate)?.help() }
                 Button(L("restore")) { model.restoreLastChange() }
             }
         }.padding(12).frame(minWidth: 740, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity)
