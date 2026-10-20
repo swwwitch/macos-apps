@@ -490,8 +490,11 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Image(nsImage: currentAppIcon()).resizable().scaledToFit()
-                    .frame(width: 44, height: 44).accessibilityHidden(true)
+                VStack(spacing: 4) {
+                    Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                        .frame(width: 44, height: 44).accessibilityHidden(true)
+                    AppVersionLabel()
+                }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L("セミナー・キャプチャ準備")).font(.system(size: 20, weight: .bold))
                     Text(L("プリセットとタイマーで、まとめて準備。")).font(.system(size: 12)).foregroundStyle(.secondary)
@@ -1525,7 +1528,30 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+/// Placed under the header icon.
+private struct AppVersionLabel: View {
+    var body: some View {
+        Text(appVersionText()).font(.system(size: 10)).foregroundStyle(.secondary)
+            .multilineTextAlignment(.center).fixedSize()
+    }
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -1538,7 +1564,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }
