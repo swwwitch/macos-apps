@@ -159,3 +159,7 @@
 "（メモなし）" = "(no notes)";
 "（名前なし）" = "(untitled)";
 "（説明なし）" = "(no description)";
+"フルディスクアクセス" = "Full Disk Access";
+"サンドボックスのアプリ（Keystroke Pro、KeyboardShortcuts形式のアプリ）の設定を読むのに使います。未許可の場合、これらは［読み直す］を押すまで照合せず、押すと「ほかのアプリからのデータ」へのアクセスの確認が出ます（Macを再起動するたびに出ます）。" = "Used to read the settings of sandboxed apps (Keystroke Pro and apps using KeyboardShortcuts). Without it, they are not checked until you click Reload, which then asks for access to data from other apps (again after every restart).";
+"フルディスクアクセス設定を開く" = "Open Full Disk Access Settings";
+"システム設定を開けませんでした。「プライバシーとセキュリティ」→「フルディスクアクセス」を手動で開いてください。" = "Could not open System Settings. Open Privacy & Security → Full Disk Access manually.";

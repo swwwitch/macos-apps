@@ -3,7 +3,9 @@ import SQLite3
 
 /// 設定ファイル・システムの設定からホットキーを集める（メインスレッド以外で呼ぶ）
 enum HotkeyScanners {
-    static func scan(_ source: HotkeySource) -> [HotkeyEntry] {
+    /// containers が false のときは、ほかのアプリのコンテナ（~/Library/Containers）を読まない。
+    /// 読むと「ほかのアプリからのデータへのアクセス」の確認が出て、許可しても再起動のたびに聞き直される
+    static func scan(_ source: HotkeySource, containers: Bool) -> [HotkeyEntry] {
         switch source {
         case .system: SystemHotkeys.scan()
         case .services: ServicesHotkeys.scan()
@@ -13,9 +15,9 @@ enum HotkeyScanners {
         case .betterTouchTool: BetterTouchToolHotkeys.scan()
         case .karabiner: KarabinerHotkeys.scan()
         case .alfred: AlfredHotkeys.scan()
-        case .keystrokePro: KeystrokeProHotkeys.scan()
+        case .keystrokePro: containers ? KeystrokeProHotkeys.scan() : []
         case .swApps: SwAppHotkeys.scan()
-        case .keyboardShortcuts: KeyboardShortcutsHotkeys.scan()
+        case .keyboardShortcuts: KeyboardShortcutsHotkeys.scan(containers: containers)
         case .defaultFolderX: DefaultFolderXHotkeys.scan()
         case .atok: AtokHotkeys.scan()
         case .illustrator: IllustratorHotkeys.scan()
@@ -35,6 +37,14 @@ enum HotkeyScanners {
     }
 
     static var allApps: String { L("すべてのアプリ") }
+
+    /// フルディスクアクセスがあれば、コンテナを読んでも確認は出ない（システムの TCC.db が開けるかで判定）
+    static var hasFullDiskAccess: Bool {
+        let fd = open("/Library/Application Support/com.apple.TCC/TCC.db", O_RDONLY)
+        guard fd >= 0 else { return false }
+        close(fd)
+        return true
+    }
 }
 
 // MARK: - macOS
@@ -636,7 +646,7 @@ enum KeyboardShortcutsHotkeys {
     static let prefix = "KeyboardShortcuts_"
 
     /// 設定ファイルのあるドメイン：通常のアプリと、サンドボックスのアプリのコンテナ（コンテナはパスをドメインにして cfprefsd 経由で読む）
-    static var domains: [(domain: String, bundleID: String)] {
+    static func domains(containers: Bool) -> [(domain: String, bundleID: String)] {
         let home = FileManager.default.homeDirectoryForCurrentUser
         let manager = FileManager.default
         var list: [(String, String)] = []
@@ -645,18 +655,19 @@ enum KeyboardShortcutsHotkeys {
             let id = String(name.dropLast(6))
             list.append((id, id))
         }
-        let containers = home.appendingPathComponent("Library/Containers")
-        for id in (try? manager.contentsOfDirectory(atPath: containers.path)) ?? [] where !id.hasPrefix("com.apple.") {
-            let path = containers.appendingPathComponent(id).appendingPathComponent("Data/Library/Preferences/\(id)").path
+        guard containers else { return list }
+        let containerFolder = home.appendingPathComponent("Library/Containers")
+        for id in (try? manager.contentsOfDirectory(atPath: containerFolder.path)) ?? [] where !id.hasPrefix("com.apple.") {
+            let path = containerFolder.appendingPathComponent(id).appendingPathComponent("Data/Library/Preferences/\(id)").path
             if manager.fileExists(atPath: path + ".plist") { list.append((path, id)) }
         }
         return list
     }
 
-    static func scan() -> [HotkeyEntry] {
+    static func scan(containers: Bool) -> [HotkeyEntry] {
         var entries: [HotkeyEntry] = []
         var seen: Set<String> = []
-        for (domain, bundleID) in domains {
+        for (domain, bundleID) in domains(containers: containers) {
             guard let keys = CFPreferencesCopyKeyList(domain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String] else { continue }
             let names = keys.filter { $0.hasPrefix(prefix) }
             guard !names.isEmpty, NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) != nil,

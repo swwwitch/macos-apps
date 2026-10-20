@@ -9,6 +9,7 @@ struct SettingsView: View {
                     MenuBarPresenceView()
                 }
                 AccessibilitySection()
+                FullDiskAccessSection()
             })),
             (L("照合元"), AnyView(SourcesSettings())),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),

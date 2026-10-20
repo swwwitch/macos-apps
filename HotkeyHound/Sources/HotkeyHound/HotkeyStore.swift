@@ -75,13 +75,17 @@ final class HotkeyStore: ObservableObject {
     }
 
     private var menusAreStale = true
+    /// ［読み直す］を押した後か（以後この起動中はほかのアプリのコンテナも読む。フルディスクアクセスがあれば最初から読む）
+    private var readsContainers = false
 
     var activeSources: [HotkeySource] { HotkeySource.ordered.filter(\.isIncluded) }
 
     // MARK: 読み込み
 
-    /// すべての照合元を読み直す
-    func reload() {
+    /// すべての照合元を読み直す（includeContainers：［読み直す］から呼ぶときに true）
+    func reload(includeContainers: Bool = false) {
+        if includeContainers { readsContainers = true }
+        let containers = readsContainers || HotkeyScanners.hasFullDiskAccess
         loadTask?.cancel()
         KeyNames.prepare()
         isLoading = true
@@ -91,7 +95,7 @@ final class HotkeyStore: ObservableObject {
         loadTask = Task { [weak self] in
             let result = await Task.detached(priority: .userInitiated) { () -> [HotkeySource: [HotkeyEntry]] in
                 var collected: [HotkeySource: [HotkeyEntry]] = [:]
-                for source in sources where source != .menus { collected[source] = HotkeyScanners.scan(source) }
+                for source in sources where source != .menus { collected[source] = HotkeyScanners.scan(source, containers: containers) }
                 if !targets.isEmpty { collected[.menus] = Self.scanMenus(targets) }
                 return collected
             }.value
