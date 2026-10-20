@@ -140,3 +140,11 @@
 "Finder／Path Finderが起動していません。" = "Neither Finder nor Path Finder is running.";
 "Finder／Path Finderで項目が選択されていません。" = "No items are selected in Finder / Path Finder.";
 "オートメーション設定を開く" = "Open Automation Settings";
+"「アプリケーション」フォルダへの送り方を選んでください" = "How do you want to send the items to Applications?";
+"移動：元の場所から「アプリケーション」へ移します。\n複製：元の場所に残し、「アプリケーション」に複製を置きます。\nリンク：元の場所に残し、「アプリケーション」にシンボリックリンクを置きます。" = "Move: Moves them from their current location into Applications.\nDuplicate: Leaves them in place and puts duplicates in Applications.\nCreate links: Leaves them in place and puts symbolic links in Applications.";
+"別のボリュームにある項目が含まれているため、移動はできません。" = "Some items are on a different volume, so they can’t be moved.";
+"キャンセル" = "Cancel";
+"前回の位置" = "Last position";
+"マウスポインタがある画面" = "Screen with the pointer";
+"選択項目のウインドウがある画面" = "Screen with the selected items’ window";
+"複数のディスプレイのとき、ウインドウを表示する画面" = "With multiple displays, show the window on";

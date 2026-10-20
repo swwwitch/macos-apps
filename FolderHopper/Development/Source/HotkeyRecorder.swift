@@ -67,12 +67,15 @@ struct KeyCombo: Codable, Equatable, Hashable {
     enum Refusal: Error { case needsModifier, needsAnyModifier, standardKey }
     /// ⌘C ⌘V ⌘X ⌘Z ⌘A ⌘Q ⌘W ⌘, and ⌘Tab-like keys stay with the system and the front app.
     static let standardCommandKeys: Set<UInt16> = [0, 6, 7, 8, 9, 12, 13, 43, 48]
+    static let functionKeys: Set<UInt16> = Set([kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8, kVK_F9, kVK_F10,
+                                                kVK_F11, kVK_F12, kVK_F13, kVK_F14, kVK_F15, kVK_F16, kVK_F17, kVK_F18, kVK_F19, kVK_F20].map { UInt16($0) })
     /// A key press while recording. ⌘ or ⌃ is required by default: shift alone types a capital, and ⌥ / ⌥⇧ alone
     /// type characters (é, ©). allowsOption admits ⌥ / ⌥⇧ alone for apps whose defaults use them (LinkMaker).
     static func recorded(_ event: NSEvent, allowsOption: Bool = false) -> Result<KeyCombo, Refusal> {
         let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
         let required: NSEvent.ModifierFlags = allowsOption ? [.command, .option, .control] : [.command, .control]
-        guard !flags.intersection(required).isEmpty else { return .failure(allowsOption ? .needsAnyModifier : .needsModifier) }
+        // F1–F20 type no characters, so ⇧ alone or no modifier is fine (AiHelper's ⇧F1 / ⇧F2).
+        guard !flags.intersection(required).isEmpty || functionKeys.contains(event.keyCode) else { return .failure(allowsOption ? .needsAnyModifier : .needsModifier) }
         if flags == .command && standardCommandKeys.contains(event.keyCode) { return .failure(.standardKey) }
         var m: UInt32 = 0
         if flags.contains(.command) { m |= command }
@@ -284,6 +287,8 @@ struct HotkeyField: View {
             HStack(spacing: 8) {
                 Text(recording ? HotkeyText.pressKeys : (combo?.label ?? HotkeyText.unset))
                     .font(.system(size: 13, design: .monospaced))
+                    // ⌃⌥⌘ run together in the monospaced font; a little tracking keeps each symbol readable.
+                    .kerning(recording || combo == nil ? 0 : 2)
                     .foregroundColor(combo == nil && !recording ? .secondary : .primary)
                     .lineLimit(1).fixedSize()
                     .frame(minWidth: 96, alignment: .leading)

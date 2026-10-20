@@ -2,7 +2,7 @@ Moves or duplicates the files and folders selected in the Finder or Path Finder 
 
 ## Basic Use
 1. Select files or folders in the Finder or Path Finder.
-2. Bring up FolderHopper (⌃⌥⌘M by default). The number of selected items appears at the top.
+2. Bring up FolderHopper (⌃⌥⌘F by default). The number of selected items appears at the top.
 3. Select a destination folder in the list and press Return, or double-click it. A single click only selects.
 
 - To copy, turn on **Duplicate**; to create links, turn on **Create symbolic links** before running. You can also press ⌥Return to duplicate or ⌃Return to create symbolic links.
@@ -13,7 +13,7 @@ Moves or duplicates the files and folders selected in the Finder or Path Finder 
 ## Destinations
 - **Finder Windows**: The locations of windows open in the Finder or Path Finder.
 - **Choose / Desktop**: On the left, Choose Folder…: click the folder icon and select a destination folder to run the current mode (move, duplicate, or create links) right away. ⌘-click to bring the destination to the front with the processed items selected when it finishes. The next time, the panel opens at the last folder you chose. Click Desktop on the right (or press Return) to move (duplicate, or link) the selection straight to the Desktop.
-- **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run. When sending to Applications, apps in Setapp (/Applications/Setapp) are linked with a symbolic link instead of being moved or duplicated.
+- **Favorites**: Applications and two folders of your choice. Use Choose… or Change… to set a folder, and right-click and choose Remove from Favorites to clear it. Double-click or press Return to run. When sending to Applications, apps in Setapp (/Applications/Setapp) are linked with a symbolic link instead of being moved or duplicated. When you send items to Applications from the window, FolderHopper asks whether to Move, Duplicate or Create links (the operation chosen with the checkboxes or keys is the default button). Move is unavailable when any item is on a different volume.
 - **Recent Folders**: The recent-folder history saved by the Finder and Path Finder.
 
 ## Settings
@@ -24,12 +24,13 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 - **Hide main window at startup**
 - **Launch in the background at login**
 - **Show in menu bar**
-- **Show app shortcut**: turn on Enable hotkey, click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels, Reset to Default returns to ⌃⌥⌘M). A registration failure is shown under the field.
+- **Show app shortcut**: turn on Enable hotkey, click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels, Reset to Default returns to ⌃⌥⌘F). A registration failure is shown under the field.
 
 ### Display Tab
 - **Shorten Dropbox paths**
 - **Show the “Choose / Desktop” section**
 - **Show Favorites section**
+- **With multiple displays, show the window on**: Choose Last position, Screen with the pointer or Screen with the selected items’ window. With the last two, the window moves to the center of that screen when it is on another screen. If the selected items’ window can’t be found (for example, items selected on the desktop), the window appears on the screen with the pointer.
 
 ### File Operations Tab
 - **When a file with the same name exists**: choose Keep both by adding a number or Stop without overwriting. When creating symbolic links in the Applications folder, an existing symbolic link with the same name is replaced without adding a number (apps and files with the same name are never replaced).
@@ -42,10 +43,10 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 ### Sharing Tab
 - **Export & Import**: “Export…” saves the settings to FolderHopper-Settings.plist, and “Import…” replaces the settings with the file’s after asking.
 - **Settings Sync**: “Set Sync Folder…” shares the settings with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). If several Macs change settings, the most recent save wins.
-- Shared: path display, which destinations are shown, same-name file handling, closing after an operation, the number of recent windows and the copy-to-Applications shortcut. Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders and hidden history items are set per Mac.
+- Shared: path display, which destinations are shown, same-name file handling, closing after an operation, the number of recent windows and the copy-to-Applications shortcut. Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders, hidden history items and the screen for the window are set per Mac.
 
 ## Keyboard Shortcuts
-Show the app with ⌃⌥⌘M by default. Available while the app is running and Finder/Path Finder is in front; in other apps the keys pass through to that app.
+Show the app with ⌃⌥⌘F by default. Available while the app is running and Finder/Path Finder is in front; in other apps the keys pass through to that app.
 
 - **Return**: Execute
 - **⌥Return**: Duplicate

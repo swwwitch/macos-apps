@@ -135,6 +135,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     let renameConflicts = NSPopUpButton()
     let historyLimit = NSTextField(string: "0")
     let closeAfterOperation = NSButton(checkboxWithTitle: L("処理完了後にウインドウを閉じる（常駐は継続）"), target: nil, action: nil)
+    /// 複数のディスプレイのとき、ウインドウを出す画面. Per Mac (not synced), since displays differ.
+    let windowScreen = NSPopUpButton()
+    enum WindowScreen: Int { case lastPosition, pointer, selection }
     var hiddenHistory = Set(UserDefaults.standard.stringArray(forKey: "hiddenHistoryPaths") ?? [])
     let queue = DispatchQueue(label: "FolderMover.io", qos: .userInitiated)
     var states: [BrowserState] = []
@@ -151,6 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         states.first { $0.id == selectedSourceID }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "FolderHopper", symbol: "folder", existing: nil,
@@ -187,6 +191,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         historyLimit.setAccessibilityLabel(L("最近使ったウインドウの数"))
         closeAfterOperation.state = UserDefaults.standard.bool(forKey: "closeAfterOperation") ? .on : .off
         closeAfterOperation.target = self; closeAfterOperation.action = #selector(closeAfterChanged)
+        windowScreen.addItems(withTitles: [L("前回の位置"), L("マウスポインタがある画面")])
+        #if !APP_STORE
+        windowScreen.addItem(withTitle: L("選択項目のウインドウがある画面"))
+        #endif
+        windowScreen.selectItem(at: min(UserDefaults.standard.integer(forKey: "windowScreen"), windowScreen.numberOfItems - 1))
+        windowScreen.target = self; windowScreen.action = #selector(windowScreenChanged)
+        windowScreen.setAccessibilityLabel(L("複数のディスプレイのとき、ウインドウを表示する画面"))
         startSettingsSync()
         window.center()
         if (!StartupWindow.hidden || pendingOpenFiles != nil) && !LaunchPolicy.shouldStayInBackground(loginLaunch: loginLaunch, enabled: loginInBackground.state == .on, hasFiles: pendingOpenFiles != nil) {
@@ -411,10 +422,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                 keys: ["shortenDropboxPaths", "showChooser", "showFavorites", "renameConflicts", "closeAfterOperation", "historyDisplayLimit",
                        "applicationsShortcutEnabled", "applicationsShortcutCombo"],
                 note: note,
-                perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・アプリを呼び出すホットキー・お気に入りフォルダー・非表示にした履歴はMacごとに設定します。",
-                                           "Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders and hidden history items are set per Mac.",
-                                           "登录时启动、启动时的显示、菜单栏图标、显示应用快捷键、收藏的文件夹和已隐藏的历史记录在每台 Mac 上分别设置。",
-                                           "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 앱 표시 단축키, 즐겨찾는 폴더, 숨긴 기록은 Mac마다 설정합니다.")))
+                perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバー・アプリを呼び出すホットキー・お気に入りフォルダー・非表示にした履歴・ウインドウを表示する画面はMacごとに設定します。",
+                                           "Login launch, startup display, the menu bar icon, the show app shortcut, favorite folders, hidden history items and the screen for the window are set per Mac.",
+                                           "登录时启动、启动时的显示、菜单栏图标、显示应用快捷键、收藏的文件夹、已隐藏的历史记录和显示窗口的屏幕在每台 Mac 上分别设置。",
+                                           "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 앱 표시 단축키, 즐겨찾는 폴더, 숨긴 기록, 윈도우를 표시할 화면은 Mac마다 설정합니다.")))
         }
     }
     @objc func showAbout() {
@@ -445,7 +456,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             let shortcutNote = NSTextField(wrappingLabelWithString: L("常駐中、Finder／Path Finderが前面のときに使用できます。アプリを終了した場合は、先に起動してください。"))
             shortcutNote.font = .systemFont(ofSize: 12); shortcutNote.textColor = .secondaryLabelColor
             group(SettingsUI.launchTitle, [MainActor.assumeIsolated { LoginAtLaunchControl() }, loginInBackground, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutTitle, shortcutEnabled, shortcutField(id: 1), shortcutNote])
-            group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites])
+            group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites,
+                                            NSTextField(labelWithString: L("複数のディスプレイのとき、ウインドウを表示する画面")), windowScreen])
             let conflictLabel = NSTextField(labelWithString: L("移動先に同名のファイルがあるとき"))
             #if APP_STORE
             group(L("ファイル操作"), [conflictLabel, renameConflicts, closeAfterOperation])
@@ -485,6 +497,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     @objc func closeAfterChanged() {
         UserDefaults.standard.set(closeAfterOperation.state == .on, forKey: "closeAfterOperation")
+    }
+    @objc func windowScreenChanged() {
+        UserDefaults.standard.set(windowScreen.indexOfSelectedItem, forKey: "windowScreen")
     }
     @objc func chooserVisibilityChanged() {
         UserDefaults.standard.set(showChooser.state == .on, forKey: "showChooser")
@@ -647,9 +662,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     func presentDestinations() {
         window.deminiaturize(nil)
+        placeOnPreferredScreen()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         window.makeFirstResponder(table)
+    }
+    /// Moves the window to the screen chosen in 表示 (pointer, or the source browser's front window), centered there.
+    /// Left alone when it is already on that screen, so a position the user set on it is kept.
+    func placeOnPreferredScreen() {
+        guard NSScreen.screens.count > 1, let mode = WindowScreen(rawValue: windowScreen.indexOfSelectedItem), mode != .lastPosition else { return }
+        let pointer = NSEvent.mouseLocation
+        let point = mode == .selection ? sourceWindowCenter() ?? pointer : pointer
+        guard let target = NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) }), window.screen != target else { return }
+        let area = target.visibleFrame
+        var frame = window.frame
+        frame.size.width = min(frame.width, area.width); frame.size.height = min(frame.height, area.height)
+        frame.origin = NSPoint(x: area.midX - frame.width / 2, y: area.midY - frame.height / 2)
+        window.setFrame(frame, display: false)
+    }
+    /// Center (in Cocoa screen coordinates) of the frontmost normal window of the last active Finder / Path Finder.
+    /// Window bounds are readable without Screen Recording permission. Nil for the desktop or when none is on screen.
+    func sourceWindowCenter() -> NSPoint? {
+        guard let id = lastBrowser, let pid = NSRunningApplication.runningApplications(withBundleIdentifier: id).first?.processIdentifier,
+              let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]],
+              let primary = NSScreen.screens.first else { return nil }
+        for info in list where (info[kCGWindowOwnerPID as String] as? pid_t) == pid && (info[kCGWindowLayer as String] as? Int) == 0 {
+            guard let bounds = info[kCGWindowBounds as String] as? NSDictionary, let rect = CGRect(dictionaryRepresentation: bounds),
+                  rect.width > 100, rect.height > 100 else { continue }
+            // CoreGraphics measures from the primary screen's top-left; Cocoa from its bottom-left.
+            return NSPoint(x: rect.midX, y: primary.frame.maxY - rect.midY)
+        }
+        return nil
     }
     func requestTransfer() {
         guard !busy, window.attachedSheet == nil else { return }
@@ -1196,29 +1239,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         move(to: destination, bringForward: event?.modifierFlags.contains(.command) == true, copying: copying, linking: event?.type == .keyDown && event?.modifierFlags.contains(.control) == true)
     }
     /// `source` overrides the window's chosen selection (the copy-to-Applications hotkey, which checks the destination itself).
-    func move(to destination: Destination, source requestedSource: BrowserState? = nil, bringForward: Bool = false, copying requestedCopy: Bool = false, linking requestedLink: Bool = false) {
+    /// `operation` is the choice made in the /Applications confirmation; it overrides the checkboxes and modifier keys.
+    func move(to destination: Destination, source requestedSource: BrowserState? = nil, bringForward: Bool = false, copying requestedCopy: Bool = false, linking requestedLink: Bool = false, operation chosenOperation: TransferOperation? = nil) {
         guard !busy, window.attachedSheet == nil, requestedSource != nil || disabledReason(destination) == nil,
               let source = requestedSource ?? chosen, !source.files.isEmpty else { return }
         // Ignore Option+Return while symbolic-link mode is selected.
         // Control+Return always creates a link, including when Option is also held.
-        guard !(symbolicLinks.state == .on && requestedCopy && !requestedLink) else { return }
+        guard chosenOperation != nil || !(symbolicLinks.state == .on && requestedCopy && !requestedLink) else { return }
         let files = source.files
+        // Control forces linking; otherwise the enabled operation and Option determine copying.
+        let copying = chosenOperation.map { $0 == .copy } ?? (!requestedLink && (requestedCopy || copies.state == .on))
+        let linking = chosenOperation.map { $0 == .link } ?? (requestedLink || (!copying && symbolicLinks.state == .on))
+        let intoApplications = destination.url.resolvingSymlinksInPath().standardizedFileURL.path == "/Applications"
+        // Sending from the window into /Applications asks how; the hotkey names its operation itself.
+        if intoApplications && requestedSource == nil && chosenOperation == nil {
+            confirmApplicationsTransfer(files, suggested: linking ? .link : (copying ? .copy : .move)) { [weak self] operation in
+                self?.move(to: destination, bringForward: bringForward, operation: operation)
+            }
+            return
+        }
         #if APP_STORE
         do {
             guard try FolderAccess.shared.authorize(files.map { $0.deletingLastPathComponent() } + [destination.url]) else { presentDestinations(); return }
         } catch { showError(error.localizedDescription); return }
         #endif
         let shouldRename = renameConflicts.indexOfSelectedItem == 0
-        // Control forces linking; otherwise the enabled operation and Option determine copying.
-        let copying = !requestedLink && (requestedCopy || copies.state == .on)
-        let linking = requestedLink || (!copying && symbolicLinks.state == .on)
         let preferredBrowser = lastBrowser
         setBusy(true); status.stringValue = copying ? L("複製しています…") : (linking ? L("リンクを作成しています…") : L("移動しています…"))
         queue.async {
             do {
                 // Links into /Applications overwrite an existing link of the same name (no numbered copy).
                 // Setapp apps sent to /Applications are always linked, also when the rest is moved or copied.
-                let intoApplications = destination.url.resolvingSymlinksInPath().standardizedFileURL.path == "/Applications"
                 let plan = try MoveEngine.plan(files, into: destination.url, renameConflicts: shouldRename, replaceSymbolicLinks: linking && intoApplications,
                                               linkSource: { intoApplications && MoveEngine.isSetappItem($0) })
                 let result = MoveEngine.execute(plan, asSymbolicLinks: linking, asCopies: copying)
@@ -1258,6 +1309,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                     }
                 }
             } catch { DispatchQueue.main.async { self.setBusy(false); self.status.stringValue = L("処理を中止しました。"); self.showError(error.localizedDescription) } }
+        }
+    }
+    enum TransferOperation { case move, copy, link }
+    /// Asks how to send items into /Applications. Move is dimmed when an item is on another volume.
+    func confirmApplicationsTransfer(_ files: [URL], suggested: TransferOperation, completion: @escaping (TransferOperation) -> Void) {
+        let movable = !MoveEngine.onOtherVolume(files, than: URL(fileURLWithPath: "/Applications", isDirectory: true))
+        let alert = NSAlert()
+        alert.messageText = L("「アプリケーション」フォルダへの送り方を選んでください")
+        alert.informativeText = L("移動：元の場所から「アプリケーション」へ移します。\n複製：元の場所に残し、「アプリケーション」に複製を置きます。\nリンク：元の場所に残し、「アプリケーション」にシンボリックリンクを置きます。")
+            + (movable ? "" : "\n\n" + L("別のボリュームにある項目が含まれているため、移動はできません。"))
+        let operations: [TransferOperation] = [.move, .copy, .link]
+        for title in [L("移動"), L("複製"), L("リンクを作成")] { alert.addButton(withTitle: title) }
+        alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
+        alert.buttons[0].isEnabled = movable
+        let preferred = suggested == .move && !movable ? TransferOperation.copy : suggested
+        for (index, operation) in operations.enumerated() { alert.buttons[index].keyEquivalent = operation == preferred ? "\r" : "" }
+        alert.beginSheetModal(for: window) { response in
+            let index = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+            guard operations.indices.contains(index) else { return }
+            // Run after the sheet has detached; move() refuses while a sheet is attached.
+            DispatchQueue.main.async { completion(operations[index]) }
         }
     }
     /// Links are counted separately, since Setapp apps are linked within a move or copy into /Applications.
@@ -1302,7 +1374,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
 MainActor.assumeIsolated { SingleInstanceLaunch.enforce() }
 let app = NSApplication.shared
 let delegate = AppDelegate()
-app.setActivationPolicy(.regular)
+app.setActivationPolicy(.accessory)
 app.delegate = delegate
 app.run()
 
@@ -1362,7 +1434,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -1375,7 +1463,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }

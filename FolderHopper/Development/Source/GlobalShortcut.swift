@@ -21,8 +21,9 @@ final class GlobalShortcut {
     static let applicationsDefaultModifiers = UInt32(controlKey | optionKey | cmdKey | shiftKey)
     /// ⇧ alone (or nothing) would take over ordinary typing, so one of ⌃⌥⌘ is required.
     static let requiredModifiers = UInt32(controlKey | optionKey | cmdKey)
-    /// Window hotkey default: ⌃⌥⌘M (popup indices 0 / 12 until 0.1.96).
-    static let windowDefault = (code: UInt32(46), modifiers: UInt32(controlKey | optionKey | cmdKey))
+    /// Window hotkey default: ⌃⌥⌘F since 0.1.100 (⌃⌥⌘M before, now LinkMaker's palette; popup indices 0 / 12 until 0.1.96).
+    static let windowDefault = (code: UInt32(3), modifiers: UInt32(controlKey | optionKey | cmdKey))
+    static let previousWindowDefault = (code: UInt32(46), modifiers: UInt32(controlKey | optionKey | cmdKey))
     static let applicationsDefault = (code: UInt32(0), modifiers: applicationsDefaultModifiers)
     /// Saved form since 0.1.97: ["code": key code, "modifiers": Carbon modifiers] under shortcutCombo / applicationsShortcutCombo.
     static func stored(_ value: Any?) -> (code: UInt32, modifiers: UInt32)? {
@@ -47,8 +48,15 @@ final class GlobalShortcut {
     static func migrate(_ defaults: UserDefaults) {
         if defaults.object(forKey: "shortcutCombo") == nil {
             let old = legacyWindow(modifierIndex: (defaults.object(forKey: "shortcutModifierIndex") as? Int) ?? 0,
-                                   keyIndex: (defaults.object(forKey: "shortcutKeyIndex") as? Int) ?? 12)
+                                   keyIndex: (defaults.object(forKey: "shortcutKeyIndex") as? Int) ?? 5)
             defaults.set(storable(code: old.code, modifiers: old.modifiers), forKey: "shortcutCombo")
+        }
+        // 0.1.100: a window hotkey still on the old default ⌃⌥⌘M moves to ⌃⌥⌘F, once; a later ⌃⌥⌘M stays.
+        if !defaults.bool(forKey: "windowDefaultF20261017") {
+            if let saved = stored(defaults.object(forKey: "shortcutCombo")), saved == previousWindowDefault {
+                defaults.set(storable(code: windowDefault.code, modifiers: windowDefault.modifiers), forKey: "shortcutCombo")
+            }
+            defaults.set(true, forKey: "windowDefaultF20261017")
         }
         if defaults.object(forKey: "applicationsShortcutCombo") == nil {
             let old = legacyApplications(modifiers: (defaults.object(forKey: "applicationsShortcutModifiers") as? Int) ?? Int(applicationsDefaultModifiers),

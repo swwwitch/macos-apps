@@ -43,6 +43,15 @@ enum MoveEngine {
         }
         return nil
     }
+    /// True when an item's folder is on a different volume from `destination` (or cannot be read), where moving is not offered.
+    static func onOtherVolume(_ sources: [URL], than destination: URL) -> Bool {
+        func volume(_ url: URL) -> NSObject? {
+            (try? url.resolvingSymlinksInPath().resourceValues(forKeys: [.volumeIdentifierKey]))?.volumeIdentifier as? NSObject
+        }
+        guard let target = volume(destination) else { return false }
+        // The parent folder decides, so a symbolic link counts as being where the link itself is.
+        return sources.contains { source in volume(source.deletingLastPathComponent()).map { !$0.isEqual(target) } ?? true }
+    }
     static func exists(_ url: URL) -> Bool {
         FileManager.default.fileExists(atPath: url.path) || (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
     }
