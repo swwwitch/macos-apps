@@ -61,15 +61,8 @@ expect(LinkRules.fileName("a/b: c", fallback: "x"), "ab c")
 expect(LinkRules.fileName(" .. ", fallback: "x"), "x")
 
 // 「Make Link (misc)」: selected text.
-expect(LinkRules.jinaLines(["https://a.example/", "https://b.example/x"]), "https://r.jina.ai/https://a.example/\nhttps://r.jina.ai/https://b.example/x")
-expect(LinkRules.dictionaryURL(" 文字 "), "mkdictionaries:///?text=%E6%96%87%E5%AD%97")
-var parts = DateComponents(); parts.year = 2026; parts.month = 10; parts.day = 13; parts.hour = 9; parts.minute = 5; parts.second = 7
-expect(LinkRules.urlListFileName(Calendar.current.date(from: parts)!), "url-20261013-090507")
-expect(LinkRules.urlList(["a", "b"]), "a\nb\n")
-expect(LinkRules.suggestedName(for: "https://www.example.com/x"), "example.com")
-expect(LinkRules.webSources(["https://dl.example/f.zip", "https://example.com/page", "https://dl.example/f.zip", "/local"]).joined(separator: " "), "https://dl.example/f.zip https://example.com/page")
-expect(LinkAction.allCases.filter(\.isGlobal).count == 11 && !LinkAction.copyURL.isGlobal, "selection group is global")
-expect(LinkAction.from(number: 27) == .searchClipboardLines && LinkAction.from(number: 38) == .fileWhereFrom, "existing numbers unchanged")
+expect(LinkAction.allCases.filter(\.isGlobal).count == 3 && !LinkAction.copyURL.isGlobal, "selection group is global")
+expect(LinkAction.from(number: 18) == .searchClipboardLines, "existing numbers unchanged")
 expect(LinkAction.listed(.copy) == [.copyAsk] + LinkAction.copyFormats, "combined copy first, affiliate follows the Amazon link")
 
 // Action table: unique numbers, KM default keys unique.

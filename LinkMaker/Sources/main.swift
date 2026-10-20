@@ -139,6 +139,12 @@ struct Preferences: View {
                 SettingsSection(L("paletteTab")) {
                     Toggle(L("paletteMode"), isOn: Binding(get: { model.paletteMode }, set: { model.paletteMode = $0; model.save() }))
                     Text(L("paletteModeHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 8) {
+                        Text(L("paletteDisplay"))
+                        Picker(L("paletteDisplay"), selection: Binding(get: { model.paletteDisplay }, set: { model.paletteDisplay = $0; model.save() })) {
+                            ForEach(PaletteDisplayMode.allCases, id: \.self) { Text($0.title).tag($0) }
+                        }.labelsHidden().fixedSize()
+                    }
                     Button(L("showPalette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
                 }
                 SettingsSection(L("paletteHotkey")) {
@@ -258,7 +264,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
         SettingsSync.shared.start(.init(
             keys: ["shortcuts", "actionEnabled", "doubleTap", "browserEnabled", "simplifyURL", "associateID", "notifySuccess",
-                   "translateTarget", "paletteShortcut", "paletteHotkeyEnabled", "paletteMode", "paletteSimple", "paletteSimpleActions"],
+                   "translateTarget", "paletteShortcut", "paletteHotkeyEnabled", "paletteMode", "paletteSimple", "paletteSimpleActions", "paletteDisplayMode"],
             note: L("syncNote"), perMac: L("syncPerMac")))
         AccessibilityText.neededOverride = [
             "ブラウザーで表示中のページのタイトルとURLを読み取り、アドレスバーへの入力などのキー操作を送るために使用します。未許可の場合、ほとんどの機能が使えません。",

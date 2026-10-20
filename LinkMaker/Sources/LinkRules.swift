@@ -146,33 +146,6 @@ enum LinkRules {
         var set = CharacterSet.alphanumerics; set.insert(charactersIn: "-._~"); return set
     }()
 
-    // MARK: Selected text (「Make Link (misc)」)
-
-    /// 「Jina整形」: each URL as https://r.jina.ai/<URL> (a page AI tools can read), one per line.
-    static func jinaLines(_ urls: [String]) -> String { urls.map { "https://r.jina.ai/" + $0 }.joined(separator: "\n") }
-    /// 「選択した文字列を物書堂で検索」.
-    static func dictionaryURL(_ text: String) -> String {
-        "mkdictionaries:///?text=" + (text.trimmingCharacters(in: .whitespacesAndNewlines).addingPercentEncoding(withAllowedCharacters: queryAllowed) ?? text)
-    }
-    /// 「URLを抜き出し、テキストファイルとして書き出す」: url-yyyyMMdd-HHmmss.txt, one URL per line.
-    static func urlListFileName(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "yyyyMMdd-HHmmss"
-        return "url-" + formatter.string(from: date)
-    }
-    static func urlList(_ urls: [String]) -> String { urls.joined(separator: "\n") + "\n" }
-    /// Suggested webloc name for a URL typed into the name prompt: the host without "www.".
-    static func suggestedName(for url: String) -> String {
-        var host = URLComponents(string: url)?.host ?? "link"
-        if host.hasPrefix("www.") { host.removeFirst(4) }
-        return host
-    }
-    /// Web addresses in a file's 「ダウンロード元」 (kMDItemWhereFroms: the file's URL, then the page it came from).
-    static func webSources(_ whereFroms: [String]) -> [String] {
-        var seen = Set<String>()
-        return whereFroms.filter { ($0.hasPrefix("http://") || $0.hasPrefix("https://")) && seen.insert($0).inserted }
-    }
-
     /// A file name from the page title: "/" and ":" are not allowed in Finder names; length capped.
     static func fileName(_ title: String, fallback: String) -> String {
         var name = title.replacingOccurrences(of: "/", with: "").replacingOccurrences(of: ":", with: "")

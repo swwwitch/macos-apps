@@ -1,6 +1,6 @@
 # LinkMaker
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.13-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.27-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ブラウザーで表示中のページのタイトルとURLを、ホットキーでコピー・ファイル書き出し・開き直しするメニューバー常駐アプリ。Keyboard Maestro のマクログループ「Make Link」「Make Link (misc)」（[Reference](Reference/)）の移植。
 
@@ -15,7 +15,7 @@
 | --- | --- |
 | Sources/LinkRules.swift | タイトル・URLの整形、書式、Amazon、編集モードのURL変換（マクロ「Make Link（エンジン）」） |
 | Sources/LinkAction.swift | 機能一覧と既定のホットキー（KMのトリガーと同じ） |
-| Sources/Browser.swift | 対象ブラウザー、AXでのURL・タイトル取得、キー送信、タブ一覧（AppleScript） |
+| Sources/Browser.swift | 対象ブラウザー、AXでのURL・タイトル取得、キー送信、タブ一覧（AppleScript、Firefoxはセッションファイル） |
 | Sources/ActionRunner.swift | 各機能の実行 |
 | Sources/LinkFiles.swift | webloc・QRコード（CoreImageでローカル生成） |
 | Sources/Model.swift | 設定、ホットキー登録（対象ブラウザーが前面のときだけ） |
@@ -32,11 +32,39 @@
 
 - QRコードは外部API（api.qrserver.com）ではなくMac内で生成。
 - 確認ダイアログボックス（1秒で閉じる）は画面上部の短い表示に置き換え（設定でオフ可）。
-- 「新規ウインドウで開く」は元のタブを閉じない。Finderタグ（パープル）・Finderコメントの付与、Path Finder対応は省略。
+- 「新規ウインドウで開く」は元のタブを ⌘W で閉じてから新規ウインドウを開く（KMと同じく元のタブは残らない）。Finderタグ（パープル）・Finderコメントの付与、Path Finder対応は省略。
 - misc の機能は「選択した文字列から」グループ。どのアプリでも動き、設定の「対象外アプリ」（初期値はKMグループと同じ Illustrator・InDesign・Photoshop・Word）を除く。選択は ⌘C で読み取り、元のクリップボードは戻す。
-- 未移植：タブ切り替え・タブを閉じる系、Notion・Biscuit・Notefile専用、カンマ削除ペースト、セル内改行の「"」削除（CellCopyCleaner）、デフォルトブラウザーの変更（BrowserSwitcher）、クリップボードで起動するマクロ（KMで無効）。
+- 「ほかのタブを閉じる」はAppleScriptで前面のウインドウの表示中以外のタブを閉じる。FirefoxはAppleScriptでタブを扱えないため、タブバーの各タブの閉じるボタンをアクセシビリティで押す（ピン留めは閉じるボタンが無いので残る。KMはすべて閉じてから開き直していた）。初期値はKMの ⌥⇧⌘W ではなく ⌃⌥⇧⌘W。
+- 未移植：タブ切り替え・「タブを閉じる」「すべてのタブを閉じる」、Notion専用（開き直し以外）・Biscuit・Notefile専用、カンマ削除ペースト、セル内改行の「"」削除（CellCopyCleaner）、デフォルトブラウザーの変更（BrowserSwitcher）、クリップボードで起動するマクロ（KMで無効）。
 
 ## 更新履歴
+
+- 1.2.27（build 30, 2026-10-20）：「新規ウインドウで開く」（⌃⌘N）で元のタブを閉じるように変更（⌘W で閉じてから ⌘N で開き、URLを開く）。
+
+- 1.2.26（build 29, 2026-10-19）：「ほかのタブを閉じる」をFirefoxに対応（タブバーの閉じるボタンをアクセシビリティで押す。ピン留めしたタブは残す）。
+
+- 1.2.25（build 28, 2026-10-19）：「開いているすべてのタブ」に「ほかのタブを閉じる」（⌃⌥⇧⌘W）を追加（前面のウインドウの、表示中のタブ以外を閉じる。Safari・Google Chrome・Microsoft Edge などのChromium系。Firefoxは非対応）。
+
+- 1.2.24（build 27, 2026-10-19）：「別のブラウザーで開く」に「Notion」（⌥⇧⌘N）を追加（KMマクロ「└ Notion」の移植。URLのホストに notion を含むときだけ、Notionアプリで開く）。
+
+- 1.2.23（build 26, 2026-10-19）：「選択した文字列から」の「URLをweblocで前面のFinderウインドウに（名前を入力）」と「Finderで選択したファイルのダウンロード元をwebloc」を削除。
+
+- 1.2.22（build 25, 2026-10-19）：「開いているすべてのタブ」を「形式を選んでコピー…」（⌥G）1つに集約（「URLのみ」「タイトル付き」「Markdown」の個別の機能を削除し、形式はメニューで選ぶ）。
+
+- 1.2.21（build 24, 2026-10-19）：「ファイルに書き出す」を「weblocを書き出す…」（⌥W）と「QRコード（PNG）を書き出す…」（⌥Q）だけにした（書き出し先を決めた6機能〈デスクトップに ⌥K・前面のFinderウインドウに・場所を指定して ⌃⌥⌘W〉を削除）。
+
+- 1.2.20（build 23, 2026-10-19）：「開いているすべてのタブ」に「形式を選んでコピー…」（⌥G。マウスの位置にURLのみ・タイトル付き・Markdownのメニュー）を追加し、「URLのみ」の ⌥G と「タイトル付き」の ⌥F を外した（保存済みの初期値のキーは一度だけ解除）。ヘルプに対応ブラウザー（Safari・Google Chrome・Firefox）を明記。
+
+- 1.2.19（build 22, 2026-10-19）：「選択した文字列から」の「Googleで検索」「辞書 by 物書堂で検索」「URLをJina形式でコピー」「URLをテキストファイルでデスクトップに／前面のFinderウインドウに」「URLをweblocでデスクトップに（名前を入力）」を削除。
+
+- 1.2.18（build 21, 2026-10-19）：「URLをシンプルにして再読み込み」で、再読み込みしたシンプルなURLをクリップボードにも入れるように（すでにシンプルなときは従来どおり何もしない）。
+
+- 1.2.17（build 20, 2026-10-18）：「開いているすべてのタブ」をFirefoxに対応（AppleScriptでは列挙できないため、プロファイルのセッションファイル sessionstore-backups/recovery.jsonlz4 を展開して読む。Firefoxの保存間隔のため直前15秒ほどに開いたタブは含まれないことがあり、プライベートウインドウは対象外。前面のウインドウは選択中のタブの名前で照合）。
+
+- 1.2.16（build 19, 2026-10-17）：メインウインドウのアイコンの下にバージョンとbuild番号を表示。
+- 1.2.15（build 18, 2026-10-17）：「ボタンの表示」（アイコン＋テキスト／アイコンのみ／テキストのみ）を全部入りでも使えるように（簡易モードと共通の設定。設定では「パレット」の欄に移した）。
+
+- 1.2.14（build 17, 2026-10-17）：簡易モードのパレットに「ボタンの表示」（アイコン＋テキスト／アイコンのみ／テキストのみ）を追加（MightyEditと同じ選択肢。パレット上部のメニューと設定の「パレット」で切り替え。初期値はアイコン＋テキスト、全部入りは従来どおりテキストのみ）。「別のブラウザーで開く」は各ブラウザーのアイコン。パレット上部のメニューは「設定」「ヘルプ」の下の行に移した。
 
 - 1.2.13（build 16, 2026-10-17）：ホットキーの記録欄で ⌥だけ・⌥⇧だけのキーも記録できるように（初期値の ⌥S・⌥G などを記録し直せる。共通部品の allowsOption）。［初期値に戻す］は、そのキーをほかの機能やパレットで使っていれば戻さない。
 

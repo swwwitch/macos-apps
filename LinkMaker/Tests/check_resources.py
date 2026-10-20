@@ -24,6 +24,7 @@ cases = re.findall(r'case ([\w, ]+)$', (root/'Sources/LinkAction.swift').read_te
 used.update('action.' + c.strip() for line in cases for c in line.split(','))
 used.update('group.' + g for g in re.search(r'enum Group: String, CaseIterable \{ case ([^}]+)\}', (root/'Sources/LinkAction.swift').read_text()).group(1).replace(' ', '').split(','))
 used.update(['undo', 'redo', 'cut', 'copy', 'paste', 'selectAll'])
+used.update('paletteDisplay.' + m for m in ('both', 'iconOnly', 'textOnly'))
 assert not used-resources[0], used-resources[0]
 assert not resources[0]-used, ('unused', resources[0]-used)
 print(f'PASS: {len(resources[0])} localization keys in 4 languages; placeholders match; all literal calls covered ({len(used)} used)')

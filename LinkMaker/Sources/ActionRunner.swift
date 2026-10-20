@@ -11,7 +11,15 @@ final class ActionRunner {
 
     func run(_ action: LinkAction, browser: Browser, app: NSRunningApplication, completion: @escaping (ActionOutcome) -> Void) {
         let pid = app.processIdentifier
-        if action.group == .tabs { completion(copyTabs(action, browser: browser)); return }
+        if action == .tabsAsk {
+            // 「どの形式で？」: asked at the mouse pointer.
+            let formats: [LinkRules.TabListFormat] = [.urls, .titled, .markdown]
+            guard let picked = Self.askChoice(L("copyTitle"), [L("tabFormat.urls"), L("tabFormat.titled"), L("tabFormat.markdown")]) else { completion(.success(L("cancelled"))); return }
+            completion(copyTabs(formats[picked], browser: browser, pid: pid)); return
+        }
+        if action == .closeOtherTabs {
+            completion(closeOtherTabs(browser: browser, pid: pid)); return
+        }
         if action == .forceReload {
             let (code, flags) = browser.forceReloadKey
             BrowserBridge.key(code, flags, to: pid)
@@ -45,18 +53,19 @@ final class ActionRunner {
             let id = (model?.associateID ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !id.isEmpty else { completion(.failure(L("fail.noAssociateID"))); return }
             completion(copy(LinkRules.amazonLink(asin: asin, associateID: id), L("done.copyAmazonAffiliate")))
-        case .weblocAsk, .weblocDesktop, .weblocFinder, .weblocChoose:
-            saveFile(action, title: title, ext: "webloc", data: { try LinkFiles.webloc(url: url) }, completion: completion)
-        case .qrAsk, .qrDesktop, .qrFinder, .qrChoose:
-            saveFile(action, title: "qr-" + LinkRules.fileName(title, fallback: "link"), ext: "png", data: {
+        case .weblocAsk:
+            saveFile(title: title, ext: "webloc", data: { try LinkFiles.webloc(url: url) }, completion: completion)
+        case .qrAsk:
+            saveFile(title: "qr-" + LinkRules.fileName(title, fallback: "link"), ext: "png", data: {
                 guard let png = LinkFiles.qrPNG(text: url) else { throw CocoaError(.fileWriteUnknown) }
                 return png
             }, completion: completion)
         case .reloadClean:
             let simple = LinkRules.cleanURL(page.url, simplify: true)
             guard simple != page.url else { completion(.success(L("done.alreadySimple"))); return }
+            let outcome = copy(simple, L("done.reloadClean"))
             BrowserBridge.go(to: simple, pid: pid)
-            completion(.silent)
+            completion(outcome)
         case .editMode:
             switch LinkRules.editURL(for: page.url) {
             case .url(let edit): BrowserBridge.go(to: edit, pid: pid); completion(.silent)
@@ -69,8 +78,10 @@ final class ActionRunner {
                 completion(ok ? .silent : .failure(String(format: L("fail.open"), browser.name)))
             }
         case .newWindow:
-            BrowserBridge.key(45, .maskCommand, to: pid)       // ⌘N
-            BrowserBridge.go(to: url, pid: pid, afterDelay: 0.6)
+            // The page's tab is closed first: after ⌘N the new window is in front and ⌘W would close it instead.
+            BrowserBridge.key(13, .maskCommand, to: pid)       // ⌘W
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { BrowserBridge.key(45, .maskCommand, to: pid) }   // ⌘N
+            BrowserBridge.go(to: url, pid: pid, afterDelay: 0.8)
             completion(.silent)
         case .privateWindow:
             let (code, flags) = browser.privateWindowKey
@@ -78,12 +89,22 @@ final class ActionRunner {
             BrowserBridge.go(to: url, pid: pid, afterDelay: 0.8)
             completion(.silent)
         case .openSafari, .openChrome, .openFirefox, .openEdge:
-            let id = [LinkAction.openSafari: "com.apple.Safari", .openChrome: "com.google.Chrome", .openFirefox: "org.mozilla.firefox", .openEdge: "com.microsoft.edgemac"][action]!
+            let id = action.browserBundleID!
             let other = Browser.find(id)!
             guard other.bundleID != browser.bundleID else { completion(.failure(String(format: L("fail.sameBrowser"), other.name))); return }
             guard other.isInstalled else { completion(.failure(String(format: L("fail.notInstalled"), other.name))); return }
             BrowserBridge.open([url], in: other) { ok in
                 completion(ok ? .silent : .failure(String(format: L("fail.open"), other.name)))
+            }
+        case .openNotion:
+            // KM: only when the URL is a Notion page; opening it hands the https URL to the app.
+            guard URL(string: url)?.host?.lowercased().contains("notion") == true else { completion(.failure(L("fail.notNotion"))); return }
+            guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "notion.id"), let target = URL(string: url) else {
+                completion(.failure(String(format: L("fail.notInstalled"), "Notion"))); return
+            }
+            let configuration = NSWorkspace.OpenConfiguration(); configuration.activates = true
+            NSWorkspace.shared.open([target], withApplicationAt: app, configuration: configuration) { _, error in
+                DispatchQueue.main.async { completion(error == nil ? .silent : .failure(String(format: L("fail.open"), "Notion"))) }
             }
         default:
             completion(.silent)
@@ -97,13 +118,11 @@ final class ActionRunner {
         return .success(message + "\n\n" + text)
     }
 
-    private func copyTabs(_ action: LinkAction, browser: Browser) -> ActionOutcome {
-        guard browser.canListTabs else { return .failure(String(format: L("fail.tabsUnsupported"), browser.name)) }
-        switch BrowserBridge.tabs(of: browser) {
+    private func copyTabs(_ format: LinkRules.TabListFormat, browser: Browser, pid: pid_t) -> ActionOutcome {
+        switch browser.kind == .firefox ? BrowserBridge.firefoxTabs(pid: pid) : BrowserBridge.tabs(of: browser) {
         case .failure(.denied): return .failure(String(format: L("fail.automation"), browser.name))
         case .failure(.failed(let message)): return .failure(L("fail.tabs") + message)
         case .success(let tabs):
-            let format: LinkRules.TabListFormat = action == .tabsURLs ? .urls : (action == .tabsTitled ? .titled : .markdown)
             let text = LinkRules.tabList(tabs, format: format)
             guard !text.isEmpty else { return .failure(L("fail.noTabs")) }
             let pasteboard = NSPasteboard.general
@@ -111,6 +130,23 @@ final class ActionRunner {
             guard pasteboard.setString(text, forType: .string) else { return .failure(L("fail.write")) }
             let count = text.isEmpty ? 0 : tabs.filter { !LinkRules.isEmptyPage(title: $0.title, url: $0.url) }.count
             return .success(String(format: L("done.tabs"), String(count)))
+        }
+    }
+
+    private func closeOtherTabs(browser: Browser, pid: pid_t) -> ActionOutcome {
+        let result: Result<Int, BrowserBridge.ScriptError>
+        if browser.kind == .firefox {
+            guard AccessibilitySection.isTrusted else { return .failure(AccessibilityText.text("blocked")) }
+            guard let count = BrowserBridge.firefoxCloseOtherTabs(pid: pid) else { return .failure(L("fail.closeTabsNoTabBar")) }
+            result = .success(count)
+        } else {
+            result = BrowserBridge.closeOtherTabs(of: browser)
+        }
+        switch result {
+        case .failure(.denied): return .failure(String(format: L("fail.automation"), browser.name))
+        case .failure(.failed(let message)): return .failure(L("fail.closeTabs") + message)
+        case .success(0): return .success(L("done.noOtherTabs"))
+        case .success(let count): return .success(String(format: L("done.closedTabs"), String(count)))
         }
     }
 
@@ -176,7 +212,7 @@ final class ActionRunner {
         return picker.picked
     }
 
-    private func saveFile(_ action: LinkAction, title: String, ext: String, data: () throws -> Data, completion: @escaping (ActionOutcome) -> Void) {
+    private func saveFile(title: String, ext: String, data: () throws -> Data, completion: @escaping (ActionOutcome) -> Void) {
         let name = ext == "png" ? title : LinkRules.fileName(title, fallback: "link")
         let payload: Data
         do { payload = try data() } catch { completion(.failure(L("fail.write"))); return }
@@ -189,22 +225,8 @@ final class ActionRunner {
                 completion(.failure(String(format: L("fail.save"), folder.path) + error.localizedDescription))
             }
         }
-        var destination: Destination
-        switch action {
-        case .weblocDesktop, .qrDesktop: destination = .desktop
-        case .weblocFinder, .qrFinder:
-            switch BrowserBridge.frontFinderFolder() {
-            case .success(let folder?): destination = .folder(folder)
-            case .success(nil): write(to: LinkFiles.desktop, reveal: true, note: "\n" + L("note.noFinderWindow")); return
-            case .failure(.denied): completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
-            case .failure(.failed(let message)): completion(.failure(L("fail.finder") + message)); return
-            }
-        case .weblocChoose, .qrChoose: destination = .choose
-        default:
-            // 「どこに？」: asked at the mouse pointer; every open Finder / Path Finder window, then their recent folders.
-            guard let picked = Self.askDestination(windows: BrowserBridge.openFolderWindows(), recent: BrowserBridge.recentFolders()) else { completion(.success(L("cancelled"))); return }
-            destination = picked
-        }
+        // 「どこに？」: asked at the mouse pointer; every open Finder / Path Finder window, then their recent folders.
+        guard let destination = Self.askDestination(windows: BrowserBridge.openFolderWindows(), recent: BrowserBridge.recentFolders()) else { completion(.success(L("cancelled"))); return }
         switch destination {
         case .desktop:
             write(to: LinkFiles.desktop, reveal: false)
@@ -272,7 +294,6 @@ extension ActionRunner {
     }
 
     func runSelection(_ action: LinkAction, app: NSRunningApplication, completion: @escaping (ActionOutcome) -> Void) {
-        if action == .fileWhereFrom { completion(weblocFromDownloadedFiles()); return }
         let selection = Self.copySelection(pid: app.processIdentifier)
         let text = selection.text
         let urls = LinkRules.extractURLs(text)
@@ -303,73 +324,6 @@ extension ActionRunner {
             guard !browsers.isEmpty else { completion(.failure(String(format: L("fail.notInstalled"), "Safari / Firefox / Google Chrome"))); return }
             browsers.forEach { BrowserBridge.open(urls, in: $0) { _ in } }
             completion(.success(String(format: L("done.openedAll"), String(urls.count), browsers.map(\.name).joined(separator: "・"))))
-        case .selSearch, .selDictionary:
-            selection.restore()
-            let term = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !term.isEmpty else { completion(.failure(L("fail.noSelection"))); return }
-            guard term.count <= 1000 else { completion(.failure(L("fail.selectionTooLong"))); return }
-            let address = action == .selSearch ? LinkRules.searchURL(term) : LinkRules.dictionaryURL(term)
-            guard let url = URL(string: address) else { completion(.failure(L("fail.noSelection"))); return }
-            if action == .selDictionary, NSWorkspace.shared.urlForApplication(toOpen: url) == nil {
-                completion(.failure(L("fail.noDictionary"))); return
-            }
-            NSWorkspace.shared.open(url)
-            completion(.silent)
-        case .selJina:
-            guard needURLs() else { return }
-            completion(copy(LinkRules.jinaLines(urls), L("done.copyJina")))
-        case .selURLTextDesktop, .selURLTextFinder:
-            guard needURLs() else { return }
-            let list = LinkRules.urlList(urls)
-            let folder: URL
-            var note = ""
-            if action == .selURLTextDesktop { folder = LinkFiles.desktop }
-            else {
-                switch BrowserBridge.frontFinderFolder() {
-                case .success(let found?): folder = found
-                case .success(nil): folder = LinkFiles.desktop; note = "\n" + L("note.noFinderWindow")
-                case .failure(.denied): selection.restore(); completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
-                case .failure(.failed(let message)): selection.restore(); completion(.failure(L("fail.finder") + message)); return
-                }
-            }
-            do {
-                let file = try LinkFiles.write(Data(list.utf8), to: folder, name: LinkRules.urlListFileName(Date()), ext: "txt")
-                NSWorkspace.shared.activateFileViewerSelecting([file])
-                NSWorkspace.shared.open(file)
-                // As the macro: the extracted list stays on the clipboard.
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents(); pasteboard.setString(list, forType: .string)
-                completion(.success(String(format: L("done.saved"), file.lastPathComponent, folder.path) + note))
-            } catch {
-                selection.restore()
-                completion(.failure(String(format: L("fail.save"), folder.path) + error.localizedDescription))
-            }
-        case .selWeblocDesktop, .selWeblocFinder:
-            guard needURLs() else { return }
-            selection.restore()
-            var folder = LinkFiles.desktop
-            var note = ""
-            if action == .selWeblocFinder {
-                switch BrowserBridge.frontFinderFolder() {
-                case .success(let found?): folder = found
-                case .success(nil): note = "\n" + L("note.noFinderWindow")
-                case .failure(.denied): completion(.failure(String(format: L("fail.automation"), BrowserBridge.deniedViewer))); return
-                case .failure(.failed(let message)): completion(.failure(L("fail.finder") + message)); return
-                }
-            }
-            var written: [URL] = []
-            for url in urls.prefix(10) {
-                // 「ファイル名（サイト名）を入力してください。」 for each URL, as the macro.
-                guard let name = Self.askName(url: url) else { break }
-                do {
-                    written.append(try LinkFiles.write(try LinkFiles.webloc(url: url), to: folder, name: LinkRules.fileName(name, fallback: LinkRules.suggestedName(for: url)), ext: "webloc"))
-                } catch {
-                    completion(.failure(String(format: L("fail.save"), folder.path) + error.localizedDescription)); return
-                }
-            }
-            guard !written.isEmpty else { completion(.success(L("cancelled"))); return }
-            NSWorkspace.shared.activateFileViewerSelecting(written)
-            completion(.success(String(format: L("done.savedCount"), String(written.count), folder.path) + note))
         default:
             selection.restore()
             completion(.silent)
@@ -393,75 +347,6 @@ extension ActionRunner {
         return browsers.indices.contains(index) ? browsers[index] : nil
     }
 
-    /// Name for a webloc made from selected text; nil = cancelled.
-    static func askName(url: String) -> String? {
-        NSApp.activate(ignoringOtherApps: true)
-        let alert = NSAlert()
-        alert.messageText = L("weblocNameTitle")
-        alert.informativeText = String(format: L("weblocNameDetail"), url)
-        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
-        field.stringValue = LinkRules.suggestedName(for: url)
-        field.setAccessibilityLabel(L("weblocNameTitle"))
-        alert.accessoryView = field
-        alert.addButton(withTitle: L("save"))
-        alert.addButton(withTitle: L("cancel")).keyEquivalent = "\u{1b}"
-        alert.window.initialFirstResponder = field
-        guard alert.runModal() == .alertFirstButtonReturn else { return nil }
-        let name = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? LinkRules.suggestedName(for: url) : name
-    }
-
-    /// 「選択したファイルから」: a webloc next to each file selected in Finder, pointing to where it was downloaded from.
-    func weblocFromDownloadedFiles() -> ActionOutcome {
-        let source = """
-        tell application id "com.apple.finder"
-            set picked to selection as alias list
-        end tell
-        set out to ""
-        repeat with f in picked
-            set out to out & POSIX path of f & linefeed
-        end repeat
-        return out
-        """
-        let paths: [String]
-        switch BrowserBridge.run(source) {
-        case .denied: return .failure(String(format: L("fail.automation"), "Finder"))
-        case .failed(let message): return .failure(L("fail.finder") + message)
-        case .value(let text): paths = text.split(separator: "\n").map(String.init).filter { !$0.isEmpty && !$0.hasSuffix("/") }
-        }
-        guard !paths.isEmpty else { return .failure(L("fail.noFileSelected")) }
-        var written: [URL] = []
-        var missing = 0
-        for path in paths.prefix(20) {
-            let file = URL(fileURLWithPath: path)
-            let froms = (MDItemCreateWithURL(nil, file as CFURL).flatMap { MDItemCopyAttribute($0, kMDItemWhereFroms) } as? [String]) ?? []
-            let sources = LinkRules.webSources(froms)
-            guard !sources.isEmpty else { missing += 1; continue }
-            // The macro showed the source for confirmation; with both the file's URL and its page, either can be chosen.
-            guard let url = Self.chooseSource(sources, file: file.lastPathComponent) else { break }
-            do {
-                written.append(try LinkFiles.write(try LinkFiles.webloc(url: url), to: file.deletingLastPathComponent(),
-                                                   name: file.deletingPathExtension().lastPathComponent, ext: "webloc"))
-            } catch {
-                return .failure(String(format: L("fail.save"), file.deletingLastPathComponent().path) + error.localizedDescription)
-            }
-        }
-        if written.isEmpty { return missing > 0 ? .failure(L("fail.noWhereFrom")) : .success(L("cancelled")) }
-        NSWorkspace.shared.activateFileViewerSelecting(written)
-        let note = missing > 0 ? "\n" + String(format: L("note.noWhereFrom"), String(missing)) : ""
-        return .success(String(format: L("done.savedCount"), String(written.count), written[0].deletingLastPathComponent().path) + note)
-    }
-
-    static func chooseSource(_ sources: [String], file: String) -> String? {
-        NSApp.activate(ignoringOtherApps: true)
-        let alert = NSAlert()
-        alert.messageText = String(format: L("whereFromTitle"), file)
-        alert.informativeText = sources.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
-        for (index, _) in sources.prefix(2).enumerated() { alert.addButton(withTitle: L(index == 0 ? "whereFromFile" : "whereFromPage")) }
-        alert.addButton(withTitle: L("cancel")).keyEquivalent = "\u{1b}"
-        let index = alert.runModal().rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
-        return index < min(2, sources.count) ? sources[index] : nil
-    }
 }
 
 /// Receives the item chosen in the destination menu (popUp returns after the action is sent).

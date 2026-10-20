@@ -33,9 +33,12 @@ final class Model: ObservableObject {
     /// 「簡易モード」: the palette shows only the chosen buttons (MightyEdit's palette profiles). Off = 「全部入り」.
     @Published var paletteSimple = UserDefaults.standard.bool(forKey: "paletteSimple")
     @Published var simpleActions = Model.savedSimpleActions()
-    static let defaultSimpleActions: Set<LinkAction> = [.copyAsk, .copyURL, .copyMarkdown, .tabsURLs, .weblocAsk, .reloadClean, .editMode]
+    /// 「ボタンの表示」 for both 「簡易モード」 and 「全部入り」 (MightyEdit's icon / text choice).
+    @Published var paletteDisplay = PaletteDisplayMode(rawValue: UserDefaults.standard.integer(forKey: "paletteDisplayMode")) ?? .both
+    static let defaultSimpleActions: Set<LinkAction> = [.copyAsk, .copyURL, .copyMarkdown, .tabsAsk, .weblocAsk, .reloadClean, .editMode]
     static func savedSimpleActions() -> Set<LinkAction> {
-        UserDefaults.standard.stringArray(forKey: "paletteSimpleActions").map { Set($0.compactMap(LinkAction.init(rawValue:))) } ?? defaultSimpleActions
+        // 1.2.22: the three all-tabs formats became the one 「形式を選んでコピー…」.
+        UserDefaults.standard.stringArray(forKey: "paletteSimpleActions").map { Set($0.compactMap { LinkAction(rawValue: $0.hasPrefix("tabs") ? "tabsAsk" : $0) }) } ?? defaultSimpleActions
     }
     /// ⌃⌥⌘M (2026-10-17, was ⌃⇧⌘K). FolderHopper uses the same key in Finder and Path Finder.
     static let defaultPaletteShortcut = Shortcut.km(46, 6400, "M")
@@ -120,6 +123,7 @@ final class Model: ObservableObject {
         defaults.set(paletteMode, forKey: "paletteMode")
         defaults.set(paletteSimple, forKey: "paletteSimple")
         defaults.set(simpleActions.map(\.rawValue).sorted(), forKey: "paletteSimpleActions")
+        defaults.set(paletteDisplay.rawValue, forKey: "paletteDisplayMode")
         refreshHotkeys()
     }
 
@@ -145,6 +149,7 @@ final class Model: ObservableObject {
         paletteMode = defaults.bool(forKey: "paletteMode")
         paletteSimple = defaults.bool(forKey: "paletteSimple")
         simpleActions = Model.savedSimpleActions()
+        paletteDisplay = PaletteDisplayMode(rawValue: defaults.integer(forKey: "paletteDisplayMode")) ?? .both
         MainActor.assumeIsolated { HotkeyRecorder.shared.stop() }
         refreshHotkeys()
     }

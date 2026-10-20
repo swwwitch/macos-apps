@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import Compression
 
 /// A supported browser. The Keyboard Maestro group targeted Safari, Chrome, Firefox, Edge and ChatGPT Atlas;
 /// the other Chromium browsers behave like Chrome.
@@ -25,8 +26,6 @@ struct Browser: Hashable {
     var privateWindowKey: (UInt16, CGEventFlags) { kind == .firefox ? (35, [.maskCommand, .maskShift]) : (45, [.maskCommand, .maskShift]) }
     /// Reload ignoring cache (Safari ⌥⌘R, others ⇧⌘R), as in 「強制リロード」.
     var forceReloadKey: (UInt16, CGEventFlags) { kind == .safari ? (15, [.maskCommand, .maskAlternate]) : (15, [.maskCommand, .maskShift]) }
-    /// AppleScript can list tabs in Safari and the Chromium browsers (not Firefox).
-    var canListTabs: Bool { kind != .firefox }
     var isInstalled: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) != nil }
 }
 
@@ -191,6 +190,110 @@ enum BrowserBridge {
     }
     enum ScriptError: Error { case denied, failed(String) }
 
+    /// Closes every tab of the front window except the current one, from the last tab back. Returns how many were closed.
+    static func closeOtherTabs(of browser: Browser) -> Result<Int, ScriptError> {
+        let current = browser.kind == .safari ? "index of current tab of w" : "active tab index of w"
+        let source = """
+        tell application id "\(browser.bundleID)"
+            if (count of windows) is 0 then return "0"
+            set w to front window
+            set keep to \(current)
+            set total to count of tabs of w
+            repeat with i from total to 1 by -1
+                if i is not keep then close tab i of w
+            end repeat
+            return (total - 1) as text
+        end tell
+        """
+        switch run(source) {
+        case .denied: return .failure(.denied)
+        case .failed(let message): return .failure(.failed(message))
+        case .value(let text): return .success(max(Int(text) ?? 0, 0))
+        }
+    }
+
+    /// Firefox has no AppleScript tabs, so the close button of each tab in the tab bar is pressed (Accessibility),
+    /// from the last tab back. Tabs without a close button (pinned) stay. nil = the tab bar was not found.
+    static func firefoxCloseOtherTabs(pid: pid_t) -> Int? {
+        let app = AXUIElementCreateApplication(pid)
+        AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+        guard let window = element(app, kAXFocusedWindowAttribute) else { return nil }
+        func children(_ e: AXUIElement) -> [AXUIElement] { (value(e, kAXChildrenAttribute) as? [AXUIElement]) ?? [] }
+        func role(_ e: AXUIElement) -> String? { value(e, kAXRoleAttribute) as? String }
+        func tabs(_ group: AXUIElement) -> [AXUIElement] { children(group).filter { role($0) == "AXRadioButton" } }
+        // The tab bar is the tab group whose tabs have buttons (the sidebar's tab group has none).
+        var budget = 2000
+        func tabBar(_ e: AXUIElement, depth: Int) -> AXUIElement? {
+            budget -= 1
+            guard budget > 0, depth < 12, role(e) != "AXWebArea" else { return nil }
+            if role(e) == "AXTabGroup", tabs(e).contains(where: { children($0).contains { role($0) == "AXButton" } }) { return e }
+            for child in children(e) { if let found = tabBar(child, depth: depth + 1) { return found } }
+            return nil
+        }
+        guard let bar = tabBar(window, depth: 0) else { return nil }
+        // The close button is the tab's last button (the mute button comes before it).
+        let buttons = tabs(bar).filter { (value($0, kAXValueAttribute) as? Int) != 1 }
+            .compactMap { children($0).last { role($0) == "AXButton" } }
+        return buttons.reversed().filter { AXUIElementPerformAction($0, kAXPressAction as CFString) == .success }.count
+    }
+
+    /// Firefox has no AppleScript tab list, so its session file is read instead (recovery.jsonlz4 of the profile saved
+    /// most recently; Firefox rewrites it about every 15 seconds, so a tab opened just now can be missing).
+    /// The window is the one whose selected tab matches the title of the focused window, else Firefox's own selectedWindow.
+    /// Private windows are not saved there.
+    static func firefoxTabs(pid: pid_t) -> Result<[(title: String, url: String)], ScriptError> {
+        let profiles = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Firefox/Profiles")
+        let files = ((try? FileManager.default.contentsOfDirectory(at: profiles, includingPropertiesForKeys: nil)) ?? [])
+            .map { $0.appendingPathComponent("sessionstore-backups/recovery.jsonlz4") }
+            .compactMap { url -> (URL, Date)? in
+                guard let date = try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate else { return nil }
+                return (url, date)
+            }
+        guard let file = files.max(by: { $0.1 < $1.1 })?.0,
+              let data = try? Data(contentsOf: file), let json = mozLz4(data),
+              let session = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
+              let windows = session["windows"] as? [[String: Any]], !windows.isEmpty
+        else { return .failure(.failed(L("fail.firefoxSession"))) }
+
+        func entry(_ tab: [String: Any]) -> (title: String, url: String)? {
+            guard let entries = tab["entries"] as? [[String: Any]], !entries.isEmpty else { return nil }
+            let index = min(max((tab["index"] as? Int ?? entries.count) - 1, 0), entries.count - 1)
+            return (entries[index]["title"] as? String ?? "", entries[index]["url"] as? String ?? "")
+        }
+        func selectedTitle(_ window: [String: Any]) -> String? {
+            guard let tabs = window["tabs"] as? [[String: Any]], !tabs.isEmpty else { return nil }
+            let index = min(max((window["selected"] as? Int ?? 1) - 1, 0), tabs.count - 1)
+            return entry(tabs[index])?.title
+        }
+        var window: [String: Any]?
+        let app = AXUIElementCreateApplication(pid)
+        if let front = element(app, kAXFocusedWindowAttribute), let title = value(front, kAXTitleAttribute) as? String, !title.isEmpty {
+            let matches = windows.filter { selectedTitle($0).map { !$0.isEmpty && title.hasPrefix($0) } ?? false }
+            if matches.count == 1 { window = matches[0] }
+        }
+        if window == nil {
+            let selected = (session["selectedWindow"] as? Int ?? 1) - 1
+            window = windows.indices.contains(selected) ? windows[selected] : windows[0]
+        }
+        let tabs = (window?["tabs"] as? [[String: Any]] ?? []).filter { $0["hidden"] as? Bool != true }
+        return .success(tabs.compactMap(entry))
+    }
+
+    /// Firefox's mozLz4: "mozLz40\0", the decompressed size (UInt32, little endian), then one raw LZ4 block.
+    private static func mozLz4(_ data: Data) -> Data? {
+        guard data.count > 12, data.prefix(8) == Data("mozLz40\0".utf8) else { return nil }
+        let size = data[data.startIndex + 8 ..< data.startIndex + 12].reversed().reduce(0) { $0 << 8 | Int($1) }
+        guard size > 0 else { return nil }
+        var out = Data(count: size)
+        let written = out.withUnsafeMutableBytes { dst in
+            data.dropFirst(12).withUnsafeBytes { src in
+                compression_decode_buffer(dst.bindMemory(to: UInt8.self).baseAddress!, size,
+                                          src.bindMemory(to: UInt8.self).baseAddress!, src.count, nil, COMPRESSION_LZ4_RAW)
+            }
+        }
+        return written == size ? out : nil
+    }
+
     /// A file viewer whose windows can be listed: Finder, and Path Finder (App Store and Setapp builds).
     struct FileViewer { let name: String; let bundleID: String; let pid: pid_t }
 
@@ -278,11 +381,6 @@ enum BrowserBridge {
             let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey])
             return values?.isDirectory == true && values?.isPackage != true && seen.insert(url.path).inserted
         }.prefix(limit))
-    }
-
-    /// Folder of the front Finder / Path Finder window, or nil (no window, or a window without a folder such as Recents).
-    static func frontFinderFolder() -> Result<URL?, ScriptError> {
-        openFolderWindows().map { $0.first }
     }
 }
 
