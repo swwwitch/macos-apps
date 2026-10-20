@@ -168,16 +168,19 @@ struct NoteMarkdown {
     var noteLinkText = "note記事へのリンク"
     var tweetLinkText = "Twitter（現「X」）リンク"
     var imageText = "画像"
+    var keywordsHeading = "キーワード"
 
     static let paidLine = "このラインより上のエリアが無料で表示されます。"
     static let blockTags: Set<String> = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "pre", "figure",
                                          "figcaption", "hr", "div", "section", "article", "table", "table-of-contents", "nav", "button"]
 
-    func convert(title: String, html: String) -> String {
+    /// The keywords (hashtags such as "#Mac") go at the end after a rule, under an h2, as one code span separated by spaces.
+    func convert(title: String, html: String, keywords: [String] = []) -> String {
         var blocks: [String] = []
         let heading = oneLine(title)
         if !heading.isEmpty { blocks.append("# " + escapeText(heading)) }
         blocks += renderBlocks(HTMLParser.parse(html).children)
+        if !keywords.isEmpty { blocks += ["---", "## " + keywordsHeading, "`" + keywords.map(oneLine).joined(separator: " ").replacingOccurrences(of: "`", with: "") + "`"] }
         return Self.tidy(blocks.joined(separator: "\n\n"))
     }
 

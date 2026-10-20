@@ -3,7 +3,7 @@ note2markdown — Export a note article as Markdown
 How to use
 1. Copy the URL of a note article (https://note.com/username/n/n…) and paste it into the field. Articles on custom domains and the bare article key (n + 12 characters) also work.
 2. Press ⌘Return (or Return in the field) to load the article and preview the Markdown.
-3. Click Export… (⌘S) and choose where to save the .md file. The file is named after the article title. The last folder is remembered.
+3. Click Export…, choose Save Only, Open in …, or Send to MarkdownKitchen, then choose where to save the .md file. Open in … uses the Markdown Editor set in the Output tab of Settings (the default app for .md files, or an app you choose). Send to MarkdownKitchen opens it in MarkdownKitchen (shown only when it is installed and not set as the editor). From the File menu, ⌘S saves only and ⌥⌘S saves and opens in the editor. The file is named after the article title (or the article key, such as nf53b6808705f in the URL, set in the Output tab of Settings). The last folder is remembered.
 From Browser (⌘L) puts the note article shown in the front browser window (Safari, Chrome, Firefox, Edge, Brave, Arc, Vivaldi and others) into the field and loads it. It needs the Accessibility permission.
 You can also drag the icon (favicon) in the browser’s address bar, or a link, onto the window (no permission needed).
 Copy Markdown (⇧⌘C) puts it on the clipboard. If you click Export… right after entering a URL, the article is loaded first.
@@ -14,6 +14,7 @@ Conversion
 - Bold, italic, strikethrough, links, bulleted and numbered lists, quotes, code and rules become Markdown. The table of contents is left out.
 - Images become ![Image](URL), using the caption when there is one. Size parameters (?width=…) are removed from the URL.
 - Embeds become links: note articles use their title (see Settings), X (Twitter) posts “X (Twitter) link”, other sites the page title, attachments the file name, and YouTube a line with just the URL.
+- The article’s keywords (hashtags) are written at the end after a rule (---) and “## Keywords”, on one line separated by spaces, like “`#Mac #macOS`”.
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
@@ -23,7 +24,7 @@ Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
 
 Hotkeys
-⌘Return load, ⌘L load from the front browser, ⌘S export, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
+⌘Return load, ⌘L load from the front browser, ⌘S export, ⌥⌘S export and open in the editor, ⇧⌘C copy Markdown, ⌘, settings, ⌘0 Open Main Window, ⌘W close the window, ⌘Q quit, ⌘? this help. Press Esc to cancel loading.
 
 Running and quitting
 Closing the main window does not quit the app. Click the Dock icon or choose File → Open Main Window to show it again. Quit with ⌘Q or Quit note2markdown in the app menu.
@@ -34,11 +35,12 @@ Only From Browser needs the Accessibility permission (to read the URL of the pag
 Troubleshooting
 “The article was not found”: check the URL and that the article is published.
 “This article cannot be loaded”: private, draft and members-only articles cannot be exported.
-Paid articles: only the free part is exported, even if you bought the article.
+Export Site: shown in the Account tab of Settings while signed in. Choose an export folder and click Export Site to export every published article of the signed-in account as <article key>.md (e.g. nf53b6808705f.md). Images can link to note (Link to the images on note) or be saved to images/<article key>/ and linked relatively (Download and relink locally).
+Paid articles: only the free part is exported. Turn on “Sign in to load the paid part too” in the Account tab of Settings and sign in to note inside the app to export your own and bought articles in full (signing in in your browser does not count).
 Image, talk and video posts have no text body and cannot be exported.
 When a file with the same name exists, the save dialog asks whether to replace it.
 
 Privacy
-To load the article you enter, the app connects to note's public API (note.com/api/v3/notes/<key>). No login information or cookies are sent. Only the settings and the last export folder are stored (UserDefaults).
+To load the article you enter, the app connects to note's public API (note.com/api/v3/notes/<key>). With “Sign in to load the paid part too” off (the default), no login information or cookies are sent. When on, the note cookies from signing in inside the app are sent only with requests to note.com. The app never handles your password; the session stays in the app’s WebKit storage until you choose Sign Out. Only the settings and the last export folder are stored (UserDefaults).
 Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
 Support: see the bundled README.md (Contents/Resources/README.md in the app).

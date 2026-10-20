@@ -7,6 +7,10 @@ struct NoteArticle {
     let body: String
     let url: String
     let price: Int
+    /// Hashtags set on the article ("#Mac"), in the order note returns them.
+    var keywords: [String] = []
+    /// The paid part is included (own or bought article, read while signed in).
+    var isFull = false
 
     enum Failure: Error, Equatable {
         case invalidURL
@@ -40,13 +44,26 @@ struct NoteArticle {
               let info = object["data"] as? [String: Any] else { throw Failure.badResponse(200) }
         let body = info["body"] as? String ?? ""
         guard !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Failure.noBody }
+        var keywords: [String] = []
+        for item in info["hashtag_notes"] as? [[String: Any]] ?? [] {
+            guard let name = ((item["hashtag"] as? [String: Any])?["name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !name.isEmpty else { continue }
+            let tag = name.hasPrefix("#") ? name : "#" + name
+            if !keywords.contains(tag) { keywords.append(tag) }
+        }
         return NoteArticle(key: key, title: info["name"] as? String ?? "", body: body,
-                           url: info["note_url"] as? String ?? "https://note.com/n/\(key)", price: info["price"] as? Int ?? 0)
+                           url: info["note_url"] as? String ?? "https://note.com/n/\(key)", price: info["price"] as? Int ?? 0, keywords: keywords,
+                           isFull: info["is_my_note"] as? Bool == true || info["is_purchased"] as? Bool == true)
     }
 
-    static func fetch(key: String, session: URLSession = .shared) async throws -> NoteArticle {
+    /// `cookie` (note.com session, only with the sign-in option) lets note return the paid part of own or bought articles.
+    static func fetch(key: String, cookie: String? = nil, session: URLSession = .shared) async throws -> NoteArticle {
         var request = URLRequest(url: apiURL(key), cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30)
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        if let cookie {
+            request.httpShouldHandleCookies = false
+            request.setValue(cookie, forHTTPHeaderField: "Cookie")
+        }
         let data: Data, response: URLResponse
         do {
             (data, response) = try await session.data(for: request)

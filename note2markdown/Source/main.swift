@@ -4,6 +4,16 @@ import UniformTypeIdentifiers
 
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
+/// A converter with the localized link and image texts.
+func makeConverter() -> NoteMarkdown {
+    var converter = NoteMarkdown()
+    converter.noteLinkText = L("noteLinkText")
+    converter.tweetLinkText = L("tweetLinkText")
+    converter.imageText = L("imageText")
+    converter.keywordsHeading = L("keywordsHeading")
+    return converter
+}
+
 /// Loads a note article by URL, converts it to Markdown and writes it to a file.
 @MainActor
 final class Model: ObservableObject {
@@ -30,16 +40,27 @@ final class Model: ObservableObject {
     @Published var keepRunning: Bool { didSet { defaults.set(keepRunning, forKey: "keepRunning") } }
     /// Look up the titles of embedded note articles for their link text. On by default.
     @Published var fetchEmbedTitles: Bool { didSet { defaults.set(fetchEmbedTitles, forKey: "fetchEmbedTitles") } }
+    /// ファイル名: the article title (default) or the article key (n + 12 characters, as in the URL).
+    @Published var fileNameByKey: Bool { didSet { defaults.set(fileNameByKey, forKey: "fileNameByKey") } }
+    /// Markdownエディター: the app 「…で開く」 uses. Empty = the default app for .md files. Set on each Mac.
+    @Published var editorPath: String { didSet { defaults.set(editorPath, forKey: "editorPath") } }
+    /// Send the in-app note session so the paid part of own or bought articles loads. Off by default, set on each Mac.
+    @Published var useLogin: Bool { didSet { defaults.set(useLogin, forKey: "useLogin") } }
 
     init() {
         keepRunning = defaults.object(forKey: "keepRunning") as? Bool ?? true
         fetchEmbedTitles = defaults.object(forKey: "fetchEmbedTitles") as? Bool ?? true
+        useLogin = defaults.bool(forKey: "useLogin")
+        fileNameByKey = defaults.bool(forKey: "fileNameByKey")
+        editorPath = defaults.string(forKey: "editorPath") ?? ""
     }
 
     /// Re-reads the shared settings after an import (設定の共有) so the next save does not write the old value back.
     func reloadSharedSettings() {
         let embed = defaults.object(forKey: "fetchEmbedTitles") as? Bool ?? true
         if embed != fetchEmbedTitles { fetchEmbedTitles = embed }
+        let byKey = defaults.bool(forKey: "fileNameByKey")
+        if byKey != fileNameByKey { fileNameByKey = byKey }
     }
 
     var isLoading: Bool { status == .loading }
@@ -50,7 +71,7 @@ final class Model: ObservableObject {
         switch status {
         case .idle: return ""
         case .loading: return L("statusLoading")
-        case .loaded: return article.map { $0.price > 0 ? L("statusPaid") : String(format: L("statusLoaded"), $0.title) } ?? ""
+        case .loaded: return article.map { $0.price > 0 && !$0.isFull ? L("statusPaid") : String(format: L("statusLoaded"), $0.title) } ?? ""
         case .saved(let url): return String(format: L("statusSaved"), url.path)
         case .failed(let message): return message
         case .needsAccess: return AccessibilityText.text("blocked")
@@ -113,17 +134,16 @@ final class Model: ObservableObject {
         }
         status = .loading
         let withTitles = fetchEmbedTitles
+        let withLogin = useLogin
         task = Task {
             do {
-                let article = try await NoteArticle.fetch(key: key)
-                var converter = NoteMarkdown()
-                converter.noteLinkText = L("noteLinkText")
-                converter.tweetLinkText = L("tweetLinkText")
-                converter.imageText = L("imageText")
+                let cookie = withLogin ? await NoteLogin.shared.cookieHeader() : nil
+                let article = try await NoteArticle.fetch(key: key, cookie: cookie)
+                var converter = makeConverter()
                 if withTitles { converter.embedTitles = await NoteArticle.titles(for: NoteMarkdown.noteEmbedURLs(in: article.body)) }
                 try Task.checkCancellation()
                 self.article = article
-                self.markdown = converter.convert(title: article.title, html: article.body)
+                self.markdown = converter.convert(title: article.title, html: article.body, keywords: article.keywords)
                 self.loadedInput = input
                 self.status = .loaded
                 then?()
@@ -150,14 +170,46 @@ final class Model: ObservableObject {
         }
     }
 
+    /// What happens after 書き出す… saves the file.
+    enum ExportAction { case saveOnly, open, markdownKitchen }
+    static let markdownKitchenID = "jp.dtp-transit.markdownkitchen"
+    static var markdownKitchenURL: URL? { NSWorkspace.shared.urlForApplication(withBundleIdentifier: markdownKitchenID) }
+
+    static let markdownType = UTType(filenameExtension: "md") ?? .plainText
+    static var defaultEditorURL: URL? { NSWorkspace.shared.urlForApplication(toOpen: markdownType) }
+    static func appName(_ url: URL?) -> String {
+        guard let url else { return "—" }
+        let name = FileManager.default.displayName(atPath: url.path)
+        return name.hasSuffix(".app") ? String(name.dropLast(4)) : name
+    }
+    /// The chosen editor when it still exists, otherwise the default app for .md files.
+    var editorURL: URL? {
+        if !editorPath.isEmpty, FileManager.default.fileExists(atPath: editorPath) { return URL(fileURLWithPath: editorPath) }
+        return Self.defaultEditorURL
+    }
+    var openWithTitle: String { String(format: L("exportOpenWith"), Self.appName(editorURL)) }
+    /// MarkdownKitchenに送る is left out when the editor is MarkdownKitchen itself.
+    var showsKitchenItem: Bool {
+        guard let kitchen = Self.markdownKitchenURL else { return false }
+        return editorURL?.standardizedFileURL != kitchen.standardizedFileURL
+    }
+
+    func chooseEditor() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications", isDirectory: true)
+        panel.prompt = L("chooseEditorPrompt")
+        if panel.runModal() == .OK, let url = panel.url { editorPath = url.path }
+    }
+
     /// 書き出す…: loads first when needed, then asks where to save.
-    func export(from window: NSWindow?) {
+    func export(from window: NSWindow?, then action: ExportAction = .saveOnly) {
         guard !isLoading else { return }
-        guard isCurrent else { load { [weak self] in self?.export(from: window) }; return }
+        guard isCurrent else { load { [weak self] in self?.export(from: window, then: action) }; return }
         guard let article else { return }
         let panel = NSSavePanel()
         panel.title = L("exportTitle")
-        panel.nameFieldStringValue = NoteArticle.fileName(for: article.title, key: article.key)
+        panel.nameFieldStringValue = fileNameByKey ? article.key + ".md" : NoteArticle.fileName(for: article.title, key: article.key)
         panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
@@ -172,6 +224,15 @@ final class Model: ObservableObject {
                 try markdown.write(to: url, atomically: true, encoding: .utf8)
                 self.defaults.set(url.deletingLastPathComponent().path, forKey: "exportDirectory")
                 self.status = .saved(url)
+                switch action {
+                case .saveOnly: break
+                case .open:
+                    if let app = self.editorURL { NSWorkspace.shared.open([url], withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration()) }
+                    else { NSWorkspace.shared.open(url) }
+                case .markdownKitchen:
+                    guard let app = Self.markdownKitchenURL else { self.status = .failed(L("errorNoKitchen")); return }
+                    NSWorkspace.shared.open([url], withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration())
+                }
             } catch {
                 self.status = .failed(L("errorWrite") + error.localizedDescription)
             }
@@ -301,8 +362,14 @@ struct ContentView: View {
                 Button(L("settingsButton")) { delegate.showPreferences() }
                 Spacer()
                 Button(L("copyMarkdown")) { model.copy() }.disabled(model.isLoading || !model.validInput)
-                Button(L("export")) { model.export(from: delegate.mainWindow) }
-                    .keyboardShortcut(.defaultAction).disabled(model.isLoading || !model.validInput)
+                Menu(L("export")) {
+                    Button(L("exportSaveOnly")) { model.export(from: delegate.mainWindow) }
+                    Button(model.openWithTitle) { model.export(from: delegate.mainWindow, then: .open) }
+                    if model.showsKitchenItem {
+                        Button(L("exportToKitchen")) { model.export(from: delegate.mainWindow, then: .markdownKitchen) }
+                    }
+                }
+                .fixedSize().disabled(model.isLoading || !model.validInput)
             }
         }
         .padding(20).frame(minWidth: 600, minHeight: 500).background(Color(nsColor: AppSurface.color))
@@ -327,15 +394,97 @@ struct Preferences: View {
                 }
                 AccessibilitySection()
             })),
-            (L("outputTab"), AnyView(SettingsSection(L("outputSection")) {
+            (L("outputTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
+            SettingsSection(L("outputSection")) {
                 Toggle(L("embedTitles"), isOn: $model.fetchEmbedTitles)
                 Text(L("embedTitlesHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+            SettingsSection(L("fileNameSection")) {
+                Picker("", selection: $model.fileNameByKey) {
+                    Text(L("fileNameTitle")).tag(false)
+                    Text(L("fileNameKey")).tag(true)
+                }
+                .pickerStyle(.radioGroup).labelsHidden()
+            }
+            EditorSettings(model: model)
             })),
+            (L("loginTab"), AnyView(LoginSettings(model: model))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
         .padding(12)
         .frame(minWidth: 520, maxWidth: .infinity, minHeight: 440, maxHeight: .infinity)
+    }
+}
+
+/// Markdownエディター: the default app for .md files, or a chosen one.
+struct EditorSettings: View {
+    @ObservedObject var model: Model
+    private var useCustom: Binding<Bool> {
+        Binding(get: { !model.editorPath.isEmpty }, set: { custom in
+            if !custom { model.editorPath = "" } else if model.editorPath.isEmpty { model.chooseEditor() }
+        })
+    }
+    var body: some View {
+        SettingsSection(L("editorSection")) {
+            Picker("", selection: useCustom) {
+                Text(String(format: L("editorDefault"), Model.appName(Model.defaultEditorURL))).tag(false)
+                HStack {
+                    Text(model.editorPath.isEmpty ? L("editorCustom") : String(format: L("editorCustomNamed"), Model.appName(URL(fileURLWithPath: model.editorPath))))
+                    Button(L("chooseEditor")) { model.chooseEditor() }
+                }.tag(true)
+            }
+            .pickerStyle(.radioGroup).labelsHidden()
+            Text(L("editorHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+/// 「アカウント」タブ: the sign-in option and the in-app note session.
+struct LoginSettings: View {
+    @ObservedObject var model: Model
+    @ObservedObject var login = NoteLogin.shared
+    @ObservedObject var site = SiteExport.shared
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+        SettingsSection(L("loginSection")) {
+            Toggle(L("useLogin"), isOn: $model.useLogin)
+            Text(L("useLoginHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(L("loginLimit")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Text(login.isSignedIn ? L("signedIn") : L("signedOut")).foregroundColor(.secondary)
+                Spacer()
+                if login.isSignedIn { Button(L("signOut")) { login.signOut() } }
+                else { Button(L("signIn")) { login.showWindow() } }
+            }
+        }
+        // サイトをエクスポート: only while signed in.
+        if login.isSignedIn {
+            SettingsSection(L("siteExportSection")) {
+                HStack {
+                    Text(L("siteExportFolder"))
+                    Text(site.folderPath.isEmpty ? L("siteExportNoFolder") : (site.folderPath as NSString).abbreviatingWithTildeInPath)
+                        .foregroundColor(.secondary).lineLimit(1).truncationMode(.middle)
+                    Spacer()
+                    Button(L("chooseEditor")) { site.chooseFolder() }.disabled(site.isRunning)
+                }
+                Picker(L("siteExportImages"), selection: $site.downloadImages) {
+                    Text(L("siteExportImagesRemote")).tag(false)
+                    Text(L("siteExportImagesLocal")).tag(true)
+                }
+                .pickerStyle(.radioGroup).disabled(site.isRunning)
+                Text(L("siteExportHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    if site.isRunning, site.total > 0 { ProgressView(value: Double(site.done), total: Double(site.total)) }
+                    Text(site.message).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    if site.isRunning { Button(L("cancel")) { site.cancel() } }
+                    else { Button(L("siteExportButton")) { site.start(fetchEmbedTitles: model.fetchEmbedTitles) } }
+                }
+            }
+        }
+        }
+        .onAppear { login.refresh() }
     }
 }
 
@@ -369,7 +518,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 help: { [weak self] in self?.showHelp() })
         }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
-        SettingsSync.shared.start(.init(keys: ["fetchEmbedTitles"], prefixes: [],
+        SettingsSync.shared.start(.init(keys: ["fetchEmbedTitles", "fileNameByKey"], prefixes: [],
             note: StartupWindow.text("「出力」タブの設定を書き出し・同期します。",
                                      "Exports and syncs the Output tab setting.",
                                      "导出并同步“输出”标签的设置。",
@@ -405,6 +554,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         add(file, L("loadMenu"), #selector(loadArticle), "\r")
         add(file, L("fromBrowserMenu"), #selector(loadFromBrowser), "l")
         add(file, L("exportMenu"), #selector(exportArticle), "s")
+        add(file, L("exportOpenWith"), #selector(exportAndOpen), "s"); file.items.last?.keyEquivalentModifierMask = [.command, .option]
+        add(file, L("exportToKitchenMenu"), #selector(exportToKitchen))
         add(file, L("copyMarkdown"), #selector(copyMarkdown), "C")
         file.addItem(.separator())
         add(file, L("close"), #selector(NSWindow.performClose(_:)), "w"); file.items.last?.target = nil
@@ -422,6 +573,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         MainActor.assumeIsolated {
             switch item.action {
             case #selector(loadArticle), #selector(exportArticle), #selector(copyMarkdown): return !model.isLoading && model.validInput
+            case #selector(exportToKitchen): return !model.isLoading && model.validInput && model.showsKitchenItem
+            case #selector(exportAndOpen):
+                item.title = model.openWithTitle
+                return !model.isLoading && model.validInput
             case #selector(loadFromBrowser): return !model.isLoading
             default: return true
             }
@@ -432,6 +587,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func loadArticle() { showMain(); MainActor.assumeIsolated { model.load() } }
     @objc func loadFromBrowser() { showMain(); MainActor.assumeIsolated { model.loadFromBrowser() } }
     @objc func exportArticle() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow) } }
+    @objc func exportAndOpen() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow, then: .open) } }
+    @objc func exportToKitchen() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow, then: .markdownKitchen) } }
     @objc func copyMarkdown() { MainActor.assumeIsolated { model.copy() } }
     @objc func showPreferences() {
         if preferences == nil {

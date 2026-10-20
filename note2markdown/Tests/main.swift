@@ -36,6 +36,10 @@ if let article = try? NoteArticle.parse(Data(json.utf8), key: "n0123456789ab") {
     check("parse", "\(article.title)|\(article.body)|\(article.url)|\(article.price)", "題名|<p>本文</p>|https://note.com/u/n/n0123456789ab|300")
 } else { failures += 1; print("FAIL parse") }
 count += 1
+let tagJSON = ##"{"data":{"name":"t","body":"<p>b</p>","hashtag_notes":[{"hashtag":{"name":"#Mac"}},{"hashtag":{"name":"アプリ開発"}},{"hashtag":{"name":"#Mac"}},{"hashtag":{}}]}}"##
+check("parse keywords", (try? NoteArticle.parse(Data(tagJSON.utf8), key: "n1"))?.keywords.joined(separator: " ") ?? "nil", "#Mac #アプリ開発")
+check("parse no keywords", (try? NoteArticle.parse(Data(json.utf8), key: "n1"))?.keywords.count.description ?? "nil", "0")
+check("convert keywords", NoteMarkdown().convert(title: "T", html: "<p>b</p>", keywords: ["#Mac", "#macOS"]), "# T\n\nb\n\n---\n\n## キーワード\n\n`#Mac #macOS`\n")
 do { _ = try NoteArticle.parse(Data(#"{"data":{"name":"x","body":null}}"#.utf8), key: "n1"); failures += 1; print("FAIL no body") }
 catch { if error as? NoteArticle.Failure != .noBody { failures += 1; print("FAIL no body type") } }
 
