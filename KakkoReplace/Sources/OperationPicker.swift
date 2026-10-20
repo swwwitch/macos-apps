@@ -5,13 +5,16 @@ struct OperationGroup {
     let titleKey: String
     let ids: [String]
     static let all: [OperationGroup] = [
-        .init(titleKey: "groupFullWidth", ids: ["round", "square", "lenticular", "angle", "doubleAngle", "corner", "curly", "doubleCorner"]),
-        .init(titleKey: "groupHalfWidth", ids: ["asciiRound", "asciiSquare", "asciiCurly", "asciiAngle", "asciiSingle", "asciiDouble"]),
+        .init(titleKey: "groupFullWidth", ids: ["round", "square", "curly", "angle", "doubleAngle", "lenticular", "corner", "doubleCorner"]),
+        .init(titleKey: "groupHalfWidth", ids: ["asciiRound", "asciiSquare", "asciiCurly", "asciiAngle", "asciiSingle", "asciiDouble", "asciiBacktick"]),
         .init(titleKey: "groupQuotes", ids: ["smartDouble", "smartSingle"]),
         .init(titleKey: "groupComments", ids: ["html", "css"]),
         .init(titleKey: "groupForce", ids: BracketAction.forceIDs),
         .init(titleKey: "groupOther", ids: BracketAction.operations + ["palette"])
     ]
+    /// The groups the palette shows as buttons (force variants are a checkbox there).
+    static var paletteGroups: [OperationGroup] { all.filter { $0.titleKey != "groupForce" } }
+    var paletteIDs: [String] { ids.filter { $0 != "palette" } }
     static func displayTitle(_ id: String) -> String {
         if all[0].ids.contains(id) { return L("widthFull") + "  " + actionTitle(id) }
         if all[1].ids.contains(id) { return L("widthHalf") + "  " + actionTitle(id) }
@@ -19,6 +22,29 @@ struct OperationGroup {
         if id == "css" { return "CSS  " + actionTitle(id) }
         if BracketAction.forceIDs.contains(id) { return L("widthFull") + "  " + actionTitle(id) }
         return actionTitle(id)
+    }
+}
+
+/// Checkboxes choosing which palette buttons the compact palette keeps.
+struct CompactPalettePicker: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(OperationGroup.paletteGroups, id: \.titleKey) { group in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L(group.titleKey)).font(.caption).foregroundColor(.secondary)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: group.titleKey == "groupOther" ? 200 : 90), alignment: .leading)], alignment: .leading, spacing: 4) {
+                        ForEach(group.paletteIDs, id: \.self) { id in
+                            Toggle(actionTitle(id), isOn: Binding(get: { model.compactPaletteIDs.contains(id) }, set: { on in
+                                model.compactPaletteIDs.removeAll { $0 == id }
+                                if on { model.compactPaletteIDs.append(id) }
+                                model.save(); (NSApp.delegate as? AppDelegate)?.palette?.refresh()
+                            })).toggleStyle(.checkbox).help(OperationGroup.displayTitle(id))
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

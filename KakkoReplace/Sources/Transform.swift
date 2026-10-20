@@ -21,6 +21,7 @@ struct BracketAction: Identifiable {
         .init(id: "asciiAngle", opening: "<", closing: ">"),
         .init(id: "asciiSingle", opening: "'", closing: "'"),
         .init(id: "asciiDouble", opening: "\"", closing: "\""),
+        .init(id: "asciiBacktick", opening: "`", closing: "`"),
         .init(id: "html", opening: "<!-- ", closing: " -->"),
         .init(id: "css", opening: "/* ", closing: " */")
     ]
@@ -32,10 +33,10 @@ struct BracketAction: Identifiable {
 struct BracketEdit {
     let replacement: String
     let selection: NSRange
-    /// `paragraphEnd`: the selection reaches the end of its paragraph; wrapping it then leaves the caret after the closing bracket.
-    static func make(_ text: String, at location: Int, action: String = "round", force: Bool = false, trimSpaces: Bool = false, paragraphEnd: Bool = false) -> BracketEdit {
+    /// Wrapping leaves the caret after the closing bracket; converting and removing keep the result selected.
+    static func make(_ text: String, at location: Int, action: String = "round", force: Bool = false, trimSpaces: Bool = false) -> BracketEdit {
         if action.hasPrefix("force_"), BracketAction.forceIDs.contains(action) {
-            return make(text, at: location, action: String(action.dropFirst(6)), force: true, trimSpaces: trimSpaces, paragraphEnd: paragraphEnd)
+            return make(text, at: location, action: String(action.dropFirst(6)), force: true, trimSpaces: trimSpaces)
         }
         func selected(_ result: String) -> BracketEdit { .init(replacement: result, selection: NSRange(location: location, length: result.utf16.count)) }
         if action == "spaces" {
@@ -68,9 +69,7 @@ struct BracketEdit {
         }
         let content = trimSpaces ? text.trimmingCharacters(in: CharacterSet(charactersIn: " ")) : text
         let replacement = pair.opening + content + pair.closing
-        if paragraphEnd { return .init(replacement: replacement, selection: NSRange(location: location + replacement.utf16.count, length: 0)) }
-        return .init(replacement: replacement,
-                     selection: NSRange(location: location + pair.opening.utf16.count, length: content.utf16.count))
+        return .init(replacement: replacement, selection: NSRange(location: location + replacement.utf16.count, length: 0))
     }
     private struct Marker { let index: Int; let open: Bool; let outer: Bool }
     private static func bracketMarkers(_ chars: [Character]) -> [Marker] {

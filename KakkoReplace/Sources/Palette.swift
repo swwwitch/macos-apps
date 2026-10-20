@@ -33,12 +33,16 @@ final class BracketPalette: NSPanel {
             button.bezelStyle = .rounded; button.controlSize = .small; button.refusesFirstResponder = true
             utilities.addArrangedSubview(button)
         }
-        utilities.spacing = 6; column.addArrangedSubview(utilities)
+        utilities.spacing = 6; column.addArrangedSubview(utilities); self.utilities = utilities
         let restoreButton = NSButton(title: L("restore"), target: self, action: #selector(restore))
         restoreButton.bezelStyle = .rounded; restoreButton.refusesFirstResponder = true
-        column.addArrangedSubview(restoreButton)
-        for group in OperationGroup.all where group.titleKey != "groupForce" {
-            let ids = group.ids.filter { $0 != "palette" }
+        column.addArrangedSubview(restoreButton); self.restoreButton = restoreButton
+        compactButton.target = self; compactButton.action = #selector(toggleCompact)
+        compactButton.bezelStyle = .rounded; compactButton.controlSize = .small; compactButton.refusesFirstResponder = true
+        utilities.addArrangedSubview(compactButton)
+        self.header = header
+        for group in OperationGroup.paletteGroups {
+            let ids = group.paletteIDs
             let box = NSBox(); box.title = L(group.titleKey); box.titleFont = .systemFont(ofSize: 12, weight: .semibold)
             let buttons = ids.map { id -> NSButton in
                 let button = NSButton(title: actionTitle(id), target: self, action: #selector(apply(_:)))
@@ -54,6 +58,7 @@ final class BracketPalette: NSPanel {
             box.contentView = NSView(); box.contentView!.addSubview(grid)
             NSLayoutConstraint.activate([grid.leadingAnchor.constraint(equalTo: box.contentView!.leadingAnchor), grid.trailingAnchor.constraint(equalTo: box.contentView!.trailingAnchor), grid.topAnchor.constraint(equalTo: box.contentView!.topAnchor), grid.bottomAnchor.constraint(equalTo: box.contentView!.bottomAnchor)])
             column.addArrangedSubview(box); box.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
+            sections.append((box, grid))
         }
         force.target = self; force.action = #selector(toggleForce); force.refusesFirstResponder = true
         force.cell?.wraps = true
@@ -78,14 +83,40 @@ final class BracketPalette: NSPanel {
         refresh()
     }
     private var actionButtons: [NSButton] = []
+    private var sections: [(box: NSBox, grid: BracketButtonGrid)] = []
+    private var header: NSView?
+    private var utilities: NSStackView?
+    private var restoreButton: NSButton?
+    private let compactButton = NSButton(title: "", target: nil, action: nil)
     private func OperationPickerTitle(_ id: String) -> String { OperationGroup.displayTitle(id) }
     func refresh() {
         force.state = model.forceWrap ? .on : .off; result.stringValue = model.status
         for button in actionButtons {
             let id = button.identifier!.rawValue
             button.toolTip = OperationGroup.displayTitle(id) + "  " + (model.bindings[id].map { KeyCombo($0).label } ?? HotkeyText.unset)
+            button.isHidden = model.compactPalette && !model.compactPaletteIDs.contains(id)
+        }
+        // Compact: only the chosen buttons; groups left empty and the header disappear.
+        header?.isHidden = model.compactPalette; force.isHidden = model.compactPalette
+        // Compact narrows down to one button column so the palette can stand tall and thin.
+        utilities?.orientation = model.compactPalette ? .vertical : .horizontal
+        utilities?.alignment = model.compactPalette ? .leading : .centerY
+        restoreButton?.controlSize = model.compactPalette ? .small : .regular
+        restoreButton?.font = .systemFont(ofSize: NSFont.systemFontSize(for: restoreButton?.controlSize ?? .regular))
+        contentMinSize = model.compactPalette ? NSSize(width: 150, height: 200) : NSSize(width: 280, height: 340)
+        if frame.width < contentMinSize.width || frame.height < contentMinSize.height {
+            var widened = frame
+            widened.size.width = max(frame.width, contentMinSize.width); widened.size.height = max(frame.height, contentMinSize.height)
+            widened.origin.y -= widened.height - frame.height
+            setFrame(widened, display: true)
+        }
+        compactButton.title = L(model.compactPalette ? "fullPalette" : "compactPalette")
+        for section in sections {
+            section.box.isHidden = section.grid.buttons.allSatisfy(\.isHidden)
+            section.grid.refreshVisibility()
         }
     }
+    @objc private func toggleCompact() { model.compactPalette.toggle(); model.save(); refresh() }
     @objc private func openSettings() { (NSApp.delegate as? AppDelegate)?.showPreferences() }
     @objc private func openHelp() { (NSApp.delegate as? AppDelegate)?.help() }
     @objc private func restore() {
@@ -111,7 +142,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -124,7 +171,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }

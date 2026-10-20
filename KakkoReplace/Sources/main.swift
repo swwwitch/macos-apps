@@ -12,6 +12,9 @@ final class Model: ObservableObject {
     @Published var bindings = Shortcut.loadBindings()
     @Published var forceWrap = UserDefaults.standard.bool(forKey: "forceWrap")
     @Published var trimSpaces = UserDefaults.standard.bool(forKey: "trimSpaces")
+    @Published var compactPalette = UserDefaults.standard.bool(forKey: "compactPalette")
+    @Published var compactPaletteIDs = UserDefaults.standard.stringArray(forKey: "compactPaletteIDs") ?? Model.defaultCompactIDs
+    static let defaultCompactIDs = ["round", "square", "lenticular", "corner", "doubleCorner"]
     @Published var registrationFailures: [String: OSStatus] = [:]
     var statusChanged: ((String) -> Void)?
     @Published var status = L("ready") { didSet { statusChanged?(status) } }
@@ -53,6 +56,8 @@ final class Model: ObservableObject {
         UserDefaults.standard.set(try? JSONEncoder().encode(bindings), forKey: "bracketBindings")
         UserDefaults.standard.set(forceWrap, forKey: "forceWrap")
         UserDefaults.standard.set(trimSpaces, forKey: "trimSpaces")
+        UserDefaults.standard.set(compactPalette, forKey: "compactPalette")
+        UserDefaults.standard.set(compactPaletteIDs, forKey: "compactPaletteIDs")
         UserDefaults.standard.set(frontEnabled, forKey: "bringToFrontEnabled")
         UserDefaults.standard.set(try? JSONEncoder().encode(frontShortcut), forKey: "bringToFrontShortcut")
         refreshHotkey()
@@ -65,6 +70,8 @@ final class Model: ObservableObject {
         bindings = Shortcut.loadBindings()
         forceWrap = defaults.bool(forKey: "forceWrap")
         trimSpaces = defaults.bool(forKey: "trimSpaces")
+        compactPalette = defaults.bool(forKey: "compactPalette")
+        compactPaletteIDs = defaults.stringArray(forKey: "compactPaletteIDs") ?? Model.defaultCompactIDs
         frontEnabled = defaults.object(forKey: "bringToFrontEnabled") as? Bool ?? true
         frontShortcut = defaults.data(forKey: "bringToFrontShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .bringToFront
         MainActor.assumeIsolated { HotkeyRecorder.shared.stop() }
@@ -225,6 +232,10 @@ struct Preferences: View {
                 Text(L("paletteModeHint")).font(.caption).foregroundColor(.secondary)
                 Button(L("palette")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
             })),
+            (L("compactPaletteButtons"), AnyView(SettingsSection(L("compactPaletteButtons")) {
+                Text(L("compactPaletteHint")).font(.caption).foregroundColor(.secondary)
+                CompactPalettePicker(model: model)
+            })),
             (L("bracketOptions"), AnyView(SettingsSection(L("bracketOptions")) {
                 Toggle(L("forceWrap"), isOn: Binding(get: { model.forceWrap }, set: { model.forceWrap = $0; model.save() }))
                 Toggle(L("trimSpaces"), isOn: Binding(get: { model.trimSpaces }, set: { model.trimSpaces = $0; model.save() }))
@@ -273,7 +284,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         ExcludedApps.shared.onChange = { [weak self] in self?.model.refreshHotkey() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.palette?.refresh() }
         SettingsSync.shared.start(.init(
-            keys: ["bracketBindings", "disabled", "paletteMode", "forceWrap", "trimSpaces"],
+            keys: ["bracketBindings", "disabled", "paletteMode", "forceWrap", "trimSpaces", "compactPalette", "compactPaletteIDs"],
             note: L("syncNote"), perMac: L("syncPerMac")))
         WindowActivationPolicy.install()
         targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
