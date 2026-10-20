@@ -1,10 +1,65 @@
 import AppKit
 import UniformTypeIdentifiers
 
-/// 原稿と見出しの状態。メインウインドウ・Dockアイコンへのドロップ・⌘Oで共有する
+/// 原稿と見出しの状態。ウインドウごとに1つ（メインウインドウは main、⌃⌘N の新規ウインドウは別の原稿）
 @MainActor
 final class MarkdownStore: ObservableObject {
-    static let shared = MarkdownStore()
+    /// メインウインドウの原稿（これまでの保存先をそのまま使う）
+    static let main = MarkdownStore(id: "")
+    /// 新規ウインドウの原稿（id → 原稿）
+    private static var documents: [String: MarkdownStore] = [:]
+    /// 最後に前面にあった原稿のウインドウ（設定などが前面のときのメニュー操作の対象）
+    private static weak var lastActive: MarkdownStore?
+    /// 開いている新規ウインドウの id。再起動したら開き直す
+    static let documentIDsKey = "markdownKitchen.documentIDs"
+
+    /// メニューやキーの操作対象：前面の原稿のウインドウ（シートを含む）。無ければ最後に使った見えているウインドウ、それも無ければメイン
+    static var shared: MarkdownStore {
+        if let store = store(for: NSApp.keyWindow) { return store }
+        if let last = lastActive, last.window?.isVisible == true, !last.window!.isMiniaturized { return last }
+        return main
+    }
+
+    /// そのウインドウ（またはそのシート）の原稿
+    static func store(for window: NSWindow?) -> MarkdownStore? {
+        guard let window = window?.sheetParent ?? window else { return nil }
+        if main.window === window { return main }
+        return documents.values.first { $0.window === window }
+    }
+
+    /// 新規ウインドウの原稿（無ければ作る）
+    static func document(_ id: String) -> MarkdownStore {
+        if let store = documents[id] { return store }
+        let store = MarkdownStore(id: id)
+        documents[id] = store
+        var ids = UserDefaults.standard.stringArray(forKey: documentIDsKey) ?? []
+        if !ids.contains(id) { ids.append(id); UserDefaults.standard.set(ids, forKey: documentIDsKey) }
+        return store
+    }
+
+    /// 終了中（閉じるウインドウの原稿を残し、次回開き直す）
+    static var isTerminating = false
+
+    /// 新規ウインドウを閉じたら、その原稿を消す
+    static func discardDocument(_ id: String) {
+        guard !isTerminating, !id.isEmpty, let store = documents.removeValue(forKey: id) else { return }
+        let defaults = UserDefaults.standard
+        for key in [textKey, fileKey, editedKey] { defaults.removeObject(forKey: store.key(key)) }
+        defaults.set((defaults.stringArray(forKey: documentIDsKey) ?? []).filter { $0 != id }, forKey: documentIDsKey)
+    }
+
+    let id: String
+    var isMain: Bool { id.isEmpty }
+    /// この原稿を表示しているウインドウ
+    weak var window: NSWindow? {
+        didSet { refreshDocumentEdited() }
+    }
+    /// 検索・置換（ウインドウごと）
+    private(set) lazy var find = FindReplace(store: self)
+    /// 原稿ごとの保存キー（メインは従来のキーのまま）
+    private func key(_ base: String) -> String { isMain ? base : base + "." + id }
+    /// ウインドウが前面に来たら、メニュー操作の対象として覚える
+    func becameActive() { Self.lastActive = self }
     static let textKey = "markdownKitchen.sourceText"
     static let levelsKey = "markdownKitchen.levels"
     /// チェックボックスで選べる見出しレベル
@@ -70,15 +125,15 @@ final class MarkdownStore: ObservableObject {
             allHeadings = HeadingParser.headings(in: text)
             message = nil
             isEdited = true
-            UserDefaults.standard.set(true, forKey: Self.editedKey)
-            UserDefaults.standard.set(text, forKey: Self.textKey)
-            if FindReplace.shared.isVisible { FindReplace.shared.refresh() }
+            UserDefaults.standard.set(true, forKey: key(Self.editedKey))
+            UserDefaults.standard.set(text, forKey: key(Self.textKey))
+            if find.isVisible { find.refresh() }
         }
     }
     @Published private(set) var allHeadings: [Heading]
     /// 読み込んだ（保存した）ファイル。⌘Sの上書き先。再起動しても覚えておく
     @Published private(set) var fileURL: URL? {
-        didSet { UserDefaults.standard.set(fileURL?.path, forKey: Self.fileKey) }
+        didSet { UserDefaults.standard.set(fileURL?.path, forKey: key(Self.fileKey)) }
     }
     var fileName: String? { fileURL?.lastPathComponent }
     /// 読み込み・保存のあとに原稿を変えたか
@@ -88,7 +143,7 @@ final class MarkdownStore: ObservableObject {
 
     /// 閉じるボタンの点（未保存の印）。読み込んだファイルがあるときだけ
     func refreshDocumentEdited() {
-        MainWindow.current?.isDocumentEdited = isEdited && fileURL != nil
+        window?.isDocumentEdited = isEdited && fileURL != nil
     }
     /// 読み込んだときの文字コード。保存も同じ文字コードで書く
     private var fileEncoding: String.Encoding = .utf8
@@ -109,16 +164,18 @@ final class MarkdownStore: ObservableObject {
     /// 原稿のスクロール（いちばん上に見えている行、末尾なら .infinity）をプレビューへ伝える
     var onSourceScroll: ((Double) -> Void)?
 
-    init() {
+    private init(id: String) {
+        self.id = id
         let defaults = UserDefaults.standard
-        let saved = defaults.string(forKey: Self.textKey) ?? ""
+        let suffix = id.isEmpty ? "" : "." + id
+        let saved = defaults.string(forKey: Self.textKey + suffix) ?? ""
         text = saved
         allHeadings = HeadingParser.headings(in: saved)
-        if let path = defaults.string(forKey: Self.fileKey), FileManager.default.fileExists(atPath: path) {
+        if let path = defaults.string(forKey: Self.fileKey + suffix), FileManager.default.fileExists(atPath: path) {
             fileURL = URL(fileURLWithPath: path)
             fileDate = Self.modificationDate(fileURL!)
         }
-        isEdited = defaults.bool(forKey: Self.editedKey)
+        isEdited = defaults.bool(forKey: Self.editedKey + suffix)
     }
 
     /// チェックしたレベルの見出しだけ
@@ -136,10 +193,38 @@ final class MarkdownStore: ObservableObject {
         panel.prompt = L("開く")
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
+        panel.allowsMultipleSelection = true
         panel.allowedContentTypes = Self.readableTypes
         NSApp.activate(ignoringOtherApps: true)
-        if panel.runModal() == .OK, let url = panel.url { load(url) }
+        guard panel.runModal() == .OK else { return }
+        Self.open(panel.urls, from: self)
+    }
+
+    /// 空の原稿（ファイルとの連携なし・未入力）。ファイルを開くとここに読み込む
+    var isBlank: Bool { text.isEmpty && fileURL == nil }
+
+    /// ファイルを開く。開いているファイルならそのウインドウを前に出し、
+    /// target が空ならそこへ、そうでなければ新規ウインドウに読み込む（ほかの原稿は置き換えない）
+    static func open(_ urls: [URL], from target: MarkdownStore) {
+        var target = target
+        for url in urls {
+            let path = url.standardizedFileURL.path
+            if let opened = ([main] + documents.values).first(where: { $0.fileURL?.standardizedFileURL.path == path }) {
+                opened.bringWindowForward()
+                continue
+            }
+            if target.isBlank || MainWindow.openWithID == nil {
+                target.load(url)
+                target.bringWindowForward()
+            } else {
+                let id = UUID().uuidString
+                let store = document(id)
+                store.load(url)
+                MainWindow.openWithID?(id)
+                target = store
+            }
+        }
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     /// ファイルを読み込んで原稿を置き換える。元のファイルは変更しない。置き換えは⌘Zで戻せる
@@ -167,26 +252,8 @@ final class MarkdownStore: ObservableObject {
 
     /// 原稿を空にしてファイルとの連携も外す（新規）。未保存の変更があれば保存するか確かめる。空にするのは⌘Zで戻せる
     func newFile() {
-        bringMainWindowForward()
-        if isEdited && !text.isEmpty {
-            let alert = NSAlert()
-            alert.messageText = fileName.map { L("「%@」への変更を保存しますか？", $0) } ?? L("原稿への変更を保存しますか？")
-            alert.informativeText = L("保存しない場合、原稿は空になります（取り消す（⌘Z）で戻せます）。")
-            alert.addButton(withTitle: L("保存"))
-            alert.addButton(withTitle: L("キャンセル"))
-            alert.addButton(withTitle: L("保存しない"))
-            alert.buttons[1].keyEquivalent = "\u{1b}"
-            switch alert.runModal() {
-            case .alertFirstButtonReturn:
-                save()
-                // The save panel was canceled or writing failed.
-                guard !isEdited else { return }
-            case .alertThirdButtonReturn:
-                break
-            default:
-                return
-            }
-        }
+        bringWindowForward()
+        guard confirmDiscard(L("保存しない場合、原稿は空になります（取り消す（⌘Z）で戻せます）。")) else { return }
         replaceAll(with: "")
         editor?.undoManager?.setActionName(L("新規"))
         fileURL = nil
@@ -194,6 +261,38 @@ final class MarkdownStore: ObservableObject {
         fileEncoding = .utf8
         markSaved()
         message = L("新しい原稿を作成しました")
+    }
+
+    /// 未保存の変更があれば保存するか確かめる。続けてよければ true
+    private func confirmDiscard(_ detail: String) -> Bool {
+        guard isEdited && !text.isEmpty else { return true }
+        let alert = NSAlert()
+        alert.messageText = fileName.map { L("「%@」への変更を保存しますか？", $0) } ?? L("原稿への変更を保存しますか？")
+        alert.informativeText = detail
+        alert.addButton(withTitle: L("保存"))
+        alert.addButton(withTitle: L("キャンセル"))
+        alert.addButton(withTitle: L("保存しない"))
+        alert.buttons[1].keyEquivalent = "\u{1b}"
+        switch alert.runModal() {
+        case .alertFirstButtonReturn:
+            save()
+            // The save panel was canceled or writing failed.
+            return !isEdited
+        case .alertThirdButtonReturn:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// 新規ウインドウを閉じる。未保存の変更があれば保存するか確かめる（メインウインドウは閉じても原稿を残す）
+    func closeWindow() {
+        guard let window else { return }
+        if !isMain {
+            window.makeKeyAndOrderFront(nil)
+            guard confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return }
+        }
+        window.close()
     }
 
     /// ファイルとの連携を外す。原稿は残し、以後の⌘Sは「別名で保存…」
@@ -207,7 +306,7 @@ final class MarkdownStore: ObservableObject {
 
     private func markSaved() {
         isEdited = false
-        UserDefaults.standard.set(false, forKey: Self.editedKey)
+        UserDefaults.standard.set(false, forKey: key(Self.editedKey))
     }
 
     private static func modificationDate(_ url: URL) -> Date? {
@@ -443,10 +542,13 @@ final class MarkdownStore: ObservableObject {
         message = L("「%@」を移動しました", shown[from].title)
     }
 
-    /// メインウインドウを前に出す（しまっていれば戻す）
-    func bringMainWindowForward() {
-        if let window = MainWindow.current, !window.isVisible || window.isMiniaturized {
-            (NSApp.delegate as? AppDelegate)?.showWindow()
+    /// この原稿のウインドウを前に出す（しまっていれば戻す。メインウインドウは閉じていれば開き直す）
+    func bringWindowForward() {
+        if isMain {
+            if window.map({ !$0.isVisible || $0.isMiniaturized }) ?? true { MainWindow.show() }
+        } else if let window {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            window.makeKeyAndOrderFront(nil)
         }
     }
 

@@ -33,10 +33,10 @@ enum FormatAction: CaseIterable {
         (MenuShortcut("m", [.command, .option]), .comment),
     ]
 
-    /// メインウインドウが前面のときだけ、隠れたキーを受け取る
+    /// 原稿のウインドウが前面のときだけ、隠れたキーを受け取る
     @MainActor static func installHiddenKeys() {
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard let window = MainWindow.current, NSApp.keyWindow === window,
+            guard let window = NSApp.keyWindow, window.sheetParent == nil, MarkdownStore.store(for: window) != nil,
                   let key = event.characters(byApplyingModifiers: [])?.lowercased() else { return event }
             let pressed = MenuShortcut(key, event.modifierFlags)
             guard let action = hiddenKeys.first(where: { $0.0 == pressed })?.1 else { return event }

@@ -74,6 +74,8 @@
 "別名で保存…" = "Save As…";
 "名称未設定" = "Untitled";
 "新規" = "New";
+"新規ウインドウ" = "New Window";
+"保存しない場合、このウインドウの原稿は失われます。" = "If you don’t save, the source in this window will be lost.";
 "「%@」への変更を保存しますか？" = "Do you want to save the changes to “%@”?";
 "原稿への変更を保存しますか？" = "Do you want to save the changes to the source?";
 "保存しない場合、原稿は空になります（取り消す（⌘Z）で戻せます）。" = "If you don’t save, the source will be cleared (you can undo with ⌘Z).";

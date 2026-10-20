@@ -2,8 +2,12 @@ import AppKit
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject private var store = MarkdownStore.shared
-    @ObservedObject private var find = FindReplace.shared
+    @ObservedObject var store: MarkdownStore
+    @ObservedObject private var find: FindReplace
+    init(store: MarkdownStore) {
+        self.store = store
+        find = store.find
+    }
     @AppStorage(MarkdownStore.levelsKey) private var storedLevels = "12345"
     @AppStorage(MarkdownStore.boldHeadingsKey) private var boldHeadings = true
     @AppStorage(MarkdownStore.editorStyleKey) private var editorStyle = SourceEditor.currentStyle
@@ -51,8 +55,11 @@ struct ContentView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(nsImage: currentAppIcon()).resizable().scaledToFit()
-                .frame(width: 44, height: 44).accessibilityHidden(true)
+            VStack(spacing: 4) {
+                Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                    .frame(width: 44, height: 44).accessibilityHidden(true)
+                AppVersionLabel()
+            }
             VStack(alignment: .leading, spacing: 2) {
                 Text(L("Markdownを整形・加工"))
                     .font(.title2.weight(.semibold))
@@ -127,7 +134,7 @@ struct ContentView: View {
             Divider()
             if let url = store.fileURL { linkedFileBar(url) }
             if find.isVisible {
-                FindReplaceBar()
+                FindReplaceBar(find: find)
                 Divider()
             }
             SourceEditor(store: store, boldHeadings: boldHeadings, style: editorStyle, appearance: editorAppearance, margin: margin, fontName: editorFont, lineSpacing: lineSpacing, fontSize: fontSize)
@@ -204,7 +211,7 @@ struct ContentView: View {
             .background(.bar)
             Divider()
             if rightPane == RightPane.preview.rawValue {
-                PreviewView(markdown: store.text, fontSize: fontSize, margin: margin)
+                PreviewView(store: store, markdown: store.text, fontSize: fontSize, margin: margin)
                     .background(Color(nsColor: .textBackgroundColor))
             } else {
                 headingList
@@ -457,4 +464,19 @@ extension HeadingParser.Format {
     if let url = Bundle.main.resourceURL?.appendingPathComponent(filename),
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
+}
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+/// Placed under the header icon.
+private struct AppVersionLabel: View {
+    var body: some View {
+        Text(appVersionText()).font(.system(size: 10)).foregroundStyle(.secondary)
+            .multilineTextAlignment(.center).fixedSize()
+    }
 }

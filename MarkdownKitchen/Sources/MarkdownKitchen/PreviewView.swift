@@ -4,11 +4,12 @@ import WebKit
 
 /// 右ペインのプレビュー。入力のたびにページを読み直さず本文だけ差し替えて、スクロール位置を保つ
 struct PreviewView: NSViewRepresentable {
+    let store: MarkdownStore
     let markdown: String
     let fontSize: Double
     var margin: String = "standard"
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeCoordinator() -> Coordinator { Coordinator(store: store) }
 
     func makeNSView(context: Context) -> WKWebView {
         let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
@@ -19,7 +20,7 @@ struct PreviewView: NSViewRepresentable {
         context.coordinator.margin = MarkdownStore.previewMargin(margin)
         context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
         let coordinator = context.coordinator
-        MarkdownStore.shared.onSourceScroll = { [weak coordinator] line in coordinator?.scroll(toLine: line) }
+        store.onSourceScroll = { [weak coordinator] line in coordinator?.scroll(toLine: line) }
         return webView
     }
 
@@ -29,11 +30,13 @@ struct PreviewView: NSViewRepresentable {
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
-        MarkdownStore.shared.onSourceScroll = nil
+        coordinator.store.onSourceScroll = nil
     }
 
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
+        let store: MarkdownStore
+        init(store: MarkdownStore) { self.store = store }
         weak var webView: WKWebView?
         private var loaded = false
         private var shownBody: String?
@@ -69,7 +72,7 @@ struct PreviewView: NSViewRepresentable {
         func scroll(toLine line: Double) {
             guard loaded, let webView else { return }
             let argument = line.isInfinite ? "Infinity" : String(line)
-            let lines = MarkdownStore.shared.text.normalizedLineBreaks.components(separatedBy: "\n").count
+            let lines = store.text.normalizedLineBreaks.components(separatedBy: "\n").count
             webView.evaluateJavaScript("mkScrollTo(\(argument), \(lines))")
         }
 

@@ -31,6 +31,8 @@ mkdir -p "$contents_dir/MacOS" "$contents_dir/Resources"
 cp "$build_stage/build/release/MarkdownKitchen" "$contents_dir/MacOS/MarkdownKitchen"
 cp Info.plist "$contents_dir/Info.plist"
 cp Assets/MarkdownKitchen.icns "$contents_dir/Resources/MarkdownKitchen.icns"
+# Finder icon for Markdown documents (separate from the app icon).
+cp Assets/DocumentIcon/MarkdownKitchenDocument.icns "$contents_dir/Resources/MarkdownKitchenDocument.icns"
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
 # highlight.js 11.9.0 (BSD-3-Clause) for code blocks in the preview.
 cp -R Resources/highlight "$contents_dir/Resources/highlight"

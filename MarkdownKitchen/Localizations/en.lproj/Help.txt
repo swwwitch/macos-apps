@@ -119,6 +119,7 @@ Open with the Settings button in the main window (⌘,).
 
 ## Hotkeys
 - **⌘N**: New
+- **⌃⌘N**: New Window
 - **⌘O**: Open File
 - **⌘S**: Save
 - **⇧⌘S**: Save As
@@ -153,6 +154,7 @@ Open with the Settings button in the main window (⌘,).
 - Replacing the source by loading a file can be undone with Undo (⌘Z).
 - File > Save (⌘S) overwrites the loaded file; with no file loaded it works as Save As…. Save As… (⇧⌘S) writes to a file you choose, and later ⌘S saves there.
 - File > New (⌘N) clears the source and removes the link to the file. If there are unsaved changes, you are asked whether to save them. You can undo the clearing with ⌘Z.
+- File > New Window (⌃⌘N) opens a window with its own source. The source, the link to a file and Find are separate for each window. Menu commands and keys act on the front window. Windows left open when you quit open again at the next launch. Closing one discards its source (if there are unsaved changes, you are asked whether to save them). The main window keeps its source when closed.
 - While the source is linked to a file, its name and folder appear below the Source bar. With unsaved changes it shows “Unsaved” and the close button shows a dot. Show in Finder reveals the file; Unlink keeps the source and removes the link (⌘S then works as Save As…).
 - The previous content is backed up before each overwrite in ~/Library/Application Support/MarkdownKitchen/Backups (latest 20); File > Show Backups Before Overwrite opens it. If another app changed the file after it was loaded, you are asked before it is overwritten.
 - The file keeps the encoding it was loaded with (UTF-8 if some characters cannot be represented).

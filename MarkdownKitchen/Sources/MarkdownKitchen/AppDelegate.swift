@@ -50,27 +50,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    /// Windows closed while quitting keep their source, so new windows open again at the next launch.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        MarkdownStore.isTerminating = true
+        return .terminateNow
+    }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         showWindow()
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
     }
-    /// Markdown files dropped on the Dock icon or opened with "Open With" replace the source text.
+    /// Markdown files dropped on the Dock icon or opened with "Open With" go to a blank window or a new window.
     func application(_ application: NSApplication, open urls: [URL]) {
-        if let url = urls.first { MarkdownStore.shared.load(url) }
+        MarkdownStore.open(urls, from: MarkdownStore.shared)
         application.reply(toOpenOrPrint: .success)
-        showWindow()
     }
-    /// Shows the main window, reopening the SwiftUI scene when it was closed.
-    @objc func showWindow() {
-        if let window = MainWindow.current {
-            if window.isMiniaturized { window.deminiaturize(nil) }
-            MainWindow.keepOnScreen(window)
-            window.makeKeyAndOrderFront(nil)
-        } else {
-            MainWindow.open?()
-        }
-        NSApp.activate(ignoringOtherApps: true)
-    }
+    @objc func showWindow() { MainWindow.show() }
     @objc func showSettings() { SettingsWindow.shared.show() }
 }

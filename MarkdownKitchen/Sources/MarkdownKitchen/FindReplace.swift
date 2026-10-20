@@ -1,10 +1,13 @@
 import AppKit
 import SwiftUI
 
-/// 原稿の検索・置換。macOS標準の検索バーは欄の大きさを変えられないため自前で持つ
+/// 原稿の検索・置換。macOS標準の検索バーは欄の大きさを変えられないため自前で持つ。原稿（ウインドウ）ごとに1つ
 @MainActor
 final class FindReplace: ObservableObject {
-    static let shared = FindReplace()
+    /// メニュー・キーの操作対象のウインドウの検索・置換
+    static var shared: FindReplace { MarkdownStore.shared.find }
+    private unowned let store: MarkdownStore
+    init(store: MarkdownStore) { self.store = store }
 
     @Published var isVisible = false
     @Published var query = "" { didSet { if query != oldValue { refresh() } } }
@@ -22,14 +25,14 @@ final class FindReplace: ObservableObject {
     /// 検索欄へフォーカスを移す合図
     @Published private(set) var focusRequest = 0
 
-    private var editor: NSTextView? { MarkdownStore.shared.editor }
+    private var editor: NSTextView? { store.editor }
     private static let highlight = NSColor.systemYellow.withAlphaComponent(0.4)
 
     // MARK: - Commands
 
     /// バーを開いて検索欄へ。1行の中で文字を選んでいれば、それを検索する
     func show() {
-        MarkdownStore.shared.bringMainWindowForward()
+        store.bringWindowForward()
         if let editor {
             let selected = (editor.string as NSString).substring(with: editor.selectedRange())
             if !selected.isEmpty, !selected.contains("\n") { query = selected }
@@ -91,7 +94,7 @@ final class FindReplace: ObservableObject {
         let selection = editor.selectedRange()
         guard let index = matches.firstIndex(of: selection) else { findNext(); return }
         let text = replacementText(for: index, in: editor.string)
-        MarkdownStore.shared.replaceForFind(selection, with: text, actionName: L("置き換え"))
+        store.replaceForFind(selection, with: text, actionName: L("置き換え"))
         editor.setSelectedRange(NSRange(location: selection.location + (text as NSString).length, length: 0))
         refresh()
         if !matches.isEmpty { findNext() }
@@ -113,9 +116,9 @@ final class FindReplace: ObservableObject {
         let span = NSRange(location: first, length: last - first)
         let delta = string.length - (editor.string as NSString).length
         let newSpan = string.substring(with: NSRange(location: first, length: span.length + delta))
-        MarkdownStore.shared.replaceForFind(span, with: newSpan, actionName: L("すべて置き換え"))
+        store.replaceForFind(span, with: newSpan, actionName: L("すべて置き換え"))
         refresh()
-        MarkdownStore.shared.message = L("%@件を置き換えました", String(count))
+        store.message = L("%@件を置き換えました", String(count))
     }
 
     // MARK: - Matches
@@ -180,7 +183,7 @@ final class FindReplace: ObservableObject {
 
 /// 原稿ペインの上の検索・置換バー
 struct FindReplaceBar: View {
-    @ObservedObject private var find = FindReplace.shared
+    @ObservedObject var find: FindReplace
     @FocusState private var queryFocused: Bool
 
     var body: some View {

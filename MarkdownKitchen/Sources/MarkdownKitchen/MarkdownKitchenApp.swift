@@ -7,12 +7,16 @@ struct MarkdownKitchenApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        WindowGroup(id: MainWindow.sceneID) {
-            ContentView()
-                .background(StartupWindowGate())
-                .background(UtilityWindowChrome(title: "", isMain: true))
-                .background(MainWindowOpenerCapture())
-                .frame(minWidth: 560, minHeight: 360)
+        // One scene for both: no value is the main window, a value (source id) is a new window (⌃⌘N).
+        // A second WindowGroup would make SwiftUI replace ウインドウを閉じる with its own Close / Close All.
+        WindowGroup(id: MainWindow.sceneID, for: String.self) { $id in
+            if let id {
+                DocumentWindowContent(id: id)
+                    .handlesExternalEvents(preferring: [], allowing: ["*"])
+            } else {
+                MainWindowContent()
+                    .handlesExternalEvents(preferring: [], allowing: ["*"])
+            }
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -58,6 +62,8 @@ struct MarkdownKitchenApp: App {
                 Divider()
                 Button(L("新規")) { MarkdownStore.shared.newFile() }
                     .keyboardShortcut("n", modifiers: .command)
+                Button(L("新規ウインドウ")) { MainWindow.openDocument() }
+                    .keyboardShortcut("n", modifiers: [.command, .control])
                 Button(L("ファイルを開く…")) { MarkdownStore.shared.chooseFile() }
                     .keyboardShortcut("o", modifiers: .command)
                 Button(L("保存")) { MarkdownStore.shared.save() }
@@ -84,7 +90,14 @@ struct MarkdownKitchenApp: App {
             // SwiftUI's "Close" lives in the save group; the shared menu names it "Close Window".
             // SwiftUI already separates this group from the one above.
             CommandGroup(replacing: .saveItem) {
-                Button(L("ウインドウを閉じる")) { NSApp.keyWindow?.performClose(nil) }
+                Button(L("ウインドウを閉じる")) {
+                    // A new window asks about unsaved changes before its source is discarded.
+                    if let window = NSApp.keyWindow, window.sheetParent == nil, let store = MarkdownStore.store(for: window) {
+                        store.closeWindow()
+                    } else {
+                        NSApp.keyWindow?.performClose(nil)
+                    }
+                }
                     .keyboardShortcut("w", modifiers: .command)
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
@@ -95,6 +108,48 @@ struct MarkdownKitchenApp: App {
         }
 
         // The settings window is SettingsWindow (AppKit), so 設定… and the update items share one group.
+    }
+}
+
+/// メインウインドウの中身。メインウインドウが見えているときに作られたもの（ファイルを開いたときに
+/// SwiftUI が足すウインドウ）は、同じ原稿を二重に表示しないよう何も出さずに閉じる
+private struct MainWindowContent: View {
+    @State private var duplicate = MainWindow.current?.isVisible == true
+    var body: some View {
+        if duplicate {
+            DuplicateWindowCloser()
+        } else {
+            ContentView(store: .main)
+                .background(StartupWindowGate())
+                .background(UtilityWindowChrome(title: "", store: .main))
+                .background(MainWindowOpenerCapture())
+                .frame(minWidth: 560, minHeight: 360)
+        }
+    }
+}
+
+private struct DuplicateWindowCloser: NSViewRepresentable {
+    func makeNSView(context: Context) -> CloserView { CloserView() }
+    func updateNSView(_ view: CloserView, context: Context) {}
+    final class CloserView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else { return }
+            window.orderOut(nil)
+            DispatchQueue.main.async { window.close() }
+        }
+    }
+}
+
+/// 新規ウインドウの中身。ウインドウメニューにはファイル名（無ければ「名称未設定」）を出す
+private struct DocumentWindowContent: View {
+    // Created once per window, so a redraw while closing does not register the discarded source again.
+    @StateObject private var store: MarkdownStore
+    init(id: String) { _store = StateObject(wrappedValue: .document(id)) }
+    var body: some View {
+        ContentView(store: store)
+            .background(UtilityWindowChrome(title: store.fileName ?? L("名称未設定"), store: store))
+            .frame(minWidth: 560, minHeight: 360)
     }
 }
 
@@ -166,6 +221,36 @@ enum MainWindow {
     static weak var current: NSWindow?
     /// Captured SwiftUI openWindow action, used when the main window was closed.
     static var open: (() -> Void)?
+    /// Captured SwiftUI openWindow action for new windows (value = source id).
+    static var openWithID: ((String) -> Void)?
+    private static var restored = false
+
+    /// Shows the main window, reopening the SwiftUI scene when it was closed (and the new windows left open last time).
+    /// NSApp.delegate is SwiftUI's adaptor, not AppDelegate, so callers use this rather than casting it.
+    static func show() {
+        if let window = current {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            keepOnScreen(window)
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            open?()
+        }
+        restoreDocuments()
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// 新規ウインドウを開く（空の原稿）
+    static func openDocument() {
+        openWithID?(UUID().uuidString)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// 前回開いていた新規ウインドウを開き直す（1回だけ）
+    static func restoreDocuments() {
+        guard !restored, let openWithID else { return }
+        restored = true
+        for id in UserDefaults.standard.stringArray(forKey: MarkdownStore.documentIDsKey) ?? [] { openWithID(id) }
+    }
     /// Re-centers the window when its restored frame lies on no current screen (e.g. a display was disconnected).
     static func keepOnScreen(_ window: NSWindow) {
         guard !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) else { return }
@@ -177,42 +262,63 @@ private struct MainWindowOpenerCapture: View {
     @Environment(\.openWindow) private var openWindow
     var body: some View {
         Color.clear.frame(width: 0, height: 0)
-            .onAppear { MainWindow.open = { openWindow(id: MainWindow.sceneID) } }
+            .onAppear {
+                MainWindow.open = { openWindow(id: MainWindow.sceneID) }
+                MainWindow.openWithID = { openWindow(id: MainWindow.sceneID, value: $0) }
+                // While the main window is hidden at startup, they open with it (AppDelegate.showWindow).
+                if !StartupWindow.hidden { DispatchQueue.main.async { MainWindow.restoreDocuments() } }
+            }
     }
 }
 
 // Configure the actual SwiftUI window once it joins the view hierarchy.
 private struct UtilityWindowChrome: NSViewRepresentable {
     let title: String
-    var isMain = false
-    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title, isMain: isMain) }
+    /// The source shown in this window (main window or a new window).
+    let store: MarkdownStore
+    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title, store: store) }
     func updateNSView(_ view: ChromeView, context: Context) { view.windowTitle = title; view.apply() }
     final class ChromeView: NSView {
         var windowTitle: String
-        let isMain: Bool
-        init(title: String, isMain: Bool) { windowTitle = title; self.isMain = isMain; super.init(frame: .zero) }
+        let store: MarkdownStore
+        private var observers: [NSObjectProtocol] = []
+        init(title: String, store: MarkdownStore) { windowTitle = title; self.store = store; super.init(frame: .zero) }
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
+            observers.forEach(NotificationCenter.default.removeObserver)
+            observers = []
             apply()
+            guard let window else { return }
             // After SwiftUI restores the saved frame.
-            if isMain, let window { DispatchQueue.main.async { MainWindow.keepOnScreen(window) } }
+            if store.isMain { DispatchQueue.main.async { MainWindow.keepOnScreen(window) } }
+            let store = store
+            observers.append(NotificationCenter.default.addObserver(forName: NSWindow.didBecomeKeyNotification, object: window, queue: .main) { _ in
+                MainActor.assumeIsolated { store.becameActive() }
+            })
+            if !store.isMain {
+                // Closing a new window discards its source (after asking about unsaved changes).
+                observers.append(NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in
+                    MainActor.assumeIsolated { MarkdownStore.discardDocument(store.id) }
+                })
+            }
         }
         func apply() {
             guard let window else { return }
-            if isMain { MainWindow.current = window }
+            if store.isMain { MainWindow.current = window }
+            if store.window !== window { store.window = window }
             window.title = windowTitle
-            if isMain {
-                // The main window can be minimized (yellow button, Window > しまう, no key equivalent).
-                window.styleMask.insert(.miniaturizable)
-                window.standardWindowButton(.miniaturizeButton)?.isHidden = false
-            } else {
-                window.styleMask.remove(.miniaturizable)
-                window.standardWindowButton(.miniaturizeButton)?.isHidden = true
-            }
+            // The windows can be minimized (yellow button, Window > しまう, no key equivalent).
+            window.styleMask.insert(.miniaturizable)
+            window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.collectionBehavior.insert(.fullScreenNone)
+            if !store.isMain, let close = window.standardWindowButton(.closeButton) {
+                close.target = self
+                close.action = #selector(closeClicked(_:))
+            }
         }
+        @objc private func closeClicked(_ sender: Any?) { store.closeWindow() }
     }
 }
 

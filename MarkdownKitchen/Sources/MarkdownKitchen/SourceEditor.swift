@@ -56,7 +56,7 @@ struct SourceEditor: NSViewRepresentable {
         context.coordinator.fontSize = fontSize
         Self.styleHeadings(textView, headings: store.allHeadings, bold: boldHeadings, size: fontSize)
         textView.delegate = context.coordinator
-        textView.onDropFile = { url in store.load(url) }
+        textView.onDropFile = { url in MarkdownStore.open([url], from: store) }
         textView.setAccessibilityLabel(L("原稿"))
         scroll.appearance = Self.appearance(appearance)
         scroll.documentView = textView
@@ -75,7 +75,8 @@ struct SourceEditor: NSViewRepresentable {
         }
         let wanted = Self.appearance(appearance)
         if scroll.appearance?.name != wanted?.name { scroll.appearance = wanted }
-        guard let textView = scroll.documentView as? NSTextView else { return }
+        // Leave the view alone while the input method is composing; touching it drops the marked text.
+        guard let textView = scroll.documentView as? NSTextView, !textView.hasMarkedText() else { return }
         // Only when the text changed elsewhere (e.g. restored before the view existed).
         let settingChanged = context.coordinator.boldHeadings != boldHeadings || context.coordinator.fontSize != fontSize
             || context.coordinator.style != style || context.coordinator.fontName != fontName
@@ -219,13 +220,14 @@ struct SourceEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let textView = notification.object as? NSTextView else { return }
+            // Sync and restyle after the input method commits; restyling marked text discards it.
+            guard let textView = notification.object as? NSTextView, !textView.hasMarkedText() else { return }
             store.text = textView.string
             SourceEditor.styleHeadings(textView, headings: store.allHeadings, bold: boldHeadings, size: fontSize)
         }
 
         func textViewDidChangeSelection(_ notification: Notification) {
-            guard let textView = notification.object as? NSTextView else { return }
+            guard let textView = notification.object as? NSTextView, !textView.hasMarkedText() else { return }
             let range = textView.selectedRange()
             let selected = range.length > 0 ? (textView.string as NSString).substring(with: range) : ""
             // Publish only on change, so moving the caret does not redraw the window.
