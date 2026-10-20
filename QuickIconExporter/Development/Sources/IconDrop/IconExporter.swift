@@ -59,7 +59,7 @@ enum IconExporter {
     }
 
     static func outputBaseName(for sourceURL: URL, rules: FilenameRules) -> String {
-        let originalName = sourceURL.deletingPathExtension().lastPathComponent
+        let originalName = rules.usesDisplayName ? displayName(of: sourceURL) : sourceURL.deletingPathExtension().lastPathComponent
         let prefix = rules.prefix.trimmingCharacters(in: .whitespacesAndNewlines)
         let joined: String
         if prefix.isEmpty {
@@ -95,6 +95,15 @@ enum IconExporter {
             .map(String.init)
             .joined()
         return normalizedFallback(cleaned)
+    }
+
+    /// The name Finder shows, without the extension. Only the real extension is dropped,
+    /// so a display name such as "Tool 1.2" keeps its dot. Unreadable paths fall back to the file name.
+    static func displayName(of url: URL) -> String {
+        var name = FileManager.default.displayName(atPath: url.path)
+        let ext = url.pathExtension
+        if !ext.isEmpty, name.lowercased().hasSuffix("." + ext.lowercased()) { name = String(name.dropLast(ext.count + 1)) }
+        return name.isEmpty ? url.deletingPathExtension().lastPathComponent : name
     }
 
     private static func normalizedFallback(_ value: String) -> String {

@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "QuickIconExporter";
+"NSAppleEventsUsageDescription" = "ホットキーを押したときに、FinderまたはPath Finderで選択しているファイルを読み取るために使います。";

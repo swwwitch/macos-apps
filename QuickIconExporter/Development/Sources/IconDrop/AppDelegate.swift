@@ -30,6 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                        "保存位置、登录时启动和菜单栏需在每台 Mac 上分别设置。",
                                        "저장 위치, 로그인 시 실행, 메뉴 막대는 Mac마다 설정합니다.")))
         WindowActivationPolicy.install()
+        ExportShortcut.shared.action = { [weak self] in self?.performShortcut() }
+        ExportShortcut.shared.restore()
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -81,6 +83,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
         if panel.runModal() == .OK { application(NSApp, open: panel.urls) }
+    }
+    /// Files selected in the frontmost Finder / Path Finder are exported in place; otherwise the main window comes forward.
+    private func performShortcut() {
+        #if !APP_STORE_BUILD
+        switch FileBrowserSelection.selectedFiles() {
+        case .files(let urls) where !urls.isEmpty:
+            application(NSApp, open: urls)
+            return
+        case .denied:
+            showWindow()
+            let alert = NSAlert()
+            alert.messageText = L("FinderまたはPath Finderの選択を読み取れませんでした。")
+            alert.informativeText = L("システム設定の「プライバシーとセキュリティ」＞「オートメーション」で、QuickIconExporterに許可してください。")
+            alert.runModal()
+            return
+        default:
+            break
+        }
+        #endif
+        showWindow()
     }
     @objc func exportIcons(_ pasteboard: NSPasteboard, userData: String?, error: AutoreleasingUnsafeMutablePointer<NSString?>) {
         var urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []

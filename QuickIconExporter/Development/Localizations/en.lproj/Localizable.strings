@@ -54,7 +54,6 @@
 "QuickIconExporterヘルプ" = "QuickIconExporter Help";
 "書き出し後、Finderで表示" = "Show in Finder after export";
 "書き出し後、アプリを隠す" = "Hide app after export";
-"Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。" = "In Finder, select files, then Control-click → Services → アイコンを書き出す（QuickIconExporter）. Change the shortcut in System Settings → Keyboard → Keyboard Shortcuts → Services.";
 "ウインドウを閉じる" = "Close Window";
 "しまう" = "Minimize";
 "拡大／縮小" = "Zoom";
@@ -64,3 +63,10 @@
 "保存先を選択してください" = "Choose an export folder";
 "アプリのコンテナ内には保存できません。通常のフォルダを選択してください。" = "Files cannot be saved inside an app container. Choose a regular folder.";
 "保存先の選択をキャンセルしました。" = "Export folder selection was cancelled.";
+"選択したファイルのアイコンを書き出す" = "Export Icons of Selected Files";
+"FinderまたはPath Finderの選択を読み取れませんでした。" = "Couldn’t read the selection in Finder or Path Finder.";
+"システム設定の「プライバシーとセキュリティ」＞「オートメーション」で、QuickIconExporterに許可してください。" = "Allow QuickIconExporter in System Settings → Privacy & Security → Automation.";
+"FinderまたはPath Finderでファイルを選択しているときは、そのファイルのアイコンをすぐに書き出します。選択していないときはメインウインドウを表示します。" = "When files are selected in Finder or Path Finder, their icons are exported right away. Otherwise the main window appears.";
+"Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）でも実行できます。" = "You can also select files in Finder and Control-click → Services → アイコンを書き出す（QuickIconExporter）.";
+"Finderでの表示名を使う" = "Use the Name Shown in Finder";
+"「Adobe Illustrator.app」はFinderでの表示どおり「Adobe Illustrator 2021」で書き出します。macOSのアプリは日本語の名前になります。" = "“Adobe Illustrator.app” is exported as “Adobe Illustrator 2021”, as Finder shows it. macOS apps use their localized names.";

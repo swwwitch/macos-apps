@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "QuickIconExporter";
+"NSAppleEventsUsageDescription" = "用于在按下快捷键时读取 Finder 或 Path Finder 中选择的文件。";

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
+    @ObservedObject private var shortcut = ExportShortcut.shared
 
     var body: some View {
         SettingsTabs(sections: [
@@ -69,6 +70,9 @@ struct SettingsView: View {
                     .frame(width: 190)
                 }
 
+                Toggle(L("Finderでの表示名を使う"), isOn: $settings.usesDisplayName)
+                Text(L("「Adobe Illustrator.app」はFinderでの表示どおり「Adobe Illustrator 2021」で書き出します。macOSのアプリは日本語の名前になります。"))
+                    .font(.caption).foregroundStyle(.secondary)
                 Toggle(L("不要な記号を削除"), isOn: $settings.removesUnwantedCharacters)
 
                 LabeledContent(L("プレビュー")) {
@@ -96,8 +100,14 @@ struct SettingsView: View {
 
             
             } }.formStyle(.grouped))),
-            (StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키"), AnyView(Form { Section(StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키")) {                Text(L("Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）で実行できます。ホットキーはシステム設定 → キーボード → キーボードショートカット → サービスで変更できます。"))
-                    .font(.caption)
+            (StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키"), AnyView(Form { Section(StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키")) {
+                Toggle(HotkeyText.enable, isOn: Binding(get: { shortcut.enabled }, set: { shortcut.save(enabled: $0, combo: shortcut.combo); HotkeyRecorder.shared.touch() }))
+                HotkeyField(id: "shortcut", combo: Binding(get: { shortcut.combo }, set: { if let combo = $0 { shortcut.save(enabled: shortcut.enabled, combo: combo) } }),
+                            defaultCombo: ExportShortcut.defaultCombo, registered: shortcut.registrationSucceeded, isEnabled: shortcut.enabled)
+                Text(L("FinderまたはPath Finderでファイルを選択しているときは、そのファイルのアイコンをすぐに書き出します。選択していないときはメインウインドウを表示します。"))
+                    .font(.caption).foregroundStyle(.secondary)
+                Text(L("Finderでファイルを選択し、右クリック → サービス → アイコンを書き出す（QuickIconExporter）でも実行できます。"))
+                    .font(.caption).foregroundStyle(.secondary)
             } }.formStyle(.grouped))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))

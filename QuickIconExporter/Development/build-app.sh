@@ -15,6 +15,8 @@ cd "$project_dir"
 python3 ../../Shared/MenuBarPresence/sync.py
 python3 "../../Shared/AppStandards/sync-surface.py"
 python3 ../../Shared/SettingsSync/sync.py
+python3 ../../Shared/HotkeyRecorder/sync.py
+python3 ../../Shared/HotkeyManifest/sync.py
 UPDATER_ROOT="$project_dir/../../Shared/Updater"
 source "$UPDATER_ROOT/build-support.sh"
 build_stage=$(mktemp -d /private/tmp/quickicon-build.XXXXXX)

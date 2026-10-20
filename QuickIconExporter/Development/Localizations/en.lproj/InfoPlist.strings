@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "QuickIconExporter";
+"NSAppleEventsUsageDescription" = "Used to read the files selected in Finder or Path Finder when you press the shortcut.";

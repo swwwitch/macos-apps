@@ -7,6 +7,7 @@ A menu bar app that exports the icons of apps and files as PNG images with trans
 
 ### Other Ways to Export
 - If you drop files onto the app’s icon in Finder or use Open With, the icons are exported without showing the main window.
+- Select files in Finder or Path Finder and press ⌃⌥⌘I to export them without showing the main window.
 - You can also select files in Finder and Control-click → Services → アイコンを書き出す（QuickIconExporter）.
 - You can also choose Choose Files… from the menu bar icon.
 
@@ -17,15 +18,16 @@ A menu bar app that exports the icons of apps and files as PNG images with trans
 
 ### Filenames
 - By default, files are named “icon-filename.png”: spaces are replaced with hyphens and unnecessary symbols are removed.
+- The name comes from the name Finder shows. For example, “Adobe Illustrator.app”, shown as “Adobe Illustrator 2021”, becomes “icon-Adobe-Illustrator-2021.png”. macOS apps use their localized names. To use the actual file name, turn off “Use the Name Shown in Finder” in Settings.
 - If a file with the same name exists, it is not overwritten; a number such as “-2” or “-3” is added instead.
 
 ## Settings
 Open Settings with the Settings button in the main window (⌘,). Changes take effect immediately, including for files dropped on the app icon and exports from Services.
 - **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
 - **Export**: change the Destination (Choose Folder…, Reset to Desktop)
-- **Filename**: the “icon” Text (leave it empty to use only the filename), Position ({icon}-filename.png or filename-{icon}.png), Separator (hyphen or underscore), Spaces, and Remove unnecessary symbols. Check the result in Preview, and click Restore Filename Defaults to go back to the defaults.
+- **Filename**: the “icon” Text (leave it empty to use only the filename), Position ({icon}-filename.png or filename-{icon}.png), Separator (hyphen or underscore), Spaces, Use the Name Shown in Finder (on by default), and Remove unnecessary symbols. Check the result in Preview, and click Restore Filename Defaults to go back to the defaults.
 - **On Completion**: Show in Finder after export (on by default), Hide app after export (off by default), Show notification (off by default), Play a sound (off by default)
-- **Shortcuts**: how to export from Services
+- **Shortcuts**: turn on or off and change the shortcut that exports the selected files (⌃⌥⌘I by default)
 
 In the Sharing tab you can share the file naming and what happens after export. **Export…** saves QuickIconExporter-Settings.plist, and **Import…** loads it on another Mac (after you confirm the replacement). Under Settings Sync, choose a folder in iCloud Drive, Dropbox or elsewhere, and Macs that use the same folder keep these settings in step automatically. The save location, login launch and the menu bar are set on each Mac.
 
@@ -36,10 +38,11 @@ In the Sharing tab you can share the file naming and what happens after export. 
 - **⌘W**: Close Window
 - **⌘Q**: Quit QuickIconExporter
 
-※ You can assign a keyboard shortcut to the service in System Settings → Keyboard → Keyboard Shortcuts → Services.
+※ The shortcut that exports the selected files is ⌃⌥⌘I by default; change it in the Shortcuts tab of Settings. You can also assign a keyboard shortcut to the service in System Settings → Keyboard → Keyboard Shortcuts → Services.
 
 ## Permissions
 - QuickIconExporter does not need Accessibility permission.
+- The first time you use the shortcut that exports the selected files, macOS asks to allow control of Finder or Path Finder (Automation).
 - When Show notification is on, macOS asks for notification permission the first time you export.
 - If the destination can’t be written to, choose a folder you can write to.
 

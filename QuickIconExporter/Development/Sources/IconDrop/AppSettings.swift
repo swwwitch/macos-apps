@@ -52,6 +52,8 @@ struct FilenameRules {
     var separator: FilenameSeparator
     var spaceReplacement: SpaceReplacement
     var removesUnwantedCharacters: Bool
+    /// Finder's name (Adobe Illustrator 2021) instead of the file name (Adobe Illustrator).
+    var usesDisplayName = false
 }
 
 @MainActor
@@ -99,6 +101,10 @@ final class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(removesUnwantedCharacters, forKey: Self.removesUnwantedCharactersKey) }
     }
 
+    @Published var usesDisplayName = UserDefaults.standard.object(forKey: "usesDisplayName") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(usesDisplayName, forKey: "usesDisplayName") }
+    }
+
     @Published var showsCompletionNotification: Bool {
         didSet { UserDefaults.standard.set(showsCompletionNotification, forKey: Self.showsCompletionNotificationKey) }
     }
@@ -120,7 +126,8 @@ final class AppSettings: ObservableObject {
             iconNamePosition: iconNamePosition,
             separator: filenameSeparator,
             spaceReplacement: spaceReplacement,
-            removesUnwantedCharacters: removesUnwantedCharacters
+            removesUnwantedCharacters: removesUnwantedCharacters,
+            usesDisplayName: usesDisplayName
         )
     }
 
@@ -198,7 +205,7 @@ final class AppSettings: ObservableObject {
     /// Keys shared by 「設定の共有」: file naming and what happens after export. The output folder stays per Mac.
     static let sharedKeys: Set<String> = [filenamePrefixKey, iconNamePositionKey, filenameSeparatorKey, spaceReplacementKey,
                                          removesUnwantedCharactersKey, showsCompletionNotificationKey, playsCompletionSoundKey,
-                                         "revealsInFinder", "hidesAfterExport"]
+                                         "revealsInFinder", "hidesAfterExport", "usesDisplayName"]
 
     /// Reads the shared settings again after an import or a sync from another Mac.
     func reloadSharedSettings() {
@@ -208,6 +215,7 @@ final class AppSettings: ObservableObject {
         filenameSeparator = FilenameSeparator(rawValue: defaults.string(forKey: Self.filenameSeparatorKey) ?? "") ?? .hyphen
         spaceReplacement = SpaceReplacement(rawValue: defaults.string(forKey: Self.spaceReplacementKey) ?? "") ?? .hyphen
         removesUnwantedCharacters = defaults.object(forKey: Self.removesUnwantedCharactersKey) as? Bool ?? true
+        usesDisplayName = defaults.object(forKey: "usesDisplayName") as? Bool ?? true
         showsCompletionNotification = defaults.object(forKey: Self.showsCompletionNotificationKey) as? Bool ?? false
         playsCompletionSound = defaults.object(forKey: Self.playsCompletionSoundKey) as? Bool ?? false
         revealsInFinder = defaults.object(forKey: "revealsInFinder") as? Bool ?? true
@@ -220,6 +228,7 @@ final class AppSettings: ObservableObject {
         filenameSeparator = .hyphen
         spaceReplacement = .hyphen
         removesUnwantedCharacters = true
+        usesDisplayName = true
     }
 
     func reportSuccessfulExport(_ results: [ExportResult]) {
