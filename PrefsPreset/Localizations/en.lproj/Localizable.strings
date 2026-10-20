@@ -129,10 +129,6 @@
 "F1 でズーム機能のオン／オフ、F2 で拡大、⌥⌘- で縮小できるようにします。フルスクリーンで拡大し、画像はスムーズにせず、トラックパッドとスクロールのジェスチャは使いません。" = "Turns Zoom on or off with F1, zooms in with F2, and zooms out with ⌥⌘-. Zooms the full screen without smoothing images and doesn’t use trackpad or scroll gestures.";
 "セキュリティを強化" = "Tighten Security";
 "ファイアウォールとステルスモードをオンにし、AirDrop で受信しない・プリンタを共有しないようにします。ダウンロードしたアプリの確認ダイアログを出し、ディスプレイはバッテリーで2分・電源アダプタで10分でオフ、オフになったらすぐにパスワードを要求します。" = "Turns on the firewall and stealth mode, stops receiving via AirDrop and stops printer sharing. Shows the confirmation for downloaded apps, turns the display off after 2 minutes on battery and 10 minutes on power adapter, and requires a password immediately after it turns off.";
-"FileVaultをオン" = "Turn On FileVault";
-"ディスクを暗号化します。設定ファイルからは切り替えられないため、システム設定の「プライバシーとセキュリティ」を開きます。FileVault の「オンにする…」を押してください。" = "Encrypts the disk. It can’t be changed through settings files, so this opens Privacy & Security in System Settings. Click “Turn On…” for FileVault.";
-"共有サービスをオフ" = "Turn Off Sharing Services";
-"システム設定の「共有」を開きます。使っていなければ、リモートログイン・画面共有・ファイル共有・Bluetooth 共有・リモートマネジメントをすべてオフにしてください。" = "Opens Sharing in System Settings. If you don’t use them, turn off Remote Login, Screen Sharing, File Sharing, Bluetooth Sharing and Remote Management.";
 "英文の自動修正を無効化" = "Turn Off Automatic Text Correction";
 "大文字化・スペルの自動変換・ピリオド・引用符・ダッシュの置換と、入力中の予測を切ります。" = "Turns off auto-capitalization, spelling correction, period, quote and dash substitution, and inline predictive text.";
 "Siriを無効化" = "Turn Off Siri";

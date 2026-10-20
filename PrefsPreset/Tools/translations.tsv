@@ -447,9 +447,5 @@ AirDrop	AirDrop	隔空投送	AirDrop
 8時間後	After 8 hours	8 小时后	8시간 후
 ファイアウォールとステルスモードをオンにし、AirDrop で受信しない・プリンタを共有しないようにします。ダウンロードしたアプリの確認ダイアログを出し、ディスプレイはバッテリーで2分・電源アダプタで10分でオフ、オフになったらすぐにパスワードを要求します。	Turns on the firewall and stealth mode, stops receiving via AirDrop and stops printer sharing. Shows the confirmation for downloaded apps, turns the display off after 2 minutes on battery and 10 minutes on power adapter, and requires a password immediately after it turns off.	打开防火墙和隐身模式，停止通过隔空投送接收并关闭打印机共享。显示下载应用的确认对话框，使用电池时 2 分钟、使用电源适配器时 10 分钟后关闭显示器，关闭后立即要求输入密码。	방화벽과 스텔스 모드를 켜고 AirDrop 수신과 프린터 공유를 끕니다. 다운로드한 앱의 확인 대화상자를 표시하고, 디스플레이는 배터리에서 2분·전원 어댑터에서 10분 후에 끄며, 꺼지면 즉시 암호를 요구합니다.
 プリンタ共有	Printer Sharing	打印机共享	프린터 공유
-FileVaultをオン	Turn On FileVault	打开文件保险箱	FileVault 켜기
-ディスクを暗号化します。設定ファイルからは切り替えられないため、システム設定の「プライバシーとセキュリティ」を開きます。FileVault の「オンにする…」を押してください。	Encrypts the disk. It can’t be changed through settings files, so this opens Privacy & Security in System Settings. Click “Turn On…” for FileVault.	加密磁盘。无法通过设置文件更改，因此会打开系统设置的“隐私与安全性”。请点按文件保险箱的“打开…”。	디스크를 암호화합니다. 설정 파일로는 바꿀 수 없으므로 시스템 설정의 ‘개인정보 보호 및 보안’을 엽니다. FileVault의 ‘켜기…’를 누르십시오.
-共有サービスをオフ	Turn Off Sharing Services	关闭共享服务	공유 서비스 끄기
-システム設定の「共有」を開きます。使っていなければ、リモートログイン・画面共有・ファイル共有・Bluetooth 共有・リモートマネジメントをすべてオフにしてください。	Opens Sharing in System Settings. If you don’t use them, turn off Remote Login, Screen Sharing, File Sharing, Bluetooth Sharing and Remote Management.	打开系统设置的“共享”。如果不使用，请关闭远程登录、屏幕共享、文件共享、蓝牙共享和远程管理。	시스템 설정의 ‘공유’를 엽니다. 사용하지 않는다면 원격 로그인, 화면 공유, 파일 공유, Bluetooth 공유, 원격 관리를 모두 끄십시오.
 連係	Continuity	连续互通	연속성
 ポインタとキーボードを近くにあるすべてのMacまたはiPad間で移動することを許可	Allow your pointer and keyboard to move between any nearby Mac or iPad	允许在附近的任何 Mac 或 iPad 之间移动指针和键盘	근처에 있는 모든 Mac 또는 iPad 간에 포인터와 키보드 이동 허용

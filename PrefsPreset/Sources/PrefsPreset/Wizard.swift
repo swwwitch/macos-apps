@@ -133,15 +133,6 @@ let wizardActions: [WizardAction] = [
         (displaySleepDomain, "b", NSNumber(value: 2)),
         (displaySleepDomain, "c", NSNumber(value: 10)),
     ]),
-    // FileVault の有効化はパスワードと復旧キーの扱いが要り、共有サービスの状態は管理者権限がないと読めないので、システム設定を開く
-    WizardAction(id: "fileVault", title: "FileVaultをオン",
-                 detail: "ディスクを暗号化します。設定ファイルからは切り替えられないため、システム設定の「プライバシーとセキュリティ」を開きます。FileVault の「オンにする…」を押してください。",
-                 symbol: "lock.doc", tint: .gray, settings: [],
-                 settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?FileVault")),
-    WizardAction(id: "sharing", title: "共有サービスをオフ",
-                 detail: "システム設定の「共有」を開きます。使っていなければ、リモートログイン・画面共有・ファイル共有・Bluetooth 共有・リモートマネジメントをすべてオフにしてください。",
-                 symbol: "person.2.slash", tint: .gray, settings: [],
-                 settingsURL: URL(string: "x-apple.systempreferences:com.apple.Sharing-Settings.extension")),
     WizardAction(id: "textCorrection", title: "英文の自動修正を無効化",
                  detail: "大文字化・スペルの自動変換・ピリオド・引用符・ダッシュの置換と、入力中の予測を切ります。",
                  symbol: "character.cursor.ibeam", tint: .green, settings: [
