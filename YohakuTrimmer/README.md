@@ -1,6 +1,6 @@
 # YohakuTrimmer
 
-![macOS](https://img.shields.io/badge/macOS-14%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.1.4-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-14%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.1.5-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 画像の四辺にある同じ色の余白（透明を含む）を切り取り、元画像と同じフォルダに「元の名前-trim.png」で保存するアプリ。ドロップ・⌘O・Finderの「このアプリケーションで開く」で複数枚をまとめて処理する。設定の「設定の共有」タブで、色の許容範囲を `YohakuTrimmer-Settings.plist` に書き出し・読み込みしたり、iCloud Drive・Dropboxなどのフォルダーで複数のMacと同期したりできる。
 
@@ -20,6 +20,8 @@
 
 ## 更新履歴
 
+- 1.1.6（build 8, 2026-10-17）：メインウインドウのアイコンの下にバージョンとbuild番号を表示。
+- 1.1.5（build 7, 2026-10-17）：ウインドウを閉じているあいだは、アプリケーションスイッチャー（⌘Tab）と Dock に出ないようにした（メニューバー常駐アプリと同じ共通部品 WindowActivationPolicy）。ウインドウを開いている間と、しまったとき・⌘H で隠したときは従来どおり出る。Dock のアイコンへのドロップは、ウインドウを開いているときに使える。
 - 1.1.4（build 6, 2026-10-17）：共通のホットキー記録欄の更新を取り込んだ（［初期値に戻す］でもほかの割り当てとの重複を確かめる）。
 - 1.1.3（build 5, 2026-10-17）：「アプリを呼び出すホットキー」を共通の記録欄（Shared/HotkeyRecorder）にした。［変更…］で押したキーを割り当て、［初期値に戻す］で ⌃⌥⌘Y。修飾キーとキーのポップアップはやめた。保存先（shortcutEnabled・shortcutKey・shortcutModifiers）は変えていない。登録は共通の HotkeySet。
 - 1.1.2（build 4, 2026-10-17）：設定の共通部品の更新を取り込んだ（「設定の共有」タブの高さは共通部品で合わせ、アプリ側の回避策を外した）。ホットキーのボタンを「初期値に戻す」に改めた。

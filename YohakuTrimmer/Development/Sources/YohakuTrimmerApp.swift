@@ -10,6 +10,7 @@ import Carbon
     private var pendingOpenURLs: [URL] = []
     private var quitAfterPendingOpen = false
     func applicationDidFinishLaunching(_ notification: Notification) {
+        WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "YohakuTrimmer", symbol: "crop", existing: nil,
@@ -202,7 +203,7 @@ enum YohakuTrimmerMain {
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
-        app.setActivationPolicy(.regular)
+        app.setActivationPolicy(.accessory)
         app.run()
         _ = delegate
     }
@@ -267,7 +268,8 @@ final class MainViewController: NSViewController {
         let subtitle = NSTextField(labelWithString: L("四辺の同じ色のピクセルを切り取ります")); subtitle.font = .systemFont(ofSize: 11); subtitle.textColor = .secondaryLabelColor
         let titleStack = NSStackView(views: [title, subtitle]); titleStack.orientation = .vertical; titleStack.alignment = .leading; titleStack.spacing = 2
         let spacer = NSView(); spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let header = NSStackView(views: [icon, titleStack, spacer]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
+        let iconColumn = NSStackView(views: [icon, appVersionLabel()]); iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+        let header = NSStackView(views: [iconColumn, titleStack, spacer]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
         let toleranceLabel = NSTextField(labelWithString: L("色の許容範囲")); toleranceLabel.font = .systemFont(ofSize: 12, weight: .medium)
         radioButtons = choices.map { name, value in
             let button = NSButton(radioButtonWithTitle: value == 0 ? L("なし（完全に同じ色）") : "\(name)（\(value)）", target: self, action: #selector(toleranceChanged(_:)))
@@ -576,7 +578,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -589,7 +607,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }
