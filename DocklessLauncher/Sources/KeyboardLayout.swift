@@ -28,7 +28,7 @@ enum KeyboardLayout: String, CaseIterable {
             return [
                 fn,
                 [KeySpec(code: 50)] + keys([18, 19, 20, 21, 23, 22, 26, 28, 25, 29, 27, 24]) + [KeySpec(code: 51, width: 1.5, caption: "delete")],
-                [KeySpec(code: 48, width: 1.5, caption: "tab")] + keys([12, 13, 14, 17, 16, 15, 32, 34, 31, 35, 33, 30]).reorderedQWERTY() + [KeySpec(code: 42, width: 1.5)],
+                [KeySpec(code: 48, width: 2, caption: "tab")] + keys([12, 13, 14, 17, 16, 15, 32, 34, 31, 35, 33, 30]).reorderedQWERTY() + [KeySpec(code: 42)],
                 [KeySpec(code: nil, width: 1.75, caption: "⇪")] + keys([0, 1, 2, 3, 5, 4, 38, 40, 37, 41, 39]) + [KeySpec(code: 36, width: 1.75, caption: "return")],
                 [KeySpec(code: nil, width: 2.25, caption: "⇧")] + keys([6, 7, 8, 9, 11, 45, 46, 43, 47, 44]) + [KeySpec(code: nil, width: 2.25, caption: "⇧")],
                 [KeySpec(code: nil, caption: "fn"), KeySpec(code: nil, caption: "⌃"), KeySpec(code: nil, caption: "⌥"),

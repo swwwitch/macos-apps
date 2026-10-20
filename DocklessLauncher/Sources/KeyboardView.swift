@@ -131,6 +131,8 @@ struct KeyCapView: View {
                 content.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom).padding(.top, 15).padding(.bottom, 3).padding(.horizontal, 2)
             }
             .contentShape(Rectangle())
+            // Launch on double-click so a stray click doesn't start an app; a single click on an empty key assigns one.
+            .onTapGesture(count: 2) { doubleTapped() }
             .onTapGesture { tapped() }
             .onHover { hovering = $0 }
             // Drag a key onto another to move or swap its apps (only with one modifier set chosen).
@@ -183,8 +185,10 @@ struct KeyCapView: View {
         return Shortcut(code: code, modifiers: modifiers)
     }
     func tapped() {
+        if entries.isEmpty, let shortcut = newShortcut { model.addApp(for: shortcut) }
+    }
+    func doubleTapped() {
         if entries.count == 1, let entry = entries.first { model.launch(entry) }
-        else if entries.isEmpty, let shortcut = newShortcut { model.addApp(for: shortcut) }
         // Several apps on one key: the right-click menu chooses.
     }
 

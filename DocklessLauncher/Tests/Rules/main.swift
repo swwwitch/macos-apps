@@ -114,6 +114,7 @@ let sheets = "https://docs.google.com/spreadsheets/d/1abc/edit#gid=0"
 check(EntryRules.urlMatches(sheets, patterns: ["https://docs.google.com/"]), "docs.google.com prefix")
 check(EntryRules.urlMatches(sheets, patterns: ["docs.google.com/spreadsheets"]) && EntryRules.urlMatches(sheets, patterns: ["HTTP://DOCS.GOOGLE.COM/"]), "scheme and case ignored")
 check(!EntryRules.urlMatches("https://docs.google.com/document/d/1", patterns: ["https://docs.google.com/spreadsheets/"]), "Docs is not Sheets")
+check(EntryRules.isGoogleSheets(sheets) && !EntryRules.isGoogleSheets("https://docs.google.com/document/d/1"), "Google Sheets page")
 check(!EntryRules.urlMatches("https://www.google.com/search?q=docs.google.com", patterns: ["docs.google.com"]), "only the start counts")
 check(EntryRules.urlMatches("https://www.example.com/a", patterns: ["example.com/a"]) && !EntryRules.urlMatches(sheets, patterns: ["", "  "]), "www ignored; blank patterns never match")
 check(EntryRules.urlPatterns(from: "https://docs.google.com/\n\n  sheets.new \nHTTPS://DOCS.GOOGLE.COM/") == ["https://docs.google.com/", "sheets.new"], "lines trimmed, blanks and duplicates dropped")

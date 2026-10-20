@@ -131,6 +131,7 @@ final class Model: ObservableObject {
     /// a second press within `doubleTapInterval` runs the double-tap entry, otherwise the single entry runs after the wait.
     func pressed(_ shortcut: Shortcut) {
         guard hotkeysEnabled, !paused, recordingID == nil else { return }
+        if passToGoogleSheets(shortcut) { return }
         let live = usable(front: NSWorkspace.shared.frontmostApplication?.bundleIdentifier).filter { $0.shortcut == shortcut }
         let single = live.first { !$0.doubleTap }
         guard let double = live.first(where: \.doubleTap) else { if let single { trigger(single) }; return }
@@ -146,6 +147,16 @@ final class Model: ObservableObject {
         }
         pendingTap = (shortcut.signature, work)
         DispatchQueue.main.asyncAfter(deadline: .now() + Model.doubleTapInterval, execute: work)
+    }
+    /// A key that is not physically down was sent by another app (SpreadsheetHelper's ⌃⌥D ⌃⌥H …):
+    /// Google Sheets in Chrome, Safari or Firefox gets it back. A key pressed by hand still launches.
+    private func passToGoogleSheets(_ shortcut: Shortcut) -> Bool {
+        guard !CGEventSource.keyState(.hidSystemState, key: CGKeyCode(shortcut.code)),
+              let frontApp = NSWorkspace.shared.frontmostApplication, let front = frontApp.bundleIdentifier,
+              EntryRules.sheetsBrowsers.contains(front),
+              let url = URLCondition.frontURL(pid: frontApp.processIdentifier), EntryRules.isGoogleSheets(url) else { return false }
+        URLCondition.passThrough(shortcut, taps: 1, to: frontApp.processIdentifier)
+        return true
     }
     func trigger(_ entry: LaunchEntry) {
         guard hotkeysEnabled, !paused, recordingID == nil, !busy else { return }

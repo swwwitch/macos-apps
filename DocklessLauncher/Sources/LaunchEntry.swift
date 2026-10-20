@@ -132,6 +132,10 @@ enum EntryRules {
     static let browsers: Set<String> = ["com.google.Chrome", "com.apple.Safari", "org.mozilla.firefox",
                                         "com.microsoft.edgemac", "company.thebrowser.Browser", "com.brave.Browser"]
 
+    /// Browsers where Google Sheets gets ⌃⌥ keys sent by other apps (SpreadsheetHelper opens the Sheets menus with them).
+    static let sheetsBrowsers: Set<String> = ["com.google.Chrome", "com.apple.Safari", "org.mozilla.firefox"]
+    static func isGoogleSheets(_ url: String) -> Bool { urlMatches(url, patterns: ["docs.google.com/spreadsheets/"]) }
+
     /// Prefix match, ignoring case and the scheme, so "docs.google.com/spreadsheets" also matches https URLs.
     static func urlMatches(_ url: String, patterns: [String]) -> Bool {
         func bare(_ text: String) -> String {
