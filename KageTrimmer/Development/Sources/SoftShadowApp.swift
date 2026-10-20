@@ -10,6 +10,7 @@ import Carbon
     private var pendingOpenURLs: [URL] = []
     private var quitAfterPendingOpen = false
     func applicationDidFinishLaunching(_ notification: Notification) {
+        WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "KageTrimmer", symbol: "photo", existing: nil,
@@ -219,7 +220,7 @@ enum KageTrimmerMain {
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
-        app.setActivationPolicy(.regular)
+        app.setActivationPolicy(.accessory)
         app.run()
         _ = delegate
     }
@@ -291,7 +292,8 @@ final class MainViewController: NSViewController {
         let settingsButton = NSButton(title: L("設定"), image: NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)!, target: nil, action: #selector(AppDelegate.showSettings))
         settingsButton.isBordered = false; settingsButton.imagePosition = .imageLeading; settingsButton.toolTip = L("設定") + " (⌘,)"
         settingsButton.refusesFirstResponder = true
-        let header = NSStackView(views: [icon, titleStack, spacer, settingsButton]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
+        let iconColumn = NSStackView(views: [icon, appVersionLabel()]); iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+        let header = NSStackView(views: [iconColumn, titleStack, spacer, settingsButton]); header.orientation = .horizontal; header.alignment = .centerY; header.spacing = 10
         let sizeLabel = NSTextField(labelWithString: L("影の大きさ")); sizeLabel.font = .systemFont(ofSize: 12, weight: .medium)
         radioButtons = choices.map { name, size in
             let button = NSButton(radioButtonWithTitle: size == 0 ? name : "\(name)（\(size)）", target: self, action: #selector(sizeChanged(_:)))
@@ -462,7 +464,15 @@ final class DropView: NSView {
     private(set) var registrationSucceeded = true
     var action: (() -> Void)?
     private let hotkeys = HotkeySet(signature: "KAGE")
-    init() { hotkeys.action = { [weak self] _ in self?.action?() } }
+    private var activation: NSObjectProtocol?
+    init() {
+        hotkeys.action = { [weak self] _ in self?.action?() }
+        // Another of our apps may claim this key for the app in front (AiHelper's 単位パレット, ⌃⌥⌘U in Illustrator):
+        // step aside there, so the key reaches it (HotkeyManifest.claimedByOtherApp).
+        activation = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.register() }
+        }
+    }
     /// Saved Carbon key code and modifiers → KeyCombo; missing values fall back to the initial key.
     nonisolated static func storedCombo(key: Int?, modifiers: Int?) -> KeyCombo {
         KeyCombo(code: UInt32(key ?? Int(defaultCombo.code)), modifiers: UInt32(modifiers ?? Int(defaultCombo.modifiers)))
@@ -481,8 +491,9 @@ final class DropView: NSView {
         publish()
     }
     private func register() {
-        if enabled { registrationSucceeded = hotkeys.register(1, combo) == noErr }
-        else { hotkeys.unregister(1); registrationSucceeded = true }
+        let yielded = HotkeyManifest.claimedByOtherApp(keyCode: Int(combo.code), modifiers: Int(combo.modifiers), front: NSWorkspace.shared.frontmostApplication)
+        if enabled && !yielded { registrationSucceeded = hotkeys.register(1, combo) == noErr }
+        else { hotkeys.unregister(1); if !enabled { registrationSucceeded = true } }
     }
     /// Declares the hotkey to HotkeyHound (Shared/HotkeyManifest). `enabled` is the setting, not whether registration succeeded.
     private func publish() {
@@ -763,7 +774,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -776,7 +803,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }
