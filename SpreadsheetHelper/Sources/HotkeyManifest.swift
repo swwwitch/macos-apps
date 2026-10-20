@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(AppKit)
+import AppKit
+#endif
 
 // 共通部品：Shared/HotkeyManifest/HotkeyManifest.swift（各アプリへは sync.py がビルド時にコピーする。コピー先は直接編集しない）
 
@@ -37,7 +40,8 @@ enum HotkeyManifest {
         FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/swwwitch/Hotkeys")
     }
 
-    private static var lastPublished: [Item]?
+    // Touched only from the main thread (publish is called there).
+    nonisolated(unsafe) private static var lastPublished: [Item]?
 
     /// 現在のホットキー一覧を書き出す。前回と同じなら何もしない。設定を変えたとき・起動時に呼ぶ（メインスレッド）。
     static func publish(_ items: [Item]) {
@@ -58,4 +62,25 @@ enum HotkeyManifest {
         try? data.write(to: folder.appendingPathComponent(bundleID + ".json"), options: .atomic)
         #endif
     }
+
+    #if canImport(AppKit)
+    /// 前面アプリ専用（scope "only"）で同じキーを申告している、起動中のほかの自作アプリがあるか。
+    /// アプリ全体で効くキー（KageTrimmer の ⌃⌥⌘U など）は、これが true の間は登録を外して譲る（AiHelper の単位パレット）。
+    /// apps の Bundle ID は前方一致（com.adobe.illustrator で Beta なども含む）。
+    static func claimedByOtherApp(keyCode: Int, modifiers: Int, front: NSRunningApplication?) -> Bool {
+        guard let frontID = front?.bundleIdentifier?.lowercased(), let own = Bundle.main.bundleIdentifier,
+              let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return false }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        for file in files where file.pathExtension == "json" {
+            guard let data = try? Data(contentsOf: file), let document = try? decoder.decode(Document.self, from: data),
+                  document.bundleID != own, !NSRunningApplication.runningApplications(withBundleIdentifier: document.bundleID).isEmpty else { continue }
+            if document.hotkeys.contains(where: { item in
+                item.enabled && item.keyCode == keyCode && item.modifiers == modifiers && item.scope == "only"
+                    && item.apps.contains { frontID.hasPrefix($0.lowercased()) }
+            }) { return true }
+        }
+        return false
+    }
+    #endif
 }

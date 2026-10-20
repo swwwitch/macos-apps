@@ -29,6 +29,7 @@ enum SheetCommand: String, CaseIterable {
     case centerAlign, alignLeft, alignRight, centerAcross, uncenterAcross, jumpToA1, editCellStart,
          replace, pasteSpecial, clearHyperlinks, borders, powerQuery, newWindow
     case previousSheet, nextSheet, sum, numberFormat, headerRow, pivotTable, alternatingColors, filter
+    case verticalCenterWrap, formatSpecial
 
     /// Default keys of the KM macros; the user can change them in Settings (Model.commandShortcuts).
     var defaultShortcut: Shortcut {
@@ -58,21 +59,23 @@ enum SheetCommand: String, CaseIterable {
         case .pivotTable: return Shortcut(code: 35, modifiers: cmd | opt, label: "⌥⌘P")
         case .alternatingColors: return Shortcut(code: 3, modifiers: ctrl, label: "⌃F")
         case .filter: return Shortcut(code: 3, modifiers: ctrl | shift, label: "⌃⇧F")
+        case .verticalCenterWrap: return Shortcut(code: 22, modifiers: ctrl | shift, label: "⌃⇧6")
+        case .formatSpecial: return Shortcut(code: 3, modifiers: cmd | opt | ctrl, label: "⌃⌥⌘F")
         }
     }
     var scope: CommandScope {
         switch self {
-        case .insert, .delete, .hideRowsColumns: return .both
+        case .insert, .delete, .hideRowsColumns, .pivotTable: return .both
         case .centerAlign, .alignLeft, .alignRight, .centerAcross, .uncenterAcross, .jumpToA1, .editCellStart,
              .replace, .pasteSpecial, .clearHyperlinks, .borders, .powerQuery, .newWindow: return .excel
-        case .previousSheet, .nextSheet, .sum, .numberFormat, .headerRow, .pivotTable, .alternatingColors, .filter: return .sheets
+        case .previousSheet, .nextSheet, .sum, .numberFormat, .headerRow, .alternatingColors, .filter, .verticalCenterWrap, .formatSpecial: return .sheets
         }
     }
     var category: CommandCategory {
         switch self {
         case .insert, .delete, .hideRowsColumns: return .rowsColumns
         case .centerAlign, .alignLeft, .alignRight, .centerAcross, .uncenterAcross: return .alignment
-        case .borders, .numberFormat, .headerRow, .alternatingColors: return .format
+        case .borders, .numberFormat, .headerRow, .alternatingColors, .verticalCenterWrap, .formatSpecial: return .format
         case .editCellStart, .replace, .pasteSpecial, .clearHyperlinks: return .editing
         case .jumpToA1, .previousSheet, .nextSheet, .newWindow: return .navigation
         case .sum, .filter, .pivotTable, .powerQuery: return .data
@@ -132,6 +135,8 @@ final class SheetCommandRunner {
         case .replace: return Self.pressMenu(pid: pid, candidates: [[.any(edit), .any(["検索", "Find"]), .prefix(["置換", "Replace"])]])
         case .pasteSpecial: return Self.pressMenu(pid: pid, candidates: [[.any(edit), .prefix(["形式を選択してペースト", "Paste Special"])]])
         case .clearHyperlinks: return Self.pressMenu(pid: pid, candidates: [[.any(edit), .any(["クリア", "Clear"]), .any(["ハイパーリンク", "Hyperlinks"])]])
+        // 「データ ▸ ピボットテーブルで集計」 (Excel 16 has no PivotTable item in the Insert menu).
+        case .pivotTable: return Self.pressMenu(pid: pid, candidates: [[.any(["データ", "Data"]), .prefix(["ピボットテーブル", "PivotTable", "Summarize with PivotTable"])]])
         case .newWindow: return Self.pressMenu(pid: pid, candidates: [[.any(["ウィンドウ", "ウインドウ", "Window"]), .prefix(["新しいウインドウ", "新しいウィンドウ", "New Window"])]])
         // KM「Power Query」: the menu, then Tab → Return Return in the dialog box.
         case .powerQuery:
@@ -182,6 +187,13 @@ final class SheetCommandRunner {
     // MARK: Google Sheets
 
     private func runSheets(_ command: SheetCommand, pid: pid_t, bundleID: String?, windowTitle: String?) -> CommandOutcome {
+        guard let steps = Self.sheetsSteps(command, bundleID: bundleID, windowTitle: windowTitle) else { return .unavailable }
+        play(steps, pid: pid)
+        return .done
+    }
+
+    /// Keys for one command in Google Sheets; nil when the command is Excel only.
+    static func sheetsSteps(_ command: SheetCommand, bundleID: String?, windowTitle: String?) -> [CommandStep]? {
         let menu: CGEventFlags = [.maskControl, .maskAlternate]
         let steps: [CommandStep]
         switch command {
@@ -206,15 +218,25 @@ final class SheetCommandRunner {
             steps = [.key(9, menu), .wait(Self.menuDelay), .key(15, []), .wait(Self.menuDelay), .key(31, []), .wait(0.3),
                      .key(126, Self.navigation.union(.maskCommand)), .key(123, Self.navigation.union(.maskCommand)),
                      .key(49, .maskShift), .wait(0.1), .key(11, .maskCommand), .key(14, [.maskCommand, .maskShift])]
-        // ⌃⌥I = Insert menu, then P (KM「25)ピボットテーブル」).
-        case .pivotTable: steps = [.key(34, menu), .wait(Self.menuDelay), .key(35, [])]
-        // ⌃⌥D = Data menu, then F (KM「31)フィルター作成／解除（2）」).
-        case .filter: steps = [.key(2, menu), .wait(Self.menuDelay), .key(3, [])]
+        // ⌃⌥I = Insert menu, then P (KM「25)ピボットテーブル」). P now only selects 「ピボット テーブル」, so Return runs it.
+        case .pivotTable: steps = [.key(34, menu), .wait(Self.menuDelay), .key(35, []), .wait(0.1), .key(36, [])]
+        // ⌃⌥D = Data menu, then F (KM「31)フィルター作成／解除（2）」). F now only selects the item, so Return runs it.
+        // A DocklessLauncher entry on ⌃⌥D took the key before (user report 2026-10-19).
+        case .filter: steps = [.key(2, menu), .wait(Self.menuDelay), .key(3, []), .wait(0.1), .key(36, [])]
+        // ⌃⌥O = Format menu: A M (Alignment ▸ Middle), then W W (Wrapping ▸ Wrap) (KM「22)垂直方向中央・折り返す」).
+        case .verticalCenterWrap:
+            steps = [.key(31, menu), .wait(Self.menuDelay), .key(0, []), .key(46, []), .wait(0.4),
+                     .key(31, menu), .wait(Self.menuDelay), .key(13, []), .key(13, [])]
         case .alternatingColors: steps = Self.menuSearch(Self.localizedName(.alternatingColors, windowTitle: windowTitle))
-        default: return .unavailable
+        // Select all (⌘A), middle and wrap, header row, then select all again for alternating colors.
+        // Alternating colors goes last: its sidebar takes the focus, so later arrow keys would not reach the grid.
+        case .formatSpecial:
+            let part = { (command: SheetCommand) in sheetsSteps(command, bundleID: bundleID, windowTitle: windowTitle) ?? [] }
+            steps = [.key(0, .maskCommand), .wait(0.2)] + part(.verticalCenterWrap) + [.wait(0.4)] + part(.headerRow)
+                + [.wait(0.3), .key(0, .maskCommand), .wait(0.2)] + part(.alternatingColors)
+        default: return nil
         }
-        play(steps, pid: pid)
-        return .done
+        return steps
     }
 
     /// ⌃⌥H opens the Help menu, whose search box takes the focus.
@@ -223,18 +245,18 @@ final class SheetCommandRunner {
         [.key(4, [.maskControl, .maskAlternate]), .wait(menuDelay), .text(name), .wait(searchDelay), .key(36, [])]
     }
 
-    enum MenuName { case alternatingColors, decreaseDecimals }
-    /// Item names in 「メニューを検索」, picked from the window title marker.
+    enum MenuName: Int { case alternatingColors, decreaseDecimals }
+    /// Item names in 「メニューを検索」, picked from the window title marker (in MenuName order).
     static func localizedName(_ name: MenuName, windowTitle: String?) -> String {
         let title = windowTitle ?? ""
-        let names: [String: (String, String)] = [
-            "Google スプレッドシート": ("交互の背景色", "小数点以下の桁数を減らす"),
-            "Google 스프레드시트": ("교차 색상", "소수점 이하 자리수 줄이기"),
-            "Google 表格": ("交替颜色", "减少小数位数"),
-            "Google 試算表": ("交替色彩", "減少小數位數")
+        let names: [String: [String]] = [
+            "Google スプレッドシート": ["交互の背景色", "小数点以下の桁数を減らす"],
+            "Google 스프레드시트": ["교차 색상", "소수점 이하 자리수 줄이기"],
+            "Google 表格": ["交替颜色", "减少小数位数"],
+            "Google 試算表": ["交替色彩", "減少小數位數"]
         ]
-        let pair = names.first { title.contains($0.key) }?.value ?? ("Alternating colors", "Decrease decimal places")
-        return name == .alternatingColors ? pair.0 : pair.1
+        let list = names.first { title.contains($0.key) }?.value ?? ["Alternating colors", "Decrease decimal places"]
+        return list[name.rawValue]
     }
 
     /// Runs the steps in order on the main queue; waits are not blocking.
