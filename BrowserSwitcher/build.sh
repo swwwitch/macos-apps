@@ -16,7 +16,7 @@ STAGING=$(mktemp -d "$TMP_ROOT/browser-switcher.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/BrowserSwitcher.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift -O -target arm64-apple-macos13.0 -module-cache-path "$TMP_ROOT/browser-switcher-module-cache" -framework AppKit -framework SwiftUI -framework CoreServices -framework Carbon Source/ShortcutDoubleTap.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/AboutSection.swift Source/SettingsSync.swift Source/HotkeyRecorder.swift Source/main.swift Source/Localization.swift Source/LoginAtLaunch.swift Source/HotkeyManifest.swift -o "$APP/Contents/MacOS/BrowserSwitcher"
+xcrun swiftc Source/AppSurface.swift Source/StartupWindow.swift Source/SettingsSection.swift Source/MenuBarPresence.swift "${UPDATE_SWIFT_FLAGS[@]}" Source/UpdateSupport.swift Source/AccessibilityPermission.swift Source/WindowActivationPolicy.swift -O -target arm64-apple-macos13.0 -module-cache-path "$TMP_ROOT/browser-switcher-module-cache" -framework AppKit -framework SwiftUI -framework CoreServices -framework Carbon Source/ShortcutDoubleTap.swift Source/HelpDocument.swift Source/LocalHelp.swift Source/AboutSection.swift Source/SettingsSync.swift Source/HotkeyRecorder.swift Source/main.swift Source/Localization.swift Source/LoginAtLaunch.swift Source/HotkeyManifest.swift -o "$APP/Contents/MacOS/BrowserSwitcher"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -29,10 +29,11 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>Browser Switcher</string>
 <key>CFBundleDisplayName</key><string>ブラウザー切り替え</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.6.35</string>
-<key>CFBundleVersion</key><string>55</string>
+<key>CFBundleShortVersionString</key><string>1.6.37</string>
+<key>CFBundleVersion</key><string>57</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSMultipleInstancesProhibited</key><true/>
+<key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSHumanReadableCopyright</key><string>© 2026 swwwitch</string>
 <key>SWAppFamily</key><string>swwwitch</string>
