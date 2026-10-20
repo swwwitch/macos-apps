@@ -679,7 +679,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -692,7 +708,9 @@ func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NS
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }

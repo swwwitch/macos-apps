@@ -120,7 +120,7 @@ final class CommandPalette: NSObject, NSWindowDelegate {
         let content = NSView()
         AppSurface.install(in: content)
         panel.contentView = content
-        let header = appHeader("CommandDee", subtitle: L("palette.subtitle"), size: 32)
+        let header = appHeader("CommandDee", subtitle: L("palette.subtitle"), size: 32, showsVersion: false)
         targetLabel.font = .systemFont(ofSize: 11, weight: .medium)
         targetLabel.textColor = .secondaryLabelColor
         targetLabel.lineBreakMode = .byTruncatingMiddle
