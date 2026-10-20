@@ -27,6 +27,7 @@ enum TextTransform: Int, CaseIterable {
     case invertSign
     case dateSpecial
     case dateSpecialPadded
+    case splitAtText
 
     static let specialLists: [TextTransform] = [.blackCircled, .kanji, .formalKanji, .circledAlphabet, .romanUpper, .romanLower, .checkmark, .emptyBox, .checkedBox, .taskList]
 
@@ -304,6 +305,7 @@ enum TextTransform: Int, CaseIterable {
     var title: String {
         switch self {
         case .wrapLines: return L("op.wrapLines")
+        case .splitAtText: return L("op.splitAtText")
         case .trimLineEdges: return L("op.trimLineEdges")
         case .sortLineLength: return L("op.sortLineLength")
         case .countText: return L("op.countText")
@@ -423,7 +425,7 @@ enum TextTransform: Int, CaseIterable {
         if [.narrowAlphanumerics, .widenKana, .removeJapaneseSpaces, .addJapaneseSpaces].contains(self) { return formatTypography(text) }
         if self == .trimLineEdges { return LineTools.trim(text) }
         if self == .sortLineLength { return LineTools.sortByLength(text) }
-        if self == .countText || self == .affixLines || self == .dateSpecial || self == .dateSpecialPadded { return text } // Handled by a panel or menu.
+        if self == .countText || self == .affixLines || self == .splitAtText || self == .dateSpecial || self == .dateSpecialPadded { return text } // Handled by a panel or menu.
         if self == .beautify { return HTMLMinifier.beautify(text) }
         if self == .minify { return HTMLMinifier.minify(text) }
         if self == .minifyBody { return HTMLMinifier.minifyBody(text) }

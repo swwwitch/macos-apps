@@ -83,7 +83,7 @@
 "special.lists" = "기타 목록";
 "tab.special" = "스페셜";
 "tab.autoShow" = "자동 표시";
-"sharing.note" = "팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키, 자동 표시, 대치하지 않고 복사, 행 앞뒤·줄 바꿈·목록 패널의 입력값을 공유합니다.";
+"sharing.note" = "팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키, 자동 표시, 대치하지 않고 복사, 행 앞뒤·줄 바꿈·구분 문자·목록 패널의 입력값을 공유합니다.";
 "sharing.perMac" = "로그인 시 실행, 시작 시 표시, 백그라운드, 메뉴 막대 아이콘, 손쉬운 사용, 윈도우 위치, 제외 앱, 동기화 폴더 위치는 Mac마다 유지합니다.";
 "display.heading" = "모드별 표시 설정";
 "display.modeToEdit" = "설정할 모드";
@@ -136,6 +136,7 @@
 "op.sortLines" = "줄 정렬";
 "op.uniqueLines" = "중복 줄 삭제";
 "op.joinWestern" = "줄 바꿈을 공백으로";
+"op.splitAtText" = "구분 문자로 줄 바꿈";
 "op.wrapLines" = "지정한 글자 수로 줄 바꿈";
 "op.randomLines" = "줄 섞기";
 "op.toggleDateFormat" = "年月日 ↔ yyyy-mm-dd";
@@ -175,6 +176,7 @@
 "tip.titleCase" = "영어 제목 형식(처음·끝과 주요 단어를 대문자로)";
 "tip.sum" = "선택 영역의 숫자를 합산하고 원문 아래에 빈 줄과 합계를 추가";
 "tip.invertSign" = "각 줄 맨 앞 숫자의 부호를 반전(-12→12, 12→-12. 0과 이후 숫자는 그대로)";
+"tip.splitAtText" = "지정한 문자 위치에서 줄 바꿈(해당 문자와 앞뒤 공백은 삭제)";
 "tip.wrapLines" = "지정한 글자 수로 각 줄을 줄 바꿈(기존 줄 바꿈 유지)";
 "tip.toggleDateFormat" = "yyyy年mm月dd日와 yyyy-mm-dd를 상호 변환(월·일을 두 자리로)";
 "tip.randomLines" = "줄 단위로 무작위 정렬(빈 줄·중복 줄 유지)";
@@ -238,6 +240,10 @@
 "auto.noneRunning" = "추가할 수 있는 앱이 없습니다";
 "lines.affixNote" = "빈 줄도 포함됩니다. 끝의 줄 바꿈은 유지합니다.";
 "lines.countTitle" = "글자 수·줄 수";
+"lines.separator" = "구분 문자";
+"lines.keepSeparator" = "구분 문자를 줄 끝에 남기기";
+"lines.splitPrefix" = "줄 앞에 추가";
+"lines.splitNote" = "구분 문자 앞뒤의 공백과 탭은 삭제합니다. 줄 앞에 추가할 문자는 빈 줄을 제외한 각 줄에 붙입니다.";
 "lines.prefix" = "앞에 추가";
 "lines.suffix" = "끝에 추가";
 "action.applySelection" = "선택한 텍스트에 적용";

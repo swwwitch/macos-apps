@@ -83,7 +83,7 @@
 "special.lists" = "更多列表";
 "tab.special" = "特殊";
 "tab.autoShow" = "自动显示";
-"sharing.note" = "共享面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键、调出面板的快捷键、自动显示、复制而不替换，以及行首行尾、换行和列表面板中的输入值。";
+"sharing.note" = "共享面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键、调出面板的快捷键、自动显示、复制而不替换，以及行首行尾、换行、分隔文字和列表面板中的输入值。";
 "sharing.perMac" = "登录时启动、启动时的显示、后台运行、菜单栏图标、辅助功能、窗口位置、排除的应用和同步文件夹的位置在每台 Mac 上分别保留。";
 "display.heading" = "按模式设置显示";
 "display.modeToEdit" = "要设置的模式";
@@ -136,6 +136,7 @@
 "op.sortLines" = "排序行";
 "op.uniqueLines" = "删除重复行";
 "op.joinWestern" = "换行转为空格";
+"op.splitAtText" = "按分隔文字换行";
 "op.wrapLines" = "按指定字数换行";
 "op.randomLines" = "随机排列行";
 "op.toggleDateFormat" = "年月日 ↔ yyyy-mm-dd";
@@ -175,6 +176,7 @@
 "tip.titleCase" = "英文标题格式（首尾及主要单词大写）";
 "tip.sum" = "对所选范围内的数字求和，并在原文下方添加空行和合计";
 "tip.invertSign" = "反转每行开头数字的正负（-12→12、12→-12；0 和之后的数字不变）";
+"tip.splitAtText" = "按分隔文字换行（删除该文字及前后空白）";
 "tip.wrapLines" = "按指定字数折行（保留现有换行）";
 "tip.toggleDateFormat" = "在 yyyy年mm月dd日 与 yyyy-mm-dd 之间转换（月日补足两位）";
 "tip.randomLines" = "按行随机排列（保留空行和重复行）";
@@ -238,6 +240,10 @@
 "auto.noneRunning" = "没有可添加的应用";
 "lines.affixNote" = "包括空行。保留末尾换行。";
 "lines.countTitle" = "字数和行数";
+"lines.separator" = "分隔文字";
+"lines.keepSeparator" = "在行尾保留分隔文字";
+"lines.splitPrefix" = "在行首添加";
+"lines.splitNote" = "删除分隔文字前后的空格和制表符。行首添加的文字会加到每个非空行。";
 "lines.prefix" = "添加到开头";
 "lines.suffix" = "添加到结尾";
 "action.applySelection" = "应用到所选文本";

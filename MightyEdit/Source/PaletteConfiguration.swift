@@ -22,7 +22,7 @@ enum PaletteConfiguration {
     static let listSpecialID = 9001
     static let typographySpecialID = 9002
     static let groups: [(String, [TextTransform])] = [
-        ("行の編集", [.join, .joinWestern, .joinAll, .removeBlankLines, .spaceLines, .sortLines, .randomLines, .uniqueLines, .wrapLines, .trimLineEdges, .sortLineLength, .affixLines, .countText]),
+        ("行の編集", [.join, .joinWestern, .joinAll, .removeBlankLines, .spaceLines, .sortLines, .randomLines, .uniqueLines, .wrapLines, .splitAtText, .trimLineEdges, .sortLineLength, .affixLines, .countText]),
         ("リスト", [.number, .circled, .alphabet, .bullet, .markdown, .removeList]),
         ("桁区切り", [.addCommas, .removeCommas, .sum]),
         ("文字の整形", [.narrowAlphanumerics, .widenKana, .removeJapaneseSpaces, .addJapaneseSpaces]),

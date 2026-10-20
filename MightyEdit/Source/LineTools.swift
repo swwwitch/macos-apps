@@ -15,6 +15,21 @@ enum LineTools {
     }
     static func trim(_ text: String) -> String { mapLines(text) { $0.trimmingCharacters(in: .whitespaces) } }
     static func affix(_ text: String, prefix: String, suffix: String) -> String { mapLines(text) { prefix + $0 + suffix } }
+    /// Breaks the line at every occurrence of `separator`; spaces and tabs around each break are removed.
+    /// `prefix` is then added to every non-empty line.
+    static func split(_ text: String, at separator: String, keepSeparator: Bool, prefix: String = "") -> String {
+        guard !separator.isEmpty else { return prefix.isEmpty ? text : mapLines(text) { $0.isEmpty ? $0 : prefix + $0 } }
+        let blanks: Set<Character> = [" ", "\t", "　"]
+        var pieces = normalize(text).components(separatedBy: separator)
+        for index in pieces.indices {
+            if index > 0 { pieces[index] = String(pieces[index].drop { blanks.contains($0) }) }
+            if index < pieces.count - 1 {
+                while let last = pieces[index].last, blanks.contains(last) { pieces[index].removeLast() }
+            }
+        }
+        let result = pieces.joined(separator: (keepSeparator ? separator : "") + "\n")
+        return prefix.isEmpty ? result : mapLines(result) { $0.isEmpty ? $0 : prefix + $0 }
+    }
     static func sortByLength(_ text: String) -> String {
         let normalized = normalize(text)
         guard !normalized.isEmpty else { return text }

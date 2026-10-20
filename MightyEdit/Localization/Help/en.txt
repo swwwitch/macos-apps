@@ -57,6 +57,11 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 2. Choose the count, adjust it one character at a time with ▲▼ (1–10,000, default 40), and apply.
 - The count is saved. Each line is wrapped at the count; existing line breaks and blank lines are kept.
 - Emoji and combined characters count as one character. English words may be split at the count.
+### Break at Separator
+1. Choose Break at Separator to open a small window, enter the text to break at (default “、”), and apply.
+- The line breaks wherever the text appears; the text and the spaces and tabs around it are removed. Turn on Keep the text at the end of the line to keep it.
+- Text in Add at line start is added to the start of every non-blank line. Example: “Mac macOS Apps” with a space as the separator and “#” at line start becomes #Mac / #macOS / #Apps.
+- Example: “A, B, C” with “,” becomes three lines A / B / C. The text can be longer than one character.
 ### Line Edit Group
 - The Lines group also includes Trim Spaces at Line Edges, Sort by Length, Count Characters and Lines, and Add to Start/End of Lines.
 - Sort by Length puts shorter lines first, or longer lines first if they are already sorted; lines of the same length keep their order.

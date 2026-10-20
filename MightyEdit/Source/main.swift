@@ -40,6 +40,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var linePrefix = ""
     var lineSuffix = ""
     var wrapCount = 40
+    var splitPanel: SplitLinesPanel?
+    var splitSeparator = ""
+    var splitKeepsSeparator = false
+    var splitPrefix = ""
     /// 日付スペシャル: the selection the menu was built from and the chosen candidate.
     private var dateChoice: (source: String, result: String)?
     var specialPanel: SpecialListPanel?
@@ -119,6 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self.targetSession.bind(frontPID: front.processIdentifier)
             if id == TextTransform.affixLines.rawValue { self.showAffixPanel(); return }
             if id == TextTransform.wrapLines.rawValue { self.showWrapPanel(); return }
+            if id == TextTransform.splitAtText.rawValue { self.showSplitPanel(); return }
             if id == TextTransform.specialTypography.rawValue { self.showTypography(); return }
             let sender = NSButton()
             sender.tag = id
@@ -221,7 +226,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         displayRow.spacing = 6
         let header = appHeader(L("header.title"), subtitle: L("header.subtitle"), size: 32)
         headerText = header.arrangedSubviews[1]
-        headerIconSize = header.arrangedSubviews[0].constraints.filter { $0.firstAttribute == .width || $0.firstAttribute == .height }
+        headerIconSize = (header.arrangedSubviews[0] as! NSStackView).arrangedSubviews[0].constraints.filter { $0.firstAttribute == .width || $0.firstAttribute == .height }
         let toolbar = NSStackView(views: [header, displayRow])
         toolbar.orientation = .vertical
         toolbar.alignment = .leading
@@ -289,7 +294,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         target.textColor = .secondaryLabelColor
         column.addArrangedSubview(target)
         let symbols = ["arrow.turn.up.left", "list.number", "list.bullet", "text.alignleft", "text.badge.minus", "1.circle", "a.square", "plus.circle", "minus.circle", "line.3.horizontal.decrease", "arrow.up.and.down.text.horizontal", "plus.circle", "minus.circle", "number", "a.square", "arrow.down.right.and.arrow.up.left", "arrow.triangle.merge", "textformat.abc", "textformat", "arrow.left.and.right.righttriangle.left.righttriangle.right", "arrow.left.and.right", "sum", "textformat.size.larger", "textformat.size.smaller", "textformat.abc", "textformat"]
-        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc", .invertSign: "plusminus", .dateSpecial: "calendar.badge.clock", .dateSpecialPadded: "calendar.badge.plus"]
+        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .splitAtText: "scissors", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc", .invertSign: "plusminus", .dateSpecial: "calendar.badge.clock", .dateSpecialPadded: "calendar.badge.plus"]
         let groups = PaletteConfiguration.groups
         for (title, operations) in groups {
             var buttons: [PaletteButton] = []
@@ -297,7 +302,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     let button = PaletteButton(frame: .zero)
                     button.title = operation.title
                     button.target = self
-                    button.action = operation == .affixLines ? #selector(showAffixPanel) : (operation == .wrapLines ? #selector(showWrapPanel) : #selector(transform(_:)))
+                    button.action = operation == .affixLines ? #selector(showAffixPanel) : (operation == .wrapLines ? #selector(showWrapPanel) : (operation == .splitAtText ? #selector(showSplitPanel) : #selector(transform(_:))))
                     button.tag = operation.rawValue
                     button.image = NSImage(systemSymbolName: extraSymbols[operation] ?? (symbols.indices.contains(operation.rawValue) ? symbols[operation.rawValue] : "calendar"), accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 20, weight: .regular))
                     button.imagePosition = .imageAbove
@@ -323,6 +328,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     case .dateSpecial: button.toolTip = L("tip.dateSpecial")
                     case .dateSpecialPadded: button.toolTip = L("tip.dateSpecialPadded")
                     case .wrapLines: button.toolTip = L("tip.wrapLines")
+                    case .splitAtText: button.toolTip = L("tip.splitAtText")
                     case .toggleDateFormat: button.toolTip = L("tip.toggleDateFormat")
                     case .randomLines: button.toolTip = L("tip.randomLines")
                     case .sortLines: button.toolTip = L("tip.sortLines")
@@ -435,14 +441,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self.copyOnly = UserDefaults.standard.bool(forKey: "copyOnly")
             self.statusItem.menu?.items.first { $0.action == #selector(self.toggleCopy(_:)) }?.state = self.copyOnly ? .on : .off
             // The line, wrap and list panels read their last values when created.
-            for panel in [self.affixPanel, self.wrapPanel, self.specialPanel] as [NSPanel?] { panel?.orderOut(nil) }
-            self.affixPanel = nil; self.wrapPanel = nil; self.specialPanel = nil
+            for panel in [self.affixPanel, self.wrapPanel, self.splitPanel, self.specialPanel] as [NSPanel?] { panel?.orderOut(nil) }
+            self.affixPanel = nil; self.wrapPanel = nil; self.splitPanel = nil; self.specialPanel = nil
             self.updateTarget()
         }
         migrateLegacySettingsSync()
         SettingsSync.shared.start(.init(
             keys: ["paletteProfile", "paletteDisplayMode", "specialTypographyOptions", "shortcutsDisabled",
-                   "copyOnly", "lineAffixPrefix", "lineAffixSuffix", "specialListStyle", "wrapCharacterCount",
+                   "copyOnly", "lineAffixPrefix", "lineAffixSuffix", "lineSplitSeparator", "lineSplitKeepSeparator", "lineSplitPrefix", "specialListStyle", "wrapCharacterCount",
                    "autoShowEnabled", "autoShowApplications"],
             prefixes: ["paletteVisible.", "specialListEnabled-", "shortcutDigit-", "shortcutScope-", "paletteInvocation."],
             note: L("sharing.note"), perMac: L("sharing.perMac")))
@@ -705,6 +711,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             }
         }
         affixPanel?.makeKeyAndOrderFront(nil)
+    }
+
+    @objc func showSplitPanel() {
+        targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
+        if splitPanel == nil {
+            splitPanel = SplitLinesPanel { [weak self] separator, keepSeparator, prefix in
+                guard let self else { return "" }
+                guard self.targetSession.targetPID == NSWorkspace.shared.frontmostApplication?.processIdentifier else {
+                    self.message.stringValue = L("msg.targetChangedReselect")
+                    return self.message.stringValue
+                }
+                self.splitSeparator = separator; self.splitKeepsSeparator = keepSeparator; self.splitPrefix = prefix
+                let sender = NSButton(); sender.tag = TextTransform.splitAtText.rawValue
+                self.transform(sender)
+                return self.message.stringValue
+            }
+        }
+        splitPanel?.makeKeyAndOrderFront(nil)
     }
 
     @objc func showWrapPanel() {
@@ -986,6 +1010,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 result = TypographyOption.applyAll(text, options: typographyOptions)
             } else if operation == .wrapLines {
                 result = TextTransform.wrappedText(text, count: wrapCount)
+            } else if operation == .splitAtText {
+                result = LineTools.split(text, at: splitSeparator, keepSeparator: splitKeepsSeparator, prefix: splitPrefix)
             } else if operation == .dateSpecial || operation == .dateSpecialPadded, let dateChoice {
                 self.dateChoice = nil
                 result = dateChoice.result
@@ -1249,7 +1275,23 @@ private func currentAppIcon() -> NSImage {
        let image = NSImage(contentsOf: url) { return image }
     return NSApp.applicationIconImage
 }
-private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44) -> NSStackView {
+/// Shown under the header icon: version, then build in parentheses (「1.4.5」「（15）」).
+private func appVersionText() -> String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let version = info["CFBundleShortVersionString"] as? String ?? ""
+    guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
+    let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
+    return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+private func appVersionLabel() -> NSTextField {
+    let label = NSTextField(labelWithString: appVersionText())
+    label.font = .systemFont(ofSize: 10)
+    label.textColor = .secondaryLabelColor
+    label.alignment = .center
+    label.maximumNumberOfLines = 2
+    return label
+}
+private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 44, showsVersion: Bool = true) -> NSStackView {
     let icon = NSImageView(image: currentAppIcon())
     icon.imageScaling = .scaleProportionallyUpOrDown
     icon.setAccessibilityElement(false)
@@ -1262,7 +1304,9 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     detail.textColor = .secondaryLabelColor
     let text = NSStackView(views: subtitle.isEmpty ? [label] : [label, detail])
     text.orientation = .vertical; text.alignment = .leading; text.spacing = 4
-    let row = NSStackView(views: [icon, text])
+    let iconColumn = NSStackView(views: showsVersion ? [icon, appVersionLabel()] : [icon])
+    iconColumn.orientation = .vertical; iconColumn.alignment = .centerX; iconColumn.spacing = 4
+    let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
 }

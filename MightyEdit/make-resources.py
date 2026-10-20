@@ -103,7 +103,7 @@ group.more|追加の操作|More Actions|更多操作|추가 동작
 special.lists|その他のリスト|More Lists|更多列表|기타 목록
 tab.special|スペシャル|Special|特殊|스페셜
 tab.autoShow|自動表示|Auto Show|自动显示|자동 표시
-sharing.note|パレットの表示モード・表示するボタン・ボタンの表示方法・スペシャルの項目・機能のホットキー・パレット呼び出しのホットキー・自動表示・置き換えずにコピー・行頭行末／折り返し／リストのパネルの入力値を共有します。|Shares the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap and list panels.|共享面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键、调出面板的快捷键、自动显示、复制而不替换，以及行首行尾、换行和列表面板中的输入值。|팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키, 자동 표시, 대치하지 않고 복사, 행 앞뒤·줄 바꿈·목록 패널의 입력값을 공유합니다.
+sharing.note|パレットの表示モード・表示するボタン・ボタンの表示方法・スペシャルの項目・機能のホットキー・パレット呼び出しのホットキー・自動表示・置き換えずにコピー・行頭行末／折り返し／区切り文字／リストのパネルの入力値を共有します。|Shares the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap, break and list panels.|共享面板模式、显示的按钮、按钮样式、特殊项目、功能快捷键、调出面板的快捷键、自动显示、复制而不替换，以及行首行尾、换行、分隔文字和列表面板中的输入值。|팔레트 모드, 표시할 버튼, 버튼 스타일, 스페셜 항목, 기능 단축키, 팔레트 호출 단축키, 자동 표시, 대치하지 않고 복사, 행 앞뒤·줄 바꿈·구분 문자·목록 패널의 입력값을 공유합니다.
 sharing.perMac|ログイン時の起動、起動時の表示、常駐、メニューバー、アクセシビリティ、ウインドウ位置、対象外アプリ、同期フォルダーの場所はMacごとに保持します。|Login launch, startup display, background, the menu bar icon, Accessibility, window positions, excluded apps and the sync folder location stay per Mac.|登录时启动、启动时的显示、后台运行、菜单栏图标、辅助功能、窗口位置、排除的应用和同步文件夹的位置在每台 Mac 上分别保留。|로그인 시 실행, 시작 시 표시, 백그라운드, 메뉴 막대 아이콘, 손쉬운 사용, 윈도우 위치, 제외 앱, 동기화 폴더 위치는 Mac마다 유지합니다.
 display.heading|モードごとの表示設定|Display Settings by Mode|按模式设置显示|모드별 표시 설정
 display.modeToEdit|設定するモード|Mode to configure|要设置的模式|설정할 모드
@@ -156,6 +156,7 @@ op.taskList|Markdownタスクリスト（- [ ]）|Markdown Task List (- [ ])|Mar
 op.sortLines|行を並べ替え|Sort Lines|排序行|줄 정렬
 op.uniqueLines|重複行を削除|Remove Duplicate Lines|删除重复行|중복 줄 삭제
 op.joinWestern|改行をスペースに|Line Breaks to Spaces|换行转为空格|줄 바꿈을 공백으로
+op.splitAtText|区切り文字で改行|Break at Separator|按分隔文字换行|구분 문자로 줄 바꿈
 op.wrapLines|指定した文字数で改行|Wrap at Character Count|按指定字数换行|지정한 글자 수로 줄 바꿈
 op.randomLines|行をシャッフル|Shuffle Lines|随机排列行|줄 섞기
 op.toggleDateFormat|年月日 ↔ yyyy-mm-dd|年月日 ↔ yyyy-mm-dd|年月日 ↔ yyyy-mm-dd|年月日 ↔ yyyy-mm-dd
@@ -195,6 +196,7 @@ tip.camelCase|hello world → helloWorld（空白・ハイフン・アンダー�
 tip.titleCase|英語のタイトル形式（先頭・末尾と主要語を大文字に）|English title case (first, last and major words capitalized)|英文标题格式（首尾及主要单词大写）|영어 제목 형식(처음·끝과 주요 단어를 대문자로)
 tip.sum|選択範囲の数字を合算し、元の文章の下に空行と合計を追加|Adds up the numbers in the selection and appends a blank line and the total|对所选范围内的数字求和，并在原文下方添加空行和合计|선택 영역의 숫자를 합산하고 원문 아래에 빈 줄과 합계를 추가
 tip.invertSign|各行の先頭の数値の正負を反転（-12→12、12→-12。0と2つ目以降の数値はそのまま）|Inverts the sign of the number at the start of each line (-12→12, 12→-12; zero and later numbers unchanged)|反转每行开头数字的正负（-12→12、12→-12；0 和之后的数字不变）|각 줄 맨 앞 숫자의 부호를 반전(-12→12, 12→-12. 0과 이후 숫자는 그대로)
+tip.splitAtText|区切り文字のところで改行（区切り文字と前後の空白は削除）|Breaks the line wherever the specified text appears (the text and surrounding spaces are removed)|按分隔文字换行（删除该文字及前后空白）|지정한 문자 위치에서 줄 바꿈(해당 문자와 앞뒤 공백은 삭제)
 tip.wrapLines|文字数を指定して各行を折り返す（既存の改行は保持）|Wraps each line at a set number of characters (existing line breaks are kept)|按指定字数折行（保留现有换行）|지정한 글자 수로 각 줄을 줄 바꿈(기존 줄 바꿈 유지)
 tip.toggleDateFormat|yyyy年mm月dd日とyyyy-mm-ddを相互変換（月日を2桁に揃える）|Converts between yyyy年mm月dd日 and yyyy-mm-dd (two-digit month and day)|在 yyyy年mm月dd日 与 yyyy-mm-dd 之间转换（月日补足两位）|yyyy年mm月dd日와 yyyy-mm-dd를 상호 변환(월·일을 두 자리로)
 tip.randomLines|行単位でランダムに並べ替え（空行・重複行も保持）|Shuffles lines randomly (blank and duplicate lines are kept)|按行随机排列（保留空行和重复行）|줄 단위로 무작위 정렬(빈 줄·중복 줄 유지)
@@ -258,6 +260,10 @@ auto.invalid| 識別情報のないアプリは追加できませんでした。
 auto.noneRunning|追加できるアプリがありません|No apps to add|没有可添加的应用|추가할 수 있는 앱이 없습니다
 lines.affixNote|空行も対象。末尾の改行は保持します。|Blank lines are included. A trailing line break is kept.|包括空行。保留末尾换行。|빈 줄도 포함됩니다. 끝의 줄 바꿈은 유지합니다.
 lines.countTitle|文字数・行数|Characters and Lines|字数和行数|글자 수·줄 수
+lines.separator|区切り文字|Separator|分隔文字|구분 문자
+lines.keepSeparator|区切り文字を行末に残す|Keep the text at the end of the line|在行尾保留分隔文字|구분 문자를 줄 끝에 남기기
+lines.splitPrefix|行頭に付加|Add at line start|在行首添加|줄 앞에 추가
+lines.splitNote|区切り文字の前後にあるスペース・タブは削除します。行頭に付加は空行以外の各行に付けます。|Spaces and tabs around the text are removed. The line-start text is added to every non-blank line.|删除分隔文字前后的空格和制表符。行首添加的文字会加到每个非空行。|구분 문자 앞뒤의 공백과 탭은 삭제합니다. 줄 앞에 추가할 문자는 빈 줄을 제외한 각 줄에 붙입니다.
 lines.prefix|先頭に追加|Add at start|添加到开头|앞에 추가
 lines.suffix|末尾に追加|Add at end|添加到结尾|끝에 추가
 action.applySelection|選択テキストに適用|Apply to Selected Text|应用到所选文本|선택한 텍스트에 적용

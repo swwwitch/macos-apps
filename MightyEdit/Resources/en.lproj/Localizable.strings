@@ -83,7 +83,7 @@
 "special.lists" = "More Lists";
 "tab.special" = "Special";
 "tab.autoShow" = "Auto Show";
-"sharing.note" = "Shares the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap and list panels.";
+"sharing.note" = "Shares the palette mode, visible buttons, button style, Special items, action hotkeys, the palette shortcut, Auto Show, Copy Without Replacing and the values in the line, wrap, break and list panels.";
 "sharing.perMac" = "Login launch, startup display, background, the menu bar icon, Accessibility, window positions, excluded apps and the sync folder location stay per Mac.";
 "display.heading" = "Display Settings by Mode";
 "display.modeToEdit" = "Mode to configure";
@@ -136,6 +136,7 @@
 "op.sortLines" = "Sort Lines";
 "op.uniqueLines" = "Remove Duplicate Lines";
 "op.joinWestern" = "Line Breaks to Spaces";
+"op.splitAtText" = "Break at Separator";
 "op.wrapLines" = "Wrap at Character Count";
 "op.randomLines" = "Shuffle Lines";
 "op.toggleDateFormat" = "年月日 ↔ yyyy-mm-dd";
@@ -175,6 +176,7 @@
 "tip.titleCase" = "English title case (first, last and major words capitalized)";
 "tip.sum" = "Adds up the numbers in the selection and appends a blank line and the total";
 "tip.invertSign" = "Inverts the sign of the number at the start of each line (-12→12, 12→-12; zero and later numbers unchanged)";
+"tip.splitAtText" = "Breaks the line wherever the specified text appears (the text and surrounding spaces are removed)";
 "tip.wrapLines" = "Wraps each line at a set number of characters (existing line breaks are kept)";
 "tip.toggleDateFormat" = "Converts between yyyy年mm月dd日 and yyyy-mm-dd (two-digit month and day)";
 "tip.randomLines" = "Shuffles lines randomly (blank and duplicate lines are kept)";
@@ -238,6 +240,10 @@
 "auto.noneRunning" = "No apps to add";
 "lines.affixNote" = "Blank lines are included. A trailing line break is kept.";
 "lines.countTitle" = "Characters and Lines";
+"lines.separator" = "Separator";
+"lines.keepSeparator" = "Keep the text at the end of the line";
+"lines.splitPrefix" = "Add at line start";
+"lines.splitNote" = "Spaces and tabs around the text are removed. The line-start text is added to every non-blank line.";
 "lines.prefix" = "Add at start";
 "lines.suffix" = "Add at end";
 "action.applySelection" = "Apply to Selected Text";
