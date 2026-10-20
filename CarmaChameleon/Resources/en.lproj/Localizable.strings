@@ -390,3 +390,12 @@
 "indesignPresetMissing" = "InDesign does not have the PDF preset: ";
 "indesignExportedOpen" = "Exported from the document open in InDesign.";
 "indesignExportedUnsaved" = "Exported from the document open in InDesign, including unsaved changes.";
+
+"storeAccessFailed" = "Could not restore folder access. Choose the output folder again.";
+"storeBundledEngine" = "Bundled conversion engine";
+"storeContainerDestination" = "Cannot export to the app container. Choose a regular folder.";
+"storeAccessMessage" = "Allow access to this folder to read and write files: ";
+"storeAccessTitle" = "Allow folder access";
+"storeAccessAllow" = "Allow Access";
+"storeAccessMismatch" = "The selected folder does not match. Choose the required folder.";
+"storeEngineDetail" = "The conversion engine is included with the app.";

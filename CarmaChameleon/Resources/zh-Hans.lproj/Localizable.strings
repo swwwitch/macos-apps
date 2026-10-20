@@ -390,3 +390,12 @@
 "indesignPresetMissing" = "InDesign 中没有此 PDF 预设：";
 "indesignExportedOpen" = "已从 InDesign 中打开的文档导出。";
 "indesignExportedUnsaved" = "已从 InDesign 中打开的文档导出，包含未保存的更改。";
+
+"storeAccessFailed" = "无法恢复文件夹访问权限。请重新选择保存位置。";
+"storeBundledEngine" = "内置转换引擎";
+"storeContainerDestination" = "无法导出到应用容器。请选择普通文件夹。";
+"storeAccessMessage" = "请允许访问以下文件夹以读写文件：";
+"storeAccessTitle" = "允许访问文件夹";
+"storeAccessAllow" = "允许访问";
+"storeAccessMismatch" = "所选文件夹不匹配。请选择所需的文件夹。";
+"storeEngineDetail" = "转换引擎已包含在应用中。";

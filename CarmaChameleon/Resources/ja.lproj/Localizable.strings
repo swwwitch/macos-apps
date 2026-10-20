@@ -390,3 +390,12 @@
 "indesignPresetMissing" = "InDesignにPDFプリセットがありません：";
 "indesignExportedOpen" = "InDesignで開いているドキュメントから書き出しました。";
 "indesignExportedUnsaved" = "InDesignで開いているドキュメントから書き出しました。未保存の変更も含まれます。";
+
+"storeAccessFailed" = "フォルダへのアクセスを復元できませんでした。保存先を選び直してください。";
+"storeBundledEngine" = "同梱の変換エンジン";
+"storeContainerDestination" = "アプリの保存領域には書き出せません。通常のフォルダを選択してください。";
+"storeAccessMessage" = "ファイルの読み書きのため、次のフォルダへのアクセスを許可してください：";
+"storeAccessTitle" = "フォルダへのアクセスを許可";
+"storeAccessAllow" = "アクセスを許可";
+"storeAccessMismatch" = "指定されたフォルダと異なります。必要なフォルダを選択してください。";
+"storeEngineDetail" = "変換エンジンはアプリに同梱されています。";

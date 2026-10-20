@@ -390,3 +390,12 @@
 "indesignPresetMissing" = "InDesign에 PDF 사전 설정이 없습니다: ";
 "indesignExportedOpen" = "InDesign에서 열려 있는 문서에서 내보냈습니다.";
 "indesignExportedUnsaved" = "InDesign에서 열려 있는 문서에서 내보냈습니다. 저장하지 않은 변경 사항도 포함됩니다.";
+
+"storeAccessFailed" = "폴더 접근 권한을 복원할 수 없습니다. 저장 위치를 다시 선택하세요.";
+"storeBundledEngine" = "내장 변환 엔진";
+"storeContainerDestination" = "앱 컨테이너로 내보낼 수 없습니다. 일반 폴더를 선택하세요.";
+"storeAccessMessage" = "파일을 읽고 쓰려면 다음 폴더에 대한 접근을 허용하세요: ";
+"storeAccessTitle" = "폴더 접근 허용";
+"storeAccessAllow" = "접근 허용";
+"storeAccessMismatch" = "선택한 폴더가 일치하지 않습니다. 필요한 폴더를 선택하세요.";
+"storeEngineDetail" = "변환 엔진이 앱에 포함되어 있습니다.";
