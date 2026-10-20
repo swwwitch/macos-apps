@@ -35,6 +35,7 @@
 | PrefsPreset | Macの設定の一覧・一括変更・書き出しと読み込み | [Sources](PrefsPreset/Sources/PrefsPreset/) | [build.sh](PrefsPreset/build.sh) |
 | ProjectFolder（旧 FolderMaker） | 案件フォルダーの作成（KMマクロ「Folder Maker（案件）」の移植） | [Sources](ProjectFolder/Sources/) | [build.sh](ProjectFolder/build.sh) |
 | QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) |
+| BreaklineTrimmer（旧 TrimBreakline） | 画像の一部を取り除いて詰め、切り口に省略線を引いて透過PNGで書き出す（Illustratorスクリプト TrimWithBreakLine の移植） | [Source](BreaklineTrimmer/Source/) | [build.sh](BreaklineTrimmer/build.sh) |
 | YohakuTrimmer | 画像の余白（四辺の同じ色）を削除 | [Development/Sources](YohakuTrimmer/Development/Sources/) | [Development/build.sh](YohakuTrimmer/Development/build.sh) |
 
 ## ファイルの置き場所
