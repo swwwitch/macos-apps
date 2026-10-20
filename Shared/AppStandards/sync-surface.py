@@ -38,7 +38,7 @@ for relative in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinke
 
 activation = Path(__file__).with_name("WindowActivationPolicy.swift").read_bytes()
 # Menu-bar (accessory) apps only: regular apps keep their Dock icon.
-for relative in ['KakkoReplace/Sources', 'SpreadsheetHelper/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'ProjectFolder/Sources', 'DocklessLauncher/Sources', 'CommandDee/Sources', 'MightyEdit/Source', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop'] + private_targets:
+for relative in ['KakkoReplace/Sources', 'SpreadsheetHelper/Sources', 'PasteInARow/Sources', 'IncrementPaste/Sources', 'PasteMatchStyle/Sources', 'LinkMaker/Sources', 'ProjectFolder/Sources', 'DocklessLauncher/Sources', 'CommandDee/Sources', 'MightyEdit/Source', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop', 'BrowserSwitcher/Source', 'FolderHopper/Development/Source', 'YohakuTrimmer/Development/Sources', 'KageTrimmer/Development/Sources'] + private_targets:
     target = root / relative / "WindowActivationPolicy.swift"
     if not target.parent.is_dir():
         continue
