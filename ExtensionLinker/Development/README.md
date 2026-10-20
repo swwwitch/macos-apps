@@ -4,6 +4,27 @@ macOSネイティブのSwiftUIアプリ。macOS 13以降。
 
 ## 更新履歴
 
+### 0.2.32（ビルド46）（2026-10-18）
+
+- 初期の拡張子一覧に .applescript・.scpt（スクリプトエディタ、開発カテゴリ）を追加。
+
+### 0.2.31（ビルド45）（2026-10-18）
+
+- メインウインドウの行を右クリック（2本指クリックなど、Controlなし）しても、アプリの選択が開くようにした（従来はControl＋右クリックだけを受け付けていた）。
+
+### 0.2.30（ビルド44）（2026-10-18）
+
+- 初期の拡張子一覧に .idml（InDesign、デザインカテゴリ）を追加。一覧では .indd の直後に並ぶ。
+
+### 0.2.29（ビルド43）（2026-10-18）
+
+- 設定に「アプリの版」タブを追加。Illustrator・Photoshop・InDesignなど複数の版をインストールした環境で、関連付けた拡張子をまとめて指定の版（または最新版（自動））で開くように切り替える。macOSのAPIでは版を指定できないため、LaunchServicesの記録（com.apple.launchservices.secure.plist）の LSHandlerPreferredVersions に CFBundleVersion を書き込み、lsd を再起動する。lsd が未保存の変更を持つときは書き込まず、変更前の記録は ~/Library/Application Support/ExtensionLinker/LaunchServicesBackups に10世代保存、切り替えを確認できなければ元に戻す。App Store版には含めない。
+- 現在の関連付けを、同じBundle IDの複数の版のうち実際に開く版で表示し、版ごとのフォルダーに入ったアプリ（Adobe Illustrator 2026 など）はフォルダー名で表示する。
+
+### 0.2.28（ビルド42）（2026-10-17）
+
+- メインウインドウのアイコンの下にバージョンとbuild番号を表示。
+
 ### 0.2.27（ビルド41）（2026-10-17）
 
 - 設定の共通部品（設定の共有）の更新を取り込んだ。

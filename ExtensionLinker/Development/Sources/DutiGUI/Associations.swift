@@ -10,6 +10,7 @@ struct Preset {
         .init(ext: "ppt", name: "PowerPoint", bundleID: "com.microsoft.Powerpoint"),
         .init(ext: "psd", name: "Photoshop", bundleID: "com.adobe.Photoshop"),
         .init(ext: "indd", name: "InDesign", bundleID: "com.adobe.InDesign"),
+        .init(ext: "idml", name: "InDesign", bundleID: "com.adobe.InDesign"),
         .init(ext: "json", name: "VS Code", bundleID: "com.microsoft.VSCode"),
         .init(ext: "ts", name: "VS Code", bundleID: "com.microsoft.VSCode"),
         .init(ext: "csv", name: "Excel", bundleID: "com.microsoft.Excel"),
@@ -31,7 +32,9 @@ struct Preset {
         .init(ext: "pdf", name: "Acrobat Pro", bundleID: "com.adobe.Acrobat.Pro"),
         .init(ext: "txt", name: "Jedit Pro", bundleID: "jp.co.artman21.Jedit-Pro"),
         .init(ext: "rtf", name: "Jedit Pro", bundleID: "jp.co.artman21.Jedit-Pro"),
-        .init(ext: "md", name: "MacDown", bundleID: "com.uranusjr.macdown")
+        .init(ext: "md", name: "MacDown", bundleID: "com.uranusjr.macdown"),
+        .init(ext: "applescript", name: "Script Editor", bundleID: "com.apple.ScriptEditor2"),
+        .init(ext: "scpt", name: "Script Editor", bundleID: "com.apple.ScriptEditor2")
     ]
 }
 
@@ -44,7 +47,13 @@ struct Application: Identifiable, Equatable {
         guard let bundle = Bundle(url: url), let id = bundle.bundleIdentifier else { return nil }
         self.url = url
         bundleID = id
-        name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+        name = Application.versionedName(url)
+    }
+    /// The enclosing folder name when it names the version (「Adobe Illustrator 2026」 for 「Adobe Illustrator.app」), otherwise the app name.
+    static func versionedName(_ url: URL) -> String {
+        let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+        let folder = url.deletingLastPathComponent().lastPathComponent
+        return folder != name && folder.hasPrefix(name + " ") ? folder : name
     }
     static func find(_ id: String) -> Application? {
         NSWorkspace.shared.urlForApplication(withBundleIdentifier: id).flatMap(Application.init)
@@ -86,8 +95,8 @@ struct Association: Identifiable {
 
 enum AssociationService {
     static func extensionPrecedes(_ lhs: String, _ rhs: String) -> Bool {
-        let left = lhs == "svg" ? "ai~" : lhs == "indd" ? "eps~" : lhs == "xls" ? "csv~" : lhs
-        let right = rhs == "svg" ? "ai~" : rhs == "indd" ? "eps~" : rhs == "xls" ? "csv~" : rhs
+        let left = lhs == "svg" ? "ai~" : lhs == "indd" ? "eps~" : lhs == "idml" ? "eps~~" : lhs == "xls" ? "csv~" : lhs
+        let right = rhs == "svg" ? "ai~" : rhs == "indd" ? "eps~" : rhs == "idml" ? "eps~~" : rhs == "xls" ? "csv~" : rhs
         return left < right
     }
 
@@ -99,6 +108,9 @@ enum AssociationService {
     }
     static func current(for type: UTType) -> Application? {
         guard let id = LSCopyDefaultRoleHandlerForContentType(type.identifier as CFString, .all)?.takeRetainedValue() as String? else { return nil }
+        // Versions sharing a bundle ID (Adobe): the copy that actually opens the type, not just the newest.
+        if let url = NSWorkspace.shared.urlForApplication(toOpen: type), let app = Application(url: url),
+           app.bundleID.caseInsensitiveCompare(id) == .orderedSame { return app }
         return Application.find(id)
     }
     // Same Launch Services operation as `duti -s <bundle-id> <extension> all`.

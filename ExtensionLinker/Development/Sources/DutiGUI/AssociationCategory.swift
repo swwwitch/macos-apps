@@ -22,7 +22,8 @@ enum AssociationCategory: String, CaseIterable, Identifiable {
         case "txt", "rtf", "md":
             return .text
         case "html", "css", "scss", "sass", "less", "js", "jsx", "ts", "tsx", "json", "xml",
-             "yaml", "yml", "swift", "py", "rb", "php", "sh", "c", "h", "cpp", "rs", "go":
+             "yaml", "yml", "swift", "py", "rb", "php", "sh", "c", "h", "cpp", "rs", "go",
+             "applescript", "scpt":
             return .development
         default:
             return .other

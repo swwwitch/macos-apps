@@ -2,7 +2,7 @@ Sets the default app that opens files for each extension.
 
 ## Basic Use
 1. Find an extension with the categories (All, Design, Business, Text, Development, Other) or **Search extensions or apps**.
-2. Double-click a row (or ⌘/Control-click it) to choose an app, or drag an .app from Applications in the Finder onto the row. The row becomes a Pending Change; choosing an app does not apply it yet.
+2. Double-click a row (or right-click or ⌘/Control-click it) to choose an app, or drag an .app from Applications in the Finder onto the row. The row becomes a Pending Change; choosing an app does not apply it yet.
 3. Click **Apply N Changes** and confirm with **Apply Changes** to apply the pending changes in all categories at once.
 
 - **Undo Changes** discards changes that have not been applied.
@@ -31,6 +31,12 @@ Open **Settings…** from the app menu (⌘,).
 ### Extension Tab
 - Add or remove the extensions shown in the main window.
 - Removing an extension from the list does not change its macOS association.
+
+### App Versions Tab
+- For apps with several versions installed, such as Illustrator, Photoshop and InDesign, opens all their associated extensions with the version you choose.
+- Pick a version in **Open with** and click **Switch N**. **Newest (automatic)** opens with the newest installed version.
+- The version is written into the macOS association record and the system process that manages associations (lsd) is restarted. The previous record is saved in ~/Library/Application Support/ExtensionLinker/LaunchServicesBackups.
+- Choosing an app again in the main window returns that extension to Newest (automatic).
 
 ### Sharing Tab
 - **Export…** saves the extension list (extensions you added or removed) as ExtensionLinker-Settings.plist, and **Import…** loads it on another Mac. When importing, choose Add (add to the current list) or Replace.

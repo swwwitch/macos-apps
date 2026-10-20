@@ -31,12 +31,13 @@ final class ApplicationDropNSView: NSView, NSDraggingSource {
         pressLocation = nil
         modifiedClick = false
     }
+    /// A right-click (two-finger click, with or without Control) opens the picker like ⌘／Control＋click.
     override func rightMouseDown(with event: NSEvent) {
-        if event.modifierFlags.contains(.control) { mouseDown(with: event) }
+        pressLocation = convert(event.locationInWindow, from: nil)
+        dragging = false
+        modifiedClick = true
     }
-    override func rightMouseUp(with event: NSEvent) {
-        if event.modifierFlags.contains(.control) { mouseUp(with: event) }
-    }
+    override func rightMouseUp(with event: NSEvent) { mouseUp(with: event) }
     override func mouseDragged(with event: NSEvent) {
         guard enabled, !dragging, let start = pressLocation, let app = dragSource else { return }
         let iconRect = NSRect(x: 169, y: (bounds.height - 32) / 2, width: 32, height: 32)

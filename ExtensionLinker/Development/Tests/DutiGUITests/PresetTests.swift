@@ -72,7 +72,7 @@ final class PresetTests: XCTestCase {
         XCTAssertEqual(Preset.all.first { $0.ext == "eps" }?.bundleID, "com.adobe.Photoshop")
         XCTAssertEqual(Preset.all.first { $0.ext == "txt" }?.bundleID, "jp.co.artman21.Jedit-Pro")
         XCTAssertEqual(Preset.all.first { $0.ext == "rtf" }?.bundleID, "jp.co.artman21.Jedit-Pro")
-        XCTAssertEqual(Preset.all.count, 25)
+        XCTAssertEqual(Preset.all.count, 28)
     }
     @MainActor
     func testExcelGroupingAndPresetRoundTrip() throws {
@@ -145,8 +145,8 @@ final class PresetTests: XCTestCase {
         for (ext, aliases, category) in [
             ("doc", ["doc", "docx"], AssociationCategory.business),
             ("ppt", ["ppt", "pptx"], .business),
-            ("psd", ["psd"], .design), ("indd", ["indd"], .design),
-            ("json", ["json"], .development), ("ts", ["ts", "tsx"], .development)
+            ("psd", ["psd"], .design), ("indd", ["indd"], .design), ("idml", ["idml"], .design),
+            ("json", ["json"], .development), ("applescript", ["applescript"], .development), ("scpt", ["scpt"], .development), ("ts", ["ts", "tsx"], .development)
         ] {
             let row = try XCTUnwrap(store.rows.first { $0.ext == ext })
             XCTAssertEqual(row.aliases, aliases)
@@ -167,5 +167,13 @@ final class PresetTests: XCTestCase {
         XCTAssertTrue(row.changed)
         row.aliasesDiffer = false
         XCTAssertFalse(row.changed)
+    }
+}
+
+final class IDMLTests: XCTestCase {
+    func testIDMLFollowsINDD() {
+        let order = ["eps", "indd", "idml", "gif", "jpg"].shuffled().sorted(by: AssociationService.extensionPrecedes)
+        XCTAssertEqual(order, ["eps", "indd", "idml", "gif", "jpg"])
+        XCTAssertEqual(Preset.all.first { $0.ext == "idml" }?.bundleID, "com.adobe.InDesign")
     }
 }
