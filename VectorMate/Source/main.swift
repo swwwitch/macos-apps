@@ -37,18 +37,64 @@ final class Model: ObservableObject {
     /// Read from the preference files; what VectorMate itself set (or read in the dialog box) is newer and wins.
     @Published var fileHandling: FileHandling.State?
     private var fileHandlingKnownAt = Date.distantPast
+    /// fileHandling was read in the dialog box or set by VectorMate (not just read from the preference files, which can be stale).
+    private var fileHandlingConfirmed = false
+    /// 表示 → ガイド → ガイドをロック; nil when the menu cannot be read.
+    @Published var guideLock: Bool?
+    @Published var resetResult: OperationResult?
+    /// Illustratorの設定を初期化 also moves ~/Library/Caches/com.adobe.illustrator. On by default.
+    @Published var resetIncludesCache = UserDefaults.standard.object(forKey: "resetIncludesCache") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(resetIncludesCache, forKey: "resetIncludesCache") }
+    }
     @Published var units: UnitSettings.State?
     @Published var unitResult: OperationResult?
     /// 単位セット (edited in 設定 → 単位セット).
     @Published var unitSets: [UnitSet] = UnitSet.load() { didSet { UnitSet.save(unitSets) } }
     /// 単位パレットのモード: false 基本 (units only), true 詳細 (increments and document settings too).
     @Published var unitDetail = UserDefaults.standard.bool(forKey: "unitPaletteDetail") { didSet { UserDefaults.standard.set(unitDetail, forKey: "unitPaletteDetail") } }
+    /// 環境設定セット (edited in 設定 → 環境設定セット) and the values read from Illustrator.
+    @Published var prefPresets: [PrefPreset] = PrefPreset.load() { didSet { PrefPreset.save(prefPresets) } }
+    /// Edits in 設定 → 環境設定セット not saved yet (nil: none). ［上書き］ saves them, ［元に戻す］ discards them.
+    @Published var prefDraft: [PrefPreset]?
+    /// What the editor shows and changes: the draft, or the saved sets while there is none.
+    var editingPrefPresets: [PrefPreset] {
+        get { prefDraft ?? prefPresets }
+        set { prefDraft = newValue == prefPresets ? nil : newValue }
+    }
+    func savePrefDraft() { if let prefDraft { prefPresets = prefDraft; self.prefDraft = nil } }
+    func revertPrefDraft() { prefDraft = nil }
+    @Published var prefValues: PrefValues?
+    @Published var prefResult: OperationResult?
     /// クイック環境設定.
     @Published var quickPrefs: QuickPrefs.State?
     @Published var quickResult: OperationResult?
     @Published var interfaceResult: OperationResult?
     @Published var toolResult: OperationResult?
     @Published var fileResult: OperationResult?
+    /// カスタム → キーボードショートカット: the .kys linked into the Illustrator settings folder (a path, ~ allowed).
+    @Published var shortcutSource: String { didSet { defaults.set(shortcutSource, forKey: "shortcutSource") } }
+    /// The set chosen in Illustrator after linking (a .kys name without the extension).
+    @Published var shortcutSetName: String { didSet { defaults.set(shortcutSetName, forKey: "shortcutSetName") } }
+    /// The sets in the source folder.
+    var shortcutSetNames: [String] { ShortcutSet.files(in: SyncFolder.resolve(shortcutSource, base: syncFolder)).map(ShortcutSet.setName) }
+    /// The folder the sources of カスタム are relative to.
+    @Published var syncFolder: String { didSet { defaults.set(syncFolder, forKey: SyncFolder.storeKey) } }
+    @Published var shortcutResult: OperationResult?
+    /// カスタム → ドキュメントプロファイル・合成フォント: the synced folders (paths, ~ allowed) and the last result of each.
+    @Published var linkSources: [FolderLinks.Kind: String] = [:] {
+        didSet { for (kind, path) in linkSources { defaults.set(path, forKey: kind.storeKey) } }
+    }
+    @Published var linkResults: [FolderLinks.Kind: OperationResult] = [:]
+    static func loadSyncFolder() -> String { UserDefaults.standard.string(forKey: SyncFolder.storeKey) ?? SyncFolder.defaultPath }
+    static func loadShortcutSource(base: String) -> (source: String, name: String) {
+        SyncFolder.migrateShortcutSource(stored: UserDefaults.standard.string(forKey: "shortcutSource"), name: UserDefaults.standard.string(forKey: "shortcutSetName"),
+                                         base: base, defaultSource: ShortcutSet.defaultSource, legacyDefault: ShortcutSet.legacyDefault)
+    }
+    static func loadLinkSources(base: String) -> [FolderLinks.Kind: String] {
+        Dictionary(uniqueKeysWithValues: FolderLinks.Kind.allCases.map { kind in
+            (kind, UserDefaults.standard.string(forKey: kind.storeKey).map { SyncFolder.normalize($0, base: base) } ?? kind.defaultSource)
+        })
+    }
     /// Brightness steps pressed while an operation was running; applied together afterwards.
     private var pendingBrightness = 0
 
@@ -63,6 +109,12 @@ final class Model: ObservableObject {
     /// Shows or hides クイック環境設定. ⌃⌥⌘Q by default (Keyboard Maestro has macros on it; set per Mac if they collide).
     @Published var quickCombo: KeyCombo? { didSet { store(quickCombo, "quickHotkey"); refreshHotkeys() } }
     var onQuickHotkey: (() -> Void)?
+    /// Shows or hides クイック変形. ⌃⌥⌘T by default.
+    @Published var transformCombo: KeyCombo? { didSet { store(transformCombo, "transformHotkey"); refreshHotkeys() } }
+    var onTransformHotkey: (() -> Void)?
+    /// Closes 単位パレット・クイック環境設定・クイック変形 at once. ⌥W by default.
+    @Published var closeAllCombo: KeyCombo? { didSet { store(closeAllCombo, "closeAllHotkey"); refreshHotkeys() } }
+    var onCloseAllHotkey: (() -> Void)?
     /// アプリ起動のホットキー: shows the main window from any app while VectorMate runs. ⌃⌥⌘; by default; per Mac (not shared).
     @Published var launchCombo: KeyCombo? { didSet { store(launchCombo, "launchHotkey"); refreshHotkeys() } }
     var onLaunchHotkey: (() -> Void)?
@@ -71,6 +123,8 @@ final class Model: ObservableObject {
     @Published var guideInTrim: Bool { didSet { defaults.set(guideInTrim, forKey: "guideInTrimView"); refreshHotkeys() } }
     static let guideCombo = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.command)
     static let guideNumber: UInt32 = 6
+    static let transformNumber: UInt32 = 7
+    static let closeAllNumber: UInt32 = 8
     /// ツール: a modifier key (⌃ by default) tapped twice selects the Selection tool; the Artboard / Gradient tool opens its panel. Off by default.
     @Published var doubleTap: Bool { didSet { defaults.set(doubleTap, forKey: "controlDoubleTapSelect"); refreshToolWatcher() } }
     @Published var tapKey: ToolWatcher.TapKey { didSet { defaults.set(tapKey.rawValue, forKey: "doubleTapKey"); refreshToolWatcher() } }
@@ -82,6 +136,8 @@ final class Model: ObservableObject {
     static let darkerDefault = KeyCombo(code: UInt32(kVK_F1), modifiers: KeyCombo.shift)
     static let paletteDefault = KeyCombo(code: UInt32(kVK_ANSI_U), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
     static let quickDefault = KeyCombo(code: UInt32(kVK_ANSI_Q), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
+    static let transformDefault = KeyCombo(code: UInt32(kVK_ANSI_T), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
+    static let closeAllDefault = KeyCombo(code: UInt32(kVK_ANSI_W), modifiers: KeyCombo.option)
     static let launchDefault = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
     static let brighterNumber: UInt32 = 1, darkerNumber: UInt32 = 2, paletteNumber: UInt32 = 3, quickNumber: UInt32 = 4, launchNumber: UInt32 = 5
     let hotkeys = HotkeySet(signature: "VcMt")
@@ -106,7 +162,20 @@ final class Model: ObservableObject {
         // Up to 2.2 the unset key was saved as null; 2.3 gives it the default ⌃⌥⌘Q once.
         if !defaults.bool(forKey: "quickDefaultApplied") { defaults.removeObject(forKey: "quickHotkey"); defaults.set(true, forKey: "quickDefaultApplied") }
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
+        // 2.8.0 saved the unset key as null; 2.8.2 gives it the default ⌃⌥⌘T once.
+        if !defaults.bool(forKey: "transformDefaultApplied") { defaults.removeObject(forKey: "transformHotkey"); defaults.set(true, forKey: "transformDefaultApplied") }
+        transformCombo = defaults.data(forKey: "transformHotkey") == nil ? Self.transformDefault : Self.load("transformHotkey")
+        closeAllCombo = defaults.data(forKey: "closeAllHotkey") == nil ? Self.closeAllDefault : Self.load("closeAllHotkey")
         launchCombo = defaults.data(forKey: "launchHotkey") == nil ? Self.launchDefault : Self.load("launchHotkey")
+        let base = Self.loadSyncFolder()
+        syncFolder = base
+        let shortcut = Self.loadShortcutSource(base: base), sources = Self.loadLinkSources(base: base)
+        (shortcutSource, shortcutSetName) = shortcut
+        linkSources = sources
+        // Assignments in init do not run didSet: the migrated values are saved here.
+        UserDefaults.standard.set(shortcut.source, forKey: "shortcutSource")
+        UserDefaults.standard.set(shortcut.name, forKey: "shortcutSetName")
+        for (kind, path) in sources { UserDefaults.standard.set(path, forKey: kind.storeKey) }
         guideInTrim = defaults.bool(forKey: "guideInTrimView")
         doubleTap = defaults.bool(forKey: "controlDoubleTapSelect")
         tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
@@ -115,7 +184,7 @@ final class Model: ObservableObject {
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
-            if number == Self.guideNumber { self?.showGuides() } else if number == Self.launchNumber { self?.onLaunchHotkey?() } else if number == Self.paletteNumber { self?.onPaletteHotkey?() } else if number == Self.quickNumber { self?.onQuickHotkey?() } else { self?.stepBrightness(number == Self.brighterNumber ? 1 : -1, fromHotkey: true) }
+            if number == Self.guideNumber { self?.showGuides() } else if number == Self.launchNumber { self?.onLaunchHotkey?() } else if number == Self.paletteNumber { self?.onPaletteHotkey?() } else if number == Self.quickNumber { self?.onQuickHotkey?() } else if number == Self.transformNumber { self?.onTransformHotkey?() } else if number == Self.closeAllNumber { self?.onCloseAllHotkey?() } else { self?.stepBrightness(number == Self.brighterNumber ? 1 : -1, fromHotkey: true) }
         }
         // After recording, register again so a conflict with another app is reported.
         HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
@@ -183,7 +252,8 @@ final class Model: ObservableObject {
 
     func refreshHotkeys() {
         let front = Illustrator.isIllustrator(NSWorkspace.shared.frontmostApplication)
-        let pairs = [(Self.brighterNumber, brighterCombo), (Self.darkerNumber, darkerCombo), (Self.paletteNumber, paletteCombo), (Self.quickNumber, quickCombo)]
+        let pairs = [(Self.brighterNumber, brighterCombo), (Self.darkerNumber, darkerCombo), (Self.paletteNumber, paletteCombo), (Self.quickNumber, quickCombo),
+                     (Self.transformNumber, transformCombo), (Self.closeAllNumber, closeAllCombo)]
         let state = "\(hotkeysEnabled):\(front):\(pairs.map { "\($0.0)=\($0.1?.label ?? "-")" }):\(launchCombo?.label ?? "-"):\(guideInTrim)"
         guard state != registeredState else { return }
         registeredState = state
@@ -208,7 +278,8 @@ final class Model: ObservableObject {
     private func publishHotkeys() {
         let apps = [Illustrator.bundlePrefix]
         let entries: [(String, String, KeyCombo?)] = [("brighter", L("hotkey.brighter"), brighterCombo), ("darker", L("hotkey.darker"), darkerCombo),
-                                                      ("palette", L("hotkey.palette"), paletteCombo), ("quick", L("hotkey.quick"), quickCombo)]
+                                                      ("palette", L("hotkey.palette"), paletteCombo), ("quick", L("hotkey.quick"), quickCombo),
+                                                      ("transform", L("hotkey.transform"), transformCombo), ("closeAll", L("hotkey.closeAll"), closeAllCombo)]
         var items = entries.compactMap { id, title, combo in
             combo.map { HotkeyManifest.Item(id: id, title: title, keyCode: Int($0.code), modifiers: Int($0.modifiers), enabled: hotkeysEnabled, scope: "only", apps: apps) }
         }
@@ -226,6 +297,8 @@ final class Model: ObservableObject {
     func otherHotkeys(except number: UInt32) -> [(String, KeyCombo)] {
         let all: [(UInt32, String, KeyCombo?)] = [(Self.brighterNumber, L("hotkey.brighter"), brighterCombo), (Self.darkerNumber, L("hotkey.darker"), darkerCombo),
                                                   (Self.paletteNumber, L("hotkey.palette"), paletteCombo), (Self.quickNumber, L("hotkey.quick"), quickCombo),
+                                                  (Self.transformNumber, L("hotkey.transform"), transformCombo),
+                                                  (Self.closeAllNumber, L("hotkey.closeAll"), closeAllCombo),
                                                   (Self.launchNumber, L("launch.hotkey"), launchCombo)]
         return all.compactMap { entry in entry.0 == number ? nil : entry.2.map { (entry.1, $0) } }
     }
@@ -278,6 +351,7 @@ final class Model: ObservableObject {
         case .controlNotFound: return L("fail.controlNotFound")
         case .notChanged: return L("fail.notChanged")
         case .failed(let message): return String(format: L("fail.script"), message)
+        case .message(let text): return text
         }
     }
 
@@ -342,7 +416,7 @@ final class Model: ObservableObject {
     func checkFileHandling() {
         guard !busy else { return }
         perform(FileHandling.read) { [unowned self] result in
-            if case .success(let state) = result { fileHandling = state; fileHandlingKnownAt = Date() }
+            if case .success(let state) = result { fileHandling = state; fileHandlingKnownAt = Date(); fileHandlingConfirmed = true }
             let message = outcome(result) { _ in L("file.checked") }
             fileResult = message
             return message
@@ -351,7 +425,7 @@ final class Model: ObservableObject {
     func setFileHandling(_ wanted: FileHandling.State, message success: String) {
         guard !busy else { return }
         perform({ FileHandling.apply(wanted) }) { [unowned self] result in
-            if case .success(let before) = result { var after = before; wanted.forEach { after[$0.key] = $0.value }; fileHandling = after; fileHandlingKnownAt = Date() }
+            if case .success(let before) = result { var after = before; wanted.forEach { after[$0.key] = $0.value }; fileHandling = after; fileHandlingKnownAt = Date(); fileHandlingConfirmed = true }
             let message = outcome(result) { _ in success }
             fileResult = message
             return message
@@ -372,6 +446,131 @@ final class Model: ObservableObject {
                 String(format: L(detail ? "units.doneDetail" : "units.done"), set.name) + (applied.documentSkipped ? L("units.noDocument") : "")
             }
             unitResult = message
+            return message
+        }
+    }
+
+    // MARK: 環境設定セット
+
+    /// prefValues with the values JavaScript cannot read (File Handling, ガイドをロック) as last known.
+    var currentPrefValues: PrefValues? { prefValues.map { $0.overlaid(files: fileHandling, guideLock: guideLock) } }
+
+    /// Writes the set from JavaScript; brightness, File Handling, ガイドをロック and the Shape Builder color are changed only when they differ.
+    func applyPrefPreset(_ id: String) {
+        guard !busy, let set = prefPresets.first(where: { $0.id == id }) else { return }
+        let confirmed = fileHandlingConfirmed ? fileHandling : nil
+        prefValues = set.values   // shown at once; the read-back corrects it
+        perform({ PrefPresets.apply(set.values, confirmedFiles: confirmed) }) { [unowned self] result in
+            if case .success(let applied) = result {
+                prefValues = applied.values
+                guideLock = applied.guideLock
+                if let files = applied.files { fileHandling = files; fileHandlingKnownAt = Date(); fileHandlingConfirmed = true }
+            }
+            var message = outcome(result) { applied in
+                String(format: L(applied.values.matches(set.values, ignoring: applied.ignoring) ? "prefsets.done" : "prefsets.partly"), set.name)
+                    + (applied.skipped.isEmpty ? "" : String(format: L("prefsets.skippedNoDocument"), applied.skipped.map(L).joined(separator: L("list.separator"))))
+            }
+            if case .success(let applied) = result, let problem = applied.problem {
+                message = OperationResult(text: String(format: L("prefsets.failedPart"), set.name, failureText(problem)), isError: true)
+            }
+            prefResult = message
+            return message
+        }
+    }
+    /// Replaces the values of the set in the draft with Illustrator's current preferences (saved by ［上書き］). File Handling is read in the dialog box;
+    /// when that fails, the last known checkboxes (or the set's own values) are kept.
+    func capturePrefs(into id: String) {
+        guard !busy else { return }
+        perform({ PrefPresets.read().map { ($0, try? FileHandling.read().get(), runningIllustrator().flatMap(GuideLock.read)) } }) { [unowned self] result in
+            if case .success(let (read, files, lock)) = result {
+                if let files { fileHandling = files; fileHandlingKnownAt = Date(); fileHandlingConfirmed = true }
+                guideLock = lock
+                prefValues = read
+                if let index = editingPrefPresets.firstIndex(where: { $0.id == id }) {
+                    // What could not be read keeps the set's own value.
+                    let own = editingPrefPresets[index].values
+                    editingPrefPresets[index].values = read.overlaid(files: fileHandling ?? own.fileHandling, guideLock: lock ?? own.lockGuides)
+                }
+            }
+            let name = editingPrefPresets.first { $0.id == id }?.name ?? ""
+            let message = outcome(result) { _ in String(format: L("prefsets.captured"), name) }
+            prefResult = message
+            return message
+        }
+    }
+
+    // MARK: キーボードショートカット
+
+    /// Links every .kys of the folder into the settings folder and chooses the selected set in 編集 → キーボードショートカット.
+    func installShortcutSet() {
+        guard !busy else { return }
+        let source = SyncFolder.resolve(shortcutSource, base: syncFolder)
+        var isFolder: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: source.path, isDirectory: &isFolder), isFolder.boolValue else {
+            shortcutResult = OperationResult(text: String(format: L("kbsc.noSource"), source.path), isError: true)
+            NSSound.beep()
+            return
+        }
+        let name = shortcutSetName
+        perform({ ShortcutSet.install(source, name: name) }) { [unowned self] result in
+            var message = outcome(result) { installed in
+                let text: String
+                switch installed.choice {
+                case .chosen?: text = L("kbsc.chosen")
+                case .alreadyChosen?: text = L("kbsc.already")
+                case .notListed?: text = L("kbsc.restart")
+                case nil: text = installed.problem == nil ? L("kbsc.notRunning") : ""
+                }
+                let links = installed.links
+                return String(format: L("kbsc.linked"), links.total) + String(format: text, installed.name)
+                    + (links.backups.map { String(format: L("links.moved"), links.moved, $0.path) } ?? "")
+            }
+            // Linked, but the set could not be chosen: both are reported, as an error.
+            if case .success(let installed) = result, let problem = installed.problem {
+                message = OperationResult(text: String(format: L("kbsc.linked"), installed.links.total) + failureText(problem), isError: true)
+            }
+            shortcutResult = message
+            return message
+        }
+    }
+
+    /// まとめて同期: document profiles and composite fonts (at once), then the keyboard shortcut sets (which may operate Illustrator).
+    /// Each result shows under its own section.
+    func syncAll() {
+        guard !busy else { return }
+        FolderLinks.Kind.allCases.forEach(linkFolder)
+        installShortcutSet()
+    }
+
+    /// Links every file of the synced folder into Illustrator's folder (no Illustrator operation, so done at once).
+    func linkFolder(_ kind: FolderLinks.Kind) {
+        let source = SyncFolder.resolve(linkSources[kind] ?? kind.defaultSource, base: syncFolder)
+        var isFolder: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: source.path, isDirectory: &isFolder), isFolder.boolValue else {
+            linkResults[kind] = OperationResult(text: String(format: L("links.noSource"), source.path), isError: true)
+            NSSound.beep()
+            return
+        }
+        let result = FolderLinks.link(kind, source: source, app: Illustrator.running)
+        let message = outcome(result) { summary in
+            String(format: L("links.done"), summary.total, summary.created, summary.replaced, summary.existing)
+                + (summary.backups.map { String(format: L("links.moved"), summary.moved, $0.path) } ?? "")
+        }
+        if message.isError { NSSound.beep() }
+        linkResults[kind] = message
+    }
+
+    // MARK: その他
+
+    /// Quits Illustrator, moves its cache and settings of that version to the Trash, and launches it again.
+    func factoryReset() {
+        guard !busy else { return }
+        let includeCache = resetIncludesCache
+        perform({ FactoryReset.run(includeCache: includeCache) }) { [unowned self] result in
+            let message = outcome(result) { done in
+                String(format: L(done.launched ? "reset.done" : "reset.doneNotLaunched"), done.trashed.count)
+            }
+            resetResult = message
             return message
         }
     }
@@ -431,7 +630,7 @@ final class Model: ObservableObject {
     /// Reads brightness, the menu checkmarks and the Shape Builder color (never launches Illustrator, opens no dialog box).
     func refreshSettingsState() {
         guard !busy, let app = Illustrator.running else {
-            if Illustrator.running == nil { brightnessIndex = nil; interface = nil; shapeSource = nil; shapeNoDocument = false; units = nil }
+            if Illustrator.running == nil { brightnessIndex = nil; interface = nil; shapeSource = nil; shapeNoDocument = false; units = nil; prefValues = nil; guideLock = nil }
             return
         }
         DispatchQueue.global(qos: .utility).async {
@@ -439,13 +638,17 @@ final class Model: ObservableObject {
             let menus = try? InterfaceMenus.read().get()
             let shape = ShapeBuilderColor.read(app)
             let units = try? UnitSettings.read(app).get()
+            let prefs = try? PrefPresets.read(app).get()
             let files = FileHandling.readFiles(app)
+            let lock = GuideLock.read(app)
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     self.brightnessIndex = brightness
                     self.interface = menus
                     self.units = units
-                    if let files, files.written > self.fileHandlingKnownAt { self.fileHandling = files.state; self.fileHandlingKnownAt = files.written }
+                    self.prefValues = prefs
+                    if let files, files.written > self.fileHandlingKnownAt { self.fileHandling = files.state; self.fileHandlingKnownAt = files.written; self.fileHandlingConfirmed = false }
+                    self.guideLock = lock
                     self.shapeSource = try? shape.get()
                     if case .failure(.noDocument) = shape { self.shapeNoDocument = true } else { self.shapeNoDocument = false }
                 }
@@ -463,7 +666,7 @@ final class Model: ObservableObject {
 
     /// Keys shared by 設定の共有 (export/import and sync). 起動・常駐・メニューバー stay per Mac.
     static let sharedKeys: Set<String> = ["metricsEnabled", "metricsOffEnabled", "notifyApplied", "hotkeysEnabled",
-                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", UnitSet.storeKey, "unitPaletteDetail",
+                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", "transformHotkey", "closeAllHotkey", UnitSet.storeKey, "unitPaletteDetail", PrefPreset.storeKey, SyncFolder.storeKey, "shortcutSource", "shortcutSetName", "linkSource.profiles", "linkSource.compositeFonts",
                                           "guideInTrimView", "controlDoubleTapSelect", "doubleTapKey", "artboardToolPanel", "gradientToolPanel"]
     /// Re-reads the shared settings after SettingsSync applied them, so the next save does not write the old values back.
     func reloadSharedSettings() {
@@ -475,9 +678,15 @@ final class Model: ObservableObject {
         darkerCombo = Self.load("darkerHotkey") ?? Self.darkerDefault
         paletteCombo = defaults.data(forKey: "paletteHotkey") == nil ? Self.paletteDefault : Self.load("paletteHotkey")
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
+        transformCombo = defaults.data(forKey: "transformHotkey") == nil ? Self.transformDefault : Self.load("transformHotkey")
+        closeAllCombo = defaults.data(forKey: "closeAllHotkey") == nil ? Self.closeAllDefault : Self.load("closeAllHotkey")
         unitSets = UnitSet.load()
         unitDetail = defaults.bool(forKey: "unitPaletteDetail")
+        prefPresets = PrefPreset.load()
         guideInTrim = defaults.bool(forKey: "guideInTrimView")
+        syncFolder = Self.loadSyncFolder()
+        (shortcutSource, shortcutSetName) = Self.loadShortcutSource(base: syncFolder)
+        linkSources = Self.loadLinkSources(base: syncFolder)
         doubleTap = defaults.bool(forKey: "controlDoubleTapSelect")
         tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
         artboardPanel = defaults.bool(forKey: "artboardToolPanel")
@@ -589,7 +798,7 @@ struct Note: View {
     var body: some View { Text(text).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
 }
 
-/// 基本UI: brightness, the menu checkmarks of ViewToggles' basic UI, and オールドスクール設定.
+/// 基本UI: brightness, the menu checkmarks of ViewToggles' basic UI, and クラシック表示.
 struct InterfacePage: View {
     @ObservedObject var model: Model
     var body: some View {
@@ -618,11 +827,72 @@ struct InterfacePage: View {
     }
 }
 
-/// テキスト: メトリクス → プロポーショナルメトリクス.
-struct TextPage: View {
+/// 同期: the keyboard shortcut sets, document profiles and composite fonts kept in synced folders.
+struct CustomPage: View {
     @ObservedObject var model: Model
     var body: some View {
-        FeaturePage(title: L("metrics.title")) {
+        FeaturePage(title: L("sync.title")) {
+            HStack(spacing: 8) {
+                TextField("", text: $model.syncFolder).frame(maxWidth: .infinity)
+                Button(L("kbsc.choose")) { choose(from: model.syncFolder, relative: false) { model.syncFolder = $0 } }
+            }
+            HStack {
+                Button(L("sync.all")) { model.syncAll() }.disabled(model.busy)
+            }.padding(.top, 4)
+            GroupTitle(text: L("kbsc.title")).padding(.top, 8)
+            sourceRow(text: $model.shortcutSource) { choose(from: model.shortcutSource) { model.shortcutSource = $0 } }
+            let names = model.shortcutSetNames
+            HStack(spacing: 8) {
+                Text(L("kbsc.set"))
+                Picker("", selection: Binding(get: { names.contains(model.shortcutSetName) ? model.shortcutSetName : (names.first ?? "") },
+                                              set: { model.shortcutSetName = $0 })) {
+                    ForEach(names, id: \.self) { Text($0).tag($0) }
+                }
+                .labelsHidden().fixedSize().disabled(names.isEmpty)
+                if names.isEmpty { Text(L("kbsc.noSets")).font(.caption).foregroundColor(.secondary) }
+            }
+            HStack {
+                Button(L("kbsc.install")) { model.installShortcutSet() }.disabled(model.busy)
+            }.padding(.top, 4)
+            ResultRow(result: model.shortcutResult)
+            ForEach(FolderLinks.Kind.allCases, id: \.self) { kind in
+                let path = model.linkSources[kind] ?? kind.defaultSource
+                GroupTitle(text: L("links.title." + kind.rawValue)).padding(.top, 8)
+                sourceRow(text: Binding(get: { path }, set: { model.linkSources[kind] = $0 })) {
+                    choose(from: path) { model.linkSources[kind] = $0 }
+                }
+                HStack {
+                    Button(L("links.link")) { model.linkFolder(kind) }
+                }.padding(.top, 4)
+                ResultRow(result: model.linkResults[kind])
+            }
+        }
+    }
+    private func sourceRow(text: Binding<String>, choose: @escaping () -> Void) -> some View {
+        HStack(spacing: 8) {
+            Text(L("kbsc.source"))
+            TextField("", text: text).frame(maxWidth: .infinity)
+            Button(L("kbsc.choose"), action: choose)
+        }
+    }
+    /// A folder; saved relative to the synced folder when inside it.
+    private func choose(from path: String, relative: Bool = true, _ done: (String) -> Void) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        let current = relative ? SyncFolder.resolve(path, base: model.syncFolder) : SyncFolder.base(path)
+        panel.directoryURL = current
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        done(relative ? SyncFolder.relative(url, base: model.syncFolder) : (url.path as NSString).abbreviatingWithTildeInPath)
+    }
+}
+
+/// メトリクス → プロポーショナルメトリクス (in the その他 tab; formerly the テキスト tab).
+struct MetricsSection: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        Group {
             Toggle(L("metrics.toggle"), isOn: $model.metricsEnabled)
             Toggle(L("metrics.toggleOff"), isOn: $model.metricsOffEnabled).disabled(!model.metricsEnabled).padding(.leading, 20)
             Toggle(L("notify.toggle"), isOn: $model.notifyApplied).disabled(!model.metricsEnabled).padding(.leading, 20)
@@ -644,7 +914,6 @@ struct MainView: View {
         VStack(alignment: .leading, spacing: 16) {
             Header().fixedSize(horizontal: false, vertical: true)
             MainTabs(pages: [
-                ("text", L("tab.text"), AnyView(TextPage(model: model))),
                 ("interface", L("tab.interface"), AnyView(InterfacePage(model: model))),
                 ("tools", L("tab.tools"), AnyView(FeaturePage(title: L("shape.title")) {
                     Picker("", selection: Binding(get: { model.shapeSource ?? .artwork }, set: { model.setShapeSource($0) })) {
@@ -671,28 +940,22 @@ struct MainView: View {
                     Note(text: L("tool.panelDetail"))
                     if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel) { Note(text: AccessibilityText.text("blocked")) }
                 })),
-                ("file", L("tab.file"), AnyView(FeaturePage(title: L("file.title")) {
-                    ForEach(FileHandling.Item.allCases, id: \.self) { item in
-                        Toggle(L("file." + item.rawValue), isOn: Binding(get: { model.fileHandling?[item] ?? false }, set: { model.setFileHandling(item, $0) }))
-                            .disabled(model.busy)
-                    }
-                    HStack {
-                        Button(L("file.check")) { model.checkFileHandling() }.disabled(model.busy)
-                        if model.fileHandling == nil { Text(L("file.unchecked")).font(.caption).foregroundColor(.secondary) }
-                    }
-                    Note(text: L("file.detail"))
-                    ResultRow(result: model.fileResult)
-                })),
+                ("prefs", L("prefsets.mainTab"), AnyView(PrefPresetsPage(model: model))),
                 ("version", L("version.tab"), AnyView(VersionSwitchView())),
-                ("other", L("tab.other"), AnyView(FeaturePage(title: L("other.title")) {
+                ("custom", L("tab.custom"), AnyView(CustomPage(model: model))),
+                ("other", L("tab.other"), AnyView(FeaturePage(title: L("metrics.title")) {
+                    MetricsSection(model: model)
+                    GroupTitle(text: L("other.title")).padding(.top, 8)
                     Toggle(L("other.guide"), isOn: $model.guideInTrim)
                     Note(text: L("other.guideDetail"))
+                    FactoryResetSection(model: model)
                 }))
             ])
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
                 Button(L("palette.title")) { (NSApp.delegate as? AppDelegate)?.showUnitPalette() }
                 Button(L("quick.title")) { (NSApp.delegate as? AppDelegate)?.showQuickPalette() }
+                Button(L("transform.title")) { (NSApp.delegate as? AppDelegate)?.showTransformPalette() }
                 Spacer()
                 if model.busy { ProgressView().controlSize(.small); Text(L("working")).font(.caption).foregroundColor(.secondary) }
                 Button(L("reload")) { model.refreshSettingsState() }.disabled(model.busy)
@@ -747,6 +1010,13 @@ struct Preferences: View {
                                 registered: !model.failedHotkeys.contains(Model.quickNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.quickHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                SettingsSection(L("transform.title")) {
+                    Text(L("hotkey.transform"))
+                    HotkeyField(id: "transform", combo: $model.transformCombo, defaultCombo: Model.transformDefault, allowsClear: true,
+                                others: model.otherHotkeys(except: Model.transformNumber),
+                                registered: !model.failedHotkeys.contains(Model.transformNumber), isEnabled: model.hotkeysEnabled)
+                    Text(L("hotkey.transformHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
                 SettingsSection(L("palette.title")) {
                     Text(L("hotkey.palette"))
                     HotkeyField(id: "palette", combo: $model.paletteCombo, defaultCombo: Model.paletteDefault, allowsClear: true,
@@ -754,8 +1024,16 @@ struct Preferences: View {
                                 registered: !model.failedHotkeys.contains(Model.paletteNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.paletteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                SettingsSection(L("closeAll.title")) {
+                    Text(L("hotkey.closeAll"))
+                    HotkeyField(id: "closeAll", combo: $model.closeAllCombo, defaultCombo: Model.closeAllDefault, allowsClear: true,
+                                others: model.otherHotkeys(except: Model.closeAllNumber),
+                                registered: !model.failedHotkeys.contains(Model.closeAllNumber), isEnabled: model.hotkeysEnabled)
+                    Text(L("hotkey.closeAllHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
             })),
             (L("sets.tab"), AnyView(UnitSetsEditor(model: model))),
+            (L("prefsets.tab"), AnyView(PrefPresetsEditor(model: model))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
@@ -775,6 +1053,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     let launchedAt = Date()
     lazy var unitPalette = UnitPalette(model: model)
     lazy var quickPalette = QuickPrefsPalette(model: model)
+    lazy var transformPalette = QuickTransformPalette(model: model)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let loginLaunch = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
@@ -799,6 +1078,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         menu.addItem(.separator())
         add(menu, L("palette.menu"), #selector(showUnitPalette))
         add(menu, L("quick.menu"), #selector(showQuickPalette))
+        add(menu, L("transform.menu"), #selector(showTransformPalette))
         add(menu, L("openMainWindow"), #selector(showMain))
         add(menu, L("settings"), #selector(showPreferences))
         let help = NSMenu(title: L("help")); add(help, L("helpItem"), #selector(showHelp)); HelpLinks.addNoteItem(to: help)
@@ -813,13 +1093,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         model.onChange = { [weak self] in self?.updateStatusItem() }
         model.onPaletteHotkey = { [weak self] in self?.unitPalette.toggle() }
         model.onQuickHotkey = { [weak self] in self?.quickPalette.toggle() }
+        model.onTransformHotkey = { [weak self] in self?.transformPalette.toggle() }
+        model.onCloseAllHotkey = { [weak self] in self?.closeAllPalettes() }
         model.onLaunchHotkey = { [weak self] in self?.showMain() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
-            note: StartupWindow.text("メトリクスの設定・ホットキー・単位セット・単位パレットのモードを書き出し・同期します。",
-                                     "Exports and syncs the Metrics options, the hotkeys, the unit sets and the Units Palette mode.",
-                                     "导出并同步度量标准设置、快捷键、单位组合和单位面板的模式。",
-                                     "메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드를 내보내고 동기화합니다."),
+            note: StartupWindow.text("メトリクスの設定・ホットキー・単位セット・単位パレットのモード・環境設定セットを書き出し・同期します。",
+                                     "Exports and syncs the Metrics options, the hotkeys, the unit sets, the Units Palette mode and the preference sets.",
+                                     "导出并同步度量标准设置、快捷键、单位组合、单位面板的模式和偏好设置组合。",
+                                     "메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드, 환경설정 세트를 내보내고 동기화합니다."),
             perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。",
                                        "Open at login, staying in the background and the menu bar icon are set on each Mac.",
                                        "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
@@ -863,6 +1145,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         add(file, L("openMainWindow"), #selector(showMain), "0")
         add(file, L("palette.menu"), #selector(showUnitPalette))
         add(file, L("quick.menu"), #selector(showQuickPalette))
+        add(file, L("transform.menu"), #selector(showTransformPalette))
         file.addItem(.separator())
         add(file, L("bg.menu"), #selector(turnOffBackground))
         file.addItem(.separator())
@@ -896,7 +1179,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             // The activation that comes with launching respects 起動時にメインウインドウを表示しない.
             guard let self, NSApp.isActive, !(StartupWindow.hidden && Date().timeIntervalSince(self.launchedAt) < 2) else { return }
             let windows = NSApp.windows.filter { !($0 is NSPanel) && $0.canBecomeMain && $0.styleMask.contains(.titled) }
-            guard !windows.contains(where: { $0.isVisible }), !self.unitPalette.isVisible, !self.quickPalette.isVisible else { return }
+            guard !windows.contains(where: { $0.isVisible }), !self.unitPalette.isVisible, !self.quickPalette.isVisible, !self.transformPalette.isVisible else { return }
             if let minimized = windows.first(where: { $0.isMiniaturized }) { minimized.deminiaturize(nil) } else { self.showMain() }
         }
     }
@@ -910,7 +1193,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     @objc func togglePause() { model.paused.toggle() }
     @objc func showUnitPalette() { unitPalette.show() }
+    /// ⌥W: closes whichever of the three palettes are open.
+    func closeAllPalettes() {
+        if unitPalette.isVisible { unitPalette.toggle() }
+        if quickPalette.isVisible { quickPalette.toggle() }
+        if transformPalette.isVisible { transformPalette.toggle() }
+    }
     @objc func showQuickPalette() { quickPalette.show() }
+    @objc func showTransformPalette() { transformPalette.show() }
     @objc func turnOffBackground() { model.turnOffBackground() }
     @objc func brighter() { model.stepBrightness(1) }
     @objc func darker() { model.stepBrightness(-1) }

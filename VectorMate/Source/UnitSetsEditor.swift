@@ -149,7 +149,7 @@ struct UnitSetsEditor: View {
 }
 
 /// The symbols differ in height (＋ is taller than −), so each sits in the same box and the buttons line up.
-private struct ListButtonLabel: View {
+struct ListButtonLabel: View {
     let symbol: String
     var body: some View {
         Image(systemName: symbol).font(.system(size: 11, weight: .medium)).frame(width: 16, height: 14)

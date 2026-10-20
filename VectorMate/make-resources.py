@@ -70,7 +70,6 @@ rows = [
 ('hotkey.off', 'オフ', 'Off', '关闭', '끔'),
 ('tab.interface', '基本UI', 'Basic UI', '基本界面', '기본 UI'),
 ('tab.tools', 'ツール', 'Tools', '工具', '도구'),
-('tab.file', 'バックグラウンド', 'Background', '后台', '백그라운드'),
 ('hotkey.open', 'ホットキーを設定…', 'Set Hotkeys…', '设置快捷键…', '단축키 설정…'),
 ('ui.title', '表示', 'Display', '显示', '표시'),
 ('ui.advancedToolbar', 'ツールバー（詳細）', 'Toolbar (Advanced)', '工具栏（高级）', '도구 막대(고급)'),
@@ -78,10 +77,11 @@ rows = [
 ('ui.controlBar', 'コントロールバー', 'Control Bar', '控制栏', '컨트롤 막대'),
 ('ui.helpBar', 'ヘルプバー', 'Help Bar', '帮助栏', '도움말 막대'),
 ('ui.applicationBar', 'アプリケーションバー', 'Application Bar', '应用程序栏', '응용 프로그램 막대'),
+('ui.applicationFrame', 'アプリケーションフレーム', 'Application Frame', '应用程序框架', '응용 프로그램 프레임'),
 ('ui.snapToGlyph', 'グリフにスナップ', 'Snap to Glyph', '对齐字形', '글리프에 물리기'),
-('ui.oldSchool', 'オールドスクール設定', 'Old-School Setup', '经典设置', '올드스쿨 설정'),
-('ui.oldSchoolDetail', 'ツールバー：詳細／コントロールバー：ON／ヘルプバー：OFF／アプリケーションバー：OFF／グリフにスナップ：OFF／コンテキストタスクバー：OFF。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。', 'Toolbar: Advanced / Contextual Task Bar: off / Control Bar: on / Snap to Glyph: off / Help Bar: off / Application Bar: off. The toolbar’s two-column layout cannot be switched from here; use « » at the top of the toolbar.', '工具栏：高级／上下文任务栏：关／控制栏：开／对齐字形：关／帮助栏：关／应用程序栏：关。工具栏的双栏显示无法在此切换，请使用工具栏顶部的 «»。', '도구 막대: 고급 / 상황별 작업 표시줄: 끔 / 컨트롤 막대: 켬 / 글리프에 물리기: 끔 / 도움말 막대: 끔 / 응용 프로그램 막대: 끔. 도구 막대 2열 표시는 여기서 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.'),
-('ui.oldSchoolDone', 'オールドスクール設定にしました', 'Old-school setup applied', '已应用经典设置', '올드스쿨 설정을 적용했습니다'),
+('ui.oldSchool', 'クラシック表示', 'Classic Layout', '经典布局', '클래식 레이아웃'),
+('ui.oldSchoolDetail', 'ツールバー：詳細／コントロールバー：ON／ヘルプバー：OFF／アプリケーションバー：OFF／アプリケーションフレーム：OFF／グリフにスナップ：OFF／コンテキストタスクバー：OFF。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。', 'Toolbar: Advanced / Contextual Task Bar: off / Control Bar: on / Snap to Glyph: off / Help Bar: off / Application Bar: off / Application Frame: off. The toolbar’s two-column layout cannot be switched from here; use « » at the top of the toolbar.', '工具栏：高级／上下文任务栏：关／控制栏：开／对齐字形：关／帮助栏：关／应用程序栏：关／应用程序框架：关。工具栏的双栏显示无法在此切换，请使用工具栏顶部的 «»。', '도구 막대: 고급 / 상황별 작업 표시줄: 끔 / 컨트롤 막대: 켬 / 글리프에 물리기: 끔 / 도움말 막대: 끔 / 응용 프로그램 막대: 끔 / 응용 프로그램 프레임: 끔. 도구 막대 2열 표시는 여기서 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.'),
+('ui.oldSchoolDone', 'クラシック表示にしました', 'Classic layout applied', '已应用经典布局', '클래식 레이아웃을 적용했습니다'),
 ('ui.turnedOn', '%@をONにしました', 'Turned on: %@', '已打开：%@', '%@을(를) 켰습니다'),
 ('ui.turnedOff', '%@をOFFにしました', 'Turned off: %@', '已关闭：%@', '%@을(를) 껐습니다'),
 ('file.title', '保存・書き出し', 'Save and Export', '存储与导出', '저장·내보내기'),
@@ -93,7 +93,6 @@ rows = [
 ('file.checked', '現在の設定を読み込みました', 'Read the current settings', '已读取当前设置', '현재 설정을 읽었습니다'),
 ('file.detail', 'Illustratorの［設定］→［ファイル管理］の項目です。現在の状態はIllustratorの設定ファイルから読みます（Illustratorで変えた分は、終了時に書き込まれるまで反映されないことがあります。「確認」はダイアログボックスを開いて読みます）。チェックを切り替えると、環境設定のダイアログボックスを開いて変えます（アクセシビリティの許可が必要です）。', 'Items of Illustrator Settings → File Handling. The state is read from Illustrator’s preference files (a change made in Illustrator may not be there until it quits; Check reads the dialog box). Each change opens the Settings dialog box (needs the Accessibility permission).', 'Illustrator“设置 → 文件处理”中的项目。当前状态从 Illustrator 的设置文件读取（在 Illustrator 中的更改可能要退出时才写入；“检查”会打开对话框读取）。每次切换都会打开设置对话框（需要辅助功能权限）。', 'Illustrator 설정 → 파일 처리의 항목입니다. 현재 상태는 Illustrator 설정 파일에서 읽습니다(Illustrator에서 바꾼 내용은 종료할 때 기록될 수 있습니다. 확인은 대화상자를 열어 읽습니다). 전환할 때마다 설정 대화상자를 엽니다(손쉬운 사용 권한 필요).'),
 ('bg.done', 'バックグラウンド保存・書き出しをオフにしました', 'Background save and export turned off', '已关闭后台存储与导出', '백그라운드 저장·내보내기를 껐습니다'),
-('tab.text', 'テキスト', 'Text', '文字', '문자'),
 ('units.title', '単位', 'Units', '单位', '단위'),
 ('units.preset.mmPt', 'プリント（pt）', 'Print (pt)', '印刷（pt）', '인쇄(pt)'),
 ('units.preset.mmQH', 'プリント（級）', 'Print (Q)', '印刷（级）', '인쇄(급)'),
@@ -156,6 +155,102 @@ rows = [
 ('sets.grid', '透明グリッドの色', 'Transparency grid colors', '透明度网格颜色', '투명도 격자 색상'),
 ('sets.gridMatchTop', '上側の色にそろえる', 'Match the upper color', '与上方颜色一致', '위쪽 색상에 맞추기'),
 ('sets.gridColor', '2色とも指定した色', 'Both to this color', '两种颜色都设为指定颜色', '두 색 모두 지정한 색'),
+('prefsets.mainTab', '環境設定', 'Preferences', '首选项', '환경설정'),
+('prefsets.tab', '環境設定セット', 'Preference Sets', '首选项组合', '환경설정 세트'),
+('prefsets.title', '環境設定セット', 'Preference Sets', '首选项组合', '환경설정 세트'),
+('prefsets.setsTitle', '環境設定のセット', 'Sets of Preferences', '首选项的组合', '환경설정 세트'),
+('prefsets.preset.default', 'デフォルト', 'Default', '默认', '기본값'),
+('prefsets.preset.preset1', 'プリセット1', 'Preset 1', '预设 1', '사전 설정 1'),
+('prefsets.noMatch', '今の環境設定はどのセットとも一致しません', 'The current preferences match none of the sets', '当前首选项与任何组合都不一致', '현재 환경설정은 어느 세트와도 일치하지 않습니다'),
+('prefsets.edit', 'セットを編集…', 'Edit Sets…', '编辑组合…', '세트 편집…'),
+('prefsets.detail', 'セットを選ぶと、Illustratorの環境設定（一般・選択範囲・アートボード・テキスト・UIの明るさ・ガイド（ガイドをロックを含む）・シェイプ形成ツール・パフォーマンス・ファイル管理など）をまとめて書き換えます。UIの明るさ・シェイプ形成ツールのカラー・バックグラウンドの3項目は、今と異なるときだけダイアログボックスを開いて変えます。ガイドをロックはメニューで切り替えます（アクセシビリティの許可が必要）。ガイドをロックとシェイプ形成ツールのカラーはドキュメントが要るので、開いていなければ新規ドキュメントを作って変え、保存せずに閉じます。セットの中身は設定の「環境設定セット」タブで編集します。', 'Choosing a set rewrites Illustrator’s preferences (General, Selection, Artboards, Type, UI brightness, Guides (with Lock Guides), Shape Builder, Performance, File Handling and more) at once. UI brightness, the Shape Builder color and the three background items open their dialog boxes only when they differ, and Lock Guides is toggled from its menu (Accessibility permission needed). Lock Guides and the Shape Builder color need a document: without one, a new document is made to change them and closed without saving. The sets are edited in the Preference Sets tab of Settings.', '选择组合后，会一次性改写 Illustrator 的首选项（常规、选择、画板、文字、界面亮度、参考线（含锁定参考线）、形状生成器工具、性能、文件处理等）。界面亮度、形状生成器工具颜色和后台的 3 个项目仅在与当前不同时打开对话框更改，锁定参考线通过菜单切换（需要辅助功能权限）。锁定参考线和形状生成器工具颜色需要文档：未打开文档时会新建文档进行更改，然后不存储即关闭。组合内容在设置的“首选项组合”标签中编辑。', '세트를 고르면 Illustrator의 환경설정(일반·선택·대지·문자·UI 밝기·안내선(안내선 잠그기 포함)·도형 구성 도구·성능·파일 처리 등)을 한꺼번에 바꿉니다. UI 밝기·도형 구성 도구 색상·백그라운드 3개 항목은 현재와 다를 때만 대화상자를 열어 바꾸고, 안내선 잠그기는 메뉴로 전환합니다(손쉬운 사용 권한 필요). 안내선 잠그기와 도형 구성 도구 색상은 도큐먼트가 필요하므로, 열려 있지 않으면 새 도큐먼트를 만들어 바꾸고 저장하지 않고 닫습니다. 세트 내용은 설정의 환경설정 세트 탭에서 편집합니다.'),
+('prefsets.hint', '編集は［上書き］を押すと保存されます（Illustratorには書き込みません）。［元に戻す］で最後に保存した状態に戻ります。Illustratorに反映するのは、メインウインドウの「環境設定」タブでセットを選んだときです。「今の設定を取り込む」は、選んでいるセットの値をIllustratorの今の環境設定で置き換えます。', 'Edits are saved when you click Overwrite (nothing is written to Illustrator); Revert goes back to what was last saved. Illustrator changes when a set is chosen in the Preferences tab of the main window. Use Current Settings replaces the values of the selected set with Illustrator’s current preferences.', '点按“覆盖”时保存编辑（不会写入 Illustrator）。“还原”会回到上次保存的状态。在主窗口的“首选项”标签中选择组合时才会应用到 Illustrator。“使用当前设置”会用 Illustrator 当前的首选项替换所选组合的值。', '편집은 덮어쓰기를 누르면 저장됩니다(Illustrator에는 쓰지 않습니다). 되돌리기는 마지막으로 저장한 상태로 돌아갑니다. 메인 윈도우의 환경설정 탭에서 세트를 고를 때 Illustrator에 반영됩니다. 현재 설정 가져오기는 선택한 세트의 값을 Illustrator의 현재 환경설정으로 바꿉니다.'),
+('prefsets.resetConfirm', '環境設定セットを初期値（デフォルト・プリセット1）に戻しますか？', 'Reset the preference sets to the defaults (Default, Preset 1)?', '要将首选项组合恢复为默认（默认、预设 1）吗？', '환경설정 세트를 기본값(기본값, 사전 설정 1)으로 되돌릴까요?'),
+('prefsets.capture', '今の設定を取り込む', 'Use Current Settings', '使用当前设置', '현재 설정 가져오기'),
+('prefsets.save', '上書き', 'Overwrite', '覆盖', '덮어쓰기'),
+('prefsets.revert', '元に戻す', 'Revert', '还原', '되돌리기'),
+('prefsets.unsaved', '保存していない変更があります', 'Unsaved changes', '有未保存的更改', '저장하지 않은 변경 사항이 있습니다'),
+('prefsets.done', '環境設定を「%@」にしました', 'Preferences set to “%@”', '已将首选项设为“%@”', '환경설정을 “%@”(으)로 바꿨습니다'),
+('prefsets.partly', '環境設定を「%@」にしました（一部の項目は読み戻した値が異なります）', 'Preferences set to “%@” (some items read back differently)', '已将首选项设为“%@”（部分项目读回的值不同）', '환경설정을 “%@”(으)로 바꿨습니다(일부 항목은 다시 읽은 값이 다릅니다)'),
+('prefsets.captured', '「%@」にIllustratorの今の設定を取り込みました', 'Illustrator’s current settings copied to “%@”', '已将 Illustrator 当前设置复制到“%@”', '“%@”에 Illustrator의 현재 설정을 가져왔습니다'),
+('prefsets.cat.general', '一般', 'General', '常规', '일반'),
+('prefsets.cat.selection', '選択範囲・アンカー表示', 'Selection & Anchor Display', '选择和锚点显示', '선택 및 고정점 표시'),
+('prefsets.cat.artboard', 'アートボード', 'Artboards', '画板', '대지'),
+('prefsets.cat.text', 'テキスト', 'Type', '文字', '문자'),
+('prefsets.cat.interface', 'ユーザーインターフェイス', 'User Interface', '用户界面', '사용자 인터페이스'),
+('prefsets.cat.guides', 'ガイド', 'Guides', '参考线', '안내선'),
+('prefsets.cat.smartGuides', 'スマートガイド', 'Smart Guides', '智能参考线', '고급 안내선'),
+('prefsets.cat.performance', 'パフォーマンス', 'Performance', '性能', '성능'),
+('prefsets.cat.file', 'ファイル管理', 'File Handling', '文件处理', '파일 처리'),
+('prefsets.cat.shapeBuilder', 'シェイプ形成ツール', 'Shape Builder Tool', '形状生成器工具', '도형 구성 도구'),
+('prefsets.brightness', '明るさ :', 'Brightness:', '亮度：', '밝기:'),
+('prefsets.shapeColor', '次のカラーを利用 :', 'Pick Color From:', '拾色来源：', '색상 선택 위치:'),
+('prefsets.dialogTip', '今と異なるときだけ、セットを選んだときに環境設定のダイアログボックスを開いて変えます', 'Changed through the Settings dialog box when a set is chosen, only if it differs', '仅在与当前不同时，选择组合时打开首选项对话框更改', '현재와 다를 때만 세트를 고를 때 환경설정 대화상자를 열어 바꿉니다'),
+('prefsets.shapeTip', '今と異なるときだけ、ツールオプションを開いて変えます（ドキュメントが開いていなければ新規ドキュメントを作り、保存せずに閉じます。ツールは元に戻します）', 'Changed through the tool options only if it differs (without an open document, a new one is made and closed without saving; the tool is restored)', '仅在与当前不同时打开工具选项更改（未打开文档时会新建文档，然后不存储即关闭；工具会恢复）', '현재와 다를 때만 도구 옵션을 열어 바꿉니다(도큐먼트가 없으면 새로 만들고 저장하지 않고 닫습니다. 도구는 원래대로 돌립니다)'),
+('prefsets.lockGuides', 'ガイドをロック', 'Lock Guides', '锁定参考线', '안내선 잠그기'),
+('prefsets.lockGuidesTip', '［表示］→［ガイド］→［ガイドをロック］。ドキュメントが開いていなければ、新規ドキュメントを作って切り替え、保存せずに閉じます', 'View → Guides → Lock Guides. Without an open document, a new one is made to switch it and closed without saving', '“视图 → 参考线 → 锁定参考线”。未打开文档时，会新建文档进行切换，然后不存储即关闭', '보기 → 안내선 → 안내선 잠그기. 도큐먼트가 열려 있지 않으면 새 도큐먼트를 만들어 전환하고 저장하지 않고 닫습니다'),
+('prefsets.shapeColorName', 'シェイプ形成ツールのカラー', 'the Shape Builder color', '形状生成器工具颜色', '도형 구성 도구 색상'),
+('prefsets.skippedNoDocument', '（ドキュメントが開いていないので、%@ は変えていません）', ' (no document is open, so %@ was not changed)', '（未打开文档，未更改%@）', '(도큐먼트가 열려 있지 않아 %@은(는) 바꾸지 않았습니다)'),
+('list.separator', '・', ', ', '、', ', '),
+('prefsets.failedPart', '環境設定を「%@」にしましたが、一部の項目を変えられませんでした：%@', 'Preferences set to “%@”, but some items could not be changed: %@', '已将首选项设为“%@”，但部分项目无法更改：%@', '환경설정을 “%@”(으)로 바꿨지만 일부 항목은 바꾸지 못했습니다: %@'),
+('prefsets.cat.clipboard', 'クリップボードの処理', 'Clipboard Handling', '剪贴板处理', '클립보드 처리'),
+('prefsets.richToolTips', '詳細なツールヒントを表示', 'Show Rich Tool Tips', '显示丰富的工具提示', '풍부한 도구 설명 표시'),
+('prefsets.homeScreen', '「ホーム画面」を表示', 'Show the Home Screen', '显示“主页”屏幕', '홈 화면 표시'),
+('prefsets.homeScreenTip', 'ドキュメントを開いていないときに「ホーム画面」を表示', 'Show the Home Screen When No Documents Are Open', '没有打开的文档时显示“主页”屏幕', '도큐먼트가 열려 있지 않을 때 홈 화면 표시'),
+('prefsets.legacyNewDoc', '以前の「新規ドキュメント」インターフェイス', 'Legacy “File > New” Interface', '旧版“新建文档”界面', '이전 “새로 만들기” 인터페이스'),
+('prefsets.legacyNewDocTip', '以前の「新規ドキュメント」インターフェイスを使用', 'Use Legacy “File > New” Interface', '使用旧版“新建文档”界面', '이전 “새로 만들기” 인터페이스 사용'),
+('prefsets.printBleedWidget', '「裁ち落としを印刷」生成AIボタンを表示', 'Show “Print Bleed” generative AI buttons', '显示“打印出血”生成式 AI 按钮', '“재단 여백 인쇄” 생성형 AI 버튼 표시'),
+('prefsets.zoomToSelection', '選択範囲へズーム', 'Zoom to Selection', '缩放至选区', '선택 영역으로 확대/축소'),
+('prefsets.unlockOnCanvas', 'カンバス上でロック解除', 'Unlock on Canvas', '在画布上解锁', '캔버스에서 잠금 해제'),
+('prefsets.unlockOnCanvasTip', 'カンバス上のオブジェクトとアートボードを選択してロック解除', 'Select and Unlock Objects and Artboards on Canvas', '在画布上选择并解锁对象和画板', '캔버스에서 오브젝트와 대지를 선택하여 잠금 해제'),
+('prefsets.objectPathOnly', 'オブジェクトの選択範囲をパスに制限', 'Object Selection by Path Only', '仅按路径选择对象', '패스로만 오브젝트 선택'),
+('prefsets.textPathOnly', 'テキストオブジェクトの選択範囲をパスに制限', 'Type Object Selection by Path Only', '仅按路径选择文字对象', '패스로만 문자 오브젝트 선택'),
+('prefsets.anchorSize', 'アンカーポイントのサイズ :', 'Anchor Point Size:', '锚点大小：', '고정점 크기:'),
+('prefsets.anchorSizeTip', 'アンカーポイント・ハンドル・バウンディングボックスの表示サイズ（4段階。anchorSizePref に 5 / 7 / 9 / 11）', 'Display size of anchor points, handles and the bounding box (four steps: anchorSizePref 5 / 7 / 9 / 11)', '锚点、手柄和定界框的显示大小（四级：anchorSizePref 为 5 / 7 / 9 / 11）', '고정점·핸들·테두리 상자의 표시 크기(4단계: anchorSizePref 5 / 7 / 9 / 11)'),
+('prefsets.moveLockedArt', 'ロックまたは非表示オブジェクトを一緒に移動', 'Move Locked and Hidden Artwork', '移动锁定和隐藏的图稿', '잠긴 아트워크와 숨겨진 아트워크 이동'),
+('prefsets.showArtboardName', 'アートボード名を表示', 'Show Artboard Name', '显示画板名称', '대지 이름 표시'),
+('prefsets.artboardColor', 'ハイライトのカラー :', 'Highlight Color:', '高光颜色：', '강조 색상:'),
+('prefsets.artboardStrokeWidth', 'ストロークの幅 :', 'Stroke Width:', '描边宽度：', '선 두께:'),
+('prefsets.autoSizeAreaText', '新規エリア内文字の自動サイズ調整', 'Auto Size New Area Type', '自动调整新区域文字大小', '새 영역 문자 자동 크기 조정'),
+('prefsets.recentFonts', '最近使用したフォントの表示数', 'Number of Recent Fonts', '最近使用的字体数目', '최근 사용한 글꼴 수'),
+('prefsets.recentFontsTip', 'オフにすると一覧を表示しません（0として保存）。表示数は1〜30', 'Off hides the list (saved as 0). The count is 1–30.', '关闭后不显示列表（保存为 0）。数目为 1–30。', '끄면 목록을 표시하지 않습니다(0으로 저장). 표시 수는 1~30.'),
+('prefsets.missingGlyphProtection', '見つからない字形の保護を有効にする', 'Enable Missing Glyph Protection', '启用缺失字形保护', '누락된 글리프 보호 활성화'),
+('prefsets.alternateGlyph', '選択された文字の異体字を表示', 'Show Character Alternates', '显示字符替代字', '선택한 문자의 대체 글리프 표시'),
+('prefsets.canvasColor', 'カンバスカラー :', 'Canvas Color:', '画布颜色：', '캔버스 색상:'),
+('prefsets.canvasMatch', 'UIに合わせる', 'Match Brightness', '匹配用户界面亮度', 'UI에 맞추기'),
+('prefsets.canvasWhite', 'ホワイト', 'White', '白色', '흰색'),
+('prefsets.guideColor', 'カラー :', 'Color:', '颜色：', '색상:'),
+('prefsets.guideStyle', 'スタイル :', 'Style:', '样式：', '스타일:'),
+('prefsets.guideLines', 'ライン', 'Lines', '直线', '선'),
+('prefsets.guideDots', '点線', 'Dots', '点线', '점선'),
+('prefsets.objectHighlighting', 'オブジェクトのハイライト表示', 'Object Highlighting', '对象突出显示', '오브젝트 강조 표시'),
+('prefsets.animatedZoom', 'アニメーションズーム', 'Animated Zoom', '动画缩放', '애니메이션 확대/축소'),
+('prefsets.historyStates', 'ヒストリー数 :', 'History States:', '历史记录状态：', '작업 내역 수:'),
+('prefsets.realTimeDrawing', 'リアルタイムの描画と編集', 'Real-Time Drawing and Editing', '实时绘制和编辑', '실시간 그리기 및 편집'),
+('prefsets.editOriginalSystemDefault', '「オリジナルの編集」にシステムデフォルトを使用', 'Use System Defaults for “Edit Original”', '对“编辑原稿”使用系统默认设置', '“원본 편집”에 시스템 기본값 사용'),
+('prefsets.autoActivateFonts', 'Adobe Fonts を自動アクティベート', 'Auto-activate Adobe Fonts', '自动激活 Adobe Fonts', 'Adobe Fonts 자동 활성화'),
+('prefsets.saveToCloud', 'クラウドに保存', 'Save to Cloud', '存储到云', '클라우드에 저장'),
+('prefsets.saveLocation', 'ファイルの保存先 :', 'Save Location:', '文件存储位置：', '파일 저장 위치:'),
+('prefsets.saveComputer', 'コンピューター', 'Computer', '计算机', '컴퓨터'),
+('prefsets.saveCloud', 'クラウド', 'Cloud', '云', '클라우드'),
+('prefsets.updateLinks', 'リンクを更新 :', 'Update Links:', '更新链接：', '링크 업데이트:'),
+('prefsets.linksAuto', '自動', 'Automatic', '自动', '자동'),
+('prefsets.linksManual', '手動', 'Manual', '手动', '수동'),
+('prefsets.linksAsk', '確認', 'Ask When Modified', '修改时提问', '수정 시 확인'),
+('prefsets.includeSvgCode', 'SVGコードを含める', 'Include SVG Code', '包含 SVG 代码', 'SVG 코드 포함'),
+('prefsets.cat.scripts', 'スクリプト', 'Scripts', '脚本', '스크립트'),
+('prefsets.allowScripts', 'スクリプト実行の許可', 'Allow scripts to run', '允许运行脚本', '스크립트 실행 허용'),
+('prefsets.allowScriptsTip', 'オンにすると、外部のスクリプト（.jsx）を実行する前の警告を表示しません（ShowExternalJSXWarning を false）', 'When on, no warning is shown before an external script (.jsx) runs (ShowExternalJSXWarning false)', '开启后，运行外部脚本（.jsx）前不显示警告（ShowExternalJSXWarning 为 false）', '켜면 외부 스크립트(.jsx)를 실행하기 전에 경고를 표시하지 않습니다(ShowExternalJSXWarning을 false로)'),
+('prefsets.color.lightBlue', 'ライトブルー', 'Light Blue', '浅蓝色', '밝은 파랑'),
+('prefsets.color.lightRed', 'サーモンピンク', 'Light Red', '浅红色', '밝은 빨강'),
+('prefsets.color.green', 'グリーン', 'Green', '绿色', '초록'),
+('prefsets.color.mediumBlue', 'ミディアムブルー', 'Medium Blue', '中蓝色', '중간 파랑'),
+('prefsets.color.magenta', 'マゼンタ', 'Magenta', '洋红色', '마젠타'),
+('prefsets.color.cyan', 'シアン', 'Cyan', '青色', '사이안'),
+('prefsets.color.white', 'ホワイト', 'White', '白色', '흰색'),
+('prefsets.color.lightGray', 'ライトグレー', 'Light Gray', '浅灰色', '밝은 회색'),
+('prefsets.color.black', 'ブラック', 'Black', '黑色', '검정'),
+('prefsets.color.yellow', 'イエロー', 'Yellow', '黄色', '노랑'),
 ('palette.gridMatchTop', 'グリッド：上側の色', 'Grid: upper color', '网格：上方颜色', '격자: 위쪽 색'),
 ('palette.gridColor', 'グリッド：#%@', 'Grid: #%@', '网格：#%@', '격자: #%@'),
 ('quick.title', 'クイック環境設定', 'Quick Preferences', '快速偏好设置', '빠른 환경설정'),
@@ -189,6 +284,34 @@ rows = [
 ('quick.refreshTip', 'GPUプレビューを更新（再描画）', 'Refresh the GPU preview (redraw)', '刷新 GPU 预览（重绘）', 'GPU 미리 보기 새로 고침(다시 그리기)'),
 ('hotkey.quick', 'クイック環境設定を表示／隠す', 'Show or hide Quick Preferences', '显示或隐藏快速偏好设置', '빠른 환경설정 보기/숨기기'),
 ('hotkey.quickHint', '初期値は ⌃⌥⌘Q。Illustratorが前面のときだけ使えます。', 'Default ⌃⌥⌘Q. Works only while Illustrator is in front.', '默认 ⌃⌥⌘Q。仅在 Illustrator 位于前台时可用。', '기본값 ⌃⌥⌘Q. Illustrator가 앞에 있을 때만 작동합니다.'),
+('transform.title', 'クイック変形', 'Quick Transform', '快速变换', '빠른 변형'),
+('transform.menu', 'クイック変形を表示', 'Show Quick Transform', '显示快速变换', '빠른 변형 보기'),
+('transform.flip', '反転・回転', 'Flip / Rotate', '翻转・旋转', '반전·회전'),
+('transform.move', '移動・複製', 'Move / Duplicate', '移动・复制', '이동·복제'),
+('transform.options', 'オプション', 'Options', '选项', '옵션'),
+('transform.up', '上', 'Up', '上', '위'),
+('transform.down', '下', 'Down', '下', '아래'),
+('transform.left', '左', 'Left', '左', '왼쪽'),
+('transform.right', '右', 'Right', '右', '오른쪽'),
+('transform.margin', 'マージン :', 'Margin:', '边距：', '여백:'),
+('transform.marginTip', '移動・複製の間隔と、反転・回転のあとに基準点の側へずらす量（定規の単位。マイナスで重なる向き）', 'Gap for move / duplicate, and the shift toward the anchor side after flip / rotate (ruler units; negative overlaps)', '移动/复制的间距，以及翻转/旋转后向参考点一侧移动的量（标尺单位，负值为重叠方向）', '이동·복제 간격과 반전·회전 후 기준점 쪽으로 옮기는 양(눈금자 단위, 음수는 겹치는 방향)'),
+('transform.previewBounds', 'プレビュー境界', 'Preview bounds', '预览边界', '미리 보기 경계'),
+('transform.previewBoundsTip', '線幅・効果を含む境界で大きさと基準点を測る', 'Measure the size and anchor point with the bounds including strokes and effects', '用包含描边和效果的边界测量大小和参考点', '선과 효과를 포함한 경계로 크기와 기준점을 측정'),
+('transform.flipHTip', '選択を水平方向に反転（基準点が基点）／ Option＋クリックで複製', 'Flip the selection horizontally (about the anchor point) / Option-click to duplicate', '水平翻转所选对象（以参考点为基点）／ Option 点按复制', '선택을 가로로 반전(기준점 기준) / Option 클릭으로 복제'),
+('transform.flipVTip', '選択を垂直方向に反転（基準点が基点）／ Option＋クリックで複製', 'Flip the selection vertically (about the anchor point) / Option-click to duplicate', '垂直翻转所选对象（以参考点为基点）／ Option 点按复制', '선택을 세로로 반전(기준점 기준) / Option 클릭으로 복제'),
+('transform.rotateCCWTip', '選択を反時計回りに90°回転（基準点が基点）／ Option＋クリックで複製', 'Rotate the selection 90° counterclockwise (about the anchor point) / Option-click to duplicate', '将所选对象逆时针旋转 90°（以参考点为基点）／ Option 点按复制', '선택을 시계 반대 방향으로 90° 회전(기준점 기준) / Option 클릭으로 복제'),
+('transform.rotateCWTip', '選択を時計回りに90°回転（基準点が基点）／ Option＋クリックで複製', 'Rotate the selection 90° clockwise (about the anchor point) / Option-click to duplicate', '将所选对象顺时针旋转 90°（以参考点为基点）／ Option 点按复制', '선택을 시계 방향으로 90° 회전(기준점 기준) / Option 클릭으로 복제'),
+('transform.anchorTip', '基準点（反転・回転の基点）', 'Anchor point (pivot for flip / rotate)', '参考点（翻转/旋转的基点）', '기준점(반전·회전의 기준)'),
+('transform.moveTip', 'クリックで移動／ Option＋クリックで複製', 'Click to move / Option-click to duplicate', '点按移动／ Option 点按复制', '클릭으로 이동 / Option 클릭으로 복제'),
+('transform.duplicateTip', '複製', 'Duplicate', '复制', '복제'),
+('transform.sliderTip', 'スライダーで回転（-180〜180°・15°刻み／Shift＝90°刻み、正＝反時計回り、基準点が基点）', 'Rotate with the slider (-180 to 180°, 15° steps / Shift = 90° steps, positive = CCW, about the anchor point)', '用滑块旋转（-180〜180°，15° 步进／Shift＝90° 步进，正值＝逆时针，以参考点为基点）', '슬라이더로 회전(-180~180°, 15° 단위 / Shift = 90° 단위, 양수 = 시계 반대 방향, 기준점 기준)'),
+('transform.noSelection', 'オブジェクトを選択してください。', 'Select an object.', '请选择对象。', '오브젝트를 선택하세요.'),
+('transform.noBounds', '選択したオブジェクトの大きさを測れません（ロック・非表示など）。', 'The size of the selection cannot be measured (locked, hidden, etc.).', '无法测量所选对象的大小（已锁定、隐藏等）。', '선택한 오브젝트의 크기를 측정할 수 없습니다(잠금, 숨김 등).'),
+('hotkey.transform', 'クイック変形を表示／隠す', 'Show or hide Quick Transform', '显示或隐藏快速变换', '빠른 변형 보기/숨기기'),
+('hotkey.transformHint', '初期値は ⌃⌥⌘T。Illustratorが前面のときだけ使えます。', 'Default ⌃⌥⌘T. Works only while Illustrator is in front.', '默认 ⌃⌥⌘T。仅在 Illustrator 位于前台时可用。', '기본값 ⌃⌥⌘T. Illustrator가 앞에 있을 때만 작동합니다.'),
+('closeAll.title', 'パレット', 'Palettes', '面板', '팔레트'),
+('hotkey.closeAll', 'すべてのパレットを閉じる', 'Close all palettes', '关闭所有面板', '모든 팔레트 닫기'),
+('hotkey.closeAllHint', '単位パレット・クイック環境設定・クイック変形を閉じます。初期値は ⌥W。Illustratorが前面のときだけ使えます。', 'Closes the Units Palette, Quick Preferences and Quick Transform. Default ⌥W. Works only while Illustrator is in front.', '关闭单位面板、快速偏好设置和快速变换。默认 ⌥W。仅在 Illustrator 位于前台时可用。', '단위 팔레트·빠른 환경설정·빠른 변형을 닫습니다. 기본값 ⌥W. Illustrator가 앞에 있을 때만 작동합니다.'),
 ('on', 'オン', 'On', '开', '켬'),
 ('off', 'オフ', 'Off', '关', '끔'),
 ('cancel', 'キャンセル', 'Cancel', '取消', '취소'),
@@ -215,6 +338,45 @@ rows = [
 ('openAutomation', 'オートメーション設定を開く', 'Open Automation Settings', '打开自动化设置', '자동화 설정 열기'),
 ('keepRunning', 'ウインドウを閉じても常駐', 'Keep running after closing the window', '关闭窗口后继续运行', '윈도우를 닫아도 계속 실행'),
 ('tab.other', 'その他', 'Other', '其他', '기타'),
+('reset.title', 'Illustratorの設定を初期化', 'Reset Illustrator Settings', '初始化 Illustrator 设置', 'Illustrator 설정 초기화'),
+('reset.button', '初期化…', 'Reset…', '初始化…', '초기화…'),
+('reset.run', '終了して初期化', 'Quit and Reset', '退出并初始化', '종료 후 초기화'),
+('reset.includeCache', 'キャッシュも削除', 'Also delete the cache', '同时删除缓存', '캐시도 삭제'),
+('reset.needsRunning', 'Illustratorを起動しているときに使えます（その版が対象です）', 'Available while Illustrator is running (its version is reset)', 'Illustrator 运行时可用（针对该版本）', 'Illustrator가 실행 중일 때 쓸 수 있습니다(그 버전이 대상입니다)'),
+('reset.confirm', 'Illustratorを終了して、設定をゴミ箱に入れますか？', 'Quit Illustrator and move its settings to the Trash?', '要退出 Illustrator 并将其设置移到废纸篓吗？', 'Illustrator를 종료하고 설정을 휴지통으로 옮길까요?'),
+('reset.confirmCache', 'Illustratorを終了して、設定とキャッシュをゴミ箱に入れますか？', 'Quit Illustrator and move its settings and cache to the Trash?', '要退出 Illustrator 并将其设置和缓存移到废纸篓吗？', 'Illustrator를 종료하고 설정과 캐시를 휴지통으로 옮길까요?'),
+('reset.confirmDetail', '保存していないドキュメントがあれば、Illustratorが保存を確認します。終了しなければ何も消しません。', 'Illustrator asks about unsaved documents. If it does not quit, nothing is moved.', '如有未存储的文档，Illustrator 会询问是否存储。若未退出，则不会移动任何内容。', '저장하지 않은 도큐먼트가 있으면 Illustrator가 저장 여부를 묻습니다. 종료하지 않으면 아무것도 옮기지 않습니다.'),
+('reset.done', '%d 件をゴミ箱に入れ、Illustratorを起動しました', 'Moved %d items to the Trash and launched Illustrator', '已将 %d 项移到废纸篓并启动了 Illustrator', '%d개를 휴지통으로 옮기고 Illustrator를 시작했습니다'),
+('reset.doneNotLaunched', '%d 件をゴミ箱に入れました（Illustratorを起動できませんでした）', 'Moved %d items to the Trash (Illustrator could not be launched)', '已将 %d 项移到废纸篓（未能启动 Illustrator）', '%d개를 휴지통으로 옮겼습니다(Illustrator를 시작하지 못했습니다)'),
+('reset.notQuit', 'Illustratorが終了しなかったので、何も消していません', 'Illustrator did not quit, so nothing was moved', 'Illustrator 未退出，因此未移动任何内容', 'Illustrator가 종료되지 않아 아무것도 옮기지 않았습니다'),
+('reset.noVersion', '起動中のIllustratorの版を読めませんでした', 'The version of the running Illustrator could not be read', '无法读取正在运行的 Illustrator 的版本', '실행 중인 Illustrator의 버전을 읽지 못했습니다'),
+('reset.trashFailed', '%@ をゴミ箱に入れられませんでした：%@', '%@ could not be moved to the Trash: %@', '无法将 %@ 移到废纸篓：%@', '%@을(를) 휴지통으로 옮기지 못했습니다: %@'),
+('tab.custom', '同期', 'Sync', '同步', '동기화'),
+('sync.title', '同期フォルダー', 'Synced Folder', '同步文件夹', '동기화 폴더'),
+('sync.all', 'まとめて同期', 'Sync All', '全部同步', '모두 동기화'),
+('kbsc.title', 'キーボードショートカット', 'Keyboard Shortcuts', '键盘快捷键', '키보드 단축키'),
+('kbsc.source', '読み込み元 :', 'Source:', '来源：', '불러올 파일:'),
+('kbsc.choose', '選択…', 'Choose…', '选择…', '선택…'),
+('kbsc.install', 'リンクして選ぶ', 'Link and Choose', '链接并选择', '링크 후 선택'),
+('kbsc.noSource', '読み込み元のフォルダーが見つかりません：%@', 'The source folder was not found: %@', '找不到来源文件夹：%@', '불러올 폴더를 찾을 수 없습니다: %@'),
+('kbsc.noFolder', 'Illustratorの設定フォルダー（Adobe Illustrator <版> Settings/ja_JP）が見つかりません', 'The Illustrator settings folder (Adobe Illustrator <version> Settings/ja_JP) was not found', '找不到 Illustrator 设置文件夹（Adobe Illustrator <版本> Settings/ja_JP）', 'Illustrator 설정 폴더(Adobe Illustrator <버전> Settings/ja_JP)를 찾을 수 없습니다'),
+('kbsc.chosen', 'キーボードショートカットを「%@」にしました', 'Keyboard shortcuts set to “%@”', '已将键盘快捷键设为“%@”', '키보드 단축키를 “%@”(으)로 바꿨습니다'),
+('kbsc.already', 'キーボードショートカットはすでに「%@」です', 'Keyboard shortcuts are already “%@”', '键盘快捷键已是“%@”', '키보드 단축키가 이미 “%@”입니다'),
+('kbsc.restart', 'Illustratorを再起動してからもう一度［リンクして選ぶ］を押すと、「%@」を選びます', 'Restart Illustrator and click Link and Choose again to choose “%@”', '重新启动 Illustrator 后再次点按“链接并选择”即可选择“%@”', 'Illustrator를 다시 시작한 뒤 링크 후 선택을 한 번 더 누르면 “%@”을(를) 고릅니다'),
+('kbsc.notRunning', 'Illustratorを起動してからもう一度［リンクして選ぶ］を押すと、「%@」を選びます', 'Launch Illustrator and click Link and Choose again to choose “%@”', '启动 Illustrator 后再次点按“链接并选择”即可选择“%@”', 'Illustrator를 시작한 뒤 링크 후 선택을 한 번 더 누르면 “%@”을(를) 고릅니다'),
+('kbsc.linked', '%d 件の .kys をリンクしました。', 'Linked %d .kys files. ', '已链接 %d 个 .kys。', '.kys %d개를 링크했습니다. '),
+('kbsc.set', '使用するセット :', 'Set to Use:', '使用的组合：', '사용할 세트:'),
+('kbsc.noSets', '読み込み元のフォルダーに .kys がありません', 'No .kys in the source folder', '来源文件夹中没有 .kys', '불러올 폴더에 .kys가 없습니다'),
+('kbsc.noKys', '読み込み元のフォルダーに .kys がありません：%@', 'No .kys in the source folder: %@', '来源文件夹中没有 .kys：%@', '불러올 폴더에 .kys가 없습니다: %@'),
+('links.title.profiles', 'ドキュメントプロファイル', 'Document Profiles', '文档配置文件', '도큐먼트 프로필'),
+('links.title.compositeFonts', '合成フォント', 'Composite Fonts', '复合字体', '합성 글꼴'),
+('links.link', 'リンクを作成', 'Create Links', '创建链接', '링크 만들기'),
+('links.noSource', '読み込み元のフォルダーが見つかりません：%@', 'The source folder was not found: %@', '找不到来源文件夹：%@', '불러올 폴더를 찾을 수 없습니다: %@'),
+('links.noFolder', 'Illustratorのフォルダー（Application Support/Adobe/Adobe Illustrator <版>/ja_JP）が見つかりません', 'The Illustrator folder (Application Support/Adobe/Adobe Illustrator <version>/ja_JP) was not found', '找不到 Illustrator 文件夹（Application Support/Adobe/Adobe Illustrator <版本>/ja_JP）', 'Illustrator 폴더(Application Support/Adobe/Adobe Illustrator <버전>/ja_JP)를 찾을 수 없습니다'),
+('links.done', '%d 件をリンクしました（新規 %d・張り替え %d・リンク済み %d）', 'Linked %d files (%d new, %d replaced, %d already linked)', '已链接 %d 个文件（新建 %d、替换 %d、已链接 %d）', '%d개를 링크했습니다(새로 %d, 교체 %d, 이미 링크됨 %d)'),
+('links.moved', '。元のファイル %d 件を %@ に移しました', '. %d files that were there were moved to %@', '。原有的 %d 个文件已移到 %@', '. 원래 파일 %d개를 %@(으)로 옮겼습니다'),
+('links.sameFolder', '読み込み元がIllustratorのフォルダーそのもの（またはその中を指すリンク）なので、リンクしません：%@', 'The source is Illustrator’s folder itself (or links into it), so nothing is linked: %@', '来源就是 Illustrator 的文件夹本身（或指向其中的链接），因此不创建链接：%@', '불러올 위치가 Illustrator 폴더 자체(또는 그 안을 가리키는 링크)이므로 링크하지 않습니다: %@'),
+('links.noFiles', '読み込み元のフォルダーにファイルがありません：%@', 'No files in the source folder: %@', '来源文件夹中没有文件：%@', '불러올 폴더에 파일이 없습니다: %@'),
 ('other.title', 'ガイド', 'Guides', '参考线', '안내선'),
 ('other.guide', 'トリミング表示でもガイドを表示する', 'Show guides in Trim View too', '在剪切视图中也显示参考线', '트리밍 보기에서도 안내선 표시'),
 ('other.guideDetail', 'Illustratorが前面のとき、⌘; で［表示］→［ガイド］の表示・非表示を切り替えます（メニューコマンド showguide）。', 'While Illustrator is in front, ⌘; shows or hides the guides (menu command showguide).', 'Illustrator 位于前台时，⌘; 显示或隐藏参考线（菜单命令 showguide）。', 'Illustrator가 앞에 있을 때 ⌘;로 안내선을 보이거나 숨깁니다(메뉴 명령 showguide).'),
@@ -260,16 +422,24 @@ helptexts = [
 - ONにした操作はIllustratorの取り消し（⌘Z）で戻せます。
 - メニューバーのアイコンの「一時停止」で一時的に止められます。
 
-バックグラウンド（タブ）
+バックグラウンド（環境設定タブ）
 Illustratorの［設定］→［ファイル管理］の「バックグラウンドで書き出し」「バックグラウンドで保存」「復帰データを次の間隔で自動保存」をチェックボックスで切り替えます。状態はIllustratorの設定ファイル（Adobe Illustrator Cloud Prefs と環境設定）から読みます。Illustratorで変えた分は終了時に書き込まれるまで反映されないことがあるため、「確認」で環境設定のダイアログボックスを開いて読み、［キャンセル］で閉じることもできます。チェックを切り替えるとダイアログボックスを開いて同じ項目を変え、［OK］で閉じます。メニューバー・ファイルメニューの「バックグラウンド保存・書き出しをオフ」は2つをまとめてオフにします。操作中はキーボードやマウスに触れないでください。Illustratorが起動していないときは起動しません。
 
 基本UI（タブ）
 明るさ：Illustratorの［設定］→［ユーザーインターフェイス］の明るさ（暗・やや暗め・やや明るめ・明）をラジオボタンで選びます。Illustratorが前面のときは ⇧F2 で1段明るく、⇧F1 で1段暗くします（「ホットキーを設定…」から設定の「ホットキー」タブを開いて変更・解除できます。ほかのアプリではキーを横取りしません）。変えるたびに環境設定のダイアログボックスを開いてボタンを押し、［OK］で閉じます。続けて押した分はまとめて反映します。
-表示：ツールバー（詳細）・コンテキストタスクバー・コントロールバー・ヘルプバー・アプリケーションバー・グリフにスナップを、Illustratorのメニューの ✓ で読み、メニューを選んで切り替えます。
-オールドスクール設定：ツールバー：詳細、コンテキストタスクバー：OFF、コントロールバー：ON、グリフにスナップ：OFF、ヘルプバー：OFF、アプリケーションバー：OFF にまとめて揃えます。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。
+表示：ツールバー（詳細）・コンテキストタスクバー・コントロールバー・ヘルプバー・アプリケーションバー・アプリケーションフレーム・グリフにスナップを、Illustratorのメニューの ✓ で読み、メニューを選んで切り替えます。
+クラシック表示：ツールバー：詳細、コンテキストタスクバー：OFF、コントロールバー：ON、グリフにスナップ：OFF、ヘルプバー：OFF、アプリケーションバー：OFF、アプリケーションフレーム：OFF にまとめて揃えます。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。
 
 クイック環境設定
 「クイック環境設定を表示」（メニューバー・ファイルメニュー・メインウインドウのボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです（AiQuickPrefsPalette と同じ項目）。キー入力（∧∨・↑↓で次の整数へ、shift＋で10の倍数へ、option＋で0.1ずつ）と定規の単位、整列オプション（プレビュー境界・字形の境界）、変形オプション（パターン・角・線幅と効果。option＋クリックでまとめて切り替え）、コピー/ペースト（書式なしペースト・コピー元のレイヤーにペースト）、描画（リアルタイムの描画と編集・プレビュー更新）を切り替えます。定規の単位だけは環境設定の［単位］を開いて変えます。パレットが前面に来るたびに今の値を読み直します。
+
+クイック変形
+「クイック変形を表示」（メニューバー・ファイルメニュー・メインウインドウのボタン、または ⌃⌥⌘T。設定で変更可）で開く、前面に浮くパレットです（ai-scripts の QuickTransformPalette と同じ操作）。開いてもIllustratorは前面のままです。
+- 反転・回転：水平・垂直に反転、90°ずつ回転します。基点は右の基準点（9か所）で選びます。スライダーは15°刻み（Shift＝90°刻み）で、離すと0に戻ります（オブジェクトは回ったまま）。
+- 移動・複製：矢印で、選択全体の幅または高さ＋マージンだけ移動します。中央は同じ位置に複製します。
+- Option＋クリックで、複製してから移動・反転・回転します（複製したものが選択されます）。
+- マージンは定規の単位で、マイナスなら重なる向きです。反転・回転では基準点の側へずらします。プレビュー境界がオンなら線幅・効果を含めて測ります。
+- 1回の操作はIllustratorの取り消し1段分です（スライダーは刻みごと）。
 
 単位パレット
 「単位パレットを表示」（メニューバー・ファイルメニュー・メインウインドウの「単位パレット」ボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです。単位セット（初期値はプリント（pt）・プリント（級）・ウェブ・プレゼン）を一覧から選び、⌘Return・⌘クリック・ダブルクリックで切り替えます（Tab・↑↓で選択、Escで隠す。今の単位と同じセットは「— 現在」）。モードが「基本」のときは単位だけ、「詳細」のときはキー入力・角丸の半径・サイズ/行送り・ベースラインシフトと、開いているドキュメントのカラーモード・オーバープリントプレビュー・ラスタライズ効果の解像度・透明グリッドの色と、ピクセルにスナップも変えます（透明グリッドの色は SetSameGridColors と同じく、［ドキュメント設定］の色見本をクリックしてカラーパネルの16進数欄に書きます。マウスポインタが動きます）。セットは「セットを編集…」または設定の「単位セット」タブで追加・削除・並べ替え・編集できます。単位はスクリプトから書いても再起動まで効かないため、環境設定の［単位］を開いて各ポップアップを矢印キーで目的の単位にし、4つとも合っているときだけ［OK］を押します（合わなければ［キャンセル］）。操作のあと単位を読み直して確かめます。操作中はキーボードやマウスに触れないでください。
@@ -282,11 +452,23 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。
 
+環境設定（タブ）
+Illustratorの主要な環境設定（一般・選択範囲・アンカー表示・アートボード・テキスト・ユーザーインターフェイス・ガイド・スマートガイド・パフォーマンス・ファイル管理・クリップボード・スクリプト実行の許可）を、セットでまとめて切り替えます（ai-scripts の PresetManager と同じ項目）。UIの明るさ・シェイプ形成ツールのカラー・バックグラウンドの3項目（バックグラウンドで書き出し・バックグラウンドで保存・復帰データの自動保存）も含みます。ラジオボタンでセットを選ぶとすぐに書き換えます。ほとんどの項目はダイアログボックスを開かずに書き換え、UIの明るさ・シェイプ形成ツールのカラー・バックグラウンドの3項目は今と異なるときだけダイアログボックスやツールオプションを開いて変えます（アクセシビリティの許可が必要）。ガイドをロックとシェイプ形成ツールのカラーはドキュメントが要るので、開いていなければ新規ドキュメントを作って変え、保存せずに閉じます（ツールは元に戻します）。今の環境設定と同じセットが選ばれた状態で表示されます。
+セットの中身は設定の「環境設定セット」タブで編集します（初期値はデフォルト・プリセット1）。＋で選んでいるセットを複製、−で削除、∧∨で並べ替えます。「今の設定を取り込む」は、選んでいるセットの値をIllustratorの今の環境設定で置き換えます。編集は［上書き］を押すと保存され（［元に戻す］で最後に保存した状態に戻ります）、Illustratorには書き込みません。
+
 関連付け（タブ）
 複数の版のIllustratorがインストールされているとき、チェックした拡張子（.ai・.ait・.eps・.svg から選択）をまとめて、指定の版のIllustratorで開くようにします。ほかのアプリに関連付けられていた拡張子もIllustratorに変わります。「開く版」で選んで［切り替える］を押すと、macOSの関連付けの記録に版を書き込み、関連付けを管理するシステムの処理（lsd）を再起動します。変更前の記録は ~/Library/Application Support/VectorMate に10世代まで保存します。最新版（自動）に戻すと、インストールされている最も新しい版で開きます。macOSが直前の関連付けの変更をまだ保存していないときは、数分待ってから実行してください。
 
+同期（タブ）
+上の「同期フォルダー」（初期値は ~/sw Dropbox/takano masahiro/sync-setting/ai）を基準に、各項目の読み込み元を相対パスで指定します（/ か ~ で始めると絶対パス。［選択…］で同期フォルダーの中を選ぶと相対パスで保存します）。キーボードショートカットは、読み込み元のフォルダー（初期値は キーボードショートカット）にある .kys をすべて、Illustratorのキーボードショートカットのセットとして使えるようにします。［リンクして選ぶ］を押すと、~/Library/Preferences/Adobe Illustrator <版> Settings/ja_JP にそれぞれシンボリックリンクを作り、［編集］→［キーボードショートカット...］で「使用するセット」で選んだセットを選んで［OK］を押します（アクセシビリティの許可が必要）。Illustratorはセットの一覧を起動時に読むため、初めてリンクしたときはIllustratorを再起動してからもう一度押してください。同じ名前の .kys ファイルがあれば ~/Library/Application Support/VectorMate/LinkBackups に移します。操作中はキーボードやマウスに触れないでください。
+［まとめて同期］は、ドキュメントプロファイル・合成フォントのリンクを作成してから、キーボードショートカットの［リンクして選ぶ］を行います（結果はそれぞれの項目に出ます）。
+ドキュメントプロファイルと合成フォントも、読み込み元のフォルダー（初期値は同期フォルダーの「New Document Profiles」「合成フォント」）を指定して［リンクを作成］を押すと、フォルダー内のファイルを1つずつ ~/Library/Application Support/Adobe/Adobe Illustrator <版>/ja_JP の同じ名前のフォルダーにシンボリックリンクします。読み込み元に無いファイルはそのまま残り、同じ名前の実ファイルは ~/Library/Application Support/VectorMate/LinkBackups に移します。Illustratorに反映されないときは、Illustratorを再起動してください。
+
+その他（タブ）
+「Illustratorの設定を初期化」の［初期化…］は、確認のうえ起動中のIllustratorを終了し、その版の ~/Library/Application Support/Adobe/Adobe Illustrator <版>・~/Library/Preferences/Adobe Illustrator <版> Settings（「キャッシュも削除」がオンなら ~/Library/Caches/com.adobe.illustrator も）をゴミ箱に入れて、もう一度起動します。Illustratorが終了しなければ何も消しません。同期タブで作ったリンクも消えるので、あとで作り直してください。
+
 設定の共有
-設定の「設定の共有」タブで、メトリクスの設定・ホットキー・単位セット・単位パレットのモードを書き出し・読み込みできます（「書き出す…」「読み込む…」、VectorMate-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
+設定の「設定の共有」タブで、メトリクスの設定・ホットキー・単位セット・単位パレットのモード・環境設定セットを書き出し・読み込みできます（「書き出す…」「読み込む…」、VectorMate-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
 
 ホットキー
 ⇧F2・⇧F1でUIの明るさ（Illustratorが前面のとき）、⌘,で設定、⌘0で「メインウインドウを開く」、⌘Wでウインドウを閉じる、⌘Qで終了、⌘?でこのヘルプを開きます。
@@ -314,16 +496,24 @@ When the auto-kerning of the selected text changes from another method to Metric
 - Undo (⌘Z) in Illustrator reverts it.
 - Pause in the menu bar icon stops it for a while.
 
-Background tab
+Background (Preferences tab)
 Checkboxes for Export in Background, Save in Background and Automatically Save Recovery Data in Illustrator Settings → File Handling. The state is read from Illustrator’s preference files (Adobe Illustrator Cloud Prefs and the main prefs); a change made in Illustrator may not be written until it quits, so Check can also open the Settings dialog box, read it and close it with Cancel; each change opens it, sets the item and closes it with OK. Turn Off Background Save and Export in the menu bar or File menu turns both off. Do not touch the keyboard or mouse meanwhile. Illustrator is never launched for this.
 
 Basic UI tab
 Brightness: radio buttons for the brightness in Illustrator Settings → User Interface (Dark, Medium Dark, Medium Light, Light). While Illustrator is in front, ⇧F2 makes it one step brighter and ⇧F1 darker (Set Hotkeys… opens the Hotkeys tab of Settings to change or clear them; other apps keep the keys). Each change opens the Settings dialog box, clicks the button and closes it with OK; presses made meanwhile are applied together.
-Display: Toolbar (Advanced), Contextual Task Bar, Control Bar, Help Bar, Application Bar and Snap to Glyph are read from the checkmarks in Illustrator's menus and switched by choosing the menu item.
-Old-School Setup: Toolbar Advanced, Contextual Task Bar off, Control Bar on, Snap to Glyph off, Help Bar off, Application Bar off in one go. The toolbar's two-column layout cannot be switched from a script; use « » at the top of the toolbar.
+Display: Toolbar (Advanced), Contextual Task Bar, Control Bar, Help Bar, Application Bar, Application Frame and Snap to Glyph are read from the checkmarks in Illustrator's menus and switched by choosing the menu item.
+Classic Layout: Toolbar Advanced, Contextual Task Bar off, Control Bar on, Snap to Glyph off, Help Bar off, Application Bar off, Application Frame off in one go. The toolbar's two-column layout cannot be switched from a script; use « » at the top of the toolbar.
 
 Quick Preferences
 A floating palette opened with Show Quick Preferences (menu bar, File menu, the main window button, or a hotkey set in Settings), with the items of AiQuickPrefsPalette: keyboard increment (∧∨ / ↑↓ to the next whole number, Shift to multiples of 10, Option by 0.1) and ruler unit, Align options (preview bounds, glyph bounds), Transform options (pattern tiles, corners, strokes & effects; Option-click switches all), Copy / Paste (paste without formatting, paste remembers layers) and Drawing (real-time drawing & editing, Refresh Preview). Only the ruler unit opens the Units pane of Settings. The values are read again whenever the palette comes forward.
+
+Quick Transform
+A floating palette opened with Show Quick Transform (menu bar, File menu, the main window button, or ⌃⌥⌘T, changeable in Settings), working as QuickTransformPalette in ai-scripts. Illustrator stays in front while it is open.
+- Flip / Rotate: flips horizontally or vertically and rotates by 90° about the anchor point picked on the right (nine points). The slider turns in 15° steps (90° with Shift) and goes back to 0 when released; the object keeps its rotation.
+- Move / Duplicate: the arrows move the selection by its width or height plus the margin; the center duplicates in place.
+- Option-click duplicates first, then moves, flips or rotates the copy (the copy is selected).
+- The margin is in ruler units; negative values overlap. After a flip or rotation it shifts toward the anchor side. With Preview bounds on, strokes and effects are measured.
+- Each operation is one undo step in Illustrator (the slider, one per step).
 
 Units Palette
 A floating palette opened with Show Units Palette (menu bar, File menu, the Units Palette button of the main window, or a hotkey set in Settings). Pick a unit set (by default Print (pt), Print (Q), Web, Presentation) and switch with ⌘Return, ⌘-click or double-click (Tab / ↑↓ select, Esc hides; the set matching the current units is marked). In Basic mode only the units change; in Detailed mode the keyboard increment, corner radius, size/leading and baseline shift, and the open document’s color mode, Overprint Preview, raster effects resolution, transparency grid colors and Snap to Pixel change too (the grid colors are set as SetSameGridColors does: the swatches in Document Setup are clicked and the color panel’s hex field written; the pointer moves). Edit Sets… or the Unit Sets tab of Settings adds, deletes, reorders and edits the sets. Units written from a script only take effect after a restart, so the Units pane of Settings is opened, each popup is moved to the wanted unit with the arrow keys, and OK is pressed only when all four match (Cancel otherwise); the units are read again afterwards. Do not touch the keyboard or mouse meanwhile.
@@ -336,11 +526,23 @@ Open the Artboards / Gradient panel with the Artboard / Gradient tool: the tool 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default).
 
+Preferences tab
+Switches Illustrator’s main preferences (General, Selection & Anchor Display, Artboards, Type, User Interface, Guides, Smart Guides, Performance, File Handling, Clipboard, Allow scripts to run) as a set (the items of PresetManager in ai-scripts). UI brightness, the Shape Builder color and the three background items (Export in Background, Save in Background, Automatically Save Recovery Data) are included too. Choosing a set with the radio buttons rewrites them at once: most items without a dialog box; UI brightness, the Shape Builder color and the background items open their dialog box or the tool options only when they differ (Accessibility permission needed). Lock Guides and the Shape Builder color need a document: without one, a new document is made to change them and closed without saving (the tool is restored). The set matching the current preferences is shown selected.
+The sets are edited in the Preference Sets tab of Settings (by default Default and Preset 1). + duplicates the selected set, − deletes it, ∧∨ reorder. Use Current Settings replaces the values of the selected set with Illustrator’s current preferences. Edits are saved when you click Overwrite (Revert goes back to what was last saved); nothing is written to Illustrator.
+
 Associations tab
 When several versions of Illustrator are installed, the checked extensions (.ai, .ait, .eps, .svg) are switched together to open in the chosen version of Illustrator, including ones associated with another app. Pick it in Open with and click Switch: the version is written into macOS’s file association record and lsd, the system process that manages it, is restarted. Up to 10 previous records are kept in ~/Library/Application Support/VectorMate. Newest (automatic) opens files in the newest installed version. If macOS has not saved a recent association change yet, wait a few minutes and try again.
 
+Sync tab
+The sources are paths relative to the Synced Folder at the top (by default ~/sw Dropbox/takano masahiro/sync-setting/ai; a path starting with / or ~ is used as is; choosing inside the Synced Folder with Choose… saves a relative path). Keyboard Shortcuts makes every .kys of the source folder (by default キーボードショートカット) available as Illustrator’s keyboard shortcut sets. Link and Choose makes a symbolic link to each in ~/Library/Preferences/Adobe Illustrator <version> Settings/ja_JP, chooses the Set to Use in Edit → Keyboard Shortcuts... and clicks OK (Accessibility permission needed). Illustrator reads the list of sets when it launches, so after the first link, restart Illustrator and click again. A .kys file with the same name is moved to ~/Library/Application Support/VectorMate/LinkBackups. Do not touch the keyboard or mouse meanwhile.
+Sync All creates the links for document profiles and composite fonts, then does Link and Choose for keyboard shortcuts (each result shows under its item).
+Document profiles and composite fonts work the same way: choose the source folder (by default New Document Profiles and 合成フォント in the Synced Folder) and click Create Links to link each file into the folder of the same name in ~/Library/Application Support/Adobe/Adobe Illustrator <version>/ja_JP. Files not in the source stay; a real file with the same name is moved to ~/Library/Application Support/VectorMate/LinkBackups. If Illustrator does not show them, restart Illustrator.
+
+Other tab
+Reset… under Reset Illustrator Settings asks first, quits the running Illustrator, moves ~/Library/Application Support/Adobe/Adobe Illustrator <version> and ~/Library/Preferences/Adobe Illustrator <version> Settings (and ~/Library/Caches/com.adobe.illustrator when Also delete the cache is on) to the Trash, then launches it again. If Illustrator does not quit, nothing is moved. Links made in the Sync tab go too; make them again afterwards.
+
 Sharing settings
-In the Sharing tab of Settings, Export… and Import… save and load the Metrics options, hotkeys, unit sets and Units Palette mode (VectorMate-Settings.plist). Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
+In the Sharing tab of Settings, Export… and Import… save and load the Metrics options, hotkeys, unit sets, Units Palette mode and preference sets (VectorMate-Settings.plist). Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
 
 Hotkeys
 ⇧F2 / ⇧F1 UI brightness (while Illustrator is in front), ⌘, settings, ⌘0 open the main window, ⌘W close the window, ⌘Q quit, ⌘? this help.
@@ -368,16 +570,24 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 - 可在 Illustrator 中用撤销（⌘Z）还原。
 - 可用菜单栏图标中的“暂停”暂时停止。
 
-后台（标签）
+后台（首选项标签页）
 用复选框切换 Illustrator“设置 → 文件处理”中的“后台导出”“后台存储”“自动存储恢复数据”。脚本无法读取其状态，因此点按“检查”时打开设置对话框读取并按“取消”关闭；每次切换都会打开对话框更改该项并按“好”关闭。菜单栏和文件菜单中的“关闭后台存储与导出”会同时关闭前两项。操作期间请勿触碰键盘和鼠标。不会为此启动 Illustrator。
 
 基本界面（标签）
 亮度：用单选按钮选择 Illustrator“设置 → 用户界面”中的亮度（暗、中等深色、中等浅色、亮）。Illustrator 位于前台时，⇧F2 调亮一级，⇧F1 调暗一级（可通过“设置快捷键…”打开设置的“快捷键”标签进行更改或清除；不会占用其他应用的按键）。
-显示：工具栏（高级）、上下文任务栏、控制栏、帮助栏、应用程序栏、对齐字形，根据 Illustrator 菜单的勾号读取，并通过选择菜单项切换。
-经典设置：一次设为工具栏高级、上下文任务栏关、控制栏开、对齐字形关、帮助栏关、应用程序栏关。工具栏的双栏显示无法通过脚本切换，请使用工具栏顶部的 «»。
+显示：工具栏（高级）、上下文任务栏、控制栏、帮助栏、应用程序栏、应用程序框架、对齐字形，根据 Illustrator 菜单的勾号读取，并通过选择菜单项切换。
+经典布局：一次设为工具栏高级、上下文任务栏关、控制栏开、对齐字形关、帮助栏关、应用程序栏关、应用程序框架关。工具栏的双栏显示无法通过脚本切换，请使用工具栏顶部的 «»。
 
 快速偏好设置
 通过“显示快速偏好设置”打开的浮动面板，项目与 AiQuickPrefsPalette 相同：键盘增量与标尺单位、对齐选项、变换选项（option 点按一起切换）、拷贝/粘贴、绘图（实时绘图和编辑、刷新预览）。仅标尺单位会打开设置的“单位”更改。面板来到前面时会重新读取当前值。
+
+快速变换
+通过“显示快速变换”（菜单栏、文件菜单、主窗口的按钮或 ⌃⌥⌘T，可在设置中更改）打开的浮动面板，操作与 ai-scripts 的 QuickTransformPalette 相同。打开后 Illustrator 仍位于前台。
+- 翻转・旋转：水平或垂直翻转，或每次旋转 90°。基点在右侧的参考点（9 处）中选择。滑块以 15° 为步进（Shift＝90°），松开后回到 0（对象保持旋转后的状态）。
+- 移动・复制：箭头按所选对象整体的宽度或高度加边距移动。中间按钮在原位复制。
+- Option 点按会先复制再移动、翻转或旋转（选中复制出的对象）。
+- 边距使用标尺单位，负值为重叠方向。翻转和旋转后向参考点一侧移动。打开“预览边界”时包含描边和效果进行测量。
+- 每次操作对应 Illustrator 的一步撤销（滑块为每个步进一步）。
 
 单位面板
 通过“显示单位面板”（菜单栏、文件菜单、主窗口的“单位面板”按钮或在设置中指定的快捷键）打开的浮动面板。从列表选择单位组合（默认：印刷（pt）、印刷（级）、网页、演示），按 ⌘Return、⌘点按或双击切换。“基本”模式仅更改单位；“详细”模式还会更改键盘增量、圆角半径、大小/行距、基线偏移，以及打开文档的颜色模式、叠印预览、栅格效果分辨率、透明度网格颜色和对齐像素（网格颜色会点按“文档设置”中的色块并写入颜色面板的十六进制栏，鼠标指针会移动）。可通过“编辑组合…”或设置的“单位组合”标签添加、删除、排序和编辑。会打开设置的“单位”，用方向键选择各弹出菜单，四项都正确时才按“好”。操作期间请勿触碰键盘和鼠标。
@@ -390,11 +600,23 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。
 
+首选项（标签页）
+以组合一次性切换 Illustrator 的主要首选项（常规、选择和锚点显示、画板、文字、用户界面、参考线、智能参考线、性能、文件处理、剪贴板、允许运行脚本）（与 ai-scripts 的 PresetManager 项目相同）。也包括界面亮度、形状生成器工具颜色和后台的 3 个项目（后台导出、后台存储、自动存储恢复数据）。用单选按钮选择组合后立即改写：大多数项目不打开对话框；界面亮度、形状生成器工具颜色和后台项目仅在与当前不同时打开对话框或工具选项更改（需要辅助功能权限）。锁定参考线和形状生成器工具颜色需要文档：未打开文档时会新建文档进行更改，然后不存储即关闭（工具会恢复）。与当前首选项一致的组合显示为已选中。
+组合内容在设置的“首选项组合”标签中编辑（默认为“默认”和“预设 1”）。+ 复制所选组合，− 删除，∧∨ 调整顺序。“使用当前设置”会用 Illustrator 当前的首选项替换所选组合的值。点按“覆盖”时保存编辑（“还原”会回到上次保存的状态），不会写入 Illustrator。
+
 关联（标签页）
 安装了多个版本的 Illustrator 时，将勾选的扩展名（从 .ai、.ait、.eps、.svg 中选择）一并改为用指定版本的 Illustrator 打开，原本关联其他应用的扩展名也会改为 Illustrator。在“打开版本”中选择后点按“切换”，会将版本写入 macOS 的文件关联记录，并重新启动管理关联的系统进程（lsd）。更改前的记录最多保存 10 份到 ~/Library/Application Support/VectorMate。“最新版本（自动）”用已安装的最新版本打开。若 macOS 尚未保存最近的关联更改，请等待几分钟后重试。
 
+同步（标签页）
+各项来源是相对于顶部“同步文件夹”（默认为 ~/sw Dropbox/takano masahiro/sync-setting/ai）的路径（以 / 或 ~ 开头时为绝对路径；用“选择…”选择同步文件夹中的项目时保存为相对路径）。键盘快捷键会让来源文件夹（默认为 キーボードショートカット）中的所有 .kys 可用作 Illustrator 的键盘快捷键组合。点按“链接并选择”会在 ~/Library/Preferences/Adobe Illustrator <版本> Settings/ja_JP 中为每个文件创建符号链接，在“编辑 → 键盘快捷键...”中选择“使用的组合”并点按“确定”（需要辅助功能权限）。Illustrator 在启动时读取组合列表，因此首次链接后请重新启动 Illustrator 并再次点按。同名的 .kys 文件会移到 ~/Library/Application Support/VectorMate/LinkBackups。操作期间请勿触碰键盘和鼠标。
+“全部同步”会先为文档配置文件和复合字体创建链接，再对键盘快捷键执行“链接并选择”（结果显示在各项下方）。
+文档配置文件和复合字体也一样：指定来源文件夹（默认为同步文件夹中的 New Document Profiles 和 合成フォント）并点按“创建链接”，即可将其中的文件逐个以符号链接放入 ~/Library/Application Support/Adobe/Adobe Illustrator <版本>/ja_JP 中的同名文件夹。来源中没有的文件保持不变；同名的实际文件会移到 ~/Library/Application Support/VectorMate/LinkBackups。如果 Illustrator 中未显示，请重新启动 Illustrator。
+
+其他（标签页）
+“初始化 Illustrator 设置”中的“初始化…”会先确认，然后退出正在运行的 Illustrator，将 ~/Library/Application Support/Adobe/Adobe Illustrator <版本> 和 ~/Library/Preferences/Adobe Illustrator <版本> Settings（开启“同时删除缓存”时还有 ~/Library/Caches/com.adobe.illustrator）移到废纸篓并重新启动。若 Illustrator 未退出，则不会移动任何内容。在“同步”标签中创建的链接也会消失，之后请重新创建。
+
 设置共享
-在设置的“设置共享”标签中，可以导出和导入度量标准设置、快捷键、单位组合和单位面板的模式（VectorMate-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
+在设置的“设置共享”标签中，可以导出和导入度量标准设置、快捷键、单位组合、单位面板的模式和首选项组合（VectorMate-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
 
 快捷键
 ⇧F2／⇧F1 界面亮度（Illustrator 位于前台时），⌘, 设置，⌘0 打开主窗口，⌘W 关闭窗口，⌘Q 退出，⌘? 打开本帮助。
@@ -422,16 +644,24 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 - Illustrator의 실행 취소(⌘Z)로 되돌릴 수 있습니다.
 - 메뉴 막대 아이콘의 일시 정지로 잠시 멈출 수 있습니다.
 
-백그라운드(탭)
+백그라운드(환경설정 탭)
 Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라운드 저장, 복구 데이터 자동 저장을 체크박스로 전환합니다. 스크립트로 상태를 읽을 수 없어 확인을 누르면 설정 대화상자를 열어 읽고 취소로 닫으며, 전환할 때마다 대화상자를 열어 그 항목을 바꾸고 확인으로 닫습니다. 메뉴 막대·파일 메뉴의 백그라운드 저장·내보내기 끄기는 두 항목을 함께 끕니다. 조작 중에는 키보드와 마우스를 만지지 마세요. 이를 위해 Illustrator를 실행하지는 않습니다.
 
 기본 UI(탭)
 밝기: Illustrator 설정 → 사용자 인터페이스의 밝기(어둡게, 약간 어둡게, 약간 밝게, 밝게)를 라디오 버튼으로 고릅니다. Illustrator가 앞에 있을 때 ⇧F2로 한 단계 밝게, ⇧F1로 한 단계 어둡게 합니다(단축키 설정…으로 설정의 단축키 탭을 열어 변경·해제할 수 있으며 다른 앱의 키는 가로채지 않습니다).
-표시: 도구 막대(고급), 상황별 작업 표시줄, 컨트롤 막대, 도움말 막대, 응용 프로그램 막대, 글리프에 물리기를 Illustrator 메뉴의 체크 표시로 읽고 메뉴를 선택해 전환합니다.
-올드스쿨 설정: 도구 막대 고급, 상황별 작업 표시줄 끔, 컨트롤 막대 켬, 글리프에 물리기 끔, 도움말 막대 끔, 응용 프로그램 막대 끔으로 한 번에 맞춥니다. 도구 막대 2열 표시는 스크립트로 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.
+표시: 도구 막대(고급), 상황별 작업 표시줄, 컨트롤 막대, 도움말 막대, 응용 프로그램 막대, 응용 프로그램 프레임, 글리프에 물리기를 Illustrator 메뉴의 체크 표시로 읽고 메뉴를 선택해 전환합니다.
+클래식 레이아웃: 도구 막대 고급, 상황별 작업 표시줄 끔, 컨트롤 막대 켬, 글리프에 물리기 끔, 도움말 막대 끔, 응용 프로그램 막대 끔, 응용 프로그램 프레임 끔으로 한 번에 맞춥니다. 도구 막대 2열 표시는 스크립트로 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.
 
 빠른 환경설정
 빠른 환경설정 보기로 여는 떠 있는 팔레트이며 AiQuickPrefsPalette와 같은 항목입니다: 키보드 증감과 눈금자 단위, 정렬 옵션, 변형 옵션(option 클릭으로 함께 전환), 복사/붙여넣기, 그리기(실시간 그리기 및 편집, 미리 보기 새로 고침). 눈금자 단위만 설정의 단위를 열어 바꿉니다. 팔레트가 앞으로 올 때마다 현재 값을 다시 읽습니다.
+
+빠른 변형
+빠른 변형 보기(메뉴 막대, 파일 메뉴, 메인 윈도우의 버튼 또는 ⌃⌥⌘T, 설정에서 변경 가능)로 여는 떠 있는 팔레트입니다(ai-scripts의 QuickTransformPalette와 같은 조작). 열어도 Illustrator는 앞에 그대로 있습니다.
+- 반전·회전: 가로·세로로 반전하거나 90°씩 회전합니다. 기준은 오른쪽의 기준점(9곳)에서 고릅니다. 슬라이더는 15° 단위(Shift = 90° 단위)이며, 놓으면 0으로 돌아갑니다(오브젝트는 회전한 상태 그대로).
+- 이동·복제: 화살표로 선택 전체의 너비 또는 높이 + 여백만큼 이동합니다. 가운데는 같은 위치에 복제합니다.
+- Option 클릭으로 복제한 뒤 이동·반전·회전합니다(복제한 것이 선택됩니다).
+- 여백은 눈금자 단위이며 음수는 겹치는 방향입니다. 반전·회전 후에는 기준점 쪽으로 옮깁니다. 미리 보기 경계를 켜면 선과 효과를 포함해 측정합니다.
+- 한 번의 조작은 Illustrator의 실행 취소 1단계입니다(슬라이더는 단위마다).
 
 단위 팔레트
 단위 팔레트 보기(메뉴 막대, 파일 메뉴, 메인 윈도우의 단위 팔레트 버튼 또는 설정에서 지정한 단축키)로 여는 떠 있는 팔레트입니다. 목록에서 단위 세트(기본값: 인쇄(pt), 인쇄(급), 웹, 프레젠테이션)를 골라 ⌘Return·⌘클릭·이중 클릭으로 전환합니다. 기본 모드는 단위만, 상세 모드는 키보드 증감·모퉁이 반경·크기/행간·기준선 이동과 열린 도큐먼트의 색상 모드·중복 인쇄 미리 보기·래스터 효과 해상도·투명도 격자 색상·픽셀에 물리기도 바꿉니다(격자 색상은 도큐먼트 설정의 색상 견본을 클릭해 색상 패널의 16진수 칸에 씁니다. 포인터가 움직입니다). 세트 편집… 또는 설정의 단위 세트 탭에서 추가·삭제·정렬·편집할 수 있습니다. 설정의 단위를 열어 각 팝업을 화살표 키로 맞추고 네 개가 모두 맞을 때만 확인을 누릅니다. 조작 중에는 키보드와 마우스를 만지지 마세요.
@@ -444,11 +674,23 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔).
 
+환경설정(탭)
+Illustrator의 주요 환경설정(일반, 선택 및 고정점 표시, 대지, 문자, 사용자 인터페이스, 안내선, 고급 안내선, 성능, 파일 처리, 클립보드, 스크립트 실행 허용)을 세트로 한꺼번에 전환합니다(ai-scripts의 PresetManager와 같은 항목). UI 밝기·도형 구성 도구 색상·백그라운드 3개 항목(백그라운드 내보내기·백그라운드 저장·복구 데이터 자동 저장)도 포함합니다. 라디오 버튼으로 세트를 고르면 바로 바꿉니다. 대부분의 항목은 대화상자 없이 바꾸고, UI 밝기·도형 구성 도구 색상·백그라운드 항목은 현재와 다를 때만 대화상자나 도구 옵션을 열어 바꿉니다(손쉬운 사용 권한 필요). 안내선 잠그기와 도형 구성 도구 색상은 도큐먼트가 필요하므로, 없으면 새 도큐먼트를 만들어 바꾸고 저장하지 않고 닫습니다(도구는 원래대로 돌립니다). 현재 환경설정과 같은 세트가 선택된 상태로 표시됩니다.
+세트 내용은 설정의 환경설정 세트 탭에서 편집합니다(기본값은 기본값, 사전 설정 1). +는 선택한 세트를 복제, −는 삭제, ∧∨는 순서 변경입니다. 현재 설정 가져오기는 선택한 세트의 값을 Illustrator의 현재 환경설정으로 바꿉니다. 편집은 덮어쓰기를 누르면 저장되며(되돌리기는 마지막으로 저장한 상태로 돌아갑니다) Illustrator에는 쓰지 않습니다.
+
 연결(탭)
 Illustrator가 여러 버전 설치되어 있을 때 체크한 확장자(.ai, .ait, .eps, .svg 중 선택)를 한꺼번에 지정한 버전의 Illustrator로 열도록 합니다. 다른 앱에 연결된 확장자도 Illustrator로 바뀝니다. 열 버전에서 고르고 전환을 누르면 macOS의 파일 연결 기록에 버전을 쓰고 연결을 관리하는 시스템 프로세스(lsd)를 다시 시작합니다. 변경 전 기록은 ~/Library/Application Support/VectorMate에 10개까지 보관합니다. 최신 버전(자동)은 설치된 가장 새로운 버전으로 엽니다. macOS가 최근 연결 변경을 아직 저장하지 않았다면 몇 분 후 다시 시도하세요.
 
+동기화(탭)
+각 항목의 불러올 위치는 위쪽 동기화 폴더(기본값은 ~/sw Dropbox/takano masahiro/sync-setting/ai) 기준의 상대 경로입니다(/ 또는 ~로 시작하면 절대 경로. 선택…으로 동기화 폴더 안을 고르면 상대 경로로 저장). 키보드 단축키는 불러올 폴더(기본값은 キーボードショートカット)의 .kys를 모두 Illustrator의 키보드 단축키 세트로 쓸 수 있게 합니다. 링크 후 선택을 누르면 ~/Library/Preferences/Adobe Illustrator <버전> Settings/ja_JP에 각각 심볼릭 링크를 만들고 편집 → 키보드 단축키...에서 사용할 세트를 골라 확인을 누릅니다(손쉬운 사용 권한 필요). Illustrator는 세트 목록을 시작할 때 읽으므로 처음 링크했을 때는 Illustrator를 다시 시작한 뒤 한 번 더 누르세요. 같은 이름의 .kys 파일이 있으면 ~/Library/Application Support/VectorMate/LinkBackups로 옮깁니다. 조작 중에는 키보드나 마우스를 건드리지 마세요.
+모두 동기화는 도큐먼트 프로필·합성 글꼴의 링크를 만든 뒤 키보드 단축키의 링크 후 선택을 실행합니다(결과는 각 항목에 표시).
+도큐먼트 프로필과 합성 글꼴도 같습니다. 불러올 폴더(기본값은 동기화 폴더의 New Document Profiles, 合成フォント)를 지정하고 링크 만들기를 누르면 폴더의 파일을 하나씩 ~/Library/Application Support/Adobe/Adobe Illustrator <버전>/ja_JP의 같은 이름 폴더에 심볼릭 링크합니다. 불러올 폴더에 없는 파일은 그대로 남고, 같은 이름의 실제 파일은 ~/Library/Application Support/VectorMate/LinkBackups로 옮깁니다. Illustrator에 반영되지 않으면 Illustrator를 다시 시작하세요.
+
+기타(탭)
+Illustrator 설정 초기화의 초기화…는 확인한 뒤 실행 중인 Illustrator를 종료하고 ~/Library/Application Support/Adobe/Adobe Illustrator <버전>, ~/Library/Preferences/Adobe Illustrator <버전> Settings(캐시도 삭제가 켜져 있으면 ~/Library/Caches/com.adobe.illustrator도)를 휴지통으로 옮긴 뒤 다시 시작합니다. Illustrator가 종료되지 않으면 아무것도 옮기지 않습니다. 동기화 탭에서 만든 링크도 사라지므로 나중에 다시 만드세요.
+
 설정 공유
-설정의 설정 공유 탭에서 메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드를 내보내고 가져올 수 있습니다(VectorMate-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.
+설정의 설정 공유 탭에서 메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드, 환경설정 세트를 내보내고 가져올 수 있습니다(VectorMate-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.
 
 단축키
 ⇧F2·⇧F1 UI 밝기(Illustrator가 앞에 있을 때), ⌘, 설정, ⌘0 메인 윈도우 열기, ⌘W 윈도우 닫기, ⌘Q 종료, ⌘? 이 도움말.

@@ -17,6 +17,8 @@ enum SettingsFailure: Error, Equatable {
     /// The key still reads the old value after OK.
     case notChanged
     case failed(String)
+    /// Shown as is (a file operation, not Illustrator).
+    case message(String)
 }
 
 /// Runs a JavaScript expression in the running Illustrator (never launched for this).
@@ -264,7 +266,7 @@ enum FileHandling {
 /// Accessibility (AXMenuItemMarkChar); preference keys are not used (ContextualTaskBarEnabled read 0 while checked, 2026-10-18).
 enum InterfaceMenus {
     /// In the order shown (コンテキストタスクバー last).
-    enum Item: String, CaseIterable { case advancedToolbar, controlBar, helpBar, applicationBar, snapToGlyph, contextualTaskBar }
+    enum Item: String, CaseIterable { case advancedToolbar, controlBar, helpBar, applicationBar, applicationFrame, snapToGlyph, contextualTaskBar }
     /// Menu paths, Japanese first (English unverified).
     static let paths: [Item: [[String]]] = [
         .advancedToolbar: [["ウィンドウ", "ツールバー", "詳細"], ["Window", "Toolbars", "Advanced"]],
@@ -272,11 +274,12 @@ enum InterfaceMenus {
         .controlBar: [["ウィンドウ", "コントロール"], ["Window", "Control"]],
         .helpBar: [["ウィンドウ", "ヘルプバー"], ["Window", "Help Bar"]],
         .applicationBar: [["ウィンドウ", "アプリケーションバー"], ["Window", "Application Bar"]],
+        .applicationFrame: [["ウィンドウ", "アプリケーションフレーム"], ["Window", "Application Frame"]],
         .snapToGlyph: [["表示", "グリフにスナップ"], ["View", "Snap to Glyph"]]
     ]
     typealias State = [Item: Bool]
-    /// オールドスクール設定. The toolbar's two columns cannot be set: the toolbar panel is not exposed to Accessibility.
-    static let oldSchool: State = [.advancedToolbar: true, .contextualTaskBar: false, .controlBar: true, .snapToGlyph: false, .helpBar: false, .applicationBar: false]
+    /// クラシック表示 (formerly オールドスクール設定). The toolbar's two columns cannot be set: the toolbar panel is not exposed to Accessibility.
+    static let oldSchool: State = [.advancedToolbar: true, .contextualTaskBar: false, .controlBar: true, .snapToGlyph: false, .helpBar: false, .applicationBar: false, .applicationFrame: false]
 
     private static func menuItem(_ root: AXUIElement, _ item: Item) -> AXUIElement? { menuItem(root, paths: paths[item]!) }
     /// The menu item at the first of `paths` that exists (Japanese first, then English).
@@ -329,6 +332,40 @@ enum InterfaceMenus {
         case .success(let after): return wanted.allSatisfy { after[$0.key] == $0.value } ? .success(after) : .failure(.notChanged)
         case .failure(let failure): return .failure(failure)
         }
+    }
+}
+
+// MARK: - ガイドをロック
+
+/// 表示 → ガイド → ガイドをロック. The item has no checkmark: its name flips between ガイドをロック (unlocked) and
+/// ガイドをロック解除 (locked), as ViewToggles.jsx / SetAiMenuState read it. The name is read whether or not the item is
+/// enabled (it shows disabled while Illustrator is in the back). Changed with the menu command lockguide (a toggle),
+/// which needs a document.
+enum GuideLock {
+    static let lockPaths = [["表示", "ガイド", "ガイドをロック"], ["View", "Guides", "Lock Guides"]]
+    static let unlockPaths = [["表示", "ガイド", "ガイドをロック解除"], ["View", "Guides", "Unlock Guides"]]
+
+    /// nil: unknown (no Accessibility permission, or neither name was found).
+    static func read(_ app: NSRunningApplication) -> Bool? {
+        guard AXIsProcessTrusted() else { return nil }
+        let root = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetMessagingTimeout(root, 3)
+        if InterfaceMenus.menuItem(root, paths: unlockPaths) != nil { return true }
+        if InterfaceMenus.menuItem(root, paths: lockPaths) != nil { return false }
+        return nil
+    }
+
+    /// Blocking: toggles when the state differs, then reads the name again. A toggle that cannot be read back is
+    /// undone, so the guides are never left switched blindly.
+    static func set(_ locked: Bool, in app: NSRunningApplication) -> Result<Bool, SettingsFailure> {
+        guard let before = read(app) else { return .failure(AXIsProcessTrusted() ? .menuNotFound : .notTrusted) }
+        if before == locked { return .success(false) }
+        if case .success("0") = evaluate("String(app.documents.length)", in: app) { return .failure(.noDocument) }
+        let toggle = "app.executeMenuCommand(\"lockguide\"); \"\""
+        if case .failure(let failure) = evaluate(toggle, in: app) { return .failure(failure) }
+        if AX.wait(30, { read(app) == locked ? true : nil }) != nil { return .success(true) }
+        _ = evaluate(toggle, in: app)
+        return .failure(.notChanged)
     }
 }
 
