@@ -58,5 +58,6 @@ fi
 ditto --noextattr --norsrc "$APP" ../ExtensionLinker.app
 python3 ../../Shared/BuildTools/publish_latest.py "$APP"
 codesign --verify --deep --strict ../ExtensionLinker.app
-codesign --verify --deep --strict "../../Latest Builds/ExtensionLinker.app"
+latest_builds=$(python3 ../../Shared/BuildTools/distribution_paths.py)
+codesign --verify --deep --strict "$latest_builds/ExtensionLinker.app"
 printf 'Built: %s\n' "../ExtensionLinker.app"

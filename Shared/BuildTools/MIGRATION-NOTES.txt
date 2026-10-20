@@ -1,0 +1,31 @@
+移行日: 2026-10-20（このMac）
+開発先: /Users/takano/Git/macos-apps
+基準: https://github.com/swwwitch/macos-apps.git
+取得コミット: 4826c1fa638b3eb385e232736856e19cface5aaa
+配布先: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app/Latest Builds
+もう一方の配置先: /Applications
+
+保全先: /Users/takano/Git/macos-apps-preserved-20261020-215754
+保全元1: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app
+保全元2: /Users/takano/Documents/Codex/2026-10-05/task/macos-apps
+元フォルダーはいずれも削除・変更していない。
+Dropbox側のstatusは372行、既存cloneの未コミット変更は0件。
+各保全先にステージ済み/未ステージのバイナリパッチ、status、HEAD、refs、remotes、
+追跡対象と非ignored未追跡ファイルのコピー、削除情報付きSHA-256一覧、.gitの完全コピーを保存。
+1933件と192件のパスを記録し、存在するファイルと.git全ファイルのハッシュ一致を検証。
+復元手順は保全先README.txtを参照。ignoredのビルド成果物・証明書・非公開資料などは元の場所に保持。
+それらを新cloneに一括コピーしていない。必要な依存物は既存の取得スクリプトから準備する。
+
+GitHubとの差分はAGENTS.md、Latest Builds/README.md。
+DropboxにのみあるものはLatest Builds/別Macへの移行手順.txt、MOVED-TO-GIT.txt。
+これらは保全済み。旧indexのステージ済み差分を最新版へ適用していない。
+FolderHopper/Development/Source/main.swiftはDropbox・GitHub・移行先の全体ハッシュが一致。
+placeOnPreferredScreen()・sourceWindowCenter()と呼出箇所を保持。
+
+配布先はdistribution_paths.pyで一元化。SW_APP_LATEST_BUILDSで別Macのパスを指定可能。
+共通配布・公証後配布・配布検証・個別配布2本・ExtensionLinkerの検証先を更新。
+GitHubへのpushは行っていない。変更は新cloneの未コミット差分として保持。
+
+検証: 配布テスト4件（ロールバック・プロセス確認失敗・外部配布先とREADME更新・既定パス）、
+変更Pythonの構文解析、ExtensionLinkerのzsh構文、git diff --check、FolderHopper全体一致。
+この作業はソースと配布経路の移行。アプリの再ビルド・実機操作・実配布は未実施。

@@ -2,6 +2,7 @@
 """Final audit of installed release copies, including nested signatures and notarization."""
 import argparse,csv,json,pathlib,plistlib,subprocess,sys
 from deploy_both import manifest
+from distribution_paths import latest_builds_dir
 from developer_id_release import code_nodes,IDENTITY
 p=argparse.ArgumentParser();p.add_argument('output',type=pathlib.Path);a=p.parse_args();r=a.output.resolve();root=pathlib.Path(__file__).resolve().parents[2]
 rows=json.loads((r/'FINAL-RESULTS.json').read_text());plan=json.loads((r/'build-plan.json').read_text())
@@ -14,7 +15,7 @@ for name,row in sorted(rows.items()):
  expected=manifest(source)
  info=plistlib.loads((source/'Contents/Info.plist').read_bytes())
  item={'app':name,'version':info['CFBundleShortVersionString'],'build':info['CFBundleVersion'],'bundle_id':info['CFBundleIdentifier'],'copies':[]}
- for app in [pathlib.Path('/Applications')/source.name,root/'Latest Builds'/source.name]:
+ for app in [pathlib.Path('/Applications')/source.name,latest_builds_dir()/source.name]:
   assert manifest(app)==expected, str(app)+' differs from the release artifact'
   for node in code_nodes(app)+[app]:
    subprocess.run(['/usr/bin/codesign','--verify','--strict',str(node)],check=True,capture_output=True)

@@ -19,6 +19,8 @@ import subprocess
 import sys
 import tempfile
 
+from distribution_paths import latest_builds_dir
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -67,7 +69,7 @@ def main():
         sys.exit('Cannot check running applications; nothing was replaced.')
     if running.returncode == 0:
         sys.exit(f'{source.stem} is running; quit it before deployment.')
-    destinations = {'Applications': Path('/Applications') / source.name, 'LatestBuilds': ROOT / 'Latest Builds' / source.name}
+    destinations = {'Applications': Path('/Applications') / source.name, 'LatestBuilds': latest_builds_dir() / source.name}
     for dest in destinations.values():
         if dest.exists():
             old = info(dest)
@@ -113,7 +115,7 @@ def main():
     finally:
         for path in staged.values():
             shutil.rmtree(path.parent, ignore_errors=True)
-    readme = ROOT / 'Latest Builds/README.md'
+    readme = latest_builds_dir() / 'README.md'
     text = readme.read_text()
     row = re.compile(r'^\| \[' + re.escape(source.stem) + r'\]\(' + re.escape(source.name) + r'\) \| [^|]* \| [^|]* \|', re.M)
     updated, count = row.subn(f'| [{source.stem}]({source.name}) | {version} | {build} |', text)

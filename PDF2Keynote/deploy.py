@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Place build/PDF2Keynote.app in /Applications and Latest Builds, backing up any previous copy."""
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Shared/BuildTools"))
+from distribution_paths import latest_builds_dir
 import datetime, hashlib, os, plistlib, shutil, subprocess
 
 root = Path(__file__).resolve().parent
 source = root / 'build/PDF2Keynote.app'
-dests = [Path('/Applications/PDF2Keynote.app'), root.parent / 'Latest Builds/PDF2Keynote.app']
+dests = [Path('/Applications/PDF2Keynote.app'), latest_builds_dir() / 'PDF2Keynote.app']
 expected = 'jp.local.PDF2Keynote'
 
 def info(p):

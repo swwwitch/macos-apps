@@ -1,3 +1,9 @@
+# 開発場所（2026-10-20）
+
+開発・ビルド・Git操作は `~/Git/macos-apps` で行う。GitHubの `swwwitch/macos-apps` を基準とし、Dropboxの旧ソースを一括上書きしない。
+Dropbox内 `sw_app` と旧cloneは保全元として保持する。配布先はDropbox内 `sw_app/Latest Builds` と `/Applications`。
+配布先の共通設定は `Shared/BuildTools/distribution_paths.py`。移行記録は `Shared/BuildTools/MIGRATION-NOTES.txt` を参照。
+
 # sw_app 開発共通ルール
 
 このフォルダ以下の既存・新規macOSアプリに適用する。ユーザーの明示指示を優先する。

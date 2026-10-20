@@ -1,8 +1,11 @@
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Shared/BuildTools"))
+from distribution_paths import latest_builds_dir
 import plistlib,subprocess,datetime,shutil,hashlib
 root=Path(__file__).resolve().parent
 source=root/'build/CarmaChameleon.app'
-dests=[Path('/Applications/CarmaChameleon.app'),root.parent/'Latest Builds/CarmaChameleon.app']
+dests=[Path('/Applications/CarmaChameleon.app'),latest_builds_dir()/'CarmaChameleon.app']
 expected='jp.local.PandocDesk'
 def info(p):
  with open(p/'Contents/Info.plist','rb') as f:return plistlib.load(f)
