@@ -136,7 +136,7 @@ helptexts = [
 
 設定
 「出力」タブ：埋め込まれたnote記事のタイトルをリンクの文字にする（初期値オン）。オフにすると「note記事へのリンク」と書き出し、記事ごとの問い合わせをしません。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabに出さず、メニューバーのアイコンかFinderからアプリを開き直すと表示）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
 
 設定の共有
 「設定の共有」タブで、「出力」タブの設定（埋め込まれたnote記事のタイトル取得・ファイル名）を書き出し・読み込みできます（「書き出す…」「読み込む…」、note2markdown-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。最後の保存先フォルダー、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。
@@ -182,7 +182,7 @@ Conversion
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
@@ -228,7 +228,7 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 
 设置
 “输出”：将嵌入的 note 文章标题用作链接文字（默认开启）。关闭时写为“note 文章链接”，不进行额外请求。
-“启动与后台”：登录时启动（关）、启动时不显示主窗口（关）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
+“启动与后台”：登录时启动（关）、启动时不显示主窗口（关）、不在程序坞和应用程序切换器中显示（关；开启后不在程序坞和 ⌘Tab 中显示，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
 
 设置共享
 在“设置共享”标签中，可以导出和导入“输出”标签的设置（获取嵌入的 note 文章标题）（“导出…”“导入…”，note2markdown-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。上次导出的文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
@@ -274,7 +274,7 @@ Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. UR
 
 설정
 출력: 삽입된 note 글의 제목을 링크 텍스트로 사용(기본값 켬). 끄면 "note 글 링크"로 쓰고 추가 조회를 하지 않습니다.
-시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
+시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 Dock과 ⌘Tab에 표시하지 않으며, 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
 
 설정 공유
 설정 공유 탭에서 출력 탭의 설정(삽입된 note 글의 제목 가져오기)을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, note2markdown-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 마지막 내보내기 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.

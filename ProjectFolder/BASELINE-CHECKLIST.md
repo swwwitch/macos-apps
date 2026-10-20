@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift SingleInstanceLaunch、LSMultipleInstancesProhibited。開き直しで既存のウインドウが出ることは開発版で確認、別コピー起動は未確認 |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | Model.changeLogin（SMAppService）、初期値オフ |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch（LaunchTests PASS） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | LSUIElement＋MenuBarPresence（独自アイコン folder.badge.plus）、keepRunning 初期値オン、applicationShouldHandleReopen。開き直しでの再表示は開発版で確認 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | LSUIElement＋MenuBarPresence（独自アイコン folder.badge.plus）、keepRunning 初期値オン、applicationShouldHandleReopen。開き直しでの再表示は開発版で確認。2026-10-20：「起動・常駐」に「Dockとアプリケーションスイッチャーに表示しない」（共通部品 DockPresence、StartupWindowView 内で「起動時にメインウインドウを表示しない」の直下。WindowActivationPolicy.update が .accessory を保つ）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | アプリメニュー・常駐メニュー・設定に終了。stop() でホットキーと監視を解除 |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘, ⌘W ⌘0、return＝作成、esc＝キャンセル、⌘R＝前面のフォルダーを読み直す |
 | B07 | ショートカット管理 | 実装済み・実機未確認 | アプリを呼び出すホットキー（初期値 ⇧⌥⌘N、Finder・Path Finder・自身が前面のときだけ登録、記録・取消・消去、登録失敗を表示）。HotkeyManifest公開。機能実行のホットキーは無し |

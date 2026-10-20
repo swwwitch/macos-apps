@@ -210,6 +210,7 @@ Illustrator版の「グループ化」は、ビットマップには当てはま
 
 - **ログイン時に起動**（初期値オフ）
 - **起動時にメインウインドウを表示しない**（初期値オフ）
+- **Dockとアプリケーションスイッチャーに表示しない**（初期値オフ。オンにすると、Dockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます）
 - **ウインドウを閉じても常駐**（初期値オン。オフにすると、メインウインドウを閉じたときに終了します）
 - **メニューバーに表示**
 
@@ -289,6 +290,7 @@ Open them with **Settings…** (⌘,) in the app menu. The Startup & Background 
 
 - **Open at login** (off at first)
 - **Hide main window at startup** (off at first)
+- **Hide from Dock and App Switcher** (off at first. When on, the app does not appear in the Dock or the ⌘Tab switcher. Show it from the menu bar icon (when shown) or by opening the app again in Finder)
 - **Keep running after closing the window** (on at first; when off, closing the main window quits)
 - **Show in menu bar**
 
@@ -368,6 +370,7 @@ Illustrator 版中的“编组”不适用于位图，因此省略。设置会�
 
 - **登录时启动**（默认关闭）
 - **启动时不显示主窗口**（默认关闭）
+- **不在程序坞和应用程序切换器中显示**（默认关闭。开启后不在程序坞和 ⌘Tab 切换器中显示图标。可通过菜单栏图标（显示时）或在访达中再次打开应用来显示）
 - **关闭窗口后保持运行**（默认开启。关闭时，关闭主窗口即退出应用）
 - **在菜单栏中显示**
 
@@ -447,6 +450,7 @@ Illustrator 버전의 '그룹화'는 비트맵에는 해당하지 않으므로 �
 
 - **로그인 시 실행**(기본값 끔)
 - **시작 시 메인 윈도우 표시 안 함**(기본값 끔)
+- **Dock 및 앱 전환기에 표시 안 함**(기본값 끔. 켜면 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않습니다. 메뉴 막대 아이콘(표시 중일 때) 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다)
 - **윈도우를 닫아도 계속 실행**(기본값 켬. 끄면 메인 윈도우를 닫을 때 종료합니다)
 - **메뉴 막대에 표시**
 

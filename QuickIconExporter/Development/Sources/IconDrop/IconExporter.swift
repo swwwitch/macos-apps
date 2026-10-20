@@ -34,7 +34,7 @@ enum IconExporter {
         guard OutputDirectoryPolicy.isUserDirectory(directoryURL) else {
             throw IconExportError.containerDestination
         }
-        let image = bundledLegacyIcon(for: sourceURL) ?? NSWorkspace.shared.icon(forFile: sourceURL.path)
+        let image = icnsContents(of: sourceURL) ?? bundledLegacyIcon(for: sourceURL) ?? NSWorkspace.shared.icon(forFile: sourceURL.path)
         let bitmap = try largestBitmap(from: image)
 
         guard let pngData = bitmap.representation(using: .png, properties: [:]) else {
@@ -109,6 +109,17 @@ enum IconExporter {
     private static func normalizedFallback(_ value: String) -> String {
         let trimmed = value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: ".")))
         return trimmed.isEmpty ? "icon" : trimmed
+    }
+
+    /// .icnsファイルそのものは、Finderのファイルアイコンではなく中に入っている画像を返す。
+    /// 読めない.icnsはnilにして、ファイルアイコンの書き出しに戻す。
+    static func icnsContents(of sourceURL: URL) -> NSImage? {
+        guard sourceURL.pathExtension.lowercased() == "icns",
+              let image = NSImage(contentsOf: sourceURL),
+              image.representations.contains(where: { $0.pixelsWide > 0 && $0.pixelsHigh > 0 }) else {
+            return nil
+        }
+        return image
     }
 
     /// .icnsだけを持つアプリは同梱の.icnsを返す。

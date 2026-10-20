@@ -28,7 +28,7 @@
 | B17 | プライバシー | 実装済み・実機未確認 | 外部通信なし。ローカルUserDefaultsと復元履歴だけを保存。パスを含む履歴の用途と削除方法をヘルプへ。 |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 実装済み・実機未確認 | 更新メニューは未設定と明示。ローカルad-hoc署名、Developer ID/公証/更新feed/公開鍵なし。2配置先の検証は確認記録を参照。 |
 | B19 | マスタード基調の共通アイコン | 実機確認済み | Shared/DesignAssets/app-icons-mustard-final.pngを実際に参照。Assets/GenerateIcon.swiftでマスタード背景・白い積層書類/フォルダ・茶色矢印を作成。現行.icnsはメインヘッダーで表示確認。Finder/情報ウインドウは未確認。 |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティの別グループ | 実機確認済み | Shared/AppStandards/LaunchPresenceSection.swiftを新設して再利用可能に。ログイン起動→常駐→アプリ起動ショートカットの順。プライバシー/履歴を別グループ。起動キーはOSショートカット設定への導線と手順。AX不要につき許可グループなし。 |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティの別グループ | 実機確認済み | Shared/AppStandards/LaunchPresenceSection.swiftを新設して再利用可能に。ログイン起動→常駐→アプリ起動ショートカットの順。プライバシー/履歴を別グループ。起動キーはOSショートカット設定への導線と手順。AX不要につき許可グループなし。2026-10-20 1.1.0：「Dockとアプリケーションスイッチャーに表示しない」（DockPresence、Shared/AppStandards/StartupWindow.swift）を LoginAtLaunchView 内の「起動時にメインウインドウを表示しない」の直下に1回だけ表示。起動時に MenuBarPresence.install で適用。ビルド確認済み・実機未確認。 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | ユーザーが明示指定したフォルダを自アプリ内で処理。前面アプリの選択やキー入力には作用しない。外部アプリ連携/グローバルキー監視がないのでBundle ID除外設定は対象にならない。 |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.0.15：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー folders・hidden・openDestinationAfterMove・shortenDropboxPaths。source・destination・resident・ログイン起動・起動時非表示・メニューバー・securityScopedFolders.v1 はMacごと。onImport はモデルの再描画（設定は@AppStorage）。通常版のビルド・test.sh・配置・起動確認、App Store版（サンドボックス）のビルドを確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
 | — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：機能のホットキーは無く（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）、「アプリ起動のキーボードショートカット」は LaunchPresenceSection からmacOSの「ショートカット」アプリを開いて「アプリを開く」に割り当てる方式。アプリ内で記録する欄が無いため HotkeyField は使わない。 |

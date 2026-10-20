@@ -37,7 +37,7 @@ struct DutiGUIApp: App {
                 .background(UtilityWindowChrome(title: ""))
                 .frame(minWidth: 520, minHeight: 580)
                 .onAppear {
-                    NSApp.setActivationPolicy(.regular); if !StartupWindow.hidden { NSApp.activate(ignoringOtherApps: true) }
+                    DockPresence.apply(); if !StartupWindow.hidden { NSApp.activate(ignoringOtherApps: true) }
                     MenuBarPresence.shared.install(name: "ExtensionLinker", symbol: "link", show: {
                         MainWindow.show()
                     }, settings: { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }, help: { LocalHelp.shared.show() })
@@ -422,7 +422,7 @@ enum MainWindow {
     fileprivate static var opener: OpenWindowAction?
     static func show(_ open: OpenWindowAction? = nil) {
         if let open { opener = open }
-        NSApp.setActivationPolicy(.regular)
+        DockPresence.apply()
         NSApp.unhide(nil)
         NSApp.activate(ignoringOtherApps: true)
         if let window {

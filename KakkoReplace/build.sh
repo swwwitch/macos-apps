@@ -17,7 +17,9 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement "${UPDATE_SWIFT_FLAGS[@]}" Sources/AppSurface.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/Transform.swift Sources/Editor.swift Sources/HotKey.swift Sources/PaletteTargetSession.swift Sources/Palette.swift Sources/OperationPicker.swift Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift Sources/HotkeyManifest.swift Sources/SettingsSync.swift Sources/ExcludedApps.swift Sources/HotkeyRecorder.swift Sources/main.swift -o "$APP/Contents/MacOS/KakkoReplace"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"
-if [[ ! -f Assets/KakkoReplace.icns || Assets/draw-icon.swift -nt Assets/KakkoReplace.icns || Assets/package-icon.py -nt Assets/KakkoReplace.icns ]]; then
+# The committed .icns is the source of truth; file dates after a clone or checkout say nothing about which is newer.
+# Redraw only when it is missing or on request: REGENERATE_ICON=1 ./build.sh
+if [[ ! -f Assets/KakkoReplace.icns || "${REGENERATE_ICON:-0}" == 1 ]]; then
     xcrun swift -module-cache-path "$STAGING/ModuleCache" Assets/draw-icon.swift Assets/KakkoReplace.png
     python3 Assets/package-icon.py
 fi

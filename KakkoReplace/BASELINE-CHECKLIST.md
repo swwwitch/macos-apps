@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・一部検証済み | Sources/main.swift SingleInstanceLaunch（BrowserSwitcher由来）。最古プロセスへreopen。同時起動・別コピーの実機検証は未実施。ファイル入力は機能対象外。 |
 | B02 | ログイン起動設定 | 実装済み・一部検証済み | Sources/main.swift Model.changeLogin/refreshLogin。SMAppServiceの状態を表示、登録は明示ON時のみ。実機UIで初期OFFを確認。再ログイン・OS側OFF・移動後は未確認。 |
 | B03 | ログイン時の非表示 | 実装済み・一部検証済み | Sources/LaunchPolicy.swift（FolderHopper由来）。Apple eventでログイン起動を判定し設定表示を抑止。起動ポリシー7条件テスト合格。実ログイン未確認。 |
-| B04 | 常駐と再表示 | 実装済み・一部検証済み | Sources/main.swift status item、shouldTerminateAfterLastWindowClosed=false、reopen。設定画面は実機確認済み。全画面を閉じた後の常駐・再表示は未確認。 |
+| B04 | 常駐と再表示 | 実装済み・一部検証済み | Sources/main.swift status item、shouldTerminateAfterLastWindowClosed=false、reopen。設定画面は実機確認済み。全画面を閉じた後の常駐・再表示は未確認。2026-10-20 0.4.0(67)：「Dockとアプリケーションスイッチャーに表示しない」（StartupWindow.swift の DockPresence。設定は main.swift の StartupWindowView 内、適用は MenuBarPresence.install と WindowActivationPolicy.update）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・一部検証済み | Sources/main.swift ローカルアプリメニュー⌘Q、Model.stopで監視解除。編集処理は同期で中途終了を避ける。実機終了未確認。 |
 | B06 | 標準キー操作 | 実装済み・一部検証済み | Sources/main.swift 編集メニュー、⌘W/⌘,/Esc。ヘルプから設定への表示遷移を確認したが、各キー単独の動作と全画面closeは検証不足。 |
 | B07 | ショートカット管理 | 実装済み・一部検証済み | Sources/HotKey.swiftとModel。変更/無効/一時停止/初期化/登録失敗表示、対象外アプリでは登録解除。単一操作のためアプリ内割当重複なし。実ホットキーと除外動作は権限未許可のため未確認。 |

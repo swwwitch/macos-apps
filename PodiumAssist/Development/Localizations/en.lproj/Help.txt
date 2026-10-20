@@ -52,7 +52,7 @@ Click the “screen + clock” icon in the menu bar to open the main window (Sem
 
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
-- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar
 - **Sharing**: “Export…” writes the presets and Use Timer to PodiumAssist-Settings.plist; “Import…” on another Mac reads it (Add appends only presets you do not have, Replace uses the file’s settings). In Settings Sync, choose a folder in iCloud Drive, Dropbox or similar to keep your other Macs in sync automatically. Login launch, background, menu bar, the timer’s start time and duration, and the last applied preset stay per Mac
 
 ## Keyboard Shortcuts
@@ -80,6 +80,7 @@ PodiumAssist uses these two shortcuts in the Shortcuts app on your Mac. Create t
 ## Opening and Quitting
 - Closing the window does not quit the app; it stays in the menu bar. Click the menu bar icon to show the main window again. Right-click (or Control-click) the icon for a menu with Open Main Window, Settings…, Help, Menu Bar Settings…, and Quit PodiumAssist.
 - When opened at login, or when Hide main window at startup is on, the app starts without opening the main window.
+- When Hide from Dock and App Switcher is on, the app stays out of the Dock and the ⌘Tab switcher even while the main window is open. Show it from the menu bar icon or by opening the app again in Finder.
 - Turning off Show in menu bar does not quit the app. Open PodiumAssist again to show the main window.
 - To quit, click the Quit PodiumAssist button in the main window (⌘Q), or choose Quit PodiumAssist from the icon’s right-click menu. The menu bar display disappears, but the system settings you changed stay as they are.
 

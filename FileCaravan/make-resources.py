@@ -67,6 +67,8 @@ helptexts=[
 
 ## 起動・常駐と終了
 - 「ログイン時に起動」の初期値はオフです。ログイン起動ではウインドウを表示しません。
+- 「起動時にメインウインドウを表示しない」をオンにすると、ウインドウを開かずに起動します。
+- 「Dockとアプリケーションスイッチャーに表示しない」をオンにすると、ウインドウを開いている間もDockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコン（「メニューバーに表示」がオンのとき）か、Finderからアプリを開き直すと表示できます。
 - 常駐オンでは、⌘Wや閉じるボタンでウインドウだけを閉じ、Dockまたは⌘0で再表示します。
 - 常駐オフでは、処理中でなければウインドウを閉じると終了します。
 - ⌘Qで終了します。移動中は終了できないため、「停止」した後でもう一度終了してください。
@@ -148,6 +150,8 @@ helptexts=[
 
 ## Launch, Keep Running and Quitting
 - Launch at login is off by default. A login launch does not show the window.
+- With Hide main window at startup on, the app launches without opening its window.
+- With Hide from Dock and App Switcher on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon (when Show in menu bar is on) or by opening the app again in Finder.
 - With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.
 - With it off, closing the window quits the app when no move is running.
 - ⌘Q quits. During a move you cannot quit; choose Stop first, then quit again.
@@ -229,6 +233,8 @@ helptexts=[
 
 ## 启动、保持运行与退出
 - “登录时启动”默认关闭。登录启动时不显示窗口。
+- 开启“启动时不显示主窗口”后，启动时不打开窗口。
+- 开启“不在程序坞和应用程序切换器中显示”后，即使窗口处于打开状态，也不会在程序坞和 ⌘Tab 切换器中显示图标。可通过菜单栏图标（开启“在菜单栏中显示”时）或在访达中再次打开应用来显示。
 - 开启“保持运行”时，⌘W 或关闭按钮只关闭窗口，可从 Dock 或用 ⌘0 重新打开。
 - 关闭“保持运行”后，空闲时关闭窗口会退出。
 - ⌘Q 退出。移动期间无法退出，请先“停止”再退出。
@@ -310,6 +316,8 @@ helptexts=[
 
 ## 실행, 계속 실행과 종료
 - 로그인 시 실행은 기본적으로 꺼져 있습니다. 로그인 실행 시 창을 표시하지 않습니다.
+- 시작 시 메인 윈도우 표시 안 함을 켜면 윈도우를 열지 않고 시작합니다.
+- Dock 및 앱 전환기에 표시 안 함을 켜면 윈도우가 열려 있어도 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않습니다. 메뉴 막대 아이콘(메뉴 막대에 표시가 켜져 있을 때)이나 Finder에서 앱을 다시 열어 표시할 수 있습니다.
 - 계속 실행을 켜면 ⌘W나 닫기 버튼은 창만 닫습니다. Dock 또는 ⌘0으로 다시 열 수 있습니다.
 - 계속 실행을 끄면 이동 중이 아닐 때 창을 닫으면 종료합니다.
 - ⌘Q로 종료합니다. 이동 중에는 종료할 수 없으므로 먼저 중지한 후 다시 종료하세요.

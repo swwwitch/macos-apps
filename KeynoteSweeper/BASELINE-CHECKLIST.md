@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | `main.swift` applicationWillFinishLaunching（Bundle IDで既存インスタンスへ戻し、引数のファイルを渡す）＋LSMultipleInstancesProhibited |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | 共通 `Shared/LoginAtLaunch/LoginAtLaunch.swift` を直接ビルド。初期値OFF |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | `LaunchPolicy.isLoginLaunch` で主画面を出さない。ファイル受け渡し時は表示 |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても常駐」初期値ON。Dock再オープン・メニューバー（MenuBarPresence）から再表示 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても常駐」初期値ON。Dock再オープン・メニューバー（MenuBarPresence）から再表示。2026-10-20 1.1.0(10)：「Dockとアプリケーションスイッチャーに表示しない」（Shared/AppStandards/StartupWindow.swift の DockPresence。LoginAtLaunchView 内の StartupWindowControl に表示、起動時は MenuBarPresence.install で適用）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 削除中は applicationShouldTerminate で止めて理由を表示。アプリメニューに⌘Q |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘Return 削除、⌘O ファイルを開く、⌘R 再読み込み、Esc キャンセル、⌘0、⌘W、⌘,、⌘?、編集メニュー |
 | B07 | ショートカット管理 | 適用外 | グローバルな機能ホットキーなし。アプリ起動はショートカットApp経由（設定から案内） |

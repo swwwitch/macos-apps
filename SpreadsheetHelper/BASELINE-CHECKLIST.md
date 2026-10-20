@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 未確認 | |
 | B02 | ログイン起動設定 | 未確認 | |
 | B03 | ログイン時の非表示 | 未確認 | |
-| B04 | 常駐と再表示 | 未確認 | |
+| B04 | 常駐と再表示 | 未確認 | 2026-10-20：「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Sources/StartupWindow.swift の DockPresence、起動・常駐の StartupWindowView 内、起動時は MenuBarPresence.install、ウインドウ開閉時は WindowActivationPolicy.update で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 未確認 | |
 | B06 | 標準キー操作 | 未確認 | |
 | B07 | ショートカット管理 | 未確認 | |

@@ -50,6 +50,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
 - **Action Shortcuts**: click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key used by another action or the palette cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
+- **Hide from Dock and App Switcher**: in Startup & Background, below Hide main window at startup. When on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
 - **Sharing**: “Export…” saves the settings to CommandDee-Settings.plist, and “Import…” replaces them after asking. “Set Sync Folder…” syncs with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). Shared: the action shortcuts and whether they are on, the separator, the suffix order, the status words and the parent folder name to skip. Login launch, startup display, the menu bar icon, the palette shortcut and Accessibility are set per Mac.
 
 ## Permissions

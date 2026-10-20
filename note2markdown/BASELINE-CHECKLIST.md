@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift（Bundle IDで既存インスタンスへ戻す）＋LSMultipleInstancesProhibited。 |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | Shared/LoginAtLaunch（LoginAtLaunchView）、初期値オフ。 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch でメインウインドウを出さない。 |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても終了しない」初期値オン（オフで閉じると終了）。Dock・⌘0・メニューバー（選択時）から再表示。 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても終了しない」初期値オン（オフで閉じると終了）。Dock・⌘0・メニューバー（選択時）から再表示。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence、LoginAtLaunchView に内包、起動時は MenuBarPresence.install で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 読み込み中の終了は通信を捨てるだけでファイルは書かない。書き込みは atomically。 |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘R読み込む・⌘S書き出す・⇧⌘Cコピー・⌘,・⌘0・⌘W・⌘Q・⌘?、標準の編集メニュー、Returnで読み込み、読み込み中Escで取消。 |
 | B07 | ホットキー管理 | 適用外 | グローバルホットキーなし。 |

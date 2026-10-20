@@ -38,6 +38,7 @@ Open them with **Settings…** (⌘,) in the app menu. The Startup & Background 
 
 - **Open at login** (off at first)
 - **Hide main window at startup** (off at first)
+- **Hide from Dock and App Switcher** (off at first. When on, the app does not appear in the Dock or the ⌘Tab switcher. Show it from the menu bar icon (when shown) or by opening the app again in Finder)
 - **Keep running after closing the window** (on at first; when off, closing the main window quits)
 - **Show in menu bar**
 

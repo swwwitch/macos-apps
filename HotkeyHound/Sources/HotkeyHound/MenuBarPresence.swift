@@ -44,6 +44,11 @@ final class MenuBarPresence: NSObject {
         if name == "CommandDee" { item?.button?.title = ""; item?.length = NSStatusItem.squareLength }
         item?.button?.setAccessibilityLabel(name)
         apply()
+        // 「Dockとアプリケーションスイッチャーに表示しない」: also after launch code that sets .regular later in the same pass.
+        if DockPresence.hidden {
+            DockPresence.apply()
+            DispatchQueue.main.async { DockPresence.apply() }
+        }
         installMenuEntry()
         MainWindowShortcutAlias.install()
         NotificationCenter.default.addObserver(self, selector: #selector(activated), name: NSApplication.didBecomeActiveNotification, object: NSApp)

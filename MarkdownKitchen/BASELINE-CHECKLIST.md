@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | MarkdownKitchenApp.swift `SingleInstanceLaunch`（BundleIDInspectorと同じ）、Info.plist LSMultipleInstancesProhibited |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | 共通 LoginAtLaunch.swift。初期値OFF。再ログインは未確認 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | StartupWindow.swift（StartupWindowGate） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | AppDelegate：最後のウインドウを閉じても終了しない、applicationShouldHandleReopen、⌘0 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | AppDelegate：最後のウインドウを閉じても終了しない、applicationShouldHandleReopen、⌘0。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence を Sources/MarkdownKitchen/StartupWindow.swift に同期、SettingsView の LoginAtLaunchView に内包、起動時は MenuBarPresence.install で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 長い処理・監視なし。⌘Qは標準のアプリメニュー |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘W・⌘,・⌘Z/⇧⌘Z・⌘F（検索バー）をNSTextViewとメニューで提供 |
 | B07 | ショートカット管理 | 適用外 | グローバルホットキーなし。アプリ内の⌘O・⇧⌘Cのみ |

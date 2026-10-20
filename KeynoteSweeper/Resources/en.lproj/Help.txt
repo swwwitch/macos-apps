@@ -38,6 +38,7 @@ Keynote's Edit › Undo (Command-Z) restores deletions one at a time. The file i
 Settings (Command-comma) › Startup & Background:
 - Open at login (off by default)
 - Hide main window at startup
+- Hide from Dock and App Switcher (keeps the icon out of the Dock and the Command-Tab switcher; show the app from the menu bar icon, the app launch shortcut, or by opening it again in Finder)
 - Keep running after closing the window
 - Show in menu bar
 - App launch keyboard shortcut

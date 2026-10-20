@@ -92,3 +92,8 @@
 - B20：常駐の文言を「ウインドウを閉じても常駐」、「設定…」「送信中…」の省略記号を「…」に。アクセシビリティは使わないため置かない。共通の SettingsSync（@MainActor 化）で再ビルド。
 - B21：適用外のまま（他アプリに作用しない）。
 - 1.3.2（build 13）：ビルド・test.sh 通過、/Applications と Latest Builds に配置、起動中だったため終了→置換→起動し直し、pgrep で確認。
+
+## 1.4.0（build 15、2026-10-20）
+
+- B04 常駐と再表示：「Dockとアプリケーションスイッチャーに表示しない」を追加（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence。LoginAtLaunchView に内包、起動時は MenuBarPresence.install、以後は WindowActivationPolicy.update で適用）。ビルド確認済み・実機未確認。
+- B20 共通UI：「起動・常駐」の「起動時にメインウインドウを表示しない」の直下に表示（共通部品のため追加の配置なし）。ヘルプ4言語に追記。

@@ -42,7 +42,7 @@ HotkeyHound finds which apps define a key combination. Use it when a hotkey does
 
 ## Settings
 Click Settings in the main window (⌘,).
-- **Startup & Background**: open at login, hide the main window at startup, show in the menu bar, and Accessibility status
+- **Startup & Background**: open at login, hide the main window at startup, hide from Dock and App Switcher (keeps the icon out of the Dock and ⌘Tab; show the app from the menu bar icon or by opening it again in Finder), show in the menu bar, and Accessibility status
 - **Sources**: turn each source on or off and drag to reorder (results follow this order); the number of hotkeys found is shown. “Add Source…” creates a custom source where you enter keys, names and where they work (pencil to edit, trash to delete).
 - **Sharing**: export which sources are checked, their order, custom sources and “Hide inactive hotkeys” to a file and import it on another Mac (Add adds only custom sources you do not have yet; Replace uses the file’s settings). Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. Open at login, the startup window, the menu bar and the apps to check stay on each Mac.
 

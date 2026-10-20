@@ -200,6 +200,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 
 ## Running in the Background and Quitting
 - When “Keep running after closing” is on (default) on the Startup & Background tab, the close button hides the palette; show it again or quit from the menu bar. When it is off, the close button quits MightyEdit. The window position is saved.
+- When “Hide from Dock and App Switcher” is on (default off) on the Startup & Background tab, MightyEdit stays out of the Dock and the ⌘Tab switcher even while the palette or Settings is open. Show it from the menu bar icon, the palette hotkey (default **⌃⌥⌘E**), or by opening the app again in Finder.
 - If you open MightyEdit a second time, the running MightyEdit comes to the front and the new copy quits.
 - Quit MightyEdit from its menu bar menu or the app menu (**⌘Q** while MightyEdit is active).
 - About MightyEdit in the app menu shows the version and build.

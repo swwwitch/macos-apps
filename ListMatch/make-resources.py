@@ -186,7 +186,7 @@ CSVの列を比べる
 設定
 「比較」タブ：共通の項目を薄く表示する（初期値オン。左右のリストで、もう一方にもある項目を薄い色で表示します。表示だけでリストやファイルは変わりません）、大文字と小文字を区別しない（初期値オン）、全角と半角を区別しない（初期値オフ）、結果を並べ替える（初期値オフ）。
 区切り文字はリストの上（比較の単位の右）で選びます：改行のほかにスペース・カンマ・タブ（初期値はすべてオフ。全角のスペースとカンマも含む）。区切り文字をオンにしたとき、ファイルを読み込んだとき、ペーストしたときは、リストを1行に1項目に並べ直して表示します（⌘Zで戻せます。ファイルと連携していれば「未保存」になり、「保存」するまでファイルは変わりません）。入力中の文字は並べ直しません。設定の変更はすぐに結果に反映します。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとウインドウを開いていてもDockと⌘Tabの切り替えに出しません。メニューバーのアイコンか、Finderからアプリを開き直すと表示できます）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
 
 設定の共有
 「設定の共有」タブで、「比較」タブの設定と、区切り文字・比較の単位・列・「1行目は見出し」の選択を書き出し・読み込みできます（「書き出す…」「読み込む…」、ListMatch-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。リストの内容は含みません。
@@ -240,7 +240,7 @@ Set Compare by (above the lists) to E-mail Addresses Only (or choose File → Co
 Settings
 Comparison: Dim common items (on by default; items also in the other list are shown lighter, the list and file are not changed), Ignore uppercase and lowercase (on by default), Ignore full-width and half-width forms (off), Sort the results (off).
 Separators are chosen above the lists (next to Compare by): Space, Comma and Tab besides line breaks (all off by default; full-width spaces and commas included). When you turn a separator on, load a file or paste, the list is rearranged one item per line (⌘Z undoes it; a linked file is marked Unsaved and does not change until you save). Typing is not rearranged. Setting changes apply to the results right away.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab even with a window open — show it from the menu-bar icon or by opening the app again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Compare tab settings and the separator, comparison unit, column and header-row choices as ListMatch-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, keep running and the menu bar icon are set on each Mac. The lists themselves are not included.
@@ -294,7 +294,7 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 设置
 “比较”：淡化显示共有的项（默认开启；另一侧也有的项以较浅颜色显示，不改变列表或文件）、不区分大小写（默认开启）、不区分全角和半角（默认关闭）、对结果排序（默认关闭）。
 分隔符在列表上方（比较单位右侧）选择：除换行外还可选空格、逗号、制表符（默认全部关闭，包括全角空格和逗号）。开启分隔符、载入文件或粘贴时，列表会重新排列为每行一项（可用 ⌘Z 撤销；已关联的文件显示“未存储”，存储前文件不会改变）。输入中的文字不会重新排列。设置的更改会立即反映到结果中。
-“启动与后台”：登录时启动（关闭）、启动时不显示主窗口（关闭）、关闭窗口后继续运行（开启）、在菜单栏中显示（关闭）。
+“启动与后台”：登录时启动（关闭）、启动时不显示主窗口（关闭）、不在程序坞和应用程序切换器中显示（关闭；开启后即使窗口打开也不会出现在程序坞和 ⌘Tab 中，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开启）、在菜单栏中显示（关闭）。
 
 设置共享
 在“设置共享”标签中，可以导出和导入“比较”标签的设置，以及分隔符、比较单位、列和“第一行是标题”的选择（“导出…”“导入…”，ListMatch-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。不包含列表内容。
@@ -348,7 +348,7 @@ CSV 열 비교
 설정
 비교 탭: 공통 항목을 흐리게 표시(기본값 켬, 다른 쪽에도 있는 항목을 옅은 색으로 표시하며 목록이나 파일은 바뀌지 않음), 대소문자를 구분하지 않음(기본값 켬), 전각과 반각을 구분하지 않음(끔), 결과 정렬(끔).
 구분 문자는 목록 위(비교 단위 오른쪽)에서 선택합니다: 줄바꿈 외에 공백, 쉼표, 탭(기본값은 모두 끔, 전각 공백과 쉼표 포함). 구분 문자를 켜거나 파일을 불러오거나 붙여넣으면 목록을 한 행에 한 항목으로 다시 배열해 표시합니다(⌘Z로 되돌릴 수 있음. 연결된 파일은 저장 안 됨으로 표시되며 저장하기 전에는 파일이 바뀌지 않음). 입력 중인 문자는 다시 배열하지 않습니다. 설정 변경은 결과에 바로 반영됩니다.
-시작 및 백그라운드 탭: 로그인 시 실행(끔), 시작 시 메인 윈도우 숨기기(끔), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
+시작 및 백그라운드 탭: 로그인 시 실행(끔), 시작 시 메인 윈도우 숨기기(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 윈도우가 열려 있어도 Dock과 ⌘Tab에 표시하지 않습니다. 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시할 수 있습니다), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
 
 설정 공유
 설정 공유 탭에서 비교 탭의 설정과 구분 문자, 비교 단위, 열, 첫 행은 머리글 선택을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, ListMatch-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다. 목록 내용은 포함하지 않습니다.

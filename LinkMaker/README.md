@@ -1,6 +1,6 @@
 # LinkMaker
 
-![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.2.27-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
+![macOS](https://img.shields.io/badge/macOS-13%2B-lightgrey) ![version](https://img.shields.io/badge/version-1.3.0-blue) ![license](https://img.shields.io/badge/license-private-lightgrey)
 
 ブラウザーで表示中のページのタイトルとURLを、ホットキーでコピー・ファイル書き出し・開き直しするメニューバー常駐アプリ。Keyboard Maestro のマクログループ「Make Link」「Make Link (misc)」（[Reference](Reference/)）の移植。
 
@@ -38,6 +38,8 @@
 - 未移植：タブ切り替え・「タブを閉じる」「すべてのタブを閉じる」、Notion専用（開き直し以外）・Biscuit・Notefile専用、カンマ削除ペースト、セル内改行の「"」削除（CellCopyCleaner）、デフォルトブラウザーの変更（BrowserSwitcher）、クリップボードで起動するマクロ（KMで無効）。
 
 ## 更新履歴
+
+- 1.3.0（build 31, 2026-10-20）：設定の［起動・常駐］に「Dockとアプリケーションスイッチャーに表示しない」を追加（初期値オフ。オンでウインドウを開いていてもDockと⌘Tabに出さず、メニューバーのアイコンかFinderで開き直して表示）。ヘルプ（4言語）にも追記。
 
 - 1.2.27（build 30, 2026-10-20）：「新規ウインドウで開く」（⌃⌘N）で元のタブを閉じるように変更（⌘W で閉じてから ⌘N で開き、URLを開く）。
 

@@ -21,7 +21,9 @@ SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework UniformTypeIdentifiers "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/IncrementPaste"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"
-if [[ ! -f Assets/IncrementPaste.icns || Assets/draw-icon.swift -nt Assets/IncrementPaste.icns || Assets/package-icon.py -nt Assets/IncrementPaste.icns ]]; then
+# The committed .icns is the source of truth; file dates after a clone or checkout say nothing about which is newer.
+# Redraw only when it is missing or on request: REGENERATE_ICON=1 ./build.sh
+if [[ ! -f Assets/IncrementPaste.icns || "${REGENERATE_ICON:-0}" == 1 ]]; then
     xcrun swift -module-cache-path "$STAGING/ModuleCache" Assets/draw-icon.swift Assets/IncrementPaste.png
     python3 Assets/package-icon.py
 fi

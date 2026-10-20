@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift SingleInstanceLaunch＋LSMultipleInstancesProhibited |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | SMAppService、初期値オフ、状態4種を表示 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch（LaunchTests PASS） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | accessory＋MenuBarPresence、keepRunning（初期値オン） |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | accessory＋MenuBarPresence、keepRunning（初期値オン）。2026-10-20：「起動・常駐」に「Dockとアプリケーションスイッチャーに表示しない」（共通部品 DockPresence、StartupWindowView 内で「起動時にメインウインドウを表示しない」の直下。WindowActivationPolicy.update が .accessory を保つ）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | アプリメニュー⌘Q・常駐メニュー「終了」、stop()でホットキー・監視を解除 |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘W・⌘,・記録中Esc |
 | B07 | ホットキー管理 | 実装済み・実機未確認 | ⇧⌘V の有効/無効・変更・初期値、一時停止は常駐メニュー（ShortcutTests PASS）、登録失敗を表示、HotkeyManifest公開 |

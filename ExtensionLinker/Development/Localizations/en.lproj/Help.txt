@@ -22,7 +22,8 @@ Each preset line has the form “duti -s app-ID .extension all”. Lines that st
 Open **Settings…** from the app menu (⌘,).
 
 ### Startup & Background Tab
-- Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
+- Set **Open at login**, **Hide main window at startup**, **Hide from Dock and App Switcher**, and **Show in menu bar**.
+- With **Hide from Dock and App Switcher** on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
 
 ### Install Tab
 - Check whether duti and Homebrew are installed, and install them.

@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 一部実機確認済み | `main.swift` applicationWillFinishLaunching＋LSMultipleInstancesProhibited。`open -n` で2回目を起動してもプロセスは1つのまま。`open -a` でのPDF受け渡しも確認。別フォルダのコピーからの起動は未確認 |
 | B02 | ログイン起動設定 | 一部実機確認済み | 1.1.6から `Shared/LoginAtLaunch/LoginAtLaunch.swift`（旧 `Source/LoginAtLaunch.swift`）。初期値OFF。設定画面でON→「ログイン時に自動起動します」、OFF→「自動起動はオフです」を実機確認し、OFFに戻した（sfltoolでdisabledを確認）。未登録のときに出ていた誤った「アプリケーションフォルダに移動」表示を1.0.3で修正。再ログイン・OS側での無効化は未確認 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | `LaunchPolicy.isLoginLaunch` で主画面を出さない |
-| B04 | 常駐と再表示 | 一部実機確認済み | 「ウインドウを閉じても常駐」初期値ON。Dock再オープン・メニューバー（共通MenuBarPresence、初回に追加の案内を表示：実機で表示を確認）から再表示。⌘Wでメインウインドウを閉じてもプロセスは残り、アプリを開き直すとウインドウが戻ることを実機確認。メニューバーからの再表示は未確認 |
+| B04 | 常駐と再表示 | 一部実機確認済み | 「ウインドウを閉じても常駐」初期値ON。Dock再オープン・メニューバー（共通MenuBarPresence、初回に追加の案内を表示：実機で表示を確認）から再表示。⌘Wでメインウインドウを閉じてもプロセスは残り、アプリを開き直すとウインドウが戻ることを実機確認。メニューバーからの再表示は未確認。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence を直接コンパイル、LaunchPresenceSection の LoginAtLaunchView に内包、起動時は MenuBarPresence.install で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 変換中はapplicationShouldTerminateで終了を止め、理由を表示。アプリメニューに⌘Q |
 | B06 | 標準キー操作 | 一部実機確認済み | ⌘O、⌘Return、Escでキャンセル、⌘W、⌘,、⌘?、編集メニュー。⌘,で環境設定が開き、もう一度押しても1枚のまま。環境設定で⌘Wを押すと環境設定だけ閉じる。ヘルプメニューからヘルプが開く。⌘?・⌘Q・Escは未確認 |
 | B07 | ショートカット管理 | 適用外 | グローバルな機能ホットキーなし。アプリ起動はショートカットApp経由（設定から案内） |

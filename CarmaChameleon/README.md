@@ -291,3 +291,10 @@ PDF→テキストを pdftotext で作り直した（2026-10-12）。
 - 独自の Source/LoginAtLaunch.swift（L() で文言を持つ版）を外し、共通部品 Shared/LoginAtLaunch/LoginAtLaunch.swift を直接コンパイル。「ログイン時に起動」の状態表示・「ログイン項目を開く」・「起動時にメインウインドウを表示しない」は共通の文言になり、起動時非表示は共通部品の中の1か所だけ。
 - 常駐の英語表記を Keep running after closing the window にそろえた。
 - アクセシビリティは使わないため区画なし（B20）。対象外アプリは、ほかのアプリに作用する機能が無いため適用外（B21）。
+
+## 0.15.0 / build 47
+
+設定の［起動・常駐］に「Dockとアプリケーションスイッチャーに表示しない」を追加（2026-10-20）。
+
+- 共通部品 Shared/AppStandards/StartupWindow.swift の DockPresence。「起動時にメインウインドウを表示しない」の直下に表示（初期値オフ）。オンにするとウインドウを開いていてもDockと⌘Tabに出さない。メニューバーのアイコン（表示しているとき）かFinderで開き直して表示。
+- ヘルプ（4言語、help_text.py）に追記。

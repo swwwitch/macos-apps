@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift SingleInstanceLaunch、LSMultipleInstancesProhibited |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | LoginAtLaunchView（初期値OFF） |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | 通常アプリ（Dock・⌘Tab）＋メニューバー、「ウインドウを閉じても常駐」（初期値ON）、applicationShouldHandleReopen |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | 通常アプリ（Dock・⌘Tab）＋メニューバー、「ウインドウを閉じても常駐」（初期値ON）、applicationShouldHandleReopen。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence、LoginAtLaunchView に内包、起動時は MenuBarPresence.install で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 終了時に監視を解除（applicationWillTerminate → watcher.isActive = false） |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘, ⌘W ⌘Q ⌘0 ⌘? |
 | B07 | ショートカット管理 | 実装済み・実機未確認 | UIの明るさ ⇧F2／⇧F1：HotkeyField（変更・初期値に戻す・解除）、有効化スイッチ、登録失敗の表示。Illustratorが前面のときだけ登録。一時停止は有効化スイッチで代用 |
@@ -30,7 +30,7 @@
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/GenerateIcon.swift（CCAutoUpdateOffと同じタイル、AVと字間の括弧） |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 一部 | 起動・常駐タブにログイン起動・起動時非表示・常駐・メニューバー・アクセシビリティ。アプリ起動のホットキーは未実装（CCAutoUpdateOffと同じく残件） |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 作用するのはIllustratorだけ。実行直前に前面がIllustratorか再確認し、キーは消費しない |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView |
+| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchView に内包の StartupWindowView（2.19.0で重複表示を解消） |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | ユーザーの指示で通常アプリ（.regular、常に⌘TabとDockに表示）。WindowActivationPolicyは使わない。Dockからの開き直しは applicationShouldHandleReopen、MenuBarPresence（⌘1） |
 | B24 | 設定ウインドウのふるまい | 一部 | 最小サイズ（sizingOptions .minSize）。タブ復元は SettingsTabs 任せ。Escで閉じるは未確認 |
 | B25 | アプリ情報と目印 | 実装済み | 情報タブ、SWNoteArticleURL（専用記事）、コピーライト、SWAppFamily |

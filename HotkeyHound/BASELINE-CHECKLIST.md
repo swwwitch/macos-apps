@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | HotkeyHoundApp.swift SingleInstanceLaunch（BundleIDInspectorと同じ）。Info.plist LSMultipleInstancesProhibited |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | LoginAtLaunch.swift（共通部品）、初期値OFF |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | StartupWindow.swift（共通部品） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | AppDelegate：閉じても終了しない、applicationShouldHandleReopen、⌘0、MenuBarPresence |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | AppDelegate：閉じても終了しない、applicationShouldHandleReopen、⌘0、MenuBarPresence。2026-10-20 0.4.0(15)：「Dockとアプリケーションスイッチャーに表示しない」（StartupWindow.swift の DockPresence。LoginAtLaunchControl 内の StartupWindowControl に表示、起動時は MenuBarPresence.install で適用）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | 終了時に KeyRecorder.stop() でイベントタップを外す。AppleScript の quit が -128（取り消し）になった現象を確認、原因未調査 |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘, ⌘W ⌘0 ⌘? ⌘Q、記録中の修飾なしEscで取り消し |
 | B07 | ショートカット管理 | 適用外 | グローバルホットキーを登録しない。記録中だけイベントタップを張り、記録したキーを離すか1.5秒で外す。アプリ外へ移ると記録を取り消す |

@@ -28,7 +28,7 @@
 | B17 | プライバシー | 実装済み・実機未確認 | 外部通信なし（更新は配信先未設定で無効）。操作ログを残さない |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置済み | 2026-10-12 /Applications と Latest Builds に 1.0.0 (1) を配置、署名・内容一致（deploy_both）。更新配信は未設定 |
 | B19 | マスタード基調の共通アイコン | 実装済み・実機未確認 | マスタードタイル＋白いキーキャップ＋2×2のアプリタイル（Assets/draw-icon.swift） |
-| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐タブに共通部品（StartupWindowView・MenuBarPresenceView）。2026-10-17 1.10.2：アクセシビリティは URLによる条件で使うため起動グループの下に AccessibilitySection()（理由は neededOverride、判定は AccessibilitySection.isTrusted）。以前は required:false で「不要」と表示されていた。アプリ自身を呼ぶキーは一覧にDocklessLauncherを登録して代用（ヘルプに記載）。ビルド・配置・起動確認、画面表示は未確認 |
+| B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐タブに共通部品（StartupWindowView・MenuBarPresenceView）。2026-10-17 1.10.2：アクセシビリティは URLによる条件で使うため起動グループの下に AccessibilitySection()（理由は neededOverride、判定は AccessibilitySection.isTrusted）。以前は required:false で「不要」と表示されていた。アプリ自身を呼ぶキーは一覧にDocklessLauncherを登録して代用（ヘルプに記載）。ビルド・配置・起動確認、画面表示は未確認。2026-10-20 1.11.0：「Dockとアプリケーションスイッチャーに表示しない」（DockPresence、hideFromDockAndAppSwitcher）を StartupWindowView 内で「起動時にメインウインドウを表示しない」の直下に表示（Sources/StartupWindow.swift、Preferences の起動・常駐で1回だけ）。起動時は MenuBarPresence.install、ウインドウ開閉時は WindowActivationPolicy.update で適用。ビルド確認済み・実機未確認 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 2026-10-17 1.10.2：共通部品 ExcludedApps（タブ・中身・文言）。キー excludedBundleIDs、旧キー excluded を legacyKeys で引き継ぎ（defaults read で excludedBundleIDs の作成を確認、旧キーは残す）。onChange でホットキー再登録。前面が対象外ならホットキーを全解除し、押下時にも ExcludedApps.shared.excludes で再確認。画面操作は未確認 |
 
 ## 確認記録

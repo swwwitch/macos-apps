@@ -43,7 +43,7 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 
 | グループ | 項目と配置順 |
 | --- | --- |
-| 起動・常駐 | 1. ログイン時に起動　2. 起動時にメインウインドウを表示しない　3. 常駐　4. アプリ起動のホットキー |
+| 起動・常駐 | 1. ログイン時に起動　2. 起動時にメインウインドウを表示しない　3. Dockとアプリケーションスイッチャーに表示しない　4. 常駐　5. アプリ起動のホットキー |
 | アクセシビリティ | 許可状態、必要な理由、「アクセシビリティ設定を開く」ボタン |
 
 「起動・常駐」は先頭の独立タブにまとめ、「アクセシビリティ」とアプリ起動のホットキーも同じタブに置き、見出し付きの区画に分ける。共通項目は文言・コントロールの種類・順序・余白・状態表示を揃え、共通UI部品として再利用する。AppKitとSwiftUIで実装方法が異なる場合も表示と操作を揃える。
@@ -169,3 +169,11 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 - **AppKitの設定ページ**：SwiftUIの中身は `SettingsHostingPage(observing:) { … }` で包み、幅に合わせて高さを決める（NSHostingViewのintrinsicContentSizeは折り返し前の高さで、文章が切れる）。
 - **文言**：常駐は「ウインドウを閉じても常駐」、既定値へ戻すボタンは「初期値に戻す」（範囲を付けるなら「すべて初期値に戻す」等）、システム設定を開くボタンは「オートメーション設定を開く」「アクセシビリティ設定を開く」（…を付けない）。ボタン・メニューの省略記号は「…」。
 - **ホットキーの記録欄**：設定でホットキーを割り当てる箇所（機能のホットキー、「起動・常駐」のアプリを呼び出すホットキー）は Shared/HotkeyRecorder/HotkeyRecorder.swift の `HotkeyField`（AppKitは `HotkeyField.control(...)`）を使う。並びは［キー表示］［変更…／記録をキャンセル］［初期値に戻す］［割り当てを解除］、未設定は「未設定」、有効化は `HotkeyText.enable`「ホットキーを有効にする」。⌘か⌃を含むキーだけを受け付け（⌥だけ・⌥⇧だけは文字入力と重なるため。アプリの初期値が⌥だけのキーを使う場合だけ `allowsOption: true`）、⌘C等の標準キーとアプリ内の重複は断る（Escで取り消し）。登録は `HotkeySet` を使い、記録中はアプリ自身のホットキーを自動で外す（独自の登録を残すアプリは `HotkeyRecorder.shared.onRecordingChanged` で外す）。登録に失敗したら `registered: false` で共通の文言を出す。保存形式は各アプリのまま `KeyCombo` に変換する。ポップアップで修飾キーとキーを選ぶ方式・「適用」ボタンは使わない。アプリ本体の機能として一覧の中でキーを扱う画面（DocklessLauncherの一覧、HotkeyHoundの照合）や、macOSのショートカット・サービスに任せるアプリは理由付きで適用外。
+
+## Dockとアプリケーションスイッチャーに表示しない（2026-10-20）
+
+| ID | 必須仕様 | 受け入れ条件 |
+| --- | --- | --- |
+| B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」で「起動時にメインウインドウを表示しない」の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONの間はウインドウを開いていても activation policy を `.accessory` にし、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
+
+共通部品は `StartupWindow.swift` の `DockPresence`。`StartupWindowControl`／`StartupWindowView`（`LoginAtLaunchControl`／`LoginAtLaunchView` に内包）が自動で項目を出すので、各アプリでは書かない。起動時は `MenuBarPresence.install`、メニューバー常駐アプリは `WindowActivationPolicy.update` が反映する。アプリのコードで起動後に `setActivationPolicy(.regular)` を呼ばず、`DockPresence.apply()` を使う。

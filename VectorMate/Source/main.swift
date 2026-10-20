@@ -978,7 +978,6 @@ struct Preferences: View {
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
                     LoginAtLaunchView()
-                    StartupWindowView()
                     Toggle(L("keepRunning"), isOn: $model.keepRunning)
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Text(L("launch.hotkey"))
@@ -1263,7 +1262,8 @@ let app = NSApplication.shared
 SingleInstanceLaunch.enforce()
 LegacySettings.migrate()
 let delegate = MainActor.assumeIsolated { AppDelegate() }
-// Always in the app switcher (⌘Tab) and the Dock, even with no window open.
+// Always in the app switcher (⌘Tab) and the Dock, even with no window open,
+// unless 「Dockとアプリケーションスイッチャーに表示しない」 is on (DockPresence, applied by MenuBarPresence.install).
 app.setActivationPolicy(.regular)
 app.delegate = delegate
 app.run()

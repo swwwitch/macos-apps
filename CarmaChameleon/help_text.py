@@ -135,7 +135,7 @@ HELP = {
 - 確認と更新はボタンを押したときだけ行います。独自のpandocも指定でき、「同梱版に戻す」でいつでも戻せます。
 
 ## 設定
-- **起動・常駐**：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない、ウインドウを閉じても常駐、アプリ起動のホットキー。
+- **起動・常駐**：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます）、ウインドウを閉じても常駐、アプリ起動のホットキー。
 - **起動・常駐**タブには、「Keynoteの操作」の許可状態も表示します。
 - **変換形式**タブ：メインウインドウに表示する変換形式と、その順番を選べます。チェックを外した形式は一覧に出ません。形式はカテゴリごとに並び、ドラッグまたは↑↓でカテゴリの中の順番を変えられます。「初期状態に戻す」で元に戻せます（OpenDocument と LaTeX は初期状態で非表示）。
 - **エンジン**タブ：pandoc と PDFエンジン（Typst）の状態・更新・独自のパスを設定します。
@@ -311,7 +311,7 @@ HELP = {
 - Checks and updates run only when you click a button. You can choose your own pandoc, and Use bundled version switches back at any time.
 
 ## Settings
-- **Startup & Background**: Launch at login (off by default), hide main window at startup, keep running after closing, and the app launch keyboard shortcut.
+- **Startup & Background**: Launch at login (off by default), hide main window at startup, hide from Dock and App Switcher (off by default; keeps the app out of the Dock and the ⌘Tab switcher, and you show it from the menu bar icon when shown or by opening the app again in Finder), keep running after closing, and the app launch keyboard shortcut.
 - The **Startup & Background** tab also shows the Keynote control permission.
 - **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Formats are listed by category; drag or use ↑↓ to reorder them within a category. Restore defaults puts everything back (OpenDocument and LaTeX start hidden).
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).
@@ -487,7 +487,7 @@ HELP = {
 - 仅在点击按钮时检查和更新。可指定自己的 pandoc，并可随时用“恢复内置版本”切换回来。
 
 ## 设置
-- **启动与后台**：登录时启动（默认关闭）、启动时不显示主窗口、关闭窗口后继续运行、启动应用快捷键。
+- **启动与后台**：登录时启动（默认关闭）、启动时不显示主窗口、不在程序坞和应用程序切换器中显示（默认关闭。开启后不在程序坞和 ⌘Tab 切换器中显示图标；可通过菜单栏图标（显示时）或在访达中再次打开应用来显示）、关闭窗口后继续运行、启动应用快捷键。
 - **启动与后台**标签也显示“控制 Keynote”的权限状态。
 - **输出格式**标签：选择主窗口显示哪些输出格式及其顺序。取消勾选的格式不显示。格式按类别排列，可拖动或用 ↑↓ 在类别内排序。“恢复默认”可还原（OpenDocument 和 LaTeX 默认隐藏）。
 - **引擎**标签：pandoc 和 PDF 引擎（Typst）的状态、更新和自定义路径。
@@ -663,7 +663,7 @@ HELP = {
 - 확인과 업데이트는 버튼을 누를 때만 실행합니다. 직접 지정한 pandoc도 사용할 수 있으며 "포함된 버전 사용"으로 언제든 되돌릴 수 있습니다.
 
 ## 설정
-- **시작 및 백그라운드**: 로그인 시 실행(기본값 끔), 시작 시 메인 윈도우 표시 안 함, 창을 닫아도 계속 실행, 앱 실행 키보드 단축키.
+- **시작 및 백그라운드**: 로그인 시 실행(기본값 끔), 시작 시 메인 윈도우 표시 안 함, Dock 및 앱 전환기에 표시 안 함(기본값 끔. 켜면 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않으며, 메뉴 막대 아이콘(표시 중일 때) 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다), 창을 닫아도 계속 실행, 앱 실행 키보드 단축키.
 - **시작 및 백그라운드** 탭에는 "Keynote 제어" 권한 상태도 표시됩니다.
 - **출력 형식** 탭: 메인 윈도우에 표시할 출력 형식과 순서를 고릅니다. 선택을 해제한 형식은 표시되지 않습니다. 형식은 카테고리별로 나열되며, 드래그하거나 ↑↓로 카테고리 안에서 순서를 바꿀 수 있습니다. "기본값으로 복원"으로 되돌릴 수 있습니다(OpenDocument와 LaTeX는 기본적으로 숨김).
 - **엔진** 탭: pandoc과 PDF 엔진(Typst)의 상태, 업데이트, 사용자 경로를 설정합니다.

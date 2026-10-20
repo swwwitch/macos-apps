@@ -29,7 +29,7 @@ Set Compare by (above the lists) to E-mail Addresses Only (or choose File → Co
 Settings
 Comparison: Dim common items (on by default; items also in the other list are shown lighter, the list and file are not changed), Ignore uppercase and lowercase (on by default), Ignore full-width and half-width forms (off), Sort the results (off).
 Separators are chosen above the lists (next to Compare by): Space, Comma and Tab besides line breaks (all off by default; full-width spaces and commas included). When you turn a separator on, load a file or paste, the list is rearranged one item per line (⌘Z undoes it; a linked file is marked Unsaved and does not change until you save). Typing is not rearranged. Setting changes apply to the results right away.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab even with a window open — show it from the menu-bar icon or by opening the app again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Compare tab settings and the separator, comparison unit, column and header-row choices as ListMatch-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, keep running and the menu bar icon are set on each Mac. The lists themselves are not included.

@@ -12,7 +12,7 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | main.swift SingleInstanceLaunch、LSMultipleInstancesProhibited。連続起動は未確認 |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | Model.changeLogin（SMAppService）、初期値オフ。再ログイン未確認 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch でメインウインドウを出さない（LaunchTests PASS） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | LSUIElement＋MenuBarPresence、keepRunning（初期値オン）、applicationShouldHandleReopen |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | LSUIElement＋MenuBarPresence、keepRunning（初期値オン）、applicationShouldHandleReopen。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence を Sources/StartupWindow.swift に同期、設定の起動グループの StartupWindowView に内包、起動時は MenuBarPresence.install・表示中は WindowActivationPolicy.update で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | アプリメニュー・常駐メニュー・設定に終了。stop() でホットキー解除。⌘Qはアプリが前面のときだけ |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘, ⌘W ⌘0、記録中のEscで取消 |
 | B07 | ショートカット管理 | 実装済み・実機未確認 | パレットのホットキー（⌃⌥⌘M、全アプリ共通、変更・初期値・登録失敗表示）を追加。機能ごとのオン・オフ／変更／初期値／すべて初期値、一時停止、重複と登録失敗を表示。HotkeyManifest公開 |

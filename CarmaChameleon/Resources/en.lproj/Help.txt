@@ -133,7 +133,7 @@
 - Checks and updates run only when you click a button. You can choose your own pandoc, and Use bundled version switches back at any time.
 
 ## Settings
-- **Startup & Background**: Launch at login (off by default), hide main window at startup, keep running after closing, and the app launch keyboard shortcut.
+- **Startup & Background**: Launch at login (off by default), hide main window at startup, hide from Dock and App Switcher (off by default; keeps the app out of the Dock and the ⌘Tab switcher, and you show it from the menu bar icon when shown or by opening the app again in Finder), keep running after closing, and the app launch keyboard shortcut.
 - The **Startup & Background** tab also shows the Keynote control permission.
 - **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Formats are listed by category; drag or use ↑↓ to reorder them within a category. Restore defaults puts everything back (OpenDocument and LaTeX start hidden).
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).

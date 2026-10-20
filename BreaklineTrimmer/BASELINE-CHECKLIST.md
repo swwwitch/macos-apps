@@ -14,7 +14,7 @@
 | B01 | 二重起動防止 | 実機確認済み（一部） | main.swift SingleInstanceLaunch（Bundle ID）＋LSMultipleInstancesProhibited。/Applications版の起動中に `open -a … sample.png` で再度渡しても1プロセスのまま。別フォルダのコピーからの起動は未確認。 |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | Shared/LoginAtLaunch（LoginAtLaunchView）、初期値オフ。画面表示で確認。再ログインは未確認。 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | AppDelegate.isLoginLaunch でメインウインドウを出さない（ファイルを渡された場合は表示）。 |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | 通常アプリ（Dock常時表示）。「ウインドウを閉じても常駐」初期値オン（オフで閉じると終了）。Dock・⌘0・メニューバー（選択時）から再表示。画像と範囲は閉じても保持。 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | 通常アプリ（Dock常時表示）。「ウインドウを閉じても常駐」初期値オン（オフで閉じると終了）。Dock・⌘0・メニューバー（選択時）から再表示。画像と範囲は閉じても保持。「Dockとアプリケーションスイッチャーに表示しない」（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence、LoginAtLaunchView に内包、起動時は MenuBarPresence.install で適用）：ビルド確認済み・実機未確認。 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | PNGの書き出し中は applicationShouldTerminate で理由を表示して終了を取り消す。それ以外は即終了（保存していない成果物は元画像から作り直せる）。 |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘O・⌘S・⇧⌘C・⌘0・⌘,・⌘W・⌘Q・⌘?、標準の編集メニュー。入力欄の外では ⌘C で結果をコピー、⌘V で画像をペーストして開く（入力欄では通常のコピー・ペースト）。 |
 | B07 | ホットキー管理 | 適用外 | グローバルホットキーなし（画像を開いて調整する編集アプリのため）。 |
@@ -30,7 +30,7 @@
 | B17 | プライバシー | 実装済み | 外部通信なし。画像は保存しない（UserDefaults は設定値だけ）。 |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 実機確認済み（配置・起動） | build.sh → deploy_both で両配置先に配置、署名・内容一致を確認、/Applications版の起動を確認（2026-10-19）。更新は Shared/Updater 組み込み済みだが配信先・鍵が未設定のため準備中（通信しない）。公証：1.1.0 build 3 の配布用DMGを Developer ID＋Hardened Runtime で署名し Accepted・staple・Gatekeeper accepted（Shared/ReleasePreparation/20261019-BreaklineTrimmer）。 |
 | B19 | マスタード基調の共通アイコン | 実装済み・画像確認 | Assets/GenerateIcon.swift：YohakuTrimmer と同じマスタード・アイボリー・茶。波形の切り口で上下に分かれた写真と2本の省略線。apply-app-icon.sh 適用。Finder表示は未確認。 |
-| B20 | 共通UI統一 | 画面表示確認 | SettingsTabs：「起動・常駐」（ログイン起動・起動時非表示・常駐・メニューバー／操作）、「設定の共有」、「情報」。トリミングの項目はメインウインドウ。呼び出しホットキー（B07）・アクセシビリティ区画は不要のため設けない。 |
+| B20 | 共通UI統一 | 画面表示確認 | SettingsTabs：「起動・常駐」（ログイン起動・起動時非表示・Dock非表示・常駐・メニューバー／操作）、「設定の共有」、「情報」。トリミングの項目はメインウインドウ。呼び出しホットキー（B07）・アクセシビリティ区画は不要のため設けない。 |
 | B21 | 対象外アプリ | 適用外 | 他アプリに作用しない。 |
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchControl 内の StartupWindowControl。ファイルを渡された起動では表示。 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、通常アプリ、⌘0/⌘1（MenuBarPresence）。 |

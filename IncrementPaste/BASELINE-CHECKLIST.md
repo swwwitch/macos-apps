@@ -14,7 +14,7 @@
 | B01 | 二重起動防止 | 実機確認済み | main.swift SingleInstanceLaunch、LSMultipleInstancesProhibited。/Applications版を2回openしてプロセス1つ |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | SMAppService.mainApp、初期値オフ。登録は確認（sfltool）、再ログインは未確認 |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | LaunchPolicy.isLoginLaunch（テストあり） |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | accessory＋MenuBarPresence、「ウインドウを閉じても常駐」 |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | accessory＋MenuBarPresence、「ウインドウを閉じても常駐」。2026-10-20 1.1.0(8)：「Dockとアプリケーションスイッチャーに表示しない」（StartupWindow.swift の DockPresence。設定は main.swift の StartupWindowView 内、適用は MenuBarPresence.install と WindowActivationPolicy.update）。ビルド確認済み・実機未確認 |
 | B05 | 終了と処理保護 | 実装済み・実機未確認 | メニュー「IncrementPasteを終了」⌘Q。長い処理なし、終了時にホットキー・タイマー解除（Model.stop） |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘, ⌘W ⌘0、編集メニュー標準 |
 | B07 | ホットキー管理 | 実装済み・実機未確認 | 変更・無効化・初期値（⌥V）・一時停止、登録失敗表示 |

@@ -19,7 +19,7 @@ BundleIDInspector looks up the Bundle ID of apps, lists them and lets you copy t
 
 ## Settings
 Open with the Settings button in the main window (⌘,).
-- **Startup & Background**: Open at login, Hide main window at startup, Show in menu bar
+- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the app stays out of the Dock and the ⌘Tab switcher; show it from the menu bar icon (when shown) or by opening the app again in Finder
 
 ## Shortcuts
 - **⌘O**: Choose Apps

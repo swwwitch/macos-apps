@@ -165,6 +165,7 @@ help_texts = {
 - **接尾辞の並び順**：v番号・edited・日付の順番を選べます。既存の名前も読み取り、次の操作から指定順で出力します。
 - **機能のホットキー**：「変更…」を押してから割り当てるキーを押すと変更できます（⌘か⌃を含める。Escで取り消し）。「初期値に戻す」「割り当てを解除」も使えます。同じキーはほかの操作やパレットのホットキーと重複して登録できません。
 - **読み飛ばす親フォルダ名**：完全一致で上の階層を参照します。空欄で無効化できます。
+- **Dockとアプリケーションスイッチャーに表示しない**：「起動・常駐」の「起動時にメインウインドウを表示しない」の下にあります。オンにすると、ウインドウを開いている間もDockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコンか、Finderからアプリを開き直すと表示できます。
 - **設定の共有**：「書き出す…」で設定を CommandDee-Settings.plist に保存し、「読み込む…」で確認してから置き換えます。「同期フォルダーを設定…」で選んだフォルダー（iCloud Drive・Dropboxなど）でほかのMacと同期できます。共有するのは機能のホットキーとその有効／無効、区切り文字、接尾辞の並び順、ステータスの語、読み飛ばす親フォルダ名です。ログイン時の起動・起動時の表示・メニューバー・パレットのホットキー・アクセシビリティはMacごとに設定します。
 
 ## アクセス許可
@@ -234,6 +235,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
 - **Action Shortcuts**: click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key used by another action or the palette cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
+- **Hide from Dock and App Switcher**: in Startup & Background, below Hide main window at startup. When on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
 - **Sharing**: “Export…” saves the settings to CommandDee-Settings.plist, and “Import…” replaces them after asking. “Set Sync Folder…” syncs with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). Shared: the action shortcuts and whether they are on, the separator, the suffix order, the status words and the parent folder name to skip. Login launch, startup display, the menu bar icon, the palette shortcut and Accessibility are set per Mac.
 
 ## Permissions
@@ -303,6 +305,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **后缀顺序**：可选择版本号、edited 和日期的顺序。也会读取现有名称，从下一次操作起按指定顺序输出。
 - **功能快捷键**：点击“更改…”后按下要分配的按键即可更改（需包含 ⌘ 或 ⌃；按 Esc 取消）。也可使用“恢复默认”和“清除”。不能与其他操作或面板快捷键重复。
 - **要跳过的父文件夹名称**：按完全一致匹配并参照上一级文件夹。留空即可停用。
+- **不在程序坞和应用程序切换器中显示**：位于“启动与后台”中“启动时不显示主窗口”的下方。打开后，即使窗口处于打开状态，也不会在程序坞和 ⌘Tab 切换器中显示图标。可通过菜单栏图标或在访达中再次打开应用来显示。
 - **设置共享**：“导出…”将设置保存为 CommandDee-Settings.plist，“导入…”在确认后替换设置。使用“设置同步文件夹…”选择的文件夹（iCloud 云盘、Dropbox 等）可与其他 Mac 同步。共享的内容：功能快捷键及其开关、分隔符、后缀顺序、状态词和要跳过的父文件夹名称。登录时启动、启动时的显示、菜单栏图标、面板快捷键和辅助功能在每台 Mac 上分别设置。
 
 ## 权限
@@ -372,6 +375,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **접미사 순서**: 버전 번호, edited, 날짜의 순서를 선택할 수 있습니다. 기존 이름도 읽어 다음 작업부터 지정한 순서로 출력합니다.
 - **기능 단축키**: ‘변경…’을 누른 다음 지정할 키를 누르면 변경할 수 있습니다(⌘ 또는 ⌃ 포함, Esc로 취소). ‘기본값으로 되돌리기’와 ‘지우기’도 사용할 수 있습니다. 다른 동작이나 팔레트 단축키와 중복해서 지정할 수 없습니다.
 - **건너뛸 상위 폴더 이름**: 완전히 일치할 때 위 단계의 폴더를 참조합니다. 비워 두면 사용하지 않습니다.
+- **Dock 및 앱 전환기에 표시 안 함**: ‘시작 및 백그라운드’의 ‘시작 시 메인 윈도우 표시 안 함’ 아래에 있습니다. 켜면 윈도우가 열려 있어도 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않습니다. 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시할 수 있습니다.
 - **설정 공유**: ‘내보내기…’로 설정을 CommandDee-Settings.plist에 저장하고, ‘가져오기…’는 확인 후 바꿉니다. ‘동기화 폴더 설정…’으로 선택한 폴더(iCloud Drive, Dropbox 등)로 다른 Mac과 동기화할 수 있습니다. 공유하는 항목: 기능 단축키와 사용 여부, 구분 문자, 접미사 순서, 상태 단어, 건너뛸 상위 폴더 이름. 로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 팔레트 단축키, 손쉬운 사용은 Mac마다 설정합니다.
 
 ## 권한

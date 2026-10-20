@@ -26,6 +26,7 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 
 - **Open at login**
 - **Hide main window at startup**
+- **Hide from Dock and App Switcher**: keeps the app out of the Dock and the ⌘Tab switcher even while the window is open. Show it from the menu bar icon, the show app shortcut, or by opening the app again in Finder.
 - **Show in menu bar**
 - **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. To change it, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘U. Turn off **Enable hotkey** if you do not use it.
 
