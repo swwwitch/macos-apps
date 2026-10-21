@@ -90,6 +90,8 @@ enum KeyMap {
         KeyMapping(from: 0x2C, fromLabel: "/", karabiner: "slash", to: [keypadDivide], group: .operators),
         // Added in FnNumpad (not in the Karabiner rule): Fn+, types a comma.
         KeyMapping(from: 0x2B, fromLabel: ",", karabiner: "comma", to: [comma], group: .operators),
+        // Added in FnNumpad: Fn+Tab types the keypad =.
+        KeyMapping(from: 0x30, fromLabel: "Tab", karabiner: "tab", to: [keypadEquals], group: .operators),
         KeyMapping(from: 0x2D, fromLabel: "N", karabiner: "n", to: [keypad0, keypad0], group: .numpad),
         KeyMapping(from: 0x21, fromLabel: "[", karabiner: "open_bracket", to: [tab], group: .editing),
         KeyMapping(from: 0x10, fromLabel: "Y", karabiner: "y", to: [delete], group: .editing),
