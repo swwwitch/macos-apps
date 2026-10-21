@@ -13,11 +13,15 @@ struct KeynoteSnapshot: Equatable {
     var skipped: [Bool]
     /// Per slide: has a transition effect.
     var transitions: [Bool] = []
+    /// Per slide: the transition is Magic Move (kept by 「マジックムーブは残す」).
+    var magicMoves: [Bool] = []
 
     var hiddenCount: Int { skipped.filter { $0 }.count }
     /// Slides with a transition, leaving out hidden slides that are about to be deleted.
-    func transitionCount(ignoringHidden: Bool) -> Int {
-        zip(transitions, skipped).filter { $0.0 && !(ignoringHidden && $0.1) }.count
+    func transitionCount(ignoringHidden: Bool, keepMagicMove: Bool = false) -> Int {
+        transitions.indices.filter { i in
+            transitions[i] && !(ignoringHidden && skipped[i]) && !(keepMagicMove && i < magicMoves.count && magicMoves[i])
+        }.count
     }
     var allHidden: Bool { !skipped.isEmpty && skipped.allSatisfy { $0 } }
     /// Layouts no visible-or-hidden slide uses. Slides about to be deleted can be excluded first.
@@ -80,11 +84,13 @@ enum KeynoteDOM {
             try
                 tell \(target)
                     set effects to {}
+                    set magic to {}
                     repeat with i from 1 to count slides
                         set tp to transition properties of slide i
                         set end of effects to ((transition effect of tp) is not no transition effect)
+                        set end of magic to ((transition effect of tp) is magic move)
                     end repeat
-                    return {id, name, name of slide layouts, name of base layout of every slide, skipped of every slide, effects}
+                    return {id, name, name of slide layouts, name of base layout of every slide, skipped of every slide, effects, magic}
                 end tell
             on error message number n
                 -- Only "no such document" means closed; permission errors must reach the caller.
@@ -93,23 +99,24 @@ enum KeynoteDOM {
             end try
         end tell
         """)
-        guard result.numberOfItems == 6 else { return nil }
+        guard result.numberOfItems == 7 else { return nil }
         func strings(_ index: Int) -> [String] { list(result.atIndex(index)).map { $0.stringValue ?? "" } }
         return KeynoteSnapshot(documentID: result.atIndex(1)?.stringValue ?? "", documentName: result.atIndex(2)?.stringValue ?? "",
                                layouts: strings(3), slideLayouts: strings(4), skipped: list(result.atIndex(5)).map(\.booleanValue),
-                               transitions: list(result.atIndex(6)).map(\.booleanValue))
+                               transitions: list(result.atIndex(6)).map(\.booleanValue), magicMoves: list(result.atIndex(7)).map(\.booleanValue))
     }
 
-    /// Sets every slide's transition effect to none and returns how many changed.
+    /// Sets every slide's transition effect to none (Magic Move too unless `keepMagicMove`) and returns how many changed.
     /// Passing only the effect would reset duration, delay and auto-advance to Keynote's defaults, so they are written back.
-    static func removeTransitions(documentID: String) throws -> Int {
-        Int(try run("""
+    static func removeTransitions(documentID: String, keepMagicMove: Bool = false) throws -> Int {
+        let keep = keepMagicMove ? " and (transition effect of tp) is not magic move" : ""
+        return Int(try run("""
         tell application id "com.apple.Keynote"
             tell document id "\(escaped(documentID))"
                 set changed to 0
                 repeat with i from 1 to count slides
                     set tp to transition properties of slide i
-                    if (transition effect of tp) is not no transition effect then
+                    if (transition effect of tp) is not no transition effect\(keep) then
                         set transition properties of slide i to {transition effect:no transition effect, transition duration:(transition duration of tp), transition delay:(transition delay of tp), automatic transition:(automatic transition of tp)}
                         set changed to changed + 1
                     end if
@@ -362,6 +369,8 @@ struct SweepOptions {
     var deleteHiddenSlides: Bool
     var removeTransitions = false
     var removeBuilds = false
+    /// With removeTransitions: slides with Magic Move keep it (KM「マジックムーブ以外のすべてのスライド」, Helper ⌃⌥0).
+    var keepMagicMove = false
     var isEmpty: Bool { !deleteUnusedLayouts && !deleteHiddenSlides && !removeTransitions && !removeBuilds }
 }
 
@@ -397,7 +406,7 @@ final class Sweeper: @unchecked Sendable {
                 current = after
             }
             if options.removeTransitions {
-                result.removedTransitions = try KeynoteDOM.removeTransitions(documentID: current.documentID)
+                result.removedTransitions = try KeynoteDOM.removeTransitions(documentID: current.documentID, keepMagicMove: options.keepMagicMove)
             }
             if options.removeBuilds {
                 try deleteBuilds(current, into: &result, progress: progress)

@@ -21,6 +21,8 @@
 "removeTransitions" = "모든 전환 효과 삭제";
 "confirmTransitions" = "전환 효과: %d개";
 "resultTransitions" = "%d개 슬라이드의 전환 효과 삭제";
+"keepMagicMove" = "매직 이동은 유지";
+"keepMagicMoveNote" = " (매직 이동 유지)";
 "removeBuilds" = "모든 객체 애니메이션 삭제";
 "confirmBuilds" = "객체 애니메이션: 모든 슬라이드";
 "resultBuilds" = "객체 애니메이션 %d개 삭제(슬라이드 %d개)";

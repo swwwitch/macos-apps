@@ -265,7 +265,8 @@ struct ContentView: View {
             Button(L("キャンセル"), role: .cancel) { }
             Button(L("変更を適用")) { store.apply() }
         } message: {
-            Text(L("対象（すべてのカテゴリ）: %@\n\nmacOSのファイルタイプ単位で、全ロールに適用します。同じタイプの別の拡張子（例: .jpg と .jpeg）にも反映されます。未インストールの行はスキップします。", String(describing: store.affectedExtensions)))
+            Text(L("対象（すべてのカテゴリ）: %@\n\nmacOSのファイルタイプ単位で、全ロールに適用します。同じタイプの別の拡張子（例: .jpg と .jpeg）にも反映されます。未インストールの行はスキップします。", String(describing: store.affectedExtensions))
+                + (store.changesWebBrowser ? "\n\n" + L(".html / .htm を変更すると、macOSの既定のWebブラウザも同じアプリに変わり、メールなどのリンク（http/https）もそのアプリで開きます。ブラウザーのままにしたい場合は、Finderで「このアプリケーションで開く」を使ってください。") : ""))
         }
     }
 }

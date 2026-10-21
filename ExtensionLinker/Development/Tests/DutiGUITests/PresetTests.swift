@@ -72,7 +72,7 @@ final class PresetTests: XCTestCase {
         XCTAssertEqual(Preset.all.first { $0.ext == "eps" }?.bundleID, "com.adobe.Photoshop")
         XCTAssertEqual(Preset.all.first { $0.ext == "txt" }?.bundleID, "jp.co.artman21.Jedit-Pro")
         XCTAssertEqual(Preset.all.first { $0.ext == "rtf" }?.bundleID, "jp.co.artman21.Jedit-Pro")
-        XCTAssertEqual(Preset.all.count, 28)
+        XCTAssertEqual(Preset.all.count, 27)
     }
     @MainActor
     func testExcelGroupingAndPresetRoundTrip() throws {
@@ -146,7 +146,7 @@ final class PresetTests: XCTestCase {
             ("doc", ["doc", "docx"], AssociationCategory.business),
             ("ppt", ["ppt", "pptx"], .business),
             ("psd", ["psd"], .design), ("indd", ["indd"], .design), ("idml", ["idml"], .design),
-            ("json", ["json"], .development), ("applescript", ["applescript"], .development), ("scpt", ["scpt"], .development), ("ts", ["ts", "tsx"], .development)
+            ("json", ["json"], .development), ("applescript", ["applescript", "scpt"], .development), ("ts", ["ts", "tsx"], .development)
         ] {
             let row = try XCTUnwrap(store.rows.first { $0.ext == ext })
             XCTAssertEqual(row.aliases, aliases)

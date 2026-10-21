@@ -21,6 +21,8 @@
 "removeTransitions" = "删除所有过渡效果";
 "confirmTransitions" = "过渡效果：%d 张";
 "resultTransitions" = "已从 %d 张幻灯片删除过渡效果";
+"keepMagicMove" = "保留神奇移动";
+"keepMagicMoveNote" = "（保留神奇移动）";
 "removeBuilds" = "删除所有对象动画";
 "confirmBuilds" = "对象动画：所有幻灯片";
 "resultBuilds" = "已删除对象动画：%d 个（%d 张幻灯片）";

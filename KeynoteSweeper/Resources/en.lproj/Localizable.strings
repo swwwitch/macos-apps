@@ -21,6 +21,8 @@
 "removeTransitions" = "Remove all transitions";
 "confirmTransitions" = "Transitions: %d slides";
 "resultTransitions" = "Transitions removed from %d slides";
+"keepMagicMove" = "Keep Magic Move";
+"keepMagicMoveNote" = " (Magic Move kept)";
 "removeBuilds" = "Remove all object animations";
 "confirmBuilds" = "Object animations: every slide";
 "resultBuilds" = "Object animations removed: %d (on %d slides)";

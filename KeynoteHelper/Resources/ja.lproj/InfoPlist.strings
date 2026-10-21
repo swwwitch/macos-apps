@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "KeynoteHelper";
+"NSAppleEventsUsageDescription" = "Keynoteのオブジェクトやスライドの変更（不透明度・大きさ・トランジション・図形）と、表示中のスライドのPNG書き出しに使用します。";

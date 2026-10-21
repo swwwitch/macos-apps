@@ -42,10 +42,32 @@ final class MarkdownStore: ObservableObject {
 
     /// 新規ウインドウを閉じたら、その原稿を消す
     static func discardDocument(_ id: String) {
-        guard !isTerminating, !id.isEmpty, let store = documents.removeValue(forKey: id) else { return }
+        guard !isTerminating, !id.isEmpty, documents.removeValue(forKey: id) != nil else { return }
+        removeSavedDocument(id)
+    }
+
+    private static func removeSavedDocument(_ id: String) {
         let defaults = UserDefaults.standard
-        for key in [textKey, fileKey, editedKey] { defaults.removeObject(forKey: store.key(key)) }
+        for key in [textKey, fileKey, editedKey] { defaults.removeObject(forKey: key + "." + id) }
         defaults.set((defaults.stringArray(forKey: documentIDsKey) ?? []).filter { $0 != id }, forKey: documentIDsKey)
+    }
+
+    /// システム設定の「アプリケーションを終了するときにウインドウを閉じる」（未設定ならオン）
+    static var closesWindowsOnQuit: Bool { !UserDefaults.standard.bool(forKey: "NSQuitAlwaysKeepsWindows") }
+
+    /// 終了の前に呼ぶ。ウインドウを閉じる設定なら、ウインドウを閉じたときと同じく保存を確かめてから原稿を消す。キャンセルされたら false
+    static func prepareToQuit() -> Bool {
+        if closesWindowsOnQuit {
+            for store in [main] + documents.values.sorted(by: { $0.id < $1.id }) {
+                store.window?.makeKeyAndOrderFront(nil)
+                guard store.confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return false }
+            }
+            documents.removeAll()
+            for id in UserDefaults.standard.stringArray(forKey: documentIDsKey) ?? [] { removeSavedDocument(id) }
+            main.clearMain()
+        }
+        isTerminating = true
+        return true
     }
 
     let id: String
@@ -285,14 +307,23 @@ final class MarkdownStore: ObservableObject {
         }
     }
 
-    /// 新規ウインドウを閉じる。未保存の変更があれば保存するか確かめる（メインウインドウは閉じても原稿を残す）
+    /// ウインドウを閉じて原稿を消す。未保存の変更があれば保存するか確かめる（終了時は閉じずに残し、次回開き直す）
     func closeWindow() {
         guard let window else { return }
-        if !isMain {
-            window.makeKeyAndOrderFront(nil)
-            guard confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return }
-        }
+        window.makeKeyAndOrderFront(nil)
+        guard confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return }
         window.close()
+        if isMain { clearMain() }
+    }
+
+    /// メインウインドウの原稿とファイルとの連携を消す（次に開くと空の原稿）
+    private func clearMain() {
+        text = ""
+        fileURL = nil
+        fileDate = nil
+        fileEncoding = .utf8
+        markSaved()
+        message = nil
     }
 
     /// ファイルとの連携を外す。原稿は残し、以後の⌘Sは「別名で保存…」

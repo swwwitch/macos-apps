@@ -50,10 +50,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-    /// Windows closed while quitting keep their source, so new windows open again at the next launch.
+    /// Follows 「アプリケーションを終了するときにウインドウを閉じる」: when off, windows keep their source and open again at the next launch.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        MarkdownStore.isTerminating = true
-        return .terminateNow
+        MarkdownStore.prepareToQuit() ? .terminateNow : .terminateCancel
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         showWindow()

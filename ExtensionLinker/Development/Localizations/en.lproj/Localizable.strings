@@ -33,6 +33,7 @@
 "キャンセル" = "Cancel";
 "変更を適用" = "Apply Changes";
 "対象（すべてのカテゴリ）: %@\n\nmacOSのファイルタイプ単位で、全ロールに適用します。同じタイプの別の拡張子（例: .jpg と .jpeg）にも反映されます。未インストールの行はスキップします。" = "All categories: %@\n\nApplies to all roles for each macOS file type. Other extensions of the same type (such as .jpg and .jpeg) are also affected. Rows with uninstalled apps are skipped.";
+".html / .htm を変更すると、macOSの既定のWebブラウザも同じアプリに変わり、メールなどのリンク（http/https）もそのアプリで開きます。ブラウザーのままにしたい場合は、Finderで「このアプリケーションで開く」を使ってください。" = "Changing .html / .htm also makes this app the default web browser in macOS, so links in Mail and elsewhere (http/https) open in it too. To keep your browser, use Open With in the Finder instead.";
 "関連付ける拡張子を選択" = "Choose Extensions to Associate";
 "未設定" = "Not configured";
 "新しい拡張子（例: ai）" = "New extension (e.g. ai)";
@@ -77,26 +78,6 @@
 "%@件を適用" = "Applied %@ changes";
 "・%@件でエラー。行の警告を確認してください。" = "; %@ errors. Check the warnings in each row";
 "しました。" = ".";
-"確認中…" = "Checking…";
-"取得できませんでした" = "Could not retrieve";
-"duti -V が INTERNAL を返すため、Homebrewの導入バージョンを表示しています。" = "duti -V returns INTERNAL, so the installed Homebrew version is shown.";
-"このdutiはバージョン番号を返さないビルドです。" = "This build of duti does not return a version number.";
-"ターミナルを開けませんでした: " = "Could not open Terminal: ";
-"ターミナルでインストールを完了し、「再確認」を押してください。" = "Complete the installation in Terminal, then click Check Again.";
-"インストール中…" = "Installing…";
-"dutiをインストールしました。" = "duti installed.";
-"インストールできませんでした。下のログを確認してください。" = "Installation failed. Check the log below.";
-"インストール" = "Install";
-"未インストール" = "Not Installed";
-"インストール済み" = "Installed";
-"バージョン: " = "Version: ";
-"このアプリの設定変更はmacOSのAPIで動作します。dutiはターミナルから同じ設定を行う場合に使えます。" = "This app changes settings using macOS APIs. duti lets you change the same settings in Terminal.";
-"見つかりません" = "Not Found";
-"再確認" = "Check Again";
-"dutiをインストール" = "Install duti";
-"ターミナルで公式インストーラーを実行します。完了後に「再確認」を押すとdutiをインストールできます。" = "Run the official installer in Terminal. When finished, click Check Again to install duti.";
-"Homebrewをインストール…" = "Install Homebrew…";
-"Homebrewの導入ページを開く ↗" = "Open Homebrew Installation Page ↗";
 "拡張子一覧" = "Extensions";
 "メインウインドウに表示する拡張子を管理します。" = "Manage the extensions shown in the main window.";
 "追加する拡張子（例: rtf）" = "Extension to add (e.g. rtf)";
@@ -114,7 +95,6 @@
 "降順" = "Descending";
 
 "%@ヘルプ" = "%@ Help";
-"dutiとHomebrewのインストール" = "Install duti and Homebrew";
 "ヘルプ" = "Help";
 "ウインドウを閉じる" = "Close Window";
 "メインウインドウを開く" = "Open Main Window";
@@ -122,7 +102,7 @@
 "拡大／縮小" = "Zoom";
 "再読み込み" = "Reload";
 "検索をクリア" = "Clear Search";
-"アプリの版" = "App Versions";
+"バージョン" = "Versions";
 "複数の版をインストールしたアプリについて、関連付けた拡張子をまとめて指定の版で開くようにします。" = "For apps with several versions installed, opens all their associated extensions with the version you choose.";
 "複数の版がインストールされたアプリは見つかりません。" = "No app with several installed versions was found.";
 "拡張子 :" = "Extensions:";

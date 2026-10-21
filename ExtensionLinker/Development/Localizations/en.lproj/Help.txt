@@ -25,17 +25,14 @@ Open **Settings…** from the app menu (⌘,).
 - Set **Open at login**, **Hide main window at startup**, **Hide from Dock and App Switcher**, and **Show in menu bar**.
 - With **Hide from Dock and App Switcher** on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
 
-### Install Tab
-- Check whether duti and Homebrew are installed, and install them.
-- The app changes associations with macOS itself, so duti is not required. Use it if you want to make the same settings in Terminal.
-
 ### Extension Tab
 - Add or remove the extensions shown in the main window.
 - Removing an extension from the list does not change its macOS association.
 
-### App Versions Tab
+### Versions Tab
 - For apps with several versions installed, such as Illustrator, Photoshop and InDesign, opens all their associated extensions with the version you choose.
 - Pick a version in **Open with** and click **Switch N**. **Newest (automatic)** opens with the newest installed version.
+- Uncheck an extension to leave it out of the switch.
 - The version is written into the macOS association record and the system process that manages associations (lsd) is restarted. The previous record is saved in ~/Library/Application Support/ExtensionLinker/LaunchServicesBackups.
 - Choosing an app again in the main window returns that extension to Newest (automatic).
 
@@ -58,12 +55,13 @@ Open **Settings…** from the app menu (⌘,).
 - To quit, press ⌘Q or choose **Quit ExtensionLinker** from the app menu.
 
 ## Permissions
-No permissions such as Accessibility are required. Homebrew is installed in Terminal and may ask for an administrator password.
+No permissions such as Accessibility are required.
 
 ## Troubleshooting
 - If applying fails, an error appears on the row. Press ⌘R to reload and check the current associations.
 - Rows marked “Not installed · Choose another app” are skipped because the specified app is not on this Mac. Choose an installed app instead.
 - If “Aliases have different settings” appears, choose an app to unify the settings of the alias extensions.
+- Changing the app for .html / .htm also changes the default web browser in macOS, so links in Mail and elsewhere open in that app too. macOS does not let you set them separately. To open specific files in another app, Control-click them in the Finder and choose Open With.
 - To revert an applied change, choose the original app again and apply. **Undo Changes** only discards changes that have not been applied.
 - Choose **Open the note Article** from the Help menu to open the guide article on note in your browser.
 

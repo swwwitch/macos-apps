@@ -27,6 +27,10 @@ check(snapshot.unusedLayoutIndexes(ignoringHidden: true) == [4, 2], "layouts of 
 check(KeynoteSnapshot(documentID: "", documentName: "", layouts: ["A"], slideLayouts: ["A"], skipped: [true]).allHidden, "all hidden")
 let withTransitions = KeynoteSnapshot(documentID: "", documentName: "", layouts: ["A"], slideLayouts: ["A", "A", "A"], skipped: [false, true, false], transitions: [true, true, false])
 check(withTransitions.transitionCount(ignoringHidden: false) == 2 && withTransitions.transitionCount(ignoringHidden: true) == 1, "transitions on hidden slides about to be deleted are not counted")
+var withMagic = withTransitions
+withMagic.magicMoves = [true, false, false]
+check(withMagic.transitionCount(ignoringHidden: false, keepMagicMove: true) == 1 && withMagic.transitionCount(ignoringHidden: false) == 2, "Magic Move is not counted when kept")
+check(withTransitions.transitionCount(ignoringHidden: false, keepMagicMove: true) == 2, "a snapshot without Magic Move flags counts every transition")
 
 if CommandLine.arguments.contains("--keynote") {
     precondition(Thread.isMainThread)
@@ -82,6 +86,10 @@ if CommandLine.arguments.contains("--keynote") {
         let saved = try KeynoteDOM.open(fixture)
         let reopened = try KeynoteDOM.snapshot(documentID: saved)!.hiddenCount
         check(reopened == 1, "the file on disk is unchanged until saved")
+        let keepMagic = sweeper.run(SweepOptions(deleteUnusedLayouts: false, deleteHiddenSlides: false, removeTransitions: true, keepMagicMove: true), documentID: saved) { _, _ in }
+        let magicAfter = try KeynoteDOM.snapshot(documentID: saved)!
+        check(keepMagic.error == nil && keepMagic.removedTransitions == 1 && magicAfter.transitions == magicAfter.magicMoves && magicAfter.magicMoves.filter { $0 }.count == 1,
+              "Keep Magic Move removes the dissolve and keeps the Magic Move")
         _ = try script("tell application id \"com.apple.Keynote\" to close document id \"\(saved)\" saving no")
     } catch {
         check(false, "Keynote run: \(error.localizedDescription)")
