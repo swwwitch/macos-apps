@@ -4,7 +4,7 @@
 
 | アプリ | バージョン | build | Bundle ID |
 | --- | --- | --- | --- |
-| [VectorMate](VectorMate.app) | 2.9.0 | 53 | `jp.dtp-transit.vectormate` |
+| [VectorMate](VectorMate.app) | 2.19.1 | 76 | `jp.dtp-transit.vectormate` |
 | [DocklessLauncher](DocklessLauncher.app) | 1.11.0 | 25 | `jp.dtp-transit.applauncher` |
 | [BrowserSwitcher](BrowserSwitcher.app) | 1.7.0 | 58 | `jp.local.BrowserSwitcher` |
 | [BundleIDInspector](BundleIDInspector.app) | 1.1.0 | 13 | `jp.dtp-transit.bundleidinspector` |
@@ -14,17 +14,17 @@
 | [IncrementPaste](IncrementPaste.app) | 1.1.0 | 8 | `jp.dtp-transit.incrementpaste` |
 | [CommandDee](CommandDee.app) | 1.9.0 | 55 | `jp.local.CommandDee` |
 | [HotkeyHound](HotkeyHound.app) | 0.4.0 | 15 | `jp.dtp-transit.hotkeyhound` |
-| [ExtensionLinker](ExtensionLinker.app) | 0.3.0 | 47 | `local.takano.DutiGUI` |
+| [ExtensionLinker](ExtensionLinker.app) | 0.3.3 | 51 | `local.takano.DutiGUI` |
 | [FolderHopper](FolderHopper.app) | 0.2.0 | 118 | `jp.local.FolderMover` |
 | [ProjectFolder](ProjectFolder.app) | 1.12.0 | 24 | `jp.dtp-transit.foldermaker` |
 | [FileCaravan](FileCaravan.app) | 1.1.0 | 33 | `local.takano.FolderMover` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.2 | 18 | `local.takano.IdAsyncOff` |
 | [CCAutoUpdateOff](CCAutoUpdateOff.app) | 1.4.0 | 15 | `local.takano.CCAutoUpdateOff` |
 | [KageTrimmer](KageTrimmer.app) | 1.4.0 | 71 | `jp.dtp-transit.kagetrimmer` |
-| [KeynoteSweeper](KeynoteSweeper.app) | 1.1.0 | 10 | `jp.local.KeynoteSweeper` |
+| [KeynoteSweeper](KeynoteSweeper.app) | 1.2.0 | 11 | `jp.local.KeynoteSweeper` |
 | [KakkoReplace](KakkoReplace.app) | 0.4.0 | 67 | `jp.local.SuperKakkoEdit` |
 | [LinkMaker](LinkMaker.app) | 1.3.0 | 31 | `jp.dtp-transit.linkmaker` |
-| [MarkdownKitchen](MarkdownKitchen.app) | 1.46.0 | 112 | `jp.dtp-transit.markdownkitchen` |
+| [MarkdownKitchen](MarkdownKitchen.app) | 1.46.2 | 114 | `jp.dtp-transit.markdownkitchen` |
 | [MightyEdit](MightyEdit.app) | 0.3.0 | 109 | `jp.local.TextPalette` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.2.0 | 22 | `jp.local.PDF2Keynote` |
 | [CarmaChameleon](CarmaChameleon.app) | 0.15.0 | 47 | `jp.local.PandocDesk` |
@@ -36,6 +36,7 @@
 | [ListMatch](ListMatch.app) | 1.6.0 | 11 | `jp.dtp-transit.listdiff` |
 | [BreaklineTrimmer](BreaklineTrimmer.app) | 1.4.0 | 10 | `jp.dtp-transit.breaklinetrimmer` |
 | [FnNumpad](FnNumpad.app) | 1.0.0 | 2 | `jp.dtp-transit.fnnumpad` |
+| [KeynoteHelper](KeynoteHelper.app) | 1.2.2 | 7 | `jp.dtp-transit.keynotehelper` |
 
 別の Mac へまとめて入れるときは `Install Latest Apps.command` をダブルクリックします（未インストールか、こちらの方が新しいものだけを `/Applications` へ。起動中のアプリは終了して入れ替え、起動し直します）。最後に `/Applications/swApps` へ自作アプリのシンボリックリンクを作り直すので、Path Finder・Finder のお気に入りに登録しておくと一覧できます。
 

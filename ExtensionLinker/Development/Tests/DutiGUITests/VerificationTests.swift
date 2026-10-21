@@ -33,26 +33,9 @@ final class VerificationTests: XCTestCase {
         XCTAssertFalse(wrong)
     }
     func testHomebrewVersionFallback() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        defer { try? FileManager.default.removeItem(at: root) }
-        let bin = root.appendingPathComponent("Cellar/duti/1.5.4/bin")
-        try FileManager.default.createDirectory(at: bin, withIntermediateDirectories: true)
-        let executable = bin.appendingPathComponent("duti")
-        try "#!/bin/sh\nprintf 'INTERNAL\\n'\n".write(to: executable, atomically: true, encoding: .utf8)
-        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
-        let result = DutiEnvironment.version(at: executable.path)
-        XCTAssertEqual(result.0, "1.5.4（Homebrew）")
-        XCTAssertTrue(result.1.contains("INTERNAL"))
+        throw XCTSkip("DutiEnvironment was removed with the installer tab in 0.3.3; no Homebrew installer is shipped.")
     }
     func testInstallerSyntaxWithoutExecutingInstaller() throws {
-        let script = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".sh")
-        defer { try? FileManager.default.removeItem(at: script) }
-        try DutiEnvironment.homebrewInstaller.write(to: script, atomically: true, encoding: .utf8)
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/bash")
-        process.arguments = ["-n", script.path]
-        try process.run()
-        process.waitUntilExit()
-        XCTAssertEqual(process.terminationStatus, 0)
+        throw XCTSkip("The Homebrew installer feature was removed in 0.3.3.")
     }
 }

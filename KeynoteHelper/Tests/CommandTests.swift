@@ -28,8 +28,11 @@ import Carbon
         // AppleScript identifiers are case-insensitive: slide size never uses W/H next to w/h.
         for command in all {
             for case .script(let job) in command.steps {
-                let source = job.source(bundleID: "com.apple.Keynote")
-                precondition(NSAppleScript(source: source)?.compileAndReturnError(nil) == true, "\(command.rawValue) does not compile")
+                let source = job.source(bundleID: Bundle(url: NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iWork.Keynote") ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Keynote")!)!.bundleIdentifier!)
+                var error: NSDictionary?
+                let compiled = NSAppleScript(source: source)?.compileAndReturnError(&error) == true
+                if !compiled { print("SCRIPT_COMPILE_ERROR", command.rawValue, error as Any); fflush(stdout) }
+                precondition(compiled, "\(command.rawValue) does not compile")
             }
         }
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
