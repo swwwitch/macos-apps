@@ -209,7 +209,11 @@ final class AssociationStore: ObservableObject {
             (!onlyChanges || row.changed || row.unavailable != nil || row.error != nil) &&
             (query.isEmpty || ("\(row.extensionLabel) \(row.displayName) \(row.current?.name ?? "")").localizedCaseInsensitiveContains(query))
         }
-        guard let sortColumn else { return filtered }
+        guard let sortColumn else {
+            // 「開発」ではHTMLを先頭に置く
+            guard selectedCategory == .development else { return filtered }
+            return filtered.filter { $0.ext == "html" } + filtered.filter { $0.ext != "html" }
+        }
         return filtered.sorted { lhs, rhs in
             let comparison: ComparisonResult
             switch sortColumn {
@@ -287,6 +291,8 @@ final class AssociationStore: ObservableObject {
         removed.subtract(rows.map(\.ext))
         defaults.set(removed.sorted(), forKey: removedKey)
     }
+    // macOS ties public.html to the default web browser: changing it also moves http/https links.
+    var changesWebBrowser: Bool { rows.contains { $0.changed && $0.types.contains(.html) } }
     var affectedExtensions: String {
         let types = Set(rows.filter(\.changed).compactMap { $0.type?.identifier })
         return rows.filter { $0.type.map { types.contains($0.identifier) } ?? false }.map(\.extensionLabel).joined(separator: ", ")
