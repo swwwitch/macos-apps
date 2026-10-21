@@ -33,8 +33,7 @@ struct Preset {
         .init(ext: "txt", name: "Jedit Pro", bundleID: "jp.co.artman21.Jedit-Pro"),
         .init(ext: "rtf", name: "Jedit Pro", bundleID: "jp.co.artman21.Jedit-Pro"),
         .init(ext: "md", name: "MacDown", bundleID: "com.uranusjr.macdown"),
-        .init(ext: "applescript", name: "Script Editor", bundleID: "com.apple.ScriptEditor2"),
-        .init(ext: "scpt", name: "Script Editor", bundleID: "com.apple.ScriptEditor2")
+        .init(ext: "applescript", name: "Script Editor", bundleID: "com.apple.ScriptEditor2")
     ]
 }
 
@@ -101,10 +100,10 @@ enum AssociationService {
     }
 
     static func canonicalExtension(_ ext: String) -> String {
-        switch ext { case "jpeg": return "jpg"; case "htm": return "html"; case "tiff": return "tif"; case "xlsx": return "xls"; case "markdown": return "md"; case "jsx": return "js"; case "docx": return "doc"; case "pptx": return "ppt"; case "tsx": return "ts"; default: return ext }
+        switch ext { case "jpeg": return "jpg"; case "htm": return "html"; case "tiff": return "tif"; case "xlsx": return "xls"; case "markdown": return "md"; case "jsx": return "js"; case "docx": return "doc"; case "pptx": return "ppt"; case "tsx": return "ts"; case "scpt": return "applescript"; default: return ext }
     }
     static func aliases(for ext: String) -> [String] {
-        switch canonicalExtension(ext) { case "jpg": return ["jpg", "jpeg"]; case "html": return ["html", "htm"]; case "tif": return ["tif", "tiff"]; case "xls": return ["xls", "xlsx"]; case "md": return ["md", "markdown"]; case "js": return ["js", "jsx"]; case "doc": return ["doc", "docx"]; case "ppt": return ["ppt", "pptx"]; case "ts": return ["ts", "tsx"]; default: return [ext] }
+        switch canonicalExtension(ext) { case "jpg": return ["jpg", "jpeg"]; case "html": return ["html", "htm"]; case "tif": return ["tif", "tiff"]; case "xls": return ["xls", "xlsx"]; case "md": return ["md", "markdown"]; case "js": return ["js", "jsx"]; case "doc": return ["doc", "docx"]; case "ppt": return ["ppt", "pptx"]; case "ts": return ["ts", "tsx"]; case "applescript": return ["applescript", "scpt"]; default: return [ext] }
     }
     static func current(for type: UTType) -> Application? {
         guard let id = LSCopyDefaultRoleHandlerForContentType(type.identifier as CFString, .all)?.takeRetainedValue() as String? else { return nil }
@@ -126,7 +125,7 @@ enum AssociationService {
             throw NSError(domain: "DutiGUI", code: 1, userInfo: [NSLocalizedDescriptionKey: L("既定アプリの反映を確認できませんでした。再読み込みして確認してください。")])
         }
     }
-    static func verify(expected: String, attempts: Int = 6, delay: UInt64 = 100_000_000, read: () -> String?) async -> Bool {
+    static func verify(expected: String, attempts: Int = 50, delay: UInt64 = 100_000_000, read: () -> String?) async -> Bool {
         for attempt in 0..<max(1, attempts) {
             if read() == expected { return true }
             if attempt + 1 < attempts {
