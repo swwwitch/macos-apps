@@ -91,7 +91,7 @@ struct MarkdownKitchenApp: App {
             // SwiftUI already separates this group from the one above.
             CommandGroup(replacing: .saveItem) {
                 Button(L("ウインドウを閉じる")) {
-                    // A new window asks about unsaved changes before its source is discarded.
+                    // Asks about unsaved changes before the window's source is discarded.
                     if let window = NSApp.keyWindow, window.sheetParent == nil, let store = MarkdownStore.store(for: window) {
                         store.closeWindow()
                     } else {
@@ -313,7 +313,7 @@ private struct UtilityWindowChrome: NSViewRepresentable {
             window.standardWindowButton(.miniaturizeButton)?.isHidden = false
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.collectionBehavior.insert(.fullScreenNone)
-            if !store.isMain, let close = window.standardWindowButton(.closeButton) {
+            if let close = window.standardWindowButton(.closeButton) {
                 close.target = self
                 close.action = #selector(closeClicked(_:))
             }

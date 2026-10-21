@@ -285,14 +285,23 @@ final class MarkdownStore: ObservableObject {
         }
     }
 
-    /// 新規ウインドウを閉じる。未保存の変更があれば保存するか確かめる（メインウインドウは閉じても原稿を残す）
+    /// ウインドウを閉じて原稿を消す。未保存の変更があれば保存するか確かめる（終了時は閉じずに残し、次回開き直す）
     func closeWindow() {
         guard let window else { return }
-        if !isMain {
-            window.makeKeyAndOrderFront(nil)
-            guard confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return }
-        }
+        window.makeKeyAndOrderFront(nil)
+        guard confirmDiscard(L("保存しない場合、このウインドウの原稿は失われます。")) else { return }
         window.close()
+        if isMain { clearMain() }
+    }
+
+    /// メインウインドウの原稿とファイルとの連携を消す（次に開くと空の原稿）
+    private func clearMain() {
+        text = ""
+        fileURL = nil
+        fileDate = nil
+        fileEncoding = .utf8
+        markSaved()
+        message = nil
     }
 
     /// ファイルとの連携を外す。原稿は残し、以後の⌘Sは「別名で保存…」
