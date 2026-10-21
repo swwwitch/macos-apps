@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "KeynoteHelper";
+"NSAppleEventsUsageDescription" = "Keynote의 객체와 슬라이드(불투명도, 크기, 트랜지션, 도형)를 변경하고 현재 슬라이드를 PNG로 내보내는 데 사용합니다.";
