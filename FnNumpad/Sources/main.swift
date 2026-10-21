@@ -12,6 +12,8 @@ final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
     @Published var enabled = UserDefaults.standard.object(forKey: "conversionEnabled") as? Bool ?? true
     @Published var groups = Model.loadGroups()
+    @Published var ansiTrigger = Model.loadTrigger("trigger.ansi", .fn)
+    @Published var jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var paused = false
     @Published var trusted = AccessibilitySection.isTrusted
@@ -19,6 +21,7 @@ final class Model: ObservableObject {
     @Published var excludedFront: String?
     let tap = NumpadTap()
     let commaTyper = CommaTyper()
+    let capsLockGuard = CapsLockGuard()
     private var observers: [NSObjectProtocol] = []
     private var workspaceObserver: NSObjectProtocol?
     private var accessibilityObserver: NSObjectProtocol?
@@ -26,6 +29,9 @@ final class Model: ObservableObject {
     init() {
         let typer = commaTyper
         tap.onComma = { flags in MainActor.assumeIsolated { typer.type(flags: flags) } }
+        let caps = capsLockGuard
+        tap.onCapsToggle = { on in MainActor.assumeIsolated { caps.toggled(to: on) } }
+        tap.onCapsUsed = { MainActor.assumeIsolated { caps.markUsed() } }
         // Event-driven (B13): app switches, returning to FnNumpad, and changes to the Accessibility list.
         workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
@@ -40,6 +46,10 @@ final class Model: ObservableObject {
         refresh()
     }
 
+    static func loadTrigger(_ key: String, _ initial: TriggerKey) -> TriggerKey {
+        UserDefaults.standard.string(forKey: key).flatMap(TriggerKey.init(rawValue:)) ?? initial
+    }
+
     static func loadGroups() -> Set<KeyGroup> {
         Set(KeyGroup.allCases.filter { UserDefaults.standard.object(forKey: $0.defaultsKey) as? Bool ?? true })
     }
@@ -48,6 +58,8 @@ final class Model: ObservableObject {
         defaults.set(enabled, forKey: "conversionEnabled")
         for group in KeyGroup.allCases { defaults.set(groups.contains(group), forKey: group.defaultsKey) }
         defaults.set(keepRunning, forKey: "keepRunning")
+        defaults.set(ansiTrigger.rawValue, forKey: "trigger.ansi")
+        defaults.set(jisTrigger.rawValue, forKey: "trigger.jis")
         refresh()
     }
 
@@ -55,6 +67,8 @@ final class Model: ObservableObject {
     func reload() {
         enabled = defaults.object(forKey: "conversionEnabled") as? Bool ?? true
         groups = Model.loadGroups()
+        ansiTrigger = Model.loadTrigger("trigger.ansi", .fn)
+        jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
         refresh()
     }
 
@@ -72,7 +86,7 @@ final class Model: ObservableObject {
         tapRunning = tap.isRunning
         let front = NSWorkspace.shared.frontmostApplication
         excludedFront = ExcludedApps.shared.excludes(front?.bundleIdentifier) ? (front?.localizedName ?? front?.bundleIdentifier ?? "") : nil
-        tap.update(TapState(active: enabled && !paused && excludedFront == nil, groups: groups))
+        tap.update(TapState(active: enabled && !paused && excludedFront == nil, groups: groups, ansiTrigger: ansiTrigger, jisTrigger: jisTrigger))
     }
 
     var problem: Bool { !trusted || !tapRunning || !enabled || paused }
@@ -106,6 +120,10 @@ extension KeyGroup {
     var title: String { L("group." + rawValue) }
     var hint: String { L("group." + rawValue + ".hint") }
     var shortTitle: String { L("group." + rawValue + ".short") }
+}
+
+extension TriggerKey {
+    var title: String { L("triggerKey." + rawValue) }
 }
 
 /// Shared header (AppHeader.swift): current bundle icon, functional title and subtitle.
@@ -207,6 +225,18 @@ struct Preferences: View {
                     Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
                     Text(L("enableHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                SettingsSection(L("triggerTitle")) {
+                    Picker(L("trigger.ansi"), selection: Binding(get: { model.ansiTrigger }, set: { model.ansiTrigger = $0; model.save() })) {
+                        ForEach(TriggerKey.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented).fixedSize()
+                    Picker(L("trigger.jis"), selection: Binding(get: { model.jisTrigger }, set: { model.jisTrigger = $0; model.save() })) {
+                        ForEach(TriggerKey.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented).fixedSize()
+                    Text(L("triggerHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                .disabled(!model.enabled)
                 ForEach(KeyGroup.allCases) { group in
                     SettingsSection(group.title) {
                         Toggle(L("useGroup"), isOn: model.group(group))
@@ -241,7 +271,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         ExcludedApps.shared.onChange = { [weak self] in self?.model.excludedAppsChanged() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(
-            keys: Set(["conversionEnabled"] + KeyGroup.allCases.map(\.defaultsKey)),
+            keys: Set(["conversionEnabled", "trigger.ansi", "trigger.jis"] + KeyGroup.allCases.map(\.defaultsKey)),
             note: StartupWindow.text("テンキー変換のオン・オフと、使うキーのグループを書き出し・同期します。",
                                      "Exports and syncs whether conversion is on and which key groups are used.",
                                      "导出并同步数字键盘转换的开关以及使用的按键组。",

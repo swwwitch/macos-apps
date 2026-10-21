@@ -9,6 +9,15 @@ struct KeyTarget: Equatable {
     var keypad: Bool
 }
 
+/// The key held to convert, chosen separately for JIS and other keyboards.
+enum TriggerKey: String, CaseIterable, Identifiable {
+    case fn, capsLock, both
+    var id: String { rawValue }
+    var usesFn: Bool { self != .capsLock }
+    var usesCapsLock: Bool { self != .fn }
+    func pressed(fn: Bool, capsLock: Bool) -> Bool { (usesFn && fn) || (usesCapsLock && capsLock) }
+}
+
 /// The four groups the 「キー」 settings turn on and off.
 enum KeyGroup: String, CaseIterable, Identifiable {
     case numpad, numberRow, operators, editing
@@ -50,6 +59,7 @@ enum KeyMap {
     static let tab = KeyTarget(code: 0x30, label: "Tab", keypad: false)
     static let delete = KeyTarget(code: 0x33, label: "Delete", keypad: false)
     static let returnKey = KeyTarget(code: 0x24, label: "Return", keypad: false)
+    static let keypadEnter = KeyTarget(code: 0x4C, label: "Enter", keypad: true)
 
     /// The rule 「Fn+Number to KeyPad, Fn+[ / Y / H to Tab / Delete / Return」 (numpad-v4.json), in its order.
     static let all: [KeyMapping] = [
@@ -84,6 +94,8 @@ enum KeyMap {
         KeyMapping(from: 0x21, fromLabel: "[", karabiner: "open_bracket", to: [tab], group: .editing),
         KeyMapping(from: 0x10, fromLabel: "Y", karabiner: "y", to: [delete], group: .editing),
         KeyMapping(from: 0x04, fromLabel: "H", karabiner: "h", to: [returnKey], group: .editing),
+        // Added in FnNumpad: Fn+Return types the keypad Enter.
+        KeyMapping(from: 0x24, fromLabel: "Return", karabiner: "return_or_enter", to: [keypadEnter], group: .editing),
     ]
 
     private static let byCode = Dictionary(uniqueKeysWithValues: all.map { ($0.from, $0) })

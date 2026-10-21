@@ -24,7 +24,7 @@ extension KeyGroup {
 
 /// Key names as the current input source types them (from DocklessLauncher's KeyName).
 enum KeyName {
-    static let special: [UInt32: String] = [36: "↩", 48: "⇥", 49: "Space", 51: "⌫", 53: "⎋", 102: "英数", 104: "かな"]
+    static let special: [UInt32: String] = [36: "↩", 48: "⇥", 49: "Space", 51: "⌫", 53: "⎋", 102: "英数", 104: "かな", 93: "¥", 94: "_"]
     static func name(for code: UInt32) -> String {
         if let name = special[code] { return name }
         if let typed = translate(code), !typed.isEmpty { return typed.uppercased() }
@@ -84,7 +84,7 @@ struct KeyboardView: View {
                     ForEach(Array(layout.rows.enumerated()), id: \.offset) { index, row in
                         HStack(spacing: gap) {
                             ForEach(Array(row.enumerated()), id: \.offset) { _, key in
-                                KeyCapView(model: model, key: key)
+                                KeyCapView(model: model, key: key, layout: layout)
                                     .frame(width: max(0, unit * CGFloat(key.width) - gap), height: index == 0 ? unit * 0.62 : unit - gap)
                             }
                         }
@@ -101,10 +101,16 @@ struct KeyboardView: View {
 struct KeyCapView: View {
     @ObservedObject var model: Model
     let key: KeySpec
+    let layout: KeyboardLayout
 
     var mapping: KeyMapping? { key.code.flatMap { code in KeyMap.all.first { $0.from == Int64(code) } } }
     var on: Bool { mapping.map { model.isOn($0.group) } ?? false }
-    var isFn: Bool { key.code == nil && key.caption == "fn" }
+    /// The trigger key(s) chosen for the layout shown: fn and/or ⇪ (Caps Lock).
+    var isFn: Bool {
+        guard key.code == nil else { return false }
+        let trigger = layout == .jis ? model.jisTrigger : model.ansiTrigger
+        return (key.caption == "fn" && trigger.usesFn) || (key.caption == "⇪" && trigger.usesCapsLock)
+    }
     var caption: String { key.caption ?? key.code.map { KeyName.name(for: $0) } ?? "" }
 
     var body: some View {
@@ -139,6 +145,7 @@ struct KeyCapView: View {
         case KeyMap.tab.code: return "⇥"
         case KeyMap.delete.code: return "⌫"
         case KeyMap.returnKey.code: return "↩"
+        case KeyMap.keypadEnter.code: return "Enter"
         default: return mapping.toLabel
         }
     }

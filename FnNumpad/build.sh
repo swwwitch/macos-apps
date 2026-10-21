@@ -13,7 +13,7 @@ SOURCES=(../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/AppHeade
          ../Shared/AppStandards/WindowActivationPolicy.swift ../Shared/SettingsSync/SettingsSync.swift ../Shared/LoginAtLaunch/LoginAtLaunch.swift
          ../Shared/Accessibility/AccessibilityPermission.swift ../Shared/ExcludedApps/ExcludedApps.swift ../Shared/MenuBarPresence/MenuBarPresence.swift
          ../Shared/Updater/UpdateSupport.swift
-         Sources/LaunchPolicy.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/CommaTyper.swift Sources/KeyboardLayout.swift Sources/KeyboardView.swift Sources/main.swift)
+         Sources/LaunchPolicy.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/CommaTyper.swift Sources/CapsLockGuard.swift Sources/KeyboardLayout.swift Sources/KeyboardView.swift Sources/main.swift)
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework UniformTypeIdentifiers "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/FnNumpad"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"

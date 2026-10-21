@@ -1,11 +1,14 @@
 import AppKit
 import ApplicationServices
+import Carbon
 
 /// What the event tap reads on its own thread; the main thread replaces it as a whole.
 struct TapState: Equatable {
     /// Conversion on, not paused, and the front app is not excluded.
     var active = false
     var groups: Set<KeyGroup> = Set(KeyGroup.allCases)
+    var ansiTrigger = TriggerKey.fn
+    var jisTrigger = TriggerKey.capsLock
 }
 
 /// Turns Fn+key into keypad keys with a session event tap (needs Accessibility).
@@ -23,6 +26,9 @@ final class NumpadTap: @unchecked Sendable {
     private var runLoop: CFRunLoop?
     /// Fn+, is typed on the main thread (CommaTyper), with the held modifiers minus Fn. Set before start().
     var onComma: (@Sendable (CGEventFlags) -> Void)?
+    /// Caps Lock toggled the lock (new state), and a key was converted while Caps Lock was held (CapsLockGuard).
+    var onCapsToggle: (@Sendable (Bool) -> Void)?
+    var onCapsUsed: (@Sendable () -> Void)?
 
     var isRunning: Bool { lock.withLock { port != nil } }
 
@@ -33,7 +39,7 @@ final class NumpadTap: @unchecked Sendable {
     @discardableResult
     func start() -> Bool {
         if isRunning { return true }
-        let mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
+        let mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
         guard let port = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
                                            eventsOfInterest: CGEventMask(mask), callback: numpadTapCallback,
                                            userInfo: Unmanaged.passUnretained(self).toOpaque()) else { return false }
@@ -69,6 +75,12 @@ final class NumpadTap: @unchecked Sendable {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
             if let port = lock.withLock({ port }) { CGEvent.tapEnable(tap: port, enable: true) }
             return Unmanaged.passUnretained(event)
+        case .flagsChanged:
+            if event.getIntegerValueField(.keyboardEventKeycode) == 57, let onCapsToggle {
+                let on = event.flags.contains(.maskAlphaShift)
+                DispatchQueue.main.async { onCapsToggle(on) }
+            }
+            return Unmanaged.passUnretained(event)
         case .keyDown, .keyUp:
             break
         default:
@@ -85,9 +97,13 @@ final class NumpadTap: @unchecked Sendable {
         } else {
             // A conversion starts only on the first key down with Fn, as Karabiner's from.modifiers.mandatory.
             let state = snapshot
-            guard down, !repeating, state.active, event.flags.contains(.maskSecondaryFn),
+            let trigger = Self.isJIS(event.getIntegerValueField(.keyboardEventKeyboardType)) ? state.jisTrigger : state.ansiTrigger
+            // Caps Lock's release is not an event, so its physical state is asked only when it can be the trigger.
+            let capsDown = down && !repeating && trigger.usesCapsLock && CGEventSource.keyState(.hidSystemState, key: 57)
+            guard down, !repeating, state.active, trigger.pressed(fn: event.flags.contains(.maskSecondaryFn), capsLock: capsDown),
                   let found = KeyMap.mapping(for: code, groups: state.groups) else { return Unmanaged.passUnretained(event) }
             mapping = found
+            if capsDown, let onCapsUsed { DispatchQueue.main.async { onCapsUsed() } }
             held[code] = found
         }
         guard let last = mapping.to.last else { return Unmanaged.passUnretained(event) }
@@ -120,10 +136,15 @@ final class NumpadTap: @unchecked Sendable {
         return event
     }
 
+    static func isJIS(_ keyboardType: Int64) -> Bool {
+        KBGetLayoutType(Int16(truncatingIfNeeded: keyboardType)) == UInt32(kKeyboardJIS)
+    }
+
     /// Other modifiers pass through (Karabiner's optional: any); Fn is removed, the keypad flag follows the target.
     static func outputFlags(_ flags: CGEventFlags, keypad: Bool) -> CGEventFlags {
         var result = flags
         result.remove(.maskSecondaryFn)
+        result.remove(.maskAlphaShift)
         if keypad { result.insert(.maskNumericPad) } else { result.remove(.maskNumericPad) }
         return result
     }
