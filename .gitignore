@@ -45,3 +45,6 @@ Shared/BuildTools/deployment-*.json
 Shared/BuildTools/Logs/
 Shared/ReleasePreparation/
 PDF2Keynote/Tests/KeynoteOutput/
+
+# Per-Mac build and shared distribution paths
+.local/
