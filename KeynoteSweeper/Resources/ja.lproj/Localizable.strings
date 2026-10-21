@@ -21,6 +21,8 @@
 "removeTransitions" = "すべてのトランジションを削除";
 "confirmTransitions" = "トランジション：%d枚";
 "resultTransitions" = "トランジション：%d枚から削除";
+"keepMagicMove" = "マジックムーブは残す";
+"keepMagicMoveNote" = "（マジックムーブは残す）";
 "removeBuilds" = "すべてのオブジェクトのアニメーションを削除";
 "confirmBuilds" = "オブジェクトのアニメーション：すべてのスライド";
 "resultBuilds" = "オブジェクトのアニメーション：%d個を削除（スライド%d枚）";

@@ -25,6 +25,8 @@ deleteHidden|非表示のスライドを削除|Delete hidden slides|删除隐藏
 removeTransitions|すべてのトランジションを削除|Remove all transitions|删除所有过渡效果|모든 전환 효과 삭제
 confirmTransitions|トランジション：%d枚|Transitions: %d slides|过渡效果：%d 张|전환 효과: %d개
 resultTransitions|トランジション：%d枚から削除|Transitions removed from %d slides|已从 %d 张幻灯片删除过渡效果|%d개 슬라이드의 전환 효과 삭제
+keepMagicMove|マジックムーブは残す|Keep Magic Move|保留神奇移动|매직 이동은 유지
+keepMagicMoveNote|（マジックムーブは残す）| (Magic Move kept)|（保留神奇移动）| (매직 이동 유지)
 removeBuilds|すべてのオブジェクトのアニメーションを削除|Remove all object animations|删除所有对象动画|모든 객체 애니메이션 삭제
 confirmBuilds|オブジェクトのアニメーション：すべてのスライド|Object animations: every slide|对象动画：所有幻灯片|객체 애니메이션: 모든 슬라이드
 resultBuilds|オブジェクトのアニメーション：%d個を削除（スライド%d枚）|Object animations removed: %d (on %d slides)|已删除对象动画：%d 个（%d 张幻灯片）|객체 애니메이션 %d개 삭제(슬라이드 %d개)
@@ -113,6 +115,7 @@ automation = ['Keynoteの最前面の書類を読み取り、選んだ非表示�
 services = {'Delete Unused Masters': ['使用されていないマスターを削除', 'Delete Unused Masters', '删除未使用的母版', '사용하지 않는 마스터 삭제'],
             'Delete Hidden Slides': ['非表示のスライドを削除', 'Delete Hidden Slides', '删除隐藏的幻灯片', '숨긴 슬라이드 삭제'],
             'Remove Transitions': ['トランジションを削除', 'Remove Transitions', '删除过渡效果', '전환 효과 삭제'],
+            'Remove Transitions Except Magic Move': ['マジックムーブ以外のトランジションを削除', 'Remove Transitions Except Magic Move', '删除神奇移动以外的过渡效果', '매직 이동 이외의 전환 효과 삭제'],
             'Remove Object Animations': ['オブジェクトのアニメーションを削除', 'Remove Object Animations', '删除对象动画', '객체 애니메이션 삭제'],
             'Remove All Animations': ['すべてのアニメーションを削除', 'Remove All Animations', '删除所有动画', '모든 애니메이션 삭제']}
 

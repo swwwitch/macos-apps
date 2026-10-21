@@ -8,17 +8,19 @@ import UniformTypeIdentifiers
     @Published var deleteHidden = UserDefaults.standard.object(forKey: "deleteHiddenSlides") as? Bool ?? true { didSet { defaults.set(deleteHidden, forKey: "deleteHiddenSlides") } }
     @Published var removeTransitions = UserDefaults.standard.bool(forKey: "removeTransitions") { didSet { defaults.set(removeTransitions, forKey: "removeTransitions") } }
     @Published var removeBuilds = UserDefaults.standard.bool(forKey: "removeBuilds") { didSet { defaults.set(removeBuilds, forKey: "removeBuilds") } }
+    @Published var keepMagicMove = UserDefaults.standard.bool(forKey: "keepMagicMove") { didSet { defaults.set(keepMagicMove, forKey: "keepMagicMove") } }
     /// Keys shared by 設定の共有. Startup, residency and the menu bar stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["deleteUnusedLayouts", "deleteHiddenSlides", "removeTransitions", "removeBuilds"]
+    nonisolated static let sharedKeys: Set<String> = ["deleteUnusedLayouts", "deleteHiddenSlides", "removeTransitions", "removeBuilds", "keepMagicMove"]
     /// Re-reads the shared settings after an import so the next save does not write the old values back.
     func reloadSharedSettings() {
         deleteLayouts = defaults.object(forKey: "deleteUnusedLayouts") as? Bool ?? true
         deleteHidden = defaults.object(forKey: "deleteHiddenSlides") as? Bool ?? true
         removeTransitions = defaults.bool(forKey: "removeTransitions")
         removeBuilds = defaults.bool(forKey: "removeBuilds")
+        keepMagicMove = defaults.bool(forKey: "keepMagicMove")
     }
     private var checkboxRequest: SweepOptions {
-        SweepOptions(deleteUnusedLayouts: deleteLayouts, deleteHiddenSlides: deleteHidden, removeTransitions: removeTransitions, removeBuilds: removeBuilds)
+        SweepOptions(deleteUnusedLayouts: deleteLayouts, deleteHiddenSlides: deleteHidden, removeTransitions: removeTransitions, removeBuilds: removeBuilds, keepMagicMove: keepMagicMove)
     }
     @Published var snapshot: KeynoteSnapshot?
     /// A dropped or chosen .key file. Nil = work on Keynote's front presentation.
@@ -39,7 +41,7 @@ import UniformTypeIdentifiers
     }
     var hiddenCount: Int { snapshot?.hiddenCount ?? 0 }
     /// Slides with a transition that will remain after the chosen hidden slides are gone.
-    var transitionCount: Int { snapshot.map { $0.transitionCount(ignoringHidden: deleteHidden && !$0.allHidden) } ?? 0 }
+    var transitionCount: Int { snapshot.map { $0.transitionCount(ignoringHidden: deleteHidden && !$0.allHidden, keepMagicMove: keepMagicMove) } ?? 0 }
     var canRun: Bool {
         guard !busy, let snapshot else { return false }
         return !plan(checkboxRequest, snapshot).options.isEmpty
@@ -48,10 +50,11 @@ import UniformTypeIdentifiers
     func plan(_ request: SweepOptions, _ snapshot: KeynoteSnapshot) -> (options: SweepOptions, layouts: Int, slides: Int, transitions: Int) {
         let ignoringHidden = request.deleteHiddenSlides && !snapshot.allHidden
         let layouts = snapshot.unusedLayoutIndexes(ignoringHidden: ignoringHidden).count
-        let transitions = snapshot.transitionCount(ignoringHidden: ignoringHidden)
+        let transitions = snapshot.transitionCount(ignoringHidden: ignoringHidden, keepMagicMove: request.keepMagicMove)
         // Builds can only be counted by visiting every slide, so they are always attempted when asked for.
         let options = SweepOptions(deleteUnusedLayouts: request.deleteUnusedLayouts && layouts > 0, deleteHiddenSlides: request.deleteHiddenSlides && snapshot.hiddenCount > 0,
-                                   removeTransitions: request.removeTransitions && transitions > 0, removeBuilds: request.removeBuilds && !snapshot.skipped.isEmpty)
+                                   removeTransitions: request.removeTransitions && transitions > 0, removeBuilds: request.removeBuilds && !snapshot.skipped.isEmpty,
+                                   keepMagicMove: request.keepMagicMove)
         return (options, layouts, snapshot.hiddenCount, transitions)
     }
 
@@ -135,7 +138,7 @@ import UniformTypeIdentifiers
         var lines: [String] = []
         if options.deleteUnusedLayouts { lines.append(String(format: L("confirmLayouts"), counts.layouts)) }
         if options.deleteHiddenSlides { lines.append(String(format: L("confirmSlides"), counts.slides)) }
-        if options.removeTransitions { lines.append(String(format: L("confirmTransitions"), counts.transitions)) }
+        if options.removeTransitions { lines.append(String(format: L("confirmTransitions"), counts.transitions) + (options.keepMagicMove ? L("keepMagicMoveNote") : "")) }
         if options.removeBuilds { lines.append(L("confirmBuilds")) }
         let alert = NSAlert()
         alert.messageText = String(format: L("confirmTitle"), snapshot.documentName)
@@ -153,7 +156,7 @@ import UniformTypeIdentifiers
         if !quiet { NSApp.activate(ignoringOtherApps: true) }
         var lines: [String] = []
         if options.deleteHiddenSlides { lines.append(String(format: L("resultSlides"), result.deletedSlides)) }
-        if options.removeTransitions { lines.append(String(format: L("resultTransitions"), result.removedTransitions)) }
+        if options.removeTransitions { lines.append(String(format: L("resultTransitions"), result.removedTransitions) + (options.keepMagicMove ? L("keepMagicMoveNote") : "")) }
         if options.removeBuilds { lines.append(String(format: L("resultBuilds"), result.removedBuilds, result.buildSlides)) }
         if options.deleteUnusedLayouts {
             lines.append(String(format: L("resultLayouts"), result.deletedLayouts.count) + (result.deletedLayouts.isEmpty ? "" : L("listColon") + result.deletedLayouts.reversed().joined(separator: L("listSeparator"))))
@@ -240,6 +243,7 @@ struct MainView: View {
                 Toggle(isOn: $model.removeTransitions) {
                     Text(L("removeTransitions")) + Text(model.snapshot == nil ? "" : String(format: L("countSlides"), model.transitionCount)).foregroundColor(.secondary)
                 }
+                Toggle(L("keepMagicMove"), isOn: $model.keepMagicMove).padding(.leading, 20).disabled(!model.removeTransitions)
                 Toggle(L("removeBuilds"), isOn: $model.removeBuilds)
                 hint(L("itemsHint"))
             }.disabled(model.busy)
@@ -367,6 +371,9 @@ struct SettingsView: View {
     @objc func removeTransitions(_ pboard: NSPasteboard, userData: String, error: AutoreleasingUnsafeMutablePointer<NSString>) {
         DispatchQueue.main.async { self.delegate?.runService(removeTransitions: true) }
     }
+    @objc func removeTransitionsExceptMagicMove(_ pboard: NSPasteboard, userData: String, error: AutoreleasingUnsafeMutablePointer<NSString>) {
+        DispatchQueue.main.async { self.delegate?.runService(removeTransitions: true, keepMagicMove: true) }
+    }
     @objc func removeBuilds(_ pboard: NSPasteboard, userData: String, error: AutoreleasingUnsafeMutablePointer<NSString>) {
         DispatchQueue.main.async { self.delegate?.runService(removeBuilds: true) }
     }
@@ -460,11 +467,11 @@ struct SettingsView: View {
     @objc func quit() { NSApp.terminate(nil) }
     @objc func refresh() { show(); model.refresh(clearStatus: true) }
     /// Services always work on Keynote's front presentation, where the user just chose the item.
-    func runService(deleteLayouts: Bool = false, deleteHidden: Bool = false, removeTransitions: Bool = false, removeBuilds: Bool = false) {
+    func runService(deleteLayouts: Bool = false, deleteHidden: Bool = false, removeTransitions: Bool = false, removeBuilds: Bool = false, keepMagicMove: Bool = false) {
         guard !model.busy else { show(); return }
         model.useFrontDocument()
         // Runs without confirmation and without the window; show it only if the run could not start.
-        let request = SweepOptions(deleteUnusedLayouts: deleteLayouts, deleteHiddenSlides: deleteHidden, removeTransitions: removeTransitions, removeBuilds: removeBuilds)
+        let request = SweepOptions(deleteUnusedLayouts: deleteLayouts, deleteHiddenSlides: deleteHidden, removeTransitions: removeTransitions, removeBuilds: removeBuilds, keepMagicMove: keepMagicMove)
         if !model.start(request, quiet: true) { show() }
     }
     @objc func chooseFile() { show(); model.chooseFile() }
