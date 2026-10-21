@@ -227,7 +227,9 @@ final class VersionSwitchModel: ObservableObject {
             let url = NSWorkspace.shared.urlForApplication(toOpen: type)
             let current: String
             if illustrator, let url {
-                current = versions.first { $0.urls.contains(url) || $0.version == VersionPinning.bundleVersion(of: url) }?.label ?? VersionPinning.versionedName(url)
+                // Name the copy that actually opens: copies sharing a version are one choice but only one of them opens.
+                let version = versions.first { $0.urls.contains(url) || $0.version == VersionPinning.bundleVersion(of: url) }
+                current = VersionPinning.versionedName(url) + (version.map { "（\($0.shortVersion)）" } ?? "")
             } else {
                 current = url.map(VersionPinning.versionedName) ?? "—"
             }

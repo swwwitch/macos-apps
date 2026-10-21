@@ -68,7 +68,7 @@ Illustratorの主要な環境設定を、名前を付けたセットでまとめ
 
 複数の版のIllustrator（2021〜2026 はすべて Bundle ID `com.adobe.illustrator`）がインストールされているとき、Illustratorに関連付けられた拡張子をまとめて指定の版で開くようにします（ExtensionLinker 0.2.29 の「アプリの版」から移植。Illustratorのみ）。
 
-- 対象は .ai・.ait・.eps・.svg のうちチェックしたもの（設定 versionExtensions、初期値はすべて）。ほかのアプリに関連付けられていた拡張子もIllustratorに変わる。各行に今開くアプリ（版）を表示。
+- 対象は .ai・.ait・.eps・.svg のうちチェックしたもの（設定 versionExtensions、初期値はすべて）。ほかのアプリに関連付けられていた拡張子もIllustratorに変わる。各行に今開くアプリ（版）を表示。同じ版が複数ある（例：「Adobe Illustrator 2026」と「Adobe Illustrator 2026 en」）ときは選択肢は1つにまとまり、どちらで開くかは Launch Services が決めるので、行には実際に開く方を表示。
 - 公開APIは版を記録しない（`LSHandlerPreferredVersions = "-"`）ため、`~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist` の LSHandlers に `LSHandlerPreferredVersions.LSHandlerRoleAll = <CFBundleVersion>` を書き、`killall lsd`。動的UTI（.ait・.aia など）は拡張子（LSHandlerContentTag）で記録。
 - 書き込む前に、記録と LSCopyDefaultRoleHandlerForContentType の食い違い（lsd がまだ保存していない変更）がないことを確かめる。変更前の記録は `~/Library/Application Support/VectorMate/LaunchServicesBackups` に10世代。
 - 再起動後、urlForApplication(toOpen:) が期待する版になるまで最大5秒待って確かめ、確かめられなければ元の記録に戻す。
@@ -119,6 +119,10 @@ Assets/make-icon.sh                  # アイコン
 このビルドはローカル利用向けに証明書（PL9S9PXX96）で署名しています。Developer ID署名・公証・更新配信先は未設定です。
 
 ## 更新履歴
+
+### 2.19.1（build 76、2026-10-21）
+
+- 関連付け：各行に、同じ版が複数あるときもまとめた名前ではなく実際に開く方（例：「Adobe Illustrator 2026 en（30.8.2）」）を表示。
 
 ### 2.19.0（build 75、2026-10-20）
 
