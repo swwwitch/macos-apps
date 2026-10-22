@@ -220,3 +220,6 @@
 "最大拡大率を変更できませんでした。" = "Could not change the maximum zoom.";
 "syncNote" = "Exports and syncs the presets (included items, values, apps to open or quit) and Use Timer. Resolutions or apps missing on another Mac are skipped when a preset is applied.";
 "syncPerMac" = "Login launch, background, menu bar, Accessibility, the timer's start time and duration, window positions and tabs, the last applied preset and the sync folder location stay per Mac.";
+
+"基本" = "Basic";
+"ズーム" = "Zoom";

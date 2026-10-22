@@ -232,11 +232,11 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         guard controlsWindow == nil else { return }
         // Fit the tallest tab so the header stays put when switching tabs. 180 = everything around the tab panel
         // (padding, header, tab picker, footer and the spacing between them).
-        let panelWidth: CGFloat = 384  // 420 minus the 18pt side padding
-        let manualHeight = [false, true].map { detailed in
-            NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets, detailed: detailed).padding(16).frame(width: panelWidth)).fittingSize.height
+        let panelWidth: CGFloat = 444  // 480 minus the 18pt side padding
+        let manualHeight = ManualControlsView.Section.allCases.map { section in
+            NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets, section: section).padding(16).frame(width: panelWidth)).fittingSize.height
         }.max() ?? 0
-        let size = NSSize(width: 420, height: ceil(180 + manualHeight))
+        let size = NSSize(width: 480, height: ceil(180 + manualHeight))
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("セミナー・キャプチャ準備")
@@ -255,6 +255,13 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         window.setContentSize(size)
         window.contentMinSize = size
         restoreFrame(of: window, name: "TokiMainWindow", minimum: size)
+        // Adopt the narrower default for windows saved at the previous default width.
+        // Keep manually enlarged windows and their saved position intact.
+        if abs(window.frame.width - 560) < 1 || abs(window.frame.width - 520) < 1 {
+            var frame = window.frame
+            frame.size.width = size.width
+            window.setFrame(frame, display: false)
+        }
         controlsWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
@@ -501,15 +508,11 @@ struct MainView: View {
                 }
             }
             // In-window tabs: a SwiftUI TabView would move into the native title bar.
-            Picker("", selection: $tab) {
-                Text(L("プリセット")).tag(0)
-                Text(L("基本設定")).tag(2)
-                Text(L("その他の設定")).tag(3)
-            }
-            .pickerStyle(.segmented).labelsHidden().fixedSize().frame(maxWidth: .infinity)
+            MainWindowTabs(selection: $tab)
+                .fixedSize().frame(maxWidth: .infinity)
             Group {
-                if tab == 2 || tab == 3 {
-                    ManualControlsView(settings: settings, countdown: countdown, presets: presets, detailed: tab == 3).padding(16)
+                if let section = ManualControlsView.Section(rawValue: tab) {
+                    ManualControlsView(settings: settings, countdown: countdown, presets: presets, section: section).padding(16)
                 } else {
                     PresetPicker(settings: settings, countdown: countdown, presets: presets)
                 }
@@ -531,6 +534,45 @@ struct MainView: View {
             }
         }
         .padding(18)
+    }
+}
+
+/// Native segmented tabs with a label-sized width and equal padding for every segment.
+struct MainWindowTabs: NSViewRepresentable {
+    @Binding var selection: Int
+    private let items: [(title: String, tag: Int)] = [
+        ("プリセット", 0), ("基本", 2), ("ディスプレイ", 4), ("ズーム", 5), ("その他", 3)
+    ]
+
+    func makeNSView(context: Context) -> NSSegmentedControl {
+        let control = NSSegmentedControl(labels: items.map { L($0.title) }, trackingMode: .selectOne,
+                                         target: context.coordinator, action: #selector(Coordinator.changed(_:)))
+        control.segmentStyle = .rounded
+        control.segmentDistribution = .fit
+        let font = NSFont.systemFont(ofSize: 11)
+        control.font = font
+        for (index, item) in items.enumerated() {
+            control.setTag(item.tag, forSegment: index)
+            let textWidth = (L(item.title) as NSString).size(withAttributes: [.font: font]).width
+            control.setWidth(ceil(textWidth) + 24, forSegment: index)
+        }
+        control.setAccessibilityLabel(L("セミナー・キャプチャ準備"))
+        return control
+    }
+
+    func updateNSView(_ control: NSSegmentedControl, context: Context) {
+        context.coordinator.parent = self
+        control.selectedSegment = items.firstIndex { $0.tag == selection } ?? 0
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    final class Coordinator: NSObject {
+        var parent: MainWindowTabs
+        init(_ parent: MainWindowTabs) { self.parent = parent }
+        @objc func changed(_ sender: NSSegmentedControl) {
+            guard sender.selectedSegment >= 0 else { return }
+            parent.selection = sender.tag(forSegment: sender.selectedSegment)
+        }
     }
 }
 
@@ -737,8 +779,11 @@ struct TimerPanel: View {
             // SwiftUI's DatePicker keeps NSDatePicker's own width, which clips the last digit; a frame does not widen it.
             WideDatePicker(title: title, date: Binding(get: { value }, set: { set(Self.combine(day: $0, time: value)) }),
                            elements: .yearMonthDay, width: 150)
+                .frame(width: 150)
             WideDatePicker(title: title, date: Binding(get: { value }, set: { set(Self.combine(day: value, time: $0)) }),
                            elements: .hourMinute, width: 96)
+                .frame(width: 96)
+            Spacer(minLength: 0)
         }
     }
 
@@ -1223,13 +1268,16 @@ struct SettingsError: LocalizedError {
     var errorDescription: String? { text }
 }
 
-/// Main window 「基本設定」 / 「その他の設定」 tabs: switch each Mac setting directly (presets switch several at once).
+/// Main window manual setting tabs: switch each Mac setting directly (presets switch several at once).
 struct ManualControlsView: View {
     @ObservedObject var settings: MacSettings
     @ObservedObject var countdown: Countdown
     @ObservedObject var presets: PresetStore
-    /// false: clock, date, weekday, appearance and the timer. true: everything else.
-    let detailed: Bool
+    // Preserve existing mainWindowTab values when adding the two dedicated tabs.
+    enum Section: Int, CaseIterable {
+        case basic = 2, other = 3, display = 4, zoom = 5
+    }
+    let section: Section
     @State private var saving = false
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
@@ -1240,7 +1288,7 @@ struct ManualControlsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if detailed {
+            if section == .display {
                 category(L("ディスプレイ")) {
                     HStack {
                         Label(L("外部ディスプレイ"), systemImage: "rectangle.on.rectangle").fixedSize()
@@ -1270,6 +1318,8 @@ struct ManualControlsView: View {
                         .font(.system(size: 12))
                         .help(L("低解像度のモードも一覧に含めます。"))
                 }
+            }
+            if section == .other {
                 category(L("見やすさ")) {
                     Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
                         .font(.system(size: 12)).disabled(settings.busy)
@@ -1291,6 +1341,8 @@ struct ManualControlsView: View {
                     .onAppear { pointerDraft = settings.pointerSize }
                     .onChange(of: settings.pointerSize) { pointerDraft = $0 }
                 }
+            }
+            if section == .zoom {
                 category(L("ズーム機能")) {
                     Toggle(L("キーボードショートカットを使って拡大・縮小"), isOn: Binding(get: { settings.zoomHotkeys }, set: { value in manual { settings.setZoom(hotkeys: value) } }))
                         .font(.system(size: 12)).disabled(settings.busy)
@@ -1320,6 +1372,8 @@ struct ManualControlsView: View {
                     zoomShortcutRow(L("ショートカット：ズーム機能のオン／オフ"), ZoomSettings.toggleShortcut, settings.zoomToggleShortcut)
                     zoomShortcutRow(L("ショートカット：拡大"), ZoomSettings.zoomInShortcut, settings.zoomInShortcut)
                 }
+            }
+            if section == .other {
                 category(L("集中を妨げるもの")) {
                     Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
                         .font(.system(size: 12))
@@ -1346,7 +1400,8 @@ struct ManualControlsView: View {
                     }
                     .font(.system(size: 12))
                 }
-            } else {
+            }
+            if section == .basic {
                 VStack(spacing: 14) {
                     settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
                         choice(L("デジタル"), selected: !settings.analog) { manual { settings.setClock(false) } }
@@ -1425,7 +1480,7 @@ struct ManualControlsView: View {
         .font(.system(size: 12)).disabled(settings.busy)
     }
 
-    /// A titled group on the 「その他の設定」 tab.
+    /// A titled group on a manual setting tab.
     private func category<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
