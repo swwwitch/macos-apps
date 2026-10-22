@@ -230,13 +230,9 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     private func prepareWindow() {
         guard controlsWindow == nil else { return }
-        // Fit the tallest tab so the header stays put when switching tabs. 180 = everything around the tab panel
-        // (padding, header, tab picker, footer and the spacing between them).
-        let panelWidth: CGFloat = 444  // 480 minus the 18pt side padding
-        let manualHeight = ManualControlsView.Section.allCases.map { section in
-            NSHostingView(rootView: ManualControlsView(settings: settings, countdown: countdown, presets: presets, section: section).padding(16).frame(width: panelWidth)).fittingSize.height
-        }.max() ?? 0
-        let size = NSSize(width: 480, height: ceil(180 + manualHeight))
+        // Basic settings scroll within a bounded window; the header and footer stay visible.
+        let size = NSSize(width: 480, height: 620)
+        let minimum = NSSize(width: 440, height: 360)
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("セミナー・キャプチャ準備")
@@ -246,22 +242,15 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let host = NSHostingController(rootView:
             MainView(countdown: countdown, settings: settings, presets: presets,
                      openPreferences: { [weak self] in self?.showPreferences() })
-                .frame(minWidth: size.width, maxWidth: .infinity, minHeight: size.height, maxHeight: .infinity)
+                .frame(minWidth: minimum.width, maxWidth: .infinity, minHeight: minimum.height, maxHeight: .infinity)
                 .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: []))
-        // Resizable from the designed size upward; the hosting controller reports only its minimum.
+        // Allow shrinking below the initial size; scrollable content absorbs the height change.
         host.sizingOptions = [.minSize]
         host.preferredContentSize = size
         window.contentViewController = host
         window.setContentSize(size)
-        window.contentMinSize = size
-        restoreFrame(of: window, name: "TokiMainWindow", minimum: size)
-        // Adopt the narrower default for windows saved at the previous default width.
-        // Keep manually enlarged windows and their saved position intact.
-        if abs(window.frame.width - 560) < 1 || abs(window.frame.width - 520) < 1 {
-            var frame = window.frame
-            frame.size.width = size.width
-            window.setFrame(frame, display: false)
-        }
+        window.contentMinSize = minimum
+        restoreFrame(of: window, name: "TokiMainWindow", minimum: minimum)
         controlsWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
@@ -534,6 +523,7 @@ struct MainView: View {
             }
         }
         .padding(18)
+        .onAppear { if tab == 3 { tab = 2 } }
     }
 }
 
@@ -541,7 +531,7 @@ struct MainView: View {
 struct MainWindowTabs: NSViewRepresentable {
     @Binding var selection: Int
     private let items: [(title: String, tag: Int)] = [
-        ("プリセット", 0), ("基本", 2), ("ディスプレイ", 4), ("ズーム", 5), ("その他", 3)
+        ("プリセット", 0), ("基本", 2), ("表示", 4), ("ズーム", 5), ("タイマー", 6)
     ]
 
     func makeNSView(context: Context) -> NSSegmentedControl {
@@ -549,7 +539,7 @@ struct MainWindowTabs: NSViewRepresentable {
                                          target: context.coordinator, action: #selector(Coordinator.changed(_:)))
         control.segmentStyle = .rounded
         control.segmentDistribution = .fit
-        let font = NSFont.systemFont(ofSize: 11)
+        let font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
         control.font = font
         for (index, item) in items.enumerated() {
             control.setTag(item.tag, forSegment: index)
@@ -742,7 +732,7 @@ struct PreferencesView: View {
 struct TimerPanel: View {
     @ObservedObject var countdown: Countdown
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 8) {
             Toggle(L("タイマーを使う"), isOn: $countdown.enabled)
             dateTimeRow(L("開始時間"), value: countdown.plan.start) { countdown.plan.start = $0; countdown.savePlan() }
             HStack {
@@ -768,7 +758,7 @@ struct TimerPanel: View {
                 Button(L("停止")) { countdown.stop() }.disabled(countdown.end == nil)
                 Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent).disabled(!countdown.enabled)
             }
-        }.padding(16)
+        }.font(.system(size: 12))
         .help(L("開始時間 ＋ 所要時間 ＝ 終了時間。開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。"))
     }
 
@@ -810,6 +800,7 @@ struct WideDatePicker: NSViewRepresentable {
 
     func makeNSView(context: Context) -> Picker {
         let picker = Picker()
+        picker.font = .systemFont(ofSize: 12)
         picker.datePickerStyle = .textFieldAndStepper
         picker.datePickerElements = elements
         picker.width = width
@@ -1273,9 +1264,9 @@ struct ManualControlsView: View {
     @ObservedObject var settings: MacSettings
     @ObservedObject var countdown: Countdown
     @ObservedObject var presets: PresetStore
-    // Preserve existing mainWindowTab values when adding the two dedicated tabs.
+    // Preserve the existing Basic and Zoom tab identifiers.
     enum Section: Int, CaseIterable {
-        case basic = 2, other = 3, display = 4, zoom = 5
+        case basic = 2, display = 4, zoom = 5, timer = 6
     }
     let section: Section
     @State private var saving = false
@@ -1288,150 +1279,151 @@ struct ManualControlsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if section == .display {
-                category(L("ディスプレイ")) {
-                    HStack {
-                        Label(L("外部ディスプレイ"), systemImage: "rectangle.on.rectangle").fixedSize()
-                        Spacer()
-                        Picker(L("外部ディスプレイ"), selection: Binding(get: { settings.mirrored }, set: { value in manual { settings.setMirrored(value) } })) {
-                            Text(L("ミラーリング")).tag(true)
-                            Text(L("拡張ディスプレイ")).tag(false)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if section == .basic {
+                        category(L("メニューバー")) {
+                            basicChoiceRow(L("時計"), symbol: "clock", value: settings.analog,
+                                           off: L("デジタル"), on: L("アナログ")) { settings.setClock($0) }
+                            basicChoiceRow(L("日付"), symbol: "calendar", value: settings.showDate,
+                                           off: L("しない"), on: L("表示する"), trueFirst: true) { settings.setDateVisible($0) }
+                                .disabled(settings.analog).opacity(settings.analog ? 0.4 : 1)
+                                .help(L("デジタル時計用"))
+                            basicChoiceRow(L("曜日"), symbol: "calendar.day.timeline.left", value: settings.showWeekday,
+                                           off: L("しない"), on: L("表示する"), trueFirst: true) { settings.setWeekdayVisible($0) }
+                                .disabled(settings.analog).opacity(settings.analog ? 0.4 : 1)
+                                .help(L("デジタル時計用"))
                         }
-                        .pickerStyle(.segmented).labelsHidden().fixedSize()
+                        .disabled(settings.busy)
                     }
-                    .font(.system(size: 12))
-                    .disabled(settings.busy || !settings.hasExternalDisplay)
-                    .opacity(settings.hasExternalDisplay ? 1 : 0.4)
-                    .help(settings.hasExternalDisplay ? L("外部ディスプレイにメインディスプレイと同じ画面を映すか、画面を広げて使うかを切り替えます。") : L("外部ディスプレイが接続されていません。"))
-                    HStack {
-                        Label(L("解像度"), systemImage: "display").fixedSize()
-                        Spacer()
-                        Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
-                            Text(L("ディスプレイの既定に戻す")).tag(Optional(DisplayResolution.displayDefault))
-                            Divider()
-                            ForEach(DisplayResolution.choices(showAll: showAllResolutions), id: \.self) { Text($0.text).tag(Optional($0)) }
+                    if section == .display {
+                        category(L("Mac全体")) {
+                            basicChoiceRow(L("外観"), symbol: "circle.lefthalf.filled", value: settings.dark,
+                                           off: L("ライト"), on: L("ダーク")) { settings.setAppearance($0) }
                         }
-                        .labelsHidden().frame(width: 170)
+                        .disabled(settings.busy)
                     }
-                    .font(.system(size: 12)).disabled(settings.busy)
-                    Toggle(L("すべての解像度を表示"), isOn: $showAllResolutions)
-                        .font(.system(size: 12))
-                        .help(L("低解像度のモードも一覧に含めます。"))
-                }
-            }
-            if section == .other {
-                category(L("見やすさ")) {
-                    Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
-                        .font(.system(size: 12)).disabled(settings.busy)
-                    Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
-                        .font(.system(size: 12)).disabled(settings.busy)
-                    HStack {
-                        Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
-                        Spacer()
-                        // Applied when the knob is released, not on every step of the drag.
-                        Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
-                            if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                    if section == .display {
+                        category(L("ディスプレイ")) {
+                            HStack {
+                                Label(L("外部ディスプレイ"), systemImage: "rectangle.on.rectangle").fixedSize()
+                                Spacer()
+                                Picker(L("外部ディスプレイ"), selection: Binding(get: { settings.mirrored }, set: { value in manual { settings.setMirrored(value) } })) {
+                                    Text(L("ミラーリング")).tag(true)
+                                    Text(L("拡張ディスプレイ")).tag(false)
+                                }
+                                .pickerStyle(.segmented).labelsHidden().fixedSize()
+                            }
+                            .font(.system(size: 12))
+                            .disabled(settings.busy || !settings.hasExternalDisplay)
+                            .opacity(settings.hasExternalDisplay ? 1 : 0.4)
+                            .help(settings.hasExternalDisplay ? L("外部ディスプレイにメインディスプレイと同じ画面を映すか、画面を広げて使うかを切り替えます。") : L("外部ディスプレイが接続されていません。"))
+                            HStack {
+                                Label(L("解像度"), systemImage: "display").fixedSize()
+                                Spacer()
+                                Picker(L("解像度"), selection: Binding(get: { settings.resolution }, set: { value in if let value { manual { settings.setResolution(value) } } })) {
+                                    Text(L("ディスプレイの既定に戻す")).tag(Optional(DisplayResolution.displayDefault))
+                                    Divider()
+                                    ForEach(DisplayResolution.choices(showAll: showAllResolutions), id: \.self) { Text($0.text).tag(Optional($0)) }
+                                }
+                                .labelsHidden().frame(width: 170)
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                            Toggle(L("すべての解像度を表示"), isOn: $showAllResolutions)
+                                .font(.system(size: 12))
+                                .help(L("低解像度のモードも一覧に含めます。"))
                         }
-                        .frame(width: 96)
-                        Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
-                        Button(L("初期値に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
-                            .disabled(settings.pointerSize == 1)
                     }
-                    .font(.system(size: 12))
-                    .onAppear { pointerDraft = settings.pointerSize }
-                    .onChange(of: settings.pointerSize) { pointerDraft = $0 }
-                }
-            }
-            if section == .zoom {
-                category(L("ズーム機能")) {
-                    Toggle(L("キーボードショートカットを使って拡大・縮小"), isOn: Binding(get: { settings.zoomHotkeys }, set: { value in manual { settings.setZoom(hotkeys: value) } }))
-                        .font(.system(size: 12)).disabled(settings.busy)
-                    HStack {
-                        Label(L("ズーム方法"), systemImage: "plus.magnifyingglass").fixedSize()
-                        Spacer()
-                        Picker(L("ズーム方法"), selection: Binding(get: { settings.zoomStyle }, set: { value in manual { settings.setZoom(style: value) } })) {
-                            ForEach(ZoomSettings.Style.menuOrder, id: \.self) { Text($0.title).tag($0) }
+                    if section == .display {
+                        category(L("見やすさ")) {
+                            Toggle(L("透明度を下げる"), isOn: Binding(get: { settings.reduceTransparency }, set: { value in manual { settings.setReduceTransparency(value) } }))
+                                .font(.system(size: 12)).disabled(settings.busy)
+                            Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
+                                .font(.system(size: 12)).disabled(settings.busy)
+                            HStack {
+                                Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
+                                Spacer()
+                                // Applied when the knob is released, not on every step of the drag.
+                                Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
+                                    if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                                }
+                                .frame(width: 96)
+                                Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
+                                Button(L("初期値に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
+                                    .disabled(settings.pointerSize == 1)
+                            }
+                            .font(.system(size: 12))
+                            .onAppear { pointerDraft = settings.pointerSize }
+                            .onChange(of: settings.pointerSize) { pointerDraft = $0 }
                         }
-                        .labelsHidden().frame(width: 170)
                     }
-                    .font(.system(size: 12)).disabled(settings.busy)
-                    HStack {
-                        Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
-                        Spacer()
-                        // Applied when the knob is released: System Settings is operated once per change.
-                        Slider(value: $zoomDraft, in: ZoomSettings.maxFactorRange, step: 0.5) { editing in
-                            if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
+                    if section == .zoom {
+                        category(L("キーボードショートカット")) {
+                            Toggle(L("キーボードショートカットを使って拡大・縮小"), isOn: Binding(get: { settings.zoomHotkeys }, set: { value in manual { settings.setZoom(hotkeys: value) } }))
+                                .font(.system(size: 12)).disabled(settings.busy)
+                            zoomShortcutRow(L("ショートカット：ズーム機能のオン／オフ"), ZoomSettings.toggleShortcut, settings.zoomToggleShortcut)
+                            zoomShortcutRow(L("ショートカット：拡大"), ZoomSettings.zoomInShortcut, settings.zoomInShortcut)
                         }
-                        .frame(width: 140)
-                        Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 32, alignment: .trailing)
+                        category(L("オプション")) {
+                            HStack {
+                                Label(L("ズーム方法"), systemImage: "plus.magnifyingglass").fixedSize()
+                                Spacer()
+                                Picker(L("ズーム方法"), selection: Binding(get: { settings.zoomStyle }, set: { value in manual { settings.setZoom(style: value) } })) {
+                                    ForEach(ZoomSettings.Style.menuOrder, id: \.self) { Text($0.title).tag($0) }
+                                }
+                                .labelsHidden().frame(width: 170)
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                            HStack {
+                                Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
+                                Spacer()
+                                // Applied when the knob is released: System Settings is operated once per change.
+                                Slider(value: $zoomDraft, in: ZoomSettings.maxFactorRange, step: 0.5) { editing in
+                                    if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
+                                }
+                                .frame(width: 140)
+                                Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 32, alignment: .trailing)
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                            .help(L("システム設定の「詳細…」のスライダーを動かします。変更中はポインタが一瞬動きます。"))
+                            .onAppear { zoomDraft = settings.zoomMaxFactor ?? zoomDraft }
+                            .onChange(of: settings.zoomMaxFactor) { if let value = $0 { zoomDraft = value } }
+                        }
                     }
-                    .font(.system(size: 12)).disabled(settings.busy)
-                    .help(L("システム設定の「詳細…」のスライダーを動かします。変更中はポインタが一瞬動きます。"))
-                    .onAppear { zoomDraft = settings.zoomMaxFactor ?? zoomDraft }
-                    .onChange(of: settings.zoomMaxFactor) { if let value = $0 { zoomDraft = value } }
-                    zoomShortcutRow(L("ショートカット：ズーム機能のオン／オフ"), ZoomSettings.toggleShortcut, settings.zoomToggleShortcut)
-                    zoomShortcutRow(L("ショートカット：拡大"), ZoomSettings.zoomInShortcut, settings.zoomInShortcut)
-                }
-            }
-            if section == .other {
-                category(L("集中を妨げるもの")) {
-                    Toggle(L("音量を変更するときにフィードバックを再生"), isOn: Binding(get: { settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(value) } }))
-                        .font(.system(size: 12))
-                    Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))
-                        .font(.system(size: 12)).disabled(settings.busy)
-                        .help(L("おやすみモードを切り替えます。表示はPodiumAssistで最後に切り替えた状態です（コントロールセンターなどで変えた場合は反映されません）。"))
-                }
-                category(L("プライバシー")) {
-                    Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
-                        .font(.system(size: 12))
-                    HStack {
-                        Label(L("ブラウザーの履歴"), systemImage: "clock.arrow.circlepath")
-                        Spacer()
-                        Text(BrowserHistory.defaultBrowser?.name ?? "").foregroundStyle(.secondary)
-                        Button(L("削除…")) { settings.clearBrowserHistory() }
+                    if section == .basic {
+                        category(L("集中を妨げるもの")) {
+                            Toggle(L("音量を変更するときにフィードバックを再生しない"), isOn: Binding(get: { !settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(!value) } }))
+                                .font(.system(size: 12))
+                            Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))
+                                .font(.system(size: 12)).disabled(settings.busy)
+                                .help(L("おやすみモードを切り替えます。表示はPodiumAssistで最後に切り替えた状態です（コントロールセンターなどで変えた場合は反映されません）。"))
+                        }
+                        category(L("プライバシー")) {
+                            Toggle(L("デスクトップアイコンを非表示"), isOn: Binding(get: { settings.desktopHidden }, set: { value in manual { settings.setDesktopHidden(value) } }))
+                                .font(.system(size: 12))
+                            HStack {
+                                Label(L("ブラウザーの履歴"), systemImage: "clock.arrow.circlepath")
+                                Spacer()
+                                Text(BrowserHistory.defaultBrowser?.name ?? "").foregroundStyle(.secondary)
+                                Button(L("削除…")) { settings.clearBrowserHistory() }
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                        }
+                        category("Dock") {
+                            HStack(spacing: 16) {
+                                Toggle(L("自動非表示"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
+                                Toggle(L("完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
+                                    .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
+                            }
+                            .font(.system(size: 12))
+                        }
                     }
-                    .font(.system(size: 12)).disabled(settings.busy)
-                }
-                category("Dock") {
-                    HStack(spacing: 16) {
-                        Toggle(L("自動非表示"), isOn: Binding(get: { settings.dockHidden }, set: { value in manual { settings.setDockHidden(value) } }))
-                        Toggle(L("完全非表示"), isOn: Binding(get: { settings.dockKilled }, set: { value in manual { settings.setDockKilled(value) } }))
-                            .help(L("アイコンを最小にし、表示までの待ち時間を最大にします。"))
-                    }
-                    .font(.system(size: 12))
-                }
-            }
-            if section == .basic {
-                VStack(spacing: 14) {
-                    settingRow(L("時計"), subtitle: L("メニューバー"), symbol: "clock") {
-                        choice(L("デジタル"), selected: !settings.analog) { manual { settings.setClock(false) } }
-                        choice(L("アナログ"), selected: settings.analog) { manual { settings.setClock(true) } }
-                    }
-                    Divider()
-                    settingRow(L("日付"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar") {
-                        choice(L("表示する"), selected: settings.showDate) { manual { settings.setDateVisible(true) } }
-                        choice(L("しない"), selected: !settings.showDate) { manual { settings.setDateVisible(false) } }
-                    }
-                    .disabled(settings.analog)
-                    .opacity(settings.analog ? 0.4 : 1)
-                    Divider()
-                    settingRow(L("曜日"), subtitle: settings.analog ? L("デジタル時計用") : L("メニューバー"), symbol: "calendar.day.timeline.left") {
-                        choice(L("表示する"), selected: settings.showWeekday) { manual { settings.setWeekdayVisible(true) } }
-                        choice(L("しない"), selected: !settings.showWeekday) { manual { settings.setWeekdayVisible(false) } }
-                    }
-                    .disabled(settings.analog)
-                    .opacity(settings.analog ? 0.4 : 1)
-                    Divider()
-                    settingRow(L("外観"), subtitle: L("Mac全体"), symbol: "circle.lefthalf.filled") {
-                        choice(L("ライト"), selected: !settings.dark) { manual { settings.setAppearance(false) } }
-                        choice(L("ダーク"), selected: settings.dark) { manual { settings.setAppearance(true) } }
+                    if section == .timer {
+                        TimerPanel(countdown: countdown)
                     }
                 }
-                .padding(14)
-                .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
-                .disabled(settings.busy)
-                TimerPanel(countdown: countdown)
-                    .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 4)
             }
             // The message sits beside the button, so its fixed two-line height adds no empty row.
             HStack(spacing: 12) {
@@ -1488,29 +1480,26 @@ struct ManualControlsView: View {
         }
     }
 
-    private func settingRow<Content: View>(_ title: String, subtitle: String, symbol: String, @ViewBuilder content: () -> Content) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol).font(.system(size: 19)).frame(width: 24)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 13, weight: .medium))
-                Text(subtitle).font(.system(size: 10)).foregroundStyle(.secondary)
-            }
+    private func basicChoiceRow(_ title: String, symbol: String, value: Bool,
+                                off: String, on: String, trueFirst: Bool = false,
+                                set: @escaping (Bool) -> Void) -> some View {
+        HStack {
+            Label(title, systemImage: symbol).fixedSize()
             Spacer()
-            HStack(spacing: 4, content: content)
+            Picker(title, selection: Binding(get: { value }, set: { value in manual { set(value) } })) {
+                if trueFirst {
+                    Text(on).tag(true)
+                    Text(off).tag(false)
+                } else {
+                    Text(off).tag(false)
+                    Text(on).tag(true)
+                }
+            }
+            .pickerStyle(.segmented).labelsHidden().fixedSize()
         }
+        .font(.system(size: 12))
     }
 
-    private func choice(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 12, weight: selected ? .semibold : .regular))
-                .frame(width: 64, height: 28)
-                .foregroundStyle(selected ? Color.white : Color.primary)
-                .background(selected ? Color.accentColor : Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 6))
-        }
-        .buttonStyle(.plain)
-        .accessibilityValue(selected ? L("選択中") : L("未選択"))
-    }
 }
 
 /// Standard Window menu (placed before Help); registered as NSApp.windowsMenu so open windows are listed.

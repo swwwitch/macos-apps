@@ -223,3 +223,13 @@
 
 "基本" = "Basic";
 "ズーム" = "Zoom";
+
+"タイマー" = "Timer";
+
+"キーボードショートカット" = "Keyboard Shortcuts";
+
+"オプション" = "Options";
+
+"表示" = "Display";
+
+"音量を変更するときにフィードバックを再生しない" = "Do not play feedback when volume is changed";
