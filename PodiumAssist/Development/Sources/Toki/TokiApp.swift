@@ -11,7 +11,7 @@ enum TokiMenuIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = L("PodiumAssist — セミナー・キャプチャ準備")
+        image.accessibilityDescription = L("PodiumAssist — セミナー準備")
         return image
     }
 
@@ -74,7 +74,6 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         switchHider.start()
         SettingsSync.shared.onImport = { [weak self] in
             self?.presets.reload()
-            self?.countdown.reloadEnabled()
             self?.settings.reloadSwitchHiding()
         }
         SettingsSync.shared.start(.init(keys: PresetStore.syncedKeys, note: L("syncNote"), perMac: L("syncPerMac"),
@@ -239,7 +238,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let minimum = NSSize(width: 440, height: 360)
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = L("セミナー・キャプチャ準備")
+        window.title = L("セミナー準備")
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
@@ -262,21 +261,28 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: "mergedAppsSettingsTabV3314") {
+            let key = "shared.settings.selectedTabIndex"
+            let previous = defaults.integer(forKey: key)
+            if previous >= 2 { defaults.set(previous - 1, forKey: key) }
+            defaults.set(true, forKey: "mergedAppsSettingsTabV3314")
+        }
         let size = NSSize(width: 460, height: 560)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
-        window.standardWindowButton(.zoomButton)?.isHidden = true
+        window.standardWindowButton(.zoomButton)?.isEnabled = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
         let host = NSHostingController(rootView:
             PreferencesView(countdown: countdown, settings: settings, presets: presets)
-                .frame(minWidth: size.width, maxWidth: .infinity, minHeight: size.height, maxHeight: .infinity))
-        host.sizingOptions = [.minSize]
+                .frame(minWidth: size.width, maxWidth: .infinity, minHeight: 360, maxHeight: .infinity))
+        host.sizingOptions = []
         host.preferredContentSize = size
         window.contentViewController = host
         window.setContentSize(size)
-        window.contentMinSize = size
-        restoreFrame(of: window, name: "TokiPreferencesWindow", minimum: size)
+        window.contentMinSize = NSSize(width: 460, height: 360)
+        restoreFrame(of: window, name: "TokiPreferencesWindow", minimum: window.contentMinSize)
         preferencesWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
@@ -332,12 +338,6 @@ struct TimerPlan: Codable, Equatable {
 
 @MainActor
 final class Countdown: ObservableObject {
-    @Published var enabled = (UserDefaults.standard.object(forKey: "timerEnabled") as? Bool) ?? true {
-        didSet {
-            UserDefaults.standard.set(enabled, forKey: "timerEnabled")
-            if !enabled { stop() }
-        }
-    }
     @Published var plan: TimerPlan
     @Published var running: TimerPlan?
     @Published var remaining = L("停止中")
@@ -348,17 +348,11 @@ final class Countdown: ObservableObject {
         plan = (prefs.data(forKey: "timerPlan").flatMap { try? JSONDecoder().decode(TimerPlan.self, from: $0) })
             ?? TimerPlan(start: Self.minuteNow, minutes: 30)
         running = prefs.data(forKey: "runningTimerPlan").flatMap { try? JSONDecoder().decode(TimerPlan.self, from: $0) }
-        if !enabled { stop() }
         tick()
     }
     static var minuteNow: Date { Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970 / 60) * 60) }
     var end: Date? { running?.end }
 
-    /// Re-reads 「タイマーを使う」 after SettingsSync applied another Mac's value.
-    func reloadEnabled() {
-        let value = (UserDefaults.standard.object(forKey: "timerEnabled") as? Bool) ?? true
-        if value != enabled { enabled = value }
-    }
     func savePlan() {
         if let data = try? JSONEncoder().encode(plan) { UserDefaults.standard.set(data, forKey: "timerPlan") }
     }
@@ -376,7 +370,6 @@ final class Countdown: ObservableObject {
     }
     func start() {
         error = ""
-        guard enabled else { error = L("「タイマーを使う」をオンにしてください。"); return }
         guard (1...10080).contains(plan.minutes) else { error = L("所要時間は1〜10080分で指定してください。"); return }
         guard plan.end > Date() else { error = L("終了時間を現在より後にしてください。"); return }
         running = plan
@@ -520,7 +513,7 @@ final class PresetStore: ObservableObject {
     }
     func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
     /// UserDefaults keys exported and synced by 設定の共有; the rest (timer plan, window tab, last applied preset) stays per Mac.
-    static let syncedKeys: Set<String> = ["presets", "timerEnabled", "hideOthersOnSwitch", "hideOthersDelay"]
+    static let syncedKeys: Set<String> = ["presets", "hideOthersOnSwitch", "hideOthersDelay"]
     /// 「追加する」 in 設定の共有: presets whose id is not in the list yet are appended; this Mac's other values stay.
     static func merged(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
         let decode = { (value: Any?) in (value as? Data).flatMap { try? JSONDecoder().decode([Preset].self, from: $0) } ?? [] }
@@ -558,7 +551,7 @@ struct MainView: View {
                     AppVersionLabel()
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L("セミナー・キャプチャ準備")).font(.system(size: 20, weight: .bold))
+                    Text(L("セミナー準備")).font(.system(size: 20, weight: .bold))
                     Text(L("プリセットとタイマーで、まとめて準備。")).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
             }
@@ -612,7 +605,7 @@ struct MainWindowTabs: NSViewRepresentable {
             let textWidth = (L(item.title) as NSString).size(withAttributes: [.font: font]).width
             control.setWidth(ceil(textWidth) + 24, forSegment: index)
         }
-        control.setAccessibilityLabel(L("セミナー・キャプチャ準備"))
+        control.setAccessibilityLabel(L("セミナー準備"))
         return control
     }
 
@@ -831,8 +824,10 @@ struct PreferencesView: View {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
                 AccessibilitySection()
             })),
-            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
-            (L("プリセットのアプリ"), AnyView(PresetAppsSettings(presets: presets))),
+            (L("アプリ"), AnyView(VStack(alignment: .leading, spacing: 20) {
+                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
+                SettingsSection(L("プリセットのアプリ")) { PresetAppsSettings(presets: presets) }
+            })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
@@ -843,7 +838,6 @@ struct TimerPanel: View {
     @ObservedObject var countdown: Countdown
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Toggle(L("タイマーを使う"), isOn: $countdown.enabled)
             dateTimeRow(L("開始時間"), value: countdown.plan.start) { countdown.plan.start = $0; countdown.savePlan() }
             HStack {
                 Text(L("所要時間"))
@@ -855,18 +849,22 @@ struct TimerPanel: View {
             dateTimeRow(L("終了時間"), value: countdown.plan.end) { countdown.plan.setEnd($0); countdown.savePlan() }
             HStack {
                 Button(L("今日の日付にする")) {
-                    countdown.plan.start = Self.combine(day: Date(), time: countdown.plan.start); countdown.savePlan()
+                    countdown.plan.start = Self.quickStart(countdown.plan.start, now: Date(), today: true, currentTime: NSEvent.modifierFlags.contains(.option)); countdown.savePlan()
                 }
                 Button(L("現在時刻にする")) {
-                    countdown.plan.start = Self.combine(day: countdown.plan.start, time: Countdown.minuteNow); countdown.savePlan()
+                    countdown.plan.start = Self.quickStart(countdown.plan.start, now: Date(), today: NSEvent.modifierFlags.contains(.option), currentTime: true); countdown.savePlan()
+                }
+                Button(L("次の正時にする")) {
+                    countdown.plan.start = Self.nextHour(after: Date()); countdown.savePlan()
                 }
             }
+            .help(L("Option＋クリックで今日の日付と現在時刻を両方適用します。"))
             if !countdown.error.isEmpty { Text(countdown.error).foregroundStyle(.red).font(.caption) }
             HStack {
                 Text(countdown.remaining).monospacedDigit()
                 Spacer()
                 Button(L("停止")) { countdown.stop() }.disabled(countdown.end == nil)
-                Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent).disabled(!countdown.enabled)
+                Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent)
             }
         }.font(.system(size: 12))
         .help(L("開始時間 ＋ 所要時間 ＝ 終了時間。開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。"))
@@ -885,6 +883,14 @@ struct TimerPanel: View {
                 .frame(width: 96)
             Spacer(minLength: 0)
         }
+    }
+
+    static func quickStart(_ start: Date, now: Date, today: Bool, currentTime: Bool) -> Date {
+        combine(day: today ? now : start, time: currentTime ? now : start)
+    }
+
+    static func nextHour(after now: Date, calendar: Calendar = .current) -> Date {
+        calendar.dateInterval(of: .hour, for: now)?.end ?? now.addingTimeInterval(3600)
     }
 
     /// The calendar day of `day` at the hour and minute of `time`.
@@ -1493,7 +1499,7 @@ struct ManualControlsView: View {
                                 Picker(L("ズーム方法"), selection: Binding(get: { settings.zoomStyle }, set: { value in manual { settings.setZoom(style: value) } })) {
                                     ForEach(ZoomSettings.Style.menuOrder, id: \.self) { Text($0.title).tag($0) }
                                 }
-                                .labelsHidden().frame(width: 170)
+                                .labelsHidden().pickerStyle(.radioGroup).fixedSize()
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
                             HStack {

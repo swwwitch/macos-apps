@@ -37,7 +37,7 @@ The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display
 - Before the start, the menu bar shows “Starts in” and the time until the start; after the start, it shows the remaining time and stops at 00:00 when the timer ends.
 - If you change the values while the timer is running, click Apply Settings and Restart.
 - The timer resumes after the app restarts, and time keeps counting while the Mac is asleep.
-- Turning off Use Timer stops it and leaves only the icon in the menu bar.
+- Use Start / Schedule and Stop to control the timer. Option-click Set to Today or Set to Current Time to apply both. Set to Next Hour sets the next hour after now (17:47 → 18:00, 18:00 → 19:00), including the next day at midnight.
 
 ## Presets
 1. In the Basic, Display, and Zoom tabs, set up the Mac the way you want to save it.
@@ -54,7 +54,7 @@ The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
 - **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar
-- **Sharing**: “Export…” writes the presets and Use Timer to PodiumAssist-Settings.plist; “Import…” on another Mac reads it (Add appends only presets you do not have, Replace uses the file’s settings). In Settings Sync, choose a folder in iCloud Drive, Dropbox or similar to keep your other Macs in sync automatically. Login launch, background, menu bar, the timer’s start time and duration, and the last applied preset stay per Mac
+- **Sharing**: “Export…” writes the presets and app-switch hiding settings to PodiumAssist-Settings.plist; “Import…” on another Mac reads it (Add appends only presets you do not have, Replace uses the file’s settings). In Settings Sync, choose a folder in iCloud Drive, Dropbox or similar to keep your other Macs in sync automatically. Login launch, background, menu bar, the timer’s start time and duration, and the last applied preset stay per Mac
 
 ## Keyboard Shortcuts
 - **⌘0**: Open Main Window
@@ -107,3 +107,7 @@ PodiumAssist uses these two shortcuts in the Shortcuts app on your Mac. Create t
 - macOS Defaults and Full Set are added once. macOS Defaults uses light appearance, visible Dock and desktop, standard pointer, display default resolution, and notifications on; it does not reset all OS settings. Full Set uses an analog clock without date/weekday, auto-hidden Dock, hidden desktop, 2x pointer, reduced transparency/motion, F1/F2 zoom, and notifications off. Neither changes the timer. Both start with empty app lists and can be edited or deleted.
 
 Enable Hide other apps when switching apps in Basic Settings to hide other apps after the specified delay. Defaults: off and 0 seconds (immediate). Delay range: 0–86400 seconds. Switching again restarts the wait; turning off or editing the delay cancels it. Reopen hidden windows from the Dock. Excluded Apps in Settings protects both the switched-to app and apps that would be hidden. Save the enabled state and delay together with Save to Preset.
+
+Select one zoom style using the radio buttons. Drag an edge or corner to resize the Settings window.
+
+The Apps tab in Settings contains Excluded Apps and the apps to launch or quit for each preset.

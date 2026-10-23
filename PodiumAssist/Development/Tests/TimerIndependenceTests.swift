@@ -10,14 +10,12 @@ import AppKit
         let countdown = Countdown()
         let settings = MacSettings()
         let originalPlan = countdown.plan
-        let originalEnabled = countdown.enabled
         let originalRunning = countdown.running
         var legacy = Preset()
-        legacy.timerEnabled = !originalEnabled
+        legacy.timerEnabled = false
         legacy.timerMinutes = originalPlan.minutes + 17
         settings.apply(legacy, countdown: countdown)
         precondition(countdown.plan == originalPlan)
-        precondition(countdown.enabled == originalEnabled)
         precondition(countdown.running == originalRunning)
         legacy.launchApps = [QuitAppTarget(id: "test.launch", name: "Launch", path: "/Launch.app")]
         legacy.quitAppTargets = [QuitAppTarget(id: "test.quit", name: "Quit", path: "/Quit.app")]
