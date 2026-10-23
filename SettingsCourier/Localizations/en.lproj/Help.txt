@@ -26,7 +26,7 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 3. Choose the same folder on the other Mac. When a file is newer than this Mac’s settings, the app in the list shows “Newer settings available” and the count appears below.
 4. Click “Import from Folder…”, choose the apps and click “Next…” to go to the import confirmation. Apps not yet registered can be imported too (they are registered when imported).
 5. Turn on “Export when a registered app quits” to export to the folder each time the app quits. Nothing is written if the values have not changed. Importing is never automatic.
-- “Newer” compares when the file was exported with when this Mac’s settings file last changed.
+- “Newer” compares when the file was exported with when this Mac’s settings file last changed and with the last file imported on this Mac. Files exported on this Mac, files already imported and files found to match this Mac do not show “Newer settings available”.
 - Settings files are not shared through symbolic links: macOS replaces the link with a regular file when it saves settings, which breaks the sharing.
 
 ## Backup and Restore

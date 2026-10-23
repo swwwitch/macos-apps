@@ -25,6 +25,20 @@ extension Courier {
     static let folderKey = "courierFolder"
     /// 登録したアプリを終了したときに、受け渡しフォルダーへ自動で書き出す
     static let autoExportKey = "autoExportOnQuit"
+    /// このMacで取り込んだ・書き出した・同じと確かめたフォルダーのファイルの書き出し日時（Bundle ID → 日時）。Macごと
+    static let handledKey = "handledFolderExports"
+
+    /// この日時までのフォルダーのファイルは処理済み
+    func handledDate(_ bundleID: String) -> Date? {
+        (UserDefaults.standard.dictionary(forKey: Courier.handledKey) as? [String: Date])?[bundleID]
+    }
+
+    func markHandled(_ bundleID: String, _ date: Date) {
+        var all = UserDefaults.standard.dictionary(forKey: Courier.handledKey) as? [String: Date] ?? [:]
+        if let old = all[bundleID], old >= date { return }
+        all[bundleID] = date
+        UserDefaults.standard.set(all, forKey: Courier.handledKey)
+    }
 
     var folder: URL? {
         guard let path = UserDefaults.standard.string(forKey: Courier.folderKey) else { return nil }
@@ -98,11 +112,16 @@ extension Courier {
         for url in files where url.pathExtension == "settingscourier" {
             guard let package = Package(url: url) else { continue }
             for app in package.apps {
+                // cfprefsd はファイルへの書き出しを後回しにすることがあるので、設定ファイルの日時だけでなく処理済みの記録とも比べる
                 let local = (try? FileManager.default.attributesOfItem(atPath: preferencesFile(app.bundleID).path))?[.modificationDate] as? Date
+                let seen = [local, handledDate(app.bundleID)].compactMap { $0 }.max()
                 let state: FolderEntry.State
                 if appURL(app.bundleID) == nil {
                     state = .notInstalled
-                } else if let local, let created = package.created, created <= local {
+                } else if package.host == Host.current().localizedName ?? "" {
+                    // このMacが書き出したファイル
+                    state = .older
+                } else if let seen, let created = package.created, created <= seen {
                     state = .older
                 } else {
                     state = .newer
@@ -124,6 +143,8 @@ extension Courier {
         guard !entries.isEmpty else { return }
         // 書き出したMacはファイルごとに異なるので、確認画面には出さない
         let package = Package(apps: entries.map(\.app), replace: false, host: "")
+        // 取り込んだら（または同じと分かったら）処理済みにする日時
+        folderImportDates = Dictionary(entries.compactMap { e in e.created.map { (e.app.bundleID, $0) } }, uniquingKeysWith: max)
         pendingImport = PackageBox(package: package, name: L("受け渡しフォルダー"))
     }
 
@@ -167,6 +188,7 @@ extension Courier {
         do {
             _ = try writeToFolder(Package(apps: [.init(bundleID: bundleID, name: app.name, values: exported)], replace: false), app, in: folder)
             lastAutoExport = L("%@：%@ を書き出しました", time, app.name)
+            markHandled(bundleID, Date())
         } catch {
             lastAutoExport = L("%@：%@ を書き出せませんでした（%@）", time, app.name, error.localizedDescription)
         }

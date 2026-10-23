@@ -212,6 +212,8 @@ final class Courier: ObservableObject {
     @Published var lastAutoExport: String?
     /// 取り込みのために終了させたアプリ。終了の通知で自動書き出しをしない（取り込む前の値で上書きしてしまう）
     var suppressAutoExport: [String: Date] = [:]
+    /// フォルダーから取り込むファイルの書き出し日時（Bundle ID → 日時）。取り込みが済んだら処理済みにする
+    var folderImportDates: [String: Date] = [:]
 
     init() {
         reload()
@@ -361,7 +363,12 @@ final class Courier: ObservableObject {
         let values = exportedValues(app.bundleID)
         let package = Package(apps: [.init(bundleID: app.bundleID, name: app.name, values: values)], replace: false)
         do {
-            if let folder { url = try writeToFolder(package, app, in: folder) } else { try package.data().write(to: url, options: .atomic) }
+            if let folder {
+                url = try writeToFolder(package, app, in: folder)
+                markHandled(app.bundleID, Date())
+            } else {
+                try package.data().write(to: url, options: .atomic)
+            }
             message = (L("書き出しました"),
                        L("%@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。",
                          app.name, String(values.count), url.lastPathComponent))
@@ -399,6 +406,10 @@ final class Courier: ObservableObject {
                 for key in current.keys where app.values[key] == nil {
                     writes[key] = .some(nil); removed += 1
                 }
+            }
+            // このMacと同じなら、フォルダーのそのファイルは処理済み
+            if writes.isEmpty, !isUnreadable(app.bundleID, current), let date = folderImportDates[app.bundleID] {
+                markHandled(app.bundleID, date)
             }
             return ImportPlan(app: app, writes: writes, changed: changed, added: added, removed: removed,
                               installed: appURL(app.bundleID) != nil, unreadable: isUnreadable(app.bundleID, current))
@@ -478,7 +489,12 @@ final class Courier: ObservableObject {
                 guard let value else { return now[key] != nil }
                 return !(now[key]?.isEqual(value) ?? false)
             }
-            if wrong.isEmpty { written += 1 } else { failed.append(p.app.name) }
+            if wrong.isEmpty {
+                written += 1
+                if let date = folderImportDates[p.app.bundleID] { markHandled(p.app.bundleID, date) }
+            } else {
+                failed.append(p.app.name)
+            }
             add(bundleID: p.app.bundleID, name: p.app.name)
         }
         for app in quitted {
@@ -507,6 +523,8 @@ func openPackage(_ url: URL? = nil) {
         Courier.shared.message = (L("読み込めませんでした"), L("SettingsCourierの書き出しファイルではありません。"))
         return
     }
+    // フォルダーから取り込むときの記録を、ファイルを開いた取り込みに持ち込まない
+    Courier.shared.folderImportDates = [:]
     Courier.shared.pendingImport = PackageBox(package: package, name: url.lastPathComponent)
 }
 

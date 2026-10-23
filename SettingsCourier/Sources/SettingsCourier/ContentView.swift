@@ -432,6 +432,8 @@ struct ImportView: View {
         .frame(width: 460)
         .onAppear {
             plans = courier.plan(box.package)
+            // 「このMacと同じ」と分かったアプリの「新しい設定」の印を消す
+            courier.scanFolder()
             chosen = Set(plans.filter { !$0.writes.isEmpty && $0.installed && !$0.unreadable }.map(\.id))
         }
     }
