@@ -1,11 +1,12 @@
 # 変更履歴
 
-## 2026年10月24日 — SettingsCourier を追加
+## 2026年10月24日 — SettingsCourier を追加（1.3.1 build 8）
 
-- 登録したアプリの設定（defaults）をアプリごとの `.settingscourier` に書き出し、ほかのMacで取り込む新しいアプリ。App Storeのアプリなどサンドボックスのアプリにも対応。
-- Dropbox などの受け渡しフォルダーに書き出し、ほかのMacで新しい設定を選んで取り込める。終了時の自動書き出しあり。取り込みは確認・バックアップ・起動中のアプリの終了と再起動を経て行い、自動では行わない。
+- 登録したアプリの設定（defaults）をアプリごとの `<アプリ名>.settingscourier` に書き出し、ほかのMacで取り込む新しいアプリ。App Storeのアプリなどサンドボックスのアプリにも対応（起動時には読まず、「設定を読む」・書き出し・取り込みのときかフルディスクアクセスがあるときだけ読む）。
+- 受け渡しは「設定の共有」の同期フォルダーの中の `SettingsCourier` フォルダー。「新しい設定があります」の表示、終了時の自動書き出し、まとめて書き出す・取り込む。取り込みは確認・バックアップ・起動中のアプリの終了と再起動を経て行い、自動では行わない。
+- 設定ファイルの外にあるデータも「一緒に運ぶファイル」で運べる。Default Folder X は使用中のフォルダーセットのお気に入り（Favorites.plist）を自動で追加。
 - 共通部品の配布スクリプト（MenuBarPresence・AppStandards・LoginAtLaunch・SettingsSync・Updater）に SettingsCourier を登録。
-- 開発Macでビルド・自動テスト・/Applications と Latest Builds への配置（チームの開発証明書で署名、1.0.0 build 3）を確認。Developer ID 署名・公証・DMG・個別リポジトリ・note記事は未実施。
+- 開発Macでビルド・自動テスト（7本）・/Applications と Latest Builds への配置（チームの開発証明書で署名）・起動を確認。Developer ID 署名・公証・DMG・個別リポジトリ・GitHub Release・note記事は未実施（公証Macの工程）。
 
 ## 2026年10月23日 — アプリごとの個別リポジトリへ公開
 
