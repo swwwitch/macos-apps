@@ -331,7 +331,7 @@ struct ContentView: View {
                        : L("フォルダーから取り込む…（新しい設定 %@件）", String(courier.newerEntries.count))) {
                     showsFolderImport = true
                 }
-                .help(L("受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む"))
+                .help(L("同期フォルダーにある設定を選んで、このMacのアプリに書き込む"))
             } else if courier.folderMissing {
                 Label(L("同期フォルダーが見つかりません"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.secondary)
@@ -346,7 +346,7 @@ struct ContentView: View {
             Button(courier.folder == nil ? L("書き出す…") : L("フォルダーに書き出す")) { courier.exportSelected() }
                 .keyboardShortcut(.defaultAction)
                 .disabled(current == nil && multiple.isEmpty)
-                .help(courier.folder == nil ? L("選んでいるアプリの設定をファイルに保存") : L("選んでいるアプリの設定を受け渡しフォルダーに保存"))
+                .help(courier.folder == nil ? L("選んでいるアプリの設定をファイルに保存") : L("選んでいるアプリの設定を同期フォルダーに保存"))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -445,7 +445,7 @@ struct FolderImportView: View {
             .frame(minHeight: 200)
             .overlay {
                 if courier.folderEntries.isEmpty {
-                    Text(L("受け渡しフォルダーに書き出したファイルがありません")).foregroundStyle(.secondary)
+                    Text(L("同期フォルダーに書き出したファイルがありません")).foregroundStyle(.secondary)
                 }
             }
             HStack {

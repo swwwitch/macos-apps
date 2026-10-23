@@ -7,7 +7,7 @@
 "すべてのアプリを書き出す" = "Export All Apps";
 "ファイルに書き出す…" = "Export to File…";
 "同期フォルダーを選ぶ…" = "Choose Sync Folder…";
-"受け渡しフォルダーを開く" = "Open Handoff Folder";
+"同期フォルダーを開く" = "Open Sync Folder";
 "バックアップフォルダを表示" = "Show Backup Folder";
 "ウインドウを閉じる" = "Close Window";
 "しまう" = "Minimize";
@@ -53,12 +53,12 @@
 "設定の「起動・常駐」でフルディスクアクセスを許可すると、確認なしで読みます。" = "Allow Full Disk Access in Settings > Launch & Background to read without being asked.";
 "フォルダーから取り込む…" = "Import from Folder…";
 "フォルダーから取り込む…（新しい設定 %@件）" = "Import from Folder… (%@ newer)";
-"受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む" = "Choose settings in the handoff folder and write them to the apps on this Mac";
+"同期フォルダーにある設定を選んで、このMacのアプリに書き込む" = "Choose settings in the sync folder and write them to the apps on this Mac";
 "同期フォルダーが見つかりません" = "Sync folder not found";
 "Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます（設定の「設定の共有」と同じフォルダー）" = "Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it (the same folder as Settings > Sharing)";
 "書き出したファイルを開き、このMacのアプリに書き込む" = "Open an exported file and write it to the apps on this Mac";
 "選んでいるアプリの設定をファイルに保存" = "Save the settings of the selected app to a file";
-"選んでいるアプリの設定を受け渡しフォルダーに保存" = "Save the settings of the selected app to the handoff folder";
+"選んでいるアプリの設定を同期フォルダーに保存" = "Save the settings of the selected app to the sync folder";
 "一緒に運ぶファイル" = "Files Carried Along";
 "ファイルを追加…" = "Add Files…";
 "設定ファイルの外にあるアプリのデータ（お気に入りの一覧など）を、設定と一緒に書き出す" = "Export app data kept outside the settings file (such as a favorites list) together with the settings";
@@ -72,7 +72,7 @@
 "フォルダーから取り込む" = "Import from Folder";
 "%@を取り込む" = "Import %@";
 "新しい設定" = "Newer";
-"受け渡しフォルダーに書き出したファイルがありません" = "No exported files in the handoff folder";
+"同期フォルダーに書き出したファイルがありません" = "No exported files in the sync folder";
 "選択を解除" = "Deselect All";
 "すべて選択" = "Select All";
 "キャンセル" = "Cancel";
@@ -142,7 +142,7 @@
 "フルディスクアクセス設定を開く" = "Open Full Disk Access Settings";
 "システム設定を開けませんでした。「プライバシーとセキュリティ」→「フルディスクアクセス」を手動で開いてください。" = "Could not open System Settings. Open Privacy & Security > Full Disk Access yourself.";
 "許可スイッチは手動で操作してください。この画面に戻ると状態を再確認します。" = "Change the permission switch yourself. Return here to refresh the status.";
-"受け渡しフォルダー" = "Handoff Folder";
+"同期フォルダー" = "Sync Folder";
 "%@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）" = "%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)";
 "%@：%@ 設定を読めなかったため書き出しませんでした" = "%@: %@ was not exported because its settings could not be read";
 "%@：%@ を書き出しました" = "%@: Exported %@";

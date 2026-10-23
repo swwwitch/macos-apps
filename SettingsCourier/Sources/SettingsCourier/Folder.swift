@@ -159,7 +159,7 @@ extension Courier {
         let package = Package(apps: entries.map(\.app), replace: false, host: "")
         // 取り込んだら（または同じと分かったら）処理済みにする日時
         folderImportDates = Dictionary(entries.compactMap { e in e.created.map { (e.app.bundleID, $0) } }, uniquingKeysWith: max)
-        pendingImport = PackageBox(package: package, name: L("受け渡しフォルダー"))
+        pendingImport = PackageBox(package: package, name: L("同期フォルダー"))
     }
 
     // MARK: 自動書き出し

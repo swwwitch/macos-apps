@@ -51,7 +51,7 @@ Open with the Settings button in the main window (⌘,).
 
 ## Hotkeys
 - **⌘O**: Import
-- **⌘S**: Export (to the handoff folder when one is set)
+- **⌘S**: Export (to the sync folder when one is set)
 - **⇧⌘S**: Export to File
 - **⌘0**: Open Main Window
 - **⌘,**: Settings

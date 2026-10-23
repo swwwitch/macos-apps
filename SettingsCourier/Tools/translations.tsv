@@ -97,19 +97,19 @@ Macごとに異なる値のため、初めは書き出しません	Differs on ea
 左の一覧でアプリを選んでください。	Choose an app in the list on the left.	请在左侧列表中选择应用。	왼쪽 목록에서 앱을 선택하십시오.
 %@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。	Saved the settings of %@ (%@ items) to “%@”. Open this file in SettingsCourier on the other Mac to import it.	已将 %@ 的设置（%@ 项）保存到“%@”。在另一台 Mac 上用 SettingsCourier 打开此文件即可导入。	%@의 설정(%@개 항목)을 ‘%@’에 저장했습니다. 다른 Mac의 SettingsCourier에서 이 파일을 열어 가져옵니다.
 ファイルに書き出す…	Export to File…	导出到文件…	파일로 내보내기…
-受け渡しフォルダーを開く	Open Handoff Folder	打开交接文件夹	전달 폴더 열기
+同期フォルダーを開く	Open Sync Folder	打开同步文件夹	동기화 폴더 열기
 新しい設定があります	Newer settings available	有更新的设置	새 설정이 있습니다
 フォルダーに書き出す	Export to Folder	导出到文件夹	폴더로 내보내기
 フォルダーから取り込む…	Import from Folder…	从文件夹导入…	폴더에서 가져오기…
 フォルダーから取り込む…（新しい設定 %@件）	Import from Folder… (%@ newer)	从文件夹导入…（%@ 个更新的设置）	폴더에서 가져오기…(새 설정 %@개)
-受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む	Choose settings in the handoff folder and write them to the apps on this Mac	选择交接文件夹中的设置并写入此 Mac 上的应用	전달 폴더의 설정을 선택해 이 Mac의 앱에 기록
-選んでいるアプリの設定を受け渡しフォルダーに保存	Save the settings of the selected app to the handoff folder	将所选应用的设置保存到交接文件夹	선택한 앱의 설정을 전달 폴더에 저장
+同期フォルダーにある設定を選んで、このMacのアプリに書き込む	Choose settings in the sync folder and write them to the apps on this Mac	选择同步文件夹中的设置并写入此 Mac 上的应用	동기화 폴더의 설정을 선택해 이 Mac의 앱에 기록
+選んでいるアプリの設定を同期フォルダーに保存	Save the settings of the selected app to the sync folder	将所选应用的设置保存到同步文件夹	선택한 앱의 설정을 동기화 폴더에 저장
 フォルダーから取り込む	Import from Folder	从文件夹导入	폴더에서 가져오기
 新しい設定	Newer	较新	새 설정
-受け渡しフォルダーに書き出したファイルがありません	No exported files in the handoff folder	交接文件夹中没有导出的文件	전달 폴더에 내보낸 파일이 없습니다
+同期フォルダーに書き出したファイルがありません	No exported files in the sync folder	同步文件夹中没有导出的文件	동기화 폴더에 내보낸 파일이 없습니다
 次へ…	Next…	下一步…	다음…
 このMacの設定の方が新しい	This Mac’s settings are newer	此 Mac 上的设置更新	이 Mac의 설정이 더 새로움
-受け渡しフォルダー	Handoff Folder	交接文件夹	전달 폴더
+同期フォルダー	Sync Folder	同步文件夹	동기화 폴더
 登録したアプリを終了したときに書き出す	Export when a registered app quits	已登记的应用退出时导出	등록한 앱을 종료할 때 내보내기
 %@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）	%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)	%@：未导出 %@，因为没有读取其设置的许可（请允许完全磁盘访问权限，或在主窗口中点按“读取设置”）	%@: %@의 설정을 읽을 권한이 없어 내보내지 않았습니다(전체 디스크 접근 권한을 허용하거나 메인 윈도우에서 ‘설정 읽기’를 누르십시오)
 %@：%@ 設定を読めなかったため書き出しませんでした	%@: %@ was not exported because its settings could not be read	%@：无法读取 %@ 的设置，因此未导出	%@: %@의 설정을 읽을 수 없어 내보내지 않았습니다
