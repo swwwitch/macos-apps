@@ -80,6 +80,37 @@ final class Model: ObservableObject {
             defaults.set(enabled, forKey: "actionEnabled")
             defaults.set(true, forKey: "migratedFileAskKeys")
         }
+        // Release only the old defaults; keep independently customized keys and disabled states.
+        if !defaults.bool(forKey: "migratedSelectionAskKeys") {
+            for (name, signature) in [("selOpenDefault", "37:2304"), ("selOpenChoose", "37:4352"), ("selOpenAll", "37:2816")] {
+                if saved[name] == nil || saved[name]?.signature == signature {
+                    saved[name] = nil
+                    enabled[name] = false
+                }
+            }
+            defaults.set(try? JSONEncoder().encode(saved), forKey: "shortcuts")
+            defaults.set(enabled, forKey: "actionEnabled")
+            defaults.set(true, forKey: "migratedSelectionAskKeys")
+        }
+        if !defaults.bool(forKey: "migratedReopenAskKeys") {
+            for (name, signature) in [("forceReload", "15:2816"), ("translate", "17:2816"), ("privateWindow", "35:2816"), ("newWindow", "45:4352")] {
+                if saved[name] == nil || saved[name]?.signature == signature {
+                    saved[name] = nil
+                    enabled[name] = false
+                }
+            }
+            defaults.set(try? JSONEncoder().encode(saved), forKey: "shortcuts")
+            defaults.set(enabled, forKey: "actionEnabled")
+            defaults.set(true, forKey: "migratedReopenAskKeys")
+        }
+        // Migrate only the former default; preserve custom keys and enabled/double-tap settings.
+        if !defaults.bool(forKey: "migratedCloseOtherTabsKey") {
+            if saved["closeOtherTabs"]?.signature == "13:6912" {
+                saved["closeOtherTabs"] = LinkAction.closeOtherTabs.defaultShortcut
+                defaults.set(try? JSONEncoder().encode(saved), forKey: "shortcuts")
+            }
+            defaults.set(true, forKey: "migratedCloseOtherTabsKey")
+        }
         let taps = defaults.dictionary(forKey: "doubleTap") as? [String: Bool] ?? [:]
         for action in LinkAction.allCases {
             if let s = saved[action.rawValue] ?? action.defaultShortcut { shortcuts[action] = s }
@@ -336,11 +367,13 @@ final class Model: ObservableObject {
         guard !busy else { return }
         if fromHotkey && (paused || !isActive(action)) { return }
         let front = NSWorkspace.shared.frontmostApplication
+        // Recheck scope at execution, including delayed double taps.
+        if fromHotkey && !applies(action, front: front) { return }
         var target: NSRunningApplication?
         if isEnabledBrowser(front) { target = front }
         else if let pid = lastBrowserPID, let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated, isEnabledBrowser(app) { target = app }
         let runner = ActionRunner(model: self)
-        if action.isGlobal {
+        if action.group == .selection {
             // Hotkey: the app in front. Menu/palette: front stays (non-activating), else the last app used.
             var app = front
             if app?.processIdentifier == ProcessInfo.processInfo.processIdentifier, let pid = lastExternalPID { app = NSRunningApplication(processIdentifier: pid) }

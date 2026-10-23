@@ -51,3 +51,11 @@
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰、accessibilityLabel |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 1.2.10 (13)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys: shortcuts, actionEnabled, doubleTap, browserEnabled, simplifyURL, associateID, notifySuccess, translateTarget, paletteShortcut, paletteHotkeyEnabled, paletteMode, paletteSimple, paletteSimpleActions。merge なし（置き換えのみ）。onImport＝Model.reload()＋palette.refresh()。ビルド・test.sh 合格、両配置先 1.2.10 (13)・署名一致、/Applications 版の起動を pgrep で確認。画面操作は未確認 |
 | — | ホットキーの記録欄 | 実装済み・実機未確認 | 2026-10-17 1.2.13：機能とパレットの欄に allowsOption: true（⌥だけ・⌥⇧だけも記録可）、初期値に戻すの重複確認を取り込み。1.2.12：「ホットキー」の機能ごとの行（機能名のオン・オフ＋HotkeyField＋2回押し）とパレットのホットキーを HotkeyField に。保存は shortcuts／paletteShortcut の Shortcut JSON のまま（ShortcutCombo.swift で KeyCombo と相互変換、往復を ShortcutTests で検証）。登録は独自の HotKeySet のまま（ダブルタップのため）、onRecordingChanged で記録中は外す。others は同じ押し方の有効な機能とパレット。独自の NSEvent 記録・Shortcut.recorded・関連文言9キーを削除。注意：初期値のうち ⌥だけのキー13個（⌥S ⌥T ⌥Y ⌥M ⌥H ⌥A ⌥G ⌥F ⌥K ⌥R ⌥W ⌥Q、⌥A×2）は共通部品の新しい規則（⌘か⌃必須）では記録し直せない（初期値に戻すでは入る）。記録操作は未確認 |
+
+## 2026-10-23 — 1.3.1 (33)
+
+- B07/B08: ⌥L（選択URLの3方式）・⌥N（ページの開き直し4方式）のポップアップを追加。旧標準キーのみ一度解除し、独自設定は保持。LinkAction.swift / Model.swift / ActionRunner.swift。
+- B15/B16: 4言語の項目名と同梱ヘルプ、READMEを更新。191キー・プレースホルダー・表示名の検査合格。ヘルプ画面を実際に開く確認は未実施。
+- 自動テスト: test.sh 全項目合格。新しいキー、メニュー順、既存アクションID、キー重複の検証を含む。
+- ビルド/配布: 証明書署名・strict検証成功。既存版を共通配布ツールでバックアップし、/Applications と Latest Builds に同一の1.3.1 (33)を配置。両方の署名・内容一致を確認。
+- 実機: /Applications版を起動。画面操作ツールが接続エラーのため、⌥L/⌥N・選択/取消・ブラウザー各処理のGUI確認は未確認。

@@ -21,6 +21,9 @@ enum LinkAction: String, CaseIterable, Codable {
     /// 「ほかのタブを閉じる」: every tab of the front window except the current one.
     case closeOtherTabs
 
+    case reopenAsk
+    case selOpenAsk
+
     enum Group: String, CaseIterable { case copy, tabs, file, open, reopen, clipboard, selection }
 
     var group: Group {
@@ -28,10 +31,10 @@ enum LinkAction: String, CaseIterable, Codable {
         case .copyAsk, .copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate: return .copy
         case .tabsAsk, .closeOtherTabs: return .tabs
         case .weblocAsk, .qrAsk: return .file
-        case .reloadClean, .forceReload, .editMode, .translate, .newWindow, .privateWindow: return .open
+        case .reopenAsk, .reloadClean, .forceReload, .editMode, .translate, .newWindow, .privateWindow: return .open
         case .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion: return .reopen
         case .openClipboardURLs, .searchClipboardLines: return .clipboard
-        case .selOpenDefault, .selOpenChoose, .selOpenAll: return .selection
+        case .selOpenAsk, .selOpenDefault, .selOpenChoose, .selOpenAll: return .selection
         }
     }
 
@@ -49,11 +52,26 @@ enum LinkAction: String, CaseIterable, Codable {
         let all = allCases.filter { $0.group == group }
         switch group {
         case .file: return [.weblocAsk, .qrAsk]
+        case .open: return [.reloadClean, .reopenAsk, .forceReload, .translate, .newWindow, .privateWindow, .editMode]
+        case .selection: return [.selOpenAsk] + all.filter { $0 != .selOpenAsk }
         case .copy: return [.copyAsk] + all.filter { $0 != .copyAsk }
         default: return all
         }
     }
     /// What the combined copy function offers, in menu order.
+    static let reopenModes: [LinkAction] = [.forceReload, .translate, .privateWindow, .newWindow,
+        .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion]
+
+    func canOpenFromMenu(url: String, sourceBundleID: String, installed: Bool) -> Bool {
+        guard installed, let target = URL(string: url),
+              ["http", "https"].contains(target.scheme?.lowercased() ?? ""),
+              let host = target.host?.lowercased(), !host.isEmpty else { return false }
+        if self == .openNotion {
+            return ["notion.so", "notion.site"].contains { host == $0 || host.hasSuffix("." + $0) }
+        }
+        return browserBundleID != nil && browserBundleID != sourceBundleID
+    }
+    static let selectionModes: [LinkAction] = [.selOpenDefault, .selOpenChoose, .selOpenAll]
     static let copyFormats: [LinkAction] = [.copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate]
     /// Settings → Hotkeys: the same as the palette and the menus.
     static func inSettings(_ group: Group) -> [LinkAction] { listed(group) }
@@ -76,7 +94,7 @@ enum LinkAction: String, CaseIterable, Codable {
         case .closeOtherTabs: return "xmark.square"
         case .weblocAsk: return "square.and.arrow.down"
         case .qrAsk: return "qrcode"
-        case .reloadClean: return "arrow.clockwise"
+        case .reopenAsk, .reloadClean: return "arrow.clockwise"
         case .forceReload: return "exclamationmark.arrow.circlepath"
         case .editMode: return "pencil"
         case .translate: return "translate"
@@ -85,7 +103,7 @@ enum LinkAction: String, CaseIterable, Codable {
         case .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion: return "globe"
         case .openClipboardURLs: return "doc.on.clipboard"
         case .searchClipboardLines: return "text.magnifyingglass"
-        case .selOpenDefault: return "arrow.up.forward.app"
+        case .selOpenAsk, .selOpenDefault: return "arrow.up.forward.app"
         case .selOpenChoose: return "arrow.up.right.square"
         case .selOpenAll: return "rectangle.3.group"
         }
@@ -94,7 +112,7 @@ enum LinkAction: String, CaseIterable, Codable {
     /// Whether the action needs the page in front (title/URL); the clipboard actions do not.
     var needsPage: Bool { group != .tabs && group != .clipboard && group != .selection }
     /// Works in any app except the excluded ones (the misc group's 「Excluded」 targeting); the others need a browser in front.
-    var isGlobal: Bool { group == .selection }
+    var isGlobal: Bool { self == .openClipboardURLs }
 
     static let opt: UInt32 = 2048, optShiftCmd: UInt32 = 2816, optCmd: UInt32 = 2304, ctrlOptCmd: UInt32 = 6400, ctrlCmd: UInt32 = 4352
 
@@ -111,20 +129,20 @@ enum LinkAction: String, CaseIterable, Codable {
         // ⌥G asks the format (the URL-only macro's key).
         case .tabsAsk: return .km(5, Self.opt, "G")
         case .reloadClean: return .km(15, Self.opt, "R")
-        case .forceReload: return .km(15, Self.optShiftCmd, "R")
+        case .forceReload: return nil
         case .editMode: return .km(14, Self.optCmd, "E")
-        case .translate: return .km(17, Self.optShiftCmd, "T")
-        case .newWindow: return .km(45, Self.ctrlCmd, "N")
-        case .privateWindow: return .km(35, Self.optShiftCmd, "P")
+        case .translate: return nil
+        case .newWindow: return nil
+        case .privateWindow: return nil
         case .openSafari: return .km(1, Self.optShiftCmd, "S")
         case .openChrome: return .km(5, Self.optShiftCmd, "G")
         case .openFirefox: return .km(3, Self.optShiftCmd, "F")
         case .openEdge: return .km(14, Self.optShiftCmd, "E")
         case .openNotion: return .km(45, Self.optShiftCmd, "N")
         case .openClipboardURLs: return .km(37, Self.ctrlOptCmd, "L")
-        case .selOpenDefault: return .km(37, Self.optCmd, "L")
-        case .selOpenChoose: return .km(37, Self.ctrlCmd, "L")
-        case .selOpenAll: return .km(37, Self.optShiftCmd, "L")
+        case .selOpenDefault: return nil
+        case .selOpenChoose: return nil
+        case .selOpenAll: return nil
         // KM: ⌥A tapped once = Amazon link, twice = the affiliate link.
         case .copyAmazonAffiliate: return .km(0, Self.opt, "A")
         // ⌥W / ⌥Q ask where (the macros' keys for the front Finder window, which now has no key).
@@ -132,8 +150,10 @@ enum LinkAction: String, CaseIterable, Codable {
         case .qrAsk: return .km(12, Self.opt, "Q")
         // ⌥C asks the format (no Keyboard Maestro macro; KM's ⌥C is only in non-browser groups).
         case .copyAsk: return Shortcut(code: 8, modifiers: Self.opt, label: "⌥C")
-        // ⌃⌥⇧⌘W (KM's 「ほかのタブを閉じる」 was ⌥⇧⌘W).
-        case .closeOtherTabs: return Shortcut(code: 13, modifiers: Self.ctrlOptCmd | Shortcut.shift, label: "⌃⌥⇧⌘W")
+        // ⌥⇧⌘W: close the other tabs in the front browser window.
+        case .closeOtherTabs: return Shortcut.km(13, Self.optShiftCmd, "W")
+        case .reopenAsk: return Shortcut(code: 45, modifiers: Self.opt, label: "⌥N")
+        case .selOpenAsk: return Shortcut(code: 37, modifiers: Self.opt, label: "⌥L")
         case .searchClipboardLines: return nil
         }
     }

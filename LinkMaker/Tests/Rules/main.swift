@@ -61,7 +61,7 @@ expect(LinkRules.fileName("a/b: c", fallback: "x"), "ab c")
 expect(LinkRules.fileName(" .. ", fallback: "x"), "x")
 
 // 「Make Link (misc)」: selected text.
-expect(LinkAction.allCases.filter(\.isGlobal).count == 3 && !LinkAction.copyURL.isGlobal, "selection group is global")
+expect(LinkAction.allCases.filter(\.isGlobal) == [.openClipboardURLs], "only clipboard URL action is global")
 expect(LinkAction.from(number: 18) == .searchClipboardLines, "existing numbers unchanged")
 expect(LinkAction.listed(.copy) == [.copyAsk] + LinkAction.copyFormats, "combined copy first, affiliate follows the Amazon link")
 
@@ -72,3 +72,21 @@ let keys = LinkAction.allCases.compactMap { a in a.defaultShortcut.map { $0.sign
 expect(Set(keys).count == keys.count, "default keys (with tap count) are unique")
 expect(LinkAction.copyAmazon.defaultShortcut == LinkAction.copyAmazonAffiliate.defaultShortcut && LinkAction.copyAmazonAffiliate.defaultDoubleTap, "⌥A once / twice")
 print("PASS: \(LinkAction.allCases.count) actions; titles, URL cleanup, Amazon, formats, tab lists, edit mode, clipboard helpers")
+
+expect(LinkAction.selOpenAsk.defaultShortcut?.signature == "37:2048", "Option L opens selection menu")
+expect(LinkAction.selectionModes.allSatisfy { $0.defaultShortcut == nil }, "individual URL actions have no default keys")
+expect(LinkAction.selOpenDefault.number == 19 && LinkAction.selOpenAll.number == 21, "selection IDs remain stable")
+
+expect(LinkAction.reopenAsk.defaultShortcut?.signature == "45:2048", "Option N opens reopen menu")
+expect(LinkAction.reopenModes == [.forceReload, .translate, .privateWindow, .newWindow, .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion], "reopen menu order")
+expect(LinkAction.reopenModes.prefix(4).allSatisfy { $0.defaultShortcut == nil }, "individual reopen actions have no default keys")
+
+expect(!LinkAction.openSafari.canOpenFromMenu(url: "https://example.com", sourceBundleID: "com.apple.Safari", installed: true), "same browser disabled")
+expect(!LinkAction.openChrome.canOpenFromMenu(url: "https://example.com", sourceBundleID: "com.apple.Safari", installed: false), "missing browser disabled")
+expect(LinkAction.openChrome.canOpenFromMenu(url: "https://example.com", sourceBundleID: "com.apple.Safari", installed: true), "installed other browser available")
+for url in ["", "chrome://settings", "https://notion.so.example.com", "https://notion-example.com"] {
+    expect(!LinkAction.openNotion.canOpenFromMenu(url: url, sourceBundleID: "com.apple.Safari", installed: true), "unsupported Notion URL disabled")
+}
+for url in ["https://notion.so/page", "https://www.notion.so/page", "https://team.notion.site/page"] {
+    expect(LinkAction.openNotion.canOpenFromMenu(url: url, sourceBundleID: "com.apple.Safari", installed: true), "Notion page available")
+}

@@ -11,6 +11,33 @@ final class ActionRunner {
 
     func run(_ action: LinkAction, browser: Browser, app: NSRunningApplication, completion: @escaping (ActionOutcome) -> Void) {
         let pid = app.processIdentifier
+        if action == .reopenAsk {
+            var page = BrowserBridge.page(pid: pid)
+            if page?.url.isEmpty != false, let url = BrowserBridge.addressBarURL(pid: pid) {
+                page = PageInfo(title: page?.title ?? "", url: url)
+            }
+            let enabled = LinkAction.reopenModes.map { choice -> Bool in
+                if choice == .newWindow, BrowserBridge.usesNativeTabMove(browser) {
+                    return BrowserBridge.canMoveTabToNewWindow(browser: browser, pid: pid)
+                }
+                guard let id = choice.browserBundleID else {
+                    return choice == .forceReload || (page.map { !LinkRules.isEmptyPage(title: $0.title, url: $0.url) } ?? false)
+                }
+                return choice.canOpenFromMenu(url: page?.url ?? "", sourceBundleID: browser.bundleID,
+                    installed: NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) != nil)
+            }
+            guard let picked = Self.askChoice(L("action.reopenAsk"), LinkAction.reopenModes.map { L($0.titleKey) },
+                                             enabled: enabled, separatorBefore: 4) else {
+                completion(.success(L("cancelled"))); return
+            }
+            guard !app.isTerminated, model?.isEnabledBrowser(app) == true,
+                  model?.isExcluded(app) == false,
+                  NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else {
+                completion(.failure(L("fail.target"))); return
+            }
+            run(LinkAction.reopenModes[picked], browser: browser, app: app, completion: completion)
+            return
+        }
         if action == .tabsAsk {
             // 「どの形式で？」: asked at the mouse pointer.
             let formats: [LinkRules.TabListFormat] = [.urls, .titled, .markdown]
@@ -24,6 +51,14 @@ final class ActionRunner {
             let (code, flags) = browser.forceReloadKey
             BrowserBridge.key(code, flags, to: pid)
             completion(.silent); return
+        }
+        if action == .newWindow, BrowserBridge.usesNativeTabMove(browser) {
+            guard !app.isTerminated, model?.isEnabledBrowser(app) == true, model?.isExcluded(app) == false else {
+                completion(.failure(L("fail.target"))); return
+            }
+            completion(BrowserBridge.moveTabToNewWindow(browser: browser, pid: pid)
+                       ? .silent : .failure(L("fail.moveTab")))
+            return
         }
         guard var page = BrowserBridge.page(pid: pid) else { completion(.failure(AccessibilityText.text("blocked"))); return }
         if page.url.isEmpty, let url = BrowserBridge.addressBarURL(pid: pid) { page.url = url }
@@ -98,7 +133,7 @@ final class ActionRunner {
             }
         case .openNotion:
             // KM: only when the URL is a Notion page; opening it hands the https URL to the app.
-            guard URL(string: url)?.host?.lowercased().contains("notion") == true else { completion(.failure(L("fail.notNotion"))); return }
+            guard action.canOpenFromMenu(url: url, sourceBundleID: browser.bundleID, installed: true) else { completion(.failure(L("fail.notNotion"))); return }
             guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "notion.id"), let target = URL(string: url) else {
                 completion(.failure(String(format: L("fail.notInstalled"), "Notion"))); return
             }
@@ -200,13 +235,15 @@ final class ActionRunner {
     }
 
     /// Pop-up menu at the mouse pointer with a disabled header. Returns the picked index, nil = cancelled.
-    static func askChoice(_ title: String, _ items: [String]) -> Int? {
+    static func askChoice(_ title: String, _ items: [String], enabled: [Bool]? = nil, separatorBefore: Int? = nil) -> Int? {
         let menu = NSMenu(); menu.autoenablesItems = false
         let header = menu.addItem(withTitle: title, action: nil, keyEquivalent: ""); header.isEnabled = false
         let picker = MenuPicker()
         for (index, text) in items.enumerated() {
+            if index == separatorBefore { menu.addItem(.separator()) }
             let item = menu.addItem(withTitle: text, action: #selector(MenuPicker.pick(_:)), keyEquivalent: "")
             item.target = picker; item.tag = index
+            item.isEnabled = enabled?[index] ?? true
         }
         menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
         return picker.picked
@@ -302,28 +339,47 @@ extension ActionRunner {
             if urls.count > 30 { selection.restore(); completion(.failure(String(format: L("fail.tooMany"), String(urls.count)))); return false }
             return true
         }
-        switch action {
+        guard needURLs() else { return }
+        selection.restore()
+        var selectedAction = action
+        if action == .selOpenAsk {
+            guard let picked = Self.askChoice(L("action.selOpenAsk"), LinkAction.selectionModes.map { L($0.titleKey) }) else {
+                completion(.success(L("cancelled"))); return
+            }
+            selectedAction = LinkAction.selectionModes[picked]
+        }
+        guard model?.isExcluded(app) == false else {
+            completion(.failure(String(format: L("fail.excluded"), app.localizedName ?? ""))); return
+        }
+        switch selectedAction {
         case .selOpenDefault:
-            guard needURLs() else { return }
-            selection.restore()
             urls.compactMap(URL.init(string:)).forEach { NSWorkspace.shared.open($0) }
             completion(.success(String(format: L("done.opened"), String(urls.count))))
         case .selOpenChoose:
-            guard needURLs() else { return }
-            selection.restore()
             let browsers = Browser.all.filter(\.isInstalled)
             guard let browser = Self.chooseBrowser(browsers, count: urls.count) else { completion(.success(L("cancelled"))); return }
+            guard model?.isExcluded(app) == false else {
+                completion(.failure(String(format: L("fail.excluded"), app.localizedName ?? ""))); return
+            }
             BrowserBridge.open(urls, in: browser) { ok in
                 completion(ok ? .success(String(format: L("done.opened"), String(urls.count))) : .failure(String(format: L("fail.open"), browser.name)))
             }
         case .selOpenAll:
-            guard needURLs() else { return }
-            selection.restore()
             // The macro's three browsers, those installed.
             let browsers = ["com.apple.Safari", "org.mozilla.firefox", "com.google.Chrome"].compactMap(Browser.find).filter(\.isInstalled)
             guard !browsers.isEmpty else { completion(.failure(String(format: L("fail.notInstalled"), "Safari / Firefox / Google Chrome"))); return }
-            browsers.forEach { BrowserBridge.open(urls, in: $0) { _ in } }
-            completion(.success(String(format: L("done.openedAll"), String(urls.count), browsers.map(\.name).joined(separator: "・"))))
+            var remaining = browsers.count
+            var failed: [String] = []
+            for browser in browsers {
+                BrowserBridge.open(urls, in: browser) { ok in
+                    if !ok { failed.append(browser.name) }
+                    remaining -= 1
+                    guard remaining == 0 else { return }
+                    completion(failed.isEmpty
+                        ? .success(String(format: L("done.openedAll"), String(urls.count), browsers.map(\.name).joined(separator: "・")))
+                        : .failure(String(format: L("fail.open"), failed.joined(separator: "・"))))
+                }
+            }
         default:
             selection.restore()
             completion(.silent)

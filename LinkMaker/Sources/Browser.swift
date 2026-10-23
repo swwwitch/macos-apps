@@ -32,6 +32,43 @@ struct Browser: Hashable {
 struct PageInfo { var title: String; var url: String }
 
 enum BrowserBridge {
+    static func usesNativeTabMove(_ browser: Browser) -> Bool {
+        browser.bundleID == "com.apple.Safari" || browser.bundleID == "com.google.Chrome"
+    }
+
+    /// Resolve only the browser's own tab-move command, never a similarly named web element.
+    private static func tabMoveItem(browser: Browser, pid: pid_t) -> AXUIElement? {
+        guard usesNativeTabMove(browser), AccessibilitySection.isTrusted,
+              let bar = element(AXUIElementCreateApplication(pid), kAXMenuBarAttribute) else { return nil }
+        let titles: Set<String> = ["タブを新しいウィンドウに移動", "Move Tab to New Window",
+                                   "Move tab to new window", "将标签页移至新窗口", "탭을 새 창으로 이동"]
+        func find(_ node: AXUIElement, depth: Int) -> AXUIElement? {
+            guard depth < 5 else { return nil }
+            let identifier = value(node, "AXIdentifier") as? String ?? ""
+            let title = value(node, kAXTitleAttribute) as? String ?? ""
+            if browser.bundleID == "com.apple.Safari" ? identifier == "MoveTabToNewWindow" : titles.contains(title) {
+                return node
+            }
+            for child in value(node, kAXChildrenAttribute) as? [AXUIElement] ?? [] {
+                if let match = find(child, depth: depth + 1) { return match }
+            }
+            return nil
+        }
+        return find(bar, depth: 0)
+    }
+
+    static func canMoveTabToNewWindow(browser: Browser, pid: pid_t) -> Bool {
+        guard let item = tabMoveItem(browser: browser, pid: pid) else { return false }
+        return value(item, kAXEnabledAttribute) as? Bool == true
+    }
+
+    static func moveTabToNewWindow(browser: Browser, pid: pid_t) -> Bool {
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
+              let item = tabMoveItem(browser: browser, pid: pid),
+              value(item, kAXEnabledAttribute) as? Bool == true else { return false }
+        return AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
+    }
+
     // MARK: Reading the page (Accessibility)
 
     /// Title and URL of the focused tab. URL from the web area (DocklessLauncher's method); the title from the web area,
