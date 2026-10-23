@@ -836,8 +836,8 @@ struct PreferencesView: View {
                 AccessibilitySection()
             })),
             (L("アプリ"), AnyView(VStack(alignment: .leading, spacing: 20) {
-                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
                 SettingsSection(L("プリセットのアプリ")) { PresetAppsSettings(presets: presets) }
+                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
             })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
