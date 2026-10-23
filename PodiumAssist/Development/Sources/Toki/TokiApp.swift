@@ -1514,13 +1514,15 @@ struct ManualControlsView: View {
                     }
                     if section == .basic {
                         category(L("集中を妨げるもの")) {
-                            Toggle(L("アプリ切り替え時にほかを隠す"), isOn: $settings.hideOthersOnSwitch)
-                            HStack {
+                            HStack(spacing: 8) {
+                                Toggle(L("アプリ切り替え時にほかを隠す"), isOn: $settings.hideOthersOnSwitch)
+                                Spacer(minLength: 4)
                                 TextField("0", value: Binding(get: { settings.hideOthersDelay }, set: { settings.hideOthersDelay = AppSwitchHider.delay($0) }), format: .number)
-                                    .frame(width: 64)
+                                    .frame(width: 48)
                                     .accessibilityLabel(L("ほかを隠すまでの秒数"))
+                                    .disabled(!settings.hideOthersOnSwitch)
                                 Text(L("秒後"))
-                            }.disabled(!settings.hideOthersOnSwitch)
+                            }.font(.system(size: 12))
                             Toggle(L("音量を変更するときにフィードバックを再生しない"), isOn: Binding(get: { !settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(!value) } }))
                                 .font(.system(size: 12))
                             Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))
