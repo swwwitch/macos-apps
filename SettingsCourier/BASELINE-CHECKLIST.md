@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
 アプリ名：SettingsCourier
-バージョン/build：1.1.0 / 5
+バージョン/build：1.2.0 / 6
 確認OS/CPU：macOS 26 / Apple Silicon (arm64)
 確認日：2026-10-24
 

@@ -212,6 +212,7 @@ struct ContentView: View {
                         .help(L("ウインドウの位置などMacごとに異なるキーと日付だけを外した状態に戻す"))
                 }
                 if courier.canRead(app.bundleID) { table(app) } else { readPrompt }
+                ExtraFilesView(app: app)
             }
         } else {
             VStack(spacing: 8) {
@@ -314,6 +315,63 @@ struct ContentView: View {
     }
 }
 
+// MARK: - 一緒に運ぶファイル
+
+/// 設定（defaults）の外にあるアプリのデータ。一覧・追加・外す、Default Folder X などの候補
+struct ExtraFilesView: View {
+    let app: CourierApp
+    @ObservedObject private var courier = Courier.shared
+
+    var body: some View {
+        let paths = courier.extraFiles(app.bundleID)
+        let suggestions = courier.missingSuggestions(app.bundleID)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(L("一緒に運ぶファイル")).font(.headline)
+                Spacer()
+                Button { courier.chooseExtraFiles(app) } label: { Label(L("ファイルを追加…"), systemImage: "plus") }
+                    .help(L("設定ファイルの外にあるアプリのデータ（お気に入りの一覧など）を、設定と一緒に書き出す"))
+            }
+            ForEach(paths, id: \.self) { path in
+                HStack(spacing: 8) {
+                    Image(systemName: "doc").foregroundStyle(.secondary).accessibilityHidden(true)
+                    Text(path).font(.caption.monospaced()).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
+                    Text(fileInfo(path)).font(.caption).foregroundStyle(.secondary).fixedSize()
+                    Spacer()
+                    Button { courier.removeExtraFile(app.bundleID, path) } label: { Image(systemName: "minus.circle") }
+                        .buttonStyle(.borderless)
+                        .help(L("一覧から外す（ファイルはそのまま）"))
+                        .accessibilityLabel(L("%@を一覧から外す", path))
+                }
+            }
+            ForEach(suggestions, id: \.self) { path in
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb").foregroundStyle(Color.accentColor).accessibilityHidden(true)
+                    Text(L("候補：%@", path)).font(.caption).lineLimit(1).truncationMode(.middle)
+                    Spacer()
+                    Button(L("追加")) { courier.addExtraFiles(app.bundleID, [path]) }
+                }
+            }
+            if paths.isEmpty && suggestions.isEmpty {
+                Text(L("設定ファイルの外にデータを置くアプリは、そのファイルを追加すると一緒に運べます。"))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .padding(10)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        // 書き出し後・読み直しで日時を更新する
+        .id(courier.revision)
+    }
+
+    private func fileInfo(_ path: String) -> String {
+        guard let url = expandHomePath(path),
+              let attributes = try? FileManager.default.attributesOfItem(atPath: url.path) else { return L("見つかりません") }
+        let size = ByteCountFormatter.string(fromByteCount: Int64(attributes[.size] as? Int ?? 0), countStyle: .file)
+        let date = (attributes[.modificationDate] as? Date)?.formatted(date: .abbreviated, time: .shortened) ?? ""
+        return (attributes[.size] as? Int ?? 0) > extraFileLimit ? L("%@（大きすぎるため運びません）", size) : "\(size)　\(date)"
+    }
+}
+
 // MARK: - 受け渡しフォルダーから取り込む
 
 struct FolderImportView: View {
@@ -405,7 +463,7 @@ struct ImportView: View {
                         Toggle("", isOn: Binding(get: { chosen.contains(plan.id) },
                                                  set: { if $0 { chosen.insert(plan.id) } else { chosen.remove(plan.id) } }))
                             .toggleStyle(.checkbox).labelsHidden()
-                            .disabled(plan.writes.isEmpty || plan.unreadable)
+                            .disabled(!plan.hasWrites || plan.unreadable)
                             .accessibilityLabel(L("%@を取り込む", plan.app.name))
                         Image(nsImage: appIcon(plan.app.bundleID)).resizable().frame(width: 20, height: 20).accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 0) {
@@ -437,7 +495,7 @@ struct ImportView: View {
             plans = courier.plan(box.package)
             // 「このMacと同じ」と分かったアプリの「新しい設定」の印を消す
             courier.scanFolder()
-            chosen = Set(plans.filter { !$0.writes.isEmpty && $0.installed && !$0.unreadable }.map(\.id))
+            chosen = Set(plans.filter { $0.hasWrites && $0.installed && !$0.unreadable }.map(\.id))
         }
     }
 
@@ -450,11 +508,12 @@ struct ImportView: View {
 
     private func status(_ plan: ImportPlan) -> String {
         if plan.unreadable { return L("このMacの今の設定を読めないため取り込めません（アクセスを許可してから開き直してください）") }
-        if plan.writes.isEmpty { return L("このMacと同じです") }
+        if !plan.hasWrites { return L("このMacと同じです") }
         var parts: [String] = []
         if plan.changed > 0 { parts.append(L("変更 %@", String(plan.changed))) }
         if plan.added > 0 { parts.append(L("追加 %@", String(plan.added))) }
         if plan.removed > 0 { parts.append(L("削除 %@", String(plan.removed))) }
+        if !plan.fileWrites.isEmpty { parts.append(L("ファイル %@", String(plan.fileWrites.count))) }
         let text = parts.joined(separator: L("、"))
         return plan.installed ? text : text + L("（このMacにはありません）")
     }

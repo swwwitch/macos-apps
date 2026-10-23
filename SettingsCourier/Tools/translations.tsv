@@ -123,3 +123,18 @@ Dropbox などほかのMacと同期しているフォルダーを選ぶと、そ
 アプリの設定の受け渡し	Handing Over App Settings	交接应用设置	앱 설정 주고받기
 上の「設定の同期」で同期フォルダーを選ぶと使えます	Available once you choose a sync folder in Settings Sync above	在上方的“设置同步”中选择同步文件夹后即可使用	위의 ‘설정 동기화’에서 동기화 폴더를 선택하면 사용할 수 있습니다
 「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。	“Export to Folder” puts “<app name>.settingscourier” for each app in the SettingsCourier folder inside the sync folder. On the other Mac, choose them with “Import from Folder…”. Because importing rewrites app settings, it never happens automatically.	“导出到文件夹”会将每个应用的“<应用名称>.settingscourier”放入同步文件夹中的 SettingsCourier 文件夹。在另一台 Mac 上用“从文件夹导入…”选择并导入。导入会改写应用设置，因此不会自动导入。	‘폴더로 내보내기’로 동기화 폴더 안의 SettingsCourier 폴더에 앱마다 ‘<앱 이름>.settingscourier’를 둡니다. 다른 Mac에서는 ‘폴더에서 가져오기…’로 선택해 가져옵니다. 앱 설정을 다시 쓰므로 자동으로 가져오지 않습니다.
+一緒に運ぶファイル	Files Carried Along	一并携带的文件	함께 옮길 파일
+ファイルを追加…	Add Files…	添加文件…	파일 추가…
+設定ファイルの外にあるアプリのデータ（お気に入りの一覧など）を、設定と一緒に書き出す	Export app data kept outside the settings file (such as a favorites list) together with the settings	将设置文件之外的应用数据（如收藏列表）与设置一起导出	설정 파일 밖에 있는 앱 데이터(즐겨찾기 목록 등)를 설정과 함께 내보내기
+一覧から外す（ファイルはそのまま）	Remove from the list (the file stays as it is)	从列表中移除（文件保持不变）	목록에서 제거(파일은 그대로)
+%@を一覧から外す	Remove %@ from the list	从列表中移除 %@	%@을(를) 목록에서 제거
+候補：%@	Suggested: %@	建议：%@	추천: %@
+設定ファイルの外にデータを置くアプリは、そのファイルを追加すると一緒に運べます。	For apps that keep data outside the settings file, add those files to carry them along.	对于在设置文件之外保存数据的应用，添加这些文件即可一并携带。	설정 파일 밖에 데이터를 두는 앱은 그 파일을 추가하면 함께 옮길 수 있습니다.
+見つかりません	Not found	找不到	찾을 수 없음
+%@（大きすぎるため運びません）	%@ (too large to carry)	%@（过大，不会携带）	%@(너무 커서 옮기지 않음)
+ファイル %@	%@ files	文件 %@	파일 %@
+一緒に運ぶファイル：%@件	Files carried along: %@	一并携带的文件：%@ 个	함께 옮긴 파일: %@개
+見つからないか大きすぎるため入れなかったファイル：%@	Not included because missing or too large: %@	因找不到或过大而未包含的文件：%@	없거나 너무 커서 포함하지 않은 파일: %@
+%@の設定と一緒に運ぶファイルを選んでください（ホームフォルダーの中のファイル）	Choose files to carry along with the settings of %@ (files in your home folder)	请选择与 %@ 的设置一并携带的文件（个人文件夹中的文件）	%@의 설정과 함께 옮길 파일을 선택하십시오(홈 폴더 안의 파일)
+追加できないファイルがあります	Some files could not be added	有些文件无法添加	추가할 수 없는 파일이 있습니다
+ホームフォルダーの外のファイルは運べません：%@	Files outside your home folder cannot be carried: %@	无法携带个人文件夹之外的文件：%@	홈 폴더 밖의 파일은 옮길 수 없습니다: %@

@@ -19,7 +19,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func startSettingsSync() {
         SettingsSync.shared.onImport = { Courier.shared.reload() }
         SettingsSync.shared.start(.init(
-            keys: [Courier.appsKey, Courier.excludedKeysKey, Courier.includedKeysKey],
+            keys: [Courier.appsKey, Courier.excludedKeysKey, Courier.includedKeysKey, Courier.extraFilesKey],
             note: StartupWindow.text("登録したアプリの一覧と、書き出すキーの選択を書き出し・同期します。アプリの設定の値は、メインウインドウの「フォルダーに書き出す」で同期フォルダーの SettingsCourier フォルダーにアプリごとに保存します（自動では取り込みません）。",
                                      "Exports and syncs the list of registered apps and which keys to export. The apps' setting values are saved per app to the SettingsCourier folder inside the sync folder with Export to Folder in the main window (never imported automatically).",
                                      "导出并同步已登记的应用列表以及要导出的键的选择。应用的设置值通过主窗口的“导出到文件夹”按应用保存到同步文件夹中的 SettingsCourier 文件夹（不会自动导入）。",

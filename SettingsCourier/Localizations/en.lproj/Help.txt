@@ -10,6 +10,12 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 - Keys that differ on each Mac (window positions, menu bar order, update-check records) and date values (such as the first launch date) start out unchecked. Check them if you need them.
 - “Reset Selection” returns the app’s selection to that starting state.
 
+### Files carried along
+- For apps that keep data outside the settings file (such as Default Folder X favorites), choose those files with “Add Files…” under “Files Carried Along” at the lower right; they are exported and imported with the settings. Only files in your home folder can be carried (up to 20 MB each).
+- Registering Default Folder X adds the favorites of the current folder set (Favorites.plist) automatically. If it was already registered, it appears as “Suggested”; click “Add”.
+- On import, the current contents of those files are backed up before writing. Restoring removes files the import added.
+- Favorites and similar lists contain folder locations. On a Mac with a different user name or folder layout, some items may not open after importing.
+
 ### Export
 1. Select the app in the list on the left, click “Export…” (⌘S) and choose where to save. The values of that app’s checked keys are saved to “<app name>.settingscourier”. You can also Control-click an app in the list and choose **Export…**.
 2. Move the file to the other Mac with AirDrop, iCloud Drive, Dropbox and so on.

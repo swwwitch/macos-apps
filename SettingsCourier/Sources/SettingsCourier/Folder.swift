@@ -194,13 +194,15 @@ extension Courier {
             return
         }
         let exported = values.filter { isIncluded(bundleID, $0.key, $0.value) }
+        // コンテナの中のファイルは、読むのを許したときだけ（確認を急に出さない）
+        let files = readExtraFiles(bundleID, includeContainers: readsContainers || hasFullDiskAccess)
         if let file = folderFiles(bundleID, in: folder).first,
            let old = Package(url: file)?.apps.first(where: { $0.bundleID == bundleID }),
-           (old.values as NSDictionary).isEqual(to: exported) {
+           (old.values as NSDictionary).isEqual(to: exported), old.files == files {
             return
         }
         do {
-            _ = try writeToFolder(Package(apps: [.init(bundleID: bundleID, name: app.name, values: exported)], replace: false), app, in: folder)
+            _ = try writeToFolder(Package(apps: [.init(bundleID: bundleID, name: app.name, values: exported, files: files)], replace: false), app, in: folder)
             lastAutoExport = L("%@：%@ を書き出しました", time, app.name)
             markHandled(bundleID, Date())
         } catch {

@@ -126,6 +126,10 @@ struct Package {
         let bundleID: String
         let name: String
         let values: [String: NSObject]
+        /// 一緒に運ぶファイル（「~/…」→ 中身）
+        var files: [String: Data] = [:]
+        /// バックアップだけ：取り込む前に無かったファイル。元に戻すときに消す
+        var removedFiles: [String] = []
     }
     let apps: [App]
     let host: String
@@ -136,7 +140,12 @@ struct Package {
         let root: [String: Any] = [
             "format": "SettingsCourier", "version": 1, "created": Date(),
             "host": host, "replace": replace,
-            "apps": apps.map { ["bundleID": $0.bundleID, "name": $0.name, "values": $0.values] as [String: Any] },
+            "apps": apps.map { app -> [String: Any] in
+                var d: [String: Any] = ["bundleID": app.bundleID, "name": app.name, "values": app.values]
+                if !app.files.isEmpty { d["files"] = app.files }
+                if !app.removedFiles.isEmpty { d["removedFiles"] = app.removedFiles }
+                return d
+            },
         ]
         return try PropertyListSerialization.data(fromPropertyList: root, format: .xml, options: 0)
     }
@@ -155,7 +164,8 @@ struct Package {
               let list = root["apps"] as? [[String: Any]] else { return nil }
         apps = list.compactMap { d in
             guard let id = d["bundleID"] as? String, let values = d["values"] as? [String: NSObject] else { return nil }
-            return App(bundleID: id, name: d["name"] as? String ?? id, values: values)
+            return App(bundleID: id, name: d["name"] as? String ?? id, values: values,
+                       files: d["files"] as? [String: Data] ?? [:], removedFiles: d["removedFiles"] as? [String] ?? [])
         }
         host = root["host"] as? String ?? ""
         created = root["created"] as? Date
@@ -176,6 +186,8 @@ struct ImportPlan: Identifiable {
     let app: Package.App
     /// 書き込む値。nil はキーの削除（バックアップから戻すとき）
     let writes: [String: NSObject?]
+    /// 書くファイル。nil は削除（バックアップから戻すとき）
+    let fileWrites: [String: Data?]
     let changed: Int
     let added: Int
     let removed: Int
@@ -183,6 +195,7 @@ struct ImportPlan: Identifiable {
     /// このMacの今の設定を読めなかった（アクセスの確認で拒否された）。書き込まない
     let unreadable: Bool
     var id: String { app.bundleID }
+    var hasWrites: Bool { !writes.isEmpty || !fileWrites.isEmpty }
 }
 
 @MainActor
@@ -255,6 +268,8 @@ final class Courier: ObservableObject {
         apps.append(CourierApp(bundleID: bundleID, name: name))
         apps.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         saveApps()
+        // 設定の外にデータを置くアプリ（Default Folder X のお気に入りなど）は、そのファイルも運ぶ
+        addExtraFiles(bundleID, suggestedExtraFiles(bundleID))
     }
 
     /// 選んだ・ドロップしたアプリを登録する。最後に足したアプリの Bundle ID を返す
@@ -361,7 +376,8 @@ final class Courier: ObservableObject {
         }
         defer { scanFolder() }
         let values = exportedValues(app.bundleID)
-        let package = Package(apps: [.init(bundleID: app.bundleID, name: app.name, values: values)], replace: false)
+        let files = readExtraFiles(app.bundleID)
+        let package = Package(apps: [.init(bundleID: app.bundleID, name: app.name, values: values, files: files)], replace: false)
         do {
             if let folder {
                 url = try writeToFolder(package, app, in: folder)
@@ -369,9 +385,12 @@ final class Courier: ObservableObject {
             } else {
                 try package.data().write(to: url, options: .atomic)
             }
-            message = (L("書き出しました"),
-                       L("%@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。",
-                         app.name, String(values.count), url.lastPathComponent))
+            var body = L("%@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。",
+                         app.name, String(values.count), url.lastPathComponent)
+            if !files.isEmpty { body += "\n" + L("一緒に運ぶファイル：%@件", String(files.count)) }
+            let missing = extraFiles(app.bundleID).filter { files[$0] == nil }
+            if !missing.isEmpty { body += "\n" + L("見つからないか大きすぎるため入れなかったファイル：%@", missing.joined(separator: L("、"))) }
+            message = (L("書き出しました"), body)
         } catch {
             message = (L("書き出せませんでした"), error.localizedDescription)
         }
@@ -407,11 +426,20 @@ final class Courier: ObservableObject {
                     writes[key] = .some(nil); removed += 1
                 }
             }
+            // 一緒に運ぶファイル。中身が異なるものだけ書く
+            var fileWrites: [String: Data?] = [:]
+            for (path, data) in app.files {
+                guard let url = expandHomePath(path) else { continue }
+                if (try? Data(contentsOf: url)) != data { fileWrites[path] = data }
+            }
+            for path in app.removedFiles {
+                if let url = expandHomePath(path), FileManager.default.fileExists(atPath: url.path) { fileWrites[path] = .some(nil) }
+            }
             // このMacと同じなら、フォルダーのそのファイルは処理済み
-            if writes.isEmpty, !isUnreadable(app.bundleID, current), let date = folderImportDates[app.bundleID] {
+            if writes.isEmpty, fileWrites.isEmpty, !isUnreadable(app.bundleID, current), let date = folderImportDates[app.bundleID] {
                 markHandled(app.bundleID, date)
             }
-            return ImportPlan(app: app, writes: writes, changed: changed, added: added, removed: removed,
+            return ImportPlan(app: app, writes: writes, fileWrites: fileWrites, changed: changed, added: added, removed: removed,
                               installed: appURL(app.bundleID) != nil, unreadable: isUnreadable(app.bundleID, current))
         }
     }
@@ -428,8 +456,15 @@ final class Courier: ObservableObject {
         let stamp = Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: false)
             .dateSeparator(.dash).timeSeparator(.omitted))
         let url = folder.appendingPathComponent("Backup \(stamp).settingscourier")
-        let package = Package(apps: plans.map { .init(bundleID: $0.app.bundleID, name: $0.app.name, values: readSettings($0.app.bundleID)) },
-                              replace: true)
+        let package = Package(apps: plans.map { plan in
+            // 書き換えるファイルの今の中身。無かったファイルは元に戻すときに消す
+            var files: [String: Data] = [:], removed: [String] = []
+            for path in plan.fileWrites.keys {
+                if let url = expandHomePath(path), let data = try? Data(contentsOf: url) { files[path] = data } else { removed.append(path) }
+            }
+            return .init(bundleID: plan.app.bundleID, name: plan.app.name, values: readSettings(plan.app.bundleID),
+                         files: files, removedFiles: removed)
+        }, replace: true)
         try package.data().write(to: url, options: .atomic)
         return url
     }
@@ -467,7 +502,7 @@ final class Courier: ObservableObject {
     /// 選んだアプリに書き込む。成功・一部失敗・取消を区別して伝える
     func apply(_ plans: [ImportPlan]) {
         // 今の設定を読めないアプリに書くと、空のバックアップしか残らない
-        let plans = plans.filter { !$0.writes.isEmpty && !$0.unreadable }
+        let plans = plans.filter { $0.hasWrites && !$0.unreadable }
         guard !plans.isEmpty, !isWorking else { return }
         isWorking = true
         defer { isWorking = false; refresh(); scanFolder() }
@@ -483,13 +518,14 @@ final class Courier: ObservableObject {
         var written = 0
         for p in plans {
             _ = writeSettings(p.app.bundleID, p.writes)
+            let wrongFiles = writeExtraFiles(p.fileWrites)
             // 読み直して、書き込めたかを確かめる
             let now = readSettings(p.app.bundleID)
             let wrong = p.writes.filter { key, value in
                 guard let value else { return now[key] != nil }
                 return !(now[key]?.isEqual(value) ?? false)
             }
-            if wrong.isEmpty {
+            if wrong.isEmpty, wrongFiles.isEmpty {
                 written += 1
                 if let date = folderImportDates[p.app.bundleID] { markHandled(p.app.bundleID, date) }
             } else {
