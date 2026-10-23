@@ -1,8 +1,8 @@
 # Macアプリ開発ワークスペース
 
-各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、保管用の現行ビルドは [Latest Builds](Latest%20Builds/) を使用します。開発フォルダ内の `.app` はビルド出力です。
+各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、配布物はDropbox内 `sw_app/Latest Builds` を使用します。リポジトリ内の `Latest Builds` は配布一覧の資料です。開発フォルダ内の `.app` はビルド出力です。
 
-[変更履歴](CHANGELOG.md)
+[変更履歴](CHANGELOG.md) · [フォルダーの使い分け](WORKSPACE.md) · [リリース作業チェックリスト](Shared/BuildTools/RELEASE-CHECKLIST.md)
 
 ## ソースコードの公開
 
