@@ -62,6 +62,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     private var preferencesWindow: NSWindow?
     private let countdown = Countdown()
     private let settings = MacSettings()
+    private let switchHider = AppSwitchHider()
     private let presets = PresetStore()
     private var timer: Timer?
     private var refreshTimer: Timer?
@@ -69,9 +70,12 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
+        ExcludedApps.shared.configure(explanation: L("対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。"))
+        switchHider.start()
         SettingsSync.shared.onImport = { [weak self] in
             self?.presets.reload()
             self?.countdown.reloadEnabled()
+            self?.settings.reloadSwitchHiding()
         }
         SettingsSync.shared.start(.init(keys: PresetStore.syncedKeys, note: L("syncNote"), perMac: L("syncPerMac"),
                                         merge: PresetStore.merged))
@@ -408,6 +412,8 @@ struct Preset: Codable, Identifiable {
     var zoomInShortcut: String? = nil
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
+    var hideOthersOnSwitch: Bool? = nil
+    var hideOthersDelay: Double? = nil
     var notificationsOff: Bool? = nil
     /// Legacy timer data is retained but never applied or captured by presets.
     var timerMinutes: Int? = nil
@@ -427,6 +433,8 @@ struct Preset: Codable, Identifiable {
         preset.hideDock = false
         preset.killDock = false
         preset.hideDesktop = false
+        preset.hideOthersOnSwitch = false
+        preset.hideOthersDelay = 0
         preset.pointerSize = 1
         preset.resolution = .displayDefault
         preset.reduceTransparency = false
@@ -512,7 +520,7 @@ final class PresetStore: ObservableObject {
     }
     func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
     /// UserDefaults keys exported and synced by 設定の共有; the rest (timer plan, window tab, last applied preset) stays per Mac.
-    static let syncedKeys: Set<String> = ["presets", "timerEnabled"]
+    static let syncedKeys: Set<String> = ["presets", "timerEnabled", "hideOthersOnSwitch", "hideOthersDelay"]
     /// 「追加する」 in 設定の共有: presets whose id is not in the list yet are appended; this Mac's other values stay.
     static func merged(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
         let decode = { (value: Any?) in (value as? Data).flatMap { try? JSONDecoder().decode([Preset].self, from: $0) } ?? [] }
@@ -823,6 +831,7 @@ struct PreferencesView: View {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
                 AccessibilitySection()
             })),
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
             (L("プリセットのアプリ"), AnyView(PresetAppsSettings(presets: presets))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
@@ -927,6 +936,12 @@ struct WideDatePicker: NSViewRepresentable {
 
 @MainActor
 final class MacSettings: ObservableObject {
+    @Published var hideOthersOnSwitch = UserDefaults.standard.bool(forKey: "hideOthersOnSwitch") {
+        didSet { UserDefaults.standard.set(hideOthersOnSwitch, forKey: "hideOthersOnSwitch") }
+    }
+    @Published var hideOthersDelay = AppSwitchHider.delay(UserDefaults.standard.double(forKey: "hideOthersDelay")) {
+        didSet { UserDefaults.standard.set(AppSwitchHider.delay(hideOthersDelay), forKey: "hideOthersDelay") }
+    }
     @Published var dockHidden = false
     @Published var dockKilled = false
     @Published var desktopHidden = false
@@ -960,6 +975,11 @@ final class MacSettings: ObservableObject {
     @Published var error = false
 
     private let clockDomain = "com.apple.menuextra.clock" as CFString
+
+    func reloadSwitchHiding() {
+        hideOthersOnSwitch = UserDefaults.standard.bool(forKey: "hideOthersOnSwitch")
+        hideOthersDelay = AppSwitchHider.delay(UserDefaults.standard.double(forKey: "hideOthersDelay"))
+    }
 
     func refresh() {
         guard !busy else { return }
@@ -1291,6 +1311,8 @@ final class MacSettings: ObservableObject {
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let value = preset.zoomToggleShortcut, value != zoomToggleShortcut { setZoomShortcut(ZoomSettings.toggleShortcut, to: value); if error { return } }
         if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
+        if let value = preset.hideOthersDelay { hideOthersDelay = AppSwitchHider.delay(value) }
+        if let value = preset.hideOthersOnSwitch { hideOthersOnSwitch = value }
         // Timer state is independent of presets, including legacy timer fields.
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
         if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
@@ -1492,6 +1514,13 @@ struct ManualControlsView: View {
                     }
                     if section == .basic {
                         category(L("集中を妨げるもの")) {
+                            Toggle(L("アプリ切り替え時にほかを隠す"), isOn: $settings.hideOthersOnSwitch)
+                            HStack {
+                                TextField("0", value: Binding(get: { settings.hideOthersDelay }, set: { settings.hideOthersDelay = AppSwitchHider.delay($0) }), format: .number)
+                                    .frame(width: 64)
+                                    .accessibilityLabel(L("ほかを隠すまでの秒数"))
+                                Text(L("秒後"))
+                            }.disabled(!settings.hideOthersOnSwitch)
                             Toggle(L("音量を変更するときにフィードバックを再生しない"), isOn: Binding(get: { !settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(!value) } }))
                                 .font(.system(size: 12))
                             Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))

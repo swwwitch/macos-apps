@@ -251,3 +251,11 @@
 "macOSのデフォルト" = "macOS Defaults";
 
 "フルセット" = "Full Set";
+
+"アプリ切り替え時にほかを隠す" = "Hide other apps when switching apps";
+
+"ほかを隠すまでの秒数" = "Delay before hiding other apps";
+
+"秒後" = "seconds later";
+
+"対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。" = "Switching to an excluded app hides nothing. Excluded apps themselves are never hidden.";

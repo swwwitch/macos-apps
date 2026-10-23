@@ -1,6 +1,21 @@
 import Foundation
 @main struct PresetConfirmationTests {
     @MainActor static func main() throws {
+        precondition(AppSwitchHider.delay(-1) == 0)
+        precondition(AppSwitchHider.delay(.nan) == 0)
+        precondition(AppSwitchHider.delay(.infinity) == 0)
+        precondition(AppSwitchHider.delay(0.5) == 0.5)
+        precondition(AppSwitchHider.delay(100000) == 86400)
+        let legacy = try JSONDecoder().decode(Preset.self, from: JSONEncoder().encode(Preset()))
+        precondition(legacy.hideOthersOnSwitch == nil && legacy.hideOthersDelay == nil)
+        var switchPreset = Preset()
+        switchPreset.hideOthersOnSwitch = true
+        switchPreset.hideOthersDelay = 2.5
+        let restored = try JSONDecoder().decode(Preset.self, from: JSONEncoder().encode(switchPreset))
+        precondition(restored.hideOthersOnSwitch == true && restored.hideOthersDelay == 2.5)
+        precondition(PresetSaveSheet.items(of: restored).contains(.hideOthers))
+        precondition(!PresetSaveSheet.items(of: legacy).contains(.hideOthers))
+        precondition(Preset.macOSDefault.hideOthersOnSwitch == false && Preset.macOSDefault.hideOthersDelay == 0)
         let a = QuitAppTarget(id: "a", name: "A", path: "/a.app")
         let b = QuitAppTarget(id: "b", name: "B", path: "/b.app")
         let c = QuitAppTarget(id: "c", name: "C", path: "/c.app")

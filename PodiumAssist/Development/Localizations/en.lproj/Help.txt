@@ -105,3 +105,5 @@ PodiumAssist uses these two shortcuts in the Shortcuts app on your Mac. Create t
 - In Settings > Preset Apps, choose a preset to review and edit its launch and quit app lists.
 
 - macOS Defaults and Full Set are added once. macOS Defaults uses light appearance, visible Dock and desktop, standard pointer, display default resolution, and notifications on; it does not reset all OS settings. Full Set uses an analog clock without date/weekday, auto-hidden Dock, hidden desktop, 2x pointer, reduced transparency/motion, F1/F2 zoom, and notifications off. Neither changes the timer. Both start with empty app lists and can be edited or deleted.
+
+Enable Hide other apps when switching apps in Basic Settings to hide other apps after the specified delay. Defaults: off and 0 seconds (immediate). Delay range: 0–86400 seconds. Switching again restarts the wait; turning off or editing the delay cancels it. Reopen hidden windows from the Dock. Excluded Apps in Settings protects both the switched-to app and apps that would be hidden. Save the enabled state and delay together with Save to Preset.
