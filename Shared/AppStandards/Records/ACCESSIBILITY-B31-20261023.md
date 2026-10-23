@@ -20,10 +20,14 @@
 
 検証はHEADと今回の変更だけを取り込んだ隔離ソースでNO_DEPLOY=1により実施。CommandDeeの初回コンパイルエラーはMainActor境界を修正し、再ビルド・テスト成功を確認した。最終結果はローカルのShared/ReleasePreparation/20261023-Accessibility-B31-Validation-r2/final-results.jsonに記録した。
 
-## 配布状態
+## 実装検証時点の配布状態
 
 build番号変更、公証、/ApplicationsとLatest Buildsへの配置、GitHubリリース更新は未実施。インストール済みアプリは今回の変更を含まない。
 
 KeynoteMaestroは利用者の指定により配布保留。他作業の未コミット変更は保持し、今回の隔離検証に含めていない。個人用アプリのソース・データは公開対象外。
 
 一括のbuild番号変更による配布準備が自動承認レビューで拒否されたため、配布更新は利用者の承認待ち。
+
+## 追記：承認後の配布結果
+
+公開22本の配布更新を完了。詳細は [配布結果](ACCESSIBILITY-B31-RELEASE-20261023.md) を参照。KeynoteMaestroは指定により保留、個人用アプリはAppleへのバイナリ送信に関する承認待ち。
