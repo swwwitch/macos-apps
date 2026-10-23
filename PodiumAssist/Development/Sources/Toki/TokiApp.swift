@@ -1767,6 +1767,7 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
 
 /// Only intercepts secondary clicks; ordinary clicks continue to SwiftUI's preset button.
 struct PresetSecondaryClickMenu: NSViewRepresentable {
+    let items: [Item]
     struct Item {
         var title: String
         var enabled = true
