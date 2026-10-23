@@ -43,8 +43,9 @@ struct SettingsCourierApp: App {
                 Divider()
                 Button(L("取り込む…")) { openPackage() }
                     .keyboardShortcut("o", modifiers: .command)
-                Button(L("書き出す")) { Courier.shared.export() }
+                Button(L("書き出す")) { Courier.shared.exportSelected() }
                     .keyboardShortcut("s", modifiers: .command)
+                Button(L("すべてのアプリを書き出す")) { Courier.shared.exportMany(Courier.shared.apps) }
                 Button(L("ファイルに書き出す…")) { Courier.shared.export(toFile: true) }
                     .keyboardShortcut("s", modifiers: [.command, .shift])
                 Divider()

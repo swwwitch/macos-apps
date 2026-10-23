@@ -4,6 +4,7 @@
 "アプリを追加…" = "Add Apps…";
 "取り込む…" = "Import…";
 "書き出す" = "Export";
+"すべてのアプリを書き出す" = "Export All Apps";
 "ファイルに書き出す…" = "Export to File…";
 "同期フォルダーを選ぶ…" = "Choose Sync Folder…";
 "受け渡しフォルダーを開く" = "Open Handoff Folder";
@@ -42,6 +43,11 @@
 "設定を読めませんでした。macOSの「ほかのアプリからのデータ」へのアクセスの確認で［許可］を選んでから「読み直す」を押してください。" = "Could not read the settings. Choose Allow when macOS asks about access to data from other apps, then click Reload.";
 "このMacにはこのアプリがありません" = "This app is not on this Mac";
 "設定はまだありません" = "No settings yet";
+"%@個のアプリを選んでいます" = "%@ apps selected";
+"、" = ", ";
+"まとめて書き出す…" = "Export Selected…";
+"まとめてフォルダーに書き出す" = "Export Selected to Folder";
+"アプリごとに「<アプリ名>.settingscourier」を書き出します。キーの選択と一緒に運ぶファイルは、アプリを1つ選ぶと確かめられます。" = "Writes “<app name>.settingscourier” for each app. Select a single app to check its keys and the files carried along.";
 "このアプリの設定はサンドボックスのコンテナにあります。読むと、macOSが「ほかのアプリからのデータ」へのアクセスを確認します（Macを再起動するたびに出ます）。" = "This app keeps its settings in a sandbox container. Reading them makes macOS ask about access to data from other apps (each time the Mac restarts).";
 "設定を読む" = "Read Settings";
 "設定の「起動・常駐」でフルディスクアクセスを許可すると、確認なしで読みます。" = "Allow Full Disk Access in Settings > Launch & Background to read without being asked.";
@@ -67,6 +73,8 @@
 "%@を取り込む" = "Import %@";
 "新しい設定" = "Newer";
 "受け渡しフォルダーに書き出したファイルがありません" = "No exported files in the handoff folder";
+"選択を解除" = "Deselect All";
+"すべて選択" = "Select All";
 "キャンセル" = "Cancel";
 "次へ…" = "Next…";
 "このMacの設定の方が新しい" = "This Mac’s settings are newer";
@@ -81,7 +89,6 @@
 "追加 %@" = "%@ added";
 "削除 %@" = "%@ removed";
 "ファイル %@" = "%@ files";
-"、" = ", ";
 "（このMacにはありません）" = " (not on this Mac)";
 "なし" = "None";
 "配列（%@件）" = "Array (%@)";
@@ -95,6 +102,12 @@
 "データ" = "Data";
 "日付" = "Date";
 "設定を運ぶアプリを選んでください" = "Choose the apps whose settings to carry";
+"ここに書き出す" = "Export Here";
+"%@個のアプリの設定を書き出すフォルダーを選んでください" = "Choose a folder to export the settings of %@ apps to";
+"%@個のアプリの設定を「%@」に書き出しました。" = "Exported the settings of %@ apps to “%@”.";
+"書き出せなかったアプリ：%@" = "Could not export: %@";
+"書き出しました" = "Exported";
+"一部のアプリを書き出せませんでした" = "Some apps could not be exported";
 "書き出すアプリがありません" = "No apps to export";
 "左の一覧でアプリを選んでください。" = "Choose an app in the list on the left.";
 "設定を読めませんでした" = "Could not read the settings";
@@ -102,7 +115,6 @@
 "%@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。" = "Saved the settings of %@ (%@ items) to “%@”. Open this file in SettingsCourier on the other Mac to import it.";
 "一緒に運ぶファイル：%@件" = "Files carried along: %@";
 "見つからないか大きすぎるため入れなかったファイル：%@" = "Not included because missing or too large: %@";
-"書き出しました" = "Exported";
 "書き出せませんでした" = "Could not export";
 "%@を終了してから書き込みますか？" = "Quit %@ before writing?";
 "起動中のアプリは終了するときに設定を書き戻すため、先に終了します。書き込んだあとで起動し直します。" = "A running app writes its settings back when it quits, so it is quit first and reopened after writing.";
@@ -117,12 +129,12 @@
 "取り込みました" = "Imported";
 "一部のアプリに書き込めませんでした" = "Some apps could not be written";
 "読み込めませんでした" = "Could not open";
-"SettingsCourierの書き出しファイルではありません。" = "This is not a SettingsCourier export file.";
-"アプリの設定の受け渡し" = "Handing Over App Settings";
-"上の「設定の同期」で同期フォルダーを選ぶと使えます" = "Available once you choose a sync folder in Settings Sync above";
-"「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。" = "“Export to Folder” puts “<app name>.settingscourier” for each app in the SettingsCourier folder inside the sync folder. On the other Mac, choose them with “Import from Folder…”. Because importing rewrites app settings, it never happens automatically.";
+"SettingsCourierの書き出しファイルではありません：%@" = "Not SettingsCourier export files: %@";
+"まとめて開けません" = "Cannot open together";
+"バックアップのファイルは、1つずつ開いて元に戻してください。" = "Open backup files one at a time to restore them.";
+"%@個のファイル" = "%@ files";
 "登録したアプリを終了したときに書き出す" = "Export when a registered app quits";
-"SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。" = "Works only while SettingsCourier is running. Nothing is written if the values have not changed. Sandboxed apps are exported only with Full Disk Access or after you click Read Settings in the main window.";
+"同期フォルダーの SettingsCourier フォルダーに書き出します。SettingsCourierが起動している間だけ働き、値が変わっていなければ書きません。" = "Writes to the SettingsCourier folder in the sync folder. Works only while SettingsCourier is running, and writes nothing if the values have not changed.";
 "フルディスクアクセス" = "Full Disk Access";
 "サンドボックスのアプリ（App Storeのアプリなど）の設定を読むのに使います。未許可の場合は「設定を読む」・書き出し・取り込みのときに「ほかのアプリからのデータ」へのアクセスの確認が出ます（Macを再起動するたびに出ます）。" = "Used to read the settings of sandboxed apps (such as App Store apps). Without it, macOS asks about access to data from other apps when you read, export or import (each time the Mac restarts).";
 "許可済み" = "Allowed";

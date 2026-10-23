@@ -20,10 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsSync.shared.onImport = { Courier.shared.reload() }
         SettingsSync.shared.start(.init(
             keys: [Courier.appsKey, Courier.excludedKeysKey, Courier.includedKeysKey, Courier.extraFilesKey],
-            note: StartupWindow.text("登録したアプリの一覧と、書き出すキーの選択を書き出し・同期します。アプリの設定の値は、メインウインドウの「フォルダーに書き出す」で同期フォルダーの SettingsCourier フォルダーにアプリごとに保存します（自動では取り込みません）。",
-                                     "Exports and syncs the list of registered apps and which keys to export. The apps' setting values are saved per app to the SettingsCourier folder inside the sync folder with Export to Folder in the main window (never imported automatically).",
-                                     "导出并同步已登记的应用列表以及要导出的键的选择。应用的设置值通过主窗口的“导出到文件夹”按应用保存到同步文件夹中的 SettingsCourier 文件夹（不会自动导入）。",
-                                     "등록한 앱 목록과 내보낼 키 선택을 내보내고 동기화합니다. 앱의 설정 값은 메인 윈도우의 ‘폴더로 내보내기’로 동기화 폴더 안의 SettingsCourier 폴더에 앱마다 저장합니다(자동으로 가져오지 않습니다)."),
+            note: StartupWindow.text("登録したアプリの一覧と書き出すキーの選択を同期します。アプリの設定の値は、同期フォルダーの SettingsCourier フォルダーで受け渡します。",
+                                     "Syncs the list of registered apps and which keys to export. App setting values are handed over through the SettingsCourier folder in the sync folder.",
+                                     "同步已登记的应用列表以及要导出的键的选择。应用的设置值通过同步文件夹中的 SettingsCourier 文件夹交接。",
+                                     "등록한 앱 목록과 내보낼 키 선택을 동기화합니다. 앱의 설정 값은 동기화 폴더 안의 SettingsCourier 폴더로 주고받습니다."),
             perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバーはMacごとに設定します。",
                                        "Open at login, the startup window and the menu bar are set on each Mac.",
                                        "登录时打开、启动时的窗口和菜单栏在每台 Mac 上分别设置。",
@@ -43,7 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showWindow()
         let packages = urls.filter { $0.pathExtension == "settingscourier" }
         Courier.shared.add(urls.filter { $0.pathExtension == "app" })
-        if let first = packages.first { openPackage(first) }
+        if !packages.isEmpty { openPackages(packages) }
     }
     /// Shows the main window, reopening the SwiftUI scene when it was closed.
     @objc func showWindow() {

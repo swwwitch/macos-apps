@@ -18,9 +18,22 @@ struct ContentView: View {
     /// 読んだのに中身が取れなかった（アクセスの確認で拒否された）
     @State private var unreadable = false
     @State private var showsFolderImport = false
+    /// 一覧で選んでいるアプリ（⌘クリック・⇧クリックで複数）
+    @State private var selection = Set<String>()
     @State private var isTargeted = false
 
     private var current: CourierApp? { courier.apps.first { $0.bundleID == selectedApp } }
+    /// 2つ以上選んでいるときのアプリ
+    private var multiple: [CourierApp] {
+        let list = courier.apps.filter { selection.contains($0.bundleID) }
+        return list.count > 1 ? list : []
+    }
+
+    private func select(_ ids: Set<String>) {
+        selection = ids
+        courier.selectedIDs = ids
+        if ids.count == 1, let id = ids.first { selectedApp = id }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -93,7 +106,7 @@ struct ContentView: View {
     private var sidebar: some View {
         VStack(spacing: 0) {
             ZStack {
-                List(selection: Binding(get: { current?.bundleID }, set: { if let id = $0 { selectedApp = id } })) {
+                List(selection: Binding(get: { selection.isEmpty ? Set([selectedApp]) : selection }, set: { select($0) })) {
                     ForEach(courier.apps) { app in appRow(app).tag(app.bundleID) }
                 }
                 .scrollContentBackground(.hidden)
@@ -114,8 +127,8 @@ struct ContentView: View {
                 Button { addApps() } label: { Image(systemName: "plus").frame(width: 20, height: 16) }
                     .help(L("設定を運ぶアプリを追加"))
                     .accessibilityLabel(L("アプリを追加…"))
-                Button { if let app = current { remove(app) } } label: { Image(systemName: "minus").frame(width: 20, height: 16) }
-                    .disabled(current == nil)
+                Button { (multiple.isEmpty ? current.map { [$0] } ?? [] : multiple).forEach(remove) } label: { Image(systemName: "minus").frame(width: 20, height: 16) }
+                    .disabled(current == nil && multiple.isEmpty)
                     .help(L("選んだアプリを一覧から外す（アプリの設定はそのまま）"))
                     .accessibilityLabel(L("一覧から外す"))
                 Spacer()
@@ -132,7 +145,7 @@ struct ContentView: View {
         .frame(width: 240)
         .dropDestination(for: URL.self) { urls, _ in
             let packages = urls.filter { $0.pathExtension == "settingscourier" }
-            if let first = packages.first { openPackage(first); return true }
+            if !packages.isEmpty { openPackages(packages); return true }
             if let id = courier.add(urls) { selectedApp = id }
             return true
         } isTargeted: { isTargeted = $0 }
@@ -187,7 +200,9 @@ struct ContentView: View {
     }
 
     @ViewBuilder private var detail: some View {
-        if let app = current {
+        if !multiple.isEmpty {
+            multipleSummary
+        } else if let app = current {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 10) {
                     Image(nsImage: appIcon(app.bundleID)).resizable().frame(width: 32, height: 32).accessibilityHidden(true)
@@ -267,6 +282,29 @@ struct ContentView: View {
         }
     }
 
+    /// 2つ以上選んでいるとき：まとめて書き出す
+    private var multipleSummary: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: -6) {
+                ForEach(multiple.prefix(8)) { app in
+                    Image(nsImage: appIcon(app.bundleID)).resizable().frame(width: 40, height: 40)
+                }
+            }
+            .accessibilityHidden(true)
+            Text(L("%@個のアプリを選んでいます", String(multiple.count))).font(.headline)
+            Text(multiple.map(\.name).joined(separator: L("、")))
+                .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Button(courier.folder == nil ? L("まとめて書き出す…") : L("まとめてフォルダーに書き出す")) { courier.exportMany(multiple) }
+            Text(L("アプリごとに「<アプリ名>.settingscourier」を書き出します。キーの選択と一緒に運ぶファイルは、アプリを1つ選ぶと確かめられます。"))
+                .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
     /// サンドボックスのアプリ：読むと macOS の確認が出るので、押すまで読まない
     private var readPrompt: some View {
         VStack(spacing: 12) {
@@ -305,9 +343,9 @@ struct ContentView: View {
             Spacer()
             Button(L("取り込む…")) { openPackage() }
                 .help(L("書き出したファイルを開き、このMacのアプリに書き込む"))
-            Button(courier.folder == nil ? L("書き出す…") : L("フォルダーに書き出す")) { courier.export() }
+            Button(courier.folder == nil ? L("書き出す…") : L("フォルダーに書き出す")) { courier.exportSelected() }
                 .keyboardShortcut(.defaultAction)
-                .disabled(current == nil)
+                .disabled(current == nil && multiple.isEmpty)
                 .help(courier.folder == nil ? L("選んでいるアプリの設定をファイルに保存") : L("選んでいるアプリの設定を受け渡しフォルダーに保存"))
         }
         .padding(.horizontal, 16)
@@ -412,6 +450,11 @@ struct FolderImportView: View {
             }
             HStack {
                 Button { courier.showFolder() } label: { Label(L("Finderで表示"), systemImage: "folder") }
+                let available = courier.folderEntries.filter { $0.state != .notInstalled }.map(\.id)
+                Button(chosen.isSuperset(of: available) && !available.isEmpty ? L("選択を解除") : L("すべて選択")) {
+                    chosen = chosen.isSuperset(of: available) ? [] : Set(available)
+                }
+                .disabled(available.isEmpty)
                 Spacer()
                 Button(L("キャンセル")) { dismiss() }.keyboardShortcut(.cancelAction)
                 Button(L("次へ…")) {

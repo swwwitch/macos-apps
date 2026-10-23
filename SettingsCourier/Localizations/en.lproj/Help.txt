@@ -20,11 +20,14 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 1. Select the app in the list on the left, click “Export…” (⌘S) and choose where to save. The values of that app’s checked keys are saved to “<app name>.settingscourier”. You can also Control-click an app in the list and choose **Export…**.
 2. Move the file to the other Mac with AirDrop, iCloud Drive, Dropbox and so on.
 
+- Command-click or Shift-click apps in the list to select several, then click “Export Selected to Folder” to write a file for each. File > Export All Apps exports every registered app. Without a sync folder, you choose the folder to export to.
+
 ### Import
 1. On the other Mac, double-click the .settingscourier file or open it with “Import…” (⌘O). You can also drop it on the window.
 2. For each app you see how many values change or are added compared with this Mac. Check the apps to import and click “Import”. Keys you chose not to export on this Mac are not written.
 3. If an app is running, SettingsCourier asks before quitting it, writes the settings and then reopens it. A running app writes its settings back when it quits, so writing while it runs would be undone.
 4. Imported apps are added to the list.
+- “Import…” accepts several files. They are combined in one confirmation; when an app appears more than once, the most recently exported one is used. Open backup files one at a time. “Import from Folder…” has Select All.
 
 ### Hand settings over through a folder
 1. In Settings > Sharing > Settings Sync, choose a folder synced with your other Macs, such as Dropbox or iCloud Drive (or click “Choose Sync Folder…” at the bottom of the main window). Settings are handed over through the SettingsCourier folder inside it. Choose the same folder on both Macs.
@@ -43,7 +46,7 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 ## Settings
 Open with the Settings button in the main window (⌘,).
 - **Launch & Background**: Full Disk Access status and a button to open its settings. Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the icon is not shown in the Dock or in ⌘Tab; show the window from the menu bar icon (when shown) or by opening the app again in the Finder
-- **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. “Handing Over App Settings” on the same tab shows the handoff folder (the SettingsCourier folder inside the sync folder), “Export when a registered app quits” and the result of the last automatic export. App setting values are never imported automatically.
+- **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. Below it, “Export when a registered app quits” turns automatic export on quit on or off (the last result is shown too). App settings are handed over through the SettingsCourier folder inside the sync folder. App setting values are never imported automatically.
 - **About**: Version and links.
 
 ## Hotkeys

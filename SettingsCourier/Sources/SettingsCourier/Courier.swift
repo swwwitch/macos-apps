@@ -353,6 +353,57 @@ final class Courier: ObservableObject {
         return apps.first { $0.bundleID == id }
     }
 
+    /// 一覧で複数選んでいるアプリ（画面が更新する）。1つだけのときは selectedApp と同じ
+    var selectedIDs: Set<String> = []
+
+    /// 書き出しの対象：複数選んでいればそれら、そうでなければ選んでいるアプリ
+    var exportTargets: [CourierApp] {
+        let many = apps.filter { selectedIDs.contains($0.bundleID) }
+        return many.count > 1 ? many : selectedApp.map { [$0] } ?? []
+    }
+
+    /// 選んでいるアプリをまとめて書き出す。同期フォルダーがあればそこへ、なければ書き出し先のフォルダーを選ぶ
+    func exportSelected() {
+        let list = exportTargets
+        if list.count > 1 { exportMany(list) } else { export(list.first) }
+    }
+
+    /// アプリごとに「<アプリ名>.settingscourier」を書き出す。読めないアプリは飛ばして伝える
+    func exportMany(_ list: [CourierApp]) {
+        guard !list.isEmpty else { return }
+        allowContainerReads()
+        var target = folder
+        if target == nil {
+            let panel = NSOpenPanel()
+            panel.canChooseFiles = false
+            panel.canChooseDirectories = true
+            panel.canCreateDirectories = true
+            panel.prompt = L("ここに書き出す")
+            panel.message = L("%@個のアプリの設定を書き出すフォルダーを選んでください", String(list.count))
+            NSApp.activate(ignoringOtherApps: true)
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            target = url
+        }
+        guard let target else { return }
+        defer { scanFolder() }
+        var written: [String] = [], skipped: [String] = []
+        for app in list {
+            guard !isUnreadable(app.bundleID, readSettings(app.bundleID)) else { skipped.append(app.name); continue }
+            let package = Package(apps: [.init(bundleID: app.bundleID, name: app.name, values: exportedValues(app.bundleID),
+                                               files: readExtraFiles(app.bundleID))], replace: false)
+            do {
+                _ = try writeToFolder(package, app, in: target)
+                if target == folder { markHandled(app.bundleID, Date()) }
+                written.append(app.name)
+            } catch {
+                skipped.append(app.name)
+            }
+        }
+        var body = L("%@個のアプリの設定を「%@」に書き出しました。", String(written.count), target.lastPathComponent)
+        if !skipped.isEmpty { body += "\n" + L("書き出せなかったアプリ：%@", skipped.joined(separator: L("、"))) }
+        message = (skipped.isEmpty ? L("書き出しました") : L("一部のアプリを書き出せませんでした"), body)
+    }
+
     /// 選んでいるアプリの設定を書き出す。受け渡しフォルダーがあればそこへ、なければ（または toFile なら）保存先を選ぶ
     func export(_ app: CourierApp? = nil, toFile: Bool = false) {
         guard let app = app ?? selectedApp else {
@@ -398,11 +449,12 @@ final class Courier: ObservableObject {
 
     // MARK: 取り込み
 
-    func choosePackage() -> URL? {
+    func choosePackages() -> [URL] {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [packageType]
+        panel.allowsMultipleSelection = true
         NSApp.activate(ignoringOtherApps: true)
-        return panel.runModal() == .OK ? panel.url : nil
+        return panel.runModal() == .OK ? panel.urls : []
     }
 
     /// このMacの今の値と比べて、書き込む値を決める。このMacで外したキーは書き込まない
@@ -554,14 +606,39 @@ final class Courier: ObservableObject {
 /// Finder・Dock・メニューから開いた書き出しファイルを、確認画面に渡す
 @MainActor
 func openPackage(_ url: URL? = nil) {
-    guard let url = url ?? Courier.shared.choosePackage() else { return }
-    guard let package = Package(url: url) else {
-        Courier.shared.message = (L("読み込めませんでした"), L("SettingsCourierの書き出しファイルではありません。"))
+    openPackages(url.map { [$0] } ?? Courier.shared.choosePackages())
+}
+
+/// 複数のファイルをまとめて1つの確認画面で取り込む。同じアプリが重なれば、あとで書き出した方を使う
+/// バックアップ（元に戻すファイル）はほかと混ぜず、1つだけのときに限る
+@MainActor
+func openPackages(_ urls: [URL]) {
+    guard !urls.isEmpty else { return }
+    let packages = urls.compactMap { url in Package(url: url).map { (url, $0) } }
+    guard packages.count == urls.count else {
+        let bad = urls.filter { url in !packages.contains { $0.0 == url } }.map(\.lastPathComponent)
+        Courier.shared.message = (L("読み込めませんでした"), L("SettingsCourierの書き出しファイルではありません：%@", bad.joined(separator: L("、"))))
         return
     }
     // フォルダーから取り込むときの記録を、ファイルを開いた取り込みに持ち込まない
     Courier.shared.folderImportDates = [:]
-    Courier.shared.pendingImport = PackageBox(package: package, name: url.lastPathComponent)
+    if packages.count == 1 {
+        Courier.shared.pendingImport = PackageBox(package: packages[0].1, name: urls[0].lastPathComponent)
+        return
+    }
+    if packages.contains(where: { $0.1.replace }) {
+        Courier.shared.message = (L("まとめて開けません"), L("バックアップのファイルは、1つずつ開いて元に戻してください。"))
+        return
+    }
+    var byApp: [String: (app: Package.App, created: Date)] = [:]
+    for (_, package) in packages {
+        for app in package.apps where (byApp[app.bundleID]?.created ?? .distantPast) <= (package.created ?? .distantPast) {
+            byApp[app.bundleID] = (app, package.created ?? .distantPast)
+        }
+    }
+    let merged = Package(apps: byApp.values.map(\.app).sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
+                         replace: false, host: "")
+    Courier.shared.pendingImport = PackageBox(package: merged, name: L("%@個のファイル", String(urls.count)))
 }
 
 /// 取り込みの確認画面に渡す入れ物

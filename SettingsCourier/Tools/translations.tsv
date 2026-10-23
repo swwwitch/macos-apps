@@ -79,7 +79,6 @@ Macごとに異なる値のため、初めは書き出しません	Differs on ea
 取り込みました	Imported	已导入	가져왔습니다
 一部のアプリに書き込めませんでした	Some apps could not be written	部分应用无法写入	일부 앱에 기록하지 못했습니다
 読み込めませんでした	Could not open	无法打开	열 수 없습니다
-SettingsCourierの書き出しファイルではありません。	This is not a SettingsCourier export file.	这不是 SettingsCourier 导出文件。	SettingsCourier 내보내기 파일이 아닙니다.
 設定を読めませんでした	Could not read the settings	无法读取设置	설정을 읽을 수 없습니다
 %@の設定を読めませんでした。macOSの「ほかのアプリからのデータ」へのアクセスの確認で［許可］を選ぶか、設定の「起動・常駐」からフルディスクアクセスを許可してから、もう一度書き出してください。	Could not read the settings of %@. Choose Allow when macOS asks about access to data from other apps, or allow Full Disk Access in Settings > Launch & Background, then export again.	无法读取 %@ 的设置。请在 macOS 询问是否访问其他应用的数据时选择“允许”，或在设置的“启动与驻留”中允许完全磁盘访问权限，然后重新导出。	%@의 설정을 읽을 수 없습니다. macOS가 다른 앱의 데이터 접근을 물을 때 ‘허용’을 선택하거나 설정의 ‘실행·상주’에서 전체 디스크 접근 권한을 허용한 뒤 다시 내보내십시오.
 設定を読めませんでした。macOSの「ほかのアプリからのデータ」へのアクセスの確認で［許可］を選んでから「読み直す」を押してください。	Could not read the settings. Choose Allow when macOS asks about access to data from other apps, then click Reload.	无法读取设置。请在 macOS 询问是否访问其他应用的数据时选择“允许”，然后点按“重新读取”。	설정을 읽을 수 없습니다. macOS가 다른 앱의 데이터 접근을 물을 때 ‘허용’을 선택한 뒤 ‘다시 읽기’를 누르십시오.
@@ -112,7 +111,6 @@ SettingsCourierの書き出しファイルではありません。	This is not a
 このMacの設定の方が新しい	This Mac’s settings are newer	此 Mac 上的设置更新	이 Mac의 설정이 더 새로움
 受け渡しフォルダー	Handoff Folder	交接文件夹	전달 폴더
 登録したアプリを終了したときに書き出す	Export when a registered app quits	已登记的应用退出时导出	등록한 앱을 종료할 때 내보내기
-SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。	Works only while SettingsCourier is running. Nothing is written if the values have not changed. Sandboxed apps are exported only with Full Disk Access or after you click Read Settings in the main window.	仅在 SettingsCourier 运行时有效。值未改变时不会写入。沙盒应用仅在允许了完全磁盘访问权限或在主窗口中点按“读取设置”之后才会导出。	SettingsCourier가 실행 중일 때만 작동합니다. 값이 바뀌지 않았으면 내보내지 않습니다. 샌드박스 앱은 전체 디스크 접근 권한을 허용했거나 메인 윈도우에서 ‘설정 읽기’를 누른 뒤에만 내보냅니다.
 %@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）	%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)	%@：未导出 %@，因为没有读取其设置的许可（请允许完全磁盘访问权限，或在主窗口中点按“读取设置”）	%@: %@의 설정을 읽을 권한이 없어 내보내지 않았습니다(전체 디스크 접근 권한을 허용하거나 메인 윈도우에서 ‘설정 읽기’를 누르십시오)
 %@：%@ 設定を読めなかったため書き出しませんでした	%@: %@ was not exported because its settings could not be read	%@：无法读取 %@ 的设置，因此未导出	%@: %@의 설정을 읽을 수 없어 내보내지 않았습니다
 %@：%@ を書き出しました	%@: Exported %@	%@：已导出 %@	%@: %@을(를) 내보냈습니다
@@ -120,9 +118,6 @@ SettingsCourierが起動している間だけ働きます。値が変わって�
 同期フォルダーを選ぶ…	Choose Sync Folder…	选择同步文件夹…	동기화 폴더 선택…
 同期フォルダーが見つかりません	Sync folder not found	找不到同步文件夹	동기화 폴더를 찾을 수 없습니다
 Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます（設定の「設定の共有」と同じフォルダー）	Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it (the same folder as Settings > Sharing)	选择与其他 Mac 同步的文件夹（如 Dropbox），即可通过它交接设置（与设置中的“设置共享”为同一文件夹）	Dropbox 등 다른 Mac과 동기화하는 폴더를 선택하면 그곳에서 설정을 주고받을 수 있습니다(설정의 ‘설정 공유’와 같은 폴더)
-アプリの設定の受け渡し	Handing Over App Settings	交接应用设置	앱 설정 주고받기
-上の「設定の同期」で同期フォルダーを選ぶと使えます	Available once you choose a sync folder in Settings Sync above	在上方的“设置同步”中选择同步文件夹后即可使用	위의 ‘설정 동기화’에서 동기화 폴더를 선택하면 사용할 수 있습니다
-「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。	“Export to Folder” puts “<app name>.settingscourier” for each app in the SettingsCourier folder inside the sync folder. On the other Mac, choose them with “Import from Folder…”. Because importing rewrites app settings, it never happens automatically.	“导出到文件夹”会将每个应用的“<应用名称>.settingscourier”放入同步文件夹中的 SettingsCourier 文件夹。在另一台 Mac 上用“从文件夹导入…”选择并导入。导入会改写应用设置，因此不会自动导入。	‘폴더로 내보내기’로 동기화 폴더 안의 SettingsCourier 폴더에 앱마다 ‘<앱 이름>.settingscourier’를 둡니다. 다른 Mac에서는 ‘폴더에서 가져오기…’로 선택해 가져옵니다. 앱 설정을 다시 쓰므로 자동으로 가져오지 않습니다.
 一緒に運ぶファイル	Files Carried Along	一并携带的文件	함께 옮길 파일
 ファイルを追加…	Add Files…	添加文件…	파일 추가…
 設定ファイルの外にあるアプリのデータ（お気に入りの一覧など）を、設定と一緒に書き出す	Export app data kept outside the settings file (such as a favorites list) together with the settings	将设置文件之外的应用数据（如收藏列表）与设置一起导出	설정 파일 밖에 있는 앱 데이터(즐겨찾기 목록 등)를 설정과 함께 내보내기
@@ -138,3 +133,20 @@ Dropbox などほかのMacと同期しているフォルダーを選ぶと、そ
 %@の設定と一緒に運ぶファイルを選んでください（ホームフォルダーの中のファイル）	Choose files to carry along with the settings of %@ (files in your home folder)	请选择与 %@ 的设置一并携带的文件（个人文件夹中的文件）	%@의 설정과 함께 옮길 파일을 선택하십시오(홈 폴더 안의 파일)
 追加できないファイルがあります	Some files could not be added	有些文件无法添加	추가할 수 없는 파일이 있습니다
 ホームフォルダーの外のファイルは運べません：%@	Files outside your home folder cannot be carried: %@	无法携带个人文件夹之外的文件：%@	홈 폴더 밖의 파일은 옮길 수 없습니다: %@
+すべてのアプリを書き出す	Export All Apps	导出所有应用	모든 앱 내보내기
+%@個のアプリを選んでいます	%@ apps selected	已选择 %@ 个应用	%@개 앱을 선택했습니다
+まとめて書き出す…	Export Selected…	一并导出…	한꺼번에 내보내기…
+まとめてフォルダーに書き出す	Export Selected to Folder	一并导出到文件夹	한꺼번에 폴더로 내보내기
+アプリごとに「<アプリ名>.settingscourier」を書き出します。キーの選択と一緒に運ぶファイルは、アプリを1つ選ぶと確かめられます。	Writes “<app name>.settingscourier” for each app. Select a single app to check its keys and the files carried along.	为每个应用写入“<应用名称>.settingscourier”。选择单个应用可查看其键和一并携带的文件。	앱마다 ‘<앱 이름>.settingscourier’를 씁니다. 키 선택과 함께 옮길 파일은 앱을 하나만 선택하면 확인할 수 있습니다.
+選択を解除	Deselect All	取消全选	선택 해제
+すべて選択	Select All	全选	모두 선택
+ここに書き出す	Export Here	导出到此处	여기에 내보내기
+%@個のアプリの設定を書き出すフォルダーを選んでください	Choose a folder to export the settings of %@ apps to	请选择用于导出 %@ 个应用设置的文件夹	%@개 앱의 설정을 내보낼 폴더를 선택하십시오
+%@個のアプリの設定を「%@」に書き出しました。	Exported the settings of %@ apps to “%@”.	已将 %@ 个应用的设置导出到“%@”。	%@개 앱의 설정을 ‘%@’에 내보냈습니다.
+書き出せなかったアプリ：%@	Could not export: %@	无法导出的应用：%@	내보내지 못한 앱: %@
+一部のアプリを書き出せませんでした	Some apps could not be exported	部分应用无法导出	일부 앱을 내보내지 못했습니다
+SettingsCourierの書き出しファイルではありません：%@	Not SettingsCourier export files: %@	不是 SettingsCourier 导出文件：%@	SettingsCourier 내보내기 파일이 아닙니다: %@
+まとめて開けません	Cannot open together	无法一并打开	한꺼번에 열 수 없습니다
+バックアップのファイルは、1つずつ開いて元に戻してください。	Open backup files one at a time to restore them.	请逐个打开备份文件进行恢复。	백업 파일은 하나씩 열어 되돌리십시오.
+%@個のファイル	%@ files	%@ 个文件	파일 %@개
+同期フォルダーの SettingsCourier フォルダーに書き出します。SettingsCourierが起動している間だけ働き、値が変わっていなければ書きません。	Writes to the SettingsCourier folder in the sync folder. Works only while SettingsCourier is running, and writes nothing if the values have not changed.	写入同步文件夹中的 SettingsCourier 文件夹。仅在 SettingsCourier 运行时有效，值未改变时不会写入。	동기화 폴더 안의 SettingsCourier 폴더에 씁니다. SettingsCourier가 실행 중일 때만 작동하며 값이 바뀌지 않았으면 쓰지 않습니다.
