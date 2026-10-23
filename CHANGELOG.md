@@ -1,0 +1,29 @@
+# 変更履歴
+
+## 2026年10月23日 — GitHub・noteの相互リンク
+
+### アプリの情報画面と公開ソース
+
+- 共通の「設定 → 情報」にGitHubへのリンクを追加。情報タブがないIdBackgroundOffは既存の「アプリについて」に追加。
+- 公開対象33アプリのソースコードと共通部品を反映。KeynoteHelperからKeynoteMaestroへの名称変更を公開一覧へ反映。
+- BreaklineTrimmerのnote記事URLを[専用記事](https://note.com/swwwitch/n/ne4a0fc0c1dd2)へ変更。リソース生成スクリプトも同じURLへ更新。
+- SVGExporterとInsertSnippetsは公開対象外のまま保持。
+
+関連コミット：[情報画面と公開ソース](https://github.com/swwwitch/macos-apps/commit/857ef286ca4aa62a45f21fb8fcc029ddd291065e)、[BreaklineTrimmerの記事URL](https://github.com/swwwitch/macos-apps/commit/a6bd17f)。
+
+### noteの記事更新履歴
+
+| 記事 | 今回の変更 | 確認結果 |
+| --- | --- | --- |
+| [KeynoteMaestro](https://note.com/swwwitch/n/n7b7e549f7379) | ソースコードへのリンクと「2026年10月23日（記事更新）」を追記。既存のGitHub Releasesへのリンクを保持 | 公開ページで確認済み |
+| [FolderHopper](https://note.com/swwwitch/n/nd532a1c19f33) | ソースコードへのリンクを冒頭にも掲載し、既存の更新履歴へ追記 | 公開ページで確認済み |
+| [BreaklineTrimmer](https://note.com/swwwitch/n/ne4a0fc0c1dd2) | ソースコードへのリンクと記事更新履歴を追記 | 一時保存済み。試し読みエリアの確認操作への承認待ちで未公開 |
+| [IdBackgroundOff](https://note.com/dtp_tranist/n/nec393e9218e9) | ソースコードへのリンクと既存の更新履歴へ追記 | 一時保存済み。有料エリアの確認操作への承認待ちで未公開 |
+
+他の記事の既存GitHubリンクは保持。記事の更新はアプリ本体の新バージョン公開を意味しない。
+
+### 検証
+
+- 共通情報画面のSwift型検査、設定同期・KeynoteMaestro・CCAutoUpdateOffの既存テストを確認。
+- BreaklineTrimmerの4言語リソース検査を確認。
+- 情報画面のリンク追加を含む全アプリの再ビルド・実機表示・配布先更新は未確認。
