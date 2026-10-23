@@ -27,6 +27,7 @@ final class AccessibilityPermissionState {
 
 enum AccessibilityText {
     /// App-specific reason for the permission, in ja/en/zh/ko order. Set at launch when "needed" does not fit the app.
+    nonisolated(unsafe) static var optionTypeToSelect = false
     nonisolated(unsafe) static var neededOverride: [String]?
     static func text(_ key: String) -> String {
         // Same language rule as the rest of the settings window (Japanese-only apps stay Japanese).
@@ -114,8 +115,13 @@ final class AccessibilityPermissionControl: NSView {
     @objc private func requestPermission() { state.requestFromUser(); refresh() }
     @objc private func openSettings() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        let assist = AccessibilityText.optionTypeToSelect && NSEvent.modifierFlags.contains(.option)
         if !NSWorkspace.shared.open(url) {
             feedback.stringValue = AccessibilityText.text("failed")
+        } else if assist {
+            MainActor.assumeIsolated {
+                AccessibilitySettingsLocator.shared.start { [weak self] text in self?.feedback.stringValue = text }
+            }
         }
     }
 }
@@ -144,5 +150,107 @@ struct AccessibilitySection: View {
     /// AppKit form (SettingsUI.tabs pages).
     @MainActor static func group() -> NSBox {
         SettingsUI.group(AccessibilityText.text("title"), [AccessibilityPermissionControl(required: true, showsTitle: false)])
+    }
+}
+
+/// Optional, explicit user action. Never changes a permission switch or clicks an app row.
+@MainActor
+final class AccessibilitySettingsLocator {
+    static let shared = AccessibilitySettingsLocator()
+    private var task: Task<Void, Never>?
+    private func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
+        StartupWindow.text(ja, en, zh, ko)
+    }
+    func start(feedback: @escaping (String) -> Void) {
+        task?.cancel()
+        guard AXIsProcessTrusted(), CGPreflightPostEventAccess() else {
+            feedback(text("設定を開きました。未許可のため自動入力・ポインタ移動は行えません。一覧をクリックしてアプリ名の先頭3文字を入力してください。", "Settings opened. Permission is required for automatic typing and pointer movement. Click the list and type the first three letters of the app name.", "已打开设置。自动输入和移动指针需要授权。请点击列表并输入应用名称的前三个字符。", "설정을 열었습니다. 자동 입력과 포인터 이동에는 권한이 필요합니다. 목록을 클릭하고 앱 이름의 처음 세 글자를 입력하세요."))
+            return
+        }
+        let name = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
+            ?? (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? ""
+        guard !name.isEmpty else { return }
+        task = Task { [weak self] in
+            // Poll the ready AX list rather than sending keystrokes after a blind delay.
+            for _ in 0..<12 {
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                guard !Task.isCancelled, let self else { return }
+                guard let front = NSWorkspace.shared.frontmostApplication,
+                      front.bundleIdentifier == "com.apple.systempreferences" else { continue }
+                let root = AXUIElementCreateApplication(front.processIdentifier)
+                if let match = self.find(name: name, in: root), let point = self.position(match) {
+                    guard NSWorkspace.shared.frontmostApplication?.processIdentifier == front.processIdentifier,
+                          AXIsProcessTrusted(), CGPreflightPostEventAccess() else { return }
+                    // Focus the containing list before invoking its type-to-select behavior.
+                    var parent: CFTypeRef?
+                    AXUIElementCopyAttributeValue(match, kAXParentAttribute as CFString, &parent)
+                    if let parent, CFGetTypeID(parent) == AXUIElementGetTypeID() {
+                        let list = unsafeBitCast(parent, to: AXUIElement.self)
+                        var role: CFTypeRef?
+                        AXUIElementCopyAttributeValue(list, kAXRoleAttribute as CFString, &role)
+                        let isList = ["AXTable", "AXOutline", "AXList"].contains(role as? String ?? "")
+                        let result = isList ? AXUIElementSetAttributeValue(list, kAXFocusedAttribute as CFString, kCFBooleanTrue) : .attributeUnsupported
+                        if result == .success {
+                            let letters = Array(name.prefix(3).utf16)
+                            for down in [true, false] {
+                                if let event = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: down) {
+                                    letters.withUnsafeBufferPointer { event.keyboardSetUnicodeString(stringLength: $0.count, unicodeString: $0.baseAddress) }
+                                    event.postToPid(front.processIdentifier)
+                                }
+                            }
+                        }
+                    }
+                    var supported: CFArray?
+                    if AXUIElementCopyActionNames(match, &supported) == .success,
+                       (supported as? [String])?.contains("AXScrollToVisible") == true {
+                        AXUIElementPerformAction(match, "AXScrollToVisible" as CFString)
+                    }
+                    AXUIElementSetAttributeValue(match, kAXSelectedAttribute as CFString, kCFBooleanTrue)
+                    if NSWorkspace.shared.frontmostApplication?.processIdentifier == front.processIdentifier,
+                       let target = self.position(match) ?? Optional(point) {
+                        CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: target, mouseButton: .left)?.post(tap: .cghidEventTap)
+                    }
+                    feedback(self.text("アプリ名の位置へ移動しました。許可のスイッチは手動で操作してください。", "Moved near the app name. Change the permission switch yourself.", "已移至应用名称附近。请手动操作授权开关。", "앱 이름 근처로 이동했습니다. 권한 스위치는 직접 조작하세요."))
+                    return
+                }
+            }
+            guard !Task.isCancelled, let self else { return }
+            feedback(self.text("アプリ名の行を確認できなかったため、自動入力・移動を行いませんでした。", "Could not identify the app row; no automatic typing or movement was performed.", "无法确认应用所在行，未自动输入或移动。", "앱 행을 확인하지 못해 자동 입력과 이동을 수행하지 않았습니다."))
+        }
+    }
+    private func find(name: String, in root: AXUIElement) -> AXUIElement? {
+        var queue = [root], index = 0
+        while index < queue.count && index < 1200 {
+            let element = queue[index]; index += 1
+            for key in [kAXTitleAttribute, kAXValueAttribute, kAXDescriptionAttribute] {
+                var value: CFTypeRef?
+                if AXUIElementCopyAttributeValue(element, key as CFString, &value) == .success,
+                   let title = value as? String, title.caseInsensitiveCompare(name) == .orderedSame {
+                    var candidate = element
+                    for _ in 0..<6 {
+                        var role: CFTypeRef?
+                        AXUIElementCopyAttributeValue(candidate, kAXRoleAttribute as CFString, &role)
+                        if role as? String == "AXRow" { return candidate }
+                        var parent: CFTypeRef?
+                        guard AXUIElementCopyAttributeValue(candidate, kAXParentAttribute as CFString, &parent) == .success,
+                              let parent, CFGetTypeID(parent) == AXUIElementGetTypeID() else { break }
+                        candidate = unsafeBitCast(parent, to: AXUIElement.self)
+                    }
+                    return element
+                }
+            }
+            var children: CFTypeRef?
+            if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children) == .success,
+               let list = children as? [AXUIElement] { queue.append(contentsOf: list) }
+        }
+        return nil
+    }
+    private func position(_ element: AXUIElement) -> CGPoint? {
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &value) == .success,
+              let value, CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
+        var point = CGPoint.zero
+        guard AXValueGetValue(unsafeBitCast(value, to: AXValue.self), .cgPoint, &point) else { return nil }
+        return CGPoint(x: point.x + 12, y: point.y + 8)
     }
 }

@@ -113,3 +113,5 @@ Select one zoom style using the radio buttons. Drag an edge or corner to resize 
 The Apps tab in Settings contains Excluded Apps and the apps to launch or quit for each preset.
 
 Right-click or Control-click a preset button to open its editing menu. Save buttons in Basic, Display, and Zoom show the target preset name.
+
+Option-click Open Accessibility Settings to wait for the settings list and, when permission and the app row are available, type the first three letters into the focused list and move the pointer near the app. Otherwise the reason is displayed. Permission switches remain manual.
