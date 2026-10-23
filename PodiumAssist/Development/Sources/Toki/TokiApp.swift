@@ -1568,7 +1568,7 @@ struct ManualControlsView: View {
                 // Click: overwrite the preset applied (or saved) last, with the items it already has.
                 // Option-click, or no such preset yet: the sheet to choose the preset and items. No "…" when no sheet opens.
                 if section != .timer {
-                Button(presets.rememberedPreset == nil ? L("プリセットに保存…") : L("プリセットに保存")) {
+                Button(presets.rememberedPreset.map { L("プリセット（%@）に保存", $0.name) } ?? L("プリセットに保存…")) {
                     if !NSEvent.modifierFlags.contains(.option), let preset = presets.rememberedPreset {
                         PresetSaveSheet.overwrite(preset, settings: settings, countdown: countdown, presets: presets)
                     } else {
