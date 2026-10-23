@@ -48,7 +48,7 @@ struct SettingsCourierApp: App {
                 Button(L("ファイルに書き出す…")) { Courier.shared.export(toFile: true) }
                     .keyboardShortcut("s", modifiers: [.command, .shift])
                 Divider()
-                Button(L("受け渡しフォルダーを設定…")) { Courier.shared.chooseFolder() }
+                Button(L("同期フォルダーを選ぶ…")) { Courier.shared.chooseFolder() }
                 Button(L("受け渡しフォルダーを開く")) { Courier.shared.showFolder() }
                 Divider()
                 Button(L("バックアップフォルダを表示")) { Courier.shared.showBackupFolder() }

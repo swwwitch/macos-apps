@@ -21,8 +21,10 @@ struct FolderEntry: Identifiable {
 }
 
 extension Courier {
-    /// 受け渡しフォルダー（Dropbox など）。パスはMacごとに異なるので、設定の共有には含めない
-    static let folderKey = "courierFolder"
+    /// 1.0.1 までの受け渡しフォルダーの指定。「設定の共有」の同期フォルダーへ移したら消す
+    static let legacyFolderKey = "courierFolder"
+    /// 受け渡しフォルダーは、「設定の共有」の同期フォルダーの中のこの名前のフォルダー（ほかのアプリの設定ファイルと混ぜない）
+    static let folderName = "SettingsCourier"
     /// 登録したアプリを終了したときに、受け渡しフォルダーへ自動で書き出す
     static let autoExportKey = "autoExportOnQuit"
     /// このMacで取り込んだ・書き出した・同じと確かめたフォルダーのファイルの書き出し日時（Bundle ID → 日時）。Macごと
@@ -40,16 +42,39 @@ extension Courier {
         UserDefaults.standard.set(all, forKey: Courier.handledKey)
     }
 
+    /// 受け渡しフォルダー。「設定の共有」で同期フォルダーを選んでいれば、その中の SettingsCourier フォルダー（無ければ作る）
+    /// PrefsPreset のマイプリセットと同じく、同期フォルダーを1つ選べば済むようにする
     var folder: URL? {
-        guard let path = UserDefaults.standard.string(forKey: Courier.folderKey) else { return nil }
-        var isFolder: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: path, isDirectory: &isFolder), isFolder.boolValue else { return nil }
-        return URL(fileURLWithPath: path)
+        guard let base = SettingsSync.shared.folder, isFolder(base) else { return nil }
+        let url = base.appendingPathComponent(Courier.folderName, isDirectory: true)
+        if !isFolder(url) { try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true) }
+        return isFolder(url) ? url : nil
     }
 
-    /// 保存してあるが見つからない（Dropbox が止まっている・外付けディスクを外したなど）
-    var folderMissing: Bool {
-        UserDefaults.standard.string(forKey: Courier.folderKey) != nil && folder == nil
+    /// 同期フォルダーを選んであるが見つからない（Dropbox が止まっている・外付けディスクを外したなど）
+    var folderMissing: Bool { SettingsSync.shared.enabled && folder == nil }
+
+    private func isFolder(_ url: URL) -> Bool {
+        var folder: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &folder) && folder.boolValue
+    }
+
+    /// 1.0.1 までの受け渡しフォルダーのファイルを、同期フォルダーの SettingsCourier フォルダーへコピーする
+    /// 同じアプリのファイルが両方にあれば新しい方を残す。元のフォルダーとファイルは消さない
+    func migrateLegacyFolder() {
+        guard let path = UserDefaults.standard.string(forKey: Courier.legacyFolderKey), let folder else { return }
+        let old = URL(fileURLWithPath: path, isDirectory: true)
+        if old.standardizedFileURL.path != folder.standardizedFileURL.path,
+           let files = try? FileManager.default.contentsOfDirectory(at: old, includingPropertiesForKeys: nil) {
+            for file in files where file.pathExtension == "settingscourier" {
+                guard let package = Package(url: file), package.apps.count == 1, let app = package.apps.first else { continue }
+                let existing = folderFiles(app.bundleID, in: folder).compactMap { url in Package(url: url).map { (url, $0) } }
+                if existing.contains(where: { ($0.1.created ?? .distantPast) >= (package.created ?? .distantPast) }) { continue }
+                existing.forEach { try? FileManager.default.removeItem(at: $0.0) }
+                try? FileManager.default.copyItem(at: file, to: folder.appendingPathComponent(file.lastPathComponent))
+            }
+        }
+        UserDefaults.standard.removeObject(forKey: Courier.legacyFolderKey)
     }
 
     /// フォルダーにある、そのアプリの書き出しファイル。名前ではなく中身の Bundle ID で探す（表示名は言語やMacで異なることがある）
@@ -79,22 +104,10 @@ extension Courier {
         return url
     }
 
+    /// 「設定の共有」の同期フォルダーを選ぶ（共通部品の画面と同じ処理）。選んだら画面側が pathText の変化で読み直す
     func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.canCreateDirectories = true
-        panel.prompt = L("選択")
-        panel.message = L("設定を受け渡すフォルダーを選んでください（Dropbox・iCloud Drive などほかのMacと同期しているフォルダー）")
         NSApp.activate(ignoringOtherApps: true)
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        UserDefaults.standard.set(url.path, forKey: Courier.folderKey)
-        scanFolder()
-    }
-
-    func clearFolder() {
-        UserDefaults.standard.removeObject(forKey: Courier.folderKey)
-        scanFolder()
+        SettingsSync.shared.chooseFolder()
     }
 
     func showFolder() {
@@ -103,6 +116,7 @@ extension Courier {
 
     /// フォルダーのファイルを読み、このMacの設定ファイルの更新日時と比べる。設定の値は読まない（読むと確認が出るアプリがある）
     func scanFolder() {
+        migrateLegacyFolder()
         guard let folder,
               let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else {
             folderEntries = []

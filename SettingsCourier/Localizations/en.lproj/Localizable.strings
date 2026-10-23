@@ -5,7 +5,7 @@
 "取り込む…" = "Import…";
 "書き出す" = "Export";
 "ファイルに書き出す…" = "Export to File…";
-"受け渡しフォルダーを設定…" = "Set Handoff Folder…";
+"同期フォルダーを選ぶ…" = "Choose Sync Folder…";
 "受け渡しフォルダーを開く" = "Open Handoff Folder";
 "バックアップフォルダを表示" = "Show Backup Folder";
 "ウインドウを閉じる" = "Close Window";
@@ -48,8 +48,8 @@
 "フォルダーから取り込む…" = "Import from Folder…";
 "フォルダーから取り込む…（新しい設定 %@件）" = "Import from Folder… (%@ newer)";
 "受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む" = "Choose settings in the handoff folder and write them to the apps on this Mac";
-"受け渡しフォルダーが見つかりません" = "Handoff folder not found";
-"Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます" = "Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it";
+"同期フォルダーが見つかりません" = "Sync folder not found";
+"Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます（設定の「設定の共有」と同じフォルダー）" = "Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it (the same folder as Settings > Sharing)";
 "書き出したファイルを開き、このMacのアプリに書き込む" = "Open an exported file and write it to the apps on this Mac";
 "選んでいるアプリの設定をファイルに保存" = "Save the settings of the selected app to a file";
 "選んでいるアプリの設定を受け渡しフォルダーに保存" = "Save the settings of the selected app to the handoff folder";
@@ -106,12 +106,9 @@
 "一部のアプリに書き込めませんでした" = "Some apps could not be written";
 "読み込めませんでした" = "Could not open";
 "SettingsCourierの書き出しファイルではありません。" = "This is not a SettingsCourier export file.";
-"受け渡しフォルダー" = "Handoff Folder";
-"未設定" = "Not set";
-"選択…" = "Choose…";
-"解除" = "Clear";
-"Dropbox・iCloud Drive などほかのMacと同期しているフォルダーを選びます。「フォルダーに書き出す」でアプリごとに「<アプリ名>.settingscourier」を置き、ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。自動では取り込みません。" = "Choose a folder synced with your other Macs, such as Dropbox or iCloud Drive. “Export to Folder” puts “<app name>.settingscourier” there for each app; on the other Mac, choose them with “Import from Folder…”. Nothing is imported automatically.";
-"自動書き出し" = "Automatic Export";
+"アプリの設定の受け渡し" = "Handing Over App Settings";
+"上の「設定の同期」で同期フォルダーを選ぶと使えます" = "Available once you choose a sync folder in Settings Sync above";
+"「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。" = "“Export to Folder” puts “<app name>.settingscourier” for each app in the SettingsCourier folder inside the sync folder. On the other Mac, choose them with “Import from Folder…”. Because importing rewrites app settings, it never happens automatically.";
 "登録したアプリを終了したときに書き出す" = "Export when a registered app quits";
 "SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。" = "Works only while SettingsCourier is running. Nothing is written if the values have not changed. Sandboxed apps are exported only with Full Disk Access or after you click Read Settings in the main window.";
 "フルディスクアクセス" = "Full Disk Access";
@@ -121,8 +118,7 @@
 "フルディスクアクセス設定を開く" = "Open Full Disk Access Settings";
 "システム設定を開けませんでした。「プライバシーとセキュリティ」→「フルディスクアクセス」を手動で開いてください。" = "Could not open System Settings. Open Privacy & Security > Full Disk Access yourself.";
 "許可スイッチは手動で操作してください。この画面に戻ると状態を再確認します。" = "Change the permission switch yourself. Return here to refresh the status.";
-"選択" = "Choose";
-"設定を受け渡すフォルダーを選んでください（Dropbox・iCloud Drive などほかのMacと同期しているフォルダー）" = "Choose the folder to hand settings over through (a folder synced with your other Macs, such as Dropbox or iCloud Drive)";
+"受け渡しフォルダー" = "Handoff Folder";
 "%@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）" = "%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)";
 "%@：%@ 設定を読めなかったため書き出しませんでした" = "%@: %@ was not exported because its settings could not be read";
 "%@：%@ を書き出しました" = "%@: Exported %@";

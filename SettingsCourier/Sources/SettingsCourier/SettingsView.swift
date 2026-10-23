@@ -10,36 +10,31 @@ struct SettingsView: View {
                 }
                 FullDiskAccessSection()
             })),
-            (L("受け渡しフォルダー"), AnyView(FolderSettings())),
-            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
+            (SettingsSync.shared.tabTitle, AnyView(CourierSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
     }
 }
 
-/// 受け渡しフォルダーの場所と、終了時の自動書き出し。パスはMacごとに異なるので設定の共有には含めない
-private struct FolderSettings: View {
+/// 「設定の共有」タブ：共通の「書き出し・読み込み」「設定の同期」に、アプリの設定の受け渡しの節を足す（PrefsPreset のマイプリセットと同じ形）
+/// 受け渡しフォルダーは同期フォルダーの中の SettingsCourier フォルダー。同期フォルダーを選び直すと受け渡し先も変わる
+private struct CourierSharingView: View {
     @ObservedObject private var courier = Courier.shared
+    @ObservedObject private var sync = SettingsSync.shared
     @AppStorage(Courier.autoExportKey) private var autoExport = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SettingsSection(L("受け渡しフォルダー")) {
-                Text(courier.folder?.path ?? (courier.folderMissing ? L("受け渡しフォルダーが見つかりません") : L("未設定")))
+            SettingsSharingView()
+            SettingsSection(L("アプリの設定の受け渡し")) {
+                Text(courier.folder?.path ?? (courier.folderMissing ? L("同期フォルダーが見つかりません") : L("上の「設定の同期」で同期フォルダーを選ぶと使えます")))
                     .font(.callout.monospaced())
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
-                HStack {
-                    Button(L("選択…")) { courier.chooseFolder() }
-                    Button(L("Finderで表示")) { courier.showFolder() }.disabled(courier.folder == nil)
-                    Button(L("解除")) { courier.clearFolder() }
-                        .disabled(UserDefaults.standard.string(forKey: Courier.folderKey) == nil)
-                }
-                Text(L("Dropbox・iCloud Drive などほかのMacと同期しているフォルダーを選びます。「フォルダーに書き出す」でアプリごとに「<アプリ名>.settingscourier」を置き、ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。自動では取り込みません。"))
+                Button(L("Finderで表示")) { courier.showFolder() }.disabled(courier.folder == nil)
+                Text(L("「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。"))
                     .font(.caption).foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            SettingsSection(L("自動書き出し")) {
                 Toggle(L("登録したアプリを終了したときに書き出す"), isOn: $autoExport)
                     .disabled(courier.folder == nil)
                 Text(L("SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。"))
@@ -50,5 +45,6 @@ private struct FolderSettings: View {
                 }
             }
         }
+        .onChange(of: sync.pathText) { courier.scanFolder() }
     }
 }

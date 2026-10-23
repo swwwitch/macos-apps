@@ -21,7 +21,7 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 4. Imported apps are added to the list.
 
 ### Hand settings over through a folder
-1. In Settings > Handoff Folder, choose a folder synced with your other Macs, such as Dropbox or iCloud Drive (or click “Set Handoff Folder…” at the bottom of the main window).
+1. In Settings > Sharing > Settings Sync, choose a folder synced with your other Macs, such as Dropbox or iCloud Drive (or click “Choose Sync Folder…” at the bottom of the main window). Settings are handed over through the SettingsCourier folder inside it. Choose the same folder on both Macs.
 2. With a folder chosen, the button at the lower right becomes “Export to Folder” (⌘S) and puts the selected app’s settings in the folder as “<app name>.settingscourier”, replacing any file for the same app under another name. To choose where to save instead, use File > Export to File… (⇧⌘S).
 3. Choose the same folder on the other Mac. When a file is newer than this Mac’s settings, the app in the list shows “Newer settings available” and the count appears below.
 4. Click “Import from Folder…”, choose the apps and click “Next…” to go to the import confirmation. Apps not yet registered can be imported too (they are registered when imported).
@@ -37,8 +37,7 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 ## Settings
 Open with the Settings button in the main window (⌘,).
 - **Launch & Background**: Full Disk Access status and a button to open its settings. Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the icon is not shown in the Dock or in ⌘Tab; show the window from the menu bar icon (when shown) or by opening the app again in the Finder
-- **Handoff Folder**: Choose, show in Finder or clear the folder, and “Export when a registered app quits”. The result of the last automatic export is shown too. The folder is set on each Mac.
-- **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. The apps’ settings themselves are not synced; carry them with “Export…”.
+- **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. “Handing Over App Settings” on the same tab shows the handoff folder (the SettingsCourier folder inside the sync folder), “Export when a registered app quits” and the result of the last automatic export. App setting values are never imported automatically.
 - **About**: Version and links.
 
 ## Hotkeys

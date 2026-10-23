@@ -10,6 +10,7 @@ struct KeyRow: Identifiable {
 
 struct ContentView: View {
     @ObservedObject private var courier = Courier.shared
+    @ObservedObject private var sync = SettingsSync.shared
     @AppStorage(Courier.selectedAppKey) private var selectedApp = ""
     @State private var rows: [KeyRow] = []
     @State private var selectedKeys = Set<String>()
@@ -41,6 +42,8 @@ struct ContentView: View {
             courier.refresh()
             courier.scanFolder()
         }
+        // 同期フォルダーを選び直したら、受け渡しフォルダーも変わる
+        .onChange(of: sync.pathText) { courier.scanFolder() }
         .sheet(isPresented: $showsFolderImport) { FolderImportView() }
         .sheet(item: $courier.pendingImport) { ImportView(box: $0) }
         .alert(courier.message?.title ?? "", isPresented: Binding(
@@ -282,7 +285,7 @@ struct ContentView: View {
     private var footer: some View {
         HStack(spacing: 8) {
             if let folder = courier.folder {
-                Label(folder.lastPathComponent, systemImage: "folder")
+                Label(folder.deletingLastPathComponent().lastPathComponent, systemImage: "folder")
                     .foregroundStyle(.secondary).lineLimit(1)
                     .help(folder.path)
                 Button(courier.newerEntries.isEmpty ? L("フォルダーから取り込む…")
@@ -291,12 +294,12 @@ struct ContentView: View {
                 }
                 .help(L("受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む"))
             } else if courier.folderMissing {
-                Label(L("受け渡しフォルダーが見つかりません"), systemImage: "exclamationmark.triangle")
+                Label(L("同期フォルダーが見つかりません"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.secondary)
-                Button(L("受け渡しフォルダーを設定…")) { courier.chooseFolder() }
+                Button(L("同期フォルダーを選ぶ…")) { courier.chooseFolder() }
             } else {
-                Button(L("受け渡しフォルダーを設定…")) { courier.chooseFolder() }
-                    .help(L("Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます"))
+                Button(L("同期フォルダーを選ぶ…")) { courier.chooseFolder() }
+                    .help(L("Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます（設定の「設定の共有」と同じフォルダー）"))
             }
             Spacer()
             Button(L("取り込む…")) { openPackage() }

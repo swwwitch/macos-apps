@@ -98,15 +98,12 @@ SettingsCourierの書き出しファイルではありません。	This is not a
 左の一覧でアプリを選んでください。	Choose an app in the list on the left.	请在左侧列表中选择应用。	왼쪽 목록에서 앱을 선택하십시오.
 %@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。	Saved the settings of %@ (%@ items) to “%@”. Open this file in SettingsCourier on the other Mac to import it.	已将 %@ 的设置（%@ 项）保存到“%@”。在另一台 Mac 上用 SettingsCourier 打开此文件即可导入。	%@의 설정(%@개 항목)을 ‘%@’에 저장했습니다. 다른 Mac의 SettingsCourier에서 이 파일을 열어 가져옵니다.
 ファイルに書き出す…	Export to File…	导出到文件…	파일로 내보내기…
-受け渡しフォルダーを設定…	Set Handoff Folder…	设置交接文件夹…	전달 폴더 설정…
 受け渡しフォルダーを開く	Open Handoff Folder	打开交接文件夹	전달 폴더 열기
 新しい設定があります	Newer settings available	有更新的设置	새 설정이 있습니다
 フォルダーに書き出す	Export to Folder	导出到文件夹	폴더로 내보내기
 フォルダーから取り込む…	Import from Folder…	从文件夹导入…	폴더에서 가져오기…
 フォルダーから取り込む…（新しい設定 %@件）	Import from Folder… (%@ newer)	从文件夹导入…（%@ 个更新的设置）	폴더에서 가져오기…(새 설정 %@개)
 受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む	Choose settings in the handoff folder and write them to the apps on this Mac	选择交接文件夹中的设置并写入此 Mac 上的应用	전달 폴더의 설정을 선택해 이 Mac의 앱에 기록
-受け渡しフォルダーが見つかりません	Handoff folder not found	找不到交接文件夹	전달 폴더를 찾을 수 없습니다
-Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます	Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it	选择与其他 Mac 同步的文件夹（如 Dropbox），即可通过它交接设置	Dropbox 등 다른 Mac과 동기화하는 폴더를 선택하면 그곳에서 설정을 주고받을 수 있습니다
 選んでいるアプリの設定を受け渡しフォルダーに保存	Save the settings of the selected app to the handoff folder	将所选应用的设置保存到交接文件夹	선택한 앱의 설정을 전달 폴더에 저장
 フォルダーから取り込む	Import from Folder	从文件夹导入	폴더에서 가져오기
 新しい設定	Newer	较新	새 설정
@@ -114,16 +111,15 @@ Dropbox などほかのMacと同期しているフォルダーを選ぶと、そ
 次へ…	Next…	下一步…	다음…
 このMacの設定の方が新しい	This Mac’s settings are newer	此 Mac 上的设置更新	이 Mac의 설정이 더 새로움
 受け渡しフォルダー	Handoff Folder	交接文件夹	전달 폴더
-未設定	Not set	未设置	설정 안 됨
-選択…	Choose…	选择…	선택…
-解除	Clear	清除	해제
-Dropbox・iCloud Drive などほかのMacと同期しているフォルダーを選びます。「フォルダーに書き出す」でアプリごとに「<アプリ名>.settingscourier」を置き、ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。自動では取り込みません。	Choose a folder synced with your other Macs, such as Dropbox or iCloud Drive. “Export to Folder” puts “<app name>.settingscourier” there for each app; on the other Mac, choose them with “Import from Folder…”. Nothing is imported automatically.	选择与其他 Mac 同步的文件夹，如 Dropbox 或 iCloud 云盘。“导出到文件夹”会为每个应用放置“<应用名称>.settingscourier”；在另一台 Mac 上用“从文件夹导入…”选择并导入。不会自动导入。	Dropbox·iCloud Drive 등 다른 Mac과 동기화하는 폴더를 선택합니다. ‘폴더로 내보내기’로 앱마다 ‘<앱 이름>.settingscourier’를 두고, 다른 Mac에서는 ‘폴더에서 가져오기…’로 선택해 가져옵니다. 자동으로 가져오지는 않습니다.
-自動書き出し	Automatic Export	自动导出	자동 내보내기
 登録したアプリを終了したときに書き出す	Export when a registered app quits	已登记的应用退出时导出	등록한 앱을 종료할 때 내보내기
 SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。	Works only while SettingsCourier is running. Nothing is written if the values have not changed. Sandboxed apps are exported only with Full Disk Access or after you click Read Settings in the main window.	仅在 SettingsCourier 运行时有效。值未改变时不会写入。沙盒应用仅在允许了完全磁盘访问权限或在主窗口中点按“读取设置”之后才会导出。	SettingsCourier가 실행 중일 때만 작동합니다. 값이 바뀌지 않았으면 내보내지 않습니다. 샌드박스 앱은 전체 디스크 접근 권한을 허용했거나 메인 윈도우에서 ‘설정 읽기’를 누른 뒤에만 내보냅니다.
-選択	Choose	选择	선택
-設定を受け渡すフォルダーを選んでください（Dropbox・iCloud Drive などほかのMacと同期しているフォルダー）	Choose the folder to hand settings over through (a folder synced with your other Macs, such as Dropbox or iCloud Drive)	请选择用于交接设置的文件夹（与其他 Mac 同步的文件夹，如 Dropbox 或 iCloud 云盘）	설정을 주고받을 폴더를 선택하십시오(Dropbox·iCloud Drive 등 다른 Mac과 동기화하는 폴더)
 %@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）	%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)	%@：未导出 %@，因为没有读取其设置的许可（请允许完全磁盘访问权限，或在主窗口中点按“读取设置”）	%@: %@의 설정을 읽을 권한이 없어 내보내지 않았습니다(전체 디스크 접근 권한을 허용하거나 메인 윈도우에서 ‘설정 읽기’를 누르십시오)
 %@：%@ 設定を読めなかったため書き出しませんでした	%@: %@ was not exported because its settings could not be read	%@：无法读取 %@ 的设置，因此未导出	%@: %@의 설정을 읽을 수 없어 내보내지 않았습니다
 %@：%@ を書き出しました	%@: Exported %@	%@：已导出 %@	%@: %@을(를) 내보냈습니다
 %@：%@ を書き出せませんでした（%@）	%@: Could not export %@ (%@)	%@：无法导出 %@（%@）	%@: %@을(를) 내보낼 수 없습니다(%@)
+同期フォルダーを選ぶ…	Choose Sync Folder…	选择同步文件夹…	동기화 폴더 선택…
+同期フォルダーが見つかりません	Sync folder not found	找不到同步文件夹	동기화 폴더를 찾을 수 없습니다
+Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます（設定の「設定の共有」と同じフォルダー）	Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it (the same folder as Settings > Sharing)	选择与其他 Mac 同步的文件夹（如 Dropbox），即可通过它交接设置（与设置中的“设置共享”为同一文件夹）	Dropbox 등 다른 Mac과 동기화하는 폴더를 선택하면 그곳에서 설정을 주고받을 수 있습니다(설정의 ‘설정 공유’와 같은 폴더)
+アプリの設定の受け渡し	Handing Over App Settings	交接应用设置	앱 설정 주고받기
+上の「設定の同期」で同期フォルダーを選ぶと使えます	Available once you choose a sync folder in Settings Sync above	在上方的“设置同步”中选择同步文件夹后即可使用	위의 ‘설정 동기화’에서 동기화 폴더를 선택하면 사용할 수 있습니다
+「フォルダーに書き出す」で、同期フォルダーの中の SettingsCourier フォルダーにアプリごとの「<アプリ名>.settingscourier」を置きます。ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。アプリの設定を書き換えるので、自動では取り込みません。	“Export to Folder” puts “<app name>.settingscourier” for each app in the SettingsCourier folder inside the sync folder. On the other Mac, choose them with “Import from Folder…”. Because importing rewrites app settings, it never happens automatically.	“导出到文件夹”会将每个应用的“<应用名称>.settingscourier”放入同步文件夹中的 SettingsCourier 文件夹。在另一台 Mac 上用“从文件夹导入…”选择并导入。导入会改写应用设置，因此不会自动导入。	‘폴더로 내보내기’로 동기화 폴더 안의 SettingsCourier 폴더에 앱마다 ‘<앱 이름>.settingscourier’를 둡니다. 다른 Mac에서는 ‘폴더에서 가져오기…’로 선택해 가져옵니다. 앱 설정을 다시 쓰므로 자동으로 가져오지 않습니다.
