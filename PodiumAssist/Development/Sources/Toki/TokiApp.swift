@@ -727,6 +727,17 @@ struct PresetPicker: View {
         }
         .buttonStyle(.plain)
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
+        .overlay(PresetSecondaryClickMenu(items: [
+            .init(title: L("名前を変更…"), action: { newName = preset.name; renaming = preset }),
+            .separator,
+            .init(title: L("上へ移動"), enabled: index > 0, action: { presets.move(preset.id, by: -1) }),
+            .init(title: L("下へ移動"), enabled: index < presets.items.count - 1, action: { presets.move(preset.id, by: 1) }),
+            .separator,
+            .init(title: L("起動アプリを編集…") + " (\(preset.launchApps?.count ?? 0))", action: { editingApps = (preset, true) }),
+            .init(title: L("終了アプリを編集…") + " (\(preset.quitAppTargets?.count ?? 0))", action: { editingApps = (preset, false) }),
+            .separator,
+            .init(title: L("削除…"), action: { deleting = preset })
+        ]))
         .contextMenu {
             Button(L("名前を変更…")) { newName = preset.name; renaming = preset }
             Divider()
@@ -1752,4 +1763,56 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
+}
+
+/// Only intercepts secondary clicks; ordinary clicks continue to SwiftUI's preset button.
+struct PresetSecondaryClickMenu: NSViewRepresentable {
+    struct Item {
+        var title: String
+        var enabled = true
+        var action: (() -> Void)?
+        static var separator: Item { Item(title: "", action: nil) }
+    }
+    final class MenuAction: NSObject {
+        let perform: () -> Void
+        init(_ perform: @escaping () -> Void) { self.perform = perform }
+        @objc func invoke(_ sender: Any?) { perform() }
+    }
+    final class Surface: NSView {
+        var items: [Item] = []
+        private var actions: [MenuAction] = []
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            guard let event = NSApp.currentEvent,
+                  event.type == .rightMouseDown || event.type == .rightMouseUp ||
+                  (event.type == .leftMouseDown && event.modifierFlags.contains(.control)) else { return nil }
+            return super.hitTest(point)
+        }
+        private func showMenu(_ event: NSEvent) {
+            let menu = NSMenu()
+            menu.autoenablesItems = false
+            actions = []
+            for entry in items {
+                guard let action = entry.action else { menu.addItem(.separator()); continue }
+                let handler = MenuAction(action)
+                actions.append(handler)
+                let item = NSMenuItem(title: entry.title, action: #selector(MenuAction.invoke(_:)), keyEquivalent: "")
+                item.target = handler
+                item.isEnabled = entry.enabled
+                menu.addItem(item)
+            }
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+        }
+        override func rightMouseDown(with event: NSEvent) { showMenu(event) }
+        override func mouseDown(with event: NSEvent) {
+            if event.modifierFlags.contains(.control) { showMenu(event) }
+            else { super.mouseDown(with: event) }
+        }
+    }
+    func makeNSView(context: Context) -> Surface {
+        let view = Surface()
+        view.setAccessibilityElement(false)
+        view.items = items
+        return view
+    }
+    func updateNSView(_ view: Surface, context: Context) { view.items = items }
 }

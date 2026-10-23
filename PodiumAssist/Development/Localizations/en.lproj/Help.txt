@@ -111,3 +111,5 @@ Enable Hide other apps when switching apps in Basic Settings to hide other apps 
 Select one zoom style using the radio buttons. Drag an edge or corner to resize the Settings window.
 
 The Apps tab in Settings contains Excluded Apps and the apps to launch or quit for each preset.
+
+Right-click or Control-click a preset button to open its editing menu. Save buttons in Basic, Display, and Zoom show the target preset name.
