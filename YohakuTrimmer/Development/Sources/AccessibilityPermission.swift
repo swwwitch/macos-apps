@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 @preconcurrency import ApplicationServices
 import SwiftUI
 
@@ -42,7 +43,7 @@ enum AccessibilityText {
         "unneeded": ["現在の機能では、この権限は不要です。未許可のまま利用できます。", "Current features do not require this permission. You can use this app without granting it.", "当前功能不需要此权限。无需授权即可使用。", "현재 기능에는 이 권한이 필요하지 않습니다. 허용하지 않아도 사용할 수 있습니다."],
         "request": ["許可を要求…", "Ask for Permission…", "请求授权…", "권한 요청…"],
         "open": ["アクセシビリティ設定を開く", "Open Accessibility Settings", "打开辅助功能设置", "손쉬운 사용 설정 열기"],
-        "hint": ["変更後にこの画面へ戻ると状態を再確認します。反映されない場合はアプリを再起動してください。", "Return to this window to refresh the status. If it has not changed, restart the app.", "返回此窗口时将重新检查状态。如未更新，请重新启动应用。", "이 창으로 돌아오면 상태를 다시 확인합니다. 반영되지 않으면 앱을 다시 시작하세요."],
+        "hint": ["設定を開くと、可能な場合だけアプリの行を選択します。許可スイッチは手動で操作してください。この画面に戻ると状態を再確認します。", "Opening Settings selects the app row when possible. Change the permission switch yourself. Return here to refresh the status.", "打开设置后会尽可能选择应用所在行。请手动操作授权开关，返回此处可重新检查状态。", "설정을 열면 가능한 경우에만 앱 행을 선택합니다. 권한 스위치는 직접 조작하고 이 화면으로 돌아오면 상태를 다시 확인합니다."],
         "blocked": ["アクセシビリティが未許可のため実行できませんでした。設定の「起動・常駐」で許可してください。", "Could not run because Accessibility is not allowed. Allow it in Settings → Startup & Background.", "未获得辅助功能授权，无法执行。请在设置的“启动与后台”中授权。", "손쉬운 사용 권한이 없어 실행하지 못했습니다. 설정의 ‘시작 및 백그라운드’에서 허용하세요."],
         "failed": ["システム設定を開けませんでした。「プライバシーとセキュリティ」→「アクセシビリティ」を手動で開いてください。", "Could not open System Settings. Open Privacy & Security → Accessibility manually.", "无法打开系统设置。请手动打开“隐私与安全性”→“辅助功能”。", "시스템 설정을 열 수 없습니다. 개인정보 보호 및 보안 → 손쉬운 사용을 직접 여세요."]
     ]
@@ -113,11 +114,15 @@ final class AccessibilityPermissionControl: NSView {
     }
     @objc private func requestPermission() { state.requestFromUser(); refresh() }
     @objc private func openSettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-        if !NSWorkspace.shared.open(url) {
-            feedback.stringValue = AccessibilityText.text("failed")
+        MainActor.assumeIsolated {
+            if !AccessibilitySettingsLocator.shared.open(required: state.required, feedback: { [weak self] text in
+                self?.feedback.stringValue = text
+            }) {
+                feedback.stringValue = AccessibilityText.text("failed")
+            }
         }
     }
+
 }
 
 struct AccessibilityPermissionView: NSViewRepresentable {
@@ -144,5 +149,161 @@ struct AccessibilitySection: View {
     /// AppKit form (SettingsUI.tabs pages).
     @MainActor static func group() -> NSBox {
         SettingsUI.group(AccessibilityText.text("title"), [AccessibilityPermissionControl(required: true, showsTitle: false)])
+    }
+}
+
+/// Standard entry point: always opens the pane; row selection is best-effort and never grants access.
+@MainActor
+enum AccessibilitySettingsOpening {
+    @discardableResult
+    static func open(required: Bool, openPane: () -> Bool, isTrusted: () -> Bool, assist: () -> Void) -> Bool {
+        guard openPane() else { return false }
+        if required && isTrusted() { assist() }
+        return true
+    }
+}
+
+@MainActor
+final class AccessibilitySettingsLocator {
+    static let shared = AccessibilitySettingsLocator()
+    private var task: Task<Void, Never>?
+    private func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
+        StartupWindow.text(ja, en, zh, ko)
+    }
+    @discardableResult
+    func open(required: Bool = true, feedback: @escaping (String) -> Void = { _ in }) -> Bool {
+        task?.cancel()
+        feedback(AccessibilityText.text("hint"))
+        return AccessibilitySettingsOpening.open(required: required, openPane: {
+            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+        }, isTrusted: { AXIsProcessTrusted() }, assist: { start(feedback: feedback) })
+    }
+    private func start(feedback: @escaping (String) -> Void) {
+        let names = [Bundle.main.bundleURL.deletingPathExtension().lastPathComponent,
+                     Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String,
+                     Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String]
+            .compactMap { $0 }.filter { !$0.isEmpty }
+        guard !names.isEmpty else { return }
+        task = Task { [weak self] in
+            var sawSettings = false
+            for _ in 0..<20 {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                guard !Task.isCancelled, let self, AXIsProcessTrusted() else { return }
+                guard let app = NSWorkspace.shared.frontmostApplication,
+                      app.bundleIdentifier == "com.apple.systempreferences" else {
+                    if sawSettings { return }
+                    continue
+                }
+                sawSettings = true
+                let root = AXUIElementCreateApplication(app.processIdentifier)
+                guard let row = self.findRow(names: names, in: root) else { continue }
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier else { return }
+                // The same AXSelected attribute used by AppleScript's `set selected of row to true`.
+                var selected = AXUIElementSetAttributeValue(row, kAXSelectedAttribute as CFString, kCFBooleanTrue) == .success
+                var value: CFTypeRef?
+                selected = selected && AXUIElementCopyAttributeValue(row, kAXSelectedAttribute as CFString, &value) == .success
+                    && (value as? Bool == true)
+                if !selected && self.automationAlreadyAllowed() {
+                    selected = await self.selectWithAppleScript(names: names)
+                }
+                guard !Task.isCancelled else { return }
+                if selected {
+                    try? await Task.sleep(nanoseconds: 150_000_000)
+                    guard !Task.isCancelled,
+                          NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier else { return }
+                    if CGPreflightPostEventAccess(), let point = self.position(row) {
+                        CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+                    }
+                    feedback(self.text("アプリの行を選択しました。許可スイッチは手動で操作してください。", "Selected the app row. Change the permission switch yourself.", "已选中应用所在行。请手动操作授权开关。", "앱 행을 선택했습니다. 권한 스위치는 직접 조작하세요."))
+                } else { feedback(self.manualHint) }
+                return
+            }
+            guard !Task.isCancelled, let self else { return }
+            feedback(self.manualHint)
+        }
+    }
+    private var manualHint: String {
+        text("設定を開きました。行を自動選択できなかったため、一覧からアプリを選択してください。", "Settings opened. Select the app in the list; automatic selection was unavailable.", "已打开设置。无法自动选择，请在列表中选择应用。", "설정을 열었습니다. 자동 선택이 불가능하므로 목록에서 앱을 선택하세요.")
+    }
+    /// askUserIfNeeded=false: opening Settings must never request an additional Automation grant.
+    private func automationAlreadyAllowed() -> Bool {
+        let target = NSAppleEventDescriptor(bundleIdentifier: "com.apple.systemevents")
+        return AEDeterminePermissionToAutomateTarget(target.aeDesc, typeWildCard, typeWildCard, false) == noErr
+    }
+    private func selectWithAppleScript(names: [String]) async -> Bool {
+        let literals = names.map { name in
+            "\"" + name.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + ".app\""
+        }.joined(separator: ", ")
+        let script = """
+        with timeout of 5 seconds
+          tell application "System Events"
+            tell process "System Settings"
+              if frontmost is false then return "inactive"
+              set wantedNames to {\(literals)}
+              set appList to outline 1 of scroll area 1 of group 1 of scroll area 1 of group 1 of group 3 of splitter group 1 of group 1 of window 1
+              repeat with rowRef in rows of appList
+                set candidate to contents of rowRef
+                try
+                  if wantedNames contains (value of static text 1 of UI element 1 of candidate) then
+                    if frontmost is false then return "inactive"
+                    set selected of candidate to true
+                    if selected of candidate then return "selected"
+                  end if
+                end try
+              end repeat
+              return "not found"
+            end tell
+          end tell
+        end timeout
+        """
+        return await Task.detached {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            process.arguments = ["-e", script]
+            let output = Pipe()
+            process.standardOutput = output
+            process.standardError = FileHandle.nullDevice
+            do {
+                try process.run()
+                let data = output.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
+                return process.terminationStatus == 0 && String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) == "selected"
+            } catch { return false }
+        }.value
+    }
+    private func findRow(names: [String], in root: AXUIElement) -> AXUIElement? {
+        var queue = [root], index = 0
+        while index < queue.count && index < 1200 {
+            let element = queue[index]; index += 1
+            for key in [kAXTitleAttribute, kAXValueAttribute, kAXDescriptionAttribute] {
+                var value: CFTypeRef?
+                if AXUIElementCopyAttributeValue(element, key as CFString, &value) == .success,
+                   let title = value as? String,
+                   names.contains(where: { title.caseInsensitiveCompare($0) == .orderedSame || title.caseInsensitiveCompare($0 + ".app") == .orderedSame }) {
+                    var candidate = element
+                    for _ in 0..<6 {
+                        var role: CFTypeRef?
+                        AXUIElementCopyAttributeValue(candidate, kAXRoleAttribute as CFString, &role)
+                        if role as? String == "AXRow" { return candidate }
+                        var parent: CFTypeRef?
+                        guard AXUIElementCopyAttributeValue(candidate, kAXParentAttribute as CFString, &parent) == .success,
+                              let parent, CFGetTypeID(parent) == AXUIElementGetTypeID() else { break }
+                        candidate = unsafeBitCast(parent, to: AXUIElement.self)
+                    }
+                }
+            }
+            var children: CFTypeRef?
+            if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children) == .success,
+               let list = children as? [AXUIElement] { queue.append(contentsOf: list) }
+        }
+        return nil
+    }
+    private func position(_ element: AXUIElement) -> CGPoint? {
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &value) == .success,
+              let value, CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
+        var point = CGPoint.zero
+        guard AXValueGetValue(unsafeBitCast(value, to: AXValue.self), .cgPoint, &point) else { return nil }
+        return CGPoint(x: point.x + 12, y: point.y + 8)
     }
 }

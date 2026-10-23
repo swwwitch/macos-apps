@@ -70,7 +70,6 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
-        AccessibilityText.optionTypeToSelect = true
         ExcludedApps.shared.configure(explanation: L("対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。"))
         switchHider.start()
         SettingsSync.shared.onImport = { [weak self] in

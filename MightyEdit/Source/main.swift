@@ -852,7 +852,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc func openPermission() {
         // Open only on explicit request. Never reissue the OS permission prompt.
-        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+        MainActor.assumeIsolated { _ = AccessibilitySettingsLocator.shared.open() }
     }
 
     @objc func revealApplication() {

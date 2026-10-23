@@ -10,6 +10,14 @@ copies = {
         'KakkoReplace/Sources', 'DocklessLauncher/Sources', 'LinkMaker/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'PasteMatchStyle/Sources',
         'IncrementPaste/Sources', 'PasteInARow/Sources', 'SpreadsheetHelper/Sources', 'KeynoteMaestro/Sources', 'ProjectFolder/Sources'],
 }
+# Private apps stay local; existing copies receive the same permission UI without publishing their source.
+private_list = root / "Shared/PrivateApps/targets.txt"
+if private_list.exists():
+    for target in private_list.read_text().splitlines():
+        target = target.strip()
+        if target and not target.startswith("#") and (root / target / "AccessibilityPermission.swift").is_file():
+            copies['Shared/Accessibility/AccessibilityPermission.swift'].append(target)
+
 for source, targets in copies.items():
     data = (root / source).read_bytes()
     for target in targets:

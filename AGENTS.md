@@ -58,3 +58,11 @@ Dropbox内 `sw_app` と旧cloneは保全元として保持する。配布先はD
 - 各Macは独立したcloneを持ち、変更をGitHubで共有する。`.git`をDropboxで同期しない。
 - 配布用Latest BuildsはDropboxで共有する。`Shared/BuildTools/distribution_paths.py` が配布先を解決し、環境変数 `SW_APP_LATEST_BUILDS` で変更できる。`.local` はGit管理しない。
 - 既存の共通仕様と検証・バックアップ手順は引き続き適用する。
+
+## アクセシビリティ設定を開く共通動作（2026-10-23）
+
+- 既存・今後のアプリはB31を標準採用する。通常クリックでアクセシビリティ設定を開き、許可済みの範囲で自アプリの行を選択する。Option操作は不要。
+- Shared/Accessibility/AccessibilityPermission.swift の AccessibilitySection／AccessibilitySettingsLocator.shared.open() を使う。アプリ固有のURL直開きや固定待ち時間だけのキー送信を追加しない。
+- 未許可、一覧未取得、追加のAutomation許可が必要、OS差異による選択失敗時は設定画面を開くだけにフォールバックする。追加の許可を勝手に要求せず、許可スイッチの操作・変更・自動クリックは行わない。
+- 状態確認だけでは許可要求を出さない。権限不要アプリにはこの目的だけで権限や設定項目を追加しない。
+- 現在のアプリ名と.app付き表示を照合し、準備待ちと対象アプリの再確認を行う。利用者が別アプリへ移ったら補助操作を中止する。未許可・対象行なし・設定起動失敗のフォールバックも検証する。

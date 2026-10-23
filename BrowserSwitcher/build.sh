@@ -30,7 +30,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleDisplayName</key><string>ブラウザー切り替え</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>1.7.0</string>
-<key>CFBundleVersion</key><string>59</string>
+<key>CFBundleVersion</key><string>60</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSMultipleInstancesProhibited</key><true/>
 <key>LSUIElement</key><true/>

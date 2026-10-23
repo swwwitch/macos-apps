@@ -338,7 +338,7 @@ struct ContentView: View {
                     Button(L("revealInFinder")) { NSWorkspace.shared.activateFileViewerSelecting([url]) }.controlSize(.small)
                 } else if model.status == .needsAccess {
                     Button(AccessibilityText.text("open")) {
-                        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+                        MainActor.assumeIsolated { _ = AccessibilitySettingsLocator.shared.open() }
                     }.controlSize(.small)
                 }
             }
