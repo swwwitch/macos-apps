@@ -13,6 +13,9 @@ enum FormatAction: CaseIterable {
     case copyHeadings, raiseHeadings, lowerHeadings
     case findReplace, findNext, findPrevious, useSelectionForFind, jumpToSelection
 
+    // Tools menu commands; new shortcuts are unassigned by default.
+    case htmlToMarkdown, minifyHTML, trimLeadingSpaces, trimTrailingSpaces, clearWhitespaceLines, collapseBlankLines, spaceMarkers, normalizeListMarkers, halfwidthAlphanumerics, removeJapaneseLatinSpaces, tidyAll, removeBlankLines, twitterToX, removeUTM, wrapInDiv, rewrite, htmlLink, separateBlocks, hardBreaksToParagraphs, joinLines, removeDuplicates, sortAscending, sortDescending, insertTableOfContents, markdownToText, plainMarkdown, editThemes
+
     /// 保存に使うID
     var id: String { String(describing: self) }
 
@@ -23,7 +26,9 @@ enum FormatAction: CaseIterable {
          (L("編集"), [.newParagraph, .indent, .outdent, .moveParagraphUp, .moveParagraphDown]),
          (L("コピー"), [.copyHeadings, .copyHTML]),
          (L("見出し"), [.raiseHeadings, .lowerHeadings]),
-         (L("検索"), [.findReplace, .findNext, .findPrevious, .useSelectionForFind, .jumpToSelection])]
+         (L("検索"), [.findReplace, .findNext, .findPrevious, .useSelectionForFind, .jumpToSelection]),
+         (L("整形"), [.trimLeadingSpaces, .trimTrailingSpaces, .clearWhitespaceLines, .collapseBlankLines, .spaceMarkers, .normalizeListMarkers, .halfwidthAlphanumerics, .removeJapaneseLatinSpaces, .tidyAll, .removeBlankLines, .twitterToX, .removeUTM, .wrapInDiv]),
+         (L("ツール"), [.htmlToMarkdown, .minifyHTML, .rewrite, .htmlLink, .separateBlocks, .hardBreaksToParagraphs, .joinLines, .removeDuplicates, .sortAscending, .sortDescending, .insertTableOfContents, .markdownToText, .plainMarkdown, .editThemes])]
     }
 
     /// 設定にもメニューにも出さない、もう一つのキー（⌥⌘5 番号付きリスト・⌥⌘6 箇条書き・⌥⌘M コメント）
@@ -58,6 +63,33 @@ enum FormatAction: CaseIterable {
 
     var title: String {
         switch self {
+        case .htmlToMarkdown: return L("HTML→Markdown")
+        case .minifyHTML: return L("HTMLをMinify")
+        case .trimLeadingSpaces: return L("行頭のスペースを削除")
+        case .trimTrailingSpaces: return L("行末のスペースを削除")
+        case .clearWhitespaceLines: return L("スペースやタブだけの行を空に")
+        case .collapseBlankLines: return L("連続する空行を1行に")
+        case .spaceMarkers: return L("記号のあとにスペースを入れる")
+        case .normalizeListMarkers: return L("リストの記号を「-」にそろえる")
+        case .halfwidthAlphanumerics: return L("英数字を半角に")
+        case .removeJapaneseLatinSpaces: return L("和欧間のスペースを削除")
+        case .tidyAll: return L("すべて整える")
+        case .removeBlankLines: return L("空行を削除")
+        case .twitterToX: return L("twitter.comをx.comに")
+        case .removeUTM: return L("utmパラメーターを削除")
+        case .wrapInDiv: return L("divブロックで囲む")
+        case .rewrite: return L("文字数を指定して書き直す…")
+        case .htmlLink: return L("HTMLリンク…")
+        case .separateBlocks: return L("要素間に空行を入れる")
+        case .hardBreaksToParagraphs: return L("強制改行を改段落に")
+        case .joinLines: return L("改行を削除")
+        case .removeDuplicates: return L("重複行を削除")
+        case .sortAscending: return L("並べ替え（昇順）")
+        case .sortDescending: return L("並べ替え（降順）")
+        case .insertTableOfContents: return L("目次を挿入")
+        case .markdownToText: return L("Markdown → テキスト変換")
+        case .plainMarkdown: return L("素のMarkdownに戻す")
+        case .editThemes: return L("テーマを編集…")
         case .copyHTML: return L("HTMLをコピー")
         case .bold: return L("太字")
         case .italic: return L("斜体")
@@ -101,6 +133,7 @@ enum FormatAction: CaseIterable {
 
     private var key: (String, NSEvent.ModifierFlags) {
         switch self {
+        case .htmlToMarkdown, .minifyHTML, .trimLeadingSpaces, .trimTrailingSpaces, .clearWhitespaceLines, .collapseBlankLines, .spaceMarkers, .normalizeListMarkers, .halfwidthAlphanumerics, .removeJapaneseLatinSpaces, .tidyAll, .removeBlankLines, .twitterToX, .removeUTM, .wrapInDiv, .rewrite, .htmlLink, .separateBlocks, .hardBreaksToParagraphs, .joinLines, .removeDuplicates, .sortAscending, .sortDescending, .insertTableOfContents, .markdownToText, .plainMarkdown, .editThemes: return ("", [])
         case .copyHTML: return ("c", [.command, .option])
         case .bold: return ("b", .command)
         case .italic: return ("i", .command)
@@ -141,6 +174,33 @@ enum FormatAction: CaseIterable {
     @MainActor func perform() {
         let store = MarkdownStore.shared
         switch self {
+        case .htmlToMarkdown: store.convertHTMLToMarkdown()
+        case .minifyHTML: store.tidy([.minifyHTML])
+        case .trimLeadingSpaces: store.tidy([.leadingSpaces])
+        case .trimTrailingSpaces: store.tidy([.trailingSpaces])
+        case .clearWhitespaceLines: store.tidy([.whitespaceLines])
+        case .collapseBlankLines: store.tidy([.blankLines])
+        case .spaceMarkers: store.tidy([.markerSpaces])
+        case .normalizeListMarkers: store.tidy([.listMarkers])
+        case .halfwidthAlphanumerics: store.tidy([.halfwidthAlphanumerics])
+        case .removeJapaneseLatinSpaces: store.tidy([.japaneseLatinSpaces])
+        case .tidyAll: store.tidy(MarkdownTidy.Rule.standard)
+        case .removeBlankLines: store.tidy([.removeBlankLines])
+        case .twitterToX: store.tidy([.twitterToX])
+        case .removeUTM: store.tidy([.removeUTM])
+        case .wrapInDiv: store.transformLines(L("divブロックで囲む"), done: L("divブロックで囲みました"), LineTools.wrapInDiv)
+        case .rewrite: store.beginRewrite()
+        case .htmlLink: store.beginHTMLLink()
+        case .separateBlocks: store.transformLines(L("要素間に空行を入れる"), done: L("要素間に空行を入れました"), LineTools.separateBlocks)
+        case .hardBreaksToParagraphs: store.transformLines(L("強制改行を改段落に"), done: L("強制改行を改段落にしました"), LineTools.hardBreaksToParagraphs)
+        case .joinLines: store.transformLines(L("改行を削除"), done: L("改行を削除しました"), LineTools.joinLines)
+        case .removeDuplicates: store.transformLines(L("重複行を削除"), done: L("重複行を削除しました"), LineTools.removeDuplicates)
+        case .sortAscending: store.transformLines(L("並べ替え（昇順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: false) }
+        case .sortDescending: store.transformLines(L("並べ替え（降順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: true) }
+        case .insertTableOfContents: store.insertTableOfContents(levels: MarkdownStore.storedLevels)
+        case .markdownToText: store.beginTextConversion()
+        case .plainMarkdown: store.convertHTMLToMarkdown()
+        case .editThemes: SettingsWindow.shared.show(tab: L("テーマ"))
         case .copyHTML: store.copyHTML()
         case .bold: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "**") }
         case .italic: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "*") }

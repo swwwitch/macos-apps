@@ -1,6 +1,10 @@
 MarkdownKitchen shows your Markdown source on the left and only its headings on the right.
 
 ## How to Use
+
+- The Format popup starts with HTML→Markdown and Minify HTML. Convert Back to Plain Markdown in the Doorkeeper menu uses the same conversion.
+- Settings > Hotkeys supports Tools commands and individual Doorkeeper themes. New items have no default keys.
+- Tools > Markdown → Plain Text opens a dialog with the selection or the whole document. Configure links, lists, headings and tables, then copy or save as .txt. Options are remembered. Conversion runs locally and leaves the document unchanged.
 ### Add the source
 1. Type or paste Markdown into Source on the left.
 2. You can also load a file with File > Open File… (⌘O) or by dropping a .md file onto the left pane or the Dock icon.

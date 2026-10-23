@@ -181,6 +181,14 @@ final class MarkdownStore: ObservableObject {
     @Published var rewriteRequest: RewriteRequest?
     /// 「HTMLリンク...」のシートに渡す範囲
     @Published var htmlLinkRequest: HTMLLinkRequest?
+    @Published var textConversionRequest: MarkdownTextRequest?
+
+    func beginTextConversion() {
+        let selection = editor?.selectedRange() ?? NSRange(location: 0, length: 0)
+        let source = editor?.string ?? text
+        let input = selection.length > 0 ? (source as NSString).substring(with: selection) : source
+        textConversionRequest = MarkdownTextRequest(source: input)
+    }
     /// 左ペインのテキストビュー。読み込みをUndoに載せる・見出しへ移動するために使う
     weak var editor: NSTextView?
     /// 原稿のスクロール（いちばん上に見えている行、末尾なら .infinity）をプレビューへ伝える

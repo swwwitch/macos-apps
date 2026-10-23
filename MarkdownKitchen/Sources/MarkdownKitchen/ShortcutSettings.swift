@@ -63,6 +63,7 @@ struct MenuShortcut: Codable, Equatable {
         .init("h", .command), .init("h", [.command, .option]), .init("o", .command), .init("s", .command), .init("s", [.command, .shift]),
         .init("z", .command), .init("z", [.command, .shift]), .init("x", .command), .init("c", .command), .init("v", .command),
         .init("a", .command), .init("?", .command),
+        .init("n", .command), .init("n", [.command, .control]),
         // Hidden list keys (FormatAction.hiddenKeys).
         .init("5", [.command, .option]), .init("6", [.command, .option]), .init("m", [.command, .option]),
         .init("+", .command), .init("-", .command),
@@ -113,6 +114,13 @@ final class ShortcutStore: ObservableObject {
         }
     }
 
+    func shortcut(id: String) -> MenuShortcut? { overrides[id] ?? nil }
+
+    func set(_ shortcut: MenuShortcut?, id: String) {
+        if let shortcut { overrides[id] = shortcut }
+        else { overrides.removeValue(forKey: id) }
+    }
+
     func resetAll() { overrides = [:] }
     var hasCustomizations: Bool { !overrides.isEmpty }
 }
@@ -132,6 +140,7 @@ struct ShortcutButton: View {
 /// 設定の「ホットキー」タブ。記録欄は全アプリ共通の HotkeyField（保存は MenuShortcut のまま）
 struct ShortcutSettingsView: View {
     @ObservedObject private var store = ShortcutStore.shared
+    @ObservedObject private var presets = DoorkeeperPresets.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -142,6 +151,20 @@ struct ShortcutSettingsView: View {
             ForEach(Array(FormatAction.settingsGroups.enumerated()), id: \.offset) { _, group in
                 SettingsSection(group.title) {
                     ForEach(group.actions, id: \.self) { action in row(action) }
+                }
+            }
+            if !presets.items.isEmpty {
+                SettingsSection(L("Doorkeeper用に整形")) {
+                    ForEach(presets.items) { preset in
+                        let id = "theme." + preset.id.uuidString
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(preset.name).frame(width: 150, alignment: .trailing)
+                            HotkeyField(id: "markdownKitchen.shortcut." + id,
+                                        combo: Binding(get: { store.shortcut(id: id)?.combo },
+                                                       set: { store.set($0.flatMap(MenuShortcut.init(combo:)), id: id) }),
+                                        defaultCombo: nil, allowsClear: true, others: otherShortcuts(excluding: id))
+                        }
+                    }
                 }
             }
             Button(L("すべて初期値に戻す")) { HotkeyRecorder.shared.stop(); store.resetAll() }
@@ -159,15 +182,20 @@ struct ShortcutSettingsView: View {
                                        set: { store.set($0.flatMap(MenuShortcut.init(combo:)), for: action) }),
                         defaultCombo: action.defaultShortcut?.combo,
                         allowsClear: true,
-                        others: others(action))
+                        others: otherShortcuts(excluding: action.id))
         }
     }
 
     /// 重ねられないキー：ほかの項目のキーと、アプリの標準のキー（メニューの共通構成・ファイル・編集・文字サイズなど）
-    private func others(_ action: FormatAction) -> [(String, KeyCombo)] {
-        let items = FormatAction.allCases.filter { $0 != action }.compactMap { other in
+    private func otherShortcuts(excluding id: String) -> [(String, KeyCombo)] {
+        let items = FormatAction.allCases.filter { $0.id != id }.compactMap { other in
             store.shortcut(for: other)?.combo.map { (other.title, $0) }
         }
-        return items + MenuShortcut.reserved.compactMap { reserved in reserved.combo.map { (L("アプリの標準のキー"), $0) } }
+        let themes = presets.items.compactMap { preset -> (String, KeyCombo)? in
+            let themeID = "theme." + preset.id.uuidString
+            guard themeID != id, let combo = store.shortcut(id: themeID)?.combo else { return nil }
+            return (preset.name, combo)
+        }
+        return items + themes + MenuShortcut.reserved.compactMap { reserved in reserved.combo.map { (L("アプリの標準のキー"), $0) } }
     }
 }

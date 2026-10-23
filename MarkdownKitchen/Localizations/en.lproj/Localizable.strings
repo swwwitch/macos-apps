@@ -37,6 +37,7 @@
 "ツリー（└ 見出し）" = "Tree (└ Heading)";
 "見出しを太字で表示" = "Show headings in bold";
 "HTML→Markdown" = "HTML→Markdown";
+"素のMarkdownに戻す" = "Convert Back to Plain Markdown";
 "HTMLをMarkdownに変換しました" = "Converted HTML to Markdown";
 "変換するHTMLはありません" = "No HTML to convert";
 "変換する見出し（##・###）はありません" = "No ## or ### headings to convert";
@@ -265,3 +266,6 @@
 "初期値に戻す" = "Restore Defaults";
 "書式・変換などのメニュー項目のキーです。MarkdownKitchenが前面のときだけ効きます。" = "Keys for the format, convert and other menu items. They work only while MarkdownKitchen is in front.";
 "アプリの標準のキー" = "App’s standard keys";
+
+"Markdown → テキスト変換" = "Markdown → Plain Text";
+"閉じる" = "Close";

@@ -51,6 +51,7 @@ struct ContentView: View {
         .onAppear { DispatchQueue.main.async { store.refreshDocumentEdited() } }
         .sheet(item: $store.rewriteRequest) { RewriteSheet(request: $0) }
         .sheet(item: $store.htmlLinkRequest) { HTMLLinkSheet(request: $0) }
+        .sheet(item: $store.textConversionRequest) { MarkdownTextSheet(request: $0) }
     }
 
     private var header: some View {
@@ -375,13 +376,22 @@ struct ContentView: View {
     }
 }
 
-/// 原稿のバーの「整形」メニュー（6項目とその他を続けて並べる）
+/// 原稿のバーの「整形」メニュー（HTML変換を先頭に並べる）
 struct TidyMenuItems: View {
     let levels: Set<Int>
     var body: some View {
+        HTMLConversionMenuItems()
+        Divider()
         TidyRuleItems()
         Divider()
         TidyToolItems(levels: levels)
+    }
+}
+
+private struct HTMLConversionMenuItems: View {
+    var body: some View {
+        ShortcutButton(action: .htmlToMarkdown)
+        ShortcutButton(action: .minifyHTML)
     }
 }
 
@@ -389,22 +399,22 @@ struct TidyMenuItems: View {
 struct TidyRuleItems: View {
     var body: some View {
         // 「すべて整える」でまとめて実行するもの
-        Button(L("行頭のスペースを削除")) { MarkdownStore.shared.tidy([.leadingSpaces]) }
-        Button(L("行末のスペースを削除")) { MarkdownStore.shared.tidy([.trailingSpaces]) }
-        Button(L("スペースやタブだけの行を空に")) { MarkdownStore.shared.tidy([.whitespaceLines]) }
-        Button(L("連続する空行を1行に")) { MarkdownStore.shared.tidy([.blankLines]) }
-        Button(L("記号のあとにスペースを入れる")) { MarkdownStore.shared.tidy([.markerSpaces]) }
-        Button(L("リストの記号を「-」にそろえる")) { MarkdownStore.shared.tidy([.listMarkers]) }
-        Button(L("英数字を半角に")) { MarkdownStore.shared.tidy([.halfwidthAlphanumerics]) }
-        Button(L("和欧間のスペースを削除")) { MarkdownStore.shared.tidy([.japaneseLatinSpaces]) }
+        ShortcutButton(action: .trimLeadingSpaces)
+        ShortcutButton(action: .trimTrailingSpaces)
+        ShortcutButton(action: .clearWhitespaceLines)
+        ShortcutButton(action: .collapseBlankLines)
+        ShortcutButton(action: .spaceMarkers)
+        ShortcutButton(action: .normalizeListMarkers)
+        ShortcutButton(action: .halfwidthAlphanumerics)
+        ShortcutButton(action: .removeJapaneseLatinSpaces)
         Divider()
-        Button(L("すべて整える")) { MarkdownStore.shared.tidy(MarkdownTidy.Rule.standard) }
+        ShortcutButton(action: .tidyAll)
         Divider()
         // 「すべて整える」に入れないもの（文章を変えるので、選んだときだけ）
-        Button(L("空行を削除")) { MarkdownStore.shared.tidy([.removeBlankLines]) }
-        Button(L("twitter.comをx.comに")) { MarkdownStore.shared.tidy([.twitterToX]) }
-        Button(L("utmパラメーターを削除")) { MarkdownStore.shared.tidy([.removeUTM]) }
-        Button(L("divブロックで囲む")) { MarkdownStore.shared.transformLines(L("divブロックで囲む"), done: L("divブロックで囲みました"), LineTools.wrapInDiv) }
+        ShortcutButton(action: .removeBlankLines)
+        ShortcutButton(action: .twitterToX)
+        ShortcutButton(action: .removeUTM)
+        ShortcutButton(action: .wrapInDiv)
     }
 }
 
@@ -415,26 +425,28 @@ struct TidyToolItems: View {
     var inToolsMenu = false
     var body: some View {
         // 書き直し
-        Button(L("文字数を指定して書き直す…")) { MarkdownStore.shared.beginRewrite() }
-        Button(L("HTMLリンク…")) { MarkdownStore.shared.beginHTMLLink() }
+        ShortcutButton(action: .rewrite)
+        ShortcutButton(action: .htmlLink)
+        ShortcutButton(action: .markdownToText)
         Divider()
         // 改行・空行
-        Button(L("要素間に空行を入れる")) { MarkdownStore.shared.transformLines(L("要素間に空行を入れる"), done: L("要素間に空行を入れました"), LineTools.separateBlocks) }
-        Button(L("強制改行を改段落に")) { MarkdownStore.shared.transformLines(L("強制改行を改段落に"), done: L("強制改行を改段落にしました"), LineTools.hardBreaksToParagraphs) }
-        Button(L("改行を削除")) { MarkdownStore.shared.transformLines(L("改行を削除"), done: L("改行を削除しました"), LineTools.joinLines) }
+        ShortcutButton(action: .separateBlocks)
+        ShortcutButton(action: .hardBreaksToParagraphs)
+        ShortcutButton(action: .joinLines)
         Divider()
         // 行の操作
-        Button(L("重複行を削除")) { MarkdownStore.shared.transformLines(L("重複行を削除"), done: L("重複行を削除しました"), LineTools.removeDuplicates) }
-        Button(L("並べ替え（昇順）")) { MarkdownStore.shared.transformLines(L("並べ替え（昇順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: false) } }
-        Button(L("並べ替え（降順）")) { MarkdownStore.shared.transformLines(L("並べ替え（降順）"), done: L("行を並べ替えました")) { LineTools.sort($0, descending: true) } }
+        ShortcutButton(action: .removeDuplicates)
+        ShortcutButton(action: .sortAscending)
+        ShortcutButton(action: .sortDescending)
         Divider()
-        // 変換
-        Button(L("HTML→Markdown")) { MarkdownStore.shared.convertHTMLToMarkdown() }
-        Button(L("HTMLをMinify")) { MarkdownStore.shared.tidy([.minifyHTML]) }
-        if inToolsMenu { Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() } }
-        Divider()
+        if inToolsMenu {
+            // 変換（原稿のバーではメニュー先頭に配置）
+            HTMLConversionMenuItems()
+            Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
+            Divider()
+        }
         // 見出し
-        Button(L("目次を挿入")) { MarkdownStore.shared.insertTableOfContents(levels: levels) }
+        ShortcutButton(action: .insertTableOfContents)
         if inToolsMenu {
             Menu(L("見出しレベルの変更（すべて）")) {
                 ShortcutButton(action: .raiseHeadings, title: L("1段上げる"))

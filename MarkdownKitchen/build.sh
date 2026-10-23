@@ -36,6 +36,7 @@ cp Assets/DocumentIcon/MarkdownKitchenDocument.icns "$contents_dir/Resources/Mar
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
 # highlight.js 11.9.0 (BSD-3-Clause) for code blocks in the preview.
 cp -R Resources/highlight "$contents_dir/Resources/highlight"
+cp Resources/markdown2text.html "$contents_dir/Resources/markdown2text.html"
 printf 'APPL????' > "$contents_dir/PkgInfo"
 python3 Tests/check-localization.py --app "$app_dir"
 embed_updates "$app_dir"

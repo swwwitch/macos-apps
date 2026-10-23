@@ -59,6 +59,7 @@ final class DoorkeeperPresets: ObservableObject {
 /// 「Doorkeeper用に整形」のメニュー：テーマを選んで適用する（原稿のバーと編集メニューで共有）
 struct DoorkeeperThemeMenuItems: View {
     @ObservedObject private var presets = DoorkeeperPresets.shared
+    @ObservedObject private var shortcuts = ShortcutStore.shared
     var body: some View {
         if presets.items.isEmpty {
             Text(L("テーマがありません"))
@@ -68,9 +69,12 @@ struct DoorkeeperThemeMenuItems: View {
                 // The theme used last is checked.
                 if preset.id == presets.current?.id { Label(preset.name, systemImage: "checkmark") } else { Text(preset.name) }
             }
+            .keyboardShortcut(shortcuts.shortcut(id: "theme." + preset.id.uuidString)?.swiftUI)
         }
         Divider()
-        Button(L("テーマを編集…")) { SettingsWindow.shared.show(tab: L("テーマ")) }
+        ShortcutButton(action: .plainMarkdown)
+        Divider()
+        ShortcutButton(action: .editThemes)
     }
 }
 
