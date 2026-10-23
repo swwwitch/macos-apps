@@ -508,7 +508,7 @@ info = {
     'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.graphics-design',
     'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch',
     # No article of its own yet: the summary magazine (the About tab then shows no separate article row).
-    'SWNoteArticleURL': 'https://note.com/swwwitch/m/m057948d2fbeb',
+    'SWNoteArticleURL': 'https://note.com/swwwitch/n/ne4a0fc0c1dd2',
     'ITSAppUsesNonExemptEncryption': False,
     'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1',
     'CFBundleDocumentTypes': [{'CFBundleTypeName': 'Image', 'CFBundleTypeRole': 'Viewer', 'LSHandlerRank': 'Alternate',

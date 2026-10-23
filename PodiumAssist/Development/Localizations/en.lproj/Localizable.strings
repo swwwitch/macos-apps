@@ -1,4 +1,4 @@
-"PodiumAssist — セミナー・キャプチャ準備" = "PodiumAssist — Seminar & Capture Preparation";
+"PodiumAssist — セミナー準備" = "PodiumAssist — Seminar Preparation";
 "PodiumAssistについて" = "About PodiumAssist";
 "メニューバー設定…" = "Menu Bar Settings…";
 "設定…" = "Settings…";
@@ -16,7 +16,7 @@
 "すべてを選択" = "Select All";
 "PodiumAssist — Macの表示設定" = "PodiumAssist — Mac Display Settings";
 "残り " = "Remaining ";
-"セミナー・キャプチャ準備" = "Seminar & Capture Preparation";
+"セミナー準備" = "Seminar Preparation";
 "設定" = "Settings";
 "停止中" = "Stopped";
 "開始まで " = "Starts in ";
@@ -218,7 +218,7 @@
 "ショートカットを変更できませんでした。" = "Could not change the shortcut.";
 "ズーム方法を変更できませんでした。" = "Could not change the zoom style.";
 "最大拡大率を変更できませんでした。" = "Could not change the maximum zoom.";
-"syncNote" = "Exports and syncs the presets (included items, values, apps to open or quit) and Use Timer. Resolutions or apps missing on another Mac are skipped when a preset is applied.";
+"syncNote" = "Exports and syncs presets and app-switch hiding settings. Start and stop the timer on this Mac.";
 "syncPerMac" = "Login launch, background, menu bar, Accessibility, the timer's start time and duration, window positions and tabs, the last applied preset and the sync folder location stay per Mac.";
 
 "基本" = "Basic";
@@ -233,3 +233,36 @@
 "表示" = "Display";
 
 "音量を変更するときにフィードバックを再生しない" = "Do not play feedback when volume is changed";
+
+"起動" = "Launch";
+
+"終了" = "Quit";
+
+// Preset application confirmation
+"プリセットの切り換えを確認" = "Confirm Preset Switch";
+"チェックしたアプリだけを起動・終了します。今回の選択はプリセットに保存されません。" = "Only checked apps will be launched or quit. These selections are not saved to the preset.";
+"起動するアプリ" = "Apps to Launch";
+"終了するアプリ" = "Apps to Quit";
+"終了時に未保存の書類がある場合は、各アプリの確認画面で操作してください。" = "If an app has unsaved documents, respond to its save confirmation.";
+"切り換える" = "Switch Preset";
+
+"プリセットのアプリ" = "Preset Apps";
+
+"macOSのデフォルト" = "macOS Defaults";
+
+"フルセット" = "Full Set";
+
+"アプリ切り替え時にほかを隠す" = "Hide other apps when switching apps";
+
+"ほかを隠すまでの秒数" = "Delay before hiding other apps";
+
+"秒後" = "seconds later";
+
+"対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。" = "Switching to an excluded app hides nothing. Excluded apps themselves are never hidden.";
+
+"次の正時にする" = "Set to Next Hour";
+"Option＋クリックで今日の日付と現在時刻を両方適用します。" = "Option-click to apply both today’s date and the current time.";
+
+"アプリ" = "Apps";
+
+"プリセット（%@）に保存" = "Save to Preset (%@)";

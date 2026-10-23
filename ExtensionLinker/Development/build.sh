@@ -25,7 +25,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleIdentifier</key><string>local.takano.DutiGUI</string>
 <key>CFBundleName</key><string>ExtensionLinker</string>
 <key>CFBundleDisplayName</key><string>ExtensionLinker</string>
-<key>CFBundleVersion</key><string>51</string>
+<key>CFBundleVersion</key><string>53</string>
 <key>CFBundleShortVersionString</key><string>0.3.3</string>
 <key>CFBundleIconFile</key><string>ExtensionLinker-Mustard</string>
 <key>CFBundlePackageType</key><string>APPL</string>

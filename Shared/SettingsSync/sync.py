@@ -11,7 +11,7 @@ for target in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'DocklessLauncher
                'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'IncrementPaste/Sources', 'KageTrimmer/Development/Sources',
                'KakkoReplace/Sources', 'LinkMaker/Sources', 'MarkdownKitchen/Sources/MarkdownKitchen', 'MightyEdit/Source',
                'PasteInARow/Sources', 'PasteMatchStyle/Sources', 'PodiumAssist/Development/Sources/Toki', 'PrefsPreset/Sources/PrefsPreset',
-               'ProjectFolder/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'SpreadsheetHelper/Sources', 'KeynoteHelper/Sources', 'YohakuTrimmer/Development/Sources'] + private_targets:
+               'ProjectFolder/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'SpreadsheetHelper/Sources', 'KeynoteMaestro/Sources', 'YohakuTrimmer/Development/Sources'] + private_targets:
     path = root / target / "SettingsSync.swift"
     if not path.parent.is_dir():
         continue

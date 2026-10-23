@@ -30,7 +30,7 @@
 "mailToggle" = "Email me once a day while auto-update is on";
 "mailTo" = "To:";
 "mailTime" = "Send at:";
-"mailHint" = "Sent from the account set up in the Mail app (macOS asks once for permission to control Mail). Sent after the time you set; if the Mac is asleep then, it is sent after it wakes.";
+"mailHint" = "Sent from the account set up in the Mail app (macOS asks once for permission to control Mail). The subject includes the Mac name; the body includes the Mac and host names. If asleep at the scheduled time, mail is sent after waking.";
 "mailTest" = "Send Test Mail";
 "mailSending" = "Sending…";
 "mailSent" = "Sent to %1$@ (%2$@).";
@@ -39,8 +39,10 @@
 "mailDenied" = "Not allowed to control Mail. Turn on Mail for CCAutoUpdateOff in System Settings → Privacy & Security → Automation.";
 "mailFailed" = "Could not send: ";
 "mailSubject" = "[CCAutoUpdateOff] Creative Cloud auto-update is on (%@)";
-"mailTestSubject" = "[CCAutoUpdateOff] Test mail";
+"mailTestSubject" = "[CCAutoUpdateOff] Test mail (%@)";
 "mailTestBody" = "This is a test mail from CCAutoUpdateOff. The current state is:";
+"mailSourceMac" = "Source Mac: %@";
+"mailSourceHost" = "Host name: %@";
 "mailIntro" = "Creative Cloud auto-update settings on %@:";
 "mailHowTo" = "To turn it off, use the switches in Creative Cloud Preferences → Apps. You will get this once a day while it is on.";
 "removeOldOn" = "“Remove previous versions” is on for: %@";

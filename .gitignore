@@ -48,3 +48,7 @@ PDF2Keynote/Tests/KeynoteOutput/
 
 # Per-Mac build and shared distribution paths
 .local/
+
+# 公開対象外の配布記録・申請用の生成資料
+/PodiumAssist/Release/
+/output/

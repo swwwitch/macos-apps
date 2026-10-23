@@ -43,7 +43,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.4.0</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>11</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
@@ -61,6 +61,6 @@
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>
-	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+	<string>https://note.com/swwwitch/n/ne4a0fc0c1dd2</string>
 </dict>
 </plist>

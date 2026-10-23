@@ -115,12 +115,11 @@ enum MarkdownFormat {
             var number = 0
             lines = lines.map { line in
                 guard !line.trimmingCharacters(in: .whitespaces).isEmpty else { return line }
-                let indent = String(line.prefix { $0 == " " || $0 == "\t" })
                 // Any list marker (and a heading mark) gives way to the new one.
-                let body = stripHeading(line.replacingOccurrences(of: #"^\s*([-*+]|\d{1,9}[.)])[ \t]+"#, with: "", options: .regularExpression))
-                if all { return indent + body }
+                let body = stripHeading(String(line.drop(while: { $0.isWhitespace })).replacingOccurrences(of: #"^\s*([-*+]|\d{1,9}[.)])[ \t]+"#, with: "", options: .regularExpression))
+                if all { return body }
                 number += 1
-                return indent + (ordered ? "\(number). " : "- ") + body
+                return (ordered ? "\(number). " : "- ") + body
             }
         }
         var replacement = lines.joined(separator: "\n")

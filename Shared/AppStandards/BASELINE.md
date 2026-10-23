@@ -66,7 +66,7 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 | --- | --- | --- |
 | B23 | 開き直しと⌘Tab・⌘0 | 起動中にDockのアイコンやFinderから開き直したら、ウインドウが無くても処理中でもメインウインドウを前面に出す（applicationShouldHandleReopen、SwiftUIはWindowGroupの既定）。メニューバー常駐（accessory）アプリはWindowActivationPolicyで、ウインドウを開いている間だけ⌘TabとDockに出し、しまったウインドウだけのときは⌘Tabで選ぶと戻す。通常アプリには入れない（閉じるとDockから消えるため）。「メインウインドウを開く」⌘0はメニューの表記を⌘0のまま⌘1でも実行する（MenuBarPresenceのMainWindowShortcutAlias。アプリが⌘1を使う場合はそちら優先）。 |
 | B24 | 設定ウインドウのふるまい | 大きさを変えられ、最小は設計時の大きさ（contentMinSize、SwiftUIはframe(min…max:.infinity)と`sizingOptions = [.minSize]`）。最後に選んだタブを再起動後も復元する。タブにずれたフォーカス枠を出さない（SettingsSectionで`focusRingType = .none`）。変更はその場で反映し「適用」ボタンを置かない。シートやパネルの設定はEscと⌘Wで閉じられる。タイトルとローカライズの元キーは「設定」（旧「環境設定」をキーにも残さない）。 |
-| B25 | アプリ情報と目印 | 設定の最後に「情報」タブ（AboutSection.swift）を置き、アイコン・名前・バージョン（build）・コピーライト・リンク（解説記事・アプリのまとめ・X）を表示する。Info.plistにSWNoteArticleURL（アプリ専用の記事、まとめと同じなら記事の行は出ない）、NSHumanReadableCopyright「© 2026 swwwitch」、SWAppFamily「swwwitch」を入れる。配置時（deploy_both.py）にSWAppFamilyと同名のFinderタグを付ける。 |
+| B25 | アプリ情報と目印 | 設定の最後に「情報」タブ（AboutSection.swift）を置き、アイコン・名前・バージョン（build）・コピーライト・リンク（解説記事・アプリのまとめ・GitHub・X）を表示する。GitHubは各公開アプリの個別リポジトリ `https://github.com/swwwitch/<正式アプリ名>` を開く。個別公開対象外の場合は共通の `https://github.com/swwwitch/macos-apps` を使う。Info.plistにSWNoteArticleURL（アプリ専用の記事、まとめと同じなら記事の行は出ない）、NSHumanReadableCopyright「© 2026 swwwitch」、SWAppFamily「swwwitch」を入れる。配置時（deploy_both.py）にSWAppFamilyと同名のFinderタグを付ける。 |
 | B26 | 証明書での署名 | ローカルビルドもアドホックではなくチームの証明書（PL9S9PXX96）で署名し、ビルドし直してもアクセシビリティ等の許可を引き継ぐ。秘密鍵はログインキーチェーンに置く（システムキーチェーンだと署名のたびに管理者認証が出る）。配布はDeveloper ID＋Hardened Runtime＋公証とし、証明書が無いときは別の署名に切り替えず止める。 |
 | B27 | 取消と失敗の伝え方 | パレット・シート・確認ダイアログはEscで閉じる（cancelOperation、`.cancelAction`、確認の取消ボタンにEsc）。ビープだけで終わらせず、見える場所（ウインドウの状態欄・パレット・アラート）に理由を出す。実行できない状況ではメニュー項目を無効にする。 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 位置の保存が無い初回は中央に出し、復元した位置が画面外なら戻す（SwiftUIのWindowGroupも含め、visibleFrameで判定）。自作描画・画像だけのボタン・ドロップ領域にaccessibilityLabel（`.help`だけにしない）。固定色のtintはダークモードでコントラストを確かめる。アニメーションは「視差効果を減らす」に従う。 |
@@ -177,3 +177,15 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 | B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」で「起動時にメインウインドウを表示しない」の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONの間はウインドウを開いていても activation policy を `.accessory` にし、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
 
 共通部品は `StartupWindow.swift` の `DockPresence`。`StartupWindowControl`／`StartupWindowView`（`LoginAtLaunchControl`／`LoginAtLaunchView` に内包）が自動で項目を出すので、各アプリでは書かない。起動時は `MenuBarPresence.install`、メニューバー常駐アプリは `WindowActivationPolicy.update` が反映する。アプリのコードで起動後に `setActivationPolicy(.regular)` を呼ばず、`DockPresence.apply()` を使う。
+
+## 設定同期の保存方式（2026-10-22）
+
+B29の同期はShared/SettingsSyncのv2変更履歴方式を使う。複数Macが同じファイルを上書きしない。既存同期先と旧plist・競合コピーを保持し、移行後は旧plistを更新しない。全Macの更新が必要であることを画面に示す。書き出し・読み込み用の単独plistは従来どおり。受信の再送信、未送信のローカル変更消失、別フォルダーへの古い結果の適用を防ぎ、同時編集・削除・再起動・I/O失敗を検証する。
+
+## アクセシビリティ設定で自アプリを見つける（B31、2026-10-23）
+
+| ID | 必須仕様 | 受け入れ条件 |
+| --- | --- | --- |
+| B31 | 設定を開き、可能な場合だけ自アプリの行を選択 | 「アクセシビリティ設定を開く」の通常クリックで設定画面を開く。既存の許可で自アプリの行を確認できた場合のみ選択する。Optionは不要。未許可・一覧取得失敗・追加Automation許可が必要な場合は設定画面を開くだけにする。許可スイッチを変更せず、追加権限を自動要求しない。別アプリへ移動したら補助を中止する。権限不要アプリにはこのための権限・項目を追加しない。 |
+
+共通実装はShared/Accessibility/AccessibilityPermission.swift。設定内はAccessibilitySection／AccessibilityPermissionControl、ほかの入口はAccessibilitySettingsLocator.shared.open()を使用する。表示名・Bundle名・実アプリ名と.app付き表示を照合し、準備待ちには上限を設ける。AXSelectedでの行選択を優先し、AppleScriptの補助は既存Automation許可を要求なしで確認できた場合だけ使用する。初回の未許可状態での自動選択を保証しない。

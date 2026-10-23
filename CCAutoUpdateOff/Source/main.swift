@@ -117,8 +117,8 @@ final class Model: ObservableObject {
         guard !sending else { return }
         let address = mailAddress.trimmingCharacters(in: .whitespaces)
         guard CCAutoUpdate.isValidAddress(address) else { mailStatus = L("mailInvalidAddress"); return }
-        let host = Host.current().localizedName ?? "Mac"
-        let subject = test ? L("mailTestSubject") : String(format: L(state.level == .on ? "mailSubject" : "mailSubjectRemoveOld"), host)
+        let host = CCAutoUpdate.mailMachineName(displayName: Host.current().localizedName, hostName: ProcessInfo.processInfo.hostName)
+        let subject = test ? String(format: L("mailTestSubject"), host) : String(format: L(state.level == .on ? "mailSubject" : "mailSubjectRemoveOld"), host)
         let body = (test ? L("mailTestBody") + "\n\n" : "") + mailBody(host: host)
         sending = true
         mailStatus = L("mailSending")
@@ -135,7 +135,10 @@ final class Model: ObservableObject {
     }
 
     private func mailBody(host: String) -> String {
-        var lines = [String(format: L("mailIntro"), host), "", L("globalRow") + L("colon") + valueText(state.global)]
+        var lines = [String(format: L("mailIntro"), host),
+                     String(format: L("mailSourceMac"), host),
+                     String(format: L("mailSourceHost"), CCAutoUpdate.mailMachineName(displayName: nil, hostName: ProcessInfo.processInfo.hostName)),
+                     "", L("globalRow") + L("colon") + valueText(state.global)]
         lines += state.apps.map { "- " + $0.name + "\n    " + L("globalRowShort") + L("colon") + (state.autoUpdateActive($0) ? valueText($0.value) : "—")
             + L("mailFieldSeparator") + L("removeOldShortTitle") + L("colon") + (state.removeOldActive($0) ? ($0.removeOld ? L("stateOn") : L("stateOff")) : "—") }
         if !removeOldText.isEmpty { lines += ["", removeOldText] }

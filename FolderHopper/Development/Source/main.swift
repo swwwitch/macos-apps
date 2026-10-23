@@ -131,7 +131,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     /// False after registration failed; the settings field shows the shared message.
     var shortcutRegistered = true
     var applicationsShortcutRegistered = true
-    let loginInBackground = NSButton(checkboxWithTitle: L("ログイン時はウインドウを表示せず、バックグラウンドで起動"), target: nil, action: nil)
     let renameConflicts = NSPopUpButton()
     let historyLimit = NSTextField(string: "0")
     let closeAfterOperation = NSButton(checkboxWithTitle: L("処理完了後にウインドウを閉じる（常駐は継続）"), target: nil, action: nil)
@@ -166,10 +165,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         #if APP_STORE
         _ = FolderAccess.shared
         #endif
-        let loginLaunch = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        UserDefaults.standard.register(defaults: ["loginInBackground": true])
-        loginInBackground.state = UserDefaults.standard.bool(forKey: "loginInBackground") ? .on : .off
-        loginInBackground.target = self; loginInBackground.action = #selector(loginBackgroundChanged)
         lastBrowser = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(activated(_:)), name: NSWorkspace.didActivateApplicationNotification, object: nil)
         UNUserNotificationCenter.current().delegate = self
@@ -200,7 +195,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         windowScreen.setAccessibilityLabel(L("複数のディスプレイのとき、ウインドウを表示する画面"))
         startSettingsSync()
         window.center()
-        if (!StartupWindow.hidden || pendingOpenFiles != nil) && !LaunchPolicy.shouldStayInBackground(loginLaunch: loginLaunch, enabled: loginInBackground.state == .on, hasFiles: pendingOpenFiles != nil) {
+        if LaunchPolicy.shouldShowMainWindow(hiddenAtStartup: StartupWindow.hidden, hasFiles: pendingOpenFiles != nil) {
             requestTransfer()
         }
     }
@@ -455,7 +450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             shortcutTitle.font = .systemFont(ofSize: 13, weight: .semibold)
             let shortcutNote = NSTextField(wrappingLabelWithString: L("常駐中、Finder／Path Finderが前面のときに使用できます。アプリを終了した場合は、先に起動してください。"))
             shortcutNote.font = .systemFont(ofSize: 12); shortcutNote.textColor = .secondaryLabelColor
-            group(SettingsUI.launchTitle, [MainActor.assumeIsolated { LoginAtLaunchControl() }, loginInBackground, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutTitle, shortcutEnabled, shortcutField(id: 1), shortcutNote])
+            group(SettingsUI.launchTitle, [MainActor.assumeIsolated { LoginAtLaunchControl() }, MainActor.assumeIsolated { MenuBarPresence.shared.settingsControl() }, shortcutTitle, shortcutEnabled, shortcutField(id: 1), shortcutNote])
             group(SettingsUI.displayTitle, [shortenDropbox, showChooser, showFavorites,
                                             NSTextField(labelWithString: L("複数のディスプレイのとき、ウインドウを表示する画面")), windowScreen])
             let conflictLabel = NSTextField(labelWithString: L("移動先に同名のファイルがあるとき"))
@@ -488,9 +483,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         return true
-    }
-    @objc func loginBackgroundChanged() {
-        UserDefaults.standard.set(loginInBackground.state == .on, forKey: "loginInBackground")
     }
     @objc func renameConflictsChanged() {
         UserDefaults.standard.set(renameConflicts.indexOfSelectedItem == 0, forKey: "renameConflicts")

@@ -15,6 +15,7 @@ files=[shared/'AppStandards/StoreManual/StoreHost.swift',project/'AppStore/Store
 files += [shared/'AppStandards'/f'{s}.swift' for s in ['AppSurface','StartupWindow','SettingsSection','HelpDocument']]
 files += [shared/'LoginAtLaunch/LoginAtLaunch.swift',shared/'MenuBarPresence/MenuBarPresence.swift']
 files += [source_dir/f'{s}.swift' for s in sources]
+if name == 'CommandDee': files.append(project/'AppStore/StoreFileOperations.swift')
 out=project/'AppStore/StoreBuild'/f'{name}-build{a.build}.app'
 if out.exists(): raise SystemExit(f'Refusing existing output: {out}')
 with tempfile.TemporaryDirectory(prefix='store-manual-') as temp:

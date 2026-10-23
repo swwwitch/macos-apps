@@ -14,7 +14,7 @@ import Foundation
   precondition(merged.values["timerEnabled"] as? Bool == true, "this Mac's Use Timer stays")
   let empty = PresetStore.merged(file, [:])
   precondition(decode(empty.values["presets"]).count == 2 && empty.values["timerEnabled"] as? Bool == false, "missing values come from the file")
-  precondition(PresetStore.syncedKeys == ["presets", "timerEnabled"])
+  precondition(PresetStore.syncedKeys == ["presets", "hideOthersOnSwitch", "hideOthersDelay"])
   print("PASS: 設定の共有 add (merge) keeps this Mac's presets and values and appends new presets")
  }
 }

@@ -69,6 +69,12 @@ try! "<prefs/>".write(to: folder.appendingPathComponent("com.adobe.accc.apps.def
 let broken = CCAutoUpdate.read(files: CCAutoUpdate.prefsFiles(in: folder))
 check(broken.files.count == 1 && broken.invalid.count == 1 && broken.level == .unknown, "broken file → unknown, default.prefs ignored")
 
+// Machine identity used in normal reports and test-mail subjects.
+check(CCAutoUpdate.mailMachineName(displayName: "Studio Mac", hostName: "studio.local") == "Studio Mac", "mail identifies the sending Mac")
+check(CCAutoUpdate.mailMachineName(displayName: "  ", hostName: "studio.local") == "studio.local", "empty Mac name falls back to host name")
+check(CCAutoUpdate.mailMachineName(displayName: nil, hostName: "") == "Mac", "missing names have a readable fallback")
+check(!CCAutoUpdate.mailMachineName(displayName: "Mac\nInjected\rHeader", hostName: "host").contains("\n"), "machine name cannot inject a subject line")
+
 // Messages and daily mail.
 check(CCAutoUpdate.appList(fresh, separator: "、") == "Camera Raw、Photoshop", "app list")
 check(CCAutoUpdate.signature(onState) == "ACR,PHSP" && CCAutoUpdate.signature(merged) == "ILST", "signature")

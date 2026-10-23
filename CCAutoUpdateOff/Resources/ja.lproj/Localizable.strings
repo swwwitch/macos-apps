@@ -30,7 +30,7 @@
 "mailToggle" = "自動更新がオンの間、1日1回メールで知らせる";
 "mailTo" = "宛先 :";
 "mailTime" = "送信時刻 :";
-"mailHint" = "Macの「メール」アプリに設定したアカウントから送ります（最初の1回だけ「メール」の制御の許可を求められます）。指定した時刻を過ぎてから送ります。その時刻にMacがスリープ中のときは、復帰後に送ります。";
+"mailHint" = "Macの「メール」アプリに設定したアカウントから送ります（最初の1回だけ「メール」の制御の許可を求められます）。件名にMac名、本文にMac名とホスト名を添えます。指定時刻にスリープ中の場合は復帰後に送ります。";
 "mailTest" = "テスト送信";
 "mailSending" = "送信中…";
 "mailSent" = "%1$@ に送信しました（%2$@）。";
@@ -39,8 +39,10 @@
 "mailDenied" = "「メール」を制御する許可がありません。システム設定の［プライバシーとセキュリティ］→［オートメーション］でCCAutoUpdateOffの「メール」をオンにしてください。";
 "mailFailed" = "送信できませんでした：";
 "mailSubject" = "[CCAutoUpdateOff] Creative Cloudの自動更新がオンです（%@）";
-"mailTestSubject" = "[CCAutoUpdateOff] テストメール";
+"mailTestSubject" = "[CCAutoUpdateOff] テストメール（%@）";
 "mailTestBody" = "これはCCAutoUpdateOffのテストメールです。現在の状態は次のとおりです。";
+"mailSourceMac" = "送信元のMac：%@";
+"mailSourceHost" = "ホスト名：%@";
 "mailIntro" = "%@ のCreative Cloudの自動更新の設定：";
 "mailHowTo" = "オフにするには、Creative Cloudの［環境設定］→［アプリ］でスイッチを切り替えてください。オンの間は1日1回お知らせします。";
 "removeOldOn" = "「以前のバージョンを削除」がオンのアプリがあります：%@";

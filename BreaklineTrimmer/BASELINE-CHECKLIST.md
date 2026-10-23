@@ -35,7 +35,7 @@
 | B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchControl 内の StartupWindowControl。ファイルを渡された起動では表示。 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、通常アプリ、⌘0/⌘1（MenuBarPresence）。 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | リサイズ可・最小サイズ（sizingOptions .minSize）、タブ復元、即時反映、タイトル「設定」。 |
-| B25 | アプリ情報と目印 | 実装済み | NSHumanReadableCopyright・SWAppFamily。SWNoteArticleURL は専用記事がまだないため、まとめ（https://note.com/swwwitch/m/m057948d2fbeb）。記事公開後に差し替える。 |
+| B25 | アプリ情報と目印 | 実装済み | NSHumanReadableCopyright・SWAppFamily。SWNoteArticleURL は専用記事（https://note.com/swwwitch/n/ne4a0fc0c1dd2）。ソース設定確認済み。配布アプリへの反映は未確認。 |
 | B26 | 証明書での署名 | 実装済み | build.sh でチーム証明書（PL9S9PXX96）署名、codesign --verify 通過。配布用は Developer ID＋Hardened Runtime＋公証（20261019-BreaklineTrimmer、Accepted）。 |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 失敗は状態欄に理由。出力できないときは保存・コピーのボタンとメニューを無効。保存・開くパネルは標準（Escで取消）。 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰、自作描画（元画像・プレビュー・切り口ボタン）に accessibilityLabel。 |

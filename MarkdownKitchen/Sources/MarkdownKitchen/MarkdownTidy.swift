@@ -5,7 +5,7 @@ enum MarkdownTidy {
     enum Rule: String, CaseIterable {
         /// 行末の空白を削除（Markdownの改行になる2個以上の空白は、次の行が本文なら2個にそろえて残す）
         case trailingSpaces
-        /// 本文の行頭のスペース・タブ（全角スペースも）を削除。リストの中と続きの行・字下げのコード・<pre>の中は残す
+        /// 行頭のスペース・タブ（全角スペースも）を削除。フェンス付きコード・<pre>の中は残す
         case leadingSpaces
         /// スペース・タブだけの行を空行にする
         case whitespaceLines
@@ -198,38 +198,16 @@ enum MarkdownTidy {
     }
 
     /// コードブロックに含まれる行（囲みの行を含む）
-    /// 本文の行頭のスペースを消す。字下げに意味がある行は残す：
-    /// リストの項目と、その下の字下げした行（入れ子・続きの行）／空行のあとの4スペース・タブで始まるコード／<pre>〜</pre>
+    /// 明示的な削除操作なので、4スペースの字下げやリストの字下げも削除する。
     private static func removeLeadingSpaces(_ lines: [String], code: Set<Int>) -> [String] {
         var result = lines
-        var inList = false
-        var inIndentedCode = false
         var inPre = false
-        var previousBlank = true
         for (index, line) in lines.enumerated() {
-            let blank = line.trimmingCharacters(in: .whitespaces).isEmpty
-            defer { previousBlank = blank }
-            if code.contains(index) { inList = false; inIndentedCode = false; continue }
+            if code.contains(index) { continue }
             if inPre || line.range(of: "<pre", options: .caseInsensitive) != nil {
                 inPre = line.range(of: "</pre>", options: .caseInsensitive) == nil
                 continue
             }
-            if blank { continue }
-            let indented = line.hasPrefix(" ") || line.hasPrefix("\t")
-            if line.range(of: #"^\s*([-*+]|\d{1,9}[.)])(\s|$)"#, options: .regularExpression) != nil {
-                inList = true
-                inIndentedCode = false
-                continue
-            }
-            // Under a list item: indented lines (nested or continued) and lines right after it.
-            if inList, indented || !previousBlank { continue }
-            inList = false
-            if inIndentedCode, indented { continue }
-            if previousBlank, line.hasPrefix("    ") || line.hasPrefix("\t") {
-                inIndentedCode = true
-                continue
-            }
-            inIndentedCode = false
             result[index] = line.replacingOccurrences(of: #"^[ \t\x{3000}]+"#, with: "", options: .regularExpression)
         }
         return result

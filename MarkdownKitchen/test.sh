@@ -19,3 +19,6 @@ cp Tests/MenuShortcutComboCheck.swift "$stage/combo/main.swift"
 CLANG_MODULE_CACHE_PATH="$stage/cache" xcrun swiftc -Onone "$stage/combo/KeyCombo.swift" "$stage/combo/MenuShortcut.swift" Sources/MarkdownKitchen/MenuShortcutCombo.swift "$stage/combo/main.swift" -o "$stage/combo-check"
 "$stage/combo-check"
 python3 Tests/check-localization.py
+
+# The bundled offline Markdown-to-text converter.
+node Tests/MarkdownTextCheck.js

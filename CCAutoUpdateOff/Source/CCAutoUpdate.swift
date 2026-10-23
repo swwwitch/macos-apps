@@ -222,6 +222,18 @@ enum CCAutoUpdate {
         return lastSent < slot
     }
 
+    /// Identify the sending Mac without serial numbers, hardware IDs or network addresses.
+    /// A machine name may contain line breaks; keep it safe for a mail subject.
+    static func mailMachineName(displayName: String?, hostName: String) -> String {
+        func clean(_ value: String) -> String {
+            value.components(separatedBy: .controlCharacters).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let display = clean(displayName ?? "")
+        if !display.isEmpty { return display }
+        let host = clean(hostName)
+        return host.isEmpty ? "Mac" : host
+    }
+
     /// AppleScript string literal (quotes and backslashes escaped; line breaks via `linefeed`).
     static func appleScriptLiteral(_ s: String) -> String {
         let escaped = s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")

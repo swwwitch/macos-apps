@@ -11,7 +11,7 @@ enum TokiMenuIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = L("PodiumAssist — セミナー・キャプチャ準備")
+        image.accessibilityDescription = L("PodiumAssist — セミナー準備")
         return image
     }
 
@@ -62,6 +62,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     private var preferencesWindow: NSWindow?
     private let countdown = Countdown()
     private let settings = MacSettings()
+    private let switchHider = AppSwitchHider()
     private let presets = PresetStore()
     private var timer: Timer?
     private var refreshTimer: Timer?
@@ -69,9 +70,11 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.refreshLoginItemAfterRename()
+        ExcludedApps.shared.configure(explanation: L("対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。"))
+        switchHider.start()
         SettingsSync.shared.onImport = { [weak self] in
             self?.presets.reload()
-            self?.countdown.reloadEnabled()
+            self?.settings.reloadSwitchHiding()
         }
         SettingsSync.shared.start(.init(keys: PresetStore.syncedKeys, note: L("syncNote"), perMac: L("syncPerMac"),
                                         merge: PresetStore.merged))
@@ -235,7 +238,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         let minimum = NSSize(width: 440, height: 360)
         // Miniaturizable so the yellow button and Window > Minimize (no key equivalent) work; full screen stays off.
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = L("セミナー・キャプチャ準備")
+        window.title = L("セミナー準備")
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
@@ -258,21 +261,28 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     /// Settings open in their own window, next to the main window.
     private func preparePreferencesWindow() {
         guard preferencesWindow == nil else { return }
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: "mergedAppsSettingsTabV3314") {
+            let key = "shared.settings.selectedTabIndex"
+            let previous = defaults.integer(forKey: key)
+            if previous >= 2 { defaults.set(previous - 1, forKey: key) }
+            defaults.set(true, forKey: "mergedAppsSettingsTabV3314")
+        }
         let size = NSSize(width: 460, height: 560)
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = L("設定")
-        window.standardWindowButton(.zoomButton)?.isHidden = true
+        window.standardWindowButton(.zoomButton)?.isEnabled = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
         let host = NSHostingController(rootView:
             PreferencesView(countdown: countdown, settings: settings, presets: presets)
-                .frame(minWidth: size.width, maxWidth: .infinity, minHeight: size.height, maxHeight: .infinity))
-        host.sizingOptions = [.minSize]
+                .frame(minWidth: size.width, maxWidth: .infinity, minHeight: 360, maxHeight: .infinity))
+        host.sizingOptions = []
         host.preferredContentSize = size
         window.contentViewController = host
         window.setContentSize(size)
-        window.contentMinSize = size
-        restoreFrame(of: window, name: "TokiPreferencesWindow", minimum: size)
+        window.contentMinSize = NSSize(width: 460, height: 360)
+        restoreFrame(of: window, name: "TokiPreferencesWindow", minimum: window.contentMinSize)
         preferencesWindow = window
         NotificationCenter.default.addObserver(self, selector: #selector(windowOcclusionChanged), name: NSWindow.didChangeOcclusionStateNotification, object: window)
     }
@@ -328,12 +338,6 @@ struct TimerPlan: Codable, Equatable {
 
 @MainActor
 final class Countdown: ObservableObject {
-    @Published var enabled = (UserDefaults.standard.object(forKey: "timerEnabled") as? Bool) ?? true {
-        didSet {
-            UserDefaults.standard.set(enabled, forKey: "timerEnabled")
-            if !enabled { stop() }
-        }
-    }
     @Published var plan: TimerPlan
     @Published var running: TimerPlan?
     @Published var remaining = L("停止中")
@@ -344,17 +348,11 @@ final class Countdown: ObservableObject {
         plan = (prefs.data(forKey: "timerPlan").flatMap { try? JSONDecoder().decode(TimerPlan.self, from: $0) })
             ?? TimerPlan(start: Self.minuteNow, minutes: 30)
         running = prefs.data(forKey: "runningTimerPlan").flatMap { try? JSONDecoder().decode(TimerPlan.self, from: $0) }
-        if !enabled { stop() }
         tick()
     }
     static var minuteNow: Date { Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970 / 60) * 60) }
     var end: Date? { running?.end }
 
-    /// Re-reads 「タイマーを使う」 after SettingsSync applied another Mac's value.
-    func reloadEnabled() {
-        let value = (UserDefaults.standard.object(forKey: "timerEnabled") as? Bool) ?? true
-        if value != enabled { enabled = value }
-    }
     func savePlan() {
         if let data = try? JSONEncoder().encode(plan) { UserDefaults.standard.set(data, forKey: "timerPlan") }
     }
@@ -372,7 +370,6 @@ final class Countdown: ObservableObject {
     }
     func start() {
         error = ""
-        guard enabled else { error = L("「タイマーを使う」をオンにしてください。"); return }
         guard (1...10080).contains(plan.minutes) else { error = L("所要時間は1〜10080分で指定してください。"); return }
         guard plan.end > Date() else { error = L("終了時間を現在より後にしてください。"); return }
         running = plan
@@ -408,12 +405,63 @@ struct Preset: Codable, Identifiable {
     var zoomInShortcut: String? = nil
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
+    var hideOthersOnSwitch: Bool? = nil
+    var hideOthersDelay: Double? = nil
     var notificationsOff: Bool? = nil
+    /// Legacy timer data is retained but never applied or captured by presets.
     var timerMinutes: Int? = nil
     var timerEnabled: Bool? = nil
     var quitApps: Bool? = nil
     var launchApps: [QuitAppTarget]? = nil
     var quitAppTargets: [QuitAppTarget]? = nil
+
+    static var macOSDefault: Preset {
+        var preset = Preset()
+        preset.id = UUID(uuidString: "1747A067-47DA-4D61-91C3-9B5BA03D1311")!
+        preset.name = L("macOSのデフォルト")
+        preset.clock = false
+        preset.showDate = true
+        preset.showWeekday = true
+        preset.dark = false
+        preset.hideDock = false
+        preset.killDock = false
+        preset.hideDesktop = false
+        preset.hideOthersOnSwitch = false
+        preset.hideOthersDelay = 0
+        preset.pointerSize = 1
+        preset.resolution = .displayDefault
+        preset.reduceTransparency = false
+        preset.reduceMotion = false
+        preset.volumeFeedback = false
+        preset.zoomHotkeys = false
+        preset.zoomStyle = ZoomSettings.Style.fullScreen.rawValue
+        preset.zoomMaxFactor = 20
+        preset.zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
+        preset.zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
+        preset.notificationsOff = false
+        preset.launchApps = []
+        preset.quitAppTargets = []
+        return preset
+    }
+
+    static var fullSet: Preset {
+        var preset = macOSDefault
+        preset.id = UUID(uuidString: "1747A067-47DA-4D61-91C3-9B5BA03D1312")!
+        preset.name = L("フルセット")
+        preset.clock = true
+        preset.showDate = false
+        preset.showWeekday = false
+        preset.hideDock = true
+        preset.hideDesktop = true
+        preset.pointerSize = 2
+        preset.reduceTransparency = true
+        preset.reduceMotion = true
+        preset.zoomHotkeys = true
+        preset.zoomToggleShortcut = "122,8388608"
+        preset.zoomInShortcut = "120,8388608"
+        preset.notificationsOff = true
+        return preset
+    }
 
     mutating func migrateAppTargets(legacyQuitTargets: [QuitAppTarget]) {
         if quitApps == true && quitAppTargets == nil { quitAppTargets = legacyQuitTargets }
@@ -440,6 +488,17 @@ final class PresetStore: ObservableObject {
             }
             persist()
         }
+        installBuiltInPresets()
+    }
+    /// Seed once per Mac. Deletion and edits are respected on later launches.
+    private func installBuiltInPresets() {
+        let key = "builtInPresetsV1Installed"
+        guard !defaults.bool(forKey: key) else { return }
+        for preset in [Preset.macOSDefault, Preset.fullSet] {
+            if !items.contains(where: { $0.id == preset.id || $0.name == preset.name }) { items.append(preset) }
+        }
+        persist()
+        defaults.set(true, forKey: key)
     }
     func save(_ preset: Preset) {
         if let i = items.firstIndex(where: { $0.id == preset.id }) { items[i] = preset } else { items.append(preset) }
@@ -454,7 +513,7 @@ final class PresetStore: ObservableObject {
     }
     func remove(_ id: UUID) { items.removeAll { $0.id == id }; if defaults.string(forKey: "selectedPresetID") == id.uuidString { remember(nil) }; persist() }
     /// UserDefaults keys exported and synced by 設定の共有; the rest (timer plan, window tab, last applied preset) stays per Mac.
-    static let syncedKeys: Set<String> = ["presets", "timerEnabled"]
+    static let syncedKeys: Set<String> = ["presets", "hideOthersOnSwitch", "hideOthersDelay"]
     /// 「追加する」 in 設定の共有: presets whose id is not in the list yet are appended; this Mac's other values stay.
     static func merged(_ file: NSDictionary, _ current: NSDictionary) -> (values: NSDictionary, added: Int) {
         let decode = { (value: Any?) in (value as? Data).flatMap { try? JSONDecoder().decode([Preset].self, from: $0) } ?? [] }
@@ -492,7 +551,7 @@ struct MainView: View {
                     AppVersionLabel()
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L("セミナー・キャプチャ準備")).font(.system(size: 20, weight: .bold))
+                    Text(L("セミナー準備")).font(.system(size: 20, weight: .bold))
                     Text(L("プリセットとタイマーで、まとめて準備。")).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
             }
@@ -546,7 +605,7 @@ struct MainWindowTabs: NSViewRepresentable {
             let textWidth = (L(item.title) as NSString).size(withAttributes: [.font: font]).width
             control.setWidth(ceil(textWidth) + 24, forSegment: index)
         }
-        control.setAccessibilityLabel(L("セミナー・キャプチャ準備"))
+        control.setAccessibilityLabel(L("セミナー準備"))
         return control
     }
 
@@ -576,6 +635,7 @@ struct PresetPicker: View {
     @State private var newName = ""
     @State private var deleting: Preset?
     @State private var editingApps: (preset: Preset, launch: Bool)?
+    @State private var confirmingPreset: Preset?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -608,6 +668,12 @@ struct PresetPicker: View {
             Button(L("削除"), role: .destructive) { if let preset = deleting { presets.remove(preset.id) }; deleting = nil }
             Button(L("キャンセル"), role: .cancel) { deleting = nil }
         }
+        .sheet(item: $confirmingPreset) { preset in
+            PresetAppConfirmation(preset: preset, cancel: { confirmingPreset = nil }) { selected in
+                confirmingPreset = nil
+                applyPreset(selected)
+            }
+        }
         .sheet(isPresented: Binding(get: { editingApps != nil }, set: { if !$0 { editingApps = nil } })) {
             if let editing = editingApps {
                 PresetAppListEditor(title: L(editing.launch ? "起動アプリを編集…" : "終了アプリを編集…"),
@@ -623,21 +689,36 @@ struct PresetPicker: View {
         }
     }
 
+    private func applyPreset(_ preset: Preset) {
+        lastApplied = preset.id.uuidString
+        presets.remember(preset.id)
+        settings.apply(preset, countdown: countdown)
+    }
+
     private func presetButton(_ preset: Preset) -> some View {
         let selected = preset.id.uuidString == lastApplied
         let index = presets.items.firstIndex { $0.id == preset.id } ?? 0
         return Button {
-            lastApplied = preset.id.uuidString
-            presets.remember(preset.id)  // the target of option-click 「プリセットに保存…」, kept after manual changes
-            settings.apply(preset, countdown: countdown)
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "slider.horizontal.3").font(.system(size: 22)).frame(width: 32)
-                Text(preset.name).font(.system(size: 15, weight: .medium)).lineLimit(1)
-                Spacer()
-                if selected { Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold)) }
+            if (preset.launchApps ?? []).isEmpty && (preset.quitAppTargets ?? []).isEmpty {
+                applyPreset(preset)
+            } else {
+                confirmingPreset = preset
             }
-            .padding(.horizontal, 16)
+        } label: {
+            VStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    Image(systemName: "slider.horizontal.3").font(.system(size: 22)).frame(width: 32)
+                    Text(preset.name).font(.system(size: 15, weight: .medium)).lineLimit(1)
+                    Spacer()
+                    if selected { Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold)) }
+                }
+                HStack(alignment: .top, spacing: 12) {
+                    appListSummary(preset.launchApps ?? [], launch: true)
+                    appListSummary(preset.quitAppTargets ?? [], launch: false)
+                }
+                .foregroundStyle(selected ? Color.white.opacity(0.9) : Color.secondary)
+            }
+            .padding(.horizontal, 16).padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: 60)
             .foregroundStyle(selected ? Color.white : Color.primary)
             .background(selected ? Color.accentColor : Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
@@ -645,8 +726,18 @@ struct PresetPicker: View {
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
-        .help(L("クリックすると、このプリセットをまとめて適用します。右クリックで、名前の変更・並べ替え・起動／終了アプリの編集・削除ができます。"))
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
+        .overlay(PresetSecondaryClickMenu(items: [
+            .init(title: L("名前を変更…"), action: { newName = preset.name; renaming = preset }),
+            .separator,
+            .init(title: L("上へ移動"), enabled: index > 0, action: { presets.move(preset.id, by: -1) }),
+            .init(title: L("下へ移動"), enabled: index < presets.items.count - 1, action: { presets.move(preset.id, by: 1) }),
+            .separator,
+            .init(title: L("起動アプリを編集…") + " (\(preset.launchApps?.count ?? 0))", action: { editingApps = (preset, true) }),
+            .init(title: L("終了アプリを編集…") + " (\(preset.quitAppTargets?.count ?? 0))", action: { editingApps = (preset, false) }),
+            .separator,
+            .init(title: L("削除…"), action: { deleting = preset })
+        ]))
         .contextMenu {
             Button(L("名前を変更…")) { newName = preset.name; renaming = preset }
             Divider()
@@ -659,6 +750,27 @@ struct PresetPicker: View {
             Button(L("削除…")) { deleting = preset }
         }
     }
+
+    private func appListSummary(_ targets: [QuitAppTarget], launch: Bool) -> some View {
+        HStack(spacing: 4) {
+            Text(L(launch ? "起動" : "終了")).fontWeight(.medium)
+            if targets.isEmpty { Text("—") }
+            ForEach(Array(targets.prefix(2))) { target in
+                Image(nsImage: NSWorkspace.shared.icon(forFile: target.path))
+                    .resizable().frame(width: 12, height: 12)
+                    .accessibilityHidden(true)
+                Text(target.name).lineLimit(1).truncationMode(.tail)
+            }
+            if targets.count > 2 { Text("+\(targets.count - 2)").fixedSize() }
+            Spacer(minLength: 0)
+        }
+        .font(.system(size: 10))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L(launch ? "起動アプリを編集…" : "終了アプリを編集…") + ": " + targets.map(\.name).joined(separator: ", "))
+        .help(targets.map(\.name).joined(separator: ", "))
+    }
+
 }
 
 /// Below the preset buttons: a check before going live, not a setting, so presets do not save it.
@@ -723,6 +835,10 @@ struct PreferencesView: View {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
                 AccessibilitySection()
             })),
+            (L("アプリ"), AnyView(VStack(alignment: .leading, spacing: 20) {
+                SettingsSection(L("プリセットのアプリ")) { PresetAppsSettings(presets: presets) }
+                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
+            })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
@@ -733,7 +849,6 @@ struct TimerPanel: View {
     @ObservedObject var countdown: Countdown
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Toggle(L("タイマーを使う"), isOn: $countdown.enabled)
             dateTimeRow(L("開始時間"), value: countdown.plan.start) { countdown.plan.start = $0; countdown.savePlan() }
             HStack {
                 Text(L("所要時間"))
@@ -745,18 +860,22 @@ struct TimerPanel: View {
             dateTimeRow(L("終了時間"), value: countdown.plan.end) { countdown.plan.setEnd($0); countdown.savePlan() }
             HStack {
                 Button(L("今日の日付にする")) {
-                    countdown.plan.start = Self.combine(day: Date(), time: countdown.plan.start); countdown.savePlan()
+                    countdown.plan.start = Self.quickStart(countdown.plan.start, now: Date(), today: true, currentTime: NSEvent.modifierFlags.contains(.option)); countdown.savePlan()
                 }
                 Button(L("現在時刻にする")) {
-                    countdown.plan.start = Self.combine(day: countdown.plan.start, time: Countdown.minuteNow); countdown.savePlan()
+                    countdown.plan.start = Self.quickStart(countdown.plan.start, now: Date(), today: NSEvent.modifierFlags.contains(.option), currentTime: true); countdown.savePlan()
+                }
+                Button(L("次の正時にする")) {
+                    countdown.plan.start = Self.nextHour(after: Date()); countdown.savePlan()
                 }
             }
+            .help(L("Option＋クリックで今日の日付と現在時刻を両方適用します。"))
             if !countdown.error.isEmpty { Text(countdown.error).foregroundStyle(.red).font(.caption) }
             HStack {
                 Text(countdown.remaining).monospacedDigit()
                 Spacer()
                 Button(L("停止")) { countdown.stop() }.disabled(countdown.end == nil)
-                Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent).disabled(!countdown.enabled)
+                Button(countdown.end == nil ? L("開始／予約") : L("設定を反映して再開")) { countdown.start() }.buttonStyle(.borderedProminent)
             }
         }.font(.system(size: 12))
         .help(L("開始時間 ＋ 所要時間 ＝ 終了時間。開始時間・所要時間の変更で終了時間を更新。終了時間の変更で所要時間を更新します。開始前は「開始まで」、開始後は残り時間をメニューバーに表示します。終了後は00:00で止まります。"))
@@ -775,6 +894,14 @@ struct TimerPanel: View {
                 .frame(width: 96)
             Spacer(minLength: 0)
         }
+    }
+
+    static func quickStart(_ start: Date, now: Date, today: Bool, currentTime: Bool) -> Date {
+        combine(day: today ? now : start, time: currentTime ? now : start)
+    }
+
+    static func nextHour(after now: Date, calendar: Calendar = .current) -> Date {
+        calendar.dateInterval(of: .hour, for: now)?.end ?? now.addingTimeInterval(3600)
     }
 
     /// The calendar day of `day` at the hour and minute of `time`.
@@ -826,6 +953,12 @@ struct WideDatePicker: NSViewRepresentable {
 
 @MainActor
 final class MacSettings: ObservableObject {
+    @Published var hideOthersOnSwitch = UserDefaults.standard.bool(forKey: "hideOthersOnSwitch") {
+        didSet { UserDefaults.standard.set(hideOthersOnSwitch, forKey: "hideOthersOnSwitch") }
+    }
+    @Published var hideOthersDelay = AppSwitchHider.delay(UserDefaults.standard.double(forKey: "hideOthersDelay")) {
+        didSet { UserDefaults.standard.set(AppSwitchHider.delay(hideOthersDelay), forKey: "hideOthersDelay") }
+    }
     @Published var dockHidden = false
     @Published var dockKilled = false
     @Published var desktopHidden = false
@@ -859,6 +992,11 @@ final class MacSettings: ObservableObject {
     @Published var error = false
 
     private let clockDomain = "com.apple.menuextra.clock" as CFString
+
+    func reloadSwitchHiding() {
+        hideOthersOnSwitch = UserDefaults.standard.bool(forKey: "hideOthersOnSwitch")
+        hideOthersDelay = AppSwitchHider.delay(UserDefaults.standard.double(forKey: "hideOthersDelay"))
+    }
 
     func refresh() {
         guard !busy else { return }
@@ -1190,8 +1328,9 @@ final class MacSettings: ObservableObject {
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let value = preset.zoomToggleShortcut, value != zoomToggleShortcut { setZoomShortcut(ZoomSettings.toggleShortcut, to: value); if error { return } }
         if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
-        if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
-        if let value = preset.timerEnabled { countdown.enabled = value }
+        if let value = preset.hideOthersDelay { hideOthersDelay = AppSwitchHider.delay(value) }
+        if let value = preset.hideOthersOnSwitch { hideOthersOnSwitch = value }
+        // Timer state is independent of presets, including legacy timer fields.
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
         if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
         // Transparency and notifications both run asynchronously; notifications wait for the System Settings step.
@@ -1371,7 +1510,7 @@ struct ManualControlsView: View {
                                 Picker(L("ズーム方法"), selection: Binding(get: { settings.zoomStyle }, set: { value in manual { settings.setZoom(style: value) } })) {
                                     ForEach(ZoomSettings.Style.menuOrder, id: \.self) { Text($0.title).tag($0) }
                                 }
-                                .labelsHidden().frame(width: 170)
+                                .labelsHidden().pickerStyle(.radioGroup).fixedSize()
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
                             HStack {
@@ -1392,6 +1531,15 @@ struct ManualControlsView: View {
                     }
                     if section == .basic {
                         category(L("集中を妨げるもの")) {
+                            HStack(spacing: 8) {
+                                Toggle(L("アプリ切り替え時にほかを隠す"), isOn: $settings.hideOthersOnSwitch)
+                                Spacer(minLength: 4)
+                                TextField("0", value: Binding(get: { settings.hideOthersDelay }, set: { settings.hideOthersDelay = AppSwitchHider.delay($0) }), format: .number)
+                                    .frame(width: 48)
+                                    .accessibilityLabel(L("ほかを隠すまでの秒数"))
+                                    .disabled(!settings.hideOthersOnSwitch)
+                                Text(L("秒後"))
+                            }.font(.system(size: 12))
                             Toggle(L("音量を変更するときにフィードバックを再生しない"), isOn: Binding(get: { !settings.volumeFeedback }, set: { value in manual { settings.setVolumeFeedback(!value) } }))
                                 .font(.system(size: 12))
                             Toggle(L("通知を止める（おやすみモード）"), isOn: Binding(get: { settings.notificationsOff }, set: { value in manual { settings.setNotificationsOff(value) } }))
@@ -1430,7 +1578,8 @@ struct ManualControlsView: View {
                 StatusMessage(settings: settings)
                 // Click: overwrite the preset applied (or saved) last, with the items it already has.
                 // Option-click, or no such preset yet: the sheet to choose the preset and items. No "…" when no sheet opens.
-                Button(presets.rememberedPreset == nil ? L("プリセットに保存…") : L("プリセットに保存")) {
+                if section != .timer {
+                Button(presets.rememberedPreset.map { L("プリセット（%@）に保存", $0.name) } ?? L("プリセットに保存…")) {
                     if !NSEvent.modifierFlags.contains(.option), let preset = presets.rememberedPreset {
                         PresetSaveSheet.overwrite(preset, settings: settings, countdown: countdown, presets: presets)
                     } else {
@@ -1439,6 +1588,7 @@ struct ManualControlsView: View {
                 }
                 .help(presets.rememberedPreset.map { L("今の状態を、最後に適用したプリセット「%@」に上書きします。optionキーを押しながらクリックすると、保存先と含める項目を選べます。", $0.name) }
                       ?? L("今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。"))
+                }
             }
         }
         .help(L("選択すると、Macのシステム設定を変更します。"))
@@ -1613,4 +1763,57 @@ private func appHeader(_ title: String, subtitle: String = "", size: CGFloat = 4
     let row = NSStackView(views: [iconColumn, text])
     row.orientation = .horizontal; row.alignment = .centerY; row.spacing = 12
     return row
+}
+
+/// Only intercepts secondary clicks; ordinary clicks continue to SwiftUI's preset button.
+struct PresetSecondaryClickMenu: NSViewRepresentable {
+    let items: [Item]
+    struct Item {
+        var title: String
+        var enabled = true
+        var action: (() -> Void)?
+        static var separator: Item { Item(title: "", action: nil) }
+    }
+    final class MenuAction: NSObject {
+        let perform: () -> Void
+        init(_ perform: @escaping () -> Void) { self.perform = perform }
+        @objc func invoke(_ sender: Any?) { perform() }
+    }
+    final class Surface: NSView {
+        var items: [Item] = []
+        private var actions: [MenuAction] = []
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            guard let event = NSApp.currentEvent,
+                  event.type == .rightMouseDown || event.type == .rightMouseUp ||
+                  (event.type == .leftMouseDown && event.modifierFlags.contains(.control)) else { return nil }
+            return super.hitTest(point)
+        }
+        private func showMenu(_ event: NSEvent) {
+            let menu = NSMenu()
+            menu.autoenablesItems = false
+            actions = []
+            for entry in items {
+                guard let action = entry.action else { menu.addItem(.separator()); continue }
+                let handler = MenuAction(action)
+                actions.append(handler)
+                let item = NSMenuItem(title: entry.title, action: #selector(MenuAction.invoke(_:)), keyEquivalent: "")
+                item.target = handler
+                item.isEnabled = entry.enabled
+                menu.addItem(item)
+            }
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+        }
+        override func rightMouseDown(with event: NSEvent) { showMenu(event) }
+        override func mouseDown(with event: NSEvent) {
+            if event.modifierFlags.contains(.control) { showMenu(event) }
+            else { super.mouseDown(with: event) }
+        }
+    }
+    func makeNSView(context: Context) -> Surface {
+        let view = Surface()
+        view.setAccessibilityElement(false)
+        view.items = items
+        return view
+    }
+    func updateNSView(_ view: Surface, context: Context) { view.items = items }
 }

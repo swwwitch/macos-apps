@@ -57,7 +57,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.47.0</string>
 	<key>CFBundleVersion</key>
-	<string>115</string>
+	<string>117</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>

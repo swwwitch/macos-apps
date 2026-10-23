@@ -31,7 +31,6 @@
 "複製" = "Duplicate";
 "Dropboxのパスを簡易表示" = "Shorten Dropbox paths";
 "お気に入りセクションを表示" = "Show Favorites section";
-"ログイン時はウインドウを表示せず、バックグラウンドで起動" = "Launch in the background at login";
 "処理完了後にウインドウを閉じる（常駐は継続）" = "Close window after completion (keep running)";
 "別名にして両方残す（連番を付ける）" = "Keep both by adding a number";
 "処理を中止する（上書きしない）" = "Stop without overwriting";

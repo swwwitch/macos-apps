@@ -304,7 +304,7 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
 }
 
 func openAccessibilitySettings() {
-    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") { NSWorkspace.shared.open(url) }
+    MainActor.assumeIsolated { _ = AccessibilitySettingsLocator.shared.open() }
 }
 
 /// Settings group content: Automation permission for Keynote, re-checked on activation.

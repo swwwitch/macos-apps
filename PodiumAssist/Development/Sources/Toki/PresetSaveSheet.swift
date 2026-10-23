@@ -12,7 +12,7 @@ struct PresetSaveSheet: View {
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
              reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
-             volumeFeedback, notificationsOff, timerEnabled, timerMinutes
+             volumeFeedback, notificationsOff, hideOthers
     }
 
     @State private var targetID: UUID?
@@ -42,6 +42,7 @@ struct PresetSaveSheet: View {
                     row(.dark, L("外観"), settings.dark ? L("ダーク") : L("ライト"))
                     row(.hideDock, L("Dock：自動非表示"), onOff(settings.dockHidden))
                     row(.killDock, L("Dock：完全非表示"), onOff(settings.dockKilled))
+                    row(.hideOthers, L("アプリ切り替え時にほかを隠す"), onOff(settings.hideOthersOnSwitch) + " / \(settings.hideOthersDelay) " + L("秒後"))
                     row(.hideDesktop, L("デスクトップアイコンを非表示"), onOff(settings.desktopHidden))
                     row(.pointerSize, L("ポインタのサイズ"), PointerSize.text(settings.pointerSize))
                     HStack {
@@ -67,8 +68,6 @@ struct PresetSaveSheet: View {
                             Text(L("オン")).tag(false); Text(L("オフ")).tag(true)
                         }.labelsHidden().pickerStyle(.segmented).frame(width: 120).disabled(!included.contains(.notificationsOff))
                     }
-                    row(.timerEnabled, L("タイマーを使う"), onOff(countdown.enabled))
-                    row(.timerMinutes, L("タイマーの所要時間"), L("%@分", String(countdown.plan.minutes)))
                 }
             }
             .help(L("チェックした項目だけを、今の値でプリセットに保存します。チェックしない項目は、適用しても変わりません。"))
@@ -149,7 +148,8 @@ struct PresetSaveSheet: View {
             .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
             .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
             .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil,
-            .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
+            .notificationsOff: preset.notificationsOff != nil,
+            .hideOthers: preset.hideOthersOnSwitch != nil || preset.hideOthersDelay != nil]
         return Set(has.filter(\.value).map(\.key))
     }
 
@@ -157,6 +157,8 @@ struct PresetSaveSheet: View {
     private static func fill(_ preset: inout Preset, included: Set<Item>, notificationsOff: Bool, resolutionDefault: Bool,
                              settings: MacSettings, countdown: Countdown) {
         func value<T>(_ item: Item, _ current: T) -> T? { included.contains(item) ? current : nil }
+        preset.hideOthersOnSwitch = value(.hideOthers, settings.hideOthersOnSwitch)
+        preset.hideOthersDelay = value(.hideOthers, AppSwitchHider.delay(settings.hideOthersDelay))
         preset.clock = value(.clock, settings.analog)
         preset.showDate = value(.showDate, settings.showDate)
         preset.showWeekday = value(.showWeekday, settings.showWeekday)
@@ -176,7 +178,5 @@ struct PresetSaveSheet: View {
         preset.zoomToggleShortcut = value(.zoomToggleShortcut, settings.zoomToggleShortcut)
         preset.zoomInShortcut = value(.zoomInShortcut, settings.zoomInShortcut)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
-        preset.timerEnabled = value(.timerEnabled, countdown.enabled)
-        preset.timerMinutes = value(.timerMinutes, countdown.plan.minutes)
     }
 }

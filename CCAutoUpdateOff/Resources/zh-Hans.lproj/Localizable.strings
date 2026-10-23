@@ -30,7 +30,7 @@
 "mailToggle" = "自动更新开启期间每天发送一封邮件";
 "mailTo" = "收件人：";
 "mailTime" = "发送时间：";
-"mailHint" = "使用“邮件”应用中设置的账户发送（首次会请求控制“邮件”的权限）。在设定的时间之后发送；届时 Mac 处于睡眠状态则在唤醒后发送。";
+"mailHint" = "使用“邮件”应用中设置的账户发送（首次会请求控制“邮件”的权限）。主题包含 Mac 名称，正文包含 Mac 和主机名称。到设定时间仍在睡眠时，唤醒后发送。";
 "mailTest" = "发送测试邮件";
 "mailSending" = "正在发送…";
 "mailSent" = "已发送到 %1$@（%2$@）。";
@@ -39,8 +39,10 @@
 "mailDenied" = "没有控制“邮件”的权限。请在系统设置的“隐私与安全性 → 自动化”中为 CCAutoUpdateOff 打开“邮件”。";
 "mailFailed" = "无法发送：";
 "mailSubject" = "[CCAutoUpdateOff] Creative Cloud 自动更新已开启（%@）";
-"mailTestSubject" = "[CCAutoUpdateOff] 测试邮件";
+"mailTestSubject" = "[CCAutoUpdateOff] 测试邮件（%@）";
 "mailTestBody" = "这是 CCAutoUpdateOff 的测试邮件。当前状态如下：";
+"mailSourceMac" = "发送来源 Mac：%@";
+"mailSourceHost" = "主机名：%@";
 "mailIntro" = "%@ 上的 Creative Cloud 自动更新设置：";
 "mailHowTo" = "要关闭，请在 Creative Cloud 的“偏好设置 → 应用”中切换开关。开启期间每天提醒一次。";
 "removeOldOn" = "以下应用开启了“删除以前的版本”：%@";

@@ -23,7 +23,6 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 - **Open at login** (the status is shown below it; Open Login Items appears when System Settings needs approval)
 - **Hide main window at startup**
 - **Hide from Dock and App Switcher**: when on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon, the app shortcut, or by opening the app again in Finder.
-- **Launch in the background at login**
 - **Show in menu bar**
 - **Show app shortcut**: turn on Enable hotkey, click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels, Reset to Default returns to ⌃⌥⌘F). A registration failure is shown under the field.
 

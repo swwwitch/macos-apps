@@ -81,7 +81,7 @@ func expectTidy(_ rules: [MarkdownTidy.Rule], _ source: String, _ expected: Stri
 expectTidy([.markerSpaces], "##見出し\n# ok\n-箇条書き\n  +項目\n*項目\n*斜体*\n**太字**\n---\n-5度\n1.項目\n2)項目\n1.5倍\n2026.10.15\n####### 7\n```\n#!x\n```", "## 見出し\n# ok\n- 箇条書き\n  + 項目\n* 項目\n*斜体*\n**太字**\n---\n-5度\n1. 項目\n2) 項目\n1.5倍\n2026.10.15\n####### 7\n```\n#!x\n```", "marker spaces")
 expectTidy([.removeUTM], "[a](https://ex.com/p?utm_source=x&utm_medium=y) https://ex.com/?id=3&UTM_campaign=z#top\n<a href=\"https://ex.com/?a=1&amp;utm_source=n&amp;b=2\">x</a> https://ex.com/?utm_term=a&q=1\nhttps://ex.com/?q=utm_x", "[a](https://ex.com/p) https://ex.com/?id=3#top\n<a href=\"https://ex.com/?a=1&amp;b=2\">x</a> https://ex.com/?q=1\nhttps://ex.com/?q=utm_x", "remove utm")
 expectTidy([.twitterToX], "https://twitter.com/a\n[X](https://www.Twitter.com/b) mobile.twitter.com/c\napi.twitter.com nottwitter.com twitter.community\n```\ntwitter.com\n```", "https://x.com/a\n[X](https://x.com/b) x.com/c\napi.twitter.com nottwitter.com twitter.community\n```\ntwitter.com\n```", "twitter to x")
-expectTidy([.leadingSpaces], "\u{3000}段落\n  続き\n- a\n  - 子\n  続き\n\n    code\n    code2\n\n本文\n<pre>\n  x\n</pre>\n\u{3000}後", "段落\n続き\n- a\n  - 子\n  続き\n\n    code\n    code2\n\n本文\n<pre>\n  x\n</pre>\n後", "leading spaces keep lists and code")
+expectTidy([.leadingSpaces], "\u{3000}段落\n  続き\n- a\n  - 子\n  続き\n\n    code\n    code2\n\n本文\n<pre>\n  x\n</pre>\n\u{3000}後", "段落\n続き\n- a\n- 子\n続き\n\ncode\ncode2\n\n本文\n<pre>\n  x\n</pre>\n後", "leading spaces remove indentation and keep pre")
 expectTidy([.leadingSpaces], "  a\n\tb\n\u{3000}c\n```\n  x\n```", "a\nb\nc\n```\n  x\n```", "leading spaces")
 expectTidy([.removeBlankLines], "a\n\n \nb\n```\nx\n\ny\n```\n\nc", "a\nb\n```\nx\n\ny\n```\nc", "remove blank lines")
 expectTidy([.whitespaceLines], "a\n  \n\t\n\u{3000}\n b \n```\n  \n```", "a\n\n\n\n b \n```\n  \n```", "whitespace-only lines")
@@ -233,6 +233,11 @@ let autolinkCases: [(String, String)] = [
 ]
 for (source, expected) in autolinkCases where MarkdownHTML.inline(source) != expected {
     failures += 1; print("FAIL autolink: \(MarkdownHTML.inline(source))")
+}
+expectTidy([.leadingSpaces], "    text\n\ttext\n　text\n    ", "text\ntext\ntext\n", "four spaces and whitespace-only line")
+for (block, expected) in [(MarkdownFormat.Block.unorderedList, "- a\n- b\n- c"), (.orderedList, "1. a\n2. b\n3. c")] {
+    let source = "    a\n\tb\n　c"
+    expectFormat(applied(source, MarkdownFormat.setBlock(source, selection: NSRange(location: 0, length: (source as NSString).length), to: block)), expected, expected, "list strips leading whitespace")
 }
 print(failures == 0 ? "HeadingParser: all passed" : "HeadingParser: \(failures) failed")
 exit(failures == 0 ? 0 : 1)
