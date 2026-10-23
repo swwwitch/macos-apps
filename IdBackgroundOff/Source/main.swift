@@ -392,7 +392,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func about() {
         let credits = NSMutableAttributedString(string: L("support") + "\n\n")
         credits.append(NSAttributedString(string: "GitHub", attributes: [
-            .link: URL(string: "https://github.com/swwwitch/macos-apps")!
+            .link: URL(string: "https://github.com/swwwitch/IdBackgroundOff")!
         ]))
         NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
     }

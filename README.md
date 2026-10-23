@@ -6,45 +6,45 @@
 
 ## ソースコードの公開
 
-公開対象の33アプリのソースコードを、アプリ名ごとのフォルダーで公開しています。下の一覧から各ソースとビルドスクリプトを開けます。共通部品は `Shared/` にあります。配布用のアプリ本体と、ソースコードの更新・検証状況は別に管理しています。
+公開対象33アプリは、それぞれアプリ名と同じ個別リポジトリでソースコードを公開しています。下の「GitHub」列から開けます。各リポジトリにアプリ本体と対応する `Shared/` を含め、既存の相対パスを保持しています。このリポジトリのソースと履歴も保持します。配布用アプリ本体とソースの更新・検証状況は別に管理しています。
 
 ## アプリ一覧
 
-| アプリ | 用途 | ソース | ビルド |
-| --- | --- | --- | --- |
-| VectorMate（旧 AiHelper） | Illustratorの補助：メトリクスとプロポーショナルメトリクスの連動、UIの明るさ・表示・シェイプ形成・バックグラウンドの切り替え、単位パレット | [Source](VectorMate/Source/) | [build.sh](VectorMate/build.sh) |
-| BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) |
-| BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) |
-| CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) |
-| CCAutoUpdateOff | Creative Cloudのアプリの自動更新がオンになっていないかを見張って通知 | [Source](CCAutoUpdateOff/Source/) | [build.sh](CCAutoUpdateOff/build.sh) |
-| SpreadsheetHelper | Excel・Googleスプレッドシートの補助：コピー時に付く「"」の除去、行・列の挿入と削除などのショートカット（KMマクロの移植。旧名 CellCopyCleaner） | [Sources](SpreadsheetHelper/Sources/) | [build.sh](SpreadsheetHelper/build.sh) |
-| CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) |
-| DocklessLauncher（旧 AppLauncher） | ホットキーでアプリを起動・前面化 | [Sources](DocklessLauncher/Sources/) | [build.sh](DocklessLauncher/build.sh) |
-| ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
-| FileCaravan | 大量のファイルをまとめて移動 | [Source](FileCaravan/Source/) | [build.sh](FileCaravan/build.sh) |
-| FnNumpad | Fnキーを使ったテンキー入力 | [Sources](FnNumpad/Sources/) | [build.sh](FnNumpad/build.sh) |
-| FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) |
-| HotkeyHound | 押したキーをどのアプリが使っているかを調べる | [Sources](HotkeyHound/Sources/HotkeyHound/) | [build.sh](HotkeyHound/build.sh) |
-| IdBackgroundOff | InDesignの「バックグラウンド書き出し／保存」をオフ | [Source](IdBackgroundOff/Source/) | [build.sh](IdBackgroundOff/build.sh) |
-| IncrementPaste | クリップボードの数字・日付・英字を1つ増やしてペースト（KMマクロ「increment-paste」の移植） | [Sources](IncrementPaste/Sources/) | [build.sh](IncrementPaste/build.sh) |
-| KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) |
-| KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
-| KeynoteMaestro（旧 KeynoteHelper） | Keynoteの操作・ショートカット支援 | [Sources](KeynoteMaestro/Sources/) | [build.sh](KeynoteMaestro/build.sh) |
-| KeynoteSweeper | Keynoteの未使用マスター・非表示スライド・アニメーションの削除 | [Source](KeynoteSweeper/Source/) | [build.sh](KeynoteSweeper/build.sh) |
-| LinkMaker | ブラウザーのページのタイトルとURLをコピー・保存・開き直し（KMマクロ「Make Link」の移植） | [Sources](LinkMaker/Sources/) | [build.sh](LinkMaker/build.sh) |
-| ListMatch | 2つのリストを比べ、片方にしかないもの・共通の項目を表示（メールアドレス・CSVの列にも対応） | [Source](ListMatch/Source/) | [build.sh](ListMatch/build.sh) |
-| MarkdownKitchen | Markdownの整形・加工（左に原稿、右に見出しだけを表示） | [Sources](MarkdownKitchen/Sources/MarkdownKitchen/) | [build.sh](MarkdownKitchen/build.sh) |
-| MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) |
-| note2markdown | note記事をMarkdownファイルに書き出す | [Source](note2markdown/Source/) | [build.sh](note2markdown/build.sh) |
-| PasteInARow | 複数行のテキストを1行ずつペースト（KMマクロ「01)連続ペースト」の移植） | [Sources](PasteInARow/Sources/) | [build.sh](PasteInARow/build.sh) |
-| PasteMatchStyle | どのアプリでも書式なしでペースト（KMマクロ「Paste and Match Style」「Universal Paste Without Style」の移植） | [Sources](PasteMatchStyle/Sources/) | [build.sh](PasteMatchStyle/build.sh) |
-| PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) |
-| PodiumAssist | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumAssist/Development/Sources/Toki/) | [Development/build-app.sh](PodiumAssist/Development/build-app.sh) |
-| PrefsPreset | Macの設定の一覧・一括変更・書き出しと読み込み | [Sources](PrefsPreset/Sources/PrefsPreset/) | [build.sh](PrefsPreset/build.sh) |
-| ProjectFolder（旧 FolderMaker） | 案件フォルダーの作成（KMマクロ「Folder Maker（案件）」の移植） | [Sources](ProjectFolder/Sources/) | [build.sh](ProjectFolder/build.sh) |
-| QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) |
-| BreaklineTrimmer（旧 TrimBreakline） | 画像の一部を取り除いて詰め、切り口に省略線を引いて透過PNGで書き出す（Illustratorスクリプト TrimWithBreakLine の移植） | [Source](BreaklineTrimmer/Source/) | [build.sh](BreaklineTrimmer/build.sh) |
-| YohakuTrimmer | 画像の余白（四辺の同じ色）を削除 | [Development/Sources](YohakuTrimmer/Development/Sources/) | [Development/build.sh](YohakuTrimmer/Development/build.sh) |
+| アプリ | 用途 | ソース | ビルド | GitHub |
+| --- | --- | --- | --- | --- |
+| VectorMate（旧 AiHelper） | Illustratorの補助：メトリクスとプロポーショナルメトリクスの連動、UIの明るさ・表示・シェイプ形成・バックグラウンドの切り替え、単位パレット | [Source](VectorMate/Source/) | [build.sh](VectorMate/build.sh) | [リポジトリ](https://github.com/swwwitch/VectorMate) |
+| BrowserSwitcher | 既定ブラウザーの切り替え | [Source](BrowserSwitcher/Source/) | [build.sh](BrowserSwitcher/build.sh) | [リポジトリ](https://github.com/swwwitch/BrowserSwitcher) |
+| BundleIDInspector | アプリのBundle IDを調べてコピー | [Sources](BundleIDInspector/Sources/BundleIDInspector/) | [build.sh](BundleIDInspector/build.sh) | [リポジトリ](https://github.com/swwwitch/BundleIDInspector) |
+| CarmaChameleon（旧 PandocDesk） | 文書形式の変換（pandoc・Keynote・構造を保持したテキストなど） | [Source](CarmaChameleon/Source/) | [build.sh](CarmaChameleon/build.sh) | [リポジトリ](https://github.com/swwwitch/CarmaChameleon) |
+| CCAutoUpdateOff | Creative Cloudのアプリの自動更新がオンになっていないかを見張って通知 | [Source](CCAutoUpdateOff/Source/) | [build.sh](CCAutoUpdateOff/build.sh) | [リポジトリ](https://github.com/swwwitch/CCAutoUpdateOff) |
+| SpreadsheetHelper | Excel・Googleスプレッドシートの補助：コピー時に付く「"」の除去、行・列の挿入と削除などのショートカット（KMマクロの移植。旧名 CellCopyCleaner） | [Sources](SpreadsheetHelper/Sources/) | [build.sh](SpreadsheetHelper/build.sh) | [リポジトリ](https://github.com/swwwitch/SpreadsheetHelper) |
+| CommandDee | 連番・日付付きの複製と名前変更 | [Sources](CommandDee/Sources/) | [build.sh](CommandDee/build.sh) | [リポジトリ](https://github.com/swwwitch/CommandDee) |
+| DocklessLauncher（旧 AppLauncher） | ホットキーでアプリを起動・前面化 | [Sources](DocklessLauncher/Sources/) | [build.sh](DocklessLauncher/build.sh) | [リポジトリ](https://github.com/swwwitch/DocklessLauncher) |
+| ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) | [リポジトリ](https://github.com/swwwitch/ExtensionLinker) |
+| FileCaravan | 大量のファイルをまとめて移動 | [Source](FileCaravan/Source/) | [build.sh](FileCaravan/build.sh) | [リポジトリ](https://github.com/swwwitch/FileCaravan) |
+| FnNumpad | Fnキーを使ったテンキー入力 | [Sources](FnNumpad/Sources/) | [build.sh](FnNumpad/build.sh) | [リポジトリ](https://github.com/swwwitch/FnNumpad) |
+| FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) | [リポジトリ](https://github.com/swwwitch/FolderHopper) |
+| HotkeyHound | 押したキーをどのアプリが使っているかを調べる | [Sources](HotkeyHound/Sources/HotkeyHound/) | [build.sh](HotkeyHound/build.sh) | [リポジトリ](https://github.com/swwwitch/HotkeyHound) |
+| IdBackgroundOff | InDesignの「バックグラウンド書き出し／保存」をオフ | [Source](IdBackgroundOff/Source/) | [build.sh](IdBackgroundOff/build.sh) | [リポジトリ](https://github.com/swwwitch/IdBackgroundOff) |
+| IncrementPaste | クリップボードの数字・日付・英字を1つ増やしてペースト（KMマクロ「increment-paste」の移植） | [Sources](IncrementPaste/Sources/) | [build.sh](IncrementPaste/build.sh) | [リポジトリ](https://github.com/swwwitch/IncrementPaste) |
+| KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) | [リポジトリ](https://github.com/swwwitch/KageTrimmer) |
+| KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) | [リポジトリ](https://github.com/swwwitch/KakkoReplace) |
+| KeynoteMaestro（旧 KeynoteHelper） | Keynoteの操作・ショートカット支援 | [Sources](KeynoteMaestro/Sources/) | [build.sh](KeynoteMaestro/build.sh) | [リポジトリ](https://github.com/swwwitch/KeynoteMaestro) |
+| KeynoteSweeper | Keynoteの未使用マスター・非表示スライド・アニメーションの削除 | [Source](KeynoteSweeper/Source/) | [build.sh](KeynoteSweeper/build.sh) | [リポジトリ](https://github.com/swwwitch/KeynoteSweeper) |
+| LinkMaker | ブラウザーのページのタイトルとURLをコピー・保存・開き直し（KMマクロ「Make Link」の移植） | [Sources](LinkMaker/Sources/) | [build.sh](LinkMaker/build.sh) | [リポジトリ](https://github.com/swwwitch/LinkMaker) |
+| ListMatch | 2つのリストを比べ、片方にしかないもの・共通の項目を表示（メールアドレス・CSVの列にも対応） | [Source](ListMatch/Source/) | [build.sh](ListMatch/build.sh) | [リポジトリ](https://github.com/swwwitch/ListMatch) |
+| MarkdownKitchen | Markdownの整形・加工（左に原稿、右に見出しだけを表示） | [Sources](MarkdownKitchen/Sources/MarkdownKitchen/) | [build.sh](MarkdownKitchen/build.sh) | [リポジトリ](https://github.com/swwwitch/MarkdownKitchen) |
+| MightyEdit | 選択テキストの整形 | [Source](MightyEdit/Source/) | [build.sh](MightyEdit/build.sh) | [リポジトリ](https://github.com/swwwitch/MightyEdit) |
+| note2markdown | note記事をMarkdownファイルに書き出す | [Source](note2markdown/Source/) | [build.sh](note2markdown/build.sh) | [リポジトリ](https://github.com/swwwitch/note2markdown) |
+| PasteInARow | 複数行のテキストを1行ずつペースト（KMマクロ「01)連続ペースト」の移植） | [Sources](PasteInARow/Sources/) | [build.sh](PasteInARow/build.sh) | [リポジトリ](https://github.com/swwwitch/PasteInARow) |
+| PasteMatchStyle | どのアプリでも書式なしでペースト（KMマクロ「Paste and Match Style」「Universal Paste Without Style」の移植） | [Sources](PasteMatchStyle/Sources/) | [build.sh](PasteMatchStyle/build.sh) | [リポジトリ](https://github.com/swwwitch/PasteMatchStyle) |
+| PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) | [リポジトリ](https://github.com/swwwitch/PDF2Keynote) |
+| PodiumAssist | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumAssist/Development/Sources/Toki/) | [Development/build-app.sh](PodiumAssist/Development/build-app.sh) | [リポジトリ](https://github.com/swwwitch/PodiumAssist) |
+| PrefsPreset | Macの設定の一覧・一括変更・書き出しと読み込み | [Sources](PrefsPreset/Sources/PrefsPreset/) | [build.sh](PrefsPreset/build.sh) | [リポジトリ](https://github.com/swwwitch/PrefsPreset) |
+| ProjectFolder（旧 FolderMaker） | 案件フォルダーの作成（KMマクロ「Folder Maker（案件）」の移植） | [Sources](ProjectFolder/Sources/) | [build.sh](ProjectFolder/build.sh) | [リポジトリ](https://github.com/swwwitch/ProjectFolder) |
+| QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) | [リポジトリ](https://github.com/swwwitch/QuickIconExporter) |
+| BreaklineTrimmer（旧 TrimBreakline） | 画像の一部を取り除いて詰め、切り口に省略線を引いて透過PNGで書き出す（Illustratorスクリプト TrimWithBreakLine の移植） | [Source](BreaklineTrimmer/Source/) | [build.sh](BreaklineTrimmer/build.sh) | [リポジトリ](https://github.com/swwwitch/BreaklineTrimmer) |
+| YohakuTrimmer | 画像の余白（四辺の同じ色）を削除 | [Development/Sources](YohakuTrimmer/Development/Sources/) | [Development/build.sh](YohakuTrimmer/Development/build.sh) | [リポジトリ](https://github.com/swwwitch/YohakuTrimmer) |
 
 ## ファイルの置き場所
 

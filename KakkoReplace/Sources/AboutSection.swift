@@ -7,7 +7,47 @@ import SwiftUI
 enum AboutSection {
     static var title: String { StartupWindow.text("情報", "About", "关于", "정보") }
     static let summaryURL = URL(string: "https://note.com/swwwitch/m/m057948d2fbeb")!
-    static let githubURL = URL(string: "https://github.com/swwwitch/macos-apps")!
+    static var githubURL: URL {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let candidates = ["CFBundleDisplayName", "CFBundleName", "CFBundleExecutable"].compactMap { info[$0] as? String }
+        let repositories: Set<String> = [
+            "BreaklineTrimmer",
+            "BrowserSwitcher",
+            "BundleIDInspector",
+            "CCAutoUpdateOff",
+            "CarmaChameleon",
+            "CommandDee",
+            "DocklessLauncher",
+            "ExtensionLinker",
+            "FileCaravan",
+            "FnNumpad",
+            "FolderHopper",
+            "HotkeyHound",
+            "IdBackgroundOff",
+            "IncrementPaste",
+            "KageTrimmer",
+            "KakkoReplace",
+            "KeynoteMaestro",
+            "KeynoteSweeper",
+            "LinkMaker",
+            "ListMatch",
+            "MarkdownKitchen",
+            "MightyEdit",
+            "PDF2Keynote",
+            "PasteInARow",
+            "PasteMatchStyle",
+            "PodiumAssist",
+            "PrefsPreset",
+            "ProjectFolder",
+            "QuickIconExporter",
+            "SpreadsheetHelper",
+            "VectorMate",
+            "YohakuTrimmer",
+            "note2markdown",
+        ]
+        let repository = candidates.first(where: repositories.contains) ?? "macos-apps"
+        return URL(string: "https://github.com/swwwitch/\(repository)")!
+    }
     static let xURL = URL(string: "https://x.com/swwwitch")!
     static var version: String {
         let info = Bundle.main.infoDictionary ?? [:]
