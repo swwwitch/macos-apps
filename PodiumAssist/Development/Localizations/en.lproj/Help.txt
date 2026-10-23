@@ -114,4 +114,5 @@ The Apps tab in Settings contains Excluded Apps and the apps to launch or quit f
 
 Right-click or Control-click a preset button to open its editing menu. Save buttons in Basic, Display, and Zoom show the target preset name.
 
-Option-click Open Accessibility Settings to wait for the settings list and, when permission and the app row are available, type the first three letters into the focused list and move the pointer near the app. Otherwise the reason is displayed. Permission switches remain manual.
+
+The Option-click helper now uses AppleScript to select the PodiumAssist.app row directly, without typing or clicking rows. Accessibility and automation permission for System Events are required.

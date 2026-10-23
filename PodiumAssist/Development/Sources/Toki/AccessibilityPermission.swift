@@ -153,7 +153,7 @@ struct AccessibilitySection: View {
     }
 }
 
-/// Optional, explicit user action. Never changes a permission switch or clicks an app row.
+/// Optional AppleScript selection; permission switches are never clicked or changed.
 @MainActor
 final class AccessibilitySettingsLocator {
     static let shared = AccessibilitySettingsLocator()
@@ -163,7 +163,7 @@ final class AccessibilitySettingsLocator {
     }
     func start(feedback: @escaping (String) -> Void) {
         task?.cancel()
-        guard AXIsProcessTrusted(), CGPreflightPostEventAccess() else {
+        guard AXIsProcessTrusted() else {
             feedback(text("設定を開きました。未許可のため自動入力・ポインタ移動は行えません。一覧をクリックしてアプリ名の先頭3文字を入力してください。", "Settings opened. Permission is required for automatic typing and pointer movement. Click the list and type the first three letters of the app name.", "已打开设置。自动输入和移动指针需要授权。请点击列表并输入应用名称的前三个字符。", "설정을 열었습니다. 자동 입력과 포인터 이동에는 권한이 필요합니다. 목록을 클릭하고 앱 이름의 처음 세 글자를 입력하세요."))
             return
         }
@@ -171,52 +171,72 @@ final class AccessibilitySettingsLocator {
             ?? (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? ""
         guard !name.isEmpty else { return }
         task = Task { [weak self] in
-            // Poll the ready AX list rather than sending keystrokes after a blind delay.
-            for _ in 0..<12 {
-                try? await Task.sleep(nanoseconds: 250_000_000)
-                guard !Task.isCancelled, let self else { return }
-                guard let front = NSWorkspace.shared.frontmostApplication,
-                      front.bundleIdentifier == "com.apple.systempreferences" else { continue }
-                let root = AXUIElementCreateApplication(front.processIdentifier)
-                if let match = self.find(name: name, in: root), let point = self.position(match) {
-                    guard NSWorkspace.shared.frontmostApplication?.processIdentifier == front.processIdentifier,
-                          AXIsProcessTrusted(), CGPreflightPostEventAccess() else { return }
-                    // Focus the containing list before invoking its type-to-select behavior.
-                    var parent: CFTypeRef?
-                    AXUIElementCopyAttributeValue(match, kAXParentAttribute as CFString, &parent)
-                    if let parent, CFGetTypeID(parent) == AXUIElementGetTypeID() {
-                        let list = unsafeBitCast(parent, to: AXUIElement.self)
-                        var role: CFTypeRef?
-                        AXUIElementCopyAttributeValue(list, kAXRoleAttribute as CFString, &role)
-                        let isList = ["AXTable", "AXOutline", "AXList"].contains(role as? String ?? "")
-                        let result = isList ? AXUIElementSetAttributeValue(list, kAXFocusedAttribute as CFString, kCFBooleanTrue) : .attributeUnsupported
-                        if result == .success {
-                            let letters = Array(name.prefix(3).utf16)
-                            for down in [true, false] {
-                                if let event = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: down) {
-                                    letters.withUnsafeBufferPointer { event.keyboardSetUnicodeString(stringLength: $0.count, unicodeString: $0.baseAddress) }
-                                    event.postToPid(front.processIdentifier)
-                                }
-                            }
-                        }
-                    }
-                    var supported: CFArray?
-                    if AXUIElementCopyActionNames(match, &supported) == .success,
-                       (supported as? [String])?.contains("AXScrollToVisible") == true {
-                        AXUIElementPerformAction(match, "AXScrollToVisible" as CFString)
-                    }
-                    AXUIElementSetAttributeValue(match, kAXSelectedAttribute as CFString, kCFBooleanTrue)
-                    if NSWorkspace.shared.frontmostApplication?.processIdentifier == front.processIdentifier,
-                       let target = self.position(match) ?? Optional(point) {
-                        CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: target, mouseButton: .left)?.post(tap: .cghidEventTap)
-                    }
-                    feedback(self.text("アプリ名の位置へ移動しました。許可のスイッチは手動で操作してください。", "Moved near the app name. Change the permission switch yourself.", "已移至应用名称附近。请手动操作授权开关。", "앱 이름 근처로 이동했습니다. 권한 스위치는 직접 조작하세요."))
-                    return
-                }
-            }
+            try? await Task.sleep(nanoseconds: 750_000_000)
             guard !Task.isCancelled, let self else { return }
-            feedback(self.text("アプリ名の行を確認できなかったため、自動入力・移動を行いませんでした。", "Could not identify the app row; no automatic typing or movement was performed.", "无法确认应用所在行，未自动输入或移动。", "앱 행을 확인하지 못해 자동 입력과 이동을 수행하지 않았습니다."))
+            let result = await self.selectRow(named: name + ".app")
+            guard !Task.isCancelled else { return }
+            if result == "selected" {
+                try? await Task.sleep(nanoseconds: 150_000_000)
+                guard !Task.isCancelled else { return }
+                var moved = false
+                if let front = NSWorkspace.shared.frontmostApplication,
+                   front.bundleIdentifier == "com.apple.systempreferences", CGPreflightPostEventAccess(),
+                   let match = self.find(name: name, in: AXUIElementCreateApplication(front.processIdentifier)),
+                   let target = self.position(match) {
+                    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: target, mouseButton: .left)?.post(tap: .cghidEventTap)
+                    moved = true
+                }
+                feedback(moved
+                    ? self.text("アプリの行を選択し、近くへポインタを移動しました。許可スイッチは手動で操作してください。", "Selected the app row and moved the pointer nearby. Change the permission switch yourself.", "已选中应用所在行并移至附近。请手动操作授权开关。", "앱 행을 선택하고 근처로 포인터를 옮겼습니다. 권한 스위치는 직접 조작하세요.")
+                    : self.text("アプリの行を選択しました。ポインタ移動はできませんでした。", "Selected the app row. Pointer movement was unavailable.", "已选中应用所在行，无法移动指针。", "앱 행을 선택했습니다. 포인터는 이동하지 못했습니다."))
+            } else {
+                feedback(self.text("アプリの行を選択できませんでした。権限と設定画面を確認してください。", "Could not select the app row. Check permissions and the Settings screen.", "无法选择应用所在行。请检查权限和设置画面。", "앱 행을 선택하지 못했습니다. 권한과 설정 화면을 확인하세요."))
+            }
         }
+    }
+    private func selectRow(named name: String) async -> String {
+        let escaped = name.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        let script = """
+        with timeout of 10 seconds
+          tell application "System Events"
+            tell process "System Settings"
+              repeat 12 times
+                if frontmost is false then return "inactive"
+                try
+                  set appList to outline 1 of scroll area 1 of group 1 of scroll area 1 of group 1 of group 3 of splitter group 1 of group 1 of window 1
+                  repeat with rowRef in rows of appList
+                    set candidate to contents of rowRef
+                    try
+                      if value of static text 1 of UI element 1 of candidate is "\(escaped)" then
+                        if frontmost is false then return "inactive"
+                        set selected of candidate to true
+                        if selected of candidate then return "selected"
+                      end if
+                    end try
+                  end repeat
+                end try
+                delay 0.25
+              end repeat
+              return "not found"
+            end tell
+          end tell
+        end timeout
+        """
+        return await Task.detached {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            process.arguments = ["-e", script]
+            let output = Pipe()
+            process.standardOutput = output
+            process.standardError = FileHandle.nullDevice
+            do {
+                try process.run()
+                let data = output.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
+                guard process.terminationStatus == 0 else { return "failed" }
+                return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "failed"
+            } catch { return "failed" }
+        }.value
     }
     private func find(name: String, in root: AXUIElement) -> AXUIElement? {
         var queue = [root], index = 0
@@ -225,7 +245,7 @@ final class AccessibilitySettingsLocator {
             for key in [kAXTitleAttribute, kAXValueAttribute, kAXDescriptionAttribute] {
                 var value: CFTypeRef?
                 if AXUIElementCopyAttributeValue(element, key as CFString, &value) == .success,
-                   let title = value as? String, title.caseInsensitiveCompare(name) == .orderedSame {
+                   let title = value as? String, (title.caseInsensitiveCompare(name) == .orderedSame || title.caseInsensitiveCompare(name + ".app") == .orderedSame) {
                     var candidate = element
                     for _ in 0..<6 {
                         var role: CFTypeRef?
