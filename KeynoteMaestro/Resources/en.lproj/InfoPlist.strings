@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "KeynoteMaestro";
+"NSAppleEventsUsageDescription" = "Used to change Keynote objects and slides (opacity, size, transitions, shapes) and to export the current slide as PNG.";

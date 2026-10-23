@@ -389,7 +389,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func about() { NSApp.orderFrontStandardAboutPanel(options: [.credits: NSAttributedString(string: L("support"))]) }
+    @objc func about() {
+        let credits = NSMutableAttributedString(string: L("support") + "\n\n")
+        credits.append(NSAttributedString(string: "GitHub", attributes: [
+            .link: URL(string: "https://github.com/swwwitch/macos-apps")!
+        ]))
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
+    }
 }
 
 let app = NSApplication.shared

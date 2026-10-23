@@ -43,8 +43,8 @@ var storeDetail: String { S("フォルダーを選択し、対象ファイルを
                         let result: URL
                         switch action {
                         case 1: result = try Duplicator.duplicateDated(source)
-                        case 2: result = try Duplicator.duplicateDated(source, edited: true)
-                        case 3: result = try Duplicator.renameVersion(source)
+                        case 2: result = try Duplicator.duplicateEdited(source)
+                        case 3: result = try StoreFileOperations.renameVersion(source)
                         case 4: result = try Duplicator.renameParentToggled(source)
                         default: result = try Duplicator.duplicate(source)
                         }

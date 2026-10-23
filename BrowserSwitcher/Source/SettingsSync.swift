@@ -2,12 +2,134 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Shared settings export/import and sync, generalized from MightyEdit's SettingsSync.
+/// Immutable, per-change records. No Mac replaces a file written by another Mac.
+/// Registers merge per UserDefaults key (arrays/data remain one setting), ordered by
+/// logical revision then UUID, so offline edits converge without relying on wall clocks.
+enum SettingsSyncJournal {
+    struct State {
+        var values: NSDictionary
+        var revision: Int64
+        var modified: Date?
+        var hasRecords: Bool
+    }
+    enum Failure: Error { case invalidRecord(String), revisionOverflow }
+
+    static func read(_ directory: URL, app: String) throws -> State {
+        guard FileManager.default.fileExists(atPath: directory.path) else {
+            return State(values: [:], revision: 0, modified: nil, hasRecords: false)
+        }
+        let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "plist" }
+        var winners: [String: (Int64, String, Any?)] = [:]
+        var revision: Int64 = 0
+        var modified: Date?
+        for file in files {
+            // A partially downloaded record must not look like a deleted setting.
+            guard let record = NSDictionary(contentsOf: file), record["version"] as? Int == 2,
+                  record["app"] as? String == app, let id = record["id"] as? String,
+                  UUID(uuidString: id) != nil, let clock = record["revision"] as? NSNumber,
+                  clock.int64Value >= 0, let date = record["modified"] as? Date,
+                  let values = record["values"] as? NSDictionary,
+                  let deleted = record["deleted"] as? [String],
+                  Set(deleted).isDisjoint(with: Set(values.allKeys.compactMap { $0 as? String })),
+                  values.allKeys.allSatisfy({ $0 is String }) else {
+                throw Failure.invalidRecord(file.lastPathComponent)
+            }
+            let n = clock.int64Value
+            revision = max(revision, n)
+            modified = max(modified ?? .distantPast, date)
+            func accept(_ key: String, _ value: Any?) {
+                if let old = winners[key], old.0 > n || (old.0 == n && old.1 >= id) { return }
+                winners[key] = (n, id, value)
+            }
+            for (key, value) in values { accept(key as! String, value) }
+            for key in deleted { accept(key, nil) }
+        }
+        let result = NSMutableDictionary()
+        for (key, entry) in winners { if let value = entry.2 { result[key] = value } }
+        return State(values: result, revision: revision, modified: modified, hasRecords: !files.isEmpty)
+    }
+
+    static func changes(from baseline: NSDictionary, to values: NSDictionary) -> (NSDictionary, [String]) {
+        let changed = NSMutableDictionary()
+        for (key, value) in values {
+            let key = key as! String
+            if !equal(baseline[key], value) { changed[key] = value }
+        }
+        let removed = baseline.allKeys.compactMap { $0 as? String }.filter { values[$0] == nil }
+        return (changed, removed)
+    }
+
+    static func equal(_ lhs: Any?, _ rhs: Any?) -> Bool {
+        switch (lhs, rhs) {
+        case (nil, nil): return true
+        case let (a?, b?): return NSDictionary(dictionary: ["v": a]).isEqual(to: ["v": b])
+        default: return false
+        }
+    }
+
+    static func append(_ directory: URL, app: String, device: String, revision: Int64,
+                       values: NSDictionary, deleted: [String]) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let id = UUID().uuidString
+        let record: NSDictionary = ["version": 2, "app": app, "id": id, "device": device,
+                                    "modified": Date(), "revision": NSNumber(value: revision),
+                                    "values": values, "deleted": deleted]
+        let data = try PropertyListSerialization.data(fromPropertyList: record, format: .xml, options: 0)
+        // A unique file is created exactly once. Atomic rename prevents partial reads on this Mac.
+        let file = directory.appendingPathComponent(id + ".plist")
+        guard !FileManager.default.fileExists(atPath: file.path) else { throw Failure.invalidRecord(id) }
+        try data.write(to: file, options: .atomic)
+    }
+
+    static func synchronize(directory: URL, app: String, device: String,
+                            baseline: NSDictionary?, current: NSDictionary, seed: NSDictionary) throws -> State {
+        var state = try read(directory, app: app)
+        if !state.hasRecords {
+            // Migration seeds share revision zero; real edits always outrank a late-arriving seed.
+            try append(directory, app: app, device: device, revision: 0, values: seed, deleted: [])
+            state = try read(directory, app: app)
+        }
+        let delta = changes(from: baseline ?? state.values, to: current)
+        if delta.0.count > 0 || !delta.1.isEmpty {
+            guard state.revision < Int64.max else { throw Failure.revisionOverflow }
+            try append(directory, app: app, device: device, revision: state.revision + 1,
+                       values: delta.0, deleted: delta.1)
+            state = try read(directory, app: app)
+        }
+        return state
+    }
+
+    /// Accept app-side normalization, excluding user edits that arrived during I/O.
+    static func acceptedBaseline(remote: NSDictionary, captured: NSDictionary,
+                                 beforeApply: NSDictionary, afterApply: NSDictionary) -> NSDictionary {
+        let pending = changes(from: captured, to: beforeApply)
+        let result = afterApply.mutableCopy() as! NSMutableDictionary
+        let pendingKeys = Set(pending.0.allKeys.compactMap { $0 as? String } + pending.1)
+        for key in pendingKeys {
+            if let value = remote[key] { result[key] = value }
+            else { result.removeObject(forKey: key) }
+        }
+        return result
+    }
+
+    /// Preserve edits made while a background scan/write was in flight.
+    static func overlayEdits(from captured: NSDictionary, to current: NSDictionary, on remote: NSDictionary) -> NSDictionary {
+        let delta = changes(from: captured, to: current)
+        let result = remote.mutableCopy() as! NSMutableDictionary
+        for (key, value) in delta.0 { result[key as! String] = value }
+        for key in delta.1 { result.removeObject(forKey: key) }
+        return result
+    }
+}
+
+/// Shared settings export/import and sync.
 /// 書き出し・読み込み writes and reads the same keys as a "<App>-Settings.plist" file the user picks.
-/// 設定の同期 saves the synced UserDefaults keys to "<App>-Settings.plist" in a folder the user picks
+/// 設定の同期 appends immutable changes to "<App>-Settings.sync" in a folder the user picks
 /// (iCloud Drive, Dropbox or any folder; modeled on Alfred's preferences folder). No iCloud entitlement needed.
 /// Per-Mac state (login, residency, menu bar, excluded apps, window sizes, local paths, the folder itself) is never synced.
-/// Conflicts are resolved by the newest write. The folder is kept as a security-scoped bookmark for sandboxed builds.
+/// Per-key logical revisions resolve simultaneous changes deterministically. Legacy plist files are read only.
+/// The folder is kept as a security-scoped bookmark for sandboxed builds.
 /// Main-actor isolated (Swift 6 language mode compiles it); file I/O runs on a private queue.
 @MainActor
 final class SettingsSync: NSObject, ObservableObject {
@@ -41,10 +163,15 @@ final class SettingsSync: NSObject, ObservableObject {
     /// Carries plist values across the file queue; NSDictionary is not Sendable.
     private struct Record: @unchecked Sendable { let value: NSDictionary? }
     private var lastValues: NSDictionary?
+    private var lastRemoteValues: NSDictionary?
     private var pendingExport: DispatchWorkItem?
     private var timer: Timer?
     private var applying = false
     private var started = false
+    private var synchronizing = false
+    private var synchronizeAgain = false
+    private var generation = UUID()
+    private var baselineKey: String { "settingsSyncV2Baseline:" + (folder?.standardizedFileURL.path ?? "") }
     private var scopedURL: URL?
     @Published private(set) var pathText = ""
     @Published private(set) var statusText = ""
@@ -67,11 +194,12 @@ final class SettingsSync: NSObject, ObservableObject {
     var enabled: Bool { folder != nil }
     private var fileName: String { "\(appName)-Settings.plist" }
     private var file: URL? { folder?.appendingPathComponent(fileName) }
+    private var journal: URL? { folder?.appendingPathComponent("\(appName)-Settings.sync", isDirectory: true) }
     /// The folder is missing (sync service off, volume not mounted, or no sandbox access).
     var available: Bool { folder.map { FileManager.default.fileExists(atPath: $0.path) } ?? false }
 
     func isSynced(_ key: String) -> Bool {
-        configuration.keys.contains(key) || configuration.prefixes.contains { key.hasPrefix($0) }
+        !key.hasPrefix("settingsSync") && (configuration.keys.contains(key) || configuration.prefixes.contains { key.hasPrefix($0) })
     }
 
     private var deviceID: String {
@@ -125,7 +253,8 @@ final class SettingsSync: NSObject, ObservableObject {
     }
 
     private func resume(checkNow: Bool = true) {
-        lastValues = currentValues()
+        lastValues = defaults.dictionary(forKey: baselineKey).map { $0 as NSDictionary } ?? currentValues()
+        lastRemoteValues = nil
         timer?.invalidate()
         // Resident apps are rarely active, so poll as well.
         timer = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(check), userInfo: nil, repeats: true)
@@ -145,23 +274,78 @@ final class SettingsSync: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
     }
 
-    private func exportIfChanged() {
-        let values = currentValues()
-        guard available, let file, values != lastValues else { return }
-        lastValues = values
-        let record = Record(value: makeRecord(values))
+    private func exportIfChanged() { synchronize() }
+
+    /// Both polling and local edits use one serialized read/merge/write transaction.
+    /// A successful import does not create a new record (no echo between Macs).
+    private func synchronize() {
+        guard available, let folder, let journal, let legacyFile = file else { refreshStatus(); return }
+        guard !synchronizing else { synchronizeAgain = true; return }
+        synchronizing = true
+        let epoch = generation
+        let app = Bundle.main.bundleIdentifier ?? appName
+        let device = deviceID
+        let captured = Record(value: currentValues())
+        let baseline = Record(value: lastValues)
+        let lastSync = defaults.object(forKey: Self.lastSyncKey) as? Date ?? .distantPast
         Self.queue.async { [weak self] in
-            var error: NSError?
-            var written = false
-            NSFileCoordinator().coordinate(writingItemAt: file, options: .forReplacing, error: &error) { url in
-                written = record.value?.write(to: url, atomically: true) ?? false
+            var result: Record = Record(value: nil)
+            var date: Date?
+            var failed = false
+            do {
+                var seed = captured.value!
+                // The old shared file is consulted only to seed an empty v2 journal.
+                // It is never updated. Conflict copies remain available for manual import.
+                if !FileManager.default.fileExists(atPath: journal.path), baseline.value != nil,
+                   let old = NSDictionary(contentsOf: legacyFile), old["app"] as? String == app,
+                   let modified = old["modified"] as? Date, modified > lastSync,
+                   old["device"] as? String != device, let values = old["values"] as? NSDictionary {
+                    seed = values
+                }
+                var coordinationError: NSError?
+                var operationError: Error?
+                NSFileCoordinator().coordinate(writingItemAt: folder, options: [], error: &coordinationError) { _ in
+                    do {
+                        let state = try SettingsSyncJournal.synchronize(directory: journal, app: app, device: device,
+                            baseline: baseline.value, current: captured.value!, seed: seed)
+                        result = Record(value: state.values)
+                        date = state.modified
+                    } catch { operationError = error }
+                }
+                failed = coordinationError != nil || operationError != nil || result.value == nil
             }
-            let succeeded = written
+            let received = result
+            let finishedDate = date
+            let didFail = failed
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     guard let self else { return }
-                    if succeeded { self.defaults.set(record.value?["modified"], forKey: Self.lastSyncKey) }
-                    self.refreshStatus(failed: !succeeded)
+                    self.synchronizing = false
+                    guard self.generation == epoch, self.folder == folder else {
+                        if self.enabled { self.synchronize() }
+                        return
+                    }
+                    if !didFail, let raw = received.value {
+                        let remote = NSMutableDictionary()
+                        for (key, value) in raw {
+                            if let key = key as? String, self.isSynced(key) { remote[key] = value }
+                        }
+                        let beforeApply = self.currentValues()
+                        let merged = SettingsSyncJournal.overlayEdits(from: captured.value!, to: beforeApply, on: remote)
+                        if remote != self.lastRemoteValues, merged != beforeApply { self.apply(merged) }
+                        // onImport may normalize data or fill defaults. Treat that as an
+                        // accepted import, not a fresh user edit to echo to every Mac.
+                        let accepted = SettingsSyncJournal.acceptedBaseline(remote: remote, captured: captured.value!,
+                            beforeApply: beforeApply, afterApply: self.currentValues())
+                        self.lastRemoteValues = remote
+                        self.lastValues = accepted
+                        self.defaults.set(accepted, forKey: self.baselineKey)
+                        if let finishedDate { self.defaults.set(finishedDate, forKey: Self.lastSyncKey) }
+                    }
+                    self.refreshStatus(failed: didFail)
+                    let again = self.synchronizeAgain
+                    self.synchronizeAgain = false
+                    if again || (!didFail && self.currentValues() != self.lastValues) { self.scheduleExport() }
                 }
             }
         }
@@ -186,18 +370,23 @@ final class SettingsSync: NSObject, ObservableObject {
         }
     }
 
-    /// Applies a newer record written by another Mac.
-    @objc func check() {
-        guard available, let file else { refreshStatus(); return }
-        readRecord(at: file) { [weak self] record in
-            guard let self, self.file == file, let record,
-                  let values = record["values"] as? NSDictionary, let modified = record["modified"] as? Date,
-                  record["device"] as? String != self.deviceID else { return }
-            let last = self.defaults.object(forKey: Self.lastSyncKey) as? Date ?? .distantPast
-            guard modified > last else { return }
-            if values != self.currentValues() { self.apply(values) }
-            self.defaults.set(modified, forKey: Self.lastSyncKey)
-            self.refreshStatus()
+    /// Poll immutable records, preserving local changes that have not yet been saved.
+    @objc func check() { synchronize() }
+
+    private func readSyncRecord(in folder: URL, completion: @escaping @MainActor (NSDictionary?) -> Void) {
+        let directory = folder.appendingPathComponent("\(appName)-Settings.sync", isDirectory: true)
+        let legacy = folder.appendingPathComponent(fileName)
+        let app = Bundle.main.bundleIdentifier ?? appName
+        Self.queue.async {
+            let value: NSDictionary?
+            if let state = try? SettingsSyncJournal.read(directory, app: app), state.hasRecords {
+                value = ["app": app, "values": state.values, "modified": state.modified ?? Date(), "deviceName": "Settings Sync"]
+            } else if FileManager.default.fileExists(atPath: directory.path) {
+                // Do not replace an unreadable v2 journal with an older plist.
+                value = nil
+            } else { value = NSDictionary(contentsOf: legacy) }
+            let record = Record(value: value)
+            DispatchQueue.main.async { MainActor.assumeIsolated { completion(record.value) } }
         }
     }
 
@@ -224,10 +413,10 @@ final class SettingsSync: NSObject, ObservableObject {
     }
     var perMacText: String {
         configuration.perMac + " " + text(
-            "複数のMacで変更した場合は、後から保存した内容が優先されます。",
-            "If several Macs change settings, the most recent save wins.",
-            "如果在多台 Mac 上更改了设置，以最后保存的内容为准。",
-            "여러 Mac에서 변경하면 나중에 저장한 내용이 우선합니다.")
+            "変更ごとに別ファイルへ保存し、同じファイルを上書きしません。別の設定項目の変更は両方を反映します。同じ項目（一覧は一覧全体）の同時変更は変更番号と固有IDで決定します。すべてのMacを新方式対応版へ更新してください。旧plistと競合コピーは保持されますが、新方式へ移行後は自動同期しません。",
+            "Each change is saved in a separate file. Changes to different keys are combined; simultaneous edits to one key (including a whole list) are resolved by logical revision and unique ID. Update all Macs to this sync version. Old plist files and conflict copies are preserved but are not synced after migration.",
+            "每次更改保存为独立文件。不同设置的更改会合并；同一设置（包括整个列表）的同时更改按逻辑版本和唯一 ID 决定。请更新所有 Mac。旧 plist 和冲突副本会保留，但迁移后不再自动同步。",
+            "변경마다 별도 파일에 저장합니다. 다른 설정의 변경은 합치며, 같은 설정(목록 전체 포함)의 동시 변경은 논리 버전과 고유 ID로 결정합니다. 모든 Mac을 업데이트하세요. 이전 plist와 충돌 사본은 보관하지만 전환 후 자동 동기화하지 않습니다.")
     }
     var chooseTitle: String { text("同期フォルダーを設定…", "Set Sync Folder…", "设置同步文件夹…", "동기화 폴더 설정…") }
     var revealTitle: String { text("Finderで表示", "Reveal in Finder", "在访达中显示", "Finder에서 보기") }
@@ -252,8 +441,7 @@ final class SettingsSync: NSObject, ObservableObject {
 
     /// Starts syncing with `url`. When the folder already holds different settings, ask which side wins.
     private func use(_ url: URL) {
-        let candidate = url.appendingPathComponent(fileName)
-        readRecord(at: candidate) { [weak self] record in
+        readSyncRecord(in: url) { [weak self] record in
             guard let self else { return }
             let values = record?["values"] as? NSDictionary
             var useSaved = false
@@ -274,6 +462,8 @@ final class SettingsSync: NSObject, ObservableObject {
                 default: return
                 }
             }
+            self.pendingExport?.cancel()
+            self.generation = UUID()
             self.releaseFolder()
             self.defaults.set(url.path, forKey: Self.folderKey)
             if let bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil) {
@@ -285,9 +475,10 @@ final class SettingsSync: NSObject, ObservableObject {
             if useSaved, let values {
                 self.apply(values)
                 self.defaults.set(record?["modified"] as? Date ?? Date(), forKey: Self.lastSyncKey)
-                self.resume(checkNow: false)
+                self.defaults.set(values, forKey: self.baselineKey)
+                self.resume(checkNow: true)
             } else {
-                // This Mac wins: mark the saved copy as seen, then overwrite it.
+                // Explicit replacement becomes a new immutable change, including deletions.
                 self.defaults.set(Date(), forKey: Self.lastSyncKey)
                 self.resume(checkNow: false)
                 self.lastValues = nil
@@ -389,11 +580,15 @@ final class SettingsSync: NSObject, ObservableObject {
 
     @objc func reveal() {
         guard let folder else { return }
-        if let file, FileManager.default.fileExists(atPath: file.path) { NSWorkspace.shared.activateFileViewerSelecting([file]) }
+        if let journal, FileManager.default.fileExists(atPath: journal.path) { NSWorkspace.shared.activateFileViewerSelecting([journal]) }
+        else if let file, FileManager.default.fileExists(atPath: file.path) { NSWorkspace.shared.activateFileViewerSelecting([file]) }
         else { NSWorkspace.shared.open(folder) }
     }
 
     @objc func stop() {
+        generation = UUID()
+        pendingExport?.cancel()
+        synchronizeAgain = false
         defaults.removeObject(forKey: Self.folderKey)
         defaults.removeObject(forKey: Self.bookmarkKey)
         releaseFolder()
@@ -403,9 +598,7 @@ final class SettingsSync: NSObject, ObservableObject {
 
     @objc func syncNow() {
         guard enabled else { return }
-        defaults.removeObject(forKey: Self.lastSyncKey)
-        check()
-        exportIfChanged()
+        synchronize()
     }
 
     private func refreshStatus(failed: Bool = false) {
@@ -422,7 +615,7 @@ final class SettingsSync: NSObject, ObservableObject {
                               "동기화 폴더를 찾을 수 없습니다. 동기화 서비스가 실행 중인지 확인하거나 폴더를 다시 설정하세요.")
             return
         }
-        if failed { statusText = text("同期フォルダーに保存できませんでした", "Could not save to the sync folder", "无法保存到同步文件夹", "동기화 폴더에 저장하지 못했습니다"); return }
+        if failed { statusText = text("同期ファイルを読み書きできませんでした。同期サービスの状態とファイルを確認してください", "Could not read or write sync files. Check the sync service and files.", "无法读写同步文件，请检查同步服务和文件。", "동기화 파일을 읽거나 쓸 수 없습니다. 동기화 서비스와 파일을 확인하세요."); return }
         if let date = defaults.object(forKey: Self.lastSyncKey) as? Date {
             let when = DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .short)
             statusText = text("最終同期：\(when)", "Last synced: \(when)", "上次同步：\(when)", "마지막 동기화: \(when)")

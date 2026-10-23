@@ -7,6 +7,7 @@ import SwiftUI
 enum AboutSection {
     static var title: String { StartupWindow.text("情報", "About", "关于", "정보") }
     static let summaryURL = URL(string: "https://note.com/swwwitch/m/m057948d2fbeb")!
+    static let githubURL = URL(string: "https://github.com/swwwitch/macos-apps")!
     static let xURL = URL(string: "https://x.com/swwwitch")!
     static var version: String {
         let info = Bundle.main.infoDictionary ?? [:]
@@ -23,6 +24,7 @@ enum AboutSection {
             result.append(AboutLink(title: StartupWindow.text("解説記事（note）", "Article (note)", "介绍文章（note）", "소개 글 (note)"), symbol: "doc.text", url: url))
         }
         result.append(AboutLink(title: StartupWindow.text("アプリのまとめ（note）", "All apps (note)", "应用合集（note）", "앱 모음 (note)"), symbol: "books.vertical", url: summaryURL))
+        result.append(AboutLink(title: "GitHub", symbol: "chevron.left.forwardslash.chevron.right", url: githubURL))
         result.append(AboutLink(title: "X（@swwwitch）", symbol: nil, url: xURL))
         return result
     }

@@ -20,6 +20,23 @@ SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework UniformTypeIdentifiers "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/ProjectFolder"
 cp Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/. "$APP/Contents/Resources/"
+# HFS+ images and Dropbox normalize Japanese filenames to decomposed Unicode.
+# Normalize staged resource names before signing so the resource seal survives copying.
+python3 - "$APP/Contents/Resources" <<'PY_NORMALIZE'
+import os, pathlib, sys, unicodedata, uuid
+for base, directories, files in os.walk(sys.argv[1], topdown=False):
+    for name in files + directories:
+        normalized = unicodedata.normalize('NFD', name)
+        if normalized == name:
+            continue
+        source = pathlib.Path(base) / name
+        target = pathlib.Path(base) / normalized
+        if target.exists() and not os.path.samefile(source, target):
+            raise RuntimeError('Unicode filename collision: ' + str(source))
+        temporary = source.with_name('.normalize-' + uuid.uuid4().hex)
+        source.rename(temporary)
+        temporary.rename(target)
+PY_NORMALIZE
 # The committed .icns is the source of truth; file dates after a clone or checkout say nothing about which is newer.
 # Redraw only when it is missing or on request: REGENERATE_ICON=1 ./build.sh
 if [[ ! -f Assets/ProjectFolder.icns || "${REGENERATE_ICON:-0}" == 1 ]]; then

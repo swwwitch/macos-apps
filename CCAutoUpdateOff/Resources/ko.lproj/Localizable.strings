@@ -30,7 +30,7 @@
 "mailToggle" = "자동 업데이트가 켜져 있는 동안 하루 한 번 메일로 알림";
 "mailTo" = "받는 사람:";
 "mailTime" = "보낼 시각:";
-"mailHint" = "Mac의 Mail 앱에 설정된 계정으로 보냅니다(처음 한 번 Mail 제어 권한을 요청합니다). 지정한 시각이 지나면 보내며, 그때 Mac이 잠자기 상태이면 깨어난 후 보냅니다.";
+"mailHint" = "Mac의 Mail 앱에 설정된 계정으로 보냅니다(처음 한 번 Mail 제어 권한을 요청합니다). 제목에는 Mac 이름, 본문에는 Mac과 호스트 이름을 포함합니다. 예약 시각에 잠자기 상태이면 깨어난 뒤 보냅니다.";
 "mailTest" = "테스트 메일 보내기";
 "mailSending" = "보내는 중…";
 "mailSent" = "%1$@(으)로 보냈습니다(%2$@).";
@@ -39,8 +39,10 @@
 "mailDenied" = "Mail 제어 권한이 없습니다. 시스템 설정의 개인정보 보호 및 보안 → 자동화에서 CCAutoUpdateOff의 Mail을 켜세요.";
 "mailFailed" = "보낼 수 없습니다: ";
 "mailSubject" = "[CCAutoUpdateOff] Creative Cloud 자동 업데이트가 켜져 있습니다(%@)";
-"mailTestSubject" = "[CCAutoUpdateOff] 테스트 메일";
+"mailTestSubject" = "[CCAutoUpdateOff] 테스트 메일 (%@)";
 "mailTestBody" = "CCAutoUpdateOff의 테스트 메일입니다. 현재 상태는 다음과 같습니다.";
+"mailSourceMac" = "보낸 Mac: %@";
+"mailSourceHost" = "호스트 이름: %@";
 "mailIntro" = "%@의 Creative Cloud 자동 업데이트 설정:";
 "mailHowTo" = "끄려면 Creative Cloud 환경설정 → 앱에서 스위치를 변경하세요. 켜져 있는 동안 하루 한 번 알립니다.";
 "removeOldOn" = "\"이전 버전 제거\"가 켜진 앱이 있습니다: %@";

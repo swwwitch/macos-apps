@@ -1,0 +1,3911 @@
+{
+  "actions": [
+    {
+      "id": "general.00",
+      "sourceID": "general.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 0,
+          "fn": true
+        }
+      ]
+    },
+    {
+      "id": "general.02",
+      "sourceID": "general.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 45,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.03",
+      "sourceID": "general.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.04",
+      "sourceID": "general.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 31,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.05",
+      "sourceID": "general.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 1,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.07",
+      "sourceID": "general.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 1,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.08",
+      "sourceID": "general.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 35,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.09",
+      "sourceID": "general.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 44,
+          "modifiers": 768,
+          "fn": false,
+          "character": "?",
+          "sourceModifiers": 768
+        }
+      ]
+    },
+    {
+      "id": "general.10",
+      "sourceID": "general.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 13,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.11",
+      "sourceID": "general.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 13,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.12",
+      "sourceID": "general.12",
+      "label": "",
+      "strokes": [
+        {
+          "code": 46,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.13",
+      "sourceID": "general.13",
+      "label": "",
+      "strokes": [
+        {
+          "code": 46,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.14",
+      "sourceID": "general.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 3,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.17",
+      "sourceID": "general.17",
+      "label": "",
+      "strokes": [
+        {
+          "code": 43,
+          "modifiers": 256,
+          "fn": false,
+          "character": ",",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "general.18",
+      "sourceID": "general.18",
+      "label": "",
+      "strokes": [
+        {
+          "code": 29,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.21",
+      "sourceID": "general.21",
+      "label": "",
+      "strokes": [
+        {
+          "code": 29,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.22",
+      "sourceID": "general.22",
+      "label": "",
+      "strokes": [
+        {
+          "code": 15,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.23",
+      "sourceID": "general.23",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.24",
+      "sourceID": "general.24",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.25",
+      "sourceID": "general.25",
+      "label": "",
+      "strokes": [
+        {
+          "code": 17,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.30",
+      "sourceID": "general.30",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.31",
+      "sourceID": "general.31",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.32",
+      "sourceID": "general.32",
+      "label": "",
+      "strokes": [
+        {
+          "code": 50,
+          "modifiers": 4096,
+          "fn": false,
+          "character": "`",
+          "sourceModifiers": 4096
+        }
+      ]
+    },
+    {
+      "id": "general.33",
+      "sourceID": "general.33",
+      "label": "",
+      "strokes": [
+        {
+          "code": 50,
+          "modifiers": 4608,
+          "fn": false,
+          "character": "`",
+          "sourceModifiers": 4608
+        }
+      ]
+    },
+    {
+      "id": "general.34",
+      "sourceID": "general.34",
+      "label": "",
+      "strokes": [
+        {
+          "code": 14,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.35",
+      "sourceID": "general.35",
+      "label": "",
+      "strokes": [
+        {
+          "code": 45,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.36",
+      "sourceID": "general.36",
+      "label": "",
+      "strokes": [
+        {
+          "code": 4,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.37",
+      "sourceID": "general.37",
+      "label": "",
+      "strokes": [
+        {
+          "code": 4,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.38",
+      "sourceID": "general.38",
+      "label": "",
+      "strokes": [
+        {
+          "code": 6,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.39",
+      "sourceID": "general.39",
+      "label": "",
+      "strokes": [
+        {
+          "code": 6,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.40",
+      "sourceID": "general.40",
+      "label": "",
+      "strokes": [
+        {
+          "code": 12,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "general.41",
+      "sourceID": "general.41",
+      "label": "",
+      "strokes": [
+        {
+          "code": 12,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.00",
+      "sourceID": "navigation.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.01",
+      "sourceID": "navigation.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.02",
+      "sourceID": "navigation.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 11,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.03",
+      "sourceID": "navigation.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 3,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.04",
+      "sourceID": "navigation.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.05",
+      "sourceID": "navigation.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.06",
+      "sourceID": "navigation.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.07",
+      "sourceID": "navigation.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.08",
+      "sourceID": "navigation.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.09",
+      "sourceID": "navigation.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.10",
+      "sourceID": "navigation.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.11",
+      "sourceID": "navigation.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.12",
+      "sourceID": "navigation.12",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.13",
+      "sourceID": "navigation.13",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.14",
+      "sourceID": "navigation.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 14,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.15",
+      "sourceID": "navigation.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 38,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.16",
+      "sourceID": "navigation.16",
+      "label": "",
+      "strokes": [
+        {
+          "code": 115,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.17",
+      "sourceID": "navigation.17",
+      "label": "",
+      "strokes": [
+        {
+          "code": 119,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigation.18",
+      "sourceID": "navigation.18",
+      "label": "",
+      "strokes": [
+        {
+          "code": 37,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.03",
+      "sourceID": "textSelection.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.04",
+      "sourceID": "textSelection.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.06",
+      "sourceID": "textSelection.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.07",
+      "sourceID": "textSelection.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.08",
+      "sourceID": "textSelection.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.09",
+      "sourceID": "textSelection.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.10",
+      "sourceID": "textSelection.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.11",
+      "sourceID": "textSelection.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.12",
+      "sourceID": "textSelection.12",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.13",
+      "sourceID": "textSelection.13",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.14",
+      "sourceID": "textSelection.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.15",
+      "sourceID": "textSelection.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.16",
+      "sourceID": "textSelection.16",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textSelection.17",
+      "sourceID": "textSelection.17",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.00",
+      "sourceID": "textFormat.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 17,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.02",
+      "sourceID": "textFormat.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 11,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.03",
+      "sourceID": "textFormat.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 34,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.04",
+      "sourceID": "textFormat.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 32,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.05",
+      "sourceID": "textFormat.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.06",
+      "sourceID": "textFormat.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 117,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.07",
+      "sourceID": "textFormat.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.08",
+      "sourceID": "textFormat.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 117,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.09",
+      "sourceID": "textFormat.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.14",
+      "sourceID": "textFormat.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 24,
+          "modifiers": 4864,
+          "fn": false,
+          "character": "+",
+          "sourceModifiers": 4352
+        }
+      ]
+    },
+    {
+      "id": "textFormat.15",
+      "sourceID": "textFormat.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 27,
+          "modifiers": 4352,
+          "fn": false,
+          "character": "-",
+          "sourceModifiers": 4352
+        }
+      ]
+    },
+    {
+      "id": "textFormat.20",
+      "sourceID": "textFormat.20",
+      "label": "",
+      "strokes": [
+        {
+          "code": 33,
+          "modifiers": 256,
+          "fn": false,
+          "character": "[",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "textFormat.21",
+      "sourceID": "textFormat.21",
+      "label": "",
+      "strokes": [
+        {
+          "code": 30,
+          "modifiers": 256,
+          "fn": false,
+          "character": "]",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "textFormat.22",
+      "sourceID": "textFormat.22",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.23",
+      "sourceID": "textFormat.23",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.24",
+      "sourceID": "textFormat.24",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.25",
+      "sourceID": "textFormat.25",
+      "label": "",
+      "strokes": [
+        {
+          "code": 7,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.26",
+      "sourceID": "textFormat.26",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.27",
+      "sourceID": "textFormat.27",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.28",
+      "sourceID": "textFormat.28",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.29",
+      "sourceID": "textFormat.29",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.32",
+      "sourceID": "textFormat.32",
+      "label": "",
+      "strokes": [
+        {
+          "code": 49,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.33",
+      "sourceID": "textFormat.33",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.34",
+      "sourceID": "textFormat.34",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.35",
+      "sourceID": "textFormat.35",
+      "label": "",
+      "strokes": [
+        {
+          "code": 31,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.36",
+      "sourceID": "textFormat.36",
+      "label": "",
+      "strokes": [
+        {
+          "code": 49,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "textFormat.37",
+      "sourceID": "textFormat.37",
+      "label": "",
+      "strokes": [
+        {
+          "code": 17,
+          "modifiers": 4096,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.00",
+      "sourceID": "findComments.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 3,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.01",
+      "sourceID": "findComments.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 5,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.02",
+      "sourceID": "findComments.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 5,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.03",
+      "sourceID": "findComments.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 14,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.04",
+      "sourceID": "findComments.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.05",
+      "sourceID": "findComments.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 38,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.06",
+      "sourceID": "findComments.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.07",
+      "sourceID": "findComments.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.08",
+      "sourceID": "findComments.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.09",
+      "sourceID": "findComments.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 41,
+          "modifiers": 256,
+          "fn": false,
+          "character": ";",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "findComments.10",
+      "sourceID": "findComments.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 41,
+          "modifiers": 768,
+          "fn": false,
+          "character": ":",
+          "sourceModifiers": 768
+        }
+      ]
+    },
+    {
+      "id": "findComments.11",
+      "sourceID": "findComments.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.12",
+      "sourceID": "findComments.12",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.13",
+      "sourceID": "findComments.13",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.14",
+      "sourceID": "findComments.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "findComments.15",
+      "sourceID": "findComments.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 3,
+          "modifiers": 4608,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.01",
+      "sourceID": "objects.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.02",
+      "sourceID": "objects.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.06",
+      "sourceID": "objects.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.07",
+      "sourceID": "objects.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.10.123",
+      "sourceID": "objects.10",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.10.124",
+      "sourceID": "objects.10",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.10.126",
+      "sourceID": "objects.10",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.10.125",
+      "sourceID": "objects.10",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.11.123",
+      "sourceID": "objects.11",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.11.124",
+      "sourceID": "objects.11",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.11.126",
+      "sourceID": "objects.11",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.11.125",
+      "sourceID": "objects.11",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.12.123",
+      "sourceID": "objects.12",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.12.124",
+      "sourceID": "objects.12",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.12.126",
+      "sourceID": "objects.12",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.12.125",
+      "sourceID": "objects.12",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.13.123",
+      "sourceID": "objects.13",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.13.124",
+      "sourceID": "objects.13",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.13.126",
+      "sourceID": "objects.13",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.13.125",
+      "sourceID": "objects.13",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.14",
+      "sourceID": "objects.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.15",
+      "sourceID": "objects.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.23",
+      "sourceID": "objects.23",
+      "label": "",
+      "strokes": [
+        {
+          "code": 37,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.24",
+      "sourceID": "objects.24",
+      "label": "",
+      "strokes": [
+        {
+          "code": 37,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.25",
+      "sourceID": "objects.25",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.37",
+      "sourceID": "objects.37",
+      "label": "",
+      "strokes": [
+        {
+          "code": 46,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.38",
+      "sourceID": "objects.38",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.41",
+      "sourceID": "objects.41",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.42",
+      "sourceID": "objects.42",
+      "label": "",
+      "strokes": [
+        {
+          "code": 34,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "objects.43",
+      "sourceID": "objects.43",
+      "label": "",
+      "strokes": [
+        {
+          "code": 17,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "editableShapes.01",
+      "sourceID": "editableShapes.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 35,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "editableShapes.03",
+      "sourceID": "editableShapes.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.00",
+      "sourceID": "tables.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 14,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.01",
+      "sourceID": "tables.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.02",
+      "sourceID": "tables.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.03",
+      "sourceID": "tables.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.04",
+      "sourceID": "tables.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.05",
+      "sourceID": "tables.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.06",
+      "sourceID": "tables.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.08",
+      "sourceID": "tables.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.09",
+      "sourceID": "tables.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.10",
+      "sourceID": "tables.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.11",
+      "sourceID": "tables.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.14",
+      "sourceID": "tables.14",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.15",
+      "sourceID": "tables.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.16",
+      "sourceID": "tables.16",
+      "label": "",
+      "strokes": [
+        {
+          "code": 0,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.17",
+      "sourceID": "tables.17",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.21",
+      "sourceID": "tables.21",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.22",
+      "sourceID": "tables.22",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.23",
+      "sourceID": "tables.23",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.25",
+      "sourceID": "tables.25",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.27",
+      "sourceID": "tables.27",
+      "label": "",
+      "strokes": [
+        {
+          "code": 49,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.29",
+      "sourceID": "tables.29",
+      "label": "",
+      "strokes": [
+        {
+          "code": 32,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.30",
+      "sourceID": "tables.30",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.31",
+      "sourceID": "tables.31",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        },
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.32.123",
+      "sourceID": "tables.32",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.32.124",
+      "sourceID": "tables.32",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.32.126",
+      "sourceID": "tables.32",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.32.125",
+      "sourceID": "tables.32",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.33.123",
+      "sourceID": "tables.33",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.33.124",
+      "sourceID": "tables.33",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.33.126",
+      "sourceID": "tables.33",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.33.125",
+      "sourceID": "tables.33",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.35",
+      "sourceID": "tables.35",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.36",
+      "sourceID": "tables.36",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.37",
+      "sourceID": "tables.37",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.38",
+      "sourceID": "tables.38",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.39.123",
+      "sourceID": "tables.39",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.39.124",
+      "sourceID": "tables.39",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.39.126",
+      "sourceID": "tables.39",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.39.125",
+      "sourceID": "tables.39",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.40.123",
+      "sourceID": "tables.40",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.40.124",
+      "sourceID": "tables.40",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.40.126",
+      "sourceID": "tables.40",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.40.125",
+      "sourceID": "tables.40",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.41",
+      "sourceID": "tables.41",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.42",
+      "sourceID": "tables.42",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.43",
+      "sourceID": "tables.43",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.44",
+      "sourceID": "tables.44",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.45",
+      "sourceID": "tables.45",
+      "label": "",
+      "strokes": [
+        {
+          "code": 24,
+          "modifiers": 0,
+          "fn": false,
+          "character": "=",
+          "sourceModifiers": 0
+        }
+      ]
+    },
+    {
+      "id": "tables.46",
+      "sourceID": "tables.46",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.47",
+      "sourceID": "tables.47",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.48",
+      "sourceID": "tables.48",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.49",
+      "sourceID": "tables.49",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.50",
+      "sourceID": "tables.50",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.51",
+      "sourceID": "tables.51",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.52",
+      "sourceID": "tables.52",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.53",
+      "sourceID": "tables.53",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.54",
+      "sourceID": "tables.54",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.55",
+      "sourceID": "tables.55",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.56",
+      "sourceID": "tables.56",
+      "label": "",
+      "strokes": [
+        {
+          "code": 9,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.57",
+      "sourceID": "tables.57",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.58",
+      "sourceID": "tables.58",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.59",
+      "sourceID": "tables.59",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.60",
+      "sourceID": "tables.60",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.61",
+      "sourceID": "tables.61",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2816,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.62",
+      "sourceID": "tables.62",
+      "label": "",
+      "strokes": [
+        {
+          "code": 46,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.63",
+      "sourceID": "tables.63",
+      "label": "",
+      "strokes": [
+        {
+          "code": 46,
+          "modifiers": 4864,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.64",
+      "sourceID": "tables.64",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.65",
+      "sourceID": "tables.65",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.66",
+      "sourceID": "tables.66",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.67",
+      "sourceID": "tables.67",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 6400,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.68",
+      "sourceID": "tables.68",
+      "label": "",
+      "strokes": [
+        {
+          "code": 42,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.69",
+      "sourceID": "tables.69",
+      "label": "",
+      "strokes": [
+        {
+          "code": 42,
+          "modifiers": 4352,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "tables.70",
+      "sourceID": "tables.70",
+      "label": "",
+      "strokes": [
+        {
+          "code": 42,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.00",
+      "sourceID": "chartData.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.01",
+      "sourceID": "chartData.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.02",
+      "sourceID": "chartData.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.03",
+      "sourceID": "chartData.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.04",
+      "sourceID": "chartData.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.05.123",
+      "sourceID": "chartData.05",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.05.124",
+      "sourceID": "chartData.05",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.06.126",
+      "sourceID": "chartData.06",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.06.125",
+      "sourceID": "chartData.06",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.07.123",
+      "sourceID": "chartData.07",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.07.124",
+      "sourceID": "chartData.07",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.07.126",
+      "sourceID": "chartData.07",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.07.125",
+      "sourceID": "chartData.07",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.08.123",
+      "sourceID": "chartData.08",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.08.124",
+      "sourceID": "chartData.08",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.08.126",
+      "sourceID": "chartData.08",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "chartData.08.125",
+      "sourceID": "chartData.08",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.00.123",
+      "sourceID": "formulas.00",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.00.124",
+      "sourceID": "formulas.00",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.00.126",
+      "sourceID": "formulas.00",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.00.125",
+      "sourceID": "formulas.00",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.01.123",
+      "sourceID": "formulas.01",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.01.124",
+      "sourceID": "formulas.01",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.01.126",
+      "sourceID": "formulas.01",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.01.125",
+      "sourceID": "formulas.01",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2560,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.02.123",
+      "sourceID": "formulas.02",
+      "label": "←",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.02.124",
+      "sourceID": "formulas.02",
+      "label": "→",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.02.126",
+      "sourceID": "formulas.02",
+      "label": "↑",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.02.125",
+      "sourceID": "formulas.02",
+      "label": "↓",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.03",
+      "sourceID": "formulas.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.04",
+      "sourceID": "formulas.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.05",
+      "sourceID": "formulas.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "formulas.06",
+      "sourceID": "formulas.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.01",
+      "sourceID": "navigator.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.02",
+      "sourceID": "navigator.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 48,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.07",
+      "sourceID": "navigator.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.08",
+      "sourceID": "navigator.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 51,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.09",
+      "sourceID": "navigator.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "navigator.10",
+      "sourceID": "navigator.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.00",
+      "sourceID": "lightTable.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.01",
+      "sourceID": "lightTable.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.02",
+      "sourceID": "lightTable.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.03",
+      "sourceID": "lightTable.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.04",
+      "sourceID": "lightTable.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.05",
+      "sourceID": "lightTable.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.06",
+      "sourceID": "lightTable.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 126,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "lightTable.07",
+      "sourceID": "lightTable.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 256,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.00",
+      "sourceID": "presentation.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 35,
+          "modifiers": 2304,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.02",
+      "sourceID": "presentation.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.03",
+      "sourceID": "presentation.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.04",
+      "sourceID": "presentation.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 124,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.05",
+      "sourceID": "presentation.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 125,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.06",
+      "sourceID": "presentation.06",
+      "label": "",
+      "strokes": [
+        {
+          "code": 35,
+          "modifiers": 768,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.07",
+      "sourceID": "presentation.07",
+      "label": "",
+      "strokes": [
+        {
+          "code": 123,
+          "modifiers": 512,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.08",
+      "sourceID": "presentation.08",
+      "label": "",
+      "strokes": [
+        {
+          "code": 6,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.09",
+      "sourceID": "presentation.09",
+      "label": "",
+      "strokes": [
+        {
+          "code": 3,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.10",
+      "sourceID": "presentation.10",
+      "label": "",
+      "strokes": [
+        {
+          "code": 11,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.11",
+      "sourceID": "presentation.11",
+      "label": "",
+      "strokes": [
+        {
+          "code": 13,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.12",
+      "sourceID": "presentation.12",
+      "label": "",
+      "strokes": [
+        {
+          "code": 8,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.13",
+      "sourceID": "presentation.13",
+      "label": "",
+      "strokes": [
+        {
+          "code": 1,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.0",
+      "sourceID": "presentation.14",
+      "label": "0",
+      "strokes": [
+        {
+          "code": 29,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.1",
+      "sourceID": "presentation.14",
+      "label": "1",
+      "strokes": [
+        {
+          "code": 18,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.2",
+      "sourceID": "presentation.14",
+      "label": "2",
+      "strokes": [
+        {
+          "code": 19,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.3",
+      "sourceID": "presentation.14",
+      "label": "3",
+      "strokes": [
+        {
+          "code": 20,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.4",
+      "sourceID": "presentation.14",
+      "label": "4",
+      "strokes": [
+        {
+          "code": 21,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.5",
+      "sourceID": "presentation.14",
+      "label": "5",
+      "strokes": [
+        {
+          "code": 23,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.6",
+      "sourceID": "presentation.14",
+      "label": "6",
+      "strokes": [
+        {
+          "code": 22,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.7",
+      "sourceID": "presentation.14",
+      "label": "7",
+      "strokes": [
+        {
+          "code": 26,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.8",
+      "sourceID": "presentation.14",
+      "label": "8",
+      "strokes": [
+        {
+          "code": 28,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.14.9",
+      "sourceID": "presentation.14",
+      "label": "9",
+      "strokes": [
+        {
+          "code": 25,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.15",
+      "sourceID": "presentation.15",
+      "label": "",
+      "strokes": [
+        {
+          "code": 24,
+          "modifiers": 512,
+          "fn": false,
+          "character": "+",
+          "sourceModifiers": 0
+        }
+      ]
+    },
+    {
+      "id": "presentation.16",
+      "sourceID": "presentation.16",
+      "label": "",
+      "strokes": [
+        {
+          "code": 27,
+          "modifiers": 0,
+          "fn": false,
+          "character": "-",
+          "sourceModifiers": 0
+        }
+      ]
+    },
+    {
+      "id": "presentation.17",
+      "sourceID": "presentation.17",
+      "label": "",
+      "strokes": [
+        {
+          "code": 36,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.18",
+      "sourceID": "presentation.18",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.19",
+      "sourceID": "presentation.19",
+      "label": "",
+      "strokes": [
+        {
+          "code": 7,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.20",
+      "sourceID": "presentation.20",
+      "label": "",
+      "strokes": [
+        {
+          "code": 15,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.21",
+      "sourceID": "presentation.21",
+      "label": "",
+      "strokes": [
+        {
+          "code": 32,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.22",
+      "sourceID": "presentation.22",
+      "label": "",
+      "strokes": [
+        {
+          "code": 2,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.23",
+      "sourceID": "presentation.23",
+      "label": "",
+      "strokes": [
+        {
+          "code": 24,
+          "modifiers": 768,
+          "fn": false,
+          "character": "+",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "presentation.24",
+      "sourceID": "presentation.24",
+      "label": "",
+      "strokes": [
+        {
+          "code": 27,
+          "modifiers": 256,
+          "fn": false,
+          "character": "-",
+          "sourceModifiers": 256
+        }
+      ]
+    },
+    {
+      "id": "presentation.25",
+      "sourceID": "presentation.25",
+      "label": "",
+      "strokes": [
+        {
+          "code": 53,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.26",
+      "sourceID": "presentation.26",
+      "label": "",
+      "strokes": [
+        {
+          "code": 4,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.27",
+      "sourceID": "presentation.27",
+      "label": "",
+      "strokes": [
+        {
+          "code": 44,
+          "modifiers": 512,
+          "fn": false,
+          "character": "?",
+          "sourceModifiers": 0
+        }
+      ]
+    },
+    {
+      "id": "presentation.28",
+      "sourceID": "presentation.28",
+      "label": "",
+      "strokes": [
+        {
+          "code": 115,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.29",
+      "sourceID": "presentation.29",
+      "label": "",
+      "strokes": [
+        {
+          "code": 119,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "presentation.30",
+      "sourceID": "presentation.30",
+      "label": "",
+      "strokes": [
+        {
+          "code": 7,
+          "modifiers": 2048,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.00",
+      "sourceID": "video.00",
+      "label": "",
+      "strokes": [
+        {
+          "code": 49,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.01",
+      "sourceID": "video.01",
+      "label": "",
+      "strokes": [
+        {
+          "code": 40,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.02",
+      "sourceID": "video.02",
+      "label": "",
+      "strokes": [
+        {
+          "code": 38,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.03",
+      "sourceID": "video.03",
+      "label": "",
+      "strokes": [
+        {
+          "code": 37,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.04",
+      "sourceID": "video.04",
+      "label": "",
+      "strokes": [
+        {
+          "code": 34,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    },
+    {
+      "id": "video.05",
+      "sourceID": "video.05",
+      "label": "",
+      "strokes": [
+        {
+          "code": 31,
+          "modifiers": 0,
+          "fn": false
+        }
+      ]
+    }
+  ],
+  "unsupported": [
+    {
+      "sourceID": "general.26",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "general.27",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.00",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.01",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.02",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.05",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.18",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textSelection.19",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textFormat.31",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "textFormat.38",
+      "reason": "configuredStyle"
+    },
+    {
+      "sourceID": "objects.03",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.04",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.05",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.08",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.09",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.22",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.26",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.27",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.28",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.29",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.30",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.31",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.32",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.33",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.34",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.35",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.36",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.39",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "objects.40",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.00",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.02",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.04",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.05",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.06",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.07",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.08",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "editableShapes.09",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.07",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.12",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.13",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.18",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.19",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.20",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.24",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.26",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.28",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "tables.34",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "navigator.03",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "navigator.04",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "navigator.05",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "navigator.06",
+      "reason": "gesture"
+    },
+    {
+      "sourceID": "presentation.01",
+      "reason": "gesture"
+    }
+  ]
+}

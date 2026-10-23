@@ -82,7 +82,9 @@ final class Model: ObservableObject {
         entries = defaults.data(forKey: "entries").flatMap { try? JSONDecoder().decode([LaunchEntry].self, from: $0) } ?? []
         hotkeysEnabled = defaults.object(forKey: "hotkeysEnabled") as? Bool ?? true
         preferPathFinder = defaults.object(forKey: "preferPathFinder") as? Bool ?? true
-        save()
+        // A received JSON payload is already stored. Re-encoding it here can change
+        // object-key order and turn a received setting into a fresh outgoing edit.
+        refreshHotkeys()
     }
     func update(_ id: UUID, _ change: (inout LaunchEntry) -> Void) {
         guard let index = entries.firstIndex(where: { $0.id == id }) else { return }

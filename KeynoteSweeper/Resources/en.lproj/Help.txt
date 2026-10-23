@@ -17,7 +17,7 @@ Keynote › Services shows these items while Keynote is active:
 - Delete Unused Masters
 - Delete Hidden Slides
 - Remove Transitions
-- Remove Transitions Except Magic Move (also called by ⌃⌥0 in KeynoteHelper)
+- Remove Transitions Except Magic Move (also called by ⌃⌥0 in KeynoteMaestro)
 - Remove Object Animations
 - Remove All Animations (transitions and object animations)
 They work on Keynote's front presentation. They delete right away without a confirmation dialog, and Keynote stays in front. KeynoteSweeper's window appears only if something could not be deleted or failed. Keynote's Undo restores the deletions. The checkboxes in the window are not changed. Assign keys in System Settings › Keyboard › Keyboard Shortcuts › Services, and turn the items on there if they are missing.

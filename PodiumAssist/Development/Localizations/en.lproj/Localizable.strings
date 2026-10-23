@@ -233,3 +233,21 @@
 "表示" = "Display";
 
 "音量を変更するときにフィードバックを再生しない" = "Do not play feedback when volume is changed";
+
+"起動" = "Launch";
+
+"終了" = "Quit";
+
+// Preset application confirmation
+"プリセットの切り換えを確認" = "Confirm Preset Switch";
+"チェックしたアプリだけを起動・終了します。今回の選択はプリセットに保存されません。" = "Only checked apps will be launched or quit. These selections are not saved to the preset.";
+"起動するアプリ" = "Apps to Launch";
+"終了するアプリ" = "Apps to Quit";
+"終了時に未保存の書類がある場合は、各アプリの確認画面で操作してください。" = "If an app has unsaved documents, respond to its save confirmation.";
+"切り換える" = "Switch Preset";
+
+"プリセットのアプリ" = "Preset Apps";
+
+"macOSのデフォルト" = "macOS Defaults";
+
+"フルセット" = "Full Set";

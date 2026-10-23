@@ -12,7 +12,7 @@ struct PresetSaveSheet: View {
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
              reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
-             volumeFeedback, notificationsOff, timerEnabled, timerMinutes
+             volumeFeedback, notificationsOff
     }
 
     @State private var targetID: UUID?
@@ -67,8 +67,6 @@ struct PresetSaveSheet: View {
                             Text(L("オン")).tag(false); Text(L("オフ")).tag(true)
                         }.labelsHidden().pickerStyle(.segmented).frame(width: 120).disabled(!included.contains(.notificationsOff))
                     }
-                    row(.timerEnabled, L("タイマーを使う"), onOff(countdown.enabled))
-                    row(.timerMinutes, L("タイマーの所要時間"), L("%@分", String(countdown.plan.minutes)))
                 }
             }
             .help(L("チェックした項目だけを、今の値でプリセットに保存します。チェックしない項目は、適用しても変わりません。"))
@@ -149,7 +147,7 @@ struct PresetSaveSheet: View {
             .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
             .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
             .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil,
-            .notificationsOff: preset.notificationsOff != nil, .timerEnabled: preset.timerEnabled != nil, .timerMinutes: preset.timerMinutes != nil]
+            .notificationsOff: preset.notificationsOff != nil]
         return Set(has.filter(\.value).map(\.key))
     }
 
@@ -176,7 +174,5 @@ struct PresetSaveSheet: View {
         preset.zoomToggleShortcut = value(.zoomToggleShortcut, settings.zoomToggleShortcut)
         preset.zoomInShortcut = value(.zoomInShortcut, settings.zoomInShortcut)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
-        preset.timerEnabled = value(.timerEnabled, countdown.enabled)
-        preset.timerMinutes = value(.timerMinutes, countdown.plan.minutes)
     }
 }

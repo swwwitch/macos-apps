@@ -23,7 +23,7 @@ The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display
 ### Notifications and Presets
 - **Browser History**: Delete… removes all browsing history of the default browser (asks first; cannot be undone). Bookmarks, cookies, and sign-ins are kept. Works with Firefox and Chrome-based browsers (Chrome, Edge, Brave, Vivaldi, Arc). An open browser quits and opens again afterwards. Safari is not supported; use its History menu.
 - **Silence Notifications (Do Not Disturb)**: turn it on to turn on Do Not Disturb, and off to turn it off. Allowed notifications may still arrive. The checkbox shows the state PodiumAssist set last; changes made elsewhere, such as in Control Center, are not reflected.
-- **Presets**: in the Presets tab of the main window, apply a saved preset’s settings all at once. The preset you applied last shows a checkmark. The checkmark disappears when you change a setting in the Basic, Zoom, or Timer tab.
+- **Presets**: in the Presets tab of the main window, apply a saved preset’s settings all at once. The preset you applied last shows a checkmark. The checkmark disappears when you change a setting in the Basic, Display, or Zoom tab.
 
 ※ Changes to system settings remain after you quit PodiumAssist.
 
@@ -40,7 +40,7 @@ The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display
 - Turning off Use Timer stops it and leaves only the icon in the menu bar.
 
 ## Presets
-1. In the Basic, Zoom, and Timer tabs, set up the Mac the way you want to save it.
+1. In the Basic, Display, and Zoom tabs, set up the Mac the way you want to save it.
 2. Option-click Save to Preset (or just click it when there is no preset yet), and choose where to save it (a new preset or an existing one) and its name.
 3. Tick the items to include and click Save. Unticked items stay unchanged when the preset is applied.
 
@@ -48,7 +48,8 @@ The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display
 - Click Save to Preset to overwrite the preset you applied (or saved) last without opening the sheet. The preset keeps its items; only the values change to the current state.
 - Right-click a button in the Presets tab of the main window to rename, move up or down, edit the launch or quit apps, or delete it.
 - Launch and quit apps are lists of each preset and do not affect other presets. Apps that are already running are not opened again, and apps are not force quit; if there are unsaved documents, save them when the app asks.
-- The timer items in a preset are Use timer and the duration. Starting or scheduling the timer is a separate action, so applying a preset never starts the timer.
+- The timer is independent of every preset. Saving or applying a preset does not change its enabled state, start/end times, duration, or running state. Timer values in older presets are ignored.
+- Right-click a preset and choose Edit Launch Apps or Edit Quit Apps to configure its own lists. Assigned apps appear in small text and icons inside the preset button.
 
 ## Settings
 Open Settings in a separate window with the Settings… button in the main window or with ⌘,.
@@ -98,3 +99,9 @@ PodiumAssist uses these two shortcuts in the Shortcuts app on your Mac. Create t
 1. If needed, restore your Dock settings and desktop icons.
 2. Turn off Open at login.
 3. Quit with the Quit PodiumAssist button in the main window, and then move PodiumAssist to the Trash.
+
+- When switching a preset with app lists, review the launch and quit apps, select each checkbox for this run, then click Switch Preset. Selections are not saved. Cancel leaves all settings unchanged.
+
+- In Settings > Preset Apps, choose a preset to review and edit its launch and quit app lists.
+
+- macOS Defaults and Full Set are added once. macOS Defaults uses light appearance, visible Dock and desktop, standard pointer, display default resolution, and notifications on; it does not reset all OS settings. Full Set uses an analog clock without date/weekday, auto-hidden Dock, hidden desktop, 2x pointer, reduced transparency/motion, F1/F2 zoom, and notifications off. Neither changes the timer. Both start with empty app lists and can be edited or deleted.

@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "KeynoteMaestro";
+"NSAppleEventsUsageDescription" = "用于更改 Keynote 的对象和幻灯片（不透明度、大小、过渡、形状），以及将当前幻灯片导出为 PNG。";

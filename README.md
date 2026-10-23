@@ -2,6 +2,10 @@
 
 各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、保管用の現行ビルドは [Latest Builds](Latest%20Builds/) を使用します。開発フォルダ内の `.app` はビルド出力です。
 
+## ソースコードの公開
+
+公開対象の33アプリのソースコードを、アプリ名ごとのフォルダーで公開しています。下の一覧から各ソースとビルドスクリプトを開けます。共通部品は `Shared/` にあります。配布用のアプリ本体と、ソースコードの更新・検証状況は別に管理しています。
+
 ## アプリ一覧
 
 | アプリ | 用途 | ソース | ビルド |
@@ -16,12 +20,14 @@
 | DocklessLauncher（旧 AppLauncher） | ホットキーでアプリを起動・前面化 | [Sources](DocklessLauncher/Sources/) | [build.sh](DocklessLauncher/build.sh) |
 | ExtensionLinker | 拡張子ごとの既定アプリ設定 | [Development/Sources/DutiGUI](ExtensionLinker/Development/Sources/DutiGUI/) | [Development/build.sh](ExtensionLinker/Development/build.sh) |
 | FileCaravan | 大量のファイルをまとめて移動 | [Source](FileCaravan/Source/) | [build.sh](FileCaravan/build.sh) |
+| FnNumpad | Fnキーを使ったテンキー入力 | [Sources](FnNumpad/Sources/) | [build.sh](FnNumpad/build.sh) |
 | FolderHopper | 選択ファイルの移動・複製 | [Development/Source](FolderHopper/Development/Source/) | [Development/build.sh](FolderHopper/Development/build.sh) |
 | HotkeyHound | 押したキーをどのアプリが使っているかを調べる | [Sources](HotkeyHound/Sources/HotkeyHound/) | [build.sh](HotkeyHound/build.sh) |
 | IdBackgroundOff | InDesignの「バックグラウンド書き出し／保存」をオフ | [Source](IdBackgroundOff/Source/) | [build.sh](IdBackgroundOff/build.sh) |
 | IncrementPaste | クリップボードの数字・日付・英字を1つ増やしてペースト（KMマクロ「increment-paste」の移植） | [Sources](IncrementPaste/Sources/) | [build.sh](IncrementPaste/build.sh) |
 | KageTrimmer | スクリーンショットの影を調整 | [Development/Sources](KageTrimmer/Development/Sources/) | [Development/build.sh](KageTrimmer/Development/build.sh) |
 | KakkoReplace | カッコの追加・置換 | [Sources](KakkoReplace/Sources/) | [build.sh](KakkoReplace/build.sh) |
+| KeynoteMaestro（旧 KeynoteHelper） | Keynoteの操作・ショートカット支援 | [Sources](KeynoteMaestro/Sources/) | [build.sh](KeynoteMaestro/build.sh) |
 | KeynoteSweeper | Keynoteの未使用マスター・非表示スライド・アニメーションの削除 | [Source](KeynoteSweeper/Source/) | [build.sh](KeynoteSweeper/build.sh) |
 | LinkMaker | ブラウザーのページのタイトルとURLをコピー・保存・開き直し（KMマクロ「Make Link」の移植） | [Sources](LinkMaker/Sources/) | [build.sh](LinkMaker/build.sh) |
 | ListMatch | 2つのリストを比べ、片方にしかないもの・共通の項目を表示（メールアドレス・CSVの列にも対応） | [Source](ListMatch/Source/) | [build.sh](ListMatch/build.sh) |
@@ -54,4 +60,4 @@
 
 アプリ名単位のフォルダはビルドスクリプトが参照するため、そのまま使用します。旧版は削除せず退避し、移動前後のSHA-256を確認します。移動履歴は [organization-20261007.json](Shared/OrganizationLogs/organization-20261007.json)、[organization-20261014.md](Shared/OrganizationLogs/organization-20261014.md)、[organization-20261018.md](Shared/OrganizationLogs/organization-20261018.md)。
 
-CommandDeeは親Gitへ統合済み。整理作業ではコミット・pushを行っていません。
+CommandDeeはこのリポジトリへ統合済みです。

@@ -409,11 +409,58 @@ struct Preset: Codable, Identifiable {
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
     var notificationsOff: Bool? = nil
+    /// Legacy timer data is retained but never applied or captured by presets.
     var timerMinutes: Int? = nil
     var timerEnabled: Bool? = nil
     var quitApps: Bool? = nil
     var launchApps: [QuitAppTarget]? = nil
     var quitAppTargets: [QuitAppTarget]? = nil
+
+    static var macOSDefault: Preset {
+        var preset = Preset()
+        preset.id = UUID(uuidString: "1747A067-47DA-4D61-91C3-9B5BA03D1311")!
+        preset.name = L("macOSのデフォルト")
+        preset.clock = false
+        preset.showDate = true
+        preset.showWeekday = true
+        preset.dark = false
+        preset.hideDock = false
+        preset.killDock = false
+        preset.hideDesktop = false
+        preset.pointerSize = 1
+        preset.resolution = .displayDefault
+        preset.reduceTransparency = false
+        preset.reduceMotion = false
+        preset.volumeFeedback = false
+        preset.zoomHotkeys = false
+        preset.zoomStyle = ZoomSettings.Style.fullScreen.rawValue
+        preset.zoomMaxFactor = 20
+        preset.zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
+        preset.zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
+        preset.notificationsOff = false
+        preset.launchApps = []
+        preset.quitAppTargets = []
+        return preset
+    }
+
+    static var fullSet: Preset {
+        var preset = macOSDefault
+        preset.id = UUID(uuidString: "1747A067-47DA-4D61-91C3-9B5BA03D1312")!
+        preset.name = L("フルセット")
+        preset.clock = true
+        preset.showDate = false
+        preset.showWeekday = false
+        preset.hideDock = true
+        preset.hideDesktop = true
+        preset.pointerSize = 2
+        preset.reduceTransparency = true
+        preset.reduceMotion = true
+        preset.zoomHotkeys = true
+        preset.zoomToggleShortcut = "122,8388608"
+        preset.zoomInShortcut = "120,8388608"
+        preset.notificationsOff = true
+        return preset
+    }
 
     mutating func migrateAppTargets(legacyQuitTargets: [QuitAppTarget]) {
         if quitApps == true && quitAppTargets == nil { quitAppTargets = legacyQuitTargets }
@@ -440,6 +487,17 @@ final class PresetStore: ObservableObject {
             }
             persist()
         }
+        installBuiltInPresets()
+    }
+    /// Seed once per Mac. Deletion and edits are respected on later launches.
+    private func installBuiltInPresets() {
+        let key = "builtInPresetsV1Installed"
+        guard !defaults.bool(forKey: key) else { return }
+        for preset in [Preset.macOSDefault, Preset.fullSet] {
+            if !items.contains(where: { $0.id == preset.id || $0.name == preset.name }) { items.append(preset) }
+        }
+        persist()
+        defaults.set(true, forKey: key)
     }
     func save(_ preset: Preset) {
         if let i = items.firstIndex(where: { $0.id == preset.id }) { items[i] = preset } else { items.append(preset) }
@@ -576,6 +634,7 @@ struct PresetPicker: View {
     @State private var newName = ""
     @State private var deleting: Preset?
     @State private var editingApps: (preset: Preset, launch: Bool)?
+    @State private var confirmingPreset: Preset?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -608,6 +667,12 @@ struct PresetPicker: View {
             Button(L("削除"), role: .destructive) { if let preset = deleting { presets.remove(preset.id) }; deleting = nil }
             Button(L("キャンセル"), role: .cancel) { deleting = nil }
         }
+        .sheet(item: $confirmingPreset) { preset in
+            PresetAppConfirmation(preset: preset, cancel: { confirmingPreset = nil }) { selected in
+                confirmingPreset = nil
+                applyPreset(selected)
+            }
+        }
         .sheet(isPresented: Binding(get: { editingApps != nil }, set: { if !$0 { editingApps = nil } })) {
             if let editing = editingApps {
                 PresetAppListEditor(title: L(editing.launch ? "起動アプリを編集…" : "終了アプリを編集…"),
@@ -623,21 +688,36 @@ struct PresetPicker: View {
         }
     }
 
+    private func applyPreset(_ preset: Preset) {
+        lastApplied = preset.id.uuidString
+        presets.remember(preset.id)
+        settings.apply(preset, countdown: countdown)
+    }
+
     private func presetButton(_ preset: Preset) -> some View {
         let selected = preset.id.uuidString == lastApplied
         let index = presets.items.firstIndex { $0.id == preset.id } ?? 0
         return Button {
-            lastApplied = preset.id.uuidString
-            presets.remember(preset.id)  // the target of option-click 「プリセットに保存…」, kept after manual changes
-            settings.apply(preset, countdown: countdown)
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "slider.horizontal.3").font(.system(size: 22)).frame(width: 32)
-                Text(preset.name).font(.system(size: 15, weight: .medium)).lineLimit(1)
-                Spacer()
-                if selected { Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold)) }
+            if (preset.launchApps ?? []).isEmpty && (preset.quitAppTargets ?? []).isEmpty {
+                applyPreset(preset)
+            } else {
+                confirmingPreset = preset
             }
-            .padding(.horizontal, 16)
+        } label: {
+            VStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    Image(systemName: "slider.horizontal.3").font(.system(size: 22)).frame(width: 32)
+                    Text(preset.name).font(.system(size: 15, weight: .medium)).lineLimit(1)
+                    Spacer()
+                    if selected { Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold)) }
+                }
+                HStack(alignment: .top, spacing: 12) {
+                    appListSummary(preset.launchApps ?? [], launch: true)
+                    appListSummary(preset.quitAppTargets ?? [], launch: false)
+                }
+                .foregroundStyle(selected ? Color.white.opacity(0.9) : Color.secondary)
+            }
+            .padding(.horizontal, 16).padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: 60)
             .foregroundStyle(selected ? Color.white : Color.primary)
             .background(selected ? Color.accentColor : Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
@@ -645,7 +725,6 @@ struct PresetPicker: View {
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
-        .help(L("クリックすると、このプリセットをまとめて適用します。右クリックで、名前の変更・並べ替え・起動／終了アプリの編集・削除ができます。"))
         .accessibilityValue(selected ? L("選択中") : L("未選択"))
         .contextMenu {
             Button(L("名前を変更…")) { newName = preset.name; renaming = preset }
@@ -659,6 +738,27 @@ struct PresetPicker: View {
             Button(L("削除…")) { deleting = preset }
         }
     }
+
+    private func appListSummary(_ targets: [QuitAppTarget], launch: Bool) -> some View {
+        HStack(spacing: 4) {
+            Text(L(launch ? "起動" : "終了")).fontWeight(.medium)
+            if targets.isEmpty { Text("—") }
+            ForEach(Array(targets.prefix(2))) { target in
+                Image(nsImage: NSWorkspace.shared.icon(forFile: target.path))
+                    .resizable().frame(width: 12, height: 12)
+                    .accessibilityHidden(true)
+                Text(target.name).lineLimit(1).truncationMode(.tail)
+            }
+            if targets.count > 2 { Text("+\(targets.count - 2)").fixedSize() }
+            Spacer(minLength: 0)
+        }
+        .font(.system(size: 10))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L(launch ? "起動アプリを編集…" : "終了アプリを編集…") + ": " + targets.map(\.name).joined(separator: ", "))
+        .help(targets.map(\.name).joined(separator: ", "))
+    }
+
 }
 
 /// Below the preset buttons: a check before going live, not a setting, so presets do not save it.
@@ -723,6 +823,7 @@ struct PreferencesView: View {
                 SettingsSection(SettingsUI.launchTitle) { LoginAtLaunchView().fixedSize(horizontal: false, vertical: true); MenuBarPresenceView() }
                 AccessibilitySection()
             })),
+            (L("プリセットのアプリ"), AnyView(PresetAppsSettings(presets: presets))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ]).padding(12)
@@ -1190,8 +1291,7 @@ final class MacSettings: ObservableObject {
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let value = preset.zoomToggleShortcut, value != zoomToggleShortcut { setZoomShortcut(ZoomSettings.toggleShortcut, to: value); if error { return } }
         if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
-        if let minutes = preset.timerMinutes { countdown.plan.minutes = minutes; countdown.savePlan() }
-        if let value = preset.timerEnabled { countdown.enabled = value }
+        // Timer state is independent of presets, including legacy timer fields.
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
         if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
         // Transparency and notifications both run asynchronously; notifications wait for the System Settings step.
@@ -1430,6 +1530,7 @@ struct ManualControlsView: View {
                 StatusMessage(settings: settings)
                 // Click: overwrite the preset applied (or saved) last, with the items it already has.
                 // Option-click, or no such preset yet: the sheet to choose the preset and items. No "…" when no sheet opens.
+                if section != .timer {
                 Button(presets.rememberedPreset == nil ? L("プリセットに保存…") : L("プリセットに保存")) {
                     if !NSEvent.modifierFlags.contains(.option), let preset = presets.rememberedPreset {
                         PresetSaveSheet.overwrite(preset, settings: settings, countdown: countdown, presets: presets)
@@ -1439,6 +1540,7 @@ struct ManualControlsView: View {
                 }
                 .help(presets.rememberedPreset.map { L("今の状態を、最後に適用したプリセット「%@」に上書きします。optionキーを押しながらクリックすると、保存先と含める項目を選べます。", $0.name) }
                       ?? L("今の状態を、新しいプリセットか既存のプリセットに保存します。含める項目は保存時に選べます。"))
+                }
             }
         }
         .help(L("選択すると、Macのシステム設定を変更します。"))

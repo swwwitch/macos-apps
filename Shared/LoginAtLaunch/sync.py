@@ -8,7 +8,7 @@ copies = {
     'Shared/Accessibility/AccessibilityPermission.swift': ['BrowserSwitcher/Source', 'CommandDee/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
         'KageTrimmer/Development/Sources', 'YohakuTrimmer/Development/Sources', 'PodiumAssist/Development/Sources/Toki', 'QuickIconExporter/Development/Sources/IconDrop',
         'KakkoReplace/Sources', 'DocklessLauncher/Sources', 'LinkMaker/Sources', 'MightyEdit/Source', 'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'PasteMatchStyle/Sources',
-        'IncrementPaste/Sources', 'PasteInARow/Sources', 'SpreadsheetHelper/Sources', 'KeynoteHelper/Sources', 'ProjectFolder/Sources'],
+        'IncrementPaste/Sources', 'PasteInARow/Sources', 'SpreadsheetHelper/Sources', 'KeynoteMaestro/Sources', 'ProjectFolder/Sources'],
 }
 for source, targets in copies.items():
     data = (root / source).read_bytes()
