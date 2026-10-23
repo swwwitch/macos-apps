@@ -1,0 +1,129 @@
+SettingsCourierヘルプ	SettingsCourier Help	SettingsCourier 帮助	SettingsCourier 도움말
+設定…	Settings…	设置…	설정…
+メインウインドウを開く	Open Main Window	打开主窗口	메인 윈도우 열기
+アプリを追加…	Add Apps…	添加应用…	앱 추가…
+取り込む…	Import…	导入…	가져오기…
+書き出す…	Export…	导出…	내보내기…
+バックアップフォルダを表示	Show Backup Folder	显示备份文件夹	백업 폴더 보기
+ウインドウを閉じる	Close Window	关闭窗口	윈도우 닫기
+しまう	Minimize	最小化	최소화
+拡大／縮小	Zoom	缩放	확대/축소
+設定	Settings	设置	설정
+アプリの設定をほかのMacへ運ぶ	Carry App Settings to Another Mac	将应用设置带到另一台 Mac	앱 설정을 다른 Mac으로 옮기기
+登録したアプリの設定を書き出し、ほかのMacで取り込みます	Export the settings of registered apps and import them on another Mac	导出已登记应用的设置，并在另一台 Mac 上导入	등록한 앱의 설정을 내보내고 다른 Mac에서 가져옵니다
+アプリをここにドロップ	Drop apps here	将应用拖到这里	앱을 여기에 놓기
+設定を運ぶアプリを追加	Add an app whose settings to carry	添加要携带设置的应用	설정을 옮길 앱 추가
+選んだアプリを一覧から外す（アプリの設定はそのまま）	Remove the selected app from the list (its settings stay as they are)	从列表中移除所选应用（其设置保持不变）	선택한 앱을 목록에서 제거(앱 설정은 그대로)
+一覧から外す	Remove from List	从列表中移除	목록에서 제거
+このMacにはありません	Not on this Mac	此 Mac 上没有	이 Mac에 없음
+設定ファイルをFinderで表示	Show Settings File in Finder	在访达中显示设置文件	Finder에서 설정 파일 보기
+設定ファイルがありません	No settings file	没有设置文件	설정 파일 없음
+「%@」はまだ作られていません。アプリを一度起動して設定を変えると作られます。	“%@” has not been created yet. It is created once you open the app and change a setting.	尚未创建“%@”。打开该应用并更改设置后即会创建。	‘%@’은(는) 아직 만들어지지 않았습니다. 앱을 열고 설정을 변경하면 만들어집니다.
+Finderで表示	Show in Finder	在访达中显示	Finder에서 보기
+読み直す	Reload	重新读取	다시 읽기
+設定を読み直す	Read the settings again	重新读取设置	설정 다시 읽기
+キー・値で検索	Search keys and values	搜索键和值	키·값 검색
+書き出す項目 %@／%@	Exported items %@/%@	导出的项目 %@/%@	내보낼 항목 %@/%@
+初めの選択に戻す	Reset Selection	恢复初始选择	처음 선택으로 되돌리기
+ウインドウの位置などMacごとに異なるキーと日付だけを外した状態に戻す	Go back to leaving out only per-Mac keys such as window positions, and dates	恢复为仅排除窗口位置等因 Mac 而异的键和日期	창 위치 등 Mac마다 다른 키와 날짜만 제외한 상태로 되돌리기
+左の一覧でアプリを選んでください	Choose an app in the list on the left	请在左侧列表中选择应用	왼쪽 목록에서 앱을 선택하십시오
+書き出す	Export	导出	내보내기
+%@を書き出す	Export %@	导出 %@	%@ 내보내기
+キー	Key	键	키
+Macごとに異なる値のため、初めは書き出しません	Differs on each Mac, so it is not exported at first	因 Mac 而异，默认不导出	Mac마다 다른 값이므로 처음에는 내보내지 않습니다
+種類	Type	类型	유형
+値	Value	值	값
+書き出さない	Don’t Export	不导出	내보내지 않음
+このMacにはこのアプリがありません	This app is not on this Mac	此 Mac 上没有此应用	이 Mac에는 이 앱이 없습니다
+設定はまだありません	No settings yet	还没有设置	아직 설정이 없습니다
+書き出したファイルを開き、このMacのアプリに書き込む	Open an exported file and write it to the apps on this Mac	打开导出的文件并写入此 Mac 上的应用	내보낸 파일을 열어 이 Mac의 앱에 기록
+バックアップから元に戻す	Restore from Backup	从备份恢复	백업에서 복원
+設定を取り込む	Import Settings	导入设置	설정 가져오기
+%@を取り込む	Import %@	导入 %@	%@ 가져오기
+書き込む前に、対象のアプリの今の設定をバックアップします。起動中のアプリは終了してから書き込み、あとで起動し直します。	Before writing, the current settings of those apps are backed up. Running apps are quit first and reopened afterwards.	写入前会备份这些应用的当前设置。正在运行的应用会先退出，写入后重新打开。	기록하기 전에 해당 앱의 현재 설정을 백업합니다. 실행 중인 앱은 먼저 종료한 뒤 기록하고 다시 엽니다.
+キャンセル	Cancel	取消	취소
+取り込む	Import	导入	가져오기
+書き出したMac：%@	Exported on: %@	导出自：%@	내보낸 Mac: %@
+このMacと同じです	Same as this Mac	与此 Mac 相同	이 Mac과 같음
+変更 %@	%@ changed	更改 %@	변경 %@
+追加 %@	%@ added	添加 %@	추가 %@
+削除 %@	%@ removed	删除 %@	삭제 %@
+、	, 	、	, 
+（このMacにはありません）	 (not on this Mac)	（此 Mac 上没有）	 (이 Mac에 없음)
+なし	None	无	없음
+配列（%@件）	Array (%@)	数组（%@ 项）	배열(%@개)
+辞書（%@件）	Dictionary (%@)	字典（%@ 项）	사전(%@개)
+データ（%@バイト）	Data (%@ bytes)	数据（%@ 字节）	데이터(%@바이트)
+真偽	Boolean	布尔	부울
+数値	Number	数字	숫자
+文字列	String	字符串	문자열
+配列	Array	数组	배열
+辞書	Dictionary	字典	사전
+データ	Data	数据	데이터
+日付	Date	日期	날짜
+追加	Add	添加	추가
+設定を運ぶアプリを選んでください	Choose the apps whose settings to carry	请选择要携带设置的应用	설정을 옮길 앱을 선택하십시오
+書き出すアプリがありません	No apps to export	没有要导出的应用	내보낼 앱이 없습니다
+書き出しました	Exported	已导出	내보냈습니다
+書き出せませんでした	Could not export	无法导出	내보낼 수 없습니다
+%@を終了してから書き込みますか？	Quit %@ before writing?	写入前退出 %@？	기록하기 전에 %@을(를) 종료하겠습니까?
+起動中のアプリは終了するときに設定を書き戻すため、先に終了します。書き込んだあとで起動し直します。	A running app writes its settings back when it quits, so it is quit first and reopened after writing.	正在运行的应用在退出时会写回设置，因此先退出，写入后再重新打开。	실행 중인 앱은 종료할 때 설정을 다시 기록하므로 먼저 종료하고, 기록한 뒤 다시 엽니다.
+終了して取り込む	Quit and Import	退出并导入	종료하고 가져오기
+取り込みを中止しました	Import canceled	已取消导入	가져오기를 중단했습니다
+%@が終了しなかったため、書き込みませんでした。アプリを終了してからもう一度取り込んでください。	%@ did not quit, so nothing was written. Quit the app and import again.	%@ 未退出，因此未写入。请退出该应用后重新导入。	%@이(가) 종료되지 않아 기록하지 않았습니다. 앱을 종료한 뒤 다시 가져오십시오.
+バックアップできなかったため中止しました	Stopped because the backup failed	因无法备份而中止	백업할 수 없어 중단했습니다
+%@個のアプリに書き込みました。	Wrote to %@ apps.	已写入 %@ 个应用。	%@개 앱에 기록했습니다.
+書き込めなかったアプリ：%@	Could not write to: %@	无法写入的应用：%@	기록하지 못한 앱: %@
+起動し直したアプリ：%@	Reopened: %@	已重新打开：%@	다시 연 앱: %@
+元の設定は「%@」に保存しました。このファイルを取り込むと元に戻せます。	The previous settings were saved to “%@”. Import that file to undo.	原来的设置已保存到“%@”。导入此文件即可恢复。	원래 설정은 ‘%@’에 저장했습니다. 이 파일을 가져오면 되돌릴 수 있습니다.
+取り込みました	Imported	已导入	가져왔습니다
+一部のアプリに書き込めませんでした	Some apps could not be written	部分应用无法写入	일부 앱에 기록하지 못했습니다
+読み込めませんでした	Could not open	无法打开	열 수 없습니다
+SettingsCourierの書き出しファイルではありません。	This is not a SettingsCourier export file.	这不是 SettingsCourier 导出文件。	SettingsCourier 내보내기 파일이 아닙니다.
+設定を読めませんでした	Could not read the settings	无法读取设置	설정을 읽을 수 없습니다
+%@の設定を読めませんでした。macOSの「ほかのアプリからのデータ」へのアクセスの確認で［許可］を選ぶか、設定の「起動・常駐」からフルディスクアクセスを許可してから、もう一度書き出してください。	Could not read the settings of %@. Choose Allow when macOS asks about access to data from other apps, or allow Full Disk Access in Settings > Launch & Background, then export again.	无法读取 %@ 的设置。请在 macOS 询问是否访问其他应用的数据时选择“允许”，或在设置的“启动与驻留”中允许完全磁盘访问权限，然后重新导出。	%@의 설정을 읽을 수 없습니다. macOS가 다른 앱의 데이터 접근을 물을 때 ‘허용’을 선택하거나 설정의 ‘실행·상주’에서 전체 디스크 접근 권한을 허용한 뒤 다시 내보내십시오.
+設定を読めませんでした。macOSの「ほかのアプリからのデータ」へのアクセスの確認で［許可］を選んでから「読み直す」を押してください。	Could not read the settings. Choose Allow when macOS asks about access to data from other apps, then click Reload.	无法读取设置。请在 macOS 询问是否访问其他应用的数据时选择“允许”，然后点按“重新读取”。	설정을 읽을 수 없습니다. macOS가 다른 앱의 데이터 접근을 물을 때 ‘허용’을 선택한 뒤 ‘다시 읽기’를 누르십시오.
+このアプリの設定はサンドボックスのコンテナにあります。読むと、macOSが「ほかのアプリからのデータ」へのアクセスを確認します（Macを再起動するたびに出ます）。	This app keeps its settings in a sandbox container. Reading them makes macOS ask about access to data from other apps (each time the Mac restarts).	此应用的设置位于沙盒容器中。读取时 macOS 会询问是否允许访问其他应用的数据（每次重新启动 Mac 后都会询问）。	이 앱의 설정은 샌드박스 컨테이너에 있습니다. 읽으면 macOS가 다른 앱의 데이터 접근을 확인합니다(Mac을 재시동할 때마다 표시됩니다).
+設定を読む	Read Settings	读取设置	설정 읽기
+設定の「起動・常駐」でフルディスクアクセスを許可すると、確認なしで読みます。	Allow Full Disk Access in Settings > Launch & Background to read without being asked.	在设置的“启动与驻留”中允许完全磁盘访问权限后，读取时不再询问。	설정의 ‘실행·상주’에서 전체 디스크 접근 권한을 허용하면 확인 없이 읽습니다.
+このMacの今の設定を読めないため取り込めません（アクセスを許可してから開き直してください）	Cannot import because the current settings on this Mac cannot be read (allow access, then open the file again)	无法读取此 Mac 上的当前设置，因此无法导入（请允许访问后重新打开文件）	이 Mac의 현재 설정을 읽을 수 없어 가져올 수 없습니다(접근을 허용한 뒤 파일을 다시 여십시오)
+フルディスクアクセス	Full Disk Access	完全磁盘访问权限	전체 디스크 접근 권한
+サンドボックスのアプリ（App Storeのアプリなど）の設定を読むのに使います。未許可の場合は「設定を読む」・書き出し・取り込みのときに「ほかのアプリからのデータ」へのアクセスの確認が出ます（Macを再起動するたびに出ます）。	Used to read the settings of sandboxed apps (such as App Store apps). Without it, macOS asks about access to data from other apps when you read, export or import (each time the Mac restarts).	用于读取沙盒应用（如 App Store 应用）的设置。未允许时，在读取、导出或导入时 macOS 会询问是否访问其他应用的数据（每次重新启动 Mac 后都会询问）。	샌드박스 앱(App Store 앱 등)의 설정을 읽는 데 사용합니다. 허용하지 않으면 설정 읽기·내보내기·가져오기 때 다른 앱의 데이터 접근 확인이 표시됩니다(Mac을 재시동할 때마다 표시됩니다).
+許可済み	Allowed	已允许	허용됨
+未許可	Not allowed	未允许	허용되지 않음
+フルディスクアクセス設定を開く	Open Full Disk Access Settings	打开完全磁盘访问权限设置	전체 디스크 접근 권한 설정 열기
+システム設定を開けませんでした。「プライバシーとセキュリティ」→「フルディスクアクセス」を手動で開いてください。	Could not open System Settings. Open Privacy & Security > Full Disk Access yourself.	无法打开系统设置。请手动打开“隐私与安全性”>“完全磁盘访问权限”。	시스템 설정을 열 수 없습니다. ‘개인정보 보호 및 보안’ > ‘전체 디스크 접근 권한’을 직접 여십시오.
+許可スイッチは手動で操作してください。この画面に戻ると状態を再確認します。	Change the permission switch yourself. Return here to refresh the status.	请手动操作授权开关，返回此处可重新检查状态。	권한 스위치는 직접 조작하십시오. 이 화면으로 돌아오면 상태를 다시 확인합니다.
+選んでいるアプリの設定をファイルに保存	Save the settings of the selected app to a file	将所选应用的设置保存到文件	선택한 앱의 설정을 파일로 저장
+左の一覧でアプリを選んでください。	Choose an app in the list on the left.	请在左侧列表中选择应用。	왼쪽 목록에서 앱을 선택하십시오.
+%@の設定（%@項目）を「%@」に保存しました。ほかのMacのSettingsCourierでこのファイルを開いて取り込みます。	Saved the settings of %@ (%@ items) to “%@”. Open this file in SettingsCourier on the other Mac to import it.	已将 %@ 的设置（%@ 项）保存到“%@”。在另一台 Mac 上用 SettingsCourier 打开此文件即可导入。	%@의 설정(%@개 항목)을 ‘%@’에 저장했습니다. 다른 Mac의 SettingsCourier에서 이 파일을 열어 가져옵니다.
+ファイルに書き出す…	Export to File…	导出到文件…	파일로 내보내기…
+受け渡しフォルダーを設定…	Set Handoff Folder…	设置交接文件夹…	전달 폴더 설정…
+受け渡しフォルダーを開く	Open Handoff Folder	打开交接文件夹	전달 폴더 열기
+新しい設定があります	Newer settings available	有更新的设置	새 설정이 있습니다
+フォルダーに書き出す	Export to Folder	导出到文件夹	폴더로 내보내기
+フォルダーから取り込む…	Import from Folder…	从文件夹导入…	폴더에서 가져오기…
+フォルダーから取り込む…（新しい設定 %@件）	Import from Folder… (%@ newer)	从文件夹导入…（%@ 个更新的设置）	폴더에서 가져오기…(새 설정 %@개)
+受け渡しフォルダーにある設定を選んで、このMacのアプリに書き込む	Choose settings in the handoff folder and write them to the apps on this Mac	选择交接文件夹中的设置并写入此 Mac 上的应用	전달 폴더의 설정을 선택해 이 Mac의 앱에 기록
+受け渡しフォルダーが見つかりません	Handoff folder not found	找不到交接文件夹	전달 폴더를 찾을 수 없습니다
+Dropbox などほかのMacと同期しているフォルダーを選ぶと、そこで設定を受け渡せます	Choose a folder synced with your other Macs, such as Dropbox, to hand settings over through it	选择与其他 Mac 同步的文件夹（如 Dropbox），即可通过它交接设置	Dropbox 등 다른 Mac과 동기화하는 폴더를 선택하면 그곳에서 설정을 주고받을 수 있습니다
+選んでいるアプリの設定を受け渡しフォルダーに保存	Save the settings of the selected app to the handoff folder	将所选应用的设置保存到交接文件夹	선택한 앱의 설정을 전달 폴더에 저장
+フォルダーから取り込む	Import from Folder	从文件夹导入	폴더에서 가져오기
+新しい設定	Newer	较新	새 설정
+受け渡しフォルダーに書き出したファイルがありません	No exported files in the handoff folder	交接文件夹中没有导出的文件	전달 폴더에 내보낸 파일이 없습니다
+次へ…	Next…	下一步…	다음…
+このMacの設定の方が新しい	This Mac’s settings are newer	此 Mac 上的设置更新	이 Mac의 설정이 더 새로움
+受け渡しフォルダー	Handoff Folder	交接文件夹	전달 폴더
+未設定	Not set	未设置	설정 안 됨
+選択…	Choose…	选择…	선택…
+解除	Clear	清除	해제
+Dropbox・iCloud Drive などほかのMacと同期しているフォルダーを選びます。「フォルダーに書き出す」でアプリごとに「<アプリ名>.settingscourier」を置き、ほかのMacでは「フォルダーから取り込む…」で選んで取り込みます。自動では取り込みません。	Choose a folder synced with your other Macs, such as Dropbox or iCloud Drive. “Export to Folder” puts “<app name>.settingscourier” there for each app; on the other Mac, choose them with “Import from Folder…”. Nothing is imported automatically.	选择与其他 Mac 同步的文件夹，如 Dropbox 或 iCloud 云盘。“导出到文件夹”会为每个应用放置“<应用名称>.settingscourier”；在另一台 Mac 上用“从文件夹导入…”选择并导入。不会自动导入。	Dropbox·iCloud Drive 등 다른 Mac과 동기화하는 폴더를 선택합니다. ‘폴더로 내보내기’로 앱마다 ‘<앱 이름>.settingscourier’를 두고, 다른 Mac에서는 ‘폴더에서 가져오기…’로 선택해 가져옵니다. 자동으로 가져오지는 않습니다.
+自動書き出し	Automatic Export	自动导出	자동 내보내기
+登録したアプリを終了したときに書き出す	Export when a registered app quits	已登记的应用退出时导出	등록한 앱을 종료할 때 내보내기
+SettingsCourierが起動している間だけ働きます。値が変わっていなければ書き出しません。サンドボックスのアプリは、フルディスクアクセスを許可しているか、メインウインドウで「設定を読む」を押したあとだけ書き出します。	Works only while SettingsCourier is running. Nothing is written if the values have not changed. Sandboxed apps are exported only with Full Disk Access or after you click Read Settings in the main window.	仅在 SettingsCourier 运行时有效。值未改变时不会写入。沙盒应用仅在允许了完全磁盘访问权限或在主窗口中点按“读取设置”之后才会导出。	SettingsCourier가 실행 중일 때만 작동합니다. 값이 바뀌지 않았으면 내보내지 않습니다. 샌드박스 앱은 전체 디스크 접근 권한을 허용했거나 메인 윈도우에서 ‘설정 읽기’를 누른 뒤에만 내보냅니다.
+選択	Choose	选择	선택
+設定を受け渡すフォルダーを選んでください（Dropbox・iCloud Drive などほかのMacと同期しているフォルダー）	Choose the folder to hand settings over through (a folder synced with your other Macs, such as Dropbox or iCloud Drive)	请选择用于交接设置的文件夹（与其他 Mac 同步的文件夹，如 Dropbox 或 iCloud 云盘）	설정을 주고받을 폴더를 선택하십시오(Dropbox·iCloud Drive 등 다른 Mac과 동기화하는 폴더)
+%@：%@ 設定を読む許可がないため書き出しませんでした（フルディスクアクセスを許可するか、メインウインドウで「設定を読む」を押してください）	%@: %@ was not exported because reading its settings is not allowed (allow Full Disk Access, or click Read Settings in the main window)	%@：未导出 %@，因为没有读取其设置的许可（请允许完全磁盘访问权限，或在主窗口中点按“读取设置”）	%@: %@의 설정을 읽을 권한이 없어 내보내지 않았습니다(전체 디스크 접근 권한을 허용하거나 메인 윈도우에서 ‘설정 읽기’를 누르십시오)
+%@：%@ 設定を読めなかったため書き出しませんでした	%@: %@ was not exported because its settings could not be read	%@：无法读取 %@ 的设置，因此未导出	%@: %@의 설정을 읽을 수 없어 내보내지 않았습니다
+%@：%@ を書き出しました	%@: Exported %@	%@：已导出 %@	%@: %@을(를) 내보냈습니다
+%@：%@ を書き出せませんでした（%@）	%@: Could not export %@ (%@)	%@：无法导出 %@（%@）	%@: %@을(를) 내보낼 수 없습니다(%@)

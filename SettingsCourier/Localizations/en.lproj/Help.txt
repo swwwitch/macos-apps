@@ -1,0 +1,81 @@
+SettingsCourier exports the settings (defaults) of the apps you register into a single file and imports them on another Mac. It also handles apps whose settings live in a sandbox container, such as App Store apps.
+
+## Using SettingsCourier
+### Register apps
+1. Click “+” under the list on the left, or choose File > Add Apps…. You can also drop apps on the list or on the SettingsCourier icon in the Dock.
+2. Select an app in the list to see its keys, types and values, and where its settings file is.
+
+### Choose the keys to export
+- Use the checkboxes in the “Export” column. Select several rows first and click a checkbox to switch them all at once. You can also Control-click and choose **Export** or **Don’t Export**.
+- Keys that differ on each Mac (window positions, menu bar order, update-check records) and date values (such as the first launch date) start out unchecked. Check them if you need them.
+- “Reset Selection” returns the app’s selection to that starting state.
+
+### Export
+1. Select the app in the list on the left, click “Export…” (⌘S) and choose where to save. The values of that app’s checked keys are saved to “<app name>.settingscourier”. You can also Control-click an app in the list and choose **Export…**.
+2. Move the file to the other Mac with AirDrop, iCloud Drive, Dropbox and so on.
+
+### Import
+1. On the other Mac, double-click the .settingscourier file or open it with “Import…” (⌘O). You can also drop it on the window.
+2. For each app you see how many values change or are added compared with this Mac. Check the apps to import and click “Import”. Keys you chose not to export on this Mac are not written.
+3. If an app is running, SettingsCourier asks before quitting it, writes the settings and then reopens it. A running app writes its settings back when it quits, so writing while it runs would be undone.
+4. Imported apps are added to the list.
+
+### Hand settings over through a folder
+1. In Settings > Handoff Folder, choose a folder synced with your other Macs, such as Dropbox or iCloud Drive (or click “Set Handoff Folder…” at the bottom of the main window).
+2. With a folder chosen, the button at the lower right becomes “Export to Folder” (⌘S) and puts the selected app’s settings in the folder as “<app name>.settingscourier”, replacing any file for the same app under another name. To choose where to save instead, use File > Export to File… (⇧⌘S).
+3. Choose the same folder on the other Mac. When a file is newer than this Mac’s settings, the app in the list shows “Newer settings available” and the count appears below.
+4. Click “Import from Folder…”, choose the apps and click “Next…” to go to the import confirmation. Apps not yet registered can be imported too (they are registered when imported).
+5. Turn on “Export when a registered app quits” to export to the folder each time the app quits. Nothing is written if the values have not changed. Importing is never automatic.
+- “Newer” compares when the file was exported with when this Mac’s settings file last changed.
+- Settings files are not shared through symbolic links: macOS replaces the link with a regular file when it saves settings, which breaks the sharing.
+
+## Backup and Restore
+- Before importing, all current settings of the apps being changed are saved to ~/Library/Application Support/SettingsCourier/Backups/. Choose File > Show Backup Folder to open it.
+- Importing a backup file returns those apps to the state before the import (keys added by the import are removed).
+- Removing an app from the list does not change the app’s settings.
+
+## Settings
+Open with the Settings button in the main window (⌘,).
+- **Launch & Background**: Full Disk Access status and a button to open its settings. Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the icon is not shown in the Dock or in ⌘Tab; show the window from the menu bar icon (when shown) or by opening the app again in the Finder
+- **Handoff Folder**: Choose, show in Finder or clear the folder, and “Export when a registered app quits”. The result of the last automatic export is shown too. The folder is set on each Mac.
+- **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. The apps’ settings themselves are not synced; carry them with “Export…”.
+- **About**: Version and links.
+
+## Hotkeys
+- **⌘O**: Import
+- **⌘S**: Export (to the handoff folder when one is set)
+- **⇧⌘S**: Export to File
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: SettingsCourier Help
+- **⌘Q**: Quit SettingsCourier
+
+## Permissions and Privacy
+- No Accessibility permission is needed.
+- Reading the settings of a sandboxed app (such as an App Store app) makes macOS ask about access to data from other apps. The question comes back each time the Mac restarts, so SettingsCourier does not read them just by opening; it reads them when you click Read Settings, Export or Import. Allow Full Disk Access in Settings > Launch & Background to read without being asked.
+- If you don’t allow access, exporting or importing that app stops (its settings are not treated as empty).
+- Settings are read and written through macOS preferences (cfprefsd); the settings files are not edited directly.
+- An exported file contains the apps’ setting values as they are. They may include license details or account names, so be careful where you put it and whom you give it to.
+- SettingsCourier does not use the network (except Check for Updates…).
+
+## Launch and Quit
+- Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
+- With Show in menu bar on, you can also choose Open Main Window, Settings… and Help from the menu bar icon.
+- To quit, choose SettingsCourier > Quit SettingsCourier (⌘Q).
+- Choose Check for Updates… in the app menu to look for a new version. Until updates are ready it shows that update delivery is being prepared and does not connect.
+
+## Troubleshooting
+- If no settings are shown, open the app once, change a setting, then click “Reload”. The settings file is created the first time the app saves a setting.
+- If an import does not take effect, quit the app and import again. Choosing Cancel when asked to quit writes nothing.
+- Apps marked “Not on this Mac” are not installed here. Install the app and open it once before importing. A sandboxed app gets its settings location (container) the first time it opens.
+- If an app misbehaves after an import, import the backup file to undo it.
+
+## Help and the note Article
+- Open this help with Help > SettingsCourier Help (⌘?).
+- Choose Help > Open the note Article to read the article on note in your browser.
+
+## Uninstalling
+1. Turn off Open at login.
+2. Choose Quit SettingsCourier.
+3. Move SettingsCourier to the Trash. Backups stay in ~/Library/Application Support/SettingsCourier; delete them if you don’t need them.

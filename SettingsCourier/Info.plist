@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>SettingsCourier</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>SettingsCourier Package</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>jp.dtp-transit.settingscourier</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Application</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>None</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.apple.application-bundle</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>SettingsCourier</string>
+	<key>CFBundleIconFile</key>
+	<string>SettingsCourier</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.settingscourier</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>SettingsCourier</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>3</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.xml-property-list</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>SettingsCourier Package</string>
+			<key>UTTypeIdentifier</key>
+			<string>jp.dtp-transit.settingscourier</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>settingscourier</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

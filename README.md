@@ -41,6 +41,7 @@
 | PDF2Keynote | PDFをKeynoteのスライドに変換 | [Source](PDF2Keynote/Source/) | [build.sh](PDF2Keynote/build.sh) | [リポジトリ](https://github.com/swwwitch/PDF2Keynote) |
 | PodiumAssist | Mac表示設定とタイマー | [Development/Sources/Toki](PodiumAssist/Development/Sources/Toki/) | [Development/build-app.sh](PodiumAssist/Development/build-app.sh) | [リポジトリ](https://github.com/swwwitch/PodiumAssist) |
 | PrefsPreset | Macの設定の一覧・一括変更・書き出しと読み込み | [Sources](PrefsPreset/Sources/PrefsPreset/) | [build.sh](PrefsPreset/build.sh) | [リポジトリ](https://github.com/swwwitch/PrefsPreset) |
+| SettingsCourier | アプリの設定をアプリごとに書き出し、ほかのMacで取り込む（Dropbox などの受け渡しフォルダー・取り込み前のバックアップ） | [Sources](SettingsCourier/Sources/SettingsCourier/) | [build.sh](SettingsCourier/build.sh) | 未作成 |
 | ProjectFolder（旧 FolderMaker） | 案件フォルダーの作成（KMマクロ「Folder Maker（案件）」の移植） | [Sources](ProjectFolder/Sources/) | [build.sh](ProjectFolder/build.sh) | [リポジトリ](https://github.com/swwwitch/ProjectFolder) |
 | QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) | [リポジトリ](https://github.com/swwwitch/QuickIconExporter) |
 | BreaklineTrimmer（旧 TrimBreakline） | 画像の一部を取り除いて詰め、切り口に省略線を引いて透過PNGで書き出す（Illustratorスクリプト TrimWithBreakLine の移植） | [Source](BreaklineTrimmer/Source/) | [build.sh](BreaklineTrimmer/build.sh) | [リポジトリ](https://github.com/swwwitch/BreaklineTrimmer) |
