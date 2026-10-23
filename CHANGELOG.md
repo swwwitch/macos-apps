@@ -17,8 +17,8 @@
 | --- | --- | --- |
 | [KeynoteMaestro](https://note.com/swwwitch/n/n7b7e549f7379) | ソースコードへのリンクと「2026年10月23日（記事更新）」を追記。既存のGitHub Releasesへのリンクを保持 | 公開ページで確認済み |
 | [FolderHopper](https://note.com/swwwitch/n/nd532a1c19f33) | ソースコードへのリンクを冒頭にも掲載し、既存の更新履歴へ追記 | 公開ページで確認済み |
-| [BreaklineTrimmer](https://note.com/swwwitch/n/ne4a0fc0c1dd2) | ソースコードへのリンクと記事更新履歴を追記 | 一時保存済み。試し読みエリアの確認操作への承認待ちで未公開 |
-| [IdBackgroundOff](https://note.com/dtp_tranist/n/nec393e9218e9) | ソースコードへのリンクと既存の更新履歴へ追記 | 一時保存済み。有料エリアの確認操作への承認待ちで未公開 |
+| [BreaklineTrimmer](https://note.com/swwwitch/n/ne4a0fc0c1dd2) | ソースコードへのリンクと記事更新履歴を追記 | 公開ページで確認済み。本文末尾の既存境界を保持し、通知せず更新 |
+| [IdBackgroundOff](https://note.com/dtp_tranist/n/nec393e9218e9) | ソースコードへのリンクと既存の更新履歴へ追記 | 公開ページで確認済み。有料100円・既存境界を保持し、通知せず更新 |
 
 他の記事の既存GitHubリンクは保持。記事の更新はアプリ本体の新バージョン公開を意味しない。
 
