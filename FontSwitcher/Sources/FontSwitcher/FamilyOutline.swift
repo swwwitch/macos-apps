@@ -11,7 +11,7 @@ struct FamilyOutline: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let outline = NSOutlineView()
+        let outline = SpaceToggleOutlineView()
         let column = NSTableColumn(identifier: .init("family"))
         column.resizingMask = .autoresizingMask
         outline.addTableColumn(column)
@@ -210,6 +210,19 @@ struct FamilyOutline: NSViewRepresentable {
     }
 }
 
+/// スペースバーで、選んでいる行をまとめて切り替える一覧。
+/// 選んだものがすべてアクティブなら解除、それ以外はアクティブにする（System のフォントは除く）
+final class SpaceToggleOutlineView: NSOutlineView {
+    override func keyDown(with event: NSEvent) {
+        let modifiers = event.modifierFlags.intersection([.command, .option, .control, .shift])
+        guard event.keyCode == 49, modifiers.isEmpty else { super.keyDown(with: event); return }
+        let store = LibraryStore.shared
+        let files = store.selectedFiles.filter { !LibraryStore.isLocked($0) }
+        guard !files.isEmpty else { super.keyDown(with: event); return }
+        store.setActive(files, !files.allSatisfy(store.isActive))
+    }
+}
+
 /// 一覧の1行：チェックボックス・名前・お気に入り・注意・書体数（またはファイル名）
 final class FamilyCell: NSTableCellView {
     static let identifier = NSUserInterfaceItemIdentifier("FamilyCell")
@@ -224,11 +237,14 @@ final class FamilyCell: NSTableCellView {
         super.init(frame: .zero)
         identifier = Self.identifier
         check.allowsMixedState = true
+        // クリックで切り替えたあともキーの入力は一覧に残す（スペースバーは一覧で選んだ行を切り替える）
+        check.refusesFirstResponder = true
         check.target = self
         check.action = #selector(checkClicked)
         name.lineBreakMode = .byTruncatingMiddle
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         star.isBordered = false
+        star.refusesFirstResponder = true
         star.imagePosition = .imageOnly
         star.target = self
         star.action = #selector(starClicked)
@@ -261,7 +277,7 @@ final class FamilyCell: NSTableCellView {
             let active = store.isActive(file)
             check.state = active ? .on : .off
             check.isEnabled = !LibraryStore.isLocked(file)
-            check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
+            check.toolTip = !check.isEnabled ? LibraryStore.lockedReason(file)
                 : active ? L("クリックで解除") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(active ? L("アクティブ") : L("非アクティブ"))
             let styles = file.faces.map(\.displayStyle).joined(separator: L("、"))
@@ -279,7 +295,7 @@ final class FamilyCell: NSTableCellView {
             let state = store.familyState(family)
             check.state = state == true ? .on : state == nil ? .mixed : .off
             check.isEnabled = !family.files.allSatisfy(LibraryStore.isLocked)
-            check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
+            check.toolTip = !check.isEnabled ? family.files.first.map(LibraryStore.lockedReason)
                 : state == true ? L("クリックで解除") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(state == true ? L("アクティブ") : state == nil ? L("一部アクティブ") : L("非アクティブ"))
             switch NameDisplay.current {

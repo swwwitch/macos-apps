@@ -11,6 +11,7 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - Click the checkbox at the left of a family to activate or deactivate it. Double-clicking also toggles it.
 - Families with two or more files have a ▶ at the left. Expand it to list each style (file), and use its checkbox to switch only that style. A family with only some styles active shows “–”. Files such as .ttc that hold several styles switch as one file.
 - Select several families and click "Activate" (⌘E) or "Deactivate" (⇧⌘E) to switch them together.
+- You can also press Space with rows selected. If everything selected is active it is deactivated; otherwise it is activated.
 - Activated fonts are available right away in other apps such as Illustrator, InDesign and Word. Some apps take a moment to update their font menu or need to be restarted.
 - Activation lasts for the current login session. Fonts stay active after you quit FontSwitcher and are deactivated when you log out. At the next launch, fonts that were active last time are reactivated (you can change this in Settings).
 
@@ -43,8 +44,12 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - Fonts under your user name and All Users can be switched with their checkboxes. The files stay in place and macOS remembers that they are off (they stay off after you log out). Check them again to turn them back on.
 - To leave them out of the list, turn off "Include fonts in the font folders" in the Fonts settings.
 
+### Kinds
+- "Kinds" in the sidebar shows only variable fonts (whose weight and other axes vary continuously) or color fonts (with colored glyphs such as emoji), identified by the tables in the font (fvar; COLR, sbix, CBDT, SVG).
+
 ### Vendors and Collections
-- "Vendors" in the sidebar shows only Morisawa or Fontworks fonts, identified by the vendor ID written in the font (MRSW, FWKS).
+- "Vendors" in the sidebar shows only Morisawa, Fontworks or Adobe fonts, identified by the vendor ID written in the font (MRSW, FWKS, ADBE).
+- "Adobe Fonts" under Vendors shows the fonts activated in Creative Cloud. They are turned on and off in Creative Cloud, so FontSwitcher cannot switch them.
 - "Collections" in the sidebar lists the collections of Font Book and the Fonts panel. Choose one to see the library fonts in it. They are read again when you bring FontSwitcher to the front.
 - Right-click families or styles and choose "Add to Collection" to put them in a collection used by Font Book and the Fonts panel (~/Library/FontCollections). "New Collection…" creates a new one.
 - Fonts are added by PostScript name. Inactive fonts can be added too and appear in the collection when you activate them.
@@ -66,7 +71,7 @@ Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while FontSwitcher is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), Library Sharing, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Export and import the Fonts settings, and sync them with other Macs through a folder in iCloud Drive, Dropbox and so on. Share the library, sets and favorites with Library Sharing in the Fonts settings.
-- **Display**: Which categories appear in the sidebar (System, Vendors, Collections, Sets).
+- **Display**: Which categories appear in the sidebar (System, Kinds, Vendors, Collections, Sets).
 - **About**: Version and links.
 
 ## Hotkeys

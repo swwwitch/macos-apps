@@ -33,6 +33,7 @@ private struct AppHotkeyView: View {
 /// 「表示」タブ：サイドバーに出す区分。ライブラリは常に出す
 private struct DisplaySettingsView: View {
     @AppStorage(LibraryStore.SidebarSection.system.showKey) private var showSystem = true
+    @AppStorage(LibraryStore.SidebarSection.kinds.showKey) private var showKinds = true
     @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
     @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
     @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
@@ -41,15 +42,16 @@ private struct DisplaySettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSection(L("サイドバー")) {
                 Toggle(L("システム"), isOn: $showSystem)
+                Toggle(L("種類"), isOn: $showKinds)
                 Toggle(L("ベンダー"), isOn: $showVendors)
                 Toggle(L("コレクション"), isOn: $showCollections)
                 Toggle(L("セット"), isOn: $showSets)
                 Text(L("サイドバーに出す区分を選びます。「ライブラリ」は常に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。"))
                     .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
-            Button(L("初期値に戻す")) { showSystem = true; showVendors = true; showCollections = true; showSets = true }
+            Button(L("初期値に戻す")) { showSystem = true; showKinds = true; showVendors = true; showCollections = true; showSets = true }
         }
-        .onChange(of: [showSystem, showVendors, showCollections, showSets]) { LibraryStore.shared.ensureSidebarVisible() }
+        .onChange(of: [showSystem, showKinds, showVendors, showCollections, showSets]) { LibraryStore.shared.ensureSidebarVisible() }
     }
 }
 

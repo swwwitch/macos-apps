@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
 アプリ名：FontSwitcher
-バージョン/build：1.6.2 / 14
+バージョン/build：1.7.0 / 16
 確認OS/CPU：macOS 26 / Apple Silicon (arm64)。バイナリはユニバーサル（arm64＋x86_64）、Intel実機は未確認
 確認日：2026-10-24
 

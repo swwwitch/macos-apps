@@ -6,6 +6,7 @@ import SwiftUI
 enum SidebarItem: Hashable {
     case all, favorites, active, inactive, duplicates, missing
     case folder(SystemFolder)
+    case kind(FontKind)
     case vendor(String)
     case collection(String)
     case set(UUID)
@@ -24,7 +25,7 @@ final class LibraryStore: ObservableObject {
     static let sharedFolderKey = "sharedLibraryFolder"
     static let sharedFileName = "FontSwitcher-Library.json"
     /// サイドバーの「ベンダー」。OS/2 のベンダーIDで見分ける
-    static let vendors: [(id: String, title: String)] = [("MRSW", L("モリサワ")), ("FWKS", L("フォントワークス"))]
+    static let vendors: [(id: String, title: String)] = [("MRSW", L("モリサワ")), ("FWKS", L("フォントワークス")), ("ADBE", L("アドビ"))]
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, NameDisplay.key]
@@ -118,8 +119,14 @@ final class LibraryStore: ObservableObject {
     /// フォントフォルダー（username・All Users・System）のファイルかどうか
     static func isInstalled(_ file: FontFile) -> Bool { SystemFolder.of(file.path) != nil }
 
-    /// System のフォントは切り替えない・取り除かない
-    static func isLocked(_ file: FontFile) -> Bool { SystemFolder.of(file.path) == .system }
+    /// System・Adobe Fonts のフォントは切り替えない・取り除かない
+    static func isLocked(_ file: FontFile) -> Bool { SystemFolder.of(file.path).map { !$0.isEditable } ?? false }
+
+    /// 切り替えられない理由（一覧のチェックボックスと失敗の一覧に出す）
+    static func lockedReason(_ file: FontFile) -> String {
+        SystemFolder.of(file.path) == .adobeFonts ? L("Adobe Fontsのフォントは、Creative Cloudで切り替えます")
+            : L("System のフォントは切り替えられません")
+    }
 
     /// 設定でフォントフォルダーを外したときは、そのフォントを一覧に出さない（ライブラリからは消さない）
     var visibleFiles: [FontFile] {
@@ -138,6 +145,8 @@ final class LibraryStore: ObservableObject {
             return base.filter { ids.contains($0.id) }
         case .missing: return base.filter { states[$0.id] == .missing }
         case .folder(let folder): return base.filter { SystemFolder.of($0.path) == folder }
+        case .kind(.variable): return base.filter { $0.isVariable == true }
+        case .kind(.color): return base.filter { $0.isColor == true }
         case .vendor(let id): return base.filter { $0.vendor == id }
         case .collection(let name):
             let query = collectionQuery(name)
@@ -323,7 +332,7 @@ final class LibraryStore: ObservableObject {
         var changed = 0
         for file in files {
             if Self.isLocked(file) {
-                failures.append("\(file.fileName) — \(L("System のフォントは切り替えられません"))")
+                failures.append("\(file.fileName) — \(Self.lockedReason(file))")
                 continue
             }
             // フォントフォルダーのフォントは、macOS に覚えさせる（.persistent）。ライブラリのアクティブには数えない
@@ -457,7 +466,7 @@ final class LibraryStore: ObservableObject {
 
     /// サイドバーに出す区分（設定の「表示」）。ライブラリは常に出す
     enum SidebarSection: String, CaseIterable {
-        case system, vendors, collections, sets
+        case system, kinds, vendors, collections, sets
         var showKey: String { "sidebarShow." + rawValue }
         var expandedKey: String { "sidebarExpanded." + rawValue }
         /// コレクションは多くなりがちなので、初めは閉じておく
@@ -479,6 +488,7 @@ final class LibraryStore: ObservableObject {
         let section: SidebarSection?
         switch sidebar {
         case .folder: section = .system
+        case .kind: section = .kinds
         case .vendor: section = .vendors
         case .collection: section = .collections
         case .set: section = .sets
@@ -600,11 +610,10 @@ final class LibraryStore: ObservableObject {
 
     // MARK: ベンダー
 
-    /// 古い版で登録したファイルにはベンダーIDが無いので、裏で読んで足す（7,953件で約5秒、1回だけ）
-    /// 古い版で登録したファイルには、ベンダーIDと日本語の表示名が無い。裏で読み直して足す（7,953件で数秒、1回だけ）
+    /// 古い版で登録したファイルには、ベンダーID・日本語の表示名・種類（バリアブル・カラー）が無い。裏で読み直して足す（7,953件で数秒、1回だけ）
     func fillMetadata() {
         let missing = data.files.filter {
-            ($0.vendor == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
+            ($0.vendor == nil || $0.isVariable == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
         }
         guard !missing.isEmpty else { return }
         Task.detached(priority: .utility) {
@@ -619,6 +628,8 @@ final class LibraryStore: ObservableObject {
                 for index in data.files.indices {
                     guard let fresh = result[data.files[index].id] else { continue }
                     data.files[index].vendor = fresh.vendor
+                    data.files[index].isVariable = fresh.isVariable
+                    data.files[index].isColor = fresh.isColor
                     for face in data.files[index].faces.indices {
                         let name = data.files[index].faces[face].postScriptName
                         let match = fresh.faces.first { $0.postScriptName == name }
@@ -651,9 +662,11 @@ final class LibraryStore: ObservableObject {
     func scanUserFonts() {
         guard includeUserFonts else { return }
         let known = Set(data.files.map(\.path))
-        let folders = SystemFolder.allCases.map { URL(fileURLWithPath: $0.path) }
+        let folders = SystemFolder.allCases.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) }
+        let hiddenFolders = SystemFolder.allCases.filter(\.includesHiddenFiles).map { URL(fileURLWithPath: $0.path) }
         Task.detached(priority: .utility) {
-            let urls = FontScanner.fontURLs(in: folders).filter { !known.contains($0.standardizedFileURL.path) }
+            let urls = (FontScanner.fontURLs(in: folders) + FontScanner.fontURLs(in: hiddenFolders, includeHidden: true))
+                .filter { !known.contains($0.standardizedFileURL.path) }
             let files = urls.compactMap(FontScanner.read).filter { !Self.isHiddenSystemFont($0) }
             await MainActor.run {
                 let store = LibraryStore.shared

@@ -24,6 +24,7 @@
 "見つからない" = "Missing";
 "ライブラリ" = "Library";
 "システム" = "System";
+"種類" = "Kinds";
 "ベンダー" = "Vendors";
 "コレクション" = "Collections";
 "セットをアクティブにする" = "Activate Set";
@@ -35,15 +36,15 @@
 "ファミリー名・PostScript名で検索" = "Search family or PostScript name";
 "検索" = "Search";
 "検索を消去" = "Clear Search";
+"プレビューを隠す（⌥⌘P）" = "Hide Preview (⌥⌘P)";
+"プレビューを表示（⌥⌘P）" = "Show Preview (⌥⌘P)";
+"プレビューを隠す" = "Hide Preview";
+"プレビューを表示" = "Show Preview";
 "フォント名" = "Font name";
 "日本語名" = "Localized";
 "PostScript名" = "PostScript name";
 "両方" = "Both";
 "フォント名の出し方" = "How font names are shown";
-"プレビューを隠す（⌥⌘P）" = "Hide Preview (⌥⌘P)";
-"プレビューを表示（⌥⌘P）" = "Show Preview (⌥⌘P)";
-"プレビューを隠す" = "Hide Preview";
-"プレビューを表示" = "Show Preview";
 "フォントファイルやフォルダーをここへドロップするか、「追加…」で選びます" = "Drop font files or folders here, or choose them with “Add…”";
 "当てはまるフォントはありません" = "No matching fonts";
 "文字セット" = "Character set";
@@ -64,6 +65,8 @@
 " :" = ":";
 "ファイルが見つかりません" = "File not found";
 "同じ名前のフォントが別の場所で使われています：%@" = "A font with the same name is in use from another location: %@";
+"バリアブル" = "Variable";
+"カラーフォント" = "Color Fonts";
 "ファイルを読む権限がありません" = "No permission to read the file";
 "フォントとして読めません" = "Not a readable font";
 "同じ名前のフォントがすでに使われています" = "A font with the same name is already in use";
@@ -72,8 +75,11 @@
 "エラー %d" = "Error %d";
 "モリサワ" = "Morisawa";
 "フォントワークス" = "Fontworks";
+"アドビ" = "Adobe";
 "共有フォルダーが見つかりません" = "Shared Folder Not Found";
 "%@ が見つからないため、このMacのライブラリを開きました。" = "%@ could not be found, so this Mac’s library was opened.";
+"Adobe Fontsのフォントは、Creative Cloudで切り替えます" = "Adobe Fonts are switched in Creative Cloud";
+"System のフォントは切り替えられません" = "System fonts cannot be switched";
 "フォントファイルか、フォントの入ったフォルダーを選びます" = "Choose font files or folders that contain fonts";
 "追加" = "Add";
 "フォントを読み込み中…" = "Reading fonts…";
@@ -89,7 +95,6 @@
 "取り除く" = "Remove";
 "キャンセル" = "Cancel";
 "%d個のファイルを取り除きました" = "Removed %d files";
-"System のフォントは切り替えられません" = "System fonts cannot be switched";
 "%d個のファイルをアクティブにしました" = "Activated %d files";
 "%d個のファイルを解除しました" = "Deactivated %d files";
 "、失敗 %d" = ", %d failed";

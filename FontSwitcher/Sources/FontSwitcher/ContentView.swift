@@ -114,11 +114,13 @@ private struct SidebarView: View {
     @ObservedObject private var store = LibraryStore.shared
     // 区分ごとの表示（設定の「表示」）と開閉（ここで覚える）。コレクションは初めは閉じる
     @AppStorage(LibraryStore.SidebarSection.system.showKey) private var showSystem = true
+    @AppStorage(LibraryStore.SidebarSection.kinds.showKey) private var showKinds = true
     @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
     @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
     @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
     @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
     @AppStorage(LibraryStore.SidebarSection.system.expandedKey) private var expandedSystem = true
+    @AppStorage(LibraryStore.SidebarSection.kinds.expandedKey) private var expandedKinds = true
     @AppStorage(LibraryStore.SidebarSection.vendors.expandedKey) private var expandedVendors = true
     @AppStorage(LibraryStore.SidebarSection.collections.expandedKey) private var expandedCollections = false
     @AppStorage(LibraryStore.SidebarSection.sets.expandedKey) private var expandedSets = true
@@ -142,10 +144,21 @@ private struct SidebarView: View {
                         row(.folder(.system), SystemFolder.system.title, "lock")
                     } header: { Text(L("システム")) }
                 }
+                if showKinds {
+                    Section(isExpanded: $expandedKinds) {
+                        ForEach(FontKind.allCases, id: \.self) { kind in
+                            row(.kind(kind), kind.title, kind.symbol)
+                        }
+                    } header: { Text(L("種類")) }
+                }
                 if showVendors {
                     Section(isExpanded: $expandedVendors) {
                         ForEach(LibraryStore.vendors, id: \.id) { vendor in
                             row(.vendor(vendor.id), vendor.title, "building.2")
+                        }
+                        // Creative Cloud が入れたフォント（フォントフォルダーと同じく読み込む）
+                        if store.includeUserFonts {
+                            row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "cloud")
                         }
                     } header: { Text(L("ベンダー")) }
                 }

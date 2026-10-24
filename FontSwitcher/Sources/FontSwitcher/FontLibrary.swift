@@ -15,6 +15,13 @@ struct FontFace: Codable, Hashable, Sendable {
     var displayStyle: String { localizedStyle.flatMap { $0.isEmpty ? nil : $0 } ?? (style.isEmpty ? fullName : style) }
 }
 
+/// サイドバーの「種類」
+enum FontKind: String, CaseIterable, Hashable, Sendable {
+    case variable, color
+    var title: String { self == .variable ? L("バリアブル") : L("カラーフォント") }
+    var symbol: String { self == .variable ? "slider.horizontal.3" : "paintpalette" }
+}
+
 /// ライブラリに登録したフォントファイル。ファイルは動かさず、場所だけを覚える
 struct FontFile: Codable, Identifiable, Hashable, Sendable {
     var id = UUID()
@@ -23,6 +30,9 @@ struct FontFile: Codable, Identifiable, Hashable, Sendable {
     var added = Date()
     /// OS/2 テーブルのベンダーID（MRSW＝モリサワ、FWKS＝フォントワークスなど）。無ければ空。古い版のライブラリでは nil
     var vendor: String?
+    /// バリアブルフォント（fvar）・カラーフォント（COLR・sbix・CBDT・SVG）。古い版のライブラリでは nil
+    var isVariable: Bool?
+    var isColor: Bool?
 
     var url: URL { URL(fileURLWithPath: path) }
     var fileName: String { (path as NSString).lastPathComponent }
@@ -90,7 +100,7 @@ enum FontScanner {
     static let extensions: Set<String> = ["otf", "ttf", "ttc", "otc", "dfont", "woff", "woff2"]
 
     /// ファイルとフォルダーの中（下の階層も）からフォントファイルを拾う。隠しファイルとパッケージの中は見ない
-    static func fontURLs(in urls: [URL]) -> [URL] {
+    static func fontURLs(in urls: [URL], includeHidden: Bool = false) -> [URL] {
         var found: [URL] = []
         for url in urls {
             var isDirectory: ObjCBool = false
@@ -100,7 +110,7 @@ enum FontScanner {
                 continue
             }
             let items = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey],
-                                                       options: [.skipsHiddenFiles, .skipsPackageDescendants])
+                                                       options: includeHidden ? [.skipsPackageDescendants] : [.skipsHiddenFiles, .skipsPackageDescendants])
             while let item = items?.nextObject() as? URL {
                 if extensions.contains(item.pathExtension.lowercased()) { found.append(item) }
             }
@@ -123,6 +133,9 @@ enum FontScanner {
         guard !faces.isEmpty else { return nil }
         var file = FontFile(path: url.standardizedFileURL.path, faces: faces)
         file.vendor = vendorID(descriptors[0])
+        let tables = tableTags(descriptors[0])
+        file.isVariable = tables.contains("fvar")
+        file.isColor = !tables.isDisjoint(with: ["COLR", "sbix", "CBDT", "SVG "])
         return file
     }
 
@@ -140,6 +153,18 @@ enum FontScanner {
         let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
         guard let table = CTFontCopyTable(font, CTFontTableTag(kCTFontTableOS2), []) as Data?, table.count >= 62 else { return "" }
         return String(decoding: table[58..<62], as: UTF8.self).trimmingCharacters(in: .whitespaces.union(.controlCharacters))
+    }
+
+    /// 入っているテーブルの名前（4文字）。CTFontCopyAvailableTables の中身は CFNumber ではなくタグそのものなので、[Int] には読み替えられない
+    static func tableTags(_ descriptor: CTFontDescriptor) -> Set<String> {
+        let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
+        guard let array = CTFontCopyAvailableTables(font, []) else { return [] }
+        var tags = Set<String>()
+        for index in 0..<CFArrayGetCount(array) {
+            let tag = UInt32(truncatingIfNeeded: UInt(bitPattern: CFArrayGetValueAtIndex(array, index)))
+            tags.insert(String(decoding: [24, 16, 8, 0].map { UInt8(truncatingIfNeeded: tag >> $0) }, as: UTF8.self))
+        }
+        return tags
     }
 
     static func vendorID(of url: URL) -> String {
@@ -335,12 +360,15 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
     case allUsers
     /// /System/Library/Fonts（macOS のフォント。切り替えない）
     case system
+    /// Adobe Fonts（Creative Cloud が入れたフォント。隠しフォルダーに「.12345.otf」の名前で置かれる。切り替えは Creative Cloud で）
+    case adobeFonts
 
     var path: String {
         switch self {
         case .user: return NSHomeDirectory() + "/Library/Fonts"
         case .allUsers: return "/Library/Fonts"
         case .system: return "/System/Library/Fonts"
+        case .adobeFonts: return NSHomeDirectory() + "/Library/Application Support/Adobe/CoreSync/plugins/livetype/.r"
         }
     }
 
@@ -350,11 +378,16 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
         case .user: return NSUserName()
         case .allUsers: return "All Users"
         case .system: return "System"
+        case .adobeFonts: return "Adobe Fonts"
         }
     }
 
-    /// System 以外は .persistent の登録・解除で切り替える（ファイルは動かさない）
-    var isEditable: Bool { self != .system }
+    /// username・All Users は .persistent の登録・解除で切り替える（ファイルは動かさない）。
+    /// System は macOS、Adobe Fonts は Creative Cloud が管理するので切り替えない
+    var isEditable: Bool { self == .user || self == .allUsers }
+
+    /// 隠しファイルも読むフォルダー（Adobe Fonts のファイル名は . で始まる）
+    var includesHiddenFiles: Bool { self == .adobeFonts }
 
     static func of(_ path: String) -> SystemFolder? {
         allCases.first { path.hasPrefix($0.path + "/") }

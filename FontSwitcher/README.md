@@ -1,6 +1,6 @@
 # FontSwitcher
 
-現行版：**1.6.2（build 14）** — 2026-10-24
+現行版：**1.7.0（build 16）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -14,7 +14,8 @@
 - コレクションに追加：`NSFontCollection`（`~/Library/FontCollections`、visibility .user）に PostScript 名で加える
 - ライブラリの共有：選んだフォルダー（Dropbox など）の `FontSwitcher-Library.json` を両方のMacで使う。場所は `$DROPBOX-<アカウント>/…`・`~/…` で保存し、Macごとの場所に読み替える（`~/.dropbox/info.json`）。フォルダーを見張り、前面に戻ったときも確かめて読み直し、アクティブの違いを反映する
 - アプリを呼び出すホットキー（初期値 ⌃⇧⌘F、共通の HotkeyField・HotkeySet、HotkeyManifest に申告）。同じキーを前面アプリ専用で申告している起動中の自作アプリ（FolderHopper・SpreadsheetHelper）が前面の間は登録を外して譲る（`HotkeyManifest.claimedByOtherApp`）。未起動時は効かない
-- サイドバーの「ベンダー」（OS/2 の achVendID：MRSW＝モリサワ、FWKS＝フォントワークス）と「コレクション」（`NSFontCollection` の PostScript名・ファミリー名の問い合わせで照合）
+- サイドバーの「種類」（バリアブル・カラーフォント）
+- サイドバーの「ベンダー」（OS/2 の achVendID：MRSW＝モリサワ、FWKS＝フォントワークス、ADBE＝アドビ）と「コレクション」（`NSFontCollection` の PostScript名・ファミリー名の問い合わせで照合）
 - セット：作成・名前の変更・削除、セットに追加／外す、セットをまとめてアクティブ／解除
 
 通信はアップデート確認だけです。アクセシビリティの許可は不要です。
@@ -48,6 +49,9 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.8.0（build 17）：サイドバーに「種類」（バリアブル＝fvar、カラーフォント＝COLR・sbix・CBDT・SVG。`CTFontCopyAvailableTables` の中身は CFNumber ではなくタグそのものなので `CFArrayGetValueAtIndex` で読む。古い版で登録したファイルは裏で読み直して足す）、ベンダーに「アドビ」（ADBE。Creative Cloud でアクティブにした「Adobe Fonts」とは別に、ライブラリにあるアドビ製のフォント）
+- 1.7.0（build 16）：ベンダーに「Adobe Fonts」（Creative Cloud が `~/Library/Application Support/Adobe/CoreSync/plugins/livetype/.r` に「.<ID>.otf」で置くフォント。隠しファイルも読む。切り替えは Creative Cloud で行うので FontSwitcher では切り替えない）
+- 1.6.3（build 15）：スペースバーで選んだ行を切り替える（すべてアクティブなら解除、それ以外はアクティブ）。チェックボックス・☆はキーの入力を受けない（クリックしたチェックボックスにフォーカスが残り、スペースで一度だけ解除されていた）
 - 1.6.2（build 14）：プレビューで字形の無い文字をさらに薄く（15%）
 - 1.6.1（build 13）：フォント名の切り替えを検索欄の下の行に移し、一覧の幅いっぱいに伸び縮みさせる（狭いとプレビューのボタンと重なっていた）
 - 1.6.0（build 12）：絞り込み（文字セット・名前の先頭、ファミリー名から FontNaming で判定）、プレビューで字形の無い文字を薄く表示、フォント名の切り替えの幅を可変に、アイコンを「あa」に（スイッチを外す）

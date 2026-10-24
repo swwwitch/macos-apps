@@ -149,3 +149,8 @@ FontSwitcherが起動している間、どのアプリからでもメインウ�
 名前の先頭	Name prefix	名称前缀	이름 앞부분
 絞り込みを解除	Clear Filters	清除筛选	필터 해제
 このフォントに無い文字は、ほかのフォントで薄く表示しています	Characters this font lacks are shown faintly in another font	此字体中没有的字符以其他字体淡色显示	이 서체에 없는 문자는 다른 서체로 흐리게 표시합니다
+Adobe Fontsのフォントは、Creative Cloudで切り替えます	Adobe Fonts are switched in Creative Cloud	Adobe Fonts 字体请在 Creative Cloud 中切换	Adobe Fonts 서체는 Creative Cloud에서 전환합니다
+種類	Kinds	类型	종류
+バリアブル	Variable	可变字体	가변 글꼴
+カラーフォント	Color Fonts	彩色字体	컬러 글꼴
+アドビ	Adobe	Adobe	어도비
