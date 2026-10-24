@@ -148,7 +148,6 @@ private struct SidebarView: View {
                 } header: { Text(LibraryStore.SidebarSection.system.title) }
                 // 条件で中身が決まるセット
                 Section(isExpanded: $expandedSmartSets) {
-                    row(.favorites, L("お気に入り"), "star")
                     row(.active, L("アクティブ"), "checkmark.circle")
                     row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark")
                     row(.inactive, L("非アクティブ"), "circle")

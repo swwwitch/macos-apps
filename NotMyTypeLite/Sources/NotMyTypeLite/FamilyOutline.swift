@@ -172,7 +172,6 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             add(menu, L("アクティブにする")) { $0.setActive(files, true) }
             add(menu, L("解除")) { $0.setActive(files, false) }
             menu.addItem(.separator())
-            add(menu, L("お気に入りを切り替える")) { $0.toggleFavorite($0.data.families(of: files)) }
             let sets = NSMenu()
             for set in store.data.sets {
                 add(sets, set.name) { $0.addToSet(set.id, files) }
@@ -237,12 +236,11 @@ final class SpaceToggleOutlineView: NSOutlineView {
     }
 }
 
-/// 一覧の1行：チェックボックス・名前・お気に入り・注意・書体数（またはファイル名）
+/// 一覧の1行：チェックボックス・名前・注意・書体数（またはファイル名）
 final class FamilyCell: NSTableCellView {
     static let identifier = NSUserInterfaceItemIdentifier("FamilyCell")
     private let check = NSButton(checkboxWithTitle: "", target: nil, action: nil)
     private let name = NSTextField(labelWithString: "")
-    private let star = NSButton()
     private let warning = NSImageView()
     private let detail = NSTextField(labelWithString: "")
     private var node: FamilyNode?
@@ -257,18 +255,13 @@ final class FamilyCell: NSTableCellView {
         check.action = #selector(checkClicked)
         name.lineBreakMode = .byTruncatingMiddle
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        star.isBordered = false
-        star.refusesFirstResponder = true
-        star.imagePosition = .imageOnly
-        star.target = self
-        star.action = #selector(starClicked)
         warning.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: nil)
         warning.contentTintColor = .systemOrange
         detail.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
         detail.textColor = .secondaryLabelColor
         detail.lineBreakMode = .byTruncatingMiddle
         detail.alignment = .right
-        let stack = NSStackView(views: [check, name, star, NSView(), warning, detail])
+        let stack = NSStackView(views: [check, name, NSView(), warning, detail])
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
@@ -302,7 +295,6 @@ final class FamilyCell: NSTableCellView {
             case .postScript: set(postScript, nil, dimmed: dimmed)
             case .both: set(styles, postScript, dimmed: dimmed)
             }
-            star.isHidden = true
             // 重複しているときは、ウォッチフォルダーの順で優先かどうかを添える（隠さず印で区別する）
             switch store.duplicatePreference(file) {
             case true?: detail.stringValue = L("優先") + "  " + file.fileName
@@ -324,12 +316,6 @@ final class FamilyCell: NSTableCellView {
             case .postScript: set(family.name, nil, dimmed: dimmed)
             case .both: set(family.displayName, family.displayName == family.name ? nil : family.name, dimmed: dimmed)
             }
-            let favorite = store.isFavorite(family)
-            star.isHidden = false
-            star.image = NSImage(systemSymbolName: favorite ? "star.fill" : "star", accessibilityDescription: nil)
-            star.contentTintColor = favorite ? .systemOrange : .tertiaryLabelColor
-            star.toolTip = favorite ? L("お気に入りから外す") : L("お気に入りに追加")
-            star.setAccessibilityLabel(star.toolTip)
             detail.stringValue = L("%d書体", family.faceCount)
             problem = family.files.lazy.compactMap { Self.problem(store.states[$0.id]) ?? Self.clash($0) }.first
         }
@@ -382,8 +368,4 @@ final class FamilyCell: NSTableCellView {
         }
     }
 
-    @objc private func starClicked() {
-        guard let node else { return }
-        LibraryStore.shared.toggleFavorite([node.family])
-    }
 }

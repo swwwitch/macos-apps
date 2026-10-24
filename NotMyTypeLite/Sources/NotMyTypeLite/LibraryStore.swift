@@ -4,7 +4,7 @@ import SwiftUI
 
 /// サイドバーで選ぶ一覧の絞り込み
 enum SidebarItem: Hashable {
-    case all, favorites, active, inactive, duplicates, missing
+    case all, active, inactive, duplicates, missing
     case recentlyActivated, recentlyDeactivated, recentlyAdded, japanese
     case folder(SystemFolder)
     case set(UUID)
@@ -102,7 +102,7 @@ final class LibraryStore: ObservableObject {
         charsetFilter = nil; formatFilter = nil; kindFilter = nil; faceCountFilter = nil; characterCountFilter = nil; variantFilters = [:]
     }
     static let noCharset = "—"
-    /// 一覧の中身（行・チェック・お気に入り）が変わるたびに進む。一覧はこれが変わったときだけ読み直す
+    /// 一覧の中身（行・チェック）が変わるたびに進む。一覧はこれが変わったときだけ読み直す
     @Published private(set) var listVersion = 0
     @Published private(set) var isBusy = false
     /// 最後の操作の結果。ウインドウ下の状態欄に出す
@@ -246,7 +246,6 @@ final class LibraryStore: ObservableObject {
         let base = visibleFiles
         switch item {
         case .all: return base
-        case .favorites: return base.filter { data.favorites.contains($0.family) }
         case .active: return base.filter { states[$0.id] == .active }
         case .inactive: return base.filter { states[$0.id] == .inactive }
         case .duplicates:
@@ -670,16 +669,6 @@ final class LibraryStore: ObservableObject {
         if !failures.isEmpty {
             message = (L("強制的にアクティブにできなかったファイルがあります"), failures.prefix(20).joined(separator: "\n"))
         }
-    }
-
-    func isFavorite(_ family: FontFamily) -> Bool { data.favorites.contains(family.name) }
-
-    /// 選んだものが1つでもお気に入りでなければ全部をお気に入りに、全部お気に入りなら外す
-    func toggleFavorite(_ families: [FontFamily]) {
-        guard !families.isEmpty else { return }
-        let names = Set(families.map(\.name))
-        if names.isSubset(of: data.favorites) { data.favorites.subtract(names) } else { data.favorites.formUnion(names) }
-        save()
     }
 
     func toggle(_ family: FontFamily) {

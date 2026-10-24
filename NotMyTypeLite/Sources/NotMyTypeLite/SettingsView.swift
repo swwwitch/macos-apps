@@ -398,7 +398,7 @@ private struct SharingSection: View {
                 Button(L("共有をやめる")) { store.stopSharing() }
                     .disabled(store.sharedFolder == nil)
             }
-            Text(L("Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・お気に入り・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。"))
+            Text(L("Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }

@@ -13,7 +13,7 @@ struct SmartSet: Codable, Identifiable, Hashable, Sendable {
 /// 条件1つ。value は項目ごとの値（文字列で持つ）
 struct SmartRule: Codable, Hashable, Sendable, Identifiable {
     enum Field: String, Codable, CaseIterable, Sendable {
-        case name, kind, charset, n, ud, ap, nt, format, faceCount, characterCount, favorite, active, addedWithin
+        case name, kind, charset, n, ud, ap, nt, format, faceCount, characterCount, active, addedWithin
 
         var title: String {
             switch self {
@@ -27,7 +27,6 @@ struct SmartRule: Codable, Hashable, Sendable, Identifiable {
             case .format: return L("形式")
             case .faceCount: return L("ファミリーの書体数")
             case .characterCount: return L("収録文字数")
-            case .favorite: return L("お気に入り")
             case .active: return L("アクティブ")
             case .addedWithin: return L("追加した日（日以内）")
             }
@@ -46,7 +45,7 @@ struct SmartRule: Codable, Hashable, Sendable, Identifiable {
             case .format: return ["OpenType (CFF)", "TrueType", "TrueType Collection", "OpenType Collection", "Datafork TrueType", "WOFF"].map { ($0, $0) }
             case .faceCount: return FaceCountRange.allCases.map { (String($0.rawValue), $0.title) }
             case .characterCount: return CharacterCountRange.allCases.map { (String($0.rawValue), $0.title) }
-            case .favorite, .active: return [("true", L("はい")), ("false", L("いいえ"))]
+            case .active: return [("true", L("はい")), ("false", L("いいえ"))]
             }
         }
     }
@@ -90,7 +89,6 @@ extension LibraryStore {
         case .characterCount:
             guard let range = Int(value).flatMap(CharacterCountRange.init(rawValue:)), let count = file.characterCount else { return false }
             return range.contains(count)
-        case .favorite: return data.favorites.contains(file.family) == (value == "true")
         case .active: return (states[file.id] == .active) == (value == "true")
         case .addedWithin:
             guard let days = Double(value.trimmingCharacters(in: .whitespaces)) else { return false }

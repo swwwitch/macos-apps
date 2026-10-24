@@ -57,9 +57,9 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 - Fonts under your user name and All Users can be switched with their checkboxes. The files stay in place and macOS remembers that they are off (they stay off after you log out). Check them again to turn them back on.
 
 ### Smart Sets
-- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
 
-- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, favorite, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
+- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
 
 ### Sets
 - When a set is selected, dropping font files or folders on the main window puts them in that set. Files already in the library are not reread and go straight into the set; new files are added to the library first.
@@ -68,13 +68,9 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 - Right-click families and choose "Add to Set" to add them to an existing set.
 - Right-click a set to activate or deactivate all of it, rename it or delete it. Deleting a set keeps the fonts in the library.
 
-### Favorites
-- Click the ☆ to the right of a family name to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
-- "Favorites" in the sidebar lists only favorite families. Favorites are remembered by family name, so they remain even if you replace the files.
-
 ### Sharing with Other Macs
 1. In the Sharing settings, click "Choose Shared Folder…" and choose a folder, for example in Dropbox.
-2. "FontSwitcher-Library.json" is placed in that folder and holds the fonts, sets, favorites and activation.
+2. "NotMyTypeLite-Library.json" is placed in that folder and holds the fonts, sets and activation.
 3. Choose the same folder on your other Mac; its library is combined so both Macs have the same contents.
 - Locations inside Dropbox and your home folder are translated to each Mac's location. Files that are not on a Mac appear under "Missing".
 - Changes made on another Mac are loaded when the file syncs or when you bring NotMyTypeLite to the front. Fonts activated there are activated on this Mac too.
@@ -103,7 +99,7 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyTypeLite is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, the app for opening font files, and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
-- **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets, favorites and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
+- **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
 - **Hotkeys**: Keys for menu items (Add Fonts, New Set, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
 - **About**: Version and links.
 

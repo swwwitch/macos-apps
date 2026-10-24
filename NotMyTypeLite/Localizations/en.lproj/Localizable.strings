@@ -33,7 +33,6 @@
 "見つからない" = "Missing";
 "fonts.adobe.comを開く" = "Open fonts.adobe.com";
 "ライブラリ" = "Library";
-"お気に入り" = "Favorites";
 "アクティブ" = "Active";
 "最近アクティブ" = "Recently Activated";
 "非アクティブ" = "Inactive";
@@ -231,7 +230,6 @@
 "共有をやめ、このMacのライブラリに切り替えました" = "Stopped sharing and switched to this Mac’s library";
 "ほかのMacの変更を読み込みました" = "Loaded changes from another Mac";
 "ファミリー" = "Families";
-"お気に入りを切り替える" = "Toggle Favorite";
 "セットに追加" = "Add to Set";
 "このセットから外す" = "Remove from This Set";
 "優先外の重複を解除" = "Deactivate Non-Preferred Duplicates";
@@ -241,8 +239,6 @@
 "優先" = "Preferred";
 "優先外" = "Not preferred";
 "一部アクティブ" = "Partly active";
-"お気に入りから外す" = "Remove from Favorites";
-"お気に入りに追加" = "Add to Favorites";
 "%d書体" = "%d styles";
 "PostScript名が同じ別の書体があります。同時にアクティブにすると、アプリからは一方しか見えません：%@" = "Another face has the same PostScript name. If both are active, apps see only one: %@";
 "どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る" = "From any app. Yields while another of these apps that uses the same key for its front app is in front";
@@ -290,7 +286,7 @@
 "共有していません" = "Not shared";
 "共有フォルダーを選ぶ…" = "Choose Shared Folder…";
 "共有をやめる" = "Stop Sharing";
-"Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・お気に入り・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。" = "Places “NotMyTypeLite-Library.json” in a folder such as Dropbox to keep the fonts, sets, favorites and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.";
+"Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。" = "Places “NotMyTypeLite-Library.json” in a folder such as Dropbox to keep the fonts, sets and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.";
 "見張るフォルダーを選びます。新しいフォントファイルを見つけるとライブラリに追加します" = "Choose folders to watch. New font files found there are added to the library";
 "プレビューを隠す・表示" = "Hide or Show Preview";
 "メニューのホットキー" = "Menu Hotkeys";

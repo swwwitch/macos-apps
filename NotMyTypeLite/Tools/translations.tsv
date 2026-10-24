@@ -96,10 +96,6 @@ NotMyTypeLiteでアクティブにしたフォントは、ログアウトする�
 プレビュー	Preview
 プレビューの文字 :	Preview text:
 初期値に戻す	Restore Defaults
-お気に入り	Favorites
-お気に入りを切り替える	Toggle Favorite
-お気に入りから外す	Remove from Favorites
-お気に入りに追加	Add to Favorites
 共有フォルダーが見つかりません	Shared Folder Not Found
 %@ が見つからないため、このMacのライブラリを開きました。	%@ could not be found, so this Mac’s library was opened.
 ほかのMacと共有するフォルダー（Dropboxの中など）を選びます	Choose a folder to share with your other Macs (for example, in Dropbox)
@@ -360,6 +356,6 @@ PostScript名が同じ別の書体があります。同時にアクティブに�
 セット「%@」に%d個を入れました	put %2$d in the set "%1$@"
 優先外をライブラリから取り除く…	Remove Non-Preferred from Library…
 手書きフォント	Handwriting Fonts
-Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・お気に入り・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。	Places “NotMyTypeLite-Library.json” in a folder such as Dropbox to keep the fonts, sets, favorites and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.
+Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、登録したフォント・セット・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。	Places “NotMyTypeLite-Library.json” in a folder such as Dropbox to keep the fonts, sets and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.
 新規セット・スマートセット	New Set or Smart Set
 システム	System
