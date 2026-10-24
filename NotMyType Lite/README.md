@@ -1,6 +1,6 @@
 # NotMyType Lite
 
-現行版：**1.5.0（build 6）** — 2026-10-25
+現行版：**1.6.0（build 7）** — 2026-10-25
 
 NotMyType の簡易版。フォントファイルをライブラリに登録し、必要なときだけアクティブにします。ユニバーサル版（Apple Silicon・Intel）。Bundle ID は `jp.dtp-transit.notmytypelite`。ライブラリ・設定・共有ファイルは NotMyType と別です。
 
@@ -31,6 +31,7 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.6.0（build 7）：書体の並び順を TypefaceSampler.jsx（ai-scripts）と同じに（細い→太い、幅・用途の語とイタリックは後ろ、同点は PostScript名順。FontWeightOrder.swift）。プレビュー・フォント情報・中央の一覧でファミリーを開いたときの行に使う。書体の行だけを選んだときはフォント情報もその書体だけに
 - 1.5.0（build 6）：アプリ名を「NotMyType Lite」に（.app も「NotMyType Lite.app」。Bundle ID・保存先・共有ファイル名・設定の同期フォルダー＝Info.plist SWSettingsSyncNameは維持。アプリ単位のフォルダーは NotMyType Lite、内部ターゲットは NotMyTypeLite のまま）。スマートセットの条件「名前が次で始まる」、スマートセット「ウォッチフォルダー」、/System/Library/Fonts を読み込まない、書体の行だけを選んだらその書体だけをプレビュー
 - 1.4.0（build 5）：スマートセットの「最近アクティブ」「最近非アクティブ」「最近追加したもの」を削除（日本語をサポートは残す）。サイドバーの Adobe Fonts をほかの行と同じ線画のアイコン（f.cursive）に。重複の優先の規則（フォルダーの規則）を削除し、重複フォントを解決はその組の優先だけを覚える。設定の「ファイルごとに選んだ優先」は単独の欄に
 - 1.3.0（build 4）：お気に入りを削除（サイドバー・一覧の☆・右クリック・スマートセットの条件・ヘルプ。共有ファイルの favorites は読み書きだけ残す）
