@@ -761,7 +761,8 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
     case allUsers
     /// /System/Library/Fonts（macOS のフォント。切り替えない）
     case system
-    /// Adobe Fonts（Creative Cloud が入れたフォント。隠しフォルダーに「.12345.otf」の名前で置かれる。切り替えは Creative Cloud で）
+    /// Adobe Fonts（Creative Cloud が入れたフォント。livetype の下の隠しフォルダーに「.12345.otf」の名前で置かれる。切り替えは Creative Cloud で）。
+    /// Creative Cloud の版でフォルダーが変わり（.r → .w・.t）、オフにしたフォントのファイルも残るので、フォルダーではなく macOS に登録されているものを読む
     case adobeFonts
 
     var path: String {
@@ -769,7 +770,7 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
         case .user: return NSHomeDirectory() + "/Library/Fonts"
         case .allUsers: return "/Library/Fonts"
         case .system: return "/System/Library/Fonts"
-        case .adobeFonts: return NSHomeDirectory() + "/Library/Application Support/Adobe/CoreSync/plugins/livetype/.r"
+        case .adobeFonts: return NSHomeDirectory() + "/Library/Application Support/Adobe/CoreSync/plugins/livetype"
         }
     }
 

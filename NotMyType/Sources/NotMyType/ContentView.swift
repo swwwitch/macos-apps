@@ -214,14 +214,11 @@ private struct SidebarView: View {
                     ForEach(LibraryStore.vendors, id: \.id) { vendor in
                         iconRow(.vendor(vendor.id), vendor.title) { VendorIcon(id: vendor.id) }
                     }
-                    // Creative Cloud が入れたフォント（フォントフォルダーと同じく読み込む）
-                    if store.includeUserFonts {
-                        iconRow(.folder(.adobeFonts), SystemFolder.adobeFonts.title) { AdobeFontsIcon() }
-                            .contextMenu {
-                                Button(L("Creative Cloudを開く")) { store.openCreativeCloud() }
-                                Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() }
-                            }
-                    }
+                    // Creative Cloud が入れたフォント。「フォントフォルダーのフォントも一覧に入れる」と切り離していつも出す（ユーザー指定）
+                    iconRow(.folder(.adobeFonts), SystemFolder.adobeFonts.title) { AdobeFontsIcon() }
+                        .contextMenu {
+                            Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() }
+                        }
                 } header: { Text(section.title) }
             }
         case .collections:
@@ -526,7 +523,6 @@ private struct AdobeFontsBar: View {
                 .font(.callout).foregroundStyle(.secondary)
                 .lineLimit(2).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 4)
-            Button(L("Creative Cloudを開く")) { store.openCreativeCloud() }
             Button(L("fonts.adobe.com")) { store.openAdobeFontsWeb() }
                 .help(L("fonts.adobe.comを開く"))
         }

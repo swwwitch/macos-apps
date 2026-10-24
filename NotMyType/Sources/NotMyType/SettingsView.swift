@@ -40,7 +40,6 @@ private struct FontSettingsView: View {
     @AppStorage(LibraryStore.restoreAtLaunchKey) private var restore = true
     @AppStorage(LibraryStore.deactivateOnQuitKey) private var deactivate = false
     @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
-    @AppStorage(LibraryStore.includeUserFontsKey) private var includeUserFonts = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -53,10 +52,7 @@ private struct FontSettingsView: View {
             WatchFoldersSection()
             FontFileHandlerSection()
             AdobeAutoActivationSection()
-            SettingsSection(L("システム")) {
-                Toggle(L("フォントフォルダーのフォントも一覧に入れる"), isOn: $includeUserFonts)
-                note(L("~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。"))
-            }
+            FontServicesSection()
             SettingsSection(L("プレビュー")) {
                 HStack {
                     Text(L("プレビューの文字 :"))
@@ -66,7 +62,7 @@ private struct FontSettingsView: View {
                 }
             }
             Button(L("初期値に戻す")) {
-                restore = true; deactivate = false; sample = LibraryStore.defaultSampleText; includeUserFonts = true
+                restore = true; deactivate = false; sample = LibraryStore.defaultSampleText
             }
         }
     }

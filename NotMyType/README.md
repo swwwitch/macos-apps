@@ -1,6 +1,6 @@
 # NotMyType
 
-現行版：**1.49.0（build 78）** — 2026-10-24
+現行版：**1.53.0（build 82）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -55,6 +55,10 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.53.0（build 82）：設定の「フォントフォルダーのフォントも一覧に入れる」をなくし、フォントフォルダー（ユーザー名・All Users・System）を常に一覧に入れる（ユーザー指定）。「fonts.adobe.com」のリンク先を https://fonts.adobe.com/fonts に（一覧の上・右クリック・フォント管理の初期値。保存済みのトップページ・my_fonts のリンクも読み替える）
+- 1.52.0（build 81）：Adobe Fonts を「フォントフォルダーのフォントも一覧に入れる」と切り離し、いつもベンダーに表示・読み込む（visibleFiles・scanUserFonts）。「Creative Cloudを開く」（一覧の上・Adobe Fonts の右クリック・強制アクティブの確認）をなくした（ユーザー指定）
+- 1.51.0（build 80）：Adobe Fonts の一覧を、フォルダーのファイルではなく macOS に登録されているもの（CTFontManagerCopyAvailableFontURLs のうち livetype の下）で作る。Creative Cloud でオフにしたフォントは一覧から外れる（ファイルが残るため出たままだった）。Creative Cloud の新しい版のフォルダー（.r → .w・.t）にも対応し、前面に戻ったときも読み直す
+- 1.50.0（build 79）：「フォント管理」のリンクを設定（フォントタブ）で編集できるように（名前・URL、足す・外す・並べ替え・初期値に戻す。fontServiceLinks、設定の同期）。メニューの最後に「リンクを編集…」
 - 1.49.0（build 78）：ツールメニューにサブメニュー「フォント管理」（Adobe Fonts＝fonts.adobe.com、モリサワ＝morisawafonts.com/fonts/search/ をブラウザーで開くだけ）
 - 1.48.0（build 77）：種類に「手書きフォント」。FontDB の分類が「手書き」「スクリプト」（筆書体は入れない）、FontDB に無ければ OS/2 の sFamilyClass＝Scripts（10）か PANOSE＝Latin Hand Written（3）（FontFile.isHandwriting、起動後に既存ファイルにも読み足す）
 - 1.47.0（build 76）：ツールメニューを整理。重複まわり（重複フォントを解決…・選んだフォントを優先にする・優先外を解除・優先外をライブラリから取り除く…）をサブメニュー「重複フォント」にまとめ、「衝突しているフォントの登録を外す」はその下に単独で置く

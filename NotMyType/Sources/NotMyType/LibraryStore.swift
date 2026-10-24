@@ -109,8 +109,8 @@ final class LibraryStore: ObservableObject {
     static let recentInterval: TimeInterval = 7 * 24 * 60 * 60
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
-    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, preferOpenTypeKey, formatOrderKey,
-                                                       preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, NameDisplay.key]
+    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, preferOpenTypeKey, formatOrderKey,
+                                                       preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, FontServices.key, NameDisplay.key]
         + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
         + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
@@ -238,6 +238,8 @@ final class LibraryStore: ObservableObject {
             // 外付けディスクをつないだなどで見えるようになったフォルダーを見張り直す
             WatchFolders.shared.refresh()
             ProjectFolderWatcher.shared.update()
+            // Creative Cloud で Adobe Fonts をオン・オフしたあと戻ってきたときも、登録の状態を読み直す
+            LibraryStore.shared.scheduleFontsChanged()
         } })
         reloadCollections()
         // 設定の同期でほかのMacから値が届いたときも、一覧の出し方を合わせる（設定画面の onChange は通らない）
@@ -264,7 +266,8 @@ final class LibraryStore: ObservableObject {
 
     // MARK: 表示
 
-    var includeUserFonts: Bool { UserDefaults.standard.bool(forKey: Self.includeUserFontsKey) }
+    /// フォントフォルダー（ユーザー名・All Users・System）は常に一覧に入れる（1.53.0 で設定を外した、ユーザー指定）
+    var includeUserFonts: Bool { true }
 
     /// フォントフォルダー（username・All Users・System）のファイルかどうか
     static func isInstalled(_ file: FontFile) -> Bool { SystemFolder.of(file.path) != nil }
@@ -278,10 +281,12 @@ final class LibraryStore: ObservableObject {
             : L("System のフォントは切り替えられません")
     }
 
-    /// 設定でフォントフォルダーを外したときは、そのフォントを一覧に出さない（ライブラリからは消さない）
+    /// 設定でフォントフォルダーを外したときは、そのフォントを一覧に出さない（ライブラリからは消さない）。
+    /// Adobe Fonts はこの設定と切り離して、いつも出す（ユーザー指定）
     var visibleFiles: [FontFile] {
         if let visibleCache { return visibleCache }
-        let files = includeUserFonts ? data.files : data.files.filter { !Self.isInstalled($0) }
+        let files = includeUserFonts ? data.files
+            : data.files.filter { !Self.isInstalled($0) || SystemFolder.of($0.path) == .adobeFonts }
         visibleCache = files
         return files
     }
@@ -699,10 +704,6 @@ final class LibraryStore: ObservableObject {
         if !forceable.isEmpty {
             alert.addButton(withTitle: L("強制的にアクティブにする"))
             actions.append { [weak self] in self?.forceActivate(forceable) }
-        }
-        if !adobe.isEmpty {
-            alert.addButton(withTitle: L("Creative Cloudを開く"))
-            actions.append { [weak self] in self?.openCreativeCloud() }
         }
         alert.addButton(withTitle: actions.isEmpty ? L("OK") : L("キャンセル")).keyEquivalent = actions.isEmpty ? "\r" : "\u{1b}"
         let index = alert.runModal().rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
@@ -1790,17 +1791,8 @@ final class LibraryStore: ObservableObject {
 
     // MARK: Adobe Fonts
 
-    /// Adobe Fonts のオン・オフは Creative Cloud が持つ（解除しても1秒以内に登録し直される、2026-10-24 実測）ので、切り替える場所を開く
-    func openCreativeCloud() {
-        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.adobe.acc.AdobeCreativeCloud") else {
-            message = (L("Creative Cloudが見つかりません"), L("Creative Cloudアプリが入っていません。fonts.adobe.comで切り替えてください。"))
-            return
-        }
-        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
-    }
-
     func openAdobeFontsWeb() {
-        if let url = URL(string: "https://fonts.adobe.com/my_fonts") { NSWorkspace.shared.open(url) }
+        if let url = URL(string: "https://fonts.adobe.com/fonts") { NSWorkspace.shared.open(url) }
     }
 
     func revealInFinder(_ files: [FontFile]) {
@@ -1943,18 +1935,21 @@ final class LibraryStore: ObservableObject {
     /// フォントフォルダー（username・All Users・System）の中身に一覧を合わせる。
     /// 新しいファイルだけを読んで足し、フォルダーから消えたファイルと、macOS の内部用のフォントは一覧から外す
     func scanUserFonts() {
-        guard includeUserFonts else { return }
+        // Adobe Fonts は設定と関係なく読む。フォントフォルダーは設定がオンのときだけ
         let known = Set(data.files.map(\.path))
-        let folders = SystemFolder.allCases.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) }
-        let hiddenFolders = SystemFolder.allCases.filter(\.includesHiddenFiles).map { URL(fileURLWithPath: $0.path) }
+        let folders = includeUserFonts ? SystemFolder.allCases.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) } : []
         Task.detached(priority: .utility) {
-            let urls = (FontScanner.fontURLs(in: folders) + FontScanner.fontURLs(in: hiddenFolders, includeHidden: true))
+            // Adobe Fonts は、いま macOS に登録されている（Creative Cloud でオンの）ファイルだけ
+            let adobe = Self.registeredAdobeFontPaths()
+            let urls = (FontScanner.fontURLs(in: folders) + adobe.map { URL(fileURLWithPath: $0) })
                 .filter { !known.contains($0.standardizedFileURL.path) }
             let files = urls.compactMap(FontScanner.read).filter { !Self.isHiddenSystemFont($0) }
             await MainActor.run {
                 let store = LibraryStore.shared
+                // 消えたファイルと、Creative Cloud でオフにした Adobe Fonts（ファイルは残るが登録が外れる）を一覧から外す
                 let goneFiles = store.data.files.filter {
-                    Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path))
+                    Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path)
+                        || (SystemFolder.of($0.path) == .adobeFonts && !adobe.contains($0.path)))
                 }
                 let gone = Set(goneFiles.map(\.id))
                 if !gone.isEmpty {
@@ -1972,6 +1967,13 @@ final class LibraryStore: ObservableObject {
                 store.refreshStates()
             }
         }
+    }
+
+    /// macOS に登録されているフォントのうち、Adobe Fonts のフォルダーにあるファイル
+    nonisolated static func registeredAdobeFontPaths() -> Set<String> {
+        let root = SystemFolder.adobeFonts.path + "/"
+        let urls = CTFontManagerCopyAvailableFontURLs() as? [URL] ?? []
+        return Set(urls.map { $0.standardizedFileURL.path }.filter { $0.hasPrefix(root) })
     }
 
     /// 「.SF NS」のように名前が . で始まるのは macOS の内部用（Font Book でも出ない）

@@ -79,11 +79,8 @@ struct NotMyTypeApp: App {
                 Divider()
                 Button(L("FontExplorer X Proのセットを読み込む…")) { FontExplorerImportWindow.shared.show() }
                 Divider()
-                // フォントの契約・管理のページ（単純なリンク、ユーザー指定）
-                Menu(L("フォント管理")) {
-                    Button("Adobe Fonts") { NSWorkspace.shared.open(URL(string: "https://fonts.adobe.com/")!) }
-                    Button(L("モリサワ")) { NSWorkspace.shared.open(URL(string: "https://morisawafonts.com/fonts/search/")!) }
-                }
+                // フォントの契約・管理のページ（単純なリンク。設定で足せる、ユーザー指定）
+                Menu(L("フォント管理")) { FontServicesMenu() }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {

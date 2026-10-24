@@ -19,7 +19,6 @@
 "InDesign…" = "InDesign…";
 "FontExplorer X Proのセットを読み込む…" = "Import FontExplorer X Pro Sets…";
 "フォント管理" = "Font Services";
-"モリサワ" = "Morisawa";
 "しまう" = "Minimize";
 "拡大／縮小" = "Zoom";
 "フォントを追加…" = "Add Fonts…";
@@ -42,7 +41,6 @@
 "見つからない" = "Missing";
 "ライブラリ" = "Library";
 "新規セット・プロジェクト" = "New Set or Project";
-"Creative Cloudを開く" = "Open Creative Cloud";
 "fonts.adobe.comを開く" = "Open fonts.adobe.com";
 "お気に入り" = "Favorites";
 "アクティブ" = "Active";
@@ -180,6 +178,7 @@
 "形式（下の順）" = "Format (order below)";
 "バージョンが新しい" = "Newer version";
 "字形数が多い" = "More glyphs";
+"モリサワ" = "Morisawa";
 "フォントワークス" = "Fontworks";
 "アドビ" = "Adobe";
 "Google" = "Google";
@@ -279,8 +278,6 @@
 "名称未設定コレクション" = "Untitled Collection";
 "コレクション「%@」に%d書体を追加しました" = "Added %2$d styles to the collection “%1$@”";
 "コレクションに追加できませんでした" = "Could Not Add to the Collection";
-"Creative Cloudが見つかりません" = "Creative Cloud Not Found";
-"Creative Cloudアプリが入っていません。fonts.adobe.comで切り替えてください。" = "The Creative Cloud app is not installed. Switch fonts at fonts.adobe.com.";
 "ライブラリを読み込めませんでした" = "Could Not Load the Library";
 "%@ を読めませんでした。同期の途中か、ファイルがこのMacに無い可能性があります。読めるようになるまで変更は保存しません。" = "Could not read %@. It may still be syncing or not be on this Mac. Changes are not saved until it can be read.";
 "元のファイルを %@ に残しました。" = "The original file was kept at %@.";
@@ -318,8 +315,6 @@
 "NotMyTypeでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。" = "Fonts activated with NotMyType are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.";
 "終了するときにすべて解除する" = "Deactivate all fonts when quitting";
 "オフのときは、終了してもログアウトするまでアクティブのままです。" = "When off, fonts stay active after quitting until you log out.";
-"フォントフォルダーのフォントも一覧に入れる" = "Include fonts in the font folders";
-"~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。" = "Reads ~/Library/Fonts (your user name), /Library/Fonts (All Users) and /System/Library/Fonts (System) at launch and whenever fonts change. Fonts for your user name and All Users can be switched with their checkboxes; the files stay in place and macOS remembers the setting. System fonts cannot be switched.";
 "プレビューの文字 :" = "Preview text:";
 "Adobeアプリ" = "Adobe Apps";
 "IllustratorとInDesignで開いたドキュメントの足りないフォントを自動でアクティブにする" = "Automatically activate missing fonts in documents opened in Illustrator and InDesign";
@@ -540,3 +535,7 @@
 "優先の単位" = "Preferred as";
 "こちらを優先" = "Prefer This";
 "%d／%d" = "%d/%d";
+"リンクを編集…" = "Edit Links…";
+"このリンクを外す" = "Remove This Link";
+"リンクを足す" = "Add Link";
+"「ツール」メニューの「フォント管理」に出すページです。フォントの契約や管理のページを足しておくと、メニューからブラウザーで開けます。" = "Pages shown in Tools > Font Services. Add the pages for your font subscriptions and accounts to open them in your browser from the menu.";
