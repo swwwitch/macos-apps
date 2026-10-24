@@ -76,7 +76,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Right-click a set to activate or deactivate all of it, rename it or delete it. Deleting a set keeps the fonts in the library.
 
 ### Favorites
-- Click the ☆ to the right of a family name to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
+- Click the ☆ at the right end of a family row (after the style count) to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
 - "Favorites" in the sidebar lists only favorite families. Favorites are remembered by family name, so they remain even if you replace the files.
 
 ### System Fonts

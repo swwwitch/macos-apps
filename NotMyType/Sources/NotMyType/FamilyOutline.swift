@@ -277,7 +277,8 @@ final class FamilyCell: NSTableCellView {
         detail.textColor = .secondaryLabelColor
         detail.lineBreakMode = .byTruncatingMiddle
         detail.alignment = .right
-        let stack = NSStackView(views: [check, name, star, NSView(), warning, detail])
+        // ☆は行の右端（「n書体」・ファイル名の右、ユーザー指定）。書体の行も同じ幅を空けて右端をそろえる
+        let stack = NSStackView(views: [check, name, NSView(), warning, detail, star])
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
@@ -287,6 +288,7 @@ final class FamilyCell: NSTableCellView {
             stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             detail.widthAnchor.constraint(lessThanOrEqualToConstant: 200),
+            star.widthAnchor.constraint(equalToConstant: 18),
         ])
     }
 
@@ -311,7 +313,11 @@ final class FamilyCell: NSTableCellView {
             case .postScript: set(postScript, nil, dimmed: dimmed)
             case .both: set(styles, postScript, dimmed: dimmed)
             }
-            star.isHidden = true
+            // 書体の行は☆を出さないが、幅は残して右端をそろえる
+            star.image = nil
+            star.isEnabled = false
+            star.toolTip = nil
+            star.setAccessibilityElement(false)
             // 重複しているときは、ウォッチフォルダーの順で優先かどうかを添える（隠さず印で区別する）
             switch store.duplicatePreference(file) {
             case true?: detail.stringValue = L("優先") + "  " + file.fileName
@@ -334,7 +340,8 @@ final class FamilyCell: NSTableCellView {
             case .both: set(family.displayName, family.displayName == family.name ? nil : family.name, dimmed: dimmed)
             }
             let favorite = store.isFavorite(family)
-            star.isHidden = false
+            star.isEnabled = true
+            star.setAccessibilityElement(true)
             star.image = NSImage(systemSymbolName: favorite ? "star.fill" : "star", accessibilityDescription: nil)
             star.contentTintColor = favorite ? .systemOrange : .tertiaryLabelColor
             star.toolTip = favorite ? L("お気に入りから外す") : L("お気に入りに追加")
