@@ -143,7 +143,12 @@ private struct WatchFoldersSection: View {
             HStack(spacing: 6) {
                 Button { watch.add() } label: { Image(systemName: "plus") }
                     .help(L("フォルダーを追加…")).accessibilityLabel(L("フォルダーを追加…"))
-                Button { watch.remove(selection); selection.removeAll() } label: { Image(systemName: "minus") }
+                Button {
+                    let removed = Array(selection)
+                    watch.remove(selection)
+                    selection.removeAll()
+                    LibraryStore.shared.unwatched(removed)
+                } label: { Image(systemName: "minus") }
                     .disabled(selection.isEmpty)
                     .help(L("選んだフォルダーを外す")).accessibilityLabel(L("選んだフォルダーを外す"))
                 Button { if let path = selection.first { watch.move(path, by: -1) } } label: { Image(systemName: "chevron.up") }

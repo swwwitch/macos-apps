@@ -1,8 +1,8 @@
 import Foundation
 import SQLite3
 
-/// FontDB（~/Git/macos-apps/FontDB/data/fonts.sqlite、モリサワ・フォントワークス・アドビ・フロップデザインの公式情報）で補うメタデータ。
-/// build.sh がアプリの Resources に FontDB.sqlite として写し、起動時に読み取りだけで全件を読む（約8,000件、PostScript名で引く）。
+/// FontDB（~/Git/macos-apps/FontDB/data/fonts.sqlite、モリサワ・フォントワークス・アドビ・フロップデザイン・Google Fonts の公式情報）で補うメタデータ。
+/// build.sh がアプリの Resources に FontDB.sqlite として写し、起動時に読み取りだけで全件を読む（約12,000件、PostScript名で引く）。
 /// 2026-10-24 の調べで、ライブラリ36,701件のうち12,221件が PostScript名で対応した
 struct FontDBRecord: Sendable {
     var name: String

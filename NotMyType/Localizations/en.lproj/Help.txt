@@ -118,7 +118,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Choose the scope: selection, story, document, or active spread. Text in table cells and footnotes is included. With "Include composite fonts" on, the fonts in each composite font entry are replaced too. One Undo (⌘Z) reverts the replacement.
 
 ### Rebuilding the Library
-- "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and font folders and relinks them, and adds new files in the folders. Relinked files stay in their sets and projects.
+- "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and font folders and relinks them, and adds new files in the folders. Relinked files stay in their sets and projects. You can also start the same rebuild by holding the Option key while launching the app; a confirmation appears first.
 - Files still not found are counted, and you can keep or remove them. With many files this takes from tens of seconds to a few minutes.
 
 ### Progress
@@ -189,7 +189,7 @@ Open Settings with the Settings button in the main window (⌘,).
 - "A font with the same name is already in use" means a font with the same PostScript name is active from the system or another font manager. Deactivate it there, then activate again.
 - If an activated font does not appear in an app's font menu, restart that app.
 - Fonts under "Missing" were moved or deleted, or are on a disconnected external disk. Connect the disk, or remove them from the library and add them again from the new location.
-- System fonts such as those in /System/Library/Fonts cannot be deactivated.
+- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyType cannot switch (System, Adobe Fonts, and files that cannot be found) are shown in light gray.
 
 - If "Unify Fonts in Illustrator" says it could not send the script, allow NotMyType to control Illustrator in System Settings > Privacy & Security > Automation.
 - If Sharing says it cannot read or write the sync files, make sure the sync folder is kept on this Mac (not online-only in Dropbox and the like).

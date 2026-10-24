@@ -4,9 +4,16 @@ import SwiftUI
 /// ファミリーの一覧（AppKit の NSOutlineView）。
 /// SwiftUI の List(children:) は選択を変えるたびに全行（数千）を比べ直して 0.2 秒ほど止まるため、
 /// 中身が変わったとき（listVersion が進んだとき）だけ読み直し、選択の変更では読み直さない
-struct FamilyOutline: NSViewRepresentable {
+struct FamilyOutline: NSViewRepresentable, Equatable {
     let nodes: [FamilyNode]
     let version: Int
+    /// 画面の外（メニューなど）で選択が変わったときに updateNSView を呼んでもらうため
+    let selection: Set<String>
+
+    /// 比べるのは版と選択だけ。nodes は数千行あり、描き直しのたびに丸ごと比べると重い（版が同じなら中身も同じ）
+    nonisolated static func == (lhs: FamilyOutline, rhs: FamilyOutline) -> Bool {
+        lhs.version == rhs.version && lhs.selection == rhs.selection
+    }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -290,10 +297,11 @@ final class FamilyCell: NSTableCellView {
             check.setAccessibilityLabel(active ? L("アクティブ") : L("非アクティブ"))
             let styles = file.faces.map(\.displayStyle).joined(separator: L("、"))
             let postScript = file.faces.map(\.postScriptName).joined(separator: L("、"))
+            let dimmed = Self.isUnavailable(file)
             switch NameDisplay.current {
-            case .localized: set(styles, nil)
-            case .postScript: set(postScript, nil)
-            case .both: set(styles, postScript)
+            case .localized: set(styles, nil, dimmed: dimmed)
+            case .postScript: set(postScript, nil, dimmed: dimmed)
+            case .both: set(styles, postScript, dimmed: dimmed)
             }
             star.isHidden = true
             // 重複しているときは、ウォッチフォルダーの順で優先かどうかを添える（隠さず印で区別する）
@@ -311,10 +319,11 @@ final class FamilyCell: NSTableCellView {
             check.toolTip = !check.isEnabled ? family.files.first.map(LibraryStore.lockedReason)
                 : state == true ? L("クリックで解除") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(state == true ? L("アクティブ") : state == nil ? L("一部アクティブ") : L("非アクティブ"))
+            let dimmed = family.files.allSatisfy(Self.isUnavailable)
             switch NameDisplay.current {
-            case .localized: set(family.displayName, nil)
-            case .postScript: set(family.name, nil)
-            case .both: set(family.displayName, family.displayName == family.name ? nil : family.name)
+            case .localized: set(family.displayName, nil, dimmed: dimmed)
+            case .postScript: set(family.name, nil, dimmed: dimmed)
+            case .both: set(family.displayName, family.displayName == family.name ? nil : family.name, dimmed: dimmed)
             }
             let favorite = store.isFavorite(family)
             star.isHidden = false
@@ -330,10 +339,20 @@ final class FamilyCell: NSTableCellView {
         warning.setAccessibilityLabel(problem)
     }
 
-    /// 名前と、薄い色の補足（両方を出すときの PostScript名・英語名）
-    private func set(_ main: String, _ extra: String?) {
-        guard let extra else { name.stringValue = main; return }
-        let text = NSMutableAttributedString(string: main, attributes: [.foregroundColor: NSColor.labelColor])
+    /// このアプリから切り替えられない書体か（macOS 付属・Adobe Fonts、またはファイルが見つからない）。一覧では名前を薄いグレーにする
+    private static func isUnavailable(_ file: FontFile) -> Bool {
+        LibraryStore.isLocked(file) || LibraryStore.shared.states[file.id] == .missing
+    }
+
+    /// 名前と、薄い色の補足（両方を出すときの PostScript名・英語名）。dimmed は切り替えられない書体
+    private func set(_ main: String, _ extra: String?, dimmed: Bool) {
+        let color: NSColor = dimmed ? .tertiaryLabelColor : .labelColor
+        guard let extra else {
+            name.stringValue = main
+            name.textColor = color
+            return
+        }
+        let text = NSMutableAttributedString(string: main, attributes: [.foregroundColor: color])
         text.append(NSAttributedString(string: "  " + extra, attributes: [
             .foregroundColor: NSColor.secondaryLabelColor, .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)]))
         name.attributedStringValue = text

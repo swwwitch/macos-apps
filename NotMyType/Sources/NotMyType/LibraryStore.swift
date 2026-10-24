@@ -77,18 +77,26 @@ final class LibraryStore: ObservableObject {
     /// サイドバーのアイコンは各社のロゴ（VendorLogos.swift）。owner は商標の持ち主の名前に含まれる語
     static let vendors: [(id: String, title: String, owner: String)] = [
         ("MRSW", L("モリサワ"), "Morisawa"), ("FWKS", L("フォントワークス"), "Fontworks"), ("ADBE", L("アドビ"), "Adobe"),
+        ("GOOG", L("Google"), "Google"),
     ]
 
     /// アドビに入れるファミリー（ユーザー指定、これだけをアドビとする）。英語のファミリー名の先頭で照合する。
     /// 貂明朝・貂明朝テキスト・貂明朝アンチック、小塚明朝・小塚ゴシック、源ノ角ゴシック・源ノ明朝、ヒグミン、百千鳥、Adobe Clean、
-    /// Myriad、Minion、りょう（Ryo Gothic・Ryo Display・Ryo Text）、Source Code Pro、Noto
+    /// Myriad、Minion、りょう（Ryo Gothic・Ryo Display・Ryo Text）、Source Code Pro
     static let adobeFamilies = ["Ten Mincho", "Kozuka", "Source Han", "Higumin", "Momochidori", "Adobe Clean",
-                                "Myriad", "Minion", "Ryo ", "Source Code Pro", "Noto"]
+                                "Myriad", "Minion", "Ryo ", "Source Code Pro"]
+    /// Google に入れるファミリー（ユーザー指定）。Noto は CJK 版などベンダーIDがアドビのものも Google とする
+    static let googleFamilies = ["Noto"]
 
-    /// ベンダーに入るか：アドビは一覧のファミリーだけ。それ以外のベンダーは商標の持ち主が分かればその名前で、分からなければベンダーIDで決める
+    /// ベンダーに入るか：アドビは一覧のファミリーだけ。Google は Noto と、FontDB の Google Fonts にある書体も。
+    /// それ以外のベンダーは商標の持ち主が分かればその名前で、分からなければベンダーIDで決める
     static func belongs(_ file: FontFile, toVendor id: String) -> Bool {
         let adobe = adobeFamilies.contains { file.family.hasPrefix($0) }
         if adobe || id == "ADBE" { return adobe && id == "ADBE" }
+        let google = googleFamilies.contains { file.family.hasPrefix($0) }
+        if google { return id == "GOOG" }
+        // Google は FontDB の Google Fonts の一覧にある書体も含める（M PLUS や Zen などはベンダーIDが Google ではない）
+        if id == "GOOG", FontDB.record(for: file)?.maker == "Google Fonts" { return true }
         guard let vendor = vendors.first(where: { $0.id == id }) else { return file.vendor == id }
         if let owner = file.trademarkOwner, !owner.isEmpty {
             return owner.localizedCaseInsensitiveContains(vendor.owner)
@@ -108,7 +116,8 @@ final class LibraryStore: ObservableObject {
         + MenuShortcuts.Command.allCases.map(\.key))
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
-    @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate() } }
+    /// 状態は重複の優先に関わらないので、重複の控えは残す（8,000件の組み分けを切り替えのたびにやり直さない）
+    @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate(keepDuplicates: true) } }
     // 絞り込みの書体数と選択肢の数は、サイドバーで選んだ範囲で数えるので一緒に捨てる
     @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; faceCountCache = nil; filterCache = nil; listVersion += 1 } }
     @Published var selection = Set<String>()
@@ -156,6 +165,12 @@ final class LibraryStore: ObservableObject {
 
     // 一覧・件数は数千件を数え直すので、元が変わるまで控えておく（画面の描き直しのたびに計算しない）
     private var shownCache: [FontFamily]?
+    /// 表示するファイル（フォントフォルダーを入れない設定なら除いたもの）。サイドバーの項目ごとに数え直さない
+    private var visibleCache: [FontFile]?
+    /// ファイルの id → ライブラリでの位置。セット・プロジェクトのファイルを数万件の走査なしに引く
+    private var positionCache: [UUID: Int]?
+    /// セット・プロジェクトのアクティブの状態（サイドバーの行を描くたびに数え直さない）
+    private var groupStateCache: [UUID: Bool?] = [:]
     private var countCache: [SidebarItem: Int] = [:]
     private var duplicateCache: Set<UUID>?
     private var familyCountCache: Int?
@@ -165,15 +180,19 @@ final class LibraryStore: ObservableObject {
     private var preferenceCache: [UUID: Bool]?
     private var undecidedCache: [[FontFile]]?
 
-    /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる
-    func invalidate() {
+    /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる。keepDuplicates は状態だけが変わったとき（重複の判定は残す）
+    func invalidate(keepDuplicates: Bool = false) {
         listVersion += 1
         shownCache = nil
+        visibleCache = nil
         countCache = [:]
-        duplicateCache = nil
+        groupStateCache = [:]
         familyCountCache = nil
         filterCache = nil
         faceCountCache = nil
+        guard !keepDuplicates else { return }
+        positionCache = nil
+        duplicateCache = nil
         preferenceCache = nil
         undecidedCache = nil
     }
@@ -256,7 +275,10 @@ final class LibraryStore: ObservableObject {
 
     /// 設定でフォントフォルダーを外したときは、そのフォントを一覧に出さない（ライブラリからは消さない）
     var visibleFiles: [FontFile] {
-        includeUserFonts ? data.files : data.files.filter { !Self.isInstalled($0) }
+        if let visibleCache { return visibleCache }
+        let files = includeUserFonts ? data.files : data.files.filter { !Self.isInstalled($0) }
+        visibleCache = files
+        return files
     }
 
     func files(in item: SidebarItem) -> [FontFile] {
@@ -447,10 +469,21 @@ final class LibraryStore: ObservableObject {
 
     /// 選んだ行が属するファミリー。プレビューは1つに絞れたときだけ出す
     var selectedFamilies: [FontFamily] {
-        shownFamilies.filter { family in
-            selection.contains(family.id) || family.files.contains { selection.contains(FamilyNode.fileID($0)) }
+        let shown = shownFamilies
+        guard !selection.isEmpty else { return [] }
+        // 行の id（ファミリー・ファイル）→ ファミリーの位置。選択を変えるたびに数万件の id を作り直さない
+        if nodeIndexCache?.version != listVersion || nodeIndexCache?.count != shown.count {
+            var index: [String: Int] = [:]
+            for (position, family) in shown.enumerated() {
+                index[family.id] = position
+                for file in family.files { index[FamilyNode.fileID(file)] = position }
+            }
+            nodeIndexCache = (listVersion, shown.count, index)
         }
+        let index = nodeIndexCache?.index ?? [:]
+        return Set(selection.compactMap { index[$0] }).sorted().map { shown[$0] }
     }
+    private var nodeIndexCache: (version: Int, count: Int, index: [String: Int])?
 
     /// 書体（ファイル）1つがアクティブかどうか
     func isActive(_ file: FontFile) -> Bool { states[file.id] == .active }
@@ -698,16 +731,29 @@ final class LibraryStore: ObservableObject {
     }
 
     /// セットのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
-    func setState(_ id: UUID) -> Bool? {
-        let files = setFiles(id).filter { !Self.isLocked($0) && states[$0.id] != .missing }
-        let active = files.filter { states[$0.id] == .active }.count
-        if active == 0 { return false }
-        return active == files.count ? true : nil
+    func setState(_ id: UUID) -> Bool? { groupState(id) { setFiles(id) } }
+
+    func setFiles(_ id: UUID) -> [FontFile] { files(withIDs: data.sets.first { $0.id == id }?.files ?? []) }
+
+    /// id のファイルをライブラリの順で返す
+    private func files(withIDs ids: [UUID]) -> [FontFile] {
+        if positionCache == nil {
+            var positions: [UUID: Int] = [:]
+            for (index, file) in data.files.enumerated() { positions[file.id] = index }
+            positionCache = positions
+        }
+        let positions = positionCache ?? [:]
+        return Set(ids).compactMap { positions[$0] }.sorted().map { data.files[$0] }
     }
 
-    func setFiles(_ id: UUID) -> [FontFile] {
-        let ids = Set(data.sets.first { $0.id == id }?.files ?? [])
-        return data.files.filter { ids.contains($0.id) }
+    /// セット・プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    private func groupState(_ id: UUID, _ files: () -> [FontFile]) -> Bool? {
+        if let cached = groupStateCache[id] { return cached }
+        let targets = files().filter { !Self.isLocked($0) && states[$0.id] != .missing }
+        let active = targets.filter { states[$0.id] == .active }.count
+        let state: Bool? = active == 0 ? false : active == targets.count ? true : nil
+        groupStateCache[id] = state
+        return state
     }
 
     private func askName(title: String, initial: String) -> String? {
@@ -822,7 +868,20 @@ final class LibraryStore: ObservableObject {
                 removed = missing.count
             }
         }
-        // 無い id への参照（セット・プロジェクト・アクティブ）を掃除する
+        // ウォッチフォルダーを外したあとに残ったファイルも、ここで取り除けるようにする
+        let outside = filesOutsideWatchFolders()
+        removed += offerRemoving(outside, message: L("ウォッチフォルダーの外にあるファイルが%d個あります", outside.count),
+                                detail: L("ウォッチフォルダーから外したフォルダーや、ウォッチフォルダーの外から追加したファイルです。ライブラリから取り除きますか？"))
+        removeDanglingReferences()
+        save()
+        refreshStates()
+        validateSidebar()
+        status = L("ライブラリを再構築しました：読み直し %d、つなぎ直し %d、追加 %d、見つからない %d", refreshed.count, relinked.count, addedCount, missing.count)
+            + (removed > 0 ? L("（取り除き %d）", removed) : "")
+    }
+
+    /// 無い id への参照（セット・プロジェクト・アクティブ）を掃除する
+    private func removeDanglingReferences() {
         let ids = Set(data.files.map(\.id))
         var cleaned = data
         cleaned.active = cleaned.active.filter(ids.contains)
@@ -833,11 +892,50 @@ final class LibraryStore: ObservableObject {
             cleaned.projects[index].refreshFiles()
         }
         data = cleaned
+    }
+
+    // MARK: ウォッチフォルダーの外のファイル
+
+    /// ウォッチフォルダーにもフォントフォルダーにも入っていないファイル。within があればそのフォルダーの中のものだけ
+    func filesOutsideWatchFolders(within roots: [String]? = nil) -> [FontFile] {
+        let slash = { (path: String) in path.hasSuffix("/") ? path : path + "/" }
+        let watched = WatchFolders.shared.folders.map(slash)
+        let scope = roots?.map(slash)
+        return data.files.filter { file in
+            !Self.isInstalled(file) && !watched.contains { file.path.hasPrefix($0) }
+                && (scope.map { roots in roots.contains { file.path.hasPrefix($0) } } ?? true)
+        }
+    }
+
+    /// 取り除いてよいか尋ね、よければアクティブを解除してライブラリから取り除く（フォントファイルは消さない）。取り除いた数を返す
+    @discardableResult
+    private func offerRemoving(_ files: [FontFile], message: String, detail: String) -> Int {
+        guard !files.isEmpty else { return 0 }
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.informativeText = detail + "\n" + L("アクティブなものは解除し、セット・プロジェクトからも外れます。フォントファイルは削除しません。")
+            + "\n\n" + files.prefix(10).map(\.path).joined(separator: "\n") + (files.count > 10 ? "\n…" : "")
+        alert.addButton(withTitle: L("残す"))
+        alert.addButton(withTitle: L("取り除く"))
+        guard alert.runModal() == .alertSecondButtonReturn else { return 0 }
+        for file in files where data.active.contains(file.id) { _ = FontActivation.deactivate(file) }
+        data.remove(Set(files.map(\.id)))
+        return files.count
+    }
+
+    /// ウォッチフォルダーを外したとき：その中にあったファイルをライブラリからも取り除くか尋ねる
+    func unwatched(_ paths: [String]) {
+        guard !isBusy else { return }
+        let files = filesOutsideWatchFolders(within: paths)
+        let removed = offerRemoving(files, message: L("外したフォルダーのフォント%d個を、ライブラリからも取り除きますか？", files.count),
+                                    detail: L("残すと、フォルダーを見張らなくなるだけで、一覧には出たままです。"))
+        guard removed > 0 else { return }
+        removeDanglingReferences()
+        selection.removeAll()
         save()
         refreshStates()
         validateSidebar()
-        status = L("ライブラリを再構築しました：読み直し %d、つなぎ直し %d、追加 %d、見つからない %d", refreshed.count, relinked.count, addedCount, missing.count)
-            + (removed > 0 ? L("（取り除き %d）", removed) : "")
+        status = L("%d個のファイルを取り除きました", removed)
     }
 
     // MARK: 重複の優先（ウォッチフォルダーの順）
@@ -873,8 +971,10 @@ final class LibraryStore: ObservableObject {
         var preference: [UUID: Bool] = [:]
         var undecided = Set<UUID>()
         var undecidedGroups: [[FontFile]] = []
+        // 設定は組ごとに読み直さず、1回だけ読む
+        let settings = PreferenceSettings.current
         for group in groups.values where group.count > 1 {
-            let candidates = Set(preferenceCandidates(group).map(\.id))
+            let candidates = Set(preferenceCandidates(group, settings).map(\.id))
             if candidates.count == 1 {
                 for member in group { preference[member.id] = candidates.contains(member.id) }
             } else {
@@ -897,24 +997,86 @@ final class LibraryStore: ObservableObject {
     /// ファイルの中身で決める条件（形式・バージョン・字形数を設定の順に）で絞る。
     /// 自分で選んだ規則・選択を、自動の形式より先に使う
     func preferenceCandidates(_ group: [FontFile]) -> [FontFile] {
-        let ranks = group.map { priority(of: $0) }
+        preferenceCandidates(group, .current)
+    }
+
+    /// 重複の優先を決める設定（ウォッチフォルダーの順・自動の条件・形式の順）。重複の組を数千組まとめて判定するときに1回だけ読む
+    struct PreferenceSettings {
+        /// 末尾に「/」を付けたウォッチフォルダー（上から順位）
+        var folderPrefixes: [String]
+        /// 規則の優先するフォルダー・負けるフォルダー（末尾に「/」を付けたもの。FolderRule.prefers と同じ比べ方）
+        var rules: [(preferred: String, other: String)]
+        /// 「フォルダー/」→ その側に当たる規則の番号（パスの区切りごとに引く）
+        var preferredIndex: [String: [Int]] = [:]
+        var otherIndex: [String: [Int]] = [:]
+        var criteria: [AutoCriterion]
+        var formatOrder: [String]
+        var pickIdentical: Bool
+
+        @MainActor static var current: PreferenceSettings {
+            var settings = PreferenceSettings(
+                folderPrefixes: WatchFolders.shared.folders.map { $0.hasSuffix("/") ? $0 : $0 + "/" },
+                rules: LibraryStore.shared.data.folderRules.map { ($0.preferred + "/", $0.other + "/") },
+                criteria: LibraryStore.autoCriteriaOrder().filter { UserDefaults.standard.bool(forKey: $0.enabledKey) },
+                formatOrder: LibraryStore.formatOrder(),
+                pickIdentical: UserDefaults.standard.bool(forKey: LibraryStore.pickIdenticalKey))
+            for (index, rule) in settings.rules.enumerated() {
+                settings.preferredIndex[rule.preferred, default: []].append(index)
+                settings.otherIndex[rule.other, default: []].append(index)
+            }
+            return settings
+        }
+
+        func priority(of file: FontFile) -> Int {
+            folderPrefixes.firstIndex { file.path.hasPrefix($0) } ?? folderPrefixes.count
+        }
+
+        /// 規則でほかのどれかに負けるファイルの番号。各ファイルが規則のどちら側に当たるかを先に1回だけ調べ、
+        /// 規則ごとのビットで比べる（組の中の全組み合わせ × 規則の数だけ文字列を比べると、200件の組で数百万回になる）
+        func beatenIndices(_ files: [FontFile]) -> Set<Int> {
+            let words = (rules.count + 63) / 64
+            // パスを「/」の位置ごとに切った親フォルダーで引く（規則の数だけ前方一致を試さない）
+            func masks(_ index: [String: [Int]]) -> [[UInt64]] {
+                files.map { file in
+                    var mask = [UInt64](repeating: 0, count: words)
+                    let path = file.path
+                    var cursor = path.startIndex
+                    while let slash = path[cursor...].firstIndex(of: "/") {
+                        let next = path.index(after: slash)
+                        for rule in index[String(path[..<next])] ?? [] { mask[rule / 64] |= 1 << UInt64(rule % 64) }
+                        cursor = next
+                    }
+                    return mask
+                }
+            }
+            let wins = masks(preferredIndex)
+            let loses = masks(otherIndex)
+            var beaten = Set<Int>()
+            for loser in files.indices where loses[loser].contains(where: { $0 != 0 }) {
+                for winner in files.indices where winner != loser && files[winner].id != files[loser].id {
+                    if zip(wins[winner], loses[loser]).contains(where: { $0 & $1 != 0 }) { beaten.insert(loser); break }
+                }
+            }
+            return beaten
+        }
+    }
+
+    private func preferenceCandidates(_ group: [FontFile], _ settings: PreferenceSettings) -> [FontFile] {
+        let ranks = group.map { settings.priority(of: $0) }
         let top = ranks.min() ?? 0
         var tied = zip(group, ranks).filter { $0.1 == top }.map(\.0)
         guard tied.count > 1 else { return tied }
-        let rules = data.folderRules
-        if !rules.isEmpty {
-            let beaten = Set(tied.filter { loser in
-                tied.contains { winner in winner.id != loser.id && rules.contains { $0.prefers(winner.path, over: loser.path) } }
-            }.map(\.id))
+        if !settings.rules.isEmpty {
+            let beaten = settings.beatenIndices(tied)
             // 規則どうしが食い違ってすべて負けるときは、絞らない
-            if beaten.count < tied.count { tied.removeAll { beaten.contains($0.id) } }
+            if beaten.count < tied.count { tied = tied.indices.filter { !beaten.contains($0) }.map { tied[$0] } }
         }
         let picked = tied.filter { data.preferredFiles.contains($0.id) }
         if picked.count == 1 { return picked }
-        for criterion in Self.autoCriteriaOrder() where tied.count > 1 && UserDefaults.standard.bool(forKey: criterion.enabledKey) {
-            tied = Self.narrow(tied, by: criterion)
+        for criterion in settings.criteria where tied.count > 1 {
+            tied = Self.narrow(tied, by: criterion, formatOrder: settings.formatOrder)
         }
-        if tied.count > 1 && UserDefaults.standard.bool(forKey: Self.pickIdenticalKey) {
+        if tied.count > 1 && settings.pickIdentical {
             let hashes = tied.map(\.contentHash)
             if hashes.contains(where: { $0 == nil }) {
                 // まだ計っていない。裏で計り、終わったら決め直す
@@ -957,12 +1119,11 @@ final class LibraryStore: ObservableObject {
     }
 
     /// 条件でいちばん良いものだけ残す。値が分からないファイルがあるときは比べない（バージョン・字形数）
-    private static func narrow(_ files: [FontFile], by criterion: AutoCriterion) -> [FontFile] {
+    private static func narrow(_ files: [FontFile], by criterion: AutoCriterion, formatOrder order: [String]) -> [FontFile] {
         let scores: [Double]
         switch criterion {
         case .format:
             // 順で上の形式ほど良い（順に無い形式は最後）
-            let order = formatOrder()
             scores = files.map { -Double(order.firstIndex(of: ($0.path as NSString).pathExtension.lowercased()) ?? order.count) }
         case .version:
             guard files.allSatisfy({ ($0.fontRevision ?? 0) > 0 }) else { return files }
@@ -1132,18 +1293,10 @@ final class LibraryStore: ObservableObject {
 
     func project(_ id: UUID) -> FontProject? { data.projects.first { $0.id == id } }
 
-    func projectFiles(_ id: UUID) -> [FontFile] {
-        let ids = Set(project(id)?.files ?? [])
-        return data.files.filter { ids.contains($0.id) }
-    }
+    func projectFiles(_ id: UUID) -> [FontFile] { files(withIDs: project(id)?.files ?? []) }
 
     /// プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
-    func projectState(_ id: UUID) -> Bool? {
-        let files = projectFiles(id).filter { !Self.isLocked($0) && states[$0.id] != .missing }
-        let active = files.filter { states[$0.id] == .active }.count
-        if active == 0 { return false }
-        return active == files.count ? true : nil
-    }
+    func projectState(_ id: UUID) -> Bool? { groupState(id) { projectFiles(id) } }
 
     /// 新規プロジェクト：名前を決めて空のまま作り、編集の画面を開く
     func newProject() {
@@ -1385,7 +1538,7 @@ final class LibraryStore: ObservableObject {
         collectionQueries = [:]
         if names != collectionNames { collectionNames = names }
         // 中身が変わっていることもあるので、件数と一覧は数え直す
-        if case .collection = sidebar { shownCache = nil }
+        if case .collection = sidebar { shownCache = nil; nodeIndexCache = nil }
         invalidate()
         if case .collection(let name) = sidebar, !names.contains(name) { sidebar = .all }
     }

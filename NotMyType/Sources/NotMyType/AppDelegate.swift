@@ -2,7 +2,11 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Option キーを押しながら起動したか。起動し終わるころには離していることがあるので、早い段階で控える
+    private var optionAtLaunch = false
+
     func applicationWillFinishLaunching(_ notification: Notification) {
+        optionAtLaunch = NSEvent.modifierFlags.contains(.option)
         StartupWindow.captureLaunch()
         // Single main window: no tab items in the Window/View menus.
         NSWindow.allowsAutomaticWindowTabbing = false
@@ -19,6 +23,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ProjectFolderWatcher.shared.update()
         LibraryStore.shared.rebuildFolderProjects()
         BenchMode.startIfRequested()
+        // Option キーを押しながら起動したら、ライブラリの再構築を確認画面から始める
+        if optionAtLaunch {
+            DispatchQueue.main.async { [weak self] in
+                StartupWindow.userRequestedWindow()
+                self?.showWindow()
+                LibraryStore.shared.rebuildLibrary()
+            }
+        }
         AppHotkey.shared.onPress = { [weak self] in
             StartupWindow.userRequestedWindow()
             self?.showWindow()

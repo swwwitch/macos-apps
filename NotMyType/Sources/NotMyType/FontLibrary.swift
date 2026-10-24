@@ -752,8 +752,10 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
     var includesHiddenFiles: Bool { self == .adobeFonts }
 
     static func of(_ path: String) -> SystemFolder? {
-        allCases.first { path.hasPrefix($0.path + "/") }
+        prefixes.first { path.hasPrefix($0.prefix) }?.folder
     }
+    /// 各フォルダーの「パス/」。ホームフォルダーを毎回引くと数万件の判定で重いので、1回だけ作る
+    private static let prefixes = allCases.map { (folder: $0, prefix: $0.path + "/") }
 }
 
 /// 一覧のフォント名の出し方

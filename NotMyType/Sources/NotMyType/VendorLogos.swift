@@ -50,6 +50,31 @@ struct AdobeLogo: Shape {
     }
 }
 
+/// Google のロゴ（ユーザー提供の SVG、Assets/VendorLogos/google.svg。Font Awesome Free の google、viewBox 640×640 のうち
+/// 描かれている範囲は x 76〜564・y 72〜568）。枠に合わせて縦横比を保って縮める
+struct GoogleLogo: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 564, y: 325.8))
+        path.addCurve(to: CGPoint(x: 324, y: 568), control1: CGPoint(x: 564, y: 467.3), control2: CGPoint(x: 467.1, y: 568))
+        path.addCurve(to: CGPoint(x: 76, y: 320), control1: CGPoint(x: 186.8, y: 568), control2: CGPoint(x: 76, y: 457.2))
+        path.addCurve(to: CGPoint(x: 324, y: 72), control1: CGPoint(x: 76, y: 182.8), control2: CGPoint(x: 186.8, y: 72))
+        path.addCurve(to: CGPoint(x: 490.3, y: 136.9), control1: CGPoint(x: 390.8, y: 72), control2: CGPoint(x: 447, y: 96.5))
+        path.addLine(to: CGPoint(x: 422.8, y: 201.8))
+        path.addCurve(to: CGPoint(x: 170.3, y: 320), control1: CGPoint(x: 334.5, y: 116.6), control2: CGPoint(x: 170.3, y: 180.6))
+        path.addCurve(to: CGPoint(x: 324, y: 476.6), control1: CGPoint(x: 170.3, y: 406.5), control2: CGPoint(x: 239.4, y: 476.6))
+        path.addCurve(to: CGPoint(x: 464.8, y: 369.7), control1: CGPoint(x: 422.2, y: 476.6), control2: CGPoint(x: 459, y: 406.2))
+        path.addLine(to: CGPoint(x: 324, y: 369.7))
+        path.addLine(to: CGPoint(x: 324, y: 284.4))
+        path.addLine(to: CGPoint(x: 560.1, y: 284.4))
+        path.addCurve(to: CGPoint(x: 564, y: 325.8), control1: CGPoint(x: 562.4, y: 297.1), control2: CGPoint(x: 564, y: 309.3))
+        path.closeSubpath()
+        let scale = min(rect.width / 488, rect.height / 496)
+        let offset = CGPoint(x: rect.midX - 320 * scale, y: rect.midY - 320 * scale)
+        return path.applying(CGAffineTransform(scaleX: scale, y: scale).concatenating(CGAffineTransform(translationX: offset.x, y: offset.y)))
+    }
+}
+
 /// Adobe Fonts のアイコン（ユーザー指定の画像にならう：濃紺の角丸の四角に、白い斜体の「f」）
 struct AdobeFontsIcon: View {
     var body: some View {
@@ -132,6 +157,7 @@ struct VendorIcon: View {
             switch id {
             case "MRSW": MorisawaMark()
             case "FWKS": FontworksLogo().fill(Color(red: 0.86, green: 0.2, blue: 0.13))
+            case "GOOG": GoogleLogo().fill(Color.primary)
             default: AdobeLogo().fill(Color.primary)
             }
         }

@@ -176,6 +176,7 @@
 "モリサワ" = "Morisawa";
 "フォントワークス" = "Fontworks";
 "アドビ" = "Adobe";
+"Google" = "Google";
 "共有フォルダーが見つかりません" = "Shared Folder Not Found";
 "%@ が見つからないため、このMacのライブラリを開きました。" = "%@ could not be found, so this Mac’s library was opened.";
 "Adobe Fontsのフォントは、Creative Cloudで切り替えます" = "Adobe Fonts are switched in Creative Cloud";
@@ -509,3 +510,8 @@
 "優先の単位" = "Preferred as";
 "こちらを優先" = "Prefer This";
 "%d／%d" = "%d/%d";
+"ウォッチフォルダーの外にあるファイルが%d個あります" = "%d files are outside the watch folders";
+"ウォッチフォルダーから外したフォルダーや、ウォッチフォルダーの外から追加したファイルです。ライブラリから取り除きますか？" = "They are in folders removed from the watch folders, or were added from outside the watch folders. Remove them from the library?";
+"アクティブなものは解除し、セット・プロジェクトからも外れます。フォントファイルは削除しません。" = "Active fonts are deactivated and removed from sets and projects. The font files are not deleted.";
+"外したフォルダーのフォント%d個を、ライブラリからも取り除きますか？" = "Also remove the %d fonts in the removed folders from the library?";
+"残すと、フォルダーを見張らなくなるだけで、一覧には出たままです。" = "If you keep them, the folders are no longer watched but the fonts stay in the list.";
