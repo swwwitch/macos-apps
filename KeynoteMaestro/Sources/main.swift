@@ -8,8 +8,8 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
 /// Keynote 14+ (com.apple.Keynote, including Keynote Creator Studio) and older iWork Keynote.
 enum KeynoteApp {
-    static let bundleIDs = ["com.apple.Keynote", "com.apple.iWork.Keynote"]
-    static func isKeynote(_ app: NSRunningApplication?) -> Bool { bundleIDs.contains(app?.bundleIdentifier ?? "") }
+    static let bundleIDs = KeynoteHotkeyScope.bundleIDs
+    static func isKeynote(_ app: NSRunningApplication?) -> Bool { KeynoteHotkeyScope.permits(app?.bundleIdentifier) }
     static var icon: NSImage? {
         for id in bundleIDs { if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) { return NSWorkspace.shared.icon(forFile: url.path) } }
         return nil
@@ -20,12 +20,17 @@ enum KeynoteApp {
 final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
     let hotkeysEnabled = true // Legacy master switch is replaced by standard-set selection and the special switch.
+    @Published var paletteVisibility = PaletteVisibility.load()
+    @Published private(set) var paletteDisplayHotkey = PaletteDisplayHotkey.load()
+    @Published private(set) var paletteDisplayFailed = false
     @Published var paused = false
+    @Published private(set) var paletteBusy = false
+    @Published private(set) var paletteTargetAvailable = false
     @Published var notifySuccess = UserDefaults.standard.object(forKey: "notifySuccess") as? Bool ?? true
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     /// Only changed keys are stored; a missing entry is the command's default.
     @Published var commandShortcuts = UserDefaults.standard.data(forKey: "commandShortcuts").flatMap { try? JSONDecoder().decode([String: Shortcut].self, from: $0) } ?? [:]
-    /// Missing key = the command's default (on, except the KeynoteSweeper commands).
+    /// Missing key = the command's default (document-wide tasks can start off).
     @Published var commandEnabled = UserDefaults.standard.dictionary(forKey: "commandEnabled") as? [String: Bool] ?? [:]
     @Published var profiles = ShortcutProfiles()
     @Published var status = L("ready")
@@ -52,8 +57,15 @@ final class Model: ObservableObject {
     private var workspaceObserver: NSObjectProtocol?
     /// What is registered now; app switches re-register only when this changes.
     private var registeredState: String?
+    private var registeredConfiguration: String?
 
     init() {
+        // Inserting Palette before Sharing/About must preserve the old selected tab.
+        if !defaults.bool(forKey: "paletteSettingsTabV1") {
+            let key = "shared.settings.selectedTabIndex"
+            if let old = defaults.object(forKey: key) as? Int, (3...4).contains(old) { defaults.set(old + 1, forKey: key) }
+            defaults.set(true, forKey: "paletteSettingsTabV1")
+        }
         loadProfiles()
         if !defaults.bool(forKey: "independentShortcutControlsV1") {
             if defaults.object(forKey: "hotkeysEnabled") as? Bool == false {
@@ -64,7 +76,19 @@ final class Model: ObservableObject {
         }
         hotkeys.action = { [weak self] number in
             guard let self else { return }
-            if let command = KeynoteCommand.availableCommands.first(where: { Self.number($0) == number }) { self.runCommand(command) }
+            guard KeynoteApp.isKeynote(NSWorkspace.shared.frontmostApplication) else {
+                // A queued Carbon event can outlive an app switch. Release registrations
+                // first, then return that key to the actual front app rather than consuming it.
+                let key = self.keyForRegistration(number)
+                self.hotkeys.unregisterAll(); self.registeredState = nil
+                if let key, let front = NSWorkspace.shared.frontmostApplication { CommandRunner.passThrough(Shortcut(key), to: front.processIdentifier) }
+                return
+            }
+            if number == PaletteDisplayHotkey.registrationID {
+                guard !self.paused, !self.nativeSending, self.paletteDisplayHotkey.combo != nil,
+                      KeynoteApp.isKeynote(NSWorkspace.shared.frontmostApplication) else { return }
+                (NSApp.delegate as? AppDelegate)?.showPalette()
+            } else if let command = KeynoteCommand.availableCommands.first(where: { Self.number($0) == number }) { self.runCommand(command) }
             else if let action = self.nativeActions.first(where: { self.nativeNumber($0) == number }) { self.runNativeAction(action) }
         }
         // After recording, register again so a conflict with another app is reported.
@@ -121,6 +145,9 @@ final class Model: ObservableObject {
 
     /// Re-reads the shared settings after SettingsSync applied them; save() would otherwise write the old values back.
     func reload() {
+        paletteVisibility = .load()
+        paletteDisplayHotkey = .load()
+        paletteDisplayFailed = false
         notifySuccess = defaults.object(forKey: "notifySuccess") as? Bool ?? true
         commandShortcuts = defaults.data(forKey: "commandShortcuts").flatMap { try? JSONDecoder().decode([String: Shortcut].self, from: $0) } ?? [:]
         commandEnabled = defaults.dictionary(forKey: "commandEnabled") as? [String: Bool] ?? [:]
@@ -149,12 +176,14 @@ final class Model: ObservableObject {
     func otherHotkeys(except command: KeynoteCommand) -> [(String, KeyCombo)] {
         KeynoteCommand.availableCommands.filter { $0 != command && isEnabled($0) }.map { (L("command." + $0.rawValue), combo($0)) }
             + activeNativeActions.compactMap { action in profiles.nativeBinding(action.id).map { (action.title, $0) } }
+            + paletteDisplayConflict
     }
     func setNativeBinding(_ id: String, _ combo: KeyCombo?) { profiles.setNativeBinding(id, combo); save() }
     func nativeCombo(_ id: String) -> KeyCombo? { profiles.nativeBinding(id) }
     func otherNativeHotkeys(except id: String) -> [(String, KeyCombo)] {
         KeynoteCommand.availableCommands.filter(isEnabled).map { (L("command." + $0.rawValue), combo($0)) }
             + activeNativeActions.filter { $0.id != id }.compactMap { action in profiles.nativeBinding(action.id).map { (action.title, $0) } }
+            + paletteDisplayConflict
     }
     /// Forward the source key with our registrations suspended, so swaps/chains never recurse.
     private func runNativeAction(_ action: NativeKeyboardAction) {
@@ -188,43 +217,78 @@ final class Model: ObservableObject {
         }
         send(0)
     }
-    var activeCount: Int { KeynoteCommand.allCases.filter(isEnabled).count + activeNativeActions.count }
+    var activeCount: Int { KeynoteCommand.availableCommands.filter(isEnabled).count + activeNativeActions.count + (paletteDisplayHotkey.combo == nil ? 0 : 1) }
     func togglePause() { paused.toggle(); refreshHotkeys() }
 
-    /// Each key is registered once to detect a conflict, then kept only while Keynote is in front.
+    private var paletteDisplayConflict: [(String, KeyCombo)] {
+        paletteDisplayHotkey.combo.map { [(L("palette.showHotkey"), $0)] } ?? []
+    }
+    var otherPaletteHotkeys: [(String, KeyCombo)] {
+        KeynoteCommand.availableCommands.filter(isEnabled).map { (L("command." + $0.rawValue), combo($0)) }
+            + activeNativeActions.compactMap { action in profiles.nativeBinding(action.id).map { (action.title, $0) } }
+    }
+    func setPaletteDisplayHotkey(_ combo: KeyCombo?) {
+        if let combo, let owner = PaletteDisplayHotkey.conflict(for: combo, among: otherPaletteHotkeys) {
+            HotkeyRecorder.shared.show(PaletteDisplayHotkey.fieldID, HotkeyText.duplicate(combo.label, owner), error: true)
+            return
+        }
+        paletteDisplayHotkey = PaletteDisplayHotkey(combo: combo)
+        paletteDisplayHotkey.save()
+        paletteDisplayFailed = false
+        registeredState = nil
+        refreshHotkeys()
+    }
+    private func keyForRegistration(_ number: UInt32) -> KeyCombo? {
+        if number == PaletteDisplayHotkey.registrationID { return paletteDisplayHotkey.combo }
+        if let command = KeynoteCommand.availableCommands.first(where: { Self.number($0) == number }) { return combo(command) }
+        if let action = nativeActions.first(where: { nativeNumber($0) == number }) { return profiles.nativeBinding(action.id) }
+        return nil
+    }
+
+    /// Register only with a supported Keynote in front, including conflict checks.
+    /// Outside Keynote there are no transient registrations for probing conflicts.
     func refreshHotkeys() {
+        paletteTargetAvailable = KeynoteApp.isKeynote(NSWorkspace.shared.frontmostApplication)
         publishHotkeys()
         if nativeSending { return }
-        let front = KeynoteApp.isKeynote(NSWorkspace.shared.frontmostApplication)
+        let front = paletteTargetAvailable
         let wanted = hotkeysEnabled && !paused
-        let commands = wanted ? KeynoteCommand.allCases.filter(isEnabled) : []
+        let commands = wanted ? KeynoteCommand.availableCommands.filter(isEnabled) : []
         let natives = wanted ? activeNativeActions : []
-        let state = "\(wanted):\(front):\(commands.map { $0.rawValue + "=" + shortcut(for: $0).signature }):\(natives.map { $0.id + "=" + (profiles.nativeBinding($0.id)?.label ?? "") })"
+        let displayKey = wanted ? paletteDisplayHotkey.combo : nil
+        let displaySignature = displayKey.map { "\($0.code):\($0.modifiers)" } ?? ""
+        let configuration = "\(wanted):\(commands.map { $0.rawValue + "=" + shortcut(for: $0).signature }):\(natives.map { $0.id + "=" + (profiles.nativeBinding($0.id)?.label ?? "") }):palette=\(displaySignature)"
+        let state = "\(front):\(configuration)"
         guard state != registeredState else { return }
-        registeredState = state
-        var failed: [String] = []
-        var failedIDs: Set<String> = []
-        for command in KeynoteCommand.allCases {
-            let number = Self.number(command)
-            guard commands.contains(command) else { hotkeys.unregister(number); continue }
-            if hotkeys.register(number, combo(command)) != noErr { failed.append(shortcut(for: command).label); failedIDs.insert(command.rawValue) }
-            if !front { hotkeys.unregister(number) }
+        let changed = registeredConfiguration != configuration
+        registeredState = state; registeredConfiguration = configuration
+        hotkeys.unregisterAll()
+        if front || changed {
+            failedCommands = []; failedNativeActions = []; paletteDisplayFailed = false
         }
-        var failedNative: Set<String> = []
-        for action in nativeActions {
-            let number = nativeNumber(action)
-            guard natives.contains(where: { $0.id == action.id }), let key = profiles.nativeBinding(action.id) else { hotkeys.unregister(number); continue }
-            if hotkeys.register(number, key) != noErr { failed.append(key.label); failedNative.insert(action.id) }
-            if !front { hotkeys.unregister(number) }
+        if front {
+            for command in commands {
+                if hotkeys.register(Self.number(command), combo(command)) != noErr { failedCommands.insert(command.rawValue) }
+            }
+            for action in natives {
+                if let key = profiles.nativeBinding(action.id), hotkeys.register(nativeNumber(action), key) != noErr { failedNativeActions.insert(action.id) }
+            }
+            if let displayKey {
+                if let owner = PaletteDisplayHotkey.conflict(for: displayKey, among: otherPaletteHotkeys) {
+                    paletteDisplayFailed = true
+                    HotkeyRecorder.shared.show(PaletteDisplayHotkey.fieldID, HotkeyText.duplicate(displayKey.label, owner), error: true)
+                } else { paletteDisplayFailed = hotkeys.register(PaletteDisplayHotkey.registrationID, displayKey) != noErr }
+            }
         }
-        failedCommands = failedIDs
-        failedNativeActions = failedNative
+        let failed = commands.filter { failedCommands.contains($0.rawValue) }.map { shortcut(for: $0).label }
+            + natives.filter { failedNativeActions.contains($0.id) }.compactMap { profiles.nativeBinding($0.id)?.label }
+            + (paletteDisplayFailed ? [displayKey?.label ?? ""] : [])
         hotkeyFailed = !failed.isEmpty
         if !hotkeysEnabled { hotkeyStatus = L("hotkeyDisabled") }
         else if paused { hotkeyStatus = L("hotkeyPaused") }
-        else if commands.isEmpty && natives.isEmpty { hotkeyStatus = L("commandsOff") }
+        else if commands.isEmpty && natives.isEmpty && displayKey == nil { hotkeyStatus = L("commandsOff") }
         else if hotkeyFailed { hotkeyStatus = String(format: L("commandsRegisterFailed"), failed.joined(separator: " ")) }
-        else { hotkeyStatus = String(format: L("commandsActive"), String(commands.count + natives.count)) }
+        else { hotkeyStatus = String(format: L("commandsActive"), String(commands.count + natives.count + (displayKey == nil ? 0 : 1))) }
     }
 
     /// Declares the hotkeys for HotkeyHound (shared registrations cannot be listed from outside).
@@ -233,27 +297,62 @@ final class Model: ObservableObject {
             guard let key = profiles.nativeBinding(action.id) else { return nil }
             return HotkeyManifest.Item(id: "native." + action.id, title: action.title, keyCode: Int(key.code), modifiers: Int(key.modifiers), enabled: hotkeysEnabled, scope: "only", apps: KeynoteApp.bundleIDs)
         }
+        let paletteItems = paletteDisplayHotkey.combo.map { key in
+            [HotkeyManifest.Item(id: PaletteDisplayHotkey.fieldID, title: L("palette.showHotkey"), keyCode: Int(key.code), modifiers: Int(key.modifiers), enabled: !paused, scope: "only", apps: KeynoteApp.bundleIDs)]
+        } ?? []
         HotkeyManifest.publish(KeynoteCommand.availableCommands.map { command in
             HotkeyManifest.Item(id: command.rawValue, title: L("command." + command.rawValue), keyCode: Int(shortcut(for: command).code),
                                 modifiers: Int(shortcut(for: command).modifiers), enabled: hotkeysEnabled && isEnabled(command),
                                 scope: "only", apps: KeynoteApp.bundleIDs)
-        } + nativeItems)
+        } + nativeItems + paletteItems)
     }
 
-    func runCommand(_ command: KeynoteCommand) {
-        guard hotkeysEnabled, !paused, !nativeSending, isEnabled(command),
+    func setPaletteVisible(_ command: KeynoteCommand, _ visible: Bool) {
+        paletteVisibility.set(command, visible: visible)
+        paletteVisibility.save()
+    }
+    func setAllPaletteVisible(_ visible: Bool) {
+        var next = paletteVisibility
+        for command in PaletteCommands.all { next.set(command, visible: visible) }
+        paletteVisibility = next
+        next.save()
+    }
+    func runPaletteCommand(_ command: KeynoteCommand) {
+        guard PaletteCommands.all.contains(command) else { return }
+        runCommand(command, fromPalette: true)
+    }
+    func runCommand(_ command: KeynoteCommand, fromPalette: Bool = false) {
+        guard hotkeysEnabled, !paused, !nativeSending, (fromPalette || isEnabled(command)),
               let front = NSWorkspace.shared.frontmostApplication, KeynoteApp.isKeynote(front), let bundleID = front.bundleIdentifier else { return }
         let pid = front.processIdentifier
         let key = shortcut(for: command)
         guard AccessibilitySection.isTrusted else { report(.failure(AccessibilityText.text("blocked"))); return }
         // ⌥L or ⇧1 while typing in a text box: the character, not the command (text commands excepted).
-        if key.typesCharacter, !command.worksWhileTyping, CommandRunner.isEditingText(pid: pid) { CommandRunner.passThrough(key, to: pid); return }
+        if !fromPalette, key.typesCharacter, !command.worksWhileTyping, CommandRunner.isEditingText(pid: pid) { CommandRunner.passThrough(key, to: pid); return }
         if runner.busy { report(.failure(L("fail.busy"))); return }
-        runner.run(command, pid: pid, bundleID: bundleID) { [weak self] outcome in
+        var documentID: String?
+        var slideNumber: Int?
+        if fromPalette {
+            guard let target = CommandRunner.paletteTarget(bundleID: bundleID) else { report(.failure(L("fail.noDocument"))); return }
+            documentID = target.documentID
+            slideNumber = target.slideNumber
+        }
+        paletteBusy = true
+        runner.run(command, pid: pid, bundleID: bundleID, documentID: documentID, slideNumber: slideNumber, canContinue: { [weak self] in
+            guard let self else { return false }
+            return !self.paused && AccessibilitySection.isTrusted
+                && NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
+        }) { [weak self] outcome in
             guard let self else { return }
             switch outcome {
+            case .autoMagicMoveRunning, .exporting: break
+            default: self.paletteBusy = false
+            }
+            switch outcome {
             case .done: self.report(.success(String(format: L("success.done"), L("command." + command.rawValue)), notify: false))
-            case .passThrough: CommandRunner.passThrough(key, to: pid)
+            case .passThrough:
+                if fromPalette { self.report(.failure(L("fail.menu"))) }
+                else { CommandRunner.passThrough(key, to: pid) }
             case .scripted(let count): self.report(Self.scriptMessage(command, count: count))
             case .autoMagicMoveRunning: self.report(.success(L("autoMagicMove.running"), notify: false))
             case .autoMagicMovePartial(let count, let error):
@@ -278,7 +377,7 @@ final class Model: ObservableObject {
 
     enum Report { case success(String, notify: Bool = true), failure(String) }
 
-    /// Results of the AppleScript commands; 0 means nothing was selected (or nothing to change).
+    /// Results of AppleScript commands; the document-wide job treats zero matching slides as success.
     static func scriptMessage(_ command: KeynoteCommand, count: Int) -> Report {
         let name = L("command." + command.rawValue)
         if command == .autoMagicMove { return .success(String(format: L("autoMagicMove.done"), String(count))) }
@@ -402,6 +501,7 @@ struct MainView: View {
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
                 Button(L("showKeys")) { (NSApp.delegate as? AppDelegate)?.showPreferences(tab: 1) }
+                Button(L("palette.open")) { (NSApp.delegate as? AppDelegate)?.showPalette() }
                 Spacer()
             }
         }
@@ -420,11 +520,21 @@ struct StandardSetPicker: View {
     }
 }
 
+private struct StandardListWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        let next = nextValue()
+        if next > 0 { value = next }
+    }
+}
+
 struct ShortcutSettingsView: View {
     @ObservedObject var model: Model
     let domain: ShortcutDomain
     @State private var searchText = ""
     @State private var selectedSection = ""
+    @State private var standardListWidth: CGFloat = 600
+    private var standardColumns: StandardShortcutColumns { StandardShortcutColumns(availableWidth: Double(standardListWidth)) }
     private let catalog = ShortcutCatalog.bundled
     private var filteredRows: [ShortcutRow] {
         catalog.rows.filter { row in
@@ -471,6 +581,142 @@ struct ShortcutSettingsView: View {
         model.setCommandsEnabled(visibleCommands(in: section), enabled)
     }
     var body: some View {
+        if domain == .standard { compactStandardBody }
+        else { specialBody }
+    }
+
+    /// Standard keys belong with the operation name; a third fixed column wastes
+    /// width and forces horizontal scrolling even when editing a single binding.
+    private var compactStandardBody: some View {
+        let rows = filteredRows
+        let sections = ShortcutSection.allCases.filter { section in rows.contains { $0.section == section } }
+        return VStack(alignment: .leading, spacing: 12) {
+            SettingsSection(domain.title) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(model.hotkeyStatus).font(.caption).foregroundColor(model.hotkeyFailed ? .red : .secondary)
+                    Spacer(minLength: 8)
+                    Text(String(format: L("catalog.results"), rows.count)).font(.caption).foregroundColor(.secondary)
+                }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 12) { StandardSetPicker(model: model); resetStandardButton }
+                    VStack(alignment: .leading, spacing: 8) { StandardSetPicker(model: model); resetStandardButton }
+                }
+                Text(L("profiles.standardHint")).font(.caption).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                    TextField(L("searchCommands"), text: $searchText).textFieldStyle(.roundedBorder)
+                    if !searchText.isEmpty {
+                        Button { searchText = "" } label: { Image(systemName: "xmark.circle.fill") }
+                            .buttonStyle(.plain).accessibilityLabel(L("clearSearch"))
+                    }
+                }
+                Picker(L("catalog.category"), selection: $selectedSection) {
+                    Text(L("catalog.allCategories")).tag("")
+                    ForEach(ShortcutSection.allCases.filter { section in catalog.rows.contains { domain.includes($0) && $0.section == section } }, id: \.self) {
+                        Text($0.title).tag($0.rawValue)
+                    }
+                }
+                Text(L("catalog.referenceHint")).font(.caption).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if catalog.unavailable || NativeActionLibrary.bundled.actions.isEmpty { Text(L("catalog.loadFailed")).foregroundColor(.red) }
+                if rows.isEmpty { Text(L("noSearchResults")).foregroundColor(.secondary) }
+            }
+            ForEach(sections, id: \.self) { section in
+                SettingsSection(section.title) {
+                    Group {
+                        if standardColumns.stacked {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(L("catalog.operation")).fontWeight(.semibold)
+                                Text(model.profiles.selected.title).fontWeight(.semibold).foregroundColor(.secondary)
+                            }
+                        } else {
+                            HStack(alignment: .top, spacing: standardColumns.spacing) {
+                                Text(L("catalog.operation")).fontWeight(.semibold)
+                                    .frame(width: standardColumns.operationWidth, alignment: .leading)
+                                Text(model.profiles.selected.title).fontWeight(.semibold)
+                                    .frame(width: standardColumns.bindingWidth, alignment: .leading)
+                            }
+                        }
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                        .background(GeometryReader { proxy in
+                            Color.clear.preference(key: StandardListWidthKey.self, value: proxy.size.width)
+                        })
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        ForEach(rows.filter { $0.section == section }, id: \.id) { row in
+                            Divider()
+                            if standardColumns.stacked {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    standardOperation(row).frame(width: standardColumns.operationWidth, alignment: .leading)
+                                    standardBinding(row).frame(width: standardColumns.bindingWidth, alignment: .leading)
+                                }
+                            } else {
+                                HStack(alignment: .top, spacing: standardColumns.spacing) {
+                                    standardOperation(row).frame(width: standardColumns.operationWidth, alignment: .leading)
+                                    standardBinding(row).frame(width: standardColumns.bindingWidth, alignment: .leading)
+                                }
+                            }
+                        }
+                    }
+                    if rows.contains(where: { $0.section == section && $0.command != nil }) && model.profiles.selected.isEditable {
+                        ViewThatFits(in: .horizontal) {
+                            HStack { standardEnableButtons(section) }
+                            VStack(alignment: .leading) { standardEnableButtons(section) }
+                        }.controlSize(.small)
+                    }
+                }
+            }
+            SettingsSection(L("notifyTitle")) {
+                Toggle(L("notifySuccess"), isOn: Binding(get: { model.notifySuccess }, set: { model.notifySuccess = $0; model.save() }))
+                Text(L("notifyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+        }.onPreferenceChange(StandardListWidthKey.self) { width in
+            if width > 0, abs(width - standardListWidth) > 0.5 { standardListWidth = width }
+        }
+    }
+    private var resetStandardButton: some View {
+        Button(L("resetAllKeys")) { model.resetShortcuts(.standard) }
+            .disabled(!model.profiles.selected.isEditable).fixedSize()
+    }
+    private func standardOperation(_ row: ShortcutRow) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            if let command = row.command, model.canEdit(command) {
+                HStack(alignment: .top, spacing: 6) {
+                    Toggle("", isOn: Binding(get: { model.configuredEnabled(command) }, set: { model.setEnabled(command, $0) }))
+                        .labelsHidden().fixedSize().accessibilityLabel(row.title)
+                        .disabled(!model.hotkeysEnabled || !model.profiles.selected.isEditable)
+                    Text(row.title).fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .onTapGesture {
+                            if model.hotkeysEnabled && model.profiles.selected.isEditable {
+                                model.setEnabled(command, !model.configuredEnabled(command))
+                            }
+                        }
+                }
+            } else { Text(row.title).textSelection(.enabled) }
+            Text(L("catalog.nativeColumn") + ": " + (row.nativeLabel ?? L("catalog.notListed")))
+                .font(.caption).foregroundColor(.secondary).textSelection(.enabled)
+        }.fixedSize(horizontal: false, vertical: true)
+    }
+    @ViewBuilder private func standardBinding(_ row: ShortcutRow) -> some View {
+        if let command = row.command, model.canEdit(command) {
+            HotkeyField(id: command.rawValue, combo: Binding(get: { model.combo(command) }, set: { model.setCombo(command, $0) }),
+                        defaultCombo: command.defaultShortcut.combo, others: model.otherHotkeys(except: command),
+                        registered: !model.failedCommands.contains(command.rawValue),
+                        isEnabled: model.hotkeysEnabled && model.isEnabled(command),
+                        allowsOption: command.defaultShortcut.typesCharacter).controlSize(.small)
+        } else if let native = row.native, model.profiles.selected.isEditable {
+            NativeBindingFields(model: model, native: native)
+        } else {
+            Text(row.nativeLabel ?? L("catalog.referenceOnly")).font(.caption).foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+    @ViewBuilder private func standardEnableButtons(_ section: ShortcutSection) -> some View {
+        Button(L("catalog.enableVisible")) { setVisibleEnabled(section, true) }
+        Button(L("catalog.disableVisible")) { setVisibleEnabled(section, false) }
+    }
+    private var specialBody: some View {
         let rows = filteredRows
         let sections = ShortcutSection.allCases.filter { section in rows.contains { $0.section == section } }
         return VStack(alignment: .leading, spacing: 16) {
@@ -520,7 +766,7 @@ struct ShortcutSettingsView: View {
                                 GridRow {
                                     VStack(alignment: .leading, spacing: 4) {
                                         if let command = row.command, model.canEdit(command) {
-                                            Toggle(row.title, isOn: Binding(get: { model.configuredEnabled(command) }, set: { model.setEnabled(command, $0) }))
+                                            Toggle(SpecialShortcutDisplay.title(row.title, command: row.command), isOn: Binding(get: { model.configuredEnabled(command) }, set: { model.setEnabled(command, $0) }))
                                                 .disabled(!model.hotkeysEnabled || (domain == .standard && !model.profiles.selected.isEditable))
                                             if command == .autoMagicMove {
                                                 Text(L("autoMagicMove.hint")).font(.caption).foregroundColor(.secondary)
@@ -529,7 +775,7 @@ struct ShortcutSettingsView: View {
                                                 Text(L("command." + command.rawValue)).font(.caption).foregroundColor(.secondary)
                                             }
                                         } else {
-                                            Text(row.title).textSelection(.enabled)
+                                            Text(SpecialShortcutDisplay.title(row.title, command: row.command)).textSelection(.enabled)
                                         }
                                     }.frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
                                     if domain == .standard {
@@ -620,6 +866,7 @@ struct Preferences: View {
             })),
             (L("profiles.standardTab"), AnyView(ShortcutSettingsView(model: model, domain: .standard))),
             (L("profiles.specialTab"), AnyView(ShortcutSettingsView(model: model, domain: .special))),
+            (L("palette.tab"), AnyView(PaletteSettingsView(model: model))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
@@ -635,6 +882,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var mainWindow: NSWindow?
     var preferences: NSWindow?
     var helpWindow: NSWindow?
+    var commandPalette: CommandPalette?
     let menu = NSMenu()
     var resultItem: NSMenuItem!
 
@@ -643,7 +891,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         model = Model()
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(
-            keys: ["notifySuccess", "commandEnabled", "commandShortcuts", ShortcutProfiles.storageKey],
+            keys: ["notifySuccess", "commandEnabled", "commandShortcuts", ShortcutProfiles.storageKey, PaletteVisibility.storageKey, PaletteDisplayHotkey.storageKey],
             note: StartupWindow.text("Keynoteの操作のホットキー（オン・オフとキー）と通知を書き出し・同期します。",
                                      "Exports and syncs the Keynote command hotkeys (on/off and keys) and notifications.",
                                      "导出并同步 Keynote 操作的快捷键（开关与按键）和通知。",
@@ -666,6 +914,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         resultItem = menu.addItem(withTitle: model.status, action: nil, keyEquivalent: "")
         menu.addItem(.separator())
         add(menu, L("openMainWindow"), #selector(openMainWindow))
+        add(menu, L("palette.open"), #selector(showPalette))
+        add(menu, L("palette.settings"), #selector(showPalettePreferences))
         add(menu, L("settings"), #selector(showPreferencesAction))
         add(menu, L("pause"), #selector(togglePause))
         menu.addItem(.separator())
@@ -702,6 +952,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         add(appMenu, L("quit"), #selector(quit), "q")
         let fileRoot = NSMenuItem(); let fileMenu = NSMenu(title: L("file")); fileRoot.submenu = fileMenu; main.addItem(fileRoot)
         add(fileMenu, L("openMainWindow"), #selector(openMainWindow), "0")
+        add(fileMenu, L("palette.open"), #selector(showPalette))
+        add(fileMenu, L("palette.settings"), #selector(showPalettePreferences))
         fileMenu.addItem(.separator())
         fileMenu.addItem(withTitle: L("closeWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let editRoot = NSMenuItem(); let editMenu = NSMenu(title: L("edit")); editRoot.submenu = editMenu; main.addItem(editRoot)
@@ -752,6 +1004,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
     func applicationWillTerminate(_ notification: Notification) { model?.stop() }
 
+    @objc func showPalettePreferences() { showPreferences(tab: 3) }
+    @objc func showPalette() {
+        if commandPalette == nil { commandPalette = CommandPalette(model: model) }
+        commandPalette?.show()
+    }
     @objc func openMainWindow() { showMainWindow() }
     func showMainWindow() {
         if mainWindow == nil {
@@ -784,14 +1041,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func showPreferences(tab: Int? = nil) {
         model.refreshLogin()
         if preferences == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1100, height: 720), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 820, height: 620), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle")
             let hosting = NSHostingView(rootView: Preferences(model: model))
             // The explicit minimum below controls resizing; tab content must not lock the window width.
             hosting.sizingOptions = []
             window.contentView = hosting
             window.contentMinSize = NSSize(width: 720, height: 560)
-            window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("Preferences"); preferences = window
+            window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("Preferences")
+            // Shrink an inherited oversized frame once; subsequent user resizing is preserved.
+            if !UserDefaults.standard.bool(forKey: "compactStandardSettingsV1") {
+                let current = window.contentLayoutRect.size
+                let top = window.frame.maxY
+                window.setContentSize(NSSize(width: max(720, min(current.width, 820)), height: max(560, min(current.height, 620))))
+                window.setFrameOrigin(NSPoint(x: window.frame.minX, y: top - window.frame.height))
+                UserDefaults.standard.set(true, forKey: "compactStandardSettingsV1")
+            }
+            preferences = window
         }
         if let window = preferences, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)

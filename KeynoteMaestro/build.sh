@@ -14,7 +14,7 @@ trap 'rm -rf "$STAGING"' EXIT
 APP="$STAGING/KeynoteMaestro.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 SOURCES=(Sources/AppSurface.swift Sources/AppHeader.swift Sources/StartupWindow.swift Sources/HelpDocument.swift Sources/SettingsSection.swift Sources/SettingsSync.swift
-         Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/HotKey.swift Sources/ShortcutCombo.swift Sources/HotkeyRecorder.swift Sources/AutoMagicMove.swift Sources/KeynoteCommands.swift Sources/ShortcutCatalog.swift Sources/ShortcutProfiles.swift Sources/NativeKeyboardActions.swift Sources/CommandRunner.swift
+         Sources/AccessibilityPermission.swift Sources/LaunchPolicy.swift Sources/HotKey.swift Sources/ShortcutCombo.swift Sources/HotkeyRecorder.swift Sources/AutoMagicMove.swift Sources/CommandPalette.swift Sources/KeynoteCommands.swift Sources/ShortcutCatalog.swift Sources/ShortcutProfiles.swift Sources/NativeKeyboardActions.swift Sources/CommandRunner.swift
          Sources/MenuBarPresence.swift Sources/UpdateSupport.swift Sources/WindowActivationPolicy.swift Sources/AboutSection.swift
          Sources/HotkeyManifest.swift Sources/main.swift)
 xcrun swiftc -O -target "$(uname -m)-apple-macos13.0" -module-cache-path "$STAGING/ModuleCache" -framework AppKit -framework SwiftUI -framework ApplicationServices -framework Carbon -framework ServiceManagement -framework UniformTypeIdentifiers "${UPDATE_SWIFT_FLAGS[@]}" "${SOURCES[@]}" -o "$APP/Contents/MacOS/KeynoteMaestro"

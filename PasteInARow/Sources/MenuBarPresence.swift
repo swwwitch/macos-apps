@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Shared menu-bar opt-in. Installation does not alter login launch or hotkeys.
 @MainActor
-final class MenuBarPresence: NSObject {
+final class MenuBarPresence: NSObject, NSMenuDelegate {
     static let shared = MenuBarPresence()
     static let enabledKey = "shared.menuBar.enabled"
     static let choiceKey = "shared.menuBar.choiceMade"
@@ -14,6 +14,9 @@ final class MenuBarPresence: NSObject {
     private var reveal: (() -> Void)?
     private var preferences: (() -> Void)?
     private var help: (() -> Void)?
+    /// App-specific items shown at the top of the menu (e.g. NotMyType's projects). Rebuilt each time the menu opens.
+    private var extraItems: (() -> [NSMenuItem])?
+    private static let extraID = "shared.menuBar.extra"
     private var settingsWindow: NSWindow?
     private var check: NSButton?
     private var promptShown = false
@@ -25,12 +28,15 @@ final class MenuBarPresence: NSObject {
         UserDefaults.standard.object(forKey: Self.enabledKey) == nil ? defaultEnabled : UserDefaults.standard.bool(forKey: Self.enabledKey)
     }
     /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumAssist's clock-on-screen icon).
+    /// `extraItems`: optional app-specific items placed above 「メインウインドウを開く」, followed by a separator.
+    /// Apps that pass nothing get the shared menu unchanged.
     func install(name: String, symbol: String, existing: NSStatusItem? = nil, keepExistingImage: Bool = false,
-                 show: @escaping () -> Void, settings: (() -> Void)?, help: @escaping () -> Void) {
+                 show: @escaping () -> Void, settings: (() -> Void)?, help: @escaping () -> Void,
+                 extraItems: (() -> [NSMenuItem])? = nil) {
         StartupWindow.captureLaunch()
         guard !installed else { return }
         installed = true
-        self.name = name; reveal = show; preferences = settings; self.help = help
+        self.name = name; reveal = show; preferences = settings; self.help = help; self.extraItems = extraItems
         defaultEnabled = existing != nil
         item = existing ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if existing == nil { item?.menu = makeMenu() }
@@ -61,6 +67,7 @@ final class MenuBarPresence: NSObject {
     }
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
+        if extraItems != nil { menu.delegate = self }
         menu.addItem(withTitle: text("メインウインドウを開く", "Open Main Window", "打开主窗口", "메인 윈도우 열기"), action: #selector(show), keyEquivalent: "").target = self
         // Apps without a settings window pass settings: nil and get no 設定… item.
         if preferences != nil {
@@ -77,6 +84,18 @@ final class MenuBarPresence: NSObject {
         menu.addItem(.separator())
         menu.addItem(withTitle: String(format: text("%@を終了", "Quit %@", "退出 %@", "%@ 종료"), name), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "").target = NSApp
         return menu
+    }
+    /// Replaces the app-specific items each time the menu opens, so they reflect the current state.
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard let extraItems else { return }
+        for item in menu.items where item.identifier?.rawValue == Self.extraID { menu.removeItem(item) }
+        let items = extraItems()
+        guard !items.isEmpty else { return }
+        let separator = NSMenuItem.separator()
+        for (index, item) in (items + [separator]).enumerated() {
+            item.identifier = .init(Self.extraID)
+            menu.insertItem(item, at: index)
+        }
     }
     private func installMenuEntry() {
         guard let menu = NSApp.mainMenu?.items.first?.submenu else { return }

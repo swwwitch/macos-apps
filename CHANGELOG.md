@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026年10月24日 — 全アプリのDeveloper ID署名付き再ビルド
+
+- 現在の38アプリを再ビルドし、Developer ID署名・Hardened Runtime・タイムスタンプ・内包コードの署名整合性を検証。
+- 既存の自動テストは24アプリで成功。14アプリは一括処理対象のtest.shがなく未確認。CarmaChameleon・MarkdownKitchenは既存Node.jsのPATHを補って再テスト。
+- KeynoteMaestro build 26のパレット関連変更と、PrefsPreset 1.2.1 build 22のコンピュータ名を保持する読み込み処理をソースへ反映。共通MenuBarPresenceの現行実装を各アプリへ同期。
+- DropboxのLatest Buildsは37アプリを更新し、署名・内容一致を検証。SettingsCourierは既存build 13が再ビルドbuild 9より新しいため保持。
+- 公開Releaseには35アプリの署名済みZIPとSHA-256一覧を掲載。既存の公開対象外2アプリ、および古いSettingsCourier build 9は添付しない。
+- 今回の再ビルドのApple公証・DMG・/Applicationsへの配置・実機動作は未確認。過去の公証済み配布物は保持。
+
 ## 2026年10月24日 — SiteMirror 1.3.0（build 5）
 
 - HTTrack の機能のうち、上書き時にサイトから消えたファイルをゴミ箱に入れる、取らない種類と大きさの上限、取り込むURL、中止した取り込みの続き、sitemap.xml、JavaScript の中の URL（推測）を追加。

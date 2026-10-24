@@ -755,6 +755,8 @@ final class Store: ObservableObject {
             for d in items {
                 guard let domains = d["domains"] as? [String], let first = domains.first,
                       let key = d["key"] as? String else { continue }
+                // Mac固有の名前は、古いセットや追加項目に含まれていても取り込まない。
+                guard PresetImportPolicy.canImport(domains: domains) else { continue }
                 let target = Target(d["value"] as? NSObject)
                 if let i = entries.firstIndex(where: { $0.item.domains[0] == first && $0.item.key == key }) {
                     entries[i].target = target

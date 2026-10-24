@@ -15,6 +15,23 @@ import Carbon
         verifyShortcutProfiles(catalog)
         verifyNativeActions(catalog)
         verifyAutoMagicMove()
+        verifyPaletteVisibility()
+        verifyPaletteDisplayHotkey()
+        verifySettingsDisplay()
+        let bound = CommandRunner.boundSource(KeynoteScript.autoMagicMove.source(bundleID: "com.apple.iWork.Keynote"), documentID: "fixture-doc")
+        precondition(bound.contains("if (id of front document as text) is not \"fixture-doc\" then error number -1728"))
+        precondition(bound.contains("tell (first document whose id is \"fixture-doc\")"))
+        let slideBound = CommandRunner.boundSource(KeynoteScript.slideSizeShape.source(bundleID: "com.apple.iWork.Keynote"), documentID: "fixture-doc", slideNumber: 2)
+        precondition(slideBound.contains("if slide number of current slide is not 2 then error number -1728"))
+        precondition(slideBound.contains("tell slide 2 to make new shape"))
+        precondition(!KeynoteCommand.whiteBackground.steps.contains(.script(.selectLastTwo)))
+        precondition(KeynoteCommand.whiteBackground.steps.filter { if case .script(.whiteBackgroundShape) = $0 { return true }; return false }.count == 1)
+        var blockedResult: CommandOutcome?
+        let blockedRunner = CommandRunner()
+        blockedRunner.run(.whiteBackground, pid: 0, bundleID: "com.apple.iWork.Keynote", canContinue: { false }) { blockedResult = $0 }
+        guard case .eventFailed? = blockedResult else { preconditionFailure("A blocked target must never create a background") }
+        precondition(!blockedRunner.busy)
+        print("PASS: 14 palette mappings and section headers; captured-document binding; blocked-target no-op and exact background creation route")
         precondition(catalog.native.count == 341)
         precondition(Set(catalog.native.map(\.section)).count == 14)
         precondition(catalog.rows.count == 410)
@@ -98,4 +115,111 @@ import Carbon
         try? FileManager.default.removeItem(at: folder)
         print("PASS: 104 stable command definitions, 103 available commands (6 KeynoteSweeper services; only ⌃⌥0 on by default) with distinct KM keys, steps, menu matching, AppleScript compiles, PNG naming")
     }
+}
+
+
+func verifyPaletteVisibility() {
+    let expected: [[KeynoteCommand]] = [[.transitionDissolve, .transitionNone, .transitionMagicMove, .autoMagicMove], [.fillWidth, .fillHeight, .width80], [.sameHeight, .sameWidth, .sameWidthNarrowest], [.copyAnimation, .pasteAnimation], [.slideSizeShape, .whiteBackground]]
+    precondition(PaletteCommands.groups == expected)
+    precondition(Set(PaletteCommands.all).count == 14)
+    let defaults = PaletteVisibility()
+    precondition(defaults.groups.flatMap(\.commands) == expected.flatMap { $0 })
+    precondition(defaults.groups.map(\.headingKey) == ["palette.transitionHeading", "palette.centerHeading", "palette.alignHeading", nil, nil])
+    precondition(defaults.groups.map(\.dividerBefore) == [false, true, true, true, true])
+    // Every possible visibility combination must retain order and hide empty headings.
+    for mask in 0..<(1 << 14) {
+        var visibility = PaletteVisibility()
+        var visible: [KeynoteCommand] = []
+        for (index, command) in PaletteCommands.all.enumerated() {
+            let include = mask & (1 << index) != 0
+            visibility.set(command, visible: include)
+            if include { visible.append(command) }
+        }
+        precondition(visibility.groups.flatMap(\.commands) == visible)
+        precondition(visibility.groups.allSatisfy { !$0.commands.isEmpty })
+        precondition(visibility.groups.first?.dividerBefore != true)
+    }
+    let suite = "KeynoteMaestro-PaletteTests-" + UUID().uuidString
+    let store = UserDefaults(suiteName: suite)!
+    defer { store.removePersistentDomain(forName: suite) }
+    let savedProfile = Data([1, 2, 3])
+    store.set(savedProfile, forKey: "shortcutProfilesV1")
+    store.set(Data([4, 5, 6]), forKey: "commandShortcuts")
+    store.set(["fillWidth": false], forKey: "commandEnabled")
+    precondition(PaletteVisibility.load(from: store).groups.flatMap(\.commands).count == 14)
+    var visibility = PaletteVisibility()
+    for command in PaletteCommands.all { visibility.set(command, visible: false) }
+    visibility.save(to: store)
+    precondition(PaletteVisibility.load(from: store).groups.isEmpty)
+    visibility = PaletteVisibility.load(from: store)
+    visibility.set(.sameWidth, visible: true)
+    visibility.save(to: store)
+    precondition(PaletteVisibility.load(from: store).groups == [VisiblePaletteGroup(id: 2, headingKey: "palette.alignHeading", commands: [.sameWidth], dividerBefore: false)])
+    visibility.set(.fillWidth, visible: true)
+    precondition(visibility.groups.map(\.dividerBefore) == [false, true])
+    for command in PaletteCommands.all { visibility.set(command, visible: true) }
+    visibility.save(to: store)
+    precondition(PaletteVisibility.load(from: store) == PaletteVisibility())
+    precondition(visibility == PaletteVisibility())
+    precondition(store.data(forKey: "shortcutProfilesV1") == savedProfile)
+    precondition(store.data(forKey: "commandShortcuts") == Data([4, 5, 6]))
+    precondition(store.dictionary(forKey: "commandEnabled") as? [String: Bool] == ["fillWidth": false])
+    print("PASS: palette initial 14 items, fixed order/headers/dividers across 16384 combinations, empty/all-off/re-enable, save/reload and shortcut-setting independence")
+}
+
+
+func verifySettingsDisplay() {
+    for width in [260.0, 540, 619, 620, 700, 900, 1300] {
+        let columns = StandardShortcutColumns(availableWidth: width)
+        precondition(columns.operationWidth <= width && columns.bindingWidth <= width)
+        if columns.stacked { precondition(columns.operationWidth == width && columns.bindingWidth == width) }
+        else { precondition(columns.operationWidth + columns.spacing + columns.bindingWidth == width) }
+    }
+    precondition(StandardShortcutColumns(availableWidth: 540).stacked)
+    precondition(!StandardShortcutColumns(availableWidth: 700).stacked)
+    precondition(StandardShortcutColumns(availableWidth: 900).operationWidth > StandardShortcutColumns(availableWidth: 700).operationWidth)
+    for command in CommandCategory.sweeper.commands {
+        precondition(SpecialShortcutDisplay.title("操作（KeynoteSweeper）", command: command) == "操作")
+        precondition(SpecialShortcutDisplay.title("Action (KeynoteSweeper)", command: command) == "Action")
+        precondition(SpecialShortcutDisplay.title("작업(KeynoteSweeper)", command: command) == "작업")
+        precondition(SpecialShortcutDisplay.title("KeynoteSweeperを使う操作", command: command) == "KeynoteSweeperを使う操作")
+        precondition(command.steps.contains { if case .service = $0 { return true }; return false })
+    }
+    precondition(SpecialShortcutDisplay.title("追加操作：KeynoteSweeper", command: nil) == "追加操作：KeynoteSweeper")
+    precondition(SpecialShortcutDisplay.title("Action (KeynoteSweeper)", command: .transitionNone) == "Action (KeynoteSweeper)")
+    var old = PaletteVisibility(overrides: Dictionary(uniqueKeysWithValues: PaletteCommands.all.dropLast().map { ($0.rawValue, false) }))
+    precondition(old.groups.flatMap(\.commands) == [.whiteBackground])
+    old.set(.whiteBackground, visible: false)
+    precondition(old.groups.isEmpty)
+    print("PASS: standard variable columns at narrow/normal/wide widths, no overflow in width allocation; six special-only Sweeper suffixes removed with service routes retained; new background button defaults on after upgrade")
+}
+
+func verifyPaletteDisplayHotkey() {
+    let suite = "KeynoteMaestro-PaletteHotkey-" + UUID().uuidString
+    let store = UserDefaults(suiteName: suite)!
+    defer { store.removePersistentDomain(forName: suite) }
+    let protectedKeys = ["shortcutProfilesV1", "commandShortcuts", "commandEnabled", "paletteVisibilityV1", "excludedBundleIDs"]
+    for key in protectedKeys { store.set("sentinel", forKey: key) }
+    precondition(PaletteDisplayHotkey.load(from: store).combo == nil)
+    let key = KeyCombo(code: 35, modifiers: UInt32(controlKey | optionKey | cmdKey))
+    let assigned = PaletteDisplayHotkey(combo: key)
+    assigned.save(to: store)
+    precondition(PaletteDisplayHotkey.load(from: store) == assigned)
+    precondition(PaletteDisplayHotkey.conflict(for: key, among: [("feature", key)]) == "feature")
+    precondition(PaletteDisplayHotkey.conflict(for: KeyCombo(code: 35, modifiers: UInt32(cmdKey)), among: [("feature", key)]) == nil)
+    PaletteDisplayHotkey().save(to: store)
+    precondition(store.object(forKey: PaletteDisplayHotkey.storageKey) == nil)
+    precondition(PaletteDisplayHotkey.load(from: store).combo == nil)
+    let malformed = Data([0, 1, 2])
+    store.set(malformed, forKey: PaletteDisplayHotkey.storageKey)
+    precondition(PaletteDisplayHotkey.load(from: store).combo == nil)
+    precondition(store.data(forKey: PaletteDisplayHotkey.storageKey) == malformed)
+    for key in protectedKeys { precondition(store.string(forKey: key) == "sentinel") }
+    precondition(KeynoteHotkeyScope.permits("com.apple.Keynote"))
+    precondition(KeynoteHotkeyScope.permits("com.apple.iWork.Keynote"))
+    for app in [nil, "com.apple.finder", "jp.dtp-transit.keynotehelper", "com.apple.Keynote.other"] {
+        precondition(!KeynoteHotkeyScope.permits(app))
+    }
+    precondition(PaletteDisplayHotkey.registrationID > 203 && PaletteDisplayHotkey.registrationID < 10_000)
+    print("PASS: independent palette hotkey unset/save/reload/clear/corrupt preservation, duplicate detection and exact Keynote scope")
 }

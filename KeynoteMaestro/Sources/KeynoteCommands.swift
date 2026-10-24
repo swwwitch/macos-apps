@@ -179,7 +179,7 @@ enum KeynoteCommand: String, CaseIterable {
         return self == .opacity100Alt ? 100 : all.firstIndex(of: self).map { ($0 + 1) * 10 }
     }
 
-    /// The KeynoteSweeper commands delete without asking, so they start off and the user turns them on.
+    /// Document-wide Auto Magic Move and destructive Sweeper commands start off.
     /// ⌃⌥0 was a KM macro in daily use, so it stays on.
     var enabledByDefault: Bool { self != .autoMagicMove && (category != .sweeper || self == .sweepTransitionsExceptMagicMove) }
 
@@ -227,7 +227,7 @@ enum KeynoteScript: Equatable {
     case hide, showHidden, opacity(Int)
     case transition(Transition), autoMagicMove
     case scale(Double), widthBy(Double), fill(Fill), sameSize(SameSize)
-    case slideSizeShape, centerCross, whiteBackgroundShape, selectedWhiteRectangle, selectLastTwo
+    case slideSizeShape, centerCross, whiteBackgroundShape, selectedWhiteRectangle, selectLastTwo, selectBackgroundPair
     enum Transition: Equatable { case none, dissolve, magicMove }
     enum Fill: Equatable { case width, height, width80 }
     enum SameSize: Equatable { case widestWidth, narrowestWidth, tallestHeight }
@@ -298,7 +298,7 @@ extension KeynoteCommand {
         case .slideSizeShape: return [.script(.slideSizeShape)]
         case .centerCross: return [.script(.centerCross)]
         // KM「28)配置したPDFに白バックを追加」: a shape of the same frame behind the selected object, grouped with it.
-        // The original is brought to the front, so the new shape sits right behind it.
+        // Retain the exact original/background pair; slide indices are not stacking order.
         case .whiteRectangle:
             return [.script(.selectedWhiteRectangle), .wait(0.2),
                     menu(K.view, K.inspector, ["フォーマット", "Format"]), .wait(0.2),
@@ -307,8 +307,9 @@ extension KeynoteCommand {
                     .pressButton(["ホワイト 100", "White 100"]), .wait(0.2),
                     menu(K.arrange, ["最背面へ", "Send to Back"])]
         case .whiteBackground:
-            return [.script(.whiteBackgroundShape), .wait(0.2), menu(K.arrange, ["最前面へ", "Bring to Front"]), .wait(0.2),
-                    .script(.selectLastTwo), .wait(0.2), .menu([K.groupItem])]
+            return [.script(.whiteBackgroundShape), .wait(0.2),
+                    .menu([path(K.arrange, ["最背面へ", "Send to Back"])]), .wait(0.2),
+                    .script(.selectBackgroundPair), .wait(0.2), .menu([K.groupItem])]
         case .objectList: return [menu(K.view, ["オブジェクトリストを表示", "オブジェクトリストを非表示", "Show Object List", "Hide Object List"])]
         // KM「98)【隠す】隠す」: opacity 0, then deselect so the hidden object is not moved by accident.
         case .hide: return [.script(.hide), .optionalMenu([path(K.edit, ["すべてを選択解除", "Deselect All"])])]
@@ -514,7 +515,10 @@ extension KeynoteScript {
             set selection to {o}
             return 1
             """
-        // After 「最前面へ」 the original is the last item and the new shape the one before it.
+        case .selectBackgroundPair:
+            // Only CommandRunner may invoke the retained preparation script.
+            return "error number -2700"
+        // Retained only for compatibility; no command infers a pair from item indices.
         case .selectLastTwo:
             return """
             tell current slide to set n to count of iWork items
@@ -542,6 +546,122 @@ extension KeynoteScript {
 
     func source(bundleID: String) -> String {
         if self == .autoMagicMove { return AutoMagicMoveScript.source(bundleID: bundleID) }
+        if self == .whiteBackgroundShape { return GroupedBackgroundScript.source(bundleID: bundleID) }
         return "tell application id \"\(bundleID)\"\nif not (exists front document) then error number -1728\ntell front document\n\(body)\nend tell\nend tell"
+    }
+}
+
+
+/// One instance survives both script steps. Selection references must never be
+/// reconstructed from the last two slide items (their order is not z-order).
+enum GroupedBackgroundScript {
+    static func source(bundleID: String) -> String {
+        """
+        property prepared : false
+        property originalIndex : 0
+        property originalCount : 0
+        property originalFrame : missing value
+        property targetDocument : missing value
+        property targetSlide : missing value
+        on run
+            tell application id "\(bundleID)"
+                if not (exists front document) then error number -1728
+                if my prepared then
+                    if front document is not my targetDocument then error number -1728
+                    tell my targetDocument
+                        if current slide is not my targetSlide then error number -1728
+                        set selectedObjects to selection
+                        if (count selectedObjects) is not 1 then error number -1728
+                        set backgroundObject to item 1 of selectedObjects
+                        set allItems to get iWork items of my targetSlide
+                        if (count allItems) is not ((my originalCount) + 1) then error number -1728
+                        -- The immediately preceding menu sent only our new shape to the back.
+                        -- Guard the selected object and collection before remapping the original.
+                        if backgroundObject is not item 1 of allItems then error number -1728
+                        if class of backgroundObject is not shape then error number -1728
+                        -- Keynote rewrites index specifiers when a shape moves to the back.
+                        -- All old objects keep their relative order, shifted by exactly one.
+                        set originalObject to item ((my originalIndex) + 1) of allItems
+                        set selection to {originalObject, backgroundObject}
+                    end tell
+                    return 2
+                end if
+                set my targetDocument to front document
+                tell my targetDocument
+                    set selectedObjects to selection
+                    if (count selectedObjects) is not 1 then return 0
+                    set originalObject to item 1 of selectedObjects
+                    set my targetSlide to current slide
+                    if parent of originalObject is not my targetSlide then return 0
+                    if locked of originalObject then return 0
+                    set allItems to get iWork items of my targetSlide
+                    set my originalCount to count allItems
+                    repeat with i from 1 to count allItems
+                        if item i of allItems is originalObject then set my originalIndex to i
+                    end repeat
+                    if my originalIndex is 0 then return 0
+                    set my originalFrame to {position of originalObject, width of originalObject, height of originalObject}
+                    set objectPosition to item 1 of my originalFrame
+                    set objectWidth to item 2 of my originalFrame
+                    set objectHeight to item 3 of my originalFrame
+                    tell my targetSlide to set backgroundObject to make new shape with properties {position:objectPosition, width:objectWidth, height:objectHeight, opacity:100}
+                    set selection to {backgroundObject}
+                end tell
+                set my prepared to true
+                return 1
+            end tell
+        end run
+        """
+    }
+}
+
+/// Ordered once for the floating palette, localization and contract tests.
+enum PaletteCommands {
+    static let groups: [[KeynoteCommand]] = [
+        [.transitionDissolve, .transitionNone, .transitionMagicMove, .autoMagicMove],
+        [.fillWidth, .fillHeight, .width80],
+        [.sameHeight, .sameWidth, .sameWidthNarrowest],
+        [.copyAnimation, .pasteAnimation],
+        [.slideSizeShape, .whiteBackground]
+    ]
+    static let headingKeys: [String?] = ["palette.transitionHeading", "palette.centerHeading", "palette.alignHeading", nil, nil]
+    static let settingsHeadingKeys = ["palette.transitionHeading", "palette.centerHeading", "palette.alignHeading", "palette.animationHeading", "palette.shapeHeading"]
+    static let bands = [0, 1, 2, 3, 4]
+    static let all = groups.flatMap { $0 }
+}
+
+struct VisiblePaletteGroup: Identifiable, Equatable {
+    let id: Int
+    let headingKey: String?
+    let commands: [KeynoteCommand]
+    let dividerBefore: Bool
+}
+
+/// Visibility is independent of command enable flags and shortcut assignments.
+struct PaletteVisibility: Equatable {
+    static let storageKey = "paletteVisibilityV1"
+    private(set) var overrides: [String: Bool] = [:]
+    init(overrides: [String: Bool] = [:]) { self.overrides = overrides }
+    static func load(from defaults: UserDefaults = .standard) -> Self {
+        Self(overrides: defaults.dictionary(forKey: storageKey) as? [String: Bool] ?? [:])
+    }
+    func save(to defaults: UserDefaults = .standard) { defaults.set(overrides, forKey: Self.storageKey) }
+    func includes(_ command: KeynoteCommand) -> Bool { overrides[command.rawValue] ?? true }
+    mutating func set(_ command: KeynoteCommand, visible: Bool) {
+        guard PaletteCommands.all.contains(command) else { return }
+        overrides[command.rawValue] = visible ? nil : false
+    }
+    var groups: [VisiblePaletteGroup] {
+        var result: [VisiblePaletteGroup] = []
+        var previousBand: Int?
+        for (index, commands) in PaletteCommands.groups.enumerated() {
+            let visible = commands.filter(includes)
+            guard !visible.isEmpty else { continue }
+            let band = PaletteCommands.bands[index]
+            result.append(VisiblePaletteGroup(id: index, headingKey: PaletteCommands.headingKeys[index], commands: visible,
+                                             dividerBefore: previousBand.map { $0 != band } ?? false))
+            previousBand = band
+        }
+        return result
     }
 }

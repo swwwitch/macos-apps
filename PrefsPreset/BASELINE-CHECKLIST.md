@@ -45,3 +45,8 @@
 | B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 1.1.11(14)：SettingsView に「設定の共有」タブ（情報の直前）、AppDelegate.startSettingsSync。共有: showGuide・showDomainKey・mainMode・languageApps。.prefspreset はアプリ本来の機能として別のまま。Macごと: myPresetFolder・appliedFeatureFlag.*・ログイン起動・メニューバー。onImport で Store.reloadLanguageApps。build.sh 成功・両配置 1.1.11(14) 一致・起動確認。書き出し/読み込み/同期の操作は未確認 |
 | ホットキーの記録欄 | 共通の HotkeyField（Shared/HotkeyRecorder） | 適用外 | 2026-10-17：アプリのホットキーは無い（メニューの標準キーのみ）。macOSのキーボードショートカットは一覧の値として扱うアプリ本体の機能 |
+
+## 2026-10-24 名前の読み込み除外
+
+- B10/B17：通常セット・マイプリセット・バックアップ共通の読み込みでComputerNameドメインを除外。コンピュータ名とローカルホスト名は現在値を保持。古いセット・複数ドメインの追加項目も除外。保存形式と手動変更は維持。4言語ヘルプに制限を記載。
+- 自動確認：名前ドメインと複数ドメインを除外し、一般設定・Finder設定を受け入れるポリシーテスト。別Macでの実操作は未確認。

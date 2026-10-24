@@ -345,4 +345,83 @@ o['helpText'] = [text + extra for text, extra in zip(o['helpText'], [
     '\n\n## 자동 매직 무브\n설정 > 스페셜 > 트랜지션에서 켠 뒤 ⌃⌥⇧⌘M을 누릅니다(키 변경 가능, 기본 꺼짐). 전면 Keynote 문서 전체에서 건너뛰지 않은 연속 슬라이드를 비교합니다. 이미지·동영상·오디오는 종류와 파일명, 도형·텍스트는 종류와 텍스트, 글자가 없는 도형은 종류와 반올림한 너비×높이로 비교합니다. 일치하는 쌍의 앞 슬라이드에만 0.7초 매직 무브를 설정합니다. 불일치 효과, 건너뛴 슬라이드, 마지막 표시 슬라이드는 유지합니다. 먼저 문서를 저장하거나 복제하고 처리 중 편집하거나 닫지 마십시오. 설정한 슬라이드 수를 표시하며 부분 실패 시 설정 수와 오류를 표시합니다.'
 ])]
 
+# Keep the existing help sections consistent with the current two-control UI.
+help_replacements = [
+    {'メインウインドウ：「ホットキーを有効にする」ですべてのホットキーをまとめてオン・オフします。': 'メインウインドウ：標準セットを選択し、スペシャルを独立してオン・オフします。',
+     'メインウインドウの「ホットキーを有効にする」がオンか': '標準セットとスペシャルの有効状態・個別操作のオンオフが適切か',
+     '残りの標準操作は参照表示です。': 'キーで実行できるほかの標準操作にも割り当てを追加できます。',
+     'スペシャル70操作': 'スペシャル71操作', '設定の［ホットキー］': '設定の［スペシャル］'},
+    {'Main window: “Enable hotkey” turns all hotkeys on or off at once.': 'Main window: select the standard set and independently enable or disable special shortcuts.',
+     '“Enable hotkey” is on in the main window.': 'the standard set, Special switch and individual command are enabled as needed.',
+     'Other native entries are reference-only.': 'Other keyboard-based standard operations can also be assigned.',
+     '70 special command': '71 special command'},
+    {'主窗口：“启用快捷键”可一次打开或关闭所有快捷键。': '主窗口：选择标准集，并独立启用或停用特殊快捷键。',
+     '主窗口中的“启用快捷键”已打开。': '标准集、特殊快捷键及对应操作的开关设置正确。',
+     '其他标准操作仅供参考。': '也可为其他键盘可执行的标准操作指定按键。',
+     '70项特殊操作': '71项特殊操作'},
+    {"메인 윈도우: '단축키 사용'으로 모든 단축키를 한 번에 켜거나 끕니다.": '메인 윈도우: 표준 세트를 선택하고 스페셜 단축키를 별도로 켜거나 끕니다.',
+     "메인 윈도우의 '단축키 사용'이 켜져 있는지": '표준 세트, 스페셜 스위치 및 해당 작업이 알맞게 켜져 있는지',
+     '나머지 기본 작업은 참조 전용입니다.': '키보드로 실행할 수 있는 다른 기본 작업에도 키를 지정할 수 있습니다.',
+     '스페셜 작업 70개': '스페셜 작업 71개'}
+]
+for index, replacements in enumerate(help_replacements):
+    for old, new in replacements.items():
+        o['helpText'][index] = o['helpText'][index].replace(old, new)
+
+
+t('palette.shapeHeading', '図形', 'Shapes', '形状', '도형')
+t('palette.whiteBackground', '選択オブジェクトに背景の図形を追加（グループ化）', 'Add Background to Selection (Group)', '为所选对象添加背景形状（组合）', '선택한 객체에 배경 도형 추가(그룹)')
+t('palette.slideSizeShape', 'スライドと同じ大きさの図形を作成', 'Create a Slide-Sized Shape', '创建与幻灯片同样大小的形状', '슬라이드 크기의 도형 만들기')
+t('palette.showHotkey', 'パレットを表示', 'Show Palette', '显示面板', '팔레트 표시')
+t('palette.showHotkeyHint', 'Keynoteが前面のときだけ使えます。初期値は未設定。「変更…」で割り当て、「解除」で削除します。登録結果はKeynoteへ戻ったときに確認します。', 'Available only while Keynote is in front. Unassigned initially. Use Change… to assign and Clear to remove. Registration is checked when you return to Keynote.', '仅在 Keynote 位于前台时有效，初始未设置。使用“更改…”分配，“清除”移除。返回 Keynote 时检查注册结果。', 'Keynote가 앞에 있을 때만 사용하며 처음에는 지정하지 않습니다. 변경…으로 지정하고 지우기로 해제합니다. Keynote로 돌아갈 때 등록 결과를 확인합니다.')
+for key, ja, en, zh, ko in [
+    ('transitionDissolve', 'ディゾルブ', 'Dissolve', '叠化', '디졸브'),
+    ('transitionNone', 'なし', 'None', '无', '없음'),
+    ('transitionMagicMove', 'マジックムーブ', 'Magic Move', '神奇移动', '매직 무브'),
+    ('autoMagicMove', '自動マジックムーブ', 'Auto Magic Move', '自动神奇移动', '자동 매직 무브'),
+    ('fillWidth', '幅いっぱい', 'Full Width', '填满宽度', '전체 너비'),
+    ('fillHeight', '高さいっぱい', 'Full Height', '填满高度', '전체 높이'),
+    ('width80', '幅80%', '80% Width', '宽度80%', '너비 80%'),
+    ('sameHeight', '高さ（最大）', 'Height (Largest)', '高度（最大）', '높이(최대)'),
+    ('sameWidth', '幅（最大）', 'Width (Largest)', '宽度（最大）', '너비(최대)'),
+    ('sameWidthNarrowest', '幅（最小）', 'Width (Smallest)', '宽度（最小）', '너비(최소)'),
+    ('copyAnimation', 'アニメーションをコピー', 'Copy Animation', '拷贝动画', '애니메이션 복사'),
+    ('pasteAnimation', 'アニメーションをペースト', 'Paste Animation', '粘贴动画', '애니메이션 붙여넣기'),
+    ('slideSizeShape', 'スライド大の図形', 'Slide-Sized Shape', '幻灯片大小形状', '슬라이드 크기 도형'),
+    ('whiteBackground', '背景追加・グループ化', 'Add Background & Group', '添加背景并组合', '배경 추가 및 그룹'),
+]: t('palette.button.' + key, ja, en, zh, ko)
+t('palette.tab', 'パレット', 'Palette', '面板', '팔레트')
+t('palette.transitionHeading', 'トランジション', 'Transitions', '过渡', '트랜지션')
+t('palette.centerHeading', '中央', 'Centered', '居中', '가운데')
+t('palette.alignHeading', 'オブジェクトの揃え', 'Match Object Sizes', '统一对象大小', '객체 크기 맞추기')
+t('palette.animationHeading', 'アニメーション', 'Animation', '动画', '애니메이션')
+t('palette.settings', 'パレットの設定…', 'Palette Settings…', '面板设置…', '팔레트 설정…')
+t('palette.empty', '表示する項目がありません。設定から項目を選んでください。', 'No items are visible. Choose items in Palette Settings.', '没有显示的项目。请在面板设置中选择项目。', '표시할 항목이 없습니다. 팔레트 설정에서 항목을 선택하십시오.')
+t('palette.visibilityHint', 'パレットに表示するボタンを選択します。初期値はすべて表示。変更はすぐに反映され、再起動後も保持されます。ホットキーの有効状態やキー割り当ては変更しません。', 'Choose which buttons appear in the palette. All are visible initially. Changes apply immediately and persist after restart, independently of hotkey enable states and assignments.', '选择面板中显示的按钮。初始显示全部。更改立即生效并在重启后保留，与快捷键启用状态和分配独立。', '팔레트에 표시할 버튼을 선택합니다. 처음에는 모두 표시합니다. 변경은 즉시 적용되고 재시작 후 유지되며 단축키 활성화와 지정은 바꾸지 않습니다.')
+t('palette.showAll', 'すべて表示', 'Show All', '全部显示', '모두 표시')
+t('palette.hideAll', 'すべて非表示', 'Hide All', '全部隐藏', '모두 숨기기')
+t('palette.transitionDissolve', 'ディゾルブ', 'Dissolve', '叠化', '디졸브')
+t('palette.transitionNone', 'なし', 'None', '无', '없음')
+t('palette.transitionMagicMove', 'マジックムーブ', 'Magic Move', '神奇移动', '매직 무브')
+t('palette.title', 'Keynoteパレット', 'Keynote Palette', 'Keynote 面板', 'Keynote 팔레트')
+t('palette.open', 'パレットを開く', 'Open Palette', '打开面板', '팔레트 열기')
+t('palette.target', 'Keynoteで対象の書類とオブジェクトを選択してください。', 'Select the document and objects in Keynote.', '请在 Keynote 中选择目标文稿和对象。', 'Keynote에서 대상 문서와 객체를 선택하십시오.')
+for key, ja, en, zh, ko in [
+    ('autoMagicMove', 'マジックムーブ（自動）', 'Magic Move (Automatic)', '神奇移动（自动）', '매직 무브(자동)'),
+    ('fillWidth', 'スライドの幅いっぱい', 'Fit Slide Width', '填满幻灯片宽度', '슬라이드 너비에 맞추기'),
+    ('fillHeight', 'スライドの高さいっぱい', 'Fit Slide Height', '填满幻灯片高度', '슬라이드 높이에 맞추기'),
+    ('width80', 'スライドの幅の80%', '80% of Slide Width', '幻灯片宽度的 80%', '슬라이드 너비의 80%'),
+    ('sameHeight', '同じ高さに（最大）', 'Same Height (Largest)', '相同高度（最大）', '같은 높이로(최대)'),
+    ('sameWidth', '同じ幅に（最大）', 'Same Width (Largest)', '相同宽度（最大）', '같은 너비로(최대)'),
+    ('sameWidthNarrowest', '同じ幅に（最小）', 'Same Width (Smallest)', '相同宽度（最小）', '같은 너비로(최소)'),
+    ('copyAnimation', 'アニメーションをコピー', 'Copy Animation', '拷贝动画', '애니메이션 복사'),
+    ('pasteAnimation', 'アニメーションをペースト', 'Paste Animation', '粘贴动画', '애니메이션 붙여넣기'),
+]: t('palette.' + key, ja, en, zh, ko)
+for index, section in enumerate([
+    "\n\n## パレット\nメイン画面・ファイルメニュー・メニューバーメニューの「パレットを開く」から表示します。閉じるボタンで閉じ、同じ入口から再表示できます。位置を保存し、画面外なら中央へ戻します。パレットをクリックしてもKeynoteの選択を保ちます。Keynoteを前面にして対象書類・オブジェクトを選んでください。他アプリ・権限なし・一時停止・処理中は実行しません。ホットキーの個別オンオフとボタン操作は独立しています。「パレットを表示」のキーを設定で指定できます。初期値は未設定で、Keynoteが前面のときだけ有効です。表示中なら同じパレットを手前に戻します。ボタンの短い表記の正式名はツールチップで確認できます。「トランジション」にディゾルブ・なし・マジックムーブ・マジックムーブ（自動）、「中央」に3項目、「オブジェクトの揃え」に3項目、その後にアニメーションのコピー/ペーストを表示します。通常と自動のマジックムーブは別操作です。設定の「パレット」で14ボタンの表示を個別に選択でき、初期値はすべて表示です。空のグループは見出しと不要な区切りを隠します。全項目OFFでもパレットの設定ボタンから戻せます。「スライドと同じ大きさの図形を作成」は対象スライドと同じ幅・高さの図形を1個作成します。その次の「選択オブジェクトに背景の図形を追加（グループ化）」は元の選択と同じ大きさの背景1個を背面に作り、その2個だけをグループ化します。\n標準ショートカットの設定は初期820×620ポイント、最小720×560ポイントで、一覧を縦スクロールできます。\n背景図形の追加（グループ化）は1つのトップレベルオブジェクトを選択し、背景1個を作成して背面に送り、元の選択とだけグループ化します。背景の既定スタイルは変更しません。",
+    "\n\n## Palette\nChoose Open Palette in the main window, File menu or menu bar menu. Close it with its close button and reopen it from the same entry. Its position is saved and restored onscreen. Clicking it preserves the Keynote selection. Bring Keynote forward and select the target document and objects. Actions stop for other apps, missing permissions, pause or an operation in progress. Buttons are independent of individual hotkey enable switches. Assign Show Palette in Palette Settings; it is initially unassigned and works only in Keynote. When already visible, the same palette is brought forward. Tooltips provide full names for the shortened button labels. Transitions contains Dissolve, None, Magic Move and Magic Move (Automatic); Centered has three slide-size actions, Match Object Sizes has three actions, followed by Copy/Paste Animation. Regular and automatic Magic Move are distinct. Settings > Palette selects the 14 visible buttons, all initially shown. Empty groups hide their headings and redundant dividers. Palette Settings remains available when all items are hidden. Create a Slide-Sized Shape makes exactly one shape matching the target slide width and height. The following Add Background to Selection (Group) creates one background behind the original selection and groups exactly those two objects.\nStandard shortcut settings start at 820×620 points, with a 720×560 minimum and vertical scrolling.\nAdd Background (Group) requires one top-level object. It creates one background, sends it behind, and groups only the original and background. Its default style is preserved.",
+    "\n\n## 面板\n从主窗口、文件菜单或菜单栏菜单选择“打开面板”。可关闭并从相同入口重新打开。位置会保存，超出屏幕时返回中央。点击面板保留 Keynote 选择。请将 Keynote 置于前台并选择目标文稿和对象。其他应用、缺少权限、暂停或处理中不执行。按钮与各快捷键的启用状态独立，可在面板设置中分配“显示面板”，初始未设置且仅在 Keynote 中有效。已显示时将同一面板移到前面。短按钮名的完整名称可通过工具提示查看。“过渡”包含叠化、无、神奇移动和神奇移动（自动），“居中”包含三项幻灯片大小操作，“统一对象大小”包含三项操作，之后是拷贝/粘贴动画。普通和自动神奇移动是不同操作。在“设置”的“面板”中可分别选择14个按钮的显示，初始全部显示。空组隐藏标题和多余分隔线。全部隐藏后仍可打开面板设置重新显示。幻灯片大小按钮创建一个与目标幻灯片同样宽高的形状。其后的背景按钮在原对象后方创建一个同样大小的背景，并仅组合这两个对象。\n标准快捷键设置初始为 820×620 点，最小 720×560 点，列表可垂直滚动。\n添加背景（组合）要求选择一个顶层对象。创建一个背景并发送到后面，仅组合原对象和背景。保留背景的默认样式。",
+    "\n\n## 팔레트\n메인 윈도우, 파일 메뉴 또는 메뉴 막대 메뉴에서 팔레트 열기를 선택합니다. 닫기 버튼으로 닫고 같은 항목에서 다시 엽니다. 위치를 저장하고 화면 밖이면 중앙으로 돌립니다. 팔레트를 클릭해도 Keynote 선택을 유지합니다. Keynote를 앞으로 가져와 대상 문서와 객체를 선택하십시오. 다른 앱, 권한 없음, 일시 정지 또는 처리 중에는 실행하지 않습니다. 버튼은 개별 단축키 활성화와 독립적이며 팔레트 설정에서 팔레트 표시 키를 지정할 수 있으며 처음에는 미지정이고 Keynote에서만 작동합니다. 이미 표시 중이면 같은 팔레트를 앞으로 가져옵니다. 짧은 버튼 이름의 전체 이름은 도구 설명에 표시합니다. 트랜지션에는 디졸브, 없음, 매직 무브, 매직 무브(자동), 가운데에는 슬라이드 크기 작업 3개, 객체 크기 맞추기에는 3개, 그 뒤에 애니메이션 복사/붙여넣기를 표시합니다. 일반 매직 무브와 자동은 별도 작업입니다. 설정의 팔레트에서 14개 버튼 표시를 선택하며 처음에는 모두 표시합니다. 빈 그룹은 제목과 불필요한 구분선을 숨깁니다. 모두 숨겨도 팔레트 설정에서 다시 표시할 수 있습니다. 슬라이드 크기 버튼은 대상 슬라이드와 너비·높이가 같은 도형 하나를 만듭니다. 다음 배경 버튼은 원본 뒤에 같은 크기의 배경 하나를 만들고 그 둘만 그룹화합니다.\n표준 단축키 설정은 초기 820×620포인트, 최소 720×560포인트이며 목록은 세로 스크롤됩니다.\n배경 추가(그룹)는 최상위 객체 하나를 선택해야 합니다. 배경 하나를 만들고 뒤로 보낸 후 원본과 배경만 그룹화합니다. 배경 기본 스타일을 유지합니다."
+]): o['helpText'][index] += section
+
 Path(__file__).with_name('own.json').write_text(json.dumps(o, ensure_ascii=False))

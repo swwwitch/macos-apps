@@ -140,3 +140,28 @@ struct ShortcutCatalog {
         return catalog
     }()
 }
+
+
+/// One layout calculation is shared by standard headers and rows.
+struct StandardShortcutColumns {
+    let availableWidth: Double
+    let stacked: Bool
+    let operationWidth: Double
+    let bindingWidth: Double
+    let spacing = 16.0
+    init(availableWidth: Double) {
+        self.availableWidth = max(1, availableWidth)
+        stacked = availableWidth < 620
+        bindingWidth = stacked ? max(1, availableWidth) : 340
+        operationWidth = stacked ? max(1, availableWidth) : max(1, availableWidth - 340 - 16)
+    }
+}
+
+/// Only the special-settings item label loses the redundant service-app suffix.
+/// Raw titles remain intact for searching, manifests, help and service execution.
+enum SpecialShortcutDisplay {
+    static func title(_ raw: String, command: KeynoteCommand?) -> String {
+        guard command?.category == .sweeper else { return raw }
+        return raw.replacingOccurrences(of: #"\s*[（(]KeynoteSweeper[）)]\s*$"#, with: "", options: .regularExpression)
+    }
+}

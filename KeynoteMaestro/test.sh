@@ -18,4 +18,8 @@ python3 Tests/check_native_reference.py
 if [[ "${1:-}" == --integration ]]; then
     xcrun swiftc -module-cache-path "$STAGING/ModuleCache" "${CORE_SOURCES[@]}" Tests/AutoMagicMoveIntegration.swift -o "$STAGING/integration-tests"
     "$STAGING/integration-tests"
+    xcrun swiftc -module-cache-path "$STAGING/ModuleCache" "${CORE_SOURCES[@]}" Tests/GroupedBackgroundIntegration.swift -o "$STAGING/background-integration-tests"
+    "$STAGING/background-integration-tests"
+    xcrun swiftc -module-cache-path "$STAGING/ModuleCache" "${CORE_SOURCES[@]}" Tests/PaletteShapeIntegration.swift -o "$STAGING/palette-shape-integration-tests"
+    "$STAGING/palette-shape-integration-tests"
 fi

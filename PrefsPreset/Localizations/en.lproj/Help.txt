@@ -85,3 +85,5 @@ Open with the “Settings” button in the main window, or “Settings…” (�
 3. Move PrefsPreset to the Trash. If you no longer need the backups, delete ~/Library/Application Support/PrefsPreset.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
+
+- Loading a preset or My Preset keeps this Mac’s computer name and local hostname. Name values in the file are skipped. If you change a name manually, restore it manually; loading a backup also skips names.

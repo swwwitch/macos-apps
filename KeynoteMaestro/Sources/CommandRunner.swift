@@ -32,15 +32,19 @@ enum CommandOutcome {
 final class CommandRunner {
     private(set) var busy = false
 
-    func run(_ command: KeynoteCommand, pid: pid_t, bundleID: String, report: @escaping (CommandOutcome) -> Void) {
+    func run(_ command: KeynoteCommand, pid: pid_t, bundleID: String, documentID: String? = nil, slideNumber: Int? = nil, canContinue: (() -> Bool)? = nil, report: @escaping (CommandOutcome) -> Void) {
         guard !busy else { return }
         var remaining = command.steps[...]
         var first = true
         var result = CommandOutcome.done
+        var preparedBackground: NSAppleScript?
         busy = true
         func finish(_ outcome: CommandOutcome) { busy = false; report(outcome) }
         func next() {
             while let step = remaining.popFirst() {
+                guard canContinue?() != false else { return finish(.eventFailed) }
+                if let documentID, Self.documentID(bundleID: bundleID) != documentID { return finish(.eventFailed) }
+                if let slideNumber, Self.currentSlideNumber(bundleID: bundleID) != slideNumber { return finish(.eventFailed) }
                 let isFirst = first
                 first = false
                 switch step {
@@ -50,6 +54,11 @@ final class CommandRunner {
                 case .key(let code, let flags):
                     guard Self.key(code, flags, to: pid) else { return finish(.eventFailed) }
                 case .menu(let candidates):
+                    // Validate and invoke the menu in this same step: do not leave
+                    // a tracking menu open across waits or Apple-event target checks.
+                    if documentID != nil || command == .whiteBackground, let root = candidates.first?.first {
+                        guard case .pressed = Self.pressMenu(pid: pid, candidates: [[root]]) else { return finish(.menuNotFound) }
+                    }
                     switch Self.pressMenu(pid: pid, candidates: candidates) {
                     case .pressed: break
                     // Only the key's own first step hands it back; later a missing item means the command broke.
@@ -73,10 +82,19 @@ final class CommandRunner {
                 case .script(let job):
                     if job == .autoMagicMove {
                         report(.autoMagicMoveRunning)
-                        runAutoMagicMove(bundleID: bundleID) { finish($0) }
+                        runAutoMagicMove(bundleID: bundleID, documentID: documentID) { finish($0) }
                         return
                     }
-                    switch Self.runScript(job.source(bundleID: bundleID)) {
+                    let scriptResult: Result<String, NSError>
+                    if job == .whiteBackgroundShape {
+                        preparedBackground = NSAppleScript(source: job.source(bundleID: bundleID))
+                        scriptResult = Self.runScript(preparedBackground)
+                    } else if job == .selectBackgroundPair {
+                        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return finish(.eventFailed) }
+                        scriptResult = Self.runScript(preparedBackground)
+                        preparedBackground = nil
+                    } else { scriptResult = Self.runScript(Self.boundSource(job.source(bundleID: bundleID), documentID: documentID, slideNumber: slideNumber)) }
+                    switch scriptResult {
                     case .success(let text):
                         let count = Int(text) ?? 0
                         if case .done = result { result = .scripted(count) }
@@ -96,8 +114,8 @@ final class CommandRunner {
     }
 
     /// A document-wide operation runs out of process, leaving menus and busy/quit guards responsive.
-    private func runAutoMagicMove(bundleID: String, completion: @escaping (CommandOutcome) -> Void) {
-        let source = AutoMagicMoveScript.source(bundleID: bundleID)
+    private func runAutoMagicMove(bundleID: String, documentID: String?, completion: @escaping (CommandOutcome) -> Void) {
+        let source = Self.boundSource(AutoMagicMoveScript.source(bundleID: bundleID), documentID: documentID)
         DispatchQueue.global(qos: .userInitiated).async {
             let result = Self.runScriptProcess(source)
             let outcome: CommandOutcome
@@ -212,10 +230,40 @@ final class CommandRunner {
         return process.terminationStatus
     }
 
+    static func documentID(bundleID: String) -> String? {
+        guard case .success(let id) = runScript("tell application id \"\(bundleID)\"\nif not (exists front document) then error number -1728\nreturn id of front document as text\nend tell"), !id.isEmpty else { return nil }
+        return id
+    }
+    static func paletteTarget(bundleID: String) -> (documentID: String, slideNumber: Int)? {
+        let source = "tell application id \"\(bundleID)\"\nif not (exists front document) then error number -1728\ntell front document to return (id as text) & \"|\" & (slide number of current slide as text)\nend tell"
+        guard case .success(let value) = runScript(source) else { return nil }
+        let parts = value.split(separator: "|", omittingEmptySubsequences: false)
+        guard parts.count == 2, !parts[0].isEmpty, let number = Int(parts[1]), number > 0 else { return nil }
+        return (String(parts[0]), number)
+    }
+    static func currentSlideNumber(bundleID: String) -> Int? {
+        guard case .success(let value) = runScript("tell application id \"\(bundleID)\" to return slide number of current slide of front document as text") else { return nil }
+        return Int(value)
+    }
+    nonisolated static func boundSource(_ source: String, documentID: String?, slideNumber: Int? = nil) -> String {
+        guard let documentID else { return source }
+        // IDs come only from Keynote, but still quote them as data in AppleScript.
+        let quoted = documentID.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        var bound = source.replacingOccurrences(of: "tell front document", with: "if (id of front document as text) is not \"\(quoted)\" then error number -1728\ntell (first document whose id is \"\(quoted)\")")
+        if let slideNumber {
+            bound = bound.replacingOccurrences(of: "tell (first document whose id is \"\(quoted)\")", with: "tell (first document whose id is \"\(quoted)\")\nif slide number of current slide is not \(slideNumber) then error number -1728")
+            bound = bound.replacingOccurrences(of: "tell current slide", with: "tell slide \(slideNumber)")
+        }
+        return bound
+    }
+
     /// Returns the result as text, or an NSError whose code is the AppleScript error number.
     static func runScript(_ source: String) -> Result<String, NSError> {
+        runScript(NSAppleScript(source: source))
+    }
+    static func runScript(_ prepared: NSAppleScript?) -> Result<String, NSError> {
         var info: NSDictionary?
-        guard let script = NSAppleScript(source: source) else { return .failure(NSError(domain: "AppleScript", code: -2700)) }
+        guard let script = prepared else { return .failure(NSError(domain: "AppleScript", code: -2700)) }
         let result = script.executeAndReturnError(&info)
         if let info { return .failure(NSError(domain: "AppleScript", code: (info[NSAppleScript.errorNumber] as? Int) ?? -2700)) }
         return .success(result.stringValue ?? "")
