@@ -6,6 +6,8 @@ SiteMirror follows the pages of the website at the URL you enter and saves the H
 2. Click "Change…" next to "Save to:" to choose the destination folder. It starts as your Downloads folder.
 3. Click "Download" (Return or ⌘R). The list shows each saved file and where it was saved, and each URL that failed or was skipped, with the reason.
 4. When it finishes, click "Open in Browser" to open the start page, or "Show in Finder" to show the saved folder.
+- "SiteMirror-log.txt" is created in the download folder with the date, the counts, and each failed or skipped URL with the reason and the file that linked to it (tab-separated). Click "Open Log" to open it. Overwriting replaces it.
+- Choose "Failed" or "Skipped" above the list to show only the URLs that were not saved, with the reason. Select rows and press ⌘C, or right-click and choose "Copy URL" or "Copy URL and Reason" (several rows are copied one per line). For a saved row, "Show in Finder" in the right-click menu shows that file.
 
 ### What Is Followed
 - Pages on the same host as the start URL are followed. With or without "www." and http or https are treated as the same site. If the start URL is redirected, the destination host is treated as the same site too.
@@ -14,7 +16,8 @@ SiteMirror follows the pages of the website at the URL you enter and saves the H
 - By default, pages excluded by robots.txt are not followed.
 
 ### Where Files Are Saved
-- A folder named after the site's host (for example example.com) is created in the destination folder. If a folder with the same name exists, a number is added, as in "example.com 2", so earlier downloads are never overwritten.
+- A folder named after the site's host (for example example.com) is created in the destination folder.
+- If a folder for the same site already exists (including when you choose that folder itself as the destination), you are asked to choose "Overwrite", "Save to a New Folder" or "Cancel". Overwriting replaces files with the ones downloaded now; files from the earlier download that were not downloaded this time are kept. "Save to a New Folder" saves to a numbered folder such as "example.com 2".
 - The site's files are placed directly in that folder, keeping their original paths. Files from other domains go in "_hosts/<host name>".
 - A page without an extension such as "/about" is saved as "about.html", and a page ending in a folder such as "/blog/" is saved as "blog/index.html". URLs with a query such as "?id=1" get a short tag in the file name and are saved as separate files.
 

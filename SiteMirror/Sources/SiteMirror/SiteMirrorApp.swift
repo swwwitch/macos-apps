@@ -75,6 +75,8 @@ private struct MirrorMenuItems: View {
             .disabled(mirror.isRunning || mirror.resultFolder == nil)
         Button(L("ブラウザで開く")) { mirror.openInBrowser() }
             .disabled(mirror.isRunning || mirror.startPage == nil)
+        Button(L("記録を開く")) { mirror.revealLog() }
+            .disabled(mirror.isRunning || mirror.logFile == nil)
     }
 }
 

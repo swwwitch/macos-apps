@@ -5,7 +5,14 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @ObservedObject private var mirror = Mirror.shared
     @State private var isTargeted = false
+    @State private var filter = LogFilter.all
+    @State private var selection = Set<Int>()
     @FocusState private var urlFocused: Bool
+
+    private var shownRows: [LogRow] {
+        guard let state = filter.state else { return mirror.rows }
+        return mirror.rows.filter { $0.state == state }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -110,9 +117,38 @@ struct ContentView: View {
     // MARK: 一覧
 
     private var log: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Picker(L("表示"), selection: $filter) {
+                ForEach(LogFilter.allCases, id: \.self) { item in
+                    Text(item.title(count: item.state.map { state in mirror.rows.lazy.filter { $0.state == state }.count } ?? mirror.rows.count))
+                        .tag(item)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .fixedSize()
+            .onChange(of: filter) { selection = [] }
+            list
+        }
+    }
+
+    private var list: some View {
         ScrollViewReader { proxy in
-            List(mirror.rows) { row in
+            List(shownRows, selection: $selection) { row in
                 LogRowView(row: row).id(row.id)
+            }
+            // ⌘C と右クリックで URL をコピー（複数選んでいれば改行区切り）
+            .onCopyCommand { [NSItemProvider(object: urls(selection) as NSString)] }
+            .contextMenu(forSelectionType: Int.self) { ids in
+                if !ids.isEmpty {
+                    Button(L("URLをコピー")) { copy(urls(ids)) }
+                    Button(L("URLと理由をコピー")) { copy(urls(ids, withDetail: true)) }
+                    if ids.count == 1, let row = mirror.rows.first(where: { ids.contains($0.id) }), row.state == .saved,
+                       let file = mirror.resultFolder?.appendingPathComponent(row.detail) {
+                        Divider()
+                        Button(L("Finderで表示")) { NSWorkspace.shared.activateFileViewerSelecting([file]) }
+                    }
+                }
             }
             .scrollContentBackground(.hidden)
             .background(Color(nsColor: .controlBackgroundColor))
@@ -130,10 +166,22 @@ struct ContentView: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .onChange(of: mirror.rows.count) { _, count in
-                guard mirror.isRunning, count > 0 else { return }
-                proxy.scrollTo(count - 1, anchor: .bottom)
+                if count == 0 { selection = [] }
+                guard mirror.isRunning, let last = shownRows.last else { return }
+                proxy.scrollTo(last.id, anchor: .bottom)
             }
         }
+    }
+
+    private func urls(_ ids: Set<Int>, withDetail: Bool = false) -> String {
+        mirror.rows.filter { ids.contains($0.id) }
+            .map { withDetail ? $0.url + "\t" + $0.detail : $0.url }
+            .joined(separator: "\n")
+    }
+
+    private func copy(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
     }
 
     private var footer: some View {
@@ -146,6 +194,9 @@ struct ContentView: View {
                 Text(mirror.status).lineLimit(2)
             }
             Spacer()
+            Button(L("記録を開く")) { mirror.revealLog() }
+                .disabled(mirror.isRunning || mirror.logFile == nil)
+                .help(L("取り込みフォルダーの SiteMirror-log.txt（失敗・除外したURLと理由・参照元）を開きます"))
             Button(L("Finderで表示")) { mirror.revealResult() }
                 .disabled(mirror.isRunning || mirror.resultFolder == nil)
             Button(L("ブラウザで開く")) { mirror.openInBrowser() }
@@ -154,6 +205,25 @@ struct ContentView: View {
         .font(.callout)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+}
+
+/// 一覧の絞り込み
+private enum LogFilter: CaseIterable {
+    case all, failed, skipped
+    var state: LogRow.State? {
+        switch self {
+        case .all: nil
+        case .failed: .failed
+        case .skipped: .skipped
+        }
+    }
+    func title(count: Int) -> String {
+        switch self {
+        case .all: L("すべて（%d）", count)
+        case .failed: L("失敗（%d）", count)
+        case .skipped: L("除外（%d）", count)
+        }
     }
 }
 

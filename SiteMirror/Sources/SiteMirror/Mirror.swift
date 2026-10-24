@@ -44,6 +44,10 @@ final class Mirror: ObservableObject {
     @Published var message: (title: String, body: String)?
 
     private var task: Task<Void, Never>?
+    /// 今回新しく作った取り込みフォルダーか（1件も保存できなかったときに消してよいのはこのときだけ）
+    private var createdRoot = false
+    /// 前回の取り込みの記録ファイル
+    @Published private(set) var logFile: URL?
     /// 終了の確認で「中止して終了」を選んだとき、書き換えが終わってから呼ぶ
     var onFinished: (() -> Void)?
 
@@ -91,7 +95,8 @@ final class Mirror: ObservableObject {
             message = (L("URLを確認してください"), L("「https://example.com/」のように入力します。"))
             return
         }
-        let root = Mirror.uniqueFolder(in: outputFolder, name: url.host ?? "site")
+        guard let (root, overwriting) = chooseRoot(for: url.host ?? "site") else { return }
+        createdRoot = !overwriting
         do {
             try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         } catch {
@@ -102,6 +107,7 @@ final class Mirror: ObservableObject {
         saved = 0; failed = 0; waiting = 0
         resultFolder = root
         startPage = nil
+        logFile = nil
         isRunning = true
         isRewriting = false
         status = L("取り込み中…")
@@ -148,6 +154,7 @@ final class Mirror: ObservableObject {
         saved = summary.saved
         failed = summary.failed
         startPage = summary.startPage
+        logFile = summary.log
         var parts = [L("%d件を保存", summary.saved)]
         if summary.failed > 0 { parts.append(L("%d件は失敗", summary.failed)) }
         if summary.robotsBlocked > 0 { parts.append(L("%d件はrobots.txtで除外", summary.robotsBlocked)) }
@@ -160,13 +167,46 @@ final class Mirror: ObservableObject {
         status = head + " — " + parts.joined(separator: L("、"))
         if summary.saved == 0, !summary.cancelled {
             message = (L("保存できませんでした"), rows.first { $0.state == .failed }?.detail ?? L("URLとネットワークの接続を確認してください。"))
-            if let root = resultFolder, (try? FileManager.default.contentsOfDirectory(atPath: root.path))?.isEmpty == true {
+            // 新しく作ったフォルダーに記録しか無ければ消す（上書きした既存のフォルダーは残す）
+            if createdRoot, let root = resultFolder,
+               (try? FileManager.default.contentsOfDirectory(atPath: root.path))?.allSatisfy({ $0 == Crawler.logName }) == true {
                 try? FileManager.default.removeItem(at: root)
                 resultFolder = nil
             }
         }
         onFinished?()
         onFinished = nil
+    }
+
+    /// 取り込みフォルダーを決める。保存先が同じサイトのフォルダーそのものか、中に同じサイトのフォルダーがあれば、
+    /// 上書きするか別のフォルダーにするかを確かめる。キャンセルなら nil
+    private func chooseRoot(for host: String) -> (URL, overwriting: Bool)? {
+        let inside = outputFolder.appendingPathComponent(host, isDirectory: true)
+        let existing: URL
+        if outputFolder.lastPathComponent.lowercased() == host.lowercased() {
+            existing = outputFolder
+        } else if FileManager.default.fileExists(atPath: inside.path) {
+            existing = inside
+        } else {
+            return (inside, false)
+        }
+        let alert = NSAlert()
+        alert.messageText = L("「%@」フォルダーがあります", existing.lastPathComponent)
+        alert.informativeText = L("上書きすると、取り込んだファイルで置き換えます。今回取り込まなかったファイルはそのまま残ります。")
+        alert.addButton(withTitle: L("上書き"))
+        alert.addButton(withTitle: L("別のフォルダーに保存"))
+        let cancel = alert.addButton(withTitle: L("キャンセル"))
+        cancel.keyEquivalent = "\u{1b}"
+        switch alert.runModal() {
+        case .alertFirstButtonReturn: return (existing, true)
+        case .alertSecondButtonReturn: return (Mirror.uniqueFolder(in: existing.deletingLastPathComponent(), name: host), false)
+        default: return nil
+        }
+    }
+
+    func revealLog() {
+        guard let logFile, FileManager.default.fileExists(atPath: logFile.path) else { return }
+        NSWorkspace.shared.open(logFile)
     }
 
     /// 同じ名前のフォルダーがあれば「名前 2」「名前 3」…にする

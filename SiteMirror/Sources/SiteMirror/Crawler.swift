@@ -36,6 +36,8 @@ struct MirrorSummary: Sendable {
     var robotsBlocked = 0
     /// 開始ページを保存したファイル
     var startPage: URL?
+    /// 取り込みフォルダーに書いた記録ファイル
+    var log: URL?
     var root: URL
 }
 
@@ -45,6 +47,8 @@ final class Crawler {
         let url: URL
         let depth: Int
         let role: FoundLink.Role
+        /// リンクしていたファイル（保存先の相対パス）。記録に参照元として書く
+        let from: String?
     }
     private enum Kind { case html, css, other }
     private struct Entry {
@@ -79,6 +83,12 @@ final class Crawler {
     private var usedFolders = Set<String>()
     private var robots: Robots?
     private var summary: MirrorSummary
+    /// 記録ファイルに書く失敗と除外（URL・理由・参照元）
+    private var failures: [(url: String, reason: String, from: String?)] = []
+    private var skips: [(url: String, reason: String, from: String?)] = []
+    private let startedAt = Date()
+    /// 取り込みフォルダーに置く記録。サイトのファイルとぶつからないよう名前を取っておく
+    static let logName = "SiteMirror-log.txt"
 
     init(start: URL, root: URL, options: MirrorOptions, emit: @escaping @Sendable (MirrorEvent) -> Void) {
         self.start = start
@@ -93,6 +103,7 @@ final class Crawler {
         siteHosts = [Crawler.siteKey(start.host ?? "")]
         startFolder = Crawler.folder(of: start)
         summary = MirrorSummary(root: root)
+        usedPaths.insert(Crawler.logName.lowercased())
     }
 
     static let userAgent: String = {
@@ -103,7 +114,7 @@ final class Crawler {
     func run() async -> MirrorSummary {
         defer { session.invalidateAndCancel() }
         if options.obeyRobots { robots = await Robots.load(for: start, session: session) }
-        enqueue(start, depth: 0, role: .page, force: true)
+        enqueue(start, depth: 0, role: .page, from: nil, force: true)
         await withTaskGroup(of: (Job, Fetched).self) { group in
             var running = 0
             while !Task.isCancelled {
@@ -126,6 +137,7 @@ final class Crawler {
         emit(.rewriting(total: documents.count))
         for document in documents { if rewrite(document) { summary.rewritten += 1 } }
         if let entry = entries[Crawler.key(start)] { summary.startPage = root.appendingPathComponent(entry.path) }
+        writeLog()
         return summary
     }
 
@@ -145,11 +157,11 @@ final class Crawler {
     private func handle(_ job: Job, _ fetched: Fetched) {
         let address = job.url.absoluteString
         guard let data = fetched.data, let finalURL = fetched.finalURL else {
-            if let error = fetched.error { fail(address, error) }
+            if let error = fetched.error { fail(address, error, job.from) }
             return
         }
         guard (200..<400).contains(fetched.status) else {
-            fail(address, "HTTP \(fetched.status)")
+            fail(address, "HTTP \(fetched.status)", job.from)
             return
         }
         // 開始ページが転送されたら、転送先のホストもサイトとして扱う（http→https・www の有無など）
@@ -159,7 +171,7 @@ final class Crawler {
             return
         }
         if job.role == .page, !inPageScope(finalURL) {
-            emit(.skipped(url: address, reason: L("サイトの外へ転送")))
+            skip(address, L("サイトの外へ転送"), job.from)
             return
         }
         let kind: Kind
@@ -174,7 +186,7 @@ final class Crawler {
             try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
             try data.write(to: file, options: .atomic)
         } catch {
-            fail(address, error.localizedDescription)
+            fail(address, error.localizedDescription, job.from)
             return
         }
         let encoding = kind == .other ? .utf8 : Crawler.encoding(of: data, header: fetched.charset, html: kind == .html)
@@ -191,22 +203,28 @@ final class Crawler {
             guard job.role == .page else { return }
             for link in SiteLinks.html(text, documentURL: finalURL).links {
                 if link.role == .page {
-                    if options.maxDepth == 0 || job.depth < options.maxDepth { enqueue(link.url, depth: job.depth + 1, role: .page) }
+                    if options.maxDepth == 0 || job.depth < options.maxDepth { enqueue(link.url, depth: job.depth + 1, role: .page, from: path) }
                 } else {
-                    enqueue(link.url, depth: job.depth, role: .asset)
+                    enqueue(link.url, depth: job.depth, role: .asset, from: path)
                 }
             }
         } else {
-            for link in SiteLinks.css(text, documentURL: finalURL) { enqueue(link.url, depth: job.depth, role: .asset) }
+            for link in SiteLinks.css(text, documentURL: finalURL) { enqueue(link.url, depth: job.depth, role: .asset, from: path) }
         }
     }
 
-    private func fail(_ address: String, _ reason: String) {
+    private func fail(_ address: String, _ reason: String, _ from: String?) {
         summary.failed += 1
+        failures.append((address, reason, from))
         emit(.failed(url: address, reason: reason))
     }
 
-    private func enqueue(_ url: URL, depth: Int, role: FoundLink.Role, force: Bool = false) {
+    private func skip(_ address: String, _ reason: String, _ from: String?) {
+        skips.append((address, reason, from))
+        emit(.skipped(url: address, reason: reason))
+    }
+
+    private func enqueue(_ url: URL, depth: Int, role: FoundLink.Role, from: String?, force: Bool = false) {
         let key = Crawler.key(url)
         guard !seen.contains(key) else { return }
         if !force {
@@ -218,7 +236,7 @@ final class Crawler {
         if role == .page, let robots, inSite(url), !robots.allows(url) {
             seen.insert(key)
             summary.robotsBlocked += 1
-            emit(.skipped(url: url.absoluteString, reason: L("robots.txtで除外")))
+            skip(url.absoluteString, L("robots.txtで除外"), from)
             return
         }
         if options.maxFiles > 0, seen.count >= options.maxFiles {
@@ -226,7 +244,31 @@ final class Crawler {
             return
         }
         seen.insert(key)
-        queue.append(Job(url: url, depth: depth, role: role))
+        queue.append(Job(url: url, depth: depth, role: role, from: from))
+    }
+
+    // MARK: 記録
+
+    /// 取り込みフォルダーに、結果と失敗・除外の一覧（URL・理由・参照元）をテキストで残す。上書きのときは置き換える
+    private func writeLog() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        var lines = [L("SiteMirror 取り込みの記録"), "",
+                     L("開始URL : %@", start.absoluteString),
+                     L("日時 : %@", formatter.string(from: startedAt)),
+                     L("保存 : %d件", summary.saved),
+                     L("失敗 : %d件", summary.failed),
+                     L("除外 : %d件", skips.count)]
+        if summary.cancelled { lines.append(L("途中で中止しました")) }
+        if summary.limitReached { lines.append(L("ファイル数の上限に達しました")) }
+        for (title, items) in [(L("失敗"), failures), (L("除外"), skips)] where !items.isEmpty {
+            lines += ["", "## \(title)（\(items.count)）", [L("URL"), L("理由"), L("参照元")].joined(separator: "\t")]
+            lines += items.map { [$0.url, $0.reason, $0.from ?? "-"].joined(separator: "\t") }
+        }
+        let file = root.appendingPathComponent(Crawler.logName)
+        if (try? (lines.joined(separator: "\n") + "\n").write(to: file, atomically: true, encoding: .utf8)) != nil {
+            summary.log = file
+        }
     }
 
     // MARK: 範囲

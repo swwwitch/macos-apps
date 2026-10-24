@@ -60,3 +60,25 @@ robots.txtに従う	Follow robots.txt	遵循 robots.txt	robots.txt 따르기
 中止して終了しますか？保存したところまではリンクを書き換えてから終了します。	Stop and quit? Links are rewritten for the files already saved before quitting.	要停止并退出吗？退出前会为已保存的文件改写链接。	중단하고 종료하시겠습니까? 저장한 파일까지 링크를 바꾼 뒤 종료합니다.
 中止して終了	Stop and Quit	停止并退出	중단하고 종료
 キャンセル	Cancel	取消	취소
+表示	Show	显示	보기
+URLをコピー	Copy URL	拷贝 URL	URL 복사
+URLと理由をコピー	Copy URL and Reason	拷贝 URL 和原因	URL과 이유 복사
+すべて（%d）	All (%d)	全部（%d）	전체(%d)
+失敗（%d）	Failed (%d)	失败（%d）	실패(%d)
+除外（%d）	Skipped (%d)	已排除（%d）	제외됨(%d)
+記録を開く	Open Log	打开记录	기록 열기
+取り込みフォルダーの SiteMirror-log.txt（失敗・除外したURLと理由・参照元）を開きます	Opens SiteMirror-log.txt in the download folder (failed and skipped URLs with reasons and referring files)	打开下载文件夹中的 SiteMirror-log.txt（失败和排除的 URL、原因及引用来源）	다운로드 폴더의 SiteMirror-log.txt(실패·제외한 URL과 이유, 참조 위치)를 엽니다
+「%@」フォルダーがあります	The folder “%@” already exists	已存在“%@”文件夹	‘%@’ 폴더가 이미 있습니다
+上書きすると、取り込んだファイルで置き換えます。今回取り込まなかったファイルはそのまま残ります。	Overwriting replaces files with the ones downloaded now. Files not downloaded this time are kept.	覆盖时会用本次下载的文件替换。本次未下载的文件会保留。	덮어쓰면 이번에 다운로드한 파일로 바꿉니다. 이번에 다운로드하지 않은 파일은 그대로 남습니다.
+上書き	Overwrite	覆盖	덮어쓰기
+別のフォルダーに保存	Save to a New Folder	保存到新文件夹	새 폴더에 저장
+SiteMirror 取り込みの記録	SiteMirror download log	SiteMirror 下载记录	SiteMirror 다운로드 기록
+開始URL : %@	Start URL: %@	起始 URL：%@	시작 URL: %@
+日時 : %@	Date: %@	日期时间：%@	일시: %@
+保存 : %d件	Saved: %d	已保存：%d 个	저장: %d개
+失敗 : %d件	Failed: %d	失败：%d 个	실패: %d개
+除外 : %d件	Skipped: %d	已排除：%d 个	제외: %d개
+途中で中止しました	Stopped partway	中途已停止	중간에 중단했습니다
+URL	URL	URL	URL
+理由	Reason	原因	이유
+参照元	Linked from	引用来源	참조 위치
