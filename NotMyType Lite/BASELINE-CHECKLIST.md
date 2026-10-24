@@ -1,6 +1,6 @@
 # 共通仕様の実装と確認
 
-アプリ名：NotMyTypeLite（NotMyType 1.52.0 の写しから作成）
+アプリ名：NotMyType Lite（NotMyType 1.52.0 の写しから作成）
 バージョン/build：1.0.0 / 1
 確認OS/CPU：macOS 26 / Apple Silicon (arm64)。バイナリはユニバーサル（arm64＋x86_64）、Intel実機は未確認
 確認日：2026-10-25（NotMyType から引き継いだ記録。NotMyTypeLite としては未確認）
