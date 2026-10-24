@@ -36,29 +36,12 @@ final class FolderWatcher {
 /// macOS notifications. Clicking one opens Creative Cloud.
 final class Notifier: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     static let shared = Notifier()
-    @Published private(set) var authorized: Bool?
-
     func setUp() {
         UNUserNotificationCenter.current().delegate = self
-        refreshAuthorization()
     }
 
-    func refreshAuthorization(_ done: ((Bool) -> Void)? = nil) {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            let ok = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
-            DispatchQueue.main.async { self.authorized = ok; done?(ok) }
-        }
-    }
-
-    func post(title: String, body: String) {
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
-            DispatchQueue.main.async { self.authorized = granted }
-            guard granted else { return }
-            let content = UNMutableNotificationContent()
-            content.title = title; content.body = body; content.sound = .default
-            center.add(UNNotificationRequest(identifier: "ccAutoUpdate", content: content, trigger: nil))
-        }
+    func post(title: String, body: String, test: Bool = false, completion: (@Sendable (Bool) -> Void)? = nil) {
+        NotificationPreferences.shared.post(title: title, body: body, sound: true, identifier: "ccAutoUpdate", enabledKey: test ? nil : "notifyEnabled", completion: completion)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,

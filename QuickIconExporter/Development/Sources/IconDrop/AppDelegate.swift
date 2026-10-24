@@ -1,7 +1,8 @@
 import AppKit
+@preconcurrency import UserNotifications
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private var settings: AppSettings { .shared }
     private var lastExportError: String?
     private var statusItem: NSStatusItem?
@@ -9,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isProcessingExternalOpen = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UNUserNotificationCenter.current().delegate = self
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "QuickIconExporter", symbol: "square.and.arrow.up", existing: self.statusItem,
@@ -130,8 +132,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let urls = pendingURLs
         pendingURLs.removeAll()
         lastExportError = nil
+        settings.externalExportError = nil
         guard settings.prepareOutputDirectory() else {
             lastExportError = L("保存先の選択をキャンセルしました。")
+            settings.externalExportError = lastExportError
             isProcessingExternalOpen = false
             if !pendingURLs.isEmpty { processPendingURLs(in: application) }
             return
@@ -163,7 +167,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             settings.reportSuccessfulExport(results)
         }
 
+        settings.externalExportError = lastExportError
         isProcessingExternalOpen = false
         if !pendingURLs.isEmpty { processPendingURLs(in: application) }
+    }
+}
+
+// Keep completion notifications visible while the app is foreground; clicking reopens its result window.
+extension AppDelegate {
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .list])
+    }
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void) {
+        Task { @MainActor in self.showWindow() }
+        completionHandler()
     }
 }

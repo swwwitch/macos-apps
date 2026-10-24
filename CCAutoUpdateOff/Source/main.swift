@@ -39,6 +39,7 @@ final class Model: ObservableObject {
     }
     private let mailQueue = DispatchQueue(label: "CCAutoUpdateOff.mail")
     private var mailTimer: Timer?
+    private var notifyingSignature: String?
     var onChange: (() -> Void)?
 
     init() {
@@ -76,9 +77,13 @@ final class Model: ObservableObject {
         let signature = CCAutoUpdate.signature(state, watchRemoveOld: watchRemoveOld)
         if signature.isEmpty {
             notifiedSignature = ""
-        } else if signature != notifiedSignature {
-            notifiedSignature = signature
-            if notifyEnabled { Notifier.shared.post(title: notifyTitle(), body: notifyBody()) }
+        } else if signature != notifiedSignature && signature != notifyingSignature && notifyEnabled {
+            notifyingSignature = signature
+            Notifier.shared.post(title: notifyTitle(), body: notifyBody()) { [weak self] accepted in
+                guard let self else { return }
+                self.notifyingSignature = nil
+                if accepted { self.notifiedSignature = signature }
+            }
         }
         if mailEnabled, CCAutoUpdate.isValidAddress(mailAddress),
            CCAutoUpdate.mailDue(state, watchRemoveOld: watchRemoveOld, lastSent: lastMail, minutes: mailTime) { sendMail(test: false) }
@@ -305,7 +310,6 @@ struct ContentView: View {
 
 struct NotifySettings: View {
     @ObservedObject var model: Model
-    @ObservedObject var notifier = Notifier.shared
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSection(L("targetSection")) {
@@ -314,19 +318,15 @@ struct NotifySettings: View {
                 Text(L("removeOldHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             SettingsSection(L("notifySection")) {
-                Toggle(L("notifyToggle"), isOn: $model.notifyEnabled)
+                NotificationPermissionView(enabled: $model.notifyEnabled, toggleTitle: L("notifyToggle"), sound: true)
                 Text(L("notifyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                if model.notifyEnabled, notifier.authorized == false {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        Text(L("notifyDenied")).font(.caption).fixedSize(horizontal: false, vertical: true)
-                    }
-                    Button(L("openNotificationSettings")) {
-                        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension")!)
+                Button(L("notifyTest")) {
+                    NotificationPreferences.shared.request(sound: true) { granted in
+                        if granted { Notifier.shared.post(title: L("notifyTitle"), body: L("notifyTestBody"), test: true) }
                     }
                 }
-                Button(L("notifyTest")) { Notifier.shared.post(title: L("notifyTitle"), body: L("notifyTestBody")) }
             }
+
             SettingsSection(L("mailSection")) {
                 Toggle(L("mailToggle"), isOn: $model.mailEnabled)
                 HStack {
@@ -348,8 +348,6 @@ struct NotifySettings: View {
                 }
             }
         }
-        .onAppear { Notifier.shared.refreshAuthorization() }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in Notifier.shared.refreshAuthorization() }
     }
 }
 

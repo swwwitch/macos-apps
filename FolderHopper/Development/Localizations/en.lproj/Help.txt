@@ -84,3 +84,7 @@ Show the app with ⌃⌥⌘F by default. Available while the app is running and 
 1. Turn off **Open at login**.
 2. Quit the app.
 3. Move the app to the Trash.
+
+
+Notifications
+Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.

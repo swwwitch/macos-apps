@@ -93,12 +93,13 @@ struct SettingsView: View {
             (L("完了時"), AnyView(Form { Section(L("完了時")) {
                 Toggle(L("書き出し後、Finderで表示"), isOn: $settings.revealsInFinder)
                 Toggle(L("書き出し後、アプリを隠す"), isOn: $settings.hidesAfterExport)
-                Toggle(L("通知を表示"), isOn: $settings.showsCompletionNotification)
                 Toggle(L("効果音を鳴らす"), isOn: $settings.playsCompletionSound)
-                Text(L("通知を初めて使用するときは、macOSから許可を求められます。"))
-                    .font(.caption).foregroundStyle(.secondary)
+
 
             
+            } }.formStyle(.grouped))),
+            (NotificationPreferences.title, AnyView(Form { Section(NotificationPreferences.title) {
+                NotificationPermissionView(enabled: $settings.showsCompletionNotification, toggleTitle: NotificationPreferences.completionTitle)
             } }.formStyle(.grouped))),
             (StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키"), AnyView(Form { Section(StartupWindow.text("ホットキー", "Shortcuts", "快捷键", "단축키")) {
                 Toggle(HotkeyText.enable, isOn: Binding(get: { shortcut.enabled }, set: { shortcut.save(enabled: $0, combo: shortcut.combo); HotkeyRecorder.shared.touch() }))

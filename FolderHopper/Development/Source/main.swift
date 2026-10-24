@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import CoreImage
 import ServiceManagement
 import UserNotifications
@@ -472,6 +473,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             historyHelp.font = .systemFont(ofSize: 12); historyHelp.textColor = .secondaryLabelColor
             group(L("履歴"), [limitRow, NSStackView(views: [clear, restore]), historyHelp])
 
+            sections.append(MainActor.assumeIsolated { (NotificationPreferences.title, SettingsHostingPage { CompletionNotificationSettings() }) })
             sections.append(MainActor.assumeIsolated { (SettingsSync.shared.tabTitle, SettingsSync.shared.sharingPage()) })
             sections.append((AboutSection.title, MainActor.assumeIsolated { AboutSection.view() }))
             MainActor.assumeIsolated { SettingsUI.tabs(sections, in: panel.contentView!) }
@@ -1334,23 +1336,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             : L("%@項目を「%@」へ複製し、%@項目のリンクを作成しました。", String(others), name, String(linked))
     }
     func notifyOperation(_ message: String) {
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert]) { granted, error in
-            guard granted else {
-                DispatchQueue.main.async {
-                    self.status.stringValue = L("処理は完了しました。通知は未許可です。")
-                    self.status.isHidden = false
-                }
-                return
-            }
-            let content = UNMutableNotificationContent()
-            content.title = "FolderHopper"
-            content.body = message
-            center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)) { error in
-                if let error { DispatchQueue.main.async { self.status.stringValue = L("通知できませんでした: ") + error.localizedDescription; self.status.isHidden = false } }
-            }
-        }
+        guard UserDefaults.standard.object(forKey: "completionNotificationEnabled") as? Bool ?? true else { return }
+        NotificationPreferences.shared.post(title: "FolderHopper", body: message, enabledKey: "completionNotificationEnabled")
     }
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .list])
     }

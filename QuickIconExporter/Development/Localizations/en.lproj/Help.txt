@@ -71,3 +71,7 @@ In the Sharing tab you can share the file naming and what happens after export. 
 3. Move QuickIconExporter to the Trash.
 
 - The App Store edition asks you to choose an export folder in the standard system dialog before the first export. Cancel exports nothing. The folder is remembered across launches; choose it again if access cannot be restored. PNG files are never saved inside an app container.
+
+
+Notifications
+Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.

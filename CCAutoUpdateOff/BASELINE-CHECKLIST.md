@@ -97,3 +97,5 @@
 
 - B04 常駐と再表示：「Dockとアプリケーションスイッチャーに表示しない」を追加（初期値オフ、Shared/AppStandards/StartupWindow.swift の DockPresence。LoginAtLaunchView に内包、起動時は MenuBarPresence.install、以後は WindowActivationPolicy.update で適用）。ビルド確認済み・実機未確認。
 - B20 共通UI：「起動・常駐」の「起動時にメインウインドウを表示しない」の直下に表示（共通部品のため追加の配置なし）。ヘルプ4言語に追記。
+
+| B32 | 必要な標準通知と共通設定 | 実装・ビルド・配置済み／実機未完了 | Shared/Notifications/NotificationPreferences.swift。検証の詳細は Shared/AppStandards/Records/NOTIFICATIONS-20261024.md を参照。 |

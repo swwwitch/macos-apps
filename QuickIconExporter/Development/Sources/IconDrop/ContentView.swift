@@ -22,6 +22,12 @@ struct ContentView: View {
             footer
         }
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
+        .onReceive(settings.$recentExportResults) { results in
+            if !results.isEmpty { status = .success(results) }
+        }
+        .onReceive(settings.$externalExportError) { message in
+            if let message { status = .failure(message) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .init("QuickIconExporterChooseFiles"))) { _ in chooseFiles() }
     }
 

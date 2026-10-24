@@ -231,7 +231,11 @@ final class AppSettings: ObservableObject {
         usesDisplayName = true
     }
 
+    @Published var recentExportResults: [ExportResult] = []
+    @Published var externalExportError: String?
+
     func reportSuccessfulExport(_ results: [ExportResult]) {
+        recentExportResults = results
         guard !results.isEmpty else { return }
         if revealsInFinder { NSWorkspace.shared.activateFileViewerSelecting(results.map(\.outputURL)) }
         if hidesAfterExport { NSApp.hide(nil) }
@@ -241,23 +245,13 @@ final class AppSettings: ObservableObject {
         }
 
         guard showsCompletionNotification else { return }
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert]) { granted, _ in
-            guard granted else { return }
-            let content = UNMutableNotificationContent()
-            content.title = "QuickIconExporter"
-            if results.count == 1, let result = results.first {
-                content.body = L("%@を書き出しました。", String(describing: result.outputURL.lastPathComponent))
-            } else {
-                content.body = L("%@個のアイコンを書き出しました。", String(describing: results.count))
-            }
-            let request = UNNotificationRequest(
-                identifier: UUID().uuidString,
-                content: content,
-                trigger: nil
-            )
-            UNUserNotificationCenter.current().add(request)
+        let body: String
+        if results.count == 1, let result = results.first {
+            body = L("%@を書き出しました。", String(describing: result.outputURL.lastPathComponent))
+        } else {
+            body = L("%@個のアイコンを書き出しました。", String(describing: results.count))
         }
+        NotificationPreferences.shared.post(title: "QuickIconExporter", body: body, enabledKey: Self.showsCompletionNotificationKey, enabledDefault: false)
     }
 
     @discardableResult

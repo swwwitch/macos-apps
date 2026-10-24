@@ -42,3 +42,7 @@ If your organization's admin has locked auto-update, the admin setting wins.
 Privacy and updates
 The app itself makes no network access. Only when Mail is on does the Mail app send the state (app names, on/off, the Mac's name) to your address. Only the settings (UserDefaults) are saved. Check for Updates… uses the shared updater, but this build has no update feed, signing key or notarization, so it reports that updates are not configured and makes no network access.
 Support: see the bundled README.md (Contents/Resources/README.md inside the app).
+
+
+Notifications
+Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.

@@ -12,6 +12,7 @@ app_dir="$output_dir/QuickIconExporter.app"
 contents_dir="$app_dir/Contents"
 
 cd "$project_dir"
+python3 ../../Shared/Notifications/sync.py
 python3 ../../Shared/MenuBarPresence/sync.py
 python3 "../../Shared/AppStandards/sync-surface.py"
 python3 ../../Shared/SettingsSync/sync.py
