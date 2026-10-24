@@ -37,7 +37,7 @@ The result is saved as **PNG** (the default), **JPEG** or **PSD**, as chosen und
 Open them with **Settings…** (⌘,) in the app menu. The Startup & Background tab has:
 
 - **Open at login** (off at first)
-- **Hide main window at startup** (off at first)
+- Manual launch and reopening show the main window; automatic login launch does not.
 - **Hide from Dock and App Switcher** (off at first. When on, the app does not appear in the Dock or the ⌘Tab switcher. Show it from the menu bar icon (when shown) or by opening the app again in Finder)
 - **Keep running after closing the window** (on at first; when off, closing the main window quits)
 - **Show in menu bar**
@@ -62,7 +62,7 @@ No special permission is needed. The app reads only the images you open, drop or
 
 ## Running and quitting
 - With **Keep running after closing the window** on, closing the window does not quit the app, and the open image and area stay as they are. Show the window again from the Dock icon, **File** > **Open Main Window** (⌘0), or the menu bar icon (when shown).
-- When opened at login, or with **Hide main window at startup** on, the app starts without showing the main window. It shows the window when files are handed to it.
+- Manual launch and reopening show the main window; automatic login launch does not. It shows the window when files are handed to it.
 - To quit, choose **Quit BreaklineTrimmer** (⌘Q) in the app menu. The app cannot quit while saving; quit again after the save finishes.
 
 ## Troubleshooting

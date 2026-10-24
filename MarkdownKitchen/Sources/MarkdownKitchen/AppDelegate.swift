@@ -3,10 +3,12 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         // Single main window: no tab items in the Window/View menus.
         NSWindow.allowsAutomaticWindowTabbing = false
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         FormatAction.installHiddenKeys()
         startSettingsSync()
         DispatchQueue.main.async { [weak self] in
@@ -55,12 +57,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MarkdownStore.prepareToQuit() ? .terminateNow : .terminateCancel
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showWindow()
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
     }
     /// Markdown files dropped on the Dock icon or opened with "Open With" go to a blank window or a new window.
     func application(_ application: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         MarkdownStore.open(urls, from: MarkdownStore.shared)
         application.reply(toOpenOrPrint: .success)
     }

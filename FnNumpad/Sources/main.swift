@@ -212,7 +212,7 @@ struct Preferences: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
-                    // LoginAtLaunchView already includes 起動時にメインウインドウを表示しない and the Dock option.
+                    // LoginAtLaunchView already includes the automatic login launch explanation and the Dock option.
                     LoginAtLaunchView()
                     Toggle(L("keepRunning"), isOn: Binding(get: { model.keepRunning }, set: { model.keepRunning = $0; model.save() }))
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary)
@@ -266,6 +266,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var statusItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         ExcludedApps.shared.configure(explanation: L("excluded.explanation"))
         model = Model()
         ExcludedApps.shared.onChange = { [weak self] in self?.model.excludedAppsChanged() }
@@ -308,7 +309,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
                 settings: { [weak self] in self?.showPreferences() },
                 help: { [weak self] in self?.help() })
         }
-        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.hidden { showMainWindow() }
+        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.suppressInitialWindow { showMainWindow() }
     }
 
     private func buildMainMenu() {
@@ -363,7 +364,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if menuItem.action == #selector(togglePause) { menuItem.state = model.paused ? .on : .off; return model.enabled }
         return true
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMainWindow(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMainWindow(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { !model.keepRunning }
     func windowWillClose(_ notification: Notification) {
         // Accessory applications also need an explicit last-window close path.

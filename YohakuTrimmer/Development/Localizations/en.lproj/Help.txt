@@ -26,7 +26,7 @@ The original image is never changed. The processed PNG is saved in the same fold
 Choose **Settings…** (⌘,) in the app menu. The Startup & Background tab has these options:
 
 - **Open at login**
-- **Hide main window at startup**
+- Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
 - **Hide from Dock and App Switcher**: When on, the app’s icon stays out of the Dock and the ⌘Tab switcher (off initially). Show the app from the menu bar icon, the Show app shortcut, or by opening it again in Finder.
 - **Show in menu bar**
 - **Show app shortcut**: When images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the YohakuTrimmer window. It is off initially. To use it, turn on **Enable hotkey** (the initial key is ⌃⌥⌘Y). To change the key, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘Y.
@@ -50,7 +50,7 @@ The first time the shortcut processes selected images, macOS asks whether Yohaku
 
 ## Launching and Quitting
 - Closing the window doesn’t quit the app. Show the window again from the Dock icon, **Open Main Window** in the menu bar icon (when **Show in menu bar** is on), or the Show app shortcut.
-- When launched at login, or when **Hide main window at startup** is on, the app starts without showing the main window.
+- Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
 - When the app is launched by opening files, it shows the window, processes them, and quits afterward. When files are passed to the running app, it keeps running.
 - To quit, choose **Quit YohakuTrimmer** (⌘Q) in the app menu, or **Quit YohakuTrimmer** in the menu bar icon. You can’t quit while images are being processed; quit again after processing finishes.
 

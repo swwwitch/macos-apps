@@ -32,7 +32,7 @@
 | B19 | マスタード基調の共通アイコン | 実機確認済み | GenerateIcon.swift：更新の矢印＋オフ位置のスイッチ（IdBackgroundOffと同じスイッチ）。 |
 | B20 | 共通UI統一 | 適用外 | 設定項目なし。 |
 | B21 | 対象外アプリ | 適用外 | 他アプリのキー入力・前面アプリに作用しない。 |
-| B22 | 起動時にメインウインドウを表示しない | 適用外 | B02に同じ。 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.3.1：設定の「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー notifyEnabled・mailEnabled・mailAddress・mailTime・watchRemoveOld。keepRunning・ログイン起動・起動時非表示・メニューバー・lastMailDate・notifiedSignature はMacごと。onImport で Model.reloadSharedSettings()。ビルド・test.sh 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
 | — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：グローバルホットキーも「アプリを呼び出すホットキー」も無い（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）。設定にホットキーを割り当てる欄が無いため HotkeyField は使わない。 |
 

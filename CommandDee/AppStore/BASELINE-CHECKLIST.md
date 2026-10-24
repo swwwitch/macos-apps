@@ -42,7 +42,7 @@
 - /ApplicationsとLatest Buildsへの配置・既存版バックアップ・両配置先の版/build/署名・内容一致確認：未実施
 - /Applicationsのアプリを起動して動作確認：未実施
 
-| B22 | 起動時にメインウインドウを表示しない | 未確認 | 設定保存、OFF/ON起動、明示的再表示、ファイル受け渡しを確認 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B29 | 設定の書き出し・読み込みと同期 | 一部確認（2026-10-16） | 1.8.24 (51)：「設定の共有」タブ（SettingsSync.sharingPage を高さ追従ラッパーで表示）。共有＝機能のホットキー・有効／無効・区切り文字・並び順・ステータスの語・読み飛ばす親フォルダ名。test.sh PASS、ビルド・両配置・起動確認済み、既存設定の変化なし。書き出し・読み込み・同期の画面操作は未確認 |
 | HK | ホットキーの記録欄 | 確認（2026-10-17） | 1.8.26：機能6件とパレットを HotkeyField.control に。保存形式は keyboardShortcutsV2・paletteShortcut のまま（Shortcut ⇄ KeyCombo、往復テストを Tests/main.swift に追加）。登録は独自（イベントタップ／PaletteHotkey）のまま onRecordingChanged でパレットのキーを外す。画面の操作は未確認 |
 

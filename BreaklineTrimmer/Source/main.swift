@@ -1055,7 +1055,7 @@ struct Preferences: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
-                    // LoginAtLaunchView already includes 起動時にメインウインドウを表示しない.
+                    // LoginAtLaunchView already includes the automatic login launch explanation.
                     LoginAtLaunchView()
                     Toggle(L("keepRunning"), isOn: $model.keepRunning)
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -1082,6 +1082,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var openedAtLaunch = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         let loginLaunch = Self.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         installMenus()
         mainWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -1106,7 +1107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                                            "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         }
         // A login launch stays quiet; files handed over at launch still show the window.
-        if openedAtLaunch || (!loginLaunch && !StartupWindow.hidden) { showMain() }
+        if openedAtLaunch || (!loginLaunch && !StartupWindow.suppressInitialWindow) { showMain() }
     }
 
     static func isLoginLaunch(_ event: NSAppleEventDescriptor?) -> Bool {
@@ -1190,6 +1191,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     /// Files dropped on the Dock icon or opened from Finder.
     func application(_ sender: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         guard let url = urls.first(where: Model.isImage) ?? urls.first else { return }
         MainActor.assumeIsolated { model.open(url) }
         if mainWindow == nil { openedAtLaunch = true } else { showMain() }
@@ -1219,7 +1221,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         return .terminateCancel
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
     /// With 常駐 off, closing the main window quits.
     func windowWillClose(_ notification: Notification) {
         guard notification.object as? NSWindow === mainWindow else { return }

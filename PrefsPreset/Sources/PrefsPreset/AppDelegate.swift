@@ -3,10 +3,12 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         // Single main window: no tab items in the Window/View menus.
         NSWindow.allowsAutomaticWindowTabbing = false
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         startSettingsSync()
         DispatchQueue.main.async { [weak self] in
             MenuBarPresence.shared.install(name: "PrefsPreset", symbol: "slider.horizontal.3",
@@ -34,12 +36,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showWindow()
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
     }
     /// .prefspreset files opened from Finder or dropped on the Dock icon load into 「変更後」.
     func application(_ application: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         application.reply(toOpenOrPrint: .success)
         showWindow()
         if let url = urls.first { openPreset(url) }

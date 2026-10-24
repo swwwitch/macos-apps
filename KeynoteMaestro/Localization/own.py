@@ -85,7 +85,7 @@ ja = """## 使い方
 
 ## 設定
 - メインウインドウ：「ホットキーを有効にする」ですべてのホットキーをまとめてオン・オフします。
-- 起動・常駐：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない、Dockとアプリケーションスイッチャーに表示しない（オンにするとDockと⌘Tabに出ません。メニューバーのアイコンやFinderから開き直すと表示します）、ウインドウを閉じても常駐、メニューバーに表示、アクセシビリティの許可状態、再起動・終了ボタン。
+- 起動・常駐：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（オンにするとDockと⌘Tabに出ません。メニューバーのアイコンやFinderから開き直すと表示します）、ウインドウを閉じても常駐、メニューバーに表示、アクセシビリティの許可状態、再起動・終了ボタン。
 - ホットキー：操作ごとのオン・オフとキーの変更（［変更…］で記録、Escで取り消し）、初期値に戻す、グループごとのオン・オフ、成功時の通知。
 - 設定の共有：ホットキーの設定を書き出し・読み込み・同期します。
 - 情報：バージョンとリンク。
@@ -108,6 +108,8 @@ ja = """## 使い方
 
 ## 削除
 - KeynoteMaestroを終了し、アプリケーションフォルダーからゴミ箱へ入れます。設定は ~/Library/Preferences/jp.dtp-transit.keynotehelper.plist です。
+
+手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。
 """
 en = """## How to use
 1. Keep KeynoteMaestro running (it stays in the menu bar).
@@ -135,7 +137,7 @@ en = """## How to use
 
 ## Settings
 - Main window: “Enable hotkey” turns all hotkeys on or off at once.
-- Startup & Background: launch at login (off by default), hide main window at startup, Hide from Dock and App Switcher (when on, the app stays out of the Dock and ⌘Tab; open it again from the menu bar icon or Finder), keep running after closing, show in menu bar, Accessibility status, restart and quit buttons.
+- Startup & Background: launch at login (off by default), Hide from Dock and App Switcher (when on, the app stays out of the Dock and ⌘Tab; open it again from the menu bar icon or Finder), keep running after closing, show in menu bar, Accessibility status, restart and quit buttons.
 - Hotkeys: turn each command on or off and change its key (Change… records, Esc cancels), reset to defaults, per-group on/off, success notifications.
 - Settings Sharing: export, import and sync the hotkey settings.
 - About: version and links.
@@ -185,7 +187,7 @@ zh = """## 使用方法
 
 ## 设置
 - 主窗口：“启用快捷键”可一次打开或关闭所有快捷键。
-- 启动与常驻：登录时启动（默认关闭）、启动时不显示主窗口、不在程序坞和应用切换器中显示（打开后不会出现在程序坞和 ⌘Tab 中；可从菜单栏图标或访达再次打开）、关闭窗口后继续运行、在菜单栏中显示、辅助功能状态、重新启动和退出按钮。
+- 启动与常驻：登录时启动（默认关闭）、不在程序坞和应用切换器中显示（打开后不会出现在程序坞和 ⌘Tab 中；可从菜单栏图标或访达再次打开）、关闭窗口后继续运行、在菜单栏中显示、辅助功能状态、重新启动和退出按钮。
 - 快捷键：逐项打开或关闭并更改按键（“更改…”录制，Esc 取消）、恢复默认值、按组打开或关闭、成功通知。
 - 设置共享：导出、导入并同步快捷键设置。
 - 关于：版本和链接。
@@ -208,6 +210,8 @@ zh = """## 使用方法
 
 ## 删除
 - 退出 KeynoteMaestro，并将其从“应用程序”移到废纸篓。设置位于 ~/Library/Preferences/jp.dtp-transit.keynotehelper.plist。
+
+手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。
 """
 ko = """## 사용 방법
 1. KeynoteMaestro를 실행한 상태로 둡니다(메뉴 막대에 상주합니다).

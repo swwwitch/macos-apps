@@ -27,6 +27,7 @@ final class MenuBarPresence: NSObject {
     /// `keepExistingImage`: leave an existing item's custom icon alone (PodiumAssist's clock-on-screen icon).
     func install(name: String, symbol: String, existing: NSStatusItem? = nil, keepExistingImage: Bool = false,
                  show: @escaping () -> Void, settings: (() -> Void)?, help: @escaping () -> Void) {
+        StartupWindow.captureLaunch()
         guard !installed else { return }
         installed = true
         self.name = name; reveal = show; preferences = settings; self.help = help
@@ -86,7 +87,7 @@ final class MenuBarPresence: NSObject {
     }
     @objc private func activated() { installMenuEntry(); offerIfNeeded() }
     private func offerIfNeeded() {
-        guard !StartupWindow.hidden, !promptShown, !UserDefaults.standard.bool(forKey: Self.choiceKey),
+        guard !StartupWindow.suppressInitialWindow, !promptShown, !UserDefaults.standard.bool(forKey: Self.choiceKey),
               NSApp.windows.contains(where: { $0.isVisible && !$0.isSheet }), NSApp.modalWindow == nil else { return }
         promptShown = true
         let alert = NSAlert()
@@ -112,7 +113,7 @@ final class MenuBarPresence: NSObject {
         apply()
     }
     private func apply() { item?.isVisible = enabled; check?.state = enabled ? .on : .off }
-    @objc private func show() { NSApp.unhideWithoutActivation(); reveal?() }
+    @objc private func show() { StartupWindow.userRequestedWindow(); NSApp.unhideWithoutActivation(); reveal?() }
     @objc private func showPreferences() { preferences?() }
     @objc private func showHelp() { help?() }
     @objc private func toggle(_ sender: NSButton) { save(sender.state == .on) }

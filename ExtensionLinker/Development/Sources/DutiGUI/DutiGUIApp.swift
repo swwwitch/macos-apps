@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 @main
 struct DutiGUIApp: App {
+    @NSApplicationDelegateAdaptor(StartupDelegate.self) private var startupDelegate
     init() {
         SingleInstanceLaunch.enforce()
         // 「設定の共有」: the extension list (added and removed extensions). The associations themselves are applied per Mac.
@@ -37,7 +38,7 @@ struct DutiGUIApp: App {
                 .background(UtilityWindowChrome(title: ""))
                 .frame(minWidth: 520, minHeight: 580)
                 .onAppear {
-                    DockPresence.apply(); if !StartupWindow.hidden { NSApp.activate(ignoringOtherApps: true) }
+                    DockPresence.apply(); if !StartupWindow.suppressInitialWindow { NSApp.activate(ignoringOtherApps: true) }
                     MenuBarPresence.shared.install(name: "ExtensionLinker", symbol: "link", show: {
                         MainWindow.show()
                     }, settings: { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }, help: { LocalHelp.shared.show() })
@@ -569,5 +570,16 @@ private struct AppVersionLabel: View {
     var body: some View {
         Text(appVersionText()).font(.system(size: 10)).foregroundStyle(.secondary)
             .multilineTextAlignment(.center).fixedSize()
+    }
+}
+
+/// Capture the launch event before SwiftUI constructs the first window.
+private final class StartupDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillFinishLaunching(_ notification: Notification) { StartupWindow.captureLaunch() }
+    func applicationDidFinishLaunching(_ notification: Notification) { StartupWindow.captureLaunch() }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
+        MainWindow.show()
+        return false
     }
 }

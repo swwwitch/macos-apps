@@ -69,6 +69,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     private var observers = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         Self.refreshLoginItemAfterRename()
         ExcludedApps.shared.configure(explanation: L("対象外アプリへの切り替え時は何も隠さず、対象外アプリ自体も隠しません。"))
         switchHider.start()
@@ -145,7 +146,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated { self?.updateCountdownTimer() }
         }.store(in: &observers)
         let loginLaunch = Self.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        if !loginLaunch && !StartupWindow.hidden { DispatchQueue.main.async { self.showControls() } }
+        if !loginLaunch && !StartupWindow.suppressInitialWindow { DispatchQueue.main.async { self.showControls() } }
     }
 
     /// One-time step after the PodiumFlight → PodiumAssist rename: an enabled login item is registered
@@ -323,6 +324,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         revealWindow()
         return false
     }

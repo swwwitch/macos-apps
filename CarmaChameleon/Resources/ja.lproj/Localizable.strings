@@ -390,7 +390,6 @@
 "indesignPresetMissing" = "InDesignにPDFプリセットがありません：";
 "indesignExportedOpen" = "InDesignで開いているドキュメントから書き出しました。";
 "indesignExportedUnsaved" = "InDesignで開いているドキュメントから書き出しました。未保存の変更も含まれます。";
-
 "storeAccessFailed" = "フォルダへのアクセスを復元できませんでした。保存先を選び直してください。";
 "storeBundledEngine" = "同梱の変換エンジン";
 "storeContainerDestination" = "アプリの保存領域には書き出せません。通常のフォルダを選択してください。";

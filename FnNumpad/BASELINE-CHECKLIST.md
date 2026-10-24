@@ -30,7 +30,7 @@
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（マスタード地＋テンキー＋「fn」バッジ）、目視確認 |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 起動・常駐／キー／対象外アプリ／設定の共有／情報。アプリ起動のホットキーは未搭載 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | ExcludedApps（Shared）。前面が対象外の間は TapState.active=false でキーをそのまま通す |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchView に内包 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B30 | Dockとアプリケーションスイッチャーに表示しない | 実装済み・実機未確認 | LoginAtLaunchView に内包（DockPresence） |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy、⌘0 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | contentMinSize、SettingsTabs（タブ復元）、即時反映 |

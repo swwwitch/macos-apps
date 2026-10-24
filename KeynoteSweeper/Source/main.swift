@@ -393,6 +393,7 @@ struct SettingsView: View {
     var launched = false
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         UserDefaults.standard.register(defaults: ["resident": true])
         AccessibilityText.neededOverride = [
             "Keynoteの［スライドレイアウトを編集］を操作して、使用されていないマスターを削除するために使います。未許可の場合、マスターの削除は利用できません（非表示のスライドの削除は使えます）。",
@@ -409,6 +410,7 @@ struct SettingsView: View {
         }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 460), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -439,9 +441,10 @@ struct SettingsView: View {
         launched = true
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !pendingFiles.isEmpty { show(); model.open(pendingFiles); pendingFiles = [] }
-        else if !login && !StartupWindow.hidden { show() }
+        else if !login && !StartupWindow.suppressInitialWindow { show() }
     }
     func application(_ sender: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         if isDuplicate, let id = Bundle.main.bundleIdentifier,
            let other = NSRunningApplication.runningApplications(withBundleIdentifier: id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }), let app = other.bundleURL {
             NSWorkspace.shared.open(urls, withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration()); return
@@ -454,7 +457,8 @@ struct SettingsView: View {
         // Read after the window is on screen: the first Apple Event can wait on the Automation prompt.
         DispatchQueue.main.async { self.model.refresh() }
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool { show(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); show(); return true }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         if sender === window && !UserDefaults.standard.bool(forKey: "resident") { NSApp.terminate(nil); return false }
         return true

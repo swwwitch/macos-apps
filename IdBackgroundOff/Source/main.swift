@@ -316,6 +316,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var mainWindow: NSWindow!
     var helpWindow: NSWindow?
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         if let other = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "local.takano.IdAsyncOff").sorted(by: { ($0.launchDate ?? .distantPast) == ($1.launchDate ?? .distantPast) ? $0.processIdentifier < $1.processIdentifier : ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }).first, other.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             other.activate(options: [.activateAllWindows, .activateIgnoringOtherApps]); NSApp.terminate(nil); return
         }
@@ -326,7 +327,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         mainWindow.contentView = NSHostingView(rootView: ContentView(model: model)); mainWindow.minSize = NSSize(width: 620, height: 460)
         mainWindow.center(); mainWindow.setFrameAutosaveName("IdBackgroundOffMain")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
-        showMain()
+        if !StartupWindow.suppressInitialWindow { showMain() }
         // No settings window: the menu bar menu's 設定… opens the main window.
         MainActor.assumeIsolated {
             MenuBarPresence.shared.install(name: "IdBackgroundOff", symbol: "pause.circle",
@@ -371,7 +372,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     @objc func reload() { model.refresh(resetStatus: true) }
     @objc func addApp() { showMain(); model.add() }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
     // InDesign may have been updated or reinstalled while we were in the background.
     func applicationDidBecomeActive(_ notification: Notification) { if !model.busy { model.refresh() } }
     /// Not resident by design: closing the main window quits (help window alone does not keep it alive),

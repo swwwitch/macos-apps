@@ -732,6 +732,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     var resultItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         // Configured before the model registers hot keys; 1.10 and earlier kept the list under "excluded".
         ExcludedApps.shared.configure(explanation: L("exclusionsHint"), legacyKeys: ["excluded"])
         model = Model()
@@ -770,7 +771,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
                 settings: { [weak self] in self?.showPreferences() },
                 help: { [weak self] in self?.help() })
         }
-        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.hidden { showMainWindow() }
+        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.suppressInitialWindow { showMainWindow() }
     }
 
     private func buildMainMenu() {
@@ -825,7 +826,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if menuItem.action == #selector(togglePause) { menuItem.state = model.paused ? .on : .off; return model.hotkeysEnabled }
         return true
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMainWindow(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMainWindow(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { !model.keepRunning }
     func windowWillClose(_ notification: Notification) {
         guard let closing = notification.object as? NSWindow else { return }

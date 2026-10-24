@@ -695,7 +695,7 @@ struct Preferences: View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
-                    // LoginAtLaunchView already includes 起動時にメインウインドウを表示しない.
+                    // LoginAtLaunchView already includes the automatic login launch explanation.
                     LoginAtLaunchView()
                     Toggle(L("keepRunning"), isOn: $model.keepRunning)
                     Text(L("keepRunningHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -739,6 +739,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     var helpWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         if let other = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "jp.dtp-transit.listdiff").sorted(by: { ($0.launchDate ?? .distantPast) == ($1.launchDate ?? .distantPast) ? $0.processIdentifier < $1.processIdentifier : ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }).first, other.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             other.activate(options: [.activateAllWindows, .activateIgnoringOtherApps]); NSApp.terminate(nil); return
         }
@@ -766,7 +767,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                                        "Open at login, keep running and the menu bar icon are set on each Mac.",
                                        "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
                                        "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
-        if !loginLaunch && !StartupWindow.hidden { showMain() }
+        if !loginLaunch && !StartupWindow.suppressInitialWindow { showMain() }
     }
 
     func installMenus() {
@@ -859,6 +860,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func dedupeRight() { MainActor.assumeIsolated { model.removeDuplicates(.right) } }
     /// Files dropped on the Dock icon or opened from Finder.
     func application(_ sender: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         showMain()
         MainActor.assumeIsolated { model.openFiles(urls) }
     }
@@ -895,7 +897,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         alert.buttons[1].keyEquivalent = ""
         return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
     /// With 常駐 off, closing the main window quits.
     func windowWillClose(_ notification: Notification) {
         guard notification.object as? NSWindow === mainWindow else { return }

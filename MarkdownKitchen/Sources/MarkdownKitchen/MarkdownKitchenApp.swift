@@ -266,7 +266,7 @@ private struct MainWindowOpenerCapture: View {
                 MainWindow.open = { openWindow(id: MainWindow.sceneID) }
                 MainWindow.openWithID = { openWindow(id: MainWindow.sceneID, value: $0) }
                 // While the main window is hidden at startup, they open with it (AppDelegate.showWindow).
-                if !StartupWindow.hidden { DispatchQueue.main.async { MainWindow.restoreDocuments() } }
+                if !StartupWindow.suppressInitialWindow { DispatchQueue.main.async { MainWindow.restoreDocuments() } }
             }
     }
 }

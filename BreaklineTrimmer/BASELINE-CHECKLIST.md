@@ -32,7 +32,7 @@
 | B19 | マスタード基調の共通アイコン | 実装済み・画像確認 | Assets/GenerateIcon.swift：YohakuTrimmer と同じマスタード・アイボリー・茶。波形の切り口で上下に分かれた写真と2本の省略線。apply-app-icon.sh 適用。Finder表示は未確認。 |
 | B20 | 共通UI統一 | 画面表示確認 | SettingsTabs：「起動・常駐」（ログイン起動・起動時非表示・Dock非表示・常駐・メニューバー／操作）、「設定の共有」、「情報」。トリミングの項目はメインウインドウ。呼び出しホットキー（B07）・アクセシビリティ区画は不要のため設けない。 |
 | B21 | 対象外アプリ | 適用外 | 他アプリに作用しない。 |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchControl 内の StartupWindowControl。ファイルを渡された起動では表示。 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、通常アプリ、⌘0/⌘1（MenuBarPresence）。 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | リサイズ可・最小サイズ（sizingOptions .minSize）、タブ復元、即時反映、タイトル「設定」。 |
 | B25 | アプリ情報と目印 | 実装済み | NSHumanReadableCopyright・SWAppFamily。SWNoteArticleURL は専用記事（https://note.com/swwwitch/n/ne4a0fc0c1dd2）。ソース設定確認済み。配布アプリへの反映は未確認。 |

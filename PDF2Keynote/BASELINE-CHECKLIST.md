@@ -44,7 +44,7 @@
 - /ApplicationsとLatest Buildsへの配置・既存版バックアップ・両配置先の版/build/署名・内容一致確認：実施（初回配置のため置き換えた既存版はなし）
 - /Applicationsのアプリを起動して動作確認：起動とPDFの受け取りを確認
 
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | 共通StartupWindow（LoginAtLaunchControl内）。ファイル受け渡し時は表示 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 1.1.5：「情報」の直前に「設定の共有」タブ（SettingsSharingView）。共有キー slideSize・placement・pageBox・removeBackground・theme・master・masterForBackground・openAfter。destinationMode・outputFolder・resident・ログイン起動・起動時非表示・メニューバーはMacごと。onImport で Model.reloadSharedSettings()（変わった値だけ代入）。ビルド・test.sh 通過、/Applications と Latest Builds に配置して起動を確認（2026-10-16）。書き出し・読み込み・同期の操作は未確認。 |
 | — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：機能のホットキーは無く（RegisterEventHotKey・NSEventモニターなし、キー操作はメニューのキー equivalents だけ）、「アプリ起動のキーボードショートカット」は LaunchPresenceSection からmacOSの「ショートカット」アプリを開いて「アプリを開く」に割り当てる方式。アプリ内で記録する欄が無いため HotkeyField は使わない。 |
 

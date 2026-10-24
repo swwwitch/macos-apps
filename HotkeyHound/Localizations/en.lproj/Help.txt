@@ -82,3 +82,5 @@ Click Settings in the main window (⌘,).
 2. Choose Quit HotkeyHound.
 3. Move HotkeyHound to the Trash.
 4. Remove HotkeyHound from System Settings > Privacy & Security > Accessibility.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

@@ -186,7 +186,7 @@ CSVの列を比べる
 設定
 「比較」タブ：共通の項目を薄く表示する（初期値オン。左右のリストで、もう一方にもある項目を薄い色で表示します。表示だけでリストやファイルは変わりません）、大文字と小文字を区別しない（初期値オン）、全角と半角を区別しない（初期値オフ）、結果を並べ替える（初期値オフ）。
 区切り文字はリストの上（比較の単位の右）で選びます：改行のほかにスペース・カンマ・タブ（初期値はすべてオフ。全角のスペースとカンマも含む）。区切り文字をオンにしたとき、ファイルを読み込んだとき、ペーストしたときは、リストを1行に1項目に並べ直して表示します（⌘Zで戻せます。ファイルと連携していれば「未保存」になり、「保存」するまでファイルは変わりません）。入力中の文字は並べ直しません。設定の変更はすぐに結果に反映します。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとウインドウを開いていてもDockと⌘Tabの切り替えに出しません。メニューバーのアイコンか、Finderからアプリを開き直すと表示できます）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとウインドウを開いていてもDockと⌘Tabの切り替えに出しません。メニューバーのアイコンか、Finderからアプリを開き直すと表示できます）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
 
 設定の共有
 「設定の共有」タブで、「比較」タブの設定と、区切り文字・比較の単位・列・「1行目は見出し」の選択を書き出し・読み込みできます（「書き出す…」「読み込む…」、ListMatch-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。リストの内容は含みません。
@@ -208,7 +208,9 @@ CSVの列を比べる
 プライバシー
 比較はすべてこのMac上で行い、リストを外部に送りません。貼り付けたリストは保存しません。アプリが保存するのは設定（UserDefaults）と、上書き前のバックアップだけです。
 「アップデートを確認…」は共通の更新機能ですが、このビルドでは配信先と署名が未設定のため準備中と表示し、通信しません。
-サポート：同梱のREADME.md（アプリ内の Contents/Resources/README.md）をご覧ください。''',
+サポート：同梱のREADME.md（アプリ内の Contents/Resources/README.md）をご覧ください。
+手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。
+''',
 '''ListMatch — Compare two lists
 
 How to use
@@ -240,7 +242,7 @@ Set Compare by (above the lists) to E-mail Addresses Only (or choose File → Co
 Settings
 Comparison: Dim common items (on by default; items also in the other list are shown lighter, the list and file are not changed), Ignore uppercase and lowercase (on by default), Ignore full-width and half-width forms (off), Sort the results (off).
 Separators are chosen above the lists (next to Compare by): Space, Comma and Tab besides line breaks (all off by default; full-width spaces and commas included). When you turn a separator on, load a file or paste, the list is rearranged one item per line (⌘Z undoes it; a linked file is marked Unsaved and does not change until you save). Typing is not rearranged. Setting changes apply to the results right away.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab even with a window open — show it from the menu-bar icon or by opening the app again in Finder), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab even with a window open — show it from the menu-bar icon or by opening the app again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Compare tab settings and the separator, comparison unit, column and header-row choices as ListMatch-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, keep running and the menu bar icon are set on each Mac. The lists themselves are not included.
@@ -262,7 +264,9 @@ A file cannot be read: UTF-8, UTF-16 and Shift_JIS text are supported. Export sp
 Privacy
 All comparison happens on this Mac; the lists are never sent anywhere. Pasted lists are not saved. The app stores only its settings (UserDefaults) and backups made before overwriting.
 Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
-Support: see the bundled README.md (Contents/Resources/README.md in the app).''',
+Support: see the bundled README.md (Contents/Resources/README.md in the app).
+Manual launch and reopening show the main window; automatic login launch does not.
+''',
 '''ListMatch — 比较两个列表
 
 使用方法
@@ -294,7 +298,7 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 设置
 “比较”：淡化显示共有的项（默认开启；另一侧也有的项以较浅颜色显示，不改变列表或文件）、不区分大小写（默认开启）、不区分全角和半角（默认关闭）、对结果排序（默认关闭）。
 分隔符在列表上方（比较单位右侧）选择：除换行外还可选空格、逗号、制表符（默认全部关闭，包括全角空格和逗号）。开启分隔符、载入文件或粘贴时，列表会重新排列为每行一项（可用 ⌘Z 撤销；已关联的文件显示“未存储”，存储前文件不会改变）。输入中的文字不会重新排列。设置的更改会立即反映到结果中。
-“启动与后台”：登录时启动（关闭）、启动时不显示主窗口（关闭）、不在程序坞和应用程序切换器中显示（关闭；开启后即使窗口打开也不会出现在程序坞和 ⌘Tab 中，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开启）、在菜单栏中显示（关闭）。
+“启动与后台”：登录时启动（关闭）、不在程序坞和应用程序切换器中显示（关闭；开启后即使窗口打开也不会出现在程序坞和 ⌘Tab 中，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开启）、在菜单栏中显示（关闭）。
 
 设置共享
 在“设置共享”标签中，可以导出和导入“比较”标签的设置，以及分隔符、比较单位、列和“第一行是标题”的选择（“导出…”“导入…”，ListMatch-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。不包含列表内容。
@@ -316,7 +320,9 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 隐私
 所有比较都在这台 Mac 上进行，列表不会发送到任何地方。粘贴的列表不会保存。应用只保存设置（UserDefaults）和覆盖前的备份。
 “检查更新…”是通用更新功能，但此版本尚未设置更新源和签名密钥，因此显示为准备中，不会进行通信。
-支持：请参阅随附的 README.md（应用内的 Contents/Resources/README.md）。''',
+支持：请参阅随附的 README.md（应用内的 Contents/Resources/README.md）。
+手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。
+''',
 '''ListMatch — 두 목록 비교
 
 사용 방법
@@ -348,7 +354,7 @@ CSV 열 비교
 설정
 비교 탭: 공통 항목을 흐리게 표시(기본값 켬, 다른 쪽에도 있는 항목을 옅은 색으로 표시하며 목록이나 파일은 바뀌지 않음), 대소문자를 구분하지 않음(기본값 켬), 전각과 반각을 구분하지 않음(끔), 결과 정렬(끔).
 구분 문자는 목록 위(비교 단위 오른쪽)에서 선택합니다: 줄바꿈 외에 공백, 쉼표, 탭(기본값은 모두 끔, 전각 공백과 쉼표 포함). 구분 문자를 켜거나 파일을 불러오거나 붙여넣으면 목록을 한 행에 한 항목으로 다시 배열해 표시합니다(⌘Z로 되돌릴 수 있음. 연결된 파일은 저장 안 됨으로 표시되며 저장하기 전에는 파일이 바뀌지 않음). 입력 중인 문자는 다시 배열하지 않습니다. 설정 변경은 결과에 바로 반영됩니다.
-시작 및 백그라운드 탭: 로그인 시 실행(끔), 시작 시 메인 윈도우 숨기기(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 윈도우가 열려 있어도 Dock과 ⌘Tab에 표시하지 않습니다. 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시할 수 있습니다), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
+시작 및 백그라운드 탭: 로그인 시 실행(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 윈도우가 열려 있어도 Dock과 ⌘Tab에 표시하지 않습니다. 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시할 수 있습니다), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
 
 설정 공유
 설정 공유 탭에서 비교 탭의 설정과 구분 문자, 비교 단위, 열, 첫 행은 머리글 선택을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, ListMatch-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다. 목록 내용은 포함하지 않습니다.
@@ -376,7 +382,7 @@ for idx, lang in enumerate(LANGS):
     folder = root / 'Resources' / f'{lang}.lproj'; folder.mkdir(parents=True, exist_ok=True)
     values = {r[0]: r[idx + 1] for r in rows}; values['helpContent'] = helptexts[idx]
     (folder / 'Localizable.strings').write_text('\n'.join(json.dumps(k, ensure_ascii=False) + ' = ' + json.dumps(v, ensure_ascii=False) + ';' for k, v in values.items()) + '\n')
-    (folder / 'Help.txt').write_text(helptexts[idx] + '\n')
+    (folder / 'Help.txt').write_text(helptexts[idx].rstrip() + '\n')
     (folder / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "ListMatch";\n')
 info = {'CFBundleName': 'ListMatch', 'CFBundleDisplayName': 'ListMatch', 'CFBundleIdentifier': 'jp.dtp-transit.listdiff', 'CFBundleExecutable': 'ListMatch', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'ListMatch.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.productivity', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'SWNoteArticleURL': 'https://note.com/swwwitch/n/n27269d6eaf5b', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1', 'CFBundleDocumentTypes': [{'CFBundleTypeName': 'Text', 'CFBundleTypeRole': 'Editor', 'LSHandlerRank': 'Alternate', 'LSItemContentTypes': ['public.plain-text', 'public.comma-separated-values-text', 'public.tab-separated-values-text', 'public.text']}]}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.

@@ -22,7 +22,7 @@ Each preset line has the form “duti -s app-ID .extension all”. Lines that st
 Open **Settings…** from the app menu (⌘,).
 
 ### Startup & Background Tab
-- Set **Open at login**, **Hide main window at startup**, **Hide from Dock and App Switcher**, and **Show in menu bar**.
+- Set **Open at login**, **Hide from Dock and App Switcher**, and **Show in menu bar**.
 - With **Hide from Dock and App Switcher** on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
 
 ### Extension Tab
@@ -71,3 +71,5 @@ No permissions such as Accessibility are required.
 3. Move the app to the Trash.
 
 The associations you set remain in macOS.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

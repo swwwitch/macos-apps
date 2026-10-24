@@ -202,6 +202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var settings: NSWindow?
     var helpWindow: NSWindow?
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         if let other = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "local.takano.FolderMover").sorted(by: { ($0.launchDate ?? .distantPast) == ($1.launchDate ?? .distantPast) ? $0.processIdentifier < $1.processIdentifier : ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }).first, other.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             other.activate(options: [.activateAllWindows, .activateIgnoringOtherApps]); NSApp.terminate(nil); return
         }
@@ -213,7 +214,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if !UserDefaults.standard.bool(forKey: "compactLayoutV2") { mainWindow.setContentSize(NSSize(width: 780, height: 440)); UserDefaults.standard.set(true, forKey: "compactLayoutV2") }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(mainWindow.frame) }) { mainWindow.center() }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        if !login && !StartupWindow.hidden { showMain() }
+        if !login && !StartupWindow.suppressInitialWindow { showMain() }
         // Options are @AppStorage, so the views follow imported values; refresh the model-driven views too.
         SettingsSync.shared.onImport = { [weak self] in self?.model.objectWillChange.send() }
         SettingsSync.shared.start(.init(keys: ["folders", "hidden", "openDestinationAfterMove", "shortenDropboxPaths"], prefixes: [],
@@ -259,8 +260,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let help = submenu(L("help")); add(help, L("helpItem"), #selector(showHelp), "?"); MainActor.assumeIsolated { HelpLinks.addNoteItem(to: help) }; NSApp.helpMenu = help
     }
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
-    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if !StartupWindow.hidden && mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
+    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if !StartupWindow.suppressInitialWindow && mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func windowWillClose(_ notification: Notification) {
         if notification.object as? NSWindow === mainWindow, !UserDefaults.standard.bool(forKey: "resident"), !model.busy { NSApp.terminate(nil) }

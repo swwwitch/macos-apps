@@ -42,7 +42,7 @@
 - /ApplicationsとLatest Buildsへの配置・既存版バックアップ・両配置先の版/build/署名・内容一致確認：実施（新規のためバックアップ対象なし）
 - /Applicationsのアプリを起動して動作確認：起動と主画面・設定の表示のみ。Keynoteでのホットキー実行は未確認（アクセシビリティ未許可）
 
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView（共通部品） |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B30 | Dockとアプリケーションスイッチャーに表示しない | 実装済み・実機未確認 | StartupWindowView 内の DockPresence（共通部品） |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy、ファイルメニュー⌘0 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ復元・フォーカス枠なし）、contentMinSize 680×560、即時反映 |

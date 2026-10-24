@@ -626,6 +626,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     var modeObserver: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         model = Model()
         // Projects and the naming rule stay with Library.json (「プロジェクト」 › 共有フォルダー), so they are not listed here.
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
@@ -674,7 +675,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 settings: { [weak self] in self?.showPreferences() },
                 help: { [weak self] in self?.help() })
         }
-        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.hidden { showMainWindow() }
+        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.suppressInitialWindow { showMainWindow() }
     }
 
     private func buildMainMenu() {
@@ -729,7 +730,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         if menuItem.action == #selector(undoLast) { return model.lastCreation != nil && !model.busy }
         return true
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMainWindow(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMainWindow(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { !model.keepRunning }
     func windowWillClose(_ notification: Notification) {
         // Accessory applications also need an explicit last-window close path.

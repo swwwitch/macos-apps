@@ -42,7 +42,7 @@
 - /ApplicationsとLatest Buildsへの配置・両配置先の版/build/署名・内容一致確認：実施（新規のため既存版なし）
 - /Applicationsのアプリを起動して動作確認：起動のみ確認。アクセシビリティ未許可のため⌃⌥Vでのペーストは未確認
 
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindowView |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy、⌘0 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ記憶・フォーカス枠なし）、最小サイズ |
 | B25 | アプリ情報と目印 | 実装済み | Info.plistにSWNoteArticleURL・著作権・SWAppFamily。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |

@@ -43,7 +43,7 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 
 | グループ | 項目と配置順 |
 | --- | --- |
-| 起動・常駐 | 1. ログイン時に起動　2. 起動時にメインウインドウを表示しない　3. Dockとアプリケーションスイッチャーに表示しない　4. 常駐　5. アプリ起動のホットキー |
+| 起動・常駐 | 1. ログイン時に起動　2. Dockとアプリケーションスイッチャーに表示しない　3. 常駐　4. アプリ起動のホットキー |
 | アクセシビリティ | 許可状態、必要な理由、「アクセシビリティ設定を開く」ボタン |
 
 「起動・常駐」は先頭の独立タブにまとめ、「アクセシビリティ」とアプリ起動のホットキーも同じタブに置き、見出し付きの区画に分ける。共通項目は文言・コントロールの種類・順序・余白・状態表示を揃え、共通UI部品として再利用する。AppKitとSwiftUIで実装方法が異なる場合も表示と操作を揃える。
@@ -114,11 +114,11 @@ B18の納品先は次の2か所とし、同じ最終ビルドを両方へ配置�
 
 ## 起動時の画面表示（2026-10-07）
 
-全アプリに「起動時にメインウインドウを表示しない」（英語: Hide main window at startup）を搭載する。初期値OFF、UserDefaultsのhideMainWindowAtStartupで保存する。ONなら通常起動で主画面を出さず、Dock・メニュー・呼び出しホットキーによる明示的な再表示を妨げない。ログイン起動と常駐の設定から独立させ、ファイル受け渡しを保持する。共通部品はStartupWindow.swift。
+全アプリは手動起動・開き直しでメインウインドウを表示し、ログイン時の自動起動では表示しない（2026-10-24改定）。非表示の設定項目は削除し、旧hideMainWindowAtStartup値は参照しない。ログイン起動のON/OFFや他の設定は保持する。明示的な再表示・ファイル受け渡しは非表示処理より優先する。共通部品はStartupWindow.swift。ログイン起動の下に、この動作を説明する。
 
 ## 設定UI（2026-10-07）
 
-AppKitのカテゴリ枠はSettingsUI.group、SwiftUIはSettingsSection（Shared/AppStandards/SettingsSection.swift）を使う。見出し13pt semibold、グループ内間隔10pt、枠内余白12ptを基準とする。設定の多い画面はスクロールまたは用途別タブで整理する。「起動・常駐」を先頭に置き、ログイン起動・起動時非表示・既存の常駐／メニューバー表示設定・呼び出しホットキーの順に並べる。メニューバー表示と閉じた後の常駐は異なる設定なので意味を保つ。機能実行のホットキーを起動・常駐に混ぜない。必要なアクセシビリティ権限は独立グループとし、不要なアプリの権限設定は省略する。
+AppKitのカテゴリ枠はSettingsUI.group、SwiftUIはSettingsSection（Shared/AppStandards/SettingsSection.swift）を使う。見出し13pt semibold、グループ内間隔10pt、枠内余白12ptを基準とする。設定の多い画面はスクロールまたは用途別タブで整理する。「起動・常駐」を先頭に置き、ログイン起動（自動起動時は画面非表示）・既存の常駐／メニューバー表示設定・呼び出しホットキーの順に並べる。メニューバー表示と閉じた後の常駐は異なる設定なので意味を保つ。機能実行のホットキーを起動・常駐に混ぜない。必要なアクセシビリティ権限は独立グループとし、不要なアプリの権限設定は省略する。
 
 ## 設定はタブ形式（2026-10-07追加）
 
@@ -174,7 +174,7 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 
 | ID | 必須仕様 | 受け入れ条件 |
 | --- | --- | --- |
-| B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」で「起動時にメインウインドウを表示しない」の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONの間はウインドウを開いていても activation policy を `.accessory` にし、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
+| B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」でログイン起動の動作説明の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONの間はウインドウを開いていても activation policy を `.accessory` にし、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
 
 共通部品は `StartupWindow.swift` の `DockPresence`。`StartupWindowControl`／`StartupWindowView`（`LoginAtLaunchControl`／`LoginAtLaunchView` に内包）が自動で項目を出すので、各アプリでは書かない。起動時は `MenuBarPresence.install`、メニューバー常駐アプリは `WindowActivationPolicy.update` が反映する。アプリのコードで起動後に `setActivationPolicy(.regular)` を呼ばず、`DockPresence.apply()` を使う。
 

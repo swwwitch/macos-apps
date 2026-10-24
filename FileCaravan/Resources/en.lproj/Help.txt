@@ -22,7 +22,7 @@
 
 ## Launch, Keep Running and Quitting
 - Launch at login is off by default. A login launch does not show the window.
-- With Hide main window at startup on, the app launches without opening its window.
+- Manual launch and reopening show the main window; automatic login launch does not.
 - With Hide from Dock and App Switcher on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon (when Show in menu bar is on) or by opening the app again in Finder.
 - With Keep running after closing on, ⌘W or the close button closes only the window. Reopen it from the Dock or with ⌘0.
 - With it off, closing the window quits the app when no move is running.

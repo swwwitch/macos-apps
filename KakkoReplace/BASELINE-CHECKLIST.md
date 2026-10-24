@@ -98,7 +98,7 @@ SuperKakkoReplace → KakkoReplace。アプリ単位の開発フォルダー、�
 
 既存テスト・4言語84キー・ビルド合格。旧名配布物のBundle IDを照合しバックアップ後、/Applications/KakkoReplace.appとLatest Builds/KakkoReplace.appへ同じ成果物を配置。署名と全ファイル一致確認済み。/Applicationsの新名プロセス起動を確認。実画面表示・改名後のログイン再実行・アクセシビリティ許可の継続は未確認。
 
-- B22: StartupWindow.swiftと起動処理に実装。初期値OFF・永続保存。ビルド済み、実機確認は進行中。
+- B22: 2026-10-24改定。手動起動・開き直しは表示、ログイン自動起動は非表示。旧チェック項目は削除。実機・配布確認は別途。
 
 ## パレットの対象と可変列（0.3.0 / build 18、2026-10-07）
 

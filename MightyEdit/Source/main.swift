@@ -60,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var copyOnly = UserDefaults.standard.bool(forKey: "copyOnly")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             MenuBarPresence.shared.install(name: "MightyEdit", symbol: "text.alignleft", existing: self.statusItem,
@@ -495,7 +496,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         let launchEvent = NSAppleEventManager.shared().currentAppleEvent
         let loginLaunch = launchEvent?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
-        if !loginLaunch && !StartupWindow.hidden { showPalette() }
+        if !loginLaunch && !StartupWindow.suppressInitialWindow { showPalette() }
         updateTarget()
         if PaletteDisplayMode.saved == .iconOnly {
             DispatchQueue.main.async { [weak self] in
@@ -792,6 +793,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showPalette()
         return true
     }

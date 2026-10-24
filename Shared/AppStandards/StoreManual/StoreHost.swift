@@ -14,6 +14,7 @@ func S(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
     private var help: NSWindow?
     var name: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "" }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         if let id = Bundle.main.bundleIdentifier,
            let prior = NSRunningApplication.runningApplications(withBundleIdentifier: id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
             prior.activate(options: [.activateAllWindows]); NSApp.terminate(nil); return
@@ -30,7 +31,7 @@ func S(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
         installMenus()
         MenuBarPresence.shared.install(name: name, symbol: "square.and.pencil", show: { self.reveal() }, settings: { self.openSettings() }, help: { self.openHelp() })
         let login = NSAppleEventManager.shared().currentAppleEvent?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
-        if !login && !StartupWindow.hidden { reveal() }
+        if !login && !StartupWindow.suppressInitialWindow { reveal() }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard processing else { return .terminateNow }
@@ -40,7 +41,8 @@ func S(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { !resident && !processing }
     private var resident: Bool { UserDefaults.standard.object(forKey: "appStoreManual.resident") as? Bool ?? true }
     @objc private func changeResidency(_ sender: NSButton) { UserDefaults.standard.set(sender.state == .on, forKey: "appStoreManual.resident") }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { reveal(); return false }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); reveal(); return false }
     @objc func reveal() { window.deminiaturize(nil); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
     @objc func openSettings() {
         if settings == nil {

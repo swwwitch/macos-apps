@@ -381,6 +381,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         if let other = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "local.takano.CCAutoUpdateOff").sorted(by: { ($0.launchDate ?? .distantPast) == ($1.launchDate ?? .distantPast) ? $0.processIdentifier < $1.processIdentifier : ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }).first, other.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             other.activate(options: [.activateAllWindows, .activateIgnoringOtherApps]); NSApp.terminate(nil); return
         }
@@ -428,7 +429,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         // Safety net if a file event or the send-time timer was missed.
         timer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in self?.recheck() }
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(recheck), name: NSWorkspace.didWakeNotification, object: nil)
-        if !loginLaunch && !StartupWindow.hidden { showMain() }
+        if !loginLaunch && !StartupWindow.suppressInitialWindow { showMain() }
     }
 
     func addItem(_ menu: NSMenu, _ title: String, _ sel: Selector, _ key: String = "") {
@@ -498,7 +499,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
     func applicationDidBecomeActive(_ notification: Notification) { model.check() }
     /// Watching needs the app to keep running; with 常駐 off, closing the main window quits.
     func windowWillClose(_ notification: Notification) {

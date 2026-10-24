@@ -42,7 +42,7 @@
 - /ApplicationsとLatest Buildsへの配置・両配置先の版/build/署名・内容一致確認：実施（新規のため既存版なし）
 - /Applicationsのアプリを起動して動作確認：起動と主画面表示のみ。ホットキーでの各機能は未確認（アクセシビリティ未許可、KMマクロが有効なため）。AXでのURL・タイトル取得はChrome・Firefoxで別プローブにより確認
 
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindow 共通部品 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | WindowActivationPolicy、⌘0／⌘1 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs（タブ復元）、最小サイズ 720×560 |
 | B25 | アプリ情報と目印 | 実装済み・実機確認済み（タグ） | 情報タブ、Info.plist の3キー、Finderタグ swwwitch を mdls で確認。2026-10-16 1.2.10：SWNoteArticleURL を専用記事 https://note.com/swwwitch/n/n8b43a7eba379 に変更（/Applications・Latest Builds の Info.plist で確認） |

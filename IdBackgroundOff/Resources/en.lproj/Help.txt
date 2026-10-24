@@ -35,3 +35,5 @@ Privacy and updates
 No network access. Only the paths of apps chosen with Add InDesign…, the window position and the menu bar choice are saved (UserDefaults). Check for Updates… and Automatically Check for Updates in the app menu use the shared updater, but this build is ad-hoc signed for local use with no update feed, signing key or notarization, so it reports that updates are not configured and makes no network access.
 Reference (Japanese): https://note.com/dtp_tranist/n/nf94bf905c478
 Support: see the bundled README.md (Contents/Resources/README.md inside the app).
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

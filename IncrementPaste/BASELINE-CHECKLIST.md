@@ -32,7 +32,7 @@
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（白いカードの「1」＋茶色の円に白い＋）、Assets.carも付与 |
 | B20 | 共通UI統一 | 実装済み・実機未確認 | タブ：起動・常駐（＋アクセシビリティ）／ホットキー／増やし方／対象外アプリ／情報。アプリ起動のホットキーは他アプリ同様未搭載。2026-10-17：アクセシビリティを共通の AccessibilitySection() に（起動グループの直下）、判定は AccessibilitySection.isTrusted、未許可の失敗表示は AccessibilityText.text("blocked")。独自の accessibilityAllowed / refreshAccessibility は削除 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 初期値はKMマクロの除外と同じ（Illustrator・Excel・InDesign・ScreenFlow、check_km_macro.pyで照合）。2026-10-17：共通部品 ExcludedApps に移行（ExcludedAppList.swift・独自ビュー・appInfo() を削除、initial は ExcludedDefaults.initial、キー excludedBundleIDs のまま・旧キーなし、onChange でホットキー再登録）。既存の一覧が残ることを defaults read で確認 |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindow共通部品 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、WindowActivationPolicy |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | SettingsTabs、contentMinSize、即時反映 |
 | B25 | アプリ情報と目印 | 一部 | 情報タブ、著作権、SWAppFamily。2026-10-16 SWNoteArticleURL を専用記事に変更（/Applications 版の Info.plist で確認） |

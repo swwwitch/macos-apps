@@ -42,7 +42,7 @@
 - /ApplicationsとLatest Buildsへの配置・既存版バックアップ・両配置先の版/build/署名・内容一致確認：未実施
 - /Applicationsのアプリを起動して動作確認：未実施
 
-| B22 | 起動時にメインウインドウを表示しない | 未確認 | 設定保存、OFF/ON起動、明示的再表示、ファイル受け渡しを確認 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 
 ## 2026-10-08 verification
 Compile and ad-hoc signature verification passed. Existing transformation/duplication tests passed. Runtime UI, sandbox file permissions, login launch and deployment remain unverified. No final distribution or upload.

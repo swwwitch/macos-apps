@@ -1,10 +1,26 @@
 import AppKit
+import Carbon
 import SwiftUI
 
-/// Persisted independently from login registration and residency. Missing key preserves existing behavior.
+/// Manual launch always shows the main window. Only a login-item launch is quiet.
+/// The retired hideMainWindowAtStartup preference is deliberately ignored.
 enum StartupWindow {
-    static let key = "hideMainWindowAtStartup"
-    static var hidden: Bool { UserDefaults.standard.bool(forKey: key) }
+    nonisolated(unsafe) private static var loginLaunch = false
+    nonisolated(unsafe) private static var explicitlyOpened = false
+
+    static func isLoginEvent(_ event: NSAppleEventDescriptor?) -> Bool {
+        event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
+    }
+    static func captureLaunch(_ event: NSAppleEventDescriptor? = NSAppleEventManager.shared().currentAppleEvent) {
+        loginLaunch = loginLaunch || isLoginEvent(event)
+    }
+    static var suppressInitialWindow: Bool {
+        captureLaunch()
+        return loginLaunch && !explicitlyOpened
+    }
+    /// Reopen and file delivery take precedence over a pending initial-window gate.
+    static func userRequestedWindow() { explicitlyOpened = true }
+
     static func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
         // Japanese-only apps have no localized bundles; keep their settings language consistent.
         let language = Bundle.main.object(forInfoDictionaryKey: "CFBundleLocalizations") == nil ? "ja" : (Bundle.main.preferredLocalizations.first ?? "en")
@@ -13,8 +29,7 @@ enum StartupWindow {
         if language.hasPrefix("ko") { return ko }
         return en
     }
-    static var title: String { text("起動時にメインウインドウを表示しない", "Hide main window at startup", "启动时不显示主窗口", "시작 시 메인 윈도우 표시 안 함") }
-    static var detail: String { text("メインウインドウを開かずに起動します。起動後はDockやメニューから表示できます。", "Launch without opening the main window. Show it later from the Dock or menu.", "启动时不打开主窗口。之后可从 Dock 或菜单显示。", "메인 윈도우를 열지 않고 시작합니다. Dock 또는 메뉴에서 다시 표시할 수 있습니다.") }
+    static var detail: String { text("ログイン時の自動起動ではメインウインドウを表示しません。手動で起動・開き直したときは表示します。", "Automatic login launch does not show the main window. Opening or reopening the app manually shows it.", "登录时自动启动不显示主窗口。手动启动或重新打开应用时显示主窗口。", "로그인 시 자동 실행할 때는 메인 윈도우를 표시하지 않습니다. 수동으로 실행하거나 다시 열면 표시합니다.") }
 }
 
 /// Keeps the app out of the Dock and the ⌘Tab switcher (activation policy .accessory). Missing key keeps the usual policy.
@@ -40,14 +55,10 @@ enum DockPresence {
 
 @MainActor
 final class StartupWindowControl: NSStackView {
-    private let toggle = NSButton(checkboxWithTitle: StartupWindow.title, target: nil, action: nil)
     private let dockToggle = NSButton(checkboxWithTitle: DockPresence.title, target: nil, action: nil)
     init() {
         super.init(frame: .zero)
         orientation = .vertical; alignment = .leading; spacing = 6
-        toggle.state = StartupWindow.hidden ? .on : .off
-        toggle.target = self; toggle.action = #selector(changed)
-        addArrangedSubview(toggle)
         addArrangedSubview(note(StartupWindow.detail))
         dockToggle.state = DockPresence.hidden ? .on : .off
         dockToggle.target = self; dockToggle.action = #selector(dockChanged)
@@ -60,16 +71,13 @@ final class StartupWindowControl: NSStackView {
         detail.font = .systemFont(ofSize: 11); detail.textColor = .secondaryLabelColor
         return detail
     }
-    @objc private func changed() { UserDefaults.standard.set(toggle.state == .on, forKey: StartupWindow.key) }
     @objc private func dockChanged() { DockPresence.set(dockToggle.state == .on) }
 }
 
 struct StartupWindowView: View {
-    @AppStorage(StartupWindow.key) private var hidden = false
     @AppStorage(DockPresence.key) private var dockHidden = false
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Toggle(StartupWindow.title, isOn: $hidden)
             Text(StartupWindow.detail).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             Toggle(DockPresence.title, isOn: Binding(get: { dockHidden }, set: { DockPresence.set($0) }))
             Text(DockPresence.detail).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -87,9 +95,22 @@ struct StartupWindowGate: NSViewRepresentable {
             super.viewDidMoveToWindow()
             guard let window, !Self.applied else { return }
             Self.applied = true
-            guard StartupWindow.hidden else { return }
+            // SwiftUI may attach the view before the initial Apple event is delivered.
+            NotificationCenter.default.addObserver(self, selector: #selector(finishedLaunching),
+                name: NSApplication.didFinishLaunchingNotification, object: nil)
+            hideInitialWindowIfNeeded()
+        }
+        @objc private func finishedLaunching() {
+            NotificationCenter.default.removeObserver(self, name: NSApplication.didFinishLaunchingNotification, object: nil)
+            hideInitialWindowIfNeeded()
+        }
+        private func hideInitialWindowIfNeeded() {
+            guard let window, StartupWindow.suppressInitialWindow else { return }
             window.orderOut(nil)
-            DispatchQueue.main.async { window.orderOut(nil) }
+            DispatchQueue.main.async {
+                guard StartupWindow.suppressInitialWindow else { return }
+                window.orderOut(nil)
+            }
         }
     }
 }

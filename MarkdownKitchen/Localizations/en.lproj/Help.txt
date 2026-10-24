@@ -114,7 +114,7 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 
 ## Settings
 Open with the Settings button in the main window (⌘,).
-- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher (keeps the app out of the Dock and ⌘Tab even with a window open; show it from the menu bar icon or by opening the app again in Finder), Show in menu bar
+- **Startup & Background**: Open at login, Hide from Dock and App Switcher (keeps the app out of the Dock and ⌘Tab even with a window open; show it from the menu bar icon or by opening the app again in Finder), Show in menu bar
 - **Hotkeys**: change the keys for format, convert, paragraph and heading commands . Click Change… and press keys that include ⌘ or ⌃ (Esc cancels). Reset to Default, Clear (no key; shown as None) and Reset All below are also available. Standard keys such as ⌘C, the app’s standard keys and keys used by another item cannot be assigned. The keys work only while MarkdownKitchen is in front
 - **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
 - **Right-Click**: choose which format items appear in the source’s right-click menu (all by default)
@@ -185,3 +185,5 @@ Open with the Settings button in the main window (⌘,).
 1. Turn off Open at login.
 2. Choose Quit MarkdownKitchen.
 3. Move MarkdownKitchen to the Trash.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

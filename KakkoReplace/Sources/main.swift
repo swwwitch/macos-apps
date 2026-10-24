@@ -272,6 +272,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     let menu = NSMenu()
     var resultItem: NSMenuItem!
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         // Configured before the model registers hot keys; 0.3.34 and earlier kept the list under "excluded".
         ExcludedApps.shared.configure(explanation: L("exclusionsHint"), legacyKeys: ["excluded"])
         model = Model()
@@ -347,14 +348,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         }
         item.button?.image = nil
         // Reuse FolderHopper's Apple-event login-launch detection.
-        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.hidden { showPrimaryWindow() }
+        if !LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) && !StartupWindow.suppressInitialWindow { showPrimaryWindow() }
     }
     func add(_ menu: NSMenu, _ title: String, _ action: Selector, _ key: String = "") { let entry = menu.addItem(withTitle: title, action: action, keyEquivalent: key); entry.target = self }
     func menuWillOpen(_ menu: NSMenu) {
         resultItem.title = model.status
         menu.items.first { $0.action == #selector(togglePause) }?.state = model.paused ? .on : .off
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showPrimaryWindow(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showPrimaryWindow(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { !model.keepRunning }
     func windowWillClose(_ notification: Notification) {
         // Accessory applications also need an explicit last-window close path.

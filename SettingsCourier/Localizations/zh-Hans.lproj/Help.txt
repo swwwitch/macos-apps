@@ -87,3 +87,5 @@ SettingsCourier 将已登记应用的设置（defaults）导出为一个文件�
 1. 关闭“登录时打开”。
 2. 选取“退出 SettingsCourier”。
 3. 将 SettingsCourier 移到废纸篓。备份会保留在 ~/Library/Application Support/SettingsCourier 中，不需要时请删除。
+
+手动启动或重新打开应用时显示主窗口。登录时自动启动不显示主窗口。明确打开文件时优先执行该操作。

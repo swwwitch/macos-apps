@@ -390,7 +390,6 @@
 "indesignPresetMissing" = "InDesign 中没有此 PDF 预设：";
 "indesignExportedOpen" = "已从 InDesign 中打开的文档导出。";
 "indesignExportedUnsaved" = "已从 InDesign 中打开的文档导出，包含未保存的更改。";
-
 "storeAccessFailed" = "无法恢复文件夹访问权限。请重新选择保存位置。";
 "storeBundledEngine" = "内置转换引擎";
 "storeContainerDestination" = "无法导出到应用容器。请选择普通文件夹。";

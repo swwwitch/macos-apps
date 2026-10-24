@@ -113,6 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -190,7 +191,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         ])
         refresh()
         window.center()
-        if !StartupWindow.hidden { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
+        if !StartupWindow.suppressInitialWindow { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         registerGlobalShortcut()
         SettingsSync.shared.onImport = { [weak self] in
             guard let self else { return }
@@ -285,6 +286,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showMainWindow()
         return true
     }

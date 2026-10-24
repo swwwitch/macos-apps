@@ -45,7 +45,7 @@ SettingsCourier exports the settings (defaults) of the apps you register into a 
 
 ## Settings
 Open with the Settings button in the main window (⌘,).
-- **Launch & Background**: Full Disk Access status and a button to open its settings. Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the icon is not shown in the Dock or in ⌘Tab; show the window from the menu bar icon (when shown) or by opening the app again in the Finder
+- **Launch & Background**: Full Disk Access status and a button to open its settings. Open at login, Hide from Dock and App Switcher, Show in menu bar. With Hide from Dock and App Switcher on, the icon is not shown in the Dock or in ⌘Tab; show the window from the menu bar icon (when shown) or by opening the app again in the Finder
 - **Sharing**: Export, import and sync (through a folder such as iCloud Drive or Dropbox) the list of registered apps and which keys to export. Below it, “Export when a registered app quits” turns automatic export on quit on or off (the last result is shown too). App settings are handed over through the SettingsCourier folder inside the sync folder. App setting values are never imported automatically.
 - **About**: Version and links.
 
@@ -87,3 +87,5 @@ Open with the Settings button in the main window (⌘,).
 1. Turn off Open at login.
 2. Choose Quit SettingsCourier.
 3. Move SettingsCourier to the Trash. Backups stay in ~/Library/Application Support/SettingsCourier; delete them if you don’t need them.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

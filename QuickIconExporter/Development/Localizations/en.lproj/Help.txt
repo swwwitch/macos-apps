@@ -24,7 +24,7 @@ A menu bar app that exports the icons of apps and files as PNG images with trans
 
 ## Settings
 Open Settings with the Settings button in the main window (⌘,). Changes take effect immediately, including for files dropped on the app icon and exports from Services.
-- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar
+- **Startup & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar
 - **Export**: change the Destination (Choose Folder…, Reset to Desktop)
 - **Filename**: the “icon” Text (leave it empty to use only the filename), Position ({icon}-filename.png or filename-{icon}.png), Separator (hyphen or underscore), Spaces, Use the Name Shown in Finder (on by default), and Remove unnecessary symbols. Check the result in Preview, and click Restore Filename Defaults to go back to the defaults.
 - **On Completion**: Show in Finder after export (on by default), Hide app after export (off by default), Show notification (off by default), Play a sound (off by default)
@@ -49,7 +49,7 @@ In the Sharing tab you can share the file naming and what happens after export. 
 
 ## Opening and Quitting
 - Closing the window does not quit the app; it stays in the menu bar. Choose Open Main Window from the menu bar icon to show the main window again.
-- When opened at login, or when Hide main window at startup is on, the app starts without opening the main window.
+- Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
 - When Hide from Dock and App Switcher is on, the app stays out of the Dock and the ⌘Tab switcher even while the main window is open (off by default). Show it from the menu bar icon or by opening it again in Finder.
 - Turning off Show in menu bar does not quit the app. Open QuickIconExporter again to show the main window.
 - To quit, choose Quit QuickIconExporter from the menu bar icon.

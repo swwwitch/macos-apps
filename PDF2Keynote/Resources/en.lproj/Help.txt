@@ -22,7 +22,7 @@ The original PDF is never changed. Existing names get a number ("name 2.key"); n
 ## Settings and shortcuts
 Settings (Command-comma) › Startup & Background:
 - Open at login (off by default)
-- Hide main window at startup
+- Manual launch and reopening show the main window; automatic login launch does not.
 - Hide from Dock and App Switcher (off by default; when on, the app stays out of the Dock and Command-Tab even with a window open — show it from the menu bar icon, the app launch shortcut, or by opening the app again in Finder)
 - Keep running after closing the window
 - Show in menu bar

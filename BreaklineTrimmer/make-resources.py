@@ -209,7 +209,7 @@ Illustrator版の「グループ化」は、ビットマップには当てはま
 アプリメニューの**設定…**（⌘,）で開きます。「起動・常駐」タブで次の項目を設定できます。
 
 - **ログイン時に起動**（初期値オフ）
-- **起動時にメインウインドウを表示しない**（初期値オフ）
+- 手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。
 - **Dockとアプリケーションスイッチャーに表示しない**（初期値オフ。オンにすると、Dockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます）
 - **ウインドウを閉じても常駐**（初期値オン。オフにすると、メインウインドウを閉じたときに終了します）
 - **メニューバーに表示**
@@ -234,7 +234,7 @@ Illustrator版の「グループ化」は、ビットマップには当てはま
 
 ## 起動と終了
 - **ウインドウを閉じても常駐**がオンのときは、ウインドウを閉じてもアプリは終了せず、開いている画像と範囲もそのまま残ります。Dockのアイコン、**ファイル**メニューの**メインウインドウを開く**（⌘0）、メニューバーのアイコン（表示しているとき）で再表示できます。
-- ログイン時に起動したときや、**起動時にメインウインドウを表示しない**がオンのときは、メインウインドウを表示せずに起動します。ファイルを渡して起動したときは表示します。
+- 手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。ファイルを渡して起動したときは表示します。
 - 終了するには、アプリメニューの**BreaklineTrimmerを終了**（⌘Q）を選びます。保存中は終了できません。保存が終わってから、もう一度終了してください。
 
 ## 困ったとき
@@ -289,7 +289,7 @@ The result is saved as **PNG** (the default), **JPEG** or **PSD**, as chosen und
 Open them with **Settings…** (⌘,) in the app menu. The Startup & Background tab has:
 
 - **Open at login** (off at first)
-- **Hide main window at startup** (off at first)
+- Manual launch and reopening show the main window; automatic login launch does not.
 - **Hide from Dock and App Switcher** (off at first. When on, the app does not appear in the Dock or the ⌘Tab switcher. Show it from the menu bar icon (when shown) or by opening the app again in Finder)
 - **Keep running after closing the window** (on at first; when off, closing the main window quits)
 - **Show in menu bar**
@@ -314,7 +314,7 @@ No special permission is needed. The app reads only the images you open, drop or
 
 ## Running and quitting
 - With **Keep running after closing the window** on, closing the window does not quit the app, and the open image and area stay as they are. Show the window again from the Dock icon, **File** > **Open Main Window** (⌘0), or the menu bar icon (when shown).
-- When opened at login, or with **Hide main window at startup** on, the app starts without showing the main window. It shows the window when files are handed to it.
+- Manual launch and reopening show the main window; automatic login launch does not. It shows the window when files are handed to it.
 - To quit, choose **Quit BreaklineTrimmer** (⌘Q) in the app menu. The app cannot quit while saving; quit again after the save finishes.
 
 ## Troubleshooting
@@ -369,7 +369,7 @@ Illustrator 版中的“编组”不适用于位图，因此省略。设置会�
 从应用菜单的**设置…**（⌘,）打开。“启动与后台”标签页中可以设置以下项目。
 
 - **登录时启动**（默认关闭）
-- **启动时不显示主窗口**（默认关闭）
+- 手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。
 - **不在程序坞和应用程序切换器中显示**（默认关闭。开启后不在程序坞和 ⌘Tab 切换器中显示图标。可通过菜单栏图标（显示时）或在访达中再次打开应用来显示）
 - **关闭窗口后保持运行**（默认开启。关闭时，关闭主窗口即退出应用）
 - **在菜单栏中显示**
@@ -394,7 +394,7 @@ Illustrator 版中的“编组”不适用于位图，因此省略。设置会�
 
 ## 启动与退出
 - **关闭窗口后保持运行**开启时，关闭窗口不会退出应用，打开的图像和范围也会保留。可通过 Dock 图标、**文件**菜单中的**打开主窗口**（⌘0）或菜单栏图标（显示时）再次显示窗口。
-- 登录时启动，或**启动时不显示主窗口**开启时，启动时不显示主窗口。传入文件启动时会显示。
+- 手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。传入文件启动时会显示。
 - 要退出，请选择应用菜单中的**退出 BreaklineTrimmer**（⌘Q）。存储时无法退出，请在存储完成后再次退出。
 
 ## 疑难解答
@@ -449,7 +449,7 @@ Illustrator 버전의 '그룹화'는 비트맵에는 해당하지 않으므로 �
 앱 메뉴의 **설정…**(⌘,)으로 엽니다. '시작 및 백그라운드' 탭에서 다음 항목을 설정할 수 있습니다.
 
 - **로그인 시 실행**(기본값 끔)
-- **시작 시 메인 윈도우 표시 안 함**(기본값 끔)
+- 수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다.
 - **Dock 및 앱 전환기에 표시 안 함**(기본값 끔. 켜면 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않습니다. 메뉴 막대 아이콘(표시 중일 때) 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다)
 - **윈도우를 닫아도 계속 실행**(기본값 켬. 끄면 메인 윈도우를 닫을 때 종료합니다)
 - **메뉴 막대에 표시**
@@ -474,7 +474,7 @@ Illustrator 버전의 '그룹화'는 비트맵에는 해당하지 않으므로 �
 
 ## 실행과 종료
 - **윈도우를 닫아도 계속 실행**이 켜져 있으면 윈도우를 닫아도 앱은 종료되지 않으며, 열어 둔 이미지와 범위도 그대로 남습니다. Dock 아이콘, **파일** 메뉴의 **메인 윈도우 열기**(⌘0), 메뉴 막대 아이콘(표시 중일 때)으로 다시 표시할 수 있습니다.
-- 로그인 시 실행했을 때나 **시작 시 메인 윈도우 표시 안 함**이 켜져 있을 때는 메인 윈도우를 표시하지 않고 시작합니다. 파일을 넘겨 실행했을 때는 표시합니다.
+- 수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다. 파일을 넘겨 실행했을 때는 표시합니다.
 - 종료하려면 앱 메뉴의 **BreaklineTrimmer 종료**(⌘Q)를 선택합니다. 저장하는 동안에는 종료할 수 없습니다. 저장이 끝난 뒤 다시 종료하세요.
 
 ## 문제 해결

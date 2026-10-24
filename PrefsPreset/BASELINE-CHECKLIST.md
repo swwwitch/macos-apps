@@ -42,6 +42,6 @@
 - /ApplicationsとLatest Buildsへの配置・既存版バックアップ・両配置先の版/build/署名・内容一致確認：deploy_both.py で確認済み（既存版なし）
 - /Applicationsのアプリを起動して動作確認：実施（上記）。「適用」で実際に書き込む操作は利用者の設定を変えるため未実施
 
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | StartupWindow.swift（共通部品）、設定に表示を確認。ON時の起動は未確認 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 1.1.11(14)：SettingsView に「設定の共有」タブ（情報の直前）、AppDelegate.startSettingsSync。共有: showGuide・showDomainKey・mainMode・languageApps。.prefspreset はアプリ本来の機能として別のまま。Macごと: myPresetFolder・appliedFeatureFlag.*・ログイン起動・メニューバー。onImport で Store.reloadLanguageApps。build.sh 成功・両配置 1.1.11(14) 一致・起動確認。書き出し/読み込み/同期の操作は未確認 |
 | ホットキーの記録欄 | 共通の HotkeyField（Shared/HotkeyRecorder） | 適用外 | 2026-10-17：アプリのホットキーは無い（メニューの標準キーのみ）。macOSのキーボードショートカットは一覧の値として扱うアプリ本体の機能 |

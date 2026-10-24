@@ -669,6 +669,7 @@ struct FormatSettingsView: View {
     var statusItem: NSStatusItem?
     var isDuplicate = false
     func applicationWillFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         UserDefaults.standard.register(defaults:["resident":true])
         if let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier:id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
             isDuplicate = true
@@ -679,6 +680,7 @@ struct FormatSettingsView: View {
         }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         SettingsSync.shared.onImport = { [weak self] in Task { @MainActor in self?.model.reloadSyncedSettings() } }
         // Paths, presets read from the local Adobe apps, the PDF engine and the output folder stay per Mac.
@@ -704,11 +706,13 @@ struct FormatSettingsView: View {
         // Shared menu-bar presence keeps this icon and menu; it adds 「メニューバー設定…」 to the app menu and the visibility setting.
         MenuBarPresence.shared.install(name:"CarmaChameleon",symbol:"doc.on.doc",existing:statusItem,show:{ [weak self] in self?.show() },settings:{ [weak self] in self?.showSettings() },help:{ [weak self] in self?.showHelp() })
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        if !model.files.isEmpty || (!login && !StartupWindow.hidden) { show() }
+        if !model.files.isEmpty || (!login && !StartupWindow.suppressInitialWindow) { show() }
     }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps:true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
-    func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { show(); return true }
+    func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); show(); return true }
     func application(_ sender:NSApplication,open urls:[URL]) {
+        StartupWindow.userRequestedWindow()
         if isDuplicate, let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier:id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }), let app = other.bundleURL { NSWorkspace.shared.open(urls,withApplicationAt:app,configuration:NSWorkspace.OpenConfiguration()); return }
         model.add(urls); show()
     }

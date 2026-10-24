@@ -25,7 +25,7 @@ No shadow removes existing shadows. Images without a shadow are skipped rather t
 Open **Settings…** from the app menu (⌘,). The Startup & Background tab contains:
 
 - **Open at login**
-- **Hide main window at startup**
+- Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
 - **Hide from Dock and App Switcher**: keeps the app out of the Dock and the ⌘Tab switcher even while the window is open. Show it from the menu bar icon, the show app shortcut, or by opening the app again in Finder.
 - **Show in menu bar**
 - **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. To change it, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘U. Turn off **Enable hotkey** if you do not use it.
@@ -57,7 +57,7 @@ KageTrimmer does not need Accessibility permission. If it cannot write to the or
 
 ## Opening and Quitting
 - Closing the window does not quit the app. To show the window again, click the app icon in the Dock, choose **Open Main Window** from the menu bar icon (when **Show in menu bar** is on), or press the show app shortcut.
-- When opened at login, or when **Hide main window at startup** is on, the app starts without showing the main window.
+- Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
 - If the app is opened with files, it shows the window, processes the files, and then quits. If you hand files to the app while it is already running, it keeps running after processing.
 - To quit, choose **Quit KageTrimmer** from the app menu (⌘Q) or **Quit KageTrimmer** from the menu bar icon. You can’t quit while images are being processed; quit again after processing has finished.
 

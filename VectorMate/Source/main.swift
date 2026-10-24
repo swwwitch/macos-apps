@@ -1055,6 +1055,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     lazy var transformPalette = QuickTransformPalette(model: model)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         let loginLaunch = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         AccessibilityText.neededOverride = [
             "Illustratorで押したキー（Return・Tab・⌘キー）を確認のきっかけにするためと、環境設定・ツールオプションのダイアログボックスを操作するために使用します。未許可の場合、プロポーショナルメトリクスはクリックの後だけ確認し、UIの明るさ・シェイプ形成ツールのカラー・バックグラウンド保存と書き出しは変更できません。",
@@ -1106,7 +1107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                                        "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
                                        "로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         updateStatusItem()
-        if !loginLaunch && !StartupWindow.hidden { showMain() }
+        if !loginLaunch && !StartupWindow.suppressInitialWindow { showMain() }
     }
 
     func add(_ menu: NSMenu, _ title: String, _ action: Selector, _ key: String = "") {
@@ -1175,14 +1176,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         // ⌘Tab sends no reopen event: with no window on screen, bring one back. Checked on the next turn of the run loop,
         // so a window this app is opening itself (設定…, ヘルプ) counts.
         DispatchQueue.main.async { [weak self] in
-            // The activation that comes with launching respects 起動時にメインウインドウを表示しない.
-            guard let self, NSApp.isActive, !(StartupWindow.hidden && Date().timeIntervalSince(self.launchedAt) < 2) else { return }
+            // Automatic login launch must not reveal the window on activation.
+            guard let self, NSApp.isActive, !(StartupWindow.suppressInitialWindow && Date().timeIntervalSince(self.launchedAt) < 2) else { return }
             let windows = NSApp.windows.filter { !($0 is NSPanel) && $0.canBecomeMain && $0.styleMask.contains(.titled) }
             guard !windows.contains(where: { $0.isVisible }), !self.unitPalette.isVisible, !self.quickPalette.isVisible, !self.transformPalette.isVisible else { return }
             if let minimized = windows.first(where: { $0.isMiniaturized }) { minimized.deminiaturize(nil) } else { self.showMain() }
         }
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMain(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); showMain(); return true }
     /// Watching needs the app to keep running; with 常駐 off, closing the main window quits.
     func windowWillClose(_ notification: Notification) {
         guard let closing = notification.object as? NSWindow, closing === mainWindow, !model.keepRunning else { return }

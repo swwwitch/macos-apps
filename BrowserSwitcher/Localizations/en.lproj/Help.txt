@@ -13,7 +13,7 @@ Changes your default web browser (the browser that opens links).
 Open **Settings…** from the app menu (⌘,) or with the **Settings…** button in the window. Changes are saved automatically. Click **Done** to close Settings.
 
 ### Startup & Background Tab
-- Set **Open at login**, **Hide main window at startup**, and **Show in menu bar**.
+- Set **Open at login**, and **Show in menu bar**.
 - **Hide from Dock and App Switcher** (off at first): when on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon, the app hotkey, or by opening the app again in Finder.
 - **Show app shortcut**: click Change… and press the keys to assign; the change takes effect immediately (Esc cancels).
 - At least one of ⌃, ⌥ or ⌘ is required, and keys used by standard commands such as ⌘C or by Lock Screen (⌃⌘Q) cannot be assigned. A registration failure is shown under the field.
@@ -57,3 +57,5 @@ No special permissions such as Accessibility are required. macOS may show a conf
 1. Turn off **Open at login**.
 2. Quit the app.
 3. Move the app to the Trash.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

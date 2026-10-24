@@ -386,6 +386,7 @@ struct SettingsView: View {
     var launched = false
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         UserDefaults.standard.register(defaults: ["resident": true])
         if let id = Bundle.main.bundleIdentifier, let other = otherInstance(id) {
             isDuplicate = true
@@ -399,6 +400,7 @@ struct SettingsView: View {
         NSRunningApplication.runningApplications(withBundleIdentifier: id).first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 640), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -422,11 +424,13 @@ struct SettingsView: View {
         launched = true
         if !pendingFiles.isEmpty { model.add(pendingFiles); pendingFiles = [] }
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
-        if !model.files.isEmpty || (!login && !StartupWindow.hidden) { show() }
+        if !model.files.isEmpty || (!login && !StartupWindow.suppressInitialWindow) { show() }
     }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool { show(); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        StartupWindow.userRequestedWindow(); show(); return true }
     func application(_ sender: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         if isDuplicate, let id = Bundle.main.bundleIdentifier, let other = otherInstance(id), let app = other.bundleURL {
             NSWorkspace.shared.open(urls, withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration()); return
         }

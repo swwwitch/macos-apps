@@ -18,7 +18,7 @@ Conversion
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
@@ -44,3 +44,4 @@ Privacy
 To load the article you enter, the app connects to note's public API (note.com/api/v3/notes/<key>). With “Sign in to load the paid part too” off (the default), no login information or cookies are sent. When on, the note cookies from signing in inside the app are sent only with requests to note.com. The app never handles your password; the session stays in the app’s WebKit storage until you choose Sign Out. Only the settings and the last export folder are stored (UserDefaults).
 Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
 Support: see the bundled README.md (Contents/Resources/README.md in the app).
+Manual launch and reopening show the main window; automatic login launch does not.

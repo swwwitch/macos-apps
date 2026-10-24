@@ -10,6 +10,7 @@ import Carbon
     private var pendingOpenURLs: [URL] = []
     private var quitAfterPendingOpen = false
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -52,7 +53,7 @@ import Carbon
                                        "登录时启动、菜单栏、快捷键和文件夹监视需在每台 Mac 上分别设置。",
                                        "로그인 시 실행, 메뉴 막대, 단축키, 폴더 감시는 Mac마다 설정합니다.")))
         // A login launch stays quiet; files handed over at launch still show the window.
-        if (!StartupWindow.hidden && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
+        if (!StartupWindow.suppressInitialWindow && !loginLaunch) || !pendingOpenURLs.isEmpty { window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         if !pendingOpenURLs.isEmpty {
             let urls = pendingOpenURLs
             let shouldQuit = quitAfterPendingOpen
@@ -78,6 +79,7 @@ import Carbon
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showMainWindow()
         return true
     }
@@ -140,6 +142,7 @@ import Carbon
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        StartupWindow.userRequestedWindow()
         let urls = filenames.map { URL(fileURLWithPath: $0) }
         if let mainViewController {
             // Already running (Dock drop / Open With into the resident app): keep running after processing.

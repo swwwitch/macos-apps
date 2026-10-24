@@ -30,7 +30,7 @@
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/GenerateIcon.swift（CCAutoUpdateOffと同じタイル、AVと字間の括弧） |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 一部 | 起動・常駐タブにログイン起動・起動時非表示・常駐・メニューバー・アクセシビリティ。アプリ起動のホットキーは未実装（CCAutoUpdateOffと同じく残件） |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 作用するのはIllustratorだけ。実行直前に前面がIllustratorか再確認し、キーは消費しない |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchView に内包の StartupWindowView（2.19.0で重複表示を解消） |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | ユーザーの指示で通常アプリ（.regular、常に⌘TabとDockに表示）。WindowActivationPolicyは使わない。Dockからの開き直しは applicationShouldHandleReopen、MenuBarPresence（⌘1） |
 | B24 | 設定ウインドウのふるまい | 一部 | 最小サイズ（sizingOptions .minSize）。タブ復元は SettingsTabs 任せ。Escで閉じるは未確認 |
 | B25 | アプリ情報と目印 | 実装済み | 情報タブ、SWNoteArticleURL（専用記事）、コピーライト、SWAppFamily |

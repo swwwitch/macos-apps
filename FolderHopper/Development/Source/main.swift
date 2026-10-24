@@ -154,6 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         states.first { $0.id == selectedSourceID }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         WindowActivationPolicy.install()
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -196,11 +197,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         windowScreen.setAccessibilityLabel(L("複数のディスプレイのとき、ウインドウを表示する画面"))
         startSettingsSync()
         window.center()
-        if LaunchPolicy.shouldShowMainWindow(hiddenAtStartup: StartupWindow.hidden, hasFiles: pendingOpenFiles != nil) {
+        if LaunchPolicy.shouldShowMainWindow(hiddenAtStartup: StartupWindow.suppressInitialWindow, hasFiles: pendingOpenFiles != nil) {
             requestTransfer()
         }
     }
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        StartupWindow.userRequestedWindow()
         var seen = Set<String>()
         let files = filenames.map { URL(fileURLWithPath: $0).standardizedFileURL }
             .filter { seen.insert($0.path).inserted }
@@ -249,6 +251,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         globalShortcut.refresh(frontmost: app?.bundleIdentifier)
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         // Even while processing or with a sheet open, at least bring the window to the front.
         if busy || window.attachedSheet != nil { presentDestinations() } else { requestTransfer() }
         return true

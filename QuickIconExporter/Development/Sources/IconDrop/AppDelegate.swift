@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private var isProcessingExternalOpen = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         UNUserNotificationCenter.current().delegate = self
         defer { DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -59,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showWindow()
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
@@ -117,6 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
         pendingURLs.append(contentsOf: urls)
         application.reply(toOpenOrPrint: .success)
         processPendingURLs(in: application)

@@ -87,3 +87,5 @@ SettingsCourier는 등록한 앱의 설정(defaults)을 하나의 파일로 내�
 1. ‘로그인 시 열기’를 끕니다.
 2. ‘SettingsCourier 종료’를 선택합니다.
 3. SettingsCourier를 휴지통으로 옮깁니다. 백업은 ~/Library/Application Support/SettingsCourier에 남으므로 필요 없으면 삭제합니다.
+
+수동으로 실행하거나 다시 열면 메인 윈도우를 표시합니다. 로그인 시 자동 실행에서는 표시하지 않습니다. 파일을 명시적으로 열면 해당 작업을 우선합니다.

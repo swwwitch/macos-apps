@@ -46,3 +46,5 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 
 Notifications
 Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

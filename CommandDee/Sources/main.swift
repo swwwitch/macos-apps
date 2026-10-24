@@ -60,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        StartupWindow.captureLaunch()
         AccessibilityText.neededOverride = [
             "Finder／Path Finderの選択項目の取得とホットキー操作に使用します。",
             "Used to get the selected items in Finder / Path Finder and to handle keyboard shortcuts.",
@@ -108,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         palette = CommandPalette(perform: { [weak self] mode, target in self?.runFromPalette(mode, target: target) },
                                  isBusy: { [weak self] in self?.busy ?? false },
                                  openSettings: #selector(showPreferences), settingsTarget: self)
-        if UserDefaults.standard.bool(forKey: CommandPalette.visibleKey) { palette?.show() }
+        if !StartupWindow.suppressInitialWindow && UserDefaults.standard.bool(forKey: CommandPalette.visibleKey) { palette?.show() }
         paletteHotkey = PaletteHotkey { [weak self] in self?.togglePalette() }
         registerPaletteHotkey()
         // While a settings field records a key, the palette key is released so the keystroke reaches the field.
@@ -118,7 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
             }
         }
         startSettingsSync()
-        if !StartupWindow.hidden && !UserDefaults.standard.bool(forKey: "didShowIntroduction") {
+        if !StartupWindow.suppressInitialWindow {
             showPreferences()
             UserDefaults.standard.set(true, forKey: "didShowIntroduction")
         }
@@ -217,6 +218,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        StartupWindow.userRequestedWindow()
         showPreferences()
         return true
     }

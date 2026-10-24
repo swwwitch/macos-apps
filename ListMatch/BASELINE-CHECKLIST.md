@@ -30,7 +30,7 @@
 | B19 | マスタード基調の共通アイコン | 実機確認済み | GenerateIcon.swift：茶色の縁取りの2枚のリスト、片方にしかない行を濃く。 |
 | B20 | 共通UI統一 | 実機確認済み（表示） | SettingsTabs：「起動・常駐」（ログイン起動・起動時非表示・常駐・メニューバー／操作）、「比較」（大文字小文字・全角半角・並べ替え）、「情報」。比較の単位と区切り文字はメインウインドウ。呼び出しホットキー・アクセシビリティ区画は不要のため設けない。 |
 | B21 | 対象外アプリ | 適用外 | 他アプリに作用しない。 |
-| B22 | 起動時にメインウインドウを表示しない | 実装済み・実機未確認 | LoginAtLaunchControl内のStartupWindowControl。 |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 実機未確認 | 共通StartupWindowで起動経路を判定。旧非表示設定は参照しない。2026-10-24の検証記録を参照 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、通常アプリ（Dock常時表示）、⌘0/⌘1（MenuBarPresence）。 |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | リサイズ可・最小サイズ、タブ復元、即時反映、タイトル「設定」。 |
 | B25 | アプリ情報と目印 | 実装済み | NSHumanReadableCopyright・SWAppFamily・SWNoteArticleURL（https://note.com/swwwitch/n/n27269d6eaf5b、1.5.1）。 |

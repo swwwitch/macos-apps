@@ -136,7 +136,7 @@ helptexts = [
 
 設定
 「出力」タブ：埋め込まれたnote記事のタイトルをリンクの文字にする（初期値オン）。オフにすると「note記事へのリンク」と書き出し、記事ごとの問い合わせをしません。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、起動時にメインウインドウを表示しない（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabに出さず、メニューバーのアイコンかFinderからアプリを開き直すと表示）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabに出さず、メニューバーのアイコンかFinderからアプリを開き直すと表示）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
 
 設定の共有
 「設定の共有」タブで、「出力」タブの設定（埋め込まれたnote記事のタイトル取得・ファイル名）を書き出し・読み込みできます（「書き出す…」「読み込む…」、note2markdown-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。最後の保存先フォルダー、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。
@@ -161,7 +161,9 @@ helptexts = [
 プライバシー
 入力した記事を読み込むため、note（note.com）の公開API（/api/v3/notes/記事キー）に接続します。「ログインして有料部分も読み込む」がオフのとき（初期値）は、ログイン情報やクッキーを送りません。オンのときは、アプリ内でログインしたnoteのクッキーをnote.comへの問い合わせにだけ付けます。パスワードはアプリでは扱わず、ログインの状態はアプリのWebKitの保存領域に残ります（「ログアウト」で消去）。保存するのは設定と最後の保存先フォルダー（UserDefaults）だけです。
 「アップデートを確認…」は共通の更新機能ですが、このビルドでは配信先と署名が未設定のため準備中と表示し、通信しません。
-サポート：同梱のREADME.md（アプリ内の Contents/Resources/README.md）をご覧ください。''',
+サポート：同梱のREADME.md（アプリ内の Contents/Resources/README.md）をご覧ください。
+手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。
+''',
 '''note2markdown — Export a note article as Markdown
 
 How to use
@@ -182,7 +184,7 @@ Conversion
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
-Startup & Background: Launch at login (off), Hide main window at startup (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
@@ -207,7 +209,9 @@ When a file with the same name exists, the save dialog asks whether to replace i
 Privacy
 To load the article you enter, the app connects to note's public API (note.com/api/v3/notes/<key>). With “Sign in to load the paid part too” off (the default), no login information or cookies are sent. When on, the note cookies from signing in inside the app are sent only with requests to note.com. The app never handles your password; the session stays in the app’s WebKit storage until you choose Sign Out. Only the settings and the last export folder are stored (UserDefaults).
 Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
-Support: see the bundled README.md (Contents/Resources/README.md in the app).''',
+Support: see the bundled README.md (Contents/Resources/README.md in the app).
+Manual launch and reopening show the main window; automatic login launch does not.
+''',
 '''note2markdown — 将 note 文章导出为 Markdown
 
 使用方法
@@ -228,7 +232,7 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 
 设置
 “输出”：将嵌入的 note 文章标题用作链接文字（默认开启）。关闭时写为“note 文章链接”，不进行额外请求。
-“启动与后台”：登录时启动（关）、启动时不显示主窗口（关）、不在程序坞和应用程序切换器中显示（关；开启后不在程序坞和 ⌘Tab 中显示，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
+“启动与后台”：登录时启动（关）、不在程序坞和应用程序切换器中显示（关；开启后不在程序坞和 ⌘Tab 中显示，可通过菜单栏图标或在访达中再次打开应用来显示）、关闭窗口后继续运行（开）、在菜单栏中显示（关）。
 
 设置共享
 在“设置共享”标签中，可以导出和导入“输出”标签的设置（获取嵌入的 note 文章标题）（“导出…”“导入…”，note2markdown-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。上次导出的文件夹、登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
@@ -253,7 +257,9 @@ Support: see the bundled README.md (Contents/Resources/README.md in the app).'''
 隐私
 为了载入您输入的文章，应用会连接 note 的公开 API（note.com/api/v3/notes/文章键）。“登录后也载入付费部分”关闭时（默认）不发送登录信息或 Cookie。开启时，仅在向 note.com 的请求中附带在应用内登录 note 的 Cookie。应用不处理密码，登录状态保存在应用的 WebKit 存储中（“退出登录”可清除）。仅保存设置和上次导出的文件夹（UserDefaults）。
 “检查更新…”是共用的更新功能，但此版本尚未设置更新源和签名，因此显示为准备中，不进行通信。
-支持：请参阅随附的 README.md（应用内的 Contents/Resources/README.md）。''',
+支持：请参阅随附的 README.md（应用内的 Contents/Resources/README.md）。
+手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。
+''',
 '''note2markdown — note 글을 Markdown으로 내보내기
 
 사용 방법
@@ -274,7 +280,7 @@ Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. UR
 
 설정
 출력: 삽입된 note 글의 제목을 링크 텍스트로 사용(기본값 켬). 끄면 "note 글 링크"로 쓰고 추가 조회를 하지 않습니다.
-시작 및 백그라운드: 로그인 시 실행(끔), 시작 시 메인 윈도우 표시 안 함(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 Dock과 ⌘Tab에 표시하지 않으며, 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
+시작 및 백그라운드: 로그인 시 실행(끔), Dock 및 앱 전환기에 표시 안 함(끔. 켜면 Dock과 ⌘Tab에 표시하지 않으며, 메뉴 막대 아이콘이나 Finder에서 앱을 다시 열어 표시), 윈도우를 닫아도 계속 실행(켬), 메뉴 막대에 표시(끔).
 
 설정 공유
 설정 공유 탭에서 출력 탭의 설정(삽입된 note 글의 제목 가져오기)을 내보내고 가져올 수 있습니다(내보내기…, 가져오기…, note2markdown-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 마지막 내보내기 폴더, 로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.
@@ -299,13 +305,15 @@ Markdown 복사하기(⇧⌘C)로 클립보드에 넣을 수도 있습니다. UR
 개인정보
 입력한 글을 불러오기 위해 note의 공개 API(note.com/api/v3/notes/글 키)에 연결합니다. "로그인해 유료 부분도 불러오기"가 꺼져 있으면(기본값) 로그인 정보나 쿠키를 보내지 않습니다. 켜면 앱 안에서 로그인한 note의 쿠키를 note.com 요청에만 붙입니다. 앱은 비밀번호를 다루지 않으며, 로그인 상태는 앱의 WebKit 저장 영역에 남습니다(로그아웃으로 삭제). 설정과 마지막 내보내기 폴더(UserDefaults)만 저장합니다.
 업데이트 확인…은 공통 업데이트 기능이지만, 이 빌드는 배포 주소와 서명이 설정되지 않아 준비 중으로 표시하고 통신하지 않습니다.
-지원: 함께 제공된 README.md(앱 내부 Contents/Resources/README.md)를 참조하세요.''',
+지원: 함께 제공된 README.md(앱 내부 Contents/Resources/README.md)를 참조하세요.
+수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다.
+''',
 ]
 for idx, lang in enumerate(LANGS):
     folder = root / 'Resources' / f'{lang}.lproj'; folder.mkdir(parents=True, exist_ok=True)
     values = {r[0]: r[idx + 1] for r in rows}; values['helpContent'] = helptexts[idx]
     (folder / 'Localizable.strings').write_text('\n'.join(json.dumps(k, ensure_ascii=False) + ' = ' + json.dumps(v, ensure_ascii=False) + ';' for k, v in values.items()) + '\n')
-    (folder / 'Help.txt').write_text(helptexts[idx] + '\n')
+    (folder / 'Help.txt').write_text(helptexts[idx].rstrip() + '\n')
     (folder / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "note2markdown";\n')
 info = {'CFBundleName': 'note2markdown', 'CFBundleDisplayName': 'note2markdown', 'CFBundleIdentifier': 'jp.dtp-transit.note2markdown', 'CFBundleExecutable': 'note2markdown', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'note2markdown.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.productivity', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'SWNoteArticleURL': 'https://note.com/swwwitch/n/n003d1941c652', 'CFBundleShortVersionString': '1.0.0', 'CFBundleVersion': '1'}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.

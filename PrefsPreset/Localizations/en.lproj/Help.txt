@@ -45,7 +45,7 @@ PrefsPreset lists your Mac settings (Dock, Finder, trackpad, keyboard and more) 
 
 ## Settings
 Open with the “Settings” button in the main window, or “Settings…” (⌘,) in the app menu.
-- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar
+- **Startup & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar
 - **Hide from Dock and App Switcher**: keeps the app out of the Dock and the ⌘Tab switcher. Show it from the menu bar icon or by opening the app again in Finder.
 - **Display**: Show instructions in the main window
 - **Sharing**: export this app’s display settings (instructions, Domain / Key column, list or wizard) and the apps added to Language to a file and import it on another Mac. Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. macOS settings themselves are exported as presets (.prefspreset). My Preset is also saved in the sync folder and can be saved and loaded from this tab (it is never applied automatically). Open at login, the startup window and the menu bar stay on each Mac.
@@ -83,3 +83,5 @@ Open with the “Settings” button in the main window, or “Settings…” (�
 1. Turn off “Open at login”.
 2. Choose “Quit PrefsPreset”.
 3. Move PrefsPreset to the Trash. If you no longer need the backups, delete ~/Library/Application Support/PrefsPreset.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
