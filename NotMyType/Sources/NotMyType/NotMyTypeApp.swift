@@ -57,6 +57,8 @@ struct NotMyTypeApp: App {
                 Button(L("ライブラリを再構築…")) { LibraryStore.shared.rebuildLibrary() }
                 Button(L("フォントを点検…")) { FontCheckWindow.shared.show() }
                 Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() }
+                Button(L("選んだフォントを優先にする")) { LibraryStore.shared.preferSelected(LibraryStore.shared.selectedFiles) }
+                Button(L("衝突しているフォントの登録を外す")) { LibraryStore.shared.releaseConflicts(LibraryStore.shared.selectedFiles) }
                 Menu(L("優先外の重複")) {
                     Button(L("解除")) { LibraryStore.shared.deactivateNonPreferredDuplicates() }
                     Button(L("ライブラリから取り除く…")) { LibraryStore.shared.removeNonPreferredDuplicates() }

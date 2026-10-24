@@ -360,7 +360,6 @@ Macを再起動すると、フォントキャッシュが作り直されます�
 あとで再起動	Restart Later
 今すぐ再起動…	Restart Now…
 Adobeアプリを終了してください	Quit the Adobe Apps
-起動中のアプリ：%@\nアプリが使っている間は、フォントキャッシュを消しても作り直されません。終了してから、もう一度実行してください。	Running: %@\nWhile an app is using them, the font caches are not rebuilt. Quit the apps and try again.
 Adobeアプリのフォントキャッシュは見つかりませんでした	No Adobe font caches were found
 Adobeアプリのフォントキャッシュを消去しますか？	Clean the Adobe font caches?
 %d個のファイルをゴミ箱に入れます。InDesign・Illustratorなどのフォントメニューが古いまま・重複するときに使います。次にアプリを起動すると作り直されます（初回の起動は少し時間がかかります）。	Moves %d files to the Trash. Use this when the font menus of InDesign, Illustrator and others are outdated or show duplicates. They are rebuilt the next time each app starts (the first launch takes a little longer).
@@ -509,3 +508,33 @@ Adobeアプリのフォントキャッシュを消去中…	Cleaning Adobe app f
 上の形式ほど優先します。ドラッグか▲▼で並べ替えます。	Formats higher in the list are preferred. Drag or use ▲▼ to reorder.
 それでも残ったものが中身の同じファイル（ハッシュが一致）なら、自動で1つに決める	If the remaining files have identical contents (matching hashes), pick one automatically
 ウォッチフォルダーの順・規則・ファイルごとの選択でも決まらないときに、上の条件から順に使います。バージョンはフォントの版（headテーブル）、字形数は収録グリフの数で比べ、分からないファイルがあるときはその条件を飛ばします。中身が同じときは先に登録したファイルを優先します（ハッシュは候補のファイルだけ裏で計ります）。	Used from the top when the watch folder order, rules and individual choices do not decide. Versions are compared by the font revision (head table) and glyphs by the number of glyphs; a condition is skipped when a file has no value. When the contents are identical, the file added first is preferred (hashes are computed in the background for candidates only).
+選んだフォントを優先にする	Prefer Selected Fonts
+衝突しているフォントの登録を外す	Unregister Conflicting Fonts
+このアプリからは外せない登録です（フォントフォルダーに置かれているか、ほかのアプリが管理しています）	This registration cannot be removed from this app (the font is in a fonts folder or managed by another app)
+Google	Google
+「強制的にアクティブにする」は、ぶつかっているフォント（%@ など）の登録を外してから、このファイルをアクティブにします。ぶつかっているファイルは動かしません。	"Force Activate" unregisters the conflicting font (%@ and others) and then activates this file. The conflicting file is not moved.
+%d個はAdobe Fontsとぶつかっています。Adobe Fontsの登録はCreative Cloudがすぐに戻すため、ここからは外せません。Creative Cloudでそのフォントをオフにしてから、もう一度アクティブにしてください。	%d conflict with Adobe Fonts. Creative Cloud re-registers Adobe Fonts right away, so they cannot be removed from here. Turn the font off in Creative Cloud, then activate again.
+%d個はmacOSのフォントとぶつかっているため、アクティブにできません。	%d conflict with macOS fonts and cannot be activated.
+強制的にアクティブにする	Force Activate
+登録を外しても、同じ名前のフォントが使われたままです	A font with the same name is still in use after unregistering
+%d個のファイルを強制的にアクティブにしました	Force-activated %d files
+強制的にアクティブにできなかったファイルがあります	Some files could not be force-activated
+ウォッチフォルダーの外にあるファイルが%d個あります	%d files are outside the watch folders
+ウォッチフォルダーから外したフォルダーや、ウォッチフォルダーの外から追加したファイルです。ライブラリから取り除きますか？	These are in folders removed from the watch folders or were added from outside them. Remove them from the library?
+アクティブなものは解除し、セット・プロジェクトからも外れます。フォントファイルは削除しません。	Active ones are deactivated and removed from sets and projects. The font files are not deleted.
+外したフォルダーのフォント%d個を、ライブラリからも取り除きますか？	Also remove the %d fonts in the removed folder from the library?
+残すと、フォルダーを見張らなくなるだけで、一覧には出たままです。	If you keep them, the folder is no longer watched but the fonts stay in the list.
+衝突しているフォントはありません	No conflicting fonts
+衝突しているフォント%d個の登録を外しました	Unregistered %d conflicting fonts
+、外せなかったもの %d	, could not unregister %d
+外せなかった登録があります	Some registrations could not be removed
+同じ重複の組から2つ以上選んでいるため、優先を決められませんでした	Two or more files from the same duplicate group are selected, so the preferred one could not be decided
+選んだフォントに重複はありません	The selected fonts have no duplicates
+%d組の重複を、選んだフォントを優先にして解決しました	Resolved %d duplicates by preferring the selected fonts
+（2つ以上選んだ%d組はそのまま）	 (%d with two or more selected were left as is)
+PostScript名が同じ別の書体があります。同時にアクティブにすると、アプリからは一方しか見えません：%@	Another face has the same PostScript name. If both are active, apps see only one: %@
+アプリが使っている間は、フォントキャッシュを消しても作り直されません。すべて終了すると「フォントキャッシュを消去」を押せます。保存していないドキュメントがあれば、それぞれのアプリが確認します。	Font caches are not rebuilt while an app is using them. When all apps have quit, "Clean Font Caches" becomes available. Each app asks about unsaved documents.
+%@を終了	Quit %@
+終了しました	Quit
+すべてのAdobeアプリを終了	Quit All Adobe Apps
+セット「%@」に%d個を入れました	put %2$d in the set "%1$@"

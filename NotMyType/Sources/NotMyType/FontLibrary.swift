@@ -498,6 +498,23 @@ enum FontActivation {
         return reason(code)
     }
 
+    /// 衝突しているほかのファイル（ライブラリの外の古い置き場所など）の登録を外す。
+    /// どの範囲で登録されたか分からないので、ログイン中（.session）・ユーザー（.persistent）の順に試す。
+    /// どちらでも外れなければ理由を返す（フォントフォルダーに置かれたファイルは、ファイルを動かさないと外れない）
+    static func unregister(path: String) -> String? {
+        let url = URL(fileURLWithPath: path) as CFURL
+        var lastCode: CFIndex = 0
+        for scope in [CTFontManagerScope.session, .persistent] {
+            var error: Unmanaged<CFError>?
+            if CTFontManagerUnregisterFontsForURL(url, scope, &error) { return nil }
+            lastCode = error.map { CFErrorGetCode($0.takeRetainedValue()) } ?? 0
+        }
+        if lastCode == CTFontManagerError.notRegistered.rawValue {
+            return L("このアプリからは外せない登録です（フォントフォルダーに置かれているか、ほかのアプリが管理しています）")
+        }
+        return reason(lastCode)
+    }
+
     private static func reason(_ code: CFIndex) -> String {
         switch code {
         case CTFontManagerError.fileNotFound.rawValue: return L("ファイルが見つかりません")

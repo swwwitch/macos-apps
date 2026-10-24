@@ -42,7 +42,11 @@ struct ContentView: View {
                 let urls = dropped.urls
                 let production = urls.filter { FontNameExtractor.fileExtensions.contains($0.pathExtension.lowercased()) }
                 if !production.isEmpty { LibraryStore.shared.newProject(from: production) }
-                LibraryStore.shared.add(urls.filter { !production.contains($0) })
+                // セットを選んでいるときは、そのセットにも入れる
+                let store = LibraryStore.shared
+                var set: UUID?
+                if case .set(let id) = store.sidebar { set = id }
+                store.add(urls.filter { !production.contains($0) }, toSet: set)
             }
             return true
         }

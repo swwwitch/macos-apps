@@ -197,6 +197,14 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             menu.addItem(.separator())
             add(menu, L("Finderで表示")) { $0.revealInFinder(files) }
             add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
+            if !store.conflictingFiles(files).isEmpty {
+                menu.addItem(.separator())
+                add(menu, L("衝突しているフォントの登録を外す")) { $0.releaseConflicts(files) }
+            }
+            if store.hasDuplicates(files) {
+                menu.addItem(.separator())
+                add(menu, L("選んだフォントを優先にする")) { $0.preferSelected(files) }
+            }
             // 選んだものに優先外の重複があるときだけ出す
             if files.contains(where: { store.duplicatePreference($0) == false }) {
                 menu.addItem(.separator())
@@ -310,7 +318,7 @@ final class FamilyCell: NSTableCellView {
             case false?: detail.stringValue = L("優先外") + "  " + file.fileName
             case nil: detail.stringValue = file.fileName
             }
-            problem = Self.problem(store.states[file.id])
+            problem = Self.problem(store.states[file.id]) ?? Self.clash(file)
         } else {
             let family = node.family
             let state = store.familyState(family)
@@ -332,7 +340,7 @@ final class FamilyCell: NSTableCellView {
             star.toolTip = favorite ? L("お気に入りから外す") : L("お気に入りに追加")
             star.setAccessibilityLabel(star.toolTip)
             detail.stringValue = L("%d書体", family.faceCount)
-            problem = family.files.lazy.compactMap { Self.problem(store.states[$0.id]) }.first
+            problem = family.files.lazy.compactMap { Self.problem(store.states[$0.id]) ?? Self.clash($0) }.first
         }
         warning.isHidden = problem == nil
         warning.toolTip = problem
@@ -356,6 +364,13 @@ final class FamilyCell: NSTableCellView {
         text.append(NSAttributedString(string: "  " + extra, attributes: [
             .foregroundColor: NSColor.secondaryLabelColor, .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)]))
         name.attributedStringValue = text
+    }
+
+    /// 名前の衝突：別の書体なのに PostScript名が同じ（フォントの作りの誤りなど）
+    private static func clash(_ file: FontFile) -> String? {
+        LibraryStore.shared.nameClash(file).map {
+            L("PostScript名が同じ別の書体があります。同時にアクティブにすると、アプリからは一方しか見えません：%@", $0)
+        }
     }
 
     private static func problem(_ state: FontState?) -> String? {

@@ -88,15 +88,17 @@ final class LibraryStore: ObservableObject {
     /// Google に入れるファミリー（ユーザー指定）。Noto は CJK 版などベンダーIDがアドビのものも Google とする
     static let googleFamilies = ["Noto"]
 
-    /// ベンダーに入るか：アドビは一覧のファミリーだけ。Google は Noto と、FontDB の Google Fonts にある書体も。
+    /// ベンダーに入るか：アドビは一覧のファミリーだけ。Google は Noto と、FontDB の Google Fonts にある書体（.ttf だけ）も。
     /// それ以外のベンダーは商標の持ち主が分かればその名前で、分からなければベンダーIDで決める
     static func belongs(_ file: FontFile, toVendor id: String) -> Bool {
         let adobe = adobeFamilies.contains { file.family.hasPrefix($0) }
         if adobe || id == "ADBE" { return adobe && id == "ADBE" }
         let google = googleFamilies.contains { file.family.hasPrefix($0) }
         if google { return id == "GOOG" }
-        // Google は FontDB の Google Fonts の一覧にある書体も含める（M PLUS や Zen などはベンダーIDが Google ではない）
-        if id == "GOOG", FontDB.record(for: file)?.maker == "Google Fonts" { return true }
+        // Google は FontDB の Google Fonts の一覧にある書体も含める（M PLUS や Zen などはベンダーIDが Google ではない）。
+        // Google Fonts の配布物はすべて .ttf なので、同じ PostScript名でも .otf などはほかで入手したもの（MyFonts の Sanchez など）とみなす
+        if id == "GOOG", (file.path as NSString).pathExtension.lowercased() == "ttf",
+           FontDB.record(for: file)?.maker == "Google Fonts" { return true }
         guard let vendor = vendors.first(where: { $0.id == id }) else { return file.vendor == id }
         if let owner = file.trademarkOwner, !owner.isEmpty {
             return owner.localizedCaseInsensitiveContains(vendor.owner)
@@ -178,6 +180,8 @@ final class LibraryStore: ObservableObject {
     /// ファミリーごとの書体数（表示しているファイル全体で数える。ほかの絞り込みでは変わらない）
     private var faceCountCache: [String: Int]?
     private var preferenceCache: [UUID: Bool]?
+    /// 名前の衝突（ファイルの id → PostScript名が同じ別の書体のパス）
+    private var nameClashCache: [UUID: String]?
     private var undecidedCache: [[FontFile]]?
 
     /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる。keepDuplicates は状態だけが変わったとき（重複の判定は残す）
@@ -193,6 +197,7 @@ final class LibraryStore: ObservableObject {
         guard !keepDuplicates else { return }
         positionCache = nil
         duplicateCache = nil
+        nameClashCache = nil
         preferenceCache = nil
         undecidedCache = nil
     }
@@ -516,34 +521,51 @@ final class LibraryStore: ObservableObject {
     }
 
     /// reveal：追加したファミリーを選んでプレビューを出す（Finder でフォントファイルを開いたとき）
-    func add(_ urls: [URL], reveal: Bool = false) {
+    /// toSet：セットを選んでいるときにドロップしたら、そのセットにも入れる（登録済みのファイルは読み直さずにセットへ）
+    func add(_ urls: [URL], reveal: Bool = false, toSet: UUID? = nil) {
         guard !isBusy, !urls.isEmpty else { return }
         isBusy = true
         status = L("フォントを読み込み中…")
         TaskProgress.shared.begin(L("フォントを読み込み中…"), detail: L("フォルダーを調べています…"))
+        // 登録済みのファイルは読み直さない（フォントの情報はライブラリのものを使う）
+        let known = Set(data.files.map(\.path))
         Task.detached(priority: .userInitiated) {
             let found = FontScanner.fontURLs(in: urls)
+            let fresh = found.filter { !known.contains($0.standardizedFileURL.path) }
             var read: [FontFile] = []
             var unreadable = 0
-            for (index, url) in found.enumerated() {
+            for (index, url) in fresh.enumerated() {
                 if index % 100 == 0 {
                     let done = index
-                    await MainActor.run { TaskProgress.shared.update(done, of: found.count) }
+                    await MainActor.run { TaskProgress.shared.update(done, of: fresh.count) }
                 }
                 if let file = FontScanner.read(url) { read.append(file) } else { unreadable += 1 }
             }
             let files = read
             let skipped = unreadable
+            let registered = found.count - fresh.count
             await MainActor.run {
                 let store = LibraryStore.shared
                 // 自分で追加し直したものは、ウォッチフォルダーの除外から外す
-                WatchFolders.shared.include(files.map(\.path))
+                WatchFolders.shared.include(found.map(\.standardizedFileURL.path))
                 let added = store.data.add(files)
+                var setCount = 0
+                if let toSet, let index = store.data.sets.firstIndex(where: { $0.id == toSet }) {
+                    let paths = Set(found.map(\.standardizedFileURL.path))
+                    let ids = store.data.files.filter { paths.contains($0.path) }.map(\.id)
+                    let inSet = Set(store.data.sets[index].files)
+                    let newIDs = ids.filter { !inSet.contains($0) }
+                    store.data.sets[index].files += newIDs
+                    setCount = newIDs.count
+                }
                 store.save()
                 store.isBusy = false
                 TaskProgress.shared.end()
                 var parts = [L("%d個のファイルを追加しました", added)]
-                if files.count > added { parts.append(L("登録済み %d", files.count - added)) }
+                if registered + files.count > added { parts.append(L("登録済み %d", registered + files.count - added)) }
+                if let toSet, let set = store.data.sets.first(where: { $0.id == toSet }) {
+                    parts.append(L("セット「%@」に%d個を入れました", set.name, setCount))
+                }
                 if skipped > 0 { parts.append(L("読めないファイル %d", skipped)) }
                 store.status = parts.joined(separator: L("、"))
                 if found.isEmpty {
@@ -605,6 +627,7 @@ final class LibraryStore: ObservableObject {
         let files = on ? preferredAmongDuplicates(files) : files
         guard !files.isEmpty else { return }
         var failures: [String] = []
+        var conflicts: [(file: FontFile, path: String)] = []
         var changed = 0
         var stamped: [UUID: Date] = [:]
         for file in files {
@@ -621,9 +644,10 @@ final class LibraryStore: ObservableObject {
                 continue
             }
             // 同じPostScript名がほかで使われていると、登録は通っても先のほうが使われる。紛らわしいので戻して失敗にする
-            if on, case .conflict = FontActivation.state(of: file) {
+            if on, case .conflict(let path) = FontActivation.state(of: file) {
                 _ = FontActivation.deactivate(file, scope: scope)
                 failures.append("\(file.fileName) — \(L("同じ名前のフォントがすでに使われています"))")
+                if !installed { conflicts.append((file, path)) }
                 continue
             }
             changed += 1
@@ -645,8 +669,82 @@ final class LibraryStore: ObservableObject {
         status = on ? L("%d個のファイルをアクティブにしました", changed) : L("%d個のファイルを解除しました", changed)
         if !failures.isEmpty {
             status += L("、失敗 %d", failures.count)
-            message = (on ? L("アクティブにできなかったファイルがあります") : L("解除できなかったファイルがあります"),
-                       failures.prefix(20).joined(separator: "\n") + (failures.count > 20 ? "\n…" : ""))
+            let title = on ? L("アクティブにできなかったファイルがあります") : L("解除できなかったファイルがあります")
+            let body = failures.prefix(20).joined(separator: "\n") + (failures.count > 20 ? "\n…" : "")
+            if conflicts.isEmpty { message = (title, body) } else { offerForce(conflicts, title: title, body: body) }
+        }
+    }
+
+    /// 同じ名前のフォントがすでに使われていて失敗したとき、相手の登録を外してアクティブにするか聞く。
+    /// Adobe Fonts は外しても Creative Cloud がすぐ入れ直すので、Creative Cloud で切るよう案内する（macOS のフォントも外せない）
+    private func offerForce(_ conflicts: [(file: FontFile, path: String)], title: String, body: String) {
+        let adobe = conflicts.filter { $0.path.hasPrefix(SystemFolder.adobeFonts.path + "/") }
+        let system = conflicts.filter { $0.path.hasPrefix(SystemFolder.system.path + "/") }
+        let forceable = conflicts.filter { conflict in !adobe.contains { $0.file.id == conflict.file.id } && !system.contains { $0.file.id == conflict.file.id } }
+        var notes: [String] = []
+        if !forceable.isEmpty {
+            notes.append(L("「強制的にアクティブにする」は、ぶつかっているフォント（%@ など）の登録を外してから、このファイルをアクティブにします。ぶつかっているファイルは動かしません。",
+                           (forceable[0].path as NSString).lastPathComponent))
+        }
+        if !adobe.isEmpty {
+            notes.append(L("%d個はAdobe Fontsとぶつかっています。Adobe Fontsの登録はCreative Cloudがすぐに戻すため、ここからは外せません。Creative Cloudでそのフォントをオフにしてから、もう一度アクティブにしてください。", adobe.count))
+        }
+        if !system.isEmpty {
+            notes.append(L("%d個はmacOSのフォントとぶつかっているため、アクティブにできません。", system.count))
+        }
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = body + "\n\n" + notes.joined(separator: "\n\n")
+        var actions: [() -> Void] = []
+        if !forceable.isEmpty {
+            alert.addButton(withTitle: L("強制的にアクティブにする"))
+            actions.append { [weak self] in self?.forceActivate(forceable) }
+        }
+        if !adobe.isEmpty {
+            alert.addButton(withTitle: L("Creative Cloudを開く"))
+            actions.append { [weak self] in self?.openCreativeCloud() }
+        }
+        alert.addButton(withTitle: actions.isEmpty ? L("OK") : L("キャンセル")).keyEquivalent = actions.isEmpty ? "\r" : "\u{1b}"
+        let index = alert.runModal().rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+        if actions.indices.contains(index) { actions[index]() }
+    }
+
+    /// ぶつかっているフォントの登録を外してから、ライブラリのファイルをアクティブにする
+    private func forceActivate(_ conflicts: [(file: FontFile, path: String)]) {
+        var released = Set<String>()
+        var failures: [String] = []
+        for path in Set(conflicts.map(\.path)) {
+            if let reason = FontActivation.unregister(path: path) {
+                failures.append((path as NSString).lastPathComponent + " — " + reason)
+            } else {
+                released.insert(path)
+            }
+        }
+        // ライブラリのファイルどうしでぶつかっていたなら、相手はアクティブの記録からも外す
+        let releasedIDs = Set(data.files.filter { file in released.contains { FontActivation.samePath($0, file.path) } }.map(\.id))
+        var changed = 0
+        var updated = data
+        updated.active.subtract(releasedIDs)
+        for (file, path) in conflicts where released.contains(path) {
+            if let error = FontActivation.activate(file) {
+                failures.append("\(file.fileName) — \(error)")
+                continue
+            }
+            if case .conflict = FontActivation.state(of: file) {
+                _ = FontActivation.deactivate(file)
+                failures.append("\(file.fileName) — \(L("登録を外しても、同じ名前のフォントが使われたままです"))")
+                continue
+            }
+            updated.active.insert(file.id)
+            if let index = updated.files.firstIndex(where: { $0.id == file.id }) { updated.files[index].activatedAt = Date() }
+            changed += 1
+        }
+        data = updated
+        save()
+        refreshStates()
+        status = L("%d個のファイルを強制的にアクティブにしました", changed) + (failures.isEmpty ? "" : L("、失敗 %d", failures.count))
+        if !failures.isEmpty {
+            message = (L("強制的にアクティブにできなかったファイルがあります"), failures.prefix(20).joined(separator: "\n"))
         }
     }
 
@@ -949,6 +1047,12 @@ final class LibraryStore: ObservableObject {
         return folders.count
     }
 
+    /// PostScript名が同じ別の書体があれば、そのパス（名前の衝突）
+    func nameClash(_ file: FontFile) -> String? {
+        if nameClashCache == nil { computeDuplicates() }
+        return nameClashCache?[file.id]
+    }
+
     /// 重複しているファイルが優先か（true）優先でないか（false）。重複していない、または優先が決まらない候補なら nil
     func duplicatePreference(_ file: FontFile) -> Bool? {
         if preferenceCache == nil { computeDuplicates() }
@@ -964,10 +1068,23 @@ final class LibraryStore: ObservableObject {
     /// 重複の組ごとに優先を決め、「重複」の一覧・優先の印・決まらない組を一度に作る
     private func computeDuplicates() {
         var groups: [String: [FontFile]] = [:]
+        var byName: [String: [FontFile]] = [:]
         for file in data.files {
             guard let name = file.faces.first?.postScriptName else { continue }
-            groups[name, default: []].append(file)
+            // バリアブルフォントと個別のウエイトのファイルは、名前付きインスタンスの PostScript名が同じでも別物として扱う（ユーザー指定）
+            groups[Self.duplicateKey(file, name), default: []].append(file)
+            byName[name, default: []].append(file)
         }
+        // 名前の衝突：PostScript名は同じだが別の書体（重複の組が異なる）。同時にアクティブにするとアプリからは一方しか見えない
+        var clashes: [UUID: String] = [:]
+        for (name, files) in byName where files.count > 1 {
+            let keys = files.map { Self.duplicateKey($0, name) }
+            guard Set(keys).count > 1 else { continue }
+            for (file, key) in zip(files, keys) {
+                if let other = zip(files, keys).first(where: { $0.1 != key })?.0 { clashes[file.id] = other.path }
+            }
+        }
+        nameClashCache = clashes
         var preference: [UUID: Bool] = [:]
         var undecided = Set<UUID>()
         var undecidedGroups: [[FontFile]] = []
@@ -1062,6 +1179,9 @@ final class LibraryStore: ObservableObject {
     }
 
     private func preferenceCandidates(_ group: [FontFile], _ settings: PreferenceSettings) -> [FontFile] {
+        // 自分で選んだ優先（一覧の「選んだフォントを優先にする」など）は、フォルダーの順・規則より先に使う
+        let chosen = group.filter { data.preferredFiles.contains($0.id) }
+        if chosen.count == 1 { return chosen }
         let ranks = group.map { settings.priority(of: $0) }
         let top = ranks.min() ?? 0
         var tied = zip(group, ranks).filter { $0.1 == top }.map(\.0)
@@ -1071,8 +1191,6 @@ final class LibraryStore: ObservableObject {
             // 規則どうしが食い違ってすべて負けるときは、絞らない
             if beaten.count < tied.count { tied = tied.indices.filter { !beaten.contains($0) }.map { tied[$0] } }
         }
-        let picked = tied.filter { data.preferredFiles.contains($0.id) }
-        if picked.count == 1 { return picked }
         for criterion in settings.criteria where tied.count > 1 {
             tied = Self.narrow(tied, by: criterion, formatOrder: settings.formatOrder)
         }
@@ -1165,6 +1283,80 @@ final class LibraryStore: ObservableObject {
         save()
     }
 
+    /// 衝突しているファイル（同じ PostScript名のフォントが別の場所で使われている）
+    func conflictingFiles(_ files: [FontFile]) -> [FontFile] {
+        files.filter { if case .conflict = states[$0.id] { return true } else { return false } }
+    }
+
+    /// 選んだフォントと衝突しているほかのファイルの登録を外す（ファイルは動かさない）。外したあと、選んだフォントをアクティブにできる
+    func releaseConflicts(_ files: [FontFile]) {
+        var paths: [String] = []
+        for file in files {
+            if case .conflict(let path)? = states[file.id], !paths.contains(path) { paths.append(path) }
+        }
+        guard !paths.isEmpty else { status = L("衝突しているフォントはありません"); return }
+        var released = 0
+        var failures: [String] = []
+        for path in paths {
+            if let reason = FontActivation.unregister(path: path) {
+                failures.append((path as NSString).lastPathComponent + "：" + reason)
+            } else {
+                released += 1
+            }
+        }
+        refreshStates()
+        status = L("衝突しているフォント%d個の登録を外しました", released) + (failures.isEmpty ? "" : L("、外せなかったもの %d", failures.count))
+        if !failures.isEmpty {
+            message = (L("外せなかった登録があります"), failures.joined(separator: "\n"))
+        }
+    }
+
+    /// 重複の組の見出し。バリアブルフォントと個別のウエイトは別の組にする。
+    /// 正体とイタリックで PostScript名が同じに作られたフォント（Eighties Comeback の UltraCon ExtBd）もあるので、
+    /// スタイル名がイタリックかどうかでも分ける（スタイル名そのものは版で「Narrow Italic」「Italic」などと揺れるので使わない）
+    static func duplicateKey(_ file: FontFile, _ postScriptName: String) -> String {
+        let style = file.faces.first?.style ?? ""
+        let italic = ["italic", "oblique", "slanted", "kursiv"].contains { style.localizedCaseInsensitiveContains($0) }
+        return (file.isVariable == true ? "variable:" : "static:") + postScriptName + (italic ? "|italic" : "")
+    }
+
+    /// 一覧で選んだフォントを、それぞれの重複の組の優先にする（ウォッチフォルダーの順・規則より先に使う）。
+    /// 同じ組から2つ以上選んだときは、どちらを優先にするか分からないので、その組は変えない
+    func preferSelected(_ files: [FontFile]) {
+        var groups: [String: [FontFile]] = [:]
+        for file in data.files {
+            guard let name = file.faces.first?.postScriptName else { continue }
+            groups[Self.duplicateKey(file, name), default: []].append(file)
+        }
+        var picks: [String: [FontFile]] = [:]
+        for file in files {
+            guard let name = file.faces.first?.postScriptName else { continue }
+            let key = Self.duplicateKey(file, name)
+            guard (groups[key]?.count ?? 0) > 1 else { continue }
+            picks[key, default: []].append(file)
+        }
+        var updated = data
+        var done = 0, ambiguous = 0
+        for (key, picked) in picks {
+            guard picked.count == 1, let pick = picked.first else { ambiguous += 1; continue }
+            for member in groups[key] ?? [] { updated.preferredFiles.remove(member.id) }
+            updated.preferredFiles.insert(pick.id)
+            done += 1
+        }
+        guard done > 0 else {
+            status = ambiguous > 0 ? L("同じ重複の組から2つ以上選んでいるため、優先を決められませんでした") : L("選んだフォントに重複はありません")
+            return
+        }
+        data = updated
+        save()
+        status = L("%d組の重複を、選んだフォントを優先にして解決しました", done) + (ambiguous > 0 ? L("（2つ以上選んだ%d組はそのまま）", ambiguous) : "")
+    }
+
+    /// 選んだフォントに、ほかのファイルと重複しているものがあるか（メニューを出すかどうか）
+    func hasDuplicates(_ files: [FontFile]) -> Bool {
+        files.contains { duplicatePreference($0) != nil || duplicateIDs.contains($0.id) }
+    }
+
     /// 規則にできない組で、このファイルを優先にする（同じ組のほかのファイルの選択は外す）
     func pickPreferred(_ file: FontFile, in group: [FontFile]) {
         for member in group { data.preferredFiles.remove(member.id) }
@@ -1202,7 +1394,8 @@ final class LibraryStore: ObservableObject {
         var kept = Set<UUID>()
         for file in byPriority(files) {
             guard let name = file.faces.first?.postScriptName else { kept.insert(file.id); continue }
-            if seen.insert(name).inserted { kept.insert(file.id) }
+            // 重複の組と同じく、バリアブルフォントと個別のウエイトは別物とする
+            if seen.insert(Self.duplicateKey(file, name)).inserted { kept.insert(file.id) }
         }
         return files.filter { kept.contains($0.id) }
     }

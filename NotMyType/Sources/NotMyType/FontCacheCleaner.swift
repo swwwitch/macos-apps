@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 /// フォントキャッシュの消去（FontExplorer X Pro の Clean System / Application Font Caches に当たる）。システムとアプリで別の項目にする（ユーザー指定）。
 /// システム：atsutil databases（-removeUser はこのユーザーの分で権限なし、-remove はシステム全体で管理者の権限）。消したあと再起動が要る。
@@ -88,40 +89,47 @@ enum FontCacheCleaner {
     static let adobeApps = ["com.adobe.InDesign", "com.adobe.illustrator", "com.adobe.Photoshop", "com.adobe.InCopy",
                             "com.adobe.AfterEffects", "com.adobe.PremierePro", "com.adobe.Acrobat.Pro"]
 
-    static func cleanApplicationCaches() {
-        let running = NSWorkspace.shared.runningApplications.filter { app in
-            adobeApps.contains { app.bundleIdentifier?.hasPrefix($0) == true }
+    /// 起動中の Adobe アプリ（画面のあるものだけ。AIRobin などの補助は本体と一緒に終わる）
+    static func runningAdobeApps() -> [NSRunningApplication] {
+        NSWorkspace.shared.runningApplications.filter { app in
+            app.activationPolicy == .regular && adobeApps.contains { app.bundleIdentifier?.hasPrefix($0) == true }
         }
-        if !running.isEmpty {
-            let alert = NSAlert()
-            alert.messageText = L("Adobeアプリを終了してください")
-            alert.informativeText = L("起動中のアプリ：%@\nアプリが使っている間は、フォントキャッシュを消しても作り直されません。終了してから、もう一度実行してください。",
-                                      running.compactMap(\.localizedName).joined(separator: L("、")))
-            alert.runModal()
+    }
+
+    static func cleanApplicationCaches() {
+        // 起動中なら、アプリごとの「終了」ボタンを並べたダイアログボックスを出す。すべて終わると「フォントキャッシュを消去」が押せる
+        if !runningAdobeApps().isEmpty {
+            QuitAdobeAppsWindow.shared.show()
             return
         }
-        // 設定フォルダーを奥まで調べるので数秒かかる。画面を止めないよう裏で探す
+        findApplicationCaches(confirm: true)
+    }
+
+    /// 設定フォルダーを奥まで調べるので数秒かかる。画面を止めないよう裏で探す
+    static func findApplicationCaches(confirm: Bool) {
         TaskProgress.shared.begin(L("Adobeアプリのフォントキャッシュを探しています…"))
         Task {
             let files = await Task.detached(priority: .userInitiated) { adobeCacheFiles() }.value
             TaskProgress.shared.end()
-            confirmApplicationClean(files)
+            confirmApplicationClean(files, confirm: confirm)
         }
     }
 
-    private static func confirmApplicationClean(_ files: [URL]) {
+    private static func confirmApplicationClean(_ files: [URL], confirm: Bool) {
         guard !files.isEmpty else {
             let alert = NSAlert()
             alert.messageText = L("Adobeアプリのフォントキャッシュは見つかりませんでした")
             alert.runModal()
             return
         }
-        let alert = NSAlert()
-        alert.messageText = L("Adobeアプリのフォントキャッシュを消去しますか？")
-        alert.informativeText = L("%d個のファイルをゴミ箱に入れます。InDesign・Illustratorなどのフォントメニューが古いまま・重複するときに使います。次にアプリを起動すると作り直されます（初回の起動は少し時間がかかります）。", files.count)
-        alert.addButton(withTitle: L("ゴミ箱に入れる"))
-        alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        if confirm {
+            let alert = NSAlert()
+            alert.messageText = L("Adobeアプリのフォントキャッシュを消去しますか？")
+            alert.informativeText = L("%d個のファイルをゴミ箱に入れます。InDesign・Illustratorなどのフォントメニューが古いまま・重複するときに使います。次にアプリを起動すると作り直されます（初回の起動は少し時間がかかります）。", files.count)
+            alert.addButton(withTitle: L("ゴミ箱に入れる"))
+            alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+        }
         TaskProgress.shared.begin(L("Adobeアプリのフォントキャッシュを消去中…"))
         Task {
             var moved = 0
@@ -176,5 +184,120 @@ enum FontCacheCleaner {
         alert.messageText = L("フォントキャッシュを消去できませんでした")
         alert.informativeText = detail
         alert.runModal()
+    }
+}
+
+// MARK: - 起動中の Adobe アプリを終了するダイアログボックス
+
+/// 起動中の Adobe アプリを見張る。終了したアプリも一覧に残し、ボタンをディムにする
+@MainActor
+final class RunningAdobeApps: ObservableObject {
+    struct Entry: Identifiable {
+        let id: String
+        let name: String
+        var app: NSRunningApplication?
+        var isRunning: Bool { app.map { !$0.isTerminated } ?? false }
+    }
+
+    @Published private(set) var entries: [Entry] = []
+    private var observers: [NSObjectProtocol] = []
+
+    init() {
+        refresh()
+        let center = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.refresh() }
+            })
+        }
+    }
+
+    isolated deinit {
+        for observer in observers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+    }
+
+    var anyRunning: Bool { entries.contains { $0.isRunning } }
+
+    func refresh() {
+        let running = FontCacheCleaner.runningAdobeApps()
+        var list = entries.map { entry -> Entry in
+            var copy = entry
+            copy.app = running.first { $0.bundleIdentifier == entry.id }
+            return copy
+        }
+        for app in running where !list.contains(where: { $0.id == app.bundleIdentifier }) {
+            list.append(Entry(id: app.bundleIdentifier ?? UUID().uuidString, name: app.localizedName ?? app.bundleIdentifier ?? "", app: app))
+        }
+        entries = list
+    }
+
+    /// 終了を頼む（保存していない書類があれば、アプリが確認を出す）
+    func quit(_ entry: Entry) { entry.app?.terminate() }
+
+    func quitAll() { for entry in entries where entry.isRunning { quit(entry) } }
+}
+
+@MainActor
+final class QuitAdobeAppsWindow {
+    static let shared = QuitAdobeAppsWindow()
+    private var window: NSWindow?
+
+    func show() {
+        window?.close()
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 200),
+                              styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        window.title = L("フォントキャッシュを消去")
+        window.isReleasedWhenClosed = false
+        let hosting = NSHostingView(rootView: QuitAdobeAppsView())
+        hosting.sizingOptions = [.preferredContentSize]
+        window.contentView = hosting
+        window.center()
+        self.window = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func close() { window?.close() }
+}
+
+private struct QuitAdobeAppsView: View {
+    @StateObject private var apps = RunningAdobeApps()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L("Adobeアプリを終了してください")).font(.headline)
+            Text(L("アプリが使っている間は、フォントキャッシュを消しても作り直されません。すべて終了すると「フォントキャッシュを消去」を押せます。保存していないドキュメントがあれば、それぞれのアプリが確認します。"))
+                .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(apps.entries) { entry in
+                    HStack(spacing: 8) {
+                        if let icon = entry.app?.icon {
+                            Image(nsImage: icon).resizable().frame(width: 18, height: 18).opacity(entry.isRunning ? 1 : 0.4)
+                        }
+                        Button(L("%@を終了", entry.name)) { apps.quit(entry) }
+                            .disabled(!entry.isRunning)
+                        if !entry.isRunning {
+                            Text(L("終了しました")).font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                Button(L("すべてのAdobeアプリを終了")) { apps.quitAll() }
+                    .disabled(!apps.anyRunning)
+                    .padding(.top, 4)
+            }
+            HStack {
+                Spacer()
+                Button(L("キャンセル")) { QuitAdobeAppsWindow.shared.close() }
+                    .keyboardShortcut(.cancelAction)
+                Button(L("フォントキャッシュを消去")) {
+                    QuitAdobeAppsWindow.shared.close()
+                    FontCacheCleaner.findApplicationCaches(confirm: false)
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(apps.anyRunning)
+            }
+        }
+        .padding(20)
+        .frame(width: 420)
     }
 }
