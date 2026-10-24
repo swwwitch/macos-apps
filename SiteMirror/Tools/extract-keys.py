@@ -6,7 +6,7 @@ from pathlib import Path
 
 src = Path(__file__).resolve().parent.parent / "Sources/SiteMirror"
 keys = []
-for f in ["SiteMirrorApp.swift", "ContentView.swift", "Mirror.swift", "Crawler.swift", "SettingsView.swift", "AppDelegate.swift", "Login.swift"]:
+for f in ["SiteMirrorApp.swift", "ContentView.swift", "Mirror.swift", "Crawler.swift", "SettingsView.swift", "AppDelegate.swift", "Login.swift", "MirrorDiff.swift"]:
     for m in re.finditer(r'\bL\("((?:[^"\\]|\\.)*)"', (src / f).read_text()):
         if m.group(1) not in keys:
             keys.append(m.group(1))

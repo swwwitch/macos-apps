@@ -76,6 +76,8 @@ struct MirrorSummary: Sendable {
     var startPage: URL?
     /// 記録ファイル（取り込みフォルダーの SiteMirror-log.txt か、リンクの確認の報告）
     var log: URL?
+    var diffReport: URL?
+    var diffError: String?
     var root: URL
 }
 
@@ -156,6 +158,7 @@ final class Crawler {
     private let start: URL
     private let root: URL
     private let logFile: URL
+    private let diffFile: URL
     private let options: MirrorOptions
     private let emit: @Sendable (MirrorEvent) -> Void
     private let session: URLSession
@@ -199,6 +202,9 @@ final class Crawler {
         self.start = start
         self.root = root
         self.logFile = logFile ?? root.appendingPathComponent(Crawler.logName)
+        let reportDate = DateFormatter()
+        reportDate.dateFormat = "yyyyMMdd-HHmmss"
+        self.diffFile = root.appendingPathComponent("SiteMirror-diff-\(reportDate.string(from: Date()))-\(UUID().uuidString).txt")
         self.options = options
         self.emit = emit
         let configuration = URLSessionConfiguration.ephemeral
@@ -215,6 +221,7 @@ final class Crawler {
         excludes = options.excludes.compactMap { Crawler.pattern($0) }
         includes = options.includes.compactMap { Crawler.pattern($0) }
         guard !options.checkOnly else { return }
+        usedPaths.insert(diffFile.lastPathComponent.lowercased())
         usedPaths.insert(Crawler.logName.lowercased())
         usedPaths.insert(Crawler.manifestName)
         usedPaths.insert(Crawler.resumeName)
@@ -252,6 +259,7 @@ final class Crawler {
 
     func run() async -> MirrorSummary {
         defer { session.invalidateAndCancel() }
+        let comparison = options.checkOnly ? nil : MirrorDiff(root: root, paths: Set(previous.values.map(\.path)))
         if options.obeyRobots || options.useSitemap { robots = await Robots.load(for: start, session: session) }
         if !resumed {
             enqueue(start, depth: 0, purpose: .page, from: nil, force: true)
@@ -313,6 +321,20 @@ final class Crawler {
             if let data = try? JSONEncoder().encode(manifest) {
                 try? data.write(to: root.appendingPathComponent(Crawler.manifestName), options: .atomic)
             }
+        }
+        if let comparison, !previous.isEmpty || summary.saved > 0 {
+            let successful = Set(entries.values.map(\.path))
+            let unavailable = Set(gone.compactMap { previous[$0]?.path }).subtracting(successful)
+            let removed = Set(purgedNotes.compactMap(\.from)).subtracting(successful)
+            let items = comparison.compare(successful: successful, gone: unavailable, removed: removed)
+            let report = comparison.report(items: items,
+                partial: summary.cancelled || summary.failed > 0 || summary.limitReached || summary.sizeLimitReached,
+                resumed: resumed)
+            let file = diffFile
+            do {
+                try report.write(to: file, atomically: true, encoding: .utf8)
+                summary.diffReport = file
+            } catch { summary.diffError = error.localizedDescription }
         }
         writeLog()
         return summary

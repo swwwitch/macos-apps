@@ -93,3 +93,10 @@ Opening or reopening the app manually shows the main window. Automatic login lau
 
 ## URL history
 - Use the history menu beside the URL field to select a recent URL. The latest 20 URLs used to start downloads or link checks are kept on this Mac, newest first. Reusing a URL moves it to the top. Selecting one fills the field; click Download to start. Clear URL History removes only the history. The last URL entered before upgrading is imported once. URLs containing a username or password are not saved in history.
+
+## Download comparison
+- Downloading again to the same destination compares saved files before and after the run and writes SiteMirror-diff-<timestamp>-<ID>.txt. Open Comparison opens it in your default text app. Added, changed, unchanged, locally removed, HTTP 404/410 and unverified files are separated. HTML/CSS are compared after link rewriting; - is before and + is after. The first download lists additions.
+- Excluded, unreached or failed files are not treated as deleted. Cancelled or limited runs are partial comparisons. Resumed runs compare against files just before resuming. Local edits are included. Line details support small UTF-8/Shift_JIS text: 256 KB per file, 8 MB of previous text, 100 changes, 32,000 characters per diff. Images show hash comparison only. Each report is saved separately with a timestamp and ID. Remove unwanted reports in Finder. Reports may contain signed-in page content.
+
+## Screen layout
+- Use the arrow inside the URL field to select history. Choose a mode and click Start on the right. Filter the list on the Results heading row. The Open Results menu at the bottom contains the comparison, log, Finder and browser actions.

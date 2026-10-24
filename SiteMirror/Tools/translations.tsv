@@ -161,3 +161,27 @@ URL履歴を消去	Clear URL History	清除 URL 历史记录	URL 기록 지우�
 処理	Action	操作	작업
 開始	Start	开始	시작
 URLを入力し、処理を選んで「開始」を押します	Enter a URL, choose an action and click Start	输入 URL，选择操作并点按“开始”	URL을 입력하고 작업을 선택한 다음 ‘시작’을 클릭하세요
+追加	Added	新增	추가
+変更	Changed	更改	변경
+変更なし	Unchanged	未更改	변경 없음
+サイトで削除・非公開（404／410）	Unavailable on site (404/410)	网站已删除或不可访问（404/410）	사이트에서 삭제 또는 비공개(404/410)
+未確認（対象外・未到達・取得失敗など）	Unverified (excluded, not reached, failed, etc.)	未确认（排除、未访问、获取失败等）	미확인(제외, 미방문, 가져오기 실패 등)
+保存先から削除	Removed from destination	已从保存位置删除	저장 위치에서 삭제
+比較できません	Cannot compare	无法比较	비교할 수 없음
+バイナリ・大きなファイル、または表示上限のため変更箇所は省略しました。	Details omitted for binary or large files, or because the display limit was reached.	二进制、大文件或达到显示上限，已省略更改详情。	바이너리, 큰 파일 또는 표시 한도로 인해 변경 내용을 생략했습니다.
+変更箇所を表示できませんでした。	Could not display changed lines.	无法显示更改行。	변경된 줄을 표시할 수 없습니다.
+文字コードまたは改行形式など、保存バイト列が変わりました。	Saved bytes changed, for example the encoding or line endings.	保存的字节发生变化，例如编码或换行格式。	인코딩이나 줄바꿈 형식 등 저장된 바이트가 변경되었습니다.
+以降の変更箇所は省略しました。	Further changes omitted.	已省略其余更改。	이후 변경 내용은 생략했습니다.
+再取得の差分	Download comparison	重新下载的差异	다시 가져오기 차이
+この実行の直前と直後に保存されたファイルを比較しています。HTML・CSSはリンク書き換え後の内容です。	Compares saved files immediately before and after this run. HTML and CSS are compared after local links are rewritten.	比较本次运行前后保存的文件。HTML 和 CSS 为本地链接重写后的内容。	이번 실행 직전과 직후의 저장 파일을 비교합니다. HTML과 CSS는 로컬 링크를 다시 쓴 후의 내용입니다.
+未確認は削除を意味しません。404／410でも認証や一時的な状態の影響を受ける場合があります。	Unverified does not mean deleted. Authentication or temporary conditions can also cause 404/410 responses.	未确认并不表示删除。身份验证或临时状态也可能导致404/410。	미확인은 삭제를 의미하지 않습니다. 인증이나 일시적인 상태로도 404/410이 발생할 수 있습니다.
+変更行は - が前回、+ が今回です。テキストは1ファイル256KB・合計8MB・変更100件まで、各差分は32000文字まで表示します。	Changed lines: - is before, + is after. Text details are limited to 256 KB per file, 8 MB total, 100 changed files and 32,000 characters per diff.	更改行：- 为之前，+ 为之后。文本限制为每文件256KB、总计8MB、100个更改文件及每份差异32000字符。	변경 줄: -는 이전, +는 이후입니다. 텍스트는 파일당 256KB, 총 8MB, 변경 파일 100개, 차이당 32000자로 제한됩니다.
+初回取得のため、前回との差分はありません。保存ファイルを追加として記載します。	This is the first download. Saved files are listed as added; there is no previous download to compare.	首次下载，没有之前的内容可比较。保存文件列为新增。	첫 다운로드이므로 이전 내용과 비교할 수 없습니다. 저장 파일을 추가로 표시합니다.
+中止・取得失敗・上限などがあるため、今回取得できた範囲の比較です。	This comparison is partial because of cancellation, failed downloads or limits.	因取消、获取失败或上限，本次比较仅覆盖已获取的范围。	취소, 가져오기 실패 또는 한도로 인해 이번에 가져온 범위만 비교합니다.
+続きからの取得では、再開直前の保存内容と比較しています。中止前からの通算差分ではありません。	A resumed download compares against the files immediately before resuming, not the files before the original interrupted run.	继续下载时，与恢复前的保存内容比较，并非中断前开始时的累计差异。	이어받기는 재개 직전의 저장 내용과 비교합니다. 중단 전 최초 실행부터의 누적 차이가 아닙니다.
+差分を保存できませんでした：%@	Could not save comparison: %@	无法保存差异：%@	차이를 저장할 수 없습니다: %@
+差分を開けませんでした	Could not open comparison	无法打开差异	차이를 열 수 없습니다
+保存先の SiteMirror-diff で始まる報告ファイルを確認してください。	Check the report starting with SiteMirror-diff in the destination folder.	请检查保存位置中以 SiteMirror-diff 开头的报告。	저장 위치에서 SiteMirror-diff로 시작하는 보고서를 확인하세요.
+差分を開く	Open Comparison	打开差异	차이 열기
+取得結果	Results	获取结果	가져오기 결과
+結果を開く	Open Results	打开结果	결과 열기

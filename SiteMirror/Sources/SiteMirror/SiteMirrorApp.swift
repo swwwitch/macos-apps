@@ -12,7 +12,7 @@ struct SiteMirrorApp: App {
                 .background(StartupWindowGate())
                 .background(UtilityWindowChrome(title: "", isMain: true))
                 .background(MainWindowOpenerCapture())
-                .frame(minWidth: 720, minHeight: 480)
+                .frame(minWidth: 560, minHeight: 480)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -80,6 +80,8 @@ private struct MirrorMenuItems: View {
             .disabled(mirror.isRunning || mirror.resultFolder == nil)
         Button(L("ブラウザで開く")) { mirror.openInBrowser() }
             .disabled(mirror.isRunning || mirror.startPage == nil)
+        Button(L("差分を開く")) { mirror.revealDiff() }
+            .disabled(mirror.isRunning || mirror.diffReport == nil)
         Button(L("記録を開く")) { mirror.revealLog() }
             .disabled(mirror.isRunning || mirror.logFile == nil)
     }

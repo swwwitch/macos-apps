@@ -66,6 +66,7 @@ final class Mirror: ObservableObject {
     private var createdRoot = false
     /// 前回の取り込みの記録ファイル
     @Published private(set) var logFile: URL?
+    @Published private(set) var diffReport: URL?
     /// 終了の確認で「中止して終了」を選んだとき、書き換えが終わってから呼ぶ
     var onFinished: (() -> Void)?
 
@@ -174,6 +175,7 @@ final class Mirror: ObservableObject {
         resultFolder = checkOnly ? nil : root
         startPage = nil
         logFile = nil
+        diffReport = nil
         isRunning = true
         isRewriting = false
         isCheckOnly = checkOnly
@@ -230,6 +232,7 @@ final class Mirror: ObservableObject {
         failed = summary.failed
         startPage = summary.startPage
         logFile = summary.log
+        diffReport = summary.diffReport
         var parts = [isCheckOnly ? L("%d件は正常", summary.saved) : L("%d件を保存", summary.saved)]
         if summary.unchanged > 0 { parts.append(L("%d件は変更なし", summary.unchanged)) }
         if summary.failed > 0 { parts.append(L("%d件は失敗", summary.failed)) }
@@ -248,6 +251,7 @@ final class Mirror: ObservableObject {
         else if summary.saved == 0 { head = L("保存できませんでした") }
         else if summary.failed > 0 || summary.limitReached || summary.sizeLimitReached { head = L("一部を保存しました") }
         else { head = L("取り込みました") }
+        if let error = summary.diffError { parts.append(L("差分を保存できませんでした：%@", error)) }
         status = head + " — " + parts.joined(separator: L("、"))
         if summary.saved == 0, !summary.cancelled {
             message = (head, rows.first { $0.state == .failed }?.detail ?? L("URLとネットワークの接続を確認してください。"))
@@ -302,6 +306,14 @@ final class Mirror: ObservableObject {
         case 0: return (existing, true, false)
         case 1: return (Mirror.uniqueFolder(in: existing.deletingLastPathComponent(), name: host), false, false)
         default: return nil
+        }
+    }
+
+    func revealDiff() {
+        guard let diffReport else { return }
+        guard FileManager.default.fileExists(atPath: diffReport.path), NSWorkspace.shared.open(diffReport) else {
+            message = (L("差分を開けませんでした"), L("保存先の SiteMirror-diff で始まる報告ファイルを確認してください。"))
+            return
         }
     }
 

@@ -22,6 +22,7 @@ struct ContentView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 12)
             log
+                .padding(.top, 10)
                 .padding(.horizontal, 16)
             footer
         }
@@ -55,14 +56,15 @@ struct ContentView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            VStack(spacing: 4) {
-                Image(nsImage: currentAppIcon()).resizable().scaledToFit()
-                    .frame(width: 44, height: 44).accessibilityHidden(true)
-                AppVersionLabel()
-            }
+            Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                .frame(width: 36, height: 36).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(L("Webサイトをまるごと保存"))
-                    .font(.title2.weight(.semibold))
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(L("Webサイトをまるごと保存"))
+                        .font(.headline)
+                    Text(appVersionText().replacingOccurrences(of: "\n", with: " "))
+                        .font(.caption).foregroundStyle(.secondary).fixedSize()
+                }
                 Text(L("HTML・CSS・JavaScript・画像を保存し、リンクを相対パスに書き換えます"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -84,31 +86,42 @@ struct ContentView: View {
             GridRow {
                 Text(L("URL :")).gridColumnAlignment(.trailing)
                 HStack(spacing: 8) {
-                    TextField("", text: $mirror.urlText, prompt: Text(verbatim: "https://example.com/"))
-                        .textFieldStyle(.roundedBorder)
-                        .focused($urlFocused)
-                        .disabled(mirror.isRunning)
-                        .onSubmit { if mirror.canStart { mirror.start(checkOnly: mirror.checkOnlyMode) } }
-                        .accessibilityLabel(L("取り込むサイトのURL"))
-                    Menu {
-                        if mirror.recentURLs.isEmpty {
-                            Text(L("履歴はありません"))
-                        } else {
-                            ForEach(mirror.recentURLs, id: \.self) { value in
-                                Button { mirror.urlText = value; urlFocused = true } label: {
-                                    Text(verbatim: value)
+                    HStack(spacing: 6) {
+                        TextField("", text: $mirror.urlText, prompt: Text(verbatim: "https://example.com/"))
+                            .textFieldStyle(.plain)
+                            .frame(minWidth: 160, maxWidth: .infinity)
+                            .focused($urlFocused)
+                            .disabled(mirror.isRunning)
+                            .onSubmit { if mirror.canStart { mirror.start(checkOnly: mirror.checkOnlyMode) } }
+                            .accessibilityLabel(L("取り込むサイトのURL"))
+                        Menu {
+                            if mirror.recentURLs.isEmpty {
+                                Text(L("履歴はありません"))
+                            } else {
+                                ForEach(mirror.recentURLs, id: \.self) { value in
+                                    Button { mirror.urlText = value; urlFocused = true } label: {
+                                        Text(verbatim: value)
+                                    }
                                 }
+                                Divider()
+                                Button(L("URL履歴を消去")) { mirror.clearURLHistory() }
                             }
-                            Divider()
-                            Button(L("URL履歴を消去")) { mirror.clearURLHistory() }
+                        } label: {
+                            Image(systemName: "chevron.down")
+                                .font(.caption.weight(.semibold))
                         }
-                    } label: {
-                        Image(systemName: "clock.arrow.circlepath")
+                        .menuStyle(.borderlessButton)
+                        .menuIndicator(.hidden)
+                        .fixedSize()
+                        .disabled(mirror.isRunning)
+                        .accessibilityLabel(L("最近使ったURL"))
+                        .help(L("最近使ったURL"))
                     }
-                    .fixedSize()
-                    .disabled(mirror.isRunning)
-                    .accessibilityLabel(L("最近使ったURL"))
-                    .help(L("最近使ったURL"))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6)
+                        .stroke(urlFocused ? Color.accentColor : Color(nsColor: .separatorColor), lineWidth: 1))
                     let url = Mirror.startURL(from: mirror.urlText)
                     Button {
                         if let url { login.show(url) }
@@ -117,25 +130,7 @@ struct ContentView: View {
                     }
                     .disabled(mirror.isRunning || url == nil)
                     .help(login.isLoggedIn(url) ? L("このサイトのログイン情報を使います。ログインし直すときに開きます") : L("ログインが必要なサイトは、ここで開いてログインします"))
-                    Picker(L("処理"), selection: $mirror.checkOnlyMode) {
-                        Text(L("リンクを調べる")).tag(true)
-                        Text(L("取り込む")).tag(false)
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .fixedSize()
-                    .disabled(mirror.isRunning)
-                    .help(L("保存せず、リンク切れだけを調べます"))
-                    if mirror.isRunning {
-                        Button(L("中止")) { mirror.cancel() }
-                            .disabled(mirror.isRewriting)
-                            .fixedSize()
-                    } else {
-                        Button(L("開始")) { mirror.start(checkOnly: mirror.checkOnlyMode) }
-                            .keyboardShortcut(.defaultAction)
-                            .disabled(!mirror.canStart)
-                            .fixedSize()
-                    }
+
                 }
             }
             GridRow {
@@ -151,6 +146,31 @@ struct ContentView: View {
                         .disabled(mirror.isRunning)
                 }
             }
+            GridRow {
+                Color.clear.frame(width: 0, height: 0).accessibilityHidden(true)
+                HStack(spacing: 8) {
+                    Picker(L("処理"), selection: $mirror.checkOnlyMode) {
+                        Text(L("リンクを調べる")).tag(true)
+                        Text(L("取り込む")).tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
+                    .disabled(mirror.isRunning)
+                    .help(L("保存せず、リンク切れだけを調べます"))
+                    Spacer(minLength: 12)
+                    if mirror.isRunning {
+                        Button(L("中止")) { mirror.cancel() }
+                            .disabled(mirror.isRewriting)
+                            .fixedSize()
+                    } else {
+                        Button(L("開始")) { mirror.start(checkOnly: mirror.checkOnlyMode) }
+                            .keyboardShortcut(.defaultAction)
+                            .disabled(!mirror.canStart)
+                            .fixedSize()
+                    }
+                }
+            }
         }
     }
 
@@ -158,16 +178,21 @@ struct ContentView: View {
 
     private var log: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Picker(L("表示"), selection: $filter) {
-                ForEach(LogFilter.allCases, id: \.self) { item in
-                    Text(item.title(count: item.state.map { state in mirror.rows.lazy.filter { $0.state == state }.count } ?? mirror.rows.count))
-                        .tag(item)
+            Divider().padding(.bottom, 2)
+            HStack {
+                Text(L("取得結果")).font(.subheadline.weight(.semibold))
+                Spacer(minLength: 12)
+                Picker(L("表示"), selection: $filter) {
+                    ForEach(LogFilter.allCases, id: \.self) { item in
+                        Text(item.title(count: item.state.map { state in mirror.rows.lazy.filter { $0.state == state }.count } ?? mirror.rows.count))
+                            .tag(item)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
+                .onChange(of: filter) { selection = [] }
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .fixedSize()
-            .onChange(of: filter) { selection = [] }
             list
         }
     }
@@ -236,13 +261,19 @@ struct ContentView: View {
                 Text(mirror.status).lineLimit(2)
             }
             Spacer()
-            Button(L("記録を開く")) { mirror.revealLog() }
-                .disabled(mirror.isRunning || mirror.logFile == nil)
-                .help(L("取り込みフォルダーの SiteMirror-log.txt（失敗・除外したURLと理由・参照元）を開きます"))
-            Button(L("Finderで表示")) { mirror.revealResult() }
-                .disabled(mirror.isRunning || mirror.resultFolder == nil)
-            Button(L("ブラウザで開く")) { mirror.openInBrowser() }
-                .disabled(mirror.isRunning || mirror.startPage == nil)
+            Menu(L("結果を開く")) {
+                Button(L("差分を開く")) { mirror.revealDiff() }
+                    .disabled(mirror.isRunning || mirror.diffReport == nil)
+                Button(L("記録を開く")) { mirror.revealLog() }
+                    .disabled(mirror.isRunning || mirror.logFile == nil)
+                    .help(L("取り込みフォルダーの SiteMirror-log.txt（失敗・除外したURLと理由・参照元）を開きます"))
+                Button(L("Finderで表示")) { mirror.revealResult() }
+                    .disabled(mirror.isRunning || mirror.resultFolder == nil)
+                Button(L("ブラウザで開く")) { mirror.openInBrowser() }
+                    .disabled(mirror.isRunning || mirror.startPage == nil)
+            }
+            .fixedSize()
+            .disabled(mirror.isRunning || (mirror.diffReport == nil && mirror.logFile == nil && mirror.resultFolder == nil && mirror.startPage == nil))
         }
         .font(.callout)
         .padding(.horizontal, 16)
@@ -312,11 +343,4 @@ private func appVersionText() -> String {
     guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
     let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
     return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
-}
-/// Placed under the header icon.
-private struct AppVersionLabel: View {
-    var body: some View {
-        Text(appVersionText()).font(.system(size: 10)).foregroundStyle(.secondary)
-            .multilineTextAlignment(.center).fixedSize()
-    }
 }
