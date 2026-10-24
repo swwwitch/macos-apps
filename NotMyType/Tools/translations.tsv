@@ -423,7 +423,6 @@ Unicodeなし	Without Unicode
 優先	Preferred
 優先外	Not preferred
 上へ（重複したフォントで優先する）	Move up (preferred for duplicate fonts)
-同じPostScript名のフォントが複数のフォルダーにあるときは、この一覧で上にあるフォルダーのものを優先してアクティブにします（ウォッチフォルダーの外のものは最後）。	When fonts with the same PostScript name are in several folders, the one in the folder higher in this list is activated (fonts outside the watch folders come last).
 1989年以前	1989 and earlier
 %d年代	%ds
 フォントを点検…	Check Fonts…
@@ -464,3 +463,49 @@ InDesign…	InDesign…
 優先外の重複を解除	Deactivate Non-Preferred Duplicates
 優先外の重複をライブラリから取り除く…	Remove Non-Preferred Duplicates from Library…
 ここには優先が決まらない重複だけを出します。ボタンは、選んでいなければライブラリの優先外すべてが対象です	Only duplicates whose preferred file is undecided are listed here. With nothing selected, the buttons affect every non-preferred file in the library
+重複フォントを解決…	Resolve Duplicate Fonts…
+同じPostScript名のフォントが複数のフォルダーにあるときは、この一覧で上にあるフォルダーのものを優先してアクティブにします（ウォッチフォルダーの外のものは最後）。登録済みのフォルダーの中のフォルダーを追加すると、親のすぐ上に入り、親の中のほかのフォルダーより優先します。	When fonts with the same PostScript name are in several folders, the one in the folder higher in this list is activated (fonts outside watch folders come last). A folder added inside a listed folder goes right above its parent and takes priority over the rest of the parent.
+親のフォルダーより下にあるため、重複したフォントの優先に効きません。▲で親より上へ動かします	This folder is below its parent, so it has no effect on duplicate priority. Move it above the parent with ▲
+重複の優先の規則	Duplicate Priority Rules
+＞ %@	> %@
+%@ を %@ より優先	Prefer %@ over %@
+規則はありません	No rules
+選んだ規則を削除	Delete Selected Rules
+ファイルごとに選んだ優先：%d件	Files chosen individually: %d
+選択を消去	Clear Choices
+重複フォントを解決	Resolve Duplicate Fonts
+残り %d組	%d left
+優先するほうを選びます。選んだものは規則として覚え、同じフォルダーの組み合わせの重複にも使います。	Choose the one to prefer. Your choice is kept as a rule and also used for other duplicates in the same pair of folders.
+優先が決まらない重複はありません	No undecided duplicates
+スキップした組を戻す	Bring Back Skipped
+スキップ	Skip
+覚える範囲 :	Remember for:
+分かれ目のフォルダー（同じ組み合わせ %d組）	Folders where the paths split (%d with the same pair)
+ファイルのあるフォルダー	Folders containing the files
+この組だけ	This duplicate only
+字形数	Glyphs
+更新日	Modified
+優先の単位	Preferred as
+こちらを優先	Prefer This
+重複フォント	Duplicate Fonts
+ウォッチフォルダーの順で優先が決まらない重複に使います。上のフォルダー（下の階層も）のフォントを、下のフォルダーのものより優先します。	Used for duplicates that the watch folder order cannot decide. Fonts in the upper folder (including subfolders) are preferred over those in the lower one.
+フォルダーを調べています…	Looking through folders…
+ファイルを読み直しています（%d／%d）	Rereading files (%d/%d)
+フォルダーの新しいファイルを探しています…	Looking for new files in folders…
+新しいファイルを読んでいます（%d／%d）	Reading new files (%d/%d)
+保存しています…	Saving…
+システムのフォントキャッシュを消去中…	Cleaning system font caches…
+管理者のパスワードを入力してください	Enter an administrator password
+atsutilを実行しています…	Running atsutil…
+Adobeアプリのフォントキャッシュを探しています…	Looking for Adobe app font caches…
+Adobeアプリのフォントキャッシュを消去中…	Cleaning Adobe app font caches…
+%d／%d	%d/%d
+形式（下の順）	Format (order below)
+バージョンが新しい	Newer version
+字形数が多い	More glyphs
+同じPostScript名のフォントが複数あるときは、ウォッチフォルダーの順 → 規則 → ファイルごとの選択 → ファイルの中身で決める条件の順で優先を決めます。	When several fonts share a PostScript name, the preferred one is decided by the watch folder order, then rules, then individual choices, then the conditions based on the files.
+ファイルの中身で決める条件	Conditions Based on the Files
+形式の順	Format Order
+上の形式ほど優先します。ドラッグか▲▼で並べ替えます。	Formats higher in the list are preferred. Drag or use ▲▼ to reorder.
+それでも残ったものが中身の同じファイル（ハッシュが一致）なら、自動で1つに決める	If the remaining files have identical contents (matching hashes), pick one automatically
+ウォッチフォルダーの順・規則・ファイルごとの選択でも決まらないときに、上の条件から順に使います。バージョンはフォントの版（headテーブル）、字形数は収録グリフの数で比べ、分からないファイルがあるときはその条件を飛ばします。中身が同じときは先に登録したファイルを優先します（ハッシュは候補のファイルだけ裏で計ります）。	Used from the top when the watch folder order, rules and individual choices do not decide. Versions are compared by the font revision (head table) and glyphs by the number of glyphs; a condition is skipped when a file has no value. When the contents are identical, the file added first is preferred (hashes are computed in the background for candidates only).

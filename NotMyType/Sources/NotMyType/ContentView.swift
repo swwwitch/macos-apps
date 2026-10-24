@@ -84,7 +84,11 @@ struct ContentView: View {
 
     private var footer: some View {
         HStack(spacing: 8) {
-            if store.isBusy { ProgressView().controlSize(.small) }
+            if TaskProgress.shared.isRunning {
+                TaskProgressBar()
+            } else if store.isBusy {
+                ProgressView().controlSize(.small)
+            }
             Text(store.status.isEmpty ? summary : store.status)
                 .font(.callout).foregroundStyle(.secondary)
                 .lineLimit(1).truncationMode(.middle)
@@ -154,6 +158,7 @@ private struct SidebarView: View {
                 Section(isExpanded: $expandedLibrary) {
                     row(.all, L("すべてのフォント"), "textformat")
                     row(.duplicates, L("重複"), "square.on.square")
+                        .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
                     row(.missing, L("見つからない"), "exclamationmark.triangle")
                 } header: { Text(L("ライブラリ")) }
                 ForEach(LibraryStore.SidebarSection.ordered(order), id: \.self) { section in
@@ -495,6 +500,7 @@ private struct DuplicatesBar: View {
                 .font(.callout).foregroundStyle(.secondary)
                 .lineLimit(2).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 4)
+            Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() }
             Button(L("優先外を解除")) { store.deactivateNonPreferredDuplicates() }
             Button(L("優先外を取り除く…")) { store.removeNonPreferredDuplicates() }
         }

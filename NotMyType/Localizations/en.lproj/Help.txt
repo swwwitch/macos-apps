@@ -9,6 +9,9 @@ NotMyType keeps your font files in a library and activates them only when you ne
 
 ### Watch Folders
 - When fonts with the same PostScript name are in several folders, the one in the folder higher in the watch folder list is preferred (fonts outside the watch folders come last). The preferred one is used when activating fonts together, matching projects and activating missing fonts for Adobe apps, and style rows show "Preferred" or "Not preferred". Change the order with ▲▼. "Duplicates" in the sidebar lists only duplicates whose preferred file cannot be decided by the watch folder order (two in the same folder, both outside the watch folders, and so on). Tools > Non-Preferred Duplicates, the list's right-click menu, and the bar above "Duplicates" deactivate non-preferred files together or remove them from the library (the files are not deleted).
+- A folder added inside a listed watch folder goes right above its parent and takes priority over the rest of the parent. The settings list indents it under the parent, and shows a mark if it is moved below the parent (it then has no effect).
+- "Resolve Duplicate Fonts…" (Tools menu, right-click on "Duplicates" in the sidebar, or the bar above "Duplicates") shows undecided duplicates side by side as cards; choose one with "Prefer This". The choice is kept as a rule and also used for duplicates in the same pair of folders. Choose what to remember: the folders where the two paths split (resolves the most), the folders containing the files, or this duplicate only. Pairs shared by the most duplicates come first. Rules are listed and deleted under "Duplicate Priority Rules" in the Duplicate Fonts tab of Settings and sync with the shared library.
+- Duplicates that the folder order, rules and individual choices do not decide are settled by "Conditions Based on the Files" in the Duplicate Fonts tab of Settings: Format, Newer version (font revision in the head table) and More glyphs (all on by default, in this order). Turn each on or off and reorder them by dragging or with ▲▼. A condition is skipped when a file has no value. Versions of files added in older versions are read in the background after launch. If the remaining files have identical contents (matching SHA-256 hashes), the file added first is picked automatically (on by default; hashes are computed in the background for undecided candidates only). The default "Format Order" is OpenType (CFF) .otf, OpenType Collection .otc, TrueType .ttf, TrueType Collection .ttc, Datafork TrueType .dfont, WOFF2, WOFF. Drag or use ▲▼ to reorder.
 - Add as many folders as you like under Watch Folders in the Fonts settings. When new font files appear in a folder (including subfolders), they are added to the library without being activated.
 - The folders are also read at launch. Files removed from a folder appear in "Missing".
 
@@ -117,6 +120,9 @@ NotMyType keeps your font files in a library and activates them only when you ne
 ### Rebuilding the Library
 - "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and font folders and relinks them, and adds new files in the folders. Relinked files stay in their sets and projects.
 - Files still not found are counted, and you can keep or remove them. With many files this takes from tens of seconds to a few minutes.
+
+### Progress
+- While rebuilding the library, cleaning font caches, adding fonts or importing FontExplorer X Pro sets, a small progress panel appears in the middle of the screen, and a bar also appears at the bottom of the main window. When the number of items is known, it shows "n/m" and a filling bar; otherwise the bar keeps moving.
 
 ### Checking Fonts
 - "Check Fonts…" in the Tools menu reads the fonts selected in the list (or the whole library when nothing is selected) and lists the ones with problems.

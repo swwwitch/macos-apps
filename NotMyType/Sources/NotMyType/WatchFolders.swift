@@ -47,8 +47,27 @@ final class WatchFolders: ObservableObject {
         guard panel.runModal() == .OK else { return }
         let new = panel.urls.map { $0.standardizedFileURL.path }.filter { !folders.contains($0) }
         guard !new.isEmpty else { return }
-        folders += new
+        var list = folders
+        for path in new {
+            // 登録済みのフォルダーの子は、いちばん近い親のすぐ上に入れる（重複したフォントで親より優先する）
+            if let parent = parent(of: path, in: list), let index = list.firstIndex(of: parent) {
+                list.insert(path, at: index)
+            } else {
+                list.append(path)
+            }
+        }
+        folders = list
         scan()
+    }
+
+    /// 一覧にあるフォルダーのうち、いちばん近い親（無ければ nil）
+    func parent(of path: String, in list: [String]? = nil) -> String? {
+        (list ?? folders).filter { $0 != path && path.hasPrefix($0.hasSuffix("/") ? $0 : $0 + "/") }.max { $0.count < $1.count }
+    }
+
+    /// 一覧にある親の数（設定の一覧で字下げに使う）
+    func depth(of path: String) -> Int {
+        folders.filter { $0 != path && path.hasPrefix($0.hasSuffix("/") ? $0 : $0 + "/") }.count
     }
 
     /// 一覧の順を入れ替える（上ほど重複の優先が高い）
@@ -86,8 +105,10 @@ final class WatchFolders: ObservableObject {
         guard !urls.isEmpty else { return }
         let known = Set(LibraryStore.shared.data.files.map(\.path)).union(excluded)
         Task.detached(priority: .utility) {
+            // 親と子を両方見張っていると同じファイルが2回出るので、1回だけ読む
+            var seen = known
             let files = FontScanner.fontURLs(in: urls)
-                .filter { !known.contains($0.standardizedFileURL.path) }
+                .filter { seen.insert($0.standardizedFileURL.path).inserted }
                 .compactMap(FontScanner.read)
             guard !files.isEmpty else { return }
             await MainActor.run { LibraryStore.shared.importWatched(files) }

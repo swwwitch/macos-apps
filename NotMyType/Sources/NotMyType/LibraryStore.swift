@@ -24,6 +24,51 @@ final class LibraryStore: ObservableObject {
     static let deactivateOnQuitKey = "deactivateFontsOnQuit"
     static let sampleTextKey = "previewSampleText"
     static let includeUserFontsKey = "includeUserFontsFolder"
+    /// 重複の優先：同じフォントで形式が異なるときは、形式の順（formatOrderKey）で優先する（ユーザー指定で既定はオン。1.31 の OpenType の優先と同じキー）
+    nonisolated static let preferOpenTypeKey = "preferOpenTypeDuplicates"
+    /// 形式の優先の順。拡張子をカンマでつないで持つ（設定の同期に載せやすいよう文字列）
+    static let formatOrderKey = "duplicateFormatOrder"
+    static let defaultFormatOrder = ["otf", "otc", "ttf", "ttc", "dfont", "woff2", "woff"]
+    /// 重複の優先の「バージョンが新しい」「字形数が多い」（ユーザー指定で追加、既定はオン）と、形式を含めた3つの条件の順
+    nonisolated static let preferNewerVersionKey = "preferNewerVersionDuplicates"
+    nonisolated static let preferMoreGlyphsKey = "preferMoreGlyphsDuplicates"
+    static let autoCriteriaOrderKey = "duplicateAutoCriteriaOrder"
+    /// 中身が同じファイル（ハッシュが一致）しか残らないときは、自動で1つに決める（ユーザー指定、既定はオン）
+    nonisolated static let pickIdenticalKey = "autoPickIdenticalDuplicates"
+
+    /// 形式・バージョン・字形数のどれで決めるか。ファイルの中身から自動で決める条件
+    enum AutoCriterion: String, CaseIterable, Sendable {
+        case format, version, glyphs
+        var enabledKey: String {
+            switch self {
+            case .format: return LibraryStore.preferOpenTypeKey
+            case .version: return LibraryStore.preferNewerVersionKey
+            case .glyphs: return LibraryStore.preferMoreGlyphsKey
+            }
+        }
+        var title: String {
+            switch self {
+            case .format: return L("形式（下の順）")
+            case .version: return L("バージョンが新しい")
+            case .glyphs: return L("字形数が多い")
+            }
+        }
+    }
+
+    /// 保存した条件の順。知らないものは捨て、足りないものは末尾に足す
+    static func autoCriteriaOrder(_ saved: String? = UserDefaults.standard.string(forKey: autoCriteriaOrderKey)) -> [AutoCriterion] {
+        var seen = Set<AutoCriterion>()
+        let list = (saved ?? "").split(separator: ",").compactMap { AutoCriterion(rawValue: String($0)) }.filter { seen.insert($0).inserted }
+        return list + AutoCriterion.allCases.filter { !seen.contains($0) }
+    }
+
+    /// 保存した形式の順。知らない拡張子は捨て、足りない形式は末尾に足す
+    static func formatOrder(_ saved: String? = UserDefaults.standard.string(forKey: formatOrderKey)) -> [String] {
+        let list = (saved ?? "").split(separator: ",").map(String.init).filter { defaultFormatOrder.contains($0) }
+        var seen = Set<String>()
+        let unique = list.filter { seen.insert($0).inserted }
+        return unique + defaultFormatOrder.filter { !seen.contains($0) }
+    }
     /// 共有ライブラリを置くフォルダー（Macごと）
     static let sharedFolderKey = "sharedLibraryFolder"
     /// 旧名（FontSwitcher）のまま。変えるとほかのMacの共有ライブラリと別のファイルになる
@@ -54,7 +99,8 @@ final class LibraryStore: ObservableObject {
     static let recentInterval: TimeInterval = 7 * 24 * 60 * 60
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
-    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, NameDisplay.key]
+    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, preferOpenTypeKey, formatOrderKey,
+                                                       preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, NameDisplay.key]
         + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
         + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
@@ -117,6 +163,7 @@ final class LibraryStore: ObservableObject {
     /// ファミリーごとの書体数（表示しているファイル全体で数える。ほかの絞り込みでは変わらない）
     private var faceCountCache: [String: Int]?
     private var preferenceCache: [UUID: Bool]?
+    private var undecidedCache: [[FontFile]]?
 
     /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる
     func invalidate() {
@@ -128,6 +175,7 @@ final class LibraryStore: ObservableObject {
         filterCache = nil
         faceCountCache = nil
         preferenceCache = nil
+        undecidedCache = nil
     }
 
     private var libraryURL: URL {
@@ -141,7 +189,9 @@ final class LibraryStore: ObservableObject {
             .appendingPathComponent("NotMyType", isDirectory: true)
         localURL = folder.appendingPathComponent("Library.json")
         UserDefaults.standard.register(defaults: [Self.restoreAtLaunchKey: true, Self.deactivateOnQuitKey: false,
-                                                  Self.sampleTextKey: Self.defaultSampleText, Self.includeUserFontsKey: true])
+                                                  Self.sampleTextKey: Self.defaultSampleText, Self.includeUserFontsKey: true,
+                                                  Self.preferOpenTypeKey: true, Self.preferNewerVersionKey: true,
+                                                  Self.preferMoreGlyphsKey: true, Self.pickIdenticalKey: true])
         UserDefaults.standard.register(defaults: Self.sidebarDefaults)
         sharedFolder = UserDefaults.standard.string(forKey: Self.sharedFolderKey)
         if let sharedFolder, !FileManager.default.fileExists(atPath: sharedFolder) {
@@ -297,23 +347,11 @@ final class LibraryStore: ObservableObject {
         return families
     }
 
-    /// サイドバーの「重複」：同じ PostScript名のファイルのうち、ウォッチフォルダーの順で優先が決まらないもの（いちばん上の順位に2つ以上ある）だけ。
+    /// サイドバーの「重複」：同じ PostScript名のファイルのうち、優先が決まらないもの（ウォッチフォルダーの順・規則・選択で1つに絞れない）だけ。
     /// 優先が決まった重複は数えない（ユーザー指定）。決まったものは一覧の「優先／優先外」と「優先外の重複」の操作で扱う
     private var duplicateIDs: Set<UUID> {
-        if let duplicateCache { return duplicateCache }
-        var groups: [String: [FontFile]] = [:]
-        for file in data.files {
-            guard let name = file.faces.first?.postScriptName else { continue }
-            groups[name, default: []].append(file)
-        }
-        var ids = Set<UUID>()
-        for group in groups.values where group.count > 1 {
-            let ranks = group.map { priority(of: $0) }
-            let top = ranks.min() ?? 0
-            if ranks.filter({ $0 == top }).count > 1 { ids.formUnion(group.map(\.id)) }
-        }
-        duplicateCache = ids
-        return ids
+        if duplicateCache == nil { computeDuplicates() }
+        return duplicateCache ?? []
     }
 
     /// ファミリーごとの書体数。一覧の「n書体」と同じく、サイドバーで選んだ範囲で数える
@@ -449,11 +487,16 @@ final class LibraryStore: ObservableObject {
         guard !isBusy, !urls.isEmpty else { return }
         isBusy = true
         status = L("フォントを読み込み中…")
+        TaskProgress.shared.begin(L("フォントを読み込み中…"), detail: L("フォルダーを調べています…"))
         Task.detached(priority: .userInitiated) {
             let found = FontScanner.fontURLs(in: urls)
             var read: [FontFile] = []
             var unreadable = 0
-            for url in found {
+            for (index, url) in found.enumerated() {
+                if index % 100 == 0 {
+                    let done = index
+                    await MainActor.run { TaskProgress.shared.update(done, of: found.count) }
+                }
                 if let file = FontScanner.read(url) { read.append(file) } else { unreadable += 1 }
             }
             let files = read
@@ -465,6 +508,7 @@ final class LibraryStore: ObservableObject {
                 let added = store.data.add(files)
                 store.save()
                 store.isBusy = false
+                TaskProgress.shared.end()
                 var parts = [L("%d個のファイルを追加しました", added)]
                 if files.count > added { parts.append(L("登録済み %d", files.count - added)) }
                 if skipped > 0 { parts.append(L("読めないファイル %d", skipped)) }
@@ -694,6 +738,7 @@ final class LibraryStore: ObservableObject {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         isBusy = true
         status = L("ライブラリを再構築中…")
+        TaskProgress.shared.begin(L("ライブラリを再構築中…"))
         let files = data.files
         let folders = (WatchFolders.shared.folders + (includeUserFonts ? SystemFolder.allCases.map(\.path) : []))
             .map { URL(fileURLWithPath: $0) }
@@ -701,9 +746,12 @@ final class LibraryStore: ObservableObject {
             var refreshed: [UUID: FontFile] = [:]
             var missing: [FontFile] = []
             for (index, file) in files.enumerated() {
-                if index % 1000 == 0 {
+                if index % 200 == 0 {
                     let done = index
-                    await MainActor.run { LibraryStore.shared.status = L("ライブラリを再構築中…（%d／%d）", done, files.count) }
+                    await MainActor.run {
+                        LibraryStore.shared.status = L("ライブラリを再構築中…（%d／%d）", done, files.count)
+                        TaskProgress.shared.update(done, of: files.count, detail: L("ファイルを読み直しています（%d／%d）", done, files.count))
+                    }
                 }
                 guard FileManager.default.fileExists(atPath: file.path) else { missing.append(file); continue }
                 guard var fresh = FontScanner.read(file.url) else { continue }
@@ -714,6 +762,7 @@ final class LibraryStore: ObservableObject {
                 refreshed[file.id] = fresh
             }
             // フォルダーにあってライブラリに無いファイル。見つからないファイルのつなぎ直し先の候補にもする
+            await MainActor.run { TaskProgress.shared.step(L("フォルダーの新しいファイルを探しています…")) }
             let known = Set(files.map(\.path))
             let candidates = FontScanner.fontURLs(in: folders, includeHidden: false).filter { !known.contains($0.standardizedFileURL.path) }
             var byName: [String: [URL]] = [:]
@@ -732,9 +781,20 @@ final class LibraryStore: ObservableObject {
                     break
                 }
             }
-            let added = candidates.filter { !used.contains($0.path) }.compactMap(FontScanner.read).filter { !LibraryStore.isHiddenSystemFont($0) }
+            let newURLs = candidates.filter { !used.contains($0.path) }
+            var added: [FontFile] = []
+            for (index, url) in newURLs.enumerated() {
+                if index % 100 == 0 {
+                    let done = index
+                    await MainActor.run {
+                        TaskProgress.shared.update(done, of: newURLs.count, detail: L("新しいファイルを読んでいます（%d／%d）", done, newURLs.count))
+                    }
+                }
+                if let file = FontScanner.read(url), !LibraryStore.isHiddenSystemFont(file) { added.append(file) }
+            }
             let stillMissing = missing.filter { relinked[$0.id] == nil }
             let result = (refreshed, relinked, added, stillMissing)
+            await MainActor.run { TaskProgress.shared.step(L("保存しています…")) }
             await MainActor.run { LibraryStore.shared.finishRebuild(result.0, result.1, result.2, result.3) }
         }
     }
@@ -748,6 +808,7 @@ final class LibraryStore: ObservableObject {
         let addedCount = added.isEmpty ? 0 : updated.add(added)
         data = updated
         isBusy = false
+        TaskProgress.shared.end()
         var removed = 0
         if !missing.isEmpty {
             let alert = NSAlert()
@@ -790,29 +851,169 @@ final class LibraryStore: ObservableObject {
         return folders.count
     }
 
-    /// 重複しているファイルが優先か（true）優先でないか（false）。重複していなければ nil
+    /// 重複しているファイルが優先か（true）優先でないか（false）。重複していない、または優先が決まらない候補なら nil
     func duplicatePreference(_ file: FontFile) -> Bool? {
-        if preferenceCache == nil {
-            var groups: [String: [FontFile]] = [:]
-            for file in data.files {
-                guard let name = file.faces.first?.postScriptName else { continue }
-                groups[name, default: []].append(file)
-            }
-            var result: [UUID: Bool] = [:]
-            for group in groups.values where group.count > 1 {
-                let preferred = byPriority(group).first?.id
-                for member in group { result[member.id] = member.id == preferred }
-            }
-            preferenceCache = result
-        }
+        if preferenceCache == nil { computeDuplicates() }
         return preferenceCache?[file.id]
     }
 
-    /// 優先の順に並べる（同じ順位ならライブラリの順のまま）
+    /// 優先が決まらない重複の組（組の全ファイル）。「重複フォントを解決」で使う
+    var undecidedDuplicateGroups: [[FontFile]] {
+        if undecidedCache == nil { computeDuplicates() }
+        return undecidedCache ?? []
+    }
+
+    /// 重複の組ごとに優先を決め、「重複」の一覧・優先の印・決まらない組を一度に作る
+    private func computeDuplicates() {
+        var groups: [String: [FontFile]] = [:]
+        for file in data.files {
+            guard let name = file.faces.first?.postScriptName else { continue }
+            groups[name, default: []].append(file)
+        }
+        var preference: [UUID: Bool] = [:]
+        var undecided = Set<UUID>()
+        var undecidedGroups: [[FontFile]] = []
+        for group in groups.values where group.count > 1 {
+            let candidates = Set(preferenceCandidates(group).map(\.id))
+            if candidates.count == 1 {
+                for member in group { preference[member.id] = candidates.contains(member.id) }
+            } else {
+                // 候補より下の順位のものは、どれが優先でも優先外
+                for member in group where !candidates.contains(member.id) { preference[member.id] = false }
+                undecided.formUnion(group.map(\.id))
+                undecidedGroups.append(group)
+            }
+        }
+        preferenceCache = preference
+        duplicateCache = undecided
+        undecidedCache = undecidedGroups
+        if !hashWanted.isEmpty {
+            // 描画の途中で data を書き換えないよう、次の回に回す
+            DispatchQueue.main.async { LibraryStore.shared.hashPendingFiles() }
+        }
+    }
+
+    /// 重複の組で優先の候補として残るファイル（1つなら決まり）。ウォッチフォルダーの順位 → 規則 → ファイルごとの選択 →
+    /// ファイルの中身で決める条件（形式・バージョン・字形数を設定の順に）で絞る。
+    /// 自分で選んだ規則・選択を、自動の形式より先に使う
+    func preferenceCandidates(_ group: [FontFile]) -> [FontFile] {
+        let ranks = group.map { priority(of: $0) }
+        let top = ranks.min() ?? 0
+        var tied = zip(group, ranks).filter { $0.1 == top }.map(\.0)
+        guard tied.count > 1 else { return tied }
+        let rules = data.folderRules
+        if !rules.isEmpty {
+            let beaten = Set(tied.filter { loser in
+                tied.contains { winner in winner.id != loser.id && rules.contains { $0.prefers(winner.path, over: loser.path) } }
+            }.map(\.id))
+            // 規則どうしが食い違ってすべて負けるときは、絞らない
+            if beaten.count < tied.count { tied.removeAll { beaten.contains($0.id) } }
+        }
+        let picked = tied.filter { data.preferredFiles.contains($0.id) }
+        if picked.count == 1 { return picked }
+        for criterion in Self.autoCriteriaOrder() where tied.count > 1 && UserDefaults.standard.bool(forKey: criterion.enabledKey) {
+            tied = Self.narrow(tied, by: criterion)
+        }
+        if tied.count > 1 && UserDefaults.standard.bool(forKey: Self.pickIdenticalKey) {
+            let hashes = tied.map(\.contentHash)
+            if hashes.contains(where: { $0 == nil }) {
+                // まだ計っていない。裏で計り、終わったら決め直す
+                hashWanted.formUnion(tied.filter { $0.contentHash == nil }.map(\.id))
+            } else if let first = hashes.first ?? nil, !first.isEmpty, hashes.allSatisfy({ $0 == first }) {
+                // 中身が同じならどれでも同じ。先に登録したもの（同じなら場所の名前順）にする
+                if let pick = tied.min(by: { ($0.added, $0.path) < ($1.added, $1.path) }) { return [pick] }
+            }
+        }
+        return tied
+    }
+
+    /// 中身のハッシュを計りたいファイル（決まらない重複の候補）
+    private var hashWanted = Set<UUID>()
+    private var isHashing = false
+
+    /// 候補のファイルの中身を裏で計り、保存して決め直す
+    private func hashPendingFiles() {
+        guard !isHashing, !hashWanted.isEmpty else { return }
+        let ids = hashWanted
+        hashWanted.removeAll()
+        let files = data.files.filter { ids.contains($0.id) }.map { (id: $0.id, path: $0.path) }
+        guard !files.isEmpty else { return }
+        isHashing = true
+        Task.detached(priority: .utility) {
+            var hashes: [UUID: String] = [:]
+            for file in files { hashes[file.id] = FontScanner.contentHash(URL(fileURLWithPath: file.path)) ?? "" }
+            let result = hashes
+            await MainActor.run {
+                let store = LibraryStore.shared
+                var data = store.data
+                for index in data.files.indices {
+                    if let hash = result[data.files[index].id] { data.files[index].contentHash = hash }
+                }
+                store.isHashing = false
+                store.data = data
+                store.save()
+            }
+        }
+    }
+
+    /// 条件でいちばん良いものだけ残す。値が分からないファイルがあるときは比べない（バージョン・字形数）
+    private static func narrow(_ files: [FontFile], by criterion: AutoCriterion) -> [FontFile] {
+        let scores: [Double]
+        switch criterion {
+        case .format:
+            // 順で上の形式ほど良い（順に無い形式は最後）
+            let order = formatOrder()
+            scores = files.map { -Double(order.firstIndex(of: ($0.path as NSString).pathExtension.lowercased()) ?? order.count) }
+        case .version:
+            guard files.allSatisfy({ ($0.fontRevision ?? 0) > 0 }) else { return files }
+            scores = files.map { $0.fontRevision ?? 0 }
+        case .glyphs:
+            guard files.allSatisfy({ $0.glyphCount != nil }) else { return files }
+            scores = files.map { Double($0.glyphCount ?? 0) }
+        }
+        let best = scores.max() ?? 0
+        // fontRevision は 16.16 の固定小数点なので、ごく小さい差は同じとみなす
+        return zip(files, scores).filter { best - $0.1 < 0.0001 }.map(\.0)
+    }
+
+    /// 優先の順に並べる（同じ順位なら優先と決まったもの、次にライブラリの順）
     func byPriority(_ files: [FontFile]) -> [FontFile] {
         // 順位は先に1回だけ計る（並べ替えの比較のたびに計ると3万件で遅い）
-        let ranked = files.enumerated().map { (rank: priority(of: $0.element), offset: $0.offset, file: $0.element) }
-        return ranked.sorted { $0.rank != $1.rank ? $0.rank < $1.rank : $0.offset < $1.offset }.map(\.file)
+        let ranked = files.enumerated().map { (rank: priority(of: $0.element), preferred: duplicatePreference($0.element) == true,
+                                               offset: $0.offset, file: $0.element) }
+        return ranked.sorted {
+            if $0.rank != $1.rank { return $0.rank < $1.rank }
+            if $0.preferred != $1.preferred { return $0.preferred }
+            return $0.offset < $1.offset
+        }.map(\.file)
+    }
+
+    /// 「重複フォントを解決」で選んだ規則を足す（同じ組の古い規則は置き換える）
+    func addFolderRules(_ rules: [FolderRule]) {
+        for rule in rules {
+            data.folderRules.removeAll {
+                ($0.preferred == rule.preferred && $0.other == rule.other) || ($0.preferred == rule.other && $0.other == rule.preferred)
+            }
+            data.folderRules.append(rule)
+        }
+        save()
+    }
+
+    func removeFolderRules(_ ids: Set<UUID>) {
+        data.folderRules.removeAll { ids.contains($0.id) }
+        save()
+    }
+
+    /// 規則にできない組で、このファイルを優先にする（同じ組のほかのファイルの選択は外す）
+    func pickPreferred(_ file: FontFile, in group: [FontFile]) {
+        for member in group { data.preferredFiles.remove(member.id) }
+        data.preferredFiles.insert(file.id)
+        save()
+    }
+
+    func clearPreferredFiles() {
+        data.preferredFiles.removeAll()
+        save()
     }
 
     /// 優先でない重複（一覧で「優先外」のファイル）。範囲は一覧で選んだもの、選んでいなければライブラリ全体
@@ -880,13 +1081,21 @@ final class LibraryStore: ObservableObject {
         guard !isBusy, !sets.isEmpty else { return }
         isBusy = true
         status = L("FontExplorer X Proのセットを読み込み中…")
+        TaskProgress.shared.begin(L("FontExplorer X Proのセットを読み込み中…"))
         let known = Set(data.files.map(\.path))
         Task.detached(priority: .userInitiated) {
             var read: [FontFile] = []
             if addFiles {
                 let wanted = Set(sets.flatMap(\.paths).map { URL(fileURLWithPath: $0).standardizedFileURL.path })
                     .filter { !known.contains($0) && FileManager.default.fileExists(atPath: $0) }
-                read = wanted.sorted().compactMap { FontScanner.read(URL(fileURLWithPath: $0)) }
+                let paths = wanted.sorted()
+                for (index, path) in paths.enumerated() {
+                    if index % 100 == 0 {
+                        let done = index
+                        await MainActor.run { TaskProgress.shared.update(done, of: paths.count) }
+                    }
+                    if let file = FontScanner.read(URL(fileURLWithPath: path)) { read.append(file) }
+                }
             }
             let files = read
             await MainActor.run {
@@ -910,6 +1119,7 @@ final class LibraryStore: ObservableObject {
                 }
                 store.save()
                 store.isBusy = false
+                TaskProgress.shared.end()
                 store.status = L("FontExplorer X Proから%d個のセットを読み込みました", sets.count)
                     + (added > 0 ? L("、ライブラリに追加 %d", added) : "")
                     + (skipped > 0 ? L("、見つからないファイル %d", skipped) : "")
@@ -1331,7 +1541,7 @@ final class LibraryStore: ObservableObject {
     func fillMetadata() {
         let outdated = UserDefaults.standard.integer(forKey: Self.metadataVersionKey) < Self.metadataVersion
         let missing = data.files.filter {
-            (outdated || $0.vendor == nil || $0.trademarkOwner == nil || $0.isVariable == nil || $0.characterCount == nil || $0.supportsJapanese == nil || $0.isIcon == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
+            (outdated || $0.vendor == nil || $0.trademarkOwner == nil || $0.isVariable == nil || $0.characterCount == nil || $0.supportsJapanese == nil || $0.isIcon == nil || $0.fontRevision == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
         }
         guard !missing.isEmpty else { return }
         Task.detached(priority: .utility) {
@@ -1355,6 +1565,7 @@ final class LibraryStore: ObservableObject {
                     data.files[index].isKana = fresh.isKana
                     data.files[index].supportsJapanese = fresh.supportsJapanese
                     data.files[index].isIcon = fresh.isIcon
+                    data.files[index].fontRevision = fresh.fontRevision
                     for face in data.files[index].faces.indices {
                         let name = data.files[index].faces[face].postScriptName
                         let match = fresh.faces.first { $0.postScriptName == name }

@@ -1,3 +1,4 @@
+import CryptoKit
 import CoreText
 import Foundation
 
@@ -145,6 +146,10 @@ struct FontFile: Codable, Identifiable, Hashable, Sendable {
     /// 収録文字数（cmap の文字の数）とグリフ数。かなフォントは、かなを持ち漢字をほとんど持たないもの。古い版のライブラリでは nil
     var characterCount: Int?
     var glyphCount: Int?
+    /// head テーブルのフォントの版（fontRevision）。重複の優先の「バージョンが新しい」に使う。読めなければ 0、古い版のライブラリでは nil
+    var fontRevision: Double?
+    /// 中身の SHA-256（重複の優先の「中身が同じファイルは自動で決める」に使う）。決まらない重複の候補だけ裏で計る。読めなければ空、未計測は nil
+    var contentHash: String?
     var isKana: Bool?
     /// 日本語をサポート：ひらがな・カタカナ（あ・ア）を持つ
     var supportsJapanese: Bool?
@@ -245,6 +250,10 @@ struct LibraryData: Codable, Sendable {
     var departed: [String: UUID] = [:]
     /// ファミリー名。ファイルを入れ替えても残るよう、ファイルではなく名前で覚える
     var favorites: Set<String> = []
+    /// 重複の優先の規則（「重複フォントを解決」で選んだもの）。ウォッチフォルダーの順位が同じときだけ使う
+    var folderRules: [FolderRule] = []
+    /// 同じフォルダーの中の重複など、規則にできない組でファイルごとに選んだ優先
+    var preferredFiles: Set<UUID> = []
 
     init() {}
 
@@ -258,6 +267,19 @@ struct LibraryData: Codable, Sendable {
         smartSets = try container.decodeIfPresent([SmartSet].self, forKey: .smartSets) ?? []
         active = try container.decodeIfPresent(Set<UUID>.self, forKey: .active) ?? []
         favorites = try container.decodeIfPresent(Set<String>.self, forKey: .favorites) ?? []
+        folderRules = try container.decodeIfPresent([FolderRule].self, forKey: .folderRules) ?? []
+        preferredFiles = try container.decodeIfPresent(Set<UUID>.self, forKey: .preferredFiles) ?? []
+    }
+}
+
+/// 重複の優先の規則：preferred フォルダー（下の階層も）のファイルを、other フォルダーのファイルより優先する
+struct FolderRule: Codable, Identifiable, Hashable, Sendable {
+    var id = UUID()
+    var preferred: String
+    var other: String
+
+    func prefers(_ winner: String, over loser: String) -> Bool {
+        winner.hasPrefix(preferred + "/") && loser.hasPrefix(other + "/")
     }
 }
 
@@ -327,7 +349,25 @@ enum FontScanner {
         file.isKana = characters.kana
         file.supportsJapanese = characters.japanese
         file.isIcon = characters.icon || iconFamilyWords.contains { faces[0].family.contains($0) }
+        file.fontRevision = fontRevision(descriptors[0])
         return file
+    }
+
+    /// ファイルの中身の SHA-256（16進）。読めなければ nil
+    static func contentHash(_ url: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        var hasher = SHA256()
+        while let chunk = try? handle.read(upToCount: 1 << 20), !chunk.isEmpty { hasher.update(data: chunk) }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// head テーブルの fontRevision（16.16 の固定小数点）。読めなければ 0
+    static func fontRevision(_ descriptor: CTFontDescriptor) -> Double {
+        let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
+        guard let table = CTFontCopyTable(font, CTFontTableTag(kCTFontTableHead), []) as Data?, table.count >= 8 else { return 0 }
+        let raw = table[table.startIndex + 4..<table.startIndex + 8].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
+        return Double(Int32(bitPattern: raw)) / 65536
     }
 
     /// アプリの表示言語（日本語環境なら日本語）のファミリー名・スタイル名。英語名と同じなら空
@@ -583,6 +623,10 @@ extension LibraryData {
                 copy.projects[index].sources[source].path = copy.projects[index].sources[source].path.map(transform)
             }
         }
+        for index in copy.folderRules.indices {
+            copy.folderRules[index].preferred = transform(copy.folderRules[index].preferred)
+            copy.folderRules[index].other = transform(copy.folderRules[index].other)
+        }
         return copy
     }
 
@@ -661,6 +705,11 @@ extension LibraryData {
         for smartSet in other.smartSets where !smartSets.contains(where: { $0.id == smartSet.id }) { smartSets.append(smartSet) }
         active.formUnion(other.active.compactMap { idMap[$0] })
         favorites.formUnion(other.favorites)
+        // 規則は場所の組で合わせる。こちらに逆向きの規則があれば、こちらを残す
+        for rule in other.folderRules where !folderRules.contains(where: {
+            ($0.preferred == rule.preferred && $0.other == rule.other) || ($0.preferred == rule.other && $0.other == rule.preferred)
+        }) { folderRules.append(rule) }
+        preferredFiles.formUnion(other.preferredFiles.compactMap { idMap[$0] })
         return added
     }
 }

@@ -15,13 +15,29 @@ enum FontCacheCleaner {
         alert.addButton(withTitle: L("システム全体も消去…"))
         alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
         let response = alert.runModal()
-        let succeeded: Bool
+        let everything: Bool
         switch response {
-        case .alertFirstButtonReturn: succeeded = runUserReset()
-        case .alertSecondButtonReturn: succeeded = runSystemReset()
+        case .alertFirstButtonReturn: everything = false
+        case .alertSecondButtonReturn: everything = true
         default: return
         }
-        guard succeeded else { return }
+        TaskProgress.shared.begin(L("システムのフォントキャッシュを消去中…"),
+                                  detail: everything ? L("管理者のパスワードを入力してください") : L("atsutilを実行しています…"))
+        Task {
+            // atsutil は数秒かかることがあるので、画面を止めないよう裏で動かす
+            let result = await Task.detached(priority: .userInitiated) { everything ? runSystemReset() : runUserReset() }.value
+            TaskProgress.shared.end()
+            switch result {
+            case .success: finishSystemClean()
+            case .cancelled: break
+            case .failure(let detail): fail(detail)
+            }
+        }
+    }
+
+    enum ResetResult: Sendable { case success, cancelled, failure(String) }
+
+    private static func finishSystemClean() {
         let done = NSAlert()
         done.messageText = L("フォントキャッシュを消去しました")
         done.informativeText = L("Macを再起動すると、フォントキャッシュが作り直されます。開いている書類を保存してから再起動してください。")
@@ -30,10 +46,23 @@ enum FontCacheCleaner {
         if done.runModal() == .alertSecondButtonReturn { requestRestart() }
     }
 
-    private static func runUserReset() -> Bool {
+    nonisolated private static func runUserReset() -> ResetResult {
+        run("/usr/bin/atsutil", ["databases", "-removeUser"])
+    }
+
+    /// システム全体：管理者の権限で atsutil databases -remove（このユーザーの分も消える）。
+    /// 裏で動かすため NSAppleScript ではなく osascript で頼む（認証の画面は osascript が出す）
+    nonisolated private static func runSystemReset() -> ResetResult {
+        let result = run("/usr/bin/osascript", ["-e", "do shell script \"/usr/bin/atsutil databases -remove\" with administrator privileges"])
+        // 認証を取り消したとき（-128）は何も言わない
+        if case .failure(let detail) = result, detail.contains("-128") { return .cancelled }
+        return result
+    }
+
+    nonisolated private static func run(_ path: String, _ arguments: [String]) -> ResetResult {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/atsutil")
-        process.arguments = ["databases", "-removeUser"]
+        process.executableURL = URL(fileURLWithPath: path)
+        process.arguments = arguments
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
@@ -41,26 +70,10 @@ enum FontCacheCleaner {
             try process.run()
             process.waitUntilExit()
         } catch {
-            fail(error.localizedDescription)
-            return false
+            return .failure(error.localizedDescription)
         }
-        guard process.terminationStatus == 0 else {
-            fail(String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self))
-            return false
-        }
-        return true
-    }
-
-    /// システム全体：管理者の権限で atsutil databases -remove（このユーザーの分も消える）
-    private static func runSystemReset() -> Bool {
-        var error: NSDictionary?
-        NSAppleScript(source: "do shell script \"/usr/bin/atsutil databases -remove\" with administrator privileges")?.executeAndReturnError(&error)
-        if let error {
-            // 認証を取り消したとき（-128）は何も言わない
-            if (error[NSAppleScript.errorNumber] as? Int) != -128 { fail(error[NSAppleScript.errorMessage] as? String ?? "") }
-            return false
-        }
-        return true
+        let output = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        return process.terminationStatus == 0 ? .success : .failure(output)
     }
 
     /// 標準の再起動の確認を出す（loginwindow に再起動を頼む。開いている書類の保存は各アプリが聞く）
@@ -87,7 +100,16 @@ enum FontCacheCleaner {
             alert.runModal()
             return
         }
-        let files = adobeCacheFiles()
+        // 設定フォルダーを奥まで調べるので数秒かかる。画面を止めないよう裏で探す
+        TaskProgress.shared.begin(L("Adobeアプリのフォントキャッシュを探しています…"))
+        Task {
+            let files = await Task.detached(priority: .userInitiated) { adobeCacheFiles() }.value
+            TaskProgress.shared.end()
+            confirmApplicationClean(files)
+        }
+    }
+
+    private static func confirmApplicationClean(_ files: [URL]) {
         guard !files.isEmpty else {
             let alert = NSAlert()
             alert.messageText = L("Adobeアプリのフォントキャッシュは見つかりませんでした")
@@ -100,22 +122,25 @@ enum FontCacheCleaner {
         alert.addButton(withTitle: L("ゴミ箱に入れる"))
         alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
         guard alert.runModal() == .alertFirstButtonReturn else { return }
-        var moved = 0
-        var failures: [String] = []
-        for file in files {
-            do {
-                try FileManager.default.trashItem(at: file, resultingItemURL: nil)
-                moved += 1
-            } catch {
-                failures.append(file.lastPathComponent)
+        TaskProgress.shared.begin(L("Adobeアプリのフォントキャッシュを消去中…"))
+        Task {
+            var moved = 0
+            var failures = 0
+            for (index, file) in files.enumerated() {
+                TaskProgress.shared.update(index, of: files.count, detail: file.lastPathComponent)
+                let ok = await Task.detached(priority: .userInitiated) {
+                    (try? FileManager.default.trashItem(at: file, resultingItemURL: nil)) != nil
+                }.value
+                if ok { moved += 1 } else { failures += 1 }
             }
+            TaskProgress.shared.end()
+            LibraryStore.shared.status = L("Adobeアプリのフォントキャッシュを%d個ゴミ箱に入れました", moved)
+                + (failures == 0 ? "" : L("、失敗 %d", failures))
         }
-        LibraryStore.shared.status = L("Adobeアプリのフォントキャッシュを%d個ゴミ箱に入れました", moved)
-            + (failures.isEmpty ? "" : L("、失敗 %d", failures.count))
     }
 
     /// このユーザーの Adobe のフォントの控え。Photoshop の「CT Font Cache」はフォルダーの中身（Backups の控えは除く）
-    static func adobeCacheFiles() -> [URL] {
+    nonisolated static func adobeCacheFiles() -> [URL] {
         let library = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library")
         let roots = ["Preferences", "Caches/Adobe", "Caches/Adobe InDesign", "Application Support/Adobe"].map { library.appendingPathComponent($0) }
         var found: [URL] = []
