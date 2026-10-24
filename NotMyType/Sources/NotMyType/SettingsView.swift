@@ -50,6 +50,8 @@ private struct FontSettingsView: View {
                 note(L("オフのときは、終了してもログアウトするまでアクティブのままです。"))
             }
             WatchFoldersSection()
+            FontFileHandlerSection()
+            AdobeAutoActivationSection()
             SettingsSection(L("システム")) {
                 Toggle(L("フォントフォルダーのフォントも一覧に入れる"), isOn: $includeUserFonts)
                 note(L("~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。"))
@@ -70,6 +72,54 @@ private struct FontSettingsView: View {
 
     private func note(_ text: String) -> some View {
         Text(text).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// Adobe アプリ向けの自動アクティベート
+private struct AdobeAutoActivationSection: View {
+    @AppStorage(AdobeAutoActivation.enabledKey) private var enabled = false
+
+    var body: some View {
+        SettingsSection(L("Adobeアプリ")) {
+            Toggle(L("IllustratorとInDesignで開いたドキュメントの足りないフォントを自動でアクティブにする"), isOn: $enabled)
+            Text(L("IllustratorかInDesignが前面に来たときに、開いているドキュメントのフォントを調べ、使えないフォントのうちライブラリにPostScript名が一致するものをアクティブにします。ほかのフォントは解除しません。初めて使うとき、macOSがそれぞれのアプリの操作の許可を確認します。Illustratorはドキュメントを保存したときのフォントの一覧を使います。"))
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+/// フォントファイルを開くアプリ：NotMyType にするか Font Book に戻す
+private struct FontFileHandlerSection: View {
+    @ObservedObject private var handler = FontFileHandler.shared
+
+    var body: some View {
+        SettingsSection(L("フォントファイルを開くアプリ")) {
+            HStack {
+                Text(L("いま開くアプリ :"))
+                Text(summary).foregroundStyle(.secondary).lineLimit(2)
+                if handler.working { ProgressView().controlSize(.small) }
+            }
+            HStack {
+                Button(L("フォントファイルをNotMyTypeで開く")) { handler.makeDefault() }
+                    .disabled(handler.working || handler.isDefault)
+                Button(L("Font Bookに戻す")) { handler.restoreFontBook() }
+                    .disabled(handler.working)
+            }
+            Text(L("フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyTypeで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。"))
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
+        .onAppear { handler.refresh() }
+    }
+
+    /// 形式ごとのアプリを、同じアプリはまとめて出す（例：NotMyType（otf・ttf）、Font Book（woff））
+    private var summary: String {
+        var order: [String] = []
+        var groups: [String: [String]] = [:]
+        for (ext, app) in handler.handlers {
+            if groups[app] == nil { order.append(app) }
+            groups[app, default: []].append(ext)
+        }
+        return order.map { "\($0)（\(groups[$0]!.joined(separator: "・"))）" }.joined(separator: L("、"))
     }
 }
 
@@ -100,11 +150,19 @@ private struct WatchFoldersSection: View {
                 Button { watch.remove(selection); selection.removeAll() } label: { Image(systemName: "minus") }
                     .disabled(selection.isEmpty)
                     .help(L("選んだフォルダーを外す")).accessibilityLabel(L("選んだフォルダーを外す"))
+                Button { if let path = selection.first { watch.move(path, by: -1) } } label: { Image(systemName: "chevron.up") }
+                    .disabled(selection.count != 1 || selection.first == watch.folders.first)
+                    .help(L("上へ（重複したフォントで優先する）")).accessibilityLabel(L("上へ"))
+                Button { if let path = selection.first { watch.move(path, by: 1) } } label: { Image(systemName: "chevron.down") }
+                    .disabled(selection.count != 1 || selection.first == watch.folders.last)
+                    .help(L("下へ")).accessibilityLabel(L("下へ"))
                 Spacer()
                 Button(L("今すぐ読み込む")) { watch.scan() }
                     .disabled(watch.folders.isEmpty)
             }
             Text(L("選んだフォルダー（下の階層も）を見張り、新しいフォントファイルを見つけるとライブラリに追加します。アクティブにはしません。フォルダーから消えたファイルは「見つからない」に出ます。外しても、追加済みのフォントはライブラリに残ります。"))
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(L("同じPostScript名のフォントが複数のフォルダーにあるときは、この一覧で上にあるフォルダーのものを優先してアクティブにします（ウォッチフォルダーの外のものは最後）。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }

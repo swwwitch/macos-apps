@@ -190,6 +190,14 @@ struct FamilyOutline: NSViewRepresentable {
             menu.addItem(.separator())
             add(menu, L("Finderで表示")) { $0.revealInFinder(files) }
             add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
+            // 選んだものに優先外の重複があるときだけ出す
+            if files.contains(where: { store.duplicatePreference($0) == false }) {
+                menu.addItem(.separator())
+                // 右クリックした行（選択と違うこともある）の中の優先外だけを対象にする
+                let others = files.filter { store.duplicatePreference($0) == false }
+                add(menu, L("優先外の重複を解除")) { $0.setActive(others, false) }
+                add(menu, L("優先外の重複をライブラリから取り除く…")) { $0.remove(others) }
+            }
         }
 
         private func add(_ menu: NSMenu, _ title: String, _ action: @escaping @MainActor (LibraryStore) -> Void) {
@@ -288,7 +296,12 @@ final class FamilyCell: NSTableCellView {
             case .both: set(styles, postScript)
             }
             star.isHidden = true
-            detail.stringValue = file.fileName
+            // 重複しているときは、ウォッチフォルダーの順で優先かどうかを添える（隠さず印で区別する）
+            switch store.duplicatePreference(file) {
+            case true?: detail.stringValue = L("優先") + "  " + file.fileName
+            case false?: detail.stringValue = L("優先外") + "  " + file.fileName
+            case nil: detail.stringValue = file.fileName
+            }
             problem = Self.problem(store.states[file.id])
         } else {
             let family = node.family

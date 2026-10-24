@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LibraryStore.shared.scanUserFonts()
         LibraryStore.shared.fillMetadata()
         WatchFolders.shared.start()
+        AdobeAutoActivation.shared.start()
         // フォルダーを元にするプロジェクトは、閉じている間の変更も拾うよう起動時に読み直し、見張りを始める
         ProjectFolderWatcher.shared.update()
         LibraryStore.shared.rebuildFolderProjects()
@@ -47,6 +48,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
+    /// Finder などでフォントファイルを開いたとき：ライブラリに追加し、そのファミリーを選んで見せる（アクティブにはしない）
+    func application(_ application: NSApplication, open urls: [URL]) {
+        StartupWindow.userRequestedWindow()
+        showWindow()
+        LibraryStore.shared.add(urls.filter { FontFileHandler.extensions.contains($0.pathExtension.lowercased()) }, reveal: true)
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         StartupWindow.userRequestedWindow()

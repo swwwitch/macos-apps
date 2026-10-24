@@ -62,20 +62,51 @@ struct AdobeFontsIcon: View {
     }
 }
 
-/// モリサワのアイコン（ユーザー指定の画像を見て描き起こした近似：青の「モ」を直角で組んだ形）。単位正方形で描いて枠に合わせる
-struct MorisawaLogo: Shape {
-    func path(in rect: CGRect) -> Path {
-        let side = min(rect.width, rect.height)
-        let origin = CGPoint(x: rect.midX - side / 2, y: rect.midY - side / 2)
-        func box(_ x: CGFloat, _ y: CGFloat, _ width: CGFloat, _ height: CGFloat) -> CGRect {
-            CGRect(x: origin.x + x * side, y: origin.y + y * side, width: width * side, height: height * side)
+/// モリサワのアイコン：ロゴ（ユーザー提供の SVG、Assets/VendorLogos/morisawa.svg）の左の記号。青と灰のアーチ2つ（元の座標で幅50.8×高さ38）
+struct MorisawaMark: View {
+    var body: some View {
+        ZStack {
+            MorisawaArch(part: .left).fill(Color(red: 0, green: 0.235, blue: 1))
+            MorisawaArch(part: .right).fill(Color(red: 0.8, green: 0.8, blue: 0.8))
         }
+    }
+}
+
+struct MorisawaArch: Shape {
+    enum Part { case left, right }
+    let part: Part
+
+    func path(in rect: CGRect) -> Path {
         var path = Path()
-        path.addRect(box(0.14, 0.14, 0.72, 0.14))   // 上の横画
-        path.addRect(box(0.04, 0.43, 0.92, 0.14))   // 中の横画
-        path.addRect(box(0.36, 0.14, 0.15, 0.72))   // 縦画
-        path.addRect(box(0.36, 0.72, 0.60, 0.14))   // 下の横画（右へ曲がる）
-        return path
+        switch part {
+        case .left:
+            path.move(to: CGPoint(x: 12.666, y: 0))
+            path.addLine(to: CGPoint(x: 12.666, y: 0))
+            path.addCurve(to: CGPoint(x: 2.146, y: 5.621), control1: CGPoint(x: 8.44, y: -0.002), control2: CGPoint(x: 4.493, y: 2.107))
+            path.addCurve(to: CGPoint(x: 0.739, y: 8.762), control1: CGPoint(x: 1.531, y: 6.596), control2: CGPoint(x: 1.057, y: 7.654))
+            path.addCurve(to: CGPoint(x: 0.25, y: 11.1), control1: CGPoint(x: 0.521, y: 9.529), control2: CGPoint(x: 0.357, y: 10.31))
+            path.addCurve(to: CGPoint(x: -0, y: 16.266), control1: CGPoint(x: 0.06, y: 12.815), control2: CGPoint(x: -0.023, y: 14.54))
+            path.addLine(to: CGPoint(x: -0, y: 38))
+            path.addLine(to: CGPoint(x: 25.331, y: 38))
+            path.addLine(to: CGPoint(x: 25.331, y: 12.666))
+            path.addCurve(to: CGPoint(x: 12.666, y: 0), control1: CGPoint(x: 25.331, y: 5.671), control2: CGPoint(x: 19.661, y: 0))
+            path.closeSubpath()
+        case .right:
+            path.move(to: CGPoint(x: 37.993, y: 0))
+            path.addLine(to: CGPoint(x: 37.993, y: 0))
+            path.addCurve(to: CGPoint(x: 48.513, y: 5.621), control1: CGPoint(x: 42.219, y: -0.002), control2: CGPoint(x: 46.166, y: 2.107))
+            path.addCurve(to: CGPoint(x: 49.92, y: 8.762), control1: CGPoint(x: 49.128, y: 6.596), control2: CGPoint(x: 49.602, y: 7.654))
+            path.addCurve(to: CGPoint(x: 50.41, y: 11.101), control1: CGPoint(x: 50.139, y: 9.529), control2: CGPoint(x: 50.302, y: 10.311))
+            path.addCurve(to: CGPoint(x: 50.66, y: 16.266), control1: CGPoint(x: 50.6, y: 12.816), control2: CGPoint(x: 50.683, y: 14.541))
+            path.addLine(to: CGPoint(x: 50.66, y: 38))
+            path.addLine(to: CGPoint(x: 25.331, y: 38))
+            path.addLine(to: CGPoint(x: 25.331, y: 12.666))
+            path.addCurve(to: CGPoint(x: 37.993, y: 0), control1: CGPoint(x: 25.331, y: 5.672), control2: CGPoint(x: 30.999, y: 0.002))
+            path.closeSubpath()
+        }
+        let scale = min(rect.width / 50.8, rect.height / 38)
+        let offset = CGPoint(x: rect.midX - 25.4 * scale, y: rect.midY - 19 * scale)
+        return path.applying(CGAffineTransform(scaleX: scale, y: scale).concatenating(CGAffineTransform(translationX: offset.x, y: offset.y)))
     }
 }
 
@@ -99,7 +130,7 @@ struct VendorIcon: View {
     var body: some View {
         Group {
             switch id {
-            case "MRSW": MorisawaLogo().fill(Color(red: 0.24, green: 0.42, blue: 0.75))
+            case "MRSW": MorisawaMark()
             case "FWKS": FontworksLogo().fill(Color(red: 0.86, green: 0.2, blue: 0.13))
             default: AdobeLogo().fill(Color.primary)
             }

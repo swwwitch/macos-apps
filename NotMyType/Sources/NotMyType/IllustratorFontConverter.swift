@@ -1,10 +1,36 @@
 import AppKit
 import SwiftUI
 
-/// 起動中の Illustrator に JSX を送って結果を受け取る。osascript の do javascript で送り、
+/// フォントを統一する Adobe アプリ
+enum AdobeApp: String {
+    case illustrator, indesign
+
+    var bundleID: String { self == .illustrator ? "com.adobe.illustrator" : "com.adobe.InDesign" }
+    var name: String { self == .illustrator ? "Illustrator" : "InDesign" }
+    /// JSX を送る AppleScript の命令（Illustrator は do javascript、InDesign は do script … language javascript）
+    var command: String {
+        self == .illustrator ? "do javascript (POSIX file (item 1 of argv) as alias)"
+            : "do script (POSIX file (item 1 of argv) as alias) language javascript"
+    }
+    var targets: [ConverterSettings.Target] { self == .illustrator ? [.selection, .document, .artboard] : [.selection, .story, .document, .spread] }
+
+    func title(of target: ConverterSettings.Target) -> String {
+        switch (self, target) {
+        case (.illustrator, .selection): return L("選択オブジェクト")
+        case (.illustrator, .document): return L("ドキュメント全体")
+        case (_, .artboard): return L("アクティブアートボード")
+        case (.indesign, .selection): return L("選択範囲")
+        case (_, .story): return L("ストーリー")
+        case (.indesign, .document): return L("ドキュメント")
+        case (_, .spread): return L("アクティブスプレッド")
+        }
+    }
+}
+
+/// 起動中の Illustrator・InDesign に JSX を送って結果を受け取る。osascript で送り、
 /// JSX は1行目に「OK」か「ERR」、2行目から結果を返す
 enum IllustratorBridge {
-    static let bundleID = "com.adobe.illustrator"
+    static let bundleID = AdobeApp.illustrator.bundleID
 
     enum Failure: Error {
         case notRunning
@@ -13,10 +39,10 @@ enum IllustratorBridge {
         case script(String)
     }
 
-    static var isRunning: Bool { !NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty }
+    static func isRunning(_ app: AdobeApp) -> Bool { !NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleID).isEmpty }
 
-    static func run(_ jsx: String) async throws -> [String] {
-        guard isRunning else { throw Failure.notRunning }
+    static func run(_ jsx: String, app: AdobeApp = .illustrator) async throws -> [String] {
+        guard isRunning(app) else { throw Failure.notRunning }
         let output = try await Task.detached(priority: .userInitiated) { () throws -> String in
             let file = FileManager.default.temporaryDirectory.appendingPathComponent("NotMyType-\(UUID().uuidString).jsx")
             try jsx.write(to: file, atomically: true, encoding: .utf8)
@@ -25,7 +51,7 @@ enum IllustratorBridge {
             process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
             // 大きなドキュメントでは数分かかるので、Apple イベントの待ち時間（既定2分）を延ばす
             process.arguments = ["-e", "on run argv", "-e", "with timeout of 3600 seconds",
-                                 "-e", "tell application id \"\(bundleID)\" to do javascript (POSIX file (item 1 of argv) as alias)",
+                                 "-e", "tell application id \"\(app.bundleID)\" to \(app.command)",
                                  "-e", "end timeout", "-e", "end run", file.path]
             let out = Pipe(), err = Pipe()
             process.standardOutput = out
@@ -260,16 +286,22 @@ enum IllustratorFontScripts {
 
 @MainActor
 final class FontConverterWindow {
-    static let shared = FontConverterWindow()
+    static let illustrator = FontConverterWindow(app: .illustrator)
+    static let indesign = FontConverterWindow(app: .indesign)
+    static func of(_ app: AdobeApp) -> FontConverterWindow { app == .illustrator ? illustrator : indesign }
+
+    let app: AdobeApp
     private var window: NSWindow?
+
+    init(app: AdobeApp) { self.app = app }
 
     func show() {
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 520),
                                   styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-            window.title = L("Illustratorのフォントを統一")
+            window.title = app == .illustrator ? L("Illustratorのフォントを統一") : L("InDesignのフォントを統一")
             window.isReleasedWhenClosed = false
-            let hosting = NSHostingView(rootView: FontConverterView().frame(minWidth: 560, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity))
+            let hosting = NSHostingView(rootView: FontConverterView(app: app).frame(minWidth: 560, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity))
             hosting.sizingOptions = [.minSize]
             window.contentView = hosting
             window.center()
@@ -291,25 +323,40 @@ final class FontConverterModel: ObservableObject {
         case done(Int)
     }
 
+    let app: AdobeApp
     @Published var settings = ConverterSettings()
     @Published var phase: Phase = .settings
     /// 確認で適用する旧フォント名
     @Published var chosen = Set<String>()
     @Published var error: String?
 
+    init(app: AdobeApp) { self.app = app }
+
+    private func scanScript(_ settings: ConverterSettings) -> String {
+        app == .illustrator ? IllustratorFontScripts.scan(settings) : InDesignFontScripts.scan(settings)
+    }
+
+    private func installedScript(_ names: [String]) -> String {
+        app == .illustrator ? IllustratorFontScripts.installed(names) : InDesignFontScripts.installed(names)
+    }
+
+    private func applyScript(_ settings: ConverterSettings, _ map: [String: String]) -> String {
+        app == .illustrator ? IllustratorFontScripts.apply(settings, map: map) : InDesignFontScripts.apply(settings, map: map)
+    }
+
     /// 使われているフォントを集め、変換先を Illustrator で確かめて、確認の一覧を作る
     func scan() {
-        phase = .working(L("Illustratorのフォントを調べています…"))
+        phase = .working(L("%@のフォントを調べています…", app.name))
         let settings = settings
         Task {
             do {
-                let used = try await IllustratorBridge.run(IllustratorFontScripts.scan(settings))
+                let used = try await IllustratorBridge.run(scanScript(settings), app: app)
                 var plans: [(String, FontConverterRules.Plan)] = []
                 for name in used {
                     if let plan = FontConverterRules.plan(name, settings) { plans.append((name, plan)) }
                 }
                 let probe = Array(Set(plans.flatMap { FontConverterRules.probeNames($0.1) }))
-                let installed = probe.isEmpty ? [] : Set(try await IllustratorBridge.run(IllustratorFontScripts.installed(probe)))
+                let installed = probe.isEmpty ? [] : Set(try await IllustratorBridge.run(installedScript(probe), app: app))
                 let changes = plans.map { FontConverterRules.classify($0.0, $0.1, installed: installed) }
                 guard !changes.isEmpty else {
                     phase = .settings
@@ -320,7 +367,7 @@ final class FontConverterModel: ObservableObject {
                 phase = .confirm(changes.sorted { $0.old < $1.old })
             } catch {
                 phase = .settings
-                self.error = Self.message(error)
+                self.error = message(error)
             }
         }
     }
@@ -336,32 +383,35 @@ final class FontConverterModel: ObservableObject {
         let settings = settings
         Task {
             do {
-                let result = try await IllustratorBridge.run(IllustratorFontScripts.apply(settings, map: map))
+                let result = try await IllustratorBridge.run(applyScript(settings, map), app: app)
                 phase = .done(Int(result.first ?? "") ?? 0)
             } catch {
                 phase = .settings
-                self.error = Self.message(error)
+                self.error = message(error)
             }
         }
     }
 
-    private static func message(_ error: Error) -> String {
+    private func message(_ error: Error) -> String {
         switch error as? IllustratorBridge.Failure {
-        case .notRunning: return L("Illustratorが起動していません。")
+        case .notRunning: return L("%@が起動していません。", app.name)
         case .refused(let reason):
             switch reason {
             case "noDocument": return L("ドキュメントが開かれていません。")
             case "noSelection": return L("テキストオブジェクトを選択してください。")
+            case "noLayoutWindow": return L("レイアウトウィンドウがアクティブではありません。ドキュメントのページを表示してから実行してください。")
             default: return L("対象となるテキストが見つかりませんでした。")
             }
-        case .script(let detail): return L("Illustratorに送れませんでした。") + (detail.isEmpty ? "" : "\n" + detail)
+        case .script(let detail): return L("%@に送れませんでした。", app.name) + (detail.isEmpty ? "" : "\n" + detail)
         case nil: return error.localizedDescription
         }
     }
 }
 
 private struct FontConverterView: View {
-    @StateObject private var model = FontConverterModel()
+    @StateObject private var model: FontConverterModel
+
+    init(app: AdobeApp) { _model = StateObject(wrappedValue: FontConverterModel(app: app)) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -386,13 +436,13 @@ private struct FontConverterView: View {
                     HStack {
                         Spacer()
                         Button(L("設定に戻る")) { model.phase = .settings }
-                        Button(L("閉じる")) { FontConverterWindow.shared.close() }.keyboardShortcut(.defaultAction)
+                        Button(L("閉じる")) { FontConverterWindow.of(model.app).close() }.keyboardShortcut(.defaultAction)
                     }
                 }
                 .padding(20)
             }
         }
-        .alert(L("Illustratorのフォントを統一"), isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
+        .alert(model.app == .illustrator ? L("Illustratorのフォントを統一") : L("InDesignのフォントを統一"), isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK") {}
         } message: {
             Text(model.error ?? "")
@@ -408,13 +458,12 @@ private struct ConverterSettingsForm: View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox(L("対象範囲")) {
                 Picker(L("対象範囲"), selection: $model.settings.target) {
-                    Text(L("選択オブジェクト")).tag(ConverterSettings.Target.selection)
-                    Text(L("ドキュメント全体")).tag(ConverterSettings.Target.document)
-                    Text(L("アクティブアートボード")).tag(ConverterSettings.Target.artboard)
+                    ForEach(model.app.targets, id: \.self) { Text(model.app.title(of: $0)).tag($0) }
                 }
                 .pickerStyle(.radioGroup).labelsHidden()
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .help(L("フォント種別を変更する範囲を選びます。選択オブジェクト、ドキュメント全体、アクティブアートボード内から選択できます。"))
+                .help(model.app == .illustrator ? L("フォント種別を変更する範囲を選びます。選択オブジェクト、ドキュメント全体、アクティブアートボード内から選択できます。")
+                      : L("フォント種別を変更する範囲を選びます。選択範囲、選択が属するストーリー全体、ドキュメント全体、アクティブスプレッド内から選択できます。"))
             }
             GroupBox(L("変換設定")) {
                 VStack(spacing: 12) {
@@ -456,8 +505,13 @@ private struct ConverterSettingsForm: View {
                     Toggle(L("G-OTF学参書体をA-OTFに統合"), isOn: $model.settings.integrateGakusan)
                         .help(L("G-OTF の学参・常改・K書体を、通常の A-OTF 書体として扱って変換します。"))
                     Toggle(L("段落/文字スタイルも変更"), isOn: $model.settings.includeStyles)
-                        .disabled(model.settings.target != .document)
+                        // Illustrator はドキュメント全体のときだけ（AiFontConverter と同じ）。InDesign はいつでも（IdFontConverter と同じ）
+                        .disabled(model.app == .illustrator && model.settings.target != .document)
                         .help(L("段落スタイル・文字スタイルに設定されたフォントも、同じ条件で変更します。"))
+                    if model.app == .indesign {
+                        Toggle(L("合成フォントを含む"), isOn: $model.settings.includeComposite)
+                            .help(L("合成フォントの各エントリ（漢字・かな・全角約物など）に設定されたフォントも、同じ条件で変更します。"))
+                    }
                     Toggle(L("ロックされたオブジェクトも対象にする"), isOn: $model.settings.includeLocked)
                         .help(L("ロック中のオブジェクトも一時的に解除して変更し、処理後に元のロック状態へ戻します。"))
                     Toggle(L("非表示オブジェクトも対象にする"), isOn: $model.settings.includeHidden)
@@ -467,10 +521,10 @@ private struct ConverterSettingsForm: View {
             }
             Spacer(minLength: 0)
             HStack {
-                Text(L("起動中のIllustratorの前面のドキュメントに対して実行します。"))
+                Text(L("起動中の%@の前面のドキュメントに対して実行します。", model.app.name))
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button(L("キャンセル")) { FontConverterWindow.shared.close() }.keyboardShortcut(.cancelAction)
+                Button(L("キャンセル")) { FontConverterWindow.of(model.app).close() }.keyboardShortcut(.cancelAction)
                 Button(L("OK")) { model.scan() }.keyboardShortcut(.defaultAction)
             }
         }
@@ -543,7 +597,7 @@ private struct ConverterConfirmList: View {
             HStack {
                 Button(L("戻る")) { model.phase = .settings }
                 Spacer()
-                Button(L("キャンセル")) { FontConverterWindow.shared.close() }.keyboardShortcut(.cancelAction)
+                Button(L("キャンセル")) { FontConverterWindow.of(model.app).close() }.keyboardShortcut(.cancelAction)
                 Button(L("実行")) { model.apply(changes) }
                     .keyboardShortcut(.defaultAction)
                     .disabled(model.chosen.isEmpty)

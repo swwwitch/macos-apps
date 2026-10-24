@@ -14,6 +14,8 @@ final class WatchFolders: ObservableObject {
         didSet {
             UserDefaults.standard.set(folders, forKey: Self.key)
             restart()
+            // 一覧の順は重複の優先にも使うので、一覧の印を作り直す
+            LibraryStore.shared.invalidate()
         }
     }
 
@@ -47,6 +49,12 @@ final class WatchFolders: ObservableObject {
         guard !new.isEmpty else { return }
         folders += new
         scan()
+    }
+
+    /// 一覧の順を入れ替える（上ほど重複の優先が高い）
+    func move(_ path: String, by offset: Int) {
+        guard let index = folders.firstIndex(of: path), folders.indices.contains(index + offset) else { return }
+        folders.swapAt(index, index + offset)
     }
 
     func remove(_ paths: Set<String>) {

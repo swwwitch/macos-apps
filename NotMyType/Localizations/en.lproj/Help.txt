@@ -8,6 +8,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - A file at the same location is not added twice.
 
 ### Watch Folders
+- When fonts with the same PostScript name are in several folders, the one in the folder higher in the watch folder list is preferred (fonts outside the watch folders come last). The preferred one is used when activating fonts together, matching projects and activating missing fonts for Adobe apps, and style rows show "Preferred" or "Not preferred". Change the order with ▲▼. "Duplicates" in the sidebar lists only duplicates whose preferred file cannot be decided by the watch folder order (two in the same folder, both outside the watch folders, and so on). Tools > Non-Preferred Duplicates, the list's right-click menu, and the bar above "Duplicates" deactivate non-preferred files together or remove them from the library (the files are not deleted).
 - Add as many folders as you like under Watch Folders in the Fonts settings. When new font files appear in a folder (including subfolders), they are added to the library without being activated.
 - The folders are also read at launch. Files removed from a folder appear in "Missing".
 
@@ -22,10 +23,11 @@ NotMyType keeps your font files in a library and activates them only when you ne
 ### List and Preview
 - Use the sidebar to switch between All Fonts, Active, Inactive, Duplicates, Missing and your sets.
 - Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time.
-- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Fonts that are not active can be previewed too.
+- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Typefaces with official maker information (FontDB) also show the official file name, maker, designer, release, classification, plans and description, and the search field also matches reading, maker, designer, classification and description. Fonts that are not active can be previewed too.
+- Choose "Glyphs" at the top of the preview to list every glyph of one style of the selected family in a grid. Choose the style from the menu, and narrow the list to All Glyphs, With Unicode or Without Unicode (variants and so on), or by character or U+XXXX. Clicking a glyph copies its character and shows its glyph ID, Unicode and glyph name below.
 - Change the preview text in the field at the top and the size with the slider.
 - Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
-- The button on the right (slider icon) opens the preview options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
+- The button on the right (slider icon) opens the preview options. The "Information to Show" checkboxes choose the items in the font information below the preview (state, format, characters, version, PostScript name, location, and each item of the official information). The options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
 - Use "Localized / PostScript name / Both" above the list to choose how font names are shown. Fonts without a localized name use their English name. With PostScript names, family rows show the English family name and style rows show PostScript names.
 - The "Search Options" button to the right of the search field opens a panel of filters.
   - Character set: Std, Pro, Pr6N and so on in the family name
@@ -36,6 +38,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
   - UD: whether a Japanese font has UD in its name
   - AP Version: whether a Morisawa A-OTF font is the proportional A P-OTF
   - Shin Go: Shin Go or Shin Go NT
+  - Classification and Release Year: for typefaces with official maker information (FontDB: Morisawa, Fontworks, Adobe, Flop Design), by classification such as Mincho, Gothic or Display, and by release decade
   - Characters: the number of characters in the font (up to 999, 1,000–4,999, 5,000–9,999, 10,000–14,999, 15,000 or more)
 - The button is filled while a filter is on. Filters combine with the sidebar and the search; "Clear All" removes them.
 - In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
@@ -46,6 +49,8 @@ NotMyType keeps your font files in a library and activates them only when you ne
 
 ### Smart Sets
 - "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+
+- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, vendor, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, favorite, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
 
 ### Projects
 - A project is a group of fonts for one job, separate from sets. Create one with "New Project…" in the File menu or under "+" at the bottom of the sidebar, then choose its sources in the editor. Dropping a document on the main window also creates one.
@@ -100,10 +105,34 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Select families and choose "Remove from Library…" (⌘⌫). Active fonts are deactivated first. The font files are not deleted.
 
 ### Unify Fonts in Illustrator
-- "Unify Fonts in Illustrator…" in the Tools menu replaces the fonts in the front document of the running Illustrator with other variants of the same typeface (character set, N, Shin Go / Shin Go NT, UD, AP version). The conversion is the same as the AiFontConverter script.
+- Tools > Unify Fonts > "Illustrator…" replaces the fonts in the front document of the running Illustrator with other variants of the same typeface (character set, N, Shin Go / Shin Go NT, UD, AP version). The conversion is the same as the AiFontConverter script.
 - Choose the scope: selection, whole document, or active artboard. "Max" and "MaxN" choose the richest character set (Pr6 / Pr6N) with UD, P and NT on.
 - OK checks the fonts in use and lists the changes; Run replaces them. When the same weight is missing, the nearest weight is used; fonts that are not installed are left as they are.
 - The first time, macOS asks for permission to control Illustrator. You can change it in System Settings > Privacy & Security > Automation.
+
+### Unify Fonts in InDesign
+- Tools > Unify Fonts > "InDesign…" replaces the fonts in the front document of the running InDesign with other variants of the same typeface. The conversion is the same as the IdFontConverter script.
+- Choose the scope: selection, story, document, or active spread. Text in table cells and footnotes is included. With "Include composite fonts" on, the fonts in each composite font entry are replaced too. One Undo (⌘Z) reverts the replacement.
+
+### Rebuilding the Library
+- "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and font folders and relinks them, and adds new files in the folders. Relinked files stay in their sets and projects.
+- Files still not found are counted, and you can keep or remove them. With many files this takes from tens of seconds to a few minutes.
+
+### Checking Fonts
+- "Check Fonts…" in the Tools menu reads the fonts selected in the list (or the whole library when nothing is selected) and lists the ones with problems.
+- "Damaged": cannot be read as a font, required data or glyphs are missing, and so on. "Warning": no OS/2 or post table, or the PostScript name has invalid characters, is too long, or appears twice in the file.
+- From the results you can show files in Finder, put them in a new set, or remove them from the library.
+
+### Cleaning Font Caches
+- Tools > Clean Font Caches > "System…" removes the font caches of macOS. Use it when garbled text or duplicate fonts do not go away. Choose this user only, or the whole system too (needs an administrator password); restart your Mac afterwards to rebuild them.
+- Tools > Clean Font Caches > "Applications…" moves the font caches of Adobe apps such as InDesign, Illustrator and Photoshop (AdobeFnt*.lst and so on) to the Trash. Quit the Adobe apps first. Files related to composite fonts are not removed.
+
+### Missing Fonts in Adobe Apps
+- With "Automatically activate missing fonts in documents opened in Illustrator and InDesign" on in the Fonts settings, when Illustrator or InDesign comes to the front, unavailable fonts in the open documents are activated if their PostScript names match fonts in the library. Other fonts are not deactivated.
+- Illustrator uses the font list saved with the document; InDesign uses the document's font status. The Adobe app may take a moment to pick up the activated fonts.
+
+### App for Opening Font Files
+- "Open Font Files with NotMyType" in the Fonts settings makes NotMyType open font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. The font is added to the library and its family is selected (not activated). "Use Font Book Again" switches back.
 
 ### Importing FontExplorer X Pro Sets
 - "Import FontExplorer X Pro Sets…" in the Tools menu lists the sets in FontExplorer X Pro and imports the chosen ones as NotMyType sets. Sets in folders are named "Folder / Set"; a set with the same name gets the fonts added.
@@ -112,7 +141,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 ## Settings
 Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyType is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
-- **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
+- **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, the app for opening font files, automatic activation of missing fonts in Adobe apps (off by default), include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets, projects, favorites and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
 - **Hotkeys**: Keys for menu items (Add Fonts, New Set, New Project, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
 - **About**: Version and links.
@@ -136,7 +165,8 @@ Open Settings with the Settings button in the main window (⌘,).
 
 ## Permissions and Privacy
 - No Accessibility permission is needed.
-- Only "Unify Fonts in Illustrator" needs permission to control Illustrator (Automation).
+- Only "Unify Fonts in Illustrator", "Unify Fonts in InDesign" and the automatic activation of missing fonts in Adobe apps need permission to control those apps (Automation).
+- "Also Clean for the Whole System" asks for an administrator password.
 - "Import FontExplorer X Pro Sets" reads a working copy of the FontExplorer X Pro database and never changes it.
 - "Open Creative Cloud" and "fonts.adobe.com" only open the app or the browser; NotMyType itself does not connect.
 - The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/NotMyType/Library.json.

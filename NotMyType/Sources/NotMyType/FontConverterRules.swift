@@ -3,7 +3,8 @@ import Foundation
 /// 「Illustratorのフォントを統一」の変換ルール。ai-scripts の AiFontConverter.jsx（v1.1.8）の名前の分解・組み立てを写したもの。
 /// Illustrator の中の操作（使われているフォントを集める・置き換える）は IllustratorFontConverter.swift の JSX で行う
 struct ConverterSettings: Equatable {
-    enum Target: String, CaseIterable { case selection, document, artboard }
+    /// Illustrator：選択・ドキュメント・アクティブアートボード。InDesign：選択範囲・ストーリー・ドキュメント・アクティブスプレッド
+    enum Target: String, CaseIterable { case selection, story, document, artboard, spread }
     /// 現状維持・なし・あり
     enum Switch: String, CaseIterable { case keep, off, on }
 
@@ -18,10 +19,12 @@ struct ConverterSettings: Equatable {
     var maxPreset = false
     var integrateGakusan = true
     var includeStyles = true
+    /// InDesign だけ：合成フォントの各エントリのフォントも変える（IdFontConverter と同じく初めはオン）
+    var includeComposite = true
     var includeLocked = false
     var includeHidden = false
 
-    /// スタイルの変更はドキュメント全体のときだけ（範囲外で同じスタイルを使うテキストまで変わるため）
+    /// Illustrator のスタイルの変更はドキュメント全体のときだけ（範囲外で同じスタイルを使うテキストまで変わるため。AiFontConverter と同じ）
     var appliesToStyles: Bool { target == .document && includeStyles }
 }
 

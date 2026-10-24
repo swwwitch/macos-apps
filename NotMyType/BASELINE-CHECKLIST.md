@@ -46,7 +46,7 @@
 | B30 | Dockとアプリケーションスイッチャーに表示しない | 未確認 | 設定保存、ON/OFFの即時反映、ON起動でDock・⌘Tabに出ない、メニューバー・ホットキー・Finderからの再表示を確認 |
 | B23 | 開き直しと⌘Tab・⌘0 | 未確認 | Dock・Finderから開き直し（処理中も）、常駐アプリの⌘Tab表示としまったウインドウの復帰、⌘0と⌘1を確認 |
 | B24 | 設定ウインドウのふるまい | 未確認 | 最小サイズで止まる、再起動後のタブ復元、フォーカス枠なし、即時反映、Esc・⌘Wで閉じる、元キー「設定」 |
-| B25 | アプリ情報と目印 | 未確認 | 「情報」タブ、SWNoteArticleURL（専用記事）、NSHumanReadableCopyright、SWAppFamily、配置後のFinderタグ |
+| B25 | アプリ情報と目印 | 一部実装 | 「情報」タブ、SWNoteArticleURL（専用記事 https://note.com/dtp_tranist/n/nae1b0044d8e0、1.28.0）、NSHumanReadableCopyright、SWAppFamily、配置後のFinderタグ |
 | B26 | 証明書での署名 | 未確認 | TeamIdentifier=PL9S9PXX96、再ビルド後も許可が残る、ログインキーチェーン |
 | B27 | 取消と失敗の伝え方 | 未確認 | パレット・シート・確認のEsc、ビープだけの箇所がない、実行不可のメニューは無効 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 未確認 | 初回中央・画面外復帰、ボタンとドロップ領域のaccessibilityLabel、tintのコントラスト、視差効果を減らす |
