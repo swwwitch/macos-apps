@@ -1,0 +1,134 @@
+FontSwitcherヘルプ	FontSwitcher Help	FontSwitcher 帮助	FontSwitcher 도움말
+設定…	Settings…	设置…	설정…
+メインウインドウを開く	Open Main Window	打开主窗口	메인 윈도우 열기
+ウインドウを閉じる	Close Window	关闭窗口	윈도우 닫기
+しまう	Minimize	最小化	최소화
+拡大／縮小	Zoom	缩放	확대/축소
+フォントを追加…	Add Fonts…	添加字体…	서체 추가…
+新規セット…	New Set…	新建字体集…	새 세트…
+アクティブにする	Activate	激活	활성화
+解除	Deactivate	停用	비활성화
+Finderで表示	Show in Finder	在访达中显示	Finder에서 보기
+ライブラリから取り除く…	Remove from Library…	从资源库中移除…	보관함에서 제거…
+設定	Settings	设置	설정
+フォントファイルやフォルダーをドロップして追加	Drop font files or folders to add them	拖放字体文件或文件夹以添加	서체 파일이나 폴더를 드롭하여 추가
+フォントのアクティブを切り替え	Activate and Deactivate Fonts	激活和停用字体	서체 활성화 전환
+フォントファイルをライブラリに登録し、使うときだけアクティブにします	Keep font files in a library and activate them only when you need them	将字体文件登记到资源库，仅在需要时激活	서체 파일을 보관함에 등록하고 필요할 때만 활성화합니다
+追加…	Add…	添加…	추가…
+%d ファミリー・%d ファイル（アクティブ %d）	%d families · %d files (%d active)	%d 个字体系列 · %d 个文件（已激活 %d）	패밀리 %d개 · 파일 %d개(활성 %d)
+ライブラリ	Library	资源库	보관함
+すべてのフォント	All Fonts	所有字体	모든 서체
+アクティブ	Active	已激活	활성
+非アクティブ	Inactive	未激活	비활성
+重複	Duplicates	重复	중복
+見つからない	Missing	缺失	찾을 수 없음
+セット	Sets	字体集	세트
+セットをアクティブにする	Activate Set	激活字体集	세트 활성화
+セットを解除	Deactivate Set	停用字体集	세트 비활성화
+名前を変更…	Rename…	重新命名…	이름 변경…
+セットを削除…	Delete Set…	删除字体集…	세트 삭제…
+新規セット	New Set	新建字体集	새 세트
+ファミリー名・PostScript名で検索	Search family or PostScript name	按字体系列或 PostScript 名称搜索	패밀리 또는 PostScript 이름으로 검색
+検索	Search	搜索	검색
+検索を消去	Clear Search	清除搜索	검색 지우기
+フォントファイルやフォルダーをここへドロップするか、「追加…」で選びます	Drop font files or folders here, or choose them with “Add…”	将字体文件或文件夹拖放到此处，或使用“添加…”选择	서체 파일이나 폴더를 여기에 드롭하거나 ‘추가…’로 선택합니다
+当てはまるフォントはありません	No matching fonts	没有匹配的字体	일치하는 서체가 없습니다
+ファイルが見つかりません	File not found	找不到文件	파일을 찾을 수 없습니다
+同じ名前のフォントが別の場所で使われています：%@	A font with the same name is in use from another location: %@	同名字体正在从其他位置使用：%@	같은 이름의 서체가 다른 위치에서 사용 중입니다: %@
+セットに追加	Add to Set	添加到字体集	세트에 추가
+このセットから外す	Remove from This Set	从此字体集中移除	이 세트에서 제외
+一部アクティブ	Partly active	部分已激活	일부 활성
+クリックで解除	Click to deactivate	点按以停用	클릭하여 비활성화
+クリックでアクティブにする	Click to activate	点按以激活	클릭하여 활성화
+%d書体	%d styles	%d 种样式	%d개 스타일
+プレビューの文字	Preview text	预览文字	미리보기 문자
+大きさ	Size	大小	크기
+ファミリーを選ぶとプレビューします	Select a family to preview it	选择字体系列以预览	패밀리를 선택하면 미리 봅니다
+%d個のファミリーを選択中	%d families selected	已选择 %d 个字体系列	패밀리 %d개 선택됨
+プレビューできません	Cannot preview	无法预览	미리 볼 수 없습니다
+状態	Status	状态	상태
+形式	Format	格式	형식
+バージョン	Version	版本	버전
+PostScript名	PostScript name	PostScript 名称	PostScript 이름
+場所	Location	位置	위치
+ :	:	：	:
+ファイルを読む権限がありません	No permission to read the file	没有读取文件的权限	파일을 읽을 권한이 없습니다
+フォントとして読めません	Not a readable font	无法作为字体读取	서체로 읽을 수 없습니다
+同じ名前のフォントがすでに使われています	A font with the same name is already in use	同名字体已在使用	같은 이름의 서체가 이미 사용 중입니다
+システムに必要なフォントです	Required by the system	系统所需字体	시스템에 필요한 서체입니다
+使用中のため解除できません	In use and cannot be deactivated	正在使用，无法停用	사용 중이라 비활성화할 수 없습니다
+エラー %d	Error %d	错误 %d	오류 %d
+フォントファイルか、フォントの入ったフォルダーを選びます	Choose font files or folders that contain fonts	选择字体文件或包含字体的文件夹	서체 파일이나 서체가 들어 있는 폴더를 선택합니다
+追加	Add	添加	추가
+フォントを読み込み中…	Reading fonts…	正在读取字体…	서체를 읽는 중…
+%d個のファイルを追加しました	Added %d files	已添加 %d 个文件	파일 %d개를 추가했습니다
+登録済み %d	%d already in library	已在资源库 %d	이미 등록됨 %d
+読めないファイル %d	%d unreadable	无法读取 %d	읽을 수 없음 %d
+、	, 	，	, 
+フォントが見つかりません	No Fonts Found	未找到字体	서체를 찾을 수 없습니다
+選んだ場所にフォントファイル（.otf・.ttf・.ttc など）がありません。	The selected items contain no font files (.otf, .ttf, .ttc and so on).	所选位置没有字体文件（.otf、.ttf、.ttc 等）。	선택한 위치에 서체 파일(.otf, .ttf, .ttc 등)이 없습니다.
+%d個のファイルをライブラリから取り除きますか？	Remove %d files from the library?	要从资源库中移除 %d 个文件吗？	보관함에서 파일 %d개를 제거하시겠습니까?
+アクティブなものは解除します。フォントファイルは削除しません。	Active fonts are deactivated. The font files are not deleted.	已激活的字体将被停用。不会删除字体文件。	활성 서체는 비활성화됩니다. 서체 파일은 삭제하지 않습니다.
+取り除く	Remove	移除	제거
+キャンセル	Cancel	取消	취소
+%d個のファイルを取り除きました	Removed %d files	已移除 %d 个文件	파일 %d개를 제거했습니다
+%d個のファイルをアクティブにしました	Activated %d files	已激活 %d 个文件	파일 %d개를 활성화했습니다
+%d個のファイルを解除しました	Deactivated %d files	已停用 %d 个文件	파일 %d개를 비활성화했습니다
+、失敗 %d	, %d failed	，失败 %d	, 실패 %d
+アクティブにできなかったファイルがあります	Some Files Could Not Be Activated	部分文件无法激活	활성화하지 못한 파일이 있습니다
+解除できなかったファイルがあります	Some Files Could Not Be Deactivated	部分文件无法停用	비활성화하지 못한 파일이 있습니다
+前回アクティブだった%d個のファイルを戻しました	Reactivated %d files from last time	已重新激活上次的 %d 个文件	지난번 활성 파일 %d개를 다시 활성화했습니다
+、見つからない %d	, %d missing	，缺失 %d	, 찾을 수 없음 %d
+名称未設定セット	Untitled Set	未命名字体集	이름 없는 세트
+セットの名前を変更	Rename Set	重新命名字体集	세트 이름 변경
+セット「%@」を削除しますか？	Delete the set “%@”?	要删除字体集“%@”吗？	‘%@’ 세트를 삭제하시겠습니까?
+ライブラリのフォントとアクティブの状態はそのままです。	Fonts in the library and their activation stay as they are.	资源库中的字体及其激活状态保持不变。	보관함의 서체와 활성 상태는 그대로 유지됩니다.
+削除	Delete	删除	삭제
+OK	OK	好	확인
+ライブラリを読み込めませんでした	Could Not Load the Library	无法载入资源库	보관함을 불러올 수 없습니다
+元のファイルを %@ に残しました。	The original file was kept at %@.	原文件已保留在 %@。	원본 파일을 %@에 남겨 두었습니다.
+ライブラリを保存できませんでした	Could Not Save the Library	无法存储资源库	보관함을 저장할 수 없습니다
+フォント	Fonts	字体	서체
+起動時に、前回アクティブだったフォントを戻す	Reactivate fonts from last time at launch	启动时重新激活上次激活的字体	실행 시 지난번 활성 서체 다시 활성화
+FontSwitcherでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。	Fonts activated with FontSwitcher are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.	用 FontSwitcher 激活的字体会在注销时停用。与“登录时打开”一起开启，每次登录都会重新激活。	FontSwitcher로 활성화한 서체는 로그아웃하면 비활성화됩니다. ‘로그인 시 열기’와 함께 켜면 로그인할 때마다 다시 활성화됩니다.
+終了するときにすべて解除する	Deactivate all fonts when quitting	退出时停用所有字体	종료할 때 모두 비활성화
+オフのときは、終了してもログアウトするまでアクティブのままです。	When off, fonts stay active after quitting until you log out.	关闭时，退出后字体仍保持激活，直到注销。	끄면 종료한 후에도 로그아웃할 때까지 활성 상태로 유지됩니다.
+プレビュー	Preview	预览	미리보기
+プレビューの文字 :	Preview text:	预览文字：	미리보기 문자:
+初期値に戻す	Restore Defaults	恢复默认设置	기본값으로 복원
+お気に入り	Favorites	个人收藏	즐겨찾기
+お気に入りを切り替える	Toggle Favorite	切换个人收藏	즐겨찾기 전환
+お気に入りから外す	Remove from Favorites	从个人收藏中移除	즐겨찾기에서 제거
+お気に入りに追加	Add to Favorites	添加到个人收藏	즐겨찾기에 추가
+共有フォルダーが見つかりません	Shared Folder Not Found	找不到共享文件夹	공유 폴더를 찾을 수 없습니다
+%@ が見つからないため、このMacのライブラリを開きました。	%@ could not be found, so this Mac’s library was opened.	找不到 %@，因此打开了本 Mac 的资源库。	%@을(를) 찾을 수 없어 이 Mac의 보관함을 열었습니다.
+ほかのMacと共有するフォルダー（Dropboxの中など）を選びます	Choose a folder to share with your other Macs (for example, in Dropbox)	选择要与其他 Mac 共享的文件夹（如 Dropbox 中的文件夹）	다른 Mac과 공유할 폴더(Dropbox 안 등)를 선택합니다
+選択	Choose	选择	선택
+共有ライブラリを使っています（このMacから%d個のファイルを足しました）	Using the shared library (%d files added from this Mac)	正在使用共享资源库（已从本 Mac 添加 %d 个文件）	공유 보관함을 사용 중입니다(이 Mac에서 파일 %d개 추가)
+共有をやめ、このMacのライブラリに切り替えました	Stopped sharing and switched to this Mac’s library	已停止共享并切换到本 Mac 的资源库	공유를 중지하고 이 Mac의 보관함으로 전환했습니다
+ほかのMacの変更を読み込みました	Loaded changes from another Mac	已载入其他 Mac 的更改	다른 Mac의 변경 사항을 불러왔습니다
+ライブラリの共有	Library Sharing	资源库共享	보관함 공유
+共有フォルダー :	Shared folder:	共享文件夹：	공유 폴더:
+共有していません	Not shared	未共享	공유하지 않음
+共有フォルダーを選ぶ…	Choose Shared Folder…	选择共享文件夹…	공유 폴더 선택…
+共有をやめる	Stop Sharing	停止共享	공유 중지
+Dropboxなどのフォルダーに「FontSwitcher-Library.json」を置き、登録したフォント・セット・お気に入り・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。	Places “FontSwitcher-Library.json” in a folder such as Dropbox to keep the fonts, sets, favorites and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.	在 Dropbox 等文件夹中放置“FontSwitcher-Library.json”，使登记的字体、字体集、个人收藏和激活状态与其他 Mac 保持一致。Dropbox 和个人文件夹中的位置会转换为各 Mac 的位置。选择已有该文件的文件夹时，会与本 Mac 的资源库合并。	Dropbox 등의 폴더에 ‘FontSwitcher-Library.json’을 두어 등록한 서체, 세트, 즐겨찾기, 활성 상태를 다른 Mac과 맞춥니다. Dropbox와 홈 폴더 안의 위치는 Mac마다의 위치로 바꿔 읽습니다. 이미 파일이 있는 폴더를 선택하면 이 Mac의 보관함과 합칩니다.
+ファミリー	Families	字体系列	패밀리
+システム	System	系统	시스템
+フォントフォルダー（%@）のフォントは取り除けません	Fonts in the font folders (%@) cannot be removed	无法移除字体文件夹（%@）中的字体	서체 폴더(%@)의 서체는 제거할 수 없습니다
+System のフォントは切り替えられません	System fonts cannot be switched	无法切换 System 字体	System 서체는 전환할 수 없습니다
+新規コレクション	New Collection	新建精选集	새 모음
+名称未設定コレクション	Untitled Collection	未命名精选集	이름 없는 모음
+コレクション「%@」に%d書体を追加しました	Added %2$d styles to the collection “%1$@”	已将 %2$d 种样式添加到精选集“%1$@”	‘%1$@’ 모음에 스타일 %2$d개를 추가했습니다
+コレクションに追加できませんでした	Could Not Add to the Collection	无法添加到精选集	모음에 추가할 수 없습니다
+フォントフォルダーから%d個のファイルを追加しました	Added %d files from the font folders	已从字体文件夹添加 %d 个文件	서체 폴더에서 파일 %d개를 추가했습니다
+新規コレクション…	New Collection…	新建精选集…	새 모음…
+コレクションに追加	Add to Collection	添加到精选集	모음에 추가
+フォントフォルダーのフォントも一覧に入れる	Include fonts in the font folders	包括字体文件夹中的字体	서체 폴더의 서체도 목록에 포함
+~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。	Reads ~/Library/Fonts (your user name), /Library/Fonts (All Users) and /System/Library/Fonts (System) at launch and whenever fonts change. Fonts for your user name and All Users can be switched with their checkboxes; the files stay in place and macOS remembers the setting. System fonts cannot be switched.	在启动时和字体变化时读取 ~/Library/Fonts（用户名）、/Library/Fonts（All Users）和 /System/Library/Fonts（System）。用户名和 All Users 的字体可用复选框切换，文件不会移动，由 macOS 记住设置。System 字体无法切换。	~/Library/Fonts(사용자 이름), /Library/Fonts(All Users), /System/Library/Fonts(System)를 실행할 때와 서체가 바뀔 때 읽습니다. 사용자 이름과 All Users의 서체는 체크상자로 전환할 수 있으며, 파일은 옮기지 않고 macOS가 설정을 기억합니다. System 서체는 전환할 수 없습니다.
+どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る	From any app. Yields while another of these apps that uses the same key for its front app is in front	适用于任何应用。若有其他自制应用仅在前台应用中使用同一按键，则在该应用位于前台时让出	모든 앱에서. 같은 키를 앞쪽 앱 전용으로 쓰는 다른 자작 앱이 있으면 그 앱이 앞쪽에 있는 동안 양보
+ベンダー	Vendors	厂商	벤더
+コレクション	Collections	精选集	모음
+モリサワ	Morisawa	森泽	모리사와
+フォントワークス	Fontworks	Fontworks	폰트웍스
+FontSwitcherが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。FontSwitcherが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。	While FontSwitcher is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when FontSwitcher is not running, so use it together with Open at Login.	FontSwitcher 运行期间，可从任何应用打开其主窗口。默认为 ⌃⇧⌘F。若其他自制应用仅在特定前台应用中使用同一按键且正在运行，则在该应用位于前台时让给它。FontSwitcher 未运行时无效，请与“登录时打开”一起使用。	FontSwitcher가 실행 중이면 모든 앱에서 메인 윈도우를 엽니다. 기본값은 ⌃⇧⌘F입니다. 같은 키를 특정 앞쪽 앱 전용으로 쓰는 다른 자작 앱이 실행 중이면 그 앱이 앞쪽에 있는 동안 양보합니다. FontSwitcher가 실행 중이 아니면 작동하지 않으므로 ‘로그인 시 열기’와 함께 사용합니다.

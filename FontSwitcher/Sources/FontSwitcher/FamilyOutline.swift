@@ -1,0 +1,316 @@
+import AppKit
+import SwiftUI
+
+/// ファミリーの一覧（AppKit の NSOutlineView）。
+/// SwiftUI の List(children:) は選択を変えるたびに全行（数千）を比べ直して 0.2 秒ほど止まるため、
+/// 中身が変わったとき（listVersion が進んだとき）だけ読み直し、選択の変更では読み直さない
+struct FamilyOutline: NSViewRepresentable {
+    let nodes: [FamilyNode]
+    let version: Int
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let outline = NSOutlineView()
+        let column = NSTableColumn(identifier: .init("family"))
+        column.resizingMask = .autoresizingMask
+        outline.addTableColumn(column)
+        outline.outlineTableColumn = column
+        outline.headerView = nil
+        outline.rowHeight = 24
+        outline.style = .inset
+        outline.allowsMultipleSelection = true
+        outline.usesAlternatingRowBackgroundColors = false
+        outline.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        outline.dataSource = context.coordinator
+        outline.delegate = context.coordinator
+        outline.target = context.coordinator
+        outline.doubleAction = #selector(Coordinator.doubleClicked(_:))
+        let menu = NSMenu()
+        menu.delegate = context.coordinator
+        outline.menu = menu
+        outline.setAccessibilityLabel(L("ファミリー"))
+        context.coordinator.outline = outline
+
+        let scroll = NSScrollView()
+        scroll.documentView = outline
+        scroll.hasVerticalScroller = true
+        scroll.autohidesScrollers = true
+        scroll.drawsBackground = false
+        context.coordinator.reload(nodes, version: version)
+        return scroll
+    }
+
+    func updateNSView(_ scroll: NSScrollView, context: Context) {
+        let coordinator = context.coordinator
+        if coordinator.version != version {
+            coordinator.reload(nodes, version: version)
+        } else {
+            coordinator.syncSelection()
+        }
+    }
+
+    /// NSOutlineView の項目は参照で見分けるので、行ごとに箱を作る
+    final class Box: NSObject {
+        let node: FamilyNode
+        let children: [Box]
+        init(_ node: FamilyNode) {
+            self.node = node
+            children = node.children?.map(Box.init) ?? []
+        }
+    }
+
+    @MainActor
+    final class Coordinator: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate, NSMenuDelegate {
+        weak var outline: NSOutlineView?
+        var version = -1
+        private var boxes: [Box] = []
+        private var applyingSelection = false
+        private var store: LibraryStore { LibraryStore.shared }
+
+        func reload(_ nodes: [FamilyNode], version: Int) {
+            self.version = version
+            guard let outline else { return }
+            // 開いていたファミリーと位置を保つ
+            let expanded = Set(boxes.filter { outline.isItemExpanded($0) }.map(\.node.id))
+            let visible = outline.rows(in: outline.visibleRect)
+            let topID = (outline.item(atRow: visible.location) as? Box)?.node.id
+            boxes = nodes.map(Box.init)
+            applyingSelection = true
+            outline.reloadData()
+            for box in boxes where expanded.contains(box.node.id) { outline.expandItem(box) }
+            applyingSelection = false
+            syncSelection()
+            if let topID, let box = box(for: topID) {
+                let row = outline.row(forItem: box)
+                if row >= 0 { outline.scrollRowToVisible(row) }
+            }
+        }
+
+        /// 画面以外（メニュー・取り除く）で選択が変わったときに合わせる
+        func syncSelection() {
+            guard let outline else { return }
+            let wanted = store.selection
+            let current = Set(outline.selectedRowIndexes.compactMap { (outline.item(atRow: $0) as? Box)?.node.id })
+            guard wanted != current else { return }
+            var rows = IndexSet()
+            for id in wanted {
+                guard let box = box(for: id) else { continue }
+                let row = outline.row(forItem: box)
+                if row >= 0 { rows.insert(row) }
+            }
+            applyingSelection = true
+            outline.selectRowIndexes(rows, byExtendingSelection: false)
+            applyingSelection = false
+        }
+
+        private func box(for id: String) -> Box? {
+            for box in boxes {
+                if box.node.id == id { return box }
+                if let child = box.children.first(where: { $0.node.id == id }) { return child }
+            }
+            return nil
+        }
+
+        // MARK: データ
+
+        func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
+            (item as? Box)?.children.count ?? boxes.count
+        }
+
+        func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
+            (item as? Box)?.children[index] ?? boxes[index]
+        }
+
+        func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
+            !((item as? Box)?.children.isEmpty ?? true)
+        }
+
+        func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
+            guard let box = item as? Box else { return nil }
+            let cell = outlineView.makeView(withIdentifier: FamilyCell.identifier, owner: nil) as? FamilyCell ?? FamilyCell()
+            cell.configure(box.node)
+            return cell
+        }
+
+        func outlineViewSelectionDidChange(_ notification: Notification) {
+            guard !applyingSelection, let outline else { return }
+            store.selection = Set(outline.selectedRowIndexes.compactMap { (outline.item(atRow: $0) as? Box)?.node.id })
+        }
+
+        /// ダブルクリックで切り替える（ファミリーの行はまとめて、書体の行はその書体だけ）
+        @objc func doubleClicked(_ sender: NSOutlineView) {
+            guard let box = sender.item(atRow: sender.clickedRow) as? Box else { return }
+            if let file = box.node.file {
+                store.setActive([file], !store.isActive(file))
+            } else {
+                store.toggle(box.node.family)
+            }
+        }
+
+        // MARK: 右クリックのメニュー
+
+        /// 右クリックした行が選択の中ならその選択、外ならその行だけ
+        private func menuIDs() -> Set<String> {
+            guard let outline else { return [] }
+            let clicked = outline.clickedRow
+            guard clicked >= 0, let box = outline.item(atRow: clicked) as? Box else { return store.selection }
+            return outline.selectedRowIndexes.contains(clicked) ? store.selection : [box.node.id]
+        }
+
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            menu.removeAllItems()
+            let files = store.files(for: menuIDs())
+            guard !files.isEmpty else { return }
+            add(menu, L("アクティブにする")) { $0.setActive(files, true) }
+            add(menu, L("解除")) { $0.setActive(files, false) }
+            menu.addItem(.separator())
+            add(menu, L("お気に入りを切り替える")) { $0.toggleFavorite($0.data.families(of: files)) }
+            let sets = NSMenu()
+            for set in store.data.sets {
+                add(sets, set.name) { $0.addToSet(set.id, files) }
+            }
+            if !store.data.sets.isEmpty { sets.addItem(.separator()) }
+            add(sets, L("新規セット…")) { $0.newSet(with: files) }
+            let setsItem = NSMenuItem(title: L("セットに追加"), action: nil, keyEquivalent: "")
+            setsItem.submenu = sets
+            menu.addItem(setsItem)
+            let collections = NSMenu()
+            for name in store.collectionNames {
+                add(collections, name) { $0.addToCollection(name, files) }
+            }
+            if !store.collectionNames.isEmpty { collections.addItem(.separator()) }
+            add(collections, L("新規コレクション…")) { $0.addToCollection(nil, files) }
+            let collectionsItem = NSMenuItem(title: L("コレクションに追加"), action: nil, keyEquivalent: "")
+            collectionsItem.submenu = collections
+            menu.addItem(collectionsItem)
+            if case .set(let id) = store.sidebar {
+                add(menu, L("このセットから外す")) { $0.removeFromSet(id, files) }
+            }
+            menu.addItem(.separator())
+            add(menu, L("Finderで表示")) { $0.revealInFinder(files) }
+            add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
+        }
+
+        private func add(_ menu: NSMenu, _ title: String, _ action: @escaping @MainActor (LibraryStore) -> Void) {
+            let item = NSMenuItem(title: title, action: #selector(menuAction(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = MenuAction(action)
+            menu.addItem(item)
+        }
+
+        @objc private func menuAction(_ sender: NSMenuItem) {
+            (sender.representedObject as? MenuAction)?.run(store)
+        }
+    }
+
+    final class MenuAction: NSObject {
+        let run: @MainActor (LibraryStore) -> Void
+        init(_ run: @escaping @MainActor (LibraryStore) -> Void) { self.run = run }
+    }
+}
+
+/// 一覧の1行：チェックボックス・名前・お気に入り・注意・書体数（またはファイル名）
+final class FamilyCell: NSTableCellView {
+    static let identifier = NSUserInterfaceItemIdentifier("FamilyCell")
+    private let check = NSButton(checkboxWithTitle: "", target: nil, action: nil)
+    private let name = NSTextField(labelWithString: "")
+    private let star = NSButton()
+    private let warning = NSImageView()
+    private let detail = NSTextField(labelWithString: "")
+    private var node: FamilyNode?
+
+    init() {
+        super.init(frame: .zero)
+        identifier = Self.identifier
+        check.allowsMixedState = true
+        check.target = self
+        check.action = #selector(checkClicked)
+        name.lineBreakMode = .byTruncatingMiddle
+        name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        star.isBordered = false
+        star.imagePosition = .imageOnly
+        star.target = self
+        star.action = #selector(starClicked)
+        warning.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: nil)
+        warning.contentTintColor = .systemOrange
+        detail.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        detail.textColor = .secondaryLabelColor
+        detail.lineBreakMode = .byTruncatingMiddle
+        detail.alignment = .right
+        let stack = NSStackView(views: [check, name, star, NSView(), warning, detail])
+        stack.spacing = 6
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+        textField = name
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            stack.centerYAnchor.constraint(equalTo: centerYAnchor),
+            detail.widthAnchor.constraint(lessThanOrEqualToConstant: 200),
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func configure(_ node: FamilyNode) {
+        self.node = node
+        let store = LibraryStore.shared
+        let problem: String?
+        if let file = node.file {
+            let active = store.isActive(file)
+            check.state = active ? .on : .off
+            check.isEnabled = !LibraryStore.isLocked(file)
+            check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
+                : active ? L("クリックで解除") : L("クリックでアクティブにする")
+            check.setAccessibilityLabel(active ? L("アクティブ") : L("非アクティブ"))
+            name.stringValue = file.faces.map { $0.style.isEmpty ? $0.fullName : $0.style }.joined(separator: L("、"))
+            star.isHidden = true
+            detail.stringValue = file.fileName
+            problem = Self.problem(store.states[file.id])
+        } else {
+            let family = node.family
+            let state = store.familyState(family)
+            check.state = state == true ? .on : state == nil ? .mixed : .off
+            check.isEnabled = !family.files.allSatisfy(LibraryStore.isLocked)
+            check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
+                : state == true ? L("クリックで解除") : L("クリックでアクティブにする")
+            check.setAccessibilityLabel(state == true ? L("アクティブ") : state == nil ? L("一部アクティブ") : L("非アクティブ"))
+            name.stringValue = family.name
+            let favorite = store.isFavorite(family)
+            star.isHidden = false
+            star.image = NSImage(systemSymbolName: favorite ? "star.fill" : "star", accessibilityDescription: nil)
+            star.contentTintColor = favorite ? .systemOrange : .tertiaryLabelColor
+            star.toolTip = favorite ? L("お気に入りから外す") : L("お気に入りに追加")
+            star.setAccessibilityLabel(star.toolTip)
+            detail.stringValue = L("%d書体", family.faceCount)
+            problem = family.files.lazy.compactMap { Self.problem(store.states[$0.id]) }.first
+        }
+        warning.isHidden = problem == nil
+        warning.toolTip = problem
+        warning.setAccessibilityLabel(problem)
+    }
+
+    private static func problem(_ state: FontState?) -> String? {
+        switch state {
+        case .missing: return L("ファイルが見つかりません")
+        case .conflict(let path): return L("同じ名前のフォントが別の場所で使われています：%@", path)
+        default: return nil
+        }
+    }
+
+    @objc private func checkClicked() {
+        guard let node else { return }
+        let store = LibraryStore.shared
+        if let file = node.file {
+            store.setActive([file], !store.isActive(file))
+        } else {
+            store.toggle(node.family)
+        }
+    }
+
+    @objc private func starClicked() {
+        guard let node else { return }
+        LibraryStore.shared.toggleFavorite([node.family])
+    }
+}
