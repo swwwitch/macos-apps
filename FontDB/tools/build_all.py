@@ -6,7 +6,7 @@
 """
 import json, os, sqlite3, sys
 
-SOURCES = ["morisawa", "flopdesign", "fontworks", "adobe"]
+SOURCES = ["morisawa", "flopdesign", "fontworks", "adobe", "google"]
 
 SCHEMA = """
 CREATE TABLE fonts (

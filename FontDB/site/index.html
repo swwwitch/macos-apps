@@ -1,6 +1,6 @@
 <title>Font Library for Design</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="モリサワ・フォントワークス・Adobe・フロップデザインのフォントを、ファミリー・読み方・PostScript名・ファイル名・分類・文字セット・プラン・発売日で探せるライブラリ。">
+<meta name="description" content="モリサワ・フォントワークス・Adobe・Google Fonts・フロップデザインのフォントを、ファミリー・読み方・PostScript名・ファイル名・分類・文字セット・プラン・発売日で探せるライブラリ。">
 <style>
 /* 左に固定サイドバー（ナビと出典）、右にヘッダー・検索パネル・ファミリーの一覧。白黒の落ち着いた階調で、書体名だけを大きく */
 :root{
@@ -117,7 +117,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:7px;
   <div class="nav-label">提供元</div>
   <nav id="sourceNav"></nav>
   <div class="aside-foot">
-    データの出典：<a href="https://www.morisawa.co.jp/fonts/specimen/" target="_blank" rel="noopener">モリサワ 書体見本</a>・<a href="https://www.flopdesign.com/fonts.html" target="_blank" rel="noopener">フロップデザイン</a>・<a href="https://fontworks.co.jp/fontsearch/" target="_blank" rel="noopener">フォントワークス</a>・<a href="https://fonts.adobe.com/foundries/adobe" target="_blank" rel="noopener">Adobe Fonts</a><br>
+    データの出典：<a href="https://www.morisawa.co.jp/fonts/specimen/" target="_blank" rel="noopener">モリサワ 書体見本</a>・<a href="https://www.flopdesign.com/fonts.html" target="_blank" rel="noopener">フロップデザイン</a>・<a href="https://fontworks.co.jp/fontsearch/" target="_blank" rel="noopener">フォントワークス</a>・<a href="https://fonts.adobe.com/foundries/adobe" target="_blank" rel="noopener">Adobe Fonts</a>・<a href="https://github.com/google/fonts" target="_blank" rel="noopener">Google Fonts</a><br>
     発売日・作者はプレスリリースなどの公開情報から補っています。<br>
     <span id="updated"></span><br><br>
     運営：<a href="https://note.com/dtp_tranist" target="_blank" rel="noopener">DTP Transit</a>
@@ -170,7 +170,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:7px;
   <div class="list" id="list"><div class="empty">データを読み込んでいます...</div></div>
   <button class="more" id="more" type="button" hidden>さらに表示</button>
 
-  <p class="note">モリサワ：書体名・読み方・メーカー・言語・収録製品は公式の書体見本ページ、分類・文字セット・PostScript名・ファイル名・バージョン・Morisawa Fonts のプランは公式のフォントリスト（2026年10月版）によります。フォントワークス：書体名・読み方・デザイナー・分類・PostScript名は公式の書体ページ、発売年月は公式の製品リリースノートによります。Adobe：Adobe Fonts の Adobe Originals の一覧により、発売日は Adobe Fonts での公開日です。フロップデザイン：書体名・シリーズ・収録文字数・価格は公式サイトの書体ページと販売ページによります。発売日・作者は公開情報から補ったもので、空欄は未確認です。誤りや追加の情報があればお知らせください。</p>
+  <p class="note">モリサワ：書体名・読み方・メーカー・言語・収録製品は公式の書体見本ページ、分類・文字セット・PostScript名・ファイル名・バージョン・Morisawa Fonts のプランは公式のフォントリスト（2026年10月版）によります。フォントワークス：書体名・読み方・デザイナー・分類・PostScript名は公式の書体ページ、発売年月は公式の製品リリースノートによります。Adobe：Adobe Fonts の Adobe Originals の一覧により、発売日は Adobe Fonts での公開日です。Google Fonts：google/fonts の METADATA.pb と fonts.google.com の一覧により、発売日は Google Fonts への追加日です。フロップデザイン：書体名・シリーズ・収録文字数・価格は公式サイトの書体ページと販売ページによります。発売日・作者は公開情報から補ったもので、空欄は未確認です。誤りや追加の情報があればお知らせください。</p>
 </main>
 
 <script>
@@ -178,7 +178,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:7px;
   "use strict";
   var PAGE = 50;
   var STORE = "fontlib-filters";
-  var SOURCES = {morisawa:"モリサワ", flopdesign:"フロップデザイン", fontworks:"フォントワークス", adobe:"Adobe"};
+  var SOURCES = {morisawa:"モリサワ", fontworks:"フォントワークス", adobe:"Adobe", google:"Google Fonts", flopdesign:"フロップデザイン"};
   var state = {q:"", source:"", maker:[], series:[], cls:[], lang:[], charset:[], plan:[], product:[], release:"", sort:"kana"};
   var all = [], shown = PAGE;
   var $ = function(id){ return document.getElementById(id); };
