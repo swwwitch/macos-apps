@@ -49,6 +49,11 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.20.2（build 43）：検索オプションの「ファミリーの書体数」をサイドバーで選んだ範囲で数える（ライブラリ全体で数えていたため、「アドビ」で1書体のファミリーが2以上に出ていた）。選択肢の数も同じ範囲で数える
+- 1.20.1（build 42）：ファイルメニューに「制作ファイルからプロジェクトを作成…」「フォント名からプロジェクトを作成…」（キーは初めはなし、設定で割り当てられる）
+- 1.20.0（build 41）：プロジェクトを INDD からも作成（先頭16バイトの目印で判定し、文書の XMP の stFnt:fontName を使う。使っている書体があるファミリーの全スタイルが並ぶ）。：メニューのキーボードショートカットを設定で変えられる（「キーボードショートカット」タブ、共通の HotkeyField で記録。⌘0・⌘,・⌘W・⌘? は固定）。初期値を アクティブにする ⇧⌘A・解除 ⇧⌘D に変更（ユーザー指定、1.19 までは ⌘E・⇧⌘E）
+- 1.19.0（build 40）：メニューバーのメニューの先頭にプロジェクト（共通部品 MenuBarPresence に extraItems を足した。渡さないアプリは今までどおり）
+- 1.18.0（build 39）：プロジェクト（セットとは別の区分）。IDML（Stories・Styles の AppliedFont＋FontStyle を Resources/Fonts.xml と突き合わせる、unzip -p）・PDF（CGPDF の Resources/Font の BaseFont、Type0 は DescendantFonts、XObject も辿る）・AI（PDF に加えて XMP の stFnt:fontName）・貼り付けから作成。PostScript名の完全一致は確定、記号・空白・大小の違いだけのものは承認制。アクティブはほかを解除せず、失敗したらその操作の分を戻す。メインウインドウへの制作ファイルのドロップでも作成。LibraryData に projects を追加（共有ライブラリにも入る）
 - 1.17.0（build 38）：設定の「フォント」にウォッチフォルダー（複数。FSEvents で下の階層も見張り、新しいフォントファイルをライブラリに足す。場所は Mac ごとに UserDefaults `watchFolders`）。アイコンフォントの判定に「ラテン文字拡張A（U+0100〜017F）が20字未満」を足し、名前（Awesome・Icon・Dingbat・Ornament・Symbols・Emoji など、大文字・小文字を区別）でも判定し、`metadataVersion` 6 で全件を読み直す（SF Pro・筆記体の誤判定。Font Awesome 6・7 は欧文の拡張文字も持ち、文字の構成では筆記体と分けられない）
 - 1.16.0（build 37）：「種類」にアイコンフォント（私用領域の文字が半分以上か、CTFontStylisticClass が Symbolic）。「ツール」メニューに「Illustratorのフォントを統一…」（ai-scripts の AiFontConverter.jsx v1.1.8 を移植。名前の変換は FontConverterRules.swift、ドキュメントの操作は osascript の do javascript で送る JSX。変換先が Illustrator にあるかは app.textFonts で確かめる）。NSAppleEventsUsageDescription を追加
 - 1.15.2（build 36）：プレビューのオプションに配色（白地に黒・黒地に白・カスタム）。初めは白地に黒

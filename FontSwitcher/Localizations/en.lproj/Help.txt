@@ -14,7 +14,7 @@ FontSwitcher keeps your font files in a library and activates them only when you
 ### Activating and Deactivating
 - Click the checkbox at the left of a family to activate or deactivate it. Double-clicking also toggles it.
 - Families with two or more files have a ▶ at the left. Expand it to list each style (file), and use its checkbox to switch only that style. A family with only some styles active shows “–”. Files such as .ttc that hold several styles switch as one file.
-- Select several families and click "Activate" (⌘E) or "Deactivate" (⇧⌘E) to switch them together.
+- Select several families and click "Activate" (⇧⌘A) or "Deactivate" (⇧⌘D) to switch them together.
 - You can also press Space with rows selected. If everything selected is active it is deactivated; otherwise it is activated.
 - Activated fonts are available right away in other apps such as Illustrator, InDesign and Word. Some apps take a moment to update their font menu or need to be restarted.
 - Activation lasts for the current login session. Fonts stay active after you quit FontSwitcher and are deactivated when you log out. At the next launch, fonts that were active last time are reactivated (you can change this in Settings).
@@ -31,7 +31,7 @@ FontSwitcher keeps your font files in a library and activates them only when you
   - Character set: Std, Pro, Pr6N and so on in the family name
   - Format: OpenType (CFF), TrueType, collections and so on
   - Kind: variable, color, kana or icon fonts
-  - Styles in Family: the number of weights and styles in the family (1, 2–4, 5–9, 10 or more)
+  - Styles in Family: the number of weights and styles in the family (1, 2–4, 5–9, 10 or more), counted within the sidebar selection
   - N (JIS2004): whether the character set name ends in N (StdN, ProN, Pr6N, PlusN)
   - UD: whether a Japanese font has UD in its name
   - AP Version: whether a Morisawa A-OTF font is the proportional A P-OTF
@@ -41,11 +41,19 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
 - The button at the upper right of the list (⌥⌘P) hides or shows the preview on the right.
 - Click a sidebar heading (Library, System and so on) to collapse or expand it. Collections start collapsed.
-- The "…" button at the top of the sidebar chooses which sections (System, Kinds, Vendors, Collections, Smart Sets, Sets) appear and in what order. "Library" always comes first.
+- The "…" button at the top of the sidebar chooses which sections (System, Kinds, Vendors, Collections, Smart Sets, Projects, Sets) appear and in what order. "Library" always comes first.
 - The ⚠️ mark means the file is missing, or a font with the same name is in use from another location (installed by the system or another app). Hold the pointer over the mark to see why.
 
 ### Smart Sets
 - "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Inactive, Recently Activated (activated in the last 7 days and still active), Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+
+### Projects
+- A project is a group of fonts for one job, separate from sets. Choose "New Project from Document…" under "+" at the bottom of the sidebar or in the File menu and pick an IDML, INDD, PDF or AI file (saved with PDF compatibility), or drop the document on the main window; FontSwitcher checks the fonts it uses. "New Project from Font Names…" creates one from names pasted one per line.
+- A confirmation window opens first. Fonts whose PostScript names match are added; candidates whose names differ slightly are added only when checked. Fonts not in the library are kept by name ("Fonts Not in Library…" in the right-click menu adds them back once they are in the library).
+- The checkbox to the left of a project activates or deactivates its fonts. Activating a project does not deactivate other fonts. If something fails partway, the fonts activated in that operation are deactivated again.
+- Projects are also listed at the top of the menu bar icon's menu (when shown). Choosing one activates it (or deactivates it when all of its fonts are active).
+- For INDD the font list recorded in the file is used (every style of each family in use), so it is longer than for IDML. Export IDML to get only the styles in use.
+- For IDML only the styles in use are read; for PDF the embedded fonts; for AI also the font list recorded in the file.
 
 ### Sets
 - The checkbox to the left of a set activates or deactivates all of its fonts (it shows "−" when only some are active).
@@ -98,16 +106,18 @@ Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while FontSwitcher is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), Library Sharing, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Export and import the Fonts settings, and sync them with other Macs through a folder in iCloud Drive, Dropbox and so on. Share the library, sets and favorites with Library Sharing in the Fonts settings.
+- **Keyboard Shortcuts**: Keys for menu items (Add Fonts, New Set, New Project, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
 - **About**: Version and links.
 
 ## Hotkeys
 - **⌘O**: Add Fonts
 - **⇧⌘N**: New Set
-- **⌘E**: Activate
-- **⇧⌘E**: Deactivate
+- **⇧⌘A**: Activate
+- **⇧⌘D**: Deactivate
 - **⌘R**: Show in Finder
 - **⌥⌘P**: Hide or show the preview
 - **⌘⌫**: Remove from Library
+- The keys above can be changed under Keyboard Shortcuts in Settings (the defaults are shown).
 - **⌃⇧⌘F**: Open Main Window (from any app; change or turn it off under Launch & Background in Settings)
 - **⌘0**: Open Main Window
 - **⌘,**: Settings

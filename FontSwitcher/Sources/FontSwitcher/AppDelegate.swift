@@ -25,7 +25,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MenuBarPresence.shared.install(name: "FontSwitcher", symbol: "textformat",
                 show: { self?.showWindow() },
                 settings: { self?.showSettings() },
-                help: { LocalHelp.shared.show() })
+                help: { LocalHelp.shared.show() },
+                extraItems: { AppDelegate.projectMenuItems() })
         }
     }
     /// 設定の共有：起動・終了時の動作とプレビューの文字。ライブラリ（ファイルの場所）はMacごと
@@ -65,4 +66,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc func showSettings() { SettingsWindow.shared.show() }
+
+    /// メニューバーのメニューの先頭：プロジェクトの一覧。選ぶとまとめてアクティブにする（すべてアクティブなら解除）
+    static func projectMenuItems() -> [NSMenuItem] {
+        let store = LibraryStore.shared
+        guard !store.data.projects.isEmpty else { return [] }
+        let header = NSMenuItem(title: L("プロジェクト"), action: nil, keyEquivalent: "")
+        header.isEnabled = false
+        return [header] + store.data.projects.map { project in
+            let state = store.projectState(project.id)
+            let item = ClosureMenuItem(title: project.name) {
+                if state == true { store.deactivateProject(project.id) } else { store.activateProject(project.id) }
+            }
+            item.state = state == true ? .on : state == nil ? .mixed : .off
+            item.toolTip = state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする")
+            return item
+        }
+    }
+}
+
+/// 選んだときにクロージャーを呼ぶメニュー項目（ターゲットは自分自身。メニューが項目を持っている間は生きている）
+final class ClosureMenuItem: NSMenuItem {
+    private let handler: () -> Void
+
+    init(title: String, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(run), keyEquivalent: "")
+        target = self
+    }
+
+    required init(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+    @objc private func run() { handler() }
 }

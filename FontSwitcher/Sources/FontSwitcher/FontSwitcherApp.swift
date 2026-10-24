@@ -65,25 +65,30 @@ struct FontSwitcherApp: App {
 /// ファイルメニューの追加・アクティブ・セット。選択の有無で有効・無効を切り替える
 private struct LibraryMenuItems: View {
     @ObservedObject private var store = LibraryStore.shared
+    @ObservedObject private var shortcuts = MenuShortcuts.shared
     var body: some View {
         Button(L("フォントを追加…")) { store.showAddPanel() }
-            .keyboardShortcut("o", modifiers: .command)
+            .keyboardShortcut(shortcuts.shortcut(.addFonts))
             .disabled(store.isBusy)
         Button(L("新規セット…")) { store.newSet(with: store.selectedFiles) }
-            .keyboardShortcut("n", modifiers: [.command, .shift])
+            .keyboardShortcut(shortcuts.shortcut(.newSet))
+        Button(L("制作ファイルからプロジェクトを作成…")) { store.newProjectFromFile() }
+            .keyboardShortcut(shortcuts.shortcut(.newProjectFromFile))
+        Button(L("フォント名からプロジェクトを作成…")) { ProjectPasteWindow.shared.show() }
+            .keyboardShortcut(shortcuts.shortcut(.newProjectFromNames))
         Divider()
         Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
-            .keyboardShortcut("e", modifiers: .command)
+            .keyboardShortcut(shortcuts.shortcut(.activate))
             .disabled(store.selection.isEmpty)
         Button(L("解除")) { store.setActive(store.selectedFiles, false) }
-            .keyboardShortcut("e", modifiers: [.command, .shift])
+            .keyboardShortcut(shortcuts.shortcut(.deactivate))
             .disabled(store.selection.isEmpty)
         Divider()
         Button(L("Finderで表示")) { store.revealInFinder(store.selectedFiles) }
-            .keyboardShortcut("r", modifiers: .command)
+            .keyboardShortcut(shortcuts.shortcut(.reveal))
             .disabled(store.selection.isEmpty)
         Button(L("ライブラリから取り除く…")) { store.remove(store.selectedFiles) }
-            .keyboardShortcut(.delete, modifiers: .command)
+            .keyboardShortcut(shortcuts.shortcut(.remove))
             .disabled(store.selection.isEmpty)
     }
 }

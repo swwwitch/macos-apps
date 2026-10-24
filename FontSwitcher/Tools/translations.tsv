@@ -136,8 +136,6 @@ FontSwitcherが起動している間、どのアプリからでもメインウ�
 日本語名	Localized
 両方	Both
 フォント名の出し方	How font names are shown
-プレビューを隠す（⌥⌘P）	Hide Preview (⌥⌘P)
-プレビューを表示（⌥⌘P）	Show Preview (⌥⌘P)
 プレビューを隠す	Hide Preview
 プレビューを表示	Show Preview
 サイドバー	Sidebar
@@ -267,3 +265,43 @@ G-OTF の学参・常改・K書体を、通常の A-OTF 書体として扱って
 選んだフォルダーを外す	Remove the selected folders
 今すぐ読み込む	Scan Now
 選んだフォルダー（下の階層も）を見張り、新しいフォントファイルを見つけるとライブラリに追加します。アクティブにはしません。フォルダーから消えたファイルは「見つからない」に出ます。外しても、追加済みのフォントはライブラリに残ります。	Watches the chosen folders (including subfolders) and adds new font files to the library without activating them. Files removed from a folder appear in "Missing". Removing a folder keeps the fonts already added.
+制作ファイルからプロジェクトを作成…	New Project from Document…
+フォント名からプロジェクトを作成…	New Project from Font Names…
+新規セット・プロジェクト	New Set or Project
+プロジェクトをアクティブにする	Activate Project
+プロジェクトを解除	Deactivate Project
+ライブラリに無いフォント…	Fonts Not in Library…
+制作ファイルをFinderで表示	Show Document in Finder
+プロジェクトを削除…	Delete Project…
+ライブラリに無いフォント %d	Fonts not in library: %d
+フォントを調べる制作ファイル（IDML・INDD・PDF・AI）を選びます	Choose a document (IDML, INDD, PDF or AI) to check for fonts
+%@ のフォントを調べています…	Checking the fonts in %@…
+%d個のフォント名が見つかりました	Found %d font names
+フォントを調べられませんでした	Could Not Check the Fonts
+IDML・INDD・PDF・PDF互換で保存したAIのファイルを選んでください。（%@）	Choose an IDML, INDD, PDF, or AI file saved with PDF compatibility. (%@)
+プロジェクト「%@」を作成しました	Created project “%@”
+プロジェクト「%@」をアクティブにできませんでした	Could Not Activate Project “%@”
+途中で失敗したため、この操作でアクティブにしたフォントを元に戻しました。	Something failed partway, so the fonts activated in this operation were deactivated again.
+プロジェクト「%@」をアクティブにしました（%d個）	Activated project “%@” (%d files)
+、ライブラリに無いフォント %d	, not in library: %d
+プロジェクトの名前を変更	Rename Project
+プロジェクト「%@」を削除しますか？	Delete project “%@”?
+ライブラリに無いフォントはありません	All Fonts Are in the Library
+%d個のフォントをプロジェクトに入れ直しました	Added %d fonts back to the project
+ライブラリに無いフォント（%d）	Fonts Not in Library (%d)
+プロジェクト	Projects
+新規プロジェクト	New Project
+名前	Name
+一致したフォント（%d）	Matched Fonts (%d)
+候補：表記が少し異なります。チェックしたものだけ入れます（%d）	Candidates: names differ slightly. Only checked ones are added (%d)
+ライブラリに見つかりません（%d）	Not Found in Library (%d)
+作成したらアクティブにする	Activate after creating
+作成	Create
+フォント名からプロジェクトを作成	New Project from Font Names
+フォント名を1行に1つ貼り付けます（PostScript名がいちばん確実です）。	Paste one font name per line (PostScript names work best).
+次へ	Next
+名称未設定プロジェクト	Untitled Project
+キーボードショートカット	Keyboard Shortcuts
+プレビューを隠す・表示	Hide or Show Preview
+メニューのキーボードショートカット	Menu Keyboard Shortcuts
+メニューの項目のキーを変えます。欄をクリックして新しいキーを押します。「メインウインドウを開く」（⌘0）・「設定…」（⌘,）・「ウインドウを閉じる」（⌘W）・ヘルプ（⌘?）は変えられません。	Changes the keys of menu items. Click a field and press the new keys. Open Main Window (⌘0), Settings… (⌘,), Close Window (⌘W) and Help (⌘?) cannot be changed.

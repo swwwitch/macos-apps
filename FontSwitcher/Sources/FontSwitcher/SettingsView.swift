@@ -10,6 +10,7 @@ struct SettingsView: View {
                 AppHotkeyView()
             })),
             (L("フォント"), AnyView(FontSettingsView())),
+            (L("キーボードショートカット"), AnyView(MenuShortcutsSettingsView())),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)

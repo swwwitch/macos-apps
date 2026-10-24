@@ -178,10 +178,23 @@ struct FontSet: Codable, Identifiable, Hashable, Sendable {
     var files: [UUID] = []
 }
 
-/// 保存する中身：ライブラリ・セット・アクティブにしたファイル・お気に入りのファミリー
+/// 案件ごとのフォントのまとまり（セットとは別）。制作ファイル（IDML・PDF・AI）や貼り付けた名前から作る。
+/// missing はライブラリに見つからなかったフォント名（後でライブラリに入ったら入れ直せるよう残す）
+struct FontProject: Codable, Identifiable, Hashable, Sendable {
+    var id = UUID()
+    var name: String
+    var files: [UUID] = []
+    var missing: [String] = []
+    /// 作ったときの制作ファイル（貼り付けなら nil）
+    var source: String?
+    var created = Date()
+}
+
+/// 保存する中身：ライブラリ・セット・プロジェクト・アクティブにしたファイル・お気に入りのファミリー
 struct LibraryData: Codable, Sendable {
     var files: [FontFile] = []
     var sets: [FontSet] = []
+    var projects: [FontProject] = []
     var active: Set<UUID> = []
     /// ファミリー名。ファイルを入れ替えても残るよう、ファイルではなく名前で覚える
     var favorites: Set<String> = []
@@ -193,6 +206,7 @@ struct LibraryData: Codable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         files = try container.decodeIfPresent([FontFile].self, forKey: .files) ?? []
         sets = try container.decodeIfPresent([FontSet].self, forKey: .sets) ?? []
+        projects = try container.decodeIfPresent([FontProject].self, forKey: .projects) ?? []
         active = try container.decodeIfPresent(Set<UUID>.self, forKey: .active) ?? []
         favorites = try container.decodeIfPresent(Set<String>.self, forKey: .favorites) ?? []
     }
@@ -444,6 +458,7 @@ extension LibraryData {
         files.removeAll { ids.contains($0.id) }
         active.subtract(ids)
         for index in sets.indices { sets[index].files.removeAll { ids.contains($0) } }
+        for index in projects.indices { projects[index].files.removeAll { ids.contains($0) } }
     }
 }
 
@@ -507,6 +522,7 @@ extension LibraryData {
     func mapPaths(_ transform: (String) -> String) -> LibraryData {
         var copy = self
         for index in copy.files.indices { copy.files[index].path = transform(copy.files[index].path) }
+        for index in copy.projects.indices { copy.projects[index].source = copy.projects[index].source.map(transform) }
         return copy
     }
 
@@ -534,6 +550,17 @@ extension LibraryData {
                 sets[index].files += members.filter { !known.contains($0) }
             } else {
                 sets.append(FontSet(id: set.id, name: set.name, files: members))
+            }
+        }
+        for project in other.projects {
+            let members = project.files.compactMap { idMap[$0] }
+            if let index = projects.firstIndex(where: { $0.id == project.id }) {
+                let known = Set(projects[index].files)
+                projects[index].files += members.filter { !known.contains($0) }
+            } else {
+                var copy = project
+                copy.files = members
+                projects.append(copy)
             }
         }
         active.formUnion(other.active.compactMap { idMap[$0] })

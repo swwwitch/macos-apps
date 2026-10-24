@@ -11,6 +11,7 @@ enum SidebarItem: Hashable {
     case vendor(String)
     case collection(String)
     case set(UUID)
+    case project(UUID)
 }
 
 /// ライブラリの保存・取り込み・アクティブの切り替え。画面とメニューから共有する
@@ -56,7 +57,8 @@ final class LibraryStore: ObservableObject {
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
     @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate() } }
-    @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; listVersion += 1 } }
+    // 絞り込みの書体数と選択肢の数は、サイドバーで選んだ範囲で数えるので一緒に捨てる
+    @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; faceCountCache = nil; filterCache = nil; listVersion += 1 } }
     @Published var selection = Set<String>()
     @Published var searchText = "" { didSet { shownCache = nil; listVersion += 1 } }
     /// 検索オプションの絞り込み：文字セット（"—" は文字セットの名前が無いもの）・形式・種類・ファミリーの書体数・収録文字数。nil は絞り込まない
@@ -199,6 +201,9 @@ final class LibraryStore: ObservableObject {
             return base.filter { file in
                 file.faces.contains { query.names.contains($0.postScriptName) || query.families.contains($0.family) }
             }
+        case .project(let id):
+            let ids = Set(data.projects.first { $0.id == id }?.files ?? [])
+            return base.filter { ids.contains($0.id) }
         case .set(let id):
             let ids = Set(data.sets.first { $0.id == id }?.files ?? [])
             return base.filter { ids.contains($0.id) }
@@ -251,10 +256,12 @@ final class LibraryStore: ObservableObject {
         return ids
     }
 
+    /// ファミリーごとの書体数。一覧の「n書体」と同じく、サイドバーで選んだ範囲で数える
+    /// （ライブラリ全体で数えると、モリサワ版とアドビ版があるファミリーが「アドビ」で1書体なのに2以上に入っていた）
     private var familyFaceCounts: [String: Int] {
         if let faceCountCache { return faceCountCache }
         var counts: [String: Int] = [:]
-        for file in visibleFiles { counts[file.family, default: 0] += file.faces.count }
+        for file in files(in: sidebar) { counts[file.family, default: 0] += file.faces.count }
         faceCountCache = counts
         return counts
     }
@@ -268,11 +275,12 @@ final class LibraryStore: ObservableObject {
         var variants: [VariantFilter: [(Bool, Int)]]
     }
 
-    /// 絞り込みの選択肢（ファミリー数つき）。文字セットは決まった順、形式は多い順
+    /// 絞り込みの選択肢（ファミリー数つき、サイドバーで選んだ範囲で数える）。文字セットは決まった順、形式は多い順
     var filterOptions: FilterOptions {
         if let filterCache { return filterCache }
+        let base = files(in: sidebar)
         var charsets: [String: Int] = [:]
-        for family in Set(visibleFiles.map(\.family)) {
+        for family in Set(base.map(\.family)) {
             charsets[FontNaming.charset(family) ?? Self.noCharset, default: 0] += 1
         }
         // 形式と種類はファイル単位なので、当てはまるファイルを含むファミリーを数える
@@ -280,7 +288,7 @@ final class LibraryStore: ObservableObject {
         var kinds: [FontKind: Set<String>] = [:]
         var characterCounts: [CharacterCountRange: Set<String>] = [:]
         var variants: [VariantFilter: [Bool: Set<String>]] = [:]
-        for file in visibleFiles {
+        for file in base {
             for variant in VariantFilter.allCases {
                 if let value = variant.value(file) { variants[variant, default: [:]][value, default: []].insert(file.family) }
             }
@@ -585,11 +593,154 @@ final class LibraryStore: ObservableObject {
         return name.isEmpty ? nil : name
     }
 
+    // MARK: プロジェクト
+
+    func projectFiles(_ id: UUID) -> [FontFile] {
+        let ids = Set(data.projects.first { $0.id == id }?.files ?? [])
+        return data.files.filter { ids.contains($0.id) }
+    }
+
+    /// プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    func projectState(_ id: UUID) -> Bool? {
+        let files = projectFiles(id).filter { !Self.isLocked($0) && states[$0.id] != .missing }
+        let active = files.filter { states[$0.id] == .active }.count
+        if active == 0 { return files.isEmpty ? true : false }
+        return active == files.count ? true : nil
+    }
+
+    func newProjectFromFile() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = []
+        panel.message = L("フォントを調べる制作ファイル（IDML・INDD・PDF・AI）を選びます")
+        panel.prompt = L("選択")
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        newProject(from: url)
+    }
+
+    /// 制作ファイルから使っているフォント名を取り出し、ライブラリと照合して確認の画面を出す
+    func newProject(from url: URL) {
+        status = L("%@ のフォントを調べています…", url.lastPathComponent)
+        Task.detached(priority: .userInitiated) {
+            let result = Result { try FontNameExtractor.names(in: url) }
+            await MainActor.run {
+                let store = LibraryStore.shared
+                switch result {
+                case .success(let names):
+                    store.status = L("%d個のフォント名が見つかりました", names.count)
+                    ProjectDraftWindow.shared.show(ProjectDraft(name: url.deletingPathExtension().lastPathComponent,
+                                                                source: url.path, names: names, files: store.data.files))
+                case .failure:
+                    store.status = ""
+                    store.message = (L("フォントを調べられませんでした"),
+                                     L("IDML・INDD・PDF・PDF互換で保存したAIのファイルを選んでください。（%@）", url.lastPathComponent))
+                }
+            }
+        }
+    }
+
+    func createProject(name: String, source: String?, files: [FontFile], missing: [String], activate: Bool) {
+        var seen = Set<UUID>()
+        let project = FontProject(name: name.trimmingCharacters(in: .whitespaces),
+                                  files: files.map(\.id).filter { seen.insert($0).inserted }, missing: missing, source: source)
+        data.projects.append(project)
+        save()
+        sidebar = .project(project.id)
+        selection.removeAll()
+        if activate { activateProject(project.id) } else { status = L("プロジェクト「%@」を作成しました", project.name) }
+    }
+
+    /// プロジェクトのフォントをアクティブにする。ほかのフォントは解除しない（ユーザー指定）。
+    /// 1つでも失敗したら、この操作でアクティブにしたものを解除して元に戻す。同じ名前のフォントが別の場所で使われているものは、使える状態とみなして飛ばす
+    func activateProject(_ id: UUID) {
+        guard let project = data.projects.first(where: { $0.id == id }) else { return }
+        let targets = projectFiles(id).filter {
+            !Self.isLocked($0) && FileManager.default.fileExists(atPath: $0.path) && states[$0.id] != .active
+        }
+        var done: [(FontFile, CTFontManagerScope)] = []
+        var failure: String?
+        for file in targets {
+            if case .conflict = FontActivation.state(of: file) { continue }
+            let scope: CTFontManagerScope = Self.isInstalled(file) ? .persistent : .session
+            if let error = FontActivation.activate(file, scope: scope) {
+                failure = "\(file.fileName) — \(error)"
+                break
+            }
+            done.append((file, scope))
+        }
+        if let failure {
+            for (file, scope) in done { _ = FontActivation.deactivate(file, scope: scope) }
+            message = (L("プロジェクト「%@」をアクティブにできませんでした", project.name),
+                       L("途中で失敗したため、この操作でアクティブにしたフォントを元に戻しました。") + "\n" + failure)
+            refreshStates()
+            return
+        }
+        var updated = data
+        let now = Date()
+        let ids = Set(done.map(\.0.id))
+        for index in updated.files.indices where ids.contains(updated.files[index].id) {
+            updated.files[index].activatedAt = now
+            if !Self.isInstalled(updated.files[index]) { updated.active.insert(updated.files[index].id) }
+        }
+        data = updated
+        save()
+        refreshStates()
+        status = L("プロジェクト「%@」をアクティブにしました（%d個）", project.name, done.count)
+        if !project.missing.isEmpty { status += L("、ライブラリに無いフォント %d", project.missing.count) }
+    }
+
+    func deactivateProject(_ id: UUID) {
+        setActive(projectFiles(id).filter { !Self.isLocked($0) }, false)
+    }
+
+    func renameProject(_ id: UUID) {
+        guard let index = data.projects.firstIndex(where: { $0.id == id }),
+              let name = askName(title: L("プロジェクトの名前を変更"), initial: data.projects[index].name) else { return }
+        data.projects[index].name = name
+        save()
+    }
+
+    func deleteProject(_ id: UUID) {
+        guard let project = data.projects.first(where: { $0.id == id }) else { return }
+        let alert = NSAlert()
+        alert.messageText = L("プロジェクト「%@」を削除しますか？", project.name)
+        alert.informativeText = L("ライブラリのフォントとアクティブの状態はそのままです。")
+        alert.addButton(withTitle: L("削除"))
+        alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        data.projects.removeAll { $0.id == id }
+        if sidebar == .project(id) { sidebar = .all }
+        save()
+    }
+
+    /// ライブラリに見つからなかったフォント名を見せる。いまライブラリにあれば入れ直す
+    func showProjectMissing(_ id: UUID) {
+        guard let index = data.projects.firstIndex(where: { $0.id == id }) else { return }
+        let draft = ProjectDraft(name: "", source: nil, names: data.projects[index].missing, files: data.files)
+        if !draft.exact.isEmpty {
+            let known = Set(data.projects[index].files)
+            data.projects[index].files += draft.exact.map(\.file.id).filter { !known.contains($0) }
+            data.projects[index].missing = draft.candidates.map(\.name) + draft.missing
+            save()
+        }
+        let missing = data.projects[index].missing
+        message = missing.isEmpty
+            ? (L("ライブラリに無いフォントはありません"), draft.exact.isEmpty ? "" : L("%d個のフォントをプロジェクトに入れ直しました", draft.exact.count))
+            : (L("ライブラリに無いフォント（%d）", missing.count), missing.prefix(40).joined(separator: "\n") + (missing.count > 40 ? "\n…" : ""))
+    }
+
+    func revealProjectSource(_ id: UUID) {
+        guard let source = data.projects.first(where: { $0.id == id })?.source else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: source)])
+    }
+
     // MARK: サイドバーの表示
 
     /// サイドバーに出す区分（設定の「表示」）。ライブラリは常に出す
     enum SidebarSection: String, CaseIterable {
-        case system, kinds, vendors, collections, smartSets, sets
+        case system, kinds, vendors, collections, smartSets, projects, sets
         /// 並び順（rawValue をカンマでつなぐ）。ライブラリは常に先頭
         static let orderKey = "sidebarOrder"
         var showKey: String { "sidebarShow." + rawValue }
@@ -600,6 +751,7 @@ final class LibraryStore: ObservableObject {
             case .vendors: return L("ベンダー")
             case .collections: return L("コレクション")
             case .smartSets: return L("スマートセット")
+            case .projects: return L("プロジェクト")
             case .sets: return L("セット")
             }
         }
@@ -636,6 +788,7 @@ final class LibraryStore: ObservableObject {
         case .vendor: section = .vendors
         case .collection: section = .collections
         case .set: section = .sets
+        case .project: section = .projects
         case .favorites, .active, .inactive, .recentlyActivated, .recentlyDeactivated, .recentlyAdded, .japanese: section = .smartSets
         default: section = nil
         }

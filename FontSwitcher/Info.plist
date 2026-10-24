@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Illustratorのドキュメントのフォントを統一するために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.17.0</string>
+	<string>1.20.2</string>
 	<key>CFBundleVersion</key>
-	<string>38</string>
+	<string>43</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

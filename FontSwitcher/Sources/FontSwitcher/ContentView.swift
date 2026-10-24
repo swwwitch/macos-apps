@@ -37,7 +37,13 @@ struct ContentView: View {
                     group.leave()
                 }
             }
-            group.notify(queue: .main) { LibraryStore.shared.add(dropped.urls) }
+            group.notify(queue: .main) {
+                // 制作ファイル（IDML・PDF・AI）はプロジェクトに、それ以外はフォントとしてライブラリに
+                let urls = dropped.urls
+                let production = urls.filter { FontNameExtractor.fileExtensions.contains($0.pathExtension.lowercased()) }
+                if let first = production.first { LibraryStore.shared.newProject(from: first) }
+                LibraryStore.shared.add(urls.filter { !production.contains($0) })
+            }
             return true
         }
         .accessibilityLabel(L("フォントファイルやフォルダーをドロップして追加"))
@@ -119,6 +125,8 @@ private struct SidebarView: View {
     @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
     @AppStorage(LibraryStore.SidebarSection.smartSets.showKey) private var showSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
+    @AppStorage(LibraryStore.SidebarSection.projects.showKey) private var showProjects = true
+    @AppStorage(LibraryStore.SidebarSection.projects.expandedKey) private var expandedProjects = true
     @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
     @AppStorage(LibraryStore.SidebarSection.system.expandedKey) private var expandedSystem = true
     @AppStorage(LibraryStore.SidebarSection.kinds.expandedKey) private var expandedKinds = true
@@ -155,10 +163,17 @@ private struct SidebarView: View {
             .listStyle(.sidebar)
             Divider()
             HStack {
-                Button { store.newSet() } label: { Image(systemName: "plus") }
-                    .buttonStyle(.borderless)
-                    .help(L("新規セット"))
-                    .accessibilityLabel(L("新規セット"))
+                Menu {
+                    Button(L("新規セット…")) { store.newSet() }
+                    Divider()
+                    Button(L("制作ファイルからプロジェクトを作成…")) { store.newProjectFromFile() }
+                    Button(L("フォント名からプロジェクトを作成…")) { ProjectPasteWindow.shared.show() }
+                } label: { Image(systemName: "plus") }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
+                    .help(L("新規セット・プロジェクト"))
+                    .accessibilityLabel(L("新規セット・プロジェクト"))
                 Spacer()
             }
             .padding(6)
@@ -222,6 +237,26 @@ private struct SidebarView: View {
                     row(.japanese, L("日本語をサポート"), "character.ja")
                 } header: { Text(section.title) }
             }
+        case .projects:
+            if showProjects {
+                Section(isExpanded: $expandedProjects) {
+                    ForEach(store.data.projects) { project in
+                        projectRow(project)
+                            .contextMenu {
+                                Button(L("プロジェクトをアクティブにする")) { store.activateProject(project.id) }
+                                Button(L("プロジェクトを解除")) { store.deactivateProject(project.id) }
+                                Divider()
+                                Button(L("ライブラリに無いフォント…")) { store.showProjectMissing(project.id) }
+                                if project.source != nil {
+                                    Button(L("制作ファイルをFinderで表示")) { store.revealProjectSource(project.id) }
+                                }
+                                Divider()
+                                Button(L("名前を変更…")) { store.renameProject(project.id) }
+                                Button(L("プロジェクトを削除…")) { store.deleteProject(project.id) }
+                            }
+                    }
+                } header: { Text(section.title) }
+            }
         case .sets:
             if showSets {
                 Section(isExpanded: $expandedSets) {
@@ -241,6 +276,30 @@ private struct SidebarView: View {
     }
 
     /// セットの行。左のチェックボックスでセットのフォントをまとめてアクティブ・解除する（一部だけアクティブなら「−」）
+    /// プロジェクトの行。チェックボックスでまとめてアクティブ（失敗したら元に戻す）・解除。見つからないフォントがあれば印を出す
+    private func projectRow(_ project: FontProject) -> some View {
+        let state = store.projectState(project.id)
+        return HStack(spacing: 6) {
+            Button {
+                if state == true { store.deactivateProject(project.id) } else { store.activateProject(project.id) }
+            } label: {
+                Image(systemName: state == true ? "checkmark.square.fill" : state == nil ? "minus.square.fill" : "square")
+                    .foregroundStyle(state == false ? Color.secondary : Color.accentColor)
+            }
+            .buttonStyle(.borderless)
+            .help(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
+            .accessibilityLabel(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
+            Label(project.name, systemImage: "doc.text").lineLimit(1)
+            Spacer()
+            if !project.missing.isEmpty {
+                Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange).font(.caption)
+                    .help(L("ライブラリに無いフォント %d", project.missing.count))
+            }
+            Text("\(store.count(.project(project.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .tag(SidebarItem.project(project.id))
+    }
+
     private func setRow(_ set: FontSet) -> some View {
         let state = store.setState(set.id)
         return HStack(spacing: 6) {
@@ -367,8 +426,9 @@ private struct FamilyListView: View {
                     Image(systemName: "sidebar.right")
                 }
                 .buttonStyle(.borderless)
-                .keyboardShortcut("p", modifiers: [.command, .option])
-                .help(previewVisible ? L("プレビューを隠す（⌥⌘P）") : L("プレビューを表示（⌥⌘P）"))
+                .keyboardShortcut(MenuShortcuts.shared.shortcut(.togglePreview))
+                .help((previewVisible ? L("プレビューを隠す") : L("プレビューを表示"))
+                      + (MenuShortcuts.shared.combo(.togglePreview).map { "（\($0.label)）" } ?? ""))
                 .accessibilityLabel(previewVisible ? L("プレビューを隠す") : L("プレビューを表示"))
             }
             // 検索欄は上下を少し広げる
