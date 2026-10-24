@@ -402,7 +402,6 @@ Unicodeなし	Without Unicode
 シリーズ	Series
 言語	Languages
 プラン	Plans
-説明	Description
 公式のページを開く	Open the Official Page
 ライブラリを再構築しますか？	Rebuild the library?
 %d個のファイルの情報を読み直し、場所が変わったファイルをつなぎ直し、フォルダーの新しいファイルを足します。件数が多いと数十秒から数分かかります。フォントのアクティブの状態は変わりません。	Reads the information of %d files again, relinks files that moved, and adds new files in the folders. With many files this takes from tens of seconds to a few minutes. Which fonts are active does not change.

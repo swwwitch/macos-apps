@@ -31,7 +31,8 @@ struct FontDBRecord: Sendable {
     }
 
     /// 検索で引く文字（よみ・メーカー・デザイナー・分類・シリーズ・説明・公式の名前）
-    var searchText: String { [name, reading, maker, designer, classification, series, description, menuName].joined(separator: " ") }
+    /// 検索に使う文字。説明文はフォントベンダーの著作物なので使わない（表示もしない、ユーザー指定）
+    var searchText: String { [name, reading, maker, designer, classification, series, menuName].joined(separator: " ") }
 }
 
 enum FontDB {

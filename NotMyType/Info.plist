@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>IllustratorとInDesignのドキュメントのフォントを統一したり、足りないフォントを調べたりするために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.55.0</string>
+	<string>1.56.0</string>
 	<key>CFBundleVersion</key>
-	<string>84</string>
+	<string>85</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

@@ -638,12 +638,12 @@ private struct SearchOptionsPanel: View {
 /// プレビューの下のフォント情報に出す項目（プレビューのオプションでチェックボックスで選ぶ）。隠した項目を UserDefaults に覚える
 enum FontInfoItem: String, CaseIterable {
     case state, format, characters, version, postScript, location, reveal
-    case officialName, officialFileName, maker, designer, release, firstRelease, classification, series, languages, plans, description, officialPage
+    case officialName, officialFileName, maker, designer, release, firstRelease, classification, series, languages, plans, officialPage
 
     static let hiddenKey = "fontInfoHidden"
     static let basic: [FontInfoItem] = [.state, .format, .characters, .version, .postScript, .location, .reveal]
     static let official: [FontInfoItem] = [.officialName, .officialFileName, .maker, .designer, .release, .firstRelease,
-                                           .classification, .series, .languages, .plans, .description, .officialPage]
+                                           .classification, .series, .languages, .plans, .officialPage]
 
     var title: String {
         switch self {
@@ -664,7 +664,6 @@ enum FontInfoItem: String, CaseIterable {
         case .series: return L("シリーズ")
         case .languages: return L("言語")
         case .plans: return L("プラン")
-        case .description: return L("説明")
         case .officialPage: return L("公式のページを開く")
         }
     }
@@ -1084,7 +1083,6 @@ private struct FamilyInfo: View {
         if shows(.series), !record.series.isEmpty { info(L("シリーズ"), record.series) }
         if shows(.languages), !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
         if shows(.plans), !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
-        if shows(.description), !record.description.isEmpty { info(L("説明"), record.description) }
         if shows(.officialPage), let url = URL(string: record.url), !record.url.isEmpty {
             Link(L("公式のページを開く"), destination: url).font(.caption)
         }
