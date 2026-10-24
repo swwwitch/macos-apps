@@ -124,6 +124,7 @@ private struct SidebarView: View {
     @ObservedObject private var store = LibraryStore.shared
     // 区分の開閉（ここで覚える）。簡易版は区分の表示と並び順の設定を持たない
     @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
+    @AppStorage(LibraryStore.SidebarSection.system.expandedKey) private var expandedSystem = true
     @AppStorage(LibraryStore.SidebarSection.smartSets.expandedKey) private var expandedSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.expandedKey) private var expandedSets = true
 
@@ -139,6 +140,12 @@ private struct SidebarView: View {
                     iconRow(.folder(.adobeFonts), SystemFolder.adobeFonts.title) { AdobeFontsIcon() }
                         .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
                 } header: { Text(L("ライブラリ")) }
+                // フォントフォルダー。System は切り替え・取り除きができない
+                Section(isExpanded: $expandedSystem) {
+                    row(.folder(.user), SystemFolder.user.title, "person")
+                    row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
+                    row(.folder(.system), SystemFolder.system.title, "lock")
+                } header: { Text(LibraryStore.SidebarSection.system.title) }
                 // 条件で中身が決まるセット
                 Section(isExpanded: $expandedSmartSets) {
                     row(.favorites, L("お気に入り"), "star")

@@ -216,6 +216,7 @@
 "優先外の重複はありません" = "No non-preferred duplicates";
 "名称未設定スマートセット" = "Untitled Smart Set";
 "スマートセット「%@」を削除しますか？" = "Delete smart set “%@”?";
+"システム" = "System";
 "スマートセット" = "Smart Sets";
 "セット" = "Sets";
 "ライブラリを読み込めませんでした" = "Could Not Load the Library";

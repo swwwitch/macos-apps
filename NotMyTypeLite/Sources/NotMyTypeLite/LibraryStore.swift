@@ -217,8 +217,8 @@ final class LibraryStore: ObservableObject {
 
     // MARK: 表示
 
-    /// 簡易版はフォントフォルダー（ユーザー・All Users・System）を一覧に入れない。Adobe Fonts だけ読む
-    var includeUserFonts: Bool { false }
+    /// フォントフォルダー（ユーザー名・All Users・System）は常に一覧に入れる（設定は持たない、ユーザー指定）
+    var includeUserFonts: Bool { true }
 
     /// フォントフォルダー（username・All Users・System）のファイルかどうか
     static func isInstalled(_ file: FontFile) -> Bool { SystemFolder.of(file.path) != nil }
@@ -1356,9 +1356,10 @@ final class LibraryStore: ObservableObject {
 
     /// サイドバーの区分（簡易版は表示と並び順の設定を持たない。開閉だけ覚える）
     enum SidebarSection: String, CaseIterable {
-        case smartSets, sets
+        case system, smartSets, sets
         var title: String {
             switch self {
+            case .system: return L("システム")
             case .smartSets: return L("スマートセット")
             case .sets: return L("セット")
             }

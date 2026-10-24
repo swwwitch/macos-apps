@@ -1,5 +1,5 @@
 import AppKit
-// Usage: swift GenerateIcon.swift <output folder>  → NotMyType.png (1024px)
+// Usage: swift GenerateIcon.swift <output folder>  → NotMyTypeLite.png (1024px)
 let root = URL(fileURLWithPath: CommandLine.arguments[1])
 let image = NSImage(size: NSSize(width: 1024, height: 1024))
 image.lockFocus()
@@ -25,6 +25,11 @@ let glyphs = NSMutableAttributedString(attributedString: kana)
 glyphs.append(latin)
 let glyphSize = glyphs.size()
 glyphs.draw(at: NSPoint(x: card.midX - glyphSize.width / 2, y: card.midY - glyphSize.height / 2 + 4))
+// 簡易版の印：カードの下に小さく「Lite」（NotMyType と見分けるため、ユーザー指定）
+let lite = NSAttributedString(string: "Lite", attributes: [
+    .font: NSFont(name: "Georgia-BoldItalic", size: 118) ?? NSFont.boldSystemFont(ofSize: 118), .foregroundColor: brown])
+let liteSize = lite.size()
+lite.draw(at: NSPoint(x: card.midX - liteSize.width / 2, y: (54 + card.minY) / 2 - liteSize.height / 2 + 4))
 image.unlockFocus()
 let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
-try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("NotMyType.png"))
+try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("NotMyTypeLite.png"))

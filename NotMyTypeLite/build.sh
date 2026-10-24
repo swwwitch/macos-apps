@@ -31,7 +31,7 @@ cp "$bin_path/NotMyTypeLite" "$contents_dir/MacOS/NotMyTypeLite"
 xcrun lipo "$contents_dir/MacOS/NotMyTypeLite" -verify_arch arm64
 xcrun lipo "$contents_dir/MacOS/NotMyTypeLite" -verify_arch x86_64
 cp Info.plist "$contents_dir/Info.plist"
-cp Assets/NotMyType.icns "$contents_dir/Resources/NotMyTypeLite.icns"
+cp Assets/NotMyTypeLite.icns "$contents_dir/Resources/NotMyTypeLite.icns"
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
 printf 'APPL????' > "$contents_dir/PkgInfo"
 python3 Tests/check-localization.py --app "$app_dir"

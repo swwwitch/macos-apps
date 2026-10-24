@@ -45,9 +45,16 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 - The button is filled while a filter is on. Filters combine with the sidebar and the search; "Clear All" removes them.
 - In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
 - The button at the upper right of the list (⌥⌘P) hides or shows the preview on the right.
-- Click a sidebar heading (Library, Smart Sets, Sets) to collapse or expand it. "Adobe Fonts" under Library shows the fonts activated in Creative Cloud (currently registered with macOS); turn them on and off in Creative Cloud.
+- Click a sidebar heading (Library, System, Smart Sets, Sets) to collapse or expand it. "Adobe Fonts" under Library shows the fonts activated in Creative Cloud (currently registered with macOS); turn them on and off in Creative Cloud.
 - The ⚠️ mark means the file is missing, or a font with the same name is in use from another location (installed by the system or another app). Hold the pointer over the mark to see why. When the font is in use from another location, choose "Remove Conflicting Registrations" from the right-click menu or the Tools menu to remove the registration of that file (the file is not moved; fonts placed in a font folder or managed by another app cannot be removed). You can then activate the font in the library.
 - When activation fails because a font with the same name is already in use, the message offers "Force Activate", which unregisters the conflicting font and then activates the selected file (no files are moved). If the conflict is with Adobe Fonts, Creative Cloud re-registers it right away, so it cannot be removed; turn that font off in Creative Cloud, then activate again. Conflicts with macOS fonts cannot be resolved.
+
+### System Fonts
+- "System" in the sidebar shows the three macOS font folders. They are read at launch and whenever fonts change.
+- **Your user name** (~/Library/Fonts): fonts for this user only, including Morisawa fonts and the like.
+- **All Users** (/Library/Fonts): fonts for every user of this Mac.
+- **System** (/System/Library/Fonts): macOS fonts. They cannot be switched or removed from the library.
+- Fonts under your user name and All Users can be switched with their checkboxes. The files stay in place and macOS remembers that they are off (they stay off after you log out). Check them again to turn them back on.
 
 ### Smart Sets
 - "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
