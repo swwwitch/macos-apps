@@ -14,7 +14,7 @@ final class MenuBarPresence: NSObject, NSMenuDelegate {
     private var reveal: (() -> Void)?
     private var preferences: (() -> Void)?
     private var help: (() -> Void)?
-    /// App-specific items shown at the top of the menu (e.g. FontSwitcher's projects). Rebuilt each time the menu opens.
+    /// App-specific items shown at the top of the menu (e.g. NotMyType's projects). Rebuilt each time the menu opens.
     private var extraItems: (() -> [NSMenuItem])?
     private static let extraID = "shared.menuBar.extra"
     private var settingsWindow: NSWindow?

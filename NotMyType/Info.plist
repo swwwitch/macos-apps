@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>NotMyType</string>
+	<key>CFBundleExecutable</key>
+	<string>NotMyType</string>
+	<key>CFBundleIconFile</key>
+	<string>NotMyType</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.fontswitcher</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>NotMyType</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Illustratorのドキュメントのフォントを統一するために使います。</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.23.0</string>
+	<key>CFBundleVersion</key>
+	<string>47</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+</dict>
+</plist>

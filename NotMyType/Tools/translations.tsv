@@ -1,0 +1,325 @@
+NotMyTypeヘルプ	NotMyType Help
+設定…	Settings…
+メインウインドウを開く	Open Main Window
+ウインドウを閉じる	Close Window
+しまう	Minimize
+拡大／縮小	Zoom
+フォントを追加…	Add Fonts…
+新規セット…	New Set…
+アクティブにする	Activate
+解除	Deactivate
+Finderで表示	Show in Finder
+ライブラリから取り除く…	Remove from Library…
+設定	Settings
+フォントファイルやフォルダーをドロップして追加	Drop font files or folders to add them
+フォントのアクティブを切り替え	Activate and Deactivate Fonts
+フォントファイルをライブラリに登録し、使うときだけアクティブにします	Keep font files in a library and activate them only when you need them
+追加…	Add…
+%d ファミリー・%d ファイル（アクティブ %d）	%d families · %d files (%d active)
+ライブラリ	Library
+すべてのフォント	All Fonts
+アクティブ	Active
+非アクティブ	Inactive
+重複	Duplicates
+見つからない	Missing
+セット	Sets
+セットをアクティブにする	Activate Set
+セットを解除	Deactivate Set
+名前を変更…	Rename…
+セットを削除…	Delete Set…
+新規セット	New Set
+ファミリー名・PostScript名で検索	Search family or PostScript name
+検索	Search
+検索を消去	Clear Search
+フォントファイルやフォルダーをここへドロップするか、「追加…」で選びます	Drop font files or folders here, or choose them with “Add…”
+当てはまるフォントはありません	No matching fonts
+ファイルが見つかりません	File not found
+同じ名前のフォントが別の場所で使われています：%@	A font with the same name is in use from another location: %@
+セットに追加	Add to Set
+このセットから外す	Remove from This Set
+一部アクティブ	Partly active
+クリックで解除	Click to deactivate
+クリックでアクティブにする	Click to activate
+%d書体	%d styles
+プレビューの文字	Preview text
+大きさ	Size
+ファミリーを選ぶとプレビューします	Select a family to preview it
+%d個のファミリーを選択中	%d families selected
+プレビューできません	Cannot preview
+状態	Status
+形式	Format
+バージョン	Version
+PostScript名	PostScript name
+場所	Location
+ :	:
+ファイルを読む権限がありません	No permission to read the file
+フォントとして読めません	Not a readable font
+同じ名前のフォントがすでに使われています	A font with the same name is already in use
+システムに必要なフォントです	Required by the system
+使用中のため解除できません	In use and cannot be deactivated
+エラー %d	Error %d
+フォントファイルか、フォントの入ったフォルダーを選びます	Choose font files or folders that contain fonts
+追加	Add
+フォントを読み込み中…	Reading fonts…
+%d個のファイルを追加しました	Added %d files
+登録済み %d	%d already in library
+読めないファイル %d	%d unreadable
+、	, 
+フォントが見つかりません	No Fonts Found
+選んだ場所にフォントファイル（.otf・.ttf・.ttc など）がありません。	The selected items contain no font files (.otf, .ttf, .ttc and so on).
+%d個のファイルをライブラリから取り除きますか？	Remove %d files from the library?
+アクティブなものは解除します。フォントファイルは削除しません。	Active fonts are deactivated. The font files are not deleted.
+取り除く	Remove
+キャンセル	Cancel
+%d個のファイルを取り除きました	Removed %d files
+%d個のファイルをアクティブにしました	Activated %d files
+%d個のファイルを解除しました	Deactivated %d files
+、失敗 %d	, %d failed
+アクティブにできなかったファイルがあります	Some Files Could Not Be Activated
+解除できなかったファイルがあります	Some Files Could Not Be Deactivated
+前回アクティブだった%d個のファイルを戻しました	Reactivated %d files from last time
+、見つからない %d	, %d missing
+名称未設定セット	Untitled Set
+セットの名前を変更	Rename Set
+セット「%@」を削除しますか？	Delete the set “%@”?
+ライブラリのフォントとアクティブの状態はそのままです。	Fonts in the library and their activation stay as they are.
+削除	Delete
+OK	OK
+ライブラリを読み込めませんでした	Could Not Load the Library
+元のファイルを %@ に残しました。	The original file was kept at %@.
+ライブラリを保存できませんでした	Could Not Save the Library
+フォント	Fonts
+起動時に、前回アクティブだったフォントを戻す	Reactivate fonts from last time at launch
+NotMyTypeでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。	Fonts activated with NotMyType are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.
+終了するときにすべて解除する	Deactivate all fonts when quitting
+オフのときは、終了してもログアウトするまでアクティブのままです。	When off, fonts stay active after quitting until you log out.
+プレビュー	Preview
+プレビューの文字 :	Preview text:
+初期値に戻す	Restore Defaults
+お気に入り	Favorites
+お気に入りを切り替える	Toggle Favorite
+お気に入りから外す	Remove from Favorites
+お気に入りに追加	Add to Favorites
+共有フォルダーが見つかりません	Shared Folder Not Found
+%@ が見つからないため、このMacのライブラリを開きました。	%@ could not be found, so this Mac’s library was opened.
+ほかのMacと共有するフォルダー（Dropboxの中など）を選びます	Choose a folder to share with your other Macs (for example, in Dropbox)
+選択	Choose
+共有ライブラリを使っています（このMacから%d個のファイルを足しました）	Using the shared library (%d files added from this Mac)
+共有をやめ、このMacのライブラリに切り替えました	Stopped sharing and switched to this Mac’s library
+ほかのMacの変更を読み込みました	Loaded changes from another Mac
+ライブラリの共有	Library Sharing
+共有フォルダー :	Shared folder:
+共有していません	Not shared
+共有フォルダーを選ぶ…	Choose Shared Folder…
+共有をやめる	Stop Sharing
+Dropboxなどのフォルダーに「FontSwitcher-Library.json」を置き、登録したフォント・セット・お気に入り・アクティブの状態をほかのMacとそろえます。Dropboxとホームフォルダーの中の場所は、Macごとの場所に読み替えます。すでにファイルがあるフォルダーを選ぶと、このMacのライブラリと合わせます。	Places “FontSwitcher-Library.json” in a folder such as Dropbox to keep the fonts, sets, favorites and activation the same on your other Macs. Locations inside Dropbox and your home folder are translated to each Mac’s location. Choosing a folder that already has the file combines it with this Mac’s library.
+ファミリー	Families
+システム	System
+フォントフォルダー（%@）のフォントは取り除けません	Fonts in the font folders (%@) cannot be removed
+System のフォントは切り替えられません	System fonts cannot be switched
+新規コレクション	New Collection
+名称未設定コレクション	Untitled Collection
+コレクション「%@」に%d書体を追加しました	Added %2$d styles to the collection “%1$@”
+コレクションに追加できませんでした	Could Not Add to the Collection
+フォントフォルダーから%d個のファイルを追加しました	Added %d files from the font folders
+新規コレクション…	New Collection…
+コレクションに追加	Add to Collection
+フォントフォルダーのフォントも一覧に入れる	Include fonts in the font folders
+~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。	Reads ~/Library/Fonts (your user name), /Library/Fonts (All Users) and /System/Library/Fonts (System) at launch and whenever fonts change. Fonts for your user name and All Users can be switched with their checkboxes; the files stay in place and macOS remembers the setting. System fonts cannot be switched.
+どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る	From any app. Yields while another of these apps that uses the same key for its front app is in front
+ベンダー	Vendors
+コレクション	Collections
+モリサワ	Morisawa
+フォントワークス	Fontworks
+NotMyTypeが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。	While NotMyType is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyType is not running, so use it together with Open at Login.
+フォント名	Font name
+日本語名	Localized
+両方	Both
+フォント名の出し方	How font names are shown
+プレビューを隠す	Hide Preview
+プレビューを表示	Show Preview
+サイドバー	Sidebar
+文字セット	Character set
+すべて	All
+名前に無し	Not in name
+このフォントに無い文字は、ほかのフォントで薄く表示しています	Characters this font lacks are shown faintly in another font
+Adobe Fontsのフォントは、Creative Cloudで切り替えます	Adobe Fonts are switched in Creative Cloud
+種類	Kinds
+バリアブル	Variable
+カラーフォント	Color Fonts
+アドビ	Adobe
+検索オプション	Search Options
+ファミリーの書体数	Styles in Family
+（ ）の数はファミリー数です。サイドバー・検索と重ねて効きます。	Numbers in parentheses are family counts. Options combine with the sidebar and search.
+すべて解除	Clear All
+10書体以上	10 or more styles
+1書体	1 style
+%d〜%d書体	%d–%d styles
+サイドバーの表示と並び順	Sidebar Sections and Order
+上へ	Move Up
+%@を上へ	Move %@ Up
+下へ	Move Down
+%@を下へ	Move %@ Down
+「ライブラリ」は常に先頭に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。	"Library" always comes first. Hiding a section does not remove fonts or sets. Click a section heading to expand or collapse it.
+収録文字数	Characters
+%@文字（グリフ %@）	%@ characters (%@ glyphs)
+かなフォント	Kana Fonts
+%@文字以上	%@ or more characters
+%@〜%@文字	%@–%@ characters
+最近アクティブ	Recently Activated
+最近非アクティブ	Recently Deactivated
+最近追加したもの	Recently Added
+日本語をサポート	Supports Japanese
+Nなし	Without N
+スマートセット	Smart Sets
+Creative Cloudが見つかりません	Creative Cloud Not Found
+Creative Cloudアプリが入っていません。fonts.adobe.comで切り替えてください。	The Creative Cloud app is not installed. Switch fonts at fonts.adobe.com.
+Creative Cloudを開く	Open Creative Cloud
+fonts.adobe.comを開く	Open fonts.adobe.com
+Adobe Fontsのオン・オフは、Creative Cloudで行います	Adobe Fonts are turned on and off in Creative Cloud
+fonts.adobe.com	fonts.adobe.com
+プレビューのオプション	Preview Options
+文字の色	Text Color
+背景の色	Background Color
+不透明度	Opacity
+カーニング	Kerning
+フォントのカーニングを使う	Use the font's kerning
+トラッキング	Tracking
+（1/1000 em）	(1/1000 em)
+表示	View
+1行	One Line
+複数行	Multiline
+ウォーターフォール	Waterfall
+プレビューの表示	Preview view
+N（JIS2004対応）	N (JIS2004)
+UD	UD
+AP版	AP Version
+Nあり	With N
+UDあり	With UD
+UDなし	Without UD
+A P-OTF	A P-OTF
+A-OTF	A-OTF
+新ゴNT	Shin Go NT
+新ゴ	Shin Go
+配色	Colors
+白地に黒	Black on White
+黒地に白	White on Black
+カスタム	Custom
+ツール	Tools
+Illustratorのフォントを統一…	Unify Fonts in Illustrator…
+Illustratorのフォントを統一	Unify Fonts in Illustrator
+Illustratorのフォントを調べています…	Checking the fonts in Illustrator…
+変更対象のフォントが見つかりませんでした。	No fonts to change were found.
+フォントを置き換えています…	Replacing fonts…
+Illustratorが起動していません。	Illustrator is not running.
+ドキュメントが開かれていません。	No document is open.
+テキストオブジェクトを選択してください。	Please select text objects.
+対象となるテキストが見つかりませんでした。	No target text was found.
+Illustratorに送れませんでした。	Could not send the script to Illustrator.
+処理が完了しました。	Done.
+変更数	Changed
+設定に戻る	Back to Settings
+閉じる	Close
+対象範囲	Target Scope
+選択オブジェクト	Selected objects
+ドキュメント全体	Entire document
+アクティブアートボード	Active artboard
+フォント種別を変更する範囲を選びます。選択オブジェクト、ドキュメント全体、アクティブアートボード内から選択できます。	Choose the scope for changing font variants: selected objects, the entire document, or the active artboard.
+変換設定	Conversion Settings
+文字セットを Std / Pro / Pr5 / Pr6 から選びます。N の有無は別の「N設定」で切り替えます。	Choose the character set: Std, Pro, Pr5, or Pr6. Toggle the N variant separately under N Variant.
+現状維持	Keep current
+N あり/なしを切り替えます。例：Pr6 → Pr6N。現状維持では現在の N 状態を保ちます。	Toggle the N variant on or off, for example Pr6 -> Pr6N. Keep current preserves the current N state.
+新ゴ / 新ゴNT	Shin Go / Shin Go NT
+新ゴと新ゴNTを切り替えます。対象は新ゴ系ファミリーのみです。	Switch between ShinGo and ShinGo NT. This applies only to ShinGo families.
+NTなし	Without NT
+NTあり	With NT
+UD 書体があるファミリーだけ、UD あり/なしを切り替えます。対応しないファミリーでは無視されます。	Toggle the UD variant only for families that support it. Unsupported families are ignored.
+AP版書体	A P-OTF (proportional) version
+Pなし	Without P
+Pあり	With P
+N なしで収録文字数が最も多い文字セットを選び、UD・P・NT をありにします。	Select the richest available character set without N, and turn on UD, P, and NT.
+N ありを含めて収録文字数が最も多い文字セットを選び、UD・P・NT をありにします。	Select the richest available character set including N variants, and turn on UD, P, and NT.
+処理オプション	Processing Options
+G-OTF学参書体をA-OTFに統合	Merge G-OTF Gakusan fonts into A-OTF
+G-OTF の学参・常改・K書体を、通常の A-OTF 書体として扱って変換します。	Treat G-OTF Gakusan, revised, and K fonts as standard A-OTF fonts before conversion.
+段落/文字スタイルも変更	Also update paragraph/character styles
+段落スタイル・文字スタイルに設定されたフォントも、同じ条件で変更します。	Also update fonts assigned in paragraph and character styles using the same conversion settings.
+ロックされたオブジェクトも対象にする	Include locked objects
+ロック中のオブジェクトも一時的に解除して変更し、処理後に元のロック状態へ戻します。	Temporarily unlock locked objects, update them, then restore the original lock state.
+非表示オブジェクトも対象にする	Include hidden objects
+非表示のオブジェクトも一時的に表示して変更し、処理後に元の表示状態へ戻します。	Temporarily show hidden objects, update them, then restore the original visibility state.
+起動中のIllustratorの前面のドキュメントに対して実行します。	Runs on the front document of the running Illustrator.
+変更内容の確認	Confirm Changes
+以下のフォントを変更します。	The following fonts will be changed.
+同じウェイトのフォントが見つかりません。近いウェイトに置換します。	Exact weight not found. The nearest weight will be substituted.
+次のフォントはインストールされていないため変更されません。	The following fonts are not installed and will not be changed.
+戻る	Back
+実行	Run
+から	to
+アイコンフォント	Icon Fonts
+ウォッチフォルダーから%d個のファイルを追加しました	Added %d files from watch folders
+見張るフォルダーを選びます。新しいフォントファイルを見つけるとライブラリに追加します	Choose folders to watch. New font files found there are added to the library
+ウォッチフォルダー	Watch Folders
+ウォッチフォルダーはありません	No watch folders
+フォルダーを追加…	Add Folder…
+選んだフォルダーを外す	Remove the selected folders
+今すぐ読み込む	Scan Now
+選んだフォルダー（下の階層も）を見張り、新しいフォントファイルを見つけるとライブラリに追加します。アクティブにはしません。フォルダーから消えたファイルは「見つからない」に出ます。外しても、追加済みのフォントはライブラリに残ります。	Watches the chosen folders (including subfolders) and adds new font files to the library without activating them. Files removed from a folder appear in "Missing". Removing a folder keeps the fonts already added.
+新規セット・プロジェクト	New Set or Project
+プロジェクトをアクティブにする	Activate Project
+プロジェクトを解除	Deactivate Project
+プロジェクトを削除…	Delete Project…
+ライブラリに無いフォント %d	Fonts not in library: %d
+フォントを調べる制作ファイル（IDML・INDD・PDF・AI）を選びます	Choose a document (IDML, INDD, PDF or AI) to check for fonts
+プロジェクト「%@」をアクティブにできませんでした	Could Not Activate Project “%@”
+途中で失敗したため、この操作でアクティブにしたフォントを元に戻しました。	Something failed partway, so the fonts activated in this operation were deactivated again.
+プロジェクト「%@」をアクティブにしました（%d個）	Activated project “%@” (%d files)
+、ライブラリに無いフォント %d	, not in library: %d
+プロジェクト「%@」を削除しますか？	Delete project “%@”?
+プロジェクト	Projects
+新規プロジェクト	New Project
+名前	Name
+フォント名を1行に1つ貼り付けます（PostScript名がいちばん確実です）。	Paste one font name per line (PostScript names work best).
+名称未設定プロジェクト	Untitled Project
+プレビューを隠す・表示	Hide or Show Preview
+メニューのホットキー	Menu Hotkeys
+メニューの項目のキーを変えます。欄をクリックして新しいキーを押します。「メインウインドウを開く」（⌘0）・「設定…」（⌘,）・「ウインドウを閉じる」（⌘W）・ヘルプ（⌘?）は変えられません。	Changes the keys of menu items. Click a field and press the new keys. Open Main Window (⌘0), Settings… (⌘,), Close Window (⌘W) and Help (⌘?) cannot be changed.
+新規プロジェクト…	New Project…
+プロジェクトを編集…	Edit Project…
+読み直す	Reload
+確認待ちの候補 %d	Candidates to review: %d
+読めなかった制作ファイル %d：%@	Documents that could not be read: %d (%@)
+プロジェクトを編集	Edit Project
+このプロジェクトは削除されました	This project was deleted
+元にするもの	Sources
+外す	Remove
+ファイル・フォルダー・フォント名を指定します	Add files, folders or font names
+ファイルを指定…	Add Files…
+フォルダーを指定…	Add Folders…
+フォント名を貼り付け…	Paste Font Names…
+選んだものを外す	Remove the selected items
+フォルダーは下の階層の制作ファイル（IDML・INDD・PDF・AI）を全部調べ、中が変わると自動で読み直します。	Folders are searched for documents (IDML, INDD, PDF, AI) including subfolders, and are read again automatically when their contents change.
+一致（%d）	Matched (%d)
+候補（%d）	Candidates (%d)
+見つからない（%d）	Not Found (%d)
+候補は表記が少し異なるフォントです。チェックしたものだけプロジェクトに入ります。	Candidates have slightly different names. Only checked ones are added to the project.
+フォント名 %d個	%d font names
+見つかりません	Not found
+制作ファイルの入ったフォルダーを選びます。中が変わると自動で読み直します	Choose folders containing documents. They are read again automatically when their contents change
+FontExplorer X Proのセットを読み込む…	Import FontExplorer X Pro Sets…
+FontExplorer X Proのセットを読み込み中…	Importing FontExplorer X Pro sets…
+FontExplorer X Proから%d個のセットを読み込みました	Imported %d sets from FontExplorer X Pro
+、ライブラリに追加 %d	, added to library: %d
+、見つからないファイル %d	, files not found: %d
+FontExplorer X Proのセットを読み込めません	Cannot Import FontExplorer X Pro Sets
+FontExplorer X Proのデータベースが見つかりません（%@）。	The FontExplorer X Pro database was not found (%@).
+FontExplorer X Proのデータベースを読めませんでした。	Could not read the FontExplorer X Pro database.
+FontExplorer X Proのセットを読み込む	Import FontExplorer X Pro Sets
+FontExplorer X Proのセット（%d）	FontExplorer X Pro Sets (%d)
+同じ名前のセットに足す	Adds to the set with the same name
+%d個（ライブラリに %d）	%d (in library: %d)
+すべて選択	Select All
+ライブラリに無いフォントファイルも追加する	Also add font files not in the library
+FontExplorer X Proのセットを、同じ名前のセットとして読み込みます（フォルダーの中のセットは「フォルダー / セット」）。フォントファイルは動かしません。見つからないファイルは飛ばします。スマートセットは読み込みません。	Imports FontExplorer X Pro sets as sets with the same names (sets in folders become “Folder / Set”). Font files are not moved; missing files are skipped. Smart sets are not imported.
+読み込む	Import
+ホットキー	Hotkeys
