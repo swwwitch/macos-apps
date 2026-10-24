@@ -1,0 +1,5 @@
+# 取得したページ・公式資料・組み立てたデータは公開リポジトリに入れない（手元で tools/ から作り直せる）
+cache/
+data/
+sources/
+site/fonts.json
