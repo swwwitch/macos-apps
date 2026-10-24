@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Localization check: ja/en/zh-Hans/ko must each have a non-empty Help.txt
+"""Localization check: ja/en must each have a non-empty Help.txt
 with the same ## / ### heading structure (HelpDocument markup, no "# " title line,
 mentions the shared "note記事を開く" item) and the same Localizable.strings / InfoPlist.strings keys.
 With --app it also checks Info.plist SWNoteArticleURL.
@@ -11,7 +11,7 @@ With --app it also checks the built bundle's Contents/Resources.
 import json, subprocess, sys
 from pathlib import Path
 
-LANGS = ["ja", "en", "zh-Hans", "ko"]
+LANGS = ["ja", "en"]
 STRINGS = ["Localizable.strings", "InfoPlist.strings"]
 # HelpLinks.noteTitle in Sources/FontSwitcher/HelpDocument.swift (synced from Shared/AppStandards).
 NOTE_TITLES = {"ja": "note記事を開く", "en": "Open the note Article", "zh-Hans": "打开 note 文章", "ko": "note 글 열기"}

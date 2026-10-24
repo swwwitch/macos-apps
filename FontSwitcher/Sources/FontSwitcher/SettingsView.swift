@@ -10,7 +10,6 @@ struct SettingsView: View {
                 AppHotkeyView()
             })),
             (L("フォント"), AnyView(FontSettingsView())),
-            (L("表示"), AnyView(DisplaySettingsView())),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
@@ -30,31 +29,6 @@ private struct AppHotkeyView: View {
     }
 }
 
-/// 「表示」タブ：サイドバーに出す区分。ライブラリは常に出す
-private struct DisplaySettingsView: View {
-    @AppStorage(LibraryStore.SidebarSection.system.showKey) private var showSystem = true
-    @AppStorage(LibraryStore.SidebarSection.kinds.showKey) private var showKinds = true
-    @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
-    @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
-    @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            SettingsSection(L("サイドバー")) {
-                Toggle(L("システム"), isOn: $showSystem)
-                Toggle(L("種類"), isOn: $showKinds)
-                Toggle(L("ベンダー"), isOn: $showVendors)
-                Toggle(L("コレクション"), isOn: $showCollections)
-                Toggle(L("セット"), isOn: $showSets)
-                Text(L("サイドバーに出す区分を選びます。「ライブラリ」は常に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。"))
-                    .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-            Button(L("初期値に戻す")) { showSystem = true; showKinds = true; showVendors = true; showCollections = true; showSets = true }
-        }
-        .onChange(of: [showSystem, showKinds, showVendors, showCollections, showSets]) { LibraryStore.shared.ensureSidebarVisible() }
-    }
-}
-
 /// 「フォント」タブ：起動・終了時のアクティブの扱いとプレビューの文字
 private struct FontSettingsView: View {
     @AppStorage(LibraryStore.restoreAtLaunchKey) private var restore = true
@@ -71,6 +45,7 @@ private struct FontSettingsView: View {
                 note(L("オフのときは、終了してもログアウトするまでアクティブのままです。"))
             }
             SharingSection()
+            WatchFoldersSection()
             SettingsSection(L("システム")) {
                 Toggle(L("フォントフォルダーのフォントも一覧に入れる"), isOn: $includeUserFonts)
                 note(L("~/Library/Fonts（ユーザー名）・/Library/Fonts（All Users）・/System/Library/Fonts（System）を、起動したときとフォントが変わったときに読み込みます。ユーザー名とAll Usersはチェックボックスで切り替えられ、ファイルは動かさずにmacOSに覚えさせます。Systemは切り替えられません。"))
@@ -96,6 +71,43 @@ private struct FontSettingsView: View {
 
     private func note(_ text: String) -> some View {
         Text(text).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// ウォッチフォルダー：見張るフォルダーの一覧と追加・削除
+private struct WatchFoldersSection: View {
+    @ObservedObject private var watch = WatchFolders.shared
+    @State private var selection = Set<String>()
+
+    var body: some View {
+        SettingsSection(L("ウォッチフォルダー")) {
+            List(watch.folders, id: \.self, selection: $selection) { path in
+                Label {
+                    Text(path).lineLimit(1).truncationMode(.middle)
+                } icon: {
+                    Image(systemName: FileManager.default.fileExists(atPath: path) ? "folder" : "exclamationmark.triangle")
+                }
+                .help(path)
+            }
+            .frame(height: 96)
+            .overlay {
+                if watch.folders.isEmpty {
+                    Text(L("ウォッチフォルダーはありません")).foregroundStyle(.secondary)
+                }
+            }
+            HStack(spacing: 6) {
+                Button { watch.add() } label: { Image(systemName: "plus") }
+                    .help(L("フォルダーを追加…")).accessibilityLabel(L("フォルダーを追加…"))
+                Button { watch.remove(selection); selection.removeAll() } label: { Image(systemName: "minus") }
+                    .disabled(selection.isEmpty)
+                    .help(L("選んだフォルダーを外す")).accessibilityLabel(L("選んだフォルダーを外す"))
+                Spacer()
+                Button(L("今すぐ読み込む")) { watch.scan() }
+                    .disabled(watch.folders.isEmpty)
+            }
+            Text(L("選んだフォルダー（下の階層も）を見張り、新しいフォントファイルを見つけるとライブラリに追加します。アクティブにはしません。フォルダーから消えたファイルは「見つからない」に出ます。外しても、追加済みのフォントはライブラリに残ります。"))
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

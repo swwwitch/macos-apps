@@ -27,7 +27,7 @@
 NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 ```
 
-- SwiftPM（`Package.swift`）。ソースは [Sources/FontSwitcher](Sources/FontSwitcher/)、文字列・ヘルプは [Localizations](Localizations/)（ja / en / zh-Hans / ko）。
+- SwiftPM（`Package.swift`）。ソースは [Sources/FontSwitcher](Sources/FontSwitcher/)、文字列・ヘルプは [Localizations](Localizations/)（ja / en。中国語・韓国語は 1.10.0 で外した＝ユーザー指定）。
 - 共通部品（AboutSection・AppSurface・StartupWindow・SettingsSection・HelpDocument・MenuBarPresence・LoginAtLaunch・SettingsSync・UpdateSupport）は `Tools/sync-shared.py` がビルド時に上書きするので、直接編集しない。
 - 画面の文字列を足したら、[Tools/translations.tsv](Tools/translations.tsv) に訳を加えて `python3 Tools/make-strings.py` で Localizable.strings を作り直す。
 - アイコンは [Assets/make-icon.sh](Assets/make-icon.sh)（GenerateIcon.swift から .icns を生成）。
@@ -49,6 +49,27 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.17.0（build 38）：設定の「フォント」にウォッチフォルダー（複数。FSEvents で下の階層も見張り、新しいフォントファイルをライブラリに足す。場所は Mac ごとに UserDefaults `watchFolders`）。アイコンフォントの判定に「ラテン文字拡張A（U+0100〜017F）が20字未満」を足し、名前（Awesome・Icon・Dingbat・Ornament・Symbols・Emoji など、大文字・小文字を区別）でも判定し、`metadataVersion` 6 で全件を読み直す（SF Pro・筆記体の誤判定。Font Awesome 6・7 は欧文の拡張文字も持ち、文字の構成では筆記体と分けられない）
+- 1.16.0（build 37）：「種類」にアイコンフォント（私用領域の文字が半分以上か、CTFontStylisticClass が Symbolic）。「ツール」メニューに「Illustratorのフォントを統一…」（ai-scripts の AiFontConverter.jsx v1.1.8 を移植。名前の変換は FontConverterRules.swift、ドキュメントの操作は osascript の do javascript で送る JSX。変換先が Illustrator にあるかは app.textFonts で確かめる）。NSAppleEventsUsageDescription を追加
+- 1.15.2（build 36）：プレビューのオプションに配色（白地に黒・黒地に白・カスタム）。初めは白地に黒
+- 1.15.1（build 35）：検索オプションに N（JIS2004対応）・UD・AP版・新ゴ（AiFontConverter と同じ区分、`VariantFilter`）。4列に
+- 1.15.0（build 34）：プレビューに表示の切り替え（1行・複数行・ウォーターフォール 72〜9pt）とオプション（文字・背景の色、不透明度、カーニング、トラッキング 1/1000 em、プレビューの文字の候補）。「アドビ」に Myriad・Minion・りょう・Source Code Pro・Noto を追加（ユーザー指定）
+- 1.14.2（build 33）：「アドビ」は `adobeFamilies` のファミリーだけに（ユーザー指定。ベンダーID・商標の持ち主では入れない）
+- 1.14.1（build 32）：ベンダーの判定を商標の持ち主（name テーブルの商標・著作権の「trademark of …」、ITC で始まる名前は ITC）優先に。ADBE のベンダーIDを持つモリサワ（A-OTF リュウミンなど）・Linotype（Helvetica・Frutiger）・ITC の書体がアドビに入っていた。貂明朝・小塚・源ノ角ゴシック・源ノ明朝・ヒグミン・百千鳥・Adobe Clean はファミリー名で必ずアドビに（ユーザー指定、`LibraryStore.adobeFamilies`）
+- 1.14.0（build 31）：Adobe Fonts を表示している間、一覧の上に「Creative Cloudを開く」「fonts.adobe.com」（サイドバーの行の右クリックにも）。Adobe Fonts は `.persistent` で解除しても1秒以内に Creative Cloud が登録し直す（実測）ため切り替えはしない
+- 1.13.5（build 30）：サイドバーの「種類」に「かなフォント」
+- 1.13.4（build 29）：検索オプションを3列に整理（文字セット＋Nフォント／形式＋種類／書体数＋収録文字数）、中身の大きさに合わせて上の空白をなくす
+- 1.13.3（build 28）：モリサワ・フォントワークスの行のアイコンを各社のロゴに（ユーザー指定の画像を見て描き起こした近似の図形）、「Adobe Fonts」の行のアイコンを濃紺の角丸に白い斜体の「f」に（ユーザー指定の画像にならう）
+- 1.13.2（build 27）：ベンダー「アドビ」のアイコンをアドビのロゴに（ユーザー指定の SVG を SwiftUI の Shape に写した VendorLogos.swift）
+- 1.13.1（build 26）：サイドバーの「…」ボタンを小さく（18→10pt）
+- 1.13.0（build 25）：お気に入り・アクティブ・非アクティブ・最近〜・日本語をサポートを、セットとは別の区分「スマートセット」に（「…」パネルの表示・並び順の対象。並び順を保存済みでも、セットの前に入る）、ベンダーの行のアイコンを頭文字のバッジ（M・F・A）に
+- 1.12.0（build 24）：セットの行にまとめてアクティブ・解除するチェックボックス（一部なら「−」）、検索オプションに「Nフォント」（ファミリー名の文字セットが N で終わるか）
+- 1.11.0（build 23）：サイドバーの「お気に入り」「アクティブ」「非アクティブ」をライブラリからセットの先頭へ移し、「最近アクティブ」「最近非アクティブ」「最近追加したもの」（7日以内。FontFile に activatedAt・deactivatedAt を記録）と「日本語をサポート」（あ・アを持つ）を追加
+- 1.10.3（build 22）：検索欄の上下を広げ（8→12pt）、サイドバーの「…」ボタンを大きく（18pt）
+- 1.10.2（build 21）：検索オプションから「名前の先頭」を外す（ユーザー指定）
+- 1.10.1（build 20）：検索オプションの候補をポップアップメニューからラジオボタンに（5つの条件を横に並べ、名前の先頭は4列でスクロール）
+- 1.10.0（build 19）：フォント情報に収録文字数（CFCharacterSet のビットマップで数える）とグリフ数、検索オプションに収録文字数と「かなフォント」（あ・アを持ち CJK 統合漢字が50字未満）、サイドバー上部の「…」で区分の表示と並び順（設定の「表示」タブは廃止）、表示言語を日本語・英語だけに（zh-Hans・ko を削除＝ユーザー指定）
+- 1.9.0（build 18）：検索欄の右に「検索オプション」ボタン。文字セット・名前の先頭の絞り込みを一覧の上からポップオーバーへ移し、形式・種類（バリアブル・カラー）・ファミリーの書体数（1、2〜4、5〜9、10以上）を追加。絞り込み中はボタンを塗りつぶし
 - 1.8.0（build 17）：サイドバーに「種類」（バリアブル＝fvar、カラーフォント＝COLR・sbix・CBDT・SVG。`CTFontCopyAvailableTables` の中身は CFNumber ではなくタグそのものなので `CFArrayGetValueAtIndex` で読む。古い版で登録したファイルは裏で読み直して足す）、ベンダーに「アドビ」（ADBE。Creative Cloud でアクティブにした「Adobe Fonts」とは別に、ライブラリにあるアドビ製のフォント）
 - 1.7.0（build 16）：ベンダーに「Adobe Fonts」（Creative Cloud が `~/Library/Application Support/Adobe/CoreSync/plugins/livetype/.r` に「.<ID>.otf」で置くフォント。隠しファイルも読む。切り替えは Creative Cloud で行うので FontSwitcher では切り替えない）
 - 1.6.3（build 15）：スペースバーで選んだ行を切り替える（すべてアクティブなら解除、それ以外はアクティブ）。チェックボックス・☆はキーの入力を受けない（クリックしたチェックボックスにフォーカスが残り、スペースで一度だけ解除されていた）

@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LibraryStore.shared.restoreActiveFonts()
         LibraryStore.shared.scanUserFonts()
         LibraryStore.shared.fillMetadata()
+        WatchFolders.shared.start()
         BenchMode.startIfRequested()
         AppHotkey.shared.onPress = { [weak self] in
             StartupWindow.userRequestedWindow()

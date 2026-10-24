@@ -5,6 +5,7 @@ import SwiftUI
 /// サイドバーで選ぶ一覧の絞り込み
 enum SidebarItem: Hashable {
     case all, favorites, active, inactive, duplicates, missing
+    case recentlyActivated, recentlyDeactivated, recentlyAdded, japanese
     case folder(SystemFolder)
     case kind(FontKind)
     case vendor(String)
@@ -25,20 +26,53 @@ final class LibraryStore: ObservableObject {
     static let sharedFolderKey = "sharedLibraryFolder"
     static let sharedFileName = "FontSwitcher-Library.json"
     /// サイドバーの「ベンダー」。OS/2 のベンダーIDで見分ける
-    static let vendors: [(id: String, title: String)] = [("MRSW", L("モリサワ")), ("FWKS", L("フォントワークス")), ("ADBE", L("アドビ"))]
+    /// サイドバーのアイコンは各社のロゴ（VendorLogos.swift）。owner は商標の持ち主の名前に含まれる語
+    static let vendors: [(id: String, title: String, owner: String)] = [
+        ("MRSW", L("モリサワ"), "Morisawa"), ("FWKS", L("フォントワークス"), "Fontworks"), ("ADBE", L("アドビ"), "Adobe"),
+    ]
+
+    /// アドビに入れるファミリー（ユーザー指定、これだけをアドビとする）。英語のファミリー名の先頭で照合する。
+    /// 貂明朝・貂明朝テキスト・貂明朝アンチック、小塚明朝・小塚ゴシック、源ノ角ゴシック・源ノ明朝、ヒグミン、百千鳥、Adobe Clean、
+    /// Myriad、Minion、りょう（Ryo Gothic・Ryo Display・Ryo Text）、Source Code Pro、Noto
+    static let adobeFamilies = ["Ten Mincho", "Kozuka", "Source Han", "Higumin", "Momochidori", "Adobe Clean",
+                                "Myriad", "Minion", "Ryo ", "Source Code Pro", "Noto"]
+
+    /// ベンダーに入るか：アドビは一覧のファミリーだけ。それ以外のベンダーは商標の持ち主が分かればその名前で、分からなければベンダーIDで決める
+    static func belongs(_ file: FontFile, toVendor id: String) -> Bool {
+        let adobe = adobeFamilies.contains { file.family.hasPrefix($0) }
+        if adobe || id == "ADBE" { return adobe && id == "ADBE" }
+        guard let vendor = vendors.first(where: { $0.id == id }) else { return file.vendor == id }
+        if let owner = file.trademarkOwner, !owner.isEmpty {
+            return owner.localizedCaseInsensitiveContains(vendor.owner)
+        }
+        return file.vendor == id
+    }
+    /// 「最近」は7日以内
+    static let recentInterval: TimeInterval = 7 * 24 * 60 * 60
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, NameDisplay.key]
-        + SidebarSection.allCases.map(\.showKey))
+        + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey])
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
     @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate() } }
     @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; listVersion += 1 } }
     @Published var selection = Set<String>()
     @Published var searchText = "" { didSet { shownCache = nil; listVersion += 1 } }
-    /// 絞り込み：文字セット（"—" は文字セットの名前が無いもの）と名前の先頭。nil は絞り込まない
+    /// 検索オプションの絞り込み：文字セット（"—" は文字セットの名前が無いもの）・形式・種類・ファミリーの書体数・収録文字数。nil は絞り込まない
     @Published var charsetFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
-    @Published var prefixFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var formatFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var kindFilter: FontKind? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var faceCountFilter: FaceCountRange? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var characterCountFilter: CharacterCountRange? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var variantFilters: [VariantFilter: Bool] = [:] { didSet { shownCache = nil; listVersion += 1 } }
+    var hasFilter: Bool {
+        charsetFilter != nil || formatFilter != nil || kindFilter != nil || faceCountFilter != nil || characterCountFilter != nil || !variantFilters.isEmpty
+    }
+
+    func clearFilters() {
+        charsetFilter = nil; formatFilter = nil; kindFilter = nil; faceCountFilter = nil; characterCountFilter = nil; variantFilters = [:]
+    }
     static let noCharset = "—"
     /// 一覧の中身（行・チェック・お気に入り）が変わるたびに進む。一覧はこれが変わったときだけ読み直す
     @Published private(set) var listVersion = 0
@@ -66,7 +100,9 @@ final class LibraryStore: ObservableObject {
     private var countCache: [SidebarItem: Int] = [:]
     private var duplicateCache: Set<UUID>?
     private var familyCountCache: Int?
-    private var filterCache: (charsets: [(String, Int)], prefixes: [(String, Int)])?
+    private var filterCache: FilterOptions?
+    /// ファミリーごとの書体数（表示しているファイル全体で数える。ほかの絞り込みでは変わらない）
+    private var faceCountCache: [String: Int]?
 
     /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる
     func invalidate() {
@@ -76,6 +112,7 @@ final class LibraryStore: ObservableObject {
         duplicateCache = nil
         familyCountCache = nil
         filterCache = nil
+        faceCountCache = nil
     }
 
     private var libraryURL: URL {
@@ -144,10 +181,19 @@ final class LibraryStore: ObservableObject {
             let ids = duplicateIDs
             return base.filter { ids.contains($0.id) }
         case .missing: return base.filter { states[$0.id] == .missing }
+        case .recentlyActivated:
+            let since = Date().addingTimeInterval(-Self.recentInterval)
+            return base.filter { states[$0.id] == .active && ($0.activatedAt ?? .distantPast) > since }
+        case .recentlyDeactivated:
+            let since = Date().addingTimeInterval(-Self.recentInterval)
+            return base.filter { states[$0.id] != .active && ($0.deactivatedAt ?? .distantPast) > since }
+        case .recentlyAdded:
+            let since = Date().addingTimeInterval(-Self.recentInterval)
+            return base.filter { $0.added > since }
+        case .japanese: return base.filter { $0.supportsJapanese == true }
         case .folder(let folder): return base.filter { SystemFolder.of($0.path) == folder }
-        case .kind(.variable): return base.filter { $0.isVariable == true }
-        case .kind(.color): return base.filter { $0.isColor == true }
-        case .vendor(let id): return base.filter { $0.vendor == id }
+        case .kind(let kind): return base.filter(kind.matches)
+        case .vendor(let id): return base.filter { Self.belongs($0, toVendor: id) }
         case .collection(let name):
             let query = collectionQuery(name)
             return base.filter { file in
@@ -164,8 +210,21 @@ final class LibraryStore: ObservableObject {
         if let charsetFilter {
             files = files.filter { (FontNaming.charset($0.family) ?? Self.noCharset) == charsetFilter }
         }
-        if let prefixFilter {
-            files = files.filter { FontNaming.prefix($0.family) == prefixFilter }
+        if let formatFilter {
+            files = files.filter { $0.format == formatFilter }
+        }
+        if let kindFilter {
+            files = files.filter(kindFilter.matches)
+        }
+        for (variant, value) in variantFilters {
+            files = files.filter { variant.value($0) == value }
+        }
+        if let characterCountFilter {
+            files = files.filter { $0.characterCount.map(characterCountFilter.contains) ?? false }
+        }
+        if let faceCountFilter {
+            let counts = familyFaceCounts
+            files = files.filter { faceCountFilter.contains(counts[$0.family] ?? 0) }
         }
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else { return files }
@@ -192,20 +251,56 @@ final class LibraryStore: ObservableObject {
         return ids
     }
 
-    /// 絞り込みの選択肢（ファミリー数つき）。文字セットは決まった順、名前の先頭は5ファミリー以上のものを多い順
-    var filterOptions: (charsets: [(String, Int)], prefixes: [(String, Int)]) {
+    private var familyFaceCounts: [String: Int] {
+        if let faceCountCache { return faceCountCache }
+        var counts: [String: Int] = [:]
+        for file in visibleFiles { counts[file.family, default: 0] += file.faces.count }
+        faceCountCache = counts
+        return counts
+    }
+
+    struct FilterOptions {
+        var charsets: [(String, Int)]
+        var formats: [(String, Int)]
+        var kinds: [(FontKind, Int)]
+        var faceCounts: [(FaceCountRange, Int)]
+        var characterCounts: [(CharacterCountRange, Int)]
+        var variants: [VariantFilter: [(Bool, Int)]]
+    }
+
+    /// 絞り込みの選択肢（ファミリー数つき）。文字セットは決まった順、形式は多い順
+    var filterOptions: FilterOptions {
         if let filterCache { return filterCache }
-        let families = Set(visibleFiles.map(\.family))
         var charsets: [String: Int] = [:]
-        var prefixes: [String: Int] = [:]
-        for family in families {
+        for family in Set(visibleFiles.map(\.family)) {
             charsets[FontNaming.charset(family) ?? Self.noCharset, default: 0] += 1
-            prefixes[FontNaming.prefix(family), default: 0] += 1
         }
-        let options = (
+        // 形式と種類はファイル単位なので、当てはまるファイルを含むファミリーを数える
+        var formats: [String: Set<String>] = [:]
+        var kinds: [FontKind: Set<String>] = [:]
+        var characterCounts: [CharacterCountRange: Set<String>] = [:]
+        var variants: [VariantFilter: [Bool: Set<String>]] = [:]
+        for file in visibleFiles {
+            for variant in VariantFilter.allCases {
+                if let value = variant.value(file) { variants[variant, default: [:]][value, default: []].insert(file.family) }
+            }
+            formats[file.format, default: []].insert(file.family)
+            for kind in FontKind.allCases where kind.matches(file) { kinds[kind, default: []].insert(file.family) }
+            if let count = file.characterCount, let range = CharacterCountRange.allCases.first(where: { $0.contains(count) }) {
+                characterCounts[range, default: []].insert(file.family)
+            }
+        }
+        var faceCounts: [FaceCountRange: Int] = [:]
+        for count in familyFaceCounts.values {
+            if let range = FaceCountRange.allCases.first(where: { $0.contains(count) }) { faceCounts[range, default: 0] += 1 }
+        }
+        let options = FilterOptions(
             charsets: (FontNaming.charsets + [Self.noCharset]).compactMap { name in charsets[name].map { (name, $0) } },
-            prefixes: prefixes.filter { $0.value >= 5 }.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
-                .map { ($0.key, $0.value) })
+            formats: formats.map { ($0.key, $0.value.count) }.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0 < $1.0 },
+            kinds: FontKind.allCases.compactMap { kind in kinds[kind].map { (kind, $0.count) } },
+            faceCounts: FaceCountRange.allCases.compactMap { range in faceCounts[range].map { (range, $0) } },
+            characterCounts: CharacterCountRange.allCases.compactMap { range in characterCounts[range].map { (range, $0.count) } },
+            variants: variants.mapValues { counts in [true, false].compactMap { value in counts[value].map { (value, $0.count) } } })
         filterCache = options
         return options
     }
@@ -301,6 +396,15 @@ final class LibraryStore: ObservableObject {
         }
     }
 
+    /// ウォッチフォルダーで見つけたファイルを足す（アクティブにはしない）
+    func importWatched(_ files: [FontFile]) {
+        let added = data.add(files)
+        guard added > 0 else { return }
+        save()
+        status = L("ウォッチフォルダーから%d個のファイルを追加しました", added)
+        refreshStates()
+    }
+
     /// ライブラリから外す。アクティブにしていたものは先に解除する。ファイルは消さない
     func remove(_ files: [FontFile]) {
         // フォントフォルダーのフォントは次の読み込みでまた入るので、ライブラリから取り除かない
@@ -330,6 +434,7 @@ final class LibraryStore: ObservableObject {
         guard !files.isEmpty else { return }
         var failures: [String] = []
         var changed = 0
+        var stamped: [UUID: Date] = [:]
         for file in files {
             if Self.isLocked(file) {
                 failures.append("\(file.fileName) — \(Self.lockedReason(file))")
@@ -350,8 +455,18 @@ final class LibraryStore: ObservableObject {
                 continue
             }
             changed += 1
+            stamped[file.id] = Date()
             if installed { continue }
             if on { data.active.insert(file.id) } else { data.active.remove(file.id) }
+        }
+        // 日時は一度にまとめて書く（data を書き換えるたびに一覧の控えが捨てられるため）
+        if !stamped.isEmpty {
+            var updated = data
+            for index in updated.files.indices {
+                guard let date = stamped[updated.files[index].id] else { continue }
+                if on { updated.files[index].activatedAt = date } else { updated.files[index].deactivatedAt = date }
+            }
+            data = updated
         }
         save()
         refreshStates()
@@ -443,6 +558,14 @@ final class LibraryStore: ObservableObject {
         save()
     }
 
+    /// セットのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    func setState(_ id: UUID) -> Bool? {
+        let files = setFiles(id).filter { !Self.isLocked($0) && states[$0.id] != .missing }
+        let active = files.filter { states[$0.id] == .active }.count
+        if active == 0 { return false }
+        return active == files.count ? true : nil
+    }
+
     func setFiles(_ id: UUID) -> [FontFile] {
         let ids = Set(data.sets.first { $0.id == id }?.files ?? [])
         return data.files.filter { ids.contains($0.id) }
@@ -466,8 +589,29 @@ final class LibraryStore: ObservableObject {
 
     /// サイドバーに出す区分（設定の「表示」）。ライブラリは常に出す
     enum SidebarSection: String, CaseIterable {
-        case system, kinds, vendors, collections, sets
+        case system, kinds, vendors, collections, smartSets, sets
+        /// 並び順（rawValue をカンマでつなぐ）。ライブラリは常に先頭
+        static let orderKey = "sidebarOrder"
         var showKey: String { "sidebarShow." + rawValue }
+        var title: String {
+            switch self {
+            case .system: return L("システム")
+            case .kinds: return L("種類")
+            case .vendors: return L("ベンダー")
+            case .collections: return L("コレクション")
+            case .smartSets: return L("スマートセット")
+            case .sets: return L("セット")
+            }
+        }
+        /// 保存した並び順。知らない名前は捨て、無い区分（版を上げて増えたもの）は初期の並びで次に来る区分の前に入れる
+        static func ordered(_ saved: String) -> [SidebarSection] {
+            var order = saved.split(separator: ",").compactMap { SidebarSection(rawValue: String($0)) }
+            for (index, section) in allCases.enumerated() where !order.contains(section) {
+                let next = allCases[(index + 1)...].first { order.contains($0) }
+                order.insert(section, at: next.flatMap { order.firstIndex(of: $0) } ?? order.count)
+            }
+            return order
+        }
         var expandedKey: String { "sidebarExpanded." + rawValue }
         /// コレクションは多くなりがちなので、初めは閉じておく
         var expandedByDefault: Bool { self != .collections }
@@ -492,6 +636,7 @@ final class LibraryStore: ObservableObject {
         case .vendor: section = .vendors
         case .collection: section = .collections
         case .set: section = .sets
+        case .favorites, .active, .inactive, .recentlyActivated, .recentlyDeactivated, .recentlyAdded, .japanese: section = .smartSets
         default: section = nil
         }
         if let section, !defaults.bool(forKey: section.showKey) { sidebar = .all }
@@ -564,6 +709,21 @@ final class LibraryStore: ObservableObject {
         }
     }
 
+    // MARK: Adobe Fonts
+
+    /// Adobe Fonts のオン・オフは Creative Cloud が持つ（解除しても1秒以内に登録し直される、2026-10-24 実測）ので、切り替える場所を開く
+    func openCreativeCloud() {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.adobe.acc.AdobeCreativeCloud") else {
+            message = (L("Creative Cloudが見つかりません"), L("Creative Cloudアプリが入っていません。fonts.adobe.comで切り替えてください。"))
+            return
+        }
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+    }
+
+    func openAdobeFontsWeb() {
+        if let url = URL(string: "https://fonts.adobe.com/my_fonts") { NSWorkspace.shared.open(url) }
+    }
+
     func revealInFinder(_ files: [FontFile]) {
         NSWorkspace.shared.activateFileViewerSelecting(files.map(\.url))
     }
@@ -610,13 +770,19 @@ final class LibraryStore: ObservableObject {
 
     // MARK: ベンダー
 
-    /// 古い版で登録したファイルには、ベンダーID・日本語の表示名・種類（バリアブル・カラー）が無い。裏で読み直して足す（7,953件で数秒、1回だけ）
+    /// 古い版で登録したファイルには、ベンダーID・日本語の表示名・種類（バリアブル・カラー・かな）・収録文字数が無い。裏で読み直して足す（7,953件で数秒、1回だけ）
+    /// 判定の仕方を変えたら上げる。保存した値より古ければ全件を読み直す（2〜6：アイコンフォントの判定を直した）
+    nonisolated static let metadataVersion = 6
+    nonisolated static let metadataVersionKey = "metadataVersion"
+
     func fillMetadata() {
+        let outdated = UserDefaults.standard.integer(forKey: Self.metadataVersionKey) < Self.metadataVersion
         let missing = data.files.filter {
-            ($0.vendor == nil || $0.isVariable == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
+            (outdated || $0.vendor == nil || $0.trademarkOwner == nil || $0.isVariable == nil || $0.characterCount == nil || $0.supportsJapanese == nil || $0.isIcon == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
         }
         guard !missing.isEmpty else { return }
         Task.detached(priority: .utility) {
+            defer { UserDefaults.standard.set(LibraryStore.metadataVersion, forKey: LibraryStore.metadataVersionKey) }
             var found: [UUID: FontFile] = [:]
             for file in missing {
                 if let fresh = FontScanner.read(file.url) { found[file.id] = fresh }
@@ -628,8 +794,14 @@ final class LibraryStore: ObservableObject {
                 for index in data.files.indices {
                     guard let fresh = result[data.files[index].id] else { continue }
                     data.files[index].vendor = fresh.vendor
+                    data.files[index].trademarkOwner = fresh.trademarkOwner
                     data.files[index].isVariable = fresh.isVariable
                     data.files[index].isColor = fresh.isColor
+                    data.files[index].characterCount = fresh.characterCount
+                    data.files[index].glyphCount = fresh.glyphCount
+                    data.files[index].isKana = fresh.isKana
+                    data.files[index].supportsJapanese = fresh.supportsJapanese
+                    data.files[index].isIcon = fresh.isIcon
                     for face in data.files[index].faces.indices {
                         let name = data.files[index].faces[face].postScriptName
                         let match = fresh.faces.first { $0.postScriptName == name }

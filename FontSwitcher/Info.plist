@@ -18,17 +18,17 @@
 	<array>
 		<string>ja</string>
 		<string>en</string>
-		<string>zh-Hans</string>
-		<string>ko</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>FontSwitcher</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Illustratorのドキュメントのフォントを統一するために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.8.0</string>
+	<string>1.17.0</string>
 	<key>CFBundleVersion</key>
-	<string>17</string>
+	<string>38</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

@@ -16,10 +16,116 @@ struct FontFace: Codable, Hashable, Sendable {
 }
 
 /// サイドバーの「種類」
+/// サイドバーと検索オプションの「種類」
 enum FontKind: String, CaseIterable, Hashable, Sendable {
-    case variable, color
-    var title: String { self == .variable ? L("バリアブル") : L("カラーフォント") }
-    var symbol: String { self == .variable ? "slider.horizontal.3" : "paintpalette" }
+    case variable, color, kana, icon
+    var title: String {
+        switch self {
+        case .variable: return L("バリアブル")
+        case .color: return L("カラーフォント")
+        case .kana: return L("かなフォント")
+        case .icon: return L("アイコンフォント")
+        }
+    }
+    var symbol: String {
+        switch self {
+        case .variable: return "slider.horizontal.3"
+        case .color: return "paintpalette"
+        case .kana: return "character.ja"
+        case .icon: return "star.square.on.square"
+        }
+    }
+    func matches(_ file: FontFile) -> Bool {
+        switch self {
+        case .variable: return file.isVariable == true
+        case .color: return file.isColor == true
+        case .kana: return file.isKana == true
+        case .icon: return file.isIcon == true
+        }
+    }
+}
+
+/// 検索オプションの「ファミリーの書体数」。ファミリーに入っている書体（ウエイト・スタイル）の数で分ける
+enum FaceCountRange: Int, CaseIterable, Hashable, Sendable {
+    case one, few, several, many
+    var bounds: ClosedRange<Int> {
+        switch self {
+        case .one: return 1...1
+        case .few: return 2...4
+        case .several: return 5...9
+        case .many: return 10...Int.max
+        }
+    }
+    var title: String { self == .many ? L("10書体以上") : bounds.lowerBound == bounds.upperBound ? L("1書体") : L("%d〜%d書体", bounds.lowerBound, bounds.upperBound) }
+    func contains(_ count: Int) -> Bool { bounds.contains(count) }
+}
+
+/// 検索オプションの書体の違い（AiFontConverter と同じ区分）。あり／なしで絞り込む。当てはまらないファイル（欧文など）は nil で、どちらにも入らない
+enum VariantFilter: String, CaseIterable, Hashable, Sendable {
+    /// N（JIS2004字形）：文字セットの名前が N で終わるか（StdN・ProN・Pr6N・PlusN）
+    case n
+    /// UD：日本語のフォントで、名前に UD が入るか
+    case ud
+    /// AP版：モリサワの A-OTF のうち、プロポーショナルの A P-OTF か
+    case ap
+    /// 新ゴ：新ゴか新ゴNTか
+    case nt
+
+    var title: String {
+        switch self {
+        case .n: return L("N（JIS2004対応）")
+        case .ud: return L("UD")
+        case .ap: return L("AP版")
+        case .nt: return L("新ゴ")
+        }
+    }
+
+    /// true・false の選択肢の名前
+    func optionTitle(_ value: Bool) -> String {
+        switch self {
+        case .n: return value ? L("Nあり") : L("Nなし")
+        case .ud: return value ? L("UDあり") : L("UDなし")
+        case .ap: return value ? L("A P-OTF") : L("A-OTF")
+        case .nt: return value ? L("新ゴNT") : L("新ゴ")
+        }
+    }
+
+    func value(_ file: FontFile) -> Bool? {
+        let postScript = file.faces.first?.postScriptName ?? ""
+        switch self {
+        case .n:
+            return FontNaming.charset(file.family).map { $0.hasSuffix("N") }
+        case .ud:
+            guard file.supportsJapanese == true else { return nil }
+            return file.family.contains("UD") || postScript.contains("UD")
+        case .ap:
+            if file.family.hasPrefix("A P-OTF") { return true }
+            return file.family.hasPrefix("A-OTF") ? false : nil
+        case .nt:
+            guard postScript.contains("ShinGo") else { return nil }
+            return postScript.contains("ShinGoNT")
+        }
+    }
+}
+
+/// 検索オプションの「収録文字数」。ファイルの先頭の書体の文字数で分ける
+enum CharacterCountRange: Int, CaseIterable, Hashable, Sendable {
+    case small, medium, large, larger, largest
+    var bounds: ClosedRange<Int> {
+        switch self {
+        case .small: return 0...999
+        case .medium: return 1_000...4_999
+        case .large: return 5_000...9_999
+        case .larger: return 10_000...14_999
+        case .largest: return 15_000...Int.max
+        }
+    }
+    var title: String {
+        let format = { (value: Int) in value.formatted(.number) }
+        return self == .largest ? L("%@文字以上", format(15_000))
+            : L("%@〜%@文字", format(bounds.lowerBound), format(bounds.upperBound))
+    }
+    func contains(_ count: Int) -> Bool { bounds.contains(count) }
 }
 
 /// ライブラリに登録したフォントファイル。ファイルは動かさず、場所だけを覚える
@@ -30,9 +136,23 @@ struct FontFile: Codable, Identifiable, Hashable, Sendable {
     var added = Date()
     /// OS/2 テーブルのベンダーID（MRSW＝モリサワ、FWKS＝フォントワークスなど）。無ければ空。古い版のライブラリでは nil
     var vendor: String?
+    /// 商標の持ち主（name テーブルの商標・著作権の「trademark of …」から。ITC で始まる名前は ITC）。無ければ空、古い版のライブラリでは nil。
+    /// ベンダーIDはファイルを作った会社なので、アドビが作ったモリサワ・Linotype の書体は ADBE になる。持ち主が分かればそちらを優先する
+    var trademarkOwner: String?
     /// バリアブルフォント（fvar）・カラーフォント（COLR・sbix・CBDT・SVG）。古い版のライブラリでは nil
     var isVariable: Bool?
     var isColor: Bool?
+    /// 収録文字数（cmap の文字の数）とグリフ数。かなフォントは、かなを持ち漢字をほとんど持たないもの。古い版のライブラリでは nil
+    var characterCount: Int?
+    var glyphCount: Int?
+    var isKana: Bool?
+    /// 日本語をサポート：ひらがな・カタカナ（あ・ア）を持つ
+    var supportsJapanese: Bool?
+    /// アイコンフォント：欧文の拡張文字（ラテン文字拡張A）を持たず文字の半分以上が私用領域か、名前（Awesome・Icon など）（U+E000〜F8FF、第15・16面）か、フォントの分類が記号（Symbolic）
+    var isIcon: Bool?
+    /// 最後にアクティブにした・解除した日時（サイドバーの「最近アクティブ」「最近非アクティブ」）
+    var activatedAt: Date?
+    var deactivatedAt: Date?
 
     var url: URL { URL(fileURLWithPath: path) }
     var fileName: String { (path as NSString).lastPathComponent }
@@ -133,9 +253,16 @@ enum FontScanner {
         guard !faces.isEmpty else { return nil }
         var file = FontFile(path: url.standardizedFileURL.path, faces: faces)
         file.vendor = vendorID(descriptors[0])
+        file.trademarkOwner = trademarkOwner(descriptors[0], family: faces[0].family)
         let tables = tableTags(descriptors[0])
         file.isVariable = tables.contains("fvar")
         file.isColor = !tables.isDisjoint(with: ["COLR", "sbix", "CBDT", "SVG "])
+        let characters = characterStats(descriptors[0])
+        file.characterCount = characters.count
+        file.glyphCount = characters.glyphs
+        file.isKana = characters.kana
+        file.supportsJapanese = characters.japanese
+        file.isIcon = characters.icon || iconFamilyWords.contains { faces[0].family.contains($0) }
         return file
     }
 
@@ -155,6 +282,27 @@ enum FontScanner {
         return String(decoding: table[58..<62], as: UTF8.self).trimmingCharacters(in: .whitespaces.union(.controlCharacters))
     }
 
+    /// 商標の持ち主。「X is a trademark of Morisawa and Company Limited.」「… trademarks of Adobe Systems Incorporated in the United States」
+    /// のように書かれるので、「trademark(s) of」のあとを「.」「,」「;」「 in 」「 and/or」「 and may」の前まで取る
+    static func trademarkOwner(_ descriptor: CTFontDescriptor, family: String) -> String {
+        let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
+        let text = [kCTFontTrademarkNameKey, kCTFontCopyrightNameKey]
+            .compactMap { CTFontCopyName(font, $0) as String? }.joined(separator: " ")
+        if let range = text.range(of: #"trademarks? of "#, options: [.regularExpression, .caseInsensitive]) {
+            var owner = String(text[range.upperBound...])
+            for stop in [".", ",", ";", " in ", " and/or", " and may", "\n"] {
+                if let end = owner.range(of: stop) { owner = String(owner[..<end.lowerBound]) }
+            }
+            owner = owner.trimmingCharacters(in: .whitespaces)
+            if !owner.isEmpty { return owner }
+        }
+        return family.hasPrefix("ITC ") ? "ITC" : ""
+    }
+
+    /// 名前でアイコンフォントとみなす語。Font Awesome 6・7 は欧文の拡張文字も持ち、文字の構成では筆記体の書体と分けられない。
+    /// 大文字・小文字を区別する（区別しないと「SemiCondensed」の icon、「Higemoji」の emoji に当たる）
+    static let iconFamilyWords = ["Awesome", "Icon", "Dingbat", "Ornament", "Symbols", "Emoji", "Glyphicons", "Material Symbols"]
+
     /// 入っているテーブルの名前（4文字）。CTFontCopyAvailableTables の中身は CFNumber ではなくタグそのものなので、[Int] には読み替えられない
     static func tableTags(_ descriptor: CTFontDescriptor) -> Set<String> {
         let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
@@ -165,6 +313,48 @@ enum FontScanner {
             tags.insert(String(decoding: [24, 16, 8, 0].map { UInt8(truncatingIfNeeded: tag >> $0) }, as: UTF8.self))
         }
         return tags
+    }
+
+    /// 収録文字数・グリフ数・かなフォントかどうか。文字の数は CFCharacterSet のビットマップで数える
+    /// （先頭の8,192バイトが基本面、そのあとは面ごとに面番号1バイト＋8,192バイト）
+    static func characterStats(_ descriptor: CTFontDescriptor) -> (count: Int, glyphs: Int, kana: Bool, japanese: Bool, icon: Bool) {
+        let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
+        let set = CTFontCopyCharacterSet(font)
+        guard let bitmap = CFCharacterSetCreateBitmapRepresentation(nil, set) as Data? else { return (0, CTFontGetGlyphCount(font), false, false, false) }
+        var count = 0
+        var ideographs = 0
+        var privateUse = 0
+        var latinExtended = 0
+        bitmap.withUnsafeBytes { bytes in
+            for index in 0..<min(8192, bytes.count) {
+                let bits = bytes[index].nonzeroBitCount
+                count += bits
+                // CJK統合漢字（U+4E00〜U+9FFF）
+                if index >= 0x4E00 / 8 && index < 0xA000 / 8 { ideographs += bits }
+                // 私用領域（U+E000〜U+F8FF）
+                if index >= 0xE000 / 8 && index < 0xF900 / 8 { privateUse += bits }
+                // ラテン文字拡張A（U+0100〜U+017F：Ā・Ł など）
+                if index >= 0x100 / 8 && index < 0x180 / 8 { latinExtended += bits }
+            }
+            var offset = 8192
+            while offset + 8193 <= bytes.count {
+                let plane = bytes[offset]
+                for index in (offset + 1)..<(offset + 8193) {
+                    let bits = bytes[index].nonzeroBitCount
+                    count += bits
+                    if plane >= 15 { privateUse += bits }
+                }
+                offset += 8193
+            }
+        }
+        let symbolic = (CTFontGetSymbolicTraits(font).rawValue & CTFontSymbolicTraits.traitClassMask.rawValue)
+            == CTFontStylisticClass.classSymbolic.rawValue
+        // SF Pro や筆記体の書体も私用領域に字形を多く持つので、欧文の拡張文字（ラテン文字拡張A）を持つものは外す。
+        // Font Awesome は英字や記号（★ など）にもアイコンを割り当てるので、英字の有無やほかの文字の数では分けられない
+        let icon = symbolic || (count > 0 && privateUse * 2 >= count && latinExtended < 20)
+        // かな（あ・ア）を持ち、漢字が「々」などのわずかしか無い
+        let japanese = CFCharacterSetIsLongCharacterMember(set, 0x3042) && CFCharacterSetIsLongCharacterMember(set, 0x30A2)
+        return (count, CTFontGetGlyphCount(font), japanese && ideographs < 50, japanese, icon)
     }
 
     static func vendorID(of url: URL) -> String {
@@ -417,19 +607,5 @@ enum FontNaming {
     static func charset(_ family: String) -> String? {
         let words = family.split(whereSeparator: { $0 == " " || $0 == "-" }).map(String.init)
         return words.last { charsets.contains($0) }
-    }
-
-    /// 名前の先頭：「A P-OTF」「M PLUS」のように1文字の語で始まるものは2語、「FOT-Rodin」のような接頭辞は「FOT-」、
-    /// 「A-OTF」のように後ろが大文字だけのものは語のまま、それ以外は最初の語
-    static func prefix(_ family: String) -> String {
-        let words = family.split(separator: " ").map(String.init)
-        guard let first = words.first else { return family }
-        if first.count == 1, words.count > 1 { return first + " " + words[1] }
-        if let hyphen = first.firstIndex(of: "-") {
-            let rest = first[first.index(after: hyphen)...]
-            if !rest.isEmpty, rest.allSatisfy({ $0.isUppercase || $0.isNumber }) { return first }
-            return String(first[...hyphen])
-        }
-        return first
     }
 }

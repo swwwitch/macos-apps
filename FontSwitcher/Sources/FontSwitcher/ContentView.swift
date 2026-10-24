@@ -117,71 +117,39 @@ private struct SidebarView: View {
     @AppStorage(LibraryStore.SidebarSection.kinds.showKey) private var showKinds = true
     @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
     @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
+    @AppStorage(LibraryStore.SidebarSection.smartSets.showKey) private var showSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
     @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
     @AppStorage(LibraryStore.SidebarSection.system.expandedKey) private var expandedSystem = true
     @AppStorage(LibraryStore.SidebarSection.kinds.expandedKey) private var expandedKinds = true
     @AppStorage(LibraryStore.SidebarSection.vendors.expandedKey) private var expandedVendors = true
     @AppStorage(LibraryStore.SidebarSection.collections.expandedKey) private var expandedCollections = false
+    @AppStorage(LibraryStore.SidebarSection.smartSets.expandedKey) private var expandedSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.expandedKey) private var expandedSets = true
+    @AppStorage(LibraryStore.SidebarSection.orderKey) private var order = ""
+    @State private var optionsShown = false
 
     var body: some View {
         VStack(spacing: 0) {
+            // 区分の表示と並び順（「…」ボタン）
+            HStack {
+                Button { optionsShown.toggle() } label: { Image(systemName: "ellipsis.circle").font(.system(size: 10)) }
+                    .buttonStyle(.borderless)
+                    .help(L("サイドバーの表示と並び順"))
+                    .accessibilityLabel(L("サイドバーの表示と並び順"))
+                    .popover(isPresented: $optionsShown, arrowEdge: .bottom) { SidebarOptionsPanel() }
+                Spacer()
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 6)
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.sidebar = item; store.selection.removeAll() } })) {
                 Section(isExpanded: $expandedLibrary) {
                     row(.all, L("すべてのフォント"), "textformat")
-                    row(.favorites, L("お気に入り"), "star")
-                    row(.active, L("アクティブ"), "checkmark.circle")
-                    row(.inactive, L("非アクティブ"), "circle")
                     row(.duplicates, L("重複"), "square.on.square")
                     row(.missing, L("見つからない"), "exclamationmark.triangle")
                 } header: { Text(L("ライブラリ")) }
-                if store.includeUserFonts && showSystem {
-                    // フォントフォルダー。System は切り替え・取り除きができない
-                    Section(isExpanded: $expandedSystem) {
-                        row(.folder(.user), SystemFolder.user.title, "person")
-                        row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
-                        row(.folder(.system), SystemFolder.system.title, "lock")
-                    } header: { Text(L("システム")) }
-                }
-                if showKinds {
-                    Section(isExpanded: $expandedKinds) {
-                        ForEach(FontKind.allCases, id: \.self) { kind in
-                            row(.kind(kind), kind.title, kind.symbol)
-                        }
-                    } header: { Text(L("種類")) }
-                }
-                if showVendors {
-                    Section(isExpanded: $expandedVendors) {
-                        ForEach(LibraryStore.vendors, id: \.id) { vendor in
-                            row(.vendor(vendor.id), vendor.title, "building.2")
-                        }
-                        // Creative Cloud が入れたフォント（フォントフォルダーと同じく読み込む）
-                        if store.includeUserFonts {
-                            row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "cloud")
-                        }
-                    } header: { Text(L("ベンダー")) }
-                }
-                if showCollections && !store.collectionNames.isEmpty {
-                    Section(isExpanded: $expandedCollections) {
-                        ForEach(store.collectionNames, id: \.self) { name in
-                            row(.collection(name), name, "square.stack")
-                        }
-                    } header: { Text(L("コレクション")) }
-                }
-                if showSets {
-                Section(isExpanded: $expandedSets) {
-                    ForEach(store.data.sets) { set in
-                        row(.set(set.id), set.name, "folder")
-                            .contextMenu {
-                                Button(L("セットをアクティブにする")) { store.setActive(store.setFiles(set.id), true) }
-                                Button(L("セットを解除")) { store.setActive(store.setFiles(set.id), false) }
-                                Divider()
-                                Button(L("名前を変更…")) { store.renameSet(set.id) }
-                                Button(L("セットを削除…")) { store.deleteSet(set.id) }
-                            }
-                    }
-                } header: { Text(L("セット")) }
+                ForEach(LibraryStore.SidebarSection.ordered(order), id: \.self) { section in
+                    sectionView(section)
                 }
             }
             .listStyle(.sidebar)
@@ -198,6 +166,110 @@ private struct SidebarView: View {
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
+    @ViewBuilder private func sectionView(_ section: LibraryStore.SidebarSection) -> some View {
+        switch section {
+        case .system:
+            if store.includeUserFonts && showSystem {
+                // フォントフォルダー。System は切り替え・取り除きができない
+                Section(isExpanded: $expandedSystem) {
+                    row(.folder(.user), SystemFolder.user.title, "person")
+                    row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
+                    row(.folder(.system), SystemFolder.system.title, "lock")
+                } header: { Text(section.title) }
+            }
+        case .kinds:
+            if showKinds {
+                Section(isExpanded: $expandedKinds) {
+                    ForEach(FontKind.allCases, id: \.self) { kind in
+                        row(.kind(kind), kind.title, kind.symbol)
+                    }
+                } header: { Text(section.title) }
+            }
+        case .vendors:
+            if showVendors {
+                Section(isExpanded: $expandedVendors) {
+                    ForEach(LibraryStore.vendors, id: \.id) { vendor in
+                        iconRow(.vendor(vendor.id), vendor.title) { VendorIcon(id: vendor.id) }
+                    }
+                    // Creative Cloud が入れたフォント（フォントフォルダーと同じく読み込む）
+                    if store.includeUserFonts {
+                        iconRow(.folder(.adobeFonts), SystemFolder.adobeFonts.title) { AdobeFontsIcon() }
+                            .contextMenu {
+                                Button(L("Creative Cloudを開く")) { store.openCreativeCloud() }
+                                Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() }
+                            }
+                    }
+                } header: { Text(section.title) }
+            }
+        case .collections:
+            if showCollections && !store.collectionNames.isEmpty {
+                Section(isExpanded: $expandedCollections) {
+                    ForEach(store.collectionNames, id: \.self) { name in
+                        row(.collection(name), name, "square.stack")
+                    }
+                } header: { Text(section.title) }
+            }
+        case .smartSets:
+            if showSmartSets {
+                // 条件で中身が決まるセット
+                Section(isExpanded: $expandedSmartSets) {
+                    row(.favorites, L("お気に入り"), "star")
+                    row(.active, L("アクティブ"), "checkmark.circle")
+                    row(.inactive, L("非アクティブ"), "circle")
+                    row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark")
+                    row(.recentlyDeactivated, L("最近非アクティブ"), "clock.badge.xmark")
+                    row(.recentlyAdded, L("最近追加したもの"), "calendar.badge.plus")
+                    row(.japanese, L("日本語をサポート"), "character.ja")
+                } header: { Text(section.title) }
+            }
+        case .sets:
+            if showSets {
+                Section(isExpanded: $expandedSets) {
+                    ForEach(store.data.sets) { set in
+                        setRow(set)
+                            .contextMenu {
+                                Button(L("セットをアクティブにする")) { store.setActive(store.setFiles(set.id), true) }
+                                Button(L("セットを解除")) { store.setActive(store.setFiles(set.id), false) }
+                                Divider()
+                                Button(L("名前を変更…")) { store.renameSet(set.id) }
+                                Button(L("セットを削除…")) { store.deleteSet(set.id) }
+                            }
+                    }
+                } header: { Text(section.title) }
+            }
+        }
+    }
+
+    /// セットの行。左のチェックボックスでセットのフォントをまとめてアクティブ・解除する（一部だけアクティブなら「−」）
+    private func setRow(_ set: FontSet) -> some View {
+        let state = store.setState(set.id)
+        return HStack(spacing: 6) {
+            Button {
+                store.setActive(store.setFiles(set.id), state != true)
+            } label: {
+                Image(systemName: state == true ? "checkmark.square.fill" : state == nil ? "minus.square.fill" : "square")
+                    .foregroundStyle(state == false ? Color.secondary : Color.accentColor)
+            }
+            .buttonStyle(.borderless)
+            .help(state == true ? L("セットを解除") : L("セットをアクティブにする"))
+            .accessibilityLabel(state == true ? L("セットを解除") : L("セットをアクティブにする"))
+            Label(set.name, systemImage: "folder").lineLimit(1)
+            Spacer()
+            Text("\(store.count(.set(set.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .tag(SidebarItem.set(set.id))
+    }
+
+    /// SF Symbols ではなく自前のアイコンを出す行
+    private func iconRow<Icon: View>(_ item: SidebarItem, _ title: String, @ViewBuilder icon: () -> Icon) -> some View {
+        HStack {
+            Label { Text(title).lineLimit(1) } icon: { icon() }
+            Spacer()
+            Text("\(store.count(item))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .tag(item)
+    }
+
     private func row(_ item: SidebarItem, _ title: String, _ symbol: String) -> some View {
         HStack {
             Label(title, systemImage: symbol).lineLimit(1)
@@ -205,6 +277,68 @@ private struct SidebarView: View {
             Text("\(store.count(item))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
         .tag(item)
+    }
+}
+
+/// サイドバーの「…」：区分ごとの表示と並び順。ライブラリは常に先頭に出す
+private struct SidebarOptionsPanel: View {
+    @AppStorage(LibraryStore.SidebarSection.orderKey) private var order = ""
+
+    var body: some View {
+        let sections = LibraryStore.SidebarSection.ordered(order)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L("サイドバー")).font(.headline)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(Array(sections.enumerated()), id: \.element) { index, section in
+                    HStack(spacing: 6) {
+                        SectionToggle(section: section)
+                        Spacer(minLength: 12)
+                        Button { move(sections, index, -1) } label: { Image(systemName: "chevron.up") }
+                            .disabled(index == 0)
+                            .help(L("上へ"))
+                            .accessibilityLabel(L("%@を上へ", section.title))
+                        Button { move(sections, index, 1) } label: { Image(systemName: "chevron.down") }
+                            .disabled(index == sections.count - 1)
+                            .help(L("下へ"))
+                            .accessibilityLabel(L("%@を下へ", section.title))
+                    }
+                    .buttonStyle(.borderless)
+                }
+            }
+            Text(L("「ライブラリ」は常に先頭に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。"))
+                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Spacer()
+                Button(L("初期値に戻す")) {
+                    order = ""
+                    for section in LibraryStore.SidebarSection.allCases { UserDefaults.standard.set(true, forKey: section.showKey) }
+                }
+            }
+        }
+        .padding(16)
+        .frame(width: 300)
+    }
+
+    private func move(_ sections: [LibraryStore.SidebarSection], _ index: Int, _ offset: Int) {
+        var list = sections
+        list.swapAt(index, index + offset)
+        order = list.map(\.rawValue).joined(separator: ",")
+    }
+}
+
+/// 区分を出すかどうか。隠した区分の項目を選んでいたら「すべてのフォント」に戻す
+private struct SectionToggle: View {
+    let section: LibraryStore.SidebarSection
+    @AppStorage private var shown: Bool
+
+    init(section: LibraryStore.SidebarSection) {
+        self.section = section
+        _shown = AppStorage(wrappedValue: true, section.showKey)
+    }
+
+    var body: some View {
+        Toggle(section.title, isOn: $shown)
+            .onChange(of: shown) { LibraryStore.shared.ensureSidebarVisible() }
     }
 }
 
@@ -228,6 +362,7 @@ private struct FamilyListView: View {
                         .buttonStyle(.borderless).foregroundStyle(.secondary)
                         .accessibilityLabel(L("検索を消去"))
                 }
+                SearchOptionsButton()
                 Button { previewVisible.toggle() } label: {
                     Image(systemName: "sidebar.right")
                 }
@@ -236,7 +371,9 @@ private struct FamilyListView: View {
                 .help(previewVisible ? L("プレビューを隠す（⌥⌘P）") : L("プレビューを表示（⌥⌘P）"))
                 .accessibilityLabel(previewVisible ? L("プレビューを隠す") : L("プレビューを表示"))
             }
-            .padding(8)
+            // 検索欄は上下を少し広げる
+            .padding(.horizontal, 8)
+            .padding(.vertical, 12)
             // フォント名の出し方。一覧の幅いっぱいに伸び縮みさせる
             Picker(L("フォント名"), selection: $nameDisplay) {
                 Text(L("日本語名")).tag(NameDisplay.localized.rawValue)
@@ -250,9 +387,7 @@ private struct FamilyListView: View {
             .onChange(of: nameDisplay) { store.invalidate() }
             .padding(.horizontal, 8)
             .padding(.bottom, 6)
-            FilterBar()
-                .padding(.horizontal, 8)
-                .padding(.bottom, 6)
+            if store.sidebar == .folder(.adobeFonts) { AdobeFontsBar() }
             Divider()
             if families.isEmpty {
                 emptyView
@@ -278,60 +413,344 @@ private struct FamilyListView: View {
     }
 }
 
-/// 条件での絞り込み：文字セットと名前の先頭。サイドバー・検索と重ねて効く
-private struct FilterBar: View {
+/// Adobe Fonts を表示している間だけ出す案内。切り替えは Creative Cloud で行う
+private struct AdobeFontsBar: View {
+    @ObservedObject private var store = LibraryStore.shared
+
+    var body: some View {
+        HStack(spacing: 8) {
+            AdobeFontsIcon()
+            Text(L("Adobe Fontsのオン・オフは、Creative Cloudで行います"))
+                .font(.callout).foregroundStyle(.secondary)
+                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 4)
+            Button(L("Creative Cloudを開く")) { store.openCreativeCloud() }
+            Button(L("fonts.adobe.com")) { store.openAdobeFontsWeb() }
+                .help(L("fonts.adobe.comを開く"))
+        }
+        .controlSize(.small)
+        .padding(.horizontal, 8)
+        .padding(.bottom, 6)
+    }
+}
+
+/// 検索欄の右の「検索オプション」。条件での絞り込みをパネルで選ぶ。サイドバー・検索と重ねて効く
+private struct SearchOptionsButton: View {
+    @ObservedObject private var store = LibraryStore.shared
+    @State private var shown = false
+
+    var body: some View {
+        Button { shown.toggle() } label: {
+            // 絞り込み中は塗りつぶしのアイコンにして分かるようにする
+            Image(systemName: store.hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                .foregroundStyle(store.hasFilter ? Color.accentColor : Color.secondary)
+        }
+        .buttonStyle(.borderless)
+        .help(L("検索オプション"))
+        .accessibilityLabel(L("検索オプション"))
+        .popover(isPresented: $shown, arrowEdge: .bottom) { SearchOptionsPanel() }
+    }
+}
+
+private struct SearchOptionsPanel: View {
     @ObservedObject private var store = LibraryStore.shared
 
     var body: some View {
         let options = store.filterOptions
-        HStack(spacing: 8) {
-            Picker(L("文字セット"), selection: $store.charsetFilter) {
-                Text(L("すべて")).tag(String?.none)
-                Divider()
-                ForEach(options.charsets, id: \.0) { name, count in
-                    Text(verbatim: "\(name == LibraryStore.noCharset ? L("名前に無し") : name)（\(count)）").tag(String?.some(name))
+        VStack(alignment: .leading, spacing: 14) {
+            Text(L("検索オプション")).font(.headline)
+            // 3列：名前から読む条件／ファイルの形・種類／数で分ける条件
+            HStack(alignment: .top, spacing: 32) {
+                VStack(alignment: .leading, spacing: 18) {
+                    group(L("文字セット"), $store.charsetFilter, options.charsets.map {
+                        ($0.0 == LibraryStore.noCharset ? L("名前に無し") : $0.0, $0.0, $0.1)
+                    })
+                    variantGroup(.n, options)
+                }
+                VStack(alignment: .leading, spacing: 18) {
+                    group(L("形式"), $store.formatFilter, options.formats.map { ($0.0, $0.0, $0.1) })
+                    group(L("種類"), $store.kindFilter, options.kinds.map { ($0.0.title, $0.0, $0.1) })
+                }
+                VStack(alignment: .leading, spacing: 18) {
+                    group(L("ファミリーの書体数"), $store.faceCountFilter, options.faceCounts.map { ($0.0.title, $0.0, $0.1) })
+                    group(L("収録文字数"), $store.characterCountFilter, options.characterCounts.map { ($0.0.title, $0.0, $0.1) })
+                }
+                VStack(alignment: .leading, spacing: 18) {
+                    variantGroup(.ud, options)
+                    variantGroup(.ap, options)
+                    variantGroup(.nt, options)
                 }
             }
-            .frame(minWidth: 120, maxWidth: 200)
-            Picker(L("名前の先頭"), selection: $store.prefixFilter) {
-                Text(L("すべて")).tag(String?.none)
-                Divider()
-                ForEach(options.prefixes, id: \.0) { name, count in
-                    Text(verbatim: "\(name)（\(count)）").tag(String?.some(name))
-                }
+            HStack {
+                Text(L("（ ）の数はファミリー数です。サイドバー・検索と重ねて効きます。"))
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                Button(L("すべて解除")) { store.clearFilters() }
+                    .disabled(!store.hasFilter)
             }
-            .frame(minWidth: 140, maxWidth: 240)
-            if store.charsetFilter != nil || store.prefixFilter != nil {
-                Button(L("解除")) { store.charsetFilter = nil; store.prefixFilter = nil }
-                    .buttonStyle(.borderless)
-                    .help(L("絞り込みを解除"))
-            }
-            Spacer(minLength: 0)
         }
-        .font(.callout)
+        .padding(20)
+        // 中身の大きさに合わせる（合わせないとポップオーバーが縦に伸び、上に空白ができる）
+        .fixedSize()
+    }
+
+    /// 書体の違い（N・UD・AP版・新ゴ）のあり／なし
+    private func variantGroup(_ variant: VariantFilter, _ options: LibraryStore.FilterOptions) -> some View {
+        let binding = Binding<Bool?>(get: { store.variantFilters[variant] }, set: { store.variantFilters[variant] = $0 })
+        return group(variant.title, binding, (options.variants[variant] ?? []).map { (variant.optionTitle($0.0), $0.0, $0.1) })
+    }
+
+    /// 見出しと「すべて」＋候補のラジオボタン
+    private func group<Value: Hashable>(_ title: String, _ selection: Binding<Value?>, _ items: [(String, Value, Int)]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title).font(.callout.weight(.semibold))
+            Picker(title, selection: selection) {
+                Text(L("すべて")).tag(Value?.none)
+                ForEach(items, id: \.1) { name, value, count in
+                    Text(verbatim: "\(name)（\(count)）").tag(Value?.some(value))
+                }
+            }
+            .pickerStyle(.radioGroup)
+            .labelsHidden()
+        }
+        .fixedSize()
     }
 }
 
 // MARK: - プレビュー
 
+/// プレビューの見え方（文字の色・不透明度・カーニング・トラッキング）。設定は AppStorage に覚える
+struct PreviewStyle {
+    static let schemeKey = "previewColorScheme"
+    static let foregroundKey = "previewForeground"
+    static let backgroundKey = "previewBackground"
+    static let opacityKey = "previewOpacity"
+    static let kerningKey = "previewKerning"
+    static let trackingOnKey = "previewTrackingOn"
+    static let trackingKey = "previewTracking"
+    static let modeKey = "previewMode"
+
+    enum Mode: String, CaseIterable {
+        case oneLine, multiline, waterfall
+        var title: String {
+            switch self {
+            case .oneLine: return L("1行")
+            case .multiline: return L("複数行")
+            case .waterfall: return L("ウォーターフォール")
+            }
+        }
+    }
+    /// ウォーターフォールの大きさ（pt）
+    static let waterfallSizes: [Double] = [72, 48, 36, 24, 18, 14, 12, 9]
+    /// トラッキングの選択肢（1/1000 em）
+    static let trackingValues: [Double] = [-100, -75, -50, -25, -10, 10, 25, 50, 75, 100, 200]
+
+    var foreground: Color
+    var opacity: Double
+    var kerning: Bool
+    var tracking: Double
+    var mode: Mode
+
+    /// 配色：白地に黒・黒地に白・カスタム（文字と背景の色を選ぶ）
+    enum Scheme: String, CaseIterable {
+        case blackOnWhite, whiteOnBlack, custom
+        var title: String {
+            switch self {
+            case .blackOnWhite: return L("白地に黒")
+            case .whiteOnBlack: return L("黒地に白")
+            case .custom: return L("カスタム")
+            }
+        }
+    }
+
+    /// 配色から文字と背景の色を決める。カスタムで色を選んでいなければシステムの色
+    static func colors(_ scheme: String, foreground: String, background: String) -> (Color, Color) {
+        switch Scheme(rawValue: scheme) ?? .blackOnWhite {
+        case .blackOnWhite: return (.black, .white)
+        case .whiteOnBlack: return (.white, .black)
+        case .custom: return (color(foreground) ?? Color(nsColor: .labelColor), color(background) ?? Color(nsColor: .textBackgroundColor))
+        }
+    }
+
+    /// 色は「r g b a」（sRGB）で覚える。空なら既定（文字はラベルの色、背景は一覧の背景の色。ダークモードに合わせて変わる）
+    static func color(_ text: String) -> Color? {
+        let values = text.split(separator: " ").compactMap { Double($0) }
+        guard values.count == 4 else { return nil }
+        return Color(.sRGB, red: values[0], green: values[1], blue: values[2], opacity: values[3])
+    }
+
+    static func text(_ color: Color) -> String {
+        guard let rgb = NSColor(color).usingColorSpace(.sRGB) else { return "" }
+        return [rgb.redComponent, rgb.greenComponent, rgb.blueComponent, rgb.alphaComponent].map { String(format: "%.4f", Double($0)) }.joined(separator: " ")
+    }
+
+    /// プレビューの文字の候補（オプションのパネルで選ぶ）
+    static let samples: [String] = [
+        "あいうえお 永遠の文字 Aa Bb Cc 0123456789",
+        "Lorem ipsum dolor sit amet",
+        "The quick brown fox jumps over the lazy dog",
+        "abcdefghijklmnopqrstuvwxyz",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "0123456789 !?@#$%&*()[]{}",
+        "あいうえおかきくけこさしすせそたちつてと",
+        "アイウエオカキクケコサシスセソタチツテト",
+        "いろはにほへと ちりぬるを わかよたれそ つねならむ",
+        "永東国酬愛鬱靈鷹袋蹴",
+    ]
+}
+
+/// プレビューのオプション：文字と背景の色、不透明度、カーニング、トラッキング、プレビューの文字の候補
+private struct PreviewOptionsPanel: View {
+    @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
+    @AppStorage(PreviewStyle.schemeKey) private var scheme = PreviewStyle.Scheme.blackOnWhite.rawValue
+    @AppStorage(PreviewStyle.foregroundKey) private var foreground = ""
+    @AppStorage(PreviewStyle.backgroundKey) private var background = ""
+    @AppStorage(PreviewStyle.opacityKey) private var opacity = 100.0
+    @AppStorage(PreviewStyle.kerningKey) private var kerning = true
+    @AppStorage(PreviewStyle.trackingOnKey) private var trackingOn = false
+    @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(L("プレビューのオプション")).font(.headline)
+            Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                GridRow {
+                    label(L("配色"))
+                    Picker(L("配色"), selection: $scheme) {
+                        ForEach(PreviewStyle.Scheme.allCases, id: \.self) { Text($0.title).tag($0.rawValue) }
+                    }
+                    .pickerStyle(.radioGroup)
+                    .labelsHidden()
+                }
+                GridRow {
+                    label(L("文字の色"))
+                    ColorPicker(L("文字の色"), selection: colorBinding($foreground, fallback: Color(nsColor: .labelColor)), supportsOpacity: false)
+                        .labelsHidden()
+                        .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
+                }
+                GridRow {
+                    label(L("背景の色"))
+                    ColorPicker(L("背景の色"), selection: colorBinding($background, fallback: Color(nsColor: .textBackgroundColor)), supportsOpacity: false)
+                        .labelsHidden()
+                        .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
+                }
+                GridRow {
+                    label(L("不透明度"))
+                    HStack(spacing: 8) {
+                        Slider(value: $opacity, in: 10...100, step: 5).frame(width: 140)
+                            .accessibilityLabel(L("不透明度"))
+                        Text("\(Int(opacity)) %").monospacedDigit().foregroundStyle(.secondary).frame(width: 44, alignment: .trailing)
+                    }
+                }
+                GridRow {
+                    label(L("カーニング"))
+                    Toggle(L("フォントのカーニングを使う"), isOn: $kerning)
+                }
+                GridRow {
+                    label(L("トラッキング"))
+                    HStack(spacing: 8) {
+                        Toggle(L("トラッキング"), isOn: $trackingOn).labelsHidden()
+                        Picker(L("トラッキング"), selection: $tracking) {
+                            Text(verbatim: "0").tag(0.0)
+                            ForEach(PreviewStyle.trackingValues, id: \.self) { value in
+                                Text(verbatim: value > 0 ? "+\(Int(value))" : "\(Int(value))").tag(value)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 90)
+                        .disabled(!trackingOn)
+                        Text(L("（1/1000 em）")).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            }
+            Divider()
+            Text(L("プレビューの文字")).font(.callout.weight(.semibold))
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(PreviewStyle.samples, id: \.self) { text in
+                    Button { sample = text } label: {
+                        HStack {
+                            Text(verbatim: text).lineLimit(1)
+                            Spacer()
+                            if sample == text { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
+                        }
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
+            HStack {
+                Spacer()
+                Button(L("初期値に戻す")) {
+                    scheme = PreviewStyle.Scheme.blackOnWhite.rawValue; foreground = ""; background = ""; opacity = 100; kerning = true; trackingOn = false; tracking = 0
+                }
+            }
+        }
+        .padding(20)
+        .frame(width: 420)
+    }
+
+    private func label(_ text: String) -> some View {
+        Text(text + L(" :")).gridColumnAlignment(.trailing)
+    }
+
+    private func colorBinding(_ stored: Binding<String>, fallback: Color) -> Binding<Color> {
+        Binding(get: { PreviewStyle.color(stored.wrappedValue) ?? fallback },
+                set: { stored.wrappedValue = PreviewStyle.text($0) })
+    }
+}
+
 private struct PreviewView: View {
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
     @AppStorage("previewSize") private var size = 36.0
+    @AppStorage(PreviewStyle.schemeKey) private var scheme = PreviewStyle.Scheme.blackOnWhite.rawValue
+    @AppStorage(PreviewStyle.foregroundKey) private var foreground = ""
+    @AppStorage(PreviewStyle.backgroundKey) private var background = ""
+    @AppStorage(PreviewStyle.opacityKey) private var opacity = 100.0
+    @AppStorage(PreviewStyle.kerningKey) private var kerning = true
+    @AppStorage(PreviewStyle.trackingOnKey) private var trackingOn = false
+    @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
+    @AppStorage(PreviewStyle.modeKey) private var mode = PreviewStyle.Mode.multiline.rawValue
+    @State private var optionsShown = false
+
+    private var style: PreviewStyle {
+        PreviewStyle(foreground: PreviewStyle.colors(scheme, foreground: foreground, background: background).0,
+                     opacity: opacity / 100, kerning: kerning, tracking: trackingOn ? tracking : 0,
+                     mode: PreviewStyle.Mode(rawValue: mode) ?? .multiline)
+    }
 
     var body: some View {
         let families = store.selectedFamilies
         VStack(spacing: 0) {
             HStack(spacing: 8) {
+                // 1行・複数行（折り返す）・ウォーターフォール（いくつかの大きさを1行ずつ）
+                Picker(L("表示"), selection: $mode) {
+                    ForEach(PreviewStyle.Mode.allCases, id: \.self) { mode in
+                        Text(mode.title).tag(mode.rawValue)
+                    }
+                }
+                .labelsHidden()
+                .fixedSize()
+                .help(L("プレビューの表示"))
                 TextField(L("プレビューの文字"), text: $sample)
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(L("プレビューの文字"))
-                Slider(value: $size, in: 9...144)
-                    .frame(width: 100)
-                    .accessibilityLabel(L("大きさ"))
-                Text("\(Int(size)) pt").font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                    .frame(width: 44, alignment: .trailing)
+                if mode != PreviewStyle.Mode.waterfall.rawValue {
+                    Slider(value: $size, in: 9...144)
+                        .frame(width: 100)
+                        .accessibilityLabel(L("大きさ"))
+                    Text("\(Int(size)) pt").font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                        .frame(width: 44, alignment: .trailing)
+                }
+                Button { optionsShown.toggle() } label: { Image(systemName: "slider.horizontal.3") }
+                    .buttonStyle(.borderless)
+                    .help(L("プレビューのオプション"))
+                    .accessibilityLabel(L("プレビューのオプション"))
+                    .popover(isPresented: $optionsShown, arrowEdge: .bottom) { PreviewOptionsPanel() }
             }
             .padding(8)
             Divider()
@@ -341,7 +760,7 @@ private struct PreviewView: View {
                     LazyVStack(alignment: .leading, spacing: 18) {
                         ForEach(family.files) { file in
                             ForEach(file.faces, id: \.postScriptName) { face in
-                                FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size)
+                                FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
                             }
                         }
                         Divider()
@@ -350,6 +769,7 @@ private struct PreviewView: View {
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .background(PreviewStyle.colors(scheme, foreground: foreground, background: background).1)
             } else {
                 VStack {
                     Spacer()
@@ -369,15 +789,41 @@ private struct FaceSample: View {
     let face: FontFace
     let text: String
     let size: Double
+    let style: PreviewStyle
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(NameDisplay.current == .postScript ? face.postScriptName
                  : NameDisplay.current == .both ? face.displayStyle + "  " + face.postScriptName : face.displayStyle)
                 .font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
-            if let font = PreviewFonts.font(file: file, face: face, size: size) {
-                Text(PreviewFonts.sample(text, font: font)).font(Font(font)).textSelection(.enabled)
-                    .fixedSize(horizontal: false, vertical: true)
+            if style.mode == .waterfall {
+                // ウォーターフォール：大きさごとに1行。はみ出す分は切る
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(PreviewStyle.waterfallSizes, id: \.self) { size in
+                        if let font = PreviewFonts.font(file: file, face: face, size: size) {
+                            HStack(alignment: .lastTextBaseline, spacing: 8) {
+                                Text("\(Int(size))").font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                                    .frame(width: 22, alignment: .trailing)
+                                Text(PreviewFonts.sample(text, font: font, style: style)).font(Font(font))
+                                    .tracking(size * style.tracking / 1000)
+                                    .opacity(style.opacity)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .clipped()
+            } else if let font = PreviewFonts.font(file: file, face: face, size: size) {
+                Text(PreviewFonts.sample(text, font: font, style: style)).font(Font(font)).textSelection(.enabled)
+                    // トラッキングは 1/1000 em
+                    .tracking(size * style.tracking / 1000)
+                    .opacity(style.opacity)
+                    .lineLimit(style.mode == .oneLine ? 1 : nil)
+                    .fixedSize(horizontal: style.mode == .oneLine, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .clipped()
                     .help(L("このフォントに無い文字は、ほかのフォントで薄く表示しています"))
             } else {
                 Text(L("プレビューできません")).foregroundStyle(.secondary)
@@ -397,6 +843,9 @@ private struct FamilyInfo: View {
                     Text(file.fileName).font(.callout.weight(.semibold))
                     info(L("状態"), stateText(store.states[file.id]))
                     info(L("形式"), file.format)
+                    if let characters = file.characterCount {
+                        info(L("収録文字数"), L("%@文字（グリフ %@）", characters.formatted(.number), (file.glyphCount ?? 0).formatted(.number)))
+                    }
                     if let version = PreviewFonts.version(file: file) { info(L("バージョン"), version) }
                     info(L("PostScript名"), file.faces.map(\.postScriptName).joined(separator: ", "))
                     info(L("場所"), file.path)
@@ -438,14 +887,14 @@ enum PreviewFonts {
     }
 
     /// このフォントに字形の無い文字は、代わりのフォントで描かれる。薄い色にして見分けられるようにする
-    static func sample(_ text: String, font: CTFont) -> AttributedString {
+    static func sample(_ text: String, font: CTFont, style: PreviewStyle) -> AttributedString {
         var result = AttributedString()
         for character in text {
             var piece = AttributedString(String(character))
-            if !character.isWhitespace && !has(character, in: font) {
-                // tertiaryLabelColor（約26%）では濃いという指摘で、15%に
-                piece.foregroundColor = Color(nsColor: .labelColor).opacity(0.15)
-            }
+            // tertiaryLabelColor（約26%）では濃いという指摘で、字形の無い文字は15%に
+            piece.foregroundColor = !character.isWhitespace && !has(character, in: font) ? style.foreground.opacity(0.15) : style.foreground
+            // カーニングを切るときは字送りの調整を0にする（指定しなければフォントのペアカーニングが効く）
+            if !style.kerning { piece.kern = 0 }
             result += piece
         }
         return result

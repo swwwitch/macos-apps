@@ -6,7 +6,7 @@ from pathlib import Path
 
 src = Path(__file__).resolve().parent.parent / "Sources/FontSwitcher"
 keys = []
-for f in ["FontSwitcherApp.swift", "ContentView.swift", "FontLibrary.swift", "LibraryStore.swift", "FamilyOutline.swift", "AppHotkey.swift", "SettingsView.swift", "AppDelegate.swift"]:
+for f in ["FontSwitcherApp.swift", "ContentView.swift", "FontLibrary.swift", "LibraryStore.swift", "FamilyOutline.swift", "AppHotkey.swift", "SettingsView.swift", "AppDelegate.swift", "IllustratorFontConverter.swift", "WatchFolders.swift"]:
     for m in re.finditer(r'\bL\("((?:[^"\\]|\\.)*)"', (src / f).read_text()):
         if m.group(1) not in keys:
             keys.append(m.group(1))

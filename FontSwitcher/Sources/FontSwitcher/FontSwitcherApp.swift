@@ -47,6 +47,10 @@ struct FontSwitcherApp: App {
                 Button(L("ウインドウを閉じる")) { NSApp.keyWindow?.performClose(nil) }
                     .keyboardShortcut("w", modifiers: .command)
             }
+            // ツール：Adobe アプリのドキュメントのフォントを書き換える（InDesign は今後）
+            CommandMenu(L("ツール")) {
+                Button(L("Illustratorのフォントを統一…")) { FontConverterWindow.shared.show() }
+            }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {
                 Button(L("しまう")) { NSApp.keyWindow?.performMiniaturize(nil) }

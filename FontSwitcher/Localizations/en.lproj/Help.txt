@@ -7,6 +7,10 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - Font files are never copied or moved. If you move a file after adding it, it appears under "Missing".
 - A file at the same location is not added twice.
 
+### Watch Folders
+- Add as many folders as you like under Watch Folders in the Fonts settings. When new font files appear in a folder (including subfolders), they are added to the library without being activated.
+- The folders are also read at launch. Files removed from a folder appear in "Missing".
+
 ### Activating and Deactivating
 - Click the checkbox at the left of a family to activate or deactivate it. Double-clicking also toggles it.
 - Families with two or more files have a ▶ at the left. Expand it to list each style (file), and use its checkbox to switch only that style. A family with only some styles active shows “–”. Files such as .ttc that hold several styles switch as one file.
@@ -18,16 +22,33 @@ FontSwitcher keeps your font files in a library and activates them only when you
 ### List and Preview
 - Use the sidebar to switch between All Fonts, Active, Inactive, Duplicates, Missing and your sets.
 - Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time.
-- Select one family to see every style on the right, with the format, version, PostScript name and location. Fonts that are not active can be previewed too.
+- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Fonts that are not active can be previewed too.
 - Change the preview text in the field at the top and the size with the slider.
+- Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
+- The button on the right (slider icon) opens the preview options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
 - Use "Localized / PostScript name / Both" above the list to choose how font names are shown. Fonts without a localized name use their English name. With PostScript names, family rows show the English family name and style rows show PostScript names.
-- Use "Character set" and "Name prefix" under the search field to filter. Character sets are names such as Std, Pro and Pr6N in the family name; prefixes are such as "A P-OTF" and "FOT-" (those with five or more families). They combine with the sidebar and the search; "Clear" removes them.
+- The "Search Options" button to the right of the search field opens a panel of filters.
+  - Character set: Std, Pro, Pr6N and so on in the family name
+  - Format: OpenType (CFF), TrueType, collections and so on
+  - Kind: variable, color, kana or icon fonts
+  - Styles in Family: the number of weights and styles in the family (1, 2–4, 5–9, 10 or more)
+  - N (JIS2004): whether the character set name ends in N (StdN, ProN, Pr6N, PlusN)
+  - UD: whether a Japanese font has UD in its name
+  - AP Version: whether a Morisawa A-OTF font is the proportional A P-OTF
+  - Shin Go: Shin Go or Shin Go NT
+  - Characters: the number of characters in the font (up to 999, 1,000–4,999, 5,000–9,999, 10,000–14,999, 15,000 or more)
+- The button is filled while a filter is on. Filters combine with the sidebar and the search; "Clear All" removes them.
 - In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
 - The button at the upper right of the list (⌥⌘P) hides or shows the preview on the right.
 - Click a sidebar heading (Library, System and so on) to collapse or expand it. Collections start collapsed.
+- The "…" button at the top of the sidebar chooses which sections (System, Kinds, Vendors, Collections, Smart Sets, Sets) appear and in what order. "Library" always comes first.
 - The ⚠️ mark means the file is missing, or a font with the same name is in use from another location (installed by the system or another app). Hold the pointer over the mark to see why.
 
+### Smart Sets
+- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Inactive, Recently Activated (activated in the last 7 days and still active), Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+
 ### Sets
+- The checkbox to the left of a set activates or deactivates all of its fonts (it shows "−" when only some are active).
 - Create a set with "+" or "New Set…" (⇧⌘N). Families selected in the list are put in the new set.
 - Right-click families and choose "Add to Set" to add them to an existing set.
 - Right-click a set to activate or deactivate all of it, rename it or delete it. Deleting a set keeps the fonts in the library.
@@ -45,11 +66,11 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - To leave them out of the list, turn off "Include fonts in the font folders" in the Fonts settings.
 
 ### Kinds
-- "Kinds" in the sidebar shows only variable fonts (whose weight and other axes vary continuously) or color fonts (with colored glyphs such as emoji), identified by the tables in the font (fvar; COLR, sbix, CBDT, SVG).
+- "Kinds" in the sidebar shows only variable fonts (whose weight and other axes vary continuously), color fonts (with colored glyphs such as emoji), kana fonts (with kana and almost no kanji) or icon fonts (with half or more of their characters in the Private Use Area and no extended Latin letters, fonts classed as symbol fonts, or names containing Awesome, Icon, Dingbat, Ornament, Symbols, Emoji and so on), identified by the tables in the font (fvar; COLR, sbix, CBDT, SVG).
 
 ### Vendors and Collections
-- "Vendors" in the sidebar shows only Morisawa, Fontworks or Adobe fonts, identified by the vendor ID written in the font (MRSW, FWKS, ADBE).
-- "Adobe Fonts" under Vendors shows the fonts activated in Creative Cloud. They are turned on and off in Creative Cloud, so FontSwitcher cannot switch them.
+- "Vendors" in the sidebar shows only Morisawa, Fontworks or Adobe fonts, identified by the trademark owner written in the font (such as "… is a trademark of Morisawa …"), or by the vendor ID (MRSW, FWKS, ADBE) when no owner is written. Morisawa typefaces built by Adobe (A-OTF Ryumin and so on) go to Morisawa. "Adobe" shows only Ten Mincho (including Text and Antique), Kozuka Mincho, Kozuka Gothic, Source Han Sans, Source Han Serif, Higumin, Momochidori, Adobe Clean, Myriad, Minion, Ryo, Source Code Pro and Noto.
+- "Adobe Fonts" under Vendors shows the fonts activated in Creative Cloud. They are turned on and off in Creative Cloud, so FontSwitcher cannot switch them (Creative Cloud registers them again right away). While they are shown, "Open Creative Cloud" and "fonts.adobe.com" above the list open the places to switch them (also from the right-click menu of the "Adobe Fonts" row).
 - "Collections" in the sidebar lists the collections of Font Book and the Fonts panel. Choose one to see the library fonts in it. They are read again when you bring FontSwitcher to the front.
 - Right-click families or styles and choose "Add to Collection" to put them in a collection used by Font Book and the Fonts panel (~/Library/FontCollections). "New Collection…" creates a new one.
 - Fonts are added by PostScript name. Inactive fonts can be added too and appear in the collection when you activate them.
@@ -66,12 +87,17 @@ FontSwitcher keeps your font files in a library and activates them only when you
 ### Removing from the Library
 - Select families and choose "Remove from Library…" (⌘⌫). Active fonts are deactivated first. The font files are not deleted.
 
+### Unify Fonts in Illustrator
+- "Unify Fonts in Illustrator…" in the Tools menu replaces the fonts in the front document of the running Illustrator with other variants of the same typeface (character set, N, Shin Go / Shin Go NT, UD, AP version). The conversion is the same as the AiFontConverter script.
+- Choose the scope: selection, whole document, or active artboard. "Max" and "MaxN" choose the richest character set (Pr6 / Pr6N) with UD, P and NT on.
+- OK checks the fonts in use and lists the changes; Run replaces them. When the same weight is missing, the nearest weight is used; fonts that are not installed are left as they are.
+- The first time, macOS asks for permission to control Illustrator. You can change it in System Settings > Privacy & Security > Automation.
+
 ## Settings
 Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while FontSwitcher is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), Library Sharing, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Export and import the Fonts settings, and sync them with other Macs through a folder in iCloud Drive, Dropbox and so on. Share the library, sets and favorites with Library Sharing in the Fonts settings.
-- **Display**: Which categories appear in the sidebar (System, Kinds, Vendors, Collections, Sets).
 - **About**: Version and links.
 
 ## Hotkeys
@@ -91,6 +117,7 @@ Open Settings with the Settings button in the main window (⌘,).
 
 ## Permissions and Privacy
 - No Accessibility permission is needed.
+- Only "Unify Fonts in Illustrator" needs permission to control Illustrator (Automation).
 - The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/FontSwitcher/Library.json.
 - When you add fonts from Documents or Downloads, macOS may ask for permission to access the folder.
 - Use each font according to its license.
