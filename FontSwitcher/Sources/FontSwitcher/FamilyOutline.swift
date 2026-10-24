@@ -264,7 +264,13 @@ final class FamilyCell: NSTableCellView {
             check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
                 : active ? L("クリックで解除") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(active ? L("アクティブ") : L("非アクティブ"))
-            name.stringValue = file.faces.map { $0.style.isEmpty ? $0.fullName : $0.style }.joined(separator: L("、"))
+            let styles = file.faces.map(\.displayStyle).joined(separator: L("、"))
+            let postScript = file.faces.map(\.postScriptName).joined(separator: L("、"))
+            switch NameDisplay.current {
+            case .localized: set(styles, nil)
+            case .postScript: set(postScript, nil)
+            case .both: set(styles, postScript)
+            }
             star.isHidden = true
             detail.stringValue = file.fileName
             problem = Self.problem(store.states[file.id])
@@ -276,7 +282,11 @@ final class FamilyCell: NSTableCellView {
             check.toolTip = !check.isEnabled ? L("System のフォントは切り替えられません")
                 : state == true ? L("クリックで解除") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(state == true ? L("アクティブ") : state == nil ? L("一部アクティブ") : L("非アクティブ"))
-            name.stringValue = family.name
+            switch NameDisplay.current {
+            case .localized: set(family.displayName, nil)
+            case .postScript: set(family.name, nil)
+            case .both: set(family.displayName, family.displayName == family.name ? nil : family.name)
+            }
             let favorite = store.isFavorite(family)
             star.isHidden = false
             star.image = NSImage(systemSymbolName: favorite ? "star.fill" : "star", accessibilityDescription: nil)
@@ -289,6 +299,15 @@ final class FamilyCell: NSTableCellView {
         warning.isHidden = problem == nil
         warning.toolTip = problem
         warning.setAccessibilityLabel(problem)
+    }
+
+    /// 名前と、薄い色の補足（両方を出すときの PostScript名・英語名）
+    private func set(_ main: String, _ extra: String?) {
+        guard let extra else { name.stringValue = main; return }
+        let text = NSMutableAttributedString(string: main, attributes: [.foregroundColor: NSColor.labelColor])
+        text.append(NSAttributedString(string: "  " + extra, attributes: [
+            .foregroundColor: NSColor.secondaryLabelColor, .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)]))
+        name.attributedStringValue = text
     }
 
     private static func problem(_ state: FontState?) -> String? {

@@ -12,24 +12,19 @@ NSGraphicsContext.restoreGraphicsState()
 let brown = NSColor(srgbRed: 0.36, green: 0.25, blue: 0.085, alpha: 1)
 let paper = NSColor(srgbRed: 1, green: 0.985, blue: 0.95, alpha: 1)
 let accent = NSColor(srgbRed: 0.93, green: 0.69, blue: 0.055, alpha: 1)
-// Type specimen card: the font being managed.
-let card = NSRect(x: 190, y: 330, width: 644, height: 480)
-let cardPath = NSBezierPath(roundedRect: card, xRadius: 56, yRadius: 56)
+// Type specimen card with "あa": Japanese and Latin fonts managed side by side.
+let card = NSRect(x: 170, y: 220, width: 684, height: 584)
+let cardPath = NSBezierPath(roundedRect: card, xRadius: 64, yRadius: 64)
 NSGraphicsContext.saveGraphicsState(); shadow.set(); paper.setFill(); cardPath.fill(); NSGraphicsContext.restoreGraphicsState()
 brown.setStroke(); cardPath.lineWidth = 30; cardPath.stroke()
-let glyphs = NSAttributedString(string: "Aa", attributes: [
-    .font: NSFont(name: "Georgia-Bold", size: 330) ?? NSFont.boldSystemFont(ofSize: 330),
-    .foregroundColor: brown])
+let kana = NSAttributedString(string: "あ", attributes: [
+    .font: NSFont(name: "HiraMinProN-W6", size: 360) ?? NSFont.boldSystemFont(ofSize: 360), .foregroundColor: brown])
+let latin = NSAttributedString(string: "a", attributes: [
+    .font: NSFont(name: "Georgia-Bold", size: 340) ?? NSFont.boldSystemFont(ofSize: 340), .foregroundColor: brown])
+let glyphs = NSMutableAttributedString(attributedString: kana)
+glyphs.append(latin)
 let glyphSize = glyphs.size()
-glyphs.draw(at: NSPoint(x: card.midX - glyphSize.width / 2, y: card.midY - glyphSize.height / 2 + 6))
-// Toggle switch below the card: on/off activation.
-let track = NSRect(x: 292, y: 150, width: 440, height: 200)
-let trackPath = NSBezierPath(roundedRect: track, xRadius: 100, yRadius: 100)
-NSGraphicsContext.saveGraphicsState(); shadow.set(); accent.setFill(); trackPath.fill(); NSGraphicsContext.restoreGraphicsState()
-brown.setStroke(); trackPath.lineWidth = 28; trackPath.stroke()
-let knob = NSBezierPath(ovalIn: NSRect(x: track.maxX - 186, y: track.minY + 14, width: 172, height: 172))
-paper.setFill(); knob.fill()
-knob.lineWidth = 26; knob.stroke()
+glyphs.draw(at: NSPoint(x: card.midX - glyphSize.width / 2, y: card.midY - glyphSize.height / 2 + 4))
 image.unlockFocus()
 let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
 try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("FontSwitcher.png"))

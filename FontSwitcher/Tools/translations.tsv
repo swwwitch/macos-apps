@@ -132,3 +132,20 @@ System のフォントは切り替えられません	System fonts cannot be swit
 モリサワ	Morisawa	森泽	모리사와
 フォントワークス	Fontworks	Fontworks	폰트웍스
 FontSwitcherが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。FontSwitcherが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。	While FontSwitcher is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when FontSwitcher is not running, so use it together with Open at Login.	FontSwitcher 运行期间，可从任何应用打开其主窗口。默认为 ⌃⇧⌘F。若其他自制应用仅在特定前台应用中使用同一按键且正在运行，则在该应用位于前台时让给它。FontSwitcher 未运行时无效，请与“登录时打开”一起使用。	FontSwitcher가 실행 중이면 모든 앱에서 메인 윈도우를 엽니다. 기본값은 ⌃⇧⌘F입니다. 같은 키를 특정 앞쪽 앱 전용으로 쓰는 다른 자작 앱이 실행 중이면 그 앱이 앞쪽에 있는 동안 양보합니다. FontSwitcher가 실행 중이 아니면 작동하지 않으므로 ‘로그인 시 열기’와 함께 사용합니다.
+フォント名	Font name	字体名称	서체 이름
+日本語名	Localized	本地化名称	현지화 이름
+両方	Both	两者	둘 다
+フォント名の出し方	How font names are shown	字体名称的显示方式	서체 이름 표시 방식
+プレビューを隠す（⌥⌘P）	Hide Preview (⌥⌘P)	隐藏预览（⌥⌘P）	미리보기 가리기(⌥⌘P)
+プレビューを表示（⌥⌘P）	Show Preview (⌥⌘P)	显示预览（⌥⌘P）	미리보기 표시(⌥⌘P)
+プレビューを隠す	Hide Preview	隐藏预览	미리보기 가리기
+プレビューを表示	Show Preview	显示预览	미리보기 표시
+表示	Display	显示	표시
+サイドバー	Sidebar	边栏	사이드바
+サイドバーに出す区分を選びます。「ライブラリ」は常に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。	Choose the categories shown in the sidebar. Library is always shown. Hiding a category does not remove any fonts or sets. Click a category heading to collapse or expand it.	选择边栏中显示的类别。“资源库”始终显示。隐藏后字体和字体集不会被删除。点按类别标题可折叠或展开。	사이드바에 표시할 구분을 선택합니다. ‘보관함’은 항상 표시합니다. 숨겨도 서체와 세트는 사라지지 않습니다. 구분 제목을 클릭하면 접거나 펼칠 수 있습니다.
+文字セット	Character set	字符集	문자 세트
+すべて	All	全部	모두
+名前に無し	Not in name	名称中无	이름에 없음
+名前の先頭	Name prefix	名称前缀	이름 앞부분
+絞り込みを解除	Clear Filters	清除筛选	필터 해제
+このフォントに無い文字は、ほかのフォントで薄く表示しています	Characters this font lacks are shown faintly in another font	此字体中没有的字符以其他字体淡色显示	이 서체에 없는 문자는 다른 서체로 흐리게 표시합니다

@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @ObservedObject private var store = LibraryStore.shared
     @State private var isTargeted = false
+    @AppStorage("previewVisible") private var previewVisible = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -14,9 +15,11 @@ struct ContentView: View {
                 SidebarView()
                     .frame(minWidth: 170, idealWidth: 200, maxWidth: 230)
                 FamilyListView()
-                    .frame(minWidth: 280, idealWidth: 340)
-                PreviewView()
-                    .frame(minWidth: 300, maxWidth: .infinity)
+                    .frame(minWidth: 280, idealWidth: 340, maxWidth: previewVisible ? nil : .infinity)
+                if previewVisible {
+                    PreviewView()
+                        .frame(minWidth: 300, maxWidth: .infinity)
+                }
             }
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.accentColor, lineWidth: 3).opacity(isTargeted ? 1 : 0))
             .padding(.horizontal, 16)
@@ -50,15 +53,15 @@ struct ContentView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(nsImage: currentAppIcon()).resizable().scaledToFit()
-                .frame(width: 36, height: 36).accessibilityHidden(true)
+            // ほかのアプリと同じ共通ヘッダー：アイコンの下にバージョン（build）
+            VStack(spacing: 4) {
+                Image(nsImage: currentAppIcon()).resizable().scaledToFit()
+                    .frame(width: 44, height: 44).accessibilityHidden(true)
+                AppVersionLabel()
+            }
             VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(L("フォントのアクティブを切り替え"))
-                        .font(.headline)
-                    Text(appVersionText().replacingOccurrences(of: "\n", with: " "))
-                        .font(.caption).foregroundStyle(.secondary).fixedSize()
-                }
+                Text(L("フォントのアクティブを切り替え"))
+                    .font(.title2.weight(.semibold))
                 Text(L("フォントファイルをライブラリに登録し、使うときだけアクティブにします"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -109,39 +112,52 @@ private final class DroppedURLs: @unchecked Sendable {
 
 private struct SidebarView: View {
     @ObservedObject private var store = LibraryStore.shared
+    // 区分ごとの表示（設定の「表示」）と開閉（ここで覚える）。コレクションは初めは閉じる
+    @AppStorage(LibraryStore.SidebarSection.system.showKey) private var showSystem = true
+    @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
+    @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
+    @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
+    @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
+    @AppStorage(LibraryStore.SidebarSection.system.expandedKey) private var expandedSystem = true
+    @AppStorage(LibraryStore.SidebarSection.vendors.expandedKey) private var expandedVendors = true
+    @AppStorage(LibraryStore.SidebarSection.collections.expandedKey) private var expandedCollections = false
+    @AppStorage(LibraryStore.SidebarSection.sets.expandedKey) private var expandedSets = true
 
     var body: some View {
         VStack(spacing: 0) {
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.sidebar = item; store.selection.removeAll() } })) {
-                Section(L("ライブラリ")) {
+                Section(isExpanded: $expandedLibrary) {
                     row(.all, L("すべてのフォント"), "textformat")
                     row(.favorites, L("お気に入り"), "star")
                     row(.active, L("アクティブ"), "checkmark.circle")
                     row(.inactive, L("非アクティブ"), "circle")
                     row(.duplicates, L("重複"), "square.on.square")
                     row(.missing, L("見つからない"), "exclamationmark.triangle")
-                }
-                if store.includeUserFonts {
+                } header: { Text(L("ライブラリ")) }
+                if store.includeUserFonts && showSystem {
                     // フォントフォルダー。System は切り替え・取り除きができない
-                    Section(L("システム")) {
+                    Section(isExpanded: $expandedSystem) {
                         row(.folder(.user), SystemFolder.user.title, "person")
                         row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
                         row(.folder(.system), SystemFolder.system.title, "lock")
-                    }
+                    } header: { Text(L("システム")) }
                 }
-                Section(L("ベンダー")) {
-                    ForEach(LibraryStore.vendors, id: \.id) { vendor in
-                        row(.vendor(vendor.id), vendor.title, "building.2")
-                    }
+                if showVendors {
+                    Section(isExpanded: $expandedVendors) {
+                        ForEach(LibraryStore.vendors, id: \.id) { vendor in
+                            row(.vendor(vendor.id), vendor.title, "building.2")
+                        }
+                    } header: { Text(L("ベンダー")) }
                 }
-                if !store.collectionNames.isEmpty {
-                    Section(L("コレクション")) {
+                if showCollections && !store.collectionNames.isEmpty {
+                    Section(isExpanded: $expandedCollections) {
                         ForEach(store.collectionNames, id: \.self) { name in
                             row(.collection(name), name, "square.stack")
                         }
-                    }
+                    } header: { Text(L("コレクション")) }
                 }
-                Section(L("セット")) {
+                if showSets {
+                Section(isExpanded: $expandedSets) {
                     ForEach(store.data.sets) { set in
                         row(.set(set.id), set.name, "folder")
                             .contextMenu {
@@ -152,6 +168,7 @@ private struct SidebarView: View {
                                 Button(L("セットを削除…")) { store.deleteSet(set.id) }
                             }
                     }
+                } header: { Text(L("セット")) }
                 }
             }
             .listStyle(.sidebar)
@@ -182,6 +199,8 @@ private struct SidebarView: View {
 
 private struct FamilyListView: View {
     @ObservedObject private var store = LibraryStore.shared
+    @AppStorage(NameDisplay.key) private var nameDisplay = NameDisplay.localized.rawValue
+    @AppStorage("previewVisible") private var previewVisible = true
 
     var body: some View {
         let families = store.shownFamilies
@@ -196,8 +215,31 @@ private struct FamilyListView: View {
                         .buttonStyle(.borderless).foregroundStyle(.secondary)
                         .accessibilityLabel(L("検索を消去"))
                 }
+                Button { previewVisible.toggle() } label: {
+                    Image(systemName: "sidebar.right")
+                }
+                .buttonStyle(.borderless)
+                .keyboardShortcut("p", modifiers: [.command, .option])
+                .help(previewVisible ? L("プレビューを隠す（⌥⌘P）") : L("プレビューを表示（⌥⌘P）"))
+                .accessibilityLabel(previewVisible ? L("プレビューを隠す") : L("プレビューを表示"))
             }
             .padding(8)
+            // フォント名の出し方。一覧の幅いっぱいに伸び縮みさせる
+            Picker(L("フォント名"), selection: $nameDisplay) {
+                Text(L("日本語名")).tag(NameDisplay.localized.rawValue)
+                Text(L("PostScript名")).tag(NameDisplay.postScript.rawValue)
+                Text(L("両方")).tag(NameDisplay.both.rawValue)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(maxWidth: .infinity)
+            .help(L("フォント名の出し方"))
+            .onChange(of: nameDisplay) { store.invalidate() }
+            .padding(.horizontal, 8)
+            .padding(.bottom, 6)
+            FilterBar()
+                .padding(.horizontal, 8)
+                .padding(.bottom, 6)
             Divider()
             if families.isEmpty {
                 emptyView
@@ -220,6 +262,40 @@ private struct FamilyListView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// 条件での絞り込み：文字セットと名前の先頭。サイドバー・検索と重ねて効く
+private struct FilterBar: View {
+    @ObservedObject private var store = LibraryStore.shared
+
+    var body: some View {
+        let options = store.filterOptions
+        HStack(spacing: 8) {
+            Picker(L("文字セット"), selection: $store.charsetFilter) {
+                Text(L("すべて")).tag(String?.none)
+                Divider()
+                ForEach(options.charsets, id: \.0) { name, count in
+                    Text(verbatim: "\(name == LibraryStore.noCharset ? L("名前に無し") : name)（\(count)）").tag(String?.some(name))
+                }
+            }
+            .frame(minWidth: 120, maxWidth: 200)
+            Picker(L("名前の先頭"), selection: $store.prefixFilter) {
+                Text(L("すべて")).tag(String?.none)
+                Divider()
+                ForEach(options.prefixes, id: \.0) { name, count in
+                    Text(verbatim: "\(name)（\(count)）").tag(String?.some(name))
+                }
+            }
+            .frame(minWidth: 140, maxWidth: 240)
+            if store.charsetFilter != nil || store.prefixFilter != nil {
+                Button(L("解除")) { store.charsetFilter = nil; store.prefixFilter = nil }
+                    .buttonStyle(.borderless)
+                    .help(L("絞り込みを解除"))
+            }
+            Spacer(minLength: 0)
+        }
+        .font(.callout)
     }
 }
 
@@ -283,11 +359,13 @@ private struct FaceSample: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(face.style.isEmpty ? face.fullName : face.style)
-                .font(.caption).foregroundStyle(.secondary)
+            Text(NameDisplay.current == .postScript ? face.postScriptName
+                 : NameDisplay.current == .both ? face.displayStyle + "  " + face.postScriptName : face.displayStyle)
+                .font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             if let font = PreviewFonts.font(file: file, face: face, size: size) {
-                Text(text).font(Font(font)).textSelection(.enabled)
+                Text(PreviewFonts.sample(text, font: font)).font(Font(font)).textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
+                    .help(L("このフォントに無い文字は、ほかのフォントで薄く表示しています"))
             } else {
                 Text(L("プレビューできません")).foregroundStyle(.secondary)
             }
@@ -346,6 +424,26 @@ enum PreviewFonts {
         return CTFontCreateWithFontDescriptor(descriptor, size, nil)
     }
 
+    /// このフォントに字形の無い文字は、代わりのフォントで描かれる。薄い色にして見分けられるようにする
+    static func sample(_ text: String, font: CTFont) -> AttributedString {
+        var result = AttributedString()
+        for character in text {
+            var piece = AttributedString(String(character))
+            if !character.isWhitespace && !has(character, in: font) {
+                // tertiaryLabelColor（約26%）では濃いという指摘で、15%に
+                piece.foregroundColor = Color(nsColor: .labelColor).opacity(0.15)
+            }
+            result += piece
+        }
+        return result
+    }
+
+    private static func has(_ character: Character, in font: CTFont) -> Bool {
+        let units = Array(String(character).utf16)
+        var glyphs = [CGGlyph](repeating: 0, count: units.count)
+        return CTFontGetGlyphsForCharacters(font, units, &glyphs, units.count)
+    }
+
     static func version(file: FontFile) -> String? {
         guard let descriptor = descriptorsOf(file).first else { return nil }
         let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
@@ -375,4 +473,11 @@ private func appVersionText() -> String {
     guard let build = info["CFBundleVersion"] as? String, !build.isEmpty, build != version else { return version }
     let japanese = Bundle.main.preferredLocalizations.first?.hasPrefix("ja") ?? false
     return version + "\n" + (japanese ? "（\(build)）" : "(\(build))")
+}
+/// Placed under the header icon.
+private struct AppVersionLabel: View {
+    var body: some View {
+        Text(appVersionText()).font(.system(size: 10)).foregroundStyle(.secondary)
+            .multilineTextAlignment(.center).fixedSize()
+    }
 }

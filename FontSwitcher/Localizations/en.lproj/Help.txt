@@ -19,6 +19,11 @@ FontSwitcher keeps your font files in a library and activates them only when you
 - Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time.
 - Select one family to see every style on the right, with the format, version, PostScript name and location. Fonts that are not active can be previewed too.
 - Change the preview text in the field at the top and the size with the slider.
+- Use "Localized / PostScript name / Both" above the list to choose how font names are shown. Fonts without a localized name use their English name. With PostScript names, family rows show the English family name and style rows show PostScript names.
+- Use "Character set" and "Name prefix" under the search field to filter. Character sets are names such as Std, Pro and Pr6N in the family name; prefixes are such as "A P-OTF" and "FOT-" (those with five or more families). They combine with the sidebar and the search; "Clear" removes them.
+- In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
+- The button at the upper right of the list (⌥⌘P) hides or shows the preview on the right.
+- Click a sidebar heading (Library, System and so on) to collapse or expand it. Collections start collapsed.
 - The ⚠️ mark means the file is missing, or a font with the same name is in use from another location (installed by the system or another app). Hold the pointer over the mark to see why.
 
 ### Sets
@@ -61,6 +66,7 @@ Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while FontSwitcher is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), Library Sharing, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Export and import the Fonts settings, and sync them with other Macs through a folder in iCloud Drive, Dropbox and so on. Share the library, sets and favorites with Library Sharing in the Fonts settings.
+- **Display**: Which categories appear in the sidebar (System, Vendors, Collections, Sets).
 - **About**: Version and links.
 
 ## Hotkeys
@@ -69,6 +75,7 @@ Open Settings with the Settings button in the main window (⌘,).
 - **⌘E**: Activate
 - **⇧⌘E**: Deactivate
 - **⌘R**: Show in Finder
+- **⌥⌘P**: Hide or show the preview
 - **⌘⌫**: Remove from Library
 - **⌃⇧⌘F**: Open Main Window (from any app; change or turn it off under Launch & Background in Settings)
 - **⌘0**: Open Main Window

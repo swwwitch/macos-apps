@@ -27,13 +27,18 @@ final class LibraryStore: ObservableObject {
     static let vendors: [(id: String, title: String)] = [("MRSW", L("モリサワ")), ("FWKS", L("フォントワークス"))]
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
-    static let syncedKeys: Set<String> = [restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey]
+    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, NameDisplay.key]
+        + SidebarSection.allCases.map(\.showKey))
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
     @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate() } }
     @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; listVersion += 1 } }
     @Published var selection = Set<String>()
     @Published var searchText = "" { didSet { shownCache = nil; listVersion += 1 } }
+    /// 絞り込み：文字セット（"—" は文字セットの名前が無いもの）と名前の先頭。nil は絞り込まない
+    @Published var charsetFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
+    @Published var prefixFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
+    static let noCharset = "—"
     /// 一覧の中身（行・チェック・お気に入り）が変わるたびに進む。一覧はこれが変わったときだけ読み直す
     @Published private(set) var listVersion = 0
     @Published private(set) var isBusy = false
@@ -60,6 +65,7 @@ final class LibraryStore: ObservableObject {
     private var countCache: [SidebarItem: Int] = [:]
     private var duplicateCache: Set<UUID>?
     private var familyCountCache: Int?
+    private var filterCache: (charsets: [(String, Int)], prefixes: [(String, Int)])?
 
     /// ライブラリ・状態・表示の設定が変わったときに控えを捨てる
     func invalidate() {
@@ -68,6 +74,7 @@ final class LibraryStore: ObservableObject {
         countCache = [:]
         duplicateCache = nil
         familyCountCache = nil
+        filterCache = nil
     }
 
     private var libraryURL: URL {
@@ -81,6 +88,7 @@ final class LibraryStore: ObservableObject {
         localURL = folder.appendingPathComponent("Library.json")
         UserDefaults.standard.register(defaults: [Self.restoreAtLaunchKey: true, Self.deactivateOnQuitKey: false,
                                                   Self.sampleTextKey: Self.defaultSampleText, Self.includeUserFontsKey: true])
+        UserDefaults.standard.register(defaults: Self.sidebarDefaults)
         sharedFolder = UserDefaults.standard.string(forKey: Self.sharedFolderKey)
         if let sharedFolder, !FileManager.default.fileExists(atPath: sharedFolder) {
             // Dropbox が止まっているなどで見えないときは、このMacのライブラリで開く（設定は残す）
@@ -143,12 +151,19 @@ final class LibraryStore: ObservableObject {
     }
 
     var shownFiles: [FontFile] {
-        let files = files(in: sidebar)
+        var files = files(in: sidebar)
+        if let charsetFilter {
+            files = files.filter { (FontNaming.charset($0.family) ?? Self.noCharset) == charsetFilter }
+        }
+        if let prefixFilter {
+            files = files.filter { FontNaming.prefix($0.family) == prefixFilter }
+        }
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else { return files }
         return files.filter { file in
             file.fileName.localizedCaseInsensitiveContains(query)
                 || file.faces.contains { $0.family.localizedCaseInsensitiveContains(query)
+                    || ($0.localizedFamily ?? "").localizedCaseInsensitiveContains(query)
                     || $0.postScriptName.localizedCaseInsensitiveContains(query)
                     || $0.fullName.localizedCaseInsensitiveContains(query) }
         }
@@ -166,6 +181,24 @@ final class LibraryStore: ObservableObject {
         let ids = data.duplicateFileIDs
         duplicateCache = ids
         return ids
+    }
+
+    /// 絞り込みの選択肢（ファミリー数つき）。文字セットは決まった順、名前の先頭は5ファミリー以上のものを多い順
+    var filterOptions: (charsets: [(String, Int)], prefixes: [(String, Int)]) {
+        if let filterCache { return filterCache }
+        let families = Set(visibleFiles.map(\.family))
+        var charsets: [String: Int] = [:]
+        var prefixes: [String: Int] = [:]
+        for family in families {
+            charsets[FontNaming.charset(family) ?? Self.noCharset, default: 0] += 1
+            prefixes[FontNaming.prefix(family), default: 0] += 1
+        }
+        let options = (
+            charsets: (FontNaming.charsets + [Self.noCharset]).compactMap { name in charsets[name].map { (name, $0) } },
+            prefixes: prefixes.filter { $0.value >= 5 }.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+                .map { ($0.key, $0.value) })
+        filterCache = options
+        return options
     }
 
     /// 表示しているファイル全体のファミリー数（ウインドウ下の要約）
@@ -420,6 +453,40 @@ final class LibraryStore: ObservableObject {
         return name.isEmpty ? nil : name
     }
 
+    // MARK: サイドバーの表示
+
+    /// サイドバーに出す区分（設定の「表示」）。ライブラリは常に出す
+    enum SidebarSection: String, CaseIterable {
+        case system, vendors, collections, sets
+        var showKey: String { "sidebarShow." + rawValue }
+        var expandedKey: String { "sidebarExpanded." + rawValue }
+        /// コレクションは多くなりがちなので、初めは閉じておく
+        var expandedByDefault: Bool { self != .collections }
+    }
+
+    static var sidebarDefaults: [String: Any] {
+        var values: [String: Any] = ["sidebarExpanded.library": true]
+        for section in SidebarSection.allCases {
+            values[section.showKey] = true
+            values[section.expandedKey] = section.expandedByDefault
+        }
+        return values
+    }
+
+    /// 隠した区分の項目を選んでいたら「すべてのフォント」に戻す
+    func ensureSidebarVisible() {
+        let defaults = UserDefaults.standard
+        let section: SidebarSection?
+        switch sidebar {
+        case .folder: section = .system
+        case .vendor: section = .vendors
+        case .collection: section = .collections
+        case .set: section = .sets
+        default: section = nil
+        }
+        if let section, !defaults.bool(forKey: section.showKey) { sidebar = .all }
+    }
+
     // MARK: コレクション（~/Library/FontCollections）
 
     /// Font Book やフォントパネルのコレクション。com.apple で始まる内部のもの（最近使ったフォントなど）は除く
@@ -534,18 +601,30 @@ final class LibraryStore: ObservableObject {
     // MARK: ベンダー
 
     /// 古い版で登録したファイルにはベンダーIDが無いので、裏で読んで足す（7,953件で約5秒、1回だけ）
-    func fillVendors() {
-        let missing = data.files.filter { $0.vendor == nil && FileManager.default.fileExists(atPath: $0.path) }
+    /// 古い版で登録したファイルには、ベンダーIDと日本語の表示名が無い。裏で読み直して足す（7,953件で数秒、1回だけ）
+    func fillMetadata() {
+        let missing = data.files.filter {
+            ($0.vendor == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
+        }
         guard !missing.isEmpty else { return }
         Task.detached(priority: .utility) {
-            var found: [UUID: String] = [:]
-            for file in missing { found[file.id] = FontScanner.vendorID(of: file.url) }
+            var found: [UUID: FontFile] = [:]
+            for file in missing {
+                if let fresh = FontScanner.read(file.url) { found[file.id] = fresh }
+            }
             let result = found
             await MainActor.run {
                 let store = LibraryStore.shared
                 var data = store.data
                 for index in data.files.indices {
-                    if let vendor = result[data.files[index].id] { data.files[index].vendor = vendor }
+                    guard let fresh = result[data.files[index].id] else { continue }
+                    data.files[index].vendor = fresh.vendor
+                    for face in data.files[index].faces.indices {
+                        let name = data.files[index].faces[face].postScriptName
+                        let match = fresh.faces.first { $0.postScriptName == name }
+                        data.files[index].faces[face].localizedFamily = match?.localizedFamily ?? ""
+                        data.files[index].faces[face].localizedStyle = match?.localizedStyle ?? ""
+                    }
                 }
                 store.data = data
                 store.save()

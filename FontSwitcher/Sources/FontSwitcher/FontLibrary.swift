@@ -7,6 +7,12 @@ struct FontFace: Codable, Hashable, Sendable {
     var family: String
     var style: String
     var fullName: String
+    /// 日本語などの表示名（name テーブルのローカライズ名）。無ければ空。古い版のライブラリでは nil
+    var localizedFamily: String?
+    var localizedStyle: String?
+
+    var displayFamily: String { localizedFamily.flatMap { $0.isEmpty ? nil : $0 } ?? family }
+    var displayStyle: String { localizedStyle.flatMap { $0.isEmpty ? nil : $0 } ?? (style.isEmpty ? fullName : style) }
 }
 
 /// ライブラリに登録したフォントファイル。ファイルは動かさず、場所だけを覚える
@@ -68,6 +74,8 @@ struct FontFamily: Identifiable, Hashable, Sendable {
     var files: [FontFile]
     var id: String { name }
     var faceCount: Int { files.reduce(0) { $0 + $1.faces.count } }
+    /// 日本語などの表示名（無ければ英語のファミリー名）
+    var displayName: String { files.first?.faces.first?.displayFamily ?? name }
 }
 
 enum FontState: Hashable, Sendable {
@@ -108,12 +116,23 @@ enum FontScanner {
             let family = CTFontDescriptorCopyAttribute(descriptor, kCTFontFamilyNameAttribute) as? String ?? name
             let style = CTFontDescriptorCopyAttribute(descriptor, kCTFontStyleNameAttribute) as? String ?? ""
             let full = CTFontDescriptorCopyAttribute(descriptor, kCTFontDisplayNameAttribute) as? String ?? name
-            return FontFace(postScriptName: name, family: family, style: style, fullName: full)
+            var face = FontFace(postScriptName: name, family: family, style: style, fullName: full)
+            (face.localizedFamily, face.localizedStyle) = localizedNames(descriptor)
+            return face
         }
         guard !faces.isEmpty else { return nil }
         var file = FontFile(path: url.standardizedFileURL.path, faces: faces)
         file.vendor = vendorID(descriptors[0])
         return file
+    }
+
+    /// アプリの表示言語（日本語環境なら日本語）のファミリー名・スタイル名。英語名と同じなら空
+    static func localizedNames(_ descriptor: CTFontDescriptor) -> (String, String) {
+        let family = CTFontDescriptorCopyLocalizedAttribute(descriptor, kCTFontFamilyNameAttribute, nil) as? String ?? ""
+        let style = CTFontDescriptorCopyLocalizedAttribute(descriptor, kCTFontStyleNameAttribute, nil) as? String ?? ""
+        let english = CTFontDescriptorCopyAttribute(descriptor, kCTFontFamilyNameAttribute) as? String ?? ""
+        let englishStyle = CTFontDescriptorCopyAttribute(descriptor, kCTFontStyleNameAttribute) as? String ?? ""
+        return (family == english ? "" : family, style == englishStyle ? "" : style)
     }
 
     /// OS/2 テーブルの achVendID（4文字）。前後の空白は落とす
@@ -339,5 +358,45 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
 
     static func of(_ path: String) -> SystemFolder? {
         allCases.first { path.hasPrefix($0.path + "/") }
+    }
+}
+
+/// 一覧のフォント名の出し方
+enum NameDisplay: String, CaseIterable, Sendable {
+    /// 日本語名（ローカライズ名。無ければ英語名）
+    case localized
+    /// PostScript名（ファミリーの行は英語のファミリー名）
+    case postScript
+    /// 日本語名と PostScript名
+    case both
+
+    static let key = "nameDisplay"
+    static var current: NameDisplay {
+        UserDefaults.standard.string(forKey: key).flatMap(NameDisplay.init(rawValue:)) ?? .localized
+    }
+}
+
+/// ファミリー名から読む分類（絞り込み用）
+enum FontNaming {
+    /// Adobe-Japan1 の文字セットの名前（Std・Pro・Pr6N など）。ファミリー名の単語として入っているものだけ
+    static let charsets = ["Std", "StdN", "Pro", "ProN", "Pr5", "Pr5N", "Pr6", "Pr6N", "Plus", "PlusN"]
+
+    static func charset(_ family: String) -> String? {
+        let words = family.split(whereSeparator: { $0 == " " || $0 == "-" }).map(String.init)
+        return words.last { charsets.contains($0) }
+    }
+
+    /// 名前の先頭：「A P-OTF」「M PLUS」のように1文字の語で始まるものは2語、「FOT-Rodin」のような接頭辞は「FOT-」、
+    /// 「A-OTF」のように後ろが大文字だけのものは語のまま、それ以外は最初の語
+    static func prefix(_ family: String) -> String {
+        let words = family.split(separator: " ").map(String.init)
+        guard let first = words.first else { return family }
+        if first.count == 1, words.count > 1 { return first + " " + words[1] }
+        if let hyphen = first.firstIndex(of: "-") {
+            let rest = first[first.index(after: hyphen)...]
+            if !rest.isEmpty, rest.allSatisfy({ $0.isUppercase || $0.isNumber }) { return first }
+            return String(first[...hyphen])
+        }
+        return first
     }
 }

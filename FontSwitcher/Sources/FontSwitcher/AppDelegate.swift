@@ -12,7 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // ログアウトでアクティブが外れるので、ログイン時の起動でも戻す
         LibraryStore.shared.restoreActiveFonts()
         LibraryStore.shared.scanUserFonts()
-        LibraryStore.shared.fillVendors()
+        LibraryStore.shared.fillMetadata()
         BenchMode.startIfRequested()
         AppHotkey.shared.onPress = { [weak self] in
             StartupWindow.userRequestedWindow()

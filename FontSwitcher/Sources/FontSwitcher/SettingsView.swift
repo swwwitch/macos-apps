@@ -10,6 +10,7 @@ struct SettingsView: View {
                 AppHotkeyView()
             })),
             (L("フォント"), AnyView(FontSettingsView())),
+            (L("表示"), AnyView(DisplaySettingsView())),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
@@ -26,6 +27,29 @@ private struct AppHotkeyView: View {
                     registered: !hotkey.failed, isEnabled: hotkey.enabled)
         Text(L("FontSwitcherが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。FontSwitcherが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。"))
             .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// 「表示」タブ：サイドバーに出す区分。ライブラリは常に出す
+private struct DisplaySettingsView: View {
+    @AppStorage(LibraryStore.SidebarSection.system.showKey) private var showSystem = true
+    @AppStorage(LibraryStore.SidebarSection.vendors.showKey) private var showVendors = true
+    @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
+    @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SettingsSection(L("サイドバー")) {
+                Toggle(L("システム"), isOn: $showSystem)
+                Toggle(L("ベンダー"), isOn: $showVendors)
+                Toggle(L("コレクション"), isOn: $showCollections)
+                Toggle(L("セット"), isOn: $showSets)
+                Text(L("サイドバーに出す区分を選びます。「ライブラリ」は常に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。"))
+                    .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+            Button(L("初期値に戻す")) { showSystem = true; showVendors = true; showCollections = true; showSets = true }
+        }
+        .onChange(of: [showSystem, showVendors, showCollections, showSets]) { LibraryStore.shared.ensureSidebarVisible() }
     }
 }
 
