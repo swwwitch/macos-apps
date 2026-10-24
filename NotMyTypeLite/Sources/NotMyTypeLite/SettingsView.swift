@@ -30,7 +30,7 @@ private struct AppHotkeyView: View {
         Toggle(HotkeyText.enable, isOn: $hotkey.enabled)
         HotkeyField(id: AppHotkey.fieldID, combo: $hotkey.combo, defaultCombo: AppHotkey.defaultCombo, allowsClear: true,
                     registered: !hotkey.failed, isEnabled: hotkey.enabled)
-        Text(L("NotMyTypeLiteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeLiteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。"))
+        Text(L("NotMyType Liteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyType Liteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。"))
             .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -45,7 +45,7 @@ private struct FontSettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSection(L("アクティブ")) {
                 Toggle(L("起動時に、前回アクティブだったフォントを戻す"), isOn: $restore)
-                note(L("NotMyTypeLiteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。"))
+                note(L("NotMyType Liteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。"))
                 Toggle(L("終了するときにすべて解除する"), isOn: $deactivate)
                 note(L("オフのときは、終了してもログアウトするまでアクティブのままです。"))
             }
@@ -82,12 +82,12 @@ private struct FontFileHandlerSection: View {
                 if handler.working { ProgressView().controlSize(.small) }
             }
             HStack {
-                Button(L("フォントファイルをNotMyTypeLiteで開く")) { handler.makeDefault() }
+                Button(L("フォントファイルをNotMyType Liteで開く")) { handler.makeDefault() }
                     .disabled(handler.working || handler.isDefault)
                 Button(L("Font Bookに戻す")) { handler.restoreFontBook() }
                     .disabled(handler.working)
             }
-            Text(L("フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyTypeLiteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。"))
+            Text(L("フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyType Liteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
         .onAppear { handler.refresh() }

@@ -34,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         AppHotkey.shared.start()
         startSettingsSync()
         DispatchQueue.main.async { [weak self] in
-            MenuBarPresence.shared.install(name: "NotMyTypeLite", symbol: "textformat",
+            MenuBarPresence.shared.install(name: "NotMyType Lite", symbol: "textformat",
                 show: { self?.showWindow() },
                 settings: { self?.showSettings() },
                 help: { LocalHelp.shared.show() })

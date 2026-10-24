@@ -49,6 +49,7 @@
 "最近非アクティブ" = "Recently Deactivated";
 "最近追加したもの" = "Recently Added";
 "日本語をサポート" = "Supports Japanese";
+"ウォッチフォルダー" = "Watch Folders";
 "スマートセットを編集…" = "Edit Smart Set…";
 "スマートセットを削除…" = "Delete Smart Set…";
 "プロジェクトを編集…" = "Edit Project…";
@@ -67,6 +68,7 @@
 "%@を上へ" = "Move %@ Up";
 "下へ" = "Move Down";
 "%@を下へ" = "Move %@ Down";
+"最近の項目を表示（最近アクティブ・最近非アクティブ・最近追加したもの）" = "Show recent items (Recently Activated, Recently Deactivated, Recently Added)";
 "「ライブラリ」は常に先頭に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。" = "\"Library\" always comes first. Hiding a section does not remove fonts or sets. Click a section heading to expand or collapse it.";
 "初期値に戻す" = "Restore Defaults";
 "ファミリー名・PostScript名で検索" = "Search family or PostScript name";
@@ -324,7 +326,6 @@
 "フォントファイルをNotMyTypeで開く" = "Open Font Files with NotMyType";
 "Font Bookに戻す" = "Use Font Book Again";
 "フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyTypeで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。" = "Chooses the app that opens font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. NotMyType adds the font to the library and selects its family (without activating it). The change takes a few seconds to apply.";
-"ウォッチフォルダー" = "Watch Folders";
 "ウォッチフォルダーはありません" = "No watch folders";
 "フォルダーを追加…" = "Add Folder…";
 "選んだフォルダーを外す" = "Remove the selected folders";
@@ -480,6 +481,7 @@
 "Unicodeあり" = "With Unicode";
 "Unicodeなし" = "Without Unicode";
 "名前に含む" = "Name contains";
+"名前が次で始まる" = "Name starts with";
 "追加した日（日以内）" = "Added within (days)";
 "はい" = "Yes";
 "いいえ" = "No";

@@ -1,4 +1,4 @@
-NotMyTypeLiteヘルプ	NotMyTypeLite Help
+NotMyType Liteヘルプ	NotMyType Lite Help
 設定…	Settings…
 メインウインドウを開く	Open Main Window
 ウインドウを閉じる	Close Window
@@ -90,7 +90,7 @@ OK	OK
 ライブラリを保存できませんでした	Could Not Save the Library
 フォント	Fonts
 起動時に、前回アクティブだったフォントを戻す	Reactivate fonts from last time at launch
-NotMyTypeLiteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。	Fonts activated with NotMyTypeLite are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.
+NotMyType Liteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。	Fonts activated with NotMyType Lite are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.
 終了するときにすべて解除する	Deactivate all fonts when quitting
 オフのときは、終了してもログアウトするまでアクティブのままです。	When off, fonts stay active after quitting until you log out.
 プレビュー	Preview
@@ -113,7 +113,7 @@ NotMyTypeLiteでアクティブにしたフォントは、ログアウトする�
 System のフォントは切り替えられません	System fonts cannot be switched
 フォントフォルダーから%d個のファイルを追加しました	Added %d files from the font folders
 どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る	From any app. Yields while another of these apps that uses the same key for its front app is in front
-NotMyTypeLiteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeLiteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。	While NotMyTypeLite is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyTypeLite is not running, so use it together with Open at Login.
+NotMyType Liteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyType Liteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。	While NotMyType Lite is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyType Lite is not running, so use it together with Open at Login.
 フォント名	Font name
 日本語名	Localized
 両方	Both
@@ -204,9 +204,9 @@ A-OTF	A-OTF
 スマートセット「%@」を削除しますか？	Delete smart set “%@”?
 フォントファイルを開くアプリ	App for Opening Font Files
 いま開くアプリ :	Currently opens with:
-フォントファイルをNotMyTypeLiteで開く	Open Font Files with NotMyTypeLite
+フォントファイルをNotMyType Liteで開く	Open Font Files with NotMyType Lite
 Font Bookに戻す	Use Font Book Again
-フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyTypeLiteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。	Chooses the app that opens font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. NotMyTypeLite adds the font to the library and selects its family (without activating it). The change takes a few seconds to apply.
+フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyType Liteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。	Chooses the app that opens font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. NotMyType Lite adds the font to the library and selects its family (without activating it). The change takes a few seconds to apply.
 システムのフォントキャッシュを消去しますか？	Clean the system font caches?
 macOSのフォントの控えを消します。文字化けやフォントの重複が直らないときに使います。消したあとMacを再起動（またはログアウト）すると作り直されます。「システム全体も消去」は管理者のパスワードが要ります。	Removes the font caches of macOS. Use this when garbled text or duplicate fonts do not go away. They are rebuilt when you restart (or log out). “Also Clean for the Whole System” needs an administrator password.
 このユーザーの分を消去	Clean for This User
@@ -347,3 +347,4 @@ Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、�
 ファイルごとに選んだ優先	Individually Chosen Preferences
 「重複フォントを解決」と「選んだフォントを優先にする」で選んだファイルです。ウォッチフォルダーの順で優先が決まらない重複に使います。	Files chosen with "Resolve Duplicate Fonts" and "Prefer Selected Fonts". Used for duplicates that the watch folder order cannot decide.
 優先するほうを選びます。選んだものは、この組の優先として覚えます。	Choose the one to prefer. Your choice is kept as the preferred file of this duplicate.
+名前が次で始まる	Name starts with

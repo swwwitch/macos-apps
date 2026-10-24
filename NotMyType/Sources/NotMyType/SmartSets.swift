@@ -13,11 +13,12 @@ struct SmartSet: Codable, Identifiable, Hashable, Sendable {
 /// 条件1つ。value は項目ごとの値（文字列で持つ）
 struct SmartRule: Codable, Hashable, Sendable, Identifiable {
     enum Field: String, Codable, CaseIterable, Sendable {
-        case name, vendor, kind, charset, n, ud, ap, nt, format, faceCount, characterCount, favorite, active, addedWithin
+        case name, prefix, vendor, kind, charset, n, ud, ap, nt, format, faceCount, characterCount, favorite, active, addedWithin
 
         var title: String {
             switch self {
             case .name: return L("名前に含む")
+            case .prefix: return L("名前が次で始まる")
             case .vendor: return L("ベンダー")
             case .kind: return L("種類")
             case .charset: return L("文字セット")
@@ -37,7 +38,7 @@ struct SmartRule: Codable, Hashable, Sendable, Identifiable {
         /// 選択肢（自由入力の項目は空）
         @MainActor var options: [(value: String, title: String)] {
             switch self {
-            case .name, .addedWithin: return []
+            case .name, .prefix, .addedWithin: return []
             case .vendor: return LibraryStore.vendors.map { ($0.id, $0.title) }
             case .kind: return FontKind.allCases.map { ($0.rawValue, $0.title) }
             case .charset: return (FontNaming.charsets + [LibraryStore.noCharset]).map { ($0, $0 == LibraryStore.noCharset ? L("名前に無し") : $0) }
@@ -81,6 +82,11 @@ extension LibraryStore {
             let query = value.trimmingCharacters(in: .whitespaces)
             return file.faces.contains { $0.family.localizedCaseInsensitiveContains(query) || ($0.localizedFamily ?? "").localizedCaseInsensitiveContains(query)
                 || $0.postScriptName.localizedCaseInsensitiveContains(query) } || file.fileName.localizedCaseInsensitiveContains(query)
+        case .prefix:
+            // ファミリー名・日本語名・PostScript名・ファイル名のどれかの先頭（大文字・小文字は区別しない）
+            let query = value.trimmingCharacters(in: .whitespaces)
+            let starts = { (text: String) in text.range(of: query, options: [.caseInsensitive, .anchored]) != nil }
+            return file.faces.contains { starts($0.family) || starts($0.localizedFamily ?? "") || starts($0.postScriptName) } || starts(file.fileName)
         case .vendor: return Self.belongs(file, toVendor: value)
         case .kind: return FontKind(rawValue: value)?.matches(file) ?? false
         case .charset: return (FontNaming.charset(file.family) ?? Self.noCharset) == value

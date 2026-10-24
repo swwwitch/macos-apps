@@ -133,6 +133,7 @@ private struct SidebarView: View {
     @AppStorage(LibraryStore.SidebarSection.collections.showKey) private var showCollections = true
     @AppStorage(LibraryStore.SidebarSection.smartSets.showKey) private var showSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.showKey) private var showSets = true
+    @AppStorage(LibraryStore.showRecentKey) private var showRecent = true
     @AppStorage(LibraryStore.SidebarSection.projects.showKey) private var showProjects = true
     @AppStorage(LibraryStore.SidebarSection.projects.expandedKey) private var expandedProjects = true
     @AppStorage("sidebarExpanded.library") private var expandedLibrary = true
@@ -197,7 +198,6 @@ private struct SidebarView: View {
                 Section(isExpanded: $expandedSystem) {
                     row(.folder(.user), SystemFolder.user.title, "person")
                     row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
-                    row(.folder(.system), SystemFolder.system.title, "lock")
                 } header: { Text(section.title) }
             }
         case .kinds:
@@ -235,11 +235,14 @@ private struct SidebarView: View {
                 Section(isExpanded: $expandedSmartSets) {
                     row(.favorites, L("お気に入り"), "star")
                     row(.active, L("アクティブ"), "checkmark.circle")
-                    row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark")
+                    if showRecent { row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark") }
                     row(.inactive, L("非アクティブ"), "circle")
-                    row(.recentlyDeactivated, L("最近非アクティブ"), "clock.badge.xmark")
-                    row(.recentlyAdded, L("最近追加したもの"), "calendar.badge.plus")
+                    if showRecent {
+                        row(.recentlyDeactivated, L("最近非アクティブ"), "clock.badge.xmark")
+                        row(.recentlyAdded, L("最近追加したもの"), "calendar.badge.plus")
+                    }
                     row(.japanese, L("日本語をサポート"), "character.ja")
+                    row(.watchFolders, L("ウォッチフォルダー"), "eye")
                     // 自分で条件を作ったスマートセット
                     ForEach(store.data.smartSets) { smartSet in
                         row(.smartSet(smartSet.id), smartSet.name, "gearshape")
@@ -358,6 +361,7 @@ private struct SidebarView: View {
 /// サイドバーの「…」：区分ごとの表示と並び順。ライブラリは常に先頭に出す
 private struct SidebarOptionsPanel: View {
     @AppStorage(LibraryStore.SidebarSection.orderKey) private var order = ""
+    @AppStorage(LibraryStore.showRecentKey) private var showRecent = true
 
     var body: some View {
         let sections = LibraryStore.SidebarSection.ordered(order)
@@ -380,12 +384,16 @@ private struct SidebarOptionsPanel: View {
                     .buttonStyle(.borderless)
                 }
             }
+            Divider()
+            Toggle(L("最近の項目を表示（最近アクティブ・最近非アクティブ・最近追加したもの）"), isOn: $showRecent)
+                .onChange(of: showRecent) { LibraryStore.shared.ensureSidebarVisible() }
             Text(L("「ライブラリ」は常に先頭に出します。隠しても、フォントやセットは消えません。区分の見出しをクリックすると開閉できます。"))
                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
                 Button(L("初期値に戻す")) {
                     order = ""
+                    showRecent = true
                     for section in LibraryStore.SidebarSection.allCases { UserDefaults.standard.set(true, forKey: section.showKey) }
                 }
             }
@@ -885,6 +893,13 @@ private struct PreviewView: View {
     /// プレビュー（見本の文字）か字形の一覧か
     @AppStorage("previewShowsGlyphs") private var showsGlyphs = false
 
+    /// 書体の行だけを選んでいるときはその書体だけ、ファミリーの行を選んでいるときは全書体をプレビューする（ユーザー指定）
+    private func previewFiles(_ family: FontFamily) -> [FontFile] {
+        guard !store.selection.contains(family.id) else { return family.files }
+        let picked = family.files.filter { store.selection.contains(FamilyNode.fileID($0)) }
+        return picked.isEmpty ? family.files : picked
+    }
+
     private var style: PreviewStyle {
         PreviewStyle(foreground: PreviewStyle.colors(scheme, foreground: foreground, background: background).0,
                      opacity: opacity / 100, kerning: kerning, tracking: trackingOn ? tracking : 0,
@@ -948,7 +963,7 @@ private struct PreviewView: View {
                 ScrollView {
                     // 数百書体のファミリーもあるので、見えている書体だけを描く
                     LazyVStack(alignment: .leading, spacing: 18) {
-                        ForEach(family.files) { file in
+                        ForEach(previewFiles(family)) { file in
                             ForEach(file.faces, id: \.postScriptName) { face in
                                 FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
                             }

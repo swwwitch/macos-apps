@@ -21,7 +21,7 @@ struct NotMyTypeApp: App {
         .defaultSize(width: 1040, height: 640)
         .commands {
             CommandGroup(replacing: .help) {
-                Button(L("NotMyTypeLiteヘルプ")) { LocalHelp.shared.show() }
+                Button(L("NotMyType Liteヘルプ")) { LocalHelp.shared.show() }
                     .keyboardShortcut("?", modifiers: .command)
                 Divider()
                 Button(HelpLinks.noteTitle) { HelpLinks.openNote() }

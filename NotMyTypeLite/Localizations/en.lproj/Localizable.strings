@@ -1,4 +1,4 @@
-"NotMyTypeLiteヘルプ" = "NotMyTypeLite Help";
+"NotMyType Liteヘルプ" = "NotMyType Lite Help";
 "設定…" = "Settings…";
 "メインウインドウを開く" = "Open Main Window";
 "ウインドウを閉じる" = "Close Window";
@@ -36,6 +36,7 @@
 "アクティブ" = "Active";
 "非アクティブ" = "Inactive";
 "日本語をサポート" = "Supports Japanese";
+"ウォッチフォルダー" = "Watch Folders";
 "スマートセットを編集…" = "Edit Smart Set…";
 "スマートセットを削除…" = "Delete Smart Set…";
 "セットをアクティブにする" = "Activate Set";
@@ -242,18 +243,17 @@
 "フォント" = "Fonts";
 "ホットキー" = "Hotkeys";
 "共有" = "Sharing";
-"NotMyTypeLiteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeLiteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。" = "While NotMyTypeLite is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyTypeLite is not running, so use it together with Open at Login.";
+"NotMyType Liteが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyType Liteが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。" = "While NotMyType Lite is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyType Lite is not running, so use it together with Open at Login.";
 "起動時に、前回アクティブだったフォントを戻す" = "Reactivate fonts from last time at launch";
-"NotMyTypeLiteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。" = "Fonts activated with NotMyTypeLite are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.";
+"NotMyType Liteでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。" = "Fonts activated with NotMyType Lite are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.";
 "終了するときにすべて解除する" = "Deactivate all fonts when quitting";
 "オフのときは、終了してもログアウトするまでアクティブのままです。" = "When off, fonts stay active after quitting until you log out.";
 "プレビューの文字 :" = "Preview text:";
 "フォントファイルを開くアプリ" = "App for Opening Font Files";
 "いま開くアプリ :" = "Currently opens with:";
-"フォントファイルをNotMyTypeLiteで開く" = "Open Font Files with NotMyTypeLite";
+"フォントファイルをNotMyType Liteで開く" = "Open Font Files with NotMyType Lite";
 "Font Bookに戻す" = "Use Font Book Again";
-"フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyTypeLiteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。" = "Chooses the app that opens font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. NotMyTypeLite adds the font to the library and selects its family (without activating it). The change takes a few seconds to apply.";
-"ウォッチフォルダー" = "Watch Folders";
+"フォントファイル（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）をダブルクリックしたときに開くアプリを決めます。NotMyType Liteで開くと、ライブラリに追加してそのファミリーを選びます（アクティブにはしません）。切り替えが反映されるまで数秒かかります。" = "Chooses the app that opens font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. NotMyType Lite adds the font to the library and selects its family (without activating it). The change takes a few seconds to apply.";
 "ウォッチフォルダーはありません" = "No watch folders";
 "フォルダーを追加…" = "Add Folder…";
 "選んだフォルダーを外す" = "Remove the selected folders";
@@ -318,6 +318,7 @@
 "Unicodeあり" = "With Unicode";
 "Unicodeなし" = "Without Unicode";
 "名前に含む" = "Name contains";
+"名前が次で始まる" = "Name starts with";
 "追加した日（日以内）" = "Added within (days)";
 "はい" = "Yes";
 "いいえ" = "No";

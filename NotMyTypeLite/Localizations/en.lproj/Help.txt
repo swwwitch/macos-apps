@@ -1,4 +1,4 @@
-NotMyTypeLite keeps your font files in a library and activates them only when you need them. Font files stay where they are; nothing is copied or moved.
+NotMyType Lite keeps your font files in a library and activates them only when you need them. Font files stay where they are; nothing is copied or moved.
 
 ## How to Use
 ### Adding Fonts
@@ -21,12 +21,12 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 - Select several families and click "Activate" (⇧⌘A) or "Deactivate" (⇧⌘D) to switch them together.
 - You can also press Space with rows selected. If everything selected is active it is deactivated; otherwise it is activated.
 - Activated fonts are available right away in other apps such as Illustrator, InDesign and Word. Some apps take a moment to update their font menu or need to be restarted.
-- Activation lasts for the current login session. Fonts stay active after you quit NotMyTypeLite and are deactivated when you log out. At the next launch, fonts that were active last time are reactivated (you can change this in Settings).
+- Activation lasts for the current login session. Fonts stay active after you quit NotMyType Lite and are deactivated when you log out. At the next launch, fonts that were active last time are reactivated (you can change this in Settings).
 
 ### List and Preview
 - Use the sidebar to switch between All Fonts, Active, Inactive, Duplicates, Missing and your sets.
 - Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time. A variable font and a file for a single weight are not treated as duplicates, even when they share a PostScript name. Fonts whose roman and italic were built with the same PostScript name are also kept apart by whether the style name is italic. Different fonts that share a PostScript name show a warning mark on their rows (name clash); if both are active, apps can see only one of them.
-- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Fonts that are not active can be previewed too.
+- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Fonts that are not active can be previewed too. Select style rows only to preview just those styles.
 - Choose "Glyphs" at the top of the preview to list every glyph of one style of the selected family in a grid. Choose the style from the menu, and narrow the list to All Glyphs, With Unicode or Without Unicode (variants and so on), or by character or U+XXXX. Clicking a glyph copies its character and shows its glyph ID, Unicode and glyph name below.
 - Change the preview text in the field at the top and the size with the slider.
 - Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
@@ -50,16 +50,15 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 - When activation fails because a font with the same name is already in use, the message offers "Force Activate", which unregisters the conflicting font and then activates the selected file (no files are moved). If the conflict is with Adobe Fonts, Creative Cloud re-registers it right away, so it cannot be removed; turn that font off in Creative Cloud, then activate again. Conflicts with macOS fonts cannot be resolved.
 
 ### System Fonts
-- "System" in the sidebar shows the three macOS font folders. They are read at launch and whenever fonts change.
+- "System" in the sidebar shows two macOS font folders. /System/Library/Fonts (macOS fonts) is not read. They are read at launch and whenever fonts change.
 - **Your user name** (~/Library/Fonts): fonts for this user only, including Morisawa fonts and the like.
 - **All Users** (/Library/Fonts): fonts for every user of this Mac.
-- **System** (/System/Library/Fonts): macOS fonts. They cannot be switched or removed from the library.
 - Fonts under your user name and All Users can be switched with their checkboxes. The files stay in place and macOS remembers that they are off (they stay off after you log out). Check them again to turn them back on.
 
 ### Smart Sets
-- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Active, Inactive and Supports Japanese (fonts with hiragana and katakana).
+- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Active, Inactive, Supports Japanese (fonts with hiragana and katakana) and Watch Folders (fonts in any watch folder).
 
-- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
+- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name contains, name starts with (family name, Japanese name, PostScript name or file name), kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
 
 ### Sets
 - When a set is selected, dropping font files or folders on the main window puts them in that set. Files already in the library are not reread and go straight into the set; new files are added to the library first.
@@ -73,7 +72,7 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 2. "NotMyTypeLite-Library.json" is placed in that folder and holds the fonts, sets and activation.
 3. Choose the same folder on your other Mac; its library is combined so both Macs have the same contents.
 - Locations inside Dropbox and your home folder are translated to each Mac's location. Files that are not on a Mac appear under "Missing".
-- Changes made on another Mac are loaded when the file syncs or when you bring NotMyTypeLite to the front. Fonts activated there are activated on this Mac too.
+- Changes made on another Mac are loaded when the file syncs or when you bring NotMyType Lite to the front. Fonts activated there are activated on this Mac too.
 - If both Macs change it at the same time, the last one saved remains.
 - "Stop Sharing" keeps the current contents as this Mac's own library.
 
@@ -93,11 +92,11 @@ NotMyTypeLite keeps your font files in a library and activates them only when yo
 
 - If Adobe apps are running when you choose "Apps…", a dialog lists a "Quit (app)" button for each app and "Quit All Adobe Apps". Buttons dim as the apps quit, and when all have quit, "Clean Font Caches" becomes available.
 ### App for Opening Font Files
-- "Open Font Files with NotMyTypeLite" in the Fonts settings makes NotMyTypeLite open font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. The font is added to the library and its family is selected (not activated). "Use Font Book Again" switches back.
+- "Open Font Files with NotMyType Lite" in the Fonts settings makes NotMyType Lite open font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. The font is added to the library and its family is selected (not activated). "Use Font Book Again" switches back.
 
 ## Settings
 Open Settings with the Settings button in the main window (⌘,).
-- **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyTypeLite is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
+- **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyType Lite is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
 - **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, the app for opening font files, and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
 - **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
 - **Hotkeys**: Keys for menu items (Add Fonts, New Set, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
@@ -116,38 +115,38 @@ Open Settings with the Settings button in the main window (⌘,).
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
 - **⌘W**: Close Window
-- **⌘?**: NotMyTypeLite Help
-- **⌘Q**: Quit NotMyTypeLite
+- **⌘?**: NotMyType Lite Help
+- **⌘Q**: Quit NotMyType Lite
 
 ## Permissions and Privacy
 - No Accessibility permission is needed.
 - "Also Clean for the Whole System" asks for an administrator password.
-- "fonts.adobe.com" only opens the browser; NotMyTypeLite itself does not connect.
-- The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/NotMyTypeLite/Library.json.
+- "fonts.adobe.com" only opens the browser; NotMyType Lite itself does not connect.
+- The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/NotMyType Lite/Library.json.
 - When you add fonts from Documents or Downloads, macOS may ask for permission to access the folder.
 - Use each font according to its license.
 
 ## Launching and Quitting
 - Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
 - With "Show in menu bar" on, you can also choose Open Main Window, Settings… and Help from the menu bar icon.
-- To quit, choose "Quit NotMyTypeLite" (⌘Q) in the app menu. If "Deactivate all fonts when quitting" is off, activated fonts remain usable until you log out.
+- To quit, choose "Quit NotMyType Lite" (⌘Q) in the app menu. If "Deactivate all fonts when quitting" is off, activated fonts remain usable until you log out.
 - Check for new versions with "Check for Updates…" in the app menu. Until distribution is ready, it shows that updates are being prepared and makes no network connection.
 
 ## Troubleshooting
 - "A font with the same name is already in use" means a font with the same PostScript name is active from the system or another font manager. Deactivate it there, then activate again.
 - If an activated font does not appear in an app's font menu, restart that app.
 - Fonts under "Missing" were moved or deleted, or are on a disconnected external disk. Connect the disk, or remove them from the library and add them again from the new location.
-- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyTypeLite cannot switch (System, Adobe Fonts, and files that cannot be found) are shown in light gray.
+- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyType Lite cannot switch (System, Adobe Fonts, and files that cannot be found) are shown in light gray.
 
 - If Sharing says it cannot read or write the sync files, make sure the sync folder is kept on this Mac (not online-only in Dropbox and the like).
 ## Help and the note Article
-- Open this help with "NotMyTypeLite Help" (⌘?) in the Help menu.
+- Open this help with "NotMyType Lite Help" (⌘?) in the Help menu.
 - "Open the note Article" in the Help menu opens the article on note in your browser.
 
 ## Removing the App
 1. Turn off "Open at login".
 2. Deactivate all fonts if needed.
-3. Choose "Quit NotMyTypeLite".
-4. Move NotMyTypeLite to the Trash. The library list stays in ~/Library/Application Support/NotMyTypeLite; delete it if you no longer need it. Font files stay where they are.
+3. Choose "Quit NotMyType Lite".
+4. Move NotMyType Lite to the Trash. The library list stays in ~/Library/Application Support/NotMyType Lite; delete it if you no longer need it. Font files stay where they are.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it (fonts that were active last time are reactivated).

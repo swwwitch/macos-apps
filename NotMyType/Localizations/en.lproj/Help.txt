@@ -26,7 +26,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 ### List and Preview
 - Use the sidebar to switch between All Fonts, Active, Inactive, Duplicates, Missing and your sets.
 - Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time. A variable font and a file for a single weight are not treated as duplicates, even when they share a PostScript name. Fonts whose roman and italic were built with the same PostScript name are also kept apart by whether the style name is italic. Different fonts that share a PostScript name show a warning mark on their rows (name clash); if both are active, apps can see only one of them.
-- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Typefaces with official maker information (FontDB) also show the official file name, maker, designer, release, classification, plans and description, and the search field also matches reading, maker, designer, classification and description. Fonts that are not active can be previewed too.
+- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Typefaces with official maker information (FontDB) also show the official file name, maker, designer, release, classification, plans and description, and the search field also matches reading, maker, designer, classification and description. Fonts that are not active can be previewed too. Select style rows only to preview just those styles.
 - Choose "Glyphs" at the top of the preview to list every glyph of one style of the selected family in a grid. Choose the style from the menu, and narrow the list to All Glyphs, With Unicode or Without Unicode (variants and so on), or by character or U+XXXX. Clicking a glyph copies its character and shows its glyph ID, Unicode and glyph name below.
 - Change the preview text in the field at the top and the size with the slider.
 - Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
@@ -52,9 +52,9 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - When activation fails because a font with the same name is already in use, the message offers "Force Activate", which unregisters the conflicting font and then activates the selected file (no files are moved). If the conflict is with Adobe Fonts, Creative Cloud re-registers it right away, so it cannot be removed; turn that font off in Creative Cloud, then activate again. Conflicts with macOS fonts cannot be resolved.
 
 ### Smart Sets
-- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) Supports Japanese (fonts with hiragana and katakana) and Watch Folders (fonts in any watch folder). Hide the three recent items with "Show recent items" in the "…" menu at the top of the sidebar.
 
-- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, vendor, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, favorite, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
+- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name contains, name starts with (family name, Japanese name, PostScript name or file name), vendor, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, favorite, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
 
 ### Projects
 - A project is a group of fonts for one job, separate from sets. Create one with "New Project…" in the File menu or under "+" at the bottom of the sidebar, then choose its sources in the editor. Dropping a document on the main window also creates one.
@@ -80,10 +80,9 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - "Favorites" in the sidebar lists only favorite families. Favorites are remembered by family name, so they remain even if you replace the files.
 
 ### System Fonts
-- "System" in the sidebar shows the three macOS font folders. They are read at launch and whenever fonts change.
+- "System" in the sidebar shows two macOS font folders. /System/Library/Fonts (macOS fonts) is not read. They are read at launch and whenever fonts change.
 - **Your user name** (~/Library/Fonts): fonts for this user only, including Morisawa fonts and the like.
 - **All Users** (/Library/Fonts): fonts for every user of this Mac.
-- **System** (/System/Library/Fonts): macOS fonts. They cannot be switched or removed from the library.
 - Fonts under your user name and All Users can be switched with their checkboxes. The files stay in place and macOS remembers that they are off (they stay off after you log out). Check them again to turn them back on.
 
 ### Kinds

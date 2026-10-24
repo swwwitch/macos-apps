@@ -25,5 +25,5 @@ for lang in ["ja", "en"]:
     folder.mkdir(parents=True, exist_ok=True)
     body = "".join(f'"{esc(k)}" = "{esc(rows[k][lang])}";\n' for k in keys)
     (folder / "Localizable.strings").write_text(body, encoding="utf-8")
-    (folder / "InfoPlist.strings").write_text('"CFBundleDisplayName" = "NotMyTypeLite";\n', encoding="utf-8")
+    (folder / "InfoPlist.strings").write_text('"CFBundleDisplayName" = "NotMyType Lite";\n', encoding="utf-8")
 print(f"wrote {len(keys)} keys × 2 languages")

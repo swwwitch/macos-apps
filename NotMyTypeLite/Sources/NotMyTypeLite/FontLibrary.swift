@@ -787,6 +787,9 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
     /// 隠しファイルも読むフォルダー（Adobe Fonts のファイル名は . で始まる）
     var includesHiddenFiles: Bool { self == .adobeFonts }
 
+    /// 読み込むフォルダー。macOS のフォント（/System/Library/Fonts）は読まない（ユーザー指定）
+    static let scanned: [SystemFolder] = [.user, .allUsers, .adobeFonts]
+
     static func of(_ path: String) -> SystemFolder? {
         prefixes.first { path.hasPrefix($0.prefix) }?.folder
     }

@@ -5,7 +5,7 @@ import SwiftUI
 /// サイドバーで選ぶ一覧の絞り込み
 enum SidebarItem: Hashable {
     case all, favorites, active, inactive, duplicates, missing
-    case recentlyActivated, recentlyDeactivated, recentlyAdded, japanese
+    case recentlyActivated, recentlyDeactivated, recentlyAdded, japanese, watchFolders
     case folder(SystemFolder)
     case kind(FontKind)
     case vendor(String)
@@ -24,6 +24,8 @@ final class LibraryStore: ObservableObject {
     static let deactivateOnQuitKey = "deactivateFontsOnQuit"
     static let sampleTextKey = "previewSampleText"
     static let includeUserFontsKey = "includeUserFontsFolder"
+    /// サイドバーのスマートセットに「最近アクティブ」「最近非アクティブ」「最近追加したもの」を出すか（フル版だけ、初期値オン）
+    static let showRecentKey = "sidebarShowRecent"
     /// 重複の優先：同じフォントで形式が異なるときは、形式の順（formatOrderKey）で優先する（ユーザー指定で既定はオン。1.31 の OpenType の優先と同じキー）
     nonisolated static let preferOpenTypeKey = "preferOpenTypeDuplicates"
     /// 形式の優先の順。拡張子をカンマでつないで持つ（設定の同期に載せやすいよう文字列）
@@ -109,7 +111,7 @@ final class LibraryStore: ObservableObject {
     static let recentInterval: TimeInterval = 7 * 24 * 60 * 60
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
-    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, preferOpenTypeKey, formatOrderKey,
+    static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, showRecentKey, preferOpenTypeKey, formatOrderKey,
                                                        preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, FontServices.key, NameDisplay.key]
         + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
@@ -217,6 +219,7 @@ final class LibraryStore: ObservableObject {
                                                   Self.preferOpenTypeKey: true, Self.preferNewerVersionKey: true,
                                                   Self.preferMoreGlyphsKey: true, Self.pickIdenticalKey: true])
         UserDefaults.standard.register(defaults: Self.sidebarDefaults)
+        UserDefaults.standard.register(defaults: [Self.showRecentKey: true])
         sharedFolder = UserDefaults.standard.string(forKey: Self.sharedFolderKey)
         if let sharedFolder, !FileManager.default.fileExists(atPath: sharedFolder) {
             // Dropbox が止まっているなどで見えないときは、このMacのライブラリで開く（設定は残す）
@@ -312,6 +315,10 @@ final class LibraryStore: ObservableObject {
             let since = Date().addingTimeInterval(-Self.recentInterval)
             return base.filter { $0.added > since }
         case .japanese: return base.filter { $0.supportsJapanese == true }
+        case .watchFolders:
+            // どれかのウォッチフォルダーの下にあるファイル（まとめて1つ、ユーザー指定）
+            let prefixes = WatchFolders.shared.folders.map { $0.hasSuffix("/") ? $0 : $0 + "/" }
+            return base.filter { file in prefixes.contains { file.path.hasPrefix($0) } }
         case .folder(let folder): return base.filter { SystemFolder.of($0.path) == folder }
         case .kind(let kind): return base.filter(kind.matches)
         case .vendor(let id): return base.filter { Self.belongs($0, toVendor: id) }
@@ -885,7 +892,7 @@ final class LibraryStore: ObservableObject {
         status = L("ライブラリを再構築中…")
         TaskProgress.shared.begin(L("ライブラリを再構築中…"))
         let files = data.files
-        let folders = (WatchFolders.shared.folders + (includeUserFonts ? SystemFolder.allCases.map(\.path) : []))
+        let folders = (WatchFolders.shared.folders + (includeUserFonts ? SystemFolder.scanned.map(\.path) : []))
             .map { URL(fileURLWithPath: $0) }
         Task.detached(priority: .userInitiated) {
             var refreshed: [UUID: FontFile] = [:]
@@ -1716,10 +1723,12 @@ final class LibraryStore: ObservableObject {
         case .collection: section = .collections
         case .set: section = .sets
         case .project: section = .projects
-        case .favorites, .active, .inactive, .recentlyActivated, .recentlyDeactivated, .recentlyAdded, .japanese, .smartSet: section = .smartSets
+        case .favorites, .active, .inactive, .recentlyActivated, .recentlyDeactivated, .recentlyAdded, .japanese, .watchFolders, .smartSet: section = .smartSets
         default: section = nil
         }
         if let section, !defaults.bool(forKey: section.showKey) { sidebar = .all }
+        // 「最近の項目を表示」を切ったら、最近の項目から戻す
+        if !defaults.bool(forKey: Self.showRecentKey), [.recentlyActivated, .recentlyDeactivated, .recentlyAdded].contains(sidebar) { sidebar = .all }
     }
 
     // MARK: コレクション（~/Library/FontCollections）
@@ -1937,7 +1946,7 @@ final class LibraryStore: ObservableObject {
     func scanUserFonts() {
         // Adobe Fonts は設定と関係なく読む。フォントフォルダーは設定がオンのときだけ
         let known = Set(data.files.map(\.path))
-        let folders = includeUserFonts ? SystemFolder.allCases.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) } : []
+        let folders = includeUserFonts ? SystemFolder.scanned.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) } : []
         Task.detached(priority: .utility) {
             // Adobe Fonts は、いま macOS に登録されている（Creative Cloud でオンの）ファイルだけ
             let adobe = Self.registeredAdobeFontPaths()
@@ -1949,13 +1958,15 @@ final class LibraryStore: ObservableObject {
                 // 消えたファイルと、Creative Cloud でオフにした Adobe Fonts（ファイルは残るが登録が外れる）を一覧から外す
                 let goneFiles = store.data.files.filter {
                     Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path)
+                        || SystemFolder.of($0.path) == .system
                         || (SystemFolder.of($0.path) == .adobeFonts && !adobe.contains($0.path)))
                 }
                 let gone = Set(goneFiles.map(\.id))
                 if !gone.isEmpty {
                     // 消えたファイルは一覧から外すが、セット・プロジェクトからは外さず、戻ってきたら同じ id で入れ直す
                     var updated = store.data
-                    for file in goneFiles where !Self.isHiddenSystemFont(file) { updated.departed[file.path] = file.id }
+                    // macOS のフォント（System）は読まなくなったので、戻ってくる場所として覚えない
+                    for file in goneFiles where !Self.isHiddenSystemFont(file) && SystemFolder.of(file.path) != .system { updated.departed[file.path] = file.id }
                     updated.files.removeAll { gone.contains($0.id) }
                     updated.active.subtract(gone)
                     store.data = updated

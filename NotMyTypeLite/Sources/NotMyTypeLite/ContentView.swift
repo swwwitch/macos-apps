@@ -145,13 +145,13 @@ private struct SidebarView: View {
                 Section(isExpanded: $expandedSystem) {
                     row(.folder(.user), SystemFolder.user.title, "person")
                     row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
-                    row(.folder(.system), SystemFolder.system.title, "lock")
                 } header: { Text(LibraryStore.SidebarSection.system.title) }
                 // 条件で中身が決まるセット
                 Section(isExpanded: $expandedSmartSets) {
                     row(.active, L("アクティブ"), "checkmark.circle")
                     row(.inactive, L("非アクティブ"), "circle")
                     row(.japanese, L("日本語をサポート"), "character.ja")
+                    row(.watchFolders, L("ウォッチフォルダー"), "eye")
                     // 自分で条件を作ったスマートセット
                     ForEach(store.data.smartSets) { smartSet in
                         row(.smartSet(smartSet.id), smartSet.name, "gearshape")
@@ -665,6 +665,13 @@ private struct PreviewView: View {
     /// プレビュー（見本の文字）か字形の一覧か
     @AppStorage("previewShowsGlyphs") private var showsGlyphs = false
 
+    /// 書体の行だけを選んでいるときはその書体だけ、ファミリーの行を選んでいるときは全書体をプレビューする（ユーザー指定）
+    private func previewFiles(_ family: FontFamily) -> [FontFile] {
+        guard !store.selection.contains(family.id) else { return family.files }
+        let picked = family.files.filter { store.selection.contains(FamilyNode.fileID($0)) }
+        return picked.isEmpty ? family.files : picked
+    }
+
     private var style: PreviewStyle {
         PreviewStyle(foreground: PreviewStyle.colors(scheme, foreground: foreground, background: background).0,
                      opacity: opacity / 100, kerning: kerning, tracking: trackingOn ? tracking : 0,
@@ -728,7 +735,7 @@ private struct PreviewView: View {
                 ScrollView {
                     // 数百書体のファミリーもあるので、見えている書体だけを描く
                     LazyVStack(alignment: .leading, spacing: 18) {
-                        ForEach(family.files) { file in
+                        ForEach(previewFiles(family)) { file in
                             ForEach(file.faces, id: \.postScriptName) { face in
                                 FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
                             }

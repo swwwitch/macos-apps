@@ -1,10 +1,10 @@
 #!/bin/zsh
-# NotMyTypeLite.app をビルドし、検証後に /Applications と Latest Builds へ配置する
+# NotMyType Lite.app をビルドし、検証後に /Applications と Latest Builds へ配置する
 set -euo pipefail
 
 project_dir="${0:A:h}"
 output_dir="$project_dir/build"
-app_dir="$output_dir/NotMyTypeLite.app"
+app_dir="$output_dir/NotMyType Lite.app"
 contents_dir="$app_dir/Contents"
 
 cd "$project_dir"

@@ -5,7 +5,7 @@ import SwiftUI
 /// サイドバーで選ぶ一覧の絞り込み
 enum SidebarItem: Hashable {
     case all, active, inactive, duplicates, missing
-    case japanese
+    case japanese, watchFolders
     case folder(SystemFolder)
     case set(UUID)
     case smartSet(UUID)
@@ -251,6 +251,10 @@ final class LibraryStore: ObservableObject {
             return base.filter { ids.contains($0.id) }
         case .missing: return base.filter { states[$0.id] == .missing }
         case .japanese: return base.filter { $0.supportsJapanese == true }
+        case .watchFolders:
+            // どれかのウォッチフォルダーの下にあるファイル（まとめて1つ、ユーザー指定）
+            let prefixes = WatchFolders.shared.folders.map { $0.hasSuffix("/") ? $0 : $0 + "/" }
+            return base.filter { file in prefixes.contains { file.path.hasPrefix($0) } }
         case .folder(let folder): return base.filter { SystemFolder.of($0.path) == folder }
         case .smartSet(let id):
             guard let smartSet = data.smartSets.first(where: { $0.id == id }) else { return [] }
@@ -786,7 +790,7 @@ final class LibraryStore: ObservableObject {
         status = L("ライブラリを再構築中…")
         TaskProgress.shared.begin(L("ライブラリを再構築中…"))
         let files = data.files
-        let folders = (WatchFolders.shared.folders + (includeUserFonts ? SystemFolder.allCases.map(\.path) : []))
+        let folders = (WatchFolders.shared.folders + (includeUserFonts ? SystemFolder.scanned.map(\.path) : []))
             .map { URL(fileURLWithPath: $0) }
         Task.detached(priority: .userInitiated) {
             var refreshed: [UUID: FontFile] = [:]
@@ -1511,7 +1515,7 @@ final class LibraryStore: ObservableObject {
     func scanUserFonts() {
         // Adobe Fonts は設定と関係なく読む。フォントフォルダーは設定がオンのときだけ
         let known = Set(data.files.map(\.path))
-        let folders = includeUserFonts ? SystemFolder.allCases.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) } : []
+        let folders = includeUserFonts ? SystemFolder.scanned.filter { !$0.includesHiddenFiles }.map { URL(fileURLWithPath: $0.path) } : []
         Task.detached(priority: .utility) {
             // Adobe Fonts は、いま macOS に登録されている（Creative Cloud でオンの）ファイルだけ
             let adobe = Self.registeredAdobeFontPaths()
@@ -1523,13 +1527,15 @@ final class LibraryStore: ObservableObject {
                 // 消えたファイルと、Creative Cloud でオフにした Adobe Fonts（ファイルは残るが登録が外れる）を一覧から外す
                 let goneFiles = store.data.files.filter {
                     Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path)
+                        || SystemFolder.of($0.path) == .system
                         || (SystemFolder.of($0.path) == .adobeFonts && !adobe.contains($0.path)))
                 }
                 let gone = Set(goneFiles.map(\.id))
                 if !gone.isEmpty {
                     // 消えたファイルは一覧から外すが、セット・プロジェクトからは外さず、戻ってきたら同じ id で入れ直す
                     var updated = store.data
-                    for file in goneFiles where !Self.isHiddenSystemFont(file) { updated.departed[file.path] = file.id }
+                    // macOS のフォント（System）は読まなくなったので、戻ってくる場所として覚えない
+                    for file in goneFiles where !Self.isHiddenSystemFont(file) && SystemFolder.of(file.path) != .system { updated.departed[file.path] = file.id }
                     updated.files.removeAll { gone.contains($0.id) }
                     updated.active.subtract(gone)
                     store.data = updated

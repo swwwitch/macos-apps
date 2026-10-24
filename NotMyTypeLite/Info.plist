@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>NotMyTypeLite</string>
+	<string>NotMyType Lite</string>
 	<key>CFBundleExecutable</key>
 	<string>NotMyTypeLite</string>
 	<key>CFBundleIconFile</key>
@@ -20,15 +20,15 @@
 		<string>en</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>NotMyTypeLite</string>
+	<string>NotMyType Lite</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Adobeアプリのフォントキャッシュを消去する前に、起動中のAdobeアプリに終了を頼むために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.0</string>
+	<string>1.5.0</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -71,6 +71,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 swwwitch</string>
+	<key>SWSettingsSyncName</key>
+	<string>NotMyTypeLite</string>
 	<key>SWAppFamily</key>
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>

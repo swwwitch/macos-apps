@@ -5,7 +5,7 @@ import AppKit
 final class LocalHelp: NSObject {
     static let shared = LocalHelp()
     private var window: NSWindow?
-    static let title = "NotMyTypeLite"
+    static let title = "NotMyType Lite"
     /// Help body from <lang>.lproj/Help.txt; unsupported languages resolve to the development region (en).
     static var content: String {
         let url = Bundle.main.url(forResource: "Help", withExtension: "txt")

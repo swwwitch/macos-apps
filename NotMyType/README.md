@@ -1,6 +1,6 @@
 # NotMyType
 
-現行版：**1.53.0（build 82）** — 2026-10-24
+現行版：**1.54.0（build 83）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -55,6 +55,7 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 
 ## 更新履歴
 
+- 1.54.0（build 83）：スマートセットの条件「名前が次で始まる」、スマートセット「ウォッチフォルダー」、サイドバーの「…」に「最近の項目を表示」（最近アクティブ・最近非アクティブ・最近追加したもの、初期値オン）。/System/Library/Fonts を読み込まない（サイドバーの System・一覧・検索・重複・アクティブから外す、SystemFolder.scanned）。書体の行だけを選んだらその書体だけをプレビュー
 - 1.53.0（build 82）：設定の「フォントフォルダーのフォントも一覧に入れる」をなくし、フォントフォルダー（ユーザー名・All Users・System）を常に一覧に入れる（ユーザー指定）。「fonts.adobe.com」のリンク先を https://fonts.adobe.com/fonts に（一覧の上・右クリック・フォント管理の初期値。保存済みのトップページ・my_fonts のリンクも読み替える）
 - 1.52.0（build 81）：Adobe Fonts を「フォントフォルダーのフォントも一覧に入れる」と切り離し、いつもベンダーに表示・読み込む（visibleFiles・scanUserFonts）。「Creative Cloudを開く」（一覧の上・Adobe Fonts の右クリック・強制アクティブの確認）をなくした（ユーザー指定）
 - 1.51.0（build 80）：Adobe Fonts の一覧を、フォルダーのファイルではなく macOS に登録されているもの（CTFontManagerCopyAvailableFontURLs のうち livetype の下）で作る。Creative Cloud でオフにしたフォントは一覧から外れる（ファイルが残るため出たままだった）。Creative Cloud の新しい版のフォルダー（.r → .w・.t）にも対応し、前面に戻ったときも読み直す
