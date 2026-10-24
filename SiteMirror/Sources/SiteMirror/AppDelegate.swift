@@ -1,0 +1,68 @@
+import AppKit
+
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Single main window: no tab items in the Window/View menus.
+        NSWindow.allowsAutomaticWindowTabbing = false
+    }
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        startSettingsSync()
+        DispatchQueue.main.async { [weak self] in
+            MenuBarPresence.shared.install(name: "SiteMirror", symbol: "globe",
+                show: { self?.showWindow() },
+                settings: { self?.showSettings() },
+                help: { LocalHelp.shared.show() })
+        }
+    }
+    /// 設定の共有：取り込みの設定（範囲・上限・同時接続数）を書き出し・同期する。保存先のフォルダーはMacごと
+    private func startSettingsSync() {
+        SettingsSync.shared.start(.init(
+            keys: Mirror.syncedKeys,
+            note: StartupWindow.text("取り込みの設定（取り込む範囲・上限・同時接続数）を同期します。",
+                                     "Syncs the download settings (scope, limits and simultaneous connections).",
+                                     "同步下载设置（范围、上限和同时连接数）。",
+                                     "다운로드 설정(범위, 상한, 동시 연결 수)을 동기화합니다."),
+            perMac: StartupWindow.text("保存先のフォルダー・ログイン時の起動・起動時の表示・メニューバーはMacごとに設定します。",
+                                       "The destination folder, open at login, the startup window and the menu bar are set on each Mac.",
+                                       "保存位置、登录时打开、启动时的窗口和菜单栏在每台 Mac 上分别设置。",
+                                       "저장 위치, 로그인 시 열기, 시작 시 윈도우, 메뉴 막대는 Mac마다 설정합니다.")))
+    }
+
+    // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        showWindow()
+        // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
+        return false
+    }
+    /// 取り込み中は確かめてから中止し、保存したところまでリンクを書き換えてから終了する
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let mirror = Mirror.shared
+        guard mirror.isRunning else { return .terminateNow }
+        showWindow()
+        let alert = NSAlert()
+        alert.messageText = L("取り込み中です")
+        alert.informativeText = L("中止して終了しますか？保存したところまではリンクを書き換えてから終了します。")
+        alert.addButton(withTitle: L("中止して終了"))
+        let cancel = alert.addButton(withTitle: L("キャンセル"))
+        cancel.keyEquivalent = "\u{1b}"
+        guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
+        guard mirror.isRunning else { return .terminateNow }
+        mirror.onFinished = { NSApp.reply(toApplicationShouldTerminate: true) }
+        mirror.cancel()
+        return .terminateLater
+    }
+    /// Shows the main window, reopening the SwiftUI scene when it was closed.
+    @objc func showWindow() {
+        if let window = MainWindow.current {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            MainWindow.keepOnScreen(window)
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            MainWindow.open?()
+        }
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    @objc func showSettings() { SettingsWindow.shared.show() }
+}

@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026年10月24日 — SiteMirror を追加（1.0.0 build 1）
+
+- URLを指定したWebサイトのページをたどり、HTML・CSS・JavaScript・画像・フォントを保存して、リンクを相対パスに書き換える新しいアプリ。ページの表示に必要なファイルはほかのドメイン（CDN など）からも保存（設定でオフにできる）。robots.txt、たどる深さ・ファイル数・同時接続数を設定できる。
+- 共通部品の配布スクリプト（MenuBarPresence・AppStandards・LoginAtLaunch・SettingsSync・Updater）に SiteMirror を登録。
+- 開発Macでビルド・取り込みエンジンのハーネス試験（ローカルの試験サーバー）・/Applications と Latest Builds への配置（チームの開発証明書で署名）・起動を確認。アプリの画面からの取り込み操作、Developer ID 署名・公証・DMG・個別リポジトリ・note記事は未実施。
+
 ## 2026年10月24日 — SettingsCourier を追加（1.3.2 build 9、公開準備）
 
 - 登録したアプリの設定（defaults）をアプリごとの `<アプリ名>.settingscourier` に書き出し、ほかのMacで取り込む新しいアプリ。App Storeのアプリなどサンドボックスのアプリにも対応（起動時には読まず、「設定を読む」・書き出し・取り込みのときかフルディスクアクセスがあるときだけ読む）。

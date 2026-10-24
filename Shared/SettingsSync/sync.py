@@ -10,7 +10,7 @@ source = (root / "Shared/SettingsSync/SettingsSync.swift").read_bytes()
 for target in ['BrowserSwitcher/Source', 'CommandDee/Sources', 'DocklessLauncher/Sources', 'ExtensionLinker/Development/Sources/DutiGUI',
                'FolderHopper/Development/Source', 'HotkeyHound/Sources/HotkeyHound', 'IncrementPaste/Sources', 'KageTrimmer/Development/Sources',
                'KakkoReplace/Sources', 'LinkMaker/Sources', 'MarkdownKitchen/Sources/MarkdownKitchen', 'MightyEdit/Source',
-               'PasteInARow/Sources', 'PasteMatchStyle/Sources', 'PodiumAssist/Development/Sources/Toki', 'PrefsPreset/Sources/PrefsPreset', 'SettingsCourier/Sources/SettingsCourier',
+               'PasteInARow/Sources', 'PasteMatchStyle/Sources', 'PodiumAssist/Development/Sources/Toki', 'PrefsPreset/Sources/PrefsPreset', 'SettingsCourier/Sources/SettingsCourier', 'SiteMirror/Sources/SiteMirror',
                'ProjectFolder/Sources', 'QuickIconExporter/Development/Sources/IconDrop', 'SpreadsheetHelper/Sources', 'KeynoteMaestro/Sources', 'YohakuTrimmer/Development/Sources'] + private_targets:
     path = root / target / "SettingsSync.swift"
     if not path.parent.is_dir():
