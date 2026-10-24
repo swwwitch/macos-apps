@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>NotMyTypeLite</string>
+	<key>CFBundleExecutable</key>
+	<string>NotMyTypeLite</string>
+	<key>CFBundleIconFile</key>
+	<string>NotMyTypeLite</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.notmytypelite</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>NotMyTypeLite</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Adobeアプリのフォントキャッシュを消去する前に、起動中のAdobeアプリに終了を頼むために使います。</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Font</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.opentype-font</string>
+				<string>public.truetype-ttf-font</string>
+				<string>public.truetype-collection-font</string>
+				<string>public.opentype-collection-font</string>
+				<string>com.apple.truetype-datafork-suitcase-font</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Web Font</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>woff</string>
+				<string>woff2</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/dtp_tranist/n/nae1b0044d8e0</string>
+</dict>
+</plist>

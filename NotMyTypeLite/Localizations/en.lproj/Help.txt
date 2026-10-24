@@ -1,0 +1,150 @@
+NotMyTypeLite keeps your font files in a library and activates them only when you need them. Font files stay where they are; nothing is copied or moved.
+
+## How to Use
+### Adding Fonts
+1. Drop font files, or folders that contain fonts, onto the window. You can also choose them with "Add…" (⌘O).
+2. Folders are searched including subfolders for .otf, .ttf, .ttc, .otc, .dfont, .woff and .woff2 files.
+- Font files are never copied or moved. If you move a file after adding it, it appears under "Missing".
+- A file at the same location is not added twice.
+
+### Watch Folders
+- When fonts with the same PostScript name are in several folders, the one in the folder higher in the watch folder list is preferred (fonts outside the watch folders come last). The preferred one is used when activating fonts together, and style rows show "Preferred" or "Not preferred". Change the order with ▲▼. "Duplicates" in the sidebar lists only duplicates whose preferred file cannot be decided by the watch folder order (two in the same folder, both outside the watch folders, and so on). Tools > Duplicate Fonts, the list's right-click menu, and the bar above "Duplicates" deactivate non-preferred files together or remove them from the library (the files are not deleted). Select duplicate fonts in the list and choose "Prefer Selected Fonts" from the right-click menu or the Tools menu to make them the preferred file of their duplicate groups (this comes before the watch folder order and the rules; groups with two or more selected fonts are left unchanged).
+- A folder added inside a listed watch folder goes right above its parent and takes priority over the rest of the parent. The settings list indents it under the parent, and shows a mark if it is moved below the parent (it then has no effect).
+- "Resolve Duplicate Fonts…" (Tools menu, right-click on "Duplicates" in the sidebar, or the bar above "Duplicates") shows undecided duplicates side by side as cards; choose one with "Prefer This". The choice is kept as a rule and also used for duplicates in the same pair of folders. Choose what to remember: the folders where the two paths split (resolves the most), the folders containing the files, or this duplicate only. Pairs shared by the most duplicates come first. Rules are listed and deleted under "Duplicate Priority Rules" in the Duplicate Fonts tab of Settings and sync with the shared library.
+- Duplicates that the folder order, rules and individual choices do not decide are settled by "Conditions Based on the Files" in the Duplicate Fonts tab of Settings: Format, Newer version (font revision in the head table) and More glyphs (all on by default, in this order). Turn each on or off and reorder them by dragging or with ▲▼. A condition is skipped when a file has no value. Versions of files added in older versions are read in the background after launch. If the remaining files have identical contents (matching SHA-256 hashes), the file added first is picked automatically (on by default; hashes are computed in the background for undecided candidates only). The default "Format Order" is OpenType (CFF) .otf, OpenType Collection .otc, TrueType .ttf, TrueType Collection .ttc, Datafork TrueType .dfont, WOFF2, WOFF. Drag or use ▲▼ to reorder.
+- Add as many folders as you like under Watch Folders in the Fonts settings. When new font files appear in a folder (including subfolders), they are added to the library without being activated.
+- The folders are also read at launch. Files removed from a folder appear in "Missing".
+
+### Activating and Deactivating
+- Click the checkbox at the left of a family to activate or deactivate it. Double-clicking also toggles it.
+- Families with two or more files have a ▶ at the left. Expand it to list each style (file), and use its checkbox to switch only that style. A family with only some styles active shows “–”. Files such as .ttc that hold several styles switch as one file.
+- Select several families and click "Activate" (⇧⌘A) or "Deactivate" (⇧⌘D) to switch them together.
+- You can also press Space with rows selected. If everything selected is active it is deactivated; otherwise it is activated.
+- Activated fonts are available right away in other apps such as Illustrator, InDesign and Word. Some apps take a moment to update their font menu or need to be restarted.
+- Activation lasts for the current login session. Fonts stay active after you quit NotMyTypeLite and are deactivated when you log out. At the next launch, fonts that were active last time are reactivated (you can change this in Settings).
+
+### List and Preview
+- Use the sidebar to switch between All Fonts, Active, Inactive, Duplicates, Missing and your sets.
+- Duplicates are fonts with the same PostScript name registered more than once. Only one of them can be active at a time. A variable font and a file for a single weight are not treated as duplicates, even when they share a PostScript name. Fonts whose roman and italic were built with the same PostScript name are also kept apart by whether the style name is italic. Different fonts that share a PostScript name show a warning mark on their rows (name clash); if both are active, apps can see only one of them.
+- Select one family to see every style on the right, with the format, number of characters (glyphs), version, PostScript name and location. Fonts that are not active can be previewed too.
+- Choose "Glyphs" at the top of the preview to list every glyph of one style of the selected family in a grid. Choose the style from the menu, and narrow the list to All Glyphs, With Unicode or Without Unicode (variants and so on), or by character or U+XXXX. Clicking a glyph copies its character and shows its glyph ID, Unicode and glyph name below.
+- Change the preview text in the field at the top and the size with the slider.
+- Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
+- The button on the right (slider icon) opens the preview options. The "Information to Show" checkboxes choose the items in the font information below the preview (state, format, characters, version, PostScript name and location). The options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
+- Use "Localized / PostScript name / Both" above the list to choose how font names are shown. Fonts without a localized name use their English name. With PostScript names, family rows show the English family name and style rows show PostScript names.
+- The "Search Options" button to the right of the search field opens a panel of filters.
+  - Character set: Std, Pro, Pr6N and so on in the family name
+  - Format: OpenType (CFF), TrueType, collections and so on
+  - Kind: variable, color, kana or icon fonts
+  - Styles in Family: the number of weights and styles in the family (1, 2–4, 5–9, 10 or more), counted within the sidebar selection
+  - N (JIS2004): whether the character set name ends in N (StdN, ProN, Pr6N, PlusN)
+  - UD: whether a Japanese font has UD in its name
+  - AP Version: whether a Morisawa A-OTF font is the proportional A P-OTF
+  - Shin Go: Shin Go or Shin Go NT
+  - Characters: the number of characters in the font (up to 999, 1,000–4,999, 5,000–9,999, 10,000–14,999, 15,000 or more)
+- The button is filled while a filter is on. Filters combine with the sidebar and the search; "Clear All" removes them.
+- In the preview, characters the font lacks (such as Japanese in a Latin font) are shown faintly in another font.
+- The button at the upper right of the list (⌥⌘P) hides or shows the preview on the right.
+- Click a sidebar heading (Library, Smart Sets, Sets) to collapse or expand it. "Adobe Fonts" under Library shows the fonts activated in Creative Cloud (currently registered with macOS); turn them on and off in Creative Cloud.
+- The ⚠️ mark means the file is missing, or a font with the same name is in use from another location (installed by the system or another app). Hold the pointer over the mark to see why. When the font is in use from another location, choose "Remove Conflicting Registrations" from the right-click menu or the Tools menu to remove the registration of that file (the file is not moved; fonts placed in a font folder or managed by another app cannot be removed). You can then activate the font in the library.
+- When activation fails because a font with the same name is already in use, the message offers "Force Activate", which unregisters the conflicting font and then activates the selected file (no files are moved). If the conflict is with Adobe Fonts, Creative Cloud re-registers it right away, so it cannot be removed; turn that font off in Creative Cloud, then activate again. Conflicts with macOS fonts cannot be resolved.
+
+### Smart Sets
+- "Smart Sets" in the sidebar lists sets whose contents are defined by conditions: Favorites, Active, Recently Activated (activated in the last 7 days and still active), Inactive, Recently Deactivated (deactivated in the last 7 days and still inactive), Recently Added (in the last 7 days) and Supports Japanese (fonts with hiragana and katakana).
+
+- "New Smart Set…" in the File menu or under "+" at the bottom of the sidebar creates a smart set from your own conditions: name, kind, character set, N, UD, AP version, Shin Go, format, styles in family, characters, favorite, active, and added within (days). Choose "Match all conditions" or "Match any condition". Its contents follow the library. Right-click or double-click to edit; right-click to delete.
+
+### Sets
+- When a set is selected, dropping font files or folders on the main window puts them in that set. Files already in the library are not reread and go straight into the set; new files are added to the library first.
+- The checkbox to the left of a set activates or deactivates all of its fonts (it shows "−" when only some are active).
+- Create a set with "+" or "New Set…" (⇧⌘N). Families selected in the list are put in the new set.
+- Right-click families and choose "Add to Set" to add them to an existing set.
+- Right-click a set to activate or deactivate all of it, rename it or delete it. Deleting a set keeps the fonts in the library.
+
+### Favorites
+- Click the ☆ to the right of a family name to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
+- "Favorites" in the sidebar lists only favorite families. Favorites are remembered by family name, so they remain even if you replace the files.
+
+### Sharing with Other Macs
+1. In the Sharing settings, click "Choose Shared Folder…" and choose a folder, for example in Dropbox.
+2. "FontSwitcher-Library.json" is placed in that folder and holds the fonts, sets, favorites and activation.
+3. Choose the same folder on your other Mac; its library is combined so both Macs have the same contents.
+- Locations inside Dropbox and your home folder are translated to each Mac's location. Files that are not on a Mac appear under "Missing".
+- Changes made on another Mac are loaded when the file syncs or when you bring NotMyTypeLite to the front. Fonts activated there are activated on this Mac too.
+- If both Macs change it at the same time, the last one saved remains.
+- "Stop Sharing" keeps the current contents as this Mac's own library.
+
+### Removing from the Library
+- Select families and choose "Remove from Library…" (⌘⌫). Active fonts are deactivated first. The font files are not deleted.
+
+### Rebuilding the Library
+- "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and relinks them, and adds new files in the folders. Relinked files stay in their sets. You can also start the same rebuild by holding the Option key while launching the app; a confirmation appears first.
+- Files still not found are counted, and you can keep or remove them. With many files this takes from tens of seconds to a few minutes.
+
+### Progress
+- While rebuilding the library, cleaning font caches, or adding fonts, a small progress panel appears in the middle of the screen, and a bar also appears at the bottom of the main window. When the number of items is known, it shows "n/m" and a filling bar; otherwise the bar keeps moving.
+
+### Cleaning Font Caches
+- Tools > Clean Font Caches > "System…" removes the font caches of macOS. Use it when garbled text or duplicate fonts do not go away. Choose this user only, or the whole system too (needs an administrator password); restart your Mac afterwards to rebuild them.
+- Tools > Clean Font Caches > "Applications…" moves the font caches of Adobe apps such as InDesign, Illustrator and Photoshop (AdobeFnt*.lst and so on) to the Trash. Quit the Adobe apps first. Files related to composite fonts are not removed.
+
+- If Adobe apps are running when you choose "Apps…", a dialog lists a "Quit (app)" button for each app and "Quit All Adobe Apps". Buttons dim as the apps quit, and when all have quit, "Clean Font Caches" becomes available.
+### App for Opening Font Files
+- "Open Font Files with NotMyTypeLite" in the Fonts settings makes NotMyTypeLite open font files (.otf, .ttf, .ttc, .otc, .dfont, .woff, .woff2) when you double-click them. The font is added to the library and its family is selected (not activated). "Use Font Book Again" switches back.
+
+## Settings
+Open Settings with the Settings button in the main window (⌘,).
+- **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyTypeLite is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
+- **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, the app for opening font files, and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
+- **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets, favorites and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
+- **Hotkeys**: Keys for menu items (Add Fonts, New Set, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
+- **About**: Version and links.
+
+## Hotkeys
+- **⌘O**: Add Fonts
+- **⇧⌘N**: New Set
+- **⇧⌘A**: Activate
+- **⇧⌘D**: Deactivate
+- **⌘R**: Show in Finder
+- **⌥⌘P**: Hide or show the preview
+- **⌘⌫**: Remove from Library
+- The keys above can be changed under Hotkeys in Settings (the defaults are shown).
+- **⌃⇧⌘F**: Open Main Window (from any app; change or turn it off under Launch & Background in Settings)
+- **⌘0**: Open Main Window
+- **⌘,**: Settings
+- **⌘W**: Close Window
+- **⌘?**: NotMyTypeLite Help
+- **⌘Q**: Quit NotMyTypeLite
+
+## Permissions and Privacy
+- No Accessibility permission is needed.
+- "Also Clean for the Whole System" asks for an administrator password.
+- "fonts.adobe.com" only opens the browser; NotMyTypeLite itself does not connect.
+- The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/NotMyTypeLite/Library.json.
+- When you add fonts from Documents or Downloads, macOS may ask for permission to access the folder.
+- Use each font according to its license.
+
+## Launching and Quitting
+- Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
+- With "Show in menu bar" on, you can also choose Open Main Window, Settings… and Help from the menu bar icon.
+- To quit, choose "Quit NotMyTypeLite" (⌘Q) in the app menu. If "Deactivate all fonts when quitting" is off, activated fonts remain usable until you log out.
+- Check for new versions with "Check for Updates…" in the app menu. Until distribution is ready, it shows that updates are being prepared and makes no network connection.
+
+## Troubleshooting
+- "A font with the same name is already in use" means a font with the same PostScript name is active from the system or another font manager. Deactivate it there, then activate again.
+- If an activated font does not appear in an app's font menu, restart that app.
+- Fonts under "Missing" were moved or deleted, or are on a disconnected external disk. Connect the disk, or remove them from the library and add them again from the new location.
+- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyTypeLite cannot switch (System, Adobe Fonts, and files that cannot be found) are shown in light gray.
+
+- If Sharing says it cannot read or write the sync files, make sure the sync folder is kept on this Mac (not online-only in Dropbox and the like).
+## Help and the note Article
+- Open this help with "NotMyTypeLite Help" (⌘?) in the Help menu.
+- "Open the note Article" in the Help menu opens the article on note in your browser.
+
+## Removing the App
+1. Turn off "Open at login".
+2. Deactivate all fonts if needed.
+3. Choose "Quit NotMyTypeLite".
+4. Move NotMyTypeLite to the Trash. The library list stays in ~/Library/Application Support/NotMyTypeLite; delete it if you no longer need it. Font files stay where they are.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it (fonts that were active last time are reactivated).
