@@ -1,6 +1,6 @@
 # NotMyType
 
-現行版：**1.25.0（build 50）** — 2026-10-24
+現行版：**1.27.0（build 52）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -20,7 +20,9 @@
 - ウォッチフォルダー：選んだフォルダーの新しいフォントファイルをライブラリに足す
 - ライブラリの共有：選んだフォルダー（Dropbox など）の `FontSwitcher-Library.json`（旧名のまま）を両方のMacで使う。場所は `$DROPBOX-<アカウント>/…`・`~/…` で保存し、Macごとの場所に読み替える（`~/.dropbox/info.json`）。フォルダーを見張り、前面に戻ったときも確かめて読み直し、アクティブの違いを反映する。設定の「共有」タブで設定の同期（共通部品）と並べる
 - アプリを呼び出すホットキー（初期値 ⌃⇧⌘F、共通の HotkeyField・HotkeySet、HotkeyManifest に申告）。同じキーを前面アプリ専用で申告している起動中の自作アプリが前面の間は登録を外して譲る。メニューのホットキーは設定の「ホットキー」で変更（アクティブ ⇧⌘A・解除 ⇧⌘D・新規プロジェクト ⌥⇧⌘N など）
-- ツール：Illustratorのフォントを統一（AiFontConverter.jsx の移植、osascript の do javascript）、FontExplorer X Pro のセットを読み込む（fexdb を写して SQLite で読む）
+- メーカーの公式の情報（FontDB）：フォント情報・検索・検索オプション（分類・リリース年）。重複はウォッチフォルダーの順で優先
+- ツール：Illustrator・InDesign のフォントを統一（AiFontConverter.jsx・IdFontConverter.jsx の移植、osascript で JSX を送る）、FontExplorer X Pro のセットを読み込む（fexdb を写して SQLite で読む）、システム・アプリ（Adobe）のフォントキャッシュを消去
+- 字形の一覧（プレビューと切り替え）、条件を自分で作るスマートセット、フォントファイルを開くアプリ（Font Book の代わり）、Adobe アプリで開いたドキュメントの足りないフォントの自動アクティベート（設定、初めはオフ）
 
 通信はアップデート確認だけです。アクセシビリティの許可は不要です（Illustrator のツールだけオートメーションの許可が要る）。
 
@@ -49,10 +51,12 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - ファミリーの一覧は [FamilyOutline.swift](Sources/NotMyType/FamilyOutline.swift)（NSOutlineView）。SwiftUI の `List(children:)` は選択を変えるたびに全行を比べ直し（`OutlineListCoordinator.recursivelyDiffRows`）、1,428行で1回0.12〜0.19秒止まった。`listVersion` が進んだときだけ読み直す。
 - 速さの計り方：`open --env NOTMYTYPE_BENCH=select -a NotMyType` で起動すると5秒後から0.3秒ごとに選択を30回変える（BenchMode.swift）。その間 `sample <pid> 9` を取り、メインスレッドの `__CFRunLoopServiceMachPort` 以外を使用時間とみなす。アクセシビリティで行を選ぶ計り方は、応答のために全行が作られて数字にならない
 - `~/Library/Fonts` のフォントは `.session` では解除できない（201）。`.persistent` の解除で無効になり、`.persistent` の登録で戻る（2026-10-24、試験用フォントで実測）。`/Library/Fonts` は同じ方法だが未実測
-- 未実装（今後）：InDesign 版の「フォントを統一」、Adobe アプリ向けの自動アクティベート（JSX 連携）、字形一覧、壊れたフォントの点検、条件を自分で作るスマートセット、フォントのコピー整理、フォントファイルを NotMyType で開く（既定のアプリ）。
+- 未実装（今後）：壊れたフォントの点検、フォントのコピー整理。
 
 ## 更新履歴
 
+- 1.27.0（build 52）：リリースキューの3件（ユーザー指示「ビルド」）。①FontDB（~/Git/macos-apps/FontDB/data/fonts.sqlite）を build.sh で Resources/FontDB.sqlite に写し、PostScript名で公式の情報を引く（FontDB.swift）。フォント情報に公式のファイル名・メーカー・作者・リリース・初出・分類・シリーズ・言語・プラン・説明・公式ページ、検索欄でよみ・メーカー・作者・分類・説明も引く、検索オプションに「分類」「リリース年（年代）」。②重複の解決：同じ PostScript名はウォッチフォルダーの一覧で上のフォルダーを優先（外のものは最後、ユーザー指定）。まとめてアクティブにするとき・プロジェクトの照合・Adobe 自動アクティベートで優先のものを使い、一覧の書体の行に「優先／優先外」。設定のウォッチフォルダーに ▲▼ の並べ替え。③ツールに「ライブラリを再構築…」（全件の読み直し、同じファイル名・PostScript名でつなぎ直し＝id を保つ、フォルダーの新しいファイルを追加、見つからないものは残す／取り除くを選ぶ、無い id への参照を掃除）
+- 1.26.0（build 51）：リリースキューの7件を実装（ユーザー指示「受付を進めて」）。①ベンダー「モリサワ」のアイコンを正式なロゴの記号に（Assets/VendorLogos/morisawa.svg、VendorLogos.swift の MorisawaMark）。②フォントファイルを開くアプリ（Info.plist の CFBundleDocumentTypes、LSHandlerRank Alternate、woff・woff2 は拡張子で宣言。設定に［フォントファイルをNotMyTypeで開く］［Font Bookに戻す］、開いたフォントは追加してファミリーを選ぶ、FontFileHandler.swift）。③ツールに「システムのフォントキャッシュを消去…」（atsutil databases -removeUser／-remove を管理者権限で、再起動の案内）と「アプリのフォントキャッシュを消去…」（Adobe の AdobeFnt*.lst・AdobeFontList.lst・Photoshop の CT Font Cache をゴミ箱へ、Adobe アプリ起動中は止める、Composite を含むものは除く。FontCacheCleaner.swift）。④字形の一覧（プレビュー／字形の切り替え、字形番号で描く LazyVGrid、Unicode の逆引き、絞り込み、クリックでコピー。GlyphView.swift）。⑤条件を自分で作るスマートセット（LibraryData.smartSets、SmartSets.swift）。⑥ツールに「InDesignのフォントを統一…」（IdFontConverter.jsx v1.1.6 の DOM の関数をほぼそのまま InDesignFontScripts.swift に、ルールは FontConverterRules を共通で使用＝表が同じことを確認、do script … language javascript、置き換えは UndoModes.ENTIRE_SCRIPT）。⑦Adobe アプリ向けの自動アクティベート（設定、初めはオフ。前面に来たときに Illustrator は XMP の stFnt:fontName、InDesign は document.fonts の status で足りないフォントを調べ、ライブラリの完全一致をアクティブに。AdobeAutoActivation.swift）
 - 1.25.0（build 50）：全体の点検で見つかった不具合を修正。ライブラリがあるのに読めない（Dropbox のオンラインのみ・同期の途中）ときは保存しない（空に近いライブラリで共有ファイルを上書きし、ほかのMacのアクティブまで外すおそれがあった）。共有ライブラリがほかのMacで書き換わっていたら合わせてから保存。合わせるときにプロジェクトの一致・候補の id を読み替え、名前を変えたセットの id の重複を避ける。プロジェクトの参照先が見つからないときは前の結果と承認を残す、読み直しが重なったら最後のものだけ使う、アクティブの失敗で戻すのはこの操作でアクティブにしたものだけ、空のプロジェクトをアクティブ表示にしない、複数の制作ファイルのドロップは1つのプロジェクトに。フォントフォルダーから一時的に消えたファイルは戻ったら同じ id（セット・プロジェクトに残る、`departed`）。取り除いたファイルをウォッチフォルダーが入れ直さない。見えるようになったフォルダーを前面に戻ったときに見張り直す。ほかのMacで消えたセット・プロジェクトを選んでいたら戻す。設定の同期で届いた一覧の設定を反映。ヘルプ・README・チェックリストを今の機能に合わせた。プレビューのオプションとメニューのホットキーを設定の同期に含める
 - 1.24.1（build 49）：プロジェクトの名前は確定（Return・欄を離れる・閉じる）で保存（1文字ごとに共有ライブラリを書き直していたため、サイドバーに反映しないことがあった）。設定の同期の「読み書きできません」は、1.23.0 が旧 Bundle ID で作った NotMyType-Settings.sync の記録が原因（記録を退避して解消）
 - 1.24.0（build 48）：Bundle ID を jp.dtp-transit.notmytype に変更（ユーザー指定）。保存先も ~/Library/Application Support/NotMyType に。初回の起動で LegacyMigration が旧 ID（jp.dtp-transit.fontswitcher）の設定と旧フォルダーを写す（旧の側は消さない）。共有ライブラリのファイル名 FontSwitcher-Library.json はほかのMacとそろえるため旧名のまま。オートメーション（Illustrator）の許可とログイン時の起動は新しい ID で設定し直しが要る。設定の「ライブラリの共有」を「設定の共有」タブへ移してタブ名を「共有」に、プロジェクトの「元にするもの」を「参照するファイル・フォルダー」に（ユーザー指定）

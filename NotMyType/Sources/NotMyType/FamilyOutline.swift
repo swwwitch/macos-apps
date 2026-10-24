@@ -288,7 +288,12 @@ final class FamilyCell: NSTableCellView {
             case .both: set(styles, postScript)
             }
             star.isHidden = true
-            detail.stringValue = file.fileName
+            // 重複しているときは、ウォッチフォルダーの順で優先かどうかを添える（隠さず印で区別する）
+            switch store.duplicatePreference(file) {
+            case true?: detail.stringValue = L("優先") + "  " + file.fileName
+            case false?: detail.stringValue = L("優先外") + "  " + file.fileName
+            case nil: detail.stringValue = file.fileName
+            }
             problem = Self.problem(store.states[file.id])
         } else {
             let family = node.family

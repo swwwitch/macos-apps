@@ -166,6 +166,7 @@ private struct SidebarView: View {
                 Menu {
                     Button(L("新規セット…")) { store.newSet() }
                     Button(L("新規プロジェクト…")) { store.newProject() }
+                    Button(L("新規スマートセット…")) { store.newSmartSet() }
                 } label: { Image(systemName: "plus") }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
@@ -233,6 +234,15 @@ private struct SidebarView: View {
                     row(.recentlyDeactivated, L("最近非アクティブ"), "clock.badge.xmark")
                     row(.recentlyAdded, L("最近追加したもの"), "calendar.badge.plus")
                     row(.japanese, L("日本語をサポート"), "character.ja")
+                    // 自分で条件を作ったスマートセット
+                    ForEach(store.data.smartSets) { smartSet in
+                        row(.smartSet(smartSet.id), smartSet.name, "gearshape")
+                            .simultaneousGesture(TapGesture(count: 2).onEnded { SmartSetEditorWindow.shared.show(smartSet, isNew: false) })
+                            .contextMenu {
+                                Button(L("スマートセットを編集…")) { SmartSetEditorWindow.shared.show(smartSet, isNew: false) }
+                                Button(L("スマートセットを削除…")) { store.deleteSmartSet(smartSet.id) }
+                            }
+                    }
                 } header: { Text(section.title) }
             }
         case .projects:
@@ -535,6 +545,16 @@ private struct SearchOptionsPanel: View {
                     group(L("ファミリーの書体数"), $store.faceCountFilter, options.faceCounts.map { ($0.0.title, $0.0, $0.1) })
                     group(L("収録文字数"), $store.characterCountFilter, options.characterCounts.map { ($0.0.title, $0.0, $0.1) })
                 }
+                // FontDB（メーカーの公式の情報）で分ける条件
+                VStack(alignment: .leading, spacing: 18) {
+                    // 分類は50種類ほどあるので、ラジオボタンのまま高さを決めてスクロールさせる
+                    ScrollView {
+                        group(L("分類"), $store.classificationFilter, options.classifications.map { ($0.0, $0.0, $0.1) })
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(width: 230, height: 300)
+                    group(L("リリース年"), $store.releaseDecadeFilter, options.releaseDecades.map { ($0.0.title, $0.0, $0.1) })
+                }
                 VStack(alignment: .leading, spacing: 18) {
                     variantGroup(.ud, options)
                     variantGroup(.ap, options)
@@ -775,6 +795,8 @@ private struct PreviewView: View {
     @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
     @AppStorage(PreviewStyle.modeKey) private var mode = PreviewStyle.Mode.multiline.rawValue
     @State private var optionsShown = false
+    /// プレビュー（見本の文字）か字形の一覧か
+    @AppStorage("previewShowsGlyphs") private var showsGlyphs = false
 
     private var style: PreviewStyle {
         PreviewStyle(foreground: PreviewStyle.colors(scheme, foreground: foreground, background: background).0,
@@ -785,6 +807,27 @@ private struct PreviewView: View {
     var body: some View {
         let families = store.selectedFamilies
         VStack(spacing: 0) {
+            Picker(L("プレビュー・字形"), selection: $showsGlyphs) {
+                Text(L("プレビュー")).tag(false)
+                Text(L("字形")).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .padding(.horizontal, 8)
+            .padding(.top, 8)
+            if showsGlyphs {
+                if families.count == 1, let family = families.first {
+                    GlyphGridView(family: family).id(family.id)
+                } else {
+                    VStack {
+                        Spacer()
+                        Text(families.isEmpty ? L("ファミリーを選ぶと字形を一覧にします") : L("%d個のファミリーを選択中", families.count))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            } else {
             HStack(spacing: 8) {
                 // 1行・複数行（折り返す）・ウォーターフォール（いくつかの大きさを1行ずつ）
                 Picker(L("表示"), selection: $mode) {
@@ -838,6 +881,7 @@ private struct PreviewView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
+            }
             }
         }
         .background(Color(nsColor: .textBackgroundColor))
@@ -911,8 +955,28 @@ private struct FamilyInfo: View {
                     info(L("場所"), file.path)
                     Button(L("Finderで表示")) { store.revealInFinder([file]) }
                         .buttonStyle(.link).font(.caption)
+                    if let record = FontDB.record(for: file) { officialInfo(record) }
                 }
             }
+        }
+    }
+
+    /// FontDB（メーカーの公式の情報）。値のある項目だけを出す
+    @ViewBuilder private func officialInfo(_ record: FontDBRecord) -> some View {
+        Text(L("公式の情報")).font(.caption.weight(.semibold)).padding(.top, 4)
+        if !record.name.isEmpty { info(L("書体名"), record.name + (record.reading.isEmpty ? "" : "（\(record.reading)）")) }
+        if !record.fileName.isEmpty { info(L("ファイル名"), record.fileName) }
+        if !record.maker.isEmpty { info(L("メーカー"), record.maker) }
+        if !record.designer.isEmpty { info(L("作者"), record.designer) }
+        if !record.releaseDate.isEmpty { info(L("リリース"), record.releaseDate) }
+        if !record.originalRelease.isEmpty { info(L("初出"), record.originalRelease) }
+        if !record.classification.isEmpty { info(L("分類"), record.classification) }
+        if !record.series.isEmpty { info(L("シリーズ"), record.series) }
+        if !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
+        if !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
+        if !record.description.isEmpty { info(L("説明"), record.description) }
+        if let url = URL(string: record.url), !record.url.isEmpty {
+            Link(L("公式のページを開く"), destination: url).font(.caption)
         }
     }
 

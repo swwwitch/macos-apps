@@ -53,9 +53,15 @@ struct NotMyTypeApp: App {
             }
             // ツール：Adobe アプリのドキュメントのフォントを書き換える（InDesign は今後）
             CommandMenu(L("ツール")) {
-                Button(L("Illustratorのフォントを統一…")) { FontConverterWindow.shared.show() }
+                Button(L("Illustratorのフォントを統一…")) { FontConverterWindow.illustrator.show() }
+                Button(L("InDesignのフォントを統一…")) { FontConverterWindow.indesign.show() }
                 Divider()
                 Button(L("FontExplorer X Proのセットを読み込む…")) { FontExplorerImportWindow.shared.show() }
+                Divider()
+                Button(L("ライブラリを再構築…")) { LibraryStore.shared.rebuildLibrary() }
+                Divider()
+                Button(L("システムのフォントキャッシュを消去…")) { FontCacheCleaner.cleanSystemCaches() }
+                Button(L("アプリのフォントキャッシュを消去…")) { FontCacheCleaner.cleanApplicationCaches() }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {
@@ -80,6 +86,7 @@ private struct LibraryMenuItems: View {
             .keyboardShortcut(shortcuts.shortcut(.newSet))
         Button(L("新規プロジェクト…")) { store.newProject() }
             .keyboardShortcut(shortcuts.shortcut(.newProject))
+        Button(L("新規スマートセット…")) { store.newSmartSet() }
         Divider()
         Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
             .keyboardShortcut(shortcuts.shortcut(.activate))

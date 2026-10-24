@@ -33,6 +33,8 @@ xcrun lipo "$contents_dir/MacOS/NotMyType" -verify_arch x86_64
 cp Info.plist "$contents_dir/Info.plist"
 cp Assets/NotMyType.icns "$contents_dir/Resources/NotMyType.icns"
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
+# FontDB（メーカーの公式の情報）。無ければ補わずに作る
+if [[ -f ../FontDB/data/fonts.sqlite ]]; then cp ../FontDB/data/fonts.sqlite "$contents_dir/Resources/FontDB.sqlite"; else echo "FontDB not found; building without it"; fi
 printf 'APPL????' > "$contents_dir/PkgInfo"
 python3 Tests/check-localization.py --app "$app_dir"
 embed_updates "$app_dir"

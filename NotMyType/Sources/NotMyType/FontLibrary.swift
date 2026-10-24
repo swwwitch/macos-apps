@@ -238,6 +238,7 @@ struct LibraryData: Codable, Sendable {
     var files: [FontFile] = []
     var sets: [FontSet] = []
     var projects: [FontProject] = []
+    var smartSets: [SmartSet] = []
     var active: Set<UUID> = []
     /// フォントフォルダーから一時的に消えたファイルの場所と id（Creative Cloud で Adobe Fonts をオフにした、ファイルを入れ替えたなど）。
     /// 戻ってきたら同じ id で入れ直し、セット・プロジェクトに入ったままにする
@@ -254,6 +255,7 @@ struct LibraryData: Codable, Sendable {
         sets = try container.decodeIfPresent([FontSet].self, forKey: .sets) ?? []
         projects = try container.decodeIfPresent([FontProject].self, forKey: .projects) ?? []
         departed = try container.decodeIfPresent([String: UUID].self, forKey: .departed) ?? [:]
+        smartSets = try container.decodeIfPresent([SmartSet].self, forKey: .smartSets) ?? []
         active = try container.decodeIfPresent(Set<UUID>.self, forKey: .active) ?? []
         favorites = try container.decodeIfPresent(Set<String>.self, forKey: .favorites) ?? []
     }
@@ -642,6 +644,8 @@ extension LibraryData {
                 projects.append(copy)
             }
         }
+        // スマートセットは条件だけなので id で合わせる（ファイルの id は持たない）
+        for smartSet in other.smartSets where !smartSets.contains(where: { $0.id == smartSet.id }) { smartSets.append(smartSet) }
         active.formUnion(other.active.compactMap { idMap[$0] })
         favorites.formUnion(other.favorites)
         return added
