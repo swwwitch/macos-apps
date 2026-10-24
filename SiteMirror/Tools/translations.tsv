@@ -54,7 +54,6 @@ robots.txtに従う	Follow robots.txt	遵循 robots.txt	robots.txt 따르기
 ファイル数 : 無制限	Files: Unlimited	文件数：无限制	파일 수: 무제한
 ファイル数 : %d	Files: %d	文件数：%d	파일 수: %d
 同時接続数 : %d	Simultaneous connections: %d	同时连接数：%d	동시 연결 수: %d
-同時接続数を増やすと速くなりますが、相手のサーバーの負担が増えます。	More connections are faster but put more load on the server.	增加连接数会更快，但会加重对方服务器的负担。	연결 수를 늘리면 빨라지지만 상대 서버의 부담이 커집니다.
 初期値に戻す	Restore Defaults	恢复默认值	기본값으로 복원
 取り込み中です	A download is in progress	正在下载	다운로드 중입니다
 中止して終了しますか？保存したところまではリンクを書き換えてから終了します。	Stop and quit? Links are rewritten for the files already saved before quitting.	要停止并退出吗？退出前会为已保存的文件改写链接。	중단하고 종료하시겠습니까? 저장한 파일까지 링크를 바꾼 뒤 종료합니다.
@@ -82,3 +81,78 @@ SiteMirror 取り込みの記録	SiteMirror download log	SiteMirror 下载记录
 URL	URL	URL	URL
 理由	Reason	原因	이유
 参照元	Linked from	引用来源	참조 위치
+リンクを調べる	Check Links	检查链接	링크 확인
+ログイン…	Log In…	登录…	로그인…
+このサイトのログイン情報を使います。ログインし直すときに開きます	The login for this site is used. Open it to log in again	将使用此网站的登录信息。需要重新登录时打开	이 사이트의 로그인 정보를 사용합니다. 다시 로그인할 때 엽니다
+ログインが必要なサイトは、ここで開いてログインします	For sites that require a login, open the site here and log in	对于需要登录的网站，请在此打开并登录	로그인이 필요한 사이트는 여기서 열어 로그인합니다
+保存せず、リンク切れだけを調べます	Checks for broken links without saving anything	不保存，仅检查失效链接	저장하지 않고 끊어진 링크만 확인합니다
+正常 %d・失敗 %d・待ち %d	OK %d · Failed %d · Waiting %d	正常 %d · 失败 %d · 等待 %d	정상 %d · 실패 %d · 대기 %d
+リンクを調べています…	Checking links…	正在检查链接…	링크를 확인하는 중…
+%d件は正常	%d OK	%d 个正常	%d개 정상
+%d件は変更なし	%d unchanged	%d 个未更改	%d개 변경 없음
+中止しました	Stopped	已停止	중단했습니다
+調べられませんでした	Couldn’t check the links	无法检查	확인하지 못했습니다
+リンク切れが%d件あります	%d broken links found	发现 %d 个失效链接	끊어진 링크가 %d개 있습니다
+リンク切れはありませんでした	No broken links found	没有失效链接	끊어진 링크가 없습니다
+（%d回再試行）	 (retried %d times)	（已重试 %d 次）	(%d회 재시도)
+%@（変更なし）	%@ (unchanged)	%@（未更改）	%@(변경 없음)
+除外するURL「%@」	Excluded URL “%@”	排除的 URL“%@”	제외할 URL ‘%@’
+ログアウトのリンク	Logout link	退出登录链接	로그아웃 링크
+SiteMirror リンクの確認	SiteMirror link check	SiteMirror 链接检查	SiteMirror 링크 확인
+正常 : %d件	OK: %d	正常：%d 个	정상: %d개
+変更なし : %d件（取り直していません）	Unchanged: %d (not downloaded again)	未更改：%d 个（未重新下载）	변경 없음: %d개(다시 다운로드하지 않음)
+取り込まないURL :	URLs to exclude:	排除的 URL：	제외할 URL:
+取り込まないURL	URLs to exclude	排除的 URL	제외할 URL
+1行に1つ。URLにその文字列が含まれていれば取り込みません（例：?page=、/tag/）。* は任意の文字列です。	One per line. URLs containing the text are not downloaded (for example ?page= or /tag/). * matches any text.	每行一个。URL 中包含该文本时不下载（例如 ?page=、/tag/）。* 表示任意文本。	한 줄에 하나. URL에 그 문자열이 포함되면 다운로드하지 않습니다(예: ?page=, /tag/). *는 임의의 문자열입니다.
+通信	Network	网络	네트워크
+取得の間隔 :	Interval between requests:	请求间隔：	요청 간격:
+なし	None	无	없음
+%@秒	%@ s	%@ 秒	%@초
+失敗したときの再試行 : しない	Retries on failure: None	失败时重试：不重试	실패 시 재시도: 안 함
+失敗したときの再試行 : %d回	Retries on failure: %d	失败时重试：%d 次	실패 시 재시도: %d회
+同時接続数を増やすと速くなりますが、相手のサーバーの負担が増えます。失敗が多いときは、間隔をあけると通りやすくなります。再試行は、タイムアウトや一時的なエラー（429・5xx）のときだけ行います。	More connections are faster but put more load on the server. If many requests fail, adding an interval often helps. Retries happen only for timeouts and temporary errors (429, 5xx).	增加连接数会更快，但会加重服务器负担。失败较多时，设置间隔通常会有帮助。仅在超时和临时错误（429、5xx）时重试。	연결 수를 늘리면 빨라지지만 서버의 부담이 커집니다. 실패가 많을 때는 간격을 두면 잘 통과됩니다. 재시도는 타임아웃이나 일시적인 오류(429·5xx)일 때만 합니다.
+変わっていない画像などは取り直さない	Don’t download unchanged images and other files again	不重新下载未更改的图像等文件	변경되지 않은 이미지 등은 다시 다운로드하지 않기
+同じフォルダーに上書きで取り込むとき、前回から変わっていないファイルはサーバーに確かめるだけで取り直しません。HTMLとCSSは毎回取り直します。	When overwriting the same folder, files that haven’t changed since last time are only checked with the server, not downloaded again. HTML and CSS are always downloaded again.	覆盖下载到同一文件夹时，自上次以来未更改的文件只向服务器确认，不重新下载。HTML 和 CSS 每次都会重新下载。	같은 폴더에 덮어써서 다운로드할 때 지난번부터 바뀌지 않은 파일은 서버에 확인만 하고 다시 다운로드하지 않습니다. HTML과 CSS는 매번 다시 다운로드합니다.
+このウインドウでサイトにログインしてから「完了」を押します。ログインの状態（Cookie）を取り込みに使います。	Log in to the site in this window, then click Done. The login (cookies) is used for downloading.	请在此窗口中登录网站，然后点按“完成”。登录状态（Cookie）将用于下载。	이 윈도우에서 사이트에 로그인한 뒤 ‘완료’를 클릭합니다. 로그인 상태(쿠키)를 다운로드에 사용합니다.
+戻る	Back	返回	뒤로
+ログイン情報を消去…	Clear Login Data…	清除登录信息…	로그인 정보 지우기…
+完了	Done	完成	완료
+ログイン	Log In	登录	로그인
+ログイン情報を消去しますか？	Clear login data?	要清除登录信息吗？	로그인 정보를 지우시겠습니까?
+このアプリ内のブラウザーに残っている、すべてのサイトのCookieなどを消去します。	Cookies and other data for all sites in this app’s browser are removed.	将清除此应用内浏览器中所有网站的 Cookie 等数据。	이 앱 안의 브라우저에 남아 있는 모든 사이트의 쿠키 등을 지웁니다.
+消去	Clear	清除	지우기
+%@ にログイン	Log in to %@	登录 %@	%@에 로그인
+名前	Name	名称	이름
+パスワード	Password	密码	암호
+合計の大きさの上限に達しました	reached the total size limit	已达到总大小上限	합계 크기 상한에 도달
+%d件をゴミ箱に入れました	%d moved to the Trash	%d 个已移到废纸篓	%d개를 휴지통으로 이동
+続きから取り込めます	can be resumed	可以继续下载	이어서 다운로드 가능
+上書きすると、取り込んだファイルで置き換え、サイトから消えたファイルはゴミ箱に入れます。	Overwriting replaces files with the ones downloaded now and moves files that are gone from the site to the Trash.	覆盖时会用本次下载的文件替换，并将网站上已不存在的文件移到废纸篓。	덮어쓰면 이번에 다운로드한 파일로 바꾸고, 사이트에서 사라진 파일은 휴지통으로 옮깁니다.
+前回の取り込みは途中で中止されています。	The previous download was stopped partway.	上次下载已中途停止。	이전 다운로드는 중간에 중단되었습니다.
+続きから取り込む	Resume	继续下载	이어서 다운로드
+最初から上書き	Overwrite from the Start	从头覆盖	처음부터 덮어쓰기
+大きすぎるため取りません（%@）	Too large, not downloaded (%@)	太大，未下载（%@）	너무 커서 다운로드하지 않음(%@)
+取らない種類（.%@）	Excluded file type (.%@)	排除的文件类型（.%@）	제외한 파일 종류(.%@)
+続きから取り込めます（同じフォルダーに取り込むと尋ねます）	Can be resumed (you are asked when downloading to the same folder)	可以继续下载（下载到同一文件夹时会询问）	이어서 다운로드할 수 있습니다(같은 폴더에 다운로드하면 묻습니다)
+ゴミ箱に入れた : %d件（サイトから消えたファイル）	Moved to the Trash: %d (files gone from the site)	已移到废纸篓：%d 个（网站上已不存在的文件）	휴지통으로 이동: %d개(사이트에서 사라진 파일)
+ゴミ箱に入れたファイル	Files Moved to the Trash	已移到废纸篓的文件	휴지통으로 이동한 파일
+サイトから削除された	Removed from the site	已从网站删除	사이트에서 삭제됨
+どこからもリンクされていない	No longer linked from anywhere	已无任何链接指向	어디에서도 링크되지 않음
+sitemap.xmlに載っているページもたどる	Also follow pages listed in sitemap.xml	同时跟踪 sitemap.xml 中列出的页面	sitemap.xml에 있는 페이지도 따라가기
+どこからもリンクされていないページも見つけられます。robots.txtのSitemap:か、/sitemap.xmlを読みます。	Finds pages that nothing links to. Reads Sitemap: in robots.txt, or /sitemap.xml.	可以找到没有任何链接指向的页面。读取 robots.txt 中的 Sitemap: 或 /sitemap.xml。	어디에서도 링크되지 않은 페이지도 찾을 수 있습니다. robots.txt의 Sitemap: 또는 /sitemap.xml을 읽습니다.
+JavaScriptの中に書かれたURLも拾う（推測）	Also pick up URLs written in JavaScript (best guess)	同时提取 JavaScript 中写的 URL（推测）	JavaScript 안에 적힌 URL도 가져오기(추측)
+引用符で囲まれた、画像・CSS・フォントなどのURLを拾います。関係のないURLを拾うことがあり、JavaScriptの中のURLは書き換えません。	Picks up quoted URLs of images, CSS, fonts and so on. Unrelated URLs may be picked up, and URLs inside JavaScript are not rewritten.	提取用引号括起来的图像、CSS、字体等 URL。可能会提取到无关的 URL，且不会改写 JavaScript 中的 URL。	따옴표로 둘러싼 이미지, CSS, 서체 등의 URL을 가져옵니다. 관계없는 URL을 가져올 수 있으며 JavaScript 안의 URL은 바꾸지 않습니다.
+取り込むURL :	URLs to include:	包含的 URL：	포함할 URL:
+取り込むURL	URLs to include	包含的 URL	포함할 URL
+書いたときは、当てはまるページだけをたどります（例：/illustrator/）。ページの表示に必要なファイルは関係なく取り込みます。	When set, only matching pages are followed (for example /illustrator/). Files a page needs to display are downloaded regardless.	设置后，只跟踪匹配的页面（例如 /illustrator/）。页面显示所需的文件不受此限制。	지정하면 해당하는 페이지만 따라갑니다(예: /illustrator/). 페이지 표시에 필요한 파일은 상관없이 다운로드합니다.
+ファイルの種類と大きさ	File Types and Sizes	文件类型与大小	파일 종류와 크기
+取らない種類 :	File types to skip:	跳过的文件类型：	건너뛸 파일 종류:
+取らない種類	File types to skip	跳过的文件类型	건너뛸 파일 종류
+拡張子をカンマで区切って書きます。拡張子の無いURLも、サーバーが返す種類で判定します。	Enter extensions separated by commas. URLs without an extension are judged by the type the server returns.	用逗号分隔扩展名。没有扩展名的 URL 也会按服务器返回的类型判断。	확장자를 쉼표로 구분해 입력합니다. 확장자가 없는 URL도 서버가 반환하는 종류로 판단합니다.
+1ファイルの上限 : 無制限	Per-file limit: Unlimited	单个文件上限：无限制	파일당 상한: 무제한
+1ファイルの上限 : %d MB	Per-file limit: %d MB	单个文件上限：%d MB	파일당 상한: %d MB
+合計の上限 : 無制限	Total limit: Unlimited	总上限：无限制	합계 상한: 무제한
+合計の上限 : %d MB	Total limit: %d MB	总上限：%d MB	합계 상한: %d MB
+サイトから消えたファイルをゴミ箱に入れる	Move files that are gone from the site to the Trash	将网站上已不存在的文件移到废纸篓	사이트에서 사라진 파일을 휴지통으로 옮기기
+上書きで最後まで取り込めたとき、前回保存したのに、今回どこからもリンクされていないか、サーバーが404・410を返したファイルをゴミ箱に入れます。一時的に取れなかったファイルや除外したファイルは残します。	After an overwrite that finishes, files saved last time that nothing links to anymore, or for which the server returns 404 or 410, are moved to the Trash. Files that failed temporarily or were excluded are kept.	覆盖下载完整结束后，将上次保存但本次已无链接指向、或服务器返回 404/410 的文件移到废纸篓。暂时未能获取或已排除的文件会保留。	덮어쓰기 다운로드를 끝까지 마치면, 지난번에 저장했지만 이번에 어디에서도 링크되지 않거나 서버가 404·410을 반환한 파일을 휴지통으로 옮깁니다. 일시적으로 가져오지 못한 파일이나 제외한 파일은 남깁니다.
+保存したファイル	Saved file	已保存的文件	저장한 파일

@@ -201,6 +201,37 @@ enum SiteLinks {
         return css(ns, range: NSRange(location: 0, length: ns.length), base: documentURL)
     }
 
+    // MARK: JavaScript・サイトマップ
+
+    /// 引用符で囲まれた、拡張子でファイルとわかる URL（絶対 URL・// で始まるもの・/ で始まるもの）。推測なので相対パスは拾わない
+    private static let scriptURL = try! NSRegularExpression(
+        pattern: "[\"'`]((?:https?:)?//[^\"'`\\s<>]+?|/[^/\"'`\\s<>][^\"'`\\s<>]*?)\\.(png|jpe?g|gif|svg|webp|avif|ico|css|js|mjs|json|woff2?|ttf|otf|eot|mp4|webm|mp3|m4a|ogg|pdf)((?:\\?|#)[^\"'`\\s<>]*)?[\"'`]",
+        options: .caseInsensitive)
+
+    static func scriptURLs(_ text: String, base: URL) -> [URL] {
+        let ns = text as NSString
+        var urls: [URL] = []
+        for match in scriptURL.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
+            // 引用符を除いた中身
+            let inner = NSRange(location: match.range.location + 1, length: match.range.length - 2)
+            let value = ns.substring(with: inner).replacingOccurrences(of: "\\/", with: "/")
+            guard let url = resolve(value, base), var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { continue }
+            components.fragment = nil
+            if let url = components.url { urls.append(url) }
+        }
+        return urls
+    }
+
+    private static let loc = try! NSRegularExpression(pattern: "<loc>\\s*([^<\\s]+)\\s*</loc>", options: .caseInsensitive)
+
+    /// sitemap.xml の <loc>
+    static func sitemapLocations(_ xml: String) -> [URL] {
+        let ns = xml as NSString
+        return loc.matches(in: xml, range: NSRange(location: 0, length: ns.length)).compactMap {
+            URL(string: decode(ns.substring(with: $0.range(at: 1))))
+        }
+    }
+
     // MARK: 共通
 
     private static func link(_ ns: NSString, _ range: NSRange, _ base: URL, _ role: FoundLink.Role, _ context: FoundLink.Context) -> FoundLink? {

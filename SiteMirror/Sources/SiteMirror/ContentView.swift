@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @ObservedObject private var mirror = Mirror.shared
+    @ObservedObject private var login = Login.shared
     @State private var isTargeted = false
     @State private var filter = LogFilter.all
     @State private var selection = Set<Int>()
@@ -25,7 +26,10 @@ struct ContentView: View {
             footer
         }
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
-        .onAppear { urlFocused = mirror.urlText.isEmpty }
+        .onAppear {
+            urlFocused = mirror.urlText.isEmpty
+            login.refresh()
+        }
         // ブラウザーのアドレスバーやリンクのドロップで URL を入れる
         .onDrop(of: [.url, .plainText], isTargeted: $isTargeted) { providers in
             guard let provider = providers.first else { return false }
@@ -86,6 +90,17 @@ struct ContentView: View {
                         .disabled(mirror.isRunning)
                         .onSubmit { if mirror.canStart { mirror.start() } }
                         .accessibilityLabel(L("取り込むサイトのURL"))
+                    let url = Mirror.startURL(from: mirror.urlText)
+                    Button {
+                        if let url { login.show(url) }
+                    } label: {
+                        Label(L("ログイン…"), systemImage: login.isLoggedIn(url) ? "person.crop.circle.badge.checkmark" : "person.crop.circle")
+                    }
+                    .disabled(mirror.isRunning || url == nil)
+                    .help(login.isLoggedIn(url) ? L("このサイトのログイン情報を使います。ログインし直すときに開きます") : L("ログインが必要なサイトは、ここで開いてログインします"))
+                    Button(L("リンクを調べる")) { mirror.start(checkOnly: true) }
+                        .disabled(!mirror.canStart)
+                        .help(L("保存せず、リンク切れだけを調べます"))
                     if mirror.isRunning {
                         Button(L("中止")) { mirror.cancel() }
                             .disabled(mirror.isRewriting)
@@ -188,7 +203,9 @@ struct ContentView: View {
         HStack(spacing: 10) {
             if mirror.isRunning {
                 ProgressView().controlSize(.small)
-                Text(mirror.isRewriting ? mirror.status : L("保存 %d・失敗 %d・待ち %d", mirror.saved, mirror.failed, mirror.waiting))
+                Text(mirror.isRewriting ? mirror.status
+                     : mirror.isCheckOnly ? L("正常 %d・失敗 %d・待ち %d", mirror.saved, mirror.failed, mirror.waiting)
+                     : L("保存 %d・失敗 %d・待ち %d", mirror.saved, mirror.failed, mirror.waiting))
                     .monospacedDigit()
             } else {
                 Text(mirror.status).lineLimit(2)

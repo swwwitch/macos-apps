@@ -9,6 +9,17 @@ SiteMirror follows the pages of the website at the URL you enter and saves the H
 - "SiteMirror-log.txt" is created in the download folder with the date, the counts, and each failed or skipped URL with the reason and the file that linked to it (tab-separated). Click "Open Log" to open it. Overwriting replaces it.
 - Choose "Failed" or "Skipped" above the list to show only the URLs that were not saved, with the reason. Select rows and press ⌘C, or right-click and choose "Copy URL" or "Copy URL and Reason" (several rows are copied one per line). For a saved row, "Show in Finder" in the right-click menu shows that file.
 
+### Sites That Require a Login
+1. Enter the URL and click "Log In…". The site opens in a browser inside the app.
+2. Log in as usual and click "Done". The button icon shows a checkmark for sites you are logged in to.
+3. "Download" then uses that login (cookies). For sites that ask for a name and password (Basic authentication), that name and password are used too (until you quit SiteMirror).
+- While logged in, pages whose URL contains logout, sign-out and so on are not followed, because following them would end the login.
+- The login stays in the app's browser. "Clear Login Data…" in the Log In window removes it for all sites.
+
+### Checking for Broken Links
+- "Check Links" (⇧⌘R) follows the same pages as a download but saves nothing; it only checks that each link target exists. Links to other sites are checked too, without being followed.
+- The result is written to the destination folder as "<host>-linkcheck-<date and time>.txt" and can be opened with "Open Log". It lists each broken URL with the reason and the page that links to it.
+
 ### What Is Followed
 - Pages on the same host as the start URL are followed. With or without "www." and http or https are treated as the same site. If the start URL is redirected, the destination host is treated as the same site too.
 - Files a page needs to display (CSS, JavaScript, images, fonts, video and so on) are saved even when they are on another domain such as a CDN. You can turn this off in the Download tab of Settings. Pages on other domains are not followed.
@@ -17,7 +28,9 @@ SiteMirror follows the pages of the website at the URL you enter and saves the H
 
 ### Where Files Are Saved
 - A folder named after the site's host (for example example.com) is created in the destination folder.
-- If a folder for the same site already exists (including when you choose that folder itself as the destination), you are asked to choose "Overwrite", "Save to a New Folder" or "Cancel". Overwriting replaces files with the ones downloaded now; files from the earlier download that were not downloaded this time are kept. "Save to a New Folder" saves to a numbered folder such as "example.com 2".
+- If a folder for the same site already exists (including when you choose that folder itself as the destination), you are asked to choose "Overwrite", "Save to a New Folder" or "Cancel". Overwriting replaces files with the ones downloaded now; images and other files that have not changed are only checked with the server and not downloaded again (a list for this is kept as ".sitemirror.json"); files from the earlier download that were not downloaded this time are kept. "Save to a New Folder" saves to a numbered folder such as "example.com 2".
+- If a download was stopped partway, downloading to the same folder lets you choose "Resume". Files already saved are not downloaded again; only the rest is.
+- When "Move files that are gone from the site to the Trash" is on in Settings, an overwrite that finishes moves to the Trash the files saved last time that nothing links to anymore and those for which the server returns 404 or 410. They are listed in the log file.
 - The site's files are placed directly in that folder, keeping their original paths. Files from other domains go in "_hosts/<host name>".
 - A page without an extension such as "/about" is saved as "about.html", and a page ending in a folder such as "/blog/" is saved as "blog/index.html". URLs with a query such as "?id=1" get a short tag in the file name and are saved as separate files.
 
@@ -29,13 +42,14 @@ SiteMirror follows the pages of the website at the URL you enter and saves the H
 
 ## Settings
 Click the Settings button in the main window (⌘,).
-- **Startup & Background**: Open at login, Hide main window at startup, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the app icon does not appear in the Dock or the ⌘Tab switcher. Show the window from the menu bar icon (when shown) or by opening the app again in the Finder
-- **Download**: whether to save files from other domains, follow pages on subdomains, stay below the folder of the start URL and follow robots.txt; the link depth (unlimited by default), the file limit (10,000 by default) and simultaneous connections (4 by default). Changes apply from the next download.
+- **Startup & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the app icon does not appear in the Dock or the ⌘Tab switcher. Show the window from the menu bar icon (when shown) or by opening the app again in the Finder
+- **Download**: whether to save files from other domains, follow pages on subdomains, stay below the folder of the start URL and follow robots.txt; URLs to include (when set, only matching pages), URLs to exclude (one per line, for example ?page= or /tag/), whether to follow pages in sitemap.xml and whether to pick up URLs in JavaScript (best guess); file types to skip (extensions such as mp4, zip), the per-file limit and the total limit (MB); the link depth (unlimited by default) and the file limit (10,000 by default); simultaneous connections (4 by default), the interval between requests (none by default) and retries on failure (2 by default, only for timeouts and temporary errors); and whether unchanged images and other files are skipped when overwriting (on by default; HTML and CSS are always downloaded again), and whether files that are gone from the site are moved to the Trash (off by default). Changes apply from the next download.
 - **Sharing**: export and import the Download settings, and sync them with your other Macs through a folder such as iCloud Drive or Dropbox. The destination folder is set on each Mac.
 - **About**: version and links.
 
 ## Hotkeys
 - **Return / ⌘R**: Download
+- **⇧⌘R**: Check Links
 - **⌘.**: Stop
 - **⌘0**: Open Main Window
 - **⌘,**: Settings
@@ -45,7 +59,7 @@ Click the Settings button in the main window (⌘,).
 
 ## Permissions and Privacy
 - No Accessibility permission is needed.
-- SiteMirror connects only to the site you enter and to the places that hold files its pages load (apart from Check for Updates…). It sends a User-Agent that identifies it as SiteMirror. No cookies or login details are sent, so pages that require signing in cannot be saved.
+- SiteMirror connects only to the site you enter and to the places that hold files its pages load (apart from Check for Updates…). It sends a User-Agent that identifies it as SiteMirror. Cookies and authentication are sent only to sites you logged in to with "Log In…". The login is kept in the app's browser storage (in ~/Library/WebKit).
 - If you choose a folder such as Downloads as the destination, macOS may ask for permission to access it.
 - Use downloaded content according to the site's terms of use and copyright. Too many simultaneous connections put load on the server.
 
@@ -56,10 +70,11 @@ Click the Settings button in the main window (⌘,).
 - Check for new versions with "Check for Updates…" in the app menu. Until update delivery is set up, it says updates are being prepared and makes no connection.
 
 ## Troubleshooting
-- Images and pages loaded later by JavaScript, and URLs written inside JavaScript, cannot be saved. Only links written in HTML and CSS are followed.
+- Images and pages loaded later by JavaScript cannot be saved. Links written in HTML and CSS are followed. URLs of images and other files written in JavaScript may be picked up when "Also pick up URLs written in JavaScript" is on in Settings.
 - If the page looks broken in a browser, the browser may be restricting what local files can load. Running a simple server such as "python3 -m http.server" in the saved folder and opening it from there may help.
 - If it seems to stop partway, it may have reached the file limit or the server is not responding. Check the reasons for failures in the list.
-- If you keep getting failures such as "HTTP 403", the site is refusing automated downloads. Reduce the simultaneous connections or stop downloading.
+- If you keep getting failures such as "HTTP 403", the site is refusing automated downloads. Reduce the simultaneous connections, add an interval between requests, or stop downloading.
+- If you get "HTTP 401" or "HTTP 403" even after logging in, log in again with "Log In…". The login may have expired.
 
 ## Help and the note Article
 - Open this help with "SiteMirror Help" (⌘?) in the Help menu.
@@ -69,3 +84,5 @@ Click the Settings button in the main window (⌘,).
 1. Turn off "Open at login".
 2. Choose "Quit SiteMirror".
 3. Move SiteMirror to the Trash. Downloaded site folders stay in the destination folder.
+
+Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.

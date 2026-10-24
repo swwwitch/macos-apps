@@ -65,10 +65,15 @@ private struct MirrorMenuItems: View {
         Button(L("取り込む")) { mirror.start() }
             .keyboardShortcut("r", modifiers: .command)
             .disabled(!mirror.canStart)
+        Button(L("リンクを調べる")) { mirror.start(checkOnly: true) }
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .disabled(!mirror.canStart)
         Button(L("中止")) { mirror.cancel() }
             .keyboardShortcut(".", modifiers: .command)
             .disabled(!mirror.isRunning || mirror.isRewriting)
         Divider()
+        Button(L("ログイン…")) { if let url = Mirror.startURL(from: mirror.urlText) { Login.shared.show(url) } }
+            .disabled(mirror.isRunning || Mirror.startURL(from: mirror.urlText) == nil)
         Button(L("保存先を選ぶ…")) { mirror.chooseOutputFolder() }
             .disabled(mirror.isRunning)
         Button(L("Finderで表示")) { mirror.revealResult() }
