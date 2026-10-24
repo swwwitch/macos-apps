@@ -52,17 +52,20 @@ struct NotMyTypeApp: App {
                     .keyboardShortcut("w", modifiers: .command)
             }
             // ツール：Adobe アプリのドキュメントのフォントを書き換える（InDesign は今後）
-            // ツール：ライブラリの手入れ → フォントキャッシュ（サブメニュー）→ フォントを統一（サブメニュー）→ 読み込み（ユーザー指定の並び）
+            // ツール：ライブラリの手入れ → 重複フォント（サブメニュー）・衝突 → フォントキャッシュ（サブメニュー）→ フォントを統一（サブメニュー）→ 読み込み（ユーザー指定の並び）
             CommandMenu(L("ツール")) {
                 Button(L("ライブラリを再構築…")) { LibraryStore.shared.rebuildLibrary() }
                 Button(L("フォントを点検…")) { FontCheckWindow.shared.show() }
-                Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() }
-                Button(L("選んだフォントを優先にする")) { LibraryStore.shared.preferSelected(LibraryStore.shared.selectedFiles) }
-                Button(L("衝突しているフォントの登録を外す")) { LibraryStore.shared.releaseConflicts(LibraryStore.shared.selectedFiles) }
-                Menu(L("優先外の重複")) {
-                    Button(L("解除")) { LibraryStore.shared.deactivateNonPreferredDuplicates() }
-                    Button(L("ライブラリから取り除く…")) { LibraryStore.shared.removeNonPreferredDuplicates() }
+                Divider()
+                // 重複まわりはサブメニューにまとめる（ユーザー指定）。衝突は重複とは別なので外に置く
+                Menu(L("重複フォント")) {
+                    Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() }
+                    Button(L("選んだフォントを優先にする")) { LibraryStore.shared.preferSelected(LibraryStore.shared.selectedFiles) }
+                    Divider()
+                    Button(L("優先外を解除")) { LibraryStore.shared.deactivateNonPreferredDuplicates() }
+                    Button(L("優先外をライブラリから取り除く…")) { LibraryStore.shared.removeNonPreferredDuplicates() }
                 }
+                Button(L("衝突しているフォントの登録を外す")) { LibraryStore.shared.releaseConflicts(LibraryStore.shared.selectedFiles) }
                 Divider()
                 Menu(L("フォントキャッシュを消去")) {
                     Button(L("システム…")) { FontCacheCleaner.cleanSystemCaches() }
@@ -75,6 +78,12 @@ struct NotMyTypeApp: App {
                 }
                 Divider()
                 Button(L("FontExplorer X Proのセットを読み込む…")) { FontExplorerImportWindow.shared.show() }
+                Divider()
+                // フォントの契約・管理のページ（単純なリンク、ユーザー指定）
+                Menu(L("フォント管理")) {
+                    Button("Adobe Fonts") { NSWorkspace.shared.open(URL(string: "https://fonts.adobe.com/")!) }
+                    Button(L("モリサワ")) { NSWorkspace.shared.open(URL(string: "https://morisawafonts.com/fonts/search/")!) }
+                }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {

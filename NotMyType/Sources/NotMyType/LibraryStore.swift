@@ -1887,7 +1887,7 @@ final class LibraryStore: ObservableObject {
     func fillMetadata() {
         let outdated = UserDefaults.standard.integer(forKey: Self.metadataVersionKey) < Self.metadataVersion
         let missing = data.files.filter {
-            (outdated || $0.vendor == nil || $0.trademarkOwner == nil || $0.isVariable == nil || $0.characterCount == nil || $0.supportsJapanese == nil || $0.isIcon == nil || $0.fontRevision == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
+            (outdated || $0.vendor == nil || $0.trademarkOwner == nil || $0.isVariable == nil || $0.characterCount == nil || $0.supportsJapanese == nil || $0.isIcon == nil || $0.isHandwriting == nil || $0.fontRevision == nil || $0.faces.contains { $0.localizedFamily == nil }) && FileManager.default.fileExists(atPath: $0.path)
         }
         guard !missing.isEmpty else { return }
         Task.detached(priority: .utility) {
@@ -1912,6 +1912,7 @@ final class LibraryStore: ObservableObject {
                     data.files[index].supportsJapanese = fresh.supportsJapanese
                     data.files[index].isIcon = fresh.isIcon
                     data.files[index].fontRevision = fresh.fontRevision
+                    data.files[index].isHandwriting = fresh.isHandwriting
                     for face in data.files[index].faces.indices {
                         let name = data.files[index].faces[face].postScriptName
                         let match = fresh.faces.first { $0.postScriptName == name }

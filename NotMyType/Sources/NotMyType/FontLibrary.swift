@@ -19,9 +19,10 @@ struct FontFace: Codable, Hashable, Sendable {
 /// サイドバーの「種類」
 /// サイドバーと検索オプションの「種類」
 enum FontKind: String, CaseIterable, Hashable, Sendable {
-    case variable, color, kana, icon
+    case variable, color, kana, handwriting, icon
     var title: String {
         switch self {
+        case .handwriting: return L("手書きフォント")
         case .variable: return L("バリアブル")
         case .color: return L("カラーフォント")
         case .kana: return L("かなフォント")
@@ -33,6 +34,7 @@ enum FontKind: String, CaseIterable, Hashable, Sendable {
         case .variable: return "slider.horizontal.3"
         case .color: return "paintpalette"
         case .kana: return "character.ja"
+        case .handwriting: return "signature"
         case .icon: return "star.square.on.square"
         }
     }
@@ -42,8 +44,17 @@ enum FontKind: String, CaseIterable, Hashable, Sendable {
         case .color: return file.isColor == true
         case .kana: return file.isKana == true
         case .icon: return file.isIcon == true
+        // 公式の情報（FontDB）の分類が手書き・スクリプトか、ファイルの OS/2 が手書き（分類 Scripts・PANOSE Latin Hand Written）
+        case .handwriting:
+            if let record = FontDB.record(for: file), !record.classification.isEmpty {
+                return Self.handwritingClasses.contains(record.classification)
+            }
+            return file.isHandwriting == true
         }
     }
+
+    /// FontDB の分類のうち手書きに入れるもの（筆書体は毛筆なので入れない）
+    static let handwritingClasses: Set<String> = ["手書き", "スクリプト"]
 }
 
 /// 検索オプションの「ファミリーの書体数」。ファミリーに入っている書体（ウエイト・スタイル）の数で分ける
@@ -155,6 +166,8 @@ struct FontFile: Codable, Identifiable, Hashable, Sendable {
     var supportsJapanese: Bool?
     /// アイコンフォント：欧文の拡張文字（ラテン文字拡張A）を持たず文字の半分以上が私用領域か、名前（Awesome・Icon など）（U+E000〜F8FF、第15・16面）か、フォントの分類が記号（Symbolic）
     var isIcon: Bool?
+    /// 手書き：OS/2 の sFamilyClass が Scripts（10）か、PANOSE の種類が Latin Hand Written（3）。古い版のライブラリでは nil
+    var isHandwriting: Bool?
     /// 最後にアクティブにした・解除した日時（サイドバーの「最近アクティブ」「最近非アクティブ」）
     var activatedAt: Date?
     var deactivatedAt: Date?
@@ -350,7 +363,16 @@ enum FontScanner {
         file.supportsJapanese = characters.japanese
         file.isIcon = characters.icon || iconFamilyWords.contains { faces[0].family.contains($0) }
         file.fontRevision = fontRevision(descriptors[0])
+        file.isHandwriting = isHandwriting(descriptors[0])
         return file
+    }
+
+    /// OS/2 の sFamilyClass（30〜31バイト目の上位）が 10（Scripts）か、PANOSE の bFamilyType（32バイト目）が 3（Latin Hand Written）
+    static func isHandwriting(_ descriptor: CTFontDescriptor) -> Bool {
+        let font = CTFontCreateWithFontDescriptor(descriptor, 12, nil)
+        guard let table = CTFontCopyTable(font, CTFontTableTag(kCTFontTableOS2), []) as Data?, table.count >= 33 else { return false }
+        let start = table.startIndex
+        return table[start + 30] == 10 || table[start + 32] == 3
     }
 
     /// ファイルの中身の SHA-256（16進）。読めなければ nil

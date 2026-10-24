@@ -454,7 +454,6 @@ PostScript名がありません	No PostScript name
 フォントを統一	Unify Fonts
 Illustrator…	Illustrator…
 InDesign…	InDesign…
-優先外の重複	Non-Preferred Duplicates
 優先外を解除	Deactivate Non-Preferred
 優先外を取り除く…	Remove Non-Preferred…
 アクティブな優先外の重複はありません	No active non-preferred duplicates
@@ -538,3 +537,6 @@ PostScript名が同じ別の書体があります。同時にアクティブに�
 終了しました	Quit
 すべてのAdobeアプリを終了	Quit All Adobe Apps
 セット「%@」に%d個を入れました	put %2$d in the set "%1$@"
+優先外をライブラリから取り除く…	Remove Non-Preferred from Library…
+手書きフォント	Handwriting Fonts
+フォント管理	Font Services

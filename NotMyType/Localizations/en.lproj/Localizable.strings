@@ -5,12 +5,12 @@
 "ツール" = "Tools";
 "ライブラリを再構築…" = "Rebuild Library…";
 "フォントを点検…" = "Check Fonts…";
+"重複フォント" = "Duplicate Fonts";
 "重複フォントを解決…" = "Resolve Duplicate Fonts…";
 "選んだフォントを優先にする" = "Prefer Selected Fonts";
+"優先外を解除" = "Deactivate Non-Preferred";
+"優先外をライブラリから取り除く…" = "Remove Non-Preferred from Library…";
 "衝突しているフォントの登録を外す" = "Unregister Conflicting Fonts";
-"優先外の重複" = "Non-Preferred Duplicates";
-"解除" = "Deactivate";
-"ライブラリから取り除く…" = "Remove from Library…";
 "フォントキャッシュを消去" = "Clean Font Caches";
 "システム…" = "System…";
 "アプリ…" = "Applications…";
@@ -18,6 +18,8 @@
 "Illustrator…" = "Illustrator…";
 "InDesign…" = "InDesign…";
 "FontExplorer X Proのセットを読み込む…" = "Import FontExplorer X Pro Sets…";
+"フォント管理" = "Font Services";
+"モリサワ" = "Morisawa";
 "しまう" = "Minimize";
 "拡大／縮小" = "Zoom";
 "フォントを追加…" = "Add Fonts…";
@@ -25,7 +27,9 @@
 "新規プロジェクト…" = "New Project…";
 "新規スマートセット…" = "New Smart Set…";
 "アクティブにする" = "Activate";
+"解除" = "Deactivate";
 "Finderで表示" = "Show in Finder";
+"ライブラリから取り除く…" = "Remove from Library…";
 "設定" = "Settings";
 "フォントファイルやフォルダーをドロップして追加" = "Drop font files or folders to add them";
 "フォントのアクティブを切り替え" = "Activate and Deactivate Fonts";
@@ -80,7 +84,6 @@
 "フォントファイルやフォルダーをここへドロップするか、「追加…」で選びます" = "Drop font files or folders here, or choose them with “Add…”";
 "当てはまるフォントはありません" = "No matching fonts";
 "ここには優先が決まらない重複だけを出します。ボタンは、選んでいなければライブラリの優先外すべてが対象です" = "Only duplicates whose preferred file is undecided are listed here. With nothing selected, the buttons affect every non-preferred file in the library";
-"優先外を解除" = "Deactivate Non-Preferred";
 "優先外を取り除く…" = "Remove Non-Preferred…";
 "Adobe Fontsのオン・オフは、Creative Cloudで行います" = "Adobe Fonts are turned on and off in Creative Cloud";
 "fonts.adobe.com" = "fonts.adobe.com";
@@ -146,6 +149,7 @@
 "、" = ", ";
 "ファイルが見つかりません" = "File not found";
 "同じ名前のフォントが別の場所で使われています：%@" = "A font with the same name is in use from another location: %@";
+"手書きフォント" = "Handwriting Fonts";
 "バリアブル" = "Variable";
 "カラーフォント" = "Color Fonts";
 "かなフォント" = "Kana Fonts";
@@ -176,7 +180,6 @@
 "形式（下の順）" = "Format (order below)";
 "バージョンが新しい" = "Newer version";
 "字形数が多い" = "More glyphs";
-"モリサワ" = "Morisawa";
 "フォントワークス" = "Fontworks";
 "アドビ" = "Adobe";
 "Google" = "Google";
@@ -308,7 +311,6 @@
 "PostScript名が同じ別の書体があります。同時にアクティブにすると、アプリからは一方しか見えません：%@" = "Another face has the same PostScript name. If both are active, apps see only one: %@";
 "どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る" = "From any app. Yields while another of these apps that uses the same key for its front app is in front";
 "フォント" = "Fonts";
-"重複フォント" = "Duplicate Fonts";
 "ホットキー" = "Hotkeys";
 "共有" = "Sharing";
 "NotMyTypeが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。" = "While NotMyType is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyType is not running, so use it together with Open at Login.";
