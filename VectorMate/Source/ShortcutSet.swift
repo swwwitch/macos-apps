@@ -45,9 +45,10 @@ enum ShortcutSet {
         }
     }
 
-    /// Blocking: opens 編集 → キーボードショートカット..., picks the set in the セット combo box and confirms with Return.
-    /// The combo box cannot be written and its opened list has no actions (arrow keys and clicks in it did nothing,
-    /// 2026-10-20); with the closed combo box focused, ↓ moves the set and Return is OK (the user, 2026-10-20).
+    /// Blocking: opens 編集 → キーボードショートカット..., picks the set in the セット combo box and presses OK.
+    /// Writing the value, arrow keys and System Events clicks did not change the set; real mouse clicks (CGEvent) on the
+    /// combo box and then on the item did (2026-10-24). The items of the opened list are not in the AX tree, so the row is
+    /// found by offset (`itemOffset`).
     static func choose(_ name: String, in app: NSRunningApplication) -> Result<Choice, SettingsFailure> {
         guard AXIsProcessTrusted() else { return .failure(.notTrusted) }
         guard bringToFront(app) else { return .failure(.failed("activate")) }
@@ -70,18 +71,23 @@ enum ShortcutSet {
         let current = AX.string(combo, kAXValueAttribute) ?? ""
         if current == name { close(ok: false); return .success(.alreadyChosen) }
         guard let to = items.firstIndex(of: name) else { close(ok: false); return .success(.notListed) }
-        AXUIElementSetAttributeValue(combo, kAXFocusedAttribute as CFString, kCFBooleanTrue)
-        Thread.sleep(forTimeInterval: 0.3)
-        // From the top, so a stale value read does not count the steps wrong.
-        for _ in items { AX.key(kVK_UpArrow); Thread.sleep(forTimeInterval: 0.08) }
-        for _ in 0..<to { AX.key(kVK_DownArrow); Thread.sleep(forTimeInterval: 0.1) }
-        Thread.sleep(forTimeInterval: 0.4)
-        guard AX.string(combo, kAXValueAttribute) == name else { close(ok: false); return .failure(.notChanged) }
-        AX.key(kVK_Return)
-        // Return is OK; if the dialog box is still there, OK is pressed directly.
-        if AX.wait(50, { Self.dialog(root) == nil ? true : nil }) == nil { close(ok: true) }
+        guard let frame = AX.frame(combo) else { close(ok: false); return .failure(.controlNotFound) }
+        AX.click(CGPoint(x: frame.midX, y: frame.midY))
+        Thread.sleep(forTimeInterval: 0.5)
+        AX.click(CGPoint(x: frame.midX, y: frame.minY + itemOffset(to)))
+        guard AX.wait(10, { AX.string(combo, kAXValueAttribute) == name ? true : nil }) != nil else {
+            // A list left open swallows the Cancel press; Escape closes it first.
+            AX.key(kVK_Escape); Thread.sleep(forTimeInterval: 0.2)
+            close(ok: false)
+            return .failure(.notChanged)
+        }
+        close(ok: true)
         return .success(.chosen)
     }
+
+    /// The center of row `index` of the opened セット list, from the top of the combo box: the list drops below it
+    /// whichever set is current, and a separator follows the first row (Illustrator 30.8.2, 2026-10-24).
+    static func itemOffset(_ index: Int) -> CGFloat { index == 0 ? 32 : 59 + CGFloat(index - 1) * 22.5 }
 
     /// Blocking: links every .kys of `source` (Illustrator need not be running), then chooses `name` when Illustrator runs.
     static func install(_ source: URL, name: String) -> Result<Installed, SettingsFailure> {

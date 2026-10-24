@@ -91,6 +91,24 @@ enum AX {
     static let okNames = ["OK"]
     static let cancelNames = ["キャンセル", "Cancel"]
 
+    /// The element's frame in screen coordinates (top-left origin, as CGEvent uses).
+    static func frame(_ el: AXUIElement) -> CGRect? {
+        var position = CGPoint.zero, size = CGSize.zero
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(el, kAXPositionAttribute as CFString, &value) == .success, let p = value,
+              AXValueGetValue(p as! AXValue, .cgPoint, &position),
+              AXUIElementCopyAttributeValue(el, kAXSizeAttribute as CFString, &value) == .success, let sz = value,
+              AXValueGetValue(sz as! AXValue, .cgSize, &size) else { return nil }
+        return CGRect(origin: position, size: size)
+    }
+    /// A real mouse click: some Illustrator controls ignore AXPress and synthetic clicks from System Events.
+    static func click(_ point: CGPoint) {
+        for type in [CGEventType.mouseMoved, .leftMouseDown, .leftMouseUp] {
+            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+            Thread.sleep(forTimeInterval: 0.08)
+        }
+    }
+
     /// A key press sent to the front app (Illustrator), with no modifiers.
     static func key(_ code: Int) {
         let source = CGEventSource(stateID: .privateState)

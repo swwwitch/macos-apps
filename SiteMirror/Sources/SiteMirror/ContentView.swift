@@ -88,8 +88,27 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                         .focused($urlFocused)
                         .disabled(mirror.isRunning)
-                        .onSubmit { if mirror.canStart { mirror.start() } }
+                        .onSubmit { if mirror.canStart { mirror.start(checkOnly: mirror.checkOnlyMode) } }
                         .accessibilityLabel(L("取り込むサイトのURL"))
+                    Menu {
+                        if mirror.recentURLs.isEmpty {
+                            Text(L("履歴はありません"))
+                        } else {
+                            ForEach(mirror.recentURLs, id: \.self) { value in
+                                Button { mirror.urlText = value; urlFocused = true } label: {
+                                    Text(verbatim: value)
+                                }
+                            }
+                            Divider()
+                            Button(L("URL履歴を消去")) { mirror.clearURLHistory() }
+                        }
+                    } label: {
+                        Image(systemName: "clock.arrow.circlepath")
+                    }
+                    .fixedSize()
+                    .disabled(mirror.isRunning)
+                    .accessibilityLabel(L("最近使ったURL"))
+                    .help(L("最近使ったURL"))
                     let url = Mirror.startURL(from: mirror.urlText)
                     Button {
                         if let url { login.show(url) }
@@ -98,18 +117,24 @@ struct ContentView: View {
                     }
                     .disabled(mirror.isRunning || url == nil)
                     .help(login.isLoggedIn(url) ? L("このサイトのログイン情報を使います。ログインし直すときに開きます") : L("ログインが必要なサイトは、ここで開いてログインします"))
-                    Button(L("リンクを調べる")) { mirror.start(checkOnly: true) }
-                        .disabled(!mirror.canStart)
-                        .help(L("保存せず、リンク切れだけを調べます"))
+                    Picker(L("処理"), selection: $mirror.checkOnlyMode) {
+                        Text(L("リンクを調べる")).tag(true)
+                        Text(L("取り込む")).tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
+                    .disabled(mirror.isRunning)
+                    .help(L("保存せず、リンク切れだけを調べます"))
                     if mirror.isRunning {
                         Button(L("中止")) { mirror.cancel() }
                             .disabled(mirror.isRewriting)
-                            .frame(minWidth: 88)
+                            .fixedSize()
                     } else {
-                        Button(L("取り込む")) { mirror.start() }
+                        Button(L("開始")) { mirror.start(checkOnly: mirror.checkOnlyMode) }
                             .keyboardShortcut(.defaultAction)
                             .disabled(!mirror.canStart)
-                            .frame(minWidth: 88)
+                            .fixedSize()
                     }
                 }
             }
@@ -174,7 +199,7 @@ struct ContentView: View {
                             .font(.system(size: 36, weight: .light))
                             .foregroundStyle(Color.accentColor)
                             .accessibilityHidden(true)
-                        Text(mirror.isRunning ? L("取り込み中…") : L("URLを入力して「取り込む」を押します"))
+                        Text(mirror.isRunning ? L("取り込み中…") : L("URLを入力し、処理を選んで「開始」を押します"))
                             .foregroundStyle(.secondary)
                     }
                 }

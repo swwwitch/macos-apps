@@ -1,10 +1,11 @@
 SiteMirror follows the pages of the website at the URL you enter and saves the HTML, CSS, JavaScript, images and fonts. Links in the saved files are rewritten as relative paths, so you can open the site in a browser even without a network connection.
 
 ## How to Use
+Choose Check Links or Download, then click Start or press Return. Selecting a mode does not start processing. ⌘R starts a download directly; ⇧⌘R starts a link check.
 ### Download a Site
 1. Enter the URL of the site in "URL:" (for example https://example.com/). You can leave out "https://". You can also drop a URL from a browser's address bar or a link onto the window.
 2. Click "Change…" next to "Save to:" to choose the destination folder. It starts as your Downloads folder.
-3. Click "Download" (Return or ⌘R). The list shows each saved file and where it was saved, and each URL that failed or was skipped, with the reason.
+3. Click "Start" (Return) after selecting "Download". The list shows each saved file and where it was saved, and each URL that failed or was skipped, with the reason.
 4. When it finishes, click "Open in Browser" to open the start page, or "Show in Finder" to show the saved folder.
 - "SiteMirror-log.txt" is created in the download folder with the date, the counts, and each failed or skipped URL with the reason and the file that linked to it (tab-separated). Click "Open Log" to open it. Overwriting replaces it.
 - Choose "Failed" or "Skipped" above the list to show only the URLs that were not saved, with the reason. Select rows and press ⌘C, or right-click and choose "Copy URL" or "Copy URL and Reason" (several rows are copied one per line). For a saved row, "Show in Finder" in the right-click menu shows that file.
@@ -48,7 +49,7 @@ Click the Settings button in the main window (⌘,).
 - **About**: version and links.
 
 ## Hotkeys
-- **Return / ⌘R**: Download
+- **⌘R**: Download
 - **⇧⌘R**: Check Links
 - **⌘.**: Stop
 - **⌘0**: Open Main Window
@@ -86,3 +87,9 @@ Click the Settings button in the main window (⌘,).
 3. Move SiteMirror to the Trash. Downloaded site folders stay in the destination folder.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
+
+## Notifications
+- Enable Notify when finished in Notifications settings to receive download and link-check results, including failures. It is off by default. Cancelled tasks and foreground results do not display a notification. Click a notification to open the results. URLs and credentials are not included. Permission is requested only when you enable notifications. Results and failure details remain available in the app. Use Open Notification Settings to configure appearance and sound in macOS.
+
+## URL history
+- Use the history menu beside the URL field to select a recent URL. The latest 20 URLs used to start downloads or link checks are kept on this Mac, newest first. Reusing a URL moves it to the top. Selecting one fills the field; click Download to start. Clear URL History removes only the history. The last URL entered before upgrading is imported once. URLs containing a username or password are not saved in history.

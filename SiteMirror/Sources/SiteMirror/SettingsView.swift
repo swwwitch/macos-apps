@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage("completionNotificationEnabled") private var notifications = false
     var body: some View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(SettingsSection(SettingsUI.launchTitle) {
@@ -8,6 +9,9 @@ struct SettingsView: View {
                 MenuBarPresenceView()
             })),
             (L("取り込み"), AnyView(MirrorSettingsView())),
+            (NotificationPreferences.title, AnyView(SettingsSection(NotificationPreferences.title) {
+                NotificationPermissionView(enabled: $notifications, toggleTitle: NotificationPreferences.completionTitle)
+            })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)

@@ -388,8 +388,9 @@ enum GridColors {
 
     /// Clicks the swatch, shows RGB sliders, and returns the hex field (the 6-character text field).
     private static func openPanel(_ swatch: AXUIElement, root: AXUIElement) -> AXUIElement? {
-        guard let center = center(of: swatch) else { return nil }
-        click(center)
+        guard let frame = AX.frame(swatch) else { return nil }
+        // The swatches ignore AXPress and synthetic clicks from System Events; a real mouse click opens them.
+        AX.click(CGPoint(x: frame.midX, y: frame.midY))
         guard let window = AX.wait(50, { panel(root) }) else { return nil }
         if let sliders = AX.find(in: window, depth: 4, where: { AX.role($0) == kAXButtonRole && slidersNames.contains(AX.name($0) ?? "") }) {
             AX.press(sliders); Thread.sleep(forTimeInterval: 0.2)
@@ -407,23 +408,5 @@ enum GridColors {
         guard let window = panel(root) else { return }
         if let close = AX.element(window, kAXCloseButtonAttribute) { AX.press(close) }
         _ = AX.wait(30) { panel(root) == nil ? true : nil }
-    }
-
-    private static func center(of el: AXUIElement) -> CGPoint? {
-        var position = CGPoint.zero, size = CGSize.zero
-        var value: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(el, kAXPositionAttribute as CFString, &value) == .success, let p = value,
-              AXValueGetValue(p as! AXValue, .cgPoint, &position),
-              AXUIElementCopyAttributeValue(el, kAXSizeAttribute as CFString, &value) == .success, let sz = value,
-              AXValueGetValue(sz as! AXValue, .cgSize, &size) else { return nil }
-        return CGPoint(x: position.x + size.width / 2, y: position.y + size.height / 2)
-    }
-
-    /// The swatches ignore AXPress and synthetic clicks from System Events; a real mouse click opens them.
-    private static func click(_ point: CGPoint) {
-        for type in [CGEventType.mouseMoved, .leftMouseDown, .leftMouseUp] {
-            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
-            Thread.sleep(forTimeInterval: 0.08)
-        }
     }
 }

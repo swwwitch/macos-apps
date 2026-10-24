@@ -23,7 +23,7 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 ```
 
 - SwiftPM（`Package.swift`）。ソースは [Sources/SiteMirror](Sources/SiteMirror/)、文字列・ヘルプは [Localizations](Localizations/)（ja / en / zh-Hans / ko）。
-- 共通部品（AboutSection・AppSurface・StartupWindow・SettingsSection・HelpDocument・MenuBarPresence・LoginAtLaunch・SettingsSync・UpdateSupport）は各 `sync` スクリプトがビルド時に上書きするので、直接編集しない。
+- 共通部品（AboutSection・AppSurface・StartupWindow・SettingsSection・HelpDocument・MenuBarPresence・LoginAtLaunch・SettingsSync・UpdateSupport・NotificationPreferences）は`Tools/sync-shared.py`がビルド時に上書きするので、直接編集しない。
 - 画面の文字列を足したら、[Tools/translations.tsv](Tools/translations.tsv) に訳を加えて `python3 Tools/make-strings.py` で Localizable.strings を作り直す（訳の無いキー・使わないキーがあると止まる）。
 - アイコンは [Assets/make-icon.sh](Assets/make-icon.sh)（GenerateIcon.swift から .icns を生成）。
 
@@ -46,3 +46,21 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - 1.1.0（build 3）2026-10-24：同じサイトのフォルダーがあるとき（保存先にそのフォルダー自体を選んだときも）、「上書き」「別のフォルダーに保存」を選べるようにした（これまでは常に番号付きの別フォルダー）。上書きでは今回取り込まなかったファイルを消さない。取り込みフォルダーに `SiteMirror-log.txt` を書き、失敗・除外したURLと理由・参照元を残す。「記録を開く」ボタンとメニューを追加。
 - 1.0.1（build 2）2026-10-24：一覧の上に「すべて／失敗／除外」の切り替え（件数付き）を追加し、保存できなかったURLと理由だけを表示できるようにした。行の複数選択と⌘C・右クリックの「URLをコピー」「URLと理由をコピー」、保存した行の「Finderで表示」を追加。
 - 1.0.0（build 1）2026-10-24：初版。ページのたどり・素材の保存（ほかのドメインを含む）・相対リンクへの書き換え、robots.txt、たどる深さ・ファイル数・同時接続数の設定、中止と終了時の確認。sw_app の共通仕様（メニュー構成・設定・設定の共有・ヘルプ・常駐・4言語・更新機能の準備中表示・マスタードのアイコン）を適用。
+
+## 1.3.1（build 6）
+
+- 最新の起動・Dock・メニューバー共通部品を取り込み。
+- 共通の通知設定を追加（初期値OFF）。取り込み・リンク確認の完了／失敗を通知し、クリックで結果を表示。
+- ビルド時の共通部品同期をSiteMirrorだけに限定。
+
+## 1.4.0（build 7）
+
+URL欄に履歴メニューを追加。取り込み・リンク確認で使ったURLを最大20件保存し、再起動後も選択可能。同じURLは重複せず先頭へ移動。履歴消去、前版の最後のURLの初回引き継ぎに対応。履歴はMac固有で同期しない。
+
+## 1.4.1（build 8、2026-10-24）
+
+「リンクを調べる／取り込む」をセグメント形式で選び、「開始」で実行するUIに変更。Returnも選択中の処理を実行し、処理中は切り替えを無効にする。⌘R・⇧⌘Rは従来どおり各処理を直接開始する。
+
+## 1.4.2（build 9）
+
+開始／中止ボタンの外側の余分な幅を削除し、右端と周囲の間隔を整えました。空いた幅はURL入力欄に割り当てます。

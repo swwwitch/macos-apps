@@ -17,7 +17,6 @@ URL :	URL:	URL：	URL:
 保存先 :	Save to:	保存到：	저장 위치:
 変更…	Change…	更改…	변경…
 取り込み中…	Downloading…	正在下载…	다운로드 중…
-URLを入力して「取り込む」を押します	Enter a URL and click Download	输入 URL 后点按“下载”	URL을 입력하고 ‘다운로드’를 클릭합니다
 保存 %d・失敗 %d・待ち %d	Saved %d · Failed %d · Waiting %d	已保存 %d · 失败 %d · 等待 %d	저장 %d · 실패 %d · 대기 %d
 保存	Saved	已保存	저장됨
 失敗	Failed	失败	실패
@@ -156,3 +155,9 @@ JavaScriptの中に書かれたURLも拾う（推測）	Also pick up URLs writte
 サイトから消えたファイルをゴミ箱に入れる	Move files that are gone from the site to the Trash	将网站上已不存在的文件移到废纸篓	사이트에서 사라진 파일을 휴지통으로 옮기기
 上書きで最後まで取り込めたとき、前回保存したのに、今回どこからもリンクされていないか、サーバーが404・410を返したファイルをゴミ箱に入れます。一時的に取れなかったファイルや除外したファイルは残します。	After an overwrite that finishes, files saved last time that nothing links to anymore, or for which the server returns 404 or 410, are moved to the Trash. Files that failed temporarily or were excluded are kept.	覆盖下载完整结束后，将上次保存但本次已无链接指向、或服务器返回 404/410 的文件移到废纸篓。暂时未能获取或已排除的文件会保留。	덮어쓰기 다운로드를 끝까지 마치면, 지난번에 저장했지만 이번에 어디에서도 링크되지 않거나 서버가 404·410을 반환한 파일을 휴지통으로 옮깁니다. 일시적으로 가져오지 못한 파일이나 제외한 파일은 남깁니다.
 保存したファイル	Saved file	已保存的文件	저장한 파일
+履歴はありません	No recent URLs	暂无历史记录	최근 URL이 없습니다
+URL履歴を消去	Clear URL History	清除 URL 历史记录	URL 기록 지우기
+最近使ったURL	Recent URLs	最近使用的 URL	최근 사용한 URL
+処理	Action	操作	작업
+開始	Start	开始	시작
+URLを入力し、処理を選んで「開始」を押します	Enter a URL, choose an action and click Start	输入 URL，选择操作并点按“开始”	URL을 입력하고 작업을 선택한 다음 ‘시작’을 클릭하세요

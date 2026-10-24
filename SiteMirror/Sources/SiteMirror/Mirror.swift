@@ -15,7 +15,7 @@ struct LogRow: Identifiable {
 final class Mirror: ObservableObject {
     static let shared = Mirror()
 
-    // UserDefaults のキー。outputFolderKey 以外は「設定の共有」で同期する
+    // 「設定の共有」で同期するキーは syncedKeys に限定する。URL・履歴・保存先はMac固有。
     static let lastURLKey = "lastURL"
     static let outputFolderKey = "outputFolderPath"
     static let externalAssetsKey = "includeExternalAssets"
@@ -43,7 +43,10 @@ final class Mirror: ObservableObject {
     @Published var urlText: String {
         didSet { UserDefaults.standard.set(urlText, forKey: Mirror.lastURLKey) }
     }
+    private let history: URLHistory
+    @Published private(set) var recentURLs: [String]
     @Published private(set) var outputFolder: URL
+    @Published var checkOnlyMode = false
     @Published private(set) var isRunning = false
     @Published private(set) var isRewriting = false
     /// 保存せずリンク切れだけを調べている（前回の実行がリンクの確認だった）
@@ -73,7 +76,10 @@ final class Mirror: ObservableObject {
                                      Mirror.retriesKey: 2, Mirror.intervalKey: 0.0, Mirror.excludesKey: "", Mirror.skipUnchangedKey: true,
                                      Mirror.includesKey: "", Mirror.useSitemapKey: false, Mirror.scanScriptsKey: false, Mirror.excludedTypesKey: "",
                                      Mirror.maxFileMBKey: 0, Mirror.maxTotalMBKey: 0, Mirror.purgeRemovedKey: false])
-        urlText = defaults.string(forKey: Mirror.lastURLKey) ?? ""
+        let previousURL = defaults.string(forKey: Mirror.lastURLKey) ?? ""
+        urlText = previousURL
+        history = URLHistory(defaults: defaults, previousURL: Mirror.startURL(from: previousURL))
+        recentURLs = history.entries
         if let path = defaults.string(forKey: Mirror.outputFolderKey), FileManager.default.fileExists(atPath: path) {
             outputFolder = URL(fileURLWithPath: path, isDirectory: true)
         } else {
@@ -123,11 +129,18 @@ final class Mirror: ObservableObject {
         return components.url
     }
 
+    func clearURLHistory() {
+        guard !isRunning else { return }
+        history.clear()
+        recentURLs = history.entries
+    }
+
     var canStart: Bool { !isRunning && Mirror.startURL(from: urlText) != nil }
 
     /// 取り込む。checkOnly なら保存せず、リンク切れを調べて保存先に報告ファイルを書く
     func start(checkOnly: Bool = false) {
         guard !isRunning else { return }
+        checkOnlyMode = checkOnly
         guard let url = Mirror.startURL(from: urlText) else {
             message = (L("URLを確認してください"), L("「https://example.com/」のように入力します。"))
             return
@@ -154,6 +167,8 @@ final class Mirror: ObservableObject {
                 return
             }
         }
+        history.record(url)
+        recentURLs = history.entries
         rows = []
         saved = 0; failed = 0; waiting = 0
         resultFolder = checkOnly ? nil : root
@@ -243,6 +258,10 @@ final class Mirror: ObservableObject {
                 resultFolder = nil
                 logFile = nil
             }
+        }
+        if !summary.cancelled && UserDefaults.standard.bool(forKey: "completionNotificationEnabled") {
+            NotificationPreferences.shared.post(title: "SiteMirror", body: status,
+                identifier: "SiteMirror.latest-result", enabledKey: "completionNotificationEnabled", enabledDefault: false)
         }
         onFinished?()
         onFinished = nil

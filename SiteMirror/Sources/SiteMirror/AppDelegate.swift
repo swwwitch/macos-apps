@@ -1,7 +1,8 @@
 import AppKit
+@preconcurrency import UserNotifications
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
         // Single main window: no tab items in the Window/View menus.
@@ -9,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
+        UNUserNotificationCenter.current().delegate = self
         startSettingsSync()
         DispatchQueue.main.async { [weak self] in
             MenuBarPresence.shared.install(name: "SiteMirror", symbol: "globe",
@@ -16,6 +18,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 settings: { self?.showSettings() },
                 help: { LocalHelp.shared.show() })
         }
+    }
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // The foreground window already shows the full result.
+        completionHandler([])
+    }
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void) {
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            DispatchQueue.main.async { [weak self] in
+                StartupWindow.userRequestedWindow()
+                self?.showWindow()
+            }
+        }
+        completionHandler()
     }
     /// 設定の共有：取り込みの設定（範囲・上限・同時接続数）を書き出し・同期する。保存先のフォルダーはMacごと
     private func startSettingsSync() {
@@ -25,10 +44,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                      "Syncs the download settings (scope, limits and simultaneous connections).",
                                      "同步下载设置（范围、上限和同时连接数）。",
                                      "다운로드 설정(범위, 상한, 동시 연결 수)을 동기화합니다."),
-            perMac: StartupWindow.text("保存先のフォルダー・ログイン時の起動・起動時の表示・メニューバーはMacごとに設定します。",
-                                       "The destination folder, open at login, the startup window and the menu bar are set on each Mac.",
-                                       "保存位置、登录时打开、启动时的窗口和菜单栏在每台 Mac 上分别设置。",
-                                       "저장 위치, 로그인 시 열기, 시작 시 윈도우, 메뉴 막대는 Mac마다 설정합니다.")))
+            perMac: StartupWindow.text("保存先のフォルダー・ログイン時の起動・Dock表示・メニューバー・通知はMacごとに設定します。",
+                                       "The destination folder, open at login, Dock visibility, menu bar and notifications are set on each Mac.",
+                                       "保存位置、登录时打开、Dock 显示、菜单栏和通知在每台 Mac 上分别设置。",
+                                       "저장 위치, 로그인 시 열기, Dock 표시, 메뉴 막대, 알림은 Mac마다 설정합니다.")))
     }
 
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
