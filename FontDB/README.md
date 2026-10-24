@@ -17,6 +17,7 @@ FontSwitcher 向けのフォントのデータベースと、それを探せる�
 | Google Fonts | `python3 -I tools/build_google.py cache/google/repo cache/google/metadata.json data`（repo は google/fonts を METADATA.pb だけ sparse checkout、metadata.json は fonts.google.com/metadata/fonts） |
 | フロップデザイン | `python3 -I tools/build_flopdesign.py cache/flopdesign/pages data sources/flopdesign_files.jsonl` |
 | まとめ | `python3 -I tools/build_all.py data site/fonts.json <更新日>` |
+| データを非公開リポジトリへ | `tools/sync_private_data.sh`（`data/` と `site/fonts.json` を ~/Git/fontdb-data に写し、swwwitch/fontdb-data（private）へコミット・プッシュ） |
 
 `build_all.py` が `data/fonts.sqlite`（`fonts`：1書体1行、`files`：PostScript名ごとに1行）と公開ページ用の `site/fonts.json` を書き出す。公開ページの `site/fonts.json` には説明文と見本画像を入れず、各社の公式ページへリンクする。
 
