@@ -291,7 +291,7 @@ G-OTF の学参・常改・K書体を、通常の A-OTF 書体として扱って
 読めなかった制作ファイル %d：%@	Documents that could not be read: %d (%@)
 プロジェクトを編集	Edit Project
 このプロジェクトは削除されました	This project was deleted
-元にするもの	Sources
+参照するファイル・フォルダー	Referenced Files and Folders
 外す	Remove
 ファイル・フォルダー・フォント名を指定します	Add files, folders or font names
 ファイルを指定…	Add Files…
@@ -323,3 +323,7 @@ FontExplorer X Proのセット（%d）	FontExplorer X Pro Sets (%d)
 FontExplorer X Proのセットを、同じ名前のセットとして読み込みます（フォルダーの中のセットは「フォルダー / セット」）。フォントファイルは動かしません。見つからないファイルは飛ばします。スマートセットは読み込みません。	Imports FontExplorer X Pro sets as sets with the same names (sets in folders become “Folder / Set”). Font files are not moved; missing files are skipped. Smart sets are not imported.
 読み込む	Import
 ホットキー	Hotkeys
+共有	Sharing
+参照するファイル・フォルダーが見つからないため、前の結果のままにしました：%@	Some referenced files or folders were not found, so the previous results were kept: %@
+%@ を読めませんでした。同期の途中か、ファイルがこのMacに無い可能性があります。読めるようになるまで変更は保存しません。	Could not read %@. It may still be syncing or not be on this Mac. Changes are not saved until it can be read.
+ライブラリを読めないため、変更を保存していません	Changes are not saved because the library cannot be read

@@ -54,7 +54,11 @@ final class LibraryStore: ObservableObject {
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, includeUserFontsKey, NameDisplay.key]
-        + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey])
+        + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
+        // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
+        + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
+           PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey]
+        + MenuShortcuts.Command.allCases.map(\.key))
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
     @Published private(set) var states: [UUID: FontState] = [:] { didSet { invalidate() } }
@@ -125,8 +129,8 @@ final class LibraryStore: ObservableObject {
 
     private init() {
         let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            // 保存先は旧名（FontSwitcher）のまま。改名でライブラリを失わないため
-            .appendingPathComponent("FontSwitcher", isDirectory: true)
+            // 1.24.0 から NotMyType。旧 FontSwitcher のフォルダーは初回の起動で LegacyMigration が写す
+            .appendingPathComponent("NotMyType", isDirectory: true)
         localURL = folder.appendingPathComponent("Library.json")
         UserDefaults.standard.register(defaults: [Self.restoreAtLaunchKey: true, Self.deactivateOnQuitKey: false,
                                                   Self.sampleTextKey: Self.defaultSampleText, Self.includeUserFontsKey: true])
@@ -149,8 +153,31 @@ final class LibraryStore: ObservableObject {
         ) { _ in Task { @MainActor in
             LibraryStore.shared.reloadIfSharedChanged()
             LibraryStore.shared.reloadCollections()
+            // 外付けディスクをつないだなどで見えるようになったフォルダーを見張り直す
+            WatchFolders.shared.refresh()
+            ProjectFolderWatcher.shared.update()
         } })
         reloadCollections()
+        // 設定の同期でほかのMacから値が届いたときも、一覧の出し方を合わせる（設定画面の onChange は通らない）
+        lastListSettings = listSettings
+        observers.append(NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { _ in Task { @MainActor in LibraryStore.shared.listSettingsMayHaveChanged() } })
+    }
+
+    /// 一覧の出し方に効く設定（フォントフォルダーを入れるか・フォント名の出し方）
+    private var listSettings: [String] {
+        [String(includeUserFonts), UserDefaults.standard.string(forKey: NameDisplay.key) ?? ""]
+    }
+    private var lastListSettings: [String] = []
+
+    private func listSettingsMayHaveChanged() {
+        let current = listSettings
+        guard current != lastListSettings else { return }
+        let includedBefore = lastListSettings.first == "true"
+        lastListSettings = current
+        invalidate()
+        if includeUserFonts && !includedBefore { scanUserFonts() }
     }
 
     // MARK: 表示
@@ -391,6 +418,8 @@ final class LibraryStore: ObservableObject {
             let skipped = unreadable
             await MainActor.run {
                 let store = LibraryStore.shared
+                // 自分で追加し直したものは、ウォッチフォルダーの除外から外す
+                WatchFolders.shared.include(files.map(\.path))
                 let added = store.data.add(files)
                 store.save()
                 store.isBusy = false
@@ -432,6 +461,8 @@ final class LibraryStore: ObservableObject {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         for file in files where data.active.contains(file.id) { _ = FontActivation.deactivate(file) }
         data.remove(Set(files.map(\.id)))
+        // ウォッチフォルダーの中のファイルは、次の読み込みでまた入らないよう除外する
+        WatchFolders.shared.exclude(files.map(\.path))
         selection.removeAll()
         save()
         status = L("%d個のファイルを取り除きました", files.count)
@@ -653,7 +684,7 @@ final class LibraryStore: ObservableObject {
     func projectState(_ id: UUID) -> Bool? {
         let files = projectFiles(id).filter { !Self.isLocked($0) && states[$0.id] != .missing }
         let active = files.filter { states[$0.id] == .active }.count
-        if active == 0 { return files.isEmpty ? true : false }
+        if active == 0 { return false }
         return active == files.count ? true : nil
     }
 
@@ -667,10 +698,11 @@ final class LibraryStore: ObservableObject {
         ProjectEditorWindow.shared.show(project.id)
     }
 
-    /// 制作ファイルのドロップ：ファイル名を名前にし、そのファイルを元にしたプロジェクトを作って編集の画面を開く
-    func newProject(from url: URL) {
-        var project = FontProject(name: url.deletingPathExtension().lastPathComponent)
-        project.sources = [ProjectSource(kind: .file, path: url.path)]
+    /// 制作ファイルのドロップ：先頭のファイル名を名前にし、落としたファイルすべてを参照するプロジェクトを作って編集の画面を開く
+    func newProject(from urls: [URL]) {
+        guard let first = urls.first else { return }
+        var project = FontProject(name: first.deletingPathExtension().lastPathComponent)
+        project.sources = urls.map { ProjectSource(kind: .file, path: $0.path) }
         data.projects.append(project)
         save()
         sidebar = .project(project.id)
@@ -686,17 +718,28 @@ final class LibraryStore: ObservableObject {
     }
 
     @Published private(set) var rebuildingProjects: Set<UUID> = []
+    /// 読み直しの世代。同じプロジェクトの読み直しが重なったら、最後に始めたものの結果だけを使う
+    private var projectGenerations: [UUID: Int] = [:]
 
-    /// 元にするもの（ファイル・フォルダーの中の制作ファイル全部・フォント名）からフォント名を集め直し、ライブラリと照合する
+    /// 参照するファイル・フォルダー（ファイル・フォルダーの中の制作ファイル全部・フォント名）からフォント名を集め直し、ライブラリと照合する
     func rebuildProject(_ id: UUID) {
         guard let project = project(id) else { return }
         rebuildingProjects.insert(id)
+        let generation = (projectGenerations[id] ?? 0) + 1
+        projectGenerations[id] = generation
         let sources = project.sources
         Task.detached(priority: .userInitiated) {
             let collected = ProjectSources.collectNames(sources)
             await MainActor.run {
                 let store = LibraryStore.shared
+                guard store.projectGenerations[id] == generation else { return }
                 store.rebuildingProjects.remove(id)
+                // 見つからないファイル・フォルダーがあるときは、前の結果と承認を残す（空で上書きすると承認が消える）
+                if !collected.unreachable.isEmpty {
+                    store.status = L("参照するファイル・フォルダーが見つからないため、前の結果のままにしました：%@",
+                                     collected.unreachable.prefix(3).joined(separator: L("、")))
+                    return
+                }
                 store.applyProjectNames(id, collected.names)
                 if !collected.unreadable.isEmpty {
                     store.status = L("読めなかった制作ファイル %d：%@", collected.unreadable.count,
@@ -751,7 +794,11 @@ final class LibraryStore: ObservableObject {
         var done: [(FontFile, CTFontManagerScope)] = []
         var failure: String?
         for file in targets {
-            if case .conflict = FontActivation.state(of: file) { continue }
+            // 状態の控え（states）は裏で読むので遅れることがある。いまの状態を確かめ、もともとアクティブなものは戻す対象に入れない
+            switch FontActivation.state(of: file) {
+            case .active, .conflict: continue
+            default: break
+            }
             let scope: CTFontManagerScope = Self.isInstalled(file) ? .persistent : .session
             if let error = FontActivation.activate(file, scope: scope) {
                 failure = "\(file.fileName) — \(error)"
@@ -839,6 +886,17 @@ final class LibraryStore: ObservableObject {
             values[section.expandedKey] = section.expandedByDefault
         }
         return values
+    }
+
+    /// ほかのMacで消されたセット・プロジェクトを選んでいたら「すべてのフォント」に戻す
+    func validateSidebar() {
+        switch sidebar {
+        case .set(let id) where !data.sets.contains(where: { $0.id == id }): sidebar = .all
+        case .project(let id) where !data.projects.contains(where: { $0.id == id }):
+            sidebar = .all
+            ProjectEditorWindow.shared.closeIfShowing(id)
+        default: break
+        }
     }
 
     /// 隠した区分の項目を選んでいたら「すべてのフォント」に戻す
@@ -944,9 +1002,22 @@ final class LibraryStore: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting(files.map(\.url))
     }
 
+    /// ライブラリのファイルがあるのに読めなかった（Dropbox のオンラインのみ・同期の途中など）。
+    /// この間は保存しない。空に近いライブラリで共有ファイルを上書きし、ほかのMacのアクティブまで外してしまうため
+    private var loadFailed = false
+
     private func load() {
-        guard let loaded = read(libraryURL) else { return }
+        guard FileManager.default.fileExists(atPath: libraryURL.path) else { return }
+        guard let loaded = read(libraryURL) else {
+            loadFailed = true
+            if message == nil {
+                message = (L("ライブラリを読み込めませんでした"),
+                           L("%@ を読めませんでした。同期の途中か、ファイルがこのMacに無い可能性があります。読めるようになるまで変更は保存しません。", libraryURL.path))
+            }
+            return
+        }
         data = loaded
+        loadFailed = false
         knownModification = modification(of: libraryURL)
     }
 
@@ -967,6 +1038,20 @@ final class LibraryStore: ObservableObject {
     }
 
     private func save() {
+        if loadFailed {
+            // 読めるようになったか確かめる。読めたらそちらを元にし、この変更は捨てる（上書きしないため）
+            load()
+            if loadFailed { status = L("ライブラリを読めないため、変更を保存していません"); return }
+        }
+        // 共有ライブラリが、読んだあとにほかのMacで書き換わっていたら、上書きせずにこちらの内容を合わせてから書く
+        if sharedFolder != nil, let date = modification(of: libraryURL), date != knownModification, let remote = read(libraryURL) {
+            var merged = remote
+            _ = merged.merge(data)
+            let before = data.active
+            let oldFiles = data.files
+            data = merged
+            applyActiveChanges(from: before, oldFiles: oldFiles)
+        }
         write(data, to: libraryURL)
         knownModification = modification(of: libraryURL)
     }
@@ -1060,10 +1145,18 @@ final class LibraryStore: ObservableObject {
             let files = urls.compactMap(FontScanner.read).filter { !Self.isHiddenSystemFont($0) }
             await MainActor.run {
                 let store = LibraryStore.shared
-                let gone = Set(store.data.files.filter {
+                let goneFiles = store.data.files.filter {
                     Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path))
-                }.map(\.id))
-                if !gone.isEmpty { store.data.remove(gone) }
+                }
+                let gone = Set(goneFiles.map(\.id))
+                if !gone.isEmpty {
+                    // 消えたファイルは一覧から外すが、セット・プロジェクトからは外さず、戻ってきたら同じ id で入れ直す
+                    var updated = store.data
+                    for file in goneFiles where !Self.isHiddenSystemFont(file) { updated.departed[file.path] = file.id }
+                    updated.files.removeAll { gone.contains($0.id) }
+                    updated.active.subtract(gone)
+                    store.data = updated
+                }
                 let added = files.isEmpty ? 0 : store.data.add(files)
                 guard added > 0 || !gone.isEmpty else { return }
                 store.save()
@@ -1100,12 +1193,14 @@ final class LibraryStore: ObservableObject {
             added = merged.merge(data)
         }
         let before = data.active
+        let oldFiles = data.files
         sharedFolder = folder.path
         UserDefaults.standard.set(folder.path, forKey: Self.sharedFolderKey)
         data = merged
         write(data, to: target)
         knownModification = modification(of: target)
-        applyActiveChanges(from: before, oldFiles: data.files)
+        applyActiveChanges(from: before, oldFiles: oldFiles)
+        validateSidebar()
         watchSharedFolder()
         selection.removeAll()
         status = L("共有ライブラリを使っています（このMacから%d個のファイルを足しました）", added)
@@ -1147,7 +1242,9 @@ final class LibraryStore: ObservableObject {
         let before = data.active
         let oldFiles = data.files
         data = loaded
+        loadFailed = false
         applyActiveChanges(from: before, oldFiles: oldFiles)
+        validateSidebar()
         status = L("ほかのMacの変更を読み込みました")
         refreshStates()
     }

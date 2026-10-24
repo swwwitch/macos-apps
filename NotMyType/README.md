@@ -1,24 +1,28 @@
 # NotMyType
 
-現行版：**1.23.0（build 47）** — 2026-10-24
+現行版：**1.25.0（build 50）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
 - フォントファイル・フォルダーのドロップか「追加…」で登録する。フォルダーは下の階層まで探す（.otf・.ttf・.ttc・.otc・.dfont・.woff・.woff2）。ファイルはコピー・移動せず場所だけを覚える
 - ファミリー単位でアクティブ／解除。ファイルが2つ以上のファミリーは開閉でき、書体（ファイル）ごとのチェックボックスでも切り替える（一部だけなら「－」）。複数選択でまとめて切り替え。アクティブは `CTFontManagerRegisterFontsForURL` の `.session`（ログイン中だけ、終了しても残る）
 - 起動時に前回アクティブだったフォントを戻す（設定、初期値オン）。終了時にすべて解除（設定、初期値オフ）
-- サイドバー：すべて・アクティブ・非アクティブ・重複（同じPostScript名）・見つからない・セット
-- プレビュー：アクティブにしていないフォントもファイルから直接表示。文字と大きさを変えられる。形式・バージョン・PostScript名・場所
+- サイドバー（「…」で区分の表示と並び順を変えられる）：ライブラリ（すべて・重複・見つからない）・システム・種類（バリアブル・カラー・かな・アイコン）・ベンダー・コレクション・スマートセット・プロジェクト・セット
+- プレビュー：アクティブにしていないフォントもファイルから直接表示。1行・複数行・ウォーターフォール、配色・不透明度・カーニング・トラッキング、文字の候補。字形の無い文字は薄く。形式・収録文字数・バージョン・PostScript名・場所
+- 検索オプション：文字セット・N・形式・種類・UD・AP版・新ゴ・ファミリーの書体数・収録文字数（ラジオボタン、サイドバー・検索と重ねて効く）
 - お気に入り（ファミリー名で覚える）
 - サイドバーの「システム」：ユーザー名（`~/Library/Fonts`）・All Users（`/Library/Fonts`）・System（`/System/Library/Fonts`）。起動時とフォントの変更時に読み込む。ユーザー名と All Users は `.persistent` の登録解除・再登録で切り替え（ファイルは動かさない）、System は切り替え・取り除き不可
+- ベンダー：モリサワ・フォントワークスは商標の持ち主（name テーブル）を優先し、無ければ OS/2 の achVendID。アドビは `LibraryStore.adobeFamilies` のファミリーだけ（ユーザー指定）。Adobe Fonts は Creative Cloud が登録し直すので切り替えず、Creative Cloud・fonts.adobe.com を開く案内を出す
 - コレクションに追加：`NSFontCollection`（`~/Library/FontCollections`、visibility .user）に PostScript 名で加える
-- ライブラリの共有：選んだフォルダー（Dropbox など）の `FontSwitcher-Library.json` を両方のMacで使う。場所は `$DROPBOX-<アカウント>/…`・`~/…` で保存し、Macごとの場所に読み替える（`~/.dropbox/info.json`）。フォルダーを見張り、前面に戻ったときも確かめて読み直し、アクティブの違いを反映する
-- アプリを呼び出すホットキー（初期値 ⌃⇧⌘F、共通の HotkeyField・HotkeySet、HotkeyManifest に申告）。同じキーを前面アプリ専用で申告している起動中の自作アプリ（FolderHopper・SpreadsheetHelper）が前面の間は登録を外して譲る（`HotkeyManifest.claimedByOtherApp`）。未起動時は効かない
-- サイドバーの「種類」（バリアブル・カラーフォント）
-- サイドバーの「ベンダー」（OS/2 の achVendID：MRSW＝モリサワ、FWKS＝フォントワークス、ADBE＝アドビ）と「コレクション」（`NSFontCollection` の PostScript名・ファミリー名の問い合わせで照合）
-- セット：作成・名前の変更・削除、セットに追加／外す、セットをまとめてアクティブ／解除
+- スマートセット：お気に入り・アクティブ・最近アクティブ・非アクティブ・最近非アクティブ・最近追加したもの（7日以内）・日本語をサポート
+- プロジェクト：参照するファイル（IDML・INDD・PDF・AI）・フォルダー（FSEvents で見張って自動で読み直す）・貼り付けたフォント名から組み立てる。PostScript名の完全一致は確定、表記ゆれは承認制。アクティブはほかを解除せず、失敗したらその操作の分を戻す。メニューバーのメニューからも切り替える
+- セット：作成・名前の変更・削除、セットに追加／外す、チェックボックスでまとめてアクティブ／解除
+- ウォッチフォルダー：選んだフォルダーの新しいフォントファイルをライブラリに足す
+- ライブラリの共有：選んだフォルダー（Dropbox など）の `FontSwitcher-Library.json`（旧名のまま）を両方のMacで使う。場所は `$DROPBOX-<アカウント>/…`・`~/…` で保存し、Macごとの場所に読み替える（`~/.dropbox/info.json`）。フォルダーを見張り、前面に戻ったときも確かめて読み直し、アクティブの違いを反映する。設定の「共有」タブで設定の同期（共通部品）と並べる
+- アプリを呼び出すホットキー（初期値 ⌃⇧⌘F、共通の HotkeyField・HotkeySet、HotkeyManifest に申告）。同じキーを前面アプリ専用で申告している起動中の自作アプリが前面の間は登録を外して譲る。メニューのホットキーは設定の「ホットキー」で変更（アクティブ ⇧⌘A・解除 ⇧⌘D・新規プロジェクト ⌥⇧⌘N など）
+- ツール：Illustratorのフォントを統一（AiFontConverter.jsx の移植、osascript の do javascript）、FontExplorer X Pro のセットを読み込む（fexdb を写して SQLite で読む）
 
-通信はアップデート確認だけです。アクセシビリティの許可は不要です。
+通信はアップデート確認だけです。アクセシビリティの許可は不要です（Illustrator のツールだけオートメーションの許可が要る）。
 
 ## ビルド
 
@@ -39,16 +43,19 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - 登録済みフォントの一覧を返す `CTFontManagerCopyRegisteredFontDescriptors` は macOS では使えない（iOS のみ）。状態は、先頭の書体のPostScript名で `CTFontCreateWithName` が返すファイルがこのファイルかどうかで判定する。ほかのアプリが入れた同名フォントは「conflict」。
 - 登録済みの再登録は 105（alreadyRegistered）、未登録の解除は 201（notRegistered）で、どちらも成功とみなす（2026-10-24 実測）。
 - 同じPostScript名の2つ目のファイルも登録自体は成功するが、使われるのは先のほう。紛らわしいので登録を戻して失敗として報告する。
-- ライブラリは `~/Library/Application Support/FontSwitcher/Library.json`。読めないときは `Library.unreadable.json` に控えて上書きしない。
+- ライブラリは `~/Library/Application Support/NotMyType/Library.json`。読めないときは `Library.unreadable.json` に控えて上書きしない。
 - `kCTFontManagerRegisteredFontsChangedNotification` でほかのアプリの変更にも追従する。
 - 一覧（ファミリーへのまとめ・並べ替え）・サイドバーの件数・重複は、元（ライブラリ・状態・絞り込み・検索）が変わったときだけ計算し直す。7,516件で、まとめ直し26ms・検索27ms・全ファイルの状態696ms（裏で実行）・486書体のプレビュー用フォント136ms（2026-10-24、リリースビルドの計測）
 - ファミリーの一覧は [FamilyOutline.swift](Sources/NotMyType/FamilyOutline.swift)（NSOutlineView）。SwiftUI の `List(children:)` は選択を変えるたびに全行を比べ直し（`OutlineListCoordinator.recursivelyDiffRows`）、1,428行で1回0.12〜0.19秒止まった。`listVersion` が進んだときだけ読み直す。
 - 速さの計り方：`open --env NOTMYTYPE_BENCH=select -a NotMyType` で起動すると5秒後から0.3秒ごとに選択を30回変える（BenchMode.swift）。その間 `sample <pid> 9` を取り、メインスレッドの `__CFRunLoopServiceMachPort` 以外を使用時間とみなす。アクセシビリティで行を選ぶ計り方は、応答のために全行が作られて数字にならない
 - `~/Library/Fonts` のフォントは `.session` では解除できない（201）。`.persistent` の解除で無効になり、`.persistent` の登録で戻る（2026-10-24、試験用フォントで実測）。`/Library/Fonts` は同じ方法だが未実測
-- 未実装（今後）：Adobe アプリ向けの自動アクティベート（JSX 連携）、字形一覧、壊れたフォントの点検、スマートセット、フォントのコピー整理。
+- 未実装（今後）：InDesign 版の「フォントを統一」、Adobe アプリ向けの自動アクティベート（JSX 連携）、字形一覧、壊れたフォントの点検、条件を自分で作るスマートセット、フォントのコピー整理、フォントファイルを NotMyType で開く（既定のアプリ）。
 
 ## 更新履歴
 
+- 1.25.0（build 50）：全体の点検で見つかった不具合を修正。ライブラリがあるのに読めない（Dropbox のオンラインのみ・同期の途中）ときは保存しない（空に近いライブラリで共有ファイルを上書きし、ほかのMacのアクティブまで外すおそれがあった）。共有ライブラリがほかのMacで書き換わっていたら合わせてから保存。合わせるときにプロジェクトの一致・候補の id を読み替え、名前を変えたセットの id の重複を避ける。プロジェクトの参照先が見つからないときは前の結果と承認を残す、読み直しが重なったら最後のものだけ使う、アクティブの失敗で戻すのはこの操作でアクティブにしたものだけ、空のプロジェクトをアクティブ表示にしない、複数の制作ファイルのドロップは1つのプロジェクトに。フォントフォルダーから一時的に消えたファイルは戻ったら同じ id（セット・プロジェクトに残る、`departed`）。取り除いたファイルをウォッチフォルダーが入れ直さない。見えるようになったフォルダーを前面に戻ったときに見張り直す。ほかのMacで消えたセット・プロジェクトを選んでいたら戻す。設定の同期で届いた一覧の設定を反映。ヘルプ・README・チェックリストを今の機能に合わせた。プレビューのオプションとメニューのホットキーを設定の同期に含める
+- 1.24.1（build 49）：プロジェクトの名前は確定（Return・欄を離れる・閉じる）で保存（1文字ごとに共有ライブラリを書き直していたため、サイドバーに反映しないことがあった）。設定の同期の「読み書きできません」は、1.23.0 が旧 Bundle ID で作った NotMyType-Settings.sync の記録が原因（記録を退避して解消）
+- 1.24.0（build 48）：Bundle ID を jp.dtp-transit.notmytype に変更（ユーザー指定）。保存先も ~/Library/Application Support/NotMyType に。初回の起動で LegacyMigration が旧 ID（jp.dtp-transit.fontswitcher）の設定と旧フォルダーを写す（旧の側は消さない）。共有ライブラリのファイル名 FontSwitcher-Library.json はほかのMacとそろえるため旧名のまま。オートメーション（Illustrator）の許可とログイン時の起動は新しい ID で設定し直しが要る。設定の「ライブラリの共有」を「設定の共有」タブへ移してタブ名を「共有」に、プロジェクトの「元にするもの」を「参照するファイル・フォルダー」に（ユーザー指定）
 - 1.23.0（build 47）：FontSwitcher から NotMyType に改名（ユーザー指定）。フォルダー・SwiftPM のターゲット・実行ファイル・アイコン・画面の表記を変え、Bundle ID（jp.dtp-transit.fontswitcher）・保存先（~/Library/Application Support/FontSwitcher）・共有ファイル名（FontSwitcher-Library.json）・設定のキーは変えない（作業場所のルール：名称整合だけを理由に Bundle ID・保存先を変えない）。ここより前の履歴の「NotMyType」は当時の FontSwitcher
 - 1.22.0（build 46）：ツールに「FontExplorer X Proのセットを読み込む…」（~/Library/Application Support/Linotype/FontExplorer X/FontExplorer X.fexdb を作業用に写して SQLite で読む。sourceItems の type 7・51 がセット、8 がフォルダー、setContainers と containers.path でファイル）。新規プロジェクトの初期キー ⌥⇧⌘N。設定の「キーボードショートカット」を「ホットキー」に改名（ユーザー指定）
 - 1.21.0（build 45）：プロジェクトを「元にするもの」（ファイル・フォルダー・貼り付けたフォント名、組み合わせ可）から組み立てる形に。ファイルメニューは「新規プロジェクト…」だけにし、右クリック「プロジェクトを編集…」（ダブルクリックでも）で指定。フォルダーは下の階層の制作ファイルを全部読み、FSEvents で見張って自動で読み直す（起動時にも）。候補の承認は approved に残し、読み直しても保つ。1.20 までのプロジェクトは作ったときの制作ファイル（貼り付けで作ったものはフォント名）を元にするものへ移す

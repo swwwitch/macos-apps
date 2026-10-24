@@ -88,7 +88,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Fonts are added by PostScript name. Inactive fonts can be added too and appear in the collection when you activate them.
 
 ### Sharing with Other Macs
-1. In the Fonts settings, click "Choose Shared Folder…" and choose a folder, for example in Dropbox.
+1. In the Sharing settings, click "Choose Shared Folder…" and choose a folder, for example in Dropbox.
 2. "FontSwitcher-Library.json" is placed in that folder and holds the fonts, sets, favorites and activation.
 3. Choose the same folder on your other Mac; its library is combined so both Macs have the same contents.
 - Locations inside Dropbox and your home folder are translated to each Mac's location. Files that are not on a Mac appear under "Missing".
@@ -112,14 +112,15 @@ NotMyType keeps your font files in a library and activates them only when you ne
 ## Settings
 Open Settings with the Settings button in the main window (⌘,).
 - **Launch & Background**: Open at login, Hide from Dock and App Switcher, Show in menu bar. When "Hide from Dock and App Switcher" is on, the icon does not appear in the Dock or in ⌘Tab. Show the window from the menu bar icon (when shown) or by opening the app again in Finder. The app shortcut (⌃⇧⌘F by default) opens the main window from any app while NotMyType is running. When another of these apps uses the same key only for a certain front app and is running, the key is left to it while that app is in front
-- **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), Library Sharing, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
-- **Sharing**: Export and import the Fonts settings, and sync them with other Macs through a folder in iCloud Drive, Dropbox and so on. Share the library, sets and favorites with Library Sharing in the Fonts settings.
+- **Fonts**: Reactivate fonts from last time at launch (on by default), deactivate all fonts when quitting (off by default), watch folders, include fonts in the font folders (on by default), and the preview text. To reactivate fonts every time you log in, also turn on Open at login.
+- **Sharing**: Everything shared with other Macs. Library Sharing shares the fonts, sets, projects, favorites and activation; below it, setting values (such as the Fonts settings) are exported, imported and synced.
 - **Hotkeys**: Keys for menu items (Add Fonts, New Set, New Project, Activate, Deactivate, Show in Finder, Remove from Library, Hide or Show Preview).
 - **About**: Version and links.
 
 ## Hotkeys
 - **⌘O**: Add Fonts
 - **⇧⌘N**: New Set
+- **⌥⇧⌘N**: New Project
 - **⇧⌘A**: Activate
 - **⇧⌘D**: Deactivate
 - **⌘R**: Show in Finder
@@ -136,13 +137,15 @@ Open Settings with the Settings button in the main window (⌘,).
 ## Permissions and Privacy
 - No Accessibility permission is needed.
 - Only "Unify Fonts in Illustrator" needs permission to control Illustrator (Automation).
-- The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/FontSwitcher/Library.json.
+- "Import FontExplorer X Pro Sets" reads a working copy of the FontExplorer X Pro database and never changes it.
+- "Open Creative Cloud" and "fonts.adobe.com" only open the app or the browser; NotMyType itself does not connect.
+- The app connects to the network only for "Check for Updates…". The font list is saved on this Mac in ~/Library/Application Support/NotMyType/Library.json.
 - When you add fonts from Documents or Downloads, macOS may ask for permission to access the folder.
 - Use each font according to its license.
 
 ## Launching and Quitting
 - Closing the window does not quit the app. Click the Dock icon or press ⌘0 to show the main window again.
-- With "Show in menu bar" on, you can also choose Open Main Window, Settings… and Help from the menu bar icon.
+- With "Show in menu bar" on, you can also choose Open Main Window, Settings… and Help from the menu bar icon. Projects are listed at the top of that menu; choose one to activate it.
 - To quit, choose "Quit NotMyType" (⌘Q) in the app menu. If "Deactivate all fonts when quitting" is off, activated fonts remain usable until you log out.
 - Check for new versions with "Check for Updates…" in the app menu. Until distribution is ready, it shows that updates are being prepared and makes no network connection.
 
@@ -152,6 +155,8 @@ Open Settings with the Settings button in the main window (⌘,).
 - Fonts under "Missing" were moved or deleted, or are on a disconnected external disk. Connect the disk, or remove them from the library and add them again from the new location.
 - System fonts such as those in /System/Library/Fonts cannot be deactivated.
 
+- If "Unify Fonts in Illustrator" says it could not send the script, allow NotMyType to control Illustrator in System Settings > Privacy & Security > Automation.
+- If Sharing says it cannot read or write the sync files, make sure the sync folder is kept on this Mac (not online-only in Dropbox and the like).
 ## Help and the note Article
 - Open this help with "NotMyType Help" (⌘?) in the Help menu.
 - "Open the note Article" in the Help menu opens the article on note in your browser.
@@ -160,6 +165,6 @@ Open Settings with the Settings button in the main window (⌘,).
 1. Turn off "Open at login".
 2. Deactivate all fonts if needed.
 3. Choose "Quit NotMyType".
-4. Move NotMyType to the Trash. The library list stays in ~/Library/Application Support/FontSwitcher; delete it if you no longer need it. Font files stay where they are.
+4. Move NotMyType to the Trash. The library list stays in ~/Library/Application Support/NotMyType; delete it if you no longer need it. Font files stay where they are.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it (fonts that were active last time are reactivated).

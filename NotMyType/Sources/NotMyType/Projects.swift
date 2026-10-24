@@ -236,27 +236,30 @@ struct ProjectDraft {
     }
 }
 
-// MARK: - 元にするものからの読み込み
+// MARK: - 参照するファイル・フォルダーからの読み込み
 
 enum ProjectSources {
-    /// 元にするものからフォント名を集める。フォルダーは下の階層まで制作ファイルを探す（隠しファイル・パッケージの中は見ない）
-    static func collectNames(_ sources: [ProjectSource]) -> (names: [String], unreadable: [String]) {
+    /// 参照するファイル・フォルダーからフォント名を集める。フォルダーは下の階層まで制作ファイルを探す（隠しファイル・パッケージの中は見ない）
+    /// unreachable は見つからないファイル・フォルダー（外付けディスクが外れている、同期の途中など）
+    static func collectNames(_ sources: [ProjectSource]) -> (names: [String], unreadable: [String], unreachable: [String]) {
         var names: [String] = []
         var unreadable: [String] = []
+        var unreachable: [String] = []
         func read(_ url: URL) {
             if let found = try? FontNameExtractor.names(in: url) { names += found } else { unreadable.append(url.lastPathComponent) }
         }
         for source in sources {
             switch source.kind {
             case .names: names += source.names
-            case .file: if let path = source.path { read(URL(fileURLWithPath: path)) }
-            case .folder:
+            case .file, .folder:
                 guard let path = source.path else { continue }
-                for url in productionFiles(in: URL(fileURLWithPath: path)) { read(url) }
+                guard FileManager.default.fileExists(atPath: path) else { unreachable.append((path as NSString).lastPathComponent); continue }
+                if source.kind == .file { read(URL(fileURLWithPath: path)) }
+                else { for url in productionFiles(in: URL(fileURLWithPath: path)) { read(url) } }
             }
         }
         var seen = Set<String>()
-        return (names.filter { seen.insert($0).inserted }, unreadable)
+        return (names.filter { seen.insert($0).inserted }, unreadable, unreachable)
     }
 
     static func productionFiles(in folder: URL) -> [URL] {
@@ -344,7 +347,7 @@ final class ProjectEditorWindow {
     func closeIfShowing(_ id: UUID) { if projectID == id { close() } }
 }
 
-/// 名前・元にするもの（ファイル・フォルダー・フォント名）・照合の結果（一致・候補・見つからない）
+/// 名前・参照するファイル・フォルダー（ファイル・フォルダー・フォント名）・照合の結果（一致・候補・見つからない）
 private struct ProjectEditorView: View {
     let projectID: UUID
     @ObservedObject private var store = LibraryStore.shared
@@ -352,6 +355,10 @@ private struct ProjectEditorView: View {
     @State private var tab = 0
     @State private var pasting = false
     @State private var pastedText = ""
+    /// 名前は打っている間はここに持ち、確定（Return・欄を離れる・画面を閉じる）で保存する。
+    /// 1文字ごとに保存すると、共有ライブラリ（数MB）を書き直して一覧も作り直すので、取りこぼしが出ていた
+    @State private var nameDraft: String?
+    @FocusState private var nameFocused: Bool
 
     var body: some View {
         if let project = store.project(projectID) {
@@ -365,13 +372,13 @@ private struct ProjectEditorView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(L("名前") + L(" :"))
-                TextField(L("名前"), text: Binding(get: { project.name }, set: { name in
-                    let trimmed = name.trimmingCharacters(in: .whitespaces)
-                    if !trimmed.isEmpty { store.updateProject(projectID) { $0.name = trimmed } }
-                }))
-                .textFieldStyle(.roundedBorder)
+                TextField(L("名前"), text: Binding(get: { nameDraft ?? project.name }, set: { nameDraft = $0 }))
+                    .textFieldStyle(.roundedBorder)
+                    .focused($nameFocused)
+                    .onSubmit { commitName() }
+                    .onChange(of: nameFocused) { _, focused in if !focused { commitName() } }
             }
-            GroupBox(L("元にするもの")) {
+            GroupBox(L("参照するファイル・フォルダー")) {
                 VStack(alignment: .leading, spacing: 6) {
                     List(project.sources, selection: $selectedSources) { source in
                         sourceRow(source).tag(source.id)
@@ -420,11 +427,20 @@ private struct ProjectEditorView: View {
                 Spacer()
                 Button(L("アクティブにする")) { store.activateProject(projectID) }
                     .disabled(project.files.isEmpty)
-                Button(L("閉じる")) { ProjectEditorWindow.shared.close() }.keyboardShortcut(.cancelAction)
+                Button(L("閉じる")) { commitName(); ProjectEditorWindow.shared.close() }.keyboardShortcut(.cancelAction)
             }
         }
         .padding(20)
         .sheet(isPresented: $pasting) { pasteSheet }
+        .onDisappear { commitName() }
+    }
+
+    private func commitName() {
+        guard let draft = nameDraft else { return }
+        nameDraft = nil
+        let trimmed = draft.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, trimmed != store.project(projectID)?.name else { return }
+        store.updateProject(projectID) { $0.name = trimmed }
     }
 
     @ViewBuilder private func fontList(_ project: FontProject) -> some View {

@@ -178,7 +178,7 @@ struct FontSet: Codable, Identifiable, Hashable, Sendable {
     var files: [UUID] = []
 }
 
-/// プロジェクトの元にするもの：制作ファイル（IDML・INDD・PDF・AI）、フォルダー（中の制作ファイルを全部。見張って自動で更新）、貼り付けたフォント名
+/// プロジェクトの参照するファイル・フォルダー：制作ファイル（IDML・INDD・PDF・AI）、フォルダー（中の制作ファイルを全部。見張って自動で更新）、貼り付けたフォント名
 struct ProjectSource: Codable, Identifiable, Hashable, Sendable {
     enum Kind: String, Codable, Sendable { case file, folder, names }
     var id = UUID()
@@ -239,6 +239,9 @@ struct LibraryData: Codable, Sendable {
     var sets: [FontSet] = []
     var projects: [FontProject] = []
     var active: Set<UUID> = []
+    /// フォントフォルダーから一時的に消えたファイルの場所と id（Creative Cloud で Adobe Fonts をオフにした、ファイルを入れ替えたなど）。
+    /// 戻ってきたら同じ id で入れ直し、セット・プロジェクトに入ったままにする
+    var departed: [String: UUID] = [:]
     /// ファミリー名。ファイルを入れ替えても残るよう、ファイルではなく名前で覚える
     var favorites: Set<String> = []
 
@@ -250,6 +253,7 @@ struct LibraryData: Codable, Sendable {
         files = try container.decodeIfPresent([FontFile].self, forKey: .files) ?? []
         sets = try container.decodeIfPresent([FontSet].self, forKey: .sets) ?? []
         projects = try container.decodeIfPresent([FontProject].self, forKey: .projects) ?? []
+        departed = try container.decodeIfPresent([String: UUID].self, forKey: .departed) ?? [:]
         active = try container.decodeIfPresent(Set<UUID>.self, forKey: .active) ?? []
         favorites = try container.decodeIfPresent(Set<String>.self, forKey: .favorites) ?? []
     }
@@ -489,7 +493,8 @@ extension LibraryData {
     mutating func add(_ newFiles: [FontFile]) -> Int {
         var known = Set(files.map(\.path))
         var added = 0
-        for file in newFiles where !known.contains(file.path) {
+        for var file in newFiles where !known.contains(file.path) {
+            if let id = departed.removeValue(forKey: file.path) { file.id = id }
             files.append(file)
             known.insert(file.path)
             added += 1
@@ -501,7 +506,11 @@ extension LibraryData {
         files.removeAll { ids.contains($0.id) }
         active.subtract(ids)
         for index in sets.indices { sets[index].files.removeAll { ids.contains($0) } }
-        for index in projects.indices { projects[index].files.removeAll { ids.contains($0) } }
+        for index in projects.indices {
+            projects[index].files.removeAll { ids.contains($0) }
+            projects[index].matched.removeAll { ids.contains($0) }
+            projects[index].candidates.removeAll { ids.contains($0.file) }
+        }
     }
 }
 
@@ -576,7 +585,7 @@ extension LibraryData {
 
     /// ほかのライブラリを合わせる。同じ場所のファイルは1つにまとめ、セットは名前で合わせ、アクティブは両方を残す。
     /// 足したファイルの数を返す
-    /// 1.20 までのプロジェクト（元にするものが無い）を移す。作ったときの制作ファイルがあればそれを、
+    /// 1.20 までのプロジェクト（参照するファイル・フォルダーが無い）を移す。作ったときの制作ファイルがあればそれを、
     /// 貼り付けで作ったものは入っているフォントの PostScript名と見つからなかった名前を「フォント名」として元にする
     mutating func migrateProjects() {
         for index in projects.indices where projects[index].sources.isEmpty {
@@ -612,18 +621,24 @@ extension LibraryData {
                 let known = Set(sets[index].files)
                 sets[index].files += members.filter { !known.contains($0) }
             } else {
-                sets.append(FontSet(id: set.id, name: set.name, files: members))
+                // ほかのMacで名前を変えたセットは、同じ id のまま別の名前で届く。id がぶつからないよう新しくする
+                let id = sets.contains(where: { $0.id == set.id }) ? UUID() : set.id
+                sets.append(FontSet(id: id, name: set.name, files: members))
             }
         }
         for project in other.projects {
-            let members = project.files.compactMap { idMap[$0] }
             if let index = projects.firstIndex(where: { $0.id == project.id }) {
                 let known = Set(projects[index].files)
-                projects[index].files += members.filter { !known.contains($0) }
+                projects[index].files += project.files.compactMap { idMap[$0] }.filter { !known.contains($0) }
                 projects[index].approved.formUnion(project.approved)
             } else {
+                // 一致・候補のファイルも、合わせた後の id に読み替える（読み替えないと編集の画面で空になり、承認で消える）
                 var copy = project
-                copy.files = members
+                copy.files = project.files.compactMap { idMap[$0] }
+                copy.matched = project.matched.compactMap { idMap[$0] }
+                copy.candidates = project.candidates.compactMap { candidate in
+                    idMap[candidate.file].map { ProjectCandidate(name: candidate.name, file: $0) }
+                }
                 projects.append(copy)
             }
         }

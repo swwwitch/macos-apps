@@ -176,6 +176,7 @@
 "、見つからないファイル %d" = ", files not found: %d";
 "新規プロジェクト" = "New Project";
 "名称未設定プロジェクト" = "Untitled Project";
+"参照するファイル・フォルダーが見つからないため、前の結果のままにしました：%@" = "Some referenced files or folders were not found, so the previous results were kept: %@";
 "読めなかった制作ファイル %d：%@" = "Documents that could not be read: %d (%@)";
 "プロジェクト「%@」をアクティブにできませんでした" = "Could Not Activate Project “%@”";
 "途中で失敗したため、この操作でアクティブにしたフォントを元に戻しました。" = "Something failed partway, so the fonts activated in this operation were deactivated again.";
@@ -195,7 +196,9 @@
 "Creative Cloudが見つかりません" = "Creative Cloud Not Found";
 "Creative Cloudアプリが入っていません。fonts.adobe.comで切り替えてください。" = "The Creative Cloud app is not installed. Switch fonts at fonts.adobe.com.";
 "ライブラリを読み込めませんでした" = "Could Not Load the Library";
+"%@ を読めませんでした。同期の途中か、ファイルがこのMacに無い可能性があります。読めるようになるまで変更は保存しません。" = "Could not read %@. It may still be syncing or not be on this Mac. Changes are not saved until it can be read.";
 "元のファイルを %@ に残しました。" = "The original file was kept at %@.";
+"ライブラリを読めないため、変更を保存していません" = "Changes are not saved because the library cannot be read";
 "ライブラリを保存できませんでした" = "Could Not Save the Library";
 "フォントフォルダーから%d個のファイルを追加しました" = "Added %d files from the font folders";
 "ほかのMacと共有するフォルダー（Dropboxの中など）を選びます" = "Choose a folder to share with your other Macs (for example, in Dropbox)";
@@ -218,6 +221,7 @@
 "どのアプリからでも。同じキーを前面のアプリ専用で使うほかの自作アプリがあるときは、そのアプリが前面の間だけ譲る" = "From any app. Yields while another of these apps that uses the same key for its front app is in front";
 "フォント" = "Fonts";
 "ホットキー" = "Hotkeys";
+"共有" = "Sharing";
 "NotMyTypeが起動している間、どのアプリからでもメインウインドウを開きます。初期値は⌃⇧⌘F。同じキーを前面のアプリ専用で使うほかの自作アプリが起動しているときは、そのアプリが前面の間だけ譲ります。NotMyTypeが起動していないときは効かないので、「ログイン時に起動」と合わせて使います。" = "While NotMyType is running, this opens its main window from any app. The default is ⌃⇧⌘F. When another of these apps that uses the same key only for a certain front app is running, the key is left to that app while it is in front. It does nothing when NotMyType is not running, so use it together with Open at Login.";
 "起動時に、前回アクティブだったフォントを戻す" = "Reactivate fonts from last time at launch";
 "NotMyTypeでアクティブにしたフォントは、ログアウトすると解除されます。「ログイン時に起動」と合わせてオンにすると、ログインするたびに戻ります。" = "Fonts activated with NotMyType are deactivated when you log out. Turn this on together with Open at Login to reactivate them every time you log in.";
@@ -292,7 +296,7 @@
 "プロジェクトを編集" = "Edit Project";
 "このプロジェクトは削除されました" = "This project was deleted";
 "名前" = "Name";
-"元にするもの" = "Sources";
+"参照するファイル・フォルダー" = "Referenced Files and Folders";
 "外す" = "Remove";
 "ファイル・フォルダー・フォント名を指定します" = "Add files, folders or font names";
 "ファイルを指定…" = "Add Files…";

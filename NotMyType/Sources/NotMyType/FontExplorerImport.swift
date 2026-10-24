@@ -41,7 +41,10 @@ enum FontExplorerImport {
             }
         }
         var database: OpaquePointer?
-        guard sqlite3_open_v2(copy.path, &database, SQLITE_OPEN_READONLY, nil) == SQLITE_OK, let database else { throw Failure.unreadable }
+        guard sqlite3_open_v2(copy.path, &database, SQLITE_OPEN_READONLY, nil) == SQLITE_OK, let database else {
+            sqlite3_close(database)
+            throw Failure.unreadable
+        }
         defer { sqlite3_close(database) }
 
         var folders: [Int64: String] = [:]

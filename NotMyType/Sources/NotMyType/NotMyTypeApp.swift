@@ -3,7 +3,11 @@ import SwiftUI
 
 @main
 struct NotMyTypeApp: App {
-    init() { SingleInstanceLaunch.enforce() }
+    init() {
+        SingleInstanceLaunch.enforce()
+        // 設定やライブラリを読む前に、旧 FontSwitcher の設定とライブラリを写す（初回だけ）
+        LegacyMigration.run()
+    }
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {

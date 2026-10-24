@@ -7,6 +7,8 @@ import CoreServices
 final class WatchFolders: ObservableObject {
     static let shared = WatchFolders()
     static let key = "watchFolders"
+    /// ライブラリから取り除いたファイル。ウォッチフォルダーの中にあっても足さない
+    static let excludedKey = "watchFoldersExcluded"
 
     @Published private(set) var folders: [String] {
         didSet {
@@ -16,7 +18,12 @@ final class WatchFolders: ObservableObject {
     }
 
     private var stream: FSEventStreamRef?
+    private var watched: [String] = []
     private var pendingScan: DispatchWorkItem?
+    private var excluded: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: Self.excludedKey) ?? []) }
+        set { UserDefaults.standard.set(Array(newValue).sorted(), forKey: Self.excludedKey) }
+    }
 
     private init() {
         folders = UserDefaults.standard.stringArray(forKey: Self.key) ?? []
@@ -46,11 +53,30 @@ final class WatchFolders: ObservableObject {
         folders.removeAll { paths.contains($0) }
     }
 
+    /// 取り除いたファイルのうち、ウォッチフォルダーの中にあるものを覚える
+    func exclude(_ paths: [String]) {
+        let inside = paths.filter { path in folders.contains { path.hasPrefix($0.hasSuffix("/") ? $0 : $0 + "/") } }
+        guard !inside.isEmpty else { return }
+        excluded.formUnion(inside)
+    }
+
+    func include(_ paths: [String]) {
+        let current = excluded
+        guard !current.isDisjoint(with: paths) else { return }
+        excluded = current.subtracting(paths)
+    }
+
+    /// 見張っていなかったフォルダーが見えるようになっていたら（外付けディスクをつないだなど）見張り直す
+    func refresh() {
+        let existing = folders.filter { FileManager.default.fileExists(atPath: $0) }
+        if existing != watched { restart(); scan() }
+    }
+
     /// フォルダーの中で、まだライブラリに無いフォントファイルを読んで足す
     func scan() {
         let urls = folders.map { URL(fileURLWithPath: $0) }
         guard !urls.isEmpty else { return }
-        let known = Set(LibraryStore.shared.data.files.map(\.path))
+        let known = Set(LibraryStore.shared.data.files.map(\.path)).union(excluded)
         Task.detached(priority: .utility) {
             let files = FontScanner.fontURLs(in: urls)
                 .filter { !known.contains($0.standardizedFileURL.path) }
@@ -76,6 +102,7 @@ final class WatchFolders: ObservableObject {
             self.stream = nil
         }
         let paths = folders.filter { FileManager.default.fileExists(atPath: $0) }
+        watched = paths
         guard !paths.isEmpty else { return }
         let callback: FSEventStreamCallback = { _, _, _, _, _, _ in
             Task { @MainActor in WatchFolders.shared.scheduleScan() }

@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>NotMyType</string>
 	<key>CFBundleIdentifier</key>
-	<string>jp.dtp-transit.fontswitcher</string>
+	<string>jp.dtp-transit.notmytype</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLocalizations</key>
@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Illustratorのドキュメントのフォントを統一するために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.23.0</string>
+	<string>1.25.0</string>
 	<key>CFBundleVersion</key>
-	<string>47</string>
+	<string>50</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

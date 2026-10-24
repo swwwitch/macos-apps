@@ -11,7 +11,11 @@ struct SettingsView: View {
             })),
             (L("フォント"), AnyView(FontSettingsView())),
             (L("ホットキー"), AnyView(MenuShortcutsSettingsView())),
-            (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
+            // 共有はまとめて1つのタブに：ライブラリ（フォント・セット・プロジェクト）と設定の値（共通部品）
+            (L("共有"), AnyView(VStack(alignment: .leading, spacing: 16) {
+                SharingSection()
+                SettingsSharingView()
+            })),
             (AboutSection.title, AnyView(AboutView())),
         ]).padding(12)
     }
@@ -45,7 +49,6 @@ private struct FontSettingsView: View {
                 Toggle(L("終了するときにすべて解除する"), isOn: $deactivate)
                 note(L("オフのときは、終了してもログアウトするまでアクティブのままです。"))
             }
-            SharingSection()
             WatchFoldersSection()
             SettingsSection(L("システム")) {
                 Toggle(L("フォントフォルダーのフォントも一覧に入れる"), isOn: $includeUserFonts)
@@ -62,11 +65,6 @@ private struct FontSettingsView: View {
             Button(L("初期値に戻す")) {
                 restore = true; deactivate = false; sample = LibraryStore.defaultSampleText; includeUserFonts = true
             }
-        }
-        .onChange(of: includeUserFonts) { _, on in
-            if on { LibraryStore.shared.scanUserFonts() }
-            LibraryStore.shared.invalidate()
-            LibraryStore.shared.objectWillChange.send()
         }
     }
 
