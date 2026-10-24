@@ -58,7 +58,7 @@ final class LibraryStore: ObservableObject {
         + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
         + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
-           PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey]
+           PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey, FontInfoItem.hiddenKey]
         + MenuShortcuts.Command.allCases.map(\.key))
 
     @Published private(set) var data = LibraryData() { didSet { invalidate() } }
@@ -297,9 +297,21 @@ final class LibraryStore: ObservableObject {
         return families
     }
 
+    /// サイドバーの「重複」：同じ PostScript名のファイルのうち、ウォッチフォルダーの順で優先が決まらないもの（いちばん上の順位に2つ以上ある）だけ。
+    /// 優先が決まった重複は数えない（ユーザー指定）。決まったものは一覧の「優先／優先外」と「優先外の重複」の操作で扱う
     private var duplicateIDs: Set<UUID> {
         if let duplicateCache { return duplicateCache }
-        let ids = data.duplicateFileIDs
+        var groups: [String: [FontFile]] = [:]
+        for file in data.files {
+            guard let name = file.faces.first?.postScriptName else { continue }
+            groups[name, default: []].append(file)
+        }
+        var ids = Set<UUID>()
+        for group in groups.values where group.count > 1 {
+            let ranks = group.map { priority(of: $0) }
+            let top = ranks.min() ?? 0
+            if ranks.filter({ $0 == top }).count > 1 { ids.formUnion(group.map(\.id)) }
+        }
         duplicateCache = ids
         return ids
     }
@@ -803,6 +815,25 @@ final class LibraryStore: ObservableObject {
         return ranked.sorted { $0.rank != $1.rank ? $0.rank < $1.rank : $0.offset < $1.offset }.map(\.file)
     }
 
+    /// 優先でない重複（一覧で「優先外」のファイル）。範囲は一覧で選んだもの、選んでいなければライブラリ全体
+    func nonPreferredDuplicates() -> [FontFile] {
+        let scope = selectedFiles.isEmpty ? visibleFiles : selectedFiles
+        return scope.filter { duplicatePreference($0) == false }
+    }
+
+    func deactivateNonPreferredDuplicates() {
+        let files = nonPreferredDuplicates().filter { states[$0.id] == .active && !Self.isLocked($0) }
+        guard !files.isEmpty else { status = L("アクティブな優先外の重複はありません"); return }
+        setActive(files, false)
+    }
+
+    /// ライブラリから取り除く（確認は remove が出す。フォントフォルダー・Adobe Fonts のファイルは取り除かない）
+    func removeNonPreferredDuplicates() {
+        let files = nonPreferredDuplicates()
+        guard !files.isEmpty else { status = L("優先外の重複はありません"); return }
+        remove(files)
+    }
+
     /// まとめてアクティブにするファイルから、同じ PostScript 名の重複を優先のものだけにする（1つだけ選んだときはそのまま）
     func preferredAmongDuplicates(_ files: [FontFile]) -> [FontFile] {
         var seen = Set<String>()
@@ -1245,6 +1276,7 @@ final class LibraryStore: ObservableObject {
         do {
             var library = try JSONDecoder().decode(LibraryData.self, from: bytes).mapPaths { PortablePath.decode($0) }
             library.migrateProjects()
+            library.decodeEscapedNames()
             return library
         } catch {
             let backup = url.deletingPathExtension().appendingPathExtension("unreadable.json")

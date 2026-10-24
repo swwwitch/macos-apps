@@ -206,7 +206,6 @@ A-OTF	A-OTF
 黒地に白	White on Black
 カスタム	Custom
 ツール	Tools
-Illustratorのフォントを統一…	Unify Fonts in Illustrator…
 Illustratorのフォントを統一	Unify Fonts in Illustrator
 変更対象のフォントが見つかりませんでした。	No fonts to change were found.
 フォントを置き換えています…	Replacing fonts…
@@ -323,9 +322,6 @@ FontExplorer X Proのセットを、同じ名前のセットとして読み込�
 参照するファイル・フォルダーが見つからないため、前の結果のままにしました：%@	Some referenced files or folders were not found, so the previous results were kept: %@
 %@ を読めませんでした。同期の途中か、ファイルがこのMacに無い可能性があります。読めるようになるまで変更は保存しません。	Could not read %@. It may still be syncing or not be on this Mac. Changes are not saved until it can be read.
 ライブラリを読めないため、変更を保存していません	Changes are not saved because the library cannot be read
-InDesignのフォントを統一…	Unify Fonts in InDesign…
-システムのフォントキャッシュを消去…	Clean System Font Caches…
-アプリのフォントキャッシュを消去…	Clean Application Font Caches…
 新規スマートセット…	New Smart Set…
 スマートセットを編集…	Edit Smart Set…
 スマートセットを削除…	Delete Smart Set…
@@ -430,3 +426,41 @@ Unicodeなし	Without Unicode
 同じPostScript名のフォントが複数のフォルダーにあるときは、この一覧で上にあるフォルダーのものを優先してアクティブにします（ウォッチフォルダーの外のものは最後）。	When fonts with the same PostScript name are in several folders, the one in the folder higher in this list is activated (fonts outside the watch folders come last).
 1989年以前	1989 and earlier
 %d年代	%ds
+フォントを点検…	Check Fonts…
+その他（入力した文字）	Other (typed text)
+表示する情報	Information to Show
+基本	Basic
+ファイルの大きさが0です	The file size is 0
+%@：必要なテーブルがありません（%@）	%@: required tables are missing (%@)
+%@：字形の形のデータがありません	%@: no glyph outline data
+%@：OS/2テーブルがありません（Windowsや一部のアプリで問題になります）	%@: no OS/2 table (can cause problems on Windows and in some apps)
+%@：postテーブルがありません	%@: no post table
+%@：字形が1つもありません	%@: no glyphs
+PostScript名がありません	No PostScript name
+%@：PostScript名に使えない文字があります	%@: the PostScript name has invalid characters
+%@：PostScript名が63字を超えています	%@: the PostScript name is longer than 63 characters
+%@：ファイルの中でPostScript名が重複しています	%@: the PostScript name appears twice in the file
+ライブラリ全体を点検しますか？	Check the whole library?
+%d個のファイルを読みます。件数が多いと数分かかります。一部だけ点検するときは、一覧で選んでから実行します。	Reads %d files. With many files this takes a few minutes. To check only some fonts, select them in the list first.
+点検する	Check
+フォントを点検	Check Fonts
+点検中…（%d／%d）	Checking… (%d/%d)
+%d個を点検しました：壊れている %d、注意 %d	Checked %d: damaged %d, warnings %d
+壊れている	Damaged
+注意	Warning
+問題のあるフォントは見つかりませんでした	No problem fonts were found
+新規セットに入れる…	Put in New Set…
+フォントキャッシュを消去	Clean Font Caches
+システム…	System…
+アプリ…	Applications…
+フォントを統一	Unify Fonts
+Illustrator…	Illustrator…
+InDesign…	InDesign…
+優先外の重複	Non-Preferred Duplicates
+優先外を解除	Deactivate Non-Preferred
+優先外を取り除く…	Remove Non-Preferred…
+アクティブな優先外の重複はありません	No active non-preferred duplicates
+優先外の重複はありません	No non-preferred duplicates
+優先外の重複を解除	Deactivate Non-Preferred Duplicates
+優先外の重複をライブラリから取り除く…	Remove Non-Preferred Duplicates from Library…
+ここには優先が決まらない重複だけを出します。ボタンは、選んでいなければライブラリの優先外すべてが対象です	Only duplicates whose preferred file is undecided are listed here. With nothing selected, the buttons affect every non-preferred file in the library

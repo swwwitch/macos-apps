@@ -1,6 +1,6 @@
 # NotMyType
 
-現行版：**1.27.0（build 52）** — 2026-10-24
+現行版：**1.29.0（build 54）** — 2026-10-24
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -51,10 +51,12 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - ファミリーの一覧は [FamilyOutline.swift](Sources/NotMyType/FamilyOutline.swift)（NSOutlineView）。SwiftUI の `List(children:)` は選択を変えるたびに全行を比べ直し（`OutlineListCoordinator.recursivelyDiffRows`）、1,428行で1回0.12〜0.19秒止まった。`listVersion` が進んだときだけ読み直す。
 - 速さの計り方：`open --env NOTMYTYPE_BENCH=select -a NotMyType` で起動すると5秒後から0.3秒ごとに選択を30回変える（BenchMode.swift）。その間 `sample <pid> 9` を取り、メインスレッドの `__CFRunLoopServiceMachPort` 以外を使用時間とみなす。アクセシビリティで行を選ぶ計り方は、応答のために全行が作られて数字にならない
 - `~/Library/Fonts` のフォントは `.session` では解除できない（201）。`.persistent` の解除で無効になり、`.persistent` の登録で戻る（2026-10-24、試験用フォントで実測）。`/Library/Fonts` は同じ方法だが未実測
-- 未実装（今後）：壊れたフォントの点検、フォントのコピー整理。
+- 未実装（今後）：なし。フォントファイルのコピー・移動（FontExplorer X Pro の Copy／Move、フォルダーに集める整理）は付けない（2026-10-24 ユーザー決定）。ファイルは元の場所を参照するだけにする
 
 ## 更新履歴
 
+- 1.29.0（build 54）：優先外の重複をまとめて解除・ライブラリから取り除く（ツールの「優先外の重複」、右クリック、「重複」の上の案内。選んでいなければ重複すべて、フォントフォルダー・Adobe Fonts は取り除かない）。フォント制作ツールの書式が入った名前（「3,1,0x411,\304B\3089…」＝からかぜ）を文字に戻す（FontNaming.decodeEscaped、読み込み時に保存済みの名前も直す。からかぜ・からかぜ+・NCS-あずさA-縦かな の5件）。サイドバーの「重複」はウォッチフォルダーの順で優先が決まらないものだけを数える（決まったものは外す、ユーザー指定）
+- 1.28.0（build 53）：ツールに「フォントを点検…」（読めない・必要なテーブルや字形が無い＝壊れている、OS/2・post が無い・PostScript名の不正や重複＝注意。選んだフォントか全体を裏で点検、結果から Finder で表示・新規セット・取り除く。FontChecker.swift。抜き取り1,836件で1.5秒）。プレビューのオプションに「表示する情報」（フォント情報の項目をチェックボックスで選ぶ、fontInfoHidden、設定の同期に含める）、プレビューの文字の候補をポップアップに。note 記事の URL（SWNoteArticleURL）をマガジンからこのアプリの記事に（設定の「情報」とヘルプメニュー）。ツールメニューを整理（ライブラリを再構築・フォントを点検／フォントキャッシュを消去▶システム・アプリ／フォントを統一▶Illustrator・InDesign／FontExplorer X Pro のセットを読み込む、ユーザー指定）
 - 1.27.0（build 52）：リリースキューの3件（ユーザー指示「ビルド」）。①FontDB（~/Git/macos-apps/FontDB/data/fonts.sqlite）を build.sh で Resources/FontDB.sqlite に写し、PostScript名で公式の情報を引く（FontDB.swift）。フォント情報に公式のファイル名・メーカー・作者・リリース・初出・分類・シリーズ・言語・プラン・説明・公式ページ、検索欄でよみ・メーカー・作者・分類・説明も引く、検索オプションに「分類」「リリース年（年代）」。②重複の解決：同じ PostScript名はウォッチフォルダーの一覧で上のフォルダーを優先（外のものは最後、ユーザー指定）。まとめてアクティブにするとき・プロジェクトの照合・Adobe 自動アクティベートで優先のものを使い、一覧の書体の行に「優先／優先外」。設定のウォッチフォルダーに ▲▼ の並べ替え。③ツールに「ライブラリを再構築…」（全件の読み直し、同じファイル名・PostScript名でつなぎ直し＝id を保つ、フォルダーの新しいファイルを追加、見つからないものは残す／取り除くを選ぶ、無い id への参照を掃除）
 - 1.26.0（build 51）：リリースキューの7件を実装（ユーザー指示「受付を進めて」）。①ベンダー「モリサワ」のアイコンを正式なロゴの記号に（Assets/VendorLogos/morisawa.svg、VendorLogos.swift の MorisawaMark）。②フォントファイルを開くアプリ（Info.plist の CFBundleDocumentTypes、LSHandlerRank Alternate、woff・woff2 は拡張子で宣言。設定に［フォントファイルをNotMyTypeで開く］［Font Bookに戻す］、開いたフォントは追加してファミリーを選ぶ、FontFileHandler.swift）。③ツールに「システムのフォントキャッシュを消去…」（atsutil databases -removeUser／-remove を管理者権限で、再起動の案内）と「アプリのフォントキャッシュを消去…」（Adobe の AdobeFnt*.lst・AdobeFontList.lst・Photoshop の CT Font Cache をゴミ箱へ、Adobe アプリ起動中は止める、Composite を含むものは除く。FontCacheCleaner.swift）。④字形の一覧（プレビュー／字形の切り替え、字形番号で描く LazyVGrid、Unicode の逆引き、絞り込み、クリックでコピー。GlyphView.swift）。⑤条件を自分で作るスマートセット（LibraryData.smartSets、SmartSets.swift）。⑥ツールに「InDesignのフォントを統一…」（IdFontConverter.jsx v1.1.6 の DOM の関数をほぼそのまま InDesignFontScripts.swift に、ルールは FontConverterRules を共通で使用＝表が同じことを確認、do script … language javascript、置き換えは UndoModes.ENTIRE_SCRIPT）。⑦Adobe アプリ向けの自動アクティベート（設定、初めはオフ。前面に来たときに Illustrator は XMP の stFnt:fontName、InDesign は document.fonts の status で足りないフォントを調べ、ライブラリの完全一致をアクティブに。AdobeAutoActivation.swift）
 - 1.25.0（build 50）：全体の点検で見つかった不具合を修正。ライブラリがあるのに読めない（Dropbox のオンラインのみ・同期の途中）ときは保存しない（空に近いライブラリで共有ファイルを上書きし、ほかのMacのアクティブまで外すおそれがあった）。共有ライブラリがほかのMacで書き換わっていたら合わせてから保存。合わせるときにプロジェクトの一致・候補の id を読み替え、名前を変えたセットの id の重複を避ける。プロジェクトの参照先が見つからないときは前の結果と承認を残す、読み直しが重なったら最後のものだけ使う、アクティブの失敗で戻すのはこの操作でアクティブにしたものだけ、空のプロジェクトをアクティブ表示にしない、複数の制作ファイルのドロップは1つのプロジェクトに。フォントフォルダーから一時的に消えたファイルは戻ったら同じ id（セット・プロジェクトに残る、`departed`）。取り除いたファイルをウォッチフォルダーが入れ直さない。見えるようになったフォルダーを前面に戻ったときに見張り直す。ほかのMacで消えたセット・プロジェクトを選んでいたら戻す。設定の同期で届いた一覧の設定を反映。ヘルプ・README・チェックリストを今の機能に合わせた。プレビューのオプションとメニューのホットキーを設定の同期に含める

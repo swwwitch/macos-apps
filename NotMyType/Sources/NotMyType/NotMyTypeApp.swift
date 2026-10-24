@@ -52,16 +52,26 @@ struct NotMyTypeApp: App {
                     .keyboardShortcut("w", modifiers: .command)
             }
             // ツール：Adobe アプリのドキュメントのフォントを書き換える（InDesign は今後）
+            // ツール：ライブラリの手入れ → フォントキャッシュ（サブメニュー）→ フォントを統一（サブメニュー）→ 読み込み（ユーザー指定の並び）
             CommandMenu(L("ツール")) {
-                Button(L("Illustratorのフォントを統一…")) { FontConverterWindow.illustrator.show() }
-                Button(L("InDesignのフォントを統一…")) { FontConverterWindow.indesign.show() }
+                Button(L("ライブラリを再構築…")) { LibraryStore.shared.rebuildLibrary() }
+                Button(L("フォントを点検…")) { FontCheckWindow.shared.show() }
+                Menu(L("優先外の重複")) {
+                    Button(L("解除")) { LibraryStore.shared.deactivateNonPreferredDuplicates() }
+                    Button(L("ライブラリから取り除く…")) { LibraryStore.shared.removeNonPreferredDuplicates() }
+                }
+                Divider()
+                Menu(L("フォントキャッシュを消去")) {
+                    Button(L("システム…")) { FontCacheCleaner.cleanSystemCaches() }
+                    Button(L("アプリ…")) { FontCacheCleaner.cleanApplicationCaches() }
+                }
+                Divider()
+                Menu(L("フォントを統一")) {
+                    Button(L("Illustrator…")) { FontConverterWindow.illustrator.show() }
+                    Button(L("InDesign…")) { FontConverterWindow.indesign.show() }
+                }
                 Divider()
                 Button(L("FontExplorer X Proのセットを読み込む…")) { FontExplorerImportWindow.shared.show() }
-                Divider()
-                Button(L("ライブラリを再構築…")) { LibraryStore.shared.rebuildLibrary() }
-                Divider()
-                Button(L("システムのフォントキャッシュを消去…")) { FontCacheCleaner.cleanSystemCaches() }
-                Button(L("アプリのフォントキャッシュを消去…")) { FontCacheCleaner.cleanApplicationCaches() }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {

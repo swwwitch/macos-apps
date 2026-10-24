@@ -309,7 +309,8 @@ enum FontScanner {
             let family = CTFontDescriptorCopyAttribute(descriptor, kCTFontFamilyNameAttribute) as? String ?? name
             let style = CTFontDescriptorCopyAttribute(descriptor, kCTFontStyleNameAttribute) as? String ?? ""
             let full = CTFontDescriptorCopyAttribute(descriptor, kCTFontDisplayNameAttribute) as? String ?? name
-            var face = FontFace(postScriptName: name, family: family, style: style, fullName: full)
+            var face = FontFace(postScriptName: name, family: FontNaming.decodeEscaped(family), style: FontNaming.decodeEscaped(style),
+                                fullName: FontNaming.decodeEscaped(full))
             (face.localizedFamily, face.localizedStyle) = localizedNames(descriptor)
             return face
         }
@@ -589,6 +590,18 @@ extension LibraryData {
     /// 足したファイルの数を返す
     /// 1.20 までのプロジェクト（参照するファイル・フォルダーが無い）を移す。作ったときの制作ファイルがあればそれを、
     /// 貼り付けで作ったものは入っているフォントの PostScript名と見つからなかった名前を「フォント名」として元にする
+    /// 1.28 までに読んだ、制作ツールの書式がそのまま入った名前を文字に戻す（FontNaming.decodeEscaped）
+    mutating func decodeEscapedNames() {
+        for index in files.indices {
+            for face in files[index].faces.indices {
+                let current = files[index].faces[face]
+                files[index].faces[face].family = FontNaming.decodeEscaped(current.family)
+                files[index].faces[face].style = FontNaming.decodeEscaped(current.style)
+                files[index].faces[face].fullName = FontNaming.decodeEscaped(current.fullName)
+            }
+        }
+    }
+
     mutating func migrateProjects() {
         for index in projects.indices where projects[index].sources.isEmpty {
             if let source = projects[index].source {
@@ -711,6 +724,19 @@ enum NameDisplay: String, CaseIterable, Sendable {
 
 /// ファミリー名から読む分類（絞り込み用）
 enum FontNaming {
+    /// フォント制作ツールの書式がそのまま名前に入っているもの（「3,1,0x411,\\304B\\3089\\304B\\305C」＝からかぜ）を文字に戻す。
+    /// 「プラットフォーム,エンコーディング,言語,」の前置きを外し、「\\XXXX」（16進4桁）を文字にする。当てはまらなければそのまま
+    nonisolated static func decodeEscaped(_ name: String) -> String {
+        guard name.range(of: #"\d+,\d+,0x[0-9A-Fa-f]+,"#, options: .regularExpression) != nil else { return name }
+        var text = name.replacingOccurrences(of: #"\d+,\d+,0x[0-9A-Fa-f]+,"#, with: "", options: .regularExpression)
+        while let range = text.range(of: #"\\[0-9A-Fa-f]{4}"#, options: .regularExpression) {
+            let hex = text[range].dropFirst()
+            guard let value = UInt32(hex, radix: 16), let scalar = Unicode.Scalar(value) else { break }
+            text.replaceSubrange(range, with: String(Character(scalar)))
+        }
+        return text
+    }
+
     /// Adobe-Japan1 の文字セットの名前（Std・Pro・Pr6N など）。ファミリー名の単語として入っているものだけ
     static let charsets = ["Std", "StdN", "Pro", "ProN", "Pr5", "Pr5N", "Pr6", "Pr6N", "Plus", "PlusN"]
 

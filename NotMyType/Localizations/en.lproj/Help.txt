@@ -8,7 +8,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - A file at the same location is not added twice.
 
 ### Watch Folders
-- When fonts with the same PostScript name are in several folders, the one in the folder higher in the watch folder list is preferred (fonts outside the watch folders come last). The preferred one is used when activating fonts together, matching projects and activating missing fonts for Adobe apps, and style rows show "Preferred" or "Not preferred". Change the order with ▲▼.
+- When fonts with the same PostScript name are in several folders, the one in the folder higher in the watch folder list is preferred (fonts outside the watch folders come last). The preferred one is used when activating fonts together, matching projects and activating missing fonts for Adobe apps, and style rows show "Preferred" or "Not preferred". Change the order with ▲▼. "Duplicates" in the sidebar lists only duplicates whose preferred file cannot be decided by the watch folder order (two in the same folder, both outside the watch folders, and so on). Tools > Non-Preferred Duplicates, the list's right-click menu, and the bar above "Duplicates" deactivate non-preferred files together or remove them from the library (the files are not deleted).
 - Add as many folders as you like under Watch Folders in the Fonts settings. When new font files appear in a folder (including subfolders), they are added to the library without being activated.
 - The folders are also read at launch. Files removed from a folder appear in "Missing".
 
@@ -27,7 +27,7 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Choose "Glyphs" at the top of the preview to list every glyph of one style of the selected family in a grid. Choose the style from the menu, and narrow the list to All Glyphs, With Unicode or Without Unicode (variants and so on), or by character or U+XXXX. Clicking a glyph copies its character and shows its glyph ID, Unicode and glyph name below.
 - Change the preview text in the field at the top and the size with the slider.
 - Choose the view in the menu on the left: One Line (cut off at the edge), Multiline (wrapped) or Waterfall (one line at each size from 72 to 9 pt).
-- The button on the right (slider icon) opens the preview options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
+- The button on the right (slider icon) opens the preview options. The "Information to Show" checkboxes choose the items in the font information below the preview (state, format, characters, version, PostScript name, location, and each item of the official information). The options: colors (Black on White, White on Black, or Custom, where you choose the text and background colors), opacity, kerning (use the font's kerning), tracking (1/1000 em) and preset preview texts (Lorem ipsum, letters, figures, hiragana, katakana, kanji and so on).
 - Use "Localized / PostScript name / Both" above the list to choose how font names are shown. Fonts without a localized name use their English name. With PostScript names, family rows show the English family name and style rows show PostScript names.
 - The "Search Options" button to the right of the search field opens a panel of filters.
   - Character set: Std, Pro, Pr6N and so on in the family name
@@ -105,22 +105,27 @@ NotMyType keeps your font files in a library and activates them only when you ne
 - Select families and choose "Remove from Library…" (⌘⌫). Active fonts are deactivated first. The font files are not deleted.
 
 ### Unify Fonts in Illustrator
-- "Unify Fonts in Illustrator…" in the Tools menu replaces the fonts in the front document of the running Illustrator with other variants of the same typeface (character set, N, Shin Go / Shin Go NT, UD, AP version). The conversion is the same as the AiFontConverter script.
+- Tools > Unify Fonts > "Illustrator…" replaces the fonts in the front document of the running Illustrator with other variants of the same typeface (character set, N, Shin Go / Shin Go NT, UD, AP version). The conversion is the same as the AiFontConverter script.
 - Choose the scope: selection, whole document, or active artboard. "Max" and "MaxN" choose the richest character set (Pr6 / Pr6N) with UD, P and NT on.
 - OK checks the fonts in use and lists the changes; Run replaces them. When the same weight is missing, the nearest weight is used; fonts that are not installed are left as they are.
 - The first time, macOS asks for permission to control Illustrator. You can change it in System Settings > Privacy & Security > Automation.
 
 ### Unify Fonts in InDesign
-- "Unify Fonts in InDesign…" in the Tools menu replaces the fonts in the front document of the running InDesign with other variants of the same typeface. The conversion is the same as the IdFontConverter script.
+- Tools > Unify Fonts > "InDesign…" replaces the fonts in the front document of the running InDesign with other variants of the same typeface. The conversion is the same as the IdFontConverter script.
 - Choose the scope: selection, story, document, or active spread. Text in table cells and footnotes is included. With "Include composite fonts" on, the fonts in each composite font entry are replaced too. One Undo (⌘Z) reverts the replacement.
 
 ### Rebuilding the Library
 - "Rebuild Library…" in the Tools menu reads the information of every file again, finds files that moved (same file name and PostScript name) in the watch folders and font folders and relinks them, and adds new files in the folders. Relinked files stay in their sets and projects.
 - Files still not found are counted, and you can keep or remove them. With many files this takes from tens of seconds to a few minutes.
 
+### Checking Fonts
+- "Check Fonts…" in the Tools menu reads the fonts selected in the list (or the whole library when nothing is selected) and lists the ones with problems.
+- "Damaged": cannot be read as a font, required data or glyphs are missing, and so on. "Warning": no OS/2 or post table, or the PostScript name has invalid characters, is too long, or appears twice in the file.
+- From the results you can show files in Finder, put them in a new set, or remove them from the library.
+
 ### Cleaning Font Caches
-- "Clean System Font Caches…" in the Tools menu removes the font caches of macOS. Use it when garbled text or duplicate fonts do not go away. Choose this user only, or the whole system too (needs an administrator password); restart your Mac afterwards to rebuild them.
-- "Clean Application Font Caches…" moves the font caches of Adobe apps such as InDesign, Illustrator and Photoshop (AdobeFnt*.lst and so on) to the Trash. Quit the Adobe apps first. Files related to composite fonts are not removed.
+- Tools > Clean Font Caches > "System…" removes the font caches of macOS. Use it when garbled text or duplicate fonts do not go away. Choose this user only, or the whole system too (needs an administrator password); restart your Mac afterwards to rebuild them.
+- Tools > Clean Font Caches > "Applications…" moves the font caches of Adobe apps such as InDesign, Illustrator and Photoshop (AdobeFnt*.lst and so on) to the Trash. Quit the Adobe apps first. Files related to composite fonts are not removed.
 
 ### Missing Fonts in Adobe Apps
 - With "Automatically activate missing fonts in documents opened in Illustrator and InDesign" on in the Fonts settings, when Illustrator or InDesign comes to the front, unavailable fonts in the open documents are activated if their PostScript names match fonts in the library. Other fonts are not deactivated.

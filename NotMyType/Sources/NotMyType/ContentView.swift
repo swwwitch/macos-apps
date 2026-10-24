@@ -458,6 +458,7 @@ private struct FamilyListView: View {
             .padding(.horizontal, 8)
             .padding(.bottom, 6)
             if store.sidebar == .folder(.adobeFonts) { AdobeFontsBar() }
+            if store.sidebar == .duplicates { DuplicatesBar() }
             Divider()
             if families.isEmpty {
                 emptyView
@@ -480,6 +481,26 @@ private struct FamilyListView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// 「重複」を表示している間だけ出す案内：優先外の重複をまとめて解除・取り除く
+private struct DuplicatesBar: View {
+    @ObservedObject private var store = LibraryStore.shared
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "square.on.square").foregroundStyle(.secondary).accessibilityHidden(true)
+            Text(L("ここには優先が決まらない重複だけを出します。ボタンは、選んでいなければライブラリの優先外すべてが対象です"))
+                .font(.callout).foregroundStyle(.secondary)
+                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 4)
+            Button(L("優先外を解除")) { store.deactivateNonPreferredDuplicates() }
+            Button(L("優先外を取り除く…")) { store.removeNonPreferredDuplicates() }
+        }
+        .controlSize(.small)
+        .padding(.horizontal, 8)
+        .padding(.bottom, 6)
     }
 }
 
@@ -598,6 +619,46 @@ private struct SearchOptionsPanel: View {
 }
 
 // MARK: - プレビュー
+
+/// プレビューの下のフォント情報に出す項目（プレビューのオプションでチェックボックスで選ぶ）。隠した項目を UserDefaults に覚える
+enum FontInfoItem: String, CaseIterable {
+    case state, format, characters, version, postScript, location, reveal
+    case officialName, officialFileName, maker, designer, release, firstRelease, classification, series, languages, plans, description, officialPage
+
+    static let hiddenKey = "fontInfoHidden"
+    static let basic: [FontInfoItem] = [.state, .format, .characters, .version, .postScript, .location, .reveal]
+    static let official: [FontInfoItem] = [.officialName, .officialFileName, .maker, .designer, .release, .firstRelease,
+                                           .classification, .series, .languages, .plans, .description, .officialPage]
+
+    var title: String {
+        switch self {
+        case .state: return L("状態")
+        case .format: return L("形式")
+        case .characters: return L("収録文字数")
+        case .version: return L("バージョン")
+        case .postScript: return L("PostScript名")
+        case .location: return L("場所")
+        case .reveal: return L("Finderで表示")
+        case .officialName: return L("書体名")
+        case .officialFileName: return L("ファイル名")
+        case .maker: return L("メーカー")
+        case .designer: return L("作者")
+        case .release: return L("リリース")
+        case .firstRelease: return L("初出")
+        case .classification: return L("分類")
+        case .series: return L("シリーズ")
+        case .languages: return L("言語")
+        case .plans: return L("プラン")
+        case .description: return L("説明")
+        case .officialPage: return L("公式のページを開く")
+        }
+    }
+
+    /// 保存は隠した項目の rawValue をカンマでつないだもの（空＝すべて出す）
+    static func hidden(_ stored: String) -> Set<FontInfoItem> {
+        Set(stored.split(separator: ",").compactMap { FontInfoItem(rawValue: String($0)) })
+    }
+}
 
 /// プレビューの見え方（文字の色・不透明度・カーニング・トラッキング）。設定は AppStorage に覚える
 struct PreviewStyle {
@@ -744,23 +805,24 @@ private struct PreviewOptionsPanel: View {
                 }
             }
             Divider()
-            Text(L("プレビューの文字")).font(.callout.weight(.semibold))
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(PreviewStyle.samples, id: \.self) { text in
-                    Button { sample = text } label: {
-                        HStack {
-                            Text(verbatim: text).lineLimit(1)
-                            Spacer()
-                            if sample == text { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
-                        }
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .contentShape(Rectangle())
+            HStack {
+                Text(L("プレビューの文字") + L(" :"))
+                // 候補はポップアップで選ぶ（ユーザー指定）。今の文字が候補に無ければ「その他」と出す
+                Picker(L("プレビューの文字"), selection: $sample) {
+                    ForEach(PreviewStyle.samples, id: \.self) { Text(verbatim: $0).tag($0) }
+                    if !PreviewStyle.samples.contains(sample) {
+                        Divider()
+                        Text(L("その他（入力した文字）")).tag(sample)
                     }
-                    .buttonStyle(.plain)
                 }
+                .labelsHidden()
             }
-            .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
+            Divider()
+            Text(L("表示する情報")).font(.callout.weight(.semibold))
+            HStack(alignment: .top, spacing: 24) {
+                infoColumn(L("基本"), FontInfoItem.basic)
+                infoColumn(L("公式の情報"), FontInfoItem.official)
+            }
             HStack {
                 Spacer()
                 Button(L("初期値に戻す")) {
@@ -774,6 +836,24 @@ private struct PreviewOptionsPanel: View {
 
     private func label(_ text: String) -> some View {
         Text(text + L(" :")).gridColumnAlignment(.trailing)
+    }
+
+    @AppStorage(FontInfoItem.hiddenKey) private var hiddenInfo = ""
+
+    /// 表示する情報のチェックボックスの列
+    private func infoColumn(_ title: String, _ items: [FontInfoItem]) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            ForEach(items, id: \.self) { item in
+                Toggle(item.title, isOn: Binding(
+                    get: { !FontInfoItem.hidden(hiddenInfo).contains(item) },
+                    set: { shown in
+                        var hidden = FontInfoItem.hidden(hiddenInfo)
+                        if shown { hidden.remove(item) } else { hidden.insert(item) }
+                        hiddenInfo = hidden.map(\.rawValue).sorted().joined(separator: ",")
+                    }))
+            }
+        }
     }
 
     private func colorBinding(_ stored: Binding<String>, fallback: Color) -> Binding<Color> {
@@ -939,23 +1019,28 @@ private struct FaceSample: View {
 private struct FamilyInfo: View {
     let family: FontFamily
     @ObservedObject private var store = LibraryStore.shared
+    @AppStorage(FontInfoItem.hiddenKey) private var hiddenInfo = ""
+
+    private func shows(_ item: FontInfoItem) -> Bool { !FontInfoItem.hidden(hiddenInfo).contains(item) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(family.files) { file in
                 VStack(alignment: .leading, spacing: 3) {
                     Text(file.fileName).font(.callout.weight(.semibold))
-                    info(L("状態"), stateText(store.states[file.id]))
-                    info(L("形式"), file.format)
-                    if let characters = file.characterCount {
+                    if shows(.state) { info(L("状態"), stateText(store.states[file.id])) }
+                    if shows(.format) { info(L("形式"), file.format) }
+                    if shows(.characters), let characters = file.characterCount {
                         info(L("収録文字数"), L("%@文字（グリフ %@）", characters.formatted(.number), (file.glyphCount ?? 0).formatted(.number)))
                     }
-                    if let version = PreviewFonts.version(file: file) { info(L("バージョン"), version) }
-                    info(L("PostScript名"), file.faces.map(\.postScriptName).joined(separator: ", "))
-                    info(L("場所"), file.path)
-                    Button(L("Finderで表示")) { store.revealInFinder([file]) }
-                        .buttonStyle(.link).font(.caption)
-                    if let record = FontDB.record(for: file) { officialInfo(record) }
+                    if shows(.version), let version = PreviewFonts.version(file: file) { info(L("バージョン"), version) }
+                    if shows(.postScript) { info(L("PostScript名"), file.faces.map(\.postScriptName).joined(separator: ", ")) }
+                    if shows(.location) { info(L("場所"), file.path) }
+                    if shows(.reveal) {
+                        Button(L("Finderで表示")) { store.revealInFinder([file]) }
+                            .buttonStyle(.link).font(.caption)
+                    }
+                    if let record = FontDB.record(for: file), FontInfoItem.official.contains(where: shows) { officialInfo(record) }
                 }
             }
         }
@@ -964,18 +1049,18 @@ private struct FamilyInfo: View {
     /// FontDB（メーカーの公式の情報）。値のある項目だけを出す
     @ViewBuilder private func officialInfo(_ record: FontDBRecord) -> some View {
         Text(L("公式の情報")).font(.caption.weight(.semibold)).padding(.top, 4)
-        if !record.name.isEmpty { info(L("書体名"), record.name + (record.reading.isEmpty ? "" : "（\(record.reading)）")) }
-        if !record.fileName.isEmpty { info(L("ファイル名"), record.fileName) }
-        if !record.maker.isEmpty { info(L("メーカー"), record.maker) }
-        if !record.designer.isEmpty { info(L("作者"), record.designer) }
-        if !record.releaseDate.isEmpty { info(L("リリース"), record.releaseDate) }
-        if !record.originalRelease.isEmpty { info(L("初出"), record.originalRelease) }
-        if !record.classification.isEmpty { info(L("分類"), record.classification) }
-        if !record.series.isEmpty { info(L("シリーズ"), record.series) }
-        if !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
-        if !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
-        if !record.description.isEmpty { info(L("説明"), record.description) }
-        if let url = URL(string: record.url), !record.url.isEmpty {
+        if shows(.officialName), !record.name.isEmpty { info(L("書体名"), record.name + (record.reading.isEmpty ? "" : "（\(record.reading)）")) }
+        if shows(.officialFileName), !record.fileName.isEmpty { info(L("ファイル名"), record.fileName) }
+        if shows(.maker), !record.maker.isEmpty { info(L("メーカー"), record.maker) }
+        if shows(.designer), !record.designer.isEmpty { info(L("作者"), record.designer) }
+        if shows(.release), !record.releaseDate.isEmpty { info(L("リリース"), record.releaseDate) }
+        if shows(.firstRelease), !record.originalRelease.isEmpty { info(L("初出"), record.originalRelease) }
+        if shows(.classification), !record.classification.isEmpty { info(L("分類"), record.classification) }
+        if shows(.series), !record.series.isEmpty { info(L("シリーズ"), record.series) }
+        if shows(.languages), !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
+        if shows(.plans), !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
+        if shows(.description), !record.description.isEmpty { info(L("説明"), record.description) }
+        if shows(.officialPage), let url = URL(string: record.url), !record.url.isEmpty {
             Link(L("公式のページを開く"), destination: url).font(.caption)
         }
     }
