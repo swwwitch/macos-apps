@@ -137,7 +137,8 @@ private struct SidebarView: View {
                         .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
                     row(.missing, L("見つからない"), "exclamationmark.triangle")
                     // Creative Cloud が入れたフォント（切り替えは Creative Cloud で）
-                    iconRow(.folder(.adobeFonts), SystemFolder.adobeFonts.title) { AdobeFontsIcon() }
+                    // ほかの行と同じ線画のアイコンにする（色付きのロゴは浮いて見える、ユーザー指摘）
+                    row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "f.cursive")
                         .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
                 } header: { Text(L("ライブラリ")) }
                 // フォントフォルダー。System は切り替え・取り除きができない
@@ -149,10 +150,7 @@ private struct SidebarView: View {
                 // 条件で中身が決まるセット
                 Section(isExpanded: $expandedSmartSets) {
                     row(.active, L("アクティブ"), "checkmark.circle")
-                    row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark")
                     row(.inactive, L("非アクティブ"), "circle")
-                    row(.recentlyDeactivated, L("最近非アクティブ"), "clock.badge.xmark")
-                    row(.recentlyAdded, L("最近追加したもの"), "calendar.badge.plus")
                     row(.japanese, L("日本語をサポート"), "character.ja")
                     // 自分で条件を作ったスマートセット
                     ForEach(store.data.smartSets) { smartSet in
@@ -217,15 +215,6 @@ private struct SidebarView: View {
     }
 
     /// SF Symbols ではなく自前のアイコンを出す行
-    private func iconRow<Icon: View>(_ item: SidebarItem, _ title: String, @ViewBuilder icon: () -> Icon) -> some View {
-        HStack {
-            Label { Text(title).lineLimit(1) } icon: { icon() }
-            Spacer()
-            Text("\(store.count(item))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
-        }
-        .tag(item)
-    }
-
     private func row(_ item: SidebarItem, _ title: String, _ symbol: String) -> some View {
         HStack {
             Label(title, systemImage: symbol).lineLimit(1)
@@ -337,7 +326,7 @@ private struct AdobeFontsBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            AdobeFontsIcon()
+            Image(systemName: "f.cursive").foregroundStyle(.secondary).accessibilityHidden(true)
             Text(L("Adobe Fontsのオン・オフは、Creative Cloudで行います"))
                 .font(.callout).foregroundStyle(.secondary)
                 .lineLimit(2).fixedSize(horizontal: false, vertical: true)

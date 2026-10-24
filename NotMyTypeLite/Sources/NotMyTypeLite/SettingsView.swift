@@ -173,17 +173,17 @@ private struct WatchFoldersSection: View {
     }
 }
 
-/// 重複フォントのタブ：優先を決める順の説明、規則、形式の順
+/// 重複フォントのタブ：優先を決める順の説明、ファイルごとの選択、形式の順
 private struct DuplicateSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text(L("同じPostScript名のフォントが複数あるときは、ウォッチフォルダーの順 → 規則 → ファイルごとの選択 → ファイルの中身で決める条件の順で優先を決めます。"))
+                Text(L("同じPostScript名のフォントが複数あるときは、ウォッチフォルダーの順 → ファイルごとの選択 → ファイルの中身で決める条件の順で優先を決めます。"))
                     .font(.callout).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() }
             }
-            DuplicateRulesSection()
+            PreferredFilesSection()
             AutoCriteriaSection()
             FormatOrderSection()
         }
@@ -236,7 +236,7 @@ private struct AutoCriteriaSection: View {
             }
             Toggle(L("それでも残ったものが中身の同じファイル（ハッシュが一致）なら、自動で1つに決める"), isOn: $identical)
                 .onChange(of: identical) { store.invalidate() }
-            Text(L("ウォッチフォルダーの順・規則・ファイルごとの選択でも決まらないときに、上の条件から順に使います。バージョンはフォントの版（headテーブル）、字形数は収録グリフの数で比べ、分からないファイルがあるときはその条件を飛ばします。中身が同じときは先に登録したファイルを優先します（ハッシュは候補のファイルだけ裏で計ります）。"))
+            Text(L("ウォッチフォルダーの順・ファイルごとの選択でも決まらないときに、上の条件から順に使います。バージョンはフォントの版（headテーブル）、字形数は収録グリフの数で比べ、分からないファイルがあるときはその条件を飛ばします。中身が同じときは先に登録したファイルを優先します（ハッシュは候補のファイルだけ裏で計ります）。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -342,39 +342,19 @@ private struct FormatOrderSection: View {
     }
 }
 
-/// 重複の優先の規則：「重複フォントを解決」で選んだフォルダーの組と、ファイルごとの選択
-private struct DuplicateRulesSection: View {
+/// ファイルごとに選んだ優先（「重複フォントを解決」・「選んだフォントを優先にする」）。件数と、まとめて取り消すボタン
+private struct PreferredFilesSection: View {
     @ObservedObject private var store = LibraryStore.shared
-    @State private var selection = Set<UUID>()
 
     var body: some View {
-        SettingsSection(L("重複の優先の規則")) {
-            List(store.data.folderRules, selection: $selection) { rule in
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(DuplicateResolver.display(rule.preferred)).lineLimit(1).truncationMode(.middle)
-                    Text(L("＞ %@", DuplicateResolver.display(rule.other))).font(.caption).foregroundStyle(.secondary)
-                        .lineLimit(1).truncationMode(.middle)
-                }
-                .help(L("%@ を %@ より優先", rule.preferred, rule.other))
-            }
-            .frame(height: 96)
-            .overlay {
-                if store.data.folderRules.isEmpty { Text(L("規則はありません")).foregroundStyle(.secondary) }
-            }
-            HStack(spacing: 6) {
-                Button { store.removeFolderRules(selection); selection.removeAll() } label: { Image(systemName: "minus") }
-                    .disabled(selection.isEmpty)
-                    .help(L("選んだ規則を削除")).accessibilityLabel(L("選んだ規則を削除"))
-                Spacer()
-            }
+        SettingsSection(L("ファイルごとに選んだ優先")) {
             HStack {
-                Text(L("ファイルごとに選んだ優先：%d件", store.data.preferredFiles.count)).font(.caption).foregroundStyle(.secondary)
+                Text(L("ファイルごとに選んだ優先：%d件", store.data.preferredFiles.count))
                 Spacer()
                 Button(L("選択を消去")) { store.clearPreferredFiles() }
-                    .controlSize(.small)
                     .disabled(store.data.preferredFiles.isEmpty)
             }
-            Text(L("ウォッチフォルダーの順で優先が決まらない重複に使います。上のフォルダー（下の階層も）のフォントを、下のフォルダーのものより優先します。"))
+            Text(L("「重複フォントを解決」と「選んだフォントを優先にする」で選んだファイルです。ウォッチフォルダーの順で優先が決まらない重複に使います。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }

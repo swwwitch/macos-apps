@@ -5,7 +5,7 @@ import SwiftUI
 /// サイドバーで選ぶ一覧の絞り込み
 enum SidebarItem: Hashable {
     case all, active, inactive, duplicates, missing
-    case recentlyActivated, recentlyDeactivated, recentlyAdded, japanese
+    case japanese
     case folder(SystemFolder)
     case set(UUID)
     case smartSet(UUID)
@@ -69,8 +69,6 @@ final class LibraryStore: ObservableObject {
     static let sharedFolderKey = "sharedLibraryFolder"
     /// 旧名（FontSwitcher）のまま。変えるとほかのMacの共有ライブラリと別のファイルになる
     static let sharedFileName = "NotMyTypeLite-Library.json"
-    /// 「最近」は7日以内
-    static let recentInterval: TimeInterval = 7 * 24 * 60 * 60
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, preferOpenTypeKey, formatOrderKey,
@@ -252,15 +250,6 @@ final class LibraryStore: ObservableObject {
             let ids = duplicateIDs
             return base.filter { ids.contains($0.id) }
         case .missing: return base.filter { states[$0.id] == .missing }
-        case .recentlyActivated:
-            let since = Date().addingTimeInterval(-Self.recentInterval)
-            return base.filter { states[$0.id] == .active && ($0.activatedAt ?? .distantPast) > since }
-        case .recentlyDeactivated:
-            let since = Date().addingTimeInterval(-Self.recentInterval)
-            return base.filter { states[$0.id] != .active && ($0.deactivatedAt ?? .distantPast) > since }
-        case .recentlyAdded:
-            let since = Date().addingTimeInterval(-Self.recentInterval)
-            return base.filter { $0.added > since }
         case .japanese: return base.filter { $0.supportsJapanese == true }
         case .folder(let folder): return base.filter { SystemFolder.of($0.path) == folder }
         case .smartSet(let id):
@@ -1046,7 +1035,8 @@ final class LibraryStore: ObservableObject {
         @MainActor static var current: PreferenceSettings {
             var settings = PreferenceSettings(
                 folderPrefixes: WatchFolders.shared.folders.map { $0.hasSuffix("/") ? $0 : $0 + "/" },
-                rules: LibraryStore.shared.data.folderRules.map { ($0.preferred + "/", $0.other + "/") },
+                // 簡易版はフォルダーの規則を使わない（共有ファイルの folderRules は読み書きだけ残す、ユーザー指定）
+                rules: [],
                 criteria: LibraryStore.autoCriteriaOrder().filter { UserDefaults.standard.bool(forKey: $0.enabledKey) },
                 formatOrder: LibraryStore.formatOrder(),
                 pickIdentical: UserDefaults.standard.bool(forKey: LibraryStore.pickIdenticalKey))
@@ -1180,22 +1170,6 @@ final class LibraryStore: ObservableObject {
         }.map(\.file)
     }
 
-    /// 「重複フォントを解決」で選んだ規則を足す（同じ組の古い規則は置き換える）
-    func addFolderRules(_ rules: [FolderRule]) {
-        for rule in rules {
-            data.folderRules.removeAll {
-                ($0.preferred == rule.preferred && $0.other == rule.other) || ($0.preferred == rule.other && $0.other == rule.preferred)
-            }
-            data.folderRules.append(rule)
-        }
-        save()
-    }
-
-    func removeFolderRules(_ ids: Set<UUID>) {
-        data.folderRules.removeAll { ids.contains($0.id) }
-        save()
-    }
-
     /// 衝突しているファイル（同じ PostScript名のフォントが別の場所で使われている）
     func conflictingFiles(_ files: [FontFile]) -> [FontFile] {
         files.filter { if case .conflict = states[$0.id] { return true } else { return false } }
@@ -1233,7 +1207,7 @@ final class LibraryStore: ObservableObject {
         return (file.isVariable == true ? "variable:" : "static:") + postScriptName + (italic ? "|italic" : "")
     }
 
-    /// 一覧で選んだフォントを、それぞれの重複の組の優先にする（ウォッチフォルダーの順・規則より先に使う）。
+    /// 一覧で選んだフォントを、それぞれの重複の組の優先にする（ウォッチフォルダーの順より先に使う）。
     /// 同じ組から2つ以上選んだときは、どちらを優先にするか分からないので、その組は変えない
     func preferSelected(_ files: [FontFile]) {
         var groups: [String: [FontFile]] = [:]

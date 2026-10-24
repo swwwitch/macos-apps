@@ -1,19 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// 重複フォントを解決：ウォッチフォルダーの順で優先が決まらない重複を左右にカードで並べ、選んだものを規則として覚える
+/// 重複フォントを解決：ウォッチフォルダーの順で優先が決まらない重複を左右にカードで並べ、選んだものをその組の優先として覚える
 @MainActor
 enum DuplicateResolver {
-    /// 選んだときに覚える範囲
-    enum Scope: String, CaseIterable {
-        /// 2つのファイルの場所が分かれる最初のフォルダー（いちばん広い。同じ組み合わせの重複がまとめて片付く）
-        case branch
-        /// ファイルのあるフォルダー
-        case folder
-        /// この組だけ（ファイルごとの選択）
-        case pair
-    }
-
     /// 1組の重複。candidates は優先の候補として残っているファイル（2つ以上）
     struct Item: Identifiable {
         var name: String
@@ -36,10 +26,6 @@ enum DuplicateResolver {
         return (left[...index].joined(separator: "/"), right[...index].joined(separator: "/"))
     }
 
-    static func pair(_ a: FontFile, _ b: FontFile, scope: Scope) -> (String, String) {
-        scope == .branch ? branch(folder(of: a), folder(of: b)) : (folder(of: a), folder(of: b))
-    }
-
     /// 優先が決まらない組を、同じ分かれ目の組が多い順に並べる（上から選ぶほど早く片付く）
     static func items(skipping skipped: Set<String>) -> [Item] {
         let store = LibraryStore.shared
@@ -59,18 +45,9 @@ enum DuplicateResolver {
         }
     }
 
-    /// file を優先にする。規則にできない（同じフォルダーにある）相手は、この組だけの選択にする
-    static func choose(_ file: FontFile, in item: Item, scope: Scope) {
-        let store = LibraryStore.shared
-        guard scope != .pair else { store.pickPreferred(file, in: item.group); return }
-        var rules: [FolderRule] = []
-        var needsPick = false
-        for other in item.candidates where other.id != file.id {
-            let (preferred, loser) = pair(file, other, scope: scope)
-            if preferred == loser { needsPick = true } else { rules.append(FolderRule(preferred: preferred, other: loser)) }
-        }
-        if !rules.isEmpty { store.addFolderRules(rules) }
-        if needsPick { store.pickPreferred(file, in: item.group) }
+    /// file をこの組の優先にする（簡易版はフォルダーの規則を持たない、ユーザー指定）
+    static func choose(_ file: FontFile, in item: Item) {
+        LibraryStore.shared.pickPreferred(file, in: item.group)
     }
 
     /// 画面に出す場所：ホームは「~」、Dropbox は「Dropbox」から
@@ -116,7 +93,6 @@ private struct DuplicateResolverView: View {
     @ObservedObject private var store = LibraryStore.shared
     @State private var items: [DuplicateResolver.Item] = []
     @State private var skipped = Set<String>()
-    @State private var scope: DuplicateResolver.Scope = .branch
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -127,17 +103,16 @@ private struct DuplicateResolverView: View {
                     Spacer()
                     Text(L("残り %d組", items.count)).font(.callout).foregroundStyle(.secondary).monospacedDigit()
                 }
-                Text(L("優先するほうを選びます。選んだものは規則として覚え、同じフォルダーの組み合わせの重複にも使います。"))
+                Text(L("優先するほうを選びます。選んだものは、この組の優先として覚えます。"))
                     .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 12) {
                         ForEach(item.candidates) { file in
-                            DuplicateCard(file: file, item: item, scope: scope) { choose(file, in: item) }
+                            DuplicateCard(file: file) { choose(file, in: item) }
                         }
                     }
                     .padding(.bottom, 4)
                 }
-                scopePicker(item)
             } else {
                 Spacer()
                 HStack {
@@ -163,23 +138,8 @@ private struct DuplicateResolverView: View {
         .onAppear { reload() }
     }
 
-    /// 覚える範囲。分かれ目のフォルダーでは、同じ組み合わせの重複の数を出す
-    private func scopePicker(_ item: DuplicateResolver.Item) -> some View {
-        let sameKey = items.filter { $0.key == item.key }.count
-        return HStack(alignment: .firstTextBaseline) {
-            Text(L("覚える範囲 :"))
-            Picker("", selection: $scope) {
-                Text(L("分かれ目のフォルダー（同じ組み合わせ %d組）", sameKey)).tag(DuplicateResolver.Scope.branch)
-                Text(L("ファイルのあるフォルダー")).tag(DuplicateResolver.Scope.folder)
-                Text(L("この組だけ")).tag(DuplicateResolver.Scope.pair)
-            }
-            .pickerStyle(.radioGroup)
-            .labelsHidden()
-        }
-    }
-
     private func choose(_ file: FontFile, in item: DuplicateResolver.Item) {
-        DuplicateResolver.choose(file, in: item, scope: scope)
+        DuplicateResolver.choose(file, in: item)
         reload()
     }
 
@@ -191,8 +151,6 @@ private struct DuplicateCard: View {
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
     let file: FontFile
-    let item: DuplicateResolver.Item
-    let scope: DuplicateResolver.Scope
     let choose: () -> Void
 
     var body: some View {
@@ -208,7 +166,6 @@ private struct DuplicateCard: View {
                 info(L("大きさ"), size)
                 info(L("更新日"), modified)
                 info(L("状態"), store.states[file.id] == .active ? L("アクティブ") : L("非アクティブ"))
-                info(L("優先の単位"), DuplicateResolver.display(unit))
             }
             .font(.caption)
             Text(DuplicateResolver.display(file.path))
@@ -234,16 +191,6 @@ private struct DuplicateCard: View {
             Text(sample).font(Font(font)).lineLimit(2)
         } else {
             Text(L("プレビューできません")).foregroundStyle(.secondary)
-        }
-    }
-
-    /// 選んだ範囲で、このファイルが優先になるフォルダー（相手は先頭の別の候補）
-    private var unit: String {
-        guard let other = item.candidates.first(where: { $0.id != file.id }) else { return DuplicateResolver.folder(of: file) }
-        switch scope {
-        case .branch: return DuplicateResolver.branch(DuplicateResolver.folder(of: file), DuplicateResolver.folder(of: other)).0
-        case .folder: return DuplicateResolver.folder(of: file)
-        case .pair: return file.path
         }
     }
 
