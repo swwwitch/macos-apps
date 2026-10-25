@@ -35,7 +35,7 @@ residentDetail|閉じた後もDockやメニューバーから再表示できま�
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
 openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기
 shortcutDetail|ショートカットAppで「アプリを開く」にSettingsHopを指定し、キーを割り当ててください。未起動時も使えます。|In Shortcuts, create an Open App action for SettingsHop and assign a key. It works even when the app is not running.|在快捷指令中为 SettingsHop 创建“打开 App”并分配按键，应用未运行时也可使用。|단축어 앱에서 SettingsHop을 여는 동작을 만들고 키를 지정하세요. 앱이 실행 중이 아니어도 작동합니다.
-appHotkeyHint|SettingsHopの起動中に押すと、どのアプリからでもメインウインドウを表示します。未起動のときは上の「ショートカットを開く」で割り当てたキーを使ってください。|While SettingsHop is running, press it in any app to show the main window. When it is not running, use the key assigned with Open Shortcuts above.|SettingsHop 运行时，在任何应用中按下即可显示主窗口。未运行时请使用上方“打开快捷指令”中分配的按键。|SettingsHop이 실행 중일 때 어느 앱에서든 누르면 메인 윈도우를 표시합니다. 실행 중이 아닐 때는 위의 '단축어 열기'에서 지정한 키를 사용하세요.
+appHotkeyHint|SettingsHopの起動中に押すと、どのアプリからでもシステム設定を開きます。すばやく2回押すとメインウインドウを表示します。未起動のときは上の「ショートカットを開く」で割り当てたキーを使ってください。|While SettingsHop is running, press it in any app to open System Settings; press it twice quickly to show the main window. When it is not running, use the key assigned with Open Shortcuts above.|SettingsHop 运行时，在任何应用中按下即可打开系统设置；快速按两次则显示主窗口。未运行时请使用上方“打开快捷指令”中分配的按键。|SettingsHop이 실행 중일 때 어느 앱에서든 누르면 시스템 설정을 엽니다. 빠르게 두 번 누르면 메인 윈도우를 표시합니다. 실행 중이 아닐 때는 위의 '단축어 열기'에서 지정한 키를 사용하세요.
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
