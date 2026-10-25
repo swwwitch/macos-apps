@@ -159,4 +159,4 @@ Opening or reopening the app manually shows the main window. Automatic login lau
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
 
 ### Links
-- Tools > Links shows 13 fixed links in three categories. Settings > Fonts > Custom Links edits only the links you add: names, URLs, order and removal. They appear under Custom Links in the menu and are included in settings export and sync. The two unchanged defaults from older settings move to the fixed list; custom links are preserved.
+- Tools > Links shows 15 fixed links in three categories. Settings > Fonts > Custom Links edits only the links you add: names, URLs, order and removal. They appear under Custom Links in the menu and are included in settings export and sync. The two unchanged defaults from older settings move to the fixed list; custom links are preserved.

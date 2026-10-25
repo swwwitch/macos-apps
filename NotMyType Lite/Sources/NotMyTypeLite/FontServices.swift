@@ -24,15 +24,17 @@ enum FontServices {
     static let defaults = [
         FontServiceLink(name: "Adobe Fonts", url: "https://fonts.adobe.com/fonts", category: "vendors"),
         FontServiceLink(name: "Google Fonts", url: "https://fonts.google.com/", category: "vendors"),
-        FontServiceLink(name: "Fontworks", url: "https://fontworks.co.jp/", category: "vendors"),
+        FontServiceLink(name: "Fontworks（フォントワークス）", url: "https://fontworks.co.jp/", category: "vendors"),
         FontServiceLink(name: "Morisawa Fonts（モリサワ）", url: "https://morisawafonts.com/fonts/search/", category: "vendors"),
         FontServiceLink(name: "Type Project（タイププロジェクト）", url: "https://typeproject.com/", category: "vendors"),
         FontServiceLink(name: "OH MY FONT", url: "https://ohmyfont.jp/", category: "vendors"),
         FontServiceLink(name: "MyFonts", url: "https://www.myfonts.com/", category: "vendors"),
-        FontServiceLink(name: "デザインポケット", url: "https://designpocket.jp/", category: "vendors"),
+        FontServiceLink(name: "デザインポケット", url: "https://r.8to.jp/26SpFxAqU3bF", category: "vendors"),
         FontServiceLink(name: "nipponia", url: "https://nipponia.in/typefaces/", category: "vendors"),
         FontServiceLink(name: "Fonts In Use", url: "https://fontsinuse.com/", category: "examples"),
+        FontServiceLink(name: "Typewolf", url: "https://www.typewolf.com/", category: "examples"),
         FontServiceLink(name: "WhatTheFont", url: "https://www.myfonts.com/pages/whatthefont", category: "identify"),
+        FontServiceLink(name: "Fontspring Matcherator", url: "https://www.fontspring.com/matcherator", category: "identify"),
         FontServiceLink(name: "What the Free Font", url: "https://whatthefreefont.com/", category: "identify"),
         FontServiceLink(name: "モリサワ：AIでフォントを探す", url: "https://fontsjourney.morisawafonts.com/", category: "identify"),
     ]
@@ -65,7 +67,7 @@ enum FontServices {
     }
 }
 
-/// 標準13件を3カテゴリで表示し、追加分をカスタムリンクとして表示する
+/// 標準15件を3カテゴリで表示し、追加分をカスタムリンクとして表示する
 struct FontServicesMenu: View {
     @AppStorage(FontServices.key) private var raw = ""
 
