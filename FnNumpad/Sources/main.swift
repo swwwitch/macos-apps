@@ -14,6 +14,8 @@ final class Model: ObservableObject {
     @Published var groups = Model.loadGroups()
     @Published var ansiTrigger = Model.loadTrigger("trigger.ansi", .fn)
     @Published var jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
+    /// Off at first: Caps Lock (where it is the trigger) also works as ⌃ for keys that are not converted.
+    @Published var capsAsControl = UserDefaults.standard.bool(forKey: "capsAsControl")
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var paused = false
     @Published var trusted = AccessibilitySection.isTrusted
@@ -60,6 +62,7 @@ final class Model: ObservableObject {
         defaults.set(keepRunning, forKey: "keepRunning")
         defaults.set(ansiTrigger.rawValue, forKey: "trigger.ansi")
         defaults.set(jisTrigger.rawValue, forKey: "trigger.jis")
+        defaults.set(capsAsControl, forKey: "capsAsControl")
         refresh()
     }
 
@@ -69,6 +72,7 @@ final class Model: ObservableObject {
         groups = Model.loadGroups()
         ansiTrigger = Model.loadTrigger("trigger.ansi", .fn)
         jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
+        capsAsControl = defaults.bool(forKey: "capsAsControl")
         refresh()
     }
 
@@ -86,7 +90,8 @@ final class Model: ObservableObject {
         tapRunning = tap.isRunning
         let front = NSWorkspace.shared.frontmostApplication
         excludedFront = ExcludedApps.shared.excludes(front?.bundleIdentifier) ? (front?.localizedName ?? front?.bundleIdentifier ?? "") : nil
-        tap.update(TapState(active: enabled && !paused && excludedFront == nil, groups: groups, ansiTrigger: ansiTrigger, jisTrigger: jisTrigger))
+        tap.update(TapState(active: enabled && !paused && excludedFront == nil, groups: groups, ansiTrigger: ansiTrigger, jisTrigger: jisTrigger,
+                             capsAsControl: enabled && !paused && capsAsControl))
     }
 
     var problem: Bool { !trusted || !tapRunning || !enabled || paused }
@@ -234,6 +239,9 @@ struct Preferences: View {
                         ForEach(TriggerKey.allCases) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.segmented).fixedSize()
+                    Toggle(L("capsAsControl"), isOn: Binding(get: { model.capsAsControl }, set: { model.capsAsControl = $0; model.save() }))
+                        .padding(.top, 4)
+                    Text(L("capsAsControlHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Text(L("triggerHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 .disabled(!model.enabled)
@@ -272,7 +280,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         ExcludedApps.shared.onChange = { [weak self] in self?.model.excludedAppsChanged() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(
-            keys: Set(["conversionEnabled", "trigger.ansi", "trigger.jis"] + KeyGroup.allCases.map(\.defaultsKey)),
+            keys: Set(["conversionEnabled", "trigger.ansi", "trigger.jis", "capsAsControl"] + KeyGroup.allCases.map(\.defaultsKey)),
             note: StartupWindow.text("テンキー変換のオン・オフと、使うキーのグループを書き出し・同期します。",
                                      "Exports and syncs whether conversion is on and which key groups are used.",
                                      "导出并同步数字键盘转换的开关以及使用的按键组。",

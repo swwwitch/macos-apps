@@ -9,6 +9,9 @@ struct TapState: Equatable {
     var groups: Set<KeyGroup> = Set(KeyGroup.allCases)
     var ansiTrigger = TriggerKey.fn
     var jisTrigger = TriggerKey.capsLock
+    /// Caps Lock (where it is the trigger) also works as a real ⌃ for keys that are not converted.
+    /// On whenever conversion is on and not paused, also in excluded apps (same as ControlMate).
+    var capsAsControl = false
 }
 
 /// Turns Fn+key into keypad keys with a session event tap (needs Accessibility).
@@ -86,7 +89,9 @@ final class NumpadTap: @unchecked Sendable {
         default:
             return Unmanaged.passUnretained(event)
         }
-        if event.getIntegerValueField(.eventSourceUserData) == Self.marker { return Unmanaged.passUnretained(event) }
+        // Keys typed by FnNumpad, ControlMate or any other app (non-zero source data) are never touched, so two apps that
+        // both read Caps Lock do not add ⌃ to each other's output.
+        if event.getIntegerValueField(.eventSourceUserData) != 0 { return Unmanaged.passUnretained(event) }
         let code = event.getIntegerValueField(.keyboardEventKeycode)
         let down = type == .keyDown
         let repeating = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
@@ -101,7 +106,7 @@ final class NumpadTap: @unchecked Sendable {
             // Caps Lock's release is not an event, so its physical state is asked only when it can be the trigger.
             let capsDown = down && !repeating && trigger.usesCapsLock && CGEventSource.keyState(.hidSystemState, key: 57)
             guard down, !repeating, state.active, trigger.pressed(fn: event.flags.contains(.maskSecondaryFn), capsLock: capsDown),
-                  let found = KeyMap.mapping(for: code, groups: state.groups) else { return Unmanaged.passUnretained(event) }
+                  let found = KeyMap.mapping(for: code, groups: state.groups) else { return passOn(event, state: state, trigger: trigger) }
             mapping = found
             if capsDown, let onCapsUsed { DispatchQueue.main.async { onCapsUsed() } }
             held[code] = found
@@ -126,6 +131,17 @@ final class NumpadTap: @unchecked Sendable {
         return Unmanaged.passRetained(output)
     }
 
+    /// A key that is not converted goes on as it is; with 「Caps Lock を常に ⌃ として扱う」 and Caps Lock down, it gets ⌃.
+    private func passOn(_ event: CGEvent, state: TapState, trigger: TriggerKey) -> Unmanaged<CGEvent>? {
+        if state.capsAsControl && trigger.usesCapsLock && CGEventSource.keyState(.hidSystemState, key: 57) {
+            var flags = event.flags
+            flags.insert(.maskControl); flags.remove(.maskAlphaShift)
+            event.flags = flags
+            if let onCapsUsed { DispatchQueue.main.async { onCapsUsed() } }
+        }
+        return Unmanaged.passUnretained(event)
+    }
+
     /// A new event, so the characters come from the keypad key and not from the letter that was pressed.
     static func makeEvent(_ target: KeyTarget, down: Bool, like original: CGEvent) -> CGEvent? {
         guard let event = CGEvent(keyboardEventSource: CGEventSource(stateID: .privateState), virtualKey: CGKeyCode(target.code), keyDown: down) else { return nil }
@@ -133,6 +149,7 @@ final class NumpadTap: @unchecked Sendable {
         event.timestamp = original.timestamp
         event.setIntegerValueField(.keyboardEventAutorepeat, value: original.getIntegerValueField(.keyboardEventAutorepeat))
         event.setIntegerValueField(.keyboardEventKeyboardType, value: original.getIntegerValueField(.keyboardEventKeyboardType))
+        event.setIntegerValueField(.eventSourceUserData, value: marker)
         return event
     }
 
