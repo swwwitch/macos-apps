@@ -1,0 +1,46 @@
+## Basics
+Click an item in the SettingsHop window to open that pane in System Settings.
+- System Settings (⌘1): opens System Settings. If it is already open, it comes to the front showing the last pane.
+- Privacy & Security
+- Accessibility (⌘2)
+- Full Disk Access (⌘3)
+- Files and Folders (⌘4)
+- Screen & System Audio Recording (⌘5)
+- Input Monitoring
+- Automation
+- Login Items (⌘6): General > Login Items & Extensions
+- Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row.
+
+## Option-click
+Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
+- Keyboard Shortcuts (⌘8): opens Keyboard Shortcuts… in Keyboard, on the section shown last.
+- AirDrop & Handoff (⌘9): General > AirDrop & Handoff
+The same items are in the File menu. When the menu bar icon is shown, its menu opens them too.
+
+## Settings
+Choose SettingsHop > Settings… (⌘,).
+- Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon, the app launch keyboard shortcut and the show app shortcut (⌃⌥Q by default).
+- General: with “Close the window after opening an item” on, the window closes after you open an item with its button or ⌘1–⌘9. Opening from the menu bar is not affected.
+- Settings Sharing: export, import and sync settings.
+- About: version and links.
+
+## Keyboard shortcuts
+- ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
+- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring and Automation) (while SettingsHop is active)
+- ↑↓: choose an item, Return: open it (main window)
+- ⌘0: Open Main Window
+- ⌘,: Settings
+- ⌘W: Close Window
+- ⌘?: this help
+Press ⌃⌥Q, then ⌘1–⌘9, to open a pane from the keyboard alone. To call SettingsHop even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
+
+## Permissions
+Accessibility permission is used only to scroll to the Default web browser row and to select an app's row with Option-click. Allow it with Open Accessibility Settings in Settings › Launch & Residency. Without it, the panes still open. SettingsHop never changes permission switches or reads or changes settings.
+
+## Keeping running and quitting
+With “Keep running after closing the window” on, SettingsHop keeps running after you close the window. Open it again from the Dock or Finder, or show the window from the menu bar icon. To quit, choose SettingsHop > Quit SettingsHop (⌘Q).
+
+## Troubleshooting
+- System Settings opens at the top instead of the pane: pane identifiers can change between macOS versions, so that pane may not open on your macOS.
+- “Could not open” appears: check that System Settings can open.
+- The window is gone: click SettingsHop in the Dock, or open it again from Finder.
