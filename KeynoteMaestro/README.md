@@ -71,3 +71,9 @@ Palette settings include an independent **Show Palette** hotkey (initially unass
 
 
 The palette is visible only while a supported Keynote is frontmost. Switching away temporarily hides it; returning restores it only if it was open. Closing the palette cancels automatic restoration.
+
+## 2026-10-25 Dock非表示時のメニュー修正（1.2.2 build 29）
+
+メイン・設定ウインドウがある間はアプリメニューを使用でき、最小化中もDock・⌘Tabに残ります。最後の対象ウインドウを閉じると再び隠し、非アクティブパレットと保存済みの設定値を保持します。
+
+Developer ID署名・アプリ/DMG公証Accepted。両配置先の内容・署名・公証チケットと、/Applications版の起動を確認。 各アプリの画面操作と実ログインの確認範囲は別途配布記録に記載。

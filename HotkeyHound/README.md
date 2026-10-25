@@ -54,3 +54,9 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - 0.1.2（build 4）2026-10-12：照合元にKeystroke Pro・自作アプリ（CommandDee・MightyEdit・FolderHopper・KageTrimmer・KakkoReplace・BrowserSwitcher が共通ファイルに書き出したもの）・KeyboardShortcuts形式のアプリ（DemoProなど）を追加。
 - 0.1.1（build 3）2026-10-12：照合元にAlfredを追加（呼び出しキー・クリップボード履歴などの機能・ワークフローのホットキー）。
 - 0.1.0（build 2）2026-10-11：初版。
+
+## 2026-10-25 Dock非表示時のメニュー修正（0.4.0 build 18）
+
+メイン・設定ウインドウがある間はアプリメニューを使用でき、最小化中もDock・⌘Tabに残ります。最後の対象ウインドウを閉じると再び隠し、非アクティブパレットと保存済みの設定値を保持します。
+
+Developer ID署名・アプリ/DMG公証Accepted。両配置先の内容・署名・公証チケットと、/Applications版の起動を確認。 各アプリの画面操作と実ログインの確認範囲は別途配布記録に記載。
