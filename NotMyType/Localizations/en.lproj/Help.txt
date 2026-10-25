@@ -219,3 +219,5 @@ Even with Hide from Dock and App Switcher on, a main or settings window keeps th
 Selecting the app with Command-Tab restores the main window when no normal window is visible. An open Settings or Help window stays in front.
 
 The Favorites context-menu item shows a checkmark when registered. Click a checked set in Add to Set to remove the selected fonts from that set. A mixed state adds all selected fonts.
+
+Switching to another sidebar category clears the search query. Option-click a category to keep the current query.

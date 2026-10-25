@@ -84,6 +84,14 @@ final class LibraryStore: ObservableObject {
     // 絞り込みの書体数と選択肢の数は、サイドバーで選んだ範囲で数えるので一緒に捨てる
     @Published var sidebar: SidebarItem = .all { didSet { shownCache = nil; faceCountCache = nil; filterCache = nil; listVersion += 1 } }
     @Published var selection = Set<String>()
+    /// Explicit sidebar navigation; keep search only for Option-click.
+    func selectSidebar(_ item: SidebarItem, keepingSearch: Bool? = nil) {
+        let preserve = keepingSearch ?? (NSApp.currentEvent?.modifierFlags ?? NSEvent.modifierFlags).contains(.option)
+        if sidebar != item && !preserve { searchText = "" }
+        sidebar = item
+        selection.removeAll()
+    }
+
     @Published var searchText = "" { didSet { shownCache = nil; listVersion += 1 } }
     /// 検索オプションの絞り込み：文字セット（"—" は文字セットの名前が無いもの）・形式・種類・ファミリーの書体数・収録文字数。nil は絞り込まない
     @Published var charsetFilter: String? { didSet { shownCache = nil; listVersion += 1 } }

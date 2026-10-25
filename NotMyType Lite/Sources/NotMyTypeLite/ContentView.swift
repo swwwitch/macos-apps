@@ -130,7 +130,7 @@ private struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.sidebar = item; store.selection.removeAll() } })) {
+            List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
                 Section(isExpanded: $expandedLibrary) {
                     row(.all, L("すべてのフォント"), "textformat")
                     row(.duplicates, L("重複"), "square.on.square")

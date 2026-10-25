@@ -159,7 +159,7 @@ private struct SidebarView: View {
             }
             .padding(.horizontal, 8)
             .padding(.top, 6)
-            List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.sidebar = item; store.selection.removeAll() } })) {
+            List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
                 Section(isExpanded: $expandedLibrary) {
                     row(.all, L("すべてのフォント"), "textformat")
                     row(.duplicates, L("重複"), "square.on.square")
@@ -246,7 +246,9 @@ private struct SidebarView: View {
                     // 自分で条件を作ったスマートセット
                     ForEach(store.data.smartSets) { smartSet in
                         row(.smartSet(smartSet.id), smartSet.name, "gearshape")
-                            .simultaneousGesture(TapGesture(count: 2).onEnded { SmartSetEditorWindow.shared.show(smartSet, isNew: false) })
+                            .background(SidebarRowClick(select: { preserveSearch in
+                                store.selectSidebar(.smartSet(smartSet.id), keepingSearch: preserveSearch)
+                            }, edit: { SmartSetEditorWindow.shared.show(smartSet, isNew: false) }))
                             .contextMenu {
                                 Button(L("スマートセットを編集…")) { SmartSetEditorWindow.shared.show(smartSet, isNew: false) }
                                 Button(L("スマートセットを削除…")) { store.deleteSmartSet(smartSet.id) }
@@ -304,24 +306,22 @@ private struct SidebarView: View {
             .help(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
             .accessibilityLabel(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
             HStack(spacing: 6) {
-            Label(project.name, systemImage: "doc.text").lineLimit(1)
-            Spacer()
-            if project.pendingCount > 0 {
-                Image(systemName: "questionmark.circle").foregroundStyle(.orange).font(.caption)
-                    .help(L("確認待ちの候補 %d", project.pendingCount))
-            }
-            if !project.missing.isEmpty {
-                Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange).font(.caption)
-                    .help(L("ライブラリに無いフォント %d", project.missing.count))
-            }
-            Text("\(store.count(.project(project.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                Label(project.name, systemImage: "doc.text").lineLimit(1)
+                Spacer()
+                if project.pendingCount > 0 {
+                    Image(systemName: "questionmark.circle").foregroundStyle(.orange).font(.caption)
+                        .help(L("確認待ちの候補 %d", project.pendingCount))
+                }
+                if !project.missing.isEmpty {
+                    Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange).font(.caption)
+                        .help(L("ライブラリに無いフォント %d", project.missing.count))
+                }
+                Text("\(store.count(.project(project.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
             .contentShape(Rectangle())
-            .onTapGesture(count: 2) { ProjectEditorWindow.shared.show(project.id) }
-            .onTapGesture {
-                store.sidebar = .project(project.id)
-                store.selection.removeAll()
-            }
+            .background(SidebarRowClick(select: { preserveSearch in
+                store.selectSidebar(.project(project.id), keepingSearch: preserveSearch)
+            }, edit: { ProjectEditorWindow.shared.show(project.id) }))
         }
         .tag(SidebarItem.project(project.id))
     }
