@@ -12,8 +12,8 @@
 | B01 | 二重起動防止 | 実装済み・実機未確認 | `main.swift` applicationWillFinishLaunching（Bundle IDで既存インスタンスへ戻す）＋LSMultipleInstancesProhibited。ファイルは受け取らない |
 | B02 | ログイン起動設定 | 実装済み・実機未確認 | 共通 `Shared/LoginAtLaunch/LoginAtLaunch.swift`。初期値OFF |
 | B03 | ログイン時の非表示 | 実装済み・実機未確認 | `LaunchPolicy.isLoginLaunch`＋`StartupWindow.suppressInitialWindow` |
-| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても常駐」初期値ON（閉じても監視を続ける）。Dock再オープン・メニューバー（MenuBarPresence）・⌃⌥Tから再表示 |
-| B05 | 終了と処理保護 | 実装済み・実機未確認 | アプリメニューに⌘Q。終了時にタイマーとパネルを止める（applicationWillTerminate） |
+| B04 | 常駐と再表示 | 実機確認済み | 「ウインドウを閉じても常駐」初期値ON（閉じても監視を続ける）。Dock再オープン・メニューバー（MenuBarPresence）・⌃⌥Tから再表示 |
+| B05 | 終了と処理保護 | 実機確認済み | アプリメニューに⌘Q。終了時にタイマーとパネルを止める（applicationWillTerminate） |
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘0、⌘N（新しいルール）、⌘W、⌘,、⌘?、編集メニュー。ルールの編集シートはEscで取消・Returnで保存 |
 | B07 | ショートカット管理 | 実装済み・実機未確認 | 機能のグローバルホットキーは無い。アプリを呼び出す⌃⌥Tは共通HotkeyFieldで変更・無効化・初期値に戻す・解除、登録失敗を表示。KMとsw_appの既定キーと照合して重複なし（2026-10-26） |
 | B08 | 設定・位置の保持 | 実装済み・実機未確認 | rules（JSON）・paused・dropboxPrompt・noticeSecondsをUserDefaultsに保存、setFrameAutosaveName、画面外なら中央へ |
@@ -24,7 +24,7 @@
 | B13 | 待機負荷・復帰 | 実装済み・実機未確認 | 変更通知APIが無いため0.3秒（許容0.15秒）のタイマーでchangeCountだけ比べる。一時停止中はタイマーを止める。CPU・メモリは未計測 |
 | B14 | 見出し左の現行アプリアイコン・共通ヘッダー・表示・アクセシビリティ | 一部実機確認済み | currentAppIcon()＋機能見出し「コピーした文字を整える」＋補足、AppSurface背景、画像だけのボタンにaccessibilityLabel。ライトモードの画面を撮影して確認。ダークモード・VoiceOverは未確認 |
 | B15 | 多言語 | 自動テスト済み | `make-resources.py` で4言語、`test.sh` でキーとプレースホルダーの一致、ヘルプを検証 |
-| B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実装済み・実機未確認 | ヘルプメニュー（⌘?）とメニューバーからHelp.txt。note記事は未作成のためまとめページ |
+| B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実機確認済み | ヘルプメニュー（⌘?）とメニューバーからHelp.txt。note記事は未作成のためまとめページ |
 | B17 | プライバシー | ソース確認済み | 外部通信なし（更新の配信先は未設定）。履歴はメモリのみ。秘密・一時的の印がある内容は読まない |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置確認済み | `build.sh --deploy`（publish_latest.py）。更新は未設定のため準備中。Developer ID署名・公証は未実施 |
 | B19 | マスタード基調の共通アイコン | 実機確認済み | `Assets/GenerateIcon.swift`（SettingsHopと同じ地色・縁・影）。モチーフはクリップボードと輝き。1024pxと主画面の52pxで確認 |
@@ -47,7 +47,6 @@
 - ソース確認：実施
 - ビルド・自動テスト：`./build.sh` 成功（自作ソースの警告なし）。`./test.sh` 全件合格
 - 実機（build版）：主画面の表示を撮影。Finderを前面にして `pbcopy` で `https://mobile.twitter.com/swwwitch` をコピー → `https://twitter.com/swwwitch` に書き換わることを確認。Dropboxの共有リンクで右上にパネル（ファイル名「test2.pdf」）が出ることを確認。［直接ダウンロード］のクリックはパネルの中身がアクセシビリティから見えず未確認
-- 閉じる・再表示・⌘Q・設定画面・ヘルプ：未実施
-- 再ログイン・OS側で自動起動OFF：未実施
-- 別コピー起動：未実施
 - /ApplicationsとLatest Buildsへの配置：実施（publish_latest.pyで版・build・署名・内容一致を確認）。/Applications版を起動し `ps` でパスを確認
+- 工程2の実機確認（/Applications版、2026-10-26）：ウインドウを閉じても常駐、Finderからの開き直しで再表示、⌘Qで終了、再起動、設定の差分なし（ウインドウ位置・メニューバー項目の位置を除く）、［設定…］（⌘,）とヘルプメニューからヘルプが開く
+- 再ログイン・OS側で自動起動OFF・別コピー起動：未実施
