@@ -170,19 +170,21 @@ final class AccessibilitySettingsLocator {
     private func text(_ ja: String, _ en: String, _ zh: String, _ ko: String) -> String {
         StartupWindow.text(ja, en, zh, ko)
     }
+    static let accessibilityPaneURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+    /// `names` / `paneURL`: select another app's row, or in another Privacy list (SettingsHop's Option-click). Omitted = this app in Accessibility.
     @discardableResult
-    func open(required: Bool = true, feedback: @escaping (String) -> Void = { _ in }) -> Bool {
+    func open(required: Bool = true, names: [String]? = nil, paneURL: URL = accessibilityPaneURL, feedback: @escaping (String) -> Void = { _ in }) -> Bool {
         task?.cancel()
         feedback(AccessibilityText.text("hint"))
         return AccessibilitySettingsOpening.open(required: required, openPane: {
-            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
-        }, isTrusted: { AXIsProcessTrusted() }, assist: { start(feedback: feedback) })
+            NSWorkspace.shared.open(paneURL)
+        }, isTrusted: { AXIsProcessTrusted() }, assist: { start(names: names, feedback: feedback) })
     }
-    private func start(feedback: @escaping (String) -> Void) {
-        let names = [Bundle.main.bundleURL.deletingPathExtension().lastPathComponent,
-                     Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String,
-                     Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String]
-            .compactMap { $0 }.filter { !$0.isEmpty }
+    private func start(names wanted: [String]?, feedback: @escaping (String) -> Void) {
+        let names = (wanted ?? [Bundle.main.bundleURL.deletingPathExtension().lastPathComponent,
+                                Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String,
+                                Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String].compactMap { $0 })
+            .filter { !$0.isEmpty }
         guard !names.isEmpty else { return }
         task = Task { [weak self] in
             var sawSettings = false
