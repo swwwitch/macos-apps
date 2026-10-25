@@ -13,3 +13,7 @@
 [開発共通ルール](AGENTS.md)・[共通仕様](Shared/AppStandards/BASELINE.md)・[リリース作業チェックリスト](Shared/BuildTools/RELEASE-CHECKLIST.md)に従う。
 
 ソースの同期は配布物の更新とは別工程。アプリの署名・公証・実機動作・公開ダウンロードは個別に検証する。
+
+## ローカルの索引
+
+[アプリ・ビルド入口・リリース記録の索引](.local/WORKSPACE-INDEX.md) と [.localの内容と復元方法](.local/README.md) を参照してください。索引はローカル専用です。
