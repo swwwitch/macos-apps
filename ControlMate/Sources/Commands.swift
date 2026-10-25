@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 
 /// Modifiers besides the trigger (⌃ or Caps Lock): what a command needs, and what a replacement key carries.
 struct Mods: OptionSet, Hashable {
@@ -46,6 +47,12 @@ enum Action: Equatable {
     case killToLineEnd, killToLineStart, yank, selectParagraph, moveParagraphUp, moveParagraphDown
     /// ⌃A / ⌃E: start / end of the paragraph, as macOS's own ⌃A / ⌃E; with ⇧ the selection is extended.
     case paragraphStart, paragraphEnd
+    /// Selects with the strokes, then cuts into the kill buffer (for apps whose text Accessibility cannot read).
+    case killSelecting([Stroke])
+    /// InDesign's ⌃K: runs the user's script (deletes to the paragraph end, keeps a trailing 「。」); without it, killSelecting.
+    case inDesignScript(path: String, fallback: [Stroke])
+    /// Not available in this app; the reason shows as the last command.
+    case unsupported
 }
 
 /// The four categories of the 「キー」 settings and the main window.
@@ -107,9 +114,9 @@ enum CommandTable {
         Command(id: "selectParagraph", key: 1, keyLabel: "S", group: .paragraph, category: .editing, action: .selectParagraph),
         Command(id: "copyToLineStart", key: 7, keyLabel: "X", mods: .command, group: .assist, category: .editing,
                 action: .keys([Stroke(code: 123, mods: [.shift, .command], label: "⇧⌘←"), Stroke(code: 8, mods: .command, label: "⌘C")])),
-        Command(id: "copyToLineEnd", key: 40, keyLabel: "K", mods: .command, group: .assist, category: .editing,
+        Command(id: "copyToLineEnd", key: 6, keyLabel: "Z", mods: .command, group: .assist, category: .editing,
                 action: .keys([Stroke(code: 124, mods: [.shift, .command], label: "⇧⌘→"), Stroke(code: 8, mods: .command, label: "⌘C")])),
-        Command(id: "copyToTextEnd", key: 7, keyLabel: "X", mods: [.option, .command], group: .assist, category: .editing,
+        Command(id: "copyToTextEnd", key: 6, keyLabel: "Z", mods: [.option, .command], group: .assist, category: .editing,
                 action: .keys([Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         // Kill/Yank
         Command(id: "killLine", key: 40, keyLabel: "K", group: .basic, category: .killYank, standard: true, ignoresPassthrough: true, action: .killToLineEnd),
@@ -139,20 +146,54 @@ enum CommandTable {
         commands.first { $0.key == code && ($0.mods == mods || ($0.carriesShift && $0.mods.union(.shift) == mods)) }
     }
 
-    /// Apps that have the command under another key: that key is sent instead of ControlMate's own handling.
-    static let nativeKeys: [String: [String: Action]] = [
-        "com.microsoft.VSCode": ["moveParagraphUp": .keys([Stroke(code: 126, mods: .option, label: "⌥↑")]),
-                                 "moveParagraphDown": .keys([Stroke(code: 125, mods: .option, label: "⌥↓")])],
+    /// What a command does in one app instead of the usual.
+    enum Override: Equatable {
+        /// The app's own keys (or another way of doing it).
+        case action(Action)
+        /// Left to the app (or to Keyboard Maestro): the key is not replaced.
+        case skip
+    }
+
+    static let copy = Stroke(code: 8, mods: .command, label: "⌘C")
+    static let paragraphUpSelect = Stroke(code: 126, mods: [.shift, .command], label: "⇧⌘↑")
+    static let paragraphDownSelect = Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓")
+    /// The user's InDesign script for ⌃K (same as the former Keyboard Maestro macro).
+    static let inDesignKillScript = NSString(string: "~/Git/indesign-scripts/jsx/text/IdDeleteFromCursorToEnd.jsx").expandingTildeInPath
+
+    static let overrides: [String: [String: Override]] = [
+        "com.microsoft.VSCode": ["moveParagraphUp": .action(.keys([Stroke(code: 126, mods: .option, label: "⌥↑")])),
+                                 "moveParagraphDown": .action(.keys([Stroke(code: 125, mods: .option, label: "⌥↓")]))],
+        // InDesign: ⌘← / ⌘→ move by word and the text cannot be read through Accessibility, so InDesign's own keys are used
+        // (⇧⌘↑ / ⇧⌘↓ select to the paragraph start / end, Home / End go to the line start / end).
+        // ⌃U and ⌃M stay with Keyboard Maestro's InDesign macros.
+        "com.adobe.InDesign": [
+            "lineStart": .action(.keys([paragraphUpSelect, left])),
+            "lineEnd": .action(.keys([paragraphDownSelect, right, left])),
+            "copyToLineStart": .action(.keys([Stroke(code: 115, mods: .shift, label: "⇧Home"), copy])),
+            "copyToLineEnd": .action(.keys([Stroke(code: 119, mods: .shift, label: "⇧End"), copy])),
+            "copyToTextEnd": .action(.keys([Stroke(code: 119, mods: [.shift, .command], label: "⇧⌘End"), copy])),
+            "selectParagraph": .action(.keys([paragraphUpSelect, left, paragraphDownSelect, copy])),
+            "killLine": .action(.inDesignScript(path: inDesignKillScript, fallback: [paragraphDownSelect, Stroke(code: 123, mods: .shift, label: "⇧←")])),
+            "killToLineStart": .action(.killSelecting([paragraphUpSelect])),
+            "moveParagraphUp": .action(.unsupported),
+            "moveParagraphDown": .action(.unsupported),
+            "pageUp": .skip,
+            "enter": .skip,
+        ],
     ]
 
     /// The commands for one app: native keys swapped in, groups passed through and commands turned off left out.
     static func resolved(bundleID: String?, passthrough: [KeyGroup: [String]], disabled: Set<String>) -> [Command] {
-        let native = bundleID.flatMap { id in nativeKeys.first { $0.key.caseInsensitiveCompare(id) == .orderedSame }?.value } ?? [:]
+        let native = bundleID.flatMap { id in overrides.first { $0.key.caseInsensitiveCompare(id) == .orderedSame }?.value } ?? [:]
         return all.compactMap { command in
             guard !disabled.contains(command.id) else { return nil }
             if !command.ignoresPassthrough, let bundleID, passthrough[command.group]?.contains(where: { $0.caseInsensitiveCompare(bundleID) == .orderedSame }) == true { return nil }
             var command = command
-            if let action = native[command.id] { command.action = action }
+            switch native[command.id] {
+            case .skip: return nil
+            case .action(let action): command.action = action
+            case nil: break
+            }
             return command
         }
     }
@@ -168,7 +209,7 @@ enum CommandTable {
         .paragraph: ["com.google.Chrome", "org.mozilla.firefox", "com.microsoft.Word", "notion.id", "com.stairways.keyboardmaestro.editor"],
     ]
     /// The shared 「対象外アプリ」 list: nothing is replaced in these.
-    static let initialExcluded = ["com.adobe.illustrator", "com.adobe.InDesign"]
+    static let initialExcluded = ["com.adobe.illustrator"]
 }
 
 /// The key held instead of ⌃, chosen separately for JIS and other keyboards.

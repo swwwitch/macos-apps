@@ -62,6 +62,9 @@ final class TextActions: @unchecked Sendable {
             case .moveParagraphDown: failure = moveParagraph(pid: pid, up: false)
             case .paragraphStart: failure = moveToParagraphEdge(pid: pid, end: false, extend: extend)
             case .paragraphEnd: failure = moveToParagraphEdge(pid: pid, end: true, extend: extend)
+            case .killSelecting(let strokes): failure = killSelecting(strokes, pid: pid)
+            case .inDesignScript(let path, let fallback): failure = runInDesignScript(path, fallback: fallback, pid: pid)
+            case .unsupported: failure = L("result.unsupported")
             case .keys: failure = nil
             }
             if let onResult { DispatchQueue.main.async { MainActor.assumeIsolated { onResult(failure) } } }
@@ -102,6 +105,34 @@ final class TextActions: @unchecked Sendable {
         restore(saved)
         killed = cut
         return nil
+    }
+
+    /// Selects with the app's own keys, then cuts into the kill buffer.
+    private func killSelecting(_ strokes: [Stroke], pid: pid_t) -> String? {
+        let saved = ClipboardContents.read()
+        for stroke in strokes { KeySender.send(stroke, to: pid) }
+        guard let cut = cutSelection(pid: pid) else { return L("result.killFailed") }
+        restore(saved)
+        killed = cut
+        lastKill = nil
+        return nil
+    }
+
+    /// Runs a script in InDesign as one undo step (InDesign's ⌃K). Without the script file, kills with the app's keys.
+    private func runInDesignScript(_ path: String, fallback: [Stroke], pid: pid_t) -> String? {
+        guard FileManager.default.fileExists(atPath: path) else { return killSelecting(fallback, pid: pid) }
+        let quoted = path.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        let source = "tell application id \"com.adobe.InDesign\" to do script (POSIX file \"\(quoted)\") language javascript undo mode entire script"
+        // NSAppleScript is used on the main thread only.
+        let message: String? = DispatchQueue.main.sync {
+            var error: NSDictionary?
+            NSAppleScript(source: source)?.executeAndReturnError(&error)
+            guard let error else { return nil }
+            let code = error[NSAppleScript.errorNumber] as? Int ?? 0
+            // -1743: Automation not allowed for InDesign.
+            return code == -1743 ? L("result.automationDenied") : String(format: L("result.scriptFailed"), error[NSAppleScript.errorMessage] as? String ?? String(code))
+        }
+        return message
     }
 
     private func yank(pid: pid_t) -> String? {

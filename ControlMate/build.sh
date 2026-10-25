@@ -36,7 +36,7 @@ SIGNING_OPTIONS=(--timestamp=none)
 if [[ "${CONTROLMATE_DISTRIBUTION:-local}" == "developer-id" ]]; then
     SIGNING_IDENTITY=$(security find-identity -v -p codesigning | awk '/"Developer ID Application:.*\(PL9S9PXX96\)"/ {print $2; exit}')
     [[ -n "$SIGNING_IDENTITY" ]] || { print -u2 "Developer ID Application certificate with private key is required for team PL9S9PXX96."; exit 1; }
-    SIGNING_OPTIONS=(--options runtime --timestamp)
+    SIGNING_OPTIONS=(--options runtime --timestamp --entitlements Entitlements.plist)
     [[ -d "$APP/Contents/Frameworks/Sparkle.framework" ]] && codesign --force --deep --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$APP/Contents/Frameworks/Sparkle.framework"
 fi
 codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$APP"

@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026年10月26日 — ControlMate 1.3.0（build 4）
+
+- コピー系のキーを変更：行末まで選択してコピー ⌃⌘K → ⌃⌘Z、文章の末尾まで選択してコピー ⌃⌥⌘X → ⌃⌥⌘Z（⌃K はカットを表すため）。
+- InDesign を対象外から外し、InDesign 用に調整：⌃A／⌃E／コピー系は InDesign 自身のキー（⇧⌘↑・⇧⌘↓・Home・End）、⌃K は IdDeleteFromCursorToEnd.jsx を実行（オートメーションの許可）、⌃X・⌃S は選択してからカット／コピー、段落の入れ替えは使えない旨を表示、⌃U・⌃M は Keyboard Maestro の InDesign 用マクロに任せる。
+- アプリ別の差し替え表に「別の動き」「キーを通す」を指定できるようにした。Info.plist に NSAppleEventsUsageDescription、配布用署名に Entitlements.plist（apple-events）。
+- Keyboard Maestro「InDesign：Emacキーバインド」の重なる10本（前の文字・次の文字・前の行・次の行・段落末尾・削除（次の文字）・esc・Tab・Kill・Yank）を個別にオフ（ユーザー指示）。
+- 自動テスト・ビルド・両配置先の一致・起動を確認。InDesign での実機確認と公証は未実施。
+
 ## 2026年10月26日 — ControlMate 1.2.0（build 3）
 
 - テキスト編集（拡張）に「文章の末尾まで選択してコピー」（⌃⌥⌘X）を追加。

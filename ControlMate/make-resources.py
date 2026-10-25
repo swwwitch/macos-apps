@@ -115,10 +115,10 @@ T = {
                          '暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
                          '⇧를 더하면 선택하면서 이동합니다. ⌃K로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y로 붙여넣습니다. '
                          '보관함은 클립보드와 별개이므로 ⌘C로 복사한 내용은 바뀌지 않습니다.'),
-    'group.assist.hint': ('⌃J は日本語入力の変換を確定してから右へ移動します。⌃⌘X／⌃⌘K はカーソルから行頭／行末までを選択してクリップボードにコピーします。',
-                          '⌃J confirms the input method\'s text, then moves right. ⌃⌘X / ⌃⌘K select from the caret to the line start / end and copy it to the clipboard.',
-                          '⌃J 先确认输入法的文字，再向右移动。⌃⌘X／⌃⌘K 选择从光标到行首／行尾的文字并拷贝到剪贴板。',
-                          '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다. ⌃⌘X / ⌃⌘K는 커서부터 행 처음 / 끝까지 선택해 클립보드에 복사합니다.'),
+    'group.assist.hint': ('⌃J は日本語入力の変換を確定してから右へ移動します。⌃⌘X／⌃⌘Z はカーソルから行頭／行末までを選択してクリップボードにコピーします。',
+                          '⌃J confirms the input method\'s text, then moves right. ⌃⌘X / ⌃⌘Z select from the caret to the line start / end and copy it to the clipboard.',
+                          '⌃J 先确认输入法的文字，再向右移动。⌃⌘X／⌃⌘Z 选择从光标到行首／行尾的文字并拷贝到剪贴板。',
+                          '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다. ⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 끝까지 선택해 클립보드에 복사합니다.'),
     'group.paragraph.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
                              '⌃X でカットした文字は控えに入り、⌃Y でペーストします。',
                              'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
@@ -176,13 +176,13 @@ T = {
                               '⌃J confirms the input method\'s text, then moves right.',
                               '⌃J 先确认输入法的文字，再向右移动。', '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다.'),
     'category.editing.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
-                              '⌃⌘X／⌃⌘K はカーソルから行頭／行末まで、⌃⌥⌘X は文章の末尾までを選択してクリップボードにコピーします。',
+                              '⌃⌘X／⌃⌘Z はカーソルから行頭／行末まで、⌃⌥⌘Z は文章の末尾までを選択してクリップボードにコピーします。',
                               'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
-                              '⌃⌘X / ⌃⌘K select from the caret to the line start / end, ⌃⌥⌘X to the end of the text, and copy it to the clipboard.',
+                              '⌃⌘X / ⌃⌘Z select from the caret to the line start / end, ⌃⌥⌘Z to the end of the text, and copy it to the clipboard.',
                               '移动和选择段落仅适用于可通过辅助功能读取文字的输入栏。快速按两次 ⌃S 可剪切段落。'
-                              '⌃⌘X／⌃⌘K 选择从光标到行首／行尾、⌃⌥⌘X 选择到文末的文字并拷贝到剪贴板。',
+                              '⌃⌘X／⌃⌘Z 选择从光标到行首／行尾、⌃⌥⌘Z 选择到文末的文字并拷贝到剪贴板。',
                               '단락 이동과 선택은 손쉬운 사용으로 텍스트를 읽을 수 있는 입력란에서 작동합니다. ⌃S를 빠르게 두 번 누르면 단락을 오려둡니다. '
-                              '⌃⌘X / ⌃⌘K는 커서부터 행 처음 / 끝까지, ⌃⌥⌘X는 글 끝까지 선택해 클립보드에 복사합니다.'),
+                              '⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 끝까지, ⌃⌥⌘Z는 글 끝까지 선택해 클립보드에 복사합니다.'),
     'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y でペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。'
                                '控えはクリップボードとは別なので、⌘C でコピーした内容は変わりません。',
                                'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y pastes it. ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. '
@@ -257,6 +257,12 @@ T = {
     'result.noText': ('このアプリの入力欄の文字を読み取れないため、段落を移動できませんでした。',
                       'The text of this field cannot be read, so the paragraph was not moved.',
                       '无法读取此输入栏的文字，因此未移动段落。', '이 입력란의 텍스트를 읽을 수 없어 단락을 이동하지 못했습니다.'),
+    'result.unsupported': ('このアプリでは使えない操作です。', 'This command is not available in this app.', '此操作在此应用中不可用。', '이 앱에서는 사용할 수 없는 작업입니다.'),
+    'result.automationDenied': ('InDesign を操作する許可がありません。システム設定の［プライバシーとセキュリティ］→［オートメーション］で ControlMate の InDesign をオンにしてください。',
+                                'ControlMate is not allowed to control InDesign. Turn on InDesign for ControlMate in System Settings > Privacy & Security > Automation.',
+                                '没有控制 InDesign 的权限。请在“系统设置 > 隐私与安全性 > 自动化”中为 ControlMate 打开 InDesign。',
+                                'InDesign을 제어할 권한이 없습니다. 시스템 설정 > 개인정보 보호 및 보안 > 자동화에서 ControlMate의 InDesign을 켜세요.'),
+    'result.scriptFailed': ('InDesign のスクリプトを実行できませんでした：%@', 'Could not run the InDesign script: %@', '无法运行 InDesign 脚本：%@', 'InDesign 스크립트를 실행할 수 없습니다: %@'),
     'result.moveFailed': ('段落を入れ替えられませんでした。文字を確かめ、必要なら ⌘Z で取り消してください。',
                           'The paragraphs could not be swapped. Check the text and undo with ⌘Z if needed.',
                           '无法交换段落。请检查文字，必要时用 ⌘Z 撤销。', '단락을 바꾸지 못했습니다. 텍스트를 확인하고 필요하면 ⌘Z로 취소하세요.'),
@@ -285,8 +291,8 @@ HELP_JA = '''## 使い方
 ### 入力の補助
 - ⌃M：Enter、⌃J：確定して右へ
 - ⌃,／⌃.：Home／End
-- ⌃⌘X／⌃⌘K：行頭まで／行末まで選択してコピー
-- ⌃⌥⌘X：文章の末尾まで選択してコピー
+- ⌃⌘X／⌃⌘Z：行頭まで／行末まで選択してコピー
+- ⌃⌥⌘Z：文章の末尾まで選択してコピー
 ### 段落と行の編集
 - ⌃⇧↑／⌃⇧↓：段落を上下の段落と入れ替え
 - ⌃S：段落を選択してコピー。すばやく2回押すとカット
@@ -303,11 +309,13 @@ HELP_JA = '''## 使い方
   ⌃F などが元から使えるアプリ（Safari・Chrome など）は初期値で入っています。
 - ［対象外アプリ］：どのキーも置き換えないアプリです。
 - Visual Studio Code では、段落の移動にアプリ自身の ⌥↑／⌥↓ を使います。
+- InDesign では InDesign 自身のキー（⇧⌘↑・⇧⌘↓・Home・End）で動かし、⌃K は IdDeleteFromCursorToEnd.jsx を実行します（初回にオートメーションの許可）。段落の入れ替えは使えません。⌃U・⌃M は InDesign にそのまま渡します。
 - メインウインドウに、前面のアプリでどのグループを置き換えるかを表示します。
 
 ## 権限
 - アクセシビリティ：キーを受け取って置き換えるため、また入力欄の文字を読み取って選択するために使います。
   未許可の間は、どのキーも置き換えません。
+- オートメーション（InDesign）：InDesign で ⌃K のスクリプトを実行するために使います。
 - 文字やキー入力を記録・送信することはありません。
 
 ## 常駐と終了
@@ -355,8 +363,8 @@ HELP_EN = '''## Getting started
 ### Typing helpers
 - ⌃M: Enter, ⌃J: confirm, then move right
 - ⌃, / ⌃.: Home / End
-- ⌃⌘X / ⌃⌘K: select to line start / end and copy
-- ⌃⌥⌘X: select to the end of the text and copy
+- ⌃⌘X / ⌃⌘Z: select to line start / end and copy
+- ⌃⌥⌘Z: select to the end of the text and copy
 ### Paragraphs and lines
 - ⌃⇧↑ / ⌃⇧↓: swap the paragraph with the one above / below
 - ⌃S: select and copy the paragraph; press twice quickly to cut it
@@ -373,11 +381,13 @@ HELP_EN = '''## Getting started
   Apps that already have ⌃F and the others (Safari, Chrome…) are in the lists at first.
 - Excluded Apps: no key is replaced in these.
 - In Visual Studio Code, moving paragraphs uses the app's own ⌥↑ / ⌥↓.
+- In InDesign, InDesign's own keys (⇧⌘↑, ⇧⌘↓, Home, End) are used and ⌃K runs IdDeleteFromCursorToEnd.jsx (Automation permission the first time). Swapping paragraphs is not available. ⌃U and ⌃M go to InDesign unchanged.
 - The main window shows which groups are replaced in the front app.
 
 ## Permissions
 - Accessibility: to receive and replace keys, and to read and select text in fields.
   Without it, no key is replaced.
+- Automation (InDesign): to run the ⌃K script in InDesign.
 - Text and keystrokes are never recorded or sent anywhere.
 
 ## Staying open and quitting
@@ -425,8 +435,8 @@ HELP_ZH = '''## 使用方法
 ### 输入辅助
 - ⌃M：Enter，⌃J：确认后向右
 - ⌃,／⌃.：Home／End
-- ⌃⌘X／⌃⌘K：选到行首／行尾并拷贝
-- ⌃⌥⌘X：选到文末并拷贝
+- ⌃⌘X／⌃⌘Z：选到行首／行尾并拷贝
+- ⌃⌥⌘Z：选到文末并拷贝
 ### 段落与行编辑
 - ⌃⇧↑／⌃⇧↓：与上／下段落交换
 - ⌃S：选择并拷贝段落；快速按两次则剪切
@@ -442,10 +452,12 @@ HELP_ZH = '''## 使用方法
 - “直接传递的应用”：按组登记不替换按键的应用。本身支持 ⌃F 等键的应用（Safari、Chrome 等）默认已加入。
 - “排除的应用”：不替换任何按键。
 - 在 Visual Studio Code 中，移动段落使用应用自身的 ⌥↑／⌥↓。
+- 在 InDesign 中使用 InDesign 自身的键（⇧⌘↑、⇧⌘↓、Home、End），⌃K 运行 IdDeleteFromCursorToEnd.jsx（首次需要自动化权限）。不能交换段落。⌃U、⌃M 直接传给 InDesign。
 - 主窗口显示前台应用中替换哪些组。
 
 ## 权限
 - 辅助功能：用于接收并替换按键，以及读取并选择输入栏中的文字。未授权时不替换任何按键。
+- 自动化（InDesign）：用于在 InDesign 中运行 ⌃K 的脚本。
 - 不会记录或发送文字和按键。
 
 ## 常驻与退出
@@ -490,8 +502,8 @@ HELP_KO = '''## 사용 방법
 ### 입력 보조
 - ⌃M: Enter, ⌃J: 확정 후 오른쪽으로
 - ⌃, / ⌃.: Home / End
-- ⌃⌘X / ⌃⌘K: 행 처음 / 끝까지 선택해 복사
-- ⌃⌥⌘X: 글 끝까지 선택해 복사
+- ⌃⌘X / ⌃⌘Z: 행 처음 / 끝까지 선택해 복사
+- ⌃⌥⌘Z: 글 끝까지 선택해 복사
 ### 단락과 행 편집
 - ⌃⇧↑ / ⌃⇧↓: 위 / 아래 단락과 바꾸기
 - ⌃S: 단락 선택 후 복사, 빠르게 두 번 누르면 오려두기
@@ -508,11 +520,13 @@ HELP_KO = '''## 사용 방법
   ⌃F 등을 원래 지원하는 앱(Safari, Chrome 등)은 처음부터 들어 있습니다.
 - 제외할 앱: 어떤 키도 바꾸지 않습니다.
 - Visual Studio Code에서는 단락 이동에 앱 자체의 ⌥↑ / ⌥↓를 사용합니다.
+- InDesign에서는 InDesign 자체의 키(⇧⌘↑, ⇧⌘↓, Home, End)를 사용하고 ⌃K는 IdDeleteFromCursorToEnd.jsx를 실행합니다(처음에 자동화 권한). 단락 바꾸기는 사용할 수 없습니다. ⌃U, ⌃M은 InDesign에 그대로 전달합니다.
 - 메인 윈도우에 앞쪽 앱에서 어떤 그룹을 바꾸는지 표시합니다.
 
 ## 권한
 - 손쉬운 사용: 키를 받아 바꾸고, 입력란의 텍스트를 읽고 선택하는 데 사용합니다.
   허용하지 않으면 어떤 키도 바꾸지 않습니다.
+- 자동화(InDesign): InDesign에서 ⌃K 스크립트를 실행하는 데 사용합니다.
 - 텍스트나 키 입력을 기록하거나 보내지 않습니다.
 
 ## 상주와 종료

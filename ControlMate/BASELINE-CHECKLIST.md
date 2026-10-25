@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
 アプリ名：ControlMate
-バージョン/build：1.2.0 (3)
+バージョン/build：1.3.0 (4)
 確認OS/CPU：macOS 26（Darwin 25.6.0）/ Apple シリコン
 確認日：2026-10-26
 
@@ -17,7 +17,7 @@
 | B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘,・⌘W・⌘0・編集メニュー。ControlMate が前面のときはキーを置き換えない（blocksHotkeys） |
 | B07 | ショートカット管理 | 実装済み・実機未確認 | 置き換え全体のON/OFF、一時停止、キーごとのON/OFF、グループごとの素通しアプリ。置き換えるキー自体の変更は未対応（固定の Emacs キー）。アプリを呼び出すホットキーは HotkeyField（変更・解除・登録失敗の表示）。HotkeyManifest に全キーを申告 |
 | B08 | 設定・位置の保持 | 実装済み・実機未確認 | UserDefaults、MainWindow／Preferences の frame autosave と画面外の復帰 |
-| B09 | 権限の案内と再判定 | 実装済み・実機未確認 | AccessibilitySection（理由は neededOverride）、com.apple.accessibility.api 通知と復帰時に再判定。状態確認では要求しない |
+| B09 | 権限の案内と再判定 | 実装済み・実機未確認 | AccessibilitySection（理由は neededOverride）。InDesign の ⌃K で初回にオートメーションの許可（拒否時は［直前の操作］に設定の場所を表示）、com.apple.accessibility.api 通知と復帰時に再判定。状態確認では要求しない |
 | B10 | 原本保護・復元 | 実装済み・実機未確認 | 編集はアプリ自身のメニュー操作なので ⌘Z で取り消せる（ヘルプに記載）。クリップボードは控えて戻し、自分のカット後にほかから変わっていたら戻さない（TextActions.restore） |
 | B11 | 二重処理・中断対策 | 実装済み・実機未確認 | 編集の操作は直列のキュー（TextActions.queue）。キーのリピートは編集の操作では無視 |
 | B12 | 成否・復旧表示 | 実装済み・実機未確認 | 失敗理由をメインウインドウ［直前の操作］に表示（result.*）。キーやテキストはログに残さない |
@@ -26,10 +26,10 @@
 | B15 | 多言語 | 実装済み・自動テスト済み | make-resources.py（ja/en/zh-Hans/ko）、test.sh でキー・プレースホルダー・識別子由来のキーを照合 |
 | B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実装済み・実機未確認 | helpText（4言語）、ヘルプメニュー⌘?・常駐メニュー、「情報」タブ、about パネル |
 | B17 | プライバシー | 実装済み | 通信なし（更新は未設定で通信しない）。控えはメモリーのみ。PrivacyInfo.xcprivacy |
-| B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 一部確認 | 2026-10-26 publish_latest.py で両配置先に 1.0.0 (1)、続けて 1.1.0 (2)・1.2.0 (3) を配置し一致を確認、/Applications 版の起動を確認。更新配信は未設定（準備中）。Developer ID署名・公証は未実施 |
+| B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 一部確認 | 2026-10-26 publish_latest.py で両配置先に 1.0.0 (1)、続けて 1.1.0 (2)・1.2.0 (3)・1.3.0 (4) を配置し一致を確認、/Applications 版の起動を確認。更新配信は未設定（準備中）。Developer ID署名・公証は未実施 |
 | B19 | マスタード基調の共通アイコン | 実装済み | Assets/draw-icon.swift（FnNumpad と同じタイル・茶色の縁取り・円形バッジ）。256px で確認 |
 | B20 | 共通UI統一・起動/常駐/起動ショートカットの同一グループ・アクセシビリティも同一タブ内の区画 | 実装済み・実機未確認 | 設定タブ：起動・常駐（＋アクセシビリティ）／キー／素通しにするアプリ／対象外アプリ／設定の共有／情報 |
-| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | ExcludedApps（初期値 Illustrator・InDesign）。対象外ではタップの state.active=false でキーをそのまま通す。グループ単位の素通しは PassList |
+| B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | ExcludedApps（初期値 Illustrator。InDesign は 1.3.0 で対象外から外し専用の差し替えで対応）。対象外ではタップの state.active=false でキーをそのまま通す。グループ単位の素通しは PassList |
 
 ## 確認記録
 

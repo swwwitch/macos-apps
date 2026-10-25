@@ -5,7 +5,7 @@
 - 仕組み：アクセシビリティ権限で CGEventTap（セッション、先頭）を作り、⌃（JIS キーボードの初期値は Caps Lock）付きのキーダウンを置き換える。移動などの単純なキーはタップの中で別のキーイベントに差し替え、編集の操作はキーを止めて TextActions が処理する。
 - 編集の操作：アクセシビリティ API で入力欄の文字と選択範囲を読み書きし、カット・コピー・ペーストはアプリのメニュー項目（⌘X・⌘C・⌘V）を押す。書式付きの文字もそのまま動く。読み取れない欄では ⇧⌘→ などのキーで代わりに選ぶ。
 - 控え（キルバッファ）：⌃K・⌃X でカットした文字はクリップボードとは別にメモリーに置き、⌃Y でペーストする。⌃K・⌃Y は素通しの一覧を見ない（ignoresPassthrough）。クリップボードは操作の前の内容に戻す（操作中にほかから変わったときは戻さない）。
-- 割り当て：Sources/Commands.swift（グループ・初期の素通しアプリ・VS Code の ⌥↑↓）。段落の判定は Sources/TextRanges.swift。
+- 割り当て：Sources/Commands.swift（グループ・初期の素通しアプリ・アプリ別の差し替え overrides：VS Code の ⌥↑↓、InDesign 用のキーと ⌃K のスクリプト）。段落の判定は Sources/TextRanges.swift。
 - ビルド：`./build.sh`（`SKIP_PUBLISH=1` で配置しない）、テスト：`./test.sh`、文言とヘルプ：`make-resources.py`（.strings は生成物）
 
 ## キー
@@ -16,12 +16,16 @@
 | --- | --- | --- |
 | カーソル移動 | ⌃F/B/N/P（⇧で選択）、⌃A/E（段落の先頭・末尾） | ⌃U Page Up、⌃, Home、⌃. End |
 | キー送信 | — | ⌃G Esc、⌃I Tab、⌃M Enter、⌃J 確定して右へ |
-| テキスト編集 | ⌃D | ⌃⇧↑↓ 段落の入れ替え、⌃S 段落を選択してコピー（2回でカット）、⌃⌘X／⌃⌘K 行頭／行末まで選択してコピー、⌃⌥⌘X 文章の末尾まで選択してコピー |
+| テキスト編集 | ⌃D | ⌃⇧↑↓ 段落の入れ替え、⌃S 段落を選択してコピー（2回でカット）、⌃⌘X／⌃⌘Z 行頭／行末まで選択してコピー、⌃⌥⌘Z 文章の末尾まで選択してコピー |
 | Kill/Yank | ⌃K、⌃Y（素通しのアプリでも処理） | ⌃X 段落頭までカット（⌃Y でペースト） |
 
 素通しにするアプリは3グループ（基本・入力の補助・段落と行）ごとに持つ（Commands.swift の group）。「Caps Lock を常に ⌃ として扱う」をオンにすると、Caps Lock を押している間のほかのキーにも ⌃ を付けて送る。送るキーには eventSourceUserData の目印を付け、目印付き（ほかのアプリが送ったキーを含む）には触れない。
 
+## InDesign
+
+InDesign の文字はアクセシビリティで読めず、⌘←／⌘→ は単語の移動になるため、InDesign 自身のキーで動かす。⌃K は ~/Git/indesign-scripts/jsx/text/IdDeleteFromCursorToEnd.jsx を do script（undo mode entire script）で実行し、無ければ ⇧⌘↓・⇧← で選んで控えにカットする。⌃U・⌃M は差し替え表の skip で InDesign（Keyboard Maestro の InDesign 用マクロ）に通す。
+
 ## 配布版
 
-- バージョン：1.2.0（build 3）
+- バージョン：1.3.0（build 4）
 - macOS 13以降・Appleシリコン。ローカル署名（チーム証明書 PL9S9PXX96）。Developer ID署名・公証は未実施。
