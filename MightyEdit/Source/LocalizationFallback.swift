@@ -2,6 +2,9 @@
 // Japanese UI text for binaries without the app bundle (unit tests).
 enum LocalizationFallback {
     static let japanese: [String: String] = [
+        "op.removeClipboardText": "クリップボードのテキストを削除",
+        "tip.removeClipboardText": "選択したテキストからクリップボードの文字列をすべて削除",
+        "msg.clipboardTextEmpty": "削除する文字列を先にコピーしてください",
         "app.ready": "文字を選択して、ボタンをクリック",
         "menu.hidePalette": "パレットを隠す",
         "menu.settings": "設定…",

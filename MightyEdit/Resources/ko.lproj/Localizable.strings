@@ -1,3 +1,6 @@
+"op.removeClipboardText" = "클립보드 텍스트 제거";
+"tip.removeClipboardText" = "선택한 텍스트에서 클립보드 문자열과 정확히 일치하는 부분을 모두 제거";
+"msg.clipboardTextEmpty" = "제거할 텍스트를 먼저 복사하세요";
 "app.ready" = "텍스트를 선택한 다음 버튼을 클릭하세요";
 "menu.hidePalette" = "팔레트 숨기기";
 "menu.settings" = "설정…";

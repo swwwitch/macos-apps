@@ -227,11 +227,11 @@ final class GlobalShortcuts: NSObject {
 
     func showPreferences() {
         if preferences == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 760, height: 620),
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 880, height: 620),
                                   styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             window.title = L("settings.window")
             window.isReleasedWhenClosed = false
-            window.contentMinSize = NSSize(width: 760, height: 620)
+            window.contentMinSize = NSSize(width: 880, height: 620)
             let scroll = NSScrollView(frame: window.contentView!.bounds)
             scroll.autoresizingMask = [.width, .height]
             scroll.hasVerticalScroller = true
@@ -362,7 +362,7 @@ final class GlobalShortcuts: NSObject {
                                     }
                                     return mine + (self.paletteCombo().map { [(L("palette.shortcutTitle"), $0)] } ?? [])
                                 },
-                                registered: { [weak self] in self?.failures[action.id] == nil })
+                                registered: { [weak self] in self?.failures[action.id] == nil }, alignsColumns: true)
         }
     }
     /// The action keys, for the palette key's field.

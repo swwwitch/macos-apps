@@ -28,6 +28,7 @@ enum TextTransform: Int, CaseIterable {
     case dateSpecial
     case dateSpecialPadded
     case splitAtText
+    case removeClipboardText
 
     static let specialLists: [TextTransform] = [.blackCircled, .kanji, .formalKanji, .circledAlphabet, .romanUpper, .romanLower, .checkmark, .emptyBox, .checkedBox, .taskList]
 
@@ -349,6 +350,7 @@ enum TextTransform: Int, CaseIterable {
         case .removeJapaneseSpaces: return L("op.removeJapaneseSpaces")
         case .addJapaneseSpaces: return L("op.addJapaneseSpaces")
         case .sum: return L("op.sum")
+        case .removeClipboardText: return L("op.removeClipboardText")
         case .invertSign: return L("op.invertSign")
         case .dateSpecial: return L("op.dateSpecial")
         case .dateSpecialPadded: return L("op.dateSpecialPadded")
@@ -413,7 +415,11 @@ enum TextTransform: Int, CaseIterable {
         }
     }
 
-    func apply(_ text: String) -> String {
+    func apply(_ text: String, clipboardText: String? = nil) -> String {
+        if self == .removeClipboardText {
+            guard let clipboardText, !clipboardText.isEmpty else { return text }
+            return text.replacingOccurrences(of: clipboardText, with: "", options: .literal)
+        }
         if DateTransform.operations.contains(self) { return DateTransform.apply(text, operation: self) }
         if self == .specialTypography { return TypographyOption.applyAll(text, options: TypographyOption.allCases) }
         if self == .camelCase { return Self.camelCased(text) }

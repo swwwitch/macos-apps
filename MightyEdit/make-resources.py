@@ -18,6 +18,9 @@ root = Path(__file__).resolve().parent
 LANGS = ['ja', 'en', 'zh-Hans', 'ko']
 
 rows = r'''
+op.removeClipboardText|クリップボードのテキストを削除|Remove Clipboard Text|删除剪贴板文本|클립보드 텍스트 제거
+tip.removeClipboardText|選択したテキストからクリップボードの文字列をすべて削除|Remove every exact occurrence of the clipboard text from the selection|从所选文本中删除所有与剪贴板文本完全匹配的内容|선택한 텍스트에서 클립보드 문자열과 정확히 일치하는 부분을 모두 제거
+msg.clipboardTextEmpty|削除する文字列を先にコピーしてください|Copy the text to remove first|请先拷贝要删除的文本|제거할 텍스트를 먼저 복사하세요
 app.ready|文字を選択して、ボタンをクリック|Select text, then click a button|选择文字，然后点击按钮|텍스트를 선택한 다음 버튼을 클릭하세요
 menu.hidePalette|パレットを隠す|Hide Palette|隐藏面板|팔레트 숨기기
 menu.settings|設定…|Settings…|设置…|설정…

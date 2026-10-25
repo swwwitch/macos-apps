@@ -1,3 +1,6 @@
+"op.removeClipboardText" = "删除剪贴板文本";
+"tip.removeClipboardText" = "从所选文本中删除所有与剪贴板文本完全匹配的内容";
+"msg.clipboardTextEmpty" = "请先拷贝要删除的文本";
 "app.ready" = "选择文字，然后点击按钮";
 "menu.hidePalette" = "隐藏面板";
 "menu.settings" = "设置…";

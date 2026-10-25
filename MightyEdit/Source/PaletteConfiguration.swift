@@ -29,7 +29,7 @@ enum PaletteConfiguration {
         ("欧文", [.fullwidthWestern, .halfwidthWestern, .capitalizeWords, .titleCase, .camelCase]),
         ("日付", [.dateToISO, .dateToJapanese, .dateToCompact, .removeDatePadding, .dateToEra, .dateToGregorian, .removeDateYear, .addDateYear, .weekdayShort, .weekdayLong, .dateSpecial, .dateSpecialPadded]),
         ("ソースコード", [.minify, .minifyBody, .beautify]),
-        ("その他", [.addPeriod, .removePeriod, .invertSign])
+        ("その他", [.addPeriod, .removePeriod, .invertSign, .removeClipboardText])
     ]
     // Group names above are internal identifiers (persistence and grouping), never shown directly.
     private static let displayKeys = ["行の編集": "group.lines", "リスト": "group.lists", "桁区切り": "group.digits",

@@ -1,3 +1,6 @@
+"op.removeClipboardText" = "Remove Clipboard Text";
+"tip.removeClipboardText" = "Remove every exact occurrence of the clipboard text from the selection";
+"msg.clipboardTextEmpty" = "Copy the text to remove first";
 "app.ready" = "Select text, then click a button";
 "menu.hidePalette" = "Hide Palette";
 "menu.settings" = "Settings…";

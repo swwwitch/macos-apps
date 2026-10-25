@@ -108,7 +108,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         let defaults: [TextTransform: Int] = [.minify: 28, .sum: 29, .join: 26, .joinAll: 27, .number: 1, .circled: 3, .alphabet: 4, .bullet: 6, .markdown: 7,
                                              .addCommas: 10, .removeCommas: 11, .dateSpecial: 12, .bracketAlphabet: 13,
-                                             .invertSign: HotkeyBinding(key: 27, modifiers: UInt32(controlKey)).encoded]
+                                             .invertSign: HotkeyBinding(key: 27, modifiers: UInt32(controlKey)).encoded,
+                                             .removeClipboardText: HotkeyBinding(key: 2, modifiers: UInt32(optionKey | shiftKey | cmdKey)).encoded]
         // 0.2.17: ⌃⌥⌘Y, palette-only by default (HotkeyScope.paletteDefaults). ⌃⌥⌘D until 0.2.14 was also CommandDee's
         // palette key (both apps received it); ⌃⌥⌘V in 0.2.16 met a Keyboard Maestro macro. A key set by the user is kept.
         let displayShortcut = (id: 10000, title: L("hotkey.toggleDisplay"), digit: HotkeyBinding(key: 16, modifiers: UInt32(cmdKey | controlKey | optionKey)).encoded)
@@ -295,7 +296,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         target.textColor = .secondaryLabelColor
         column.addArrangedSubview(target)
         let symbols = ["arrow.turn.up.left", "list.number", "list.bullet", "text.alignleft", "text.badge.minus", "1.circle", "a.square", "plus.circle", "minus.circle", "line.3.horizontal.decrease", "arrow.up.and.down.text.horizontal", "plus.circle", "minus.circle", "number", "a.square", "arrow.down.right.and.arrow.up.left", "arrow.triangle.merge", "textformat.abc", "textformat", "arrow.left.and.right.righttriangle.left.righttriangle.right", "arrow.left.and.right", "sum", "textformat.size.larger", "textformat.size.smaller", "textformat.abc", "textformat"]
-        let extraSymbols: [TextTransform: String] = [.trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .splitAtText: "scissors", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc", .invertSign: "plusminus", .dateSpecial: "calendar.badge.clock", .dateSpecialPadded: "calendar.badge.plus"]
+        let extraSymbols: [TextTransform: String] = [.removeClipboardText: "text.badge.minus", .trimLineEdges: "text.alignleft", .sortLineLength: "arrow.up.arrow.down", .countText: "number", .affixLines: "text.append", .beautify: "chevron.left.forwardslash.chevron.right", .minifyBody: "scissors", .sortLines: "arrow.up.arrow.down", .uniqueLines: "doc.on.doc", .joinWestern: "text.word.spacing", .wrapLines: "text.insert", .splitAtText: "scissors", .randomLines: "shuffle", .toggleDateFormat: "calendar", .camelCase: "textformat.abc", .invertSign: "plusminus", .dateSpecial: "calendar.badge.clock", .dateSpecialPadded: "calendar.badge.plus"]
         let groups = PaletteConfiguration.groups
         for (title, operations) in groups {
             var buttons: [PaletteButton] = []
@@ -325,6 +326,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     case .camelCase: button.toolTip = L("tip.camelCase")
                     case .titleCase: button.toolTip = L("tip.titleCase")
                     case .sum: button.toolTip = L("tip.sum")
+                    case .removeClipboardText: button.toolTip = L("tip.removeClipboardText")
                     case .invertSign: button.toolTip = L("tip.invertSign")
                     case .dateSpecial: button.toolTip = L("tip.dateSpecial")
                     case .dateSpecialPadded: button.toolTip = L("tip.dateSpecialPadded")
@@ -870,7 +872,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard pasteboard.setString(result, forType: .string) else { WebSelection.restore(previous); message.stringValue = L("msg.clipboardFailed"); return }
         let change = pasteboard.changeCount
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, !isExcludedApp(pid: pid),
-              WebSelection.sendKey(9, flags: .maskCommand, pid: pid) else {
+              WebSelection.sendKey(result.isEmpty ? 51 : 9, flags: result.isEmpty ? [] : .maskCommand, pid: pid) else {
             WebSelection.restore(previous); message.stringValue = L("msg.noTarget"); return
         }
         busy = true
@@ -965,6 +967,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 return
             }
         }
+        // Capture before WebSelection.copy temporarily replaces the clipboard.
+        let removalText = operation == .removeClipboardText ? NSPasteboard.general.string(forType: .string) : nil
+        if operation == .removeClipboardText && (removalText?.isEmpty ?? true) {
+            message.stringValue = L("msg.clipboardTextEmpty")
+            return
+        }
         let application = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(application, 1)
         var value: CFTypeRef?
@@ -1018,7 +1026,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 self.dateChoice = nil
                 result = dateChoice.result
             } else {
-                result = operation == .sum ? try TextTransform.summedText(text) : operation.apply(text)
+                result = operation == .sum ? try TextTransform.summedText(text) : operation.apply(text, clipboardText: removalText)
             }
         } catch {
             if let copiedClipboard { WebSelection.restore(copiedClipboard) }
@@ -1051,8 +1059,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier,
               !isExcludedApp(NSWorkspace.shared.frontmostApplication),
               let source = CGEventSource(stateID: .privateState),
-              let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
-              let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else {
+              let down = CGEvent(keyboardEventSource: source, virtualKey: result.isEmpty ? 51 : 9, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: result.isEmpty ? 51 : 9, keyDown: false) else {
             message.stringValue = L("msg.noTarget"); return
         }
         // Confirm the document after Paste before changing the selection.
@@ -1074,8 +1082,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         pasteboard.clearContents()
         guard pasteboard.setString(result, forType: .string) else { message.stringValue = L("msg.clipboardFailed"); return }
         let change = pasteboard.changeCount
-        down.flags = .maskCommand
-        up.flags = .maskCommand
+        down.flags = result.isEmpty ? [] : .maskCommand
+        up.flags = result.isEmpty ? [] : .maskCommand
         busy = true
         down.postToPid(app.processIdentifier)
         up.postToPid(app.processIdentifier)

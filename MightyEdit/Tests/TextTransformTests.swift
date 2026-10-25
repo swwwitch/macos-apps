@@ -2,6 +2,16 @@ import Foundation
 
 @main struct TransformTests {
     static func main() {
+        for (input, clipboard, expected) in [
+            ("前削除中削除後", "削除", "前中後"),
+            ("a.*b.*", ".*", "ab"), ("AaA", "A", "a"),
+            (" x x ", " ", "xx"), ("a\nb\na\nb", "a\nb", "\n"),
+            ("👩‍💻日本👩‍💻", "👩‍💻", "日本"), ("全部", "全部", ""),
+            ("abc", "", "abc"), ("abc", "z", "abc")
+        ] {
+            precondition(TextTransform.removeClipboardText.apply(input, clipboardText: clipboard) == expected)
+        }
+        precondition(TextTransform.removeClipboardText.apply("abc") == "abc")
         precondition(TextTransform.markdown.apply(TextTransform.bullet.apply("りんご\nみかん")) == "- りんご\n- みかん")
         for (input, expected) in [
             ("2026年01月07日（水）", "2026年1月7日（水）"),
