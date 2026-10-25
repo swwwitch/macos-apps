@@ -1,0 +1,46 @@
+## Basics
+ShotSorter keeps running and does two things. Switch between them with the buttons at the top of the main window.
+- Screenshots: when a new screenshot is added to the chosen folder, it is renamed “ss-width-height-resolution-date.png”.
+- Text Recognition: select an area to read its text and copy it to the clipboard (⌃⌥O).
+Recent Activity at the bottom shows the latest results. It is not saved and is cleared when the app quits.
+
+## Screenshots
+- Folder: macOS's screenshot location at first. Choose another folder with Change….
+- Applies to: PNG files added to this folder whose name does not contain “ss-”. Files present before ShotSorter started are not changed.
+- Name format: use {width}, {height}, {dpi} and {date} (yyyyMMdd-HHmmss). A number is added when the name is taken.
+- Read the text in the image into the Finder comment: lets Spotlight find screenshots by their text.
+- Images starting with “QRCode #sw-” are named CommentScreen-QRCode-(8 digits).png.
+
+## Text Recognition
+Press ⌃⌥O (or the Recognize Text in Area button, or the menu bar icon) and drag over the area to read. Press Esc to cancel. Japanese and English text is read, copied to the clipboard and shown at the top right.
+- Remove spaces and line breaks between Japanese characters: joins Japanese lines split by wrapping.
+- Change ( ) to full-width （ ）.
+
+## Settings
+Open with ShotSorter > Settings… (⌘,).
+- Launch & Residency: open at login, hide from the Dock and App Switcher, keep running after closing the window, menu bar icon, app launch keyboard shortcut, the hotkey that shows the window (default ⌃⌥S) and Screen Recording permission.
+- Hotkeys: Recognize Text in Area (default ⌃⌥O).
+- Notifications: notify about renames and recognized text (off at first).
+- Sharing: export, import and sync of the name format and other choices. The folder stays on each Mac.
+- About: version and links.
+
+## Hotkeys
+- ⌃⌥O: recognize text in an area (while running, from any app)
+- ⌃⌥S: show the ShotSorter window (while running, from any app)
+- ⌘0: open the main window
+- ⌘,: settings
+- ⌘W: close the window
+- ⌘?: this help
+
+## Permissions and privacy
+- Screen Recording: used only to capture the area selected for text recognition. Check it and open System Settings from Launch & Residency.
+- Controlling Finder: used to set Finder comments; macOS asks the first time. Without permission the comment is saved for Spotlight only.
+- Text is recognized on your Mac and never sent anywhere. Folder contents and file names are not saved or sent.
+
+## Keeping it running and quitting
+With Keep running after closing the window on, watching and ⌃⌥O keep working after the window is closed. Reopen from the Dock or Finder, or from the menu bar icon. To quit, choose ShotSorter > Quit ShotSorter (⌘Q). Files added while the app is not running are not processed later.
+
+## Troubleshooting
+- Screenshots are not renamed: check that Rename new screenshots is on and the folder matches macOS's screenshot location (a note appears when it does not). Names containing “ss-” are skipped.
+- Text recognition finds nothing or only the wallpaper: check Screen Recording permission. After allowing it, ShotSorter may need to be reopened.
+- The Finder comment does not appear: in System Settings > Privacy & Security > Automation, turn on Finder for ShotSorter.
