@@ -1,0 +1,41 @@
+## Basics
+FileSorter keeps running and, when a file is added to a rule's watched folder, moves matching files to its destination—for example invoice PDFs saved to Downloads into an accounting folder, and music files into a music folder.
+- Turn off Sort at the top right to stop moving files.
+- Rules are checked from the top; the first match moves the file. Use the checkbox in the list to turn each rule on or off.
+- Files still downloading (.download, .crdownload and so on) are moved once they are complete and their size stops changing.
+- When the name is taken at the destination, a number is added (nothing is overwritten).
+- Recent Activity shows the latest results. It is not saved and is cleared when the app quits.
+
+## Editing rules
+Add with +; double-click or choose Edit… to change. Reorder by dragging.
+- Watched folder / Move to: choose with Change….
+- Name contains / Extensions: separate with commas. A file matching either is moved. Case-insensitive.
+- Two rules come at first: Invoices (name contains 請求書 or invoice) and Music (mp3, m4a, flac).
+
+## Existing files
+Files present before FileSorter started are not moved automatically. Sort Existing Files… shows how many files match (and some of their names) and moves them after you confirm.
+
+## Settings
+Open with FileSorter > Settings… (⌘,).
+- Launch & Residency: open at login, hide from the Dock and App Switcher, keep running after closing the window, menu bar icon, app launch keyboard shortcut and the hotkey that shows the window (default ⌃⌥F).
+- Notifications: notify when files are moved (off at first).
+- About: version and links.
+Rules hold folder locations, so they are set on each Mac.
+
+## Hotkeys
+- ⌃⌥F: show the FileSorter window from any app (while running)
+- ⌘0: open the main window
+- ⌘,: settings
+- ⌘W: close the window
+- ⌘?: this help
+
+## Permissions and privacy
+No special permission is needed. When you choose folders such as Documents or Desktop, macOS may ask once. File contents are never read. File names and activity are not saved or sent.
+
+## Keeping it running and quitting
+With Keep running after closing the window on, watching continues after the window is closed. Reopen from the Dock or Finder, or from the menu bar icon. To quit, choose FileSorter > Quit FileSorter (⌘Q). Files added while it was not running can be moved with Sort Existing Files….
+
+## Troubleshooting
+- Nothing is moved: check that Sort and the rule are on, the watched folder and name conditions match, and the reason in Recent Activity.
+- “The destination folder is missing”: the destination was moved or deleted. Edit the rule and choose it again.
+- A file was moved by mistake: move it back from the destination folder. FileSorter never deletes files.
