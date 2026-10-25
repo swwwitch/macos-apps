@@ -124,7 +124,7 @@
 "背景の色" = "Background Color";
 "不透明度" = "Opacity";
 "カーニング" = "Kerning";
-"フォントのカーニングを使う" = "Use the font's kerning";
+"使う" = "Use";
 "トラッキング" = "Tracking";
 "（1/1000 em）" = "(1/1000 em)";
 "プレビューの文字" = "Preview text";
@@ -540,3 +540,4 @@
 "このリンクを外す" = "Remove This Link";
 "リンクを足す" = "Add Link";
 "「ツール」メニューの「フォント管理」に出すページです。フォントの契約や管理のページを足しておくと、メニューからブラウザーで開けます。" = "Pages shown in Tools > Font Services. Add the pages for your font subscriptions and accounts to open them in your browser from the menu.";
+"オプション" = "Options";

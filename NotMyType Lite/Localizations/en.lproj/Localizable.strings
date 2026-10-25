@@ -85,7 +85,7 @@
 "背景の色" = "Background Color";
 "不透明度" = "Opacity";
 "カーニング" = "Kerning";
-"フォントのカーニングを使う" = "Use the font's kerning";
+"使う" = "Use";
 "トラッキング" = "Tracking";
 "（1/1000 em）" = "(1/1000 em)";
 "プレビューの文字" = "Preview text";
@@ -348,3 +348,4 @@
 "更新日" = "Modified";
 "こちらを優先" = "Prefer This";
 "%d／%d" = "%d/%d";
+"オプション" = "Options";

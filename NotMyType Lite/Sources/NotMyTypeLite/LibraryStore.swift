@@ -74,7 +74,7 @@ final class LibraryStore: ObservableObject {
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, preferOpenTypeKey, formatOrderKey,
                                                        preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, NameDisplay.key]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
-        + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
+        + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey,
            PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey, FontInfoItem.hiddenKey]
         + MenuShortcuts.Command.allCases.map(\.key))
 

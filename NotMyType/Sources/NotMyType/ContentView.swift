@@ -458,14 +458,21 @@ private struct FamilyListView: View {
             // 検索欄は上下を少し広げる
             .padding(.horizontal, 8)
             .padding(.vertical, 12)
-            // フォント名の出し方。一覧の幅いっぱいに伸び縮みさせる
-            Picker(L("フォント名"), selection: $nameDisplay) {
-                Text(L("日本語名")).tag(NameDisplay.localized.rawValue)
-                Text(L("PostScript名")).tag(NameDisplay.postScript.rawValue)
-                Text(L("両方")).tag(NameDisplay.both.rawValue)
+            // 既存の保存形式を保ち、少なくとも一方の名前を表示する。
+            HStack(spacing: 16) {
+                Toggle(L("日本語名"), isOn: Binding(
+                    get: { nameDisplay != NameDisplay.postScript.rawValue },
+                    set: { nameDisplay = $0 ? (nameDisplay == NameDisplay.localized.rawValue ? NameDisplay.localized.rawValue : NameDisplay.both.rawValue) : NameDisplay.postScript.rawValue }
+                ))
+                .disabled(nameDisplay == NameDisplay.localized.rawValue)
+                Toggle(L("PostScript名"), isOn: Binding(
+                    get: { nameDisplay != NameDisplay.localized.rawValue },
+                    set: { nameDisplay = $0 ? (nameDisplay == NameDisplay.postScript.rawValue ? NameDisplay.postScript.rawValue : NameDisplay.both.rawValue) : NameDisplay.localized.rawValue }
+                ))
+                .disabled(nameDisplay == NameDisplay.postScript.rawValue)
+                Spacer(minLength: 0)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            .toggleStyle(.checkbox)
             .frame(maxWidth: .infinity)
             .help(L("フォント名の出し方"))
             .onChange(of: nameDisplay) { store.invalidate() }
@@ -565,13 +572,16 @@ private struct SearchOptionsPanel: View {
         let options = store.filterOptions
         VStack(alignment: .leading, spacing: 14) {
             Text(L("検索オプション")).font(.headline)
-            // 3列：名前から読む条件／ファイルの形・種類／数で分ける条件
+            // 3列：名前から読む条件／ファイルの形・種類／文字数と公式情報
             HStack(alignment: .top, spacing: 32) {
                 VStack(alignment: .leading, spacing: 18) {
                     group(L("文字セット"), $store.charsetFilter, options.charsets.map {
                         ($0.0 == LibraryStore.noCharset ? L("名前に無し") : $0.0, $0.0, $0.1)
                     })
                     variantGroup(.n, options)
+                    variantGroup(.ud, options)
+                    variantGroup(.ap, options)
+                    variantGroup(.nt, options)
                 }
                 VStack(alignment: .leading, spacing: 18) {
                     group(L("形式"), $store.formatFilter, options.formats.map { ($0.0, $0.0, $0.1) })
@@ -580,21 +590,14 @@ private struct SearchOptionsPanel: View {
                 VStack(alignment: .leading, spacing: 18) {
                     group(L("ファミリーの書体数"), $store.faceCountFilter, options.faceCounts.map { ($0.0.title, $0.0, $0.1) })
                     group(L("収録文字数"), $store.characterCountFilter, options.characterCounts.map { ($0.0.title, $0.0, $0.1) })
-                }
-                // FontDB（メーカーの公式の情報）で分ける条件
-                VStack(alignment: .leading, spacing: 18) {
+                    // FontDB（メーカーの公式の情報）で分ける条件
                     // 分類は50種類ほどあるので、ラジオボタンのまま高さを決めてスクロールさせる
                     ScrollView {
                         group(L("分類"), $store.classificationFilter, options.classifications.map { ($0.0, $0.0, $0.1) })
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(width: 230, height: 300)
+                    .frame(width: 230, height: 180)
                     group(L("リリース年"), $store.releaseDecadeFilter, options.releaseDecades.map { ($0.0.title, $0.0, $0.1) })
-                }
-                VStack(alignment: .leading, spacing: 18) {
-                    variantGroup(.ud, options)
-                    variantGroup(.ap, options)
-                    variantGroup(.nt, options)
                 }
             }
             HStack {
@@ -674,12 +677,11 @@ enum FontInfoItem: String, CaseIterable {
     }
 }
 
-/// プレビューの見え方（文字の色・不透明度・カーニング・トラッキング）。設定は AppStorage に覚える
+/// プレビューの見え方（文字の色・カーニング・トラッキング）。設定は AppStorage に覚える
 struct PreviewStyle {
     static let schemeKey = "previewColorScheme"
     static let foregroundKey = "previewForeground"
     static let backgroundKey = "previewBackground"
-    static let opacityKey = "previewOpacity"
     static let kerningKey = "previewKerning"
     static let trackingOnKey = "previewTrackingOn"
     static let trackingKey = "previewTracking"
@@ -701,7 +703,6 @@ struct PreviewStyle {
     static let trackingValues: [Double] = [-100, -75, -50, -25, -10, 10, 25, 50, 75, 100, 200]
 
     var foreground: Color
-    var opacity: Double
     var kerning: Bool
     var tracking: Double
     var mode: Mode
@@ -754,13 +755,12 @@ struct PreviewStyle {
     ]
 }
 
-/// プレビューのオプション：文字と背景の色、不透明度、カーニング、トラッキング、プレビューの文字の候補
+/// プレビューのオプション：文字と背景の色、カーニング、トラッキング、プレビューの文字の候補
 private struct PreviewOptionsPanel: View {
     @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
     @AppStorage(PreviewStyle.schemeKey) private var scheme = PreviewStyle.Scheme.blackOnWhite.rawValue
     @AppStorage(PreviewStyle.foregroundKey) private var foreground = ""
     @AppStorage(PreviewStyle.backgroundKey) private var background = ""
-    @AppStorage(PreviewStyle.opacityKey) private var opacity = 100.0
     @AppStorage(PreviewStyle.kerningKey) private var kerning = true
     @AppStorage(PreviewStyle.trackingOnKey) private var trackingOn = false
     @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
@@ -768,60 +768,65 @@ private struct PreviewOptionsPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(L("プレビューのオプション")).font(.headline)
-            Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
-                GridRow {
-                    label(L("配色"))
-                    Picker(L("配色"), selection: $scheme) {
-                        ForEach(PreviewStyle.Scheme.allCases, id: \.self) { Text($0.title).tag($0.rawValue) }
-                    }
-                    .pickerStyle(.radioGroup)
-                    .labelsHidden()
-                }
-                GridRow {
-                    label(L("文字の色"))
-                    ColorPicker(L("文字の色"), selection: colorBinding($foreground, fallback: Color(nsColor: .labelColor)), supportsOpacity: false)
-                        .labelsHidden()
-                        .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
-                }
-                GridRow {
-                    label(L("背景の色"))
-                    ColorPicker(L("背景の色"), selection: colorBinding($background, fallback: Color(nsColor: .textBackgroundColor)), supportsOpacity: false)
-                        .labelsHidden()
-                        .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
-                }
-                GridRow {
-                    label(L("不透明度"))
-                    HStack(spacing: 8) {
-                        Slider(value: $opacity, in: 10...100, step: 5).frame(width: 140)
-                            .accessibilityLabel(L("不透明度"))
-                        Text("\(Int(opacity)) %").monospacedDigit().foregroundStyle(.secondary).frame(width: 44, alignment: .trailing)
-                    }
-                }
-                GridRow {
-                    label(L("カーニング"))
-                    Toggle(L("フォントのカーニングを使う"), isOn: $kerning)
-                }
-                GridRow {
-                    label(L("トラッキング"))
-                    HStack(spacing: 8) {
-                        Toggle(L("トラッキング"), isOn: $trackingOn).labelsHidden()
-                        Picker(L("トラッキング"), selection: $tracking) {
-                            Text(verbatim: "0").tag(0.0)
-                            ForEach(PreviewStyle.trackingValues, id: \.self) { value in
-                                Text(verbatim: value > 0 ? "+\(Int(value))" : "\(Int(value))").tag(value)
+            HStack(alignment: .top, spacing: 24) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(L("オプション")).font(.callout.weight(.semibold))
+                    Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                        GridRow(alignment: .top) {
+                            label(L("配色"))
+                            Picker(L("配色"), selection: $scheme) {
+                                ForEach(PreviewStyle.Scheme.allCases, id: \.self) { Text($0.title).tag($0.rawValue) }
+                            }
+                            .pickerStyle(.radioGroup)
+                            .labelsHidden()
+                        }
+                        GridRow {
+                            label(L("文字の色"))
+                            ColorPicker(L("文字の色"), selection: colorBinding($foreground, fallback: Color(nsColor: .labelColor)), supportsOpacity: false)
+                                .labelsHidden()
+                                .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
+                        }
+                        GridRow {
+                            label(L("背景の色"))
+                            ColorPicker(L("背景の色"), selection: colorBinding($background, fallback: Color(nsColor: .textBackgroundColor)), supportsOpacity: false)
+                                .labelsHidden()
+                                .disabled(scheme != PreviewStyle.Scheme.custom.rawValue)
+                        }
+                        GridRow {
+                            label(L("カーニング"))
+                            Toggle(L("使う"), isOn: $kerning)
+                        }
+                        GridRow {
+                            label(L("トラッキング"))
+                            HStack(spacing: 8) {
+                                Toggle(L("トラッキング"), isOn: $trackingOn).labelsHidden()
+                                Picker(L("トラッキング"), selection: $tracking) {
+                                    Text(verbatim: "0").tag(0.0)
+                                    ForEach(PreviewStyle.trackingValues, id: \.self) { value in
+                                        Text(verbatim: value > 0 ? "+\(Int(value))" : "\(Int(value))").tag(value)
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(width: 90)
+                                .disabled(!trackingOn)
+                                Text(L("（1/1000 em）")).font(.caption).foregroundStyle(.secondary)
                             }
                         }
-                        .labelsHidden()
-                        .frame(width: 90)
-                        .disabled(!trackingOn)
-                        Text(L("（1/1000 em）")).font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                .frame(width: 320, alignment: .leading)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(L("表示する情報")).font(.callout.weight(.semibold))
+                    HStack(alignment: .top, spacing: 20) {
+                        infoColumn(L("基本"), FontInfoItem.basic)
+                        infoColumn(L("公式の情報"), FontInfoItem.official)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             Divider()
             HStack {
                 Text(L("プレビューの文字") + L(" :"))
-                // 候補はポップアップで選ぶ（ユーザー指定）。今の文字が候補に無ければ「その他」と出す
                 Picker(L("プレビューの文字"), selection: $sample) {
                     ForEach(PreviewStyle.samples, id: \.self) { Text(verbatim: $0).tag($0) }
                     if !PreviewStyle.samples.contains(sample) {
@@ -831,21 +836,15 @@ private struct PreviewOptionsPanel: View {
                 }
                 .labelsHidden()
             }
-            Divider()
-            Text(L("表示する情報")).font(.callout.weight(.semibold))
-            HStack(alignment: .top, spacing: 24) {
-                infoColumn(L("基本"), FontInfoItem.basic)
-                infoColumn(L("公式の情報"), FontInfoItem.official)
-            }
             HStack {
                 Spacer()
                 Button(L("初期値に戻す")) {
-                    scheme = PreviewStyle.Scheme.blackOnWhite.rawValue; foreground = ""; background = ""; opacity = 100; kerning = true; trackingOn = false; tracking = 0
+                    scheme = PreviewStyle.Scheme.blackOnWhite.rawValue; foreground = ""; background = ""; kerning = true; trackingOn = false; tracking = 0
                 }
             }
         }
         .padding(20)
-        .frame(width: 420)
+        .frame(width: 720)
     }
 
     private func label(_ text: String) -> some View {
@@ -880,10 +879,10 @@ private struct PreviewView: View {
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(LibraryStore.sampleTextKey) private var sample = LibraryStore.defaultSampleText
     @AppStorage("previewSize") private var size = 36.0
+    @AppStorage("glyphCellSize") private var glyphCellSize = 48.0
     @AppStorage(PreviewStyle.schemeKey) private var scheme = PreviewStyle.Scheme.blackOnWhite.rawValue
     @AppStorage(PreviewStyle.foregroundKey) private var foreground = ""
     @AppStorage(PreviewStyle.backgroundKey) private var background = ""
-    @AppStorage(PreviewStyle.opacityKey) private var opacity = 100.0
     @AppStorage(PreviewStyle.kerningKey) private var kerning = true
     @AppStorage(PreviewStyle.trackingOnKey) private var trackingOn = false
     @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
@@ -901,24 +900,37 @@ private struct PreviewView: View {
 
     private var style: PreviewStyle {
         PreviewStyle(foreground: PreviewStyle.colors(scheme, foreground: foreground, background: background).0,
-                     opacity: opacity / 100, kerning: kerning, tracking: trackingOn ? tracking : 0,
+                     kerning: kerning, tracking: trackingOn ? tracking : 0,
                      mode: PreviewStyle.Mode(rawValue: mode) ?? .multiline)
     }
 
     var body: some View {
         let families = store.selectedFamilies
         VStack(spacing: 0) {
-            Picker(L("プレビュー・字形"), selection: $showsGlyphs) {
-                Text(L("プレビュー")).tag(false)
-                Text(L("字形")).tag(true)
+            HStack(spacing: 8) {
+                Picker(L("プレビュー・字形"), selection: $showsGlyphs) {
+                    Text(L("プレビュー")).tag(false)
+                    Text(L("字形")).tag(true)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                if showsGlyphs {
+                    Slider(value: $glyphCellSize, in: 32...96)
+                        .frame(width: 80)
+                        .accessibilityLabel(L("大きさ"))
+                } else if mode != PreviewStyle.Mode.waterfall.rawValue {
+                    Slider(value: $size, in: 9...144)
+                        .frame(width: 80)
+                        .accessibilityLabel(L("大きさ"))
+                    Text("\(Int(size)) pt").font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                        .frame(width: 44, alignment: .trailing)
+                }
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
             .padding(.horizontal, 8)
             .padding(.top, 8)
             if showsGlyphs {
                 if families.count == 1, let family = families.first {
-                    GlyphGridView(family: family).id(family.id)
+                    GlyphGridView(family: family, cellSize: $glyphCellSize).id(family.id)
                 } else {
                     VStack {
                         Spacer()
@@ -943,13 +955,6 @@ private struct PreviewView: View {
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(L("プレビューの文字"))
-                if mode != PreviewStyle.Mode.waterfall.rawValue {
-                    Slider(value: $size, in: 9...144)
-                        .frame(width: 100)
-                        .accessibilityLabel(L("大きさ"))
-                    Text("\(Int(size)) pt").font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                        .frame(width: 44, alignment: .trailing)
-                }
                 Button { optionsShown.toggle() } label: { Image(systemName: "slider.horizontal.3") }
                     .buttonStyle(.borderless)
                     .help(L("プレビューのオプション"))
@@ -969,7 +974,7 @@ private struct PreviewView: View {
                         }
                         Divider()
                         // フォント情報もプレビューと同じ書体だけ（書体の行だけを選んだときはその書体）
-                        FamilyInfo(family: family, files: previewFiles(family))
+                        FamilyInfo(family: family, files: previewFiles(family), foregroundColor: style.foreground)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1001,18 +1006,17 @@ private struct FaceSample: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(NameDisplay.current == .postScript ? face.postScriptName
                  : NameDisplay.current == .both ? face.displayStyle + "  " + face.postScriptName : face.displayStyle)
-                .font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+                .font(.caption).foregroundStyle(style.foreground).textSelection(.enabled)
             if style.mode == .waterfall {
                 // ウォーターフォール：大きさごとに1行。はみ出す分は切る
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(PreviewStyle.waterfallSizes, id: \.self) { size in
                         if let font = PreviewFonts.font(file: file, face: face, size: size) {
                             HStack(alignment: .lastTextBaseline, spacing: 8) {
-                                Text("\(Int(size))").font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                                Text("\(Int(size))").font(.caption).monospacedDigit().foregroundStyle(style.foreground)
                                     .frame(width: 22, alignment: .trailing)
                                 Text(PreviewFonts.sample(text, font: font, style: style)).font(Font(font))
                                     .tracking(size * style.tracking / 1000)
-                                    .opacity(style.opacity)
                                     .lineLimit(1)
                                     .fixedSize(horizontal: true, vertical: false)
                             }
@@ -1025,14 +1029,13 @@ private struct FaceSample: View {
                 Text(PreviewFonts.sample(text, font: font, style: style)).font(Font(font)).textSelection(.enabled)
                     // トラッキングは 1/1000 em
                     .tracking(size * style.tracking / 1000)
-                    .opacity(style.opacity)
                     .lineLimit(style.mode == .oneLine ? 1 : nil)
                     .fixedSize(horizontal: style.mode == .oneLine, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .clipped()
                     .help(L("このフォントに無い文字は、ほかのフォントで薄く表示しています"))
             } else {
-                Text(L("プレビューできません")).foregroundStyle(.secondary)
+                Text(L("プレビューできません")).foregroundStyle(style.foreground)
             }
         }
     }
@@ -1042,6 +1045,7 @@ private struct FamilyInfo: View {
     let family: FontFamily
     /// 情報を出すファイル（選んだ書体だけのこともある）
     let files: [FontFile]
+    let foregroundColor: Color
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(FontInfoItem.hiddenKey) private var hiddenInfo = ""
 
@@ -1051,7 +1055,7 @@ private struct FamilyInfo: View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(files) { file in
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(file.fileName).font(.callout.weight(.semibold))
+                    Text(file.fileName).font(.callout.weight(.semibold)).foregroundStyle(foregroundColor)
                     if shows(.state) { info(L("状態"), stateText(store.states[file.id])) }
                     if shows(.format) { info(L("形式"), file.format) }
                     if shows(.characters), let characters = file.characterCount {
@@ -1062,7 +1066,7 @@ private struct FamilyInfo: View {
                     if shows(.location) { info(L("場所"), file.path) }
                     if shows(.reveal) {
                         Button(L("Finderで表示")) { store.revealInFinder([file]) }
-                            .buttonStyle(.link).font(.caption)
+                            .buttonStyle(.link).font(.caption).foregroundStyle(foregroundColor).tint(foregroundColor)
                     }
                     if let record = FontDB.record(for: file), FontInfoItem.official.contains(where: shows) { officialInfo(record) }
                 }
@@ -1084,14 +1088,14 @@ private struct FamilyInfo: View {
         if shows(.languages), !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
         if shows(.plans), !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
         if shows(.officialPage), let url = URL(string: record.url), !record.url.isEmpty {
-            Link(L("公式のページを開く"), destination: url).font(.caption)
+            Link(L("公式のページを開く"), destination: url).font(.caption).foregroundStyle(foregroundColor)
         }
     }
 
     private func info(_ label: String, _ value: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Text(label + L(" :")).foregroundStyle(.secondary)
-            Text(value).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+            Text(label + L(" :")).foregroundStyle(foregroundColor)
+            Text(value).foregroundStyle(foregroundColor).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
         }
         .font(.caption)
     }

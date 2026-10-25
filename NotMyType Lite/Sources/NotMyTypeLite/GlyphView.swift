@@ -10,8 +10,9 @@ struct GlyphGridView: View {
     @State private var table: GlyphTable?
     @State private var selected: Int?
     @State private var query = ""
+    @FocusState private var searchFocused: Bool
     @State private var scope = GlyphTable.Scope.all
-    @AppStorage("glyphCellSize") private var cellSize = 48.0
+    @Binding var cellSize: Double
 
     private var faces: [(key: String, file: FontFile, face: FontFace)] {
         family.files.flatMap { file in file.faces.map { (file.path + "|" + $0.postScriptName, file, $0) } }
@@ -34,9 +35,28 @@ struct GlyphGridView: View {
                 }
                 .labelsHidden()
                 .fixedSize()
-                TextField(L("文字・U+XXXX で探す"), text: $query)
-                    .textFieldStyle(.roundedBorder)
-                Slider(value: $cellSize, in: 32...96).frame(width: 80).accessibilityLabel(L("大きさ"))
+                HStack(spacing: 4) {
+                    TextField(L("文字・U+XXXX で探す"), text: $query)
+                        .textFieldStyle(.plain)
+                        .focused($searchFocused)
+                    if !query.isEmpty {
+                        Button { query = ""; searchFocused = true } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .help(L("検索を消去"))
+                        .accessibilityLabel(L("検索を消去"))
+                    }
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(RoundedRectangle(cornerRadius: 5).fill(Color(nsColor: .textBackgroundColor)))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 5)
+                        .strokeBorder(searchFocused ? Color.accentColor : Color(nsColor: .separatorColor),
+                                      lineWidth: searchFocused ? 2 : 1)
+                }
             }
             .padding(8)
             Divider()
@@ -152,8 +172,15 @@ struct GlyphTable {
         }
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return indices }
-        // U+XXXX（16進）か、文字そのもの
-        if trimmed.uppercased().hasPrefix("U+"), let value = UInt32(trimmed.dropFirst(2), radix: 16) {
+        // U+XXXX、または4〜6桁の16進表記（0037など）はUnicodeの完全一致。
+        // それ以外は従来どおり文字そのものとして探す。
+        let hasPrefix = trimmed.uppercased().hasPrefix("U+")
+        let digits = hasPrefix ? String(trimmed.dropFirst(2)) : trimmed
+        let isHex = !digits.isEmpty && digits.unicodeScalars.allSatisfy {
+            (48...57).contains($0.value) || (65...70).contains($0.value) || (97...102).contains($0.value)
+        }
+        if hasPrefix || ((4...6).contains(digits.count) && isHex) {
+            guard isHex, let value = UInt32(digits, radix: 16), Unicode.Scalar(value) != nil else { return [] }
             return indices.filter { characters[$0]?.unicodeScalars.first?.value == value }
         }
         let wanted = Set(trimmed)

@@ -153,7 +153,7 @@ fonts.adobe.com	fonts.adobe.com
 背景の色	Background Color
 不透明度	Opacity
 カーニング	Kerning
-フォントのカーニングを使う	Use the font's kerning
+使う	Use
 トラッキング	Tracking
 （1/1000 em）	(1/1000 em)
 表示	View
@@ -348,3 +348,5 @@ Dropboxなどのフォルダーに「NotMyTypeLite-Library.json」を置き、�
 「重複フォントを解決」と「選んだフォントを優先にする」で選んだファイルです。ウォッチフォルダーの順で優先が決まらない重複に使います。	Files chosen with "Resolve Duplicate Fonts" and "Prefer Selected Fonts". Used for duplicates that the watch folder order cannot decide.
 優先するほうを選びます。選んだものは、この組の優先として覚えます。	Choose the one to prefer. Your choice is kept as the preferred file of this duplicate.
 名前が次で始まる	Name starts with
+
+オプション	Options

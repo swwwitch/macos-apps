@@ -115,7 +115,7 @@ final class LibraryStore: ObservableObject {
                                                        preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, FontServices.key, NameDisplay.key]
         + SidebarSection.allCases.map(\.showKey) + [SidebarSection.orderKey]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
-        + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey, PreviewStyle.opacityKey,
+        + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey,
            PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey, FontInfoItem.hiddenKey]
         + MenuShortcuts.Command.allCases.map(\.key))
 
