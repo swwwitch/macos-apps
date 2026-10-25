@@ -1,5 +1,7 @@
 NotMyType keeps your font files in a library and activates them only when you need them. Font files stay where they are; nothing is copied or moved.
 
+Hidden font files and fonts inside hidden folders are included. Finder visibility attributes are not changed. Adobe Fonts includes only fonts enabled in Creative Cloud.
+
 ## How to Use
 ### Adding Fonts
 1. Drop font files, or folders that contain fonts, onto the window. You can also choose them with "Add…" (⌘O).

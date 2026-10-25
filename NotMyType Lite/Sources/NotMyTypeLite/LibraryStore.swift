@@ -72,7 +72,7 @@ final class LibraryStore: ObservableObject {
     static let defaultSampleText = "あいうえお 永遠の文字 Aa Bb Cc 0123456789"
     /// 設定の共有で書き出す・同期するキー。ライブラリ（ファイルの場所）はMacごと
     static let syncedKeys: Set<String> = Set([restoreAtLaunchKey, deactivateOnQuitKey, sampleTextKey, preferOpenTypeKey, formatOrderKey,
-                                                       preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, NameDisplay.key]
+                                                       preferNewerVersionKey, preferMoreGlyphsKey, autoCriteriaOrderKey, pickIdenticalKey, FontServices.key, NameDisplay.key]
         // プレビューのオプションとメニューのホットキーも、どのMacでも同じにする
         + [PreviewStyle.schemeKey, PreviewStyle.foregroundKey, PreviewStyle.backgroundKey,
            PreviewStyle.kerningKey, PreviewStyle.trackingOnKey, PreviewStyle.trackingKey, PreviewStyle.modeKey, FontInfoItem.hiddenKey]
@@ -814,7 +814,11 @@ final class LibraryStore: ObservableObject {
             // フォルダーにあってライブラリに無いファイル。見つからないファイルのつなぎ直し先の候補にもする
             await MainActor.run { TaskProgress.shared.step(L("フォルダーの新しいファイルを探しています…")) }
             let known = Set(files.map(\.path))
-            let candidates = FontScanner.fontURLs(in: folders, includeHidden: false).filter { !known.contains($0.standardizedFileURL.path) }
+            let adobe = Self.registeredAdobeFontPaths()
+            let candidates = FontScanner.fontURLs(in: folders).filter {
+                let path = $0.standardizedFileURL.path
+                return !known.contains(path) && (SystemFolder.of(path) != .adobeFonts || adobe.contains(path))
+            }
             var byName: [String: [URL]] = [:]
             for url in candidates { byName[url.lastPathComponent, default: []].append(url) }
             var relinked: [UUID: FontFile] = [:]

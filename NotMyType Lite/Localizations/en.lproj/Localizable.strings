@@ -349,3 +349,11 @@
 "こちらを優先" = "Prefer This";
 "%d／%d" = "%d/%d";
 "オプション" = "Options";
+
+
+"「ツール」メニューの「フォント管理」に出すページです。フォントの契約や管理のページを足しておくと、メニューからブラウザーで開けます。" = "Pages shown in Tools > Font Services. Add the pages for your font subscriptions and accounts to open them in your browser from the menu.";
+"このリンクを外す" = "Remove This Link";
+"フォント管理" = "Font Services";
+"モリサワ" = "Morisawa";
+"リンクを編集…" = "Edit Links…";
+"リンクを足す" = "Add Link";

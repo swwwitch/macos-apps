@@ -1,30 +1,44 @@
+// Approved 2026-10-25: centered kana card; Lite capsule.
 import AppKit
-// Usage: swift GenerateIcon.swift <output folder>  → NotMyType.png (1024px)
 let root = URL(fileURLWithPath: CommandLine.arguments[1])
-let image = NSImage(size: NSSize(width: 1024, height: 1024))
-image.lockFocus()
-// Mustard tile shared with the other sw_app icons (same as SettingsCourier and SiteMirror).
-let box = NSBezierPath(roundedRect: NSRect(x: 54, y: 54, width: 916, height: 916), xRadius: 220, yRadius: 220)
-let shadow = NSShadow(); shadow.shadowColor = NSColor.black.withAlphaComponent(0.10); shadow.shadowBlurRadius = 0; shadow.shadowOffset = NSSize(width: 0, height: -12)
-NSGraphicsContext.saveGraphicsState(); shadow.set()
-NSGradient(starting: NSColor(srgbRed: 0.99, green: 0.79, blue: 0.095, alpha: 1), ending: NSColor(srgbRed: 0.97, green: 0.75, blue: 0.075, alpha: 1))!.draw(in: box, angle: -75)
-NSGraphicsContext.restoreGraphicsState()
 let brown = NSColor(srgbRed: 0.36, green: 0.25, blue: 0.085, alpha: 1)
 let paper = NSColor(srgbRed: 1, green: 0.985, blue: 0.95, alpha: 1)
-let accent = NSColor(srgbRed: 0.93, green: 0.69, blue: 0.055, alpha: 1)
-// Type specimen card with "あa": Japanese and Latin fonts managed side by side.
-let card = NSRect(x: 170, y: 220, width: 684, height: 584)
-let cardPath = NSBezierPath(roundedRect: card, xRadius: 64, yRadius: 64)
-NSGraphicsContext.saveGraphicsState(); shadow.set(); paper.setFill(); cardPath.fill(); NSGraphicsContext.restoreGraphicsState()
-brown.setStroke(); cardPath.lineWidth = 30; cardPath.stroke()
-let kana = NSAttributedString(string: "あ", attributes: [
-    .font: NSFont(name: "HiraMinProN-W6", size: 360) ?? NSFont.boldSystemFont(ofSize: 360), .foregroundColor: brown])
-let latin = NSAttributedString(string: "a", attributes: [
-    .font: NSFont(name: "Georgia-Bold", size: 340) ?? NSFont.boldSystemFont(ofSize: 340), .foregroundColor: brown])
-let glyphs = NSMutableAttributedString(attributedString: kana)
-glyphs.append(latin)
-let glyphSize = glyphs.size()
-glyphs.draw(at: NSPoint(x: card.midX - glyphSize.width / 2, y: card.midY - glyphSize.height / 2 + 4))
-image.unlockFocus()
-let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
-try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("NotMyType.png"))
+func render(_ size: NSSize, _ draw: () -> Void) -> NSImage {
+ let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+ NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+ draw(); NSGraphicsContext.restoreGraphicsState()
+ let im = NSImage(size: size); im.addRepresentation(rep); return im
+}
+func save(_ im: NSImage, _ name: String) throws {
+ let rep = NSBitmapImageRep(data: im.tiffRepresentation!)!
+ try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent(name))
+}
+func text(_ value: String, _ font: NSFont, _ center: NSPoint, _ color: NSColor = brown) {
+ let s = NSAttributedString(string: value, attributes: [.font: font, .foregroundColor: color]); let z = s.size()
+ s.draw(at: NSPoint(x: center.x-z.width/2, y: center.y-z.height/2))
+}
+func card(_ rect: NSRect, _ fill: NSColor = paper) {
+ let p = NSBezierPath(roundedRect: rect, xRadius: 42, yRadius: 42)
+ let shadow = NSShadow(); shadow.shadowColor = brown.withAlphaComponent(0.18); shadow.shadowBlurRadius = 12; shadow.shadowOffset = NSSize(width: 0,height: -8)
+ NSGraphicsContext.saveGraphicsState(); shadow.set(); fill.setFill(); p.fill(); NSGraphicsContext.restoreGraphicsState()
+ brown.setStroke(); p.lineWidth = 24; p.stroke()
+}
+func icon(_ lite: Bool) -> NSImage {
+ render(NSSize(width: 1024,height: 1024)) {
+  let tile = NSBezierPath(roundedRect: NSRect(x: 54,y: 54,width: 916,height: 916), xRadius: 220,yRadius: 220)
+  let sh = NSShadow(); sh.shadowColor = NSColor.black.withAlphaComponent(0.12); sh.shadowBlurRadius = 12; sh.shadowOffset = NSSize(width: 0,height: -9)
+  NSGraphicsContext.saveGraphicsState(); sh.set()
+  NSGradient(starting: NSColor(srgbRed: 0.99,green: 0.79,blue: 0.095,alpha: 1), ending: NSColor(srgbRed: 0.97,green: 0.75,blue: 0.075,alpha: 1))!.draw(in: tile, angle: -75)
+  NSGraphicsContext.restoreGraphicsState()
+  card(NSRect(x: 228,y: 206,width: 568,height: 612))
+  text("あ", NSFont(name: "HiraMinProN-W6",size: 350)!, NSPoint(x: 512,y: 512))
+  if lite {
+   let badge = NSBezierPath(roundedRect: NSRect(x: 534,y: 122,width: 332,height: 146), xRadius: 73,yRadius: 73)
+   paper.setStroke(); badge.lineWidth = 16; badge.stroke()
+   brown.setFill(); badge.fill()
+   text("Lite",NSFont.systemFont(ofSize: 96,weight: .semibold),NSPoint(x:700,y:199),.white)
+  }
+ }
+}
+
+try save(icon(false), "NotMyType.png")

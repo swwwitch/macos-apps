@@ -313,8 +313,8 @@ enum FontState: Hashable, Sendable {
 enum FontScanner {
     static let extensions: Set<String> = ["otf", "ttf", "ttc", "otc", "dfont", "woff", "woff2"]
 
-    /// ファイルとフォルダーの中（下の階層も）からフォントファイルを拾う。隠しファイルとパッケージの中は見ない
-    static func fontURLs(in urls: [URL], includeHidden: Bool = false) -> [URL] {
+    /// ファイルとフォルダーの中（下の階層も）からフォントファイルを拾う。不可視ファイルも読むが、パッケージの中は見ない
+    static func fontURLs(in urls: [URL], includeHidden: Bool = true) -> [URL] {
         var found: [URL] = []
         for url in urls {
             var isDirectory: ObjCBool = false

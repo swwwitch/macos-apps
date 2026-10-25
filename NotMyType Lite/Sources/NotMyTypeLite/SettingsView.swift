@@ -51,6 +51,7 @@ private struct FontSettingsView: View {
             }
             WatchFoldersSection()
             FontFileHandlerSection()
+            FontServicesSection()
             SettingsSection(L("プレビュー")) {
                 HStack {
                     Text(L("プレビューの文字 :"))

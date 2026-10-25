@@ -916,7 +916,11 @@ final class LibraryStore: ObservableObject {
             // フォルダーにあってライブラリに無いファイル。見つからないファイルのつなぎ直し先の候補にもする
             await MainActor.run { TaskProgress.shared.step(L("フォルダーの新しいファイルを探しています…")) }
             let known = Set(files.map(\.path))
-            let candidates = FontScanner.fontURLs(in: folders, includeHidden: false).filter { !known.contains($0.standardizedFileURL.path) }
+            let adobe = Self.registeredAdobeFontPaths()
+            let candidates = FontScanner.fontURLs(in: folders).filter {
+                let path = $0.standardizedFileURL.path
+                return !known.contains(path) && (SystemFolder.of(path) != .adobeFonts || adobe.contains(path))
+            }
             var byName: [String: [URL]] = [:]
             for url in candidates { byName[url.lastPathComponent, default: []].append(url) }
             var relinked: [UUID: FontFile] = [:]

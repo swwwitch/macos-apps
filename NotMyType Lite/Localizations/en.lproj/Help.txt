@@ -1,5 +1,7 @@
 NotMyType Lite keeps your font files in a library and activates them only when you need them. Font files stay where they are; nothing is copied or moved.
 
+Hidden font files and fonts inside hidden folders are included. Finder visibility attributes are not changed. Adobe Fonts includes only fonts enabled in Creative Cloud.
+
 ## How to Use
 ### Adding Fonts
 1. Drop font files, or folders that contain fonts, onto the window. You can also choose them with "Add…" (⌘O).
@@ -155,3 +157,6 @@ Opening or reopening the app manually shows the main window. Automatic login lau
 ## Dock visibility and application menus
 
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
+
+### Font Management
+- Open Adobe Fonts, Morisawa and other pages from Tools > Font Management. Add, edit, remove and reorder links in Settings > Fonts. Links are included in settings export and sync.
