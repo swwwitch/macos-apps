@@ -1,35 +1,62 @@
 import AppKit
 import SwiftUI
 
-/// ツールメニューの「フォント管理」：フォントの契約・管理のページへのリンク。設定で足し・外し・並べ替えができる（ユーザー指定）
+/// 固定のリンク集と、ユーザーが編集できる追加リンク。
 struct FontServiceLink: Codable, Identifiable, Hashable {
     var id = UUID()
     var name: String
     var url: String
+    var category: String? = nil
 }
 
 enum FontServices {
     /// どのMacでも同じにするので設定の同期に載せる。JSON の文字列で持つ（@AppStorage で読めるように）
     static let key = "fontServiceLinks"
+    static let categories = ["vendors", "examples", "identify", "other"]
+    static func categoryTitle(_ category: String) -> String {
+        switch category {
+        case "vendors": return L("フォントベンダー・配布サービス")
+        case "examples": return L("フォント見本・使用例の検索")
+        case "identify": return L("フォント識別・検索")
+        default: return L("その他")
+        }
+    }
     static let defaults = [
-        FontServiceLink(name: "Adobe Fonts", url: "https://fonts.adobe.com/fonts"),
-        FontServiceLink(name: L("モリサワ"), url: "https://morisawafonts.com/fonts/search/"),
+        FontServiceLink(name: "Adobe Fonts", url: "https://fonts.adobe.com/fonts", category: "vendors"),
+        FontServiceLink(name: "Google Fonts", url: "https://fonts.google.com/", category: "vendors"),
+        FontServiceLink(name: "Fontworks（フォントワークス）", url: "https://fontworks.co.jp/", category: "vendors"),
+        FontServiceLink(name: "Morisawa Fonts（モリサワ）", url: "https://morisawafonts.com/fonts/search/", category: "vendors"),
+        FontServiceLink(name: "Type Project（タイププロジェクト）", url: "https://typeproject.com/", category: "vendors"),
+        FontServiceLink(name: "OH MY FONT", url: "https://ohmyfont.jp/", category: "vendors"),
+        FontServiceLink(name: "MyFonts", url: "https://www.myfonts.com/", category: "vendors"),
+        FontServiceLink(name: "デザインポケット", url: "https://r.8to.jp/26SpFxAqU3bF", category: "vendors"),
+        FontServiceLink(name: "nipponia", url: "https://nipponia.in/typefaces/", category: "vendors"),
+        FontServiceLink(name: "Fonts In Use", url: "https://fontsinuse.com/", category: "examples"),
+        FontServiceLink(name: "Typewolf", url: "https://www.typewolf.com/", category: "examples"),
+        FontServiceLink(name: "WhatTheFont", url: "https://www.myfonts.com/pages/whatthefont", category: "identify"),
+        FontServiceLink(name: "Fontspring Matcherator", url: "https://www.fontspring.com/matcherator", category: "identify"),
+        FontServiceLink(name: "What the Free Font", url: "https://whatthefreefont.com/", category: "identify"),
+        FontServiceLink(name: "モリサワ：AIでフォントを探す", url: "https://fontsjourney.morisawafonts.com/", category: "identify"),
     ]
 
-    /// 保存したリンク。まだ一度も変えていなければ初期値
+    /// Only user-added links are editable. Old unmodified default links move to
+    /// the fixed list; custom names and URLs are preserved.
     static func links(_ raw: String) -> [FontServiceLink] {
         guard !raw.isEmpty, let data = raw.data(using: .utf8),
-              let links = try? JSONDecoder().decode([FontServiceLink].self, from: data) else { return defaults }
-        // 1.52 までの Adobe Fonts の初期値（トップページ・my_fonts）は、一覧のページに読み替える（ユーザー指定）
-        return links.map { link in
-            var copy = link
-            if ["https://fonts.adobe.com/", "https://fonts.adobe.com", "https://fonts.adobe.com/my_fonts"].contains(link.url) { copy.url = "https://fonts.adobe.com/fonts" }
-            return copy
+              let links = try? JSONDecoder().decode([FontServiceLink].self, from: data) else { return [] }
+        return links.filter { link in
+            guard link.category == nil else { return true }
+            let adobeURLs = ["https://fonts.adobe.com/fonts", "https://fonts.adobe.com/", "https://fonts.adobe.com", "https://fonts.adobe.com/my_fonts"]
+            if link.name == "Adobe Fonts" && adobeURLs.contains(link.url) { return false }
+            if ["モリサワ", "Morisawa"].contains(link.name) && link.url == "https://morisawafonts.com/fonts/search/" { return false }
+            return true
         }
     }
 
     static func encode(_ links: [FontServiceLink]) -> String {
-        guard let data = try? JSONEncoder().encode(links) else { return "" }
+        guard let data = try? JSONEncoder().encode(links.map { link in
+            var copy = link; copy.category = "other"; return copy
+        }) else { return "" }
         return String(decoding: data, as: UTF8.self)
     }
 
@@ -40,21 +67,36 @@ enum FontServices {
     }
 }
 
-/// ツールメニューの中身。リンクが無ければ設定を開く項目だけ出す
+/// 標準15件を3カテゴリで表示し、追加分をカスタムリンクとして表示する
 struct FontServicesMenu: View {
     @AppStorage(FontServices.key) private var raw = ""
 
     var body: some View {
         let links = FontServices.links(raw).filter { !$0.name.isEmpty && !$0.url.isEmpty }
-        ForEach(links) { link in
-            Button(link.name) { FontServices.open(link) }
+        ForEach(["vendors", "examples", "identify"], id: \.self) { category in
+            Section {
+                ForEach(FontServices.defaults.filter { $0.category == category }) { link in
+                    Button(link.name) { FontServices.open(link) }
+                }
+            } header: {
+                Text(FontServices.categoryTitle(category))
+            }
         }
-        if !links.isEmpty { Divider() }
+        if !links.isEmpty {
+            Section {
+                ForEach(links) { link in
+                    Button(link.name) { FontServices.open(link) }
+                }
+            } header: {
+                Text(L("カスタムリンク"))
+            }
+        }
+        Divider()
         Button(L("リンクを編集…")) { SettingsWindow.shared.show() }
     }
 }
 
-/// 設定の「フォント管理」：リンクの名前と URL を編集する
+/// 設定の「カスタムリンク」：ユーザーが追加したリンクだけを編集する
 struct FontServicesSection: View {
     @AppStorage(FontServices.key) private var raw = ""
     @State private var selection: UUID?
@@ -62,7 +104,7 @@ struct FontServicesSection: View {
     private var links: [FontServiceLink] { FontServices.links(raw) }
 
     var body: some View {
-        SettingsSection(L("フォント管理")) {
+        SettingsSection(L("カスタムリンク")) {
             VStack(spacing: 4) {
                 ForEach(links) { link in
                     HStack(spacing: 6) {
@@ -88,7 +130,7 @@ struct FontServicesSection: View {
                 Spacer()
                 Button(L("初期値に戻す")) { raw = "" }.disabled(raw.isEmpty)
             }
-            Text(L("「ツール」メニューの「フォント管理」に出すページです。フォントの契約や管理のページを足しておくと、メニューからブラウザーで開けます。"))
+            Text(L("追加したリンクだけを編集します。標準のリンク集は変更されません。"))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }

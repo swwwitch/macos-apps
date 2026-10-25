@@ -70,9 +70,9 @@ struct ContentView: View {
                 AppVersionLabel()
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(L("フォントのアクティブを切り替え"))
+                Text(L("必要なフォントをアクティブにする"))
                     .font(.title2.weight(.semibold))
-                Text(L("フォントファイルをライブラリに登録し、使うときだけアクティブにします"))
+                Text(L("フォントを一覧で管理し、使うときに有効にします。"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -766,12 +766,12 @@ private struct PreviewOptionsPanel: View {
     @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(L("プレビューのオプション")).font(.headline)
-            HStack(alignment: .top, spacing: 24) {
-                VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(L("オプション")).font(.callout.weight(.semibold))
-                    Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                    Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 6) {
                         GridRow(alignment: .top) {
                             label(L("配色"))
                             Picker(L("配色"), selection: $scheme) {
@@ -798,7 +798,8 @@ private struct PreviewOptionsPanel: View {
                         }
                         GridRow {
                             label(L("トラッキング"))
-                            HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: 4) {
+                              HStack(spacing: 8) {
                                 Toggle(L("トラッキング"), isOn: $trackingOn).labelsHidden()
                                 Picker(L("トラッキング"), selection: $tracking) {
                                     Text(verbatim: "0").tag(0.0)
@@ -809,15 +810,17 @@ private struct PreviewOptionsPanel: View {
                                 .labelsHidden()
                                 .frame(width: 90)
                                 .disabled(!trackingOn)
+                              }
                                 Text(L("（1/1000 em）")).font(.caption).foregroundStyle(.secondary)
+                                    .fixedSize()
                             }
                         }
                     }
                 }
-                .frame(width: 320, alignment: .leading)
-                VStack(alignment: .leading, spacing: 12) {
+                .frame(width: 260, alignment: .leading)
+                VStack(alignment: .leading, spacing: 8) {
                     Text(L("表示する情報")).font(.callout.weight(.semibold))
-                    HStack(alignment: .top, spacing: 20) {
+                    HStack(alignment: .top, spacing: 16) {
                         infoColumn(L("基本"), FontInfoItem.basic)
                         infoColumn(L("公式の情報"), FontInfoItem.official)
                     }
@@ -826,7 +829,7 @@ private struct PreviewOptionsPanel: View {
             }
             Divider()
             HStack {
-                Text(L("プレビューの文字") + L(" :"))
+                Text(L("プレビューの文字") + L(" :")).fixedSize()
                 Picker(L("プレビューの文字"), selection: $sample) {
                     ForEach(PreviewStyle.samples, id: \.self) { Text(verbatim: $0).tag($0) }
                     if !PreviewStyle.samples.contains(sample) {
@@ -835,16 +838,16 @@ private struct PreviewOptionsPanel: View {
                     }
                 }
                 .labelsHidden()
-            }
-            HStack {
-                Spacer()
+                .frame(width: 180)
+                .lineLimit(1)
+                Spacer(minLength: 8)
                 Button(L("初期値に戻す")) {
                     scheme = PreviewStyle.Scheme.blackOnWhite.rawValue; foreground = ""; background = ""; kerning = true; trackingOn = false; tracking = 0
                 }
             }
         }
-        .padding(20)
-        .frame(width: 720)
+        .padding(12)
+        .frame(width: 660)
     }
 
     private func label(_ text: String) -> some View {
@@ -908,22 +911,27 @@ private struct PreviewView: View {
         let families = store.selectedFamilies
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                Picker(L("プレビュー・字形"), selection: $showsGlyphs) {
-                    Text(L("プレビュー")).tag(false)
-                    Text(L("字形")).tag(true)
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                PreviewModeSwitch(showsGlyphs: $showsGlyphs)
+                    .fixedSize(horizontal: true, vertical: false)
                 if showsGlyphs {
                     Slider(value: $glyphCellSize, in: 32...96)
-                        .frame(width: 80)
+                        .frame(minWidth: 80, maxWidth: .infinity)
                         .accessibilityLabel(L("大きさ"))
                 } else if mode != PreviewStyle.Mode.waterfall.rawValue {
                     Slider(value: $size, in: 9...144)
-                        .frame(width: 80)
+                        .frame(minWidth: 80, maxWidth: .infinity)
                         .accessibilityLabel(L("大きさ"))
                     Text("\(Int(size)) pt").font(.caption).monospacedDigit().foregroundStyle(.secondary)
                         .frame(width: 44, alignment: .trailing)
+                } else {
+                    Spacer(minLength: 0)
+                }
+                if !showsGlyphs {
+                    Button { optionsShown.toggle() } label: { Image(systemName: "slider.horizontal.3") }
+                        .buttonStyle(.borderless)
+                        .help(L("プレビューのオプション"))
+                        .accessibilityLabel(L("プレビューのオプション"))
+                        .popover(isPresented: $optionsShown, arrowEdge: .bottom) { PreviewOptionsPanel() }
                 }
             }
             .padding(.horizontal, 8)
@@ -955,11 +963,6 @@ private struct PreviewView: View {
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(L("プレビューの文字"))
-                Button { optionsShown.toggle() } label: { Image(systemName: "slider.horizontal.3") }
-                    .buttonStyle(.borderless)
-                    .help(L("プレビューのオプション"))
-                    .accessibilityLabel(L("プレビューのオプション"))
-                    .popover(isPresented: $optionsShown, arrowEdge: .bottom) { PreviewOptionsPanel() }
             }
             .padding(8)
             Divider()

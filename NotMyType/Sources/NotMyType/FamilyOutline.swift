@@ -174,8 +174,11 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             menu.addItem(.separator())
             add(menu, L("お気に入りを切り替える")) { $0.toggleFavorite($0.data.families(of: files)) }
             let sets = NSMenu()
+            let selectedIDs = Set(files.map(\.id))
             for set in store.data.sets {
-                add(sets, set.name) { $0.addToSet(set.id, files) }
+                let item = add(sets, set.name) { $0.addToSet(set.id, files) }
+                let included = selectedIDs.intersection(set.files)
+                item.state = included.isEmpty ? .off : (included == selectedIDs ? .on : .mixed)
             }
             if !store.data.sets.isEmpty { sets.addItem(.separator()) }
             add(sets, L("新規セット…")) { $0.newSet(with: files) }
@@ -215,11 +218,13 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             }
         }
 
-        private func add(_ menu: NSMenu, _ title: String, _ action: @escaping @MainActor (LibraryStore) -> Void) {
+        @discardableResult
+        private func add(_ menu: NSMenu, _ title: String, _ action: @escaping @MainActor (LibraryStore) -> Void) -> NSMenuItem {
             let item = NSMenuItem(title: title, action: #selector(menuAction(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = MenuAction(action)
             menu.addItem(item)
+            return item
         }
 
         @objc private func menuAction(_ sender: NSMenuItem) {
