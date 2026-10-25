@@ -12,7 +12,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
 ## Option-click
-Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
+Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q twice in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
 - Keyboard Shortcuts (⌘8): opens Keyboard Shortcuts… in Keyboard, on the section shown last.
 - AirDrop & Handoff (⌘9): General > AirDrop & Handoff
 The same items are in the File menu. When the menu bar icon is shown, its menu opens them too.
@@ -25,14 +25,14 @@ Choose SettingsHop > Settings… (⌘,).
 - About: version and links.
 
 ## Keyboard shortcuts
-- ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
+- ⌃⌥Q: open System Settings from any app; press it twice quickly to show the SettingsHop window instead (while it is running; change or turn it off in Launch & Residency settings)
 - 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring and Automation) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings
 - ⌘W: Close Window
 - ⌘?: this help
-Press ⌃⌥Q, then ⌘1–⌘9, to open a pane from the keyboard alone. To call SettingsHop even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
+Press ⌃⌥Q twice, then ⌘1–⌘9, to open a pane from the keyboard alone. To call SettingsHop even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
 
 ## Permissions
 Accessibility permission is used only to scroll to the Default web browser row and to select an app's row with Option-click. Allow it with Open Accessibility Settings in Settings › Launch & Residency. Without it, the panes still open. SettingsHop never changes permission switches or reads or changes settings.
