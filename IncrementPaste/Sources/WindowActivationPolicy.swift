@@ -21,16 +21,16 @@ enum WindowActivationPolicy {
         update()
     }
     static func restoreMinimized() {
-        let windows = NSApp.windows.filter { !($0 is NSPanel) && $0.canBecomeMain && $0.styleMask.contains(.titled) }
+        let windows = NSApp.windows.filter { !($0 is NSPanel) && ($0.canBecomeMain || $0.isMiniaturized) && $0.styleMask.contains(.titled) }
         guard !windows.contains(where: { $0.isVisible }), let window = windows.first(where: { $0.isMiniaturized }) else { return }
         window.deminiaturize(nil)
     }
-    /// 「Dockとアプリケーションスイッチャーに表示しない」 (DockPresence) keeps the app .accessory even with a window open.
+    /// DockPresence keeps menus available while regular windows exist, including minimized ones.
     static func update() { DockPresence.apply() }
     private static func usualPolicy() -> NSApplication.ActivationPolicy {
         NSApp.isHidden || NSApp.windows.contains(where: counts) ? .regular : .accessory
     }
     private static func counts(_ window: NSWindow) -> Bool {
-        (window.isVisible || window.isMiniaturized) && !(window is NSPanel) && window.canBecomeMain && window.styleMask.contains(.titled)
+        DockPresence.counts(window)
     }
 }

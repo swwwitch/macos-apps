@@ -85,7 +85,7 @@ ja = """## 使い方
 
 ## 設定
 - メインウインドウ：「ホットキーを有効にする」ですべてのホットキーをまとめてオン・オフします。
-- 起動・常駐：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（オンにするとDockと⌘Tabに出ません。メニューバーのアイコンやFinderから開き直すと表示します）、ウインドウを閉じても常駐、メニューバーに表示、アクセシビリティの許可状態、再起動・終了ボタン。
+- 起動・常駐：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（オンにするとメイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します。メニューバーのアイコンやFinderから開き直すと表示します）、ウインドウを閉じても常駐、メニューバーに表示、アクセシビリティの許可状態、再起動・終了ボタン。
 - ホットキー：操作ごとのオン・オフとキーの変更（［変更…］で記録、Escで取り消し）、初期値に戻す、グループごとのオン・オフ、成功時の通知。
 - 設定の共有：ホットキーの設定を書き出し・読み込み・同期します。
 - 情報：バージョンとリンク。
@@ -137,7 +137,7 @@ en = """## How to use
 
 ## Settings
 - Main window: “Enable hotkey” turns all hotkeys on or off at once.
-- Startup & Background: launch at login (off by default), Hide from Dock and App Switcher (when on, the app stays out of the Dock and ⌘Tab; open it again from the menu bar icon or Finder), keep running after closing, show in menu bar, Accessibility status, restart and quit buttons.
+- Startup & Background: launch at login (off by default), Hide from Dock and App Switcher (when on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; open it again from the menu bar icon or Finder), keep running after closing, show in menu bar, Accessibility status, restart and quit buttons.
 - Hotkeys: turn each command on or off and change its key (Change… records, Esc cancels), reset to defaults, per-group on/off, success notifications.
 - Settings Sharing: export, import and sync the hotkey settings.
 - About: version and links.
@@ -239,7 +239,7 @@ ko = """## 사용 방법
 
 ## 설정
 - 메인 윈도우: '단축키 사용'으로 모든 단축키를 한 번에 켜거나 끕니다.
-- 시작 및 상주: 로그인 시 실행(기본값 끔), 시작 시 메인 윈도우 숨기기, Dock 및 앱 전환기에서 숨기기(켜면 Dock과 ⌘Tab에 나타나지 않습니다. 메뉴 막대 아이콘이나 Finder에서 다시 열면 표시됩니다), 윈도우를 닫아도 상주, 메뉴 막대에 표시, 손쉬운 사용 권한 상태, 재시작 및 종료 버튼.
+- 시작 및 상주: 로그인 시 실행(기본값 끔), 시작 시 메인 윈도우 숨기기, Dock 및 앱 전환기에서 숨기기(켜면 메인·설정 윈도우가 있으면 Dock과 ⌘Tab에 표시하고 모두 닫으면 숨깁니다. 메뉴 막대 아이콘이나 Finder에서 다시 열면 표시됩니다), 윈도우를 닫아도 상주, 메뉴 막대에 표시, 손쉬운 사용 권한 상태, 재시작 및 종료 버튼.
 - 단축키: 작업별 켜기/끄기와 키 변경(변경…으로 기록, Esc로 취소), 기본값으로 재설정, 그룹별 켜기/끄기, 성공 알림.
 - 설정 공유: 단축키 설정을 내보내고 가져오고 동기화합니다.
 - 정보: 버전과 링크.

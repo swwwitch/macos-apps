@@ -66,3 +66,8 @@
 
 - 追加：プレビューの背景（PreviewBackground、@AppStorage previewBackground、表示のみ・Macごと）。省略線の色（TrimSettings.ruleColor、UserDefaults ruleColor "#RRGGBBAA"、sharedKeys に追加）。
 - 自動テスト：test.sh 56項目通過（赤い省略線の画素、16進の往復）。画面表示：背景グレー・赤い破線（Tests/snapshot.sh）。
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

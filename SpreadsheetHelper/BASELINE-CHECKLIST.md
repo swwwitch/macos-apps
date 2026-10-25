@@ -51,3 +51,8 @@
 | B28 | ウインドウ位置とアクセシビリティの細目 | 未確認 | 初回中央・画面外復帰、ボタンとドロップ領域のaccessibilityLabel、tintのコントラスト、視差効果を減らす |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：hotkeyEnabled・cleanShortcut・targetEnabled・replaceApostrophe・notifySuccess・commandEnabled・commandShortcuts。onImport でモデルを読み直しホットキーを再登録。GUI操作での書き出し・読み込み・同期は未確認 |
 | — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：HotkeyField を ⌥⌘C と表の操作24行（Grid の キー＋ボタン列、行の並び・カテゴリ見出しは維持）に。others に全ホットキーを渡して重複を断る、初期値が ⌥/⌥⇧ だけの行は allowsOption。保存は cleanShortcut・commandShortcuts（初期値と同じなら保存しない）のまま、ShortcutCombo.swift で変換（ComboTests）。登録は HotkeySet（"CCCL"、1 と 100+n）、行ごとの登録失敗を表示。独自の ShortcutRow・ShortcutLabel・記録モニター・SingleHotKey×25 を削除 |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

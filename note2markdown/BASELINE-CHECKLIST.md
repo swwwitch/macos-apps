@@ -59,3 +59,8 @@
 - B20：「起動・常駐」で LoginAtLaunchView（起動時非表示を内包）と StartupWindowView が並び二重表示だったため、StartupWindowView を外した。アクセシビリティを AccessibilitySection() に、未許可時の文言を独自の errorNoAccess から AccessibilityText.text("blocked") に。常駐の文言を「ウインドウを閉じても常駐」に。
 - B21：適用外のまま。
 - 1.1.4（build 6）：ビルド・test.sh 通過、両配置・起動確認。設定画面の表示は未確認。
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

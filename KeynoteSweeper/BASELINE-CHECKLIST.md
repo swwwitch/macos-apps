@@ -52,3 +52,8 @@
 - B20：アクセシビリティを AccessibilitySection() に。未許可時の文言は独自の accessibilityDenied を削除し AccessibilityText.text("blocked")（判定は AccessibilitySection.isTrusted）。test.sh は共通部品を一緒にコンパイルするよう変更。常駐の英中韓を共通表記に。オートメーションの表示は今回は変更なし。
 - B21：適用外のまま。
 - 1.0.7（build 8）：ビルド・test.sh 通過、両配置・起動確認。設定画面の表示は未確認。
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

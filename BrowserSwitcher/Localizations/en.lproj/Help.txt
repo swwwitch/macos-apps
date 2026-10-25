@@ -14,7 +14,7 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 
 ### Startup & Background Tab
 - Set **Open at login**, and **Show in menu bar**.
-- **Hide from Dock and App Switcher** (off at first): when on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon, the app hotkey, or by opening the app again in Finder.
+- **Hide from Dock and App Switcher** (off at first): when on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close. Show it from the menu bar icon, the app hotkey, or by opening the app again in Finder.
 - **Show app shortcut**: click Change… and press the keys to assign; the change takes effect immediately (Esc cancels).
 - At least one of ⌃, ⌥ or ⌘ is required, and keys used by standard commands such as ⌘C or by Lock Screen (⌃⌘Q) cannot be assigned. A registration failure is shown under the field.
 - **Reset to Default** returns to ⌃⌥⌘B.
@@ -59,3 +59,8 @@ No special permissions such as Accessibility are required. macOS may show a conf
 3. Move the app to the Trash.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

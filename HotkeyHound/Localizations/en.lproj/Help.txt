@@ -42,7 +42,7 @@ HotkeyHound finds which apps define a key combination. Use it when a hotkey does
 
 ## Settings
 Click Settings in the main window (⌘,).
-- **Startup & Background**: open at login, hide the main window at startup, hide from Dock and App Switcher (keeps the icon out of the Dock and ⌘Tab; show the app from the menu bar icon or by opening it again in Finder), show in the menu bar, and Accessibility status
+- **Startup & Background**: open at login, hide the main window at startup, hide from Dock and App Switcher (the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show the app from the menu bar icon or by opening it again in Finder), show in the menu bar, and Accessibility status
 - **Sources**: turn each source on or off and drag to reorder (results follow this order); the number of hotkeys found is shown. “Add Source…” creates a custom source where you enter keys, names and where they work (pencil to edit, trash to delete).
 - **Sharing**: export which sources are checked, their order, custom sources and “Hide inactive hotkeys” to a file and import it on another Mac (Add adds only custom sources you do not have yet; Replace uses the file’s settings). Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. Open at login, the startup window, the menu bar and the apps to check stay on each Mac.
 
@@ -84,3 +84,8 @@ Click Settings in the main window (⌘,).
 4. Remove HotkeyHound from System Settings > Privacy & Security > Accessibility.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

@@ -48,3 +48,8 @@
 - B15/B16: 新規ネイティブメニュー・ヘルプは4言語、整合検査PASS。移植したHTMLダイアログ内部は元ツールの日本語UI。ヘルプを開く実機確認は未確認。
 - B18: 署名済みビルド成功。既存版のBundle ID一致、共通deploy_both.pyで両配置先をバックアップ後に更新。/ApplicationsとDropbox Latest Buildsとも1.47.0 (115)、署名・ファイル内容一致。/Applicationsから起動・ツールメニュー・変換ダイアログ・txt保存確認済み。
 - 自動検証: test.sh PASS（HeadingParser等、MenuShortcutCombo 33往復、4言語整合）。node Tests/MarkdownTextCheck.js PASS（9項目）。27コマンドの設定掲載を検査。元サイトと変換関数の一致を検査。メニューバー共通構成の変更なし。整形ポップアップの先頭順序はソース確認、実機未確認。
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

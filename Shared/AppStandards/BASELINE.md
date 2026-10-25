@@ -174,7 +174,7 @@ macOS 13以降の表記に合わせ、アプリメニューの項目は「設定
 
 | ID | 必須仕様 | 受け入れ条件 |
 | --- | --- | --- |
-| B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」でログイン起動の動作説明の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONの間はウインドウを開いていても activation policy を `.accessory` にし、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
+| B30 | Dock・⌘Tabからの非表示を選べる | 全アプリの「起動・常駐」でログイン起動の動作説明の直下に置く（英語 Hide from Dock and App Switcher）。初期値OFF、UserDefaultsの `hideFromDockAndAppSwitcher` に保存。ONでもメイン・設定ウインドウがある間（最小化中を含む）は `.regular` にしてアプリメニューを使えるようにし、対象ウインドウをすべて閉じたら `.accessory` にする。パレットのみでは表示しない。保存済みのON/OFFは保持し、OFFでは従来の動作（通常アプリは `.regular`、メニューバー常駐アプリはWindowActivationPolicyの判定）に戻す。切り替えはその場で反映し、設定ウインドウを前面に保つ。設定画面の説明はどのアプリにも当てはまる「メニューバーのアイコンや、Finderからアプリを開き直す」とし、アプリを呼び出すホットキーなどアプリ固有の再表示の手段はヘルプに書く。設定画面のないアプリは理由付きで適用外。 |
 
 共通部品は `StartupWindow.swift` の `DockPresence`。`StartupWindowControl`／`StartupWindowView`（`LoginAtLaunchControl`／`LoginAtLaunchView` に内包）が自動で項目を出すので、各アプリでは書かない。起動時は `MenuBarPresence.install`、メニューバー常駐アプリは `WindowActivationPolicy.update` が反映する。アプリのコードで起動後に `setActivationPolicy(.regular)` を呼ばず、`DockPresence.apply()` を使う。
 

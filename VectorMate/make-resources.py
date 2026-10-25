@@ -450,7 +450,7 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 「アートボードツールを選んだらアートボードパネルを開く」「グラデーションツールを選んだらグラデーションパネルを開く」をオンにすると、クリックやキーの後にツールを読み、ほかのツールから切り替わったときだけ［ウィンドウ］メニューのパネルを開きます（✓ が付いていれば何もしません）。いずれも初期値はオフで、アクセシビリティの許可が必要です。
 
 起動・常駐
-見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。「Dockとアプリケーションスイッチャーに表示しない」をオンにすると、Dockと⌘Tabの切り替えにアイコンを出しません（初期値はオフ）。メニューバーのアイコン、アプリ起動のホットキー、Finderからアプリを開き直すと表示できます。
+見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。「Dockとアプリケーションスイッチャーに表示しない」をオンにすると、メイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します（初期値はオフ）。メニューバーのアイコン、アプリ起動のホットキー、Finderからアプリを開き直すと表示できます。
 
 環境設定（タブ）
 Illustratorの主要な環境設定（一般・選択範囲・アンカー表示・アートボード・テキスト・ユーザーインターフェイス・ガイド・スマートガイド・パフォーマンス・ファイル管理・クリップボード・スクリプト実行の許可）を、セットでまとめて切り替えます（ai-scripts の PresetManager と同じ項目）。UIの明るさ・シェイプ形成ツールのカラー・バックグラウンドの3項目（バックグラウンドで書き出し・バックグラウンドで保存・復帰データの自動保存）も含みます。ラジオボタンでセットを選ぶとすぐに書き換えます。ほとんどの項目はダイアログボックスを開かずに書き換え、UIの明るさ・シェイプ形成ツールのカラー・バックグラウンドの3項目は今と異なるときだけダイアログボックスやツールオプションを開いて変えます（アクセシビリティの許可が必要）。ガイドをロックとシェイプ形成ツールのカラーはドキュメントが要るので、開いていなければ新規ドキュメントを作って変え、保存せずに閉じます（ツールは元に戻します）。今の環境設定と同じセットが選ばれた状態で表示されます。
@@ -524,7 +524,7 @@ Double-tap a modifier key to switch to the Selection tool: while Illustrator is 
 Open the Artboards / Gradient panel with the Artboard / Gradient tool: the tool is read after clicks and keys, and the panel opens from the Window menu only when the tool is switched to from another one (nothing happens when the item already has a checkmark). All are off by default and need the Accessibility permission.
 
 Startup and background
-The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Manual launch and reopening show the main window; automatic login launch does not. Hide from Dock and App Switcher keeps its icon out of the Dock and the ⌘Tab switcher (off by default); show the app from the menu bar icon, the app launch hotkey, or by opening it again in Finder.
+The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Manual launch and reopening show the main window; automatic login launch does not. Hide from Dock and App Switcher the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close (off by default); show the app from the menu bar icon, the app launch hotkey, or by opening it again in Finder.
 
 Preferences tab
 Switches Illustrator’s main preferences (General, Selection & Anchor Display, Artboards, Type, User Interface, Guides, Smart Guides, Performance, File Handling, Clipboard, Allow scripts to run) as a set (the items of PresetManager in ai-scripts). UI brightness, the Shape Builder color and the three background items (Export in Background, Save in Background, Automatically Save Recovery Data) are included too. Choosing a set with the radio buttons rewrites them at once: most items without a dialog box; UI brightness, the Shape Builder color and the background items open their dialog box or the tool options only when they differ (Accessibility permission needed). Lock Guides and the Shape Builder color need a document: without one, a new document is made to change them and closed without saving (the tool is restored). The set matching the current preferences is shown selected.
@@ -672,7 +672,7 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 대지 도구·그레이디언트 도구를 선택하면 패널 열기를 켜면, 클릭이나 키 입력 뒤에 도구를 읽고 다른 도구에서 전환했을 때만 윈도우 메뉴의 패널을 엽니다(✓가 있으면 아무것도 하지 않습니다). 모두 기본값은 끔이며 손쉬운 사용 권한이 필요합니다.
 
 시작 및 백그라운드
-감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔). 수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다. Dock 및 앱 전환기에 표시 안 함을 켜면 Dock과 ⌘Tab 전환기에 아이콘을 표시하지 않습니다(기본값 끔). 메뉴 막대 아이콘, 앱 실행 단축키 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다.
+감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔). 수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다. Dock 및 앱 전환기에 표시 안 함을 켜면 메인·설정 윈도우가 있는 동안 Dock과 ⌘Tab에 표시하고 모두 닫으면 숨깁니다(기본값 끔). 메뉴 막대 아이콘, 앱 실행 단축키 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다.
 
 환경설정(탭)
 Illustrator의 주요 환경설정(일반, 선택 및 고정점 표시, 대지, 문자, 사용자 인터페이스, 안내선, 고급 안내선, 성능, 파일 처리, 클립보드, 스크립트 실행 허용)을 세트로 한꺼번에 전환합니다(ai-scripts의 PresetManager와 같은 항목). UI 밝기·도형 구성 도구 색상·백그라운드 3개 항목(백그라운드 내보내기·백그라운드 저장·복구 데이터 자동 저장)도 포함합니다. 라디오 버튼으로 세트를 고르면 바로 바꿉니다. 대부분의 항목은 대화상자 없이 바꾸고, UI 밝기·도형 구성 도구 색상·백그라운드 항목은 현재와 다를 때만 대화상자나 도구 옵션을 열어 바꿉니다(손쉬운 사용 권한 필요). 안내선 잠그기와 도형 구성 도구 색상은 도큐먼트가 필요하므로, 없으면 새 도큐먼트를 만들어 바꾸고 저장하지 않고 닫습니다(도구는 원래대로 돌립니다). 현재 환경설정과 같은 세트가 선택된 상태로 표시됩니다.

@@ -18,7 +18,7 @@ Conversion
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
-Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.
@@ -45,3 +45,8 @@ To load the article you enter, the app connects to note's public API (note.com/a
 Check for Updates… is the shared update feature, but this build has no update feed or signing key yet, so it shows that updates are being prepared and makes no connection.
 Support: see the bundled README.md (Contents/Resources/README.md in the app).
 Manual launch and reopening show the main window; automatic login launch does not.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

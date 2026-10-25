@@ -116,3 +116,8 @@ SuperKakkoReplace → KakkoReplace。アプリ単位の開発フォルダー、�
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 0.3.34 (54)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys: bracketBindings, disabled, paletteMode, forceWrap, trimSpaces（パレットを前面に出すホットキーは起動・常駐の項目なので除外）。一覧が無いので merge なし（置き換えのみ）。onImport＝Model.reload()＋palette.refresh()。ビルド・test.sh 合格、両配置先 0.3.34 (54)・署名一致、/Applications 版の起動を pgrep で確認。画面操作は未確認 |
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 実装済み・実機未確認 | 2026-10-17 0.3.35：共通部品 ExcludedApps（タブ・中身・文言、説明は exclusionsHint 4言語）。キー excludedBundleIDs、旧キー excluded を legacyKeys で引き継ぎ（defaults read で作成を確認、旧キーは残す）。判定 blocksHotkeys（対象外アプリと自身）、onChange でホットキー再登録。画面操作は未確認 |
 | — | ホットキーの記録欄 | 実装済み・実機未確認 | 2026-10-17 0.3.38（初期値に戻すの重複確認を取り込み）／0.3.37：設定「ホットキー」（操作を選んで1欄、id は bracket.<操作>、allowsClear、初期値は記事の割り当て）と「起動・常駐」の「パレットを前面に出す」を HotkeyField に。保存は bracketBindings／bringToFrontShortcut の Shortcut JSON のまま（KeyCombo と相互変換、defaults の bracketBindings のハッシュが配置前後で同一）。登録は独自の HotKey／FrontHotKey のまま、HotkeyRecorder.shared.onRecordingChanged で記録中は外す。others に他の操作とパレットのキー。トグルは HotkeyText.enable。独自の NSEvent 記録と関連文言15キーを削除。test.sh 合格、配置・起動確認。記録操作は未確認 |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

@@ -130,3 +130,8 @@
 
 - build27 / B13: feature and palette-display registrations are Keynote-only; dedicated palette hotkey persistence/clear/conflict tests PASS. Physical key interaction remains unverified.
 - build27 / B21 explicit user exception: remove excluded-app UI for Keynote-only operation; preserve stored excludedBundleIDs without applying them.
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

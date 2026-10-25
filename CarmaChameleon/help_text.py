@@ -135,7 +135,7 @@ HELP = {
 - 確認と更新はボタンを押したときだけ行います。独自のpandocも指定でき、「同梱版に戻す」でいつでも戻せます。
 
 ## 設定
-- **起動・常駐**：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabの切り替えにアイコンを出しません。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます）、ウインドウを閉じても常駐、アプリ起動のホットキー。
+- **起動・常駐**：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとメイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます）、ウインドウを閉じても常駐、アプリ起動のホットキー。
 - **起動・常駐**タブには、「Keynoteの操作」の許可状態も表示します。
 - **変換形式**タブ：メインウインドウに表示する変換形式と、その順番を選べます。チェックを外した形式は一覧に出ません。形式はカテゴリごとに並び、ドラッグまたは↑↓でカテゴリの中の順番を変えられます。「初期状態に戻す」で元に戻せます（OpenDocument と LaTeX は初期状態で非表示）。
 - **エンジン**タブ：pandoc と PDFエンジン（Typst）の状態・更新・独自のパスを設定します。
@@ -313,7 +313,7 @@ HELP = {
 - Checks and updates run only when you click a button. You can choose your own pandoc, and Use bundled version switches back at any time.
 
 ## Settings
-- **Startup & Background**: Launch at login (off by default), hide main window at startup, hide from Dock and App Switcher (off by default; keeps the app out of the Dock and the ⌘Tab switcher, and you show it from the menu bar icon when shown or by opening the app again in Finder), keep running after closing, and the app launch keyboard shortcut.
+- **Startup & Background**: Launch at login (off by default), hide main window at startup, hide from Dock and App Switcher (off by default; the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close, and you show it from the menu bar icon when shown or by opening the app again in Finder), keep running after closing, and the app launch keyboard shortcut.
 - The **Startup & Background** tab also shows the Keynote control permission.
 - **Output format** tab: choose which output formats appear in the main window and in what order. Unchecked formats are hidden. Formats are listed by category; drag or use ↑↓ to reorder them within a category. Restore defaults puts everything back (OpenDocument and LaTeX start hidden).
 - **Engines** tab: status, updates and custom paths for pandoc and the PDF engine (Typst).

@@ -99,3 +99,8 @@
 - B20 共通UI：「起動・常駐」の「起動時にメインウインドウを表示しない」の直下に表示（共通部品のため追加の配置なし）。ヘルプ4言語に追記。
 
 | B32 | 必要な標準通知と共通設定 | 実装・ビルド・配置済み／実機未完了 | Shared/Notifications/NotificationPreferences.swift。検証の詳細は Shared/AppStandards/Records/NOTIFICATIONS-20261024.md を参照。 |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

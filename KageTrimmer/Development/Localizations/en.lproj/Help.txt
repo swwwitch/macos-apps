@@ -26,7 +26,7 @@ Open **Settings…** from the app menu (⌘,). The Startup & Background tab cont
 
 - **Open at login**
 - Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
-- **Hide from Dock and App Switcher**: keeps the app out of the Dock and the ⌘Tab switcher even while the window is open. Show it from the menu bar icon, the show app shortcut, or by opening the app again in Finder.
+- **Hide from Dock and App Switcher**: the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close. Show it from the menu bar icon, the show app shortcut, or by opening the app again in Finder.
 - **Show in menu bar**
 - **Show app shortcut**: when images are selected in Finder or Path Finder, they are processed right away (not in the App Store version). Otherwise it shows the KageTrimmer window. The default is ⌃⌥⌘U and it is enabled. To change it, click **Change…** and press the keys to assign (include ⌘ or ⌃; press Esc to cancel). **Reset to Default** goes back to ⌃⌥⌘U. Turn off **Enable hotkey** if you do not use it.
 
@@ -72,3 +72,8 @@ KageTrimmer does not need Accessibility permission. If it cannot write to the or
 1. Turn off **Open at login**.
 2. Quit the app.
 3. Move KageTrimmer to the Trash.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

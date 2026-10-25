@@ -46,7 +46,7 @@ Dropbox内 `sw_app` と旧cloneは保全元として保持する。配布先はD
 - KageTrimmer基準のテンプレート（Shared/NoteHeaders/Template/）を既存・新規記事に使う。生成した画像は Shared/NoteHeaders/<アプリ名>.png に置き、テンプレートのフォルダには入れない。白系背景、左に現行マスタードアイコン、右に工房名と黄色い罫線・太字アプリ名・短い機能説明を配置する。1280×670px。
 
 - 全アプリは手動起動・開き直しでメインウインドウを表示し、ログイン時の自動起動では表示しない。非表示の選択項目は設けず、旧hideMainWindowAtStartup値は参照しない。「ログイン時に起動」の下に動作説明を置く。Shared/AppStandards/StartupWindow.swiftで起動経路を判定し、ファイル受け渡しを優先する。
-- ログイン起動の説明の直下に「Dockとアプリケーションスイッチャーに表示しない」（英語 Hide from Dock and App Switcher）を置く。初期値OFF、ONの間はウインドウを開いていてもDock・⌘Tabに出さない。StartupWindow.swiftの`DockPresence`を使い、起動後に`setActivationPolicy(.regular)`を直接呼ばない（BASELINE B30）。
+- ログイン起動の説明の直下に「Dockとアプリケーションスイッチャーに表示しない」（英語 Hide from Dock and App Switcher）を置く。初期値OFF、ONでもメイン・設定ウインドウがある間（最小化中を含む）は通常アプリ扱いでDock・⌘Tabとアプリメニューを表示し、対象ウインドウをすべて閉じたら隠す。パレットのみでは表示しない。保存済みのON/OFFは保持する。StartupWindow.swiftの`DockPresence`を使い、起動後に`setActivationPolicy(.regular)`を直接呼ばない（BASELINE B30）。
 
 ⌘W（Command＋W）で設定ウインドウを閉じることを全アプリの共通仕様とする。閉じる対象は操作中の設定ウインドウで、アプリの常駐と設定値は保持する。アプリメニューに標準の閉じる項目を用意し、他アプリの⌘Wは横取りしない。
 

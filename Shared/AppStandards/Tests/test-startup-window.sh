@@ -8,3 +8,6 @@ xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$roo
 xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$root/Tests/StartupWindowGateTests.swift" -o "$stage/gate"
 "$stage/gate"
 "$stage/gate" --reopen
+
+xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$root/WindowActivationPolicy.swift" "$root/Tests/DockPresenceTests.swift" -o "$stage/dock-presence"
+"$stage/dock-presence"

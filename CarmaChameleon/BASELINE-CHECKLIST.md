@@ -88,3 +88,8 @@ HTML整形のPickerをradioGroupへ変更。選択値・保存キー・変換ロ
 変換形式をユーザー指定のPDF/plain/idml/html5/gfm/pptx/docx/epub3/rtf/latex/odt順へ変更。保存済みIDと既定docxを維持するためdefaultFormatを明示し、配列先頭への依存を解除。ビルド・署名検証成功。待機中の旧版を通常終了し、バックアップ後に両配置先へ配置、版/build/署名/内容一致確認。/Applications版の実画面で全11形式の順序とHTML選択保持を確認。変換ロジックは変更なし。
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 0.14.1 (44)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys は既存のまま（format・変換オプション・formatOrder/hiddenFormats・aiMethod/psdMethod・name*・prefixes raster/svg/utf16/filename/xlsx）。merge なし（置き換えのみ）。onImport＝reloadSyncedSettings()。ビルド成功、test.sh は変換テスト151件合格・末尾の文言検査が既存の store* キー未登録で失敗（今回の変更とは無関係）。両配置先 0.14.1 (44)・署名一致、/Applications 版の起動を pgrep で確認。画面操作は未確認 |
 | — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：グローバルホットキーは無い（RegisterEventHotKey・独自のキー記録なし）。「アプリ起動のホットキー」は macOS のショートカット App（「アプリを開く」）に任せ、設定には［ショートカットを開く］ボタンだけを置く。変更なし（0.14.2 のまま） |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

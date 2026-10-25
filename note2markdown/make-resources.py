@@ -136,7 +136,7 @@ helptexts = [
 
 設定
 「出力」タブ：埋め込まれたnote記事のタイトルをリンクの文字にする（初期値オン）。オフにすると「note記事へのリンク」と書き出し、記事ごとの問い合わせをしません。
-「起動・常駐」タブ：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとDockと⌘Tabに出さず、メニューバーのアイコンかFinderからアプリを開き直すと表示）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
+「起動・常駐」タブ：ログイン時に起動（初期値オフ）、Dockとアプリケーションスイッチャーに表示しない（初期値オフ。オンにするとメイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します、メニューバーのアイコンかFinderからアプリを開き直すと表示）、ウインドウを閉じても常駐（初期値オン）、メニューバーに表示（初期値オフ）。
 
 設定の共有
 「設定の共有」タブで、「出力」タブの設定（埋め込まれたnote記事のタイトル取得・ファイル名）を書き出し・読み込みできます（「書き出す…」「読み込む…」、note2markdown-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。最後の保存先フォルダー、ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。
@@ -184,7 +184,7 @@ Conversion
 
 Settings
 Output: Use the titles of embedded note articles as link text (on by default). When off, they are written as “Link to the note article” and no extra requests are made.
-Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app stays out of the Dock and ⌘Tab; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
+Startup & Background: Launch at login (off), Hide from Dock and App Switcher (off; when on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show it from the menu bar icon or by opening it again in Finder), Keep running after closing the window (on), Show in menu bar (off).
 
 Sharing settings
 In the Sharing tab, Export… and Import… save and load the Output tab setting (looking up titles of embedded note articles) as note2markdown-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). The last export folder, open at login, keep running and the menu bar icon are set on each Mac.

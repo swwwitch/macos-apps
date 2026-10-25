@@ -51,3 +51,8 @@
 | B28 | ウインドウ位置とアクセシビリティの細目 | 未確認 | 初回中央・画面外復帰、ボタンとドロップ領域のaccessibilityLabel、tintのコントラスト、視差効果を減らす |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 2026-10-16 1.10.1 (21)：「設定の共有」タブ（SettingsSharingView）を「情報」の直前に。keys: entries, hotkeysEnabled, preferPathFinder, listOrder, listAscending, viewMode。merge（無いアプリの行だけ追加）、legacyExtensions docklesslauncher/applauncher＋legacyImport（SettingsFile）。onImport＝Model.reload()。ビルド・test.sh 合格、両配置先 1.10.1 (21)・署名一致、/Applications 版の起動を pgrep で確認。書き出し・読み込み・同期の画面操作は未確認 |
 | — | ホットキーの記録欄 | 適用外 | 2026-10-17 ソース確認：設定画面で割り当てるホットキー（機能・アプリ呼び出し）が無い。キーを扱うのは一覧の行とキーボード表示（エントリーごとのキー割り当て）で、アプリ本体の機能のため共通の HotkeyField は使わない。記録ルール（⌘・⌥・⌃のどれか必須、⌘C等の標準キー拒否、Escで取消）は独自の Shortcut.recorded で同じ（ただし共通部品は 2026-10-17 から ⌘か⌃必須になったので、⌥だけのキーを許す点は異なる）。アプリを呼び出すキーは一覧に自分を登録して代用。変更なし（1.10.2 のまま） |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

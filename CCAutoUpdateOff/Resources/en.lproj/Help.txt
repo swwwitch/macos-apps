@@ -22,7 +22,7 @@ Mail
 Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). Send at sets the time (9:00 by default); if it turns on after that time, the mail goes out when it is noticed. It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. If the Mac is asleep at the send time, it goes out after waking.
 
 Startup and background
-The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Hide from Dock and App Switcher (off by default) keeps the app out of the Dock and the ⌘Tab switcher even while a window is open; show it from the menu bar icon (when shown) or by opening the app again in Finder. The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
+The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Hide from Dock and App Switcher (off by default) the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show it from the menu bar icon (when shown) or by opening the app again in Finder. The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
 
 Sharing settings
 In the Sharing tab of Settings, Export… and Import… save and load what to report, notifications and mail (address and send time) as CCAutoUpdateOff-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
@@ -48,3 +48,8 @@ Notifications
 Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

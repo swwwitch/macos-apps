@@ -51,3 +51,8 @@
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央、画面外復帰、accessibilityLabel |
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・ビルド・配置確認済み・実機UI未確認 | 「情報」の直前に SettingsSharingView の「設定の共有」タブ。共有キー：hotkeyEnabled・pasteShortcut・addEnabled・addShortcut・trimIndent・stripMarkers・notifyEach・closeWhenEmpty。onImport でモデルを読み直しホットキーを再登録。GUI操作での書き出し・読み込み・同期は未確認 |
 | — | ホットキーの記録欄 | 実装済み・ビルド確認済み・実機未確認 | 2026-10-17：HotkeyField 2つ（paste ⌃⌥V／add ⌃⌥⌘C、others で相互の重複を断る）。保存は pasteShortcut・addShortcut の JSON のまま、ShortcutCombo.swift で変換（ComboTests）。登録は HotkeySet（"PSUC"、1・2）。独自の ShortcutRow・記録モニター・SingleHotKey・重複/失敗の文言を削除 |
+
+
+### B30 2026-10-25改定
+
+メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。

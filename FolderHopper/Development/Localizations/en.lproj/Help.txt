@@ -22,7 +22,7 @@ Open **Settings…** from the app menu (⌘,) or with the **Settings…** button
 ### Startup & Background Tab
 - **Open at login** (the status is shown below it; Open Login Items appears when System Settings needs approval)
 - Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
-- **Hide from Dock and App Switcher**: when on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon, the app shortcut, or by opening the app again in Finder.
+- **Hide from Dock and App Switcher**: when on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close. Show it from the menu bar icon, the app shortcut, or by opening the app again in Finder.
 - **Show in menu bar**
 - **Show app shortcut**: turn on Enable hotkey, click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels, Reset to Default returns to ⌃⌥⌘F). A registration failure is shown under the field.
 
@@ -88,3 +88,8 @@ Show the app with ⌃⌥⌘F by default. Available while the app is running and 
 
 Notifications
 Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

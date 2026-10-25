@@ -50,7 +50,7 @@ In the Sharing tab you can share the file naming and what happens after export. 
 ## Opening and Quitting
 - Closing the window does not quit the app; it stays in the menu bar. Choose Open Main Window from the menu bar icon to show the main window again.
 - Opening or reopening the app manually shows the main window. Automatic login launch does not show it. Explicitly opening files takes precedence.
-- When Hide from Dock and App Switcher is on, the app stays out of the Dock and the ⌘Tab switcher even while the main window is open (off by default). Show it from the menu bar icon or by opening it again in Finder.
+- When Hide from Dock and App Switcher is on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close (off by default). Show it from the menu bar icon or by opening it again in Finder.
 - Turning off Show in menu bar does not quit the app. Open QuickIconExporter again to show the main window.
 - To quit, choose Quit QuickIconExporter from the menu bar icon.
 - Check for new versions with Check for Updates… in the app menu. Until update delivery is set up, it shows “Updates are not configured” and makes no network connection.
@@ -75,3 +75,8 @@ In the Sharing tab you can share the file naming and what happens after export. 
 
 Notifications
 Use Notifications in Settings to enable notifications and check permission. Enabling the option or clicking Allow Notifications requests permission. Open Notification Settings lets you choose placement and style in macOS. If denied, change permission in System Settings. Launching or completing an operation never requests permission. If Focus or other settings hide notifications, check results and status in the app.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

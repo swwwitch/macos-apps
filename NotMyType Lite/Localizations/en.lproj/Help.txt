@@ -150,3 +150,8 @@ Open Settings with the Settings button in the main window (⌘,).
 4. Move NotMyType Lite to the Trash. The library list stays in ~/Library/Application Support/NotMyType Lite; delete it if you no longer need it. Font files stay where they are.
 
 Opening or reopening the app manually shows the main window. Automatic login launch does not show it (fonts that were active last time are reactivated).
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

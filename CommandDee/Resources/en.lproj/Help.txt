@@ -50,7 +50,7 @@ Choose Settings… (⌘,) from the menu bar icon.
 - **Suffix order**: choose the order of the version number, "edited" and the date. Existing names are read as well, and the next operation writes them in the chosen order.
 - **Action Shortcuts**: click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key used by another action or the palette cannot be assigned twice.
 - **Parent folder name to skip**: uses an exact match and refers to the folder above. Leave the field empty to turn it off.
-- **Hide from Dock and App Switcher**: in Startup & Background, below the login-launch explanation. When on, the app stays out of the Dock and the ⌘Tab switcher even while a window is open. Show it from the menu bar icon or by opening the app again in Finder.
+- **Hide from Dock and App Switcher**: in Startup & Background, below the login-launch explanation. When on, the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close. Show it from the menu bar icon or by opening the app again in Finder.
 - **Sharing**: “Export…” saves the settings to CommandDee-Settings.plist, and “Import…” replaces them after asking. “Set Sync Folder…” syncs with your other Macs through a folder you choose (iCloud Drive, Dropbox, etc.). Shared: the action shortcuts and whether they are on, the separator, the suffix order, the status words and the parent folder name to skip. Login launch, the menu bar icon, the palette shortcut and Accessibility are set per Mac.
 
 ## Permissions
@@ -69,3 +69,8 @@ Choose Settings… (⌘,) from the menu bar icon.
 - Check for Updates… and Automatically Check for Updates in the app menu show that updates are not configured, and make no network access, until an update feed and signing key are set up.
 - Choose Menu Bar Settings… in the app menu to show or hide the menu bar icon. Hiding it does not quit the app.
 Manual launch and reopening show the main window; automatic login launch does not.
+
+
+## Dock visibility and application menus
+
+Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
