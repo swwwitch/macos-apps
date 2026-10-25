@@ -284,13 +284,12 @@ final class LibraryStore: ObservableObject {
     /// フォントフォルダー（username・All Users・System）のファイルかどうか
     static func isInstalled(_ file: FontFile) -> Bool { SystemFolder.of(file.path) != nil }
 
-    /// System・Adobe Fonts のフォントは切り替えない・取り除かない
+    /// System のフォントは切り替えない。インストール済みフォントの削除は別途禁止する
     static func isLocked(_ file: FontFile) -> Bool { SystemFolder.of(file.path).map { !$0.isEditable } ?? false }
 
     /// 切り替えられない理由（一覧のチェックボックスと失敗の一覧に出す）
     static func lockedReason(_ file: FontFile) -> String {
-        SystemFolder.of(file.path) == .adobeFonts ? L("Adobe Fontsのフォントは、Creative Cloudで切り替えます")
-            : L("System のフォントは切り替えられません")
+        L("System のフォントは切り替えられません")
     }
 
     /// 設定でフォントフォルダーを外したときは、そのフォントを一覧に出さない（ライブラリからは消さない）。
@@ -851,7 +850,7 @@ final class LibraryStore: ObservableObject {
         save()
     }
 
-    /// セットのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    /// セットのアクティブの状態：すべて／一部（nil）／なし。System と見つからないファイルは数えない
     func setState(_ id: UUID) -> Bool? { groupState(id) { setFiles(id) } }
 
     func setFiles(_ id: UUID) -> [FontFile] { files(withIDs: data.sets.first { $0.id == id }?.files ?? []) }
@@ -867,7 +866,7 @@ final class LibraryStore: ObservableObject {
         return Set(ids).compactMap { positions[$0] }.sorted().map { data.files[$0] }
     }
 
-    /// セット・プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    /// セット・プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System と見つからないファイルは数えない
     private func groupState(_ id: UUID, _ files: () -> [FontFile]) -> Bool? {
         if let cached = groupStateCache[id] { return cached }
         let targets = files().filter { !Self.isLocked($0) && states[$0.id] != .missing }
@@ -1515,7 +1514,7 @@ final class LibraryStore: ObservableObject {
 
     func projectFiles(_ id: UUID) -> [FontFile] { files(withIDs: project(id)?.files ?? []) }
 
-    /// プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System・Adobe Fonts と見つからないファイルは数えない
+    /// プロジェクトのアクティブの状態：すべて／一部（nil）／なし。System と見つからないファイルは数えない
     func projectState(_ id: UUID) -> Bool? { groupState(id) { projectFiles(id) } }
 
     /// 新規プロジェクト：名前を決めて空のまま作り、編集の画面を開く
@@ -1978,7 +1977,7 @@ final class LibraryStore: ObservableObject {
                 let goneFiles = store.data.files.filter {
                     Self.isInstalled($0) && (Self.isHiddenSystemFont($0) || !FileManager.default.fileExists(atPath: $0.path)
                         || SystemFolder.of($0.path) == .system
-                        || (SystemFolder.of($0.path) == .adobeFonts && !adobe.contains($0.path)))
+                        || (SystemFolder.of($0.path) == .adobeFonts && !adobe.contains($0.path) && !AdobeFontActivation.wasDisabledHere($0.url)))
                 }
                 let gone = Set(goneFiles.map(\.id))
                 if !gone.isEmpty {

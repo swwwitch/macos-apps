@@ -504,6 +504,7 @@ enum FontActivation {
     /// ライブラリのフォントはログイン中だけ有効（.session）。アプリを終了しても次にログアウトするまでほかのアプリで使える。
     /// フォントフォルダーに入っているフォントは .persistent（ファイルは動かさず、ユーザーの設定として残る）
     static func activate(_ file: FontFile, scope: CTFontManagerScope = .session) -> String? {
+        if SystemFolder.of(file.path) == .adobeFonts { return AdobeFontActivation.setEnabled(true, url: file.url) }
         var error: Unmanaged<CFError>?
         if CTFontManagerRegisterFontsForURL(file.url as CFURL, scope, &error) { return nil }
         let code = error.map { CFErrorGetCode($0.takeRetainedValue()) } ?? 0
@@ -513,6 +514,7 @@ enum FontActivation {
     }
 
     static func deactivate(_ file: FontFile, scope: CTFontManagerScope = .session) -> String? {
+        if SystemFolder.of(file.path) == .adobeFonts { return AdobeFontActivation.setEnabled(false, url: file.url) }
         var error: Unmanaged<CFError>?
         if CTFontManagerUnregisterFontsForURL(file.url as CFURL, scope, &error) { return nil }
         let code = error.map { CFErrorGetCode($0.takeRetainedValue()) } ?? 0
@@ -786,8 +788,8 @@ enum SystemFolder: String, CaseIterable, Hashable, Sendable {
     }
 
     /// username・All Users は .persistent の登録・解除で切り替える（ファイルは動かさない）。
-    /// System は macOS、Adobe Fonts は Creative Cloud が管理するので切り替えない
-    var isEditable: Bool { self == .user || self == .allUsers }
+    /// System は切り替えない。Adobe Fonts は専用APIで有効・無効を切り替える。
+    var isEditable: Bool { self == .user || self == .allUsers || self == .adobeFonts }
 
     /// 隠しファイルも読むフォルダー（Adobe Fonts のファイル名は . で始まる）
     var includesHiddenFiles: Bool { self == .adobeFonts }

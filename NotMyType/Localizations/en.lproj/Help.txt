@@ -92,7 +92,7 @@ Hidden font files and fonts inside hidden folders are included. Finder visibilit
 
 ### Vendors and Collections
 - "Vendors" in the sidebar shows only Morisawa, Fontworks or Adobe fonts, identified by the trademark owner written in the font (such as "… is a trademark of Morisawa …"), or by the vendor ID (MRSW, FWKS, ADBE) when no owner is written. Morisawa typefaces built by Adobe (A-OTF Ryumin and so on) go to Morisawa. "Adobe" shows only Ten Mincho (including Text and Antique), Kozuka Mincho, Kozuka Gothic, Source Han Sans, Source Han Serif, Higumin, Momochidori, Adobe Clean, Myriad, Minion, Ryo, Source Code Pro and Noto.
-- "Adobe Fonts" under Vendors shows the fonts activated in Creative Cloud (currently registered with macOS). Fonts turned off in Creative Cloud leave the list. They are turned on and off in Creative Cloud, so NotMyType cannot switch them (Creative Cloud registers them again right away). While they are shown, "fonts.adobe.com" above the list opens the site to switch them (also from the right-click menu of the "Adobe Fonts" row).
+- "Adobe Fonts" under Vendors shows the fonts activated in Creative Cloud (currently registered with macOS). NotMyType can enable or disable these fonts. Fonts disabled here remain listed and can be enabled again. Install new fonts from Added Fonts in Creative Cloud. Fonts available only in Adobe apps are not listed in NotMyType. Creative Cloud operations or synchronization may change their state. While they are shown, "fonts.adobe.com" above the list opens the site to switch them (also from the right-click menu of the "Adobe Fonts" row).
 - "Collections" in the sidebar lists the collections of Font Book and the Fonts panel. Choose one to see the library fonts in it. They are read again when you bring NotMyType to the front.
 - Right-click families or styles and choose "Add to Collection" to put them in a collection used by Font Book and the Fonts panel (~/Library/FontCollections). "New Collection…" creates a new one.
 - Fonts are added by PostScript name. Inactive fonts can be added too and appear in the collection when you activate them.
@@ -195,7 +195,7 @@ Open Settings with the Settings button in the main window (⌘,).
 - "A font with the same name is already in use" means a font with the same PostScript name is active from the system or another font manager. Deactivate it there, then activate again.
 - If an activated font does not appear in an app's font menu, restart that app.
 - Fonts under "Missing" were moved or deleted, or are on a disconnected external disk. Connect the disk, or remove them from the library and add them again from the new location.
-- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyType cannot switch (System, Adobe Fonts, and files that cannot be found) are shown in light gray.
+- System fonts such as those in /System/Library/Fonts cannot be deactivated. In the list, fonts that NotMyType cannot switch (System and files that cannot be found) are shown in light gray.
 
 - If "Unify Fonts in Illustrator" says it could not send the script, allow NotMyType to control Illustrator in System Settings > Privacy & Security > Automation.
 - If Sharing says it cannot read or write the sync files, make sure the sync folder is kept on this Mac (not online-only in Dropbox and the like).

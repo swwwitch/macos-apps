@@ -534,14 +534,14 @@ private struct DuplicatesBar: View {
     }
 }
 
-/// Adobe Fonts を表示している間だけ出す案内。切り替えは Creative Cloud で行う
+/// Adobe Fonts を表示している間だけ出す案内。追加は Creative Cloud、切り替えはこのアプリでも行う
 private struct AdobeFontsBar: View {
     @ObservedObject private var store = LibraryStore.shared
 
     var body: some View {
         HStack(spacing: 8) {
             AdobeFontsIcon()
-            Text(L("Adobe Fontsのオン・オフは、Creative Cloudで行います"))
+            Text(L("追加はCreative Cloudで行います。ここで有効・無効を切り替えられます"))
                 .font(.callout).foregroundStyle(.secondary)
                 .lineLimit(2).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 4)

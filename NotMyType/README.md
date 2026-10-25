@@ -1,6 +1,6 @@
 # NotMyType
 
-現行版：**1.58.3（build 92）** — 2026-10-25
+現行版：**1.59.0（build 93）** — 2026-10-25
 
 フォントファイルをライブラリに登録し、必要なときだけアクティブにするフォント管理アプリです（FontExplorer X Pro の基本機能に相当）。ユニバーサル版（Apple Silicon・Intel）。
 
@@ -12,7 +12,7 @@
 - 検索オプション：文字セット・N・形式・種類・UD・AP版・新ゴ・ファミリーの書体数・収録文字数（ラジオボタン、サイドバー・検索と重ねて効く）
 - お気に入り（ファミリー名で覚える）
 - サイドバーの「システム」：ユーザー名（`~/Library/Fonts`）・All Users（`/Library/Fonts`）・System（`/System/Library/Fonts`）。起動時とフォントの変更時に読み込む。ユーザー名と All Users は `.persistent` の登録解除・再登録で切り替え（ファイルは動かさない）、System は切り替え・取り除き不可
-- ベンダー：モリサワ・フォントワークスは商標の持ち主（name テーブル）を優先し、無ければ OS/2 の achVendID。アドビは `LibraryStore.adobeFamilies` のファミリーだけ（ユーザー指定）。Adobe Fonts は Creative Cloud が登録し直すので切り替えず、Creative Cloud・fonts.adobe.com を開く案内を出す
+- ベンダー：モリサワ・フォントワークスは商標の持ち主（name テーブル）を優先し、無ければ OS/2 の achVendID。アドビは `LibraryStore.adobeFamilies` のファミリーだけ（ユーザー指定）。Adobe Fonts は Creative Cloudでインストール済みのフォントを有効・無効に切り替えられる。ここで無効化したフォントは一覧に残り、再有効化できる
 - コレクションに追加：`NSFontCollection`（`~/Library/FontCollections`、visibility .user）に PostScript 名で加える
 - スマートセット：お気に入り・アクティブ・最近アクティブ・非アクティブ・最近非アクティブ・最近追加したもの（7日以内）・日本語をサポート
 - プロジェクト：参照するファイル（IDML・INDD・PDF・AI）・フォルダー（FSEvents で見張って自動で読み直す）・貼り付けたフォント名から組み立てる。PostScript名の完全一致は確定、表記ゆれは承認制。アクティブはほかを解除せず、失敗したらその操作の分を戻す。メニューバーのメニューからも切り替える
@@ -54,6 +54,8 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - 未実装（今後）：なし。フォントファイルのコピー・移動（FontExplorer X Pro の Copy／Move、フォルダーに集める整理）は付けない（2026-10-24 ユーザー決定）。ファイルは元の場所を参照するだけにする
 
 ## 更新履歴
+
+- 1.59.0（build 93）：通常版でAdobe Fontsの有効・無効切り替えに対応。無効化後の一覧保持と再有効化。未登録キャッシュの直接登録は行わない。
 
 - 1.57.0（build 86）：中央の一覧のお気に入りの☆を、名前の右から行の右端（「n書体」の右）へ。書体の行も同じ幅を空けて右端をそろえる
 - 1.56.0（build 85）：公式の情報の「説明」を載せない（フォントベンダーの著作物のため。フォント情報・表示する情報の項目・検索から外し、build.sh で同梱する FontDB.sqlite の description を空にする。元の FontDB はそのまま）

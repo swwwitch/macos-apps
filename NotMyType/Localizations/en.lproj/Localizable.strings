@@ -553,3 +553,9 @@
 "カテゴリ" = "Category";
 
 "カスタムリンク" = "Custom Links";
+
+"Creative Cloudでこのフォントを有効にしてから、もう一度お試しください。" = "Enable this font in Creative Cloud, then try again.";
+
+"Adobe Fontsの状態変更を確認できませんでした。Creative Cloudの状態を確認してください。" = "Could not confirm the Adobe Fonts state change. Check its status in Creative Cloud.";
+
+"追加はCreative Cloudで行います。ここで有効・無効を切り替えられます" = "Add fonts in Creative Cloud. Enable or disable them here.";
