@@ -414,9 +414,12 @@ private struct ProjectEditorView: View {
                 }
                 .padding(4)
             }
+            if !project.excludedFiles.isEmpty {
+                Button(L("外したフォントをすべて戻す")) { store.restoreProjectFonts(projectID) }
+            }
             Picker("", selection: $tab) {
-                Text(L("一致（%d）", project.matched.count)).tag(0)
-                Text(L("候補（%d）", project.candidates.count)).tag(1)
+                Text(L("一致（%d）", project.matched.filter { !project.excludedFiles.contains($0) }.count)).tag(0)
+                Text(L("候補（%d）", project.candidates.filter { !project.excludedFiles.contains($0.file) }.count)).tag(1)
                 Text(L("見つからない（%d）", project.missing.count)).tag(2)
             }
             .pickerStyle(.segmented).labelsHidden()
@@ -448,11 +451,11 @@ private struct ProjectEditorView: View {
         List {
             switch tab {
             case 0:
-                ForEach(project.matched, id: \.self) { id in
+                ForEach(project.matched.filter { !project.excludedFiles.contains($0) }, id: \.self) { id in
                     if let file = byID[id] { fileRow(file) }
                 }
             case 1:
-                ForEach(project.candidates, id: \.self) { candidate in
+                ForEach(project.candidates.filter { !project.excludedFiles.contains($0.file) }, id: \.self) { candidate in
                     HStack(spacing: 8) {
                         Toggle("", isOn: Binding(get: { project.approved.contains(candidate.name) },
                                                  set: { store.approveProjectCandidate(projectID, candidate.name, $0) }))

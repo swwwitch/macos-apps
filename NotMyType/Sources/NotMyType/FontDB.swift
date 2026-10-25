@@ -112,5 +112,5 @@ enum ReleaseDecade: Int, CaseIterable, Hashable, Sendable {
         }
     }
 
-    var title: String { self == .before1990 ? L("1989年以前") : L("%d年代", rawValue) }
+    var title: String { self == .before1990 ? L("1989年以前") : L("%@年代", String(rawValue)) }
 }

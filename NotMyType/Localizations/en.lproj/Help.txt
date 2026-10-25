@@ -221,3 +221,5 @@ Selecting the app with Command-Tab restores the main window when no normal windo
 The Favorites context-menu item shows a checkmark when registered. Click a checked set in Add to Set to remove the selected fonts from that set. A mixed state adds all selected fonts.
 
 Switching to another sidebar category clears the search query. Option-click a category to keep the current query.
+
+Right-click a project font and choose Remove from Project to exclude it, including after rescanning sources. Restore All Removed Fonts in the project editor restores exclusions. Font files and library entries are retained. The Vendor search option combines with the sidebar, search text, and other filters.

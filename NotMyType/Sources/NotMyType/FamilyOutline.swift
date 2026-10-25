@@ -208,6 +208,9 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             if case .set(let id) = store.sidebar {
                 add(menu, L("このセットから外す")) { $0.removeFromSet(id, files) }
             }
+            if case .project(let id) = store.sidebar {
+                add(menu, L("プロジェクトから外す")) { $0.removeFromProject(id, files) }
+            }
             add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
             menu.addItem(.separator())
             add(menu, L("Finderで表示")) { $0.revealInFinder(files) }

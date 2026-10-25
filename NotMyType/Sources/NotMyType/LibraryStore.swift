@@ -136,6 +136,7 @@ final class LibraryStore: ObservableObject {
 
     @Published var searchText = "" { didSet { guard searchText != oldValue else { return }; shownCache = nil; listVersion += 1 } }
     /// 検索オプションの絞り込み：文字セット（"—" は文字セットの名前が無いもの）・形式・種類・ファミリーの書体数・収録文字数。nil は絞り込まない
+    @Published var vendorFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
     @Published var charsetFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
     @Published var formatFilter: String? { didSet { shownCache = nil; listVersion += 1 } }
     @Published var kindFilter: FontKind? { didSet { shownCache = nil; listVersion += 1 } }
@@ -146,12 +147,12 @@ final class LibraryStore: ObservableObject {
     @Published var releaseDecadeFilter: ReleaseDecade? { didSet { shownCache = nil; listVersion += 1 } }
     @Published var variantFilters: [VariantFilter: Bool] = [:] { didSet { shownCache = nil; listVersion += 1 } }
     var hasFilter: Bool {
-        charsetFilter != nil || formatFilter != nil || kindFilter != nil || faceCountFilter != nil || characterCountFilter != nil || !variantFilters.isEmpty
+        vendorFilter != nil || charsetFilter != nil || formatFilter != nil || kindFilter != nil || faceCountFilter != nil || characterCountFilter != nil || !variantFilters.isEmpty
             || classificationFilter != nil || releaseDecadeFilter != nil
     }
 
     func clearFilters() {
-        charsetFilter = nil; formatFilter = nil; kindFilter = nil; faceCountFilter = nil; characterCountFilter = nil; variantFilters = [:]
+        vendorFilter = nil; charsetFilter = nil; formatFilter = nil; kindFilter = nil; faceCountFilter = nil; characterCountFilter = nil; variantFilters = [:]
         classificationFilter = nil; releaseDecadeFilter = nil
     }
     static let noCharset = "—"
@@ -349,6 +350,7 @@ final class LibraryStore: ObservableObject {
 
     var shownFiles: [FontFile] {
         var files = files(in: sidebar)
+        if let vendorFilter { files = files.filter { Self.matchesVendorFilter($0, vendorFilter) } }
         if let charsetFilter {
             files = files.filter { (FontNaming.charset($0.family) ?? Self.noCharset) == charsetFilter }
         }
@@ -417,7 +419,16 @@ final class LibraryStore: ObservableObject {
         return counts
     }
 
+    static let adobeFontsFilterID = "service:adobe-fonts"
+    static var vendorFilterChoices: [(id: String, title: String)] {
+        vendors.map { ($0.id, $0.title) } + [(adobeFontsFilterID, "Adobe Fonts")]
+    }
+    static func matchesVendorFilter(_ file: FontFile, _ id: String) -> Bool {
+        id == adobeFontsFilterID ? SystemFolder.of(file.path) == .adobeFonts : belongs(file, toVendor: id)
+    }
+
     struct FilterOptions {
+        var vendors: [(String, Int)]
         var charsets: [(String, Int)]
         var formats: [(String, Int)]
         var kinds: [(FontKind, Int)]
@@ -462,6 +473,7 @@ final class LibraryStore: ObservableObject {
             if let range = FaceCountRange.allCases.first(where: { $0.contains(count) }) { faceCounts[range, default: 0] += 1 }
         }
         let options = FilterOptions(
+            vendors: Self.vendorFilterChoices.map { choice in (choice.id, Set(base.filter { Self.matchesVendorFilter($0, choice.id) }.map(\.family)).count) },
             charsets: (FontNaming.charsets + [Self.noCharset]).compactMap { name in charsets[name].map { (name, $0) } },
             formats: formats.map { ($0.key, $0.value.count) }.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0 < $1.0 },
             kinds: FontKind.allCases.compactMap { kind in kinds[kind].map { (kind, $0.count) } },
@@ -1511,6 +1523,22 @@ final class LibraryStore: ObservableObject {
     // MARK: プロジェクト
 
     func project(_ id: UUID) -> FontProject? { data.projects.first { $0.id == id } }
+
+    func removeFromProject(_ id: UUID, _ files: [FontFile]) {
+        let ids = Set(files.map(\.id))
+        updateProject(id) { project in
+            project.excludedFiles.formUnion(ids)
+            project.refreshFiles()
+        }
+        selection.removeAll()
+    }
+
+    func restoreProjectFonts(_ id: UUID) {
+        updateProject(id) { project in
+            project.excludedFiles.removeAll()
+            project.refreshFiles()
+        }
+    }
 
     func projectFiles(_ id: UUID) -> [FontFile] { files(withIDs: project(id)?.files ?? []) }
 

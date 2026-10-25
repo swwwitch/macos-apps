@@ -559,3 +559,9 @@
 "Adobe Fontsの状態変更を確認できませんでした。Creative Cloudの状態を確認してください。" = "Could not confirm the Adobe Fonts state change. Check its status in Creative Cloud.";
 
 "追加はCreative Cloudで行います。ここで有効・無効を切り替えられます" = "Add fonts in Creative Cloud. Enable or disable them here.";
+
+"プロジェクトから外す" = "Remove from Project";
+
+"外したフォントをすべて戻す" = "Restore All Removed Fonts";
+
+"%@年代" = "%@s";

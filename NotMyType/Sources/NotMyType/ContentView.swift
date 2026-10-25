@@ -591,6 +591,9 @@ private struct SearchOptionsPanel: View {
                     variantGroup(.nt, options)
                 }
                 VStack(alignment: .leading, spacing: 18) {
+                    group(L("ベンダー"), $store.vendorFilter, options.vendors.map { item in
+                        (LibraryStore.vendorFilterChoices.first { $0.id == item.0 }?.title ?? item.0, item.0, item.1)
+                    })
                     group(L("形式"), $store.formatFilter, options.formats.map { ($0.0, $0.0, $0.1) })
                     group(L("種類"), $store.kindFilter, options.kinds.map { ($0.0.title, $0.0, $0.1) })
                 }

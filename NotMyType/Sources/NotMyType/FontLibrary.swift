@@ -218,6 +218,7 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
     var name: String
     var sources: [ProjectSource] = []
     var approved: Set<String> = []
+    var excludedFiles: Set<UUID> = []
     /// PostScript名が完全に一致したファイル。files はこれと承認した候補のファイル
     var matched: [UUID] = []
     var files: [UUID] = []
@@ -235,6 +236,7 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
         name = try container.decode(String.self, forKey: .name)
         sources = try container.decodeIfPresent([ProjectSource].self, forKey: .sources) ?? []
         approved = try container.decodeIfPresent(Set<String>.self, forKey: .approved) ?? []
+        excludedFiles = try container.decodeIfPresent(Set<UUID>.self, forKey: .excludedFiles) ?? []
         files = try container.decodeIfPresent([UUID].self, forKey: .files) ?? []
         matched = try container.decodeIfPresent([UUID].self, forKey: .matched) ?? files
         candidates = try container.decodeIfPresent([ProjectCandidate].self, forKey: .candidates) ?? []
@@ -247,7 +249,7 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
 
     mutating func refreshFiles() {
         var seen = Set<UUID>()
-        files = (matched + candidates.filter { approved.contains($0.name) }.map(\.file)).filter { seen.insert($0).inserted }
+        files = (matched + candidates.filter { approved.contains($0.name) }.map(\.file)).filter { !excludedFiles.contains($0) && seen.insert($0).inserted }
     }
 }
 
@@ -732,11 +734,15 @@ extension LibraryData {
                 let known = Set(projects[index].files)
                 projects[index].files += project.files.compactMap { idMap[$0] }.filter { !known.contains($0) }
                 projects[index].approved.formUnion(project.approved)
+                projects[index].excludedFiles.formUnion(project.excludedFiles.compactMap { idMap[$0] })
+                let excluded = projects[index].excludedFiles
+                projects[index].files.removeAll { excluded.contains($0) }
             } else {
                 // 一致・候補のファイルも、合わせた後の id に読み替える（読み替えないと編集の画面で空になり、承認で消える）
                 var copy = project
                 copy.files = project.files.compactMap { idMap[$0] }
                 copy.matched = project.matched.compactMap { idMap[$0] }
+                copy.excludedFiles = Set(project.excludedFiles.compactMap { idMap[$0] })
                 copy.candidates = project.candidates.compactMap { candidate in
                     idMap[candidate.file].map { ProjectCandidate(name: candidate.name, file: $0) }
                 }
