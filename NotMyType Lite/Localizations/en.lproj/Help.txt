@@ -160,3 +160,5 @@ Even with Hide from Dock and App Switcher on, a main or settings window keeps th
 
 ### Links
 - Tools > Links shows 15 fixed links in three categories. Settings > Fonts > Custom Links edits only the links you add: names, URLs, order and removal. They appear under Custom Links in the menu and are included in settings export and sync. The two unchanged defaults from older settings move to the fixed list; custom links are preserved.
+
+Selecting the app with Command-Tab restores the main window when no normal window is visible. An open Settings or Help window stays in front.

@@ -4,6 +4,8 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Option キーを押しながら起動したか。起動し終わるころには離していることがあるので、早い段階で控える
     private var optionAtLaunch = false
+    private var canReopenOnActivation = false
+    private var isTerminating = false
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         optionAtLaunch = NSEvent.modifierFlags.contains(.option)
@@ -33,6 +35,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         AppHotkey.shared.start()
         startSettingsSync()
+        // Ignore activation belonging to launch; login startup remains quiet.
+        DispatchQueue.main.async { [weak self] in self?.canReopenOnActivation = true }
         DispatchQueue.main.async { [weak self] in
             MenuBarPresence.shared.install(name: "NotMyType Lite", symbol: "textformat",
                 show: { self?.showWindow() },
@@ -69,7 +73,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // showWindow() already reopens the main window; avoid SwiftUI opening a second one.
         return false
     }
+    /// Command-Tab activates an app without sending the reopen Apple event.
+    func applicationDidBecomeActive(_ notification: Notification) {
+        guard canReopenOnActivation, !isTerminating else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self, NSApp.isActive, !self.isTerminating else { return }
+            // Keep an open Settings/Help window in front; restore only when no
+            // normal window is visible, including when the main window is minimized.
+            let hasVisibleWindow = NSApp.windows.contains {
+                $0.isVisible && !$0.isMiniaturized && !($0 is NSPanel) && $0.styleMask.contains(.titled)
+            }
+            guard !hasVisibleWindow else { return }
+            StartupWindow.userRequestedWindow()
+            self.showWindow()
+        }
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
+        isTerminating = true
         LibraryStore.shared.deactivateAllOnQuit()
     }
     /// Shows the main window, reopening the SwiftUI scene when it was closed.

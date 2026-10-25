@@ -544,12 +544,12 @@ private struct PreviewOptionsPanel: View {
     @AppStorage(PreviewStyle.trackingKey) private var tracking = 0.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(L("プレビューのオプション")).font(.headline)
-            HStack(alignment: .top, spacing: 20) {
-                VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(L("オプション")).font(.callout.weight(.semibold))
-                    Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                    Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 6) {
                         GridRow(alignment: .top) {
                             label(L("配色"))
                             Picker(L("配色"), selection: $scheme) {
@@ -595,8 +595,8 @@ private struct PreviewOptionsPanel: View {
                         }
                     }
                 }
-                .frame(width: 300, alignment: .leading)
-                VStack(alignment: .leading, spacing: 12) {
+                .frame(width: 240, alignment: .leading)
+                VStack(alignment: .leading, spacing: 8) {
                     Text(L("表示する情報")).font(.callout.weight(.semibold))
                     infoColumn(L("基本"), FontInfoItem.basic)
                 }
@@ -613,7 +613,7 @@ private struct PreviewOptionsPanel: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 230)
+                .frame(width: 180)
                 .lineLimit(1)
                 Spacer(minLength: 8)
                 Button(L("初期値に戻す")) {
@@ -621,8 +621,8 @@ private struct PreviewOptionsPanel: View {
                 }
             }
         }
-        .padding(16)
-        .frame(width: 560)
+        .padding(12)
+        .frame(width: 480)
     }
 
     private func label(_ text: String) -> some View {
