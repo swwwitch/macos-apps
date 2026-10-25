@@ -31,7 +31,7 @@ struct ClipboardContents {
     }
 }
 
-/// The editing commands: ⌃K / ⌃X kill into ControlMate's own kill buffer, ⌃Y / ⌃Z yank it, ⌃S selects a paragraph,
+/// The editing commands: ⌃K / ⌃X kill into ControlMate's own kill buffer, ⌃Y yanks it, ⌃S selects a paragraph,
 /// ⌃⇧↑↓ swap paragraphs. The text is read and selected with the Accessibility API; cut, copy and paste go through the
 /// app's own menu items so formatting is kept and the held ⌃ never mixes in. Ported from the JXA scripts
 /// MoveParagraph / SelectParagraph / CutToLineStart.

@@ -120,13 +120,13 @@ T = {
                           '⌃J 先确认输入法的文字，再向右移动。⌃⌘X／⌃⌘K 选择从光标到行首／行尾的文字并拷贝到剪贴板。',
                           '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다. ⌃⌘X / ⌃⌘K는 커서부터 행 처음 / 끝까지 선택해 클립보드에 복사합니다.'),
     'group.paragraph.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
-                             '⌃X でカットした文字は控えに入り、⌃Z（または ⌃Y）でペーストします。',
+                             '⌃X でカットした文字は控えに入り、⌃Y でペーストします。',
                              'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
-                             'Text cut with ⌃X goes into the kill buffer; ⌃Z (or ⌃Y) pastes it.',
+                             'Text cut with ⌃X goes into the kill buffer; ⌃Y pastes it.',
                              '移动和选择段落仅适用于可通过辅助功能读取文字的输入栏。快速按两次 ⌃S 可剪切段落。'
-                             '用 ⌃X 剪切的文字存入暂存区，用 ⌃Z（或 ⌃Y）粘贴。',
+                             '用 ⌃X 剪切的文字存入暂存区，用 ⌃Y 粘贴。',
                              '단락 이동과 선택은 손쉬운 사용으로 텍스트를 읽을 수 있는 입력란에서 작동합니다. ⌃S를 빠르게 두 번 누르면 단락을 오려둡니다. '
-                             '⌃X로 오려 둔 텍스트는 보관함에 들어가고 ⌃Z(또는 ⌃Y)로 붙여넣습니다.'),
+                             '⌃X로 오려 둔 텍스트는 보관함에 들어가고 ⌃Y로 붙여넣습니다.'),
     'cmd.forward': ('1文字右へ', 'Forward one character', '向右一个字符', '오른쪽으로 한 글자'),
     'cmd.backward': ('1文字左へ', 'Back one character', '向左一个字符', '왼쪽으로 한 글자'),
     'cmd.next': ('次の行へ', 'Next line', '下一行', '다음 행'),
@@ -145,11 +145,11 @@ T = {
     'cmd.end': ('End', 'End', 'End', 'End'),
     'cmd.copyToLineStart': ('行頭まで選択してコピー', 'Select to line start and copy', '选到行首并拷贝', '행 처음까지 선택해 복사'),
     'cmd.copyToLineEnd': ('行末まで選択してコピー', 'Select to line end and copy', '选到行尾并拷贝', '행 끝까지 선택해 복사'),
+    'cmd.copyToTextEnd': ('文章の末尾まで選択してコピー', 'Select to end of text and copy', '选到文末并拷贝', '글 끝까지 선택해 복사'),
     'cmd.moveParagraphUp': ('段落を上へ移動', 'Move paragraph up', '段落上移', '단락을 위로 이동'),
     'cmd.moveParagraphDown': ('段落を下へ移動', 'Move paragraph down', '段落下移', '단락을 아래로 이동'),
     'cmd.selectParagraph': ('段落を選択してコピー', 'Select and copy paragraph', '选择并拷贝段落', '단락 선택 후 복사'),
     'cmd.killToLineStart': ('段落頭までカットして控える', 'Cut to paragraph start (kill)', '剪切到段落开头并暂存', '단락 처음까지 오려 보관'),
-    'cmd.yankKilled': ('控えた文字をペースト', 'Paste the killed text (yank)', '粘贴暂存的文字', '보관한 텍스트 붙여넣기'),
 
     'capsAsControl': ('Caps Lock を常に ⌃ として扱う', 'Always treat Caps Lock as ⌃', '始终将 Caps Lock 视为 ⌃', 'Caps Lock을 항상 ⌃로 취급'),
     'capsAsControlHint': ('オン：Caps Lock を押している間は、上の表にないキーも ⌃ 付きで送ります（ターミナルの ⌃C、素通しにするアプリの ⌃F など）。'
@@ -176,19 +176,19 @@ T = {
                               '⌃J confirms the input method\'s text, then moves right.',
                               '⌃J 先确认输入法的文字，再向右移动。', '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다.'),
     'category.editing.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
-                              '⌃⌘X／⌃⌘K はカーソルから行頭／行末までを選択してクリップボードにコピーします。',
+                              '⌃⌘X／⌃⌘K はカーソルから行頭／行末まで、⌃⌥⌘X は文章の末尾までを選択してクリップボードにコピーします。',
                               'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
-                              '⌃⌘X / ⌃⌘K select from the caret to the line start / end and copy it to the clipboard.',
+                              '⌃⌘X / ⌃⌘K select from the caret to the line start / end, ⌃⌥⌘X to the end of the text, and copy it to the clipboard.',
                               '移动和选择段落仅适用于可通过辅助功能读取文字的输入栏。快速按两次 ⌃S 可剪切段落。'
-                              '⌃⌘X／⌃⌘K 选择从光标到行首／行尾的文字并拷贝到剪贴板。',
+                              '⌃⌘X／⌃⌘K 选择从光标到行首／行尾、⌃⌥⌘X 选择到文末的文字并拷贝到剪贴板。',
                               '단락 이동과 선택은 손쉬운 사용으로 텍스트를 읽을 수 있는 입력란에서 작동합니다. ⌃S를 빠르게 두 번 누르면 단락을 오려둡니다. '
-                              '⌃⌘X / ⌃⌘K는 커서부터 행 처음 / 끝까지 선택해 클립보드에 복사합니다.'),
-    'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y・⌃Z でペーストします。'
+                              '⌃⌘X / ⌃⌘K는 커서부터 행 처음 / 끝까지, ⌃⌥⌘X는 글 끝까지 선택해 클립보드에 복사합니다.'),
+    'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y でペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。'
                                '控えはクリップボードとは別なので、⌘C でコピーした内容は変わりません。',
-                               'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y or ⌃Z pastes it. '
+                               'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y pastes it. ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. '
                                'The kill buffer is separate from the clipboard, so what you copied with ⌘C stays.',
-                               '用 ⌃K、⌃X 剪切的文字存入 ControlMate 的暂存区，用 ⌃Y、⌃Z 粘贴。暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
-                               '⌃K, ⌃X로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y, ⌃Z로 붙여넣습니다. '
+                               '用 ⌃K、⌃X 剪切的文字存入 ControlMate 的暂存区，用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
+                               '⌃K, ⌃X로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. '
                                '보관함은 클립보드와 별개이므로 ⌘C로 복사한 내용은 바뀌지 않습니다.'),
 
     # Keyboard view: what ⌃+key does, short enough for a key cap
@@ -211,10 +211,10 @@ T = {
     'short.selectParagraph': ('段落選択', 'Select ¶', '选段落', '단락 선택'),
     'short.copyToLineStart': ('←コピー', '←Copy', '←拷贝', '←복사'),
     'short.copyToLineEnd': ('→コピー', 'Copy→', '拷贝→', '복사→'),
+    'short.copyToTextEnd': ('↓コピー', 'Copy↓', '拷贝↓', '복사↓'),
     'short.killLine': ('Kill→', 'Kill→', 'Kill→', 'Kill→'),
     'short.killToLineStart': ('←Kill', '←Kill', '←Kill', '←Kill'),
     'short.yank': ('Yank', 'Yank', 'Yank', 'Yank'),
-    'short.yankKilled': ('Yank', 'Yank', 'Yank', 'Yank'),
     'kb.layout': ('配列', 'Layout', '布局', '배열'),
     'kb.layoutAuto': ('自動（%@）', 'Automatic (%@)', '自动（%@）', '자동(%@)'),
     'kb.ansi': ('英語（US）', 'US', '美式（US）', '미국(US)'),
@@ -286,15 +286,15 @@ HELP_JA = '''## 使い方
 - ⌃M：Enter、⌃J：確定して右へ
 - ⌃,／⌃.：Home／End
 - ⌃⌘X／⌃⌘K：行頭まで／行末まで選択してコピー
+- ⌃⌥⌘X：文章の末尾まで選択してコピー
 ### 段落と行の編集
 - ⌃⇧↑／⌃⇧↓：段落を上下の段落と入れ替え
 - ⌃S：段落を選択してコピー。すばやく2回押すとカット
 - ⌃X：段落の先頭までカットして控える
-- ⌃Z：控えた文字をペースト
 
 ## 控え（キルバッファ）
 - ⌃K と ⌃X でカットした文字は、クリップボードとは別の ControlMate の控えに入ります。
-- ⌃Y・⌃Z で控えをペーストします。⌘C・⌘V のクリップボードは変わりません。
+- ⌃Y で控えをペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。⌘C・⌘V のクリップボードは変わりません。
 - 続けて ⌃K を押すと、控えにつなげて入れます（⌃K ⌃K で行と改行をまとめて控える）。
 - 控えはメモリーだけにあり、ControlMate を終了すると消えます。
 
@@ -356,15 +356,15 @@ HELP_EN = '''## Getting started
 - ⌃M: Enter, ⌃J: confirm, then move right
 - ⌃, / ⌃.: Home / End
 - ⌃⌘X / ⌃⌘K: select to line start / end and copy
+- ⌃⌥⌘X: select to the end of the text and copy
 ### Paragraphs and lines
 - ⌃⇧↑ / ⌃⇧↓: swap the paragraph with the one above / below
 - ⌃S: select and copy the paragraph; press twice quickly to cut it
 - ⌃X: cut to the start of the paragraph into the kill buffer
-- ⌃Z: paste the kill buffer
 
 ## Kill buffer
 - Text cut with ⌃K and ⌃X goes into ControlMate's kill buffer, separate from the clipboard.
-- ⌃Y and ⌃Z paste it. The ⌘C / ⌘V clipboard does not change.
+- ⌃Y pastes it; ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. The ⌘C / ⌘V clipboard does not change.
 - Pressing ⌃K again joins the new text to the buffer (⌃K ⌃K takes the line and its break).
 - The kill buffer lives in memory only and is gone when ControlMate quits.
 
@@ -426,15 +426,15 @@ HELP_ZH = '''## 使用方法
 - ⌃M：Enter，⌃J：确认后向右
 - ⌃,／⌃.：Home／End
 - ⌃⌘X／⌃⌘K：选到行首／行尾并拷贝
+- ⌃⌥⌘X：选到文末并拷贝
 ### 段落与行编辑
 - ⌃⇧↑／⌃⇧↓：与上／下段落交换
 - ⌃S：选择并拷贝段落；快速按两次则剪切
 - ⌃X：剪切到段落开头并暂存
-- ⌃Z：粘贴暂存的文字
 
 ## 暂存区
 - 用 ⌃K 和 ⌃X 剪切的文字存入 ControlMate 自己的暂存区，与剪贴板分开。
-- 用 ⌃Y、⌃Z 粘贴。⌘C／⌘V 的剪贴板不变。
+- 用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。⌘C／⌘V 的剪贴板不变。
 - 连续按 ⌃K 会接续存入（⌃K ⌃K 可一起暂存行和换行）。
 - 暂存区只在内存中，退出 ControlMate 后消失。
 
@@ -491,15 +491,15 @@ HELP_KO = '''## 사용 방법
 - ⌃M: Enter, ⌃J: 확정 후 오른쪽으로
 - ⌃, / ⌃.: Home / End
 - ⌃⌘X / ⌃⌘K: 행 처음 / 끝까지 선택해 복사
+- ⌃⌥⌘X: 글 끝까지 선택해 복사
 ### 단락과 행 편집
 - ⌃⇧↑ / ⌃⇧↓: 위 / 아래 단락과 바꾸기
 - ⌃S: 단락 선택 후 복사, 빠르게 두 번 누르면 오려두기
 - ⌃X: 단락 처음까지 오려 보관
-- ⌃Z: 보관한 텍스트 붙여넣기
 
 ## 보관함
 - ⌃K와 ⌃X로 오려 둔 텍스트는 클립보드와 별개인 ControlMate의 보관함에 들어갑니다.
-- ⌃Y, ⌃Z로 붙여넣습니다. ⌘C / ⌘V의 클립보드는 바뀌지 않습니다.
+- ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. ⌘C / ⌘V의 클립보드는 바뀌지 않습니다.
 - ⌃K를 이어서 누르면 보관함에 이어 붙입니다(⌃K ⌃K로 행과 줄바꿈을 함께 보관).
 - 보관함은 메모리에만 있으며 ControlMate를 종료하면 사라집니다.
 

@@ -73,6 +73,9 @@ struct Command: Identifiable, Equatable {
     var category: KeyCategory
     /// One of macOS's own Emacs keys (デフォルト); the others are ControlMate's additions (拡張).
     var standard = false
+    /// Handled by ControlMate even in the group's pass-through apps (only the excluded apps get it unchanged):
+    /// ⌃K and ⌃Y share ControlMate's kill buffer with ⌃X in every app.
+    var ignoresPassthrough = false
     var action: Action
     var label: String { "⌃" + mods.symbols + keyLabel }
 }
@@ -106,11 +109,12 @@ enum CommandTable {
                 action: .keys([Stroke(code: 123, mods: [.shift, .command], label: "⇧⌘←"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         Command(id: "copyToLineEnd", key: 40, keyLabel: "K", mods: .command, group: .assist, category: .editing,
                 action: .keys([Stroke(code: 124, mods: [.shift, .command], label: "⇧⌘→"), Stroke(code: 8, mods: .command, label: "⌘C")])),
+        Command(id: "copyToTextEnd", key: 7, keyLabel: "X", mods: [.option, .command], group: .assist, category: .editing,
+                action: .keys([Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         // Kill/Yank
-        Command(id: "killLine", key: 40, keyLabel: "K", group: .basic, category: .killYank, standard: true, action: .killToLineEnd),
+        Command(id: "killLine", key: 40, keyLabel: "K", group: .basic, category: .killYank, standard: true, ignoresPassthrough: true, action: .killToLineEnd),
         Command(id: "killToLineStart", key: 7, keyLabel: "X", group: .paragraph, category: .killYank, action: .killToLineStart),
-        Command(id: "yank", key: 16, keyLabel: "Y", group: .basic, category: .killYank, standard: true, action: .yank),
-        Command(id: "yankKilled", key: 6, keyLabel: "Z", group: .paragraph, category: .killYank, action: .yank),
+        Command(id: "yank", key: 16, keyLabel: "Y", group: .basic, category: .killYank, standard: true, ignoresPassthrough: true, action: .yank),
     ]
 
     /// Rows of the 「キー」 table: one function, with its macOS key (デフォルト) and ControlMate's key (拡張) side by side.
@@ -122,8 +126,6 @@ enum CommandTable {
     static func rows(in category: KeyCategory) -> [Row] {
         var rows: [Row] = []
         for command in all where command.category == category {
-            // ⌃Z pastes the same kill buffer as ⌃Y, so it shares that row.
-            if command.id == "yankKilled", let index = rows.firstIndex(where: { $0.id == "yank" }) { rows[index].extended = command; continue }
             rows.append(Row(id: command.id, standard: command.standard ? command : nil, extended: command.standard ? nil : command))
         }
         return rows
@@ -148,7 +150,7 @@ enum CommandTable {
         let native = bundleID.flatMap { id in nativeKeys.first { $0.key.caseInsensitiveCompare(id) == .orderedSame }?.value } ?? [:]
         return all.compactMap { command in
             guard !disabled.contains(command.id) else { return nil }
-            if let bundleID, passthrough[command.group]?.contains(where: { $0.caseInsensitiveCompare(bundleID) == .orderedSame }) == true { return nil }
+            if !command.ignoresPassthrough, let bundleID, passthrough[command.group]?.contains(where: { $0.caseInsensitiveCompare(bundleID) == .orderedSame }) == true { return nil }
             var command = command
             if let action = native[command.id] { command.action = action }
             return command

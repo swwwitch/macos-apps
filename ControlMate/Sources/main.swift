@@ -202,7 +202,7 @@ extension KeyGroup {
     var title: String { L("group." + rawValue) }
     var hint: String { L("group." + rawValue + ".hint") }
     /// The keys the group covers, for the 「素通しにするアプリ」 tab.
-    var keyList: String { CommandTable.commands(in: self).map(\.label).joined(separator: " ") }
+    var keyList: String { CommandTable.commands(in: self).filter { !$0.ignoresPassthrough }.map(\.label).joined(separator: " ") }
 }
 
 extension KeyCategory {

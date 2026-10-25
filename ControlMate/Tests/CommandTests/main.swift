@@ -26,8 +26,11 @@ check(Stroke(code: 8, mods: .command, label: "").flags == .maskCommand, "⌘C fl
 
 // Per-app resolution: pass-through groups dropped, VS Code's own keys swapped in, case-insensitive IDs.
 let chrome = CommandTable.resolved(bundleID: "com.google.Chrome", passthrough: CommandTable.initialPassthrough, disabled: [])
-check(!chrome.contains { $0.group == .basic } && !chrome.contains { $0.group == .paragraph }, "Chrome passes basic and paragraph keys")
+check(!chrome.contains { $0.group == .basic && !$0.ignoresPassthrough } && !chrome.contains { $0.group == .paragraph }, "Chrome passes basic and paragraph keys")
 check(chrome.contains { $0.id == "enter" }, "Chrome still gets the typing helpers")
+check(chrome.contains { $0.id == "killLine" } && chrome.contains { $0.id == "yank" }, "⌃K and ⌃Y are handled even where the basic keys pass through")
+check(CommandTable.match(code: 7, mods: [.option, .command], in: all)?.id == "copyToTextEnd", "⌃⌥⌘X")
+check(CommandTable.match(code: 7, mods: .option, in: all) == nil, "⌃⌥X is left alone")
 let code = CommandTable.resolved(bundleID: "com.microsoft.vscode", passthrough: [:], disabled: ["tab"])
 check(code.first { $0.id == "moveParagraphUp" }?.action == .keys([Stroke(code: 126, mods: .option, label: "⌥↑")]), "VS Code ⌥↑")
 check(!code.contains { $0.id == "tab" }, "disabled command left out")
@@ -73,7 +76,8 @@ for category in KeyCategory.allCases {
     }
 }
 check(listed.sorted() == all.map(\.id).sorted(), "every command once in the table")
-check(CommandTable.rows(in: .killYank).first { $0.id == "yank" }?.extended?.id == "yankKilled", "⌃Y and ⌃Z share a row")
+check(CommandTable.rows(in: .killYank).map(\.id) == ["killLine", "killToLineStart", "yank"], "Kill/Yank rows: ⌃K, ⌃X, ⌃Y (no ⌃Z)")
+check(CommandTable.match(code: 6, mods: [], in: all) == nil, "⌃Z is not used")
 check(all.filter(\.standard).map(\.keyLabel).sorted() == ["A", "B", "D", "E", "F", "K", "N", "P", "Y"], "macOS's own Emacs keys")
 
 // ⌃A / ⌃E: paragraph start / end; ⇧ keeps the other end.
