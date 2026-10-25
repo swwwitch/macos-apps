@@ -4,38 +4,35 @@ import Carbon
 
 @MainActor final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
-    @Published var sheet = "" { didSet { reparse() } }
-    @Published private(set) var event = EventVariables(fields: [:], readDoc: { _ in nil })
-    @Published private(set) var fieldCount = 0
     @Published var makeQR = UserDefaults.standard.object(forKey: "makeQR") as? Bool ?? true { didSet { defaults.set(makeQR, forKey: "makeQR") } }
     @Published var openAfter = UserDefaults.standard.object(forKey: "openAfter") as? Bool ?? true { didSet { defaults.set(openAfter, forKey: "openAfter") } }
-    @Published var root = UserDefaults.standard.string(forKey: "root") ?? Locations.defaults.root { didSet { defaults.set(root, forKey: "root") } }
-    @Published var eventDoc = UserDefaults.standard.string(forKey: "eventDoc") ?? Locations.defaults.eventDoc { didSet { defaults.set(eventDoc, forKey: "eventDoc"); reparse() } }
+    @Published var root = UserDefaults.standard.string(forKey: "root") ?? Locations.defaults.root { didSet { defaults.set(root, forKey: "root"); library.reload() } }
+    @Published var eventDoc = UserDefaults.standard.string(forKey: "eventDoc") ?? Locations.defaults.eventDoc { didSet { defaults.set(eventDoc, forKey: "eventDoc"); library.reload() } }
     @Published var recent = UserDefaults.standard.string(forKey: "recent") ?? Locations.defaults.recent { didSet { defaults.set(recent, forKey: "recent") } }
     @Published var opener = UserDefaults.standard.string(forKey: "opener") ?? "pathfinder" { didSet { defaults.set(opener, forKey: "opener") } }
+    @Published var sheetFile = UserDefaults.standard.string(forKey: "sheetFile") ?? SheetImport.defaultFile { didSet { defaults.set(sheetFile, forKey: "sheetFile") } }
     @Published var result: GenerationResult?
+    @Published var resultEvent: UUID?
     @Published var status = ""
     @Published var statusIsError = false
     @Published var working = false
+    lazy var library = Library(places: { [unowned self] in self.places })
 
     var places: Locations { Locations(root: root, eventDoc: eventDoc, recent: recent) }
     var templateCount: Int { Generator.templates(in: places.templates).count }
-    private func reparse() {
-        let fields = EventFields.parse(sheet)
-        fieldCount = fields.count
-        event = EventVariables(fields: fields, readDoc: places.readDoc)
-    }
-    func loadClipboard() {
-        guard let text = NSPasteboard.general.string(forType: .string), !text.isEmpty else { setStatus(L("clipboardEmpty"), error: true); return }
-        sheet = text
-        setStatus(fieldCount == 0 ? L("noFields") : String(format: L("loaded"), fieldCount), error: fieldCount == 0)
-    }
     func setStatus(_ text: String, error: Bool = false) { status = text; statusIsError = error }
-    var canGenerate: Bool { !working && event.missingRequired.isEmpty && fieldCount > 0 }
+
+    /// The variables for the selected event, from the same text the sheet used to hand over.
+    var variables: EventVariables {
+        EventVariables(fields: Schema.sheetValues(library.current?.values ?? [:]), readDoc: places.readDoc)
+    }
+    /// Cheap check for menus and buttons: the three values that name the folder (variables read files, so they are built only when needed).
+    var canGenerate: Bool { !working && library.current?.folderName != nil }
 
     func generate() {
-        guard canGenerate else { return }
-        let event = self.event, places = self.places, makeQR = self.makeQR
+        guard canGenerate, let id = library.selection else { return }
+        library.flush()
+        let event = variables, places = self.places, makeQR = self.makeQR
         guard FileManager.default.fileExists(atPath: places.root) else { setStatus(String(format: L("rootMissing"), places.root), error: true); return }
         guard !Generator.templates(in: places.templates).isEmpty else { setStatus(String(format: L("noTemplates"), places.templates.path), error: true); return }
         working = true
@@ -45,7 +42,8 @@ import Carbon
                 self.working = false
                 switch outcome {
                 case .success(let result):
-                    self.result = result
+                    self.result = result; self.resultEvent = id
+                    self.library.save(id)  // The folder exists now: the event's file moves into it.
                     self.setStatus(String(format: L("done"), result.written.count, result.folder.lastPathComponent))
                     if self.openAfter { self.open(result.folder.appendingPathComponent("docs")) }
                 case .failure(let error):
@@ -53,6 +51,53 @@ import Carbon
                 }
             }
         }
+    }
+
+    func fillFromClipboard() {
+        guard library.current != nil else { setStatus(L("noEventSelected"), error: true); return }
+        guard let text = NSPasteboard.general.string(forType: .string), !text.isEmpty else { setStatus(L("clipboardEmpty"), error: true); return }
+        let count = library.fillFromSheet(text)
+        setStatus(count == 0 ? L("noFields") : String(format: L("filled"), count), error: count == 0)
+    }
+
+    /// Reads the workbook, then asks before writing: how many are new and whether to overwrite the ones already here.
+    func importSheet() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.init(filenameExtension: "xlsx")!]
+        panel.directoryURL = URL(fileURLWithPath: sheetFile).deletingLastPathComponent()
+        panel.nameFieldStringValue = (sheetFile as NSString).lastPathComponent
+        panel.prompt = L("import.choose")
+        guard panel.runModal() == .OK, let file = panel.url else { return }
+        sheetFile = file.path
+        working = true
+        setStatus(L("import.reading"))
+        Task.detached(priority: .userInitiated) {
+            let outcome = Result { SheetImport.events(from: try XLSX.read(file, sheet: SheetImport.sheetName)) }
+            await MainActor.run { self.working = false; self.confirmImport(outcome) }
+        }
+    }
+    private func confirmImport(_ outcome: Result<[[String: String]], Error>) {
+        let rows: [[String: String]]
+        switch outcome {
+        case .failure(let error): setStatus(String(format: L("import.failed"), error.localizedDescription), error: true); return
+        case .success(let value): rows = value
+        }
+        guard !rows.isEmpty else { setStatus(L("import.none"), error: true); return }
+        let existing = Set(library.events.map { $0.record["#"] })
+        let present = rows.filter { existing.contains($0["#"] ?? "") }.count
+        let alert = NSAlert()
+        alert.messageText = String(format: L("import.confirm"), rows.count, rows.count - present)
+        alert.informativeText = L("import.confirmDetail")
+        alert.addButton(withTitle: L("import.button"))
+        alert.addButton(withTitle: L("cancel")).keyEquivalent = "\u{1b}"
+        if present > 0 {
+            alert.showsSuppressionButton = true
+            alert.suppressionButton?.title = String(format: L("import.overwrite"), present)
+            alert.suppressionButton?.state = .off
+        }
+        guard alert.runModal() == .alertFirstButtonReturn else { setStatus(""); return }
+        let summary = library.importSheet(rows, overwrite: alert.suppressionButton?.state == .on)
+        setStatus(String(format: L("import.done"), summary.added, summary.updated, summary.skipped), error: !library.saveError.isEmpty)
     }
 
     /// Opens a folder in Path Finder when chosen and installed, otherwise in Finder.
@@ -114,28 +159,40 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 720), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1000, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "EventDocMaker"; window.titleVisibility = .hidden
-        let host = GrowingHostingView(rootView: MainView(model: model))
+        let host = GrowingHostingView(rootView: MainView(model: model, library: model.library))
         host.sizingOptions = [.minSize]
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
-        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 600, height: 640)
+        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 900, height: 640)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         model.registerAppHotkey()
+        model.library.reload()
         MenuBarPresence.shared.install(name: "EventDocMaker", symbol: "doc.on.doc", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.suppressInitialWindow { show() }
     }
 
-    @objc func loadClipboard() { show(); model.loadClipboard() }
+    @objc func fillFromClipboard() { show(); model.fillFromClipboard() }
     @objc func generate() { model.generate() }
+    @objc func newEvent() { show(); model.library.newEvent() }
+    @objc func duplicateEvent() { model.library.duplicate() }
+    @objc func deleteEvent() { model.library.deleteCurrent() }
+    @objc func importSheet() { show(); model.importSheet() }
+    @objc func reload() { model.library.reload(); model.setStatus(String(format: L("reloaded"), model.library.events.count)) }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if menuItem.action == #selector(generate) { return model.canGenerate }
-        return true
+        switch menuItem.action {
+        case #selector(generate): return model.canGenerate
+        case #selector(duplicateEvent), #selector(deleteEvent), #selector(fillFromClipboard): return model.library.current != nil && !model.working
+        case #selector(importSheet): return !model.working
+        default: return true
+        }
     }
+    func applicationWillTerminate(_ notification: Notification) { model.library.flush() }
+    func applicationDidResignActive(_ notification: Notification) { model.library.flush() }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         StartupWindow.userRequestedWindow(); show(); return true }
@@ -187,7 +244,14 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
         app.addItem(.separator()); _ = add(app, L("quit"), #selector(quit), "q")
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         _ = add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
-        add(file, L("loadClipboard"), #selector(loadClipboard), "v").keyEquivalentModifierMask = [.command, .shift]
+        _ = add(file, L("newEvent"), #selector(newEvent), "n")
+        _ = add(file, L("duplicateEvent"), #selector(duplicateEvent), "d")
+        add(file, L("deleteEvent"), #selector(deleteEvent), "\u{8}").keyEquivalentModifierMask = [.command]
+        file.addItem(.separator())
+        _ = add(file, L("importSheetMenu"), #selector(importSheet), "")
+        add(file, L("fillFromClipboard"), #selector(fillFromClipboard), "v").keyEquivalentModifierMask = [.command, .shift]
+        _ = add(file, L("reload"), #selector(reload), "r")
+        file.addItem(.separator())
         _ = add(file, L("generateMenu"), #selector(generate), "\r")
         file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")

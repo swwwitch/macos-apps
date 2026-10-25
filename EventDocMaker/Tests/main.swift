@@ -67,4 +67,44 @@ do {
 } catch { check(false, "generation threw \(error)") }
 try? FileManager.default.removeItem(at: tmp)
 
-if failures == 0 { print("PASS: sheet parsing, variables, tokens, QR, generation") } else { print("\(failures) failure(s)"); exit(1) }
+
+// Sheet formatting (what the documents receive) and Excel value conversion.
+let sheetText = Schema.sheetValues(["種別": "CSS Nite", "Togetter": "0", "アンケート回答期限": "2026-12-09", "プロフィール": "a", "Doorkeeper購入者数（個人）": ""])
+check(sheetText["Togetter"] == "-" && sheetText["OGP"] == "-", "dash for empty and 0")
+check(sheetText["アンケート回答期限"] == "12月9日(水) 21:00", "deadline: \(sheetText["アンケート回答期限"] ?? "")")
+check(sheetText["プロフィール"] == "a∥" && sheetText["セッション概要"] == nil, "profile")
+check(sheetText["Doorkeeper購入者数（個人）"] == "0", "zero rows")
+check(Schema.sheetValues([:])["アンケート回答期限"] == "準備中", "deadline preparing")
+check(SheetImport.convert("46358", .compactDate) == "20261202", "serial to yyyyMMdd")
+check(SheetImport.convert("46365", .isoDate) == "2026-12-09", "serial to iso")
+check(SheetImport.convert("0.875", .time) == "21:00" && SheetImport.convert("0.95833333333333337", .time) == "23:00", "time")
+check(SheetImport.convert("3291", .number) == "3291" && SheetImport.convert("0.123456789", .number) == "0.123457", "numbers")
+check(SheetImport.convert("21:00", .time) == "21:00", "text kept")
+check(Set(Schema.fields.map(\.key)).count == Schema.fields.count, "unique keys")
+
+// Columns: labels in A (one repeated), # row, events while # is a number.
+var grid: [XLSX.Cell: String] = [:]
+func put(_ c: Int, _ r: Int, _ v: String) { grid[XLSX.Cell(column: c, row: r)] = v }
+put(1, 3, "#"); put(1, 4, "種別"); put(1, 5, "Spend"); put(1, 6, "Spend"); put(1, 7, "仮の日付")
+put(2, 3, "1"); put(2, 4, "DTP Transit"); put(2, 5, "10"); put(2, 6, "20"); put(2, 7, "46358")
+put(3, 3, "2"); put(3, 4, "CSS Nite")
+put(5, 3, "195"); put(5, 4, "lookup column")
+let rows = SheetImport.events(from: grid)
+check(rows.count == 2 && rows[0]["Spend"] == "10" && rows[0]["CSS Nite：Spend"] == "20" && rows[0]["仮の日付"] == "20261202", "sheet events: \(rows)")
+
+// Saving: EventData until the event folder exists, then event.json inside it.
+let storeRoot = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("EventStoreTest-\(UUID().uuidString)")
+let store = EventStore(places: Locations(root: storeRoot.appendingPathComponent("root").path, eventDoc: storeRoot.appendingPathComponent("EventDoc").path, recent: ""))
+try! FileManager.default.createDirectory(atPath: store.places.root, withIntermediateDirectories: true)
+var record = EventRecord(); record.values = ["#": "7", "種別": "DTP Transit", "仮の日付": "20261231", "タイトル（abc）": "x"]
+let first = try! store.save(record, replacing: nil)
+check(first.deletingLastPathComponent() == store.dataFolder, "EventData first")
+try! FileManager.default.createDirectory(atPath: store.places.root + "/dtptransit-20261231-x", withIntermediateDirectories: true)
+let second = try! store.save(record, replacing: first)
+check(second.path.hasSuffix("dtptransit-20261231-x/event.json") && !FileManager.default.fileExists(atPath: first.path), "moved into the folder")
+var other = EventRecord(); other.values = record.values
+check(store.target(for: other).deletingLastPathComponent() == store.dataFolder, "another event's folder is not taken")
+check(store.load().count == 1 && store.load().first?.record.id == record.id, "load")
+try? FileManager.default.removeItem(at: storeRoot)
+
+if failures == 0 { print("PASS: sheet parsing, variables, tokens, QR, generation, schema, import, store") } else { print("\(failures) failure(s)"); exit(1) }

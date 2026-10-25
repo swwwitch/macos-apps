@@ -12,7 +12,8 @@ enum EventFields {
             var value: String?
             if row.count >= 2 { value = row[1] }
             else if let range = label.range(of: "：") { value = String(label[range.upperBound...]); result[String(label[..<range.lowerBound])] = value; continue }
-            if let value, result[label] == nil || !(value.isEmpty) { result[label] = value }
+            // The first row with a label wins, as the original workflow searched from the top (Spend etc. appear twice).
+            if let value, result[label] == nil { result[label] = value }
         }
         return result
     }
