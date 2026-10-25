@@ -303,6 +303,7 @@ private struct SidebarView: View {
             .buttonStyle(.borderless)
             .help(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
             .accessibilityLabel(state == true ? L("プロジェクトを解除") : L("プロジェクトをアクティブにする"))
+            HStack(spacing: 6) {
             Label(project.name, systemImage: "doc.text").lineLimit(1)
             Spacer()
             if project.pendingCount > 0 {
@@ -314,9 +315,15 @@ private struct SidebarView: View {
                     .help(L("ライブラリに無いフォント %d", project.missing.count))
             }
             Text("\(store.count(.project(project.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            }
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { ProjectEditorWindow.shared.show(project.id) }
+            .onTapGesture {
+                store.sidebar = .project(project.id)
+                store.selection.removeAll()
+            }
         }
         .tag(SidebarItem.project(project.id))
-        .simultaneousGesture(TapGesture(count: 2).onEnded { ProjectEditorWindow.shared.show(project.id) })
     }
 
     private func setRow(_ set: FontSet) -> some View {

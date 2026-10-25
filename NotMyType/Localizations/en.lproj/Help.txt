@@ -217,3 +217,5 @@ Opening or reopening the app manually shows the main window. Automatic login lau
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
 
 Selecting the app with Command-Tab restores the main window when no normal window is visible. An open Settings or Help window stays in front.
+
+The Favorites context-menu item shows a checkmark when registered. Click a checked set in Add to Set to remove the selected fonts from that set. A mixed state adds all selected fonts.

@@ -172,11 +172,21 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             add(menu, L("アクティブにする")) { $0.setActive(files, true) }
             add(menu, L("解除")) { $0.setActive(files, false) }
             menu.addItem(.separator())
-            add(menu, L("お気に入りを切り替える")) { $0.toggleFavorite($0.data.families(of: files)) }
+            let families = store.data.families(of: files)
+            let favoriteCount = families.filter { store.isFavorite($0) }.count
+            let favorite = add(menu, L("お気に入り")) { $0.toggleFavorite(families) }
+            favorite.state = favoriteCount == 0 ? .off : (favoriteCount == families.count ? .on : .mixed)
             let sets = NSMenu()
             let selectedIDs = Set(files.map(\.id))
             for set in store.data.sets {
-                let item = add(sets, set.name) { $0.addToSet(set.id, files) }
+                let item = add(sets, set.name) { store in
+                    let current = store.data.sets.first { $0.id == set.id }
+                    if let current, selectedIDs.isSubset(of: Set(current.files)) {
+                        store.removeFromSet(set.id, files)
+                    } else {
+                        store.addToSet(set.id, files)
+                    }
+                }
                 let included = selectedIDs.intersection(set.files)
                 item.state = included.isEmpty ? .off : (included == selectedIDs ? .on : .mixed)
             }
@@ -194,12 +204,13 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             let collectionsItem = NSMenuItem(title: L("コレクションに追加"), action: nil, keyEquivalent: "")
             collectionsItem.submenu = collections
             menu.addItem(collectionsItem)
+            menu.addItem(.separator())
             if case .set(let id) = store.sidebar {
                 add(menu, L("このセットから外す")) { $0.removeFromSet(id, files) }
             }
+            add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
             menu.addItem(.separator())
             add(menu, L("Finderで表示")) { $0.revealInFinder(files) }
-            add(menu, L("ライブラリから取り除く…")) { $0.remove(files) }
             if !store.conflictingFiles(files).isEmpty {
                 menu.addItem(.separator())
                 add(menu, L("衝突しているフォントの登録を外す")) { $0.releaseConflicts(files) }
