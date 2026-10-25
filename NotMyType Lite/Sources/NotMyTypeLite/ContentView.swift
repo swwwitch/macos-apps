@@ -284,7 +284,7 @@ private struct FamilyListView: View {
             if families.isEmpty {
                 emptyView
             } else {
-                FamilyOutline(nodes: FamilyNode.nodes(families), version: store.listVersion, selection: store.selection)
+                FamilyOutline(nodes: store.shownNodes, version: store.listVersion, selection: store.selection)
                 .equatable()
                 .onDeleteCommand { store.remove(store.selectedFiles) }
             }
