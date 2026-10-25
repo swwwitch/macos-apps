@@ -638,12 +638,12 @@ private struct SearchOptionsPanel: View {
 /// プレビューの下のフォント情報に出す項目（プレビューのオプションでチェックボックスで選ぶ）。隠した項目を UserDefaults に覚える
 enum FontInfoItem: String, CaseIterable {
     case state, format, characters, version, postScript, location, reveal
-    case officialName, officialFileName, maker, designer, release, firstRelease, classification, series, languages, plans, description, officialPage
+    case officialName, officialFileName, maker, designer, release, firstRelease, classification, series, languages, plans, officialPage
 
     static let hiddenKey = "fontInfoHidden"
     static let basic: [FontInfoItem] = [.state, .format, .characters, .version, .postScript, .location, .reveal]
     static let official: [FontInfoItem] = [.officialName, .officialFileName, .maker, .designer, .release, .firstRelease,
-                                           .classification, .series, .languages, .plans, .description, .officialPage]
+                                           .classification, .series, .languages, .plans, .officialPage]
 
     var title: String {
         switch self {
@@ -664,7 +664,6 @@ enum FontInfoItem: String, CaseIterable {
         case .series: return L("シリーズ")
         case .languages: return L("言語")
         case .plans: return L("プラン")
-        case .description: return L("説明")
         case .officialPage: return L("公式のページを開く")
         }
     }
@@ -963,13 +962,14 @@ private struct PreviewView: View {
                 ScrollView {
                     // 数百書体のファミリーもあるので、見えている書体だけを描く
                     LazyVStack(alignment: .leading, spacing: 18) {
-                        ForEach(previewFiles(family)) { file in
-                            ForEach(file.faces, id: \.postScriptName) { face in
-                                FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
-                            }
+                        // ファミリーの全書体を1列にして、細い→太いの順に並べる（.ttc の中の書体も混ぜて並べる）
+                        let faces = FontWeightOrder.sorted(previewFiles(family).flatMap { file in file.faces.map { (file: file, face: $0) } })
+                        ForEach(faces, id: \.face.postScriptName) { item in
+                            FaceSample(file: item.file, face: item.face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
                         }
                         Divider()
-                        FamilyInfo(family: family)
+                        // フォント情報もプレビューと同じ書体だけ（書体の行だけを選んだときはその書体）
+                        FamilyInfo(family: family, files: previewFiles(family))
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1040,6 +1040,8 @@ private struct FaceSample: View {
 
 private struct FamilyInfo: View {
     let family: FontFamily
+    /// 情報を出すファイル（選んだ書体だけのこともある）
+    let files: [FontFile]
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(FontInfoItem.hiddenKey) private var hiddenInfo = ""
 
@@ -1047,7 +1049,7 @@ private struct FamilyInfo: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(family.files) { file in
+            ForEach(files) { file in
                 VStack(alignment: .leading, spacing: 3) {
                     Text(file.fileName).font(.callout.weight(.semibold))
                     if shows(.state) { info(L("状態"), stateText(store.states[file.id])) }
@@ -1081,7 +1083,6 @@ private struct FamilyInfo: View {
         if shows(.series), !record.series.isEmpty { info(L("シリーズ"), record.series) }
         if shows(.languages), !record.languages.isEmpty { info(L("言語"), record.languages.joined(separator: L("、"))) }
         if shows(.plans), !record.plans.isEmpty { info(L("プラン"), record.plans.joined(separator: L("、"))) }
-        if shows(.description), !record.description.isEmpty { info(L("説明"), record.description) }
         if shows(.officialPage), let url = URL(string: record.url), !record.url.isEmpty {
             Link(L("公式のページを開く"), destination: url).font(.caption)
         }

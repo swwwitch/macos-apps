@@ -554,7 +554,8 @@ extension LibraryData {
     /// ファミリーごとにまとめ、名前順に並べる
     func families(of files: [FontFile]) -> [FontFamily] {
         Dictionary(grouping: files, by: \.family)
-            .map { FontFamily(name: $0.key, files: $0.value.sorted { $0.fileName.localizedStandardCompare($1.fileName) == .orderedAscending }) }
+            // 書体（ファイル）は細い→太いの順（TypefaceSampler.jsx と同じ並べ方、ユーザー指定）
+            .map { FontFamily(name: $0.key, files: FontWeightOrder.sorted($0.value)) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 

@@ -34,7 +34,17 @@ cp Info.plist "$contents_dir/Info.plist"
 cp Assets/NotMyType.icns "$contents_dir/Resources/NotMyType.icns"
 cp -R Localizations/*.lproj "$contents_dir/Resources/"
 # FontDB（メーカーの公式の情報）。無ければ補わずに作る
-if [[ -f ../FontDB/data/fonts.sqlite ]]; then cp ../FontDB/data/fonts.sqlite "$contents_dir/Resources/FontDB.sqlite"; else echo "FontDB not found; building without it"; fi
+# 説明文はフォントベンダーの著作物なので、同梱するデータからは抜く（元の FontDB はそのまま、ユーザー指定）
+if [[ -f ../FontDB/data/fonts.sqlite ]]; then
+    cp ../FontDB/data/fonts.sqlite "$build_stage/FontDB.sqlite"
+    sqlite3 "$build_stage/FontDB.sqlite" "UPDATE fonts SET description = ''; VACUUM;"
+    if [[ "$(sqlite3 "$build_stage/FontDB.sqlite" "SELECT COUNT(*) FROM fonts WHERE description <> ''")" != 0 ]]; then
+        echo "FontDB still has descriptions" >&2; exit 1
+    fi
+    cp "$build_stage/FontDB.sqlite" "$contents_dir/Resources/FontDB.sqlite"
+else
+    echo "FontDB not found; building without it"
+fi
 printf 'APPL????' > "$contents_dir/PkgInfo"
 python3 Tests/check-localization.py --app "$app_dir"
 embed_updates "$app_dir"

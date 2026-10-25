@@ -735,13 +735,14 @@ private struct PreviewView: View {
                 ScrollView {
                     // 数百書体のファミリーもあるので、見えている書体だけを描く
                     LazyVStack(alignment: .leading, spacing: 18) {
-                        ForEach(previewFiles(family)) { file in
-                            ForEach(file.faces, id: \.postScriptName) { face in
-                                FaceSample(file: file, face: face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
-                            }
+                        // ファミリーの全書体を1列にして、細い→太いの順に並べる（.ttc の中の書体も混ぜて並べる）
+                        let faces = FontWeightOrder.sorted(previewFiles(family).flatMap { file in file.faces.map { (file: file, face: $0) } })
+                        ForEach(faces, id: \.face.postScriptName) { item in
+                            FaceSample(file: item.file, face: item.face, text: sample.isEmpty ? LibraryStore.defaultSampleText : sample, size: size, style: style)
                         }
                         Divider()
-                        FamilyInfo(family: family)
+                        // フォント情報もプレビューと同じ書体だけ（書体の行だけを選んだときはその書体）
+                        FamilyInfo(family: family, files: previewFiles(family))
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -812,6 +813,8 @@ private struct FaceSample: View {
 
 private struct FamilyInfo: View {
     let family: FontFamily
+    /// 情報を出すファイル（選んだ書体だけのこともある）
+    let files: [FontFile]
     @ObservedObject private var store = LibraryStore.shared
     @AppStorage(FontInfoItem.hiddenKey) private var hiddenInfo = ""
 
@@ -819,7 +822,7 @@ private struct FamilyInfo: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(family.files) { file in
+            ForEach(files) { file in
                 VStack(alignment: .leading, spacing: 3) {
                     Text(file.fileName).font(.callout.weight(.semibold))
                     if shows(.state) { info(L("状態"), stateText(store.states[file.id])) }
