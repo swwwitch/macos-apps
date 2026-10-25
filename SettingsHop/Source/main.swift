@@ -156,7 +156,7 @@ struct MainView: View {
                     .help(L("previousAppHint")).accessibilityElement(children: .combine)
                 }
             }
-        }.padding(24)
+        }.padding(20)
         .fixedSize(horizontal: false, vertical: true)
         .frame(minWidth: 420, maxHeight: .infinity, alignment: .top).background(Color(nsColor: AppSurface.color)).tint(appTint)
     }
@@ -242,8 +242,7 @@ struct SettingsView: View {
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 420, height: 340)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onOpened = { [weak self] in self?.window.performClose(nil) }
-        model.hotkeys.action = { [weak self] _ in self?.appHotkeyPressed() }
-        observeSettingsActivation()
+        model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         model.registerAppHotkey()
         installArrowKeys()
         model.trackPreviousApp()
@@ -261,35 +260,6 @@ struct SettingsView: View {
                                        "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.suppressInitialWindow { show() }
-    }
-    /// Last press of the app hotkey, to tell a double press.
-    private var lastHotkeyPress = Date.distantPast
-    /// After a double press, System Settings activating before this time brings the main window back over it.
-    private var keepWindowFrontUntil = Date.distantPast
-    private var settingsActivationObserver: Any?
-    func observeSettingsActivation() {
-        settingsActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
-            guard (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.bundleIdentifier == Pane.settingsBundleID else { return }
-            MainActor.assumeIsolated {
-                guard let self, Date() < self.keepWindowFrontUntil else { return }
-                self.keepWindowFrontUntil = .distantPast
-                self.show()
-            }
-        }
-    }
-    /// The app hotkey opens System Settings at once; a second press within the double-click interval shows the main window
-    /// (System Settings stays open behind it).
-    func appHotkeyPressed() {
-        let now = Date()
-        if now.timeIntervalSince(lastHotkeyPress) <= NSEvent.doubleClickInterval {
-            lastHotkeyPress = .distantPast
-            StartupWindow.userRequestedWindow(); show()
-            // System Settings, opened by the first press, can come to the front after this (slower when it was not running).
-            keepWindowFrontUntil = now.addingTimeInterval(3)
-        } else {
-            lastHotkeyPress = now
-            _ = Pane.systemSettings.open()
-        }
     }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {

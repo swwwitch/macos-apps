@@ -14,7 +14,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - デフォルトのWebブラウザ（⌘7）：デスクトップとDockを開き、アクセシビリティが許可されていれば「デフォルトのWebブラウザ」の行までスクロールし、ブラウザを選ぶメニューを開きます。
 
 ## Option＋クリック
-アクセシビリティ（⌘2）・フルディスクアクセス（⌘3）・画面収録とシステムオーディオ録音（⌘5）・入力監視は、Optionを押しながらクリック（またはOption＋Return、⌥＋数字、⌘⌥＋数字）すると、直前に使っていたアプリの行を選んだ状態で開きます。たとえば作業中のアプリで⌃⌥Qを2回押し、Option＋クリックすると、そのアプリの行が選ばれます。選ばれるアプリは、メインウインドウの右下の「直前のアプリ」に表示されます。許可スイッチは自分で操作してください。アクセシビリティの許可が必要です。
+アクセシビリティ（⌘2）・フルディスクアクセス（⌘3）・画面収録とシステムオーディオ録音（⌘5）・入力監視は、Optionを押しながらクリック（またはOption＋Return、⌥＋数字、⌘⌥＋数字）すると、直前に使っていたアプリの行を選んだ状態で開きます。たとえば作業中のアプリで⌃⌥Qを押し、Option＋クリックすると、そのアプリの行が選ばれます。選ばれるアプリは、メインウインドウの右下の「直前のアプリ」に表示されます。許可スイッチは自分で操作してください。アクセシビリティの許可が必要です。
 - キーボードショートカット（⌘8）：キーボードの「キーボードショートカット…」を開きます。左の一覧は前回表示していた項目のままです。
 - AirDropおよび連係（⌘9）：一般＞AirDropおよび連係
 同じ項目は［ファイル］メニューにもあります。メニューバーのアイコンを表示している場合は、そのメニューからも開けます。
@@ -27,14 +27,14 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - 情報：バージョンとリンク。
 
 ## ホットキー
-- ⌃⌥Q：どのアプリからでもシステム設定を開きます。すばやく2回押すとSettingsHopのウインドウを表示します（起動中のとき。設定の「起動・常駐」で変更・無効化できます）
+- ⌃⌥Q：どのアプリからでもSettingsHopのウインドウを表示（起動中のとき。設定の「起動・常駐」で変更・無効化できます）
 - 1〜9（または⌘1〜⌘9）：各項目を開く（プライバシーとセキュリティ・入力監視・オートメーションを除く）（SettingsHopが前面のとき）
 - ↑↓：項目を選ぶ、Return：選んだ項目を開く（メインウインドウ）
 - ⌘0：メインウインドウを開く
 - ⌘,：設定
 - ⌘W：ウインドウを閉じる
 - ⌘?：このヘルプ
-⌃⌥Q を2回押してウインドウを呼び出したあと⌘1〜⌘9を押すと、キーボードだけで目的の画面を開けます。SettingsHopを未起動のときから呼び出すには、設定の「アプリ起動のホットキー」の説明に従い、ショートカットAppでキーを割り当てます。
+⌃⌥Q で呼び出したあと⌘1〜⌘9を押すと、キーボードだけで目的の画面を開けます。SettingsHopを未起動のときから呼び出すには、設定の「アプリ起動のホットキー」の説明に従い、ショートカットAppでキーを割り当てます。
 
 ## 権限
 アクセシビリティの許可は、「デフォルトのWebブラウザ」の行へのスクロールと、Option＋クリックでのアプリの行の選択にだけ使います。設定の［起動・常駐］の「アクセシビリティ設定を開く」から許可できます。未許可でも画面は開きます。許可スイッチの変更や、設定の値の読み書きはしません。
@@ -61,7 +61,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
 ## Option-click
-Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q twice in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
+Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
 - Keyboard Shortcuts (⌘8): opens Keyboard Shortcuts… in Keyboard, on the section shown last.
 - AirDrop & Handoff (⌘9): General > AirDrop & Handoff
 The same items are in the File menu. When the menu bar icon is shown, its menu opens them too.
@@ -74,14 +74,14 @@ Choose SettingsHop > Settings… (⌘,).
 - About: version and links.
 
 ## Keyboard shortcuts
-- ⌃⌥Q: open System Settings from any app; press it twice quickly to show the SettingsHop window instead (while it is running; change or turn it off in Launch & Residency settings)
+- ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
 - 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring and Automation) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings
 - ⌘W: Close Window
 - ⌘?: this help
-Press ⌃⌥Q twice, then ⌘1–⌘9, to open a pane from the keyboard alone. To call SettingsHop even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
+Press ⌃⌥Q, then ⌘1–⌘9, to open a pane from the keyboard alone. To call SettingsHop even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
 
 ## Permissions
 Accessibility permission is used only to scroll to the Default web browser row and to select an app's row with Option-click. Allow it with Open Accessibility Settings in Settings › Launch & Residency. Without it, the panes still open. SettingsHop never changes permission switches or reads or changes settings.
@@ -108,7 +108,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 默认网页浏览器（⌘7）：打开“桌面与程序坞”，允许辅助功能时会滚动到“默认网页浏览器”一行并打开浏览器菜单。
 
 ## 按住 Option 点按
-按住 Option 点按辅助功能（⌘2）、完全磁盘访问权限（⌘3）、录屏与系统录音（⌘5）或输入监控（或 Option-Return、⌥+数字、⌘⌥+数字），会在打开时选中上一个使用的应用所在行。例如在正在使用的应用中按两次 ⌃⌥Q，再按住 Option 点按。将被选中的应用显示在主窗口右下角的“上一个应用”。授权开关请手动操作。需要辅助功能权限。
+按住 Option 点按辅助功能（⌘2）、完全磁盘访问权限（⌘3）、录屏与系统录音（⌘5）或输入监控（或 Option-Return、⌥+数字、⌘⌥+数字），会在打开时选中上一个使用的应用所在行。例如在正在使用的应用中按 ⌃⌥Q，再按住 Option 点按。将被选中的应用显示在主窗口右下角的“上一个应用”。授权开关请手动操作。需要辅助功能权限。
 - 键盘快捷键（⌘8）：打开“键盘”中的“键盘快捷键…”，显示上次查看的部分。
 - 隔空投送与接力（⌘9）：通用 > 隔空投送与接力
 “文件”菜单中也有相同的项目。显示菜单栏图标时，也可从其菜单打开。
@@ -121,14 +121,14 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 关于：版本和链接。
 
 ## 快捷键
-- ⌃⌥Q：在任何应用中打开系统设置；快速按两次则显示 SettingsHop 窗口（运行时；可在“启动与常驻”设置中更改或停用）
+- ⌃⌥Q：在任何应用中显示 SettingsHop 窗口（运行时；可在“启动与常驻”设置中更改或停用）
 - 1–9（或 ⌘1–⌘9）：打开各项目（隐私与安全性、输入监控、自动化除外）（SettingsHop 在最前时）
 - ↑↓：选择项目，Return：打开所选项目（主窗口）
 - ⌘0：打开主窗口
 - ⌘,：设置
 - ⌘W：关闭窗口
 - ⌘?：本帮助
-按两次 ⌃⌥Q 后再按 ⌘1–⌘9，仅用键盘即可打开目标面板。要在 SettingsHop 未运行时也能调用，请按照设置中“启动应用快捷键”的说明，在快捷指令中分配按键。
+按 ⌃⌥Q 后再按 ⌘1–⌘9，仅用键盘即可打开目标面板。要在 SettingsHop 未运行时也能调用，请按照设置中“启动应用快捷键”的说明，在快捷指令中分配按键。
 
 ## 权限
 辅助功能权限仅用于滚动到“默认网页浏览器”一行，以及按住 Option 点按时选中应用所在行。可在设置 › 启动与常驻中的“打开辅助功能设置”授权。未授权时仍会打开面板。SettingsHop 不更改授权开关，也不读取或更改任何设置。
@@ -155,7 +155,7 @@ SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 �
 - 기본 웹 브라우저(⌘7): 데스크탑 및 Dock을 열고, 손쉬운 사용이 허용되어 있으면 '기본 웹 브라우저' 행까지 스크롤하고 브라우저 메뉴를 엽니다.
 
 ## Option-클릭
-손쉬운 사용(⌘2), 전체 디스크 접근 권한(⌘3), 화면 및 시스템 오디오 녹음(⌘5), 입력 모니터링을 Option 키를 누른 채 클릭하면(또는 Option-Return, ⌥+숫자, ⌘⌥+숫자) 직전에 사용한 앱의 행을 선택한 상태로 엽니다. 예를 들어 작업 중인 앱에서 ⌃⌥Q를 두 번 누른 후 Option-클릭합니다. 선택될 앱은 메인 윈도우 오른쪽 아래의 '직전 앱'에 표시됩니다. 권한 스위치는 직접 조작하세요. 손쉬운 사용 권한이 필요합니다.
+손쉬운 사용(⌘2), 전체 디스크 접근 권한(⌘3), 화면 및 시스템 오디오 녹음(⌘5), 입력 모니터링을 Option 키를 누른 채 클릭하면(또는 Option-Return, ⌥+숫자, ⌘⌥+숫자) 직전에 사용한 앱의 행을 선택한 상태로 엽니다. 예를 들어 작업 중인 앱에서 ⌃⌥Q를 누른 후 Option-클릭합니다. 선택될 앱은 메인 윈도우 오른쪽 아래의 '직전 앱'에 표시됩니다. 권한 스위치는 직접 조작하세요. 손쉬운 사용 권한이 필요합니다.
 - 키보드 단축키(⌘8): 키보드의 '키보드 단축키…'를 엽니다. 왼쪽 목록은 마지막으로 표시한 항목 그대로입니다.
 - AirDrop 및 Handoff(⌘9): 일반 > AirDrop 및 Handoff
 같은 항목이 [파일] 메뉴에도 있습니다. 메뉴 막대 아이콘을 표시한 경우 그 메뉴에서도 열 수 있습니다.
@@ -168,14 +168,14 @@ SettingsHop > 설정…(⌘,)을 선택합니다.
 - 정보: 버전과 링크.
 
 ## 키보드 단축키
-- ⌃⌥Q: 어느 앱에서든 시스템 설정 열기. 빠르게 두 번 누르면 SettingsHop 윈도우 표시(실행 중일 때. 설정의 '실행·상주'에서 변경하거나 끌 수 있음)
+- ⌃⌥Q: 어느 앱에서든 SettingsHop 윈도우 표시(실행 중일 때. 설정의 '실행·상주'에서 변경하거나 끌 수 있음)
 - 1–9(또는 ⌘1–⌘9): 각 항목 열기(개인정보 보호 및 보안, 입력 모니터링, 자동화 제외)(SettingsHop이 앞에 있을 때)
 - ↑↓: 항목 선택, Return: 선택한 항목 열기(메인 윈도우)
 - ⌘0: 메인 윈도우 열기
 - ⌘,: 설정
 - ⌘W: 윈도우 닫기
 - ⌘?: 이 도움말
-⌃⌥Q를 두 번 누른 후 ⌘1–⌘9를 누르면 키보드만으로 원하는 화면을 열 수 있습니다. SettingsHop이 실행 중이 아닐 때도 호출하려면 설정의 '앱 실행 키보드 단축키' 안내에 따라 단축어 앱에서 키를 지정하세요.
+⌃⌥Q를 누른 후 ⌘1–⌘9를 누르면 키보드만으로 원하는 화면을 열 수 있습니다. SettingsHop이 실행 중이 아닐 때도 호출하려면 설정의 '앱 실행 키보드 단축키' 안내에 따라 단축어 앱에서 키를 지정하세요.
 
 ## 권한
 손쉬운 사용 권한은 '기본 웹 브라우저' 행으로의 스크롤과 Option-클릭으로 앱 행을 선택할 때만 사용합니다. 설정 › 실행·상주의 '손쉬운 사용 설정 열기'에서 허용할 수 있습니다. 권한이 없어도 화면은 열립니다. 권한 스위치를 바꾸거나 설정 값을 읽고 쓰지 않습니다.

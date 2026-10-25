@@ -31,7 +31,9 @@ brown.setStroke(); gear.lineWidth = 22; gear.stroke()
 let hub = NSBezierPath(ovalIn: NSRect(x: center.x - 80, y: center.y - 80, width: 160, height: 160))
 hub.lineWidth = 22; hub.stroke()
 
-// Hopping arrow: an arc from the upper left that lands on the gear.
+// Hopping arrow: an arc from the upper left toward the gear, its head kept clear of the teeth (tip about 300 from the gear center).
+NSGraphicsContext.saveGraphicsState()
+let lift = NSAffineTransform(); lift.translateX(by: -30, yBy: 70); lift.concat()
 let arc = NSBezierPath()
 arc.move(to: NSPoint(x: 210, y: 560))
 arc.curve(to: NSPoint(x: 560, y: 720), controlPoint1: NSPoint(x: 220, y: 800), controlPoint2: NSPoint(x: 470, y: 840))
@@ -41,6 +43,7 @@ head.move(to: NSPoint(x: 610, y: 650)); head.line(to: NSPoint(x: 470, y: 690)); 
 head.lineJoinStyle = .round; head.lineWidth = 18; brown.setFill(); head.fill(); head.stroke()
 // Take-off dot.
 NSBezierPath(ovalIn: NSRect(x: 180, y: 470, width: 60, height: 60)).fill()
+NSGraphicsContext.restoreGraphicsState()
 image.unlockFocus()
 let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
 try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("SettingsHop.png"))
