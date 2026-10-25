@@ -1,0 +1,46 @@
+## Basics
+ClipTidy rewrites text copied in any app according to the rules in its list, for example removing extra URL parameters or tidying a fixed message. The rewritten text is ready to paste.
+- Rules apply from the top. Each rule sees the result of the rules above it.
+- Use the checkbox in the list to turn each rule on or off.
+- Turn off Watch the clipboard at the top right to stop rewriting (also from the menu bar icon or File > Pause Watching).
+- Type in Try It to preview the result without copying.
+- Recent Rewrites shows the latest results. They are not saved and are cleared when the app quits.
+
+## Editing rules
+Add with + (⌘N); double-click or choose Edit… to change. Reorder by dragging or with the arrow buttons.
+- Condition: rewrite only when this regular expression matches. When empty, the rule applies whenever Find matches.
+- Find / Replace: the match is replaced with Replace; an empty Replace removes it. With regular expressions, \1 or $1 inserts a group and \n a line break.
+- With Regular expression off, Find and Replace are used as plain text.
+- Copied in: use the rule only for copies made in the chosen app.
+- Show when rewritten: shows the result at the top right for a few seconds (time set in Settings > General).
+- Add Starter Rules brings back starter rules that are missing from the list.
+
+## Dropbox shared links
+When you copy a Dropbox shared link ending in dl=0, a panel at the top right says the link is ready. Direct Download changes the link on the clipboard to dl=1. If something else was copied in the meantime, nothing is changed. Turn this off in Settings > General.
+
+## Settings
+Open with ClipTidy > Settings… (⌘,).
+- Launch & Residency: open at login, hide from the Dock and App Switcher, keep running after closing the window, menu bar icon, app launch keyboard shortcut and the hotkey that shows the window (default ⌃⌥T).
+- General: watching on or off, the Dropbox link prompt and how long rewrites are shown.
+- Excluded Apps: content copied while one of these apps is in front is never rewritten. Illustrator and Keynote are listed at first.
+- Sharing: export, import and sync of the rules and other settings.
+- About: version and links.
+
+## Hotkeys
+- ⌃⌥T: show the ClipTidy window from any app (while running; change or turn off in Launch & Residency)
+- ⌘N: new rule
+- ⌘0: open the main window
+- ⌘,: settings
+- ⌘W: close the window
+- ⌘?: this help
+
+## Permissions and privacy
+No special permission is needed. ClipTidy checks every 0.3 seconds whether the clipboard changed and reads the text only after a change. Content marked secret or temporary by password managers and image-only content is never read. Rewritten text is placed on the clipboard as plain text. Nothing is sent anywhere or saved.
+
+## Keeping it running and quitting
+With Keep running after closing the window on, watching continues after the window is closed. Reopen from the Dock or Finder, or from the menu bar icon. To quit, choose ClipTidy > Quit ClipTidy (⌘Q).
+
+## Troubleshooting
+- Nothing is rewritten: check that Watch the clipboard is on, the front app is not an excluded app, the rule is on and Copied in matches. Try It shows the result.
+- Too much is rewritten: narrow the rule's Condition or add the app to Excluded Apps.
+- A rule shows a red warning: the regular expression is invalid; the reason appears in the editor.
