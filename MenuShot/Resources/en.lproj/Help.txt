@@ -1,0 +1,47 @@
+## Basics
+MenuShot captures only the menu bar and the open menus into one PNG, without the background (the desktop and other windows). Everything outside the menus is transparent.
+- Click Capture in N s, then open the menu you want while it counts down. It captures at 0.
+- With a menu open, press the capture hotkey (⌃⌥⇧⌘4 by default) to capture at once. Pressed with no menu open, it counts down the delay.
+- If the menu bar icon is shown, you can also start from Capture in N s in its menu.
+- While counting down, click Cancel or press Esc to stop.
+The picture appears in the main window; Show in Finder opens the save folder. Drag the picture from the window into other apps.
+
+## What is captured
+- A menu opened from the menu bar: the menu bar and the open menus (submenus included). Choose the width under Range in Settings (from the left of the menu bar to the right of the menu, only the width of the menu, or the whole menu bar).
+- Menus away from the menu bar, such as contextual menus or pop-up button menus: only the menus.
+- MenuShot draws the shadow around the menus (it can be turned off in Settings).
+- Pictures keep the Retina resolution, with the PNG resolution (such as 144 dpi) set so they open at their on-screen size.
+
+## Settings
+Choose MenuShot > Settings… (⌘,).
+- Startup & Background: open at login, hide from Dock and App Switcher, keep running after closing the window, menu bar icon, app launch keyboard shortcut, show-app hotkey (not set by default), Screen Recording status.
+- Capture: capture hotkey, delay (0–10 s, 3 s by default), range, add a shadow to the menu.
+- Output: save folder (by default the same as macOS screenshots), also copy to the clipboard, play the capture sound.
+- Settings Sharing: export, import and sync settings.
+- About: version and links.
+
+## Hotkeys
+- ⌃⌥⇧⌘4: capture (from any app; change or turn off under Capture in Settings)
+- Return: start capturing (main window)
+- Esc: cancel the countdown (main window)
+- ⌘0: Open Main Window
+- ⌘,: Settings
+- ⌘W: Close Window
+- ⌘?: this help
+
+## Permissions
+Capturing needs Screen & System Audio Recording permission. macOS asks the first time you capture. Reopen MenuShot after allowing it. The status is shown under Screen Recording in Settings > Startup & Background, with Open Screen Recording Settings. MenuShot captures only the menu bar and menu windows and writes pictures only to the chosen folder. Nothing is sent anywhere.
+
+## Saving and the clipboard
+Files are named like “Menu 2026-10-26 2.10.33.png”. When the name exists, a number is added; existing files are never overwritten. With Also copy to the clipboard on, the same picture goes to the clipboard (replacing what was there).
+
+## Keeping it running and quitting
+With Keep running after closing the window on, MenuShot keeps running after you close the window, and the capture hotkey still works. Reopen it from the Dock or Finder, or show the window from the menu bar icon. To quit, choose MenuShot > Quit MenuShot (⌘Q).
+
+## Troubleshooting
+- “No open menu was found”: a menu must be open at the moment of capture. Increase the delay, or press the hotkey with the menu open.
+- “Screen Recording is not allowed”: turn on MenuShot in System Settings > Privacy & Security > Screen & System Audio Recording, then reopen MenuShot.
+- The hotkey does nothing: another app may use the same key. Choose another key under Capture in Settings. In apps where the hotkey does not arrive while a menu is open, use Capture in N s.
+- The menu bar background is transparent: when Show menu bar background is off in macOS 26, only the menu bar text is captured.
+- Some menu bar icons are missing: what apps such as Bartender draw over the menu bar is not captured.
+- Uninstall: quit MenuShot and move it from Applications to the Trash. Captured pictures stay in the save folder.
