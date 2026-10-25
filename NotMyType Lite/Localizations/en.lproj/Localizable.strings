@@ -24,8 +24,8 @@
 "ライブラリから取り除く…" = "Remove from Library…";
 "設定" = "Settings";
 "フォントファイルやフォルダーをドロップして追加" = "Drop font files or folders to add them";
-"フォントのアクティブを切り替え" = "Activate and Deactivate Fonts";
-"フォントファイルをライブラリに登録し、使うときだけアクティブにします" = "Keep font files in a library and activate them only when you need them";
+"必要なフォントをアクティブにする" = "Activate the Fonts You Need";
+"フォントを一覧で管理し、使うときに有効にします。" = "Manage your fonts in one list and activate them when you need them.";
 "追加…" = "Add…";
 "%d ファミリー・%d ファイル（アクティブ %d）" = "%d families · %d files (%d active)";
 "すべてのフォント" = "All Fonts";
@@ -351,9 +351,21 @@
 "オプション" = "Options";
 
 
-"「ツール」メニューの「フォント管理」に出すページです。フォントの契約や管理のページを足しておくと、メニューからブラウザーで開けます。" = "Pages shown in Tools > Font Services. Add the pages for your font subscriptions and accounts to open them in your browser from the menu.";
+"追加したリンクだけを編集します。標準のリンク集は変更されません。" = "Edit only the links you add. The built-in links remain unchanged.";
 "このリンクを外す" = "Remove This Link";
-"フォント管理" = "Font Services";
+"リンク集" = "Links";
 "モリサワ" = "Morisawa";
 "リンクを編集…" = "Edit Links…";
 "リンクを足す" = "Add Link";
+
+"フォントベンダー・配布サービス" = "Font Vendors and Distribution Services";
+
+"フォント見本・使用例の検索" = "Font Specimens and Usage Examples";
+
+"フォント識別・検索" = "Font Identification and Search";
+
+"その他" = "Other";
+
+"カテゴリ" = "Category";
+
+"カスタムリンク" = "Custom Links";

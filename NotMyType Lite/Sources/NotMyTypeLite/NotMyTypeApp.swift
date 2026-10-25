@@ -68,7 +68,7 @@ struct NotMyTypeApp: App {
                     Button(L("アプリ…")) { FontCacheCleaner.cleanApplicationCaches() }
                 }
                 Divider()
-                Menu(L("フォント管理")) { FontServicesMenu() }
+                Menu(L("リンク集")) { FontServicesMenu() }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {

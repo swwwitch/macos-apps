@@ -66,9 +66,9 @@ struct ContentView: View {
                 AppVersionLabel()
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(L("フォントのアクティブを切り替え"))
+                Text(L("必要なフォントをアクティブにする"))
                     .font(.title2.weight(.semibold))
-                Text(L("フォントファイルをライブラリに登録し、使うときだけアクティブにします"))
+                Text(L("フォントを一覧で管理し、使うときに有効にします。"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
