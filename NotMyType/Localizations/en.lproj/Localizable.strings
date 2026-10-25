@@ -565,3 +565,5 @@
 "外したフォントをすべて戻す" = "Restore All Removed Fonts";
 
 "%@年代" = "%@s";
+
+"検索オプション（Option＋クリックで全解除）" = "Search Options (Option-click to clear all filters)";

@@ -164,3 +164,5 @@ Even with Hide from Dock and App Switcher on, a main or settings window keeps th
 Selecting the app with Command-Tab restores the main window when no normal window is visible. An open Settings or Help window stays in front.
 
 Switching to another sidebar category clears the search query. Option-click a category to keep the current query.
+
+Option-click the Search Options button while filters are set to clear all filters without opening the panel. Search text and sidebar selection are preserved. With no filters, the panel opens normally.

@@ -223,3 +223,5 @@ The Favorites context-menu item shows a checkmark when registered. Click a check
 Switching to another sidebar category clears the search query. Option-click a category to keep the current query.
 
 Right-click a project font and choose Remove from Project to exclude it, including after rescanning sources. Restore All Removed Fonts in the project editor restores exclusions. Font files and library entries are retained. The Vendor search option combines with the sidebar, search text, and other filters.
+
+Option-click the Search Options button while filters are set to clear all filters without opening the panel. Search text and sidebar selection are preserved. With no filters, the panel opens normally.

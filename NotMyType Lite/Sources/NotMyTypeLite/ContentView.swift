@@ -353,13 +353,21 @@ private struct SearchOptionsButton: View {
     @State private var shown = false
 
     var body: some View {
-        Button { shown.toggle() } label: {
+        Button {
+            let modifiers = NSApp.currentEvent?.modifierFlags ?? NSEvent.modifierFlags
+            if store.hasFilter && modifiers.contains(.option) {
+                store.clearFilters()
+                shown = false
+            } else {
+                shown.toggle()
+            }
+        } label: {
             // 絞り込み中は塗りつぶしのアイコンにして分かるようにする
             Image(systemName: store.hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                 .foregroundStyle(store.hasFilter ? Color.accentColor : Color.secondary)
         }
         .buttonStyle(.borderless)
-        .help(L("検索オプション"))
+        .help(L("検索オプション（Option＋クリックで全解除）"))
         .accessibilityLabel(L("検索オプション"))
         .popover(isPresented: $shown, arrowEdge: .bottom) { SearchOptionsPanel() }
     }
