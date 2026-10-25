@@ -1,0 +1,43 @@
+## Basics
+EventDocMaker fills the templates with the values from an event sheet (Excel) and writes out the standard documents—announcements, mails, notices and more—in one go.
+1. In Excel, select and copy the label and value columns for the event (for example “イベント名⇥…”).
+2. Click Load from Clipboard (⇧⌘V), or paste into the sheet box.
+3. Check the category, event, date and folder, then click Make Documents (⌘Return).
+Documents go to “parent folder/category-date-title (abc)/docs”. The sheet needs 種別, 仮の日付 and タイトル（abc）.
+
+## What is written
+- Each file in Templates in the EventDoc folder is written to docs with %Variable%Event…% replaced by its value (files with the same name are overwritten). Subfolders and files whose name starts with “.” are skipped.
+- When 99-stores.txt exists, a copy named “CeeBeeDee-date-title (abc).txt” is made too (an older copy goes to the Trash).
+- With Also make QR codes on, QR codes for the streaming URL, the Doorkeeper URL, STORES (経費) and the questionnaire are saved in the event folder as qr-….png. They are made on your Mac without any outside service.
+- A link to the event folder is placed in the recent events folder.
+- Variables lists every value. After writing, empty variables and missing shared texts (Guide, Footer, ComingInfo and so on) are shown.
+
+## The sheet
+One row per line: a label and a value separated by a tab (“label：value” also works). Values with line breaks inside a cell, such as a profile, are read as they are. Put 日付（Doorkeeper） as 2026-02-08 to get dates with weekdays and the next day. Whether 種別 is “CSS Nite” switches the sender, footer, colors and so on.
+
+## Settings
+Open with EventDocMaker > Settings… (⌘,).
+- Launch & Residency: open at login, hide from the Dock and App Switcher, keep running after closing the window, menu bar icon, app launch keyboard shortcut and the hotkey that shows the window (default ⌃⌥E).
+- Folders: parent folder, EventDoc folder, recent events links, and the app that opens folders (Path Finder or Finder).
+- About: version and links.
+
+## Hotkeys
+- ⌃⌥E: show the EventDocMaker window from any app (while running)
+- ⇧⌘V: load from the clipboard
+- ⌘Return: make documents
+- ⌘0: open the main window
+- ⌘,: settings
+- ⌘W: close the window
+- ⌘?: this help
+
+## Permissions and privacy
+No special permission is needed. The clipboard is read only when you click Load from Clipboard. Nothing is sent anywhere.
+
+## Keeping it running and quitting
+With Keep running after closing the window on, closing the window does not quit. Reopen from the Dock or Finder, or from the menu bar icon. To quit, choose EventDocMaker > Quit EventDocMaker (⌘Q). It does not quit while writing.
+
+## Troubleshooting
+- Make Documents is unavailable: check that the sheet has 種別, 仮の日付 and タイトル（abc）. Missing labels are shown in the folder row.
+- “No templates”: check the EventDoc folder in Settings > Folders.
+- Values are missing in documents: check Variables and the empty variables shown after writing. Labels must match exactly.
+- To make documents again: fix the sheet and click Make Documents again. Files with the same name in docs are overwritten.
