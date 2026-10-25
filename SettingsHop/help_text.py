@@ -11,7 +11,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - 入力監視
 - オートメーション
 - ログイン項目（⌘6）：一般＞ログイン項目と機能拡張
-- デフォルトのWebブラウザ（⌘7）：デスクトップとDockを開き、アクセシビリティが許可されていれば「デフォルトのWebブラウザ」の行までスクロールします。
+- デフォルトのWebブラウザ（⌘7）：デスクトップとDockを開き、アクセシビリティが許可されていれば「デフォルトのWebブラウザ」の行までスクロールし、ブラウザを選ぶメニューを開きます。
 
 ## Option＋クリック
 アクセシビリティ（⌘2）・フルディスクアクセス（⌘3）・画面収録とシステムオーディオ録音（⌘5）・入力監視は、Optionを押しながらクリック（またはOption＋Return、⌥＋数字、⌘⌥＋数字）すると、直前に使っていたアプリの行を選んだ状態で開きます。たとえば作業中のアプリで⌃⌥Qを押し、Option＋クリックすると、そのアプリの行が選ばれます。選ばれるアプリは、メインウインドウの右下の「直前のアプリ」に表示されます。許可スイッチは自分で操作してください。アクセシビリティの許可が必要です。
@@ -58,7 +58,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Input Monitoring
 - Automation
 - Login Items (⌘6): General > Login Items & Extensions
-- Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row.
+- Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
 ## Option-click
 Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
@@ -105,7 +105,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 输入监控
 - 自动化
 - 登录项（⌘6）：通用 > 登录项与扩展
-- 默认网页浏览器（⌘7）：打开“桌面与程序坞”，允许辅助功能时会滚动到“默认网页浏览器”一行。
+- 默认网页浏览器（⌘7）：打开“桌面与程序坞”，允许辅助功能时会滚动到“默认网页浏览器”一行并打开浏览器菜单。
 
 ## 按住 Option 点按
 按住 Option 点按辅助功能（⌘2）、完全磁盘访问权限（⌘3）、录屏与系统录音（⌘5）或输入监控（或 Option-Return、⌥+数字、⌘⌥+数字），会在打开时选中上一个使用的应用所在行。例如在正在使用的应用中按 ⌃⌥Q，再按住 Option 点按。将被选中的应用显示在主窗口右下角的“上一个应用”。授权开关请手动操作。需要辅助功能权限。
@@ -152,7 +152,7 @@ SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 �
 - 입력 모니터링
 - 자동화
 - 로그인 항목(⌘6): 일반 > 로그인 항목 및 확장 프로그램
-- 기본 웹 브라우저(⌘7): 데스크탑 및 Dock을 열고, 손쉬운 사용이 허용되어 있으면 '기본 웹 브라우저' 행까지 스크롤합니다.
+- 기본 웹 브라우저(⌘7): 데스크탑 및 Dock을 열고, 손쉬운 사용이 허용되어 있으면 '기본 웹 브라우저' 행까지 스크롤하고 브라우저 메뉴를 엽니다.
 
 ## Option-클릭
 손쉬운 사용(⌘2), 전체 디스크 접근 권한(⌘3), 화면 및 시스템 오디오 녹음(⌘5), 입력 모니터링을 Option 키를 누른 채 클릭하면(또는 Option-Return, ⌥+숫자, ⌘⌥+숫자) 직전에 사용한 앱의 행을 선택한 상태로 엽니다. 예를 들어 작업 중인 앱에서 ⌃⌥Q를 누른 후 Option-클릭합니다. 선택될 앱은 메인 윈도우 오른쪽 아래의 '직전 앱'에 표시됩니다. 권한 스위치는 직접 조작하세요. 손쉬운 사용 권한이 필요합니다.

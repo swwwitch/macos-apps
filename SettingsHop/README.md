@@ -28,7 +28,7 @@
 - デフォルトのWebブラウザ：`com.apple.Desktop-Settings.extension`。アンカー（`?Browser`・`?defaultWebBrowser`・`?default-web-browser`）は試したが行までスクロールしない（macOS 26）
 - キーボードショートカット：`com.apple.Keyboard-Settings.extension?Shortcuts`（シートが開く。左の一覧は前回の項目）
 - 「システム設定」だけはBundle ID `com.apple.systempreferences` のアプリを開く。
-- 「デフォルトのWebブラウザ」は開いたあと、アクセシビリティAPIで行のポップアップにフォーカスを当ててスクロールさせる（`Source/RowLocator.swift`。AXScrollToVisibleは成功を返すが動かない。表示名はDesktopSettings.appexのLocalizable.loctableから全言語を読む）。
+- 「デフォルトのWebブラウザ」は開いたあと、アクセシビリティAPIで行のポップアップにフォーカスを当ててスクロールさせ、AXPressでメニューを開く（`Source/RowLocator.swift`。AXScrollToVisibleは成功を返すが動かない。表示名はDesktopSettings.appexのLocalizable.loctableから全言語を読む）。
 - Option＋クリック（アクセシビリティ・フルディスクアクセス・画面収録・入力監視）は、直前に前面だったアプリの行を共通部品 `AccessibilitySettingsLocator.open(names:paneURL:)` で選ぶ（AXSelected。許可スイッチは触らない）。
 - 権限はこの2つにだけ使い、無ければ画面を開くだけ。設定の値は読み書きしない。外部通信なし（更新確認を除く。配信先は未設定）。
 
@@ -48,6 +48,10 @@
 - `Assets/GenerateIcon.swift`：アイコン（マスタード基調、歯車と跳ぶ矢印）
 
 ## 更新履歴
+
+### 1.3.1（build 14、2026-10-26）
+
+- 「デフォルトのWebブラウザ」でスクロールしたあと、ブラウザを選ぶポップアップのメニューを開く（AXPress。スペースバーと同じ）。
 
 ### 1.3.0（build 13、2026-10-26）
 

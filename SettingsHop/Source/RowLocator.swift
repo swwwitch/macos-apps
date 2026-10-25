@@ -19,7 +19,7 @@ enum RowLocator {
         return Set(table.values.compactMap { $0[target.labelKey] as? String }).union([target.labelKey])
     }
 
-    /// Waits for the pane to load (up to `timeout`), then focuses the row's control.
+    /// Waits for the pane to load (up to `timeout`), then focuses the row's control and opens its popup (as Space would).
     /// Runs off the main thread; returns whether the row was found.
     static func reveal(_ target: Target, timeout: TimeInterval = 5) -> Bool {
         let names = labels(target)
@@ -29,7 +29,11 @@ enum RowLocator {
                let (label, parent) = find(names, in: AXUIElementCreateApplication(app.processIdentifier)) {
                 // Focusing the popup next to the label scrolls the row into view; AXScrollToVisible alone reports success without scrolling.
                 let control = children(parent).first { role($0) == kAXPopUpButtonRole as String }
-                if let control, AXUIElementSetAttributeValue(control, kAXFocusedAttribute as CFString, kCFBooleanTrue) == .success { return true }
+                if let control, AXUIElementSetAttributeValue(control, kAXFocusedAttribute as CFString, kCFBooleanTrue) == .success {
+                    Thread.sleep(forTimeInterval: 0.3)
+                    AXUIElementPerformAction(control, kAXPressAction as CFString)
+                    return true
+                }
                 return AXUIElementPerformAction(label, "AXScrollToVisible" as CFString) == .success
             }
             Thread.sleep(forTimeInterval: 0.2)
@@ -45,6 +49,7 @@ enum RowLocator {
     private static func children(_ element: AXUIElement) -> [AXUIElement] { value(element, kAXChildrenAttribute) as? [AXUIElement] ?? [] }
 
     /// Depth-first search for a static text whose value is one of `names`; returns it with its parent.
+    /// Walking the whole app takes about 0.1 s here (only AppleScript's `entire contents` is slow), so no path is assumed.
     private static func find(_ names: Set<String>, in element: AXUIElement, parent: AXUIElement? = nil, depth: Int = 0) -> (AXUIElement, AXUIElement)? {
         guard depth < 40 else { return nil }
         if let parent, role(element) == kAXStaticTextRole as String, let text = value(element, kAXValueAttribute) as? String, names.contains(text) {
