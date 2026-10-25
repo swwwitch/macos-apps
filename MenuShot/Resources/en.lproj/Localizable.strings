@@ -23,6 +23,10 @@
 "captureTab" = "Capture";
 "captureHotkey" = "Capture hotkey";
 "captureHotkeyDetail" = "Press it with a menu open to capture at once. With no menu open, it counts down the delay first.";
+"inputMonitoring" = "Input Monitoring";
+"inputMonitoringReason" = "Lets the hotkey work with a menu open (ordinary hotkeys do not arrive while a menu is shown). Keys are only compared, never recorded or sent. Without it, the hotkey works only with no menu open.";
+"allowInputMonitoring" = "Allow Input Monitoring…";
+"flashScreen" = "Flash the captured area";
 "delayTitle" = "Delay";
 "seconds" = "%d s";
 "delayDetail" = "When capturing from the Capture button or the menu bar icon, open the menu during this time. 0 captures at once.";
@@ -41,6 +45,7 @@
 "afterCapture" = "After Capturing";
 "copyToClipboard" = "Also copy to the clipboard";
 "playSound" = "Play the capture sound";
+"openQuickLook" = "Open in Quick Look";
 "resident" = "Keep running after closing the window";
 "residentDetail" = "Reopen from the Dock or menu bar; the capture hotkey keeps working. When off, closing the window quits.";
 "launchShortcut" = "App launch keyboard shortcut";

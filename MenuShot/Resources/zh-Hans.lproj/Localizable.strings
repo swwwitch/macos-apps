@@ -23,6 +23,10 @@
 "captureTab" = "截取";
 "captureHotkey" = "截取快捷键";
 "captureHotkeyDetail" = "在菜单打开时按下会立即截取。没有打开的菜单时，会先倒数延迟秒数再截取。";
+"inputMonitoring" = "输入监控";
+"inputMonitoringReason" = "用于在菜单打开时用快捷键截取（菜单显示时普通快捷键无法送达）。按键仅作比对，不会记录或发送。未允许时仅在没有打开菜单时有效。";
+"allowInputMonitoring" = "允许输入监控…";
+"flashScreen" = "闪烁截取的区域";
 "delayTitle" = "延迟";
 "seconds" = "%d 秒";
 "delayDetail" = "从“截取”按钮或菜单栏图标截取时，请在这段时间内打开菜单。设为 0 会立即截取。";
@@ -41,6 +45,7 @@
 "afterCapture" = "截取后";
 "copyToClipboard" = "同时拷贝到剪贴板";
 "playSound" = "播放截取声音";
+"openQuickLook" = "用快速查看打开";
 "resident" = "关闭窗口后继续运行";
 "residentDetail" = "可从 Dock 或菜单栏再次打开，截取快捷键仍可使用。关闭此项时，关闭窗口即退出。";
 "launchShortcut" = "启动应用快捷键";

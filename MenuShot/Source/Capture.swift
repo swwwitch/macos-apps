@@ -15,11 +15,13 @@ struct MenuPicture {
     let image: CGImage
     /// Pixels per point (2 on Retina). Saved as the PNG's resolution so the picture opens at its on-screen size.
     let scale: CGFloat
+    /// The captured area on screen, in global top-left points (for the flash).
+    let area: CGRect
 }
 
 enum MenuCapture {
     /// Room around the menus for the drawn shadow, in points.
-    static let shadowMargin: CGFloat = 28
+    static let shadowMargin: CGFloat = 44
 
     /// Asks without prompting.
     static var hasPermission: Bool { CGPreflightScreenCaptureAccess() }
@@ -66,11 +68,23 @@ enum MenuCapture {
         }
         let menus = plan.menus.dropFirst().reduce(plan.menus[0].frame) { $0.union($1.frame) }
         guard let root = byID[plan.menus[0].id] else { throw CaptureError.noMenu }
-        do { shots.append(Shot(frame: menus, image: try await shot(root, size: menus.size, scale: scale), isMenu: true)) }
+        let tree: CGImage
+        do { tree = try await shot(root, size: menus.size, scale: scale) }
         catch { throw CaptureError.failed(error.localizedDescription) }
+        // Cut the tree back into one piece per menu, so a submenu casts its shadow on its parent as on screen.
+        // A rectangular cut also takes in what lies behind a menu's rounded corners (its parent), so every piece gets the corners
+        // of the root menu's top-left, which has nothing behind it; all menus share that shape.
+        let pieces = plan.menus.compactMap { box in
+            tree.cropping(to: CGRect(x: (box.frame.minX - menus.minX) * scale, y: (box.frame.minY - menus.minY) * scale,
+                                     width: box.frame.width * scale, height: box.frame.height * scale).integral).map { (box, $0) }
+        }
+        let corner = plan.menus.count > 1 ? pieces.first.flatMap { $0.1.cropping(to: CGRect(x: 0, y: 0, width: Int(16 * scale), height: Int(16 * scale))) } : nil
+        for (box, piece) in pieces {
+            shots.append(Shot(frame: box.frame, image: corner.flatMap { roundCorners(piece, like: $0) } ?? piece, isMenu: true))
+        }
         guard let image = compose(shots, crop: plan.crop, scale: scale, shadow: shadow)
         else { throw CaptureError.failed("compose") }
-        return MenuPicture(image: image, scale: scale)
+        return MenuPicture(image: image, scale: scale, area: plan.crop)
     }
 
     struct Shot {
@@ -92,6 +106,31 @@ enum MenuCapture {
         return try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
     }
 
+    /// `piece` with its four corners cut to the alpha of `corner` (a top-left corner), mirrored for the other three.
+    static func roundCorners(_ piece: CGImage, like corner: CGImage) -> CGImage? {
+        let width = piece.width, height = piece.height, size = corner.width
+        guard width >= 2 * size, height >= 2 * size else { return nil }
+        func context() -> CGContext? {
+            CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: piece.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!,
+                      bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
+        }
+        guard let mask = context(), let output = context() else { return nil }
+        mask.setFillColor(CGColor(gray: 1, alpha: 1)); mask.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        for (flipX, flipY) in [(false, false), (true, false), (false, true), (true, true)] {
+            mask.saveGState()
+            mask.translateBy(x: flipX ? CGFloat(width) : 0, y: flipY ? CGFloat(height) : 0)
+            mask.scaleBy(x: flipX ? -1 : 1, y: flipY ? -1 : 1)
+            let square = CGRect(x: 0, y: height - size, width: size, height: size)
+            mask.clear(square); mask.draw(corner, in: square)
+            mask.restoreGState()
+        }
+        guard let shape = mask.makeImage() else { return nil }
+        let full = CGRect(x: 0, y: 0, width: width, height: height)
+        output.draw(piece, in: full)
+        output.setBlendMode(.destinationIn); output.draw(shape, in: full)
+        return output.makeImage()
+    }
+
     static func compose(_ shots: [Shot], crop: CGRect, scale: CGFloat, shadow: Bool) -> CGImage? {
         let width = Int((crop.width * scale).rounded()), height = Int((crop.height * scale).rounded())
         let space = shots.first?.image.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
@@ -101,11 +140,15 @@ enum MenuCapture {
         context.interpolationQuality = .none
         for shot in shots {
             context.saveGState()
+            let rect = MenuLayout.placement(of: shot.frame, in: crop, scale: scale)
             if shadow && shot.isMenu {
-                // Close to the system menu shadow: soft, slightly below.
-                context.setShadow(offset: CGSize(width: 0, height: -6 * scale), blur: 18 * scale, color: CGColor(gray: 0, alpha: 0.3))
+                // Close to the macOS 26 menu shadow (compared with a system screenshot): a wide soft shadow falling below,
+                // then a thin one along the edge.
+                context.setShadow(offset: CGSize(width: 0, height: -10 * scale), blur: 30 * scale, color: CGColor(gray: 0, alpha: 0.32))
+                context.draw(shot.image, in: rect)
+                context.setShadow(offset: CGSize(width: 0, height: -1 * scale), blur: 3 * scale, color: CGColor(gray: 0, alpha: 0.22))
             }
-            context.draw(shot.image, in: MenuLayout.placement(of: shot.frame, in: crop, scale: scale))
+            context.draw(shot.image, in: rect)
             context.restoreGState()
         }
         return context.makeImage()

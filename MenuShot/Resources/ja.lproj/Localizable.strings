@@ -23,6 +23,10 @@
 "captureTab" = "撮影";
 "captureHotkey" = "撮影のホットキー";
 "captureHotkeyDetail" = "メニューを開いたまま押すと、すぐに撮影します。メニューが開いていないときは、撮影までの秒数を数えてから撮影します。";
+"inputMonitoring" = "入力監視";
+"inputMonitoringReason" = "メニューを開いたままホットキーで撮るために使います（メニューの表示中は、ふつうのホットキーが届きません）。キーは照らし合わせるだけで、記録も送信もしません。未許可のときは、メニューが閉じているときだけ効きます。";
+"allowInputMonitoring" = "入力監視を許可…";
+"flashScreen" = "撮影した範囲を点滅させる";
 "delayTitle" = "撮影までの秒数";
 "seconds" = "%d秒";
 "delayDetail" = "［撮影］ボタンやメニューバーのアイコンから撮るとき、この間にメニューを開きます。0秒にするとすぐに撮影します。";
@@ -41,6 +45,7 @@
 "afterCapture" = "撮影したあと";
 "copyToClipboard" = "クリップボードにもコピー";
 "playSound" = "撮影の音を鳴らす";
+"openQuickLook" = "Quick Lookで開く";
 "resident" = "ウインドウを閉じても常駐";
 "residentDetail" = "閉じた後もDockやメニューバーから再表示でき、撮影のホットキーも使えます。オフにすると閉じたときに終了します。";
 "launchShortcut" = "アプリ起動のホットキー";

@@ -23,6 +23,10 @@
 "captureTab" = "캡처";
 "captureHotkey" = "캡처 단축키";
 "captureHotkeyDetail" = "메뉴를 연 채 누르면 바로 캡처합니다. 열린 메뉴가 없으면 대기 시간을 센 뒤 캡처합니다.";
+"inputMonitoring" = "입력 모니터링";
+"inputMonitoringReason" = "메뉴를 연 채 단축키로 캡처하는 데 사용합니다(메뉴 표시 중에는 일반 단축키가 전달되지 않음). 키는 비교만 하며 기록하거나 전송하지 않습니다. 허용하지 않으면 메뉴가 닫혀 있을 때만 작동합니다.";
+"allowInputMonitoring" = "입력 모니터링 허용…";
+"flashScreen" = "캡처한 영역 깜박이기";
 "delayTitle" = "대기 시간";
 "seconds" = "%d초";
 "delayDetail" = "캡처 버튼이나 메뉴 막대 아이콘으로 캡처할 때 이 시간 동안 메뉴를 엽니다. 0이면 바로 캡처합니다.";
@@ -41,6 +45,7 @@
 "afterCapture" = "캡처 후";
 "copyToClipboard" = "클립보드에도 복사";
 "playSound" = "캡처 소리 재생";
+"openQuickLook" = "훑어보기로 열기";
 "resident" = "윈도우를 닫아도 계속 실행";
 "residentDetail" = "Dock 또는 메뉴 막대에서 다시 열 수 있고 캡처 단축키도 계속 작동합니다. 끄면 창을 닫을 때 종료됩니다.";
 "launchShortcut" = "앱 실행 키보드 단축키";

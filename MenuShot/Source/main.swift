@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Carbon
+import Quartz
 
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
@@ -14,12 +15,15 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     @Published var shadow = UserDefaults.standard.object(forKey: "drawShadow") as? Bool ?? true { didSet { defaults.set(shadow, forKey: "drawShadow") } }
     @Published var copyToClipboard = UserDefaults.standard.object(forKey: "copyToClipboard") as? Bool ?? true { didSet { defaults.set(copyToClipboard, forKey: "copyToClipboard") } }
     @Published var playSound = UserDefaults.standard.object(forKey: "playSound") as? Bool ?? true { didSet { defaults.set(playSound, forKey: "playSound") } }
+    @Published var flashScreen = UserDefaults.standard.object(forKey: "flashScreen") as? Bool ?? true { didSet { defaults.set(flashScreen, forKey: "flashScreen") } }
+    /// Off at first: Quick Look brings MenuShot to the front.
+    @Published var openQuickLook = UserDefaults.standard.bool(forKey: "openQuickLook") { didSet { defaults.set(openQuickLook, forKey: "openQuickLook") } }
     /// Per Mac (a path). Empty means the folder of the macOS screenshot.
     @Published var folderPath = UserDefaults.standard.string(forKey: "saveFolder") ?? "" { didSet { defaults.set(folderPath, forKey: "saveFolder") } }
     var folder: URL { folderPath.isEmpty ? MenuCapture.systemScreenshotFolder : URL(fileURLWithPath: folderPath, isDirectory: true) }
 
     /// Keys shared by 設定の共有. The folder, startup, residency and the app hotkey stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["captureDelay", "barRange", "drawShadow", "copyToClipboard", "playSound", "captureHotkeyEnabled", "captureHotkey"]
+    nonisolated static let sharedKeys: Set<String> = ["captureDelay", "barRange", "drawShadow", "copyToClipboard", "playSound", "flashScreen", "openQuickLook", "captureHotkeyEnabled", "captureHotkey"]
     /// Re-reads the shared settings after an import so the next save does not write the old values back.
     func reloadSharedSettings() {
         delay = defaults.object(forKey: "captureDelay") as? Int ?? 3
@@ -27,6 +31,8 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
         shadow = defaults.object(forKey: "drawShadow") as? Bool ?? true
         copyToClipboard = defaults.object(forKey: "copyToClipboard") as? Bool ?? true
         playSound = defaults.object(forKey: "playSound") as? Bool ?? true
+        openQuickLook = defaults.bool(forKey: "openQuickLook")
+        flashScreen = defaults.object(forKey: "flashScreen") as? Bool ?? true
         captureHotkeyEnabled = defaults.object(forKey: "captureHotkeyEnabled") as? Bool ?? true
         captureCombo = Model.readCombo("captureHotkey", default: Model.defaultCaptureCombo)
     }
@@ -49,10 +55,29 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     @Published var appHotkeyRegistered = true
     let hotkeys = HotkeySet(signature: "MnSt")
     enum HotkeyID: UInt32 { case app = 1, capture = 2 }
+    let keyTap = KeyTap()
+    @Published var inputMonitoring = KeyTap.hasPermission
+    /// The capture key goes through the event tap (works with a menu open).
+    @Published var tapActive = false
+    func requestInputMonitoring() {
+        // Shows the system prompt the first time only; after that, System Settings.
+        if !CGRequestListenEventAccess() {
+            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!)
+        }
+        registerHotkeys()
+    }
     func registerHotkeys() {
         hotkeys.unregisterAll()
         captureHotkeyRegistered = true; appHotkeyRegistered = true
-        if captureHotkeyEnabled, let captureCombo { captureHotkeyRegistered = hotkeys.register(HotkeyID.capture.rawValue, captureCombo) == noErr }
+        keyTap.combo = captureHotkeyEnabled ? captureCombo : nil
+        inputMonitoring = KeyTap.hasPermission
+        // With Input Monitoring the capture key is watched by the event tap only (it also arrives while a menu is open);
+        // without it, a Carbon hotkey that works only while no menu is open.
+        if keyTap.combo != nil && inputMonitoring && keyTap.start() { tapActive = true }
+        else {
+            keyTap.stop(); tapActive = false
+            if captureHotkeyEnabled, let captureCombo { captureHotkeyRegistered = hotkeys.register(HotkeyID.capture.rawValue, captureCombo) == noErr }
+        }
         if appHotkeyEnabled, let appCombo { appHotkeyRegistered = hotkeys.register(HotkeyID.app.rawValue, appCombo) == noErr }
         var items: [HotkeyManifest.Item] = []
         if let captureCombo { items.append(.init(id: "captureHotkey", title: L("captureHotkey"), keyCode: Int(captureCombo.code), modifiers: Int(captureCombo.modifiers), enabled: captureHotkeyEnabled)) }
@@ -109,10 +134,12 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
                 let picture = try await MenuCapture.capture(range: range, shadow: shadow)
                 let url = try MenuCapture.save(picture, in: folder, prefix: L("filePrefix"))
                 if copyToClipboard { MenuCapture.copy(picture) }
+                if flashScreen { ScreenFlash.show(picture.area) }
                 if playSound { NSSound(contentsOfFile: "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds/system/Screen Capture.aif", byReference: true)?.play() }
                 lastURL = url
                 lastImage = NSImage(cgImage: picture.image, size: NSSize(width: CGFloat(picture.image.width) / picture.scale, height: CGFloat(picture.image.height) / picture.scale))
                 report(String(format: L(copyToClipboard ? "savedAndCopied" : "saved"), url.lastPathComponent), failed: false)
+                if openQuickLook { onQuickLook?(url) }
             } catch CaptureError.noMenu {
                 report(L("noMenu"), failed: true)
             } catch CaptureError.permission {
@@ -126,7 +153,9 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     }
     private func report(_ text: String, failed: Bool) { status = text; self.failed = failed }
 
-    func revealLast() { if let lastURL { NSWorkspace.shared.activateFileViewerSelecting([lastURL]) } }
+    /// Shows a saved picture in the Quick Look panel (set by the app delegate).
+    var onQuickLook: ((URL) -> Void)?
+    func revealLast() { if let lastURL { FileReveal.reveal(lastURL) } }
     func chooseFolder() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.canCreateDirectories = true
@@ -189,6 +218,10 @@ struct MainView: View {
                     Button(model.delay > 0 ? String(format: L("captureAfter"), model.delay) : L("captureNow")) { model.start() }
                         .keyboardShortcut(.defaultAction).controlSize(.large).disabled(model.busy)
                 }
+                // The same setting as 撮影までの秒数 in Settings; fixed while counting down.
+                Stepper(L("delayTitle"), value: $model.delay, in: 0...10).labelsHidden()
+                    .disabled(model.countdown != nil || model.busy)
+                    .accessibilityValue(String(format: L("seconds"), model.delay))
                 if model.captureHotkeyEnabled, let combo = model.captureCombo {
                     Text(String(format: L("hotkeyHint"), combo.label)).font(.callout).foregroundColor(.secondary).lineLimit(2)
                 }
@@ -260,6 +293,16 @@ struct SettingsView: View {
                     Text(L("captureHotkeyDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
+            SettingsSection(L("inputMonitoring")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: model.inputMonitoring ? "checkmark.circle.fill" : "xmark.circle.fill").foregroundColor(model.inputMonitoring ? .green : .secondary).accessibilityHidden(true)
+                        Text(L(model.inputMonitoring ? "permitted" : "notPermitted"))
+                    }
+                    Text(L("inputMonitoringReason")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    if !model.inputMonitoring { Button(L("allowInputMonitoring")) { model.requestInputMonitoring() } }
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
             SettingsSection(L("delayTitle")) {
                 VStack(alignment: .leading, spacing: 6) {
                     Stepper(value: $model.delay, in: 0...10) { Text(String(format: L("seconds"), model.delay)).monospacedDigit() }.fixedSize()
@@ -291,13 +334,15 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle(L("copyToClipboard"), isOn: $model.copyToClipboard)
                     Toggle(L("playSound"), isOn: $model.playSound)
+                    Toggle(L("flashScreen"), isOn: $model.flashScreen)
+                    Toggle(L("openQuickLook"), isOn: $model.openQuickLook)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
         })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
     }
 }
 
-@MainActor final class Delegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuItemValidation {
+@MainActor final class Delegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuItemValidation, QLPreviewPanelDataSource {
     let model = Model()
     var window: NSWindow!
     var settings: NSWindow?
@@ -334,7 +379,14 @@ struct SettingsView: View {
             case nil: break
             }
         }
+        model.keyTap.onPress = { [weak self] in self?.model.start(fromHotkey: true) }
+        model.keyTap.isPaused = { HotkeyRecorder.shared.recordingID != nil }
+        // Input Monitoring granted in System Settings while running: switch the capture key to the tap.
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: NSApp, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { if let model = self?.model, model.inputMonitoring != KeyTap.hasPermission { model.registerHotkeys() } }
+        }
         model.registerHotkeys()
+        model.onQuickLook = { [weak self] url in self?.quickLook(url) }
         MenuBarPresence.shared.install(name: "MenuShot", symbol: "menubar.rectangle", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() },
                                        extraItems: { [weak self] in self?.captureItems() ?? [] })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
@@ -361,6 +413,21 @@ struct SettingsView: View {
     @objc func quit() { NSApp.terminate(nil) }
     @objc func startCapture() { model.start() }
     @objc func revealLast() { model.revealLast() }
+
+    // MARK: Quick Look
+    /// The picture the panel shows. The app delegate is the last responder, so the panel finds it even with no window open.
+    private var previewURL: URL?
+    func quickLook(_ url: URL) {
+        previewURL = url
+        guard let panel = QLPreviewPanel.shared() else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        if panel.isVisible { panel.reloadData() } else { panel.makeKeyAndOrderFront(nil) }
+    }
+    override func acceptsPreviewPanelControl(_ panel: QLPreviewPanel!) -> Bool { true }
+    override func beginPreviewPanelControl(_ panel: QLPreviewPanel!) { panel.dataSource = self }
+    override func endPreviewPanelControl(_ panel: QLPreviewPanel!) { panel.dataSource = nil }
+    nonisolated func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int { MainActor.assumeIsolated { previewURL == nil ? 0 : 1 } }
+    nonisolated func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! { MainActor.assumeIsolated { previewURL as NSURL? } }
     /// Top of the menu bar menu: start the countdown, then open the menu to capture.
     func captureItems() -> [NSMenuItem] {
         let title = model.delay > 0 ? String(format: L("captureAfter"), model.delay) : L("captureNow")

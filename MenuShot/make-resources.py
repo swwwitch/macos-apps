@@ -27,6 +27,10 @@ openScreenRecording|画面収録の設定を開く|Open Screen Recording Setting
 captureTab|撮影|Capture|截取|캡처
 captureHotkey|撮影のホットキー|Capture hotkey|截取快捷键|캡처 단축키
 captureHotkeyDetail|メニューを開いたまま押すと、すぐに撮影します。メニューが開いていないときは、撮影までの秒数を数えてから撮影します。|Press it with a menu open to capture at once. With no menu open, it counts down the delay first.|在菜单打开时按下会立即截取。没有打开的菜单时，会先倒数延迟秒数再截取。|메뉴를 연 채 누르면 바로 캡처합니다. 열린 메뉴가 없으면 대기 시간을 센 뒤 캡처합니다.
+inputMonitoring|入力監視|Input Monitoring|输入监控|입력 모니터링
+inputMonitoringReason|メニューを開いたままホットキーで撮るために使います（メニューの表示中は、ふつうのホットキーが届きません）。キーは照らし合わせるだけで、記録も送信もしません。未許可のときは、メニューが閉じているときだけ効きます。|Lets the hotkey work with a menu open (ordinary hotkeys do not arrive while a menu is shown). Keys are only compared, never recorded or sent. Without it, the hotkey works only with no menu open.|用于在菜单打开时用快捷键截取（菜单显示时普通快捷键无法送达）。按键仅作比对，不会记录或发送。未允许时仅在没有打开菜单时有效。|메뉴를 연 채 단축키로 캡처하는 데 사용합니다(메뉴 표시 중에는 일반 단축키가 전달되지 않음). 키는 비교만 하며 기록하거나 전송하지 않습니다. 허용하지 않으면 메뉴가 닫혀 있을 때만 작동합니다.
+allowInputMonitoring|入力監視を許可…|Allow Input Monitoring…|允许输入监控…|입력 모니터링 허용…
+flashScreen|撮影した範囲を点滅させる|Flash the captured area|闪烁截取的区域|캡처한 영역 깜박이기
 delayTitle|撮影までの秒数|Delay|延迟|대기 시간
 seconds|%d秒|%d s|%d 秒|%d초
 delayDetail|［撮影］ボタンやメニューバーのアイコンから撮るとき、この間にメニューを開きます。0秒にするとすぐに撮影します。|When capturing from the Capture button or the menu bar icon, open the menu during this time. 0 captures at once.|从“截取”按钮或菜单栏图标截取时，请在这段时间内打开菜单。设为 0 会立即截取。|캡처 버튼이나 메뉴 막대 아이콘으로 캡처할 때 이 시간 동안 메뉴를 엽니다. 0이면 바로 캡처합니다.
@@ -45,6 +49,7 @@ folderDetail|初期値はmacOSのスクリーンショットと同じ保存先�
 afterCapture|撮影したあと|After Capturing|截取后|캡처 후
 copyToClipboard|クリップボードにもコピー|Also copy to the clipboard|同时拷贝到剪贴板|클립보드에도 복사
 playSound|撮影の音を鳴らす|Play the capture sound|播放截取声音|캡처 소리 재생
+openQuickLook|Quick Lookで開く|Open in Quick Look|用快速查看打开|훑어보기로 열기
 resident|ウインドウを閉じても常駐|Keep running after closing the window|关闭窗口后继续运行|윈도우를 닫아도 계속 실행
 residentDetail|閉じた後もDockやメニューバーから再表示でき、撮影のホットキーも使えます。オフにすると閉じたときに終了します。|Reopen from the Dock or menu bar; the capture hotkey keeps working. When off, closing the window quits.|可从 Dock 或菜单栏再次打开，截取快捷键仍可使用。关闭此项时，关闭窗口即退出。|Dock 또는 메뉴 막대에서 다시 열 수 있고 캡처 단축키도 계속 작동합니다. 끄면 창을 닫을 때 종료됩니다.
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
