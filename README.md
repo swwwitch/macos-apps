@@ -44,6 +44,9 @@
 | SettingsCourier | アプリの設定をアプリごとに書き出し、ほかのMacで取り込む（Dropbox などの受け渡しフォルダー・取り込み前のバックアップ） | [Sources](SettingsCourier/Sources/SettingsCourier/) | [build.sh](SettingsCourier/build.sh) | 未作成 |
 | SiteMirror | Webサイトのページをたどり、HTML・CSS・JavaScript・画像を保存してリンクを相対パスに書き換える（SiteSucker と同じ用途） | [Sources](SiteMirror/Sources/SiteMirror/) | [build.sh](SiteMirror/build.sh) | 未作成 |
 | SettingsHop | システム設定のよく使う画面（プライバシーとセキュリティ・アクセシビリティ・フルディスクアクセスなど）を直接開く | [Source](SettingsHop/Source/) | [build.sh](SettingsHop/build.sh) | 未作成 |
+| ClipTidy | コピーした文字をルールに合わせて自動で書き換える（URLの余分な引数の削除・定型文の整形・Dropboxリンクの直接ダウンロード化） | [Source](ClipTidy/Source/) | [build.sh](ClipTidy/build.sh) | 未作成 |
+| ShotSorter | 新しいスクリーンショットの名前を変え（文字はFinderのコメントへ）、選んだ範囲の文字を読み取ってコピー | [Source](ShotSorter/Source/) | [build.sh](ShotSorter/build.sh) | 未作成 |
+| FileSorter | フォルダーに加わったファイルを、名前や拡張子のルールで別のフォルダーへ移動 | [Source](FileSorter/Source/) | [build.sh](FileSorter/build.sh) | 未作成 |
 | ProjectFolder（旧 FolderMaker） | 案件フォルダーの作成（KMマクロ「Folder Maker（案件）」の移植） | [Sources](ProjectFolder/Sources/) | [build.sh](ProjectFolder/build.sh) | [リポジトリ](https://github.com/swwwitch/ProjectFolder) |
 | QuickIconExporter | アイコンを透過PNGで保存 | [Development/Sources/IconDrop](QuickIconExporter/Development/Sources/IconDrop/) | [Development/build-app.sh](QuickIconExporter/Development/build-app.sh) | [リポジトリ](https://github.com/swwwitch/QuickIconExporter) |
 | BreaklineTrimmer（旧 TrimBreakline） | 画像の一部を取り除いて詰め、切り口に省略線を引いて透過PNGで書き出す（Illustratorスクリプト TrimWithBreakLine の移植） | [Source](BreaklineTrimmer/Source/) | [build.sh](BreaklineTrimmer/build.sh) | [リポジトリ](https://github.com/swwwitch/BreaklineTrimmer) |
