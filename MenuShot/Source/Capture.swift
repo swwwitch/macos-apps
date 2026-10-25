@@ -38,6 +38,8 @@ enum MenuCapture {
 
     /// Captures each window on its own (so nothing behind it comes along) and puts them together.
     /// A pop-up button's menu captured together with other windows on a display filter brings its parent window along (measured on macOS 26).
+    /// A menu window captured on its own brings its submenus along (the whole menu tree, scaled to fit the requested size),
+    /// so the root menu is captured once at the size of all the menus.
     static func capture(range: BarRange, shadow: Bool) async throws -> MenuPicture {
         let content: SCShareableContent
         do { content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: true) }
@@ -56,23 +58,33 @@ enum MenuCapture {
         let byID = Dictionary(uniqueKeysWithValues: windows.map { ($0.windowID, $0) })
         let scale = CGFloat(SCContentFilter(display: display, excludingWindows: []).pointPixelScale)
 
-        var shots: [(WindowBox, CGImage)] = []
-        for box in plan.bar + plan.menus {
-            guard let window = byID[box.id] else { continue }
-            do { shots.append((box, try await shot(window, scale: scale))) }
-            catch where plan.menus.contains(box) { throw CaptureError.failed(error.localizedDescription) }
-            catch { continue }  // A status item that went away; the rest of the bar is still fine.
+        var shots: [Shot] = []
+        for box in plan.bar {
+            // A status item that went away is skipped; the rest of the bar is still fine.
+            guard let window = byID[box.id], let image = try? await shot(window, size: box.frame.size, scale: scale) else { continue }
+            shots.append(Shot(frame: box.frame, image: image, isMenu: false))
         }
-        guard let image = compose(shots, menus: Set(plan.menus.map(\.id)), crop: plan.crop, scale: scale, shadow: shadow)
+        let menus = plan.menus.dropFirst().reduce(plan.menus[0].frame) { $0.union($1.frame) }
+        guard let root = byID[plan.menus[0].id] else { throw CaptureError.noMenu }
+        do { shots.append(Shot(frame: menus, image: try await shot(root, size: menus.size, scale: scale), isMenu: true)) }
+        catch { throw CaptureError.failed(error.localizedDescription) }
+        guard let image = compose(shots, crop: plan.crop, scale: scale, shadow: shadow)
         else { throw CaptureError.failed("compose") }
         return MenuPicture(image: image, scale: scale)
     }
 
-    private static func shot(_ window: SCWindow, scale: CGFloat) async throws -> CGImage {
+    struct Shot {
+        /// Where the image goes, in global points.
+        let frame: CGRect
+        let image: CGImage
+        let isMenu: Bool
+    }
+
+    private static func shot(_ window: SCWindow, size: CGSize, scale: CGFloat) async throws -> CGImage {
         let filter = SCContentFilter(desktopIndependentWindow: window)
         let config = SCStreamConfiguration()
-        config.width = max(1, Int((window.frame.width * scale).rounded()))
-        config.height = max(1, Int((window.frame.height * scale).rounded()))
+        config.width = max(1, Int((size.width * scale).rounded()))
+        config.height = max(1, Int((size.height * scale).rounded()))
         // With the system shadow the window is scaled down inside the same size; without it the image matches the frame exactly.
         config.ignoreShadowsSingleWindow = true
         config.showsCursor = false
@@ -80,20 +92,20 @@ enum MenuCapture {
         return try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
     }
 
-    static func compose(_ shots: [(WindowBox, CGImage)], menus: Set<UInt32>, crop: CGRect, scale: CGFloat, shadow: Bool) -> CGImage? {
+    static func compose(_ shots: [Shot], crop: CGRect, scale: CGFloat, shadow: Bool) -> CGImage? {
         let width = Int((crop.width * scale).rounded()), height = Int((crop.height * scale).rounded())
-        let space = shots.first?.1.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
+        let space = shots.first?.image.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
         guard width > 0, height > 0,
               let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
                                       bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue) else { return nil }
         context.interpolationQuality = .none
-        for (box, image) in shots {
+        for shot in shots {
             context.saveGState()
-            if shadow && menus.contains(box.id) {
+            if shadow && shot.isMenu {
                 // Close to the system menu shadow: soft, slightly below.
                 context.setShadow(offset: CGSize(width: 0, height: -6 * scale), blur: 18 * scale, color: CGColor(gray: 0, alpha: 0.3))
             }
-            context.draw(image, in: MenuLayout.placement(of: box.frame, in: crop, scale: scale))
+            context.draw(shot.image, in: MenuLayout.placement(of: shot.frame, in: crop, scale: scale))
             context.restoreGState()
         }
         return context.makeImage()
