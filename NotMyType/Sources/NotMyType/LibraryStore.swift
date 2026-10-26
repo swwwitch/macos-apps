@@ -663,12 +663,18 @@ final class LibraryStore: ObservableObject {
     func setActive(_ files: [FontFile], _ on: Bool) {
         // アクティブにするときは、同じ PostScript 名の重複を優先のファイルだけにする（2つ目は「同じ名前のフォントがすでに使われています」で失敗していた）
         let files = on ? preferredAmongDuplicates(files) : files
-        guard !files.isEmpty else { return }
+        guard !files.isEmpty, !isBusy else { return }
+        isBusy = true
+        TaskProgress.shared.begin(on ? L("アクティブにしています…") : L("非アクティブにしています…"))
+        Task { @MainActor in
+        defer { isBusy = false; TaskProgress.shared.end() }
         var failures: [String] = []
         var conflicts: [(file: FontFile, path: String)] = []
         var changed = 0
         var stamped: [UUID: Date] = [:]
-        for file in files {
+        for (index, file) in files.enumerated() {
+            TaskProgress.shared.update(index, of: files.count, detail: "\(index)／\(files.count)  \(file.fileName)")
+            defer { TaskProgress.shared.update(index + 1, of: files.count) }
             if Self.isLocked(file) {
                 failures.append("\(file.fileName) — \(Self.lockedReason(file))")
                 continue
@@ -676,14 +682,22 @@ final class LibraryStore: ObservableObject {
             // フォントフォルダーのフォントは、macOS に覚えさせる（.persistent）。ライブラリのアクティブには数えない
             let installed = Self.isInstalled(file)
             let scope: CTFontManagerScope = installed ? .persistent : .session
-            let error = on ? FontActivation.activate(file, scope: scope) : FontActivation.deactivate(file, scope: scope)
+            let error = await Task.detached(priority: .userInitiated) {
+                on ? FontActivation.activate(file, scope: scope) : FontActivation.deactivate(file, scope: scope)
+            }.value
             if let error {
                 failures.append("\(file.fileName) — \(error)")
                 continue
             }
             // 同じPostScript名がほかで使われていると、登録は通っても先のほうが使われる。紛らわしいので戻して失敗にする
-            if on, case .conflict(let path) = FontActivation.state(of: file) {
-                _ = FontActivation.deactivate(file, scope: scope)
+            let conflictPath: String? = await Task.detached(priority: .userInitiated) {
+                if on, case .conflict(let path) = FontActivation.state(of: file) {
+                    _ = FontActivation.deactivate(file, scope: scope)
+                    return path
+                }
+                return nil
+            }.value
+            if let path = conflictPath {
                 failures.append("\(file.fileName) — \(L("同じ名前のフォントがすでに使われています"))")
                 if !installed { conflicts.append((file, path)) }
                 continue
@@ -710,6 +724,7 @@ final class LibraryStore: ObservableObject {
             let title = on ? L("アクティブにできなかったファイルがあります") : L("解除できなかったファイルがあります")
             let body = failures.prefix(20).joined(separator: "\n") + (failures.count > 20 ? "\n…" : "")
             if conflicts.isEmpty { message = (title, body) } else { offerForce(conflicts, title: title, body: body) }
+        }
         }
     }
 

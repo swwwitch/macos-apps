@@ -231,3 +231,14 @@ Projects also accept font drops. Add to Project in the context menu lets you cho
 
 All Fonts remains visible when the Library section is collapsed.
 Hold Option to reveal Tools > Links > Debug, which opens the Adobe Fonts, OH MY FONT, Fontworks LETS, and Morisawa Fonts folders in Finder. Missing folders are not created.
+
+
+## Build 101 preview controls
+- The list context menu and bottom action switch between Activate and Deactivate. Mixed selections are activated together. Separate menu shortcuts retain their existing meanings.
+- Right-click a glyph to copy its character and font information. Glyphs without Unicode cannot be copied as text. Copy Outlines provides a PDF, not editable text. The receiving application's paste settings determine whether font information is retained.
+- Debug folders open in running Path Finder, otherwise Finder. For OH MY FONT, the checked Show Invisibles menu is used when Accessibility permission is already granted. If unavailable, or using Finder, manual instructions appear. File attributes are unchanged.
+
+- The glyph filter adds 16 categories including Hiragana and Katakana. Categories use Unicode ranges and properties and may overlap. Copy Glyph provides font-bearing RTF and text PDF; Illustrator results also depend on paste settings.
+
+
+Activation and deactivation display progress and completed file counts. Wait for completion before switching again or quitting. The action reads Deactivate when all selected editable fonts are active; otherwise it reads Activate.

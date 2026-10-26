@@ -577,3 +577,35 @@
 "デバッグ" = "Debug";
 "フォルダーが見つかりません" = "Folder Not Found";
 "フォルダーを開けませんでした" = "Could Not Open Folder";
+
+"非アクティブにする" = "Deactivate";
+"クリックで非アクティブにする" = "Click to deactivate";
+"字形をコピー" = "Copy Glyph";
+"字形を輪郭でコピー" = "Copy Glyph as Outlines";
+"不可視項目の表示" = "Show Invisible Items";
+"OH MY FONTを開きました。不可視項目が見えない場合は、Path Finderの「表示」メニューで不可視項目の表示をオンにしてください。自動切替にはアクセシビリティの許可が必要です。" = "OH MY FONT is open. If invisible items are not visible, enable Show Invisibles in Path Finder’s View menu. Automatic switching requires Accessibility permission.";
+"OH MY FONTを開きました。FinderでCommand＋Shift＋ピリオドを押すと、不可視項目の表示を切り替えられます。" = "OH MY FONT is open. In Finder, press Command–Shift–Period to toggle invisible items.";
+
+"アウトラインをコピー" = "Copy Outlines";
+"ひらがな" = "Hiragana";
+"カタカナ" = "Katakana";
+"絵文字" = "Emoji";
+"囲み文字" = "Enclosed Characters";
+"箇条書きと星" = "Bullets and Stars";
+"括弧/引用符" = "Brackets / Quotation Marks";
+"漢字" = "Kanji";
+"句読点" = "Punctuation";
+"象形文字" = "Pictographs";
+"数学記号" = "Mathematical Symbols";
+"数字" = "Numbers";
+"通貨記号" = "Currency Symbols";
+"日本語かな" = "Japanese Kana";
+"標識と標準記号" = "Signs and Standard Symbols";
+"文字様記号" = "Letterlike Symbols";
+"矢印" = "Arrows";
+
+"アクティブにしています…" = "Activating fonts…";
+
+"非アクティブにしています…" = "Deactivating fonts…";
+
+"処理が完了してから終了してください" = "Please wait for the operation to finish before quitting.";

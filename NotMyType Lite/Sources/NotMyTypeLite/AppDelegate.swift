@@ -66,6 +66,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LibraryStore.shared.add(urls.filter { FontFileHandler.extensions.contains($0.pathExtension.lowercased()) }, reveal: true)
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard LibraryStore.shared.isBusy else { return .terminateNow }
+        let alert = NSAlert()
+        alert.messageText = L("処理が完了してから終了してください")
+        alert.runModal()
+        return .terminateCancel
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         StartupWindow.userRequestedWindow()

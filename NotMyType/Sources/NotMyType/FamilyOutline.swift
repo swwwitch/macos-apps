@@ -181,8 +181,12 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             menu.removeAllItems()
             let files = store.files(for: menuIDs())
             guard !files.isEmpty else { return }
-            add(menu, L("アクティブにする")) { $0.setActive(files, true) }
-            add(menu, L("解除")) { $0.setActive(files, false) }
+            let targets = files.filter { !LibraryStore.isLocked($0) }
+            let deactivate = !targets.isEmpty && targets.allSatisfy { store.isActive($0) }
+            let toggle = add(menu, deactivate ? L("非アクティブにする") : L("アクティブにする")) {
+                $0.setActive(targets, !deactivate)
+            }
+            toggle.isEnabled = !targets.isEmpty && !store.isBusy
             menu.addItem(.separator())
             let families = store.data.families(of: files)
             let favoriteCount = families.filter { store.isFavorite($0) }.count
@@ -345,7 +349,7 @@ final class FamilyCell: NSTableCellView {
             check.state = active ? .on : .off
             check.isEnabled = !LibraryStore.isLocked(file)
             check.toolTip = !check.isEnabled ? LibraryStore.lockedReason(file)
-                : active ? L("クリックで解除") : L("クリックでアクティブにする")
+                : active ? L("クリックで非アクティブにする") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(active ? L("アクティブ") : L("非アクティブ"))
             let styles = file.faces.map(\.displayStyle).joined(separator: L("、"))
             let postScript = file.faces.map(\.postScriptName).joined(separator: L("、"))
@@ -373,7 +377,7 @@ final class FamilyCell: NSTableCellView {
             check.state = state == true ? .on : state == nil ? .mixed : .off
             check.isEnabled = !family.files.allSatisfy(LibraryStore.isLocked)
             check.toolTip = !check.isEnabled ? family.files.first.map(LibraryStore.lockedReason)
-                : state == true ? L("クリックで解除") : L("クリックでアクティブにする")
+                : state == true ? L("クリックで非アクティブにする") : L("クリックでアクティブにする")
             check.setAccessibilityLabel(state == true ? L("アクティブ") : state == nil ? L("一部アクティブ") : L("非アクティブ"))
             let dimmed = family.files.allSatisfy(Self.isUnavailable)
             switch NameDisplay.current {

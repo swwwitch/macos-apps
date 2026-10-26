@@ -110,7 +110,7 @@ private struct LibraryMenuItems: View {
         Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
             .keyboardShortcut(shortcuts.shortcut(.activate))
             .disabled(store.selection.isEmpty)
-        Button(L("解除")) { store.setActive(store.selectedFiles, false) }
+        Button(L("非アクティブにする")) { store.setActive(store.selectedFiles, false) }
             .keyboardShortcut(shortcuts.shortcut(.deactivate))
             .disabled(store.selection.isEmpty)
         Divider()

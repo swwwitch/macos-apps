@@ -181,8 +181,12 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             menu.removeAllItems()
             let files = store.files(for: menuIDs())
             guard !files.isEmpty else { return }
-            add(menu, L("アクティブにする")) { $0.setActive(files, true) }
-            add(menu, L("解除")) { $0.setActive(files, false) }
+            let targets = files.filter { !LibraryStore.isLocked($0) }
+            let deactivate = !targets.isEmpty && targets.allSatisfy { store.isActive($0) }
+            let toggle = add(menu, deactivate ? L("非アクティブにする") : L("アクティブにする")) {
+                $0.setActive(targets, !deactivate)
+            }
+            toggle.isEnabled = !targets.isEmpty && !store.isBusy
             menu.addItem(.separator())
             let sets = NSMenu()
             let selectedIDs = Set(files.map(\.id))

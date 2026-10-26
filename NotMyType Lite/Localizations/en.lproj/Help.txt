@@ -170,3 +170,6 @@ Option-click the Search Options button while filters are set to clear all filter
 Drag font families, individual styles, or multiple selected rows from the list onto a sidebar set to add them without removing their existing memberships.
 
 All Fonts remains visible when the Library section is collapsed.
+
+
+Activation and deactivation display progress and completed file counts. Wait for completion before switching again or quitting. The action reads Deactivate when all selected editable fonts are active; otherwise it reads Activate.

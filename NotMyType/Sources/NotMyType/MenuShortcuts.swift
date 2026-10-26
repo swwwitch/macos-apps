@@ -15,7 +15,7 @@ final class MenuShortcuts: ObservableObject {
             case .newSet: return L("新規セット…")
             case .newProject: return L("新規プロジェクト…")
             case .activate: return L("アクティブにする")
-            case .deactivate: return L("解除")
+            case .deactivate: return L("非アクティブにする")
             case .reveal: return L("Finderで表示")
             case .remove: return L("ライブラリから取り除く…")
             case .togglePreview: return L("プレビューを隠す・表示")

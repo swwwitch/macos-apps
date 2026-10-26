@@ -99,11 +99,13 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Button(L("追加…")) { store.showAddPanel() }
                 .disabled(store.isBusy)
-            Button(L("解除")) { store.setActive(store.selectedFiles, false) }
-                .disabled(store.selection.isEmpty)
-            Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
-                .keyboardShortcut(.defaultAction)
-                .disabled(store.selectedFiles.allSatisfy { store.isActive($0) })
+            let targets = store.selectedFiles.filter { !LibraryStore.isLocked($0) }
+            let deactivate = !targets.isEmpty && targets.allSatisfy { store.isActive($0) }
+            Button(deactivate ? L("非アクティブにする") : L("アクティブにする")) {
+                store.setActive(targets, !deactivate)
+            }
+            .keyboardShortcut(.defaultAction)
+            .disabled(targets.isEmpty || store.isBusy)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -160,25 +162,24 @@ private struct SidebarView: View {
             .padding(.horizontal, 8)
             .padding(.top, 6)
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
-                Section {
-                    row(.all, L("すべてのフォント"), "textformat")
-                    if expandedLibrary {
-                        row(.duplicates, L("重複"), "square.on.square")
-                            .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
-                        row(.missing, L("見つからない"), "exclamationmark.triangle")
+                // A plain list row avoids the native Section disclosure entirely.
+                Button { expandedLibrary.toggle() } label: {
+                    HStack {
+                        Text(L("ライブラリ")).font(.caption.weight(.semibold))
+                        Spacer()
+                        Image(systemName: expandedLibrary ? "chevron.down" : "chevron.right")
+                            .font(.caption2.weight(.semibold))
                     }
-                } header: {
-                    Button { expandedLibrary.toggle() } label: {
-                        HStack {
-                            Text(L("ライブラリ"))
-                            Spacer()
-                            Image(systemName: expandedLibrary ? "chevron.down" : "chevron.right")
-                                .font(.caption2.weight(.semibold))
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityValue(expandedLibrary ? L("展開中") : L("折りたたみ中"))
+                    .foregroundStyle(.secondary)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityValue(expandedLibrary ? L("展開中") : L("折りたたみ中"))
+                row(.all, L("すべてのフォント"), "textformat")
+                if expandedLibrary {
+                    row(.duplicates, L("重複"), "square.on.square")
+                        .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
+                    row(.missing, L("見つからない"), "exclamationmark.triangle")
                 }
                 ForEach(LibraryStore.SidebarSection.ordered(order), id: \.self) { section in
                     sectionView(section)

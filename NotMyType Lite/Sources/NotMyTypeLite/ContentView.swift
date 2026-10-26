@@ -95,11 +95,13 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Button(L("追加…")) { store.showAddPanel() }
                 .disabled(store.isBusy)
-            Button(L("解除")) { store.setActive(store.selectedFiles, false) }
-                .disabled(store.selection.isEmpty)
-            Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
-                .keyboardShortcut(.defaultAction)
-                .disabled(store.selectedFiles.allSatisfy { store.isActive($0) })
+            let targets = store.selectedFiles.filter { !LibraryStore.isLocked($0) }
+            let deactivate = !targets.isEmpty && targets.allSatisfy { store.isActive($0) }
+            Button(deactivate ? L("非アクティブにする") : L("アクティブにする")) {
+                store.setActive(targets, !deactivate)
+            }
+            .keyboardShortcut(.defaultAction)
+            .disabled(targets.isEmpty || store.isBusy)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)

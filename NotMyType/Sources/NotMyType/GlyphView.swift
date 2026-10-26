@@ -31,7 +31,10 @@ struct GlyphGridView: View {
                 .labelsHidden()
                 .frame(maxWidth: 200)
                 Picker(L("字形"), selection: $scope) {
-                    ForEach(GlyphTable.Scope.allCases, id: \.self) { Text($0.title).tag($0) }
+                    ForEach(GlyphTable.Scope.allCases, id: \.self) { item in
+                        if item == .hiragana || item == .emoji { Divider() }
+                        Text(item.title).tag(item)
+                    }
                 }
                 .labelsHidden()
                 .fixedSize()
@@ -68,6 +71,13 @@ struct GlyphGridView: View {
                             GlyphCell(font: font, glyph: CGGlyph(index), character: table.characters[index], size: cellSize,
                                       selected: selected == index)
                                 .onTapGesture { select(index, in: table) }
+                                .contextMenu {
+                                    Button(L("字形をコピー")) { select(index, in: table) }
+                                        .disabled(table.characters[index] == nil)
+                                    Button(L("アウトラインをコピー")) {
+                                        GlyphClipboard.copyOutline(font: font, glyph: CGGlyph(index))
+                                    }
+                                }
                         }
                     }
                     .padding(8)
@@ -92,8 +102,8 @@ struct GlyphGridView: View {
     private func select(_ index: Int, in table: GlyphTable) {
         selected = index
         if let character = table.characters[index] {
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(String(character), forType: .string)
+            guard let font = table.font else { return }
+            GlyphClipboard.copyText(String(character), font: font)
         }
     }
 
@@ -121,16 +131,7 @@ struct GlyphGridView: View {
 
 /// 字形番号ごとの文字（cmap の逆引き）と名前
 struct GlyphTable {
-    enum Scope: CaseIterable {
-        case all, withUnicode, withoutUnicode
-        var title: String {
-            switch self {
-            case .all: return L("すべての字形")
-            case .withUnicode: return L("Unicodeあり")
-            case .withoutUnicode: return L("Unicodeなし")
-            }
-        }
-    }
+    typealias Scope = GlyphScope
 
     let font: CTFont?
     let count: Int
@@ -169,6 +170,9 @@ struct GlyphTable {
         case .all: break
         case .withUnicode: indices = indices.filter { characters[$0] != nil }
         case .withoutUnicode: indices = indices.filter { characters[$0] == nil }
+        default: indices = indices.filter { index in
+            characters[index]?.unicodeScalars.contains(where: scope.includes) ?? false
+        }
         }
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return indices }

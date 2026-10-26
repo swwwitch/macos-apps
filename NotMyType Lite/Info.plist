@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Adobeアプリのフォントキャッシュを消去する前に、起動中のAdobeアプリに終了を頼むために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.8.2</string>
+	<string>1.9.0</string>
 	<key>CFBundleVersion</key>
-	<string>24</string>
+	<string>25</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

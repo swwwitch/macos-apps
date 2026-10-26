@@ -62,10 +62,7 @@ struct FontDebugMenu: View {
             showError(L("フォルダーが見つかりません"), path: url.path)
             return
         }
-        guard NSWorkspace.shared.open(url) else {
-            showError(L("フォルダーを開けませんでした"), path: url.path)
-            return
-        }
+        DebugFolderOpener.open(url, showHidden: path == "/Library/Fonts/oh_my_font")
     }
 
     private func showError(_ message: String, path: String) {
