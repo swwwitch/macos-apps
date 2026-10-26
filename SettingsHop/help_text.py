@@ -1,13 +1,15 @@
 # SettingsHop help (markup rendered by Shared/AppStandards/HelpDocument.swift). Keep the 4 languages parallel.
 HELP = {
  "ja": """## 基本操作
-SettingsHopのウインドウで項目をクリックすると、システム設定のその画面を開きます。
+SettingsHopのウインドウで項目をクリックすると、システム設定のその画面を開きます。（ ）内は初期設定のキーです。設定の［項目］で、表示する項目とキーを変えられます。
 - システム設定（⌘1）：システム設定を開きます。すでに開いているときは、最後に表示していた画面のまま前面に出ます。
 - プライバシーとセキュリティ：一番上から表示します（アクセシビリティが許可されていない場合は、前回見ていた場所から表示されることがあります）
 - アクセシビリティ（⌘2）
 - フルディスクアクセス（⌘3）
 - ファイルとフォルダ（⌘4）
 - 画面収録とシステムオーディオ録音（⌘5）
+- カメラ
+- マイク
 - 入力監視
 - オートメーション
 - セキュリティ：プライバシーとセキュリティの下の方の「セキュリティ」欄（アプリケーションの実行許可・FileVaultなど）
@@ -15,7 +17,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - デフォルトのWebブラウザ（⌘7）：デスクトップとDockを開き、アクセシビリティが許可されていれば「デフォルトのWebブラウザ」の行までスクロールし、ブラウザを選ぶメニューを開きます。
 
 ## Option＋クリック
-アクセシビリティ（⌘2）・フルディスクアクセス（⌘3）・画面収録とシステムオーディオ録音（⌘5）・入力監視は、Optionを押しながらクリック（またはOption＋Return、⌥＋数字、⌘⌥＋数字）すると、直前に使っていたアプリの行を選んだ状態で開きます。たとえば作業中のアプリで⌃⌥Qを押し、Option＋クリックすると、そのアプリの行が選ばれます。選ばれるアプリは、メインウインドウの右下の「直前のアプリ」に表示されます。許可スイッチは自分で操作してください。アクセシビリティの許可が必要です。
+アクセシビリティ（⌘2）・フルディスクアクセス（⌘3）・画面収録とシステムオーディオ録音（⌘5）・カメラ・マイク・入力監視は、Optionを押しながらクリック（またはOption＋Return、⌥＋数字、⌘⌥＋数字）すると、直前に使っていたアプリの行を選んだ状態で開きます。たとえば作業中のアプリで⌃⌥Qを押し、Option＋クリックすると、そのアプリの行が選ばれます。許可スイッチは自分で操作してください。アクセシビリティの許可が必要です。
 - キーボードショートカット（⌘8）：キーボードの「キーボードショートカット…」を開きます。左の一覧は前回表示していた項目のままです。
 - AirDropおよび連係（⌘9）：一般＞AirDropおよび連係
 同じ項目は［ファイル］メニューにもあります。メニューバーのアイコンを表示している場合は、そのメニューからも開けます。
@@ -24,12 +26,13 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 ［SettingsHop］＞［設定…］（⌘,）で開きます。
 - 起動・常駐：ログイン時に起動、Dockとアプリケーションスイッチャーに表示しない、ウインドウを閉じても常駐、メニューバーのアイコン、アプリ起動のホットキー、アプリを呼び出すホットキー（初期値 ⌃⌥Q）。
 - 一般：「項目を開いたらウインドウを閉じる」をオンにすると、メインウインドウのボタンや⌘1〜⌘9で開いたあとウインドウを閉じます。メニューバーから開いたときは関係ありません。
+- 項目：各項目の表示・非表示と、キー（⌘1〜⌘9 または なし）を選びます。使用中の数字を選ぶと、元の項目は「なし」になります。［初期設定に戻す］で元に戻ります。
 - 設定の共有：設定の書き出し・読み込みと同期。
 - 情報：バージョンとリンク。
 
 ## ホットキー
 - ⌃⌥Q：どのアプリからでもSettingsHopのウインドウを表示（起動中のとき。設定の「起動・常駐」で変更・無効化できます）
-- 1〜9（または⌘1〜⌘9）：各項目を開く（プライバシーとセキュリティ・入力監視・オートメーション・セキュリティを除く）（SettingsHopが前面のとき）
+- 1〜9（または⌘1〜⌘9）：設定の［項目］で割り当てた項目を開く（初期設定ではプライバシーとセキュリティ・カメラ・マイク・入力監視・オートメーション・セキュリティはキーなし）（SettingsHopが前面のとき）
 - ↑↓：項目を選ぶ、Return：選んだ項目を開く（メインウインドウ）
 - ⌘0：メインウインドウを開く
 - ⌘,：設定
@@ -49,13 +52,15 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - ウインドウが見つからない：DockのSettingsHopをクリックするか、Finderからもう一度開きます。
 """,
  "en": """## Basics
-Click an item in the SettingsHop window to open that pane in System Settings.
+Click an item in the SettingsHop window to open that pane in System Settings. Keys in parentheses are the defaults; choose the items shown and their keys in Settings › Items.
 - System Settings (⌘1): opens System Settings. If it is already open, it comes to the front showing the last pane.
 - Privacy & Security: shown from the top (without Accessibility permission it may open where you left it)
 - Accessibility (⌘2)
 - Full Disk Access (⌘3)
 - Files and Folders (⌘4)
 - Screen & System Audio Recording (⌘5)
+- Camera
+- Microphone
 - Input Monitoring
 - Automation
 - Security: the Security section near the bottom of Privacy & Security (allowing apps, FileVault and more)
@@ -63,7 +68,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
 ## Option-click
-Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
+Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5), Camera, Microphone or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. Change the permission switch yourself. Accessibility permission is needed.
 - Keyboard Shortcuts (⌘8): opens Keyboard Shortcuts… in Keyboard, on the section shown last.
 - AirDrop & Handoff (⌘9): General > AirDrop & Handoff
 The same items are in the File menu. When the menu bar icon is shown, its menu opens them too.
@@ -72,12 +77,13 @@ The same items are in the File menu. When the menu bar icon is shown, its menu o
 Choose SettingsHop > Settings… (⌘,).
 - Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon, the app launch keyboard shortcut and the show app shortcut (⌃⌥Q by default).
 - General: with “Close the window after opening an item” on, the window closes after you open an item with its button or ⌘1–⌘9. Opening from the menu bar is not affected.
+- Items: show or hide each item and choose its key (⌘1–⌘9 or None). Choosing a digit already in use sets the other item to None. Restore Defaults puts everything back.
 - Settings Sharing: export, import and sync settings.
 - About: version and links.
 
 ## Keyboard shortcuts
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
-- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring, Automation and Security) (while SettingsHop is active)
+- 1–9 (or ⌘1–⌘9): open the item given that key in Settings › Items (by default Privacy & Security, Camera, Microphone, Input Monitoring, Automation and Security have none) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings
@@ -97,13 +103,15 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - The window is gone: click SettingsHop in the Dock, or open it again from Finder.
 """,
  "zh-Hans": """## 基本操作
-在 SettingsHop 窗口中点击项目，即可在系统设置中打开对应面板。
+在 SettingsHop 窗口中点击项目，即可在系统设置中打开对应面板。括号内为默认按键，可在设置 › 项目中更改显示的项目及其按键。
 - 系统设置（⌘1）：打开系统设置。如果已经打开，则保持上次显示的面板并移到最前。
 - 隐私与安全性：从顶部显示（未允许辅助功能时，可能显示上次查看的位置）
 - 辅助功能（⌘2）
 - 完全磁盘访问权限（⌘3）
 - 文件与文件夹（⌘4）
 - 录屏与系统录音（⌘5）
+- 摄像头
+- 麦克风
 - 输入监控
 - 自动化
 - 安全性：“隐私与安全性”下方的“安全性”部分（允许应用程序、文件保险箱等）
@@ -111,7 +119,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 默认网页浏览器（⌘7）：打开“桌面与程序坞”，允许辅助功能时会滚动到“默认网页浏览器”一行并打开浏览器菜单。
 
 ## 按住 Option 点按
-按住 Option 点按辅助功能（⌘2）、完全磁盘访问权限（⌘3）、录屏与系统录音（⌘5）或输入监控（或 Option-Return、⌥+数字、⌘⌥+数字），会在打开时选中上一个使用的应用所在行。例如在正在使用的应用中按 ⌃⌥Q，再按住 Option 点按。将被选中的应用显示在主窗口右下角的“上一个应用”。授权开关请手动操作。需要辅助功能权限。
+按住 Option 点按辅助功能（⌘2）、完全磁盘访问权限（⌘3）、录屏与系统录音（⌘5）、摄像头、麦克风或输入监控（或 Option-Return、⌥+数字、⌘⌥+数字），会在打开时选中上一个使用的应用所在行。例如在正在使用的应用中按 ⌃⌥Q，再按住 Option 点按。授权开关请手动操作。需要辅助功能权限。
 - 键盘快捷键（⌘8）：打开“键盘”中的“键盘快捷键…”，显示上次查看的部分。
 - 隔空投送与接力（⌘9）：通用 > 隔空投送与接力
 “文件”菜单中也有相同的项目。显示菜单栏图标时，也可从其菜单打开。
@@ -120,12 +128,13 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 选取 SettingsHop >“设置…”（⌘,）。
 - 启动与常驻：登录时启动、不在程序坞和应用切换器中显示、关闭窗口后继续运行、菜单栏图标、启动应用快捷键、显示应用快捷键（默认 ⌃⌥Q）。
 - 通用：打开“打开项目后关闭窗口”后，通过主窗口的按钮或 ⌘1–⌘9 打开项目后会关闭窗口。从菜单栏打开时不受影响。
+- 项目：选择各项目是否显示及其按键（⌘1–⌘9 或“无”）。选择已使用的数字时，原项目变为“无”。“恢复默认设置”可还原。
 - 设置共享：导出、导入和同步设置。
 - 关于：版本和链接。
 
 ## 快捷键
 - ⌃⌥Q：在任何应用中显示 SettingsHop 窗口（运行时；可在“启动与常驻”设置中更改或停用）
-- 1–9（或 ⌘1–⌘9）：打开各项目（隐私与安全性、输入监控、自动化、安全性除外）（SettingsHop 在最前时）
+- 1–9（或 ⌘1–⌘9）：打开在设置 › 项目中分配了该按键的项目（默认情况下隐私与安全性、摄像头、麦克风、输入监控、自动化、安全性没有按键）（SettingsHop 在最前时）
 - ↑↓：选择项目，Return：打开所选项目（主窗口）
 - ⌘0：打开主窗口
 - ⌘,：设置
@@ -145,13 +154,15 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 找不到窗口：点击程序坞中的 SettingsHop，或从访达再次打开。
 """,
  "ko": """## 기본 조작
-SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 화면을 엽니다.
+SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 화면을 엽니다. 괄호 안은 기본 키이며, 설정 › 항목에서 표시할 항목과 키를 바꿀 수 있습니다.
 - 시스템 설정(⌘1): 시스템 설정을 엽니다. 이미 열려 있으면 마지막으로 표시한 화면 그대로 앞으로 가져옵니다.
 - 개인정보 보호 및 보안: 맨 위부터 표시합니다(손쉬운 사용이 허용되지 않으면 마지막으로 본 위치에서 열릴 수 있음)
 - 손쉬운 사용(⌘2)
 - 전체 디스크 접근 권한(⌘3)
 - 파일 및 폴더(⌘4)
 - 화면 및 시스템 오디오 녹음(⌘5)
+- 카메라
+- 마이크
 - 입력 모니터링
 - 자동화
 - 보안: 개인정보 보호 및 보안 아래쪽의 '보안' 영역(응용 프로그램 허용, FileVault 등)
@@ -159,7 +170,7 @@ SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 �
 - 기본 웹 브라우저(⌘7): 데스크탑 및 Dock을 열고, 손쉬운 사용이 허용되어 있으면 '기본 웹 브라우저' 행까지 스크롤하고 브라우저 메뉴를 엽니다.
 
 ## Option-클릭
-손쉬운 사용(⌘2), 전체 디스크 접근 권한(⌘3), 화면 및 시스템 오디오 녹음(⌘5), 입력 모니터링을 Option 키를 누른 채 클릭하면(또는 Option-Return, ⌥+숫자, ⌘⌥+숫자) 직전에 사용한 앱의 행을 선택한 상태로 엽니다. 예를 들어 작업 중인 앱에서 ⌃⌥Q를 누른 후 Option-클릭합니다. 선택될 앱은 메인 윈도우 오른쪽 아래의 '직전 앱'에 표시됩니다. 권한 스위치는 직접 조작하세요. 손쉬운 사용 권한이 필요합니다.
+손쉬운 사용(⌘2), 전체 디스크 접근 권한(⌘3), 화면 및 시스템 오디오 녹음(⌘5), 카메라, 마이크, 입력 모니터링을 Option 키를 누른 채 클릭하면(또는 Option-Return, ⌥+숫자, ⌘⌥+숫자) 직전에 사용한 앱의 행을 선택한 상태로 엽니다. 예를 들어 작업 중인 앱에서 ⌃⌥Q를 누른 후 Option-클릭합니다. 권한 스위치는 직접 조작하세요. 손쉬운 사용 권한이 필요합니다.
 - 키보드 단축키(⌘8): 키보드의 '키보드 단축키…'를 엽니다. 왼쪽 목록은 마지막으로 표시한 항목 그대로입니다.
 - AirDrop 및 Handoff(⌘9): 일반 > AirDrop 및 Handoff
 같은 항목이 [파일] 메뉴에도 있습니다. 메뉴 막대 아이콘을 표시한 경우 그 메뉴에서도 열 수 있습니다.
@@ -168,12 +179,13 @@ SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 �
 SettingsHop > 설정…(⌘,)을 선택합니다.
 - 실행·상주: 로그인 시 실행, Dock 및 앱 전환기에서 숨기기, 윈도우를 닫아도 계속 실행, 메뉴 막대 아이콘, 앱 실행 키보드 단축키, 앱 표시 단축키(기본값 ⌃⌥Q).
 - 일반: '항목을 연 후 윈도우 닫기'를 켜면 메인 윈도우의 버튼이나 ⌘1–⌘9로 연 후 윈도우를 닫습니다. 메뉴 막대에서 열 때는 영향이 없습니다.
+- 항목: 각 항목의 표시 여부와 키(⌘1–⌘9 또는 없음)를 선택합니다. 사용 중인 숫자를 선택하면 원래 항목은 '없음'이 됩니다. '기본값으로 복원'으로 되돌립니다.
 - 설정 공유: 설정 내보내기·가져오기와 동기화.
 - 정보: 버전과 링크.
 
 ## 키보드 단축키
 - ⌃⌥Q: 어느 앱에서든 SettingsHop 윈도우 표시(실행 중일 때. 설정의 '실행·상주'에서 변경하거나 끌 수 있음)
-- 1–9(또는 ⌘1–⌘9): 각 항목 열기(개인정보 보호 및 보안, 입력 모니터링, 자동화, 보안 제외)(SettingsHop이 앞에 있을 때)
+- 1–9(또는 ⌘1–⌘9): 설정 › 항목에서 그 키를 지정한 항목 열기(기본값에서는 개인정보 보호 및 보안, 카메라, 마이크, 입력 모니터링, 자동화, 보안은 키 없음)(SettingsHop이 앞에 있을 때)
 - ↑↓: 항목 선택, Return: 선택한 항목 열기(메인 윈도우)
 - ⌘0: 메인 윈도우 열기
 - ⌘,: 설정

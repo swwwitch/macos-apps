@@ -6,6 +6,8 @@
 "pane.fullDiskAccess" = "フルディスクアクセス";
 "pane.filesAndFolders" = "ファイルとフォルダ";
 "pane.screenRecording" = "画面収録とシステムオーディオ録音";
+"pane.camera" = "カメラ";
+"pane.microphone" = "マイク";
 "pane.inputMonitoring" = "入力監視";
 "pane.automation" = "オートメーション";
 "pane.security" = "セキュリティ";
@@ -16,8 +18,6 @@
 "openedNoScroll" = "「%@」を開きました。アクセシビリティを許可すると、その行までスクロールします（設定の［起動・常駐］）。";
 "rowNotFound" = "「%@」を開きましたが、その行を見つけられませんでした。画面を下へスクロールしてください。";
 "selectNeedsAccess" = "「%@」の行を選ぶにはアクセシビリティの許可が必要です（設定の［起動・常駐］）。画面だけ開きました。";
-"previousApp" = "直前のアプリ：";
-"previousAppHint" = "Option＋クリックすると、一覧でこのアプリの行を選んで開きます";
 "selectLastApp" = "%@（直前のアプリを選択）";
 "openHint" = "システム設定でこの画面を開きます";
 "opened" = "「%@」を開きました。";
@@ -26,6 +26,13 @@
 "afterOpen" = "開いたあと";
 "closeAfterOpen" = "項目を開いたらウインドウを閉じる";
 "closeAfterOpenDetail" = "メインウインドウのボタンやホットキー（⌘1〜⌘9）で開いたときに閉じます。メニューバーから開いたときは関係ありません。";
+"itemsTab" = "項目";
+"itemsSection" = "表示する項目とキー";
+"keyLabel" = "キー";
+"keyFor" = "「%@」のキー";
+"noKey" = "なし";
+"itemsDetail" = "オフにした項目はメインウインドウとメニューに表示しません。キーはメインウインドウでは数字だけ、ほかでは⌘＋数字で開きます。使用中の数字を選ぶと、元の項目のキーは「なし」になります。";
+"resetItems" = "初期設定に戻す";
 "resident" = "ウインドウを閉じても常駐";
 "residentDetail" = "閉じた後もDockやメニューバーから再表示できます。オフにすると閉じたときに終了します。";
 "launchShortcut" = "アプリ起動のホットキー";

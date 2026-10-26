@@ -6,6 +6,8 @@
 "pane.fullDiskAccess" = "Full Disk Access";
 "pane.filesAndFolders" = "Files and Folders";
 "pane.screenRecording" = "Screen & System Audio Recording";
+"pane.camera" = "Camera";
+"pane.microphone" = "Microphone";
 "pane.inputMonitoring" = "Input Monitoring";
 "pane.automation" = "Automation";
 "pane.security" = "Security";
@@ -16,8 +18,6 @@
 "openedNoScroll" = "Opened “%@”. Allow Accessibility to scroll to that row (Settings › Launch & Residency).";
 "rowNotFound" = "Opened “%@”, but the row was not found. Scroll down the pane.";
 "selectNeedsAccess" = "Selecting the “%@” row needs Accessibility permission (Settings › Launch & Residency). Only the pane was opened.";
-"previousApp" = "Last app:";
-"previousAppHint" = "Option-click a list to open it with this app's row selected";
 "selectLastApp" = "%@ (Select Last App)";
 "openHint" = "Opens this pane in System Settings";
 "opened" = "Opened “%@”.";
@@ -26,6 +26,13 @@
 "afterOpen" = "After Opening";
 "closeAfterOpen" = "Close the window after opening an item";
 "closeAfterOpenDetail" = "Applies to the main window's buttons and ⌘1–⌘9. Opening from the menu bar is not affected.";
+"itemsTab" = "Items";
+"itemsSection" = "Items and Keys";
+"keyLabel" = "Key";
+"keyFor" = "Key for “%@”";
+"noKey" = "None";
+"itemsDetail" = "Turned-off items are left out of the main window and the menus. In the main window the digit alone opens an item; elsewhere use ⌘ plus the digit. Choosing a digit already in use sets the other item to None.";
+"resetItems" = "Restore Defaults";
 "resident" = "Keep running after closing the window";
 "residentDetail" = "Reopen from the Dock or menu bar. When off, closing the window quits.";
 "launchShortcut" = "App launch keyboard shortcut";

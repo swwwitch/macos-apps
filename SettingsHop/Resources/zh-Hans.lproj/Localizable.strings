@@ -6,6 +6,8 @@
 "pane.fullDiskAccess" = "完全磁盘访问权限";
 "pane.filesAndFolders" = "文件与文件夹";
 "pane.screenRecording" = "录屏与系统录音";
+"pane.camera" = "摄像头";
+"pane.microphone" = "麦克风";
 "pane.inputMonitoring" = "输入监控";
 "pane.automation" = "自动化";
 "pane.security" = "安全性";
@@ -16,8 +18,6 @@
 "openedNoScroll" = "已打开“%@”。允许辅助功能后会滚动到该行（设置 › 启动与常驻）。";
 "rowNotFound" = "已打开“%@”，但未找到该行。请向下滚动面板。";
 "selectNeedsAccess" = "选择“%@”所在行需要辅助功能权限（设置 › 启动与常驻）。仅打开了面板。";
-"previousApp" = "上一个应用：";
-"previousAppHint" = "按住 Option 点按列表，会选中此应用所在行并打开";
 "selectLastApp" = "%@（选择上一个应用）";
 "openHint" = "在系统设置中打开此面板";
 "opened" = "已打开“%@”。";
@@ -26,6 +26,13 @@
 "afterOpen" = "打开后";
 "closeAfterOpen" = "打开项目后关闭窗口";
 "closeAfterOpenDetail" = "适用于主窗口的按钮和 ⌘1–⌘9。从菜单栏打开时不受影响。";
+"itemsTab" = "项目";
+"itemsSection" = "显示的项目与按键";
+"keyLabel" = "按键";
+"keyFor" = "“%@”的按键";
+"noKey" = "无";
+"itemsDetail" = "关闭的项目不会显示在主窗口和菜单中。在主窗口中只按数字即可打开，其他情况下按 ⌘+数字。选择已使用的数字时，原项目的按键会变为“无”。";
+"resetItems" = "恢复默认设置";
 "resident" = "关闭窗口后继续运行";
 "residentDetail" = "可从 Dock 或菜单栏再次打开。关闭此项时，关闭窗口即退出。";
 "launchShortcut" = "启动应用快捷键";

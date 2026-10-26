@@ -1,11 +1,13 @@
 ## Basics
-Click an item in the SettingsHop window to open that pane in System Settings.
+Click an item in the SettingsHop window to open that pane in System Settings. Keys in parentheses are the defaults; choose the items shown and their keys in Settings › Items.
 - System Settings (⌘1): opens System Settings. If it is already open, it comes to the front showing the last pane.
 - Privacy & Security: shown from the top (without Accessibility permission it may open where you left it)
 - Accessibility (⌘2)
 - Full Disk Access (⌘3)
 - Files and Folders (⌘4)
 - Screen & System Audio Recording (⌘5)
+- Camera
+- Microphone
 - Input Monitoring
 - Automation
 - Security: the Security section near the bottom of Privacy & Security (allowing apps, FileVault and more)
@@ -13,7 +15,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
 ## Option-click
-Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5) or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. The app that will be selected is shown as Last app at the lower right of the main window. Change the permission switch yourself. Accessibility permission is needed.
+Option-click Accessibility (⌘2), Full Disk Access (⌘3), Screen & System Audio Recording (⌘5), Camera, Microphone or Input Monitoring (or Option-Return, ⌥ plus the digit, or ⌘⌥ plus the digit) to open the list with the app you used last selected. For example, press ⌃⌥Q in the app you are working in, then Option-click. Change the permission switch yourself. Accessibility permission is needed.
 - Keyboard Shortcuts (⌘8): opens Keyboard Shortcuts… in Keyboard, on the section shown last.
 - AirDrop & Handoff (⌘9): General > AirDrop & Handoff
 The same items are in the File menu. When the menu bar icon is shown, its menu opens them too.
@@ -22,12 +24,13 @@ The same items are in the File menu. When the menu bar icon is shown, its menu o
 Choose SettingsHop > Settings… (⌘,).
 - Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon, the app launch keyboard shortcut and the show app shortcut (⌃⌥Q by default).
 - General: with “Close the window after opening an item” on, the window closes after you open an item with its button or ⌘1–⌘9. Opening from the menu bar is not affected.
+- Items: show or hide each item and choose its key (⌘1–⌘9 or None). Choosing a digit already in use sets the other item to None. Restore Defaults puts everything back.
 - Settings Sharing: export, import and sync settings.
 - About: version and links.
 
 ## Keyboard shortcuts
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
-- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring, Automation and Security) (while SettingsHop is active)
+- 1–9 (or ⌘1–⌘9): open the item given that key in Settings › Items (by default Privacy & Security, Camera, Microphone, Input Monitoring, Automation and Security have none) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings

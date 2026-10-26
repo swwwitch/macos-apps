@@ -6,9 +6,22 @@ import Carbon
     private let defaults = UserDefaults.standard
     @Published var closeAfterOpen = UserDefaults.standard.bool(forKey: "closeAfterOpen") { didSet { defaults.set(closeAfterOpen, forKey: "closeAfterOpen") } }
     /// Keys shared by 設定の共有. Startup, residency and the menu bar stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["closeAfterOpen"]
+    nonisolated static let sharedKeys: Set<String> = ["closeAfterOpen", "hiddenPanes", "paneKeys"]
     /// Re-reads the shared settings after an import so the next save does not write the old values back.
-    func reloadSharedSettings() { closeAfterOpen = defaults.bool(forKey: "closeAfterOpen") }
+    func reloadSharedSettings() { closeAfterOpen = defaults.bool(forKey: "closeAfterOpen"); layout = Model.storedLayout() }
+    /// Panes shown and their keys (Settings › Items). The File menu is rebuilt through `onLayoutChanged`.
+    @Published var layout = Model.storedLayout() {
+        didSet {
+            guard layout != oldValue else { return }
+            defaults.set(layout.hiddenPlist, forKey: "hiddenPanes"); defaults.set(layout.keysPlist, forKey: "paneKeys")
+            if layout.hidden.contains(selection) { selection = layout.visible.first ?? .systemSettings }
+            onLayoutChanged?()
+        }
+    }
+    var onLayoutChanged: (() -> Void)?
+    static func storedLayout() -> PaneLayout {
+        PaneLayout(hiddenPlist: UserDefaults.standard.object(forKey: "hiddenPanes"), keysPlist: UserDefaults.standard.object(forKey: "paneKeys"))
+    }
     /// Hotkey that shows the main window while the app is running (per Mac, not shared). Default ⌃⌥Q.
     static let defaultAppCombo = KeyCombo(code: UInt32(kVK_ANSI_Q), modifiers: KeyCombo.control | KeyCombo.option)
     static let appHotkeyFieldID = "appHotkey"
@@ -28,11 +41,11 @@ import Carbon
     /// Row chosen with ↑↓ in the main window; Return opens it. Follows the last opened pane.
     @Published var selection: Pane = .systemSettings
     func moveSelection(by offset: Int) {
-        let all = Pane.allCases, index = all.firstIndex(of: selection) ?? 0
+        let all = layout.visible, index = all.firstIndex(of: selection) ?? 0
         selection = all[min(max(index + offset, 0), all.count - 1)]
     }
     /// The app that was active before SettingsHop (or System Settings), for Option-click.
-    @Published var previousApp: NSRunningApplication?
+    var previousApp: NSRunningApplication?
     private var activationObserver: Any?
     func trackPreviousApp() {
         let ignored: Set<String?> = [Bundle.main.bundleIdentifier, Pane.settingsBundleID]
@@ -102,6 +115,7 @@ let appTint = Color(nsColor: NSColor(name: nil) { appearance in
 
 struct PaneRow: View {
     let pane: Pane
+    let key: String
     let selected: Bool
     let action: () -> Void
     @State private var hovering = false
@@ -111,7 +125,7 @@ struct PaneRow: View {
                 Image(systemName: pane.symbol).font(.system(size: 15)).foregroundColor(appTint).frame(width: 22).accessibilityHidden(true)
                 Text(pane.title).lineLimit(1)
                 Spacer()
-                Text(pane.keyEquivalent).font(.callout).foregroundColor(.secondary).monospacedDigit().accessibilityHidden(true)
+                Text(key).font(.callout).foregroundColor(.secondary).monospacedDigit().accessibilityHidden(true)
             }
             .padding(.vertical, 7).padding(.horizontal, 10)
             .contentShape(Rectangle())
@@ -141,27 +155,16 @@ struct MainView: View {
                 Spacer()
             }
             VStack(alignment: .leading, spacing: 2) {
-                ForEach(Pane.allCases, id: \.self) { pane in
-                    PaneRow(pane: pane, selected: model.selection == pane) { model.open(pane, option: NSEvent.modifierFlags.contains(.option)) }
-                    if pane == .systemSettings || pane == .security { Divider().padding(.vertical, 4) }
+                let panes = model.layout.visible
+                ForEach(Array(panes.enumerated()), id: \.element) { index, pane in
+                    if index > 0 && panes[index - 1].group != pane.group { Divider().padding(.vertical, 4) }
+                    PaneRow(pane: pane, key: model.layout.key(for: pane), selected: model.selection == pane) { model.open(pane, option: NSEvent.modifierFlags.contains(.option)) }
                 }
             }
             .padding(8).background(Color(nsColor: .textBackgroundColor)).cornerRadius(8)
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.gray.opacity(0.25)))
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                // Empty until something is opened (a space keeps the row's height, so the window does not jump).
-                Text(model.status.isEmpty ? " " : model.status).font(.callout).foregroundColor(.secondary).lineLimit(2)
-                Spacer(minLength: 0)
-                // The app Option-click selects in the Privacy lists.
-                if let app = model.previousApp {
-                    HStack(spacing: 4) {
-                        Text(L("previousApp")).foregroundColor(.secondary)
-                        if let icon = app.icon { Image(nsImage: icon).resizable().frame(width: 16, height: 16).alignmentGuide(.firstTextBaseline) { $0[.bottom] - 3 }.accessibilityHidden(true) }
-                        Text(app.localizedName ?? "").lineLimit(1)
-                    }.font(.callout).fixedSize()
-                    .help(L("previousAppHint")).accessibilityElement(children: .combine)
-                }
-            }
+            // Empty until something is opened (a space keeps the row's height, so the window does not jump).
+            Text(model.status.isEmpty ? " " : model.status).font(.callout).foregroundColor(.secondary).lineLimit(2)
         }.padding(20)
         // Fixed width, height from the content: the window is not resizable and follows this size.
         .frame(width: 420).fixedSize(horizontal: false, vertical: true)
@@ -195,7 +198,44 @@ struct SettingsView: View {
                     Text(L("closeAfterOpenDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        })), (L("itemsTab"), AnyView(PaneLayoutSettings(model: model))), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))]).frame(minWidth: 560, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+    }
+}
+
+/// Settings › Items: show or hide each pane and choose its key (⌘1–⌘9 or none).
+struct PaneLayoutSettings: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        VStack(spacing: 16) {
+            SettingsSection(L("itemsSection")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(Pane.allCases, id: \.self) { pane in
+                        let shown = !model.layout.hidden.contains(pane)
+                        HStack {
+                            Toggle(isOn: Binding(get: { shown }, set: { show in
+                                if show { model.layout.hidden.remove(pane) } else { model.layout.hidden.insert(pane) }
+                            })) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: pane.symbol).foregroundColor(appTint).frame(width: 18).accessibilityHidden(true)
+                                    Text(pane.title).lineLimit(1)
+                                }
+                            }
+                            .disabled(!model.layout.canHide(pane))
+                            .padding(.leading, pane.isSubpane ? 20 : 0)
+                            Spacer()
+                            Picker(L("keyLabel"), selection: Binding(get: { model.layout.key(for: pane) }, set: { model.layout.assign($0, to: pane) })) {
+                                Text(L("noKey")).tag("")
+                                ForEach(1...9, id: \.self) { digit in Text("⌘\(digit)").tag(String(digit)) }
+                            }
+                            .labelsHidden().fixedSize().disabled(!shown)
+                            .accessibilityLabel(String(format: L("keyFor"), pane.title))
+                        }
+                    }
+                    Text(L("itemsDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
+                    Button(L("resetItems")) { model.layout = PaneLayout() }.padding(.top, 2)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
     }
 }
 
@@ -204,6 +244,7 @@ struct SettingsView: View {
     var window: NSWindow!
     var settings: NSWindow?
     var helpWindow: NSWindow?
+    var fileMenu: NSMenu?
     var isDuplicate = false
 
     func applicationWillFinishLaunching(_ notification: Notification) {
@@ -236,6 +277,7 @@ struct SettingsView: View {
         window.setFrameAutosaveName("MainWindow")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onOpened = { [weak self] in self?.window.performClose(nil) }
+        model.onLayoutChanged = { [weak self] in self?.rebuildPaneMenu() }
         model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         model.registerAppHotkey()
         installArrowKeys()
@@ -244,10 +286,10 @@ struct SettingsView: View {
                                        extraItems: { [weak self] in self?.paneItems(withKeys: false) ?? [] })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
-            note: StartupWindow.text("「項目を開いたらウインドウを閉じる」の選択を書き出し・同期します。",
-                                     "Exports and syncs the Close the window after opening choice.",
-                                     "导出并同步“打开项目后关闭窗口”的选择。",
-                                     "'항목을 연 후 윈도우 닫기' 선택을 내보내고 동기화합니다."),
+            note: StartupWindow.text("「項目を開いたらウインドウを閉じる」の選択と、表示する項目・キーを書き出し・同期します。",
+                                     "Exports and syncs the Close the window after opening choice and the items shown with their keys.",
+                                     "导出并同步“打开项目后关闭窗口”的选择以及显示的项目和按键。",
+                                     "'항목을 연 후 윈도우 닫기' 선택과 표시할 항목·키를 내보내고 동기화합니다."),
             perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
                                        "Open at login, keep running and the menu bar icon are set on each Mac.",
                                        "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
@@ -276,7 +318,7 @@ struct SettingsView: View {
             case UInt16(kVK_UpArrow) where !option: self.model.moveSelection(by: -1)
             case UInt16(kVK_Return), UInt16(kVK_ANSI_KeypadEnter): self.model.open(self.model.selection, option: option)
             default:
-                guard let digit = event.charactersIgnoringModifiers, let pane = Pane.allCases.first(where: { !$0.keyEquivalent.isEmpty && $0.keyEquivalent == digit }) else { return event }
+                guard let digit = event.charactersIgnoringModifiers, let pane = self.model.layout.pane(forKey: digit) else { return event }
                 self.model.open(pane, option: option)
             }
             return nil
@@ -284,8 +326,8 @@ struct SettingsView: View {
     }
     /// File menu (⌘1–⌘9, acts like a click in the main window) and the menu bar menu (no keys).
     func paneItems(withKeys: Bool) -> [NSMenuItem] {
-        Pane.allCases.map { pane in
-            let item = NSMenuItem(title: pane.title, action: withKeys ? #selector(openFromMenu(_:)) : #selector(openFromStatusMenu(_:)), keyEquivalent: withKeys ? pane.keyEquivalent : "")
+        model.layout.visible.map { pane in
+            let item = NSMenuItem(title: pane.title, action: withKeys ? #selector(openFromMenu(_:)) : #selector(openFromStatusMenu(_:)), keyEquivalent: withKeys ? model.layout.key(for: pane) : "")
             item.target = self; item.representedObject = pane.rawValue; item.indentationLevel = pane.isSubpane ? 1 : 0
             item.image = NSImage(systemSymbolName: pane.symbol, accessibilityDescription: nil)
             return item
@@ -325,6 +367,21 @@ struct SettingsView: View {
         let version = "\(info["CFBundleShortVersionString"] ?? "") (\(info["CFBundleVersion"] ?? ""))"
         NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "SettingsHop", .applicationVersion: version, .credits: NSAttributedString(string: L("aboutDetail"))])
     }
+    /// Puts the visible panes between the File menu's two separators (again after Settings › Items changes).
+    func rebuildPaneMenu() {
+        guard let file = fileMenu else { return }
+        for item in file.items where item.representedObject is String { file.removeItem(item) }
+        var index = 2   // After 「メインウインドウを開く」 and its separator.
+        for item in paneItems(withKeys: true) {
+            file.insertItem(item, at: index); index += 1
+            // Holding Option swaps in ⌘⌥N: the same list with the last app's row selected (Option-click from the keyboard).
+            guard let pane = (item.representedObject as? String).flatMap(Pane.init(rawValue:)), pane.listsApps else { continue }
+            let alternate = NSMenuItem(title: String(format: L("selectLastApp"), pane.title), action: #selector(openSelectingLastApp(_:)), keyEquivalent: item.keyEquivalent)
+            alternate.keyEquivalentModifierMask = [.command, .option]; alternate.isAlternate = true
+            alternate.target = self; alternate.representedObject = item.representedObject; alternate.indentationLevel = item.indentationLevel; alternate.image = item.image
+            file.insertItem(alternate, at: index); index += 1
+        }
+    }
     func add(_ menu: NSMenu, _ title: String, _ action: Selector, _ key: String) { menu.addItem(withTitle: title, action: action, keyEquivalent: key).target = self }
     func buildMenus() {
         let bar = NSMenu(); NSApp.mainMenu = bar
@@ -342,17 +399,9 @@ struct SettingsView: View {
         app.addItem(.separator()); add(app, L("quit"), #selector(quit), "q")
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
-        for item in paneItems(withKeys: true) {
-            file.addItem(item)
-            // Holding Option swaps in ⌘⌥N: the same list with the last app's row selected (Option-click from the keyboard).
-            guard let pane = (item.representedObject as? String).flatMap(Pane.init(rawValue:)), pane.listsApps else { continue }
-            let alternate = NSMenuItem(title: String(format: L("selectLastApp"), pane.title), action: #selector(openSelectingLastApp(_:)), keyEquivalent: item.keyEquivalent)
-            alternate.keyEquivalentModifierMask = [.command, .option]; alternate.isAlternate = true
-            alternate.target = self; alternate.representedObject = item.representedObject; alternate.indentationLevel = item.indentationLevel; alternate.image = item.image
-            file.addItem(alternate)
-        }
         file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        fileMenu = file; rebuildPaneMenu()
         let edit = NSMenu(title: L("editMenu")); let editItem = NSMenuItem(title: L("editMenu"), action: nil, keyEquivalent: ""); editItem.submenu = edit; bar.addItem(editItem)
         for (key, action, shortcut) in [("undo", "undo:", "z"), ("redo", "redo:", "z"), ("cut", "cut:", "x"), ("copy", "copy:", "c"), ("paste", "paste:", "v"), ("selectAll", "selectAll:", "a")] {
             edit.addItem(withTitle: L(key), action: Selector(action), keyEquivalent: shortcut)
