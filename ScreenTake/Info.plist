@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>ScreenTake</string>
+	<key>CFBundleExecutable</key>
+	<string>ScreenTake</string>
+	<key>CFBundleIconFile</key>
+	<string>ScreenTake.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.screentake</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>ScreenTake</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.video</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>15.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>ScreenTake asks Path Finder to show a recording when you click Show in Finder.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>ScreenTake records your voice when the microphone is turned on for a recording.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ScreenTake records the camera when it is turned on for a recording, to show it over the screen.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+</dict>
+</plist>

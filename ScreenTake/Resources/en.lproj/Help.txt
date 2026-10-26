@@ -1,0 +1,61 @@
+## Basics
+ScreenTake records the screen (or one window), system audio, the microphone and the camera together, then lets you cut, zoom and show clicks before exporting MP4, MOV or GIF.
+- In the main window choose what to record (entire screen or a window), sound, camera and pointer, then click Record in N s.
+- While recording, nothing is placed over the screen: the menu bar shows a red dot and the time (the seconds left during the countdown). Click it for Stop Recording, Pause and Resume. ScreenTake's windows do not appear in the recording.
+- The record hotkey (default ⌃⌥⇧⌘6) starts and stops recording from any app. The menu bar icon can start and stop it too.
+- When you stop, the editor opens (changeable in Settings). Recordings are listed in the main window; double-click one to edit it again.
+
+## Editing
+The editor shows a preview of the result at the top, settings on the right and the timeline at the bottom.
+- Move the playhead: click or drag the ruler. Space plays and pauses; ← → move one frame.
+- Delete a range: drag across the picture on the timeline, then Delete Selection (delete key). Orange lines mark where parts were removed.
+- Trim: Trim to Playhead from Start (⌘[) and Trim from Playhead to End (⌘]).
+- Zoom: Add Zoom (⌥⌘Z) zooms in on the selection, or 3 seconds from the playhead. Click a zoom on the timeline to change its scale, follow the pointer or set its center on the right. Drag its ends to change the length, its middle to move it. Zooms ease in and out.
+- Pointer: the pointer is recorded separately from the picture. Turn it on or off, change its size (0.5–3×) and smooth its movement. Select a range on the timeline and click Hide in Selection to remove the pointer there (dashed in the pointer lane; Show in Selection brings it back).
+- Clicks: rings appear where you clicked while recording (blue for right clicks).
+- Camera: show, position, shape (circle or rounded square) and size.
+- Volume: system audio and microphone separately (0–200%).
+- Every edit can be undone with ⌘Z and redone with ⇧⌘Z. Edits are saved automatically. Restore All Deleted Parts brings back what you removed.
+
+## Export
+Choose the format (MP4, MOV, GIF) and size under Export on the right, then Export… (⌘E) and pick where to save.
+- MP4 and MOV: as recorded, 2160p, 1440p, 1080p or 720p. HEVC (H.265) makes smaller files (older devices may not play them).
+- GIF: width (480–1280 px) and frame rate (5–20 fps). No sound. Long movies make large files.
+- Progress is shown while exporting; Cancel (Esc) stops it. A canceled or failed export leaves no partial file, and an existing file with the same name is replaced only on success.
+
+## Settings
+Open with ScreenTake › Settings… (⌘,).
+- Startup & Background: open at login, hide from Dock and App Switcher, keep running after closing the window, menu bar icon, app launch shortcut, show-app hotkey (not set by default), permission status.
+- Recording: record hotkey, countdown (0–10 s, default 3 s), frame rate (30 or 60 fps).
+- Output: recordings folder (default Movies › ScreenTake), open the editor after recording.
+- Sharing settings: export, import and sync settings.
+- About: version and links.
+
+## Hotkeys
+- ⌃⌥⇧⌘6: start or stop recording (from any app; change or turn off under Recording in Settings)
+- ⇧⌘R: start or stop recording (with ScreenTake in front)
+- ⌘O: open a recording
+- ⌘E: export
+- Space: play/pause, ← →: one frame, delete: delete the selection, ⌘[ ⌘]: trim, ⌥⌘Z: add zoom (editor)
+- ⌘Z / ⇧⌘Z: undo / redo
+- ⌘0: main window, ⌘,: settings, ⌘W: close window, ⌘?: this help
+
+## Permissions
+- Screen & System Audio Recording (required): macOS asks the first time you record. Reopen ScreenTake after allowing it.
+- Microphone and camera: asked only when you record with them on. If refused, you can still record without them.
+- See the status under Permissions in the Startup & Background tab; Open Settings opens System Settings.
+Recordings stay on this Mac and are never sent anywhere (except update checks; no update feed is set yet).
+
+## Where recordings are saved
+Each recording gets a folder such as “Recording 2026-10-26 14.05.10” holding the movie (recording.mov) and the edits (project.json). Editing never changes the recorded movie. A failed recording leaves no folder behind.
+
+## Keep running and quit
+With Keep running after closing the window on, ScreenTake keeps running after you close the window and the record hotkey still works. Reopen it from the Dock or Finder, or show the window from the menu bar icon. Quit with ScreenTake › Quit ScreenTake (⌘Q). Quitting while recording saves the movie first; while exporting, you are asked first.
+
+## Troubleshooting
+- “Screen Recording is not allowed”: turn on ScreenTake in System Settings › Privacy & Security › Screen & System Audio Recording, then reopen ScreenTake.
+- A window is missing from the list: show the window, then refresh (↻). Minimized windows and windows in other Spaces are not listed.
+- Moving a window while recording it can shift the click rings.
+- No system audio: ScreenTake's own sound and muted sound are not recorded.
+- The hotkey does nothing: another app may use the same key. Choose another under Recording in Settings.
+- Uninstall: quit ScreenTake and move it from Applications to the Trash. Recordings stay in their folder.
