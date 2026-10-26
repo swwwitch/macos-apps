@@ -1,5 +1,5 @@
 ## 기본 조작
-FavoritesTidy는 Default Folder X 즐겨찾기(Favorites.plist)를 읽어 정렬하고 구분선으로 카테고리를 나눈 뒤 다시 기록합니다.
+FavoriteFolders는 Default Folder X 즐겨찾기(Favorites.plist)를 읽어 정렬하고 구분선으로 카테고리를 나눈 뒤 다시 기록합니다.
 - 정렬: [정렬] 메뉴에서 이름순, 이름 역순, 위치(경로)순, 최근 추가순, 오래된 추가순을 선택합니다. 아무것도 선택하지 않으면 모든 카테고리 안에서, 항목을 선택하면 그 항목이 있는 카테고리 안에서만 정렬합니다. 구분선 위치는 바뀌지 않습니다.
 - 검색: 위쪽 검색란(⌘F)에 입력하면 이름이나 경로에 포함된 즐겨찾기만 표시합니다. 공백으로 구분하면 모든 단어를 포함하는 것만 남깁니다. Esc 또는 ⓧ로 지웁니다. 검색 중에는 드래그로 정렬할 수 없습니다(정렬 메뉴와 이동은 사용 가능).
 - Dropbox: Dropbox 폴더 안의 즐겨찾기에는 파란 'Dropbox' 표시가 붙고, 경로는 그 폴더 기준으로 표시합니다(마우스를 올리면 전체 경로).
@@ -12,7 +12,7 @@ FavoritesTidy는 Default Folder X 즐겨찾기(Favorites.plist)를 읽어 정렬
 - ⌘Z로 실행 취소, ⇧⌘Z로 실행 복귀(저장 전까지).
 - 폴더를 찾을 수 없는 항목에는 ⚠가 붙습니다. 행을 Control-클릭하면 [Finder에서 보기] [경로 복사하기]를 사용할 수 있습니다.
 - 단축키: 오른쪽에 Default Folder X에서 지정한 단축키를 표시합니다. 클릭하면(또는 행을 선택하고 ⌘K, Control-클릭의 [단축키 변경…]) 변경하거나 해제할 수 있습니다. ⌘ 또는 ⌃를 포함해야 하며, 다른 즐겨찾기와 같은 키는 지정할 수 없습니다. 저장하면 Default Folder X에 반영됩니다.
-- Default Folder X 종료/열기: 아래 버튼으로 Default Folder X를 종료하거나 엽니다. 실행 중에는 그 앱이 쓰는 키를 기록하려 하면 그쪽이 반응할 수 있으니 종료한 후 기록하세요. 여기서 종료한 Default Folder X는 저장하거나 FavoritesTidy를 종료하면 다시 엽니다.
+- Default Folder X 종료/열기: 아래 버튼으로 Default Folder X를 종료하거나 엽니다. 실행 중에는 그 앱이 쓰는 키를 기록하려 하면 그쪽이 반응할 수 있으니 종료한 후 기록하세요. 여기서 종료한 Default Folder X는 저장하거나 FavoriteFolders를 종료하면 다시 엽니다.
 
 ## Default Folder X 실행 중 편집
 Default Folder X 실행 중에 정렬, 드래그, 구분선, 이동, 삭제, 단축키 변경을 하려고 하면 종료할지 먼저 묻습니다. [종료하고 편집]을 선택하면 종료한 후 편집하고, [취소]는 아무것도 바꾸지 않습니다. 카테고리 이름은 이 앱에서만 쓰므로 묻지 않고 편집할 수 있습니다.
@@ -29,11 +29,11 @@ Default Folder X가 항상 이름순으로 정렬하도록 설정되어 있으�
 
 ## 되돌리기
 저장 직전의 Favorites.plist를 최근 30개까지 다음 폴더에 백업합니다.
-~/Library/Application Support/FavoritesTidy/Backups
+~/Library/Application Support/FavoriteFolders/Backups
 되돌리려면 Default Folder X를 종료하고, 백업 파일을 Favorites.plist라는 이름으로 ~/Library/Application Support/com.stclairsoft.DefaultFolderX5/<폴더 세트>/에 복사한 뒤 Default Folder X를 엽니다. 설정 › 일반의 '백업 폴더 열기'로도 열 수 있습니다.
 
 ## 설정
-FavoritesTidy > 설정…(⌘,)을 선택합니다.
+FavoriteFolders > 설정…(⌘,)을 선택합니다.
 - 실행·상주: 로그인 시 실행, Dock 및 앱 전환기에서 숨기기, 윈도우를 닫아도 계속 실행, 메뉴 막대 아이콘, 앱 실행 키보드 단축키.
 - 일반: '저장하기 전에 확인'(기본값 켬). Default Folder X 실행 중에 저장할 때 종료 후 다시 열기를 확인합니다. 백업 폴더 열기 버튼.
 - 설정 공유: 카테고리 이름과 '저장하기 전에 확인' 선택의 내보내기·가져오기와 동기화.
@@ -51,16 +51,16 @@ FavoritesTidy > 설정…(⌘,)을 선택합니다.
 - ⌘,: 설정
 - ⌘W: 윈도우 닫기
 - ⌘?: 이 도움말
-FavoritesTidy가 실행 중이 아닐 때도 호출하려면 설정의 '앱 실행 키보드 단축키' 안내에 따라 단축어 앱에서 키를 지정하세요.
+FavoriteFolders가 실행 중이 아닐 때도 호출하려면 설정의 '앱 실행 키보드 단축키' 안내에 따라 단축어 앱에서 키를 지정하세요.
 
 ## 권한
 특별한 권한은 사용하지 않습니다. Default Folder X의 Favorites.plist와 이 앱의 백업만 읽고 씁니다. Default Folder X의 종료와 실행은 일반 앱과 같은 방법으로 합니다. 외부 통신은 하지 않습니다(업데이트 확인 제외, 배포처 미설정).
 
 ## 상주와 종료
-'윈도우를 닫아도 계속 실행'이 켜져 있으면 윈도우를 닫아도 계속 실행됩니다. Dock이나 Finder에서 FavoritesTidy를 다시 열거나 메뉴 막대 아이콘에서 윈도우를 표시할 수 있습니다. 종료하려면 FavoritesTidy > FavoritesTidy 종료(⌘Q)를 선택합니다. 저장하지 않은 변경 사항이 있으면 저장할지 묻습니다.
+'윈도우를 닫아도 계속 실행'이 켜져 있으면 윈도우를 닫아도 계속 실행됩니다. Dock이나 Finder에서 FavoriteFolders를 다시 열거나 메뉴 막대 아이콘에서 윈도우를 표시할 수 있습니다. 종료하려면 FavoriteFolders > FavoriteFolders 종료(⌘Q)를 선택합니다. 저장하지 않은 변경 사항이 있으면 저장할지 묻습니다.
 
 ## 문제 해결
 - 'Default Folder X에서 즐겨찾기가 변경되어'가 표시됨: 정리를 시작한 후 Default Folder X에서 즐겨찾기를 변경했습니다. [다시 읽기](⌘R) 후 다시 정리하세요.
 - 'Default Folder X가 종료되지 않아'가 표시됨: Default Folder X의 설정 윈도우나 대화상자를 닫고 다시 저장하세요.
 - 순서가 메뉴에 반영되지 않음: Default Folder X 설정에서 항상 이름순 정렬을 끄세요.
-- 윈도우가 보이지 않음: Dock의 FavoritesTidy를 클릭하거나 Finder에서 다시 엽니다.
+- 윈도우가 보이지 않음: Dock의 FavoriteFolders를 클릭하거나 Finder에서 다시 엽니다.

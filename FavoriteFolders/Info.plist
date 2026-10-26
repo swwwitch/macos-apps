@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>FavoritesTidy</string>
+	<string>FavoriteFolders</string>
 	<key>CFBundleExecutable</key>
-	<string>FavoritesTidy</string>
+	<string>FavoriteFolders</string>
 	<key>CFBundleIconFile</key>
-	<string>FavoritesTidy.icns</string>
+	<string>FavoriteFolders.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>jp.dtp-transit.favoritestidy</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -22,13 +22,13 @@
 		<string>ko</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>FavoritesTidy</string>
+	<string>FavoriteFolders</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.0</string>
+	<string>1.2.2</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>5</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

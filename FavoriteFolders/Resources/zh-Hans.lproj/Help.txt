@@ -1,5 +1,5 @@
 ## 基本操作
-FavoritesTidy 读取 Default Folder X 的个人收藏（Favorites.plist），可排序并用分隔线分成类别，然后写回。
+FavoriteFolders 读取 Default Folder X 的个人收藏（Favorites.plist），可排序并用分隔线分成类别，然后写回。
 - 排序：从“排序”菜单选择按名称、按名称倒序、按位置（路径）、最近添加的在前或最早添加的在前。未选择任何项目时在每个类别内排序；选择项目时只在其所在类别内排序。分隔线位置不变。
 - 搜索：在顶部的搜索栏（⌘F）中输入，只显示名称或路径包含该文本的个人收藏。用空格分隔多个词时须全部包含。按 Esc 或 ⓧ 清除。搜索时无法拖移排序（排序菜单和移动仍可用）。
 - Dropbox：位于 Dropbox 文件夹内的个人收藏带有蓝色“Dropbox”标记，路径从该文件夹起显示（悬停可看完整路径）。
@@ -12,7 +12,7 @@ FavoritesTidy 读取 Default Folder X 的个人收藏（Favorites.plist），可
 - ⌘Z 撤销，⇧⌘Z 重做（保存前）。
 - 找不到文件夹的项目显示 ⚠。按住 Control 点按行可使用“在访达中显示”和“拷贝路径”。
 - 快捷键：右侧显示在 Default Folder X 中分配的快捷键。点按它（或选择行后按 ⌘K，或在快捷菜单中选择“更改快捷键…”）可更改或清除。按键须包含 ⌘ 或 ⌃，不能使用其他个人收藏已用的按键。保存后会应用到 Default Folder X。
-- 退出/打开 Default Folder X：底部的按钮可退出或打开 Default Folder X。它运行时，录制它正在使用的按键可能会触发它，请先退出再录制。在此退出的 Default Folder X 会在保存或退出 FavoritesTidy 时重新打开。
+- 退出/打开 Default Folder X：底部的按钮可退出或打开 Default Folder X。它运行时，录制它正在使用的按键可能会触发它，请先退出再录制。在此退出的 Default Folder X 会在保存或退出 FavoriteFolders 时重新打开。
 
 ## Default Folder X 运行时的编辑
 Default Folder X 运行时，排序、拖移、分隔线、移动、删除或更改快捷键前会先询问是否退出它。选择“退出并编辑”会退出后再编辑；“取消”不做任何更改。类别名称仅在本应用内使用，可直接编辑。
@@ -29,11 +29,11 @@ Default Folder X 设为始终按名称排序时，此处设置的顺序不会反
 
 ## 恢复
 每次保存前的 Favorites.plist 会备份（最多最近 30 份）到：
-~/Library/Application Support/FavoritesTidy/Backups
+~/Library/Application Support/FavoriteFolders/Backups
 要恢复，请退出 Default Folder X，将备份文件以 Favorites.plist 为名拷贝到 ~/Library/Application Support/com.stclairsoft.DefaultFolderX5/<文件夹组>/，然后打开 Default Folder X。也可从设置 › 通用中的“打开备份文件夹”打开该文件夹。
 
 ## 设置
-选取 FavoritesTidy >“设置…”（⌘,）。
+选取 FavoriteFolders >“设置…”（⌘,）。
 - 启动与常驻：登录时启动、不在程序坞和应用切换器中显示、关闭窗口后继续运行、菜单栏图标、启动应用快捷键。
 - 通用：“保存前确认”（默认打开），在 Default Folder X 运行时保存前确认退出并重新打开。“打开备份文件夹”按钮。
 - 设置共享：导出、导入和同步类别名称及“保存前确认”的选择。
@@ -51,16 +51,16 @@ Default Folder X 设为始终按名称排序时，此处设置的顺序不会反
 - ⌘,：设置
 - ⌘W：关闭窗口
 - ⌘?：本帮助
-要在 FavoritesTidy 未运行时也能调用，请按照设置中“启动应用快捷键”的说明，在快捷指令中分配按键。
+要在 FavoriteFolders 未运行时也能调用，请按照设置中“启动应用快捷键”的说明，在快捷指令中分配按键。
 
 ## 权限
-不使用特殊权限。FavoritesTidy 只读写 Default Folder X 的 Favorites.plist 和自己的备份。退出和打开 Default Folder X 的方式与普通应用相同。不进行网络通信（检查更新除外；尚未设置更新源）。
+不使用特殊权限。FavoriteFolders 只读写 Default Folder X 的 Favorites.plist 和自己的备份。退出和打开 Default Folder X 的方式与普通应用相同。不进行网络通信（检查更新除外；尚未设置更新源）。
 
 ## 常驻与退出
-打开“关闭窗口后继续运行”时，关闭窗口后 FavoritesTidy 仍继续运行。可从程序坞或访达再次打开，或从菜单栏图标显示窗口。要退出，请选取 FavoritesTidy >“退出 FavoritesTidy”（⌘Q）。有未保存的更改时会询问是否保存。
+打开“关闭窗口后继续运行”时，关闭窗口后 FavoriteFolders 仍继续运行。可从程序坞或访达再次打开，或从菜单栏图标显示窗口。要退出，请选取 FavoriteFolders >“退出 FavoriteFolders”（⌘Q）。有未保存的更改时会询问是否保存。
 
 ## 疑难解答
 - 显示“个人收藏已在 Default Folder X 中更改”：开始整理后在 Default Folder X 中更改了个人收藏。请“重新读取”（⌘R）后再整理。
 - 显示“Default Folder X 未退出”：请关闭 Default Folder X 的设置窗口或对话框后再次保存。
 - 顺序未反映到菜单：请在 Default Folder X 的设置中关闭始终按名称排序。
-- 找不到窗口：点击程序坞中的 FavoritesTidy，或从访达再次打开。
+- 找不到窗口：点击程序坞中的 FavoriteFolders，或从访达再次打开。

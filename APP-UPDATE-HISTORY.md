@@ -21,7 +21,7 @@
 - [DocklessLauncher](#docklesslauncher)
 - [EventDocMaker](#eventdocmaker)
 - [ExtensionLinker](#extensionlinker)
-- [FavoritesTidy](#favoritestidy)
+- [FavoriteFolders](#favoritefolders)（旧 FavoritesTidy）
 - [FileCaravan](#filecaravan)
 - [FileSorter](#filesorter)
 - [FnNumpad](#fnnumpad)
@@ -222,13 +222,17 @@
 
 既存の詳細：[README](ExtensionLinker/README.md)。
 
-## FavoritesTidy
+## FavoriteFolders
 
+旧名 FavoritesTidy（1.2.0まで）。
+
+- 2026-10-26｜v1.2.2（build 5）｜FavoriteFolders 1.2.2（build 5）：保存前のバックアップが作成直後に消えていた不具合を修正（1.0.0〜1.2.1。整理処理の dropFirst がコメントに入っていた）。整理を Backups.pruned に分けて単体テストを追加
+- 2026-10-26｜v1.2.1（build 4）｜FavoritesTidy から FavoriteFolders に改名（Bundle ID jp.dtp-transit.favoritestidy・設定は維持）。バックアップの保存先を ~/Library/Application Support/FavoriteFolders/Backups にし、旧フォルダーから起動時に移す
 - 2026-10-26｜v1.2.0（build 3）｜FavoritesTidy 1.2.0（build 3）：Default Folder X の起動中に編集しようとすると［終了して編集］を確認、上部に検索窓（⌘F、名前・パス）、Dropbox 内の項目に「Dropbox」の印とフォルダーからの相対パス
 - 2026-10-26｜v1.1.0（build 2）｜FavoritesTidy 1.1.0（build 2）：お気に入りのホットキーの変更・解除（⌘K、共通 HotkeyField、重複拒否、Default Folder X の書式で保存）、［Default Folder X を終了／起動］ボタン（ここで終了したら保存時・終了時に起動し直す）、［読み直す］ボタンでも未保存の確認
 - 2026-10-26｜v1.0.0（build 1）｜FavoritesTidy 1.0.0（build 1）新規：Default Folder X のお気に入りの並べ替え（名前・パス・追加日）、区切り線でのカテゴリ分け（見出しの名前はアプリ内のみ）、カテゴリへ移動・カテゴリの上下移動、保存時に Default Folder X を終了→外部変更の確認→バックアップ→書き込み→起動し直し
 
-既存の詳細：[README](FavoritesTidy/README.md)。
+既存の詳細：[README](FavoriteFolders/README.md)。
 
 ## FileCaravan
 

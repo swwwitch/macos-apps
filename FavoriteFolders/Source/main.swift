@@ -505,16 +505,17 @@ struct SettingsView: View {
         guard !isDuplicate else { return }
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 720), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = "FavoritesTidy"; window.titleVisibility = .hidden
+        window.title = "FavoriteFolders"; window.titleVisibility = .hidden
         let hosting = NSHostingView(rootView: MainView(model: model, save: { [weak self] in self?.save() }, reload: { [weak self] in self?.reload() })); hosting.sizingOptions = [.minSize]
         window.contentView = hosting; window.contentMinSize = NSSize(width: 560, height: 520)
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
+        Backups.migrate()
         model.load()
         model.watchDFX()
-        MenuBarPresence.shared.install(name: "FavoritesTidy", symbol: "folder.badge.gearshape", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
+        MenuBarPresence.shared.install(name: "FavoriteFolders", symbol: "folder.badge.gearshape", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
             note: StartupWindow.text("カテゴリの名前と「保存の前に確認する」の選択を書き出し・同期します。",
@@ -587,14 +588,14 @@ struct SettingsView: View {
     @objc func showHelp() {
         if helpWindow == nil {
             let text = Bundle.main.url(forResource: "Help", withExtension: "txt").flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? L("help")
-            helpWindow = HelpDocument.makeWindow(windowTitle: L("help"), text: text, heading: "FavoritesTidy")
+            helpWindow = HelpDocument.makeWindow(windowTitle: L("help"), text: text, heading: "FavoriteFolders")
         }
         helpWindow!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
     @objc func about() {
         let info = Bundle.main.infoDictionary ?? [:]
         let version = "\(info["CFBundleShortVersionString"] ?? "") (\(info["CFBundleVersion"] ?? ""))"
-        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "FavoritesTidy", .applicationVersion: version, .credits: NSAttributedString(string: L("aboutDetail"))])
+        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "FavoriteFolders", .applicationVersion: version, .credits: NSAttributedString(string: L("aboutDetail"))])
     }
     func add(_ menu: NSMenu, _ title: String, _ action: Selector, _ key: String, _ modifiers: NSEvent.ModifierFlags = .command) {
         let item = menu.addItem(withTitle: title, action: action, keyEquivalent: key); item.target = self; item.keyEquivalentModifierMask = modifiers

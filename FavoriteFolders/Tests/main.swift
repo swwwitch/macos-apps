@@ -54,7 +54,7 @@ check(folder("n", "/n", days: 0).hotkeyText.isEmpty, "no hotkey, no text")
 check(folder("f", "/f", days: 0, hotkey: ["keyCode": 122, "modifierFlags": 1048576]).hotkeyText == "⌘F1", "function key name")
 
 // Round trip through a temporary file keeps unknown keys, bookmarks and hotkeys
-let temp = FileManager.default.temporaryDirectory.appendingPathComponent("FavoritesTidyTest-\(UUID().uuidString).plist")
+let temp = FileManager.default.temporaryDirectory.appendingPathComponent("FavoriteFoldersTest-\(UUID().uuidString).plist")
 var withExtra = items; withExtra[0].raw["somethingNew"] = ["kept": true]; withExtra[1] = hotkeyItem
 try! Favorites.data(withExtra).write(to: temp)
 let back = try! Favorites.read(temp)
@@ -66,6 +66,11 @@ check(Favorites.fingerprint(Favorites.sorted(items, by: .name)) != Favorites.fin
 
 // The real file, read only (skipped when Default Folder X is not set up on this Mac)
 let sets = DFX.folderSets()
+// Backups keep the newest 30 (regression: 1.0.0–1.2.0 deleted every backup right after making it)
+let stamps = (1...35).map { URL(fileURLWithPath: "/b/Favorites-\($0 % 2 == 0 ? "デフォルト設定" : "x")-202610\(String(format: "%02d", $0))-120000.plist") }
+let removed = Backups.pruned(stamps + [URL(fileURLWithPath: "/b/notes.txt")])
+check(removed.count == 5 && Set(removed.map(\.lastPathComponent)) == Set(stamps.prefix(5).map(\.lastPathComponent)), "pruning removes only the 5 oldest of 35, across set names")
+check(Backups.pruned(Array(stamps.prefix(1))).isEmpty, "a single backup is kept")
 // Dropbox marks and search
 check(Dropbox.root(containing: "/Users/a/sw Dropbox/me/x", roots: ["/Users/a/sw Dropbox/me"]) == "/Users/a/sw Dropbox/me", "path inside a Dropbox root")
 check(Dropbox.root(containing: "/Users/a/sw Dropbox/meX/x", roots: ["/Users/a/sw Dropbox/me"]) == nil, "a sibling with the same prefix is not inside")

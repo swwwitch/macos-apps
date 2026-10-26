@@ -47,4 +47,4 @@ NSColor(srgbRed: 0.85, green: 0.5, blue: 0.05, alpha: 1).setFill()
 NSBezierPath(roundedRect: NSRect(x: 270, y: 432, width: 484, height: 16), xRadius: 8, yRadius: 8).fill()
 image.unlockFocus()
 let rep = NSBitmapImageRep(data: image.tiffRepresentation!)!
-try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("FavoritesTidy.png"))
+try rep.representation(using: .png, properties: [:])!.write(to: root.appendingPathComponent("FavoriteFolders.png"))

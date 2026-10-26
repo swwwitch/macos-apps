@@ -1,7 +1,7 @@
 # 共通仕様の実装と確認
 
-アプリ名：FavoritesTidy
-バージョン/build：1.2.0 / 3
+アプリ名：FavoriteFolders（1.2.1 で FavoritesTidy から改名。Bundle ID jp.dtp-transit.favoritestidy は維持）
+バージョン/build：1.2.2 / 5
 確認OS/CPU：macOS 26 / Apple Silicon
 確認日：2026-10-26
 
@@ -18,7 +18,7 @@
 | B07 | ショートカット管理 | 実装済み・実機未確認 | アプリ自身はグローバルなホットキーを持たない。お気に入りのホットキーは共通 HotkeyField で変更・解除、お気に入り同士の重複を拒否（登録は Default Folder X が行う） |
 | B08 | 設定・位置の保持 | 実装済み・実機未確認 | ウインドウ位置の自動保存・画面外は中央へ。カテゴリ名・確認の選択は UserDefaults |
 | B09 | 権限の案内と再判定 | 適用外 | 権限を使わない（Default Folder X の終了・起動は NSRunningApplication.terminate／NSWorkspace.openApplication） |
-| B10 | 原本保護・復元 | 実装済み・実機未確認 | 保存前に Favorites.plist を Backups へ（最新30件）。Default Folder X 側の変更を検出したら書かない。項目の辞書は丸ごと保持。保存前は⌘Zで取り消し。復元手順はヘルプ |
+| B10 | 原本保護・復元 | 実装済み・実機未確認（1.2.2 でバックアップが即削除される不具合を修正。単体実行でファイルが残ることを確認） | 保存前に Favorites.plist を Backups へ（最新30件）。Default Folder X 側の変更を検出したら書かない。項目の辞書は丸ごと保持。保存前は⌘Zで取り消し。復元手順はヘルプ |
 | B11 | 二重処理・中断対策 | 実装済み・実機未確認 | busy 中は保存・読み直し・編集を無効。原子的書き込み（.atomic） |
 | B12 | 成否・復旧表示 | 実装済み・実機未確認 | 状態欄に成功・Default Folder X が終了しない・外部変更・バックアップ失敗・書き込み失敗・起動し直し失敗を区別して表示 |
 | B13 | 待機負荷・復帰 | 実装済み・実機未確認 | 監視・タイマーなし（保存中の終了待ちだけ0.1秒間隔、最大15秒） |

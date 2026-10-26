@@ -55,11 +55,11 @@ done|完了|Done|完成|완료
 quitDFX|Default Folder X を終了|Quit Default Folder X|退出 Default Folder X|Default Folder X 종료
 launchDFX|Default Folder X を起動|Open Default Folder X|打开 Default Folder X|Default Folder X 열기
 quitDFXHint|ホットキーの記録や、手作業での Favorites.plist の確認の前に終了できます。保存するかこのアプリを終了すると起動し直します。|Quit it before recording hotkeys or checking Favorites.plist by hand. It is reopened when you save or quit this app.|可在录制快捷键或手动检查 Favorites.plist 前退出。保存或退出本应用时会重新打开。|단축키 기록이나 Favorites.plist 직접 확인 전에 종료할 수 있습니다. 저장하거나 이 앱을 종료하면 다시 엽니다.
-dfxQuit|Default Folder X を終了しました。保存するか FavoritesTidy を終了すると起動し直します。|Quit Default Folder X. It is reopened when you save or quit FavoritesTidy.|已退出 Default Folder X。保存或退出 FavoritesTidy 时会重新打开。|Default Folder X를 종료했습니다. 저장하거나 FavoritesTidy를 종료하면 다시 엽니다.
+dfxQuit|Default Folder X を終了しました。保存するか FavoriteFolders を終了すると起動し直します。|Quit Default Folder X. It is reopened when you save or quit FavoriteFolders.|已退出 Default Folder X。保存或退出 FavoriteFolders 时会重新打开。|Default Folder X를 종료했습니다. 저장하거나 FavoriteFolders를 종료하면 다시 엽니다.
 dfxLaunched|Default Folder X を起動しました。|Opened Default Folder X.|已打开 Default Folder X。|Default Folder X를 열었습니다.
 quitFailed2|Default Folder X が終了しませんでした。開いているダイアログボックスを閉じてから、もう一度押してください。|Default Folder X did not quit. Close any open dialog and try again.|Default Folder X 未退出。请关闭打开的对话框后再试。|Default Folder X가 종료되지 않았습니다. 열려 있는 대화상자를 닫고 다시 시도하세요.
 editQuitTitle|Default Folder X を終了してから編集します|Quit Default Folder X before editing|编辑前先退出 Default Folder X|편집하기 전에 Default Folder X를 종료합니다
-editQuitDetail|Default Folder X は終了するときにお気に入りを書き出すため、起動したままだと編集が上書きされることがあります。終了して編集を続けますか？保存するか FavoritesTidy を終了すると起動し直します。|Default Folder X writes its favorites when it quits, so edits made while it runs can be overwritten. Quit it and continue? It is reopened when you save or quit FavoritesTidy.|Default Folder X 会在退出时写出个人收藏，运行时所做的编辑可能被覆盖。要退出它并继续编辑吗？保存或退出 FavoritesTidy 时会重新打开。|Default Folder X는 종료할 때 즐겨찾기를 기록하므로 실행 중에 한 편집이 덮어쓰일 수 있습니다. 종료하고 편집을 계속할까요? 저장하거나 FavoritesTidy를 종료하면 다시 엽니다.
+editQuitDetail|Default Folder X は終了するときにお気に入りを書き出すため、起動したままだと編集が上書きされることがあります。終了して編集を続けますか？保存するか FavoriteFolders を終了すると起動し直します。|Default Folder X writes its favorites when it quits, so edits made while it runs can be overwritten. Quit it and continue? It is reopened when you save or quit FavoriteFolders.|Default Folder X 会在退出时写出个人收藏，运行时所做的编辑可能被覆盖。要退出它并继续编辑吗？保存或退出 FavoriteFolders 时会重新打开。|Default Folder X는 종료할 때 즐겨찾기를 기록하므로 실행 중에 한 편집이 덮어쓰일 수 있습니다. 종료하고 편집을 계속할까요? 저장하거나 FavoriteFolders를 종료하면 다시 엽니다.
 quitAndEdit|終了して編集|Quit and Edit|退出并编辑|종료하고 편집
 editCanceled|編集を取りやめました（Default Folder X は起動したままです）。|Edit canceled (Default Folder X is still running).|已取消编辑（Default Folder X 仍在运行）。|편집을 취소했습니다(Default Folder X는 계속 실행 중).
 searchPlaceholder|名前・パスで検索|Search names and paths|搜索名称和路径|이름·경로 검색
@@ -100,18 +100,18 @@ resident|ウインドウを閉じても常駐|Keep running after closing the win
 residentDetail|閉じた後もDockやメニューバーから再表示できます。オフにすると閉じたときに終了します。|Reopen from the Dock or menu bar. When off, closing the window quits.|可从 Dock 或菜单栏再次打开。关闭此项时，关闭窗口即退出。|Dock 또는 메뉴 막대에서 다시 열 수 있습니다. 끄면 창을 닫을 때 종료됩니다.
 launchShortcut|アプリ起動のホットキー|App launch keyboard shortcut|启动应用快捷键|앱 실행 키보드 단축키
 openShortcuts|ショートカットを開く|Open Shortcuts|打开快捷指令|단축어 열기
-shortcutDetail|ショートカットAppで「アプリを開く」にFavoritesTidyを指定し、キーを割り当ててください。未起動時も使えます。|In Shortcuts, create an Open App action for FavoritesTidy and assign a key. It works even when the app is not running.|在快捷指令中为 FavoritesTidy 创建“打开 App”并分配按键，应用未运行时也可使用。|단축어 앱에서 FavoritesTidy를 여는 동작을 만들고 키를 지정하세요. 앱이 실행 중이 아니어도 작동합니다.
+shortcutDetail|ショートカットAppで「アプリを開く」にFavoriteFoldersを指定し、キーを割り当ててください。未起動時も使えます。|In Shortcuts, create an Open App action for FavoriteFolders and assign a key. It works even when the app is not running.|在快捷指令中为 FavoriteFolders 创建“打开 App”并分配按键，应用未运行时也可使用。|단축어 앱에서 FavoriteFolders를 여는 동작을 만들고 키를 지정하세요. 앱이 실행 중이 아니어도 작동합니다.
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…
 settingsWindow|設定|Settings|设置|설정
-help|FavoritesTidyヘルプ|FavoritesTidy Help|FavoritesTidy 帮助|FavoritesTidy 도움말
+help|FavoriteFoldersヘルプ|FavoriteFolders Help|FavoriteFolders 帮助|FavoriteFolders 도움말
 helpMenu|ヘルプ|Help|帮助|도움말
-quit|FavoritesTidyを終了|Quit FavoritesTidy|退出 FavoritesTidy|FavoritesTidy 종료
-hide|FavoritesTidyを隠す|Hide FavoritesTidy|隐藏 FavoritesTidy|FavoritesTidy 가리기
+quit|FavoriteFoldersを終了|Quit FavoriteFolders|退出 FavoriteFolders|FavoriteFolders 종료
+hide|FavoriteFoldersを隠す|Hide FavoriteFolders|隐藏 FavoriteFolders|FavoriteFolders 가리기
 services|サービス|Services|服务|서비스
 hideOthers|ほかを隠す|Hide Others|隐藏其他|기타 가리기
 showAll|すべてを表示|Show All|全部显示|모두 보기
-about|FavoritesTidyについて|About FavoritesTidy|关于 FavoritesTidy|FavoritesTidy에 관하여
+about|FavoriteFoldersについて|About FavoriteFolders|关于 FavoriteFolders|FavoriteFolders에 관하여
 aboutDetail|Default Folder X のお気に入りを並べ替え・カテゴリ分けします。サポート：同梱のREADME.md|Sorts and groups Default Folder X favorites. Support: bundled README.md|对 Default Folder X 的个人收藏排序和分组。支持：内置 README.md|Default Folder X 즐겨찾기를 정렬하고 묶습니다. 지원: 포함된 README.md
 fileMenu|ファイル|File|文件|파일
 editMenu|編集|Edit|编辑|편집
@@ -139,6 +139,6 @@ for i, lang in enumerate(langs):
     p = root / 'Resources' / f'{lang}.lproj'
     p.mkdir(parents=True, exist_ok=True)
     (p / 'Localizable.strings').write_text('\n'.join(f'{json.dumps(r[0])} = {json.dumps(r[i + 1], ensure_ascii=False)};' for r in table) + '\n')
-    (p / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "FavoritesTidy";\n')
+    (p / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "FavoriteFolders";\n')
     (p / 'Help.txt').write_text(HELP[lang])
 print('resources:', len(table), 'keys x 4 languages')
