@@ -1,4 +1,4 @@
-"heading" = "Illustrator 스크립트";
+"heading" = "Illustrator에서 스크립트를 빠르게 실행";
 "subtitle" = "Illustrator가 앞에 있을 때 등록한 스크립트를 키보드 단축키로 실행합니다.";
 "useHotkeysHint" = "끄면 모든 스크립트 단축키를 일시 정지합니다.";
 "state.hint" = "스크립트 단축키는 Illustrator가 앞에 있을 때만 작동합니다.";

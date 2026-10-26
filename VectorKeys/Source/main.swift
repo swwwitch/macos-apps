@@ -152,7 +152,7 @@ import Carbon
         let tools = NSMenu(title: L("toolsMenu")); let toolsItem = NSMenuItem(title: L("toolsMenu"), action: nil, keyEquivalent: ""); toolsItem.submenu = tools; bar.addItem(toolsItem)
         add(tools, L("tools.stats"), #selector(showStats), "")
         tools.addItem(.separator())
-        add(tools, L("tools.replace"), #selector(replaceNames), "")
+        add(tools, L("tools.replace"), #selector(replaceNames), "f")
         add(tools, L("tools.stripNumbering"), #selector(stripNumbering), "")
         tools.addItem(.separator())
         add(tools, L("tools.kmOff"), #selector(kmOff), "")

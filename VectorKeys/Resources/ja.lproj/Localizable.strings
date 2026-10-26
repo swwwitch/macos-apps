@@ -1,4 +1,4 @@
-"heading" = "Illustratorのスクリプト";
+"heading" = "Illustratorでスクリプトを高速実行";
 "subtitle" = "登録したスクリプトを、Illustratorが前面のときにキーボードショートカットで実行します。";
 "useHotkeysHint" = "オフにすると、スクリプトのショートカットをすべて一時停止します。";
 "state.hint" = "スクリプトのショートカットは、Illustratorが前面のときだけ働きます。";

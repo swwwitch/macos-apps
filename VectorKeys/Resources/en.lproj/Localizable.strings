@@ -1,4 +1,4 @@
-"heading" = "Illustrator Scripts";
+"heading" = "Run Illustrator Scripts Fast";
 "subtitle" = "Runs your scripts with keyboard shortcuts while Illustrator is in front.";
 "useHotkeysHint" = "When off, all script shortcuts are paused.";
 "state.hint" = "Script shortcuts work only while Illustrator is in front.";

@@ -1,4 +1,4 @@
-"heading" = "Illustrator 脚本";
+"heading" = "在 Illustrator 中快速运行脚本";
 "subtitle" = "在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本。";
 "useHotkeysHint" = "关闭后暂停所有脚本快捷键。";
 "state.hint" = "脚本快捷键仅在 Illustrator 位于前台时有效。";

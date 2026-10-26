@@ -46,6 +46,7 @@ Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへ�
 - アプリを呼び出すショートカット：設定の「起動・常駐」で割り当てると、どのアプリからでもVectorKeysのウインドウを表示します（初期値は未設定）。
 - ⌘O：スクリプトを追加
 - ⌘I：Keyboard Maestroから取り込む
+- ⌘F：アイテム名の検索と置換（一覧でスクリプトを選んでいるとき）
 - ⌘0：メインウインドウを開く
 - ⌘,：設定
 - ⌘W：ウインドウを閉じる
@@ -115,6 +116,7 @@ Next to the search field, choose Manual, By Name or By Shortcut. Dragging rows w
 - App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
 - ⌘O: Add scripts
 - ⌘I: Import from Keyboard Maestro
+- ⌘F: Find and replace in names (while scripts are selected)
 - ⌘0: Open the main window
 - ⌘,: Settings
 - ⌘W: Close the window
@@ -184,6 +186,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 调出应用的快捷键：在设置的“启动与常驻”中分配后，可从任何应用显示 VectorKeys 窗口（默认未设置）。
 - ⌘O：添加脚本
 - ⌘I：从 Keyboard Maestro 导入
+- ⌘F：在名称中查找和替换（在列表中选中脚本时）
 - ⌘0：打开主窗口
 - ⌘,：设置
 - ⌘W：关闭窗口
@@ -253,6 +256,7 @@ Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그�
 - 앱을 불러오는 단축키: 설정의 '실행 및 상주'에서 지정하면 어느 앱에서든 VectorKeys 윈도우를 표시합니다(기본값은 없음).
 - ⌘O: 스크립트 추가
 - ⌘I: Keyboard Maestro에서 가져오기
+- ⌘F: 이름 찾기 및 바꾸기(목록에서 스크립트를 선택했을 때)
 - ⌘0: 메인 윈도우 열기
 - ⌘,: 설정
 - ⌘W: 윈도우 닫기

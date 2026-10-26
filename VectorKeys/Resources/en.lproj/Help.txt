@@ -44,6 +44,7 @@ Next to the search field, choose Manual, By Name or By Shortcut. Dragging rows w
 - App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
 - ⌘O: Add scripts
 - ⌘I: Import from Keyboard Maestro
+- ⌘F: Find and replace in names (while scripts are selected)
 - ⌘0: Open the main window
 - ⌘,: Settings
 - ⌘W: Close the window

@@ -3,7 +3,7 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''heading|Illustratorのスクリプト|Illustrator Scripts|Illustrator 脚本|Illustrator 스크립트
+rows = '''heading|Illustratorでスクリプトを高速実行|Run Illustrator Scripts Fast|在 Illustrator 中快速运行脚本|Illustrator에서 스크립트를 빠르게 실행
 subtitle|登録したスクリプトを、Illustratorが前面のときにキーボードショートカットで実行します。|Runs your scripts with keyboard shortcuts while Illustrator is in front.|在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本。|Illustrator가 앞에 있을 때 등록한 스크립트를 키보드 단축키로 실행합니다.
 useHotkeysHint|オフにすると、スクリプトのショートカットをすべて一時停止します。|When off, all script shortcuts are paused.|关闭后暂停所有脚本快捷键。|끄면 모든 스크립트 단축키를 일시 정지합니다.
 state.hint|スクリプトのショートカットは、Illustratorが前面のときだけ働きます。|Script shortcuts work only while Illustrator is in front.|脚本快捷键仅在 Illustrator 位于前台时有效。|스크립트 단축키는 Illustrator가 앞에 있을 때만 작동합니다.
