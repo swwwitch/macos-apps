@@ -3,9 +3,15 @@ import Foundation
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
 /// A hotkey in Carbon terms (kVK_* key code; ⌘256 ⇧512 ⌥2048 ⌃4096).
+/// taps: nil = press once, 2 = press twice in a row (Keyboard Maestro's "tapped twice").
 struct Hotkey: Codable, Hashable {
     var code: UInt32
     var modifiers: UInt32
+    var taps: Int?
+    var isDouble: Bool { taps == 2 }
+    /// The key itself, shared by its single and double press.
+    struct Key: Hashable { var code: UInt32; var modifiers: UInt32 }
+    var key: Key { Key(code: code, modifiers: modifiers) }
 }
 
 /// One registered script file.
@@ -15,6 +21,10 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     var path: String
     var hotkey: Hotkey?
     var enabled: Bool
+    /// nil = uncategorized.
+    var category: String?
+    /// The Keyboard Maestro macro it was imported from (turned off / on from Tools).
+    var kmUID: String?
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
     var runCount: Int?
     var lastRun: Date?
@@ -37,6 +47,8 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
 struct Library: Codable, Equatable {
     var version = 1
     var scripts: [ScriptEntry] = []
+    /// Category names in the sidebar order. Optional so lists saved before 1.3.0 still load.
+    var categories: [String]?
 
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("VectorKeys", isDirectory: true)
@@ -56,17 +68,126 @@ struct Library: Codable, Equatable {
     /// Adds files not registered yet (same path = same script). Returns the new entries in the given order.
     @discardableResult
     mutating func add(paths: [String]) -> [ScriptEntry] {
+        add(entries: paths.map { ScriptEntry(path: $0) })
+    }
+    /// Adds entries whose file is not registered yet (and is a script), keeping their name, hotkey and on/off.
+    @discardableResult
+    mutating func add(entries: [ScriptEntry]) -> [ScriptEntry] {
         var known = Set(scripts.map(\.path))
         var added: [ScriptEntry] = []
-        for path in paths where !known.contains(path) && ScriptEntry.accepts(URL(fileURLWithPath: path)) {
-            known.insert(path)
-            added.append(ScriptEntry(path: path))
+        for entry in entries where !known.contains(entry.path) && ScriptEntry.accepts(URL(fileURLWithPath: entry.path)) {
+            known.insert(entry.path)
+            added.append(entry)
         }
         scripts.append(contentsOf: added)
         return added
     }
 
-    /// Scripts that would react to a hotkey: enabled and with a key, the first one in the list winning a repeated key.
+    // MARK: Categories
+
+    /// The sidebar categories: the saved order, then any name a script uses that the list lacks.
+    var categoryList: [String] {
+        var list = categories ?? []
+        for name in scripts.compactMap(\.category) where !list.contains(name) { list.append(name) }
+        return list
+    }
+    /// Adds a category (a name already there is kept once). Returns the trimmed name, or nil when empty.
+    @discardableResult
+    mutating func addCategory(_ name: String) -> String? {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return nil }
+        var list = categoryList
+        if !list.contains(name) { list.append(name) }
+        categories = list
+        return name
+    }
+    /// Renames a category and moves its scripts along. Renaming onto an existing name merges the two.
+    mutating func renameCategory(_ old: String, to new: String) {
+        let new = new.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !new.isEmpty, new != old else { return }
+        var list = categoryList
+        if list.contains(new) { list.removeAll { $0 == old } } else if let index = list.firstIndex(of: old) { list[index] = new }
+        categories = list
+        for index in scripts.indices where scripts[index].category == old { scripts[index].category = new }
+    }
+    /// Removes a category; its scripts become uncategorized (nothing is deleted).
+    mutating func deleteCategory(_ name: String) {
+        categories = categoryList.filter { $0 != name }
+        for index in scripts.indices where scripts[index].category == name { scripts[index].category = nil }
+    }
+    mutating func setCategory(_ name: String?, for ids: Set<String>) {
+        if let name { addCategory(name) }
+        for index in scripts.indices where ids.contains(scripts[index].id) { scripts[index].category = name }
+    }
+    /// Moves within a shown subset (one category, in list order) and writes the new order back into the full list.
+    mutating func move(ids: [String], from source: IndexSet, to destination: Int) {
+        // Array.move(fromOffsets:toOffset:) lives in SwiftUI; this file stays Foundation-only for the tests.
+        let picked = source.map { ids[$0] }
+        var moved = ids.enumerated().filter { !source.contains($0.offset) }.map(\.element)
+        let insertAt = destination - source.filter { $0 < destination }.count
+        moved.insert(contentsOf: picked, at: max(0, min(insertAt, moved.count)))
+        let members = Set(ids)
+        var next = moved.makeIterator()
+        let byID = Dictionary(uniqueKeysWithValues: scripts.map { ($0.id, $0) })
+        for index in scripts.indices where members.contains(scripts[index].id) {
+            if let id = next.next(), let script = byID[id] { scripts[index] = script }
+        }
+    }
+
+    /// Removes Keyboard Maestro numbering from the start of the names: 「11)」「21）」「11)1 」 (a digit right after
+    /// the bracket stays when it is part of the name, as in 「12)3Dにする」). Returns how many names changed.
+    @discardableResult
+    mutating func stripNumbering(ids: Set<String>) -> Int {
+        var changed = 0
+        for index in scripts.indices where ids.contains(scripts[index].id) {
+            let stripped = Self.strippingNumbering(scripts[index].name)
+            if stripped != scripts[index].name && !stripped.isEmpty { scripts[index].name = stripped; changed += 1 }
+        }
+        return changed
+    }
+    static func strippingNumbering(_ name: String) -> String {
+        name.replacingOccurrences(of: #"^\s*\d+\s*[)）]\s*(\d+\s+)?"#, with: "", options: .regularExpression)
+    }
+
+    /// Find and replace in a name. nil when the regular expression is invalid; an empty result keeps the old name.
+    static func replacing(in name: String, find: String, with replacement: String, regex: Bool, caseSensitive: Bool) -> String? {
+        guard !find.isEmpty else { return name }
+        var options: String.CompareOptions = regex ? [.regularExpression] : []
+        if !caseSensitive { options.insert(.caseInsensitive) }
+        if regex {
+            guard (try? NSRegularExpression(pattern: find, options: caseSensitive ? [] : [.caseInsensitive])) != nil else { return nil }
+        }
+        // A literal replacement must not read $1 or \ as template characters.
+        let template = regex ? replacement : NSRegularExpression.escapedTemplate(for: replacement)
+        let pattern = regex ? find : NSRegularExpression.escapedPattern(for: find)
+        let result = name.replacingOccurrences(of: pattern, with: template, options: options.union(.regularExpression))
+        let trimmed = result.trimmingCharacters(in: .whitespaces)
+        return trimmed.isEmpty ? name : trimmed
+    }
+    /// Applies replacing(in:…) to the names of the given scripts. Returns how many changed (0 for an invalid pattern).
+    @discardableResult
+    mutating func replaceNames(ids: Set<String>, find: String, with replacement: String, regex: Bool, caseSensitive: Bool) -> Int {
+        var changed = 0
+        for index in scripts.indices where ids.contains(scripts[index].id) {
+            guard let new = Self.replacing(in: scripts[index].name, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) else { return 0 }
+            if new != scripts[index].name { scripts[index].name = new; changed += 1 }
+        }
+        return changed
+    }
+
+    /// Every script by use: most runs first, then the latest run, then name (scripts never run come last).
+    var byUse: [ScriptEntry] {
+        scripts.sorted { a, b in
+            if a.uses != b.uses { return a.uses > b.uses }
+            if a.lastRun != b.lastRun { return (a.lastRun ?? .distantPast) > (b.lastRun ?? .distantPast) }
+            return a.name.localizedStandardCompare(b.name) == .orderedAscending
+        }
+    }
+
+    // MARK: Hotkeys
+
+    /// Scripts that would react to a hotkey: enabled and with a key, the first one in the list winning a repeated key
+    /// (a single and a double press of the same key are different hotkeys).
     /// Returns the winners and the ids that lose to an earlier script.
     func activeHotkeys() -> (winners: [(Hotkey, String)], duplicates: Set<String>) {
         var seen: Set<Hotkey> = [], winners: [(Hotkey, String)] = [], duplicates: Set<String> = []
@@ -76,6 +197,41 @@ struct Library: Codable, Equatable {
             seen.insert(hotkey); winners.append((hotkey, script.id))
         }
         return (winners, duplicates)
+    }
+    /// One registration per key: the script for a single press and the one for a double press.
+    func keyTargets() -> [(key: Hotkey.Key, single: String?, double: String?)] {
+        var order: [Hotkey.Key] = [], single: [Hotkey.Key: String] = [:], double: [Hotkey.Key: String] = [:]
+        for (hotkey, id) in activeHotkeys().winners {
+            if single[hotkey.key] == nil && double[hotkey.key] == nil { order.append(hotkey.key) }
+            if hotkey.isDouble { double[hotkey.key] = id } else { single[hotkey.key] = id }
+        }
+        return order.map { ($0, single[$0], double[$0]) }
+    }
+}
+
+/// How the list is shown (the saved order stays as it is).
+enum SortOrder: String, CaseIterable {
+    case manual, name, hotkey
+    func sorted(_ scripts: [ScriptEntry], keyName: (Hotkey) -> String) -> [ScriptEntry] {
+        switch self {
+        case .manual: return scripts
+        case .name: return scripts.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        case .hotkey:
+            // Scripts with a key first, by the key's name, then fewer modifiers, then single before double press.
+            return scripts.sorted { a, b in
+                switch (a.hotkey, b.hotkey) {
+                case (nil, nil): return a.name.localizedStandardCompare(b.name) == .orderedAscending
+                case (nil, _): return false
+                case (_, nil): return true
+                case let (x?, y?):
+                    let nx = keyName(x), ny = keyName(y)
+                    if nx != ny { return nx.localizedStandardCompare(ny) == .orderedAscending }
+                    if x.modifiers.nonzeroBitCount != y.modifiers.nonzeroBitCount { return x.modifiers.nonzeroBitCount < y.modifiers.nonzeroBitCount }
+                    if x.modifiers != y.modifiers { return x.modifiers < y.modifiers }
+                    return (x.taps ?? 1) < (y.taps ?? 1)
+                }
+            }
+        }
     }
 }
 

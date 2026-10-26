@@ -29,11 +29,12 @@ import Carbon
     var window: NSWindow!
     var settings: NSWindow?
     var helpWindow: NSWindow?
+    var statsWindow: NSWindow?
     var isDuplicate = false
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
-        UserDefaults.standard.register(defaults: ["resident": true])
+        UserDefaults.standard.register(defaults: ["resident": true, "showUses": true])
         if let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier: id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
             isDuplicate = true
             other.activate(options: [.activateAllWindows])
@@ -44,7 +45,7 @@ import Carbon
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 860, height: 600), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 700), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "VectorKeys"; window.titleVisibility = .hidden
         // A plain hosting view: the list would otherwise grow the window to fit every script.
         let host = NSHostingView(rootView: MainView(model: model))
@@ -52,7 +53,7 @@ import Carbon
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
-        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 760, height: 540)
+        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 980, height: 600)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         launcher.keys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         launcher.register()
@@ -71,6 +72,14 @@ import Carbon
     }
     @objc func toggleHotkeys() { model.hotkeysEnabled.toggle() }
     @objc func addScripts() { show(); model.chooseFiles() }
+    @objc func importKM() { show(); model.chooseKMFiles() }
+    @objc func stripNumbering() { model.stripNumbering() }
+    @objc func replaceNames() { show(); model.showReplace = true }
+    /// 表示 › 使用回数を表示 (the views read the same "showUses" default through @AppStorage).
+    @objc func toggleShowUses() { UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: "showUses"), forKey: "showUses") }
+    @objc func kmOff() { model.setInKM(model.selectedKMUIDs, enabled: false) }
+    @objc func kmOn() { model.setInKM(model.selectedKMUIDs, enabled: true) }
+    func windowWillReturnUndoManager(_ window: NSWindow) -> UndoManager? { window === self.window ? model.undoManager : nil }
 
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
@@ -88,6 +97,16 @@ import Carbon
             settings!.title = L("settingsWindow"); settings!.contentView = hosting; settings!.contentMinSize = NSSize(width: 560, height: 460); settings!.isReleasedWhenClosed = false; settings!.center()
         }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+    }
+    @objc func showStats() {
+        if statsWindow == nil {
+            statsWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 760, height: 560), styleMask: [.titled, .closable, .resizable, .miniaturizable], backing: .buffered, defer: false)
+            let hosting = NSHostingView(rootView: StatsView(model: model)); hosting.sizingOptions = [.minSize]
+            statsWindow!.title = L("stats.title"); statsWindow!.contentView = hosting; statsWindow!.isReleasedWhenClosed = false
+            statsWindow!.setFrameAutosaveName("StatsWindow")
+            if UserDefaults.standard.string(forKey: "NSWindow Frame StatsWindow") == nil { statsWindow!.center() }
+        }
+        statsWindow!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
     @objc func showHelp() {
         if helpWindow == nil {
@@ -119,6 +138,7 @@ import Carbon
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("addMenu"), #selector(addScripts), "o")
+        add(file, L("km.import"), #selector(importKM), "i")
         add(file, L("pauseHotkeys"), #selector(toggleHotkeys), "")
         file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
@@ -127,6 +147,16 @@ import Carbon
             edit.addItem(withTitle: L(key), action: Selector(action), keyEquivalent: shortcut)
         }
         edit.item(at: 1)?.keyEquivalentModifierMask = [.command, .shift]   // やり直す ⇧⌘Z
+        let view = NSMenu(title: L("viewMenu")); let viewItem = NSMenuItem(title: L("viewMenu"), action: nil, keyEquivalent: ""); viewItem.submenu = view; bar.addItem(viewItem)
+        add(view, L("showUses"), #selector(toggleShowUses), "")
+        let tools = NSMenu(title: L("toolsMenu")); let toolsItem = NSMenuItem(title: L("toolsMenu"), action: nil, keyEquivalent: ""); toolsItem.submenu = tools; bar.addItem(toolsItem)
+        add(tools, L("tools.stats"), #selector(showStats), "")
+        tools.addItem(.separator())
+        add(tools, L("tools.replace"), #selector(replaceNames), "")
+        add(tools, L("tools.stripNumbering"), #selector(stripNumbering), "")
+        tools.addItem(.separator())
+        add(tools, L("tools.kmOff"), #selector(kmOff), "")
+        add(tools, L("tools.kmOn"), #selector(kmOn), "")
         let windowMenu = NSMenu(title: L("windowMenu")); let windowItem = NSMenuItem(title: L("windowMenu"), action: nil, keyEquivalent: ""); windowItem.submenu = windowMenu; bar.addItem(windowItem)
         windowMenu.addItem(withTitle: L("minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "")
         windowMenu.addItem(withTitle: L("zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
@@ -140,6 +170,9 @@ import Carbon
 
 extension Delegate: NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(stripNumbering) || menuItem.action == #selector(replaceNames) { return !model.selection.isEmpty }
+        if menuItem.action == #selector(toggleShowUses) { menuItem.state = UserDefaults.standard.bool(forKey: "showUses") ? .on : .off }
+        if menuItem.action == #selector(kmOff) || menuItem.action == #selector(kmOn) { return !model.selectedKMUIDs.isEmpty }
         if menuItem.action == #selector(toggleHotkeys) { menuItem.title = L(model.hotkeysEnabled ? "pauseHotkeys" : "resumeHotkeys") }
         return true
     }

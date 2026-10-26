@@ -3,7 +3,7 @@
 ## 2026-10-26 全アプリ：ホットキー欄のクリックで記録開始・HotkeySetの横取り修正
 
 - 元チャット：5bd56bfd-50f5-4935-b85e-c056c310edca。ユーザー要望：「［変更…］ボタンでなく、「未設定」フィールドをクリックしたらすぐに編集状態に」「全アプリで」。
-- 共通部品 Shared/HotkeyRecorder/HotkeyRecorder.swift：HotkeyField の欄をクリックで記録開始（もう一度で取り消し、［変更…］は残す）。HotkeySet は署名が一致しないホットキーを eventNotHandledErr で次のハンドラーへ渡す（1アプリで2組使うと後の組が他の組のキーを捨てていた。VectorKeysで実機発覚・修正後に動作確認済み）。
+- 共通部品 Shared/HotkeyRecorder/HotkeyRecorder.swift：HotkeyField の欄をクリックで記録開始（もう一度・Escで取り消し。2026-10-26 追加指示で［変更…］ボタンは廃止、19本の写しへ同期済み）。HotkeySet は署名が一致しないホットキーを eventNotHandledErr で次のハンドラーへ渡す（1アプリで2組使うと後の組が他の組のキーを捨てていた。VectorKeysで実機発覚・修正後に動作確認済み）。
 - ソース反映済み：sync.py で写し17本（NotMyType・NotMyType Lite を同期先に追加）を同一内容に。直接コンパイルのアプリ（ClipTidy・ControlMate・EventDocMaker・FavoriteFolders・FileSorter・InsertSnippets・MenuShot・ScreenTake・SettingsHop・ShotSorter・VectorMate）は次のビルドで反映。
 - 状態：VectorKeys 1.0.0 (1) だけビルド・配置済み（欄クリックは実機未確認）。ほかのアプリのビルド・実機確認・配布は未実施。版・buildは未更新。各アプリの次のリリースに含める。
 

@@ -15,12 +15,37 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 - 一覧はドラッグで並べ替えられます（検索中を除く）。
 - ファイルを移動・名前変更したときは「ファイルなし」と出ます。［ファイルを選び直す…］で指定し直すと、ショートカットはそのまま使えます。
 - スクリプトはファイルの場所を覚えているだけです。中身を書き換えたら、次の実行から新しい内容で動きます。
-- 一覧の右と詳細欄に、実行した回数と最後に実行した日時が出ます。ショートカットと［実行］ボタンで、エラーなく終わったものを数えます。
+- 一覧の右と詳細欄に、実行した回数と最後に実行した日時が出ます。ショートカットと［実行］ボタンで、エラーなく終わったものを数えます。［表示］＞［使用回数を表示］をオフにすると隠します（数えるのは続けます）。
+
+## Keyboard Maestroから取り込む
+Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへドラッグするか、［ファイル］＞［Keyboard Maestroから取り込む…］（⌘I）で選びます。
+- 取り込むのは、Illustratorのスクリプトを1つ実行するだけのマクロです（Ai Execute Script File・Ai Execute Jsx Text・Illustratorで .jsx を開く）。名前・ホットキー・オン／オフを引き継ぎます。
+- マクロに書かれたコードは .jsx ファイルとして ~/Library/Application Support/VectorKeys/Imported に保存します。
+- ほかの手順があるマクロや変数を使うマクロは取り込まず、理由を表示します。
+- Keyboard Maestro側の同じマクロは、オフにしてください。有効なままだとスクリプトが2回実行されます。取り込み後のダイアログボックスのボタン、または［ツール］＞［選んだスクリプトのKMマクロをオフにする］でオフにできます（オンに戻す項目もあります）。初めて使うときはKeyboard Maestroを操作する許可を求められます。
+
+## カテゴリ
+左の列でスクリプトをカテゴリに分けられます。
+- 下の＋で新しいカテゴリを作ります。右クリックで名前の変更・削除ができます。削除しても中のスクリプトは消えず、「未分類」に移ります。
+- スクリプトのカテゴリは、右側の「カテゴリ」で選ぶか、一覧の行を左のカテゴリへドラッグするか、右クリックの［カテゴリ］で変えます。⌘クリック・⇧クリックで複数選ぶと、まとめてドラッグ・変更・削除できます。
+- カテゴリを選んでいる間に追加したスクリプトは、そのカテゴリに入ります。「すべて」ではカテゴリごとに見出しを付けて並べます。
+- Keyboard Maestroから取り込むと、マクロのグループ名がカテゴリになります。
+
+## ツール
+- ［ツール］＞［統計…］：すべてのスクリプトを使った回数の多い順に、カテゴリ・最終実行日時・ショートカットを添えて表示します。行をダブルクリックすると、メインウインドウでそのスクリプトを選びます。
+- ［ツール］＞［アイテム名の検索と置換…］：一覧で選んだスクリプト（複数可）の名前を検索・置換します。置換前→置換後を確かめてから［置換］を押します。正規表現（$1 などで参照）と大文字・小文字の区別を選べます。ファイル名は変わりません。
+- ［ツール］＞［KMマクロのナンバリングを削除］：一覧で選んだスクリプト（複数可）の名前の先頭から「11)」「21）」「11)1 」のような番号を外します。ファイル名は変わりません。
+
+## 並べ替え
+検索欄の右で、手動・名前順・ショートカット順を選べます。ドラッグで並べ替えられるのは「手動」で検索していないときです。同じキーが重なったときは、手動の並びで上にあるスクリプトが反応します。
 
 ## ショートカット
+- 押し方：「1回押す」と「2回押す」を選べます。同じキーに両方を割り当てると、1回押すほうは2回目を待つ分（約0.3秒）遅れて実行します。一覧では2回押すキーに「×2」が付きます。
+- キーの欄をクリックすると記録を始めます。もう一度クリックするか、Escで取り消します。
 - スクリプトのショートカット：Illustratorが前面のときだけ登録します。ほかのアプリでは、同じキーが本来の働きをします。Illustrator自身のショートカットと同じキーにすると、こちらが優先されます。
 - アプリを呼び出すショートカット：設定の「起動・常駐」で割り当てると、どのアプリからでもVectorKeysのウインドウを表示します（初期値は未設定）。
 - ⌘O：スクリプトを追加
+- ⌘I：Keyboard Maestroから取り込む
 - ⌘0：メインウインドウを開く
 - ⌘,：設定
 - ⌘W：ウインドウを閉じる
@@ -29,6 +54,7 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 
 ## 権限とプライバシー
 - オートメーション（Adobe Illustrator）：スクリプトの実行に使います。初めての実行で許可を求められます。
+- オートメーション（Keyboard Maestro）：取り込んだ元のマクロのオン・オフに使います。
 一覧は ~/Library/Application Support/VectorKeys/Scripts.json に保存します。スクリプトのファイルは読むだけで、書き換えません。外部への送信はしません。
 
 ## 終了と常駐
@@ -41,7 +67,7 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 - 前の実行が終わらない：ダイアログボックスを出すスクリプトは、閉じるまで次の実行を待たせます。待ちは3件までで、それ以上は実行しません。
 
 ## 削除と復元
-一覧で選んで－ボタン（またはdeleteキー）で削除します。ファイルそのものは消えません。すべて消すときは、アプリを終了してから Scripts.json を削除します。
+一覧で選んで－ボタン（またはdeleteキー）で削除します。ファイルそのものは消えません（Keyboard Maestroから取り込んだコードの .jsx だけは、ほかで使っていなければゴミ箱へ移します）。削除・名前の変更（ツール）・カテゴリの変更・取り込みは［編集］＞［取り消す］（⌘Z）で戻せます。すべて消すときは、アプリを終了してから Scripts.json を削除します。
 """,
  "en": """## Basics
 VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is in front.
@@ -58,12 +84,37 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Drag to reorder the list (not while searching).
 - A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
 - Only the file's location is stored. Edit the script and the next run uses the new contents.
-- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted.
+- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted. Turn off View > Show run counts to hide them (counting continues).
+
+## Import from Keyboard Maestro
+Drag macros exported from Keyboard Maestro (.kmmacros) onto the window, or choose File > Import from Keyboard Maestro… (⌘I).
+- Macros that only run one Illustrator script are imported (Ai Execute Script File, Ai Execute Jsx Text, or opening a .jsx with Illustrator). Their name, hot key and on/off state come along.
+- Code written in a macro is saved as a .jsx file in ~/Library/Application Support/VectorKeys/Imported.
+- Macros with other steps or variables are not imported; the reason is shown.
+- Turn the same macros off in Keyboard Maestro, or the scripts run twice. Use the button after importing, or Tools > Turn Off the Selected Scripts’ KM Macros (there is also an item to turn them back on). The first time, you are asked to allow controlling Keyboard Maestro.
+
+## Categories
+The left column sorts scripts into categories.
+- Click + below to make a category. Right-click to rename or delete it. Deleting keeps its scripts; they become Uncategorized.
+- Set a script's category with Category on the right, by dragging its row onto a category, or with Category in the right-click menu. Select several with ⌘-click or ⇧-click to drag, change or delete them together.
+- Scripts added while a category is chosen go into it. All shows the scripts under a heading for each category.
+- Macros imported from Keyboard Maestro take their group name as the category.
+
+## Tools
+- Tools > Statistics…: every script by run count, with its category, last run and shortcut. Double-click a row to select it in the main window.
+- Tools > Find and Replace in Names…: finds and replaces in the selected scripts' names, with a before → after preview. Regular expressions ($1 for groups) and Match case are available. File names stay.
+- Tools > Remove KM Macro Numbering: removes numbering such as "11)" or "11)1 " from the start of the selected scripts' names (several at once). File names stay.
+
+## Sorting
+Next to the search field, choose Manual, By Name or By Shortcut. Dragging rows works in Manual while not searching. When scripts share a key, the one higher in the manual order reacts.
 
 ## Shortcuts
+- Press: choose Press once or Press twice. When a key has both, the Press once script waits for a second press (about 0.3 s) before it runs. Keys pressed twice show "×2" in the list.
+- Click the key field to record a key. Click it again or press Esc to cancel.
 - Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.
 - App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
 - ⌘O: Add scripts
+- ⌘I: Import from Keyboard Maestro
 - ⌘0: Open the main window
 - ⌘,: Settings
 - ⌘W: Close the window
@@ -72,6 +123,7 @@ When two scripts share a key, only the one higher in the list reacts, and the ke
 
 ## Permissions and privacy
 - Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
+- Automation (Keyboard Maestro): used to turn imported original macros off or on.
 The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
 
 ## Quitting and staying open
@@ -84,7 +136,7 @@ Closing the window keeps the app running and the shortcuts working. Reopen it fr
 - An earlier run does not finish: a script that shows a dialog box holds the next run until it is closed. Up to 3 runs wait; more are skipped.
 
 ## Removing and restoring
-Select a script and click − (or press Delete). The file itself is not deleted. To clear everything, quit the app and delete Scripts.json.
+Select a script and click − (or press Delete). The file itself is not deleted (only .jsx files saved from Keyboard Maestro code go to the Trash when nothing else uses them). Deleting, renaming with Tools, changing categories and importing can be undone with Edit > Undo (⌘Z). To clear everything, quit the app and delete Scripts.json.
 """,
  "zh-Hans": """## 基本操作
 VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本（.jsx）。
@@ -101,12 +153,37 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 可拖移列表以重新排序（搜索时除外）。
 - 文件被移动或重命名后会显示“文件丢失”。用“重新选择文件…”重新指定后，快捷键仍可使用。
 - 只记录文件的位置。修改脚本内容后，下次运行即使用新内容。
-- 列表右侧和详细栏会显示运行次数和最近运行时间。统计通过快捷键和“运行”按钮无错误完成的运行。
+- 列表右侧和详细栏会显示运行次数和最近运行时间。统计通过快捷键和“运行”按钮无错误完成的运行。关闭“显示”>“显示使用次数”即可隐藏（仍会继续计数）。
+
+## 从 Keyboard Maestro 导入
+将从 Keyboard Maestro 导出的宏（.kmmacros）拖到窗口中，或选择“文件”>“从 Keyboard Maestro 导入…”（⌘I）。
+- 只导入仅运行一个 Illustrator 脚本的宏（Ai Execute Script File、Ai Execute Jsx Text，或用 Illustrator 打开 .jsx）。名称、快捷键和开关状态会一并导入。
+- 宏中写入的代码会存储为 .jsx 文件，位于 ~/Library/Application Support/VectorKeys/Imported。
+- 含其他步骤或使用变量的宏不会导入，并显示原因。
+- 请在 Keyboard Maestro 中关闭相同的宏，否则脚本会运行两次。可用导入后对话框中的按钮，或“工具”>“关闭所选脚本的 KM 宏”关闭（也有重新打开的项目）。首次使用时会请求控制 Keyboard Maestro 的许可。
+
+## 类别
+左栏可将脚本分到各个类别。
+- 点按下方的 + 新建类别。右键点按可重命名或删除。删除后其中的脚本不会被删除，而是移到“未分类”。
+- 可在右侧的“类别”中选择，或将列表中的行拖到左侧类别，或用右键菜单中的“类别”更改脚本的类别。用 ⌘点按或⇧点按选择多个后，可一并拖移、更改或删除。
+- 选中某个类别时添加的脚本会进入该类别。“全部”会按类别分标题显示。
+- 从 Keyboard Maestro 导入时，宏的组名会成为类别。
+
+## 工具
+- “工具”>“统计…”：按使用次数从多到少显示所有脚本，并附上类别、最近运行时间和快捷键。双击某行可在主窗口中选中该脚本。
+- “工具”>“在名称中查找和替换…”：在所选脚本（可多选）的名称中查找和替换。确认替换前→替换后后点按“替换”。可使用正则表达式（用 $1 等引用）和区分大小写。文件名不变。
+- “工具”>“删除 KM 宏编号”：从所选脚本（可多选）名称开头删除“11)”“21）”“11)1 ”之类的编号。文件名不变。
+
+## 排序
+可在搜索栏右侧选择手动、按名称或按快捷键。在“手动”且未搜索时可拖移重新排序。多个脚本使用同一按键时，手动顺序中靠上的脚本会响应。
 
 ## 快捷键
+- 按法：可选择“按一次”或“按两次”。同一按键同时分配两者时，“按一次”的脚本会等待第二次按下（约 0.3 秒）后再运行。列表中按两次的按键带有“×2”。
+- 点按按键栏即开始录制。再次点按或按 Esc 取消。
 - 脚本快捷键：仅在 Illustrator 位于前台时注册，因此在其他应用中按键保持原有功能。若与 Illustrator 自身的快捷键相同，则优先运行脚本。
 - 调出应用的快捷键：在设置的“启动与常驻”中分配后，可从任何应用显示 VectorKeys 窗口（默认未设置）。
 - ⌘O：添加脚本
+- ⌘I：从 Keyboard Maestro 导入
 - ⌘0：打开主窗口
 - ⌘,：设置
 - ⌘W：关闭窗口
@@ -115,6 +192,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 
 ## 权限与隐私
 - 自动化（Adobe Illustrator）：用于运行脚本。首次运行时会请求许可。
+- 自动化（Keyboard Maestro）：用于关闭或打开已导入的原始宏。
 列表存储在 ~/Library/Application Support/VectorKeys/Scripts.json。脚本文件只读取，不会修改。不会向外部发送任何内容。
 
 ## 退出与常驻
@@ -127,7 +205,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 之前的运行未结束：显示对话框的脚本会让下一次运行等待到对话框关闭。最多等待 3 次，超出的会被跳过。
 
 ## 删除与恢复
-在列表中选择后点按 −（或按 Delete 键）删除。文件本身不会被删除。若要全部清除，请退出应用后删除 Scripts.json。
+在列表中选择后点按 −（或按 Delete 键）删除。文件本身不会被删除（仅从 Keyboard Maestro 代码保存的 .jsx 在没有其他用途时移到废纸篓）。删除、用工具重命名、更改类别和导入可用“编辑”>“撤销”（⌘Z）还原。若要全部清除，请退出应用后删除 Scripts.json。
 """,
  "ko": """## 기본 조작
 VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 키보드 단축키로 실행합니다.
@@ -144,12 +222,37 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 - 목록은 드래그로 순서를 바꿀 수 있습니다(검색 중 제외).
 - 파일을 이동하거나 이름을 바꾸면 '파일 없음'이 표시됩니다. [파일 다시 선택…]으로 다시 지정하면 단축키를 그대로 쓸 수 있습니다.
 - 파일 위치만 기억합니다. 스크립트 내용을 고치면 다음 실행부터 새 내용으로 동작합니다.
-- 목록 오른쪽과 상세 칸에 실행 횟수와 마지막 실행 일시가 표시됩니다. 단축키와 [실행] 버튼으로 오류 없이 끝난 실행을 셉니다.
+- 목록 오른쪽과 상세 칸에 실행 횟수와 마지막 실행 일시가 표시됩니다. 단축키와 [실행] 버튼으로 오류 없이 끝난 실행을 셉니다. [보기] > [사용 횟수 표시]를 끄면 숨깁니다(횟수는 계속 셉니다).
+
+## Keyboard Maestro에서 가져오기
+Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그하거나 [파일] > [Keyboard Maestro에서 가져오기…](⌘I)로 선택합니다.
+- Illustrator 스크립트 하나만 실행하는 매크로를 가져옵니다(Ai Execute Script File, Ai Execute Jsx Text, Illustrator로 .jsx 열기). 이름, 단축키, 켜기/끄기 상태를 이어받습니다.
+- 매크로에 쓰인 코드는 ~/Library/Application Support/VectorKeys/Imported에 .jsx 파일로 저장합니다.
+- 다른 단계가 있거나 변수를 쓰는 매크로는 가져오지 않고 이유를 표시합니다.
+- Keyboard Maestro의 같은 매크로는 꺼 주세요. 켜져 있으면 스크립트가 두 번 실행됩니다. 가져온 뒤 대화상자의 버튼이나 [도구] > [선택한 스크립트의 KM 매크로 끄기]로 끌 수 있습니다(다시 켜는 항목도 있습니다). 처음 사용할 때 Keyboard Maestro 제어 허용을 요청합니다.
+
+## 카테고리
+왼쪽 열에서 스크립트를 카테고리로 나눌 수 있습니다.
+- 아래의 +로 새 카테고리를 만듭니다. 오른쪽 클릭으로 이름 변경·삭제를 할 수 있습니다. 삭제해도 안의 스크립트는 지워지지 않고 '미분류'로 옮겨집니다.
+- 스크립트의 카테고리는 오른쪽의 '카테고리'에서 고르거나, 목록의 행을 왼쪽 카테고리로 드래그하거나, 오른쪽 클릭의 [카테고리]로 바꿉니다. ⌘클릭·⇧클릭으로 여러 개를 고르면 한꺼번에 드래그·변경·삭제할 수 있습니다.
+- 카테고리를 선택한 상태에서 추가한 스크립트는 그 카테고리에 들어갑니다. '전체'에서는 카테고리별 제목을 붙여 표시합니다.
+- Keyboard Maestro에서 가져오면 매크로의 그룹 이름이 카테고리가 됩니다.
+
+## 도구
+- [도구] > [통계…]: 모든 스크립트를 사용 횟수가 많은 순으로 카테고리·최근 실행·단축키와 함께 표시합니다. 행을 더블클릭하면 메인 윈도우에서 그 스크립트를 선택합니다.
+- [도구] > [이름 찾기 및 바꾸기…]: 목록에서 선택한 스크립트(여러 개 가능)의 이름을 찾아 바꿉니다. 바뀌기 전→후를 확인한 뒤 [바꾸기]를 누릅니다. 정규 표현식($1 등으로 참조)과 대소문자 구분을 고를 수 있습니다. 파일 이름은 바뀌지 않습니다.
+- [도구] > [KM 매크로 번호 삭제]: 목록에서 선택한 스크립트(여러 개 가능) 이름 앞의 '11)', '21）', '11)1 ' 같은 번호를 지웁니다. 파일 이름은 바뀌지 않습니다.
+
+## 정렬
+검색 칸 오른쪽에서 수동·이름순·단축키순을 고를 수 있습니다. 드래그로 순서를 바꿀 수 있는 것은 '수동'이고 검색하지 않을 때입니다. 같은 키를 쓰는 스크립트가 있으면 수동 순서에서 위에 있는 것이 반응합니다.
 
 ## 단축키
+- 누르는 방법: '한 번 누르기'와 '두 번 누르기'를 고를 수 있습니다. 같은 키에 둘 다 지정하면 한 번 누르기 쪽은 두 번째 누름을 기다리는 만큼(약 0.3초) 늦게 실행됩니다. 목록에서 두 번 누르는 키에는 '×2'가 붙습니다.
+- 키 칸을 클릭하면 기록을 시작합니다. 다시 클릭하거나 Esc로 취소합니다.
 - 스크립트 단축키: Illustrator가 앞에 있을 때만 등록하므로 다른 앱에서는 같은 키가 원래 기능을 합니다. Illustrator 자체 단축키와 같은 키라면 스크립트가 우선합니다.
 - 앱을 불러오는 단축키: 설정의 '실행 및 상주'에서 지정하면 어느 앱에서든 VectorKeys 윈도우를 표시합니다(기본값은 없음).
 - ⌘O: 스크립트 추가
+- ⌘I: Keyboard Maestro에서 가져오기
 - ⌘0: 메인 윈도우 열기
 - ⌘,: 설정
 - ⌘W: 윈도우 닫기
@@ -158,6 +261,7 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 
 ## 권한과 개인정보
 - 자동화(Adobe Illustrator): 스크립트 실행에 사용합니다. 처음 실행할 때 허용을 요청합니다.
+- 자동화(Keyboard Maestro): 가져온 원래 매크로를 끄고 켜는 데 사용합니다.
 목록은 ~/Library/Application Support/VectorKeys/Scripts.json에 저장합니다. 스크립트 파일은 읽기만 하고 수정하지 않습니다. 외부로 아무것도 보내지 않습니다.
 
 ## 종료와 상주
@@ -170,6 +274,6 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 - 이전 실행이 끝나지 않음: 대화상자를 띄우는 스크립트는 닫을 때까지 다음 실행을 기다리게 합니다. 대기는 3건까지이며 그 이상은 실행하지 않습니다.
 
 ## 삭제와 복원
-목록에서 선택하고 − 버튼(또는 Delete 키)으로 삭제합니다. 파일 자체는 삭제되지 않습니다. 모두 지우려면 앱을 종료한 뒤 Scripts.json을 삭제하세요.
+목록에서 선택하고 − 버튼(또는 Delete 키)으로 삭제합니다. 파일 자체는 삭제되지 않습니다(Keyboard Maestro 코드에서 저장한 .jsx만 다른 곳에서 쓰지 않으면 휴지통으로 옮깁니다). 삭제, 도구로 이름 변경, 카테고리 변경, 가져오기는 [편집] > [실행 취소](⌘Z)로 되돌릴 수 있습니다. 모두 지우려면 앱을 종료한 뒤 Scripts.json을 삭제하세요.
 """,
 }

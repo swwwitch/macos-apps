@@ -40,6 +40,97 @@ check(Library.load(from: file) == library, "round trip")
 try? FileManager.default.removeItem(at: file)
 check(Library.load(from: file) == Library(), "missing file gives an empty list")
 
+// Single and double press of one key are different hotkeys, registered as one key
+var keys = Library()
+keys.add(paths: ["/k/One.jsx", "/k/Two.jsx", "/k/Other.jsx"])
+keys.scripts[0].hotkey = Hotkey(code: 17, modifiers: 2048)
+keys.scripts[1].hotkey = Hotkey(code: 17, modifiers: 2048, taps: 2)
+keys.scripts[2].hotkey = Hotkey(code: 17, modifiers: 2048, taps: 2)
+let targets = keys.keyTargets()
+check(targets.count == 1 && targets[0].single == keys.scripts[0].id && targets[0].double == keys.scripts[1].id, "one key, single and double")
+check(keys.activeHotkeys().duplicates == [keys.scripts[2].id], "second double press is the duplicate")
+
+// KM numbering
+check(Library.strippingNumbering("11)1 同じフォントを選択") == "同じフォントを選択", "number and sub-number")
+check(Library.strippingNumbering("21）【テキスト】入力") == "【テキスト】入力", "full-width bracket")
+check(Library.strippingNumbering("12) テキスト入力 (エリア内文字)") == "テキスト入力 (エリア内文字)", "space after bracket")
+check(Library.strippingNumbering("12)3Dにする") == "3Dにする", "digit in the name kept")
+check(Library.strippingNumbering("テーブル風に加工") == "テーブル風に加工", "no numbering")
+
+// Find and replace in names
+check(Library.replacing(in: "Text Input", find: "text", with: "文字", regex: false, caseSensitive: false) == "文字 Input", "literal, any case")
+check(Library.replacing(in: "Text Input", find: "text", with: "文字", regex: false, caseSensitive: true) == "Text Input", "match case")
+check(Library.replacing(in: "a.b", find: ".", with: "$1", regex: false, caseSensitive: true) == "a$1b", "literal keeps . and $1")
+check(Library.replacing(in: "11) 長方形", find: #"^(\d+)\) (.+)$"#, with: "$2（$1）", regex: true, caseSensitive: true) == "長方形（11）", "regex groups")
+check(Library.replacing(in: "x", find: "(", with: "", regex: true, caseSensitive: true) == nil, "bad pattern")
+check(Library.replacing(in: "abc", find: "abc", with: "", regex: false, caseSensitive: true) == "abc", "empty result keeps the name")
+
+// Statistics order
+var used = Library()
+used.add(paths: ["/u/A.jsx", "/u/B.jsx", "/u/C.jsx"])
+used.scripts[1].recordRun(at: Date(timeIntervalSince1970: 10)); used.scripts[1].recordRun(at: Date(timeIntervalSince1970: 20))
+used.scripts[2].recordRun(at: Date(timeIntervalSince1970: 30))
+check(used.byUse.map(\.name) == ["B", "C", "A"], "most used first, never run last")
+
+// Categories
+var cats = Library()
+cats.add(paths: ["/c/A.jsx", "/c/B.jsx", "/c/C.jsx"])
+cats.setCategory("Text", for: [cats.scripts[0].id, cats.scripts[2].id])
+check(cats.categoryList == ["Text"] && cats.scripts.map(\.category) == ["Text", nil, "Text"], "set category")
+cats.renameCategory("Text", to: "文字")
+check(cats.categoryList == ["文字"] && cats.scripts[0].category == "文字", "rename moves scripts")
+cats.addCategory("Path"); cats.renameCategory("Path", to: "文字")
+check(cats.categoryList == ["文字"], "rename onto an existing name merges")
+cats.deleteCategory("文字")
+check(cats.categoryList.isEmpty && cats.scripts.allSatisfy { $0.category == nil } && cats.scripts.count == 3, "delete keeps scripts")
+check(cats.addCategory("  ") == nil, "empty name refused")
+
+// Moving inside one category keeps the others in place
+var order = Library()
+order.add(paths: ["/o/1.jsx", "/o/2.jsx", "/o/3.jsx", "/o/4.jsx"])
+let subset = [order.scripts[0].id, order.scripts[2].id, order.scripts[3].id]
+order.move(ids: subset, from: [2], to: 0)
+check(order.scripts.map(\.name) == ["4", "2", "1", "3"], "subset move: \(order.scripts.map(\.name))")
+
+// Sorting for display
+var sortable = Library()
+sortable.add(paths: ["/s/b.jsx", "/s/a.jsx", "/s/c.jsx"])
+sortable.scripts[0].hotkey = Hotkey(code: 1, modifiers: 256)
+sortable.scripts[2].hotkey = Hotkey(code: 0, modifiers: 256)
+check(SortOrder.name.sorted(sortable.scripts) { _ in "" }.map(\.name) == ["a", "b", "c"], "by name")
+check(SortOrder.hotkey.sorted(sortable.scripts) { $0.code == 0 ? "A" : "S" }.map(\.name) == ["c", "b", "a"], "by hotkey, none last")
+
+// Keyboard Maestro export
+func macro(_ name: String, _ actions: [[String: Any]], key: Int? = nil, active: Bool = true) -> [String: Any] {
+    var m: [String: Any] = ["Name": name, "Actions": actions, "IsActive": active]
+    if let key { m["Triggers"] = [["MacroTriggerType": "HotKey", "KeyCode": key, "Modifiers": 256 | 2048 | 4096]] }
+    return m
+}
+let comment: [String: Any] = ["MacroActionType": "Comment", "Title": "memo"]
+let export: [[String: Any]] = [["Name": "G", "Macros": [
+    macro("File", [comment, ["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "~/s/A.jsx"]]], key: 17),
+    macro("Code", [["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Jsx Text", "PlugInParameters": ["Jsx code": "alert(1); // 50%"]]], active: false),
+    macro("Open", [["MacroActionType": "Open1File", "Path": "/s/B.jsx", "Application": ["BundleIdentifier": "com.adobe.illustrator"]]]),
+    macro("Two", [["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "/s/C.jsx"]], ["MacroActionType": "Pause", "Time": "0.1"]]),
+    macro("Var", [["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "%Variable%dir%/D.jsx"]]]),
+    macro("Menu", [["MacroActionType": "SelectMenuItem", "Menu": ["File"]]]),
+    macro("Off", [["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "/s/E.jsx"]], ["MacroActionType": "Pause", "IsActive": false]]),
+]]]
+let tapped: [String: Any] = ["Name": "T", "Actions": [["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "/s/T.jsx"]]],
+    "Triggers": [["MacroTriggerType": "HotKey", "KeyCode": 17, "Modifiers": 2048, "FireType": "Tapped", "TapCount": 2]]]
+check(KMImport.hotkey(of: tapped) == Hotkey(code: 17, modifiers: 2048, taps: 2), "tapped twice is a double press")
+var thrice = tapped; thrice["Triggers"] = [["MacroTriggerType": "HotKey", "KeyCode": 17, "Modifiers": 2048, "FireType": "TappedOnly", "TapCount": 3]]
+check(KMImport.hotkey(of: thrice) == nil, "three taps left out")
+let kmData = try! PropertyListSerialization.data(fromPropertyList: export, format: .xml, options: 0)
+let parsed = KMImport.parse(kmData)!
+check(parsed.items.map(\.name) == ["File", "Code", "Open", "Off"], "importable macros: \(parsed.items.map(\.name))")
+check(parsed.items.allSatisfy { $0.group == "G" }, "group kept for the category")
+check(parsed.items[0].source == .file(("~/s/A.jsx" as NSString).expandingTildeInPath) && parsed.items[0].hotkey == Hotkey(code: 17, modifiers: 256 | 2048 | 4096), "path expanded, hotkey kept")
+check(parsed.items[1].source == .code("alert(1); // 50%") && !parsed.items[1].enabled, "code kept, off state kept")
+check(parsed.skipped.map(\.reason) == [.severalSteps, .variable, .notScript], "skip reasons")
+check(KMImport.parse(Data("not a plist".utf8)) == nil, "unreadable file")
+check(KMImport.fileName(for: "a/b:c", taken: ["a／b：c.jsx"]) == "a／b：c 2.jsx", "file name made safe and unique")
+
 // AppleScript
 let script = ScriptText.appleScript(appPath: "/Applications/Adobe Illustrator 2026/Adobe Illustrator.app", file: "/s/a \"q\".jsx")
 check(script.contains("tell application \"/Applications/Adobe Illustrator 2026/Adobe Illustrator.app\""), "app by path")

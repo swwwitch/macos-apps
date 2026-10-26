@@ -1,2 +1,2 @@
 "CFBundleDisplayName" = "VectorKeys";
-"NSAppleEventsUsageDescription" = "등록한 스크립트를 Illustrator에서 실행하는 데 사용합니다.";
+"NSAppleEventsUsageDescription" = "등록한 스크립트를 Illustrator에서 실행하고 가져온 Keyboard Maestro 매크로를 끄고 켜는 데 사용합니다.";

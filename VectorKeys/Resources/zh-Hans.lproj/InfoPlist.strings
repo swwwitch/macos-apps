@@ -1,2 +1,2 @@
 "CFBundleDisplayName" = "VectorKeys";
-"NSAppleEventsUsageDescription" = "用于在 Illustrator 中运行已登记的脚本。";
+"NSAppleEventsUsageDescription" = "用于在 Illustrator 中运行已登记的脚本，以及关闭或打开已导入的 Keyboard Maestro 宏。";

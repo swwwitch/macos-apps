@@ -13,12 +13,37 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Drag to reorder the list (not while searching).
 - A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
 - Only the file's location is stored. Edit the script and the next run uses the new contents.
-- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted.
+- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted. Turn off View > Show run counts to hide them (counting continues).
+
+## Import from Keyboard Maestro
+Drag macros exported from Keyboard Maestro (.kmmacros) onto the window, or choose File > Import from Keyboard Maestro… (⌘I).
+- Macros that only run one Illustrator script are imported (Ai Execute Script File, Ai Execute Jsx Text, or opening a .jsx with Illustrator). Their name, hot key and on/off state come along.
+- Code written in a macro is saved as a .jsx file in ~/Library/Application Support/VectorKeys/Imported.
+- Macros with other steps or variables are not imported; the reason is shown.
+- Turn the same macros off in Keyboard Maestro, or the scripts run twice. Use the button after importing, or Tools > Turn Off the Selected Scripts’ KM Macros (there is also an item to turn them back on). The first time, you are asked to allow controlling Keyboard Maestro.
+
+## Categories
+The left column sorts scripts into categories.
+- Click + below to make a category. Right-click to rename or delete it. Deleting keeps its scripts; they become Uncategorized.
+- Set a script's category with Category on the right, by dragging its row onto a category, or with Category in the right-click menu. Select several with ⌘-click or ⇧-click to drag, change or delete them together.
+- Scripts added while a category is chosen go into it. All shows the scripts under a heading for each category.
+- Macros imported from Keyboard Maestro take their group name as the category.
+
+## Tools
+- Tools > Statistics…: every script by run count, with its category, last run and shortcut. Double-click a row to select it in the main window.
+- Tools > Find and Replace in Names…: finds and replaces in the selected scripts' names, with a before → after preview. Regular expressions ($1 for groups) and Match case are available. File names stay.
+- Tools > Remove KM Macro Numbering: removes numbering such as "11)" or "11)1 " from the start of the selected scripts' names (several at once). File names stay.
+
+## Sorting
+Next to the search field, choose Manual, By Name or By Shortcut. Dragging rows works in Manual while not searching. When scripts share a key, the one higher in the manual order reacts.
 
 ## Shortcuts
+- Press: choose Press once or Press twice. When a key has both, the Press once script waits for a second press (about 0.3 s) before it runs. Keys pressed twice show "×2" in the list.
+- Click the key field to record a key. Click it again or press Esc to cancel.
 - Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.
 - App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
 - ⌘O: Add scripts
+- ⌘I: Import from Keyboard Maestro
 - ⌘0: Open the main window
 - ⌘,: Settings
 - ⌘W: Close the window
@@ -27,6 +52,7 @@ When two scripts share a key, only the one higher in the list reacts, and the ke
 
 ## Permissions and privacy
 - Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
+- Automation (Keyboard Maestro): used to turn imported original macros off or on.
 The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
 
 ## Quitting and staying open
@@ -39,4 +65,4 @@ Closing the window keeps the app running and the shortcuts working. Reopen it fr
 - An earlier run does not finish: a script that shows a dialog box holds the next run until it is closed. Up to 3 runs wait; more are skipped.
 
 ## Removing and restoring
-Select a script and click − (or press Delete). The file itself is not deleted. To clear everything, quit the app and delete Scripts.json.
+Select a script and click − (or press Delete). The file itself is not deleted (only .jsx files saved from Keyboard Maestro code go to the Trash when nothing else uses them). Deleting, renaming with Tools, changing categories and importing can be undone with Edit > Undo (⌘Z). To clear everything, quit the app and delete Scripts.json.

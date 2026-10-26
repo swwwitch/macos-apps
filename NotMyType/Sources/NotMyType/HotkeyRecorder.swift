@@ -307,12 +307,13 @@ struct HotkeyField: View {
                     .padding(.horizontal, 6).padding(.vertical, 2)
                     .background(RoundedRectangle(cornerRadius: 4).stroke(recording ? Color.accentColor : Color.secondary.opacity(0.4)))
                     .accessibilityLabel(combo?.label ?? HotkeyText.unset)
-                    // Clicking the field starts recording at once, like 変更…; a second click cancels.
+                    // Clicking the field starts recording (no 変更… button); a second click or Esc cancels.
                     .contentShape(Rectangle())
                     .onTapGesture { toggleRecording() }
                     .accessibilityAddTraits(.isButton)
+                    .accessibilityHint(recording ? HotkeyText.cancel : HotkeyText.change)
                     .accessibilityAction { toggleRecording() }
-                Button(recording ? HotkeyText.cancel : HotkeyText.change) { toggleRecording() }
+                    .help(recording ? HotkeyText.cancel : HotkeyText.change)
                 if let defaultCombo {
                     Button(HotkeyText.reset) {
                         recorder.stop()

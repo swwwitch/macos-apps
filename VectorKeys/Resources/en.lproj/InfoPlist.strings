@@ -1,2 +1,2 @@
 "CFBundleDisplayName" = "VectorKeys";
-"NSAppleEventsUsageDescription" = "Used to run your registered scripts in Illustrator.";
+"NSAppleEventsUsageDescription" = "Used to run your registered scripts in Illustrator and to turn imported Keyboard Maestro macros off or on.";
