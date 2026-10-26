@@ -1,3 +1,4 @@
+import UniformTypeIdentifiers
 import AppKit
 import SwiftUI
 import Carbon
@@ -17,10 +18,12 @@ struct Activity: Identifiable {
 
     // Screenshots
     @Published var shotEnabled = UserDefaults.standard.object(forKey: "shotEnabled") as? Bool ?? true { didSet { defaults.set(shotEnabled, forKey: "shotEnabled"); onWatchChange?() } }
-    @Published var shotFolder = UserDefaults.standard.string(forKey: "shotFolder") ?? Model.screenshotLocation { didSet { defaults.set(shotFolder, forKey: "shotFolder"); onWatchChange?() } }
+    @Published var shotFolders = WatchFolders.migrate(UserDefaults.standard) { didSet {
+        defaults.set(shotFolders, forKey: "shotFolders"); onWatchChange?()
+    } }
     @Published var nameTemplate = UserDefaults.standard.string(forKey: "nameTemplate") ?? ShotNaming.defaultTemplate { didSet { defaults.set(nameTemplate, forKey: "nameTemplate") } }
     @Published var ocrComment = UserDefaults.standard.object(forKey: "ocrComment") as? Bool ?? true { didSet { defaults.set(ocrComment, forKey: "ocrComment") } }
-    @Published var qrRename = UserDefaults.standard.object(forKey: "qrRename") as? Bool ?? true { didSet { defaults.set(qrRename, forKey: "qrRename") } }
+    @Published var ocrClipboard = UserDefaults.standard.object(forKey: "ocrClipboard") as? Bool ?? true { didSet { defaults.set(ocrClipboard, forKey: "ocrClipboard") } }
     // Text recognition
     @Published var joinJapanese = UserDefaults.standard.object(forKey: "joinJapanese") as? Bool ?? true { didSet { defaults.set(joinJapanese, forKey: "joinJapanese") } }
     @Published var fullwidthParens = UserDefaults.standard.object(forKey: "fullwidthParens") as? Bool ?? true { didSet { defaults.set(fullwidthParens, forKey: "fullwidthParens") } }
@@ -38,10 +41,10 @@ struct Activity: Identifiable {
     }
 
     /// Keys shared by 設定の共有. The folder, startup, residency and hotkeys stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["nameTemplate", "ocrComment", "qrRename", "joinJapanese", "fullwidthParens", "showOCRPanel"]
+    nonisolated static let sharedKeys: Set<String> = ["nameTemplate", "ocrComment", "ocrClipboard", "joinJapanese", "fullwidthParens", "showOCRPanel"]
     func reloadSharedSettings() {
         nameTemplate = defaults.string(forKey: "nameTemplate") ?? ShotNaming.defaultTemplate
-        ocrComment = bool("ocrComment", true); qrRename = bool("qrRename", true)
+        ocrComment = bool("ocrComment", true); ocrClipboard = bool("ocrClipboard", true)
         joinJapanese = bool("joinJapanese", true); fullwidthParens = bool("fullwidthParens", true); showOCRPanel = bool("showOCRPanel", true)
     }
     static var screenshotLocation: String {
@@ -49,13 +52,17 @@ struct Activity: Identifiable {
         let path = (saved.map { ($0 as NSString).expandingTildeInPath }) ?? (NSHomeDirectory() + "/Desktop")
         return path
     }
-    // Hotkeys (per Mac): 1 shows the main window (⌃⌥S), 2 recognizes text in a selected area (⌃⌥O).
+    // Hotkeys (per Mac): 1 shows the main window (⌃⌥S), 2 recognizes text in a selected area (⌘⇧1).
     static let defaultAppCombo = KeyCombo(code: UInt32(kVK_ANSI_S), modifiers: KeyCombo.control | KeyCombo.option)
-    static let defaultOCRCombo = KeyCombo(code: UInt32(kVK_ANSI_O), modifiers: KeyCombo.control | KeyCombo.option)
+    static let defaultOCRCombo = KeyCombo(code: UInt32(kVK_ANSI_1), modifiers: KeyCombo.command | KeyCombo.shift)
     static let appHotkeyFieldID = "appHotkey", ocrHotkeyFieldID = "ocrHotkey"
     private static func combo(_ key: String, _ fallback: KeyCombo) -> KeyCombo? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return fallback }
-        return data.isEmpty ? nil : try? JSONDecoder().decode(KeyCombo.self, from: data)
+        guard !data.isEmpty, let saved = try? JSONDecoder().decode(KeyCombo.self, from: data) else { return nil }
+        if key == "ocrHotkey", saved == KeyCombo(code: UInt32(kVK_ANSI_O), modifiers: KeyCombo.control | KeyCombo.option) {
+            return defaultOCRCombo
+        }
+        return saved
     }
     private func store(_ combo: KeyCombo?, _ key: String) { defaults.set(combo.flatMap { try? JSONEncoder().encode($0) } ?? Data(), forKey: key) }
     @Published var appHotkeyEnabled = UserDefaults.standard.object(forKey: "appHotkeyEnabled") as? Bool ?? true { didSet { defaults.set(appHotkeyEnabled, forKey: "appHotkeyEnabled"); registerHotkeys() } }
@@ -80,11 +87,12 @@ struct Activity: Identifiable {
     private var watchers: [String: FolderWatcher] = [:]
     /// Names this app produced, so a rename is not taken for a new screenshot.
     private var produced: Set<String> = []
+    private var processing: Set<String> = []
     init(model: Model) { self.model = model }
 
     func refreshWatchers() {
         var wanted: Set<String> = []
-        if model.shotEnabled { wanted.insert(model.shotFolder) }
+        if model.shotEnabled { wanted = Set(model.shotFolders.map { WatchFolders.canonical($0) }) }
         for (path, watcher) in watchers where !wanted.contains(path) { watcher.stop(); watchers[path] = nil }
         for path in wanted where watchers[path] == nil {
             if let watcher = FolderWatcher(url: URL(fileURLWithPath: path), onNew: { [weak self] url in self?.handle(url) }) {
@@ -98,27 +106,36 @@ struct Activity: Identifiable {
 
     private func handle(_ url: URL) {
         let name = url.lastPathComponent, folder = url.deletingLastPathComponent().path
-        if produced.remove(name) != nil { return }
-        if model.shotEnabled, folder == model.shotFolder, ShotNaming.isCandidate(name) { processShot(url) }
+        if produced.remove(url.path) != nil { return }
+        if model.shotEnabled, model.shotFolders.contains(where: { WatchFolders.canonical($0) == WatchFolders.canonical(folder) }), ShotNaming.isCandidate(name) { processShot(url) }
+    }
+
+    func dropFiles(_ urls: [URL]) {
+        for url in urls { processShot(url.standardizedFileURL.resolvingSymlinksInPath()) }
     }
 
     private func processShot(_ url: URL) {
+        guard url.pathExtension.lowercased() == "png", !processing.contains(url.path) else { return }
+
         guard let info = ImageReader.info(url) else { model.log("exclamationmark.triangle", String(format: L("log.notImage"), url.lastPathComponent), error: true); return }
-        let date = Date(), needsText = model.ocrComment || model.qrRename
+        processing.insert(url.path)
+        let date = Date(), needsText = model.ocrComment || model.ocrClipboard
         Task.detached(priority: .utility) {
             let text = needsText ? ((ImageReader.cgImage(url)).flatMap { try? TextRecognizer.recognize($0) } ?? "") : ""
             await MainActor.run { self.finishShot(url, info: info, date: date, text: text) }
         }
     }
     private func finishShot(_ url: URL, info: ImageInfo, date: Date, text: String) {
+        defer { processing.remove(url.path) }
         guard FileManager.default.fileExists(atPath: url.path) else { return }  // Moved or renamed by someone else meanwhile.
-        let name = (model.qrRename ? ShotNaming.qrCodeName(ocr: text) : nil) ?? ShotNaming.name(template: model.nameTemplate, info: info, date: date)
+        let text = OCRText.clean(text, join: model.joinJapanese, parens: model.fullwidthParens)
+        let name = ShotNaming.name(template: model.nameTemplate, info: info, date: date)
         let target = ShotNaming.unique(name, in: url.deletingLastPathComponent())
         do {
-            produced.insert(target.lastPathComponent)
+            if watchers[WatchFolders.canonical(target.deletingLastPathComponent().path)] != nil { produced.insert(target.path) }
             try FileManager.default.moveItem(at: url, to: target)
         } catch {
-            produced.remove(target.lastPathComponent)
+            produced.remove(target.path)
             model.log("exclamationmark.triangle", String(format: L("log.renameFailed"), url.lastPathComponent, error.localizedDescription), error: true); return
         }
         var message = String(format: L("log.renamed"), target.lastPathComponent)
@@ -129,10 +146,17 @@ struct Activity: Identifiable {
             case .failed: message += L("log.commentFailed")
             }
         }
+        if !text.isEmpty {
+            model.lastOCR = text
+            if model.ocrClipboard {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(text, forType: .string)
+            }
+        }
         model.log("camera.viewfinder", message)
     }
 
-    /// ⌃⌥O: select an area, recognize its text and copy it.
+    /// ⌘⇧1: select an area, recognize its text and copy it.
     func recognizeArea() {
         guard !model.recognizing else { return }
         guard AreaCapture.allowed else {
@@ -209,7 +233,7 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 640), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "ShotSorter"; window.titleVisibility = .hidden
-        let host = GrowingHostingView(rootView: MainView(model: model, recognize: { [weak self] in self?.engine.recognizeArea() }))
+        let host = GrowingHostingView(rootView: MainView(model: model, dropFiles: { [weak self] in self?.engine.dropFiles($0) }, recognize: { [weak self] in self?.engine.recognizeArea() }))
         host.sizingOptions = [.minSize]
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
@@ -226,10 +250,10 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
                                        extraItems: { [weak self] in self?.statusItems() ?? [] })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
-            note: StartupWindow.text("名前の形式、文字認識とFinderのコメント、QRコードの名前の選択を書き出し・同期します。",
-                                     "Exports and syncs the name format and the text recognition, Finder comment and QR code choices.",
-                                     "导出并同步名称格式，以及文字识别、访达注释和二维码名称的选择。",
-                                     "이름 형식과 문자 인식, Finder 메모, QR 코드 이름 선택을 내보내고 동기화합니다."),
+            note: StartupWindow.text("名前の形式、文字認識とFinderのコメントの整形ルールを書き出し・同期します。",
+                                     "Exports and syncs the name format and the text recognition, Finder comment and formatting choices.",
+                                     "导出并同步名称格式，以及文字识别、访达注释和文本格式设置。",
+                                     "이름 형식과 문자 인식, Finder 메모, 텍스트 서식 설정을 내보내고 동기화합니다."),
             perMac: StartupWindow.text("スクリーンショットのフォルダー・ログイン時の起動・常駐・ホットキー・通知はMacごとに設定します。",
                                        "The screenshot folder, open at login, keep running, hotkeys and notifications are set on each Mac.",
                                        "截图文件夹、登录时启动、保持运行、快捷键和通知在每台 Mac 上分别设置。",

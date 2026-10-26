@@ -1,3 +1,10 @@
+"shot.folders" = "ウォッチフォルダー";
+"addFolder" = "フォルダーを追加…";
+"removeFolder" = "削除";
+"drop.hint" = "PNGファイルをこのウインドウへドロップすると命名ルールを適用します。";
+"shot.ocrClipboard" = "読み取った文字をクリップボードにもコピーする";
+"ocr.settings" = "Vision後の整形ルール";
+"ocr.keepLines" = "読み取った文字の改行は保持します。コメントとコピーに同じ整形を適用します。";
 "heading" = "スクリーンショットの整理と文字認識";
 "subtitle" = "新しいスクリーンショットの名前を変え、選んだ範囲の文字を読み取ります。";
 "pane.screenshots" = "スクリーンショット";
@@ -14,11 +21,10 @@
 "shot.template" = "名前の形式：";
 "shot.templateHint" = "{width}・{height}・{dpi}・{date} を使えます。例：";
 "shot.ocrComment" = "画像の文字を読み取り、Finderのコメントに入れる";
-"shot.qrRename" = "「QRCode #sw-」で始まる画像は CommentScreen-QRCode-（8桁）.png にする";
-"shot.detail" = "このフォルダーに加わったPNGのうち、名前に「ss-」を含まないものが対象です。起動前からあったファイルは変えません。同じ名前があるときは末尾に番号を付けます。";
+"shot.detail" = "指定フォルダーに加わったPNGのうち、名前に「ss-」を含まないものが対象です。起動前からあったファイルは変えません。同じ名前があるときは末尾に番号を付けます。";
 "recognizeButton" = "範囲を選んで文字認識";
 "recognizeMenu" = "範囲を選んで文字認識…";
-"ocr.join" = "日本語の間の空白と改行を詰める";
+"ocr.join" = "日本語の間の空白を詰める";
 "ocr.parens" = "半角の ( ) を全角の（ ）にする";
 "ocr.panel" = "読み取った文字を画面の右上に表示";
 "ocr.last" = "最後に読み取った文字";

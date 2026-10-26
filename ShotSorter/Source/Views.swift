@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Mustard accent. Dark Mode uses a lighter mustard so tinted controls keep contrast (3:1 or more) on the dark surface.
 let appTint = Color(nsColor: NSColor(name: nil) { appearance in
@@ -17,28 +18,10 @@ func chooseFolder(_ start: String) -> String? {
 }
 func displayPath(_ path: String) -> String { (path as NSString).abbreviatingWithTildeInPath }
 
-struct FolderRow: View {
-    let title: String
-    @Binding var path: String
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(title)
-            Image(systemName: "folder").foregroundColor(appTint).accessibilityHidden(true)
-            Text(displayPath(path)).lineLimit(1).truncationMode(.middle).help(path)
-            Spacer(minLength: 4)
-            Button(L("change")) { if let chosen = chooseFolder(path) { path = chosen } }
-            Button { NSWorkspace.shared.open(URL(fileURLWithPath: path)) } label: { Image(systemName: "arrow.up.forward.app") }
-                .help(L("openFolder")).accessibilityLabel(L("openFolder"))
-        }
-    }
-}
-
-enum Pane: String, CaseIterable { case screenshots, ocr }
-
 struct MainView: View {
     @ObservedObject var model: Model
+    let dropFiles: ([URL]) -> Void
     let recognize: () -> Void
-    @AppStorage("pane") private var pane = Pane.screenshots.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -50,13 +33,11 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 4) { Text(L("heading")).font(.system(size: 22, weight: .semibold)); Text(L("subtitle")).foregroundStyle(.secondary) }
                 Spacer()
             }
-            Picker("", selection: $pane) {
-                ForEach(Pane.allCases, id: \.rawValue) { Text(L("pane." + $0.rawValue)).tag($0.rawValue) }
-            }.pickerStyle(.segmented).labelsHidden()
             Group {
-                switch Pane(rawValue: pane) ?? .screenshots {
-                case .screenshots: screenshots
-                case .ocr: ocr
+                VStack(alignment: .leading, spacing: 14) {
+                    screenshots
+                    Divider()
+                    ocr
                 }
             }
             .padding(12).frame(maxWidth: .infinity, alignment: .topLeading)
@@ -80,15 +61,40 @@ struct MainView: View {
         .padding(20)
         .frame(minWidth: 580, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: AppSurface.color)).tint(appTint)
+        .onDrop(of: [UTType.fileURL.identifier], isTargeted: nil) { providers in
+            for provider in providers {
+                provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { data, _ in
+                    guard let data, let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                    DispatchQueue.main.async { dropFiles([url]) }
+                }
+            }
+            return !providers.isEmpty
+        }
     }
 
     private var screenshots: some View {
         VStack(alignment: .leading, spacing: 10) {
             Toggle(L("shot.enabled"), isOn: $model.shotEnabled)
-            FolderRow(title: L("shot.folder"), path: $model.shotFolder)
-            if model.shotFolder != Model.screenshotLocation {
-                Text(String(format: L("shot.locationDiffers"), displayPath(Model.screenshotLocation))).font(.caption).foregroundColor(.orange)
+            Text(L("shot.folders")).font(.subheadline)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(model.shotFolders, id: \.self) { path in
+                        HStack {
+                            Text(displayPath(path)).lineLimit(1).truncationMode(.middle).help(path)
+                            Spacer()
+                            Button { NSWorkspace.shared.open(URL(fileURLWithPath: path)) } label: { Image(systemName: "arrow.up.forward.app") }
+                                .accessibilityLabel(L("openFolder"))
+                            Button(L("removeFolder")) { model.shotFolders.removeAll { $0 == path } }
+                        }
+                    }
+                }
+            }.frame(height: min(CGFloat(model.shotFolders.count) * 30, 150))
+            Button(L("addFolder")) {
+                if let path = chooseFolder(model.shotFolders.first ?? Model.screenshotLocation) {
+                    model.shotFolders = WatchFolders.normalize(model.shotFolders + [path])
+                }
             }
+            Text(L("drop.hint")).font(.callout).foregroundColor(.secondary)
             HStack {
                 Text(L("shot.template"))
                 TextField("", text: $model.nameTemplate).font(.system(.body, design: .monospaced)).accessibilityLabel(L("shot.template"))
@@ -97,7 +103,7 @@ struct MainView: View {
             Text(L("shot.templateHint") + "  " + ShotNaming.name(template: model.nameTemplate, info: ImageInfo(width: 1920, height: 1080, dpi: 144), date: Date()))
                 .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             Toggle(L("shot.ocrComment"), isOn: $model.ocrComment)
-            Toggle(L("shot.qrRename"), isOn: $model.qrRename)
+            Toggle(L("shot.ocrClipboard"), isOn: $model.ocrClipboard)
             Text(L("shot.detail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -110,9 +116,6 @@ struct MainView: View {
                 if let combo = model.ocrCombo, model.ocrHotkeyEnabled { Text(combo.label).font(.callout).foregroundColor(.secondary) }
                 if model.recognizing { ProgressView().controlSize(.small) }
             }
-            Toggle(L("ocr.join"), isOn: $model.joinJapanese)
-            Toggle(L("ocr.parens"), isOn: $model.fullwidthParens)
-            Toggle(L("ocr.panel"), isOn: $model.showOCRPanel)
             Text(L("ocr.last")).font(.subheadline)
             ScrollView {
                 Text(model.lastOCR.isEmpty ? L("ocr.lastEmpty") : model.lastOCR).font(.callout).foregroundColor(model.lastOCR.isEmpty ? .secondary : .primary)
@@ -162,6 +165,14 @@ struct SettingsView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             ScreenRecordingSection()
+        })), (L("ocr.settings"), AnyView(SettingsSection(L("ocr.settings")) {
+            VStack(alignment: .leading, spacing: 10) {
+                Toggle(L("ocr.join"), isOn: $model.joinJapanese)
+                Toggle(L("ocr.parens"), isOn: $model.fullwidthParens)
+                Text(L("ocr.keepLines")).font(.caption).foregroundColor(.secondary)
+                Divider()
+                Toggle(L("ocr.panel"), isOn: $model.showOCRPanel)
+            }
         })), (L("hotkeyTab"), AnyView(VStack(spacing: 16) {
             SettingsSection(L("hotkey.ocr")) {
                 VStack(alignment: .leading, spacing: 6) {

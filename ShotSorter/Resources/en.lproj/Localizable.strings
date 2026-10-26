@@ -1,3 +1,10 @@
+"shot.folders" = "Watch Folders";
+"addFolder" = "Add Folder…";
+"removeFolder" = "Remove";
+"drop.hint" = "Drop PNG files into this window to apply the naming rule.";
+"shot.ocrClipboard" = "Also copy recognized text to the clipboard";
+"ocr.settings" = "Formatting After Vision";
+"ocr.keepLines" = "Line breaks are preserved. The same formatting applies to comments and copied text.";
 "heading" = "Screenshots and Text Recognition";
 "subtitle" = "Renames new screenshots and reads text in a selected area.";
 "pane.screenshots" = "Screenshots";
@@ -14,11 +21,10 @@
 "shot.template" = "Name format:";
 "shot.templateHint" = "Use {width}, {height}, {dpi} and {date}. Example:";
 "shot.ocrComment" = "Read the text in the image into the Finder comment";
-"shot.qrRename" = "Name images starting with “QRCode #sw-” CommentScreen-QRCode-(8 digits).png";
-"shot.detail" = "Applies to PNG files added to this folder whose name does not contain “ss-”. Files present before launch are not changed. A number is added when the name is taken.";
+"shot.detail" = "Applies to PNG files added to the watched folders whose name does not contain “ss-”. Files present before launch are not changed. A number is added when the name is taken.";
 "recognizeButton" = "Recognize Text in Area";
 "recognizeMenu" = "Recognize Text in Area…";
-"ocr.join" = "Remove spaces and line breaks between Japanese characters";
+"ocr.join" = "Remove spaces between Japanese characters";
 "ocr.parens" = "Change ( ) to full-width （ ）";
 "ocr.panel" = "Show the recognized text at the top right";
 "ocr.last" = "Last Recognized Text";

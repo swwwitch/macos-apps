@@ -35,15 +35,6 @@ enum ShotNaming {
         return (base.isEmpty ? "ss" : base) + ".png"
     }
 
-    /// CommentScreen QR code screenshots: text that starts with "QRCode" and holds "QRCode #sw-12345678".
-    static func qrCodeName(ocr: String) -> String? {
-        let text = ocr.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard text.range(of: "QRCode", options: [.anchored, .caseInsensitive]) != nil,
-              let match = text.range(of: #"QRCode #sw-(\d{8})"#, options: [.regularExpression, .caseInsensitive]) else { return nil }
-        let digits = text[match].suffix(8)
-        return "CommentScreen-QRCode-\(digits).png"
-    }
-
     /// A free URL in `folder`: "name.ext", then "name 2.ext", "name 3.ext", …
     static func unique(_ name: String, in folder: URL, exists: (URL) -> Bool = { FileManager.default.fileExists(atPath: $0.path) }) -> URL {
         let base = (name as NSString).deletingPathExtension, ext = (name as NSString).pathExtension
@@ -57,9 +48,9 @@ enum ShotNaming {
 }
 
 enum OCRText {
-    /// Removes spaces and line breaks between two Japanese (non-ASCII) characters.
+    /// Removes horizontal spaces between two Japanese (non-ASCII) characters.
     static func joinJapanese(_ text: String) -> String {
-        text.replacingOccurrences(of: #"(?<=[^\x00-\x7E])[ \t　\n]+(?=[^\x00-\x7E])"#, with: "", options: .regularExpression)
+        text.replacingOccurrences(of: #"(?<=[^\x00-\x7E])[ \t　]+(?=[^\x00-\x7E])"#, with: "", options: .regularExpression)
     }
     static func fullwidthParens(_ text: String) -> String {
         text.replacingOccurrences(of: "(", with: "（").replacingOccurrences(of: ")", with: "）")
@@ -78,5 +69,21 @@ enum PartialFile {
     static func isPartial(_ name: String) -> Bool {
         let lower = name.lowercased()
         return name.hasPrefix(".") || suffixes.contains { lower.hasSuffix($0) }
+    }
+}
+
+/// Monitor paths are local to each Mac. Keep the old key available for rollback.
+enum WatchFolders {
+    static func canonical(_ path: String) -> String {
+        URL(fileURLWithPath: (path as NSString).expandingTildeInPath).standardizedFileURL.resolvingSymlinksInPath().path
+    }
+    static func normalize(_ paths: [String]) -> [String] {
+        var seen = Set<String>()
+        return paths.filter { !$0.isEmpty }.map(canonical).filter { seen.insert($0).inserted }
+    }
+    static func migrate(_ defaults: UserDefaults) -> [String] {
+        if let saved = defaults.stringArray(forKey: "shotFolders") { return normalize(saved) }
+        let location = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? NSHomeDirectory() + "/Desktop"
+        return normalize([defaults.string(forKey: "shotFolder") ?? location])
     }
 }

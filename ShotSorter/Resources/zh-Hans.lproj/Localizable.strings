@@ -1,3 +1,10 @@
+"shot.folders" = "监视文件夹";
+"addFolder" = "添加文件夹…";
+"removeFolder" = "移除";
+"drop.hint" = "将 PNG 文件拖到此窗口以应用命名规则。";
+"shot.ocrClipboard" = "同时将识别文字拷贝到剪贴板";
+"ocr.settings" = "Vision 识别后的格式规则";
+"ocr.keepLines" = "保留识别文字的换行。注释与复制文本使用相同格式。";
 "heading" = "截图整理与文字识别";
 "subtitle" = "重命名新截图，并识别所选区域的文字。";
 "pane.screenshots" = "截图";
@@ -14,11 +21,10 @@
 "shot.template" = "名称格式：";
 "shot.templateHint" = "可使用 {width}、{height}、{dpi}、{date}。示例：";
 "shot.ocrComment" = "识别图像中的文字并写入访达注释";
-"shot.qrRename" = "以“QRCode #sw-”开头的图像命名为 CommentScreen-QRCode-（8 位数字）.png";
-"shot.detail" = "适用于添加到此文件夹且名称不含“ss-”的 PNG。启动前已有的文件不会更改。名称重复时会添加编号。";
+"shot.detail" = "适用于添加到监视文件夹且名称不含“ss-”的 PNG。启动前已有的文件不会更改。名称重复时会添加编号。";
 "recognizeButton" = "选择区域识别文字";
 "recognizeMenu" = "选择区域识别文字…";
-"ocr.join" = "删除日文字符之间的空格和换行";
+"ocr.join" = "删除日文字符之间的空格";
 "ocr.parens" = "将半角 ( ) 改为全角（ ）";
 "ocr.panel" = "在右上角显示识别的文字";
 "ocr.last" = "最近识别的文字";

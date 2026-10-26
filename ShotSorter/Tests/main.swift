@@ -14,15 +14,26 @@ let date = Calendar.current.date(from: parts)!
 let info = ImageInfo(width: 1920, height: 1080, dpi: 144)
 check(ShotNaming.name(template: ShotNaming.defaultTemplate, info: info, date: date) == "ss-1920-1080-144-20261026-023105.png", "default name")
 check(ShotNaming.name(template: "shot/{date}", info: info, date: date) == "shot-20261026-023105.png", "slash replaced")
-check(ShotNaming.qrCodeName(ocr: "QRCode #sw-20261026\nスキャンしてください") == "CommentScreen-QRCode-20261026.png", "qr name")
-check(ShotNaming.qrCodeName(ocr: "見出し\nQRCode #sw-20261026") == nil, "qr only at start")
 let folder = URL(fileURLWithPath: "/tmp/x")
 let taken: Set<String> = ["/tmp/x/a.png", "/tmp/x/a 2.png"]
 check(ShotNaming.unique("a.png", in: folder, exists: { taken.contains($0.path) }).lastPathComponent == "a 3.png", "unique")
 
-check(OCRText.joinJapanese("日本 語の\n文章 です。 OK and English") == "日本語の文章です。 OK and English", "join: \(OCRText.joinJapanese("日本 語の\n文章 です。 OK and English"))")
+check(OCRText.joinJapanese("日本 語の\n文章 です。 OK and English") == "日本語の\n文章です。 OK and English", "join: \(OCRText.joinJapanese("日本 語の\n文章 です。 OK and English"))")
 check(OCRText.fullwidthParens("注(1)") == "注（1）", "parens")
 check(OCRText.clean("a (b)", join: true, parens: false) == "a (b)", "options off")
+
+check(OCRText.clean("日本 語\n次 の行\r\n最後 (注)", join: true, parens: true) == "日本語\n次の行\r\n最後 （注）", "line breaks preserved for both outputs")
+check(OCRText.clean("日本 語\n(注)", join: false, parens: false) == "日本 語\n(注)", "all Japanese formatting disabled")
+check(OCRText.clean("日本 語\n(注)", join: false, parens: true) == "日本 語\n（注）", "only parentheses enabled")
+check(OCRText.clean("日本 語\n(注)", join: true, parens: false) == "日本語\n(注)", "only space joining enabled")
+let suite = "ShotSorter-tests-" + UUID().uuidString
+let defaults = UserDefaults(suiteName: suite)!
+defaults.set("/tmp/legacy", forKey: "shotFolder")
+check(WatchFolders.migrate(defaults) == [WatchFolders.canonical("/tmp/legacy")], "legacy folder migration")
+defaults.set([], forKey: "shotFolders")
+check(WatchFolders.migrate(defaults).isEmpty, "empty watch list persists")
+check(WatchFolders.normalize(["/tmp/x", "/tmp/x/../x"]).count == 1, "duplicate paths removed")
+defaults.removePersistentDomain(forName: suite)
 
 check(PartialFile.isPartial("a.pdf.download") && PartialFile.isPartial("x.crdownload") && !PartialFile.isPartial("a.pdf"), "partial")
 

@@ -3,7 +3,14 @@ import json
 root = Path(__file__).parent
 APP = 'ShotSorter'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''heading|スクリーンショットの整理と文字認識|Screenshots and Text Recognition|截图整理与文字识别|스크린샷 정리와 문자 인식
+rows = '''shot.folders|ウォッチフォルダー|Watch Folders|监视文件夹|감시 폴더
+addFolder|フォルダーを追加…|Add Folder…|添加文件夹…|폴더 추가…
+removeFolder|削除|Remove|移除|제거
+drop.hint|PNGファイルをこのウインドウへドロップすると命名ルールを適用します。|Drop PNG files into this window to apply the naming rule.|将 PNG 文件拖到此窗口以应用命名规则。|이 창에 PNG 파일을 놓으면 이름 규칙을 적용합니다.
+shot.ocrClipboard|読み取った文字をクリップボードにもコピーする|Also copy recognized text to the clipboard|同时将识别文字拷贝到剪贴板|인식한 텍스트를 클립보드에도 복사
+ocr.settings|Vision後の整形ルール|Formatting After Vision|Vision 识别后的格式规则|Vision 인식 후 서식 규칙
+ocr.keepLines|読み取った文字の改行は保持します。コメントとコピーに同じ整形を適用します。|Line breaks are preserved. The same formatting applies to comments and copied text.|保留识别文字的换行。注释与复制文本使用相同格式。|줄바꿈을 유지합니다. 메모와 복사한 텍스트에 같은 서식을 적용합니다.
+heading|スクリーンショットの整理と文字認識|Screenshots and Text Recognition|截图整理与文字识别|스크린샷 정리와 문자 인식
 subtitle|新しいスクリーンショットの名前を変え、選んだ範囲の文字を読み取ります。|Renames new screenshots and reads text in a selected area.|重命名新截图，并识别所选区域的文字。|새 스크린샷 이름을 바꾸고 선택한 영역의 텍스트를 읽습니다.
 pane.screenshots|スクリーンショット|Screenshots|截图|스크린샷
 pane.ocr|文字認識|Text Recognition|文字识别|문자 인식
@@ -19,11 +26,10 @@ shot.locationDiffers|macOSのスクリーンショットの保存先は %@ で�
 shot.template|名前の形式：|Name format:|名称格式：|이름 형식:
 shot.templateHint|{width}・{height}・{dpi}・{date} を使えます。例：|Use {width}, {height}, {dpi} and {date}. Example:|可使用 {width}、{height}、{dpi}、{date}。示例：|{width}, {height}, {dpi}, {date}를 쓸 수 있습니다. 예:
 shot.ocrComment|画像の文字を読み取り、Finderのコメントに入れる|Read the text in the image into the Finder comment|识别图像中的文字并写入访达注释|이미지의 텍스트를 읽어 Finder 메모에 넣기
-shot.qrRename|「QRCode #sw-」で始まる画像は CommentScreen-QRCode-（8桁）.png にする|Name images starting with “QRCode #sw-” CommentScreen-QRCode-(8 digits).png|以“QRCode #sw-”开头的图像命名为 CommentScreen-QRCode-（8 位数字）.png|“QRCode #sw-”로 시작하는 이미지는 CommentScreen-QRCode-(8자리).png로
-shot.detail|このフォルダーに加わったPNGのうち、名前に「ss-」を含まないものが対象です。起動前からあったファイルは変えません。同じ名前があるときは末尾に番号を付けます。|Applies to PNG files added to this folder whose name does not contain “ss-”. Files present before launch are not changed. A number is added when the name is taken.|适用于添加到此文件夹且名称不含“ss-”的 PNG。启动前已有的文件不会更改。名称重复时会添加编号。|이 폴더에 추가된 PNG 중 이름에 “ss-”가 없는 파일이 대상입니다. 실행 전부터 있던 파일은 바꾸지 않습니다. 같은 이름이 있으면 번호를 붙입니다.
+shot.detail|指定フォルダーに加わったPNGのうち、名前に「ss-」を含まないものが対象です。起動前からあったファイルは変えません。同じ名前があるときは末尾に番号を付けます。|Applies to PNG files added to the watched folders whose name does not contain “ss-”. Files present before launch are not changed. A number is added when the name is taken.|适用于添加到监视文件夹且名称不含“ss-”的 PNG。启动前已有的文件不会更改。名称重复时会添加编号。|감시 폴더에 추가된 PNG 중 이름에 “ss-”가 없는 파일이 대상입니다. 실행 전부터 있던 파일은 바꾸지 않습니다. 같은 이름이 있으면 번호를 붙입니다.
 recognizeButton|範囲を選んで文字認識|Recognize Text in Area|选择区域识别文字|영역을 선택해 문자 인식
 recognizeMenu|範囲を選んで文字認識…|Recognize Text in Area…|选择区域识别文字…|영역을 선택해 문자 인식…
-ocr.join|日本語の間の空白と改行を詰める|Remove spaces and line breaks between Japanese characters|删除日文字符之间的空格和换行|일본어 문자 사이의 공백과 줄바꿈 제거
+ocr.join|日本語の間の空白を詰める|Remove spaces between Japanese characters|删除日文字符之间的空格|일본어 문자 사이의 공백 제거
 ocr.parens|半角の ( ) を全角の（ ）にする|Change ( ) to full-width （ ）|将半角 ( ) 改为全角（ ）|반각 ( )를 전각 （ ）로
 ocr.panel|読み取った文字を画面の右上に表示|Show the recognized text at the top right|在右上角显示识别的文字|인식한 텍스트를 오른쪽 위에 표시
 ocr.last|最後に読み取った文字|Last Recognized Text|最近识别的文字|마지막으로 인식한 텍스트
