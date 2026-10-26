@@ -45,6 +45,7 @@
 - [PasteMatchStyle](#pastematchstyle)
 - [PrefsPreset](#prefspreset)
 - [ProjectFolder](#projectfolder)
+- [ScreenTake](#screentake)
 - [SettingsCourier](#settingscourier)
 - [SettingsHop](#settingshop)
 - [ShotSorter](#shotsorter)
@@ -624,6 +625,12 @@
 - 2026-10-14｜v1.9.0（build 13）｜FolderMaker を ProjectFolder 1.9.0 に改名・機能追加（ソース変更記録：`8ac56d0e`）
 
 既存の詳細：[README](ProjectFolder/README.md)。
+
+## ScreenTake
+
+- 2026-10-26｜v1.0.0（build 1）｜ScreenTake 1.0.0（build 1）を新規追加：画面・ウインドウ・音声・カメラの収録と簡易編集、ポインタは別レイヤー（ソース変更記録：`2251e28d`）
+
+既存の詳細：[README](ScreenTake/README.md)。
 
 ## SettingsCourier
 
