@@ -93,6 +93,7 @@ struct FontServicesMenu: View {
         }
         Divider()
         Button(L("リンクを編集…")) { SettingsWindow.shared.show() }
+        Menu(L("デバッグ")) { FontDebugMenu() }
     }
 }
 

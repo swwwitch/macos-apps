@@ -1,6 +1,8 @@
 # NotMyType Lite
 
-現行版：**1.8.0（build 21）** — 2026-10-26
+記録：[アップデート履歴](../NotMyType/CHANGELOG.md) ／ [プロ版・Lite版の違い](../NotMyType/EDITIONS.md)
+
+現行ローカル検証版：**1.8.1（build 23）** — 2026-10-26
 
 NotMyType の簡易版。フォントファイルをライブラリに登録し、必要なときだけアクティブにします。ユニバーサル版（Apple Silicon・Intel）。Bundle ID は `jp.dtp-transit.notmytypelite`。ライブラリ・設定・共有ファイルは NotMyType と別です。
 
@@ -15,7 +17,7 @@ NotMyType の簡易版。フォントファイルをライブラリに登録し�
 - ライブラリの共有（Dropbox などの `NotMyTypeLite-Library.json`）と設定の同期（`NotMyTypeLite-Settings.sync`）
 - メニューのホットキー、アプリを呼び出すホットキー、フォントファイルを開くアプリ
 
-NotMyType から外したもの：プロジェクト、コレクション、ベンダー、サイドバーの種類と表示・並び順の設定、公式の情報（FontDB。同梱しない＝検索オプションの分類・発売年代も無し）、フォントを点検、フォントを統一（Illustrator・InDesign）、FontExplorer X Pro の読み込み、フォント管理のリンク、Adobe アプリの自動アクティベート、お気に入り（1.3.0）。
+NotMyType から外したもの：プロジェクト、コレクション、ベンダー、サイドバーの種類と表示・並び順の設定、公式の情報（FontDB。同梱しない＝検索オプションの分類・発売年代も無し）、フォントを点検、フォントを統一（Illustrator・InDesign）、FontExplorer X Pro の読み込み、Adobe アプリの自動アクティベート、お気に入り（1.3.0）。
 
 ## ビルド
 
@@ -27,7 +29,7 @@ NO_DEPLOY=1 ./build.sh  # 配置せず build/ にだけ作る
 - ソースは [Sources/NotMyTypeLite](Sources/NotMyTypeLite/)、文字列・ヘルプは [Localizations](Localizations/)（ja / en）。NotMyType 1.52.0（build 81）の写しから機能を外して作った。
 - 共通部品は `Tools/sync-shared.py` がビルド時に Shared から写す。
 - 画面の文字列を足したら、[Tools/translations.tsv](Tools/translations.tsv) に訳を加えて `python3 Tools/make-strings.py` で Localizable.strings を作り直す。
-- アイコンは [Assets/make-icon.sh](Assets/make-icon.sh)（GenerateIcon.swift から NotMyTypeLite.png・.icns を生成）。NotMyType と同じ「あa」のカードの下に小さく「Lite」。
+- アイコンは [Assets/make-icon.sh](Assets/make-icon.sh)（GenerateIcon.swift から NotMyTypeLite.png・.icns を生成）。中央に「あ」を配置したカード。茶色地・白文字の「Lite」カプセルで区別する。
 
 ## 更新履歴
 
@@ -91,3 +93,7 @@ TypewolfとFontspring Matcheratorを追加（固定15件）。デザインポケ
 
 ライブラリを折りたたんでも「すべてのフォント」は表示・選択できます。開閉状態は既存の設定を引き継ぎます。
 キャッシュ消去ダイアログ修正と版番号更新は公証Macのリリース担当が統合します。
+
+## ローカル検証版 1.8.1（build 23）
+
+ライブラリ折りたたみ時の「すべてのフォント」常時表示を反映。公証・公開版とは別の暫定ビルドです。キャッシュ消去ダイアログ修正は公証Mac側の統合待ちです。

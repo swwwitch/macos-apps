@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Adobeアプリのフォントキャッシュを消去する前に、起動中のAdobeアプリに終了を頼むために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.8.0</string>
+	<string>1.8.1</string>
 	<key>CFBundleVersion</key>
-	<string>21</string>
+	<string>23</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -77,13 +77,18 @@
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>
 	<string>https://note.com/dtp_tranist/n/nae1b0044d8e0</string>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-        <dict>
-            <key>UTTypeIdentifier</key><string>jp.dtp-transit.notmytypelite.font-membership</string>
-            <key>UTTypeDescription</key><string>Font library membership</string>
-            <key>UTTypeConformsTo</key><array><string>public.data</string></array>
-        </dict>
-    </array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>jp.dtp-transit.notmytypelite.font-membership</string>
+			<key>UTTypeDescription</key>
+			<string>Font library membership</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

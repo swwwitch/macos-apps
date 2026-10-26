@@ -26,9 +26,9 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>IllustratorとInDesignのドキュメントのフォントを統一したり、足りないフォントを調べたりするために使います。</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.61.0</string>
+	<string>1.61.1</string>
 	<key>CFBundleVersion</key>
-	<string>96</string>
+	<string>99</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -75,13 +75,18 @@
 	<string>swwwitch</string>
 	<key>SWNoteArticleURL</key>
 	<string>https://note.com/dtp_tranist/n/nae1b0044d8e0</string>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-        <dict>
-            <key>UTTypeIdentifier</key><string>jp.dtp-transit.notmytype.font-membership</string>
-            <key>UTTypeDescription</key><string>Font library membership</string>
-            <key>UTTypeConformsTo</key><array><string>public.data</string></array>
-        </dict>
-    </array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>jp.dtp-transit.notmytype.font-membership</string>
+			<key>UTTypeDescription</key>
+			<string>Font library membership</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

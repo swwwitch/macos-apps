@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ProjectFolderWatcher.shared.update()
         LibraryStore.shared.rebuildFolderProjects()
         BenchMode.startIfRequested()
+        FontDebugVisibility.shared.start()
         // Option キーを押しながら起動したら、ライブラリの再構築を確認画面から始める
         if optionAtLaunch {
             DispatchQueue.main.async { [weak self] in

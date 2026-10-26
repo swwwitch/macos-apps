@@ -230,4 +230,4 @@ Drag font families, individual styles, or multiple selected rows from the list o
 Projects also accept font drops. Add to Project in the context menu lets you choose an existing or new project. Manual additions survive source rescans; adding an excluded font restores it.
 
 All Fonts remains visible when the Library section is collapsed.
-Tools > Debug opens the Adobe Fonts, OH MY FONT, Fontworks LETS, and Morisawa Fonts folders in Finder. Missing folders are not created.
+Hold Option to reveal Tools > Links > Debug, which opens the Adobe Fonts, OH MY FONT, Fontworks LETS, and Morisawa Fonts folders in Finder. Missing folders are not created.

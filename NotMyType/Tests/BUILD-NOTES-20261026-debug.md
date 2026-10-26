@@ -7,3 +7,10 @@
 - Existing make-strings.py has pre-existing missing/unused translation-table entries. New keys were added consistently to translations.tsv and both Localizable.strings files; unrelated translations were preserved.
 - Full 97 / Lite 22 version bumps and cache dialog changes are owned by the notarization Mac release thread 01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da. This changeset deliberately does not bump versions or deploy a parallel release.
 - Pending integrated runtime checks: collapse/re-expand Library and select All Fonts in both editions; verify all four Debug destinations and missing-folder alerts in full; confirm no Debug menu or changed LETS web link in Lite. Notarization and deployment are not established by compilation.
+
+## Local full-only build completion (2026-10-26T16:32:18+09:00)
+
+- Host: MacBook-Pro-14-2024-sw.local. User requested full edition only; full 1.61.1 (99) built and installed in /Applications and Dropbox Latest Builds. Lite was not rebuilt in this final operation (earlier local build: 1.8.1 (23)).
+- Full build/localization checks passed; existing Apple Distribution signature and deployment content comparison passed. /Applications full 99 launch confirmed. Prior app backups and settings snapshot retained under Shared/Backups/Build.
+- Debug moved to Tools > Links, normally hidden, Option visibility controlled during menu tracking. Runtime accessibility inspection confirmed normal hidden state; sustained Option-down visibility could not be verified with the UI automation key interface. Manual Option check remains pending. LETS debug path is ~/Library/Fonts/.
+- Not notarized; DMG, public release and remote cache-dialog integration remain separate pending work. No public-version parity claimed.
