@@ -9,3 +9,5 @@
 - 未確認：GUI上でのドラッグ操作、設定画面操作、Finderコメント書き込み、範囲選択とグローバルホットキーの実機操作、ログイン起動・終了などの今回の再検証。
 - 未実施：公証MacでのDeveloper ID署名・公証・配布。開発担当のルールにより `/Applications` とLatest Buildsは更新していない。既存両配置先のplistは1.0.1（今回の内容一致・公証の確認ではない）。バージョン一覧は配布担当の工程で更新する。
 - 共通部品の既存警告（StartupWindowの未使用変数、AccessibilityPermissionのSwift 6分離警告）は継続。ShotSorterのビルドエラーなし。
+
+- GitHub反映済みの実装対象SHA：`93c589df4d5cc5121f00f984fddcaff0a13732e4`。この後の記録のみのコミットでも製品ソース・版・buildは同じ。
