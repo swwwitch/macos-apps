@@ -2,10 +2,15 @@
 FavoriteFolders reads the Default Folder X favorites (Favorites.plist), lets you sort them and group them into categories with separators, and writes them back.
 - Sort: choose By Name, By Name Descending, By Location (Path), Newest Added First or Oldest Added First from the Sort menu. With nothing selected, every category is sorted; with items selected, only their categories are. Separators stay where they are.
 - Search: type in the search field at the top (⌘F) to show only favorites whose name or path contains the text. Separate words with spaces to require all of them. Esc or ⓧ clears it. Dragging is off while searching (the Sort menu and moving still work).
-- Dropbox: favorites inside a Dropbox folder get a blue Dropbox mark, and the path is shown from that folder (hover for the full path).
+- Dropbox: favorites inside a Dropbox folder get a blue Dropbox mark next to the name.
+- Show: the checkboxes below the search field switch Full Path, Notes, Use Counts, Files and Size (kept for next time).
+- Notes: Control-click a row and choose Edit Note… (⌘I) to add a note to the folder. Notes stay in this app and can be found with the search field.
+- Files and Size: counted including subfolders (hidden files skipped, packages count as one file), in the background on each load, so large folders show Counting… for a while. Online-only Dropbox files are not downloaded.
+- Use counts: turn on Count how often each folder is used in Settings › General. FavoriteFolders asks Default Folder X every 1.5 seconds and shows counts such as 12× on each row; sort with Most Used First in the Sort menu. An Open/Save dialog counts once when it closes (cancelled ones too); a folder opened from Finder or menus counts once when it newly comes to the top of Recent Folders. Opening the same folder from Finder again in a row does not count. Counts stay on this Mac. Reset Use Count in a row's shortcut menu resets the selected folders; File > Reset All Use Counts… or Reset Counts… in Settings resets all of them.
+- Keyboard: Keyboard (⇧⌘K) at the top shows hotkey assignments on a keyboard. Keys in use show the favorite's name, free keys are plain, and keys assigned twice are orange. Click a key in use to select its favorite.
 - Drag: drag rows to reorder them. Select several (⌘-click, ⇧-click) to move them together.
 - Add Separator (⇧⌘N): adds a separator below the selected row (or at the end). Everything from one separator to the next is a category.
-- Category names: click a heading and type a name. Default Folder X separators cannot have names, so the name is used only in this app.
+- Category names: click the pencil on a heading, double-click the heading, or choose Rename Category… from its shortcut menu. Default Folder X separators cannot have names, so the name is used only in this app.
 - Move to Category: moves the selected items to the end of the chosen category. Also in a row's shortcut menu.
 - Move Category Up/Down: Control-click a heading to move the whole category.
 - Delete: select rows and press ⌫ to delete favorites or separators. Deleting a separator merges its category with the previous one.
@@ -35,7 +40,7 @@ To restore, quit Default Folder X, copy a backup as Favorites.plist to ~/Library
 ## Settings
 Choose FavoriteFolders > Settings… (⌘,).
 - Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon and the app launch keyboard shortcut.
-- General: Confirm before saving (on by default) asks before quitting and reopening Default Folder X to save. Open Backups Folder.
+- General: Shorten paths inside Dropbox (on by default), Count how often each folder is used (off by default), Confirm before saving (on by default) asks before quitting and reopening Default Folder X to save. Open Backups Folder.
 - Settings Sharing: export, import and sync category names and the Confirm before saving choice.
 - About: version and links.
 
@@ -45,6 +50,8 @@ Choose FavoriteFolders > Settings… (⌘,).
 - ⇧⌘N: Add Separator
 - ⌘F: Find
 - ⌘K: Change Hotkey of the selected favorite
+- ⌘I: Edit Note of the selected favorite
+- ⇧⌘K: Show Hotkeys on Keyboard
 - ⌫: delete the selected items
 - ⌘Z / ⇧⌘Z: Undo / Redo
 - ⌘0: Open Main Window
@@ -54,7 +61,7 @@ Choose FavoriteFolders > Settings… (⌘,).
 To call FavoriteFolders even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
 
 ## Permissions
-No special permission is used. FavoriteFolders reads and writes only Default Folder X's Favorites.plist and its own backups. Default Folder X is quit and opened the same way as any app. No network access (except checking for updates; no update feed is set yet).
+Automation permission (FavoriteFolders asking Default Folder X) is used only while counting uses; macOS asks the first time. If it is refused, Settings › General explains it: turn it on with Open Automation Settings, then click Try Again. No other permission is used. FavoriteFolders reads and writes only Default Folder X's Favorites.plist and its own backups. Default Folder X is quit and opened the same way as any app. No network access (except checking for updates; no update feed is set yet).
 
 ## Keeping running and quitting
 With “Keep running after closing the window” on, FavoriteFolders keeps running after you close the window. Open it again from the Dock or Finder, or show the window from the menu bar icon. To quit, choose FavoriteFolders > Quit FavoriteFolders (⌘Q). With unsaved changes, you are asked whether to save.

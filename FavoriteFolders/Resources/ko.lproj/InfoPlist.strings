@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "FavoriteFolders";
+"NSAppleEventsUsageDescription" = "Default Folder X에 열린 대화상자와 최근 폴더를 물어 폴더 사용 횟수를 세는 데 사용합니다.";

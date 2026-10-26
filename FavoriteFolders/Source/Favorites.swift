@@ -108,9 +108,11 @@ struct Category: Identifiable {
 }
 
 enum SortOrder: String, CaseIterable {
-    case name, nameDescending, path, newest, oldest
-    func areInOrder(_ a: FavoriteItem, _ b: FavoriteItem) -> Bool {
+    case name, nameDescending, path, newest, oldest, mostUsed
+    /// `usage` is the count per folder key (FolderKey), used by mostUsed; ties keep the current order.
+    func areInOrder(_ a: FavoriteItem, _ b: FavoriteItem, usage: [String: Int] = [:]) -> Bool {
         switch self {
+        case .mostUsed: return usage[FolderKey.of(a.path), default: 0] > usage[FolderKey.of(b.path), default: 0]
         case .name: return a.name.localizedStandardCompare(b.name) == .orderedAscending
         case .nameDescending: return a.name.localizedStandardCompare(b.name) == .orderedDescending
         case .path: return a.path.localizedStandardCompare(b.path) == .orderedAscending
@@ -134,11 +136,11 @@ enum Favorites {
 
     /// Sorts the favorites inside each category (or only the categories listed in `only`). Separators stay where they are.
     /// The sort is stable, so equal names keep their current order.
-    static func sorted(_ items: [FavoriteItem], by order: SortOrder, only keys: Set<String>? = nil) -> [FavoriteItem] {
+    static func sorted(_ items: [FavoriteItem], by order: SortOrder, only keys: Set<String>? = nil, usage: [String: Int] = [:]) -> [FavoriteItem] {
         var result = items
         for category in categories(items) where keys?.contains(category.key) ?? true {
             let part = Array(items[category.range]).enumerated().sorted { a, b in
-                order.areInOrder(a.element, b.element) || (!order.areInOrder(b.element, a.element) && a.offset < b.offset)
+                order.areInOrder(a.element, b.element, usage: usage) || (!order.areInOrder(b.element, a.element, usage: usage) && a.offset < b.offset)
             }.map(\.element)
             result.replaceSubrange(category.range, with: part)
         }
@@ -208,13 +210,26 @@ enum Dropbox {
 
 extension FavoriteItem {
     var dropboxRoot: String? { isSeparator ? nil : Dropbox.root(containing: path) }
-    /// The path to show: inside Dropbox relative to its folder (the row carries a Dropbox mark), otherwise with ~.
-    var displayPath: String {
-        if let root = dropboxRoot { return String(path.dropFirst(root.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/")) }
-        return (path as NSString).abbreviatingWithTildeInPath
+    /// The path shown in the row. With `shortDropbox`, a path inside Dropbox starts at the Dropbox folder
+    /// (the row also carries the Dropbox mark); otherwise the full path.
+    func shownPath(shortDropbox: Bool) -> String {
+        guard shortDropbox, let root = dropboxRoot else { return path }
+        let rest = String(path.dropFirst(root.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return rest.isEmpty ? (root as NSString).lastPathComponent : rest
     }
-    func matches(_ query: String) -> Bool {
+    /// Every word must appear in the name, the path or the note.
+    func matches(_ query: String, note: String = "") -> Bool {
         let words = query.split(whereSeparator: \.isWhitespace)
-        return !isSeparator && words.allSatisfy { name.localizedCaseInsensitiveContains($0) || path.localizedCaseInsensitiveContains($0) }
+        return !isSeparator && words.allSatisfy { name.localizedCaseInsensitiveContains($0) || path.localizedCaseInsensitiveContains($0) || note.localizedCaseInsensitiveContains($0) }
+    }
+}
+
+/// Key for per-folder data kept in this app (use counts, notes): the path without a trailing slash, in NFC.
+/// Apple events and Favorites.plist can spell Japanese names in different Unicode forms.
+enum FolderKey {
+    static func of(_ path: String) -> String {
+        var p = path.precomposedStringWithCanonicalMapping
+        while p.count > 1 && p.hasSuffix("/") { p.removeLast() }
+        return p
     }
 }

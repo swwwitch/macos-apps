@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "FavoriteFolders";
+"NSAppleEventsUsageDescription" = "Used to count folder use by asking Default Folder X for its open dialog and Recent Folders.";

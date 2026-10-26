@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "FavoriteFolders";
+"NSAppleEventsUsageDescription" = "Default Folder X の使用回数を数えるために、開く／保存のダイアログボックスの状態と最近使ったフォルダーを問い合わせます。";

@@ -2,8 +2,8 @@ from pathlib import Path
 import json
 root = Path(__file__).parent
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''heading|お気に入りを整理|Tidy Favorites|整理个人收藏|즐겨찾기 정리
-subtitle|Default Folder X のお気に入りを並べ替え、区切り線でカテゴリに分けます。|Sort Default Folder X favorites and group them with separators.|对 Default Folder X 的个人收藏排序，并用分隔线分组。|Default Folder X 즐겨찾기를 정렬하고 구분선으로 묶습니다.
+rows = '''heading|Default Folder Xのお気に入りフォルダーを整理|Tidy Default Folder X Favorite Folders|整理 Default Folder X 的个人收藏文件夹|Default Folder X 즐겨찾기 폴더 정리
+subtitle|並べ替え・カテゴリ分け・メモ・使用回数で、よく使うフォルダーを管理します。|Sort, group, annotate and count the folders you use most.|通过排序、分类、备注和使用次数管理常用文件夹。|정렬·분류·메모·사용 횟수로 자주 쓰는 폴더를 관리합니다.
 folderSet|フォルダセット：|Folder set:|文件夹组：|폴더 세트:
 folderSetFixed|フォルダセット：%@|Folder set: %@|文件夹组：%@|폴더 세트: %@
 setLocked|保存してから切り替えてください|Save before switching|请先保存再切换|저장한 후 전환하세요
@@ -62,12 +62,59 @@ editQuitTitle|Default Folder X を終了してから編集します|Quit Default
 editQuitDetail|Default Folder X は終了するときにお気に入りを書き出すため、起動したままだと編集が上書きされることがあります。終了して編集を続けますか？保存するか FavoriteFolders を終了すると起動し直します。|Default Folder X writes its favorites when it quits, so edits made while it runs can be overwritten. Quit it and continue? It is reopened when you save or quit FavoriteFolders.|Default Folder X 会在退出时写出个人收藏，运行时所做的编辑可能被覆盖。要退出它并继续编辑吗？保存或退出 FavoriteFolders 时会重新打开。|Default Folder X는 종료할 때 즐겨찾기를 기록하므로 실행 중에 한 편집이 덮어쓰일 수 있습니다. 종료하고 편집을 계속할까요? 저장하거나 FavoriteFolders를 종료하면 다시 엽니다.
 quitAndEdit|終了して編集|Quit and Edit|退出并编辑|종료하고 편집
 editCanceled|編集を取りやめました（Default Folder X は起動したままです）。|Edit canceled (Default Folder X is still running).|已取消编辑（Default Folder X 仍在运行）。|편집을 취소했습니다(Default Folder X는 계속 실행 중).
-searchPlaceholder|名前・パスで検索|Search names and paths|搜索名称和路径|이름·경로 검색
+searchPlaceholder|名前・パス・メモで検索|Search names, paths and notes|搜索名称、路径和备注|이름·경로·메모 검색
 searchLabel|お気に入りを検索|Search favorites|搜索个人收藏|즐겨찾기 검색
 searchCount|%d件|%d found|%d 项|%d개
 clearSearch|検索を消去|Clear Search|清除搜索|검색 지우기
 findMenu|検索|Find|查找|찾기
 inDropbox|Dropbox内|In Dropbox|在 Dropbox 中|Dropbox 안
+sort.mostUsed|よく使う順|Most Used First|最常用的在前|많이 쓴 순
+noteEdit|メモを編集…|Edit Note…|编辑备注…|메모 편집…
+noteFor|「%@」のメモ|Note for “%@”|“%@”的备注|‘%@’의 메모
+notePlaceholder|メモ|Note|备注|메모
+noteHint|メモはこのアプリの中だけに保存します（Default Folder X には書きません）。検索窓で探せます。空にすると消えます。|Notes are kept only in this app (not written to Default Folder X) and can be found with the search field. Clear it to remove the note.|备注仅保存在本应用中（不写入 Default Folder X），可用搜索栏查找。清空即可删除。|메모는 이 앱에만 저장합니다(Default Folder X에는 쓰지 않음). 검색란으로 찾을 수 있습니다. 비우면 삭제됩니다.
+noteLabel|メモ：%@|Note: %@|备注：%@|메모: %@
+countText|%d回|%d×|%d 次|%d회
+countLabel|使用回数 %d回|Used %d times|使用 %d 次|%d회 사용
+countHint|このアプリで数えた使用回数（設定の［一般］で記録をオン）|Uses counted by this app (turn on in Settings › General)|本应用统计的使用次数（在设置 › 通用中打开）|이 앱이 센 사용 횟수(설정 › 일반에서 켬)
+usageGroup|使用回数|Use Counts|使用次数|사용 횟수
+trackUsage|フォルダーを使った回数を記録する|Count how often each folder is used|记录每个文件夹的使用次数|폴더 사용 횟수 기록
+trackUsageDetail|Default Folder X に1.5秒ごとに問い合わせ、開く／保存のダイアログボックスで使ったフォルダー（閉じたときに1回）と、最近使ったフォルダーの先頭に新しく来たフォルダーを数えます。キャンセルしたダイアログボックスも数え、同じフォルダーを続けて Finder から開いた分は数えません。初回に「オートメーション」の許可を求めます。回数はこの Mac だけに保存します。|Asks Default Folder X every 1.5 seconds and counts the folder used in an Open/Save dialog (once when it closes) and a folder that newly comes to the top of Recent Folders. Cancelled dialogs count; opening the same folder from Finder again in a row does not. Automation permission is asked the first time. Counts stay on this Mac.|每 1.5 秒询问 Default Folder X，统计打开/存储对话框中使用的文件夹（关闭时计 1 次）以及新出现在“最近使用的文件夹”顶部的文件夹。取消的对话框也计入；从访达连续打开同一文件夹不计入。首次会请求“自动化”权限。次数仅保存在这台 Mac 上。|1.5초마다 Default Folder X에 묻고, 열기/저장 대화상자에서 사용한 폴더(닫을 때 1회)와 최근 폴더 맨 위에 새로 온 폴더를 셉니다. 취소한 대화상자도 세며, 같은 폴더를 Finder에서 연속으로 연 것은 세지 않습니다. 처음에 '자동화' 권한을 요청합니다. 횟수는 이 Mac에만 저장합니다.
+automationDenied|Default Folder X の操作が許可されていないため、数えていません。システム設定の［オートメーション］で FavoriteFolders の Default Folder X をオンにしてから［もう一度試す］を押してください。|Not counting: controlling Default Folder X is not allowed. Turn on Default Folder X for FavoriteFolders in Automation settings, then click Try Again.|未统计：不允许控制 Default Folder X。请在“自动化”设置中为 FavoriteFolders 打开 Default Folder X，然后点按“再试一次”。|세지 않음: Default Folder X 제어가 허용되지 않았습니다. 자동화 설정에서 FavoriteFolders의 Default Folder X를 켠 후 [다시 시도]를 누르세요.
+openAutomation|オートメーション設定を開く|Open Automation Settings|打开自动化设置|자동화 설정 열기
+retry|もう一度試す|Try Again|再试一次|다시 시도
+resetCounts|回数をリセット…|Reset Counts…|重置次数…|횟수 재설정…
+resetCountsTitle|使用回数をすべてリセットしますか？|Reset all use counts?|要重置所有使用次数吗？|모든 사용 횟수를 재설정할까요?
+resetCountsDetail|この Mac に記録した回数をすべて 0 に戻します。取り消せません。|All counts recorded on this Mac go back to 0. This cannot be undone.|将这台 Mac 上记录的所有次数归零。无法撤销。|이 Mac에 기록한 모든 횟수를 0으로 되돌립니다. 취소할 수 없습니다.
+resetCountsButton|リセット|Reset|重置|재설정
+showStatsDetail|サブフォルダーも含めて数えます（隠しファイルを除く、パッケージは1ファイル）。読み込むたびに裏で計算し、大きなフォルダーは時間がかかります。Dropbox のオンライン専用ファイルはダウンロードしません。|Counts subfolders too (hidden files skipped, packages count as one file). Calculated in the background on each load; large folders take a while. Online-only Dropbox files are not downloaded.|包括子文件夹（跳过隐藏文件，包算作一个文件）。每次读取时在后台计算，大文件夹需要一些时间。不会下载 Dropbox 仅在线文件。|하위 폴더도 셉니다(숨김 파일 제외, 패키지는 1개 파일). 읽을 때마다 백그라운드에서 계산하며 큰 폴더는 시간이 걸립니다. Dropbox 온라인 전용 파일은 다운로드하지 않습니다.
+filesText|%dファイル|%d files|%d 个文件|파일 %d개
+statsCounting|計算中…|Counting…|正在计算…|계산 중…
+showLabel|表示：|Show:|显示：|표시:
+colFullPath|フルパス|Full Path|完整路径|전체 경로
+colNotes|メモ|Notes|备注|메모
+colCounts|使用回数|Use Counts|使用次数|사용 횟수
+colFiles|ファイル数|Files|文件数|파일 수
+colSize|サイズ|Size|大小|크기
+countsOffHint|使用回数を数えるには、設定の［一般］で「フォルダーを使った回数を記録する」をオンにします。|To count uses, turn on Count how often each folder is used in Settings › General.|要统计使用次数，请在设置 › 通用中打开“记录每个文件夹的使用次数”。|사용 횟수를 세려면 설정 › 일반에서 '폴더 사용 횟수 기록'을 켜세요.
+keyboardButton|キーボード|Keyboard|键盘|키보드
+keyboardMenu|ホットキーの割り当てをキーボードで表示…|Show Hotkeys on Keyboard…|在键盘上显示快捷键…|키보드에서 단축키 보기…
+keyboardTitle|ホットキーの割り当て|Hotkey Assignments|快捷键分配|단축키 지정
+modifiers|修飾キー：|Modifiers:|修饰键：|보조 키:
+modifiersFixed|修飾キー：%@|Modifiers: %@|修饰键：%@|보조 키: %@
+noHotkeys|ホットキーを割り当てたお気に入りはありません。|No favorite has a hotkey.|没有个人收藏分配了快捷键。|단축키가 지정된 즐겨찾기가 없습니다.
+keyboardSummary|%1$@：%2$d個のキーを使用中・空き%3$d個（ファンクションキーを除く）。使用中のキーをクリックすると、そのお気に入りを選びます。|%1$@: %2$d keys in use, %3$d free (excluding function keys). Click a key in use to select its favorite.|%1$@：已使用 %2$d 个键，空闲 %3$d 个（不含功能键）。点按已使用的键可选中对应个人收藏。|%1$@: 키 %2$d개 사용 중, %3$d개 비어 있음(기능 키 제외). 사용 중인 키를 클릭하면 해당 즐겨찾기를 선택합니다.
+keyClash|同じキーが複数のお気に入りに割り当てられています：%@|The same key is assigned to more than one favorite: %@|同一个键分配给了多个个人收藏：%@|같은 키가 여러 즐겨찾기에 지정되어 있습니다: %@
+keyFree|空き|free|空闲|비어 있음
+displayGroup|表示|Display|显示|표시
+shortDropbox|Dropbox 内のパスを短く表示する|Shorten paths inside Dropbox|缩短 Dropbox 内的路径|Dropbox 안의 경로를 짧게 표시
+shortDropboxDetail|Dropbox のフォルダー内にある項目のパスを、Dropbox のフォルダーからの位置（例：Dropbox-shared/setup2026）で表示します。マウスを置くと完全なパスが出ます。オフにするとフルパスで表示します。|Shows paths inside Dropbox from the Dropbox folder (e.g. Dropbox-shared/setup2026). Hover for the full path. When off, the full path is shown.|从 Dropbox 文件夹起显示 Dropbox 内的路径（例如 Dropbox-shared/setup2026）。悬停可看完整路径。关闭时显示完整路径。|Dropbox 폴더 안의 경로를 Dropbox 폴더 기준으로 표시합니다(예: Dropbox-shared/setup2026). 마우스를 올리면 전체 경로가 표시됩니다. 끄면 전체 경로로 표시합니다.
+renameCategory|カテゴリ名を変更…|Rename Category…|重命名类别…|카테고리 이름 변경…
+renameCategoryTitle|カテゴリ名|Category Name|类别名称|카테고리 이름
+resetItemCount|使用回数をリセット|Reset Use Count|重置使用次数|사용 횟수 재설정
+resetAllCountsMenu|使用回数をすべてリセット…|Reset All Use Counts…|重置所有使用次数…|모든 사용 횟수 재설정…
+countsReset|%d個のフォルダーの使用回数をリセットしました。|Reset the use count of %d folders.|已重置 %d 个文件夹的使用次数。|폴더 %d개의 사용 횟수를 재설정했습니다.
+countsResetAll|使用回数をすべてリセットしました。|Reset all use counts.|已重置所有使用次数。|모든 사용 횟수를 재설정했습니다.
 reload|読み直す|Reload|重新读取|다시 읽기
 reloadTitle|保存していない変更を破棄して読み直しますか？|Discard unsaved changes and reload?|放弃未保存的更改并重新读取？|저장하지 않은 변경 사항을 버리고 다시 읽을까요?
 reloadDetail|Default Folder X のお気に入りを読み込み直します。|Reads the Default Folder X favorites again.|将重新读取 Default Folder X 的个人收藏。|Default Folder X 즐겨찾기를 다시 읽습니다.
@@ -139,6 +186,7 @@ for i, lang in enumerate(langs):
     p = root / 'Resources' / f'{lang}.lproj'
     p.mkdir(parents=True, exist_ok=True)
     (p / 'Localizable.strings').write_text('\n'.join(f'{json.dumps(r[0])} = {json.dumps(r[i + 1], ensure_ascii=False)};' for r in table) + '\n')
-    (p / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "FavoriteFolders";\n')
+    automation = ['Default Folder X の使用回数を数えるために、開く／保存のダイアログボックスの状態と最近使ったフォルダーを問い合わせます。', 'Used to count folder use by asking Default Folder X for its open dialog and Recent Folders.', '用于统计文件夹使用次数：向 Default Folder X 询问打开的对话框和最近使用的文件夹。', 'Default Folder X에 열린 대화상자와 최근 폴더를 물어 폴더 사용 횟수를 세는 데 사용합니다.'][i]
+    (p / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "FavoriteFolders";\n"NSAppleEventsUsageDescription" = ' + json.dumps(automation, ensure_ascii=False) + ';\n')
     (p / 'Help.txt').write_text(HELP[lang])
 print('resources:', len(table), 'keys x 4 languages')

@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 
 var failures = 0
 func check(_ condition: Bool, _ message: String) {
@@ -71,6 +72,54 @@ let stamps = (1...35).map { URL(fileURLWithPath: "/b/Favorites-\($0 % 2 == 0 ? "
 let removed = Backups.pruned(stamps + [URL(fileURLWithPath: "/b/notes.txt")])
 check(removed.count == 5 && Set(removed.map(\.lastPathComponent)) == Set(stamps.prefix(5).map(\.lastPathComponent)), "pruning removes only the 5 oldest of 35, across set names")
 check(Backups.pruned(Array(stamps.prefix(1))).isEmpty, "a single backup is kept")
+// Use counting from successive looks at Default Folder X
+var counter = UsageCounter()
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: "/a").isEmpty, "the first look counts nothing")
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: "/a").isEmpty, "the same top of Recent Folders counts nothing")
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: "/b") == ["/b"], "a new top of Recent Folders counts once")
+check(counter.step(dialogOpen: true, currentFolder: "/c", recentTop: "/b").isEmpty, "an open dialog counts nothing yet")
+check(counter.step(dialogOpen: true, currentFolder: "/d", recentTop: "/d").isEmpty, "navigating in the dialog counts nothing yet")
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: "/d") == ["/d"], "closing the dialog counts its last folder once")
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: "/d").isEmpty, "the dialog's folder at the top of Recent Folders is not counted again")
+check(counter.step(dialogOpen: false, currentFolder: nil, recentTop: nil).isEmpty, "no Recent Folders counts nothing")
+
+// Most used first, NFC/NFD keys, notes in search
+let nfd = "/x/スクリプト".decomposedStringWithCanonicalMapping, nfc = "/x/スクリプト/".precomposedStringWithCanonicalMapping
+check(FolderKey.of(nfd) == FolderKey.of(nfc) && !FolderKey.of(nfc).hasSuffix("/"), "folder keys match across NFC/NFD and trailing slashes")
+let used = [folder("a", "/u/a", days: 0), folder("b", "/u/b", days: 0), folder("c", "/u/c", days: 0)]
+check(Favorites.sorted(used, by: .mostUsed, usage: ["/u/b": 5, "/u/c": 2]).map(\.name) == ["b", "c", "a"], "most used first, unused last")
+check(Favorites.sorted(used, by: .mostUsed).map(\.name) == ["a", "b", "c"], "without counts the order stays")
+check(used[0].matches("請求書", note: "請求書の控え") && !used[0].matches("請求書"), "search finds words in the note")
+
+// Files and size of a folder
+let statsDir = FileManager.default.temporaryDirectory.appendingPathComponent("FavoriteFoldersStats-\(UUID().uuidString)")
+try! FileManager.default.createDirectory(at: statsDir.appendingPathComponent("sub/My.app/Contents"), withIntermediateDirectories: true)
+try! Data(count: 1000).write(to: statsDir.appendingPathComponent("a.txt"))
+try! Data(count: 2000).write(to: statsDir.appendingPathComponent("sub/b.txt"))
+try! Data(count: 500).write(to: statsDir.appendingPathComponent(".hidden"))
+try! Data(count: 3000).write(to: statsDir.appendingPathComponent("sub/My.app/Contents/x"))
+let measured = FolderStats.measure(statsDir)
+check(measured?.files == 3 && (measured?.bytes ?? 0) >= 6000, "files and size include subfolders, skip hidden files, count a package once with its contents (\(String(describing: measured)))")
+check(FolderStats.measure(statsDir, isCancelled: { true }) == nil, "a cancelled count gives nothing")
+try? FileManager.default.removeItem(at: statsDir)
+
+// Shortened Dropbox paths (uses this Mac's Dropbox folder when there is one)
+if let dropbox = Dropbox.roots.first {
+    let inside = folder("in", dropbox + "/Dropbox-shared/setup2026", days: 0)
+    check(inside.shownPath(shortDropbox: true) == "Dropbox-shared/setup2026" && inside.shownPath(shortDropbox: false) == dropbox + "/Dropbox-shared/setup2026", "Dropbox paths shorten only when asked")
+}
+check(folder("out", "/tmp/x", days: 0).shownPath(shortDropbox: true) == "/tmp/x", "paths outside Dropbox stay full")
+
+// Keyboard map of hotkeys
+let k1 = folder("k1", "/k1", days: 0, hotkey: ["keyCode": 17, "modifierFlags": 0x60000])
+let k2 = folder("k2", "/k2", days: 0, hotkey: ["keyCode": 17, "modifierFlags": 0x60000])
+let k3 = folder("k3", "/k3", days: 0, hotkey: ["keyCode": 1, "modifierFlags": 0x100000])
+let k4 = folder("k4", "/k4", days: 0, hotkey: ["keyCode": 2, "modifierFlags": 0x60000])
+check(KeyUsage.modifierSets([k1, k3, k4]) == [[.control, .shift], [.command]], "modifier sets, most used first")
+let keyMap = KeyUsage.map([k1, k2, k3, k4], flags: [.control, .shift])
+check(keyMap[17]?.map(\.name) == ["k1", "k2"] && keyMap[2]?.map(\.name) == ["k4"] && keyMap[1] == nil, "keys per modifier set, clashes kept together")
+check(KeyboardRows.rows.joined().contains(kVK_ANSI_T) && KeyboardRows.rows.count == 5, "the keyboard has a function row and four key rows")
+
 // Dropbox marks and search
 check(Dropbox.root(containing: "/Users/a/sw Dropbox/me/x", roots: ["/Users/a/sw Dropbox/me"]) == "/Users/a/sw Dropbox/me", "path inside a Dropbox root")
 check(Dropbox.root(containing: "/Users/a/sw Dropbox/meX/x", roots: ["/Users/a/sw Dropbox/me"]) == nil, "a sibling with the same prefix is not inside")

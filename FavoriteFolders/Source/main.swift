@@ -24,16 +24,138 @@ import SwiftUI
     @Published var confirmBeforeSave = UserDefaults.standard.object(forKey: "confirmBeforeSave") as? Bool ?? true {
         didSet { defaults.set(confirmBeforeSave, forKey: "confirmBeforeSave") }
     }
-    nonisolated static let sharedKeys: Set<String> = ["categoryNames", "confirmBeforeSave"]
+    /// Per-folder data kept only in this app, keyed by FolderKey: notes (shared between Macs) and use counts (this Mac only).
+    @Published var notes = UserDefaults.standard.dictionary(forKey: "folderNotes") as? [String: String] ?? [:] {
+        didSet { defaults.set(notes, forKey: "folderNotes") }
+    }
+    @Published var usageCounts = UserDefaults.standard.dictionary(forKey: "usageCounts") as? [String: Int] ?? [:] {
+        didSet { defaults.set(usageCounts, forKey: "usageCounts") }
+    }
+    @Published var trackUsage = UserDefaults.standard.bool(forKey: "trackUsage") {
+        didSet { defaults.set(trackUsage, forKey: "trackUsage"); updateTracking() }
+    }
+    /// Automation (Apple events to Default Folder X) was refused; counting stops until retried.
+    @Published var automationDenied = false
+    nonisolated static let sharedKeys: Set<String> = ["categoryNames", "confirmBeforeSave", "folderNotes"]
     func reloadSharedSettings() {
         categoryNames = defaults.dictionary(forKey: "categoryNames") as? [String: String] ?? [:]
         confirmBeforeSave = defaults.object(forKey: "confirmBeforeSave") as? Bool ?? true
+        notes = defaults.dictionary(forKey: "folderNotes") as? [String: String] ?? [:]
+    }
+
+    func note(for item: FavoriteItem) -> String { notes[FolderKey.of(item.path)] ?? "" }
+    func setNote(_ text: String, for item: FavoriteItem) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        notes[FolderKey.of(item.path)] = trimmed.isEmpty ? nil : trimmed
+    }
+    func count(for item: FavoriteItem) -> Int { usageCounts[FolderKey.of(item.path)] ?? 0 }
+    var showsCounts: Bool { showCounts && (trackUsage || !usageCounts.isEmpty) }
+    @Published var editingNote: EditTarget?
+    @Published var showingKeyboard = false
+    @Published var renamingCategory: CategoryTarget?
+    func editNote(_ id: UUID? = nil) {
+        guard let id = id ?? (selection.count == 1 ? selection.first : nil), items.first(where: { $0.id == id })?.isSeparator == false else { return }
+        editingNote = EditTarget(id: id)
+    }
+
+    // Counting uses: Default Folder X has no "folder used" event, so it is asked every 1.5 seconds while counting is on.
+    private var usageTimer: Timer?
+    private var counter = UsageCounter()
+    private var polling = false
+    private let pollQueue = DispatchQueue(label: "FavoriteFolders.usage")
+    func updateTracking() {
+        usageTimer?.invalidate(); usageTimer = nil; counter = UsageCounter(); automationDenied = false
+        guard trackUsage else { return }
+        usageTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in MainActor.assumeIsolated { self?.pollUsage() } }
+        pollUsage()
+    }
+    private func pollUsage() {
+        // Not while saving: Default Folder X is being quit and reopened.
+        guard !polling, !busy, let id = DFX.running?.bundleIdentifier else { return }
+        polling = true
+        pollQueue.async { [weak self] in
+            let result = DFXEvents.poll(id)
+            DispatchQueue.main.async { MainActor.assumeIsolated { self?.received(result) } }
+        }
+    }
+    private func received(_ result: Result<(open: Bool, folder: String?, top: String?), DFXEvents.Failure>) {
+        polling = false
+        guard usageTimer != nil else { return }
+        switch result {
+        case .success(let look):
+            for path in counter.step(dialogOpen: look.open, currentFolder: look.folder, recentTop: look.top) {
+                usageCounts[FolderKey.of(path), default: 0] += 1
+            }
+        case .failure(.notPermitted):
+            usageTimer?.invalidate(); usageTimer = nil; automationDenied = true
+        case .failure:
+            counter = UsageCounter()   // Default Folder X quit or did not answer; start over without counting a jump
+        }
+    }
+    func resetCounts() { usageCounts = [:]; status = L("countsResetAll") }
+    /// Resets the counts of the selected favorites (or just `id` when it is not part of the selection).
+    func resetCounts(of id: UUID) {
+        let ids = selection.contains(id) ? selection : [id]
+        let keys = items.filter { ids.contains($0.id) && !$0.isSeparator }.map { FolderKey.of($0.path) }
+        for key in keys { usageCounts[key] = nil }
+        status = String(format: L("countsReset"), keys.count)
+    }
+    /// Asks, then clears every count on this Mac.
+    func confirmResetAllCounts() {
+        let alert = NSAlert(); alert.messageText = L("resetCountsTitle"); alert.informativeText = L("resetCountsDetail")
+        alert.addButton(withTitle: L("resetCountsButton")); alert.addButton(withTitle: L("cancel"))
+        alert.buttons[1].keyEquivalent = "\u{1b}"
+        if alert.runModal() == .alertFirstButtonReturn { resetCounts() }
+    }
+
+    // Files and size per folder, counted in the background after each load (two folders at a time).
+    /// Columns switched with the checkboxes above the list (kept per Mac).
+    @Published var showFullPath = UserDefaults.standard.object(forKey: "showFullPath") as? Bool ?? true { didSet { defaults.set(showFullPath, forKey: "showFullPath") } }
+    /// Settings › General: paths inside Dropbox start at the Dropbox folder (on by default, as before 1.3.0).
+    @Published var shortDropboxPaths = UserDefaults.standard.object(forKey: "shortDropboxPaths") as? Bool ?? true {
+        didSet { defaults.set(shortDropboxPaths, forKey: "shortDropboxPaths") }
+    }
+    @Published var showNotes = UserDefaults.standard.object(forKey: "showNotes") as? Bool ?? true { didSet { defaults.set(showNotes, forKey: "showNotes") } }
+    @Published var showCounts = UserDefaults.standard.object(forKey: "showCounts") as? Bool ?? true { didSet { defaults.set(showCounts, forKey: "showCounts") } }
+    @Published var showFileCount = UserDefaults.standard.object(forKey: "showFileCount") as? Bool ?? true {
+        didSet { defaults.set(showFileCount, forKey: "showFileCount"); if showFileCount != oldValue && !(showSize) { refreshStats() } }
+    }
+    @Published var showSize = UserDefaults.standard.object(forKey: "showSize") as? Bool ?? true {
+        didSet { defaults.set(showSize, forKey: "showSize"); if showSize != oldValue && !(showFileCount) { refreshStats() } }
+    }
+    /// Files and size are counted only while one of them is shown.
+    var showStats: Bool { showFileCount || showSize }
+    @Published var stats: [String: FolderStats] = [:]
+    private var statsGeneration = 0
+    private let statsQueue: OperationQueue = { let q = OperationQueue(); q.maxConcurrentOperationCount = 2; q.qualityOfService = .utility; return q }()
+    func refreshStats() {
+        statsGeneration += 1; stats = [:]; statsQueue.cancelAllOperations()
+        guard showStats else { return }
+        let generation = statsGeneration
+        for path in Set(items.filter { !$0.isSeparator && $0.exists }.map(\.path)) {
+            let operation = BlockOperation()
+            operation.addExecutionBlock { [weak self, weak operation] in
+                let result = FolderStats.measure(URL(fileURLWithPath: path, isDirectory: true)) { operation?.isCancelled ?? true }
+                DispatchQueue.main.async {
+                    MainActor.assumeIsolated {
+                        guard let self, generation == self.statsGeneration, let result else { return }
+                        self.stats[FolderKey.of(path)] = result
+                    }
+                }
+            }
+            statsQueue.addOperation(operation)
+        }
     }
     let undoManager = UndoManager()
     /// The file as it was read, to notice changes made in Default Folder X before saving.
     private var loadedFingerprint: [String] = []
     var fileURL: URL { DFX.favoritesURL(set: setName) }
     var categories: [Category] { Favorites.categories(items) }
+    /// True for the favorite right before a separator.
+    func endsCategory(_ id: UUID) -> Bool {
+        guard let index = items.firstIndex(where: { $0.id == id }), index + 1 < items.count else { return false }
+        return items[index + 1].isSeparator
+    }
 
     func load() {
         let found = DFX.folderSets()
@@ -47,6 +169,7 @@ import SwiftUI
             loadedFingerprint = Favorites.fingerprint(items)
             selection = []; isDirty = false; undoManager.removeAllActions()
             status = String(format: L("loaded"), items.filter { !$0.isSeparator }.count, categories.count)
+            refreshStats()
         } catch {
             items = []; loadedFingerprint = []
             status = String(format: L("readFailed"), fileURL.path)
@@ -82,7 +205,7 @@ import SwiftUI
     }
     func sort(_ order: SortOrder) {
         let keys = selection.isEmpty ? nil : selectedCategoryKeys
-        apply(Favorites.sorted(items, by: order, only: keys), L("sortAction"))
+        apply(Favorites.sorted(items, by: order, only: keys, usage: usageCounts), L("sortAction"))
         status = keys == nil ? String(format: L("sortedAll"), L("sort.\(order.rawValue)")) : String(format: L("sortedSelected"), L("sort.\(order.rawValue)"), keys!.count)
     }
     /// Adds a separator after the last selected row, or at the end.
@@ -210,26 +333,30 @@ let appTint = Color(nsColor: NSColor(name: nil) { appearance in
         : NSColor(srgbRed: 0.55, green: 0.38, blue: 0.04, alpha: 1)
 })
 
+/// A category heading. The name is edited in a sheet (pencil, double-click or the shortcut menu): a text field inside a
+/// selectable, draggable List row loses clicks to selection and dragging, and saving on every keystroke redraws the list.
 struct CategoryHeader: View {
     @ObservedObject var model: Model
     let category: Category
-    @State private var text = ""
     var body: some View {
+        let name = model.name(for: category.key)
         HStack(spacing: 8) {
             Image(systemName: "line.3.horizontal").foregroundColor(appTint).accessibilityHidden(true)
-            TextField(category.key == "top" ? L("firstCategory") : L("unnamedCategory"), text: $text, onCommit: { model.setName(text, for: category.key) })
-                .textFieldStyle(.plain).font(.system(size: 13, weight: .semibold))
-                .onAppear { text = model.name(for: category.key) }
-                .onChange(of: text) { model.setName($0, for: category.key) }
-                .accessibilityLabel(L("categoryNameLabel"))
+            Text(name.isEmpty ? model.displayName(for: category.key) : name)
+                .font(.system(size: 13, weight: .semibold)).foregroundColor(name.isEmpty ? .secondary : .primary).lineLimit(1)
+            Button { model.renamingCategory = CategoryTarget(id: category.key) } label: { Image(systemName: "pencil") }
+                .buttonStyle(.borderless).foregroundColor(.secondary).help(L("renameCategory")).accessibilityLabel(L("renameCategory"))
             Spacer()
             Text(String(format: L("itemCount"), category.range.count)).font(.caption).foregroundColor(.secondary)
         }
-        .padding(.top, category.separatorIndex == nil ? 0 : 6).padding(.vertical, 2)
-        .overlay(alignment: .top) { if category.separatorIndex != nil { Divider().offset(y: -2) } }
+        .padding(.top, category.separatorIndex == nil ? 0 : 10).padding(.vertical, 2)
+        .contentShape(Rectangle())
+        .onTapGesture(count: 2) { model.renamingCategory = CategoryTarget(id: category.key) }
         .help(L("categoryHint"))
         .contextMenu {
+            Button(L("renameCategory")) { model.renamingCategory = CategoryTarget(id: category.key) }
             if category.separatorIndex != nil {
+                Divider()
                 Button(L("moveCategoryUp")) { model.moveCategory(category.key, by: -1) }
                 Button(L("moveCategoryDown")) { model.moveCategory(category.key, by: 1) }
                 Divider()
@@ -242,20 +369,45 @@ struct CategoryHeader: View {
 struct FavoriteRow: View {
     @ObservedObject var model: Model
     let item: FavoriteItem
+    /// The last favorite before a category heading. A List row line belongs to the row above it, so this row's line
+    /// is the one above the next heading; it starts at the left edge (over the ≡ icon) to set the categories apart.
+    var endsCategory = false
     var body: some View {
         HStack(spacing: 8) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.exists ? item.path : "/System")).resizable().frame(width: 18, height: 18).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                Text(item.name).lineLimit(1)
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(item.name).lineLimit(1)
                     if item.dropboxRoot != nil { DropboxMark() }
-                    Text(item.displayPath).font(.caption).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle)
-                }.help(item.path)
+                }
+                // The row line starts here for every row (a note's text otherwise moved it).
+                .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
+                if model.showFullPath {
+                    Text(item.shownPath(shortDropbox: model.shortDropboxPaths)).font(.caption).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle).help(item.path)
+                }
+                let note = model.note(for: item)
+                if model.showNotes && !note.isEmpty {
+                    Text(note).font(.caption).foregroundColor(appTint).lineLimit(2)
+                        .help(note).accessibilityLabel(String(format: L("noteLabel"), note))
+                }
             }
             Spacer(minLength: 8)
             if !item.exists {
                 Label(L("missing"), systemImage: "exclamationmark.triangle.fill").labelStyle(.iconOnly).foregroundColor(.orange)
                     .help(L("missing")).accessibilityLabel(L("missing"))
+            }
+            if model.showStats && item.exists {
+                let stats = model.stats[FolderKey.of(item.path)]
+                HStack(spacing: 8) {
+                    if model.showFileCount { Text(stats.map { $0.filesText } ?? L("statsCounting")).frame(minWidth: 64, alignment: .trailing) }
+                    if model.showSize { Text(stats.map { $0.sizeText } ?? (model.showFileCount ? "" : L("statsCounting"))).frame(minWidth: 64, alignment: .trailing) }
+                }
+                .font(.caption).monospacedDigit().foregroundColor(.secondary).fixedSize()
+            }
+            if model.showsCounts {
+                Text(String(format: L("countText"), model.count(for: item))).font(.caption).monospacedDigit().foregroundColor(.secondary)
+                    .frame(minWidth: 40, alignment: .trailing).help(L("countHint"))
+                    .accessibilityLabel(String(format: L("countLabel"), model.count(for: item)))
             }
             // Click to change; a faint dash marks a favorite without a hotkey.
             Button { model.editHotkey(item.id) } label: {
@@ -265,7 +417,10 @@ struct FavoriteRow: View {
             .accessibilityLabel(item.hotkeyText.isEmpty ? L("hotkeyChange") : String(format: L("hotkeyLabel"), item.hotkeyText))
         }
         .padding(.leading, 22).padding(.vertical, 1)
+        .alignmentGuide(.listRowSeparatorLeading) { endsCategory ? 0 : $0[.listRowSeparatorLeading] }
         .contextMenu {
+            Button(L("noteEdit")) { model.editNote(item.id) }
+            Button(L("resetItemCount")) { model.resetCounts(of: item.id) }.disabled(model.count(for: item) == 0 && !model.selection.contains(item.id))
             Button(L("hotkeyChange")) { model.editHotkey(item.id) }
             Divider()
             Button(L("revealInFinder")) { if let url = item.fileURL { NSWorkspace.shared.activateFileViewerSelecting([url]) } }.disabled(!item.exists)
@@ -349,7 +504,7 @@ struct SearchField: View {
                 .onExitCommand { model.query = "" }
                 .accessibilityLabel(L("searchLabel"))
             if model.isSearching {
-                Text(String(format: L("searchCount"), model.items.filter { $0.matches(model.query) }.count)).font(.caption).foregroundColor(.secondary).fixedSize()
+                Text(String(format: L("searchCount"), model.items.filter { $0.matches(model.query, note: model.note(for: $0)) }.count)).font(.caption).foregroundColor(.secondary).fixedSize()
                 Button { model.query = "" } label: { Image(systemName: "xmark.circle.fill").foregroundColor(.secondary) }
                     .buttonStyle(.borderless).accessibilityLabel(L("clearSearch")).help(L("clearSearch"))
             }
@@ -358,6 +513,71 @@ struct SearchField: View {
         .background(RoundedRectangle(cornerRadius: 7).fill(Color(nsColor: .textBackgroundColor)))
         .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(focused ? appTint : Color.gray.opacity(0.3)))
         .onChange(of: model.searchFocusRequest) { _ in focused = true }
+    }
+}
+
+struct CategoryTarget: Identifiable { let id: String }
+
+/// Sheet for a category name. Saved only with Done, so typing does not redraw the list.
+struct CategoryNameEditor: View {
+    @ObservedObject var model: Model
+    let key: String
+    @State private var text = ""
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L("renameCategoryTitle")).font(.headline)
+            TextField(key == "top" ? L("firstCategory") : L("unnamedCategory"), text: $text).textFieldStyle(.roundedBorder)
+                .accessibilityLabel(L("categoryNameLabel"))
+            Text(L("categoryHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Spacer()
+                Button(L("cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(L("done")) { model.setName(text, for: key); dismiss() }.keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20).frame(width: 400)
+        .onAppear { text = model.name(for: key) }
+    }
+}
+
+/// Sheet for one favorite's note. Notes stay in this app (not in Favorites.plist) and are found by the search field.
+struct NoteEditor: View {
+    @ObservedObject var model: Model
+    let id: UUID
+    @State private var text = ""
+    @Environment(\.dismiss) private var dismiss
+    private var item: FavoriteItem? { model.items.first { $0.id == id } }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(format: L("noteFor"), item?.name ?? "")).font(.headline)
+            TextField(L("notePlaceholder"), text: $text, axis: .vertical).lineLimit(3...8).textFieldStyle(.roundedBorder)
+            Text(L("noteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Spacer()
+                Button(L("cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(L("done")) { if let item { model.setNote(text, for: item) }; dismiss() }.keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20).frame(width: 460)
+        .onAppear { text = item.map { model.note(for: $0) } ?? "" }
+    }
+}
+
+/// Checkboxes above the list: which details each row shows.
+struct ColumnToggles: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        HStack(spacing: 14) {
+            Text(L("showLabel")).foregroundColor(.secondary)
+            Toggle(L("colFullPath"), isOn: $model.showFullPath)
+            Toggle(L("colNotes"), isOn: $model.showNotes)
+            Toggle(L("colCounts"), isOn: $model.showCounts).help(model.trackUsage ? "" : L("countsOffHint"))
+            Toggle(L("colFiles"), isOn: $model.showFileCount).help(L("showStatsDetail"))
+            Toggle(L("colSize"), isOn: $model.showSize).help(L("showStatsDetail"))
+            Spacer(minLength: 0)
+        }
+        .toggleStyle(.checkbox).font(.callout)
     }
 }
 
@@ -388,16 +608,19 @@ struct MainView: View {
                 Spacer()
             }
             SearchField(model: model)
+            ColumnToggles(model: model)
             HStack(spacing: 8) {
                 if model.sets.count > 1 {
                     Picker(L("folderSet"), selection: $model.setName) { ForEach(model.sets, id: \.self) { Text($0).tag($0) } }
                         .fixedSize().disabled(model.isDirty || model.busy).help(model.isDirty ? L("setLocked") : "")
                 } else {
-                    Text(String(format: L("folderSetFixed"), model.setName)).foregroundColor(.secondary).lineLimit(1).fixedSize()
+                    Text(String(format: L("folderSetFixed"), model.setName)).foregroundColor(.secondary).lineLimit(1).truncationMode(.tail).layoutPriority(-1)
                 }
                 Spacer(minLength: 8)
+                Button { model.showingKeyboard = true } label: { Label(L("keyboardButton"), systemImage: "keyboard").labelStyle(.iconOnly) }
+                    .help(L("keyboardTitle")).accessibilityLabel(L("keyboardTitle")).disabled(model.items.isEmpty).fixedSize()
                 SortMenu(model: model)
-                Button { model.addSeparator() } label: { Label(L("addSeparator"), systemImage: "minus") }.disabled(model.busy)
+                Button { model.addSeparator() } label: { Label(L("addSeparator"), systemImage: "minus") }.disabled(model.busy).fixedSize()
                 Menu {
                     ForEach(model.categories) { category in Button(model.displayName(for: category.key)) { model.moveSelection(to: category.key) } }
                 } label: { Label(L("moveTo"), systemImage: "arrow.right.to.line") }
@@ -411,7 +634,7 @@ struct MainView: View {
             }
             List(selection: $model.selection) {
                 if model.isSearching {
-                    ForEach(model.items.filter { $0.matches(model.query) }) { item in FavoriteRow(model: model, item: item).tag(item.id) }
+                    ForEach(model.items.filter { $0.matches(model.query, note: model.note(for: $0)) }) { item in FavoriteRow(model: model, item: item).tag(item.id) }
                 } else {
                     if let first = model.categories.first { CategoryHeader(model: model, category: first).headerNotSelectable() }
                     ForEach(model.items) { item in
@@ -419,7 +642,7 @@ struct MainView: View {
                             if item.isSeparator, let category = model.categories.first(where: { $0.separatorIndex.map { model.items[$0].id } == item.id }) {
                                 CategoryHeader(model: model, category: category)
                             } else {
-                                FavoriteRow(model: model, item: item)
+                                FavoriteRow(model: model, item: item, endsCategory: model.endsCategory(item.id))
                             }
                         }.tag(item.id)
                     }
@@ -442,6 +665,9 @@ struct MainView: View {
         }
         .padding(20)
         .sheet(item: $model.editingHotkey) { HotkeyEditor(model: model, id: $0.id) }
+        .background(EmptyView().sheet(item: $model.editingNote) { NoteEditor(model: model, id: $0.id) })
+        .background(EmptyView().sheet(isPresented: $model.showingKeyboard) { KeyboardMapView(model: model) })
+        .background(EmptyView().sheet(item: $model.renamingCategory) { CategoryNameEditor(model: model, key: $0.id) })
         .frame(minWidth: 560, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity)
         .background(Color(nsColor: AppSurface.color)).tint(appTint)
     }
@@ -466,6 +692,32 @@ struct SettingsView: View {
                 }
             }
         })), (L("generalTab"), AnyView(VStack(spacing: 16) {
+            SettingsSection(L("displayGroup")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Toggle(L("shortDropbox"), isOn: $model.shortDropboxPaths)
+                    Text(L("shortDropboxDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+            SettingsSection(L("usageGroup")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Toggle(L("trackUsage"), isOn: $model.trackUsage)
+                    Text(L("trackUsageDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    if model.automationDenied {
+                        Label(L("automationDenied"), systemImage: "exclamationmark.triangle.fill").font(.caption).foregroundColor(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    HStack {
+                        if model.automationDenied {
+                            Button(L("openAutomation")) {
+                                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!)
+                            }
+                            Button(L("retry")) { model.updateTracking() }
+                        }
+                        Spacer()
+                        Button(L("resetCounts")) { model.confirmResetAllCounts() }.disabled(model.usageCounts.isEmpty)
+                    }.padding(.top, 4)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
             SettingsSection(L("saveGroup")) {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle(L("confirmBeforeSave"), isOn: $model.confirmBeforeSave)
@@ -515,6 +767,7 @@ struct SettingsView: View {
         Backups.migrate()
         model.load()
         model.watchDFX()
+        model.updateTracking()
         MenuBarPresence.shared.install(name: "FavoriteFolders", symbol: "folder.badge.gearshape", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
@@ -540,15 +793,22 @@ struct SettingsView: View {
     /// Unsaved changes: save (quits and reopens Default Folder X), discard, or stay.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if model.busy { show(); alert(L("busyQuit"), L("busyQuitDetail"), [L("ok")]); return .terminateCancel }
-        guard model.isDirty else { return .terminateNow }
+        guard model.isDirty else { return reopenDFXThenQuit() }
         show()
         switch alert(L("unsavedTitle"), L("unsavedDetail"), [L("save"), L("cancel"), L("dontSave")]) {
         case .alertFirstButtonReturn:
             Task { let saved = await model.save(); NSApp.reply(toApplicationShouldTerminate: saved) }
             return .terminateLater
-        case .alertThirdButtonReturn: return .terminateNow
+        case .alertThirdButtonReturn: return reopenDFXThenQuit()
         default: return .terminateCancel
         }
+    }
+    /// Default Folder X quit from here (button or the edit check) is opened again before this app quits.
+    /// The open has to finish first: started from applicationWillTerminate, it was lost when the process exited.
+    private func reopenDFXThenQuit() -> NSApplication.TerminateReply {
+        guard model.dfxQuitHere, DFX.running == nil, let url = DFX.appURL else { return .terminateNow }
+        Task { _ = await DFX.launch(url); NSApp.reply(toApplicationShouldTerminate: true) }
+        return .terminateLater
     }
     @discardableResult
     func alert(_ title: String, _ detail: String, _ buttons: [String], suppression: Bool = false) -> NSApplication.ModalResponse {
@@ -571,11 +831,10 @@ struct SettingsView: View {
     }
     @objc func addSeparator() { model.addSeparator() }
     @objc func editHotkey() { model.editHotkey() }
+    @objc func editNote() { model.editNote() }
+    @objc func showKeyboard() { show(); model.showingKeyboard = true }
+    @objc func resetAllCounts() { show(); model.confirmResetAllCounts() }
     @objc func focusSearch() { show(); model.searchFocusRequest += 1 }
-    /// Default Folder X quit with the button here is opened again when this app quits.
-    func applicationWillTerminate(_ notification: Notification) {
-        if model.dfxQuitHere, DFX.running == nil, let url = DFX.appURL { NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) }
-    }
     @objc func quit() { NSApp.terminate(nil) }
     @objc func showSettings() {
         if settings == nil {
@@ -621,6 +880,9 @@ struct SettingsView: View {
         file.addItem(.separator())
         add(file, L("addSeparator"), #selector(addSeparator), "n", [.command, .shift])
         add(file, L("hotkeyChange"), #selector(editHotkey), "k")
+        add(file, L("noteEdit"), #selector(editNote), "i")
+        add(file, L("keyboardMenu"), #selector(showKeyboard), "k", [.command, .shift])
+        add(file, L("resetAllCountsMenu"), #selector(resetAllCounts), "")
         file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("editMenu")); let editItem = NSMenuItem(title: L("editMenu"), action: nil, keyEquivalent: ""); editItem.submenu = edit; bar.addItem(editItem)
@@ -645,6 +907,8 @@ extension Delegate: NSMenuItemValidation {
         switch item.action {
         case #selector(save): return model.isDirty && !model.busy
         case #selector(reload), #selector(addSeparator): return !model.busy
+        case #selector(resetAllCounts): return !model.usageCounts.isEmpty
+        case #selector(editNote): return model.selection.count == 1 && model.items.contains { model.selection.contains($0.id) && !$0.isSeparator }
         case #selector(editHotkey): return !model.busy && model.selection.count == 1 && model.items.contains { model.selection.contains($0.id) && !$0.isSeparator }
         default: return true
         }

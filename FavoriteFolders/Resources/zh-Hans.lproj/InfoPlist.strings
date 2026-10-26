@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "FavoriteFolders";
+"NSAppleEventsUsageDescription" = "用于统计文件夹使用次数：向 Default Folder X 询问打开的对话框和最近使用的文件夹。";
