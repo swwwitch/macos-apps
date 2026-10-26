@@ -1,3 +1,7 @@
+## このMacの担当（2026-10-27）
+
+開発担当：`MacBook-Pro-14-2024-sw`。ソースの確定・検証・commit・pushを行う。検証用ビルドはワークスペース内で配布を無効にして行う。`/Applications`・Latest Builds・配布DMG・GitHub Releaseへの書き込みは公証担当Macの1台に集約する。担当・ブランチ・対象SHAを開始前に記録し、引き継ぎはGitHub経由で行う。[担当分離の現行ルール](AGENTS.md)を優先する。
+
 # 開発フォルダーの使い分け
 
 - 開発・ビルド・Git操作：`~/Git/macos-apps`。
