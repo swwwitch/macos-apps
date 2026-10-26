@@ -29,7 +29,18 @@ check(Stroke(code: 8, mods: .command, label: "").flags == .maskCommand, "⌘C fl
 let chrome = CommandTable.resolved(bundleID: "com.google.Chrome", passthrough: CommandTable.initialPassthrough, disabled: [])
 check(!chrome.contains { $0.group == .basic && !$0.ignoresPassthrough } && !chrome.contains { $0.group == .paragraph }, "Chrome passes basic and paragraph keys")
 check(chrome.contains { $0.id == "enter" }, "Chrome still gets the typing helpers")
-check(chrome.contains { $0.id == "killLine" } && chrome.contains { $0.id == "yank" }, "⌃K and ⌃Y are handled even where the basic keys pass through")
+check(!chrome.contains { $0.id == "killLine" } && chrome.contains { $0.id == "yank" }, "Browser ⌃K passes through; ⌃Y is retained")
+for browser in CommandTable.browserBundleIDs {
+    for passthrough: [KeyGroup: [String]] in [[:], CommandTable.initialPassthrough] {
+        let commands = CommandTable.resolved(bundleID: browser.uppercased(), passthrough: passthrough, disabled: [])
+        check(CommandTable.match(code: 34, mods: [], in: commands) == nil, "Browser ⌃I passes through: \(browser)")
+        check(CommandTable.match(code: 40, mods: [], in: commands) == nil, "Browser ⌃K passes through: \(browser)")
+        check(commands.contains { $0.id == "yank" }, "Browser ⌃Y retained: \(browser)")
+    }
+}
+let editor = CommandTable.resolved(bundleID: "com.apple.TextEdit", passthrough: [:], disabled: [])
+check(CommandTable.match(code: 34, mods: [], in: editor)?.id == "tab", "Non-browser ⌃I retained")
+check(CommandTable.match(code: 40, mods: [], in: editor)?.id == "killLine", "Non-browser ⌃K retained")
 check(CommandTable.match(code: 6, mods: [.option, .command], in: all)?.id == "copyToTextEnd", "⌃⌥⌘Z")
 check(CommandTable.match(code: 7, mods: .option, in: all) == nil, "⌃⌥X is left alone")
 let inDesign = CommandTable.resolved(bundleID: "com.adobe.InDesign", passthrough: CommandTable.initialPassthrough, disabled: [])

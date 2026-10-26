@@ -183,12 +183,12 @@ T = {
                               '⌃⌘X／⌃⌘Z 选择从光标到行首／行尾、⌃⌥⌘Z 选择到文末的文字并拷贝到剪贴板。',
                               '단락 이동과 선택은 손쉬운 사용으로 텍스트를 읽을 수 있는 입력란에서 작동합니다. ⌃S를 빠르게 두 번 누르면 단락을 오려둡니다. '
                               '⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 끝까지, ⌃⌥⌘Z는 글 끝까지 선택해 클립보드에 복사합니다.'),
-    'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y でペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。'
+    'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y でペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。ただしブラウザーの⌃I・⌃KはSpreadsheet Helperを優先し、そのまま渡します。'
                                '控えはクリップボードとは別なので、⌘C でコピーした内容は変わりません。',
-                               'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y pastes it. ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. '
+                               'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y pastes it. ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. Browser ⌃I and ⌃K pass through to give Spreadsheet Helper priority. '
                                'The kill buffer is separate from the clipboard, so what you copied with ⌘C stays.',
-                               '用 ⌃K、⌃X 剪切的文字存入 ControlMate 的暂存区，用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
-                               '⌃K, ⌃X로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. '
+                               '用 ⌃K、⌃X 剪切的文字存入 ControlMate 的暂存区，用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。但浏览器中的 ⌃I、⌃K 会直接传递，优先交给 Spreadsheet Helper。暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
+                               '⌃K, ⌃X로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. 단, 브라우저의 ⌃I, ⌃K는 Spreadsheet Helper를 우선하여 그대로 전달합니다. '
                                '보관함은 클립보드와 별개이므로 ⌘C로 복사한 내용은 바뀌지 않습니다.'),
 
     # Keyboard view: what ⌃+key does, short enough for a key cap
@@ -300,7 +300,7 @@ HELP_JA = '''## 使い方
 
 ## 控え（キルバッファ）
 - ⌃K と ⌃X でカットした文字は、クリップボードとは別の ControlMate の控えに入ります。
-- ⌃Y で控えをペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。⌘C・⌘V のクリップボードは変わりません。
+- ⌃Y で控えをペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。ただしブラウザーの⌃I・⌃KはSpreadsheet Helperを優先し、そのまま渡します。⌘C・⌘V のクリップボードは変わりません。
 - 続けて ⌃K を押すと、控えにつなげて入れます（⌃K ⌃K で行と改行をまとめて控える）。
 - 控えはメモリーだけにあり、ControlMate を終了すると消えます。
 
@@ -372,7 +372,7 @@ HELP_EN = '''## Getting started
 
 ## Kill buffer
 - Text cut with ⌃K and ⌃X goes into ControlMate's kill buffer, separate from the clipboard.
-- ⌃Y pastes it; ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. The ⌘C / ⌘V clipboard does not change.
+- ⌃Y pastes it; ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. Browser ⌃I and ⌃K pass through to give Spreadsheet Helper priority. The ⌘C / ⌘V clipboard does not change.
 - Pressing ⌃K again joins the new text to the buffer (⌃K ⌃K takes the line and its break).
 - The kill buffer lives in memory only and is gone when ControlMate quits.
 
@@ -444,7 +444,7 @@ HELP_ZH = '''## 使用方法
 
 ## 暂存区
 - 用 ⌃K 和 ⌃X 剪切的文字存入 ControlMate 自己的暂存区，与剪贴板分开。
-- 用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。⌘C／⌘V 的剪贴板不变。
+- 用 ⌃Y 粘贴。⌃K、⌃Y 在直接传递的应用中也由 ControlMate 处理。但浏览器中的 ⌃I、⌃K 会直接传递，优先交给 Spreadsheet Helper。⌘C／⌘V 的剪贴板不变。
 - 连续按 ⌃K 会接续存入（⌃K ⌃K 可一起暂存行和换行）。
 - 暂存区只在内存中，退出 ControlMate 后消失。
 
@@ -511,7 +511,7 @@ HELP_KO = '''## 사용 방법
 
 ## 보관함
 - ⌃K와 ⌃X로 오려 둔 텍스트는 클립보드와 별개인 ControlMate의 보관함에 들어갑니다.
-- ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. ⌘C / ⌘V의 클립보드는 바뀌지 않습니다.
+- ⌃Y로 붙여넣습니다. ⌃K, ⌃Y는 그대로 전달할 앱에서도 ControlMate가 처리합니다. 단, 브라우저의 ⌃I, ⌃K는 Spreadsheet Helper를 우선하여 그대로 전달합니다. ⌘C / ⌘V의 클립보드는 바뀌지 않습니다.
 - ⌃K를 이어서 누르면 보관함에 이어 붙입니다(⌃K ⌃K로 행과 줄바꿈을 함께 보관).
 - 보관함은 메모리에만 있으며 ControlMate를 종료하면 사라집니다.
 

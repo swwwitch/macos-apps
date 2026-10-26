@@ -81,7 +81,7 @@ struct Command: Identifiable, Equatable {
     /// One of macOS's own Emacs keys (デフォルト); the others are ControlMate's additions (拡張).
     var standard = false
     /// Handled by ControlMate even in the group's pass-through apps (only the excluded apps get it unchanged):
-    /// ⌃K and ⌃Y share ControlMate's kill buffer with ⌃X in every app.
+    /// ⌃K and ⌃Y share ControlMate's kill buffer with ⌃X; browser ⌃K is reserved for Spreadsheet Helper.
     var ignoresPassthrough = false
     var action: Action
     var label: String { "⌃" + mods.symbols + keyLabel }
@@ -182,11 +182,27 @@ enum CommandTable {
         ],
     ]
 
+    /// Browser shortcuts belong to Spreadsheet Helper, even with customized pass-through lists.
+    /// Keep this list aligned with BrowserSwitcher (including common preview channels).
+    static let browserBundleIDs: Set<String> = [
+        "com.apple.safari", "com.apple.safaritechnologypreview",
+        "com.google.chrome", "com.google.chrome.beta", "com.google.chrome.dev", "com.google.chrome.canary",
+        "org.mozilla.firefox", "org.mozilla.firefoxdeveloperedition", "org.mozilla.nightly",
+        "com.microsoft.edgemac", "com.microsoft.edgemac.beta", "com.microsoft.edgemac.dev", "com.microsoft.edgemac.canary",
+        "com.brave.browser", "com.brave.browser.beta", "com.brave.browser.nightly",
+        "company.thebrowser.browser", "company.thebrowser.dia", "com.operasoftware.opera",
+        "com.operasoftware.operanext", "com.operasoftware.operadeveloper", "com.vivaldi.vivaldi",
+        "org.chromium.chromium", "com.duckduckgo.macos.browser", "app.zen-browser.zen",
+        "com.kagi.kagimacos", "org.waterfox.waterfox",
+    ]
+
     /// The commands for one app: native keys swapped in, groups passed through and commands turned off left out.
     static func resolved(bundleID: String?, passthrough: [KeyGroup: [String]], disabled: Set<String>) -> [Command] {
+        let isBrowser = bundleID.map { browserBundleIDs.contains($0.lowercased()) } ?? false
         let native = bundleID.flatMap { id in overrides.first { $0.key.caseInsensitiveCompare(id) == .orderedSame }?.value } ?? [:]
         return all.compactMap { command in
             guard !disabled.contains(command.id) else { return nil }
+            if isBrowser && (command.id == "tab" || command.id == "killLine") { return nil }
             if !command.ignoresPassthrough, let bundleID, passthrough[command.group]?.contains(where: { $0.caseInsensitiveCompare(bundleID) == .orderedSame }) == true { return nil }
             var command = command
             switch native[command.id] {

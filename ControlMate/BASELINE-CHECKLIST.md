@@ -54,3 +54,13 @@
 | B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | SettingsSync（enabled・trigger.ansi・trigger.jis・disabledCommands）。アプリの一覧はMacごと |
 | B31 | アクセシビリティ設定を開き、可能な場合だけ自アプリを選択 | 実装済み・実機未確認 | 共通の AccessibilitySection |
 | B32 | 必要なアプリのみ標準通知と共通設定 | 適用外 | 結果はキー操作の直後にアプリ内で分かるため通知しない。失敗はメインウインドウに表示 |
+
+
+## 2026-10-26：ブラウザーの⌃I・⌃K競合修正（1.3.1 / build 5）
+
+- B07関連：Commands.resolvedで既知ブラウザーのtab／killLineを必ず除外。保存済みの素通しリストが空でもSpreadsheet Helperへのキーを横取りしない。ブラウザーの⌃Y、非ブラウザーの⌃I・⌃Kは保持。
+- 自動テスト：test.sh成功。27ブラウザーID（プレビューチャンネル含む）、大文字小文字、空／初期素通し設定、非ブラウザーの従来動作、日英中韓151キーの整合を確認。
+- ビルド：SKIP_PUBLISH=1 ./build.sh成功。Apple Distribution（PL9S9PXX96）のローカル署名、codesign --verify --deep --strict成功。配布用Developer ID署名・公証とは区別する。
+- 成果物：ControlMate/ControlMate.app、1.3.1 (5)。既存ローカル成果物はbuild.shでControlMate/Backupsへ保全。
+- 実機：Chrome等とSpreadsheet Helperを併用したキー操作、設定保持、起動・再表示・終了は未確認。
+- 配布：Developer ID証明書が見つからないため公証・DMG・両配置先置換・公開は未実施。/ApplicationsとDropbox Latest BuildsはBundle ID jp.dtp-transit.controlmate、1.3.0 (4)のまま。
