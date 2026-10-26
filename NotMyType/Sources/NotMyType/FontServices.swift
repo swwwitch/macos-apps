@@ -24,7 +24,7 @@ enum FontServices {
     static let defaults = [
         FontServiceLink(name: "Adobe Fonts", url: "https://fonts.adobe.com/fonts", category: "vendors"),
         FontServiceLink(name: "Google Fonts", url: "https://fonts.google.com/", category: "vendors"),
-        FontServiceLink(name: "Fontworks（フォントワークス）", url: "https://fontworks.co.jp/", category: "vendors"),
+        FontServiceLink(name: "フォントワークスLETS", url: "https://lets.fontworks.co.jp/fonts", category: "vendors"),
         FontServiceLink(name: "Morisawa Fonts（モリサワ）", url: "https://morisawafonts.com/fonts/search/", category: "vendors"),
         FontServiceLink(name: "Type Project（タイププロジェクト）", url: "https://typeproject.com/", category: "vendors"),
         FontServiceLink(name: "OH MY FONT", url: "https://ohmyfont.jp/", category: "vendors"),

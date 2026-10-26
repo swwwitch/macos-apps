@@ -542,3 +542,8 @@ PostScript名が同じ別の書体があります。同時にアクティブに�
 名前が次で始まる	Name starts with
 
 オプション	Options
+展開中	Expanded
+折りたたみ中	Collapsed
+デバッグ	Debug
+フォルダーが見つかりません	Folder Not Found
+フォルダーを開けませんでした	Could Not Open Folder

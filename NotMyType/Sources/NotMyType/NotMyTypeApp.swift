@@ -81,6 +81,7 @@ struct NotMyTypeApp: App {
                 Divider()
                 // フォントの契約・管理のページ（単純なリンク。設定で足せる、ユーザー指定）
                 Menu(L("リンク集")) { FontServicesMenu() }
+                Menu(L("デバッグ")) { FontDebugMenu() }
             }
             // SwiftUI's standard Minimize carries ⌘M; the shared menu gives しまう no key equivalent.
             CommandGroup(replacing: .windowSize) {

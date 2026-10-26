@@ -131,16 +131,30 @@ private struct SidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
-                Section(isExpanded: $expandedLibrary) {
+                Section {
                     row(.all, L("すべてのフォント"), "textformat")
-                    row(.duplicates, L("重複"), "square.on.square")
-                        .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
-                    row(.missing, L("見つからない"), "exclamationmark.triangle")
-                    // Creative Cloud が入れたフォント（切り替えは Creative Cloud で）
-                    // ほかの行と同じ線画のアイコンにする（色付きのロゴは浮いて見える、ユーザー指摘）
-                    row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "f.cursive")
-                        .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
-                } header: { Text(L("ライブラリ")) }
+                    if expandedLibrary {
+                        row(.duplicates, L("重複"), "square.on.square")
+                            .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
+                        row(.missing, L("見つからない"), "exclamationmark.triangle")
+                        // Creative Cloud が入れたフォント（切り替えは Creative Cloud で）
+                        // ほかの行と同じ線画のアイコンにする（色付きのロゴは浮いて見える、ユーザー指摘）
+                        row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "f.cursive")
+                            .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
+                    }
+                } header: {
+                    Button { expandedLibrary.toggle() } label: {
+                        HStack {
+                            Text(L("ライブラリ"))
+                            Spacer()
+                            Image(systemName: expandedLibrary ? "chevron.down" : "chevron.right")
+                                .font(.caption2.weight(.semibold))
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityValue(expandedLibrary ? L("展開中") : L("折りたたみ中"))
+                }
                 // フォントフォルダー。System は切り替え・取り除きができない
                 Section(isExpanded: $expandedSystem) {
                     row(.folder(.user), SystemFolder.user.title, "person")

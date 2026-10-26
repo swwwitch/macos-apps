@@ -571,3 +571,9 @@
 "プロジェクトに追加" = "Add to Project";
 
 "一致・追加（%d）" = "Matched and Added (%d)";
+
+"展開中" = "Expanded";
+"折りたたみ中" = "Collapsed";
+"デバッグ" = "Debug";
+"フォルダーが見つかりません" = "Folder Not Found";
+"フォルダーを開けませんでした" = "Could Not Open Folder";
