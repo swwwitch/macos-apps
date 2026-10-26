@@ -1,0 +1,66 @@
+## Basics
+FavoritesTidy reads the Default Folder X favorites (Favorites.plist), lets you sort them and group them into categories with separators, and writes them back.
+- Sort: choose By Name, By Name Descending, By Location (Path), Newest Added First or Oldest Added First from the Sort menu. With nothing selected, every category is sorted; with items selected, only their categories are. Separators stay where they are.
+- Search: type in the search field at the top (⌘F) to show only favorites whose name or path contains the text. Separate words with spaces to require all of them. Esc or ⓧ clears it. Dragging is off while searching (the Sort menu and moving still work).
+- Dropbox: favorites inside a Dropbox folder get a blue Dropbox mark, and the path is shown from that folder (hover for the full path).
+- Drag: drag rows to reorder them. Select several (⌘-click, ⇧-click) to move them together.
+- Add Separator (⇧⌘N): adds a separator below the selected row (or at the end). Everything from one separator to the next is a category.
+- Category names: click a heading and type a name. Default Folder X separators cannot have names, so the name is used only in this app.
+- Move to Category: moves the selected items to the end of the chosen category. Also in a row's shortcut menu.
+- Move Category Up/Down: Control-click a heading to move the whole category.
+- Delete: select rows and press ⌫ to delete favorites or separators. Deleting a separator merges its category with the previous one.
+- ⌘Z undoes and ⇧⌘Z redoes (until you save).
+- Items whose folder is missing show ⚠. Control-click a row for Show in Finder and Copy Path.
+- Hotkeys: the hotkey assigned in Default Folder X is shown at the right. Click it (or select the row and press ⌘K, or choose Change Hotkey… from the shortcut menu) to change or clear it. The key must include ⌘ or ⌃, and a key used by another favorite cannot be assigned. Save to apply it in Default Folder X.
+- Quit / Open Default Folder X: the button at the bottom quits or opens Default Folder X. While it runs, a key it uses may trigger it instead of being recorded, so quit it before recording. Default Folder X quit here is reopened when you save or quit FavoritesTidy.
+
+## Editing while Default Folder X runs
+While Default Folder X is running, sorting, dragging, separators, moving, deleting or changing a hotkey first asks to quit it. Quit and Edit quits it and then edits; Cancel changes nothing. Category names are only in this app and can be edited without asking.
+
+## Saving
+Save (⌘S) writes Favorites.plist. Default Folder X writes its favorites when it quits, so a file written while it runs would be overwritten. Saving therefore:
+- quits Default Folder X
+- checks that the favorites it wrote are the same as when they were read (if they were changed in Default Folder X, saving stops)
+- backs up the current file
+- writes the file
+- opens Default Folder X again
+When Default Folder X is set to keep favorites sorted, the order set here does not appear in its menu. A warning is shown.
+With several folder sets, switch them with the menu at the top (not while there are unsaved changes).
+
+## Restoring
+The Favorites.plist taken right before each save is backed up (up to the newest 30) in:
+~/Library/Application Support/FavoritesTidy/Backups
+To restore, quit Default Folder X, copy a backup as Favorites.plist to ~/Library/Application Support/com.stclairsoft.DefaultFolderX5/<folder set>/, and open Default Folder X. Open Backups Folder in Settings › General opens the folder.
+
+## Settings
+Choose FavoritesTidy > Settings… (⌘,).
+- Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon and the app launch keyboard shortcut.
+- General: Confirm before saving (on by default) asks before quitting and reopening Default Folder X to save. Open Backups Folder.
+- Settings Sharing: export, import and sync category names and the Confirm before saving choice.
+- About: version and links.
+
+## Keyboard shortcuts
+- ⌘S: Save
+- ⌘R: Reload
+- ⇧⌘N: Add Separator
+- ⌘F: Find
+- ⌘K: Change Hotkey of the selected favorite
+- ⌫: delete the selected items
+- ⌘Z / ⇧⌘Z: Undo / Redo
+- ⌘0: Open Main Window
+- ⌘,: Settings
+- ⌘W: Close Window
+- ⌘?: this help
+To call FavoritesTidy even when it is not running, follow the app launch keyboard shortcut note in Settings and assign a key in Shortcuts.
+
+## Permissions
+No special permission is used. FavoritesTidy reads and writes only Default Folder X's Favorites.plist and its own backups. Default Folder X is quit and opened the same way as any app. No network access (except checking for updates; no update feed is set yet).
+
+## Keeping running and quitting
+With “Keep running after closing the window” on, FavoritesTidy keeps running after you close the window. Open it again from the Dock or Finder, or show the window from the menu bar icon. To quit, choose FavoritesTidy > Quit FavoritesTidy (⌘Q). With unsaved changes, you are asked whether to save.
+
+## Troubleshooting
+- “The favorites were changed in Default Folder X”: you changed favorites in Default Folder X after starting to tidy. Reload (⌘R) and tidy again.
+- “Default Folder X did not quit”: close Default Folder X's settings window or dialogs and save again.
+- The order does not appear in the menu: turn off keeping favorites sorted in Default Folder X's settings.
+- The window is gone: click FavoritesTidy in the Dock, or open it again from Finder.
