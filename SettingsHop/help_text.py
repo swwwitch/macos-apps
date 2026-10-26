@@ -3,7 +3,7 @@ HELP = {
  "ja": """## 基本操作
 SettingsHopのウインドウで項目をクリックすると、システム設定のその画面を開きます。
 - システム設定（⌘1）：システム設定を開きます。すでに開いているときは、最後に表示していた画面のまま前面に出ます。
-- プライバシーとセキュリティ
+- プライバシーとセキュリティ：一番上から表示します（アクセシビリティが許可されていない場合は、前回見ていた場所から表示されることがあります）
 - アクセシビリティ（⌘2）
 - フルディスクアクセス（⌘3）
 - ファイルとフォルダ（⌘4）
@@ -51,7 +51,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
  "en": """## Basics
 Click an item in the SettingsHop window to open that pane in System Settings.
 - System Settings (⌘1): opens System Settings. If it is already open, it comes to the front showing the last pane.
-- Privacy & Security
+- Privacy & Security: shown from the top (without Accessibility permission it may open where you left it)
 - Accessibility (⌘2)
 - Full Disk Access (⌘3)
 - Files and Folders (⌘4)
@@ -99,7 +99,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
  "zh-Hans": """## 基本操作
 在 SettingsHop 窗口中点击项目，即可在系统设置中打开对应面板。
 - 系统设置（⌘1）：打开系统设置。如果已经打开，则保持上次显示的面板并移到最前。
-- 隐私与安全性
+- 隐私与安全性：从顶部显示（未允许辅助功能时，可能显示上次查看的位置）
 - 辅助功能（⌘2）
 - 完全磁盘访问权限（⌘3）
 - 文件与文件夹（⌘4）
@@ -147,7 +147,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
  "ko": """## 기본 조작
 SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 화면을 엽니다.
 - 시스템 설정(⌘1): 시스템 설정을 엽니다. 이미 열려 있으면 마지막으로 표시한 화면 그대로 앞으로 가져옵니다.
-- 개인정보 보호 및 보안
+- 개인정보 보호 및 보안: 맨 위부터 표시합니다(손쉬운 사용이 허용되지 않으면 마지막으로 본 위치에서 열릴 수 있음)
 - 손쉬운 사용(⌘2)
 - 전체 디스크 접근 권한(⌘3)
 - 파일 및 폴더(⌘4)

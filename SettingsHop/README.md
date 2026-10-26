@@ -25,6 +25,7 @@
 - システム設定の画面は `x-apple.systempreferences:` のURLを `NSWorkspace.open` で開く。
   - プライバシーとセキュリティ：`com.apple.settings.PrivacySecurity.extension`
   - 下位の画面：`com.apple.preference.security?Privacy_Accessibility`／`Privacy_AllFiles`／`Privacy_FilesAndFolders`／`Privacy_ScreenCapture`
+- プライバシーとセキュリティは、アンカーなしだと前回の位置（下位画面を含む）で開く。アクセシビリティが許可されていれば `?Privacy`（未知のアンカー。メイン一覧の末尾までスクロールした状態で開く）で開き、タイトルが SecurityPrivacyExtension.appex の表示名になったら右側の一覧のスクロールバーを0にして一番上へ戻す（`RowLocator.scrollToTop`）。
 - セキュリティ欄：`com.apple.settings.PrivacySecurity.extension?Security`（アンカーでその欄までスクロールする）
 - ログイン項目：`com.apple.LoginItems-Settings.extension`
 - デフォルトのWebブラウザ：`com.apple.Desktop-Settings.extension`。アンカー（`?Browser`・`?defaultWebBrowser`・`?default-web-browser`）は試したが行までスクロールしない（macOS 26）
@@ -32,7 +33,7 @@
 - 「システム設定」だけはBundle ID `com.apple.systempreferences` のアプリを開く。
 - 「デフォルトのWebブラウザ」は開いたあと、アクセシビリティAPIで行のポップアップにフォーカスを当ててスクロールさせ、AXPressでメニューを開く（`Source/RowLocator.swift`。AXScrollToVisibleは成功を返すが動かない。表示名はDesktopSettings.appexのLocalizable.loctableから全言語を読む）。
 - Option＋クリック（アクセシビリティ・フルディスクアクセス・画面収録・入力監視）は、直前に前面だったアプリの行を共通部品 `AccessibilitySettingsLocator.open(names:paneURL:)` で選ぶ（AXSelected。許可スイッチは触らない）。
-- 権限はこの2つにだけ使い、無ければ画面を開くだけ。設定の値は読み書きしない。外部通信なし（更新確認を除く。配信先は未設定）。
+- 権限はこれらにだけ使い、無ければ画面を開くだけ。設定の値は読み書きしない。外部通信なし（更新確認を除く。配信先は未設定）。
 
 ## ビルド・テスト
 
@@ -50,6 +51,14 @@
 - `Assets/GenerateIcon.swift`：アイコン（マスタード基調、歯車と跳ぶ矢印）
 
 ## 更新履歴
+
+### 1.5.2（build 19、2026-10-26）
+
+- 「プライバシーとセキュリティ」を常に一番上から表示（前回見ていた下位画面やスクロール位置に戻らない。アクセシビリティの許可が必要）。
+
+### 1.5.1（build 18、2026-10-26）
+
+- メインウインドウの大きさを変えられないようにした（常に中身に合わせる。大きくしていたウインドウも中身の大きさに戻る）。
 
 ### 1.5.0（build 17、2026-10-26）
 

@@ -68,7 +68,13 @@ import Carbon
             if fromMainWindow && closeAfterOpen { onOpened?() }
             return true
         }
-        guard pane.open() else { status = String(format: L("failed"), pane.title); return false }
+        // Privacy & Security at its top: open the main list, then scroll it up. Without the permission, open it as left last time.
+        if AccessibilitySection.isTrusted, let path = pane.topExtensionPath, let url = pane.mainListURL {
+            guard NSWorkspace.shared.open(url) else { status = String(format: L("failed"), pane.title); return false }
+            DispatchQueue.global(qos: .userInitiated).async { _ = RowLocator.scrollToTop(extensionPath: path) }
+        } else {
+            guard pane.open() else { status = String(format: L("failed"), pane.title); return false }
+        }
         status = String(format: L("opened"), pane.title)
         selection = pane
         if let target = pane.rowTarget {
@@ -157,22 +163,9 @@ struct MainView: View {
                 }
             }
         }.padding(20)
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(minWidth: 420, maxHeight: .infinity, alignment: .top).background(Color(nsColor: AppSurface.color)).tint(appTint)
-    }
-}
-
-/// Grows its window when the content needs more room (a saved or earlier frame can be too small);
-/// `.minSize` alone only stops further shrinking. Never shrinks the window.
-final class GrowingHostingView<Content: View>: NSHostingView<Content> {
-    override func layout() {
-        super.layout()
-        guard let window else { return }
-        let needed = fittingSize, current = window.contentLayoutRect.size
-        guard needed.height > current.height + 0.5 || needed.width > current.width + 0.5 else { return }
-        DispatchQueue.main.async {
-            window.setContentSize(NSSize(width: max(current.width, needed.width), height: max(current.height, needed.height)))
-        }
+        // Fixed width, height from the content: the window is not resizable and follows this size.
+        .frame(width: 420).fixedSize(horizontal: false, vertical: true)
+        .background(Color(nsColor: AppSurface.color)).tint(appTint)
     }
 }
 
@@ -232,14 +225,15 @@ struct SettingsView: View {
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 380), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 380), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = "SettingsHop"; window.titleVisibility = .hidden
-        let host = GrowingHostingView(rootView: MainView(model: model))
-        host.sizingOptions = [.minSize]
-        window.contentView = host
+        // Not resizable: the hosting controller sizes the window to the SwiftUI content (and follows it when the status line wraps).
+        let host = NSHostingController(rootView: MainView(model: model))
+        host.sizingOptions = [.preferredContentSize]
+        window.contentViewController = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
-        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 420, height: 340)
+        window.setFrameAutosaveName("MainWindow")
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onOpened = { [weak self] in self?.window.performClose(nil) }
         model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }

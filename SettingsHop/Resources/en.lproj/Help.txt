@@ -1,7 +1,7 @@
 ## Basics
 Click an item in the SettingsHop window to open that pane in System Settings.
 - System Settings (⌘1): opens System Settings. If it is already open, it comes to the front showing the last pane.
-- Privacy & Security
+- Privacy & Security: shown from the top (without Accessibility permission it may open where you left it)
 - Accessibility (⌘2)
 - Full Disk Access (⌘3)
 - Files and Folders (⌘4)

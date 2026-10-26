@@ -21,6 +21,7 @@
 - [DocklessLauncher](#docklesslauncher)
 - [EventDocMaker](#eventdocmaker)
 - [ExtensionLinker](#extensionlinker)
+- [FavoritesTidy](#favoritestidy)
 - [FileCaravan](#filecaravan)
 - [FileSorter](#filesorter)
 - [FnNumpad](#fnnumpad)
@@ -219,6 +220,12 @@
 - 2026-10-21｜v0.3.2（build 49）｜ExtensionLinker 0.3.2（build 49）：.applescript／.scpt を1組に、反映確認を最大5秒に（ソース変更記録：`95b059a2`）
 
 既存の詳細：[README](ExtensionLinker/README.md)。
+
+## FavoritesTidy
+
+- 2026-10-26｜v1.0.0（build 1）｜FavoritesTidy 1.0.0（build 1）新規：Default Folder X のお気に入りの並べ替え（名前・パス・追加日）、区切り線でのカテゴリ分け（見出しの名前はアプリ内のみ）、カテゴリへ移動・カテゴリの上下移動、保存時に Default Folder X を終了→外部変更の確認→バックアップ→書き込み→起動し直し
+
+既存の詳細：[README](FavoritesTidy/README.md)。
 
 ## FileCaravan
 
@@ -633,7 +640,8 @@
 
 ## SettingsHop
 
-- 2026-10-26｜v1.5.1（build 18）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
+- 2026-10-26｜v1.5.2（build 19）｜通常版：「プライバシーとセキュリティ」を常に一番上から表示（アクセシビリティ許可時、`?Privacy` で開いてAXで一覧を先頭へスクロール）。配置済み
+- 2026-10-26｜v1.5.1（build 18）｜通常版：メインウインドウのリサイズをなくし、中身の大きさに固定（NSHostingController の preferredContentSize）。配置済み
 - 2026-10-26｜v1.5.0（build 17）｜SettingsHop 1.5.0（build 17）：プライバシーとセキュリティの「セキュリティ」欄へのリンクを追加（ソース変更記録：`0a96f820`）
 - 2026-10-26｜v1.4.1（build 16）｜SettingsHop 1.4.1（build 16）：⌃⌥Q の2回押しを取りやめ、アイコンと余白を調整（ソース変更記録：`ec065133`）
 - 2026-10-26｜v1.4.0（build 15）｜SettingsHop 1.4.0（build 15）：設定のホットキー説明を生成元（make-resources.py）で更新（ソース変更記録：`ce757e4a`）

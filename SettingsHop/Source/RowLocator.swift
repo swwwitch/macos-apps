@@ -12,8 +12,8 @@ enum RowLocator {
     }
 
     /// The row label in all languages System Settings may be shown in.
-    static func labels(_ target: Target) -> Set<String> {
-        let url = URL(fileURLWithPath: target.extensionPath).appendingPathComponent("Contents/Resources/Localizable.loctable")
+    static func labels(_ target: Target, table: String = "Localizable") -> Set<String> {
+        let url = URL(fileURLWithPath: target.extensionPath).appendingPathComponent("Contents/Resources/\(table).loctable")
         guard let data = try? Data(contentsOf: url),
               let table = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: [String: Any]] else { return [target.labelKey] }
         return Set(table.values.compactMap { $0[target.labelKey] as? String }).union([target.labelKey])
@@ -39,6 +39,38 @@ enum RowLocator {
             Thread.sleep(forTimeInterval: 0.2)
         } while Date() < deadline
         return false
+    }
+
+    /// Scrolls the pane's list back to the top once the window shows that pane (its title is the extension's display name).
+    /// System Settings reopens a pane where it was left; no URL anchor lands on the top. Runs off the main thread.
+    static func scrollToTop(extensionPath: String, timeout: TimeInterval = 5) -> Bool {
+        let titles = labels(Target(extensionPath: extensionPath, labelKey: "CFBundleDisplayName"), table: "InfoPlist")
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            if let app = NSRunningApplication.runningApplications(withBundleIdentifier: Pane.settingsBundleID).first,
+               let window = (value(AXUIElementCreateApplication(app.processIdentifier), kAXWindowsAttribute) as? [AXUIElement])?.first,
+               let title = value(window, kAXTitleAttribute) as? String, titles.contains(title) {
+                // The pane's list is the scroll area furthest right; the sidebar is the other one.
+                let detail = scrollAreas(in: window).filter { value($0, kAXVerticalScrollBarAttribute) != nil }.max { minX($0) < minX($1) }
+                if let detail, let bar = value(detail, kAXVerticalScrollBarAttribute) {
+                    let scrollBar = bar as! AXUIElement
+                    return AXUIElementSetAttributeValue(scrollBar, kAXValueAttribute as CFString, NSNumber(value: 0)) == .success
+                }
+            }
+            Thread.sleep(forTimeInterval: 0.2)
+        } while Date() < deadline
+        return false
+    }
+    private static func scrollAreas(in element: AXUIElement, depth: Int = 0) -> [AXUIElement] {
+        guard depth < 25 else { return [] }
+        let own = role(element) == kAXScrollAreaRole as String ? [element] : []
+        return own + children(element).flatMap { scrollAreas(in: $0, depth: depth + 1) }
+    }
+    private static func minX(_ element: AXUIElement) -> CGFloat {
+        guard let position = value(element, kAXPositionAttribute) else { return 0 }
+        var point = CGPoint.zero
+        AXValueGetValue(position as! AXValue, .cgPoint, &point)
+        return point.x
     }
 
     private static func value(_ element: AXUIElement, _ name: String) -> AnyObject? {
