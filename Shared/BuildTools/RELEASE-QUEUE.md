@@ -173,3 +173,21 @@
 - Six bundle-root self-links cause signature errors; MarkdownKitchen Latest Builds and VectorMate have Sparkle sealed-resource failures. Latest Builds presence changed during the audit; do not use incomplete copies as repair sources or duplicate ongoing release work.
 - Added read-only audit tool and four passing tests. Product versions/builds unchanged. Report: [full per-app versions and results](ReleaseRecords/20261026-app-integrity.md).
 - Steps 1/2 PARTIAL: audit source/tests recorded independently; product fixes, builds, localization and runtime/settings-retention verification remain pending. No product release start signal inferred from this inspection request. No notarization/deployment/publication. Overall recovery INCOMPLETE.
+
+
+## 2026-10-27 installation recovery in progress
+
+- User explicitly requested recovery after the 50-app audit. Owner: this development Mac/chat. Restore installed artifacts only; no unrelated feature work or version/build increments.
+- Prepared 14 verified sources under .local/app-recovery-20261027/staged; preparation.json records identifiers/versions/builds. SettingsHop, ShotSorter, SiteMirror and VectorMate recovered from matching notarized DMGs and pass codesign, stapler and Gatekeeper. Other sources are verified healthy installed copies.
+- Remote release chat 01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da was idle at inspection. No message or duplicate release dispatched.
+- VectorMate normal quit/relaunch explicitly authorized. SettingsCourier and QuickIconExporter stay running; remove only their unsigned self-links after backups and manifest comparison.
+- In progress: workspace backups, destination restoration, signature/content checks and launch verification. Not complete yet.
+
+
+## 2026-10-27 installation recovery verified
+
+- User requested recovery; VectorMate normal quit/relaunch separately authorized. Restored 15 affected apps using verified installed copies or matching notarized DMGs. No product source changes, rebuilds or version increments; no downgrades. KeynoteSweeper aligned to already-distributed build 15.
+- SUCCESS: all 50 managed apps have executables, pass deep/strict signature verification and match contents/modes/symlinks between /Applications and Latest Builds. All 15 restored apps launched from /Applications and processes confirmed running.
+- Existing settings untouched; full replaced-bundle backups and six removed self-links retained at .local/app-recovery-20261027. SettingsCourier/QuickIconExporter were not quit. No forced termination.
+- Restored canonical Unicode-named version inventory from its preserved Dropbox conflict copy and appended verified local versions; remote/public values explicitly unverified.
+- [Recovery evidence, per-app versions and verification limits](ReleaseRecords/20261027-app-recovery.md). Installation recovery COMPLETE at recorded audit time; root cause of Dropbox changes remains undetermined. Per-feature runtime, settings UI, new public releases and re-notarization were not performed or claimed.
