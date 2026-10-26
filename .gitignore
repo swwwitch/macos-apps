@@ -52,3 +52,6 @@ PDF2Keynote/Tests/KeynoteOutput/
 # 公開対象外の配布記録・申請用の生成資料
 /PodiumAssist/Release/
 /output/
+
+# Local-only application; keep its source out of public commits
+/VectorMaestro/
