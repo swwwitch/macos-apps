@@ -13,6 +13,7 @@ pane.filesAndFolders|ファイルとフォルダ|Files and Folders|文件与文�
 pane.screenRecording|画面収録とシステムオーディオ録音|Screen & System Audio Recording|录屏与系统录音|화면 및 시스템 오디오 녹음
 pane.inputMonitoring|入力監視|Input Monitoring|输入监控|입력 모니터링
 pane.automation|オートメーション|Automation|自动化|자동화
+pane.security|セキュリティ|Security|安全性|보안
 pane.airDrop|AirDropおよび連係|AirDrop & Handoff|隔空投送与接力|AirDrop 및 Handoff
 pane.loginItems|ログイン項目|Login Items|登录项|로그인 항목
 pane.defaultBrowser|デフォルトのWebブラウザ|Default Web Browser|默认网页浏览器|기본 웹 브라우저

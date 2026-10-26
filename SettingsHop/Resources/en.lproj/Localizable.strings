@@ -8,6 +8,7 @@
 "pane.screenRecording" = "Screen & System Audio Recording";
 "pane.inputMonitoring" = "Input Monitoring";
 "pane.automation" = "Automation";
+"pane.security" = "Security";
 "pane.airDrop" = "AirDrop & Handoff";
 "pane.loginItems" = "Login Items";
 "pane.defaultBrowser" = "Default Web Browser";

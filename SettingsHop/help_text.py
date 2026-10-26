@@ -10,6 +10,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - 画面収録とシステムオーディオ録音（⌘5）
 - 入力監視
 - オートメーション
+- セキュリティ：プライバシーとセキュリティの下の方の「セキュリティ」欄（アプリケーションの実行許可・FileVaultなど）
 - ログイン項目（⌘6）：一般＞ログイン項目と機能拡張
 - デフォルトのWebブラウザ（⌘7）：デスクトップとDockを開き、アクセシビリティが許可されていれば「デフォルトのWebブラウザ」の行までスクロールし、ブラウザを選ぶメニューを開きます。
 
@@ -28,7 +29,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 
 ## ホットキー
 - ⌃⌥Q：どのアプリからでもSettingsHopのウインドウを表示（起動中のとき。設定の「起動・常駐」で変更・無効化できます）
-- 1〜9（または⌘1〜⌘9）：各項目を開く（プライバシーとセキュリティ・入力監視・オートメーションを除く）（SettingsHopが前面のとき）
+- 1〜9（または⌘1〜⌘9）：各項目を開く（プライバシーとセキュリティ・入力監視・オートメーション・セキュリティを除く）（SettingsHopが前面のとき）
 - ↑↓：項目を選ぶ、Return：選んだ項目を開く（メインウインドウ）
 - ⌘0：メインウインドウを開く
 - ⌘,：設定
@@ -57,6 +58,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Screen & System Audio Recording (⌘5)
 - Input Monitoring
 - Automation
+- Security: the Security section near the bottom of Privacy & Security (allowing apps, FileVault and more)
 - Login Items (⌘6): General > Login Items & Extensions
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
@@ -75,7 +77,7 @@ Choose SettingsHop > Settings… (⌘,).
 
 ## Keyboard shortcuts
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
-- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring and Automation) (while SettingsHop is active)
+- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring, Automation and Security) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings
@@ -104,6 +106,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 录屏与系统录音（⌘5）
 - 输入监控
 - 自动化
+- 安全性：“隐私与安全性”下方的“安全性”部分（允许应用程序、文件保险箱等）
 - 登录项（⌘6）：通用 > 登录项与扩展
 - 默认网页浏览器（⌘7）：打开“桌面与程序坞”，允许辅助功能时会滚动到“默认网页浏览器”一行并打开浏览器菜单。
 
@@ -122,7 +125,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 
 ## 快捷键
 - ⌃⌥Q：在任何应用中显示 SettingsHop 窗口（运行时；可在“启动与常驻”设置中更改或停用）
-- 1–9（或 ⌘1–⌘9）：打开各项目（隐私与安全性、输入监控、自动化除外）（SettingsHop 在最前时）
+- 1–9（或 ⌘1–⌘9）：打开各项目（隐私与安全性、输入监控、自动化、安全性除外）（SettingsHop 在最前时）
 - ↑↓：选择项目，Return：打开所选项目（主窗口）
 - ⌘0：打开主窗口
 - ⌘,：设置
@@ -151,6 +154,7 @@ SettingsHop 윈도우에서 항목을 클릭하면 시스템 설정의 해당 �
 - 화면 및 시스템 오디오 녹음(⌘5)
 - 입력 모니터링
 - 자동화
+- 보안: 개인정보 보호 및 보안 아래쪽의 '보안' 영역(응용 프로그램 허용, FileVault 등)
 - 로그인 항목(⌘6): 일반 > 로그인 항목 및 확장 프로그램
 - 기본 웹 브라우저(⌘7): 데스크탑 및 Dock을 열고, 손쉬운 사용이 허용되어 있으면 '기본 웹 브라우저' 행까지 스크롤하고 브라우저 메뉴를 엽니다.
 
@@ -169,7 +173,7 @@ SettingsHop > 설정…(⌘,)을 선택합니다.
 
 ## 키보드 단축키
 - ⌃⌥Q: 어느 앱에서든 SettingsHop 윈도우 표시(실행 중일 때. 설정의 '실행·상주'에서 변경하거나 끌 수 있음)
-- 1–9(또는 ⌘1–⌘9): 각 항목 열기(개인정보 보호 및 보안, 입력 모니터링, 자동화 제외)(SettingsHop이 앞에 있을 때)
+- 1–9(또는 ⌘1–⌘9): 각 항목 열기(개인정보 보호 및 보안, 입력 모니터링, 자동화, 보안 제외)(SettingsHop이 앞에 있을 때)
 - ↑↓: 항목 선택, Return: 선택한 항목 열기(메인 윈도우)
 - ⌘0: 메인 윈도우 열기
 - ⌘,: 설정

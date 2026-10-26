@@ -8,6 +8,7 @@
 "pane.screenRecording" = "画面収録とシステムオーディオ録音";
 "pane.inputMonitoring" = "入力監視";
 "pane.automation" = "オートメーション";
+"pane.security" = "セキュリティ";
 "pane.airDrop" = "AirDropおよび連係";
 "pane.loginItems" = "ログイン項目";
 "pane.defaultBrowser" = "デフォルトのWebブラウザ";

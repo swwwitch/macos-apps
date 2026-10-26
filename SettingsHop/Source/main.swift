@@ -137,7 +137,7 @@ struct MainView: View {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(Pane.allCases, id: \.self) { pane in
                     PaneRow(pane: pane, selected: model.selection == pane) { model.open(pane, option: NSEvent.modifierFlags.contains(.option)) }
-                    if pane == .systemSettings || pane == .automation { Divider().padding(.vertical, 4) }
+                    if pane == .systemSettings || pane == .security { Divider().padding(.vertical, 4) }
                 }
             }
             .padding(8).background(Color(nsColor: .textBackgroundColor)).cornerRadius(8)

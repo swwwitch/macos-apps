@@ -2,7 +2,7 @@
 
 システム設定のよく使う画面を、ボタン1つで直接開くAppKit/SwiftUIアプリ。Apple Silicon / macOS 13以降。
 
-開ける画面（⌘1〜⌘9。プライバシーとセキュリティ・入力監視・オートメーションはキーなし）：
+開ける画面（⌘1〜⌘9。プライバシーとセキュリティ・入力監視・オートメーション・セキュリティはキーなし）：
 
 - システム設定（アプリを開くだけ。開いていれば最後の画面のまま前面へ）
 - プライバシーとセキュリティ
@@ -12,6 +12,7 @@
   - 画面収録とシステムオーディオ録音
   - 入力監視
   - オートメーション
+  - セキュリティ（プライバシーとセキュリティの「セキュリティ」欄）
 - ログイン項目（一般＞ログイン項目と機能拡張）
 - デフォルトのWebブラウザ（デスクトップとDockを開き、アクセシビリティが許可されていればその行までスクロール）
 - キーボードショートカット（キーボードの「キーボードショートカット…」シート）
@@ -24,6 +25,7 @@
 - システム設定の画面は `x-apple.systempreferences:` のURLを `NSWorkspace.open` で開く。
   - プライバシーとセキュリティ：`com.apple.settings.PrivacySecurity.extension`
   - 下位の画面：`com.apple.preference.security?Privacy_Accessibility`／`Privacy_AllFiles`／`Privacy_FilesAndFolders`／`Privacy_ScreenCapture`
+- セキュリティ欄：`com.apple.settings.PrivacySecurity.extension?Security`（アンカーでその欄までスクロールする）
 - ログイン項目：`com.apple.LoginItems-Settings.extension`
 - デフォルトのWebブラウザ：`com.apple.Desktop-Settings.extension`。アンカー（`?Browser`・`?defaultWebBrowser`・`?default-web-browser`）は試したが行までスクロールしない（macOS 26）
 - キーボードショートカット：`com.apple.Keyboard-Settings.extension?Shortcuts`（シートが開く。左の一覧は前回の項目）
@@ -48,6 +50,10 @@
 - `Assets/GenerateIcon.swift`：アイコン（マスタード基調、歯車と跳ぶ矢印）
 
 ## 更新履歴
+
+### 1.5.0（build 17、2026-10-26）
+
+- プライバシーとセキュリティの「セキュリティ」欄へのリンクを追加（⌘キーなし）。
 
 ### 1.4.1（build 16、2026-10-26）
 

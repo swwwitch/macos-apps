@@ -8,6 +8,7 @@
 "pane.screenRecording" = "录屏与系统录音";
 "pane.inputMonitoring" = "输入监控";
 "pane.automation" = "自动化";
+"pane.security" = "安全性";
 "pane.airDrop" = "隔空投送与接力";
 "pane.loginItems" = "登录项";
 "pane.defaultBrowser" = "默认网页浏览器";

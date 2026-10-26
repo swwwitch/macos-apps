@@ -8,6 +8,7 @@
 "pane.screenRecording" = "화면 및 시스템 오디오 녹음";
 "pane.inputMonitoring" = "입력 모니터링";
 "pane.automation" = "자동화";
+"pane.security" = "보안";
 "pane.airDrop" = "AirDrop 및 Handoff";
 "pane.loginItems" = "로그인 항목";
 "pane.defaultBrowser" = "기본 웹 브라우저";

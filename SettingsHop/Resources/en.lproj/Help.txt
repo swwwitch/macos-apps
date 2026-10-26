@@ -8,6 +8,7 @@ Click an item in the SettingsHop window to open that pane in System Settings.
 - Screen & System Audio Recording (⌘5)
 - Input Monitoring
 - Automation
+- Security: the Security section near the bottom of Privacy & Security (allowing apps, FileVault and more)
 - Login Items (⌘6): General > Login Items & Extensions
 - Default Web Browser (⌘7): opens Desktop & Dock and, with Accessibility allowed, scrolls to the Default web browser row and opens its menu of browsers.
 
@@ -26,7 +27,7 @@ Choose SettingsHop > Settings… (⌘,).
 
 ## Keyboard shortcuts
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
-- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring and Automation) (while SettingsHop is active)
+- 1–9 (or ⌘1–⌘9): open each item (except Privacy & Security, Input Monitoring, Automation and Security) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
 - ⌘0: Open Main Window
 - ⌘,: Settings
