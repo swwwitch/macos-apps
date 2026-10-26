@@ -145,6 +145,8 @@
 
 ## ClipTidy
 
+- 2026-10-26｜v1.0.1（build 3）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
+
 - 2026-10-26｜v1.0.0（build 2）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.0.0（build 2）｜ClipTidy・ShotSorter・FileSorter：リリース工程2の実機確認を記録（ソース変更記録：`e8abf214`）
 - 2026-10-26｜v1.0.0（build 2）｜ClipTidy 1.0.0（build 2）：コピーした文字をルールで自動で書き換える新規アプリ（ソース変更記録：`4e7fce0c`）
@@ -254,6 +256,8 @@
 既存の詳細：[README](FileCaravan/README.md)。
 
 ## FileSorter
+
+- 2026-10-26｜v1.0.1（build 2）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.0.0（build 1）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.0.0（build 1）｜ClipTidy・ShotSorter・FileSorter：リリース工程2の実機確認を記録（ソース変更記録：`e8abf214`）
@@ -644,6 +648,8 @@
 
 ## SettingsCourier
 
+- 2026-10-26｜ソースのURLのみ｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。配布版1.4.2（13）のソース確認待ち、ビルド・配置は保留。
+
 - 2026-10-26｜v1.4.2（build 13）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.3.2（build 9）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
 - 2026-10-24｜v1.3.2（build 9）｜Build all apps with Developer ID signing and record verification（ソース変更記録：`aa6e829d`）
@@ -679,6 +685,8 @@
 
 ## ShotSorter
 
+- 2026-10-26｜v1.0.1（build 2）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
+
 - 2026-10-26｜v1.0.0（build 1）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.0.0（build 1）｜ClipTidy・ShotSorter・FileSorter：リリース工程2の実機確認を記録（ソース変更記録：`e8abf214`）
 - 2026-10-26｜v1.0.0（build 1）｜ShotSorter 1.0.0（build 1）：スクリーンショットの改名と範囲の文字認識の新規アプリ（ソース変更記録：`07848bbf`）
@@ -686,6 +694,8 @@
 既存の詳細：[README](ShotSorter/README.md)。
 
 ## SiteMirror
+
+- 2026-10-26｜v1.5.3（build 16）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.5.2（build 14）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.5.2（build 14）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
