@@ -22,3 +22,9 @@ python3 Tests/check-localization.py
 
 # The bundled offline Markdown-to-text converter.
 node Tests/MarkdownTextCheck.js
+
+CLANG_MODULE_CACHE_PATH="$stage/cache" xcrun swiftc Sources/MarkdownKitchen/DocumentWindowRegistry.swift Tests/DocumentWindowRegistryCheck.swift -o "$stage/window-check"
+"$stage/window-check"
+
+CLANG_MODULE_CACHE_PATH="$stage/cache" xcrun swiftc Sources/MarkdownKitchen/DocumentOpenEvents.swift Tests/DocumentOpenEventsCheck.swift -o "$stage/open-events-check"
+"$stage/open-events-check"

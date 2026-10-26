@@ -94,6 +94,14 @@ struct SourceEditor: NSViewRepresentable {
         }
     }
 
+    static func dismantleNSView(_ scroll: NSScrollView, coordinator: Coordinator) {
+        NotificationCenter.default.removeObserver(coordinator)
+        if let textView = scroll.documentView as? NSTextView {
+            textView.delegate = nil
+            if coordinator.store.editor === textView { coordinator.store.editor = nil }
+        }
+    }
+
     static func regularFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .regular) }
     static func headingFont(_ size: Double) -> NSFont { .monospacedSystemFont(ofSize: size, weight: .bold) }
 

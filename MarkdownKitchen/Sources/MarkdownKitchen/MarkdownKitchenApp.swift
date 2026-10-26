@@ -7,20 +7,15 @@ struct MarkdownKitchenApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        // One scene for both: no value is the main window, a value (source id) is a new window (⌃⌘N).
-        // A second WindowGroup would make SwiftUI replace ウインドウを閉じる with its own Close / Close All.
-        WindowGroup(id: MainWindow.sceneID, for: String.self) { $id in
-            if let id {
-                DocumentWindowContent(id: id)
-                    .handlesExternalEvents(preferring: [], allowing: ["*"])
-            } else {
-                MainWindowContent()
-                    .handlesExternalEvents(preferring: [], allowing: ["*"])
-            }
+        // System settings requests must display the same real settings as the
+        // toolbar/menu. Document windows remain entirely AppKit-owned.
+        Settings {
+            SettingsView()
+                .frame(minWidth: 520, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
+                .background(SettingsSceneWindowCapture())
         }
-        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 520, height: 400)
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 960, height: 640)
         .commands {
             FormatMenuCommands()
             // 「ツール」：整形・HTML→Markdown・目次（原稿のバーの「整形」と同じ項目）、Doorkeeper用に整形、すべての見出しの上げ下げ
@@ -60,7 +55,7 @@ struct MarkdownKitchenApp: App {
                 Button(L("メインウインドウを開く")) { appDelegate.showWindow() }
                     .keyboardShortcut("0", modifiers: .command)
                 Divider()
-                Button(L("新規")) { MarkdownStore.shared.newFile() }
+                Button(L("新規")) { MainWindow.openDocument() }
                     .keyboardShortcut("n", modifiers: .command)
                 Button(L("新規ウインドウ")) { MainWindow.openDocument() }
                     .keyboardShortcut("n", modifiers: [.command, .control])
@@ -111,48 +106,6 @@ struct MarkdownKitchenApp: App {
     }
 }
 
-/// メインウインドウの中身。メインウインドウが見えているときに作られたもの（ファイルを開いたときに
-/// SwiftUI が足すウインドウ）は、同じ原稿を二重に表示しないよう何も出さずに閉じる
-private struct MainWindowContent: View {
-    @State private var duplicate = MainWindow.current?.isVisible == true
-    var body: some View {
-        if duplicate {
-            DuplicateWindowCloser()
-        } else {
-            ContentView(store: .main)
-                .background(StartupWindowGate())
-                .background(UtilityWindowChrome(title: "", store: .main))
-                .background(MainWindowOpenerCapture())
-                .frame(minWidth: 560, minHeight: 360)
-        }
-    }
-}
-
-private struct DuplicateWindowCloser: NSViewRepresentable {
-    func makeNSView(context: Context) -> CloserView { CloserView() }
-    func updateNSView(_ view: CloserView, context: Context) {}
-    final class CloserView: NSView {
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            guard let window else { return }
-            window.orderOut(nil)
-            DispatchQueue.main.async { window.close() }
-        }
-    }
-}
-
-/// 新規ウインドウの中身。ウインドウメニューにはファイル名（無ければ「名称未設定」）を出す
-private struct DocumentWindowContent: View {
-    // Created once per window, so a redraw while closing does not register the discarded source again.
-    @StateObject private var store: MarkdownStore
-    init(id: String) { _store = StateObject(wrappedValue: .document(id)) }
-    var body: some View {
-        ContentView(store: store)
-            .background(UtilityWindowChrome(title: store.fileName ?? L("名称未設定"), store: store))
-            .frame(minWidth: 560, minHeight: 360)
-    }
-}
-
 #if DIRECT_UPDATES && !APP_STORE
 /// アップデートを確認… / アップデートを自動確認 (same items as the shared UpdateCommands).
 private struct UpdateMenuItems: View {
@@ -172,6 +125,20 @@ private struct UpdateMenuItems: View {
 final class SettingsWindow {
     static let shared = SettingsWindow()
     private var window: NSWindow?
+
+    /// SwiftUI can open its Settings scene through a system settings action.
+    /// Adopt that populated window so every subsequent entry point reuses it.
+    func adoptSceneWindow(_ incoming: NSWindow) {
+        guard window !== incoming else { return }
+        let previous = window
+        window = incoming
+        incoming.title = L("設定")
+        incoming.styleMask.insert(.resizable)
+        incoming.contentMinSize = NSSize(width: 520, height: 400)
+        incoming.contentMaxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        if let previous, previous !== incoming { previous.close() }
+    }
+
     func show() {
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 400),
@@ -214,112 +181,116 @@ final class SettingsWindow {
     }
 }
 
-/// Tracks the main window so "Show Window" never picks Settings, Help or other utility windows.
+/// Identify the system-created settings window without replacing its view graph.
+private struct SettingsSceneWindowCapture: NSViewRepresentable {
+    func makeNSView(context: Context) -> CaptureView { CaptureView() }
+    func updateNSView(_ view: CaptureView, context: Context) {}
+    final class CaptureView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else { return }
+            DispatchQueue.main.async { [weak window] in
+                guard let window else { return }
+                SettingsWindow.shared.adoptSceneWindow(window)
+            }
+        }
+    }
+}
+
+/// AppKit owns document lifetimes; SwiftUI is used only inside each hosting view.
 @MainActor
 enum MainWindow {
-    static let sceneID = "main"
-    static weak var current: NSWindow?
-    /// Captured SwiftUI openWindow action, used when the main window was closed.
-    static var open: (() -> Void)?
-    /// Captured SwiftUI openWindow action for new windows (value = source id).
-    static var openWithID: ((String) -> Void)?
+    private static var controllers: [String: DocumentWindowController] = [:]
+    static var current: NSWindow? { controllers[""]?.window }
     private static var restored = false
 
-    /// Shows the main window, reopening the SwiftUI scene when it was closed (and the new windows left open last time).
-    /// NSApp.delegate is SwiftUI's adaptor, not AppDelegate, so callers use this rather than casting it.
     static func show() {
-        if let window = current {
-            if window.isMiniaturized { window.deminiaturize(nil) }
-            keepOnScreen(window)
-            window.makeKeyAndOrderFront(nil)
-        } else {
-            open?()
-        }
+        let existing = NSApp.orderedWindows.compactMap { MarkdownStore.store(for: $0) }.first
+        showDocument(existing?.id ?? "")
         restoreDocuments()
+    }
+
+    static func showDocument(_ id: String) {
+        let controller: DocumentWindowController
+        if let existing = controllers[id] {
+            controller = existing
+        } else {
+            controller = DocumentWindowController(store: id.isEmpty ? .main : .document(id))
+            controllers[id] = controller
+        }
+        guard let window = controller.window else { return }
+        if window.isMiniaturized { window.deminiaturize(nil) }
+        keepOnScreen(window)
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    /// 新規ウインドウを開く（空の原稿）
     static func openDocument() {
-        openWithID?(UUID().uuidString)
-        NSApp.activate(ignoringOtherApps: true)
+        showDocument(MarkdownStore.document(UUID().uuidString).id)
     }
 
-    /// 前回開いていた新規ウインドウを開き直す（1回だけ）
     static func restoreDocuments() {
-        guard !restored, let openWithID else { return }
+        guard !restored else { return }
         restored = true
-        for id in UserDefaults.standard.stringArray(forKey: MarkdownStore.documentIDsKey) ?? [] { openWithID(id) }
+        MarkdownStore.prepareRestoredDocuments()
+        for id in UserDefaults.standard.stringArray(forKey: MarkdownStore.documentIDsKey) ?? [] {
+            showDocument(id)
+        }
     }
-    /// Re-centers the window when its restored frame lies on no current screen (e.g. a display was disconnected).
+
+    static func closed(_ controller: DocumentWindowController) {
+        let store = controller.store
+        guard controllers[store.id] === controller else { return }
+        controllers.removeValue(forKey: store.id)
+        store.window = nil
+        store.editor?.delegate = nil
+        store.editor = nil
+        store.onSourceScroll = nil
+        store.sourceScrollOwner = nil
+        if !store.isMain { MarkdownStore.discardDocument(store.id) }
+        // Release the hosting graph after AppKit finishes closing the window.
+        DispatchQueue.main.async { withExtendedLifetime(controller) {} }
+    }
+
     static func keepOnScreen(_ window: NSWindow) {
         guard !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) else { return }
         window.center()
     }
 }
 
-private struct MainWindowOpenerCapture: View {
-    @Environment(\.openWindow) private var openWindow
-    var body: some View {
-        Color.clear.frame(width: 0, height: 0)
-            .onAppear {
-                MainWindow.open = { openWindow(id: MainWindow.sceneID) }
-                MainWindow.openWithID = { openWindow(id: MainWindow.sceneID, value: $0) }
-                // While the main window is hidden at startup, they open with it (AppDelegate.showWindow).
-                if !StartupWindow.suppressInitialWindow { DispatchQueue.main.async { MainWindow.restoreDocuments() } }
-            }
-    }
-}
-
-// Configure the actual SwiftUI window once it joins the view hierarchy.
-private struct UtilityWindowChrome: NSViewRepresentable {
-    let title: String
-    /// The source shown in this window (main window or a new window).
+@MainActor
+final class DocumentWindowController: NSWindowController, NSWindowDelegate {
     let store: MarkdownStore
-    func makeNSView(context: Context) -> ChromeView { ChromeView(title: title, store: store) }
-    func updateNSView(_ view: ChromeView, context: Context) { view.windowTitle = title; view.apply() }
-    final class ChromeView: NSView {
-        var windowTitle: String
-        let store: MarkdownStore
-        private var observers: [NSObjectProtocol] = []
-        init(title: String, store: MarkdownStore) { windowTitle = title; self.store = store; super.init(frame: .zero) }
-        required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            observers.forEach(NotificationCenter.default.removeObserver)
-            observers = []
-            apply()
-            guard let window else { return }
-            // After SwiftUI restores the saved frame.
-            if store.isMain { DispatchQueue.main.async { MainWindow.keepOnScreen(window) } }
-            let store = store
-            observers.append(NotificationCenter.default.addObserver(forName: NSWindow.didBecomeKeyNotification, object: window, queue: .main) { _ in
-                MainActor.assumeIsolated { store.becameActive() }
-            })
-            if !store.isMain {
-                // Closing a new window discards its source (after asking about unsaved changes).
-                observers.append(NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in
-                    MainActor.assumeIsolated { MarkdownStore.discardDocument(store.id) }
-                })
-            }
-        }
-        func apply() {
-            guard let window else { return }
-            if store.isMain { MainWindow.current = window }
-            if store.window !== window { store.window = window }
-            window.title = windowTitle
-            // The windows can be minimized (yellow button, Window > しまう, no key equivalent).
-            window.styleMask.insert(.miniaturizable)
-            window.standardWindowButton(.miniaturizeButton)?.isHidden = false
-            window.standardWindowButton(.zoomButton)?.isHidden = true
-            window.collectionBehavior.insert(.fullScreenNone)
-            if let close = window.standardWindowButton(.closeButton) {
-                close.target = self
-                close.action = #selector(closeClicked(_:))
-            }
-        }
-        @objc private func closeClicked(_ sender: Any?) { store.closeWindow() }
+    init(store: MarkdownStore) {
+        self.store = store
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 960, height: 640),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered, defer: false)
+        super.init(window: window)
+        window.isReleasedWhenClosed = false
+        window.title = store.fileName ?? L("名称未設定")
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.collectionBehavior.insert(.fullScreenNone)
+        window.standardWindowButton(.zoomButton)?.isHidden = true
+        window.contentMinSize = NSSize(width: 560, height: 360)
+        let hosting = NSHostingView(rootView: ContentView(store: store)
+            .frame(minWidth: 560, maxWidth: .infinity, minHeight: 360, maxHeight: .infinity))
+        hosting.sizingOptions = [.minSize]
+        window.contentView = hosting
+        window.center()
+        if store.isMain { window.setFrameAutosaveName("MarkdownKitchenMain") }
+        window.delegate = self
+        store.window = window
     }
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    func windowDidBecomeKey(_ notification: Notification) { store.becameActive() }
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        // closeWindow performs the save confirmation and calls close directly.
+        store.closeWindow()
+        return false
+    }
+    func windowWillClose(_ notification: Notification) { MainWindow.closed(self) }
 }
 
 // Bundle identity, rather than the bundle path or build number, defines one app.

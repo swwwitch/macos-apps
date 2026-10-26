@@ -20,6 +20,7 @@ struct PreviewView: NSViewRepresentable {
         context.coordinator.margin = MarkdownStore.previewMargin(margin)
         context.coordinator.update(body: MarkdownHTML.render(markdown, lineAnchors: true), fontSize: fontSize)
         let coordinator = context.coordinator
+        store.sourceScrollOwner = coordinator.scrollOwner
         store.onSourceScroll = { [weak coordinator] line in coordinator?.scroll(toLine: line) }
         return webView
     }
@@ -30,12 +31,18 @@ struct PreviewView: NSViewRepresentable {
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
-        coordinator.store.onSourceScroll = nil
+        if coordinator.store.sourceScrollOwner == coordinator.scrollOwner {
+            coordinator.store.onSourceScroll = nil
+            coordinator.store.sourceScrollOwner = nil
+        }
+        webView.navigationDelegate = nil
+        webView.stopLoading()
     }
 
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         let store: MarkdownStore
+        let scrollOwner = UUID()
         init(store: MarkdownStore) { self.store = store }
         weak var webView: WKWebView?
         private var loaded = false

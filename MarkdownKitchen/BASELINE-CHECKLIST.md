@@ -53,3 +53,23 @@
 ### B30 2026-10-25改定
 
 メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。
+
+## 1.47.1 (119) — 2026-10-25 書類ウインドウ管理
+
+- ソース：DocumentWindowRegistryで作成中・非表示・最小化中も同一書類のウインドウを一つに制限。復元書類をファイル受信前に読み込み、実ファイル同一性で照合。新規は独立書類。全削除を含む未保存内容を保護。
+- 自動検証：HeadingParser、MenuShortcutCombo 33件、4言語整合、MarkdownText 9件PASS。追加DocumentWindowRegistryCheck（作成予約・重複所有・再オープン・別書類・シンボリックリンク・ハードリンク）PASS。
+- ビルド・配置：build.sh成功。deploy_both.pyでバックアップ後に/ApplicationsとLatest Buildsへ配置。両方1.47.1 (119)、署名・内容一致。
+- 実機：/Applications版でFinderから同じA.mdを再オープンし同一ウインドウに復帰、B.mdは独立、新規で元のA.md保持。B.md最小化後の再オープンで同一ウインドウ復帰。全削除後の⌘Wで保存確認。通常終了後にFinderからA.mdで起動し、閉じたあと残存ウインドウなしを確認。検証用書類の変更は保存せず終了。
+- 未確認：過去の競合した復元データの実機移行、再ログイン、別Mac。公証・公開リリースは未実施。
+
+## 1.47.2 (122) — 2026-10-26 クラッシュ修正
+
+- 提供レポートとDiagnosticReportsの119を確認。120で全閉じ後の再オープン、121でもObservation/SwiftUI環境の不正参照が再発したため採用せず、122でWindowGroup/openWindowを廃止。書類ごとのNSWindowControllerとNSHostingViewに変更し、SwiftUIは原稿表示とメニューに限定。
+- ファイル受信はDocumentOpenEventsへ一本化。日本語・空白・複数URL・不正入力の自動テストPASS。既存HeadingParser・MenuShortcutCombo・4言語・MarkdownText・同一ファイル判定テストPASS。
+
+- 122の実機検証：全閉じ→Finderで2書類再オープンを5回完了。同じPID 28235を前後で確認し、122のDiagnosticReportsは0件。日本語・空白のあるファイル名、同じ2書類の再オープン5回、新規、赤い閉じるボタンで未保存の保存確認を確認。正常終了（実行中一覧から消失）後、Finderから2書類で再起動成功。検証用変更は保存せず破棄。
+- ビルド・配置：1.47.2 (122) build.sh成功、/Applications・Latest Buildsとも署名・内容一致。実機検証は/Applications版。長時間利用、スリープ復帰、別Mac、公証・公開リリースは未確認／未実施。
+
+## 1.47.3 (124) — 2026-10-26
+
+設定の空白表示、リサイズ指定、文書名更新、エディター・プレビュー解放を修正。自動テスト／ローカライズ／ビルド／両配置先一致PASS。実機確認範囲と未確認点、追加レビュー所見はRELEASE-VERIFICATION-20261026.md参照。

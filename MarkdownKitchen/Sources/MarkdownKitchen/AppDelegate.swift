@@ -4,7 +4,12 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
-        // Single main window: no tab items in the Window/View menus.
+        DocumentOpenEvents.shared.install { urls in
+            StartupWindow.userRequestedWindow()
+            MarkdownStore.open(urls, from: MarkdownStore.shared)
+        }
+        MarkdownStore.prepareRestoredDocuments()
+        // Document windows: no tab items in the Window/View menus.
         NSWindow.allowsAutomaticWindowTabbing = false
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -12,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         FormatAction.installHiddenKeys()
         startSettingsSync()
         DispatchQueue.main.async { [weak self] in
+            if !StartupWindow.suppressInitialWindow { MainWindow.show() }
             MenuBarPresence.shared.install(name: "MarkdownKitchen", symbol: "number",
                 show: { self?.showWindow() },
                 settings: { self?.showSettings() },
