@@ -15,6 +15,7 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 - 一覧はドラッグで並べ替えられます（検索中を除く）。
 - ファイルを移動・名前変更したときは「ファイルなし」と出ます。［ファイルを選び直す…］で指定し直すと、ショートカットはそのまま使えます。
 - スクリプトはファイルの場所を覚えているだけです。中身を書き換えたら、次の実行から新しい内容で動きます。
+- 一覧の右と詳細欄に、実行した回数と最後に実行した日時が出ます。ショートカットと［実行］ボタンで、エラーなく終わったものを数えます。
 
 ## ショートカット
 - スクリプトのショートカット：Illustratorが前面のときだけ登録します。ほかのアプリでは、同じキーが本来の働きをします。Illustrator自身のショートカットと同じキーにすると、こちらが優先されます。
@@ -57,6 +58,7 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Drag to reorder the list (not while searching).
 - A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
 - Only the file's location is stored. Edit the script and the next run uses the new contents.
+- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted.
 
 ## Shortcuts
 - Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.
@@ -99,6 +101,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 可拖移列表以重新排序（搜索时除外）。
 - 文件被移动或重命名后会显示“文件丢失”。用“重新选择文件…”重新指定后，快捷键仍可使用。
 - 只记录文件的位置。修改脚本内容后，下次运行即使用新内容。
+- 列表右侧和详细栏会显示运行次数和最近运行时间。统计通过快捷键和“运行”按钮无错误完成的运行。
 
 ## 快捷键
 - 脚本快捷键：仅在 Illustrator 位于前台时注册，因此在其他应用中按键保持原有功能。若与 Illustrator 自身的快捷键相同，则优先运行脚本。
@@ -141,6 +144,7 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 - 목록은 드래그로 순서를 바꿀 수 있습니다(검색 중 제외).
 - 파일을 이동하거나 이름을 바꾸면 '파일 없음'이 표시됩니다. [파일 다시 선택…]으로 다시 지정하면 단축키를 그대로 쓸 수 있습니다.
 - 파일 위치만 기억합니다. 스크립트 내용을 고치면 다음 실행부터 새 내용으로 동작합니다.
+- 목록 오른쪽과 상세 칸에 실행 횟수와 마지막 실행 일시가 표시됩니다. 단축키와 [실행] 버튼으로 오류 없이 끝난 실행을 셉니다.
 
 ## 단축키
 - 스크립트 단축키: Illustrator가 앞에 있을 때만 등록하므로 다른 앱에서는 같은 키가 원래 기능을 합니다. Illustrator 자체 단축키와 같은 키라면 스크립트가 우선합니다.

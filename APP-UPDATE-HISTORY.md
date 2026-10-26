@@ -729,6 +729,7 @@
 
 ## VectorKeys
 
+- 2026-10-26｜v1.1.0（build 2）｜使った回数と最終実行日時を一覧・詳細欄に表示（エラーなく終わった実行を数える）。ホットキー欄のクリックで記録開始。/ApplicationsとLatest Buildsへ配置。
 - 2026-10-26｜v1.0.0（build 1）｜新規。登録した.jsxをIllustrator前面時だけ効くショートカットで実行。/ApplicationsとLatest Buildsへ配置（公証・公開は未実施）。
 
 ## VectorMaestro

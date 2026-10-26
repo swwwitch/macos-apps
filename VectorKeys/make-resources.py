@@ -14,6 +14,10 @@ add.skipped|スクリプトではないファイルを%d個とばしました（
 empty|スクリプトがまだありません。［スクリプトを追加…］で選ぶか、ここへ .jsx ファイルをドラッグしてください。|No scripts yet. Click Add Scripts… or drag .jsx files here.|还没有脚本。点按“添加脚本…”或将 .jsx 文件拖到此处。|아직 스크립트가 없습니다. [스크립트 추가…]를 클릭하거나 .jsx 파일을 여기로 드래그하세요.
 selectScript|スクリプトを選んでください|Select a script|请选择脚本|스크립트를 선택하세요
 count|%d本|%d scripts|%d 个|%d개
+uses.count|%d回|%d runs|%d 次|%d회
+uses.detail|実行回数：%d回（最終：%@）|Runs: %d (last: %@)|运行次数：%d 次（最近：%@）|실행 횟수: %d회(최근: %@)
+uses.never|まだ実行していません|Not run yet|尚未运行|아직 실행하지 않음
+uses.hint|ショートカットと［実行］ボタンで、エラーなく終わった回数です。|Runs that finished without an error, from the shortcut or the Run button.|通过快捷键和“运行”按钮无错误完成的次数。|단축키와 [실행] 버튼으로 오류 없이 끝난 횟수입니다.
 file|ファイル|File|文件|파일
 reveal|Finderに表示|Show in Finder|在访达中显示|Finder에서 보기
 relink|ファイルを選び直す…|Choose Another File…|重新选择文件…|파일 다시 선택…

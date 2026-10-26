@@ -9,6 +9,10 @@
 "empty" = "No scripts yet. Click Add Scripts… or drag .jsx files here.";
 "selectScript" = "Select a script";
 "count" = "%d scripts";
+"uses.count" = "%d runs";
+"uses.detail" = "Runs: %d (last: %@)";
+"uses.never" = "Not run yet";
+"uses.hint" = "Runs that finished without an error, from the shortcut or the Run button.";
 "file" = "File";
 "reveal" = "Show in Finder";
 "relink" = "Choose Another File…";

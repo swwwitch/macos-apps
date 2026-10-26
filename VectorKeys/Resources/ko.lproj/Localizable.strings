@@ -9,6 +9,10 @@
 "empty" = "아직 스크립트가 없습니다. [스크립트 추가…]를 클릭하거나 .jsx 파일을 여기로 드래그하세요.";
 "selectScript" = "스크립트를 선택하세요";
 "count" = "%d개";
+"uses.count" = "%d회";
+"uses.detail" = "실행 횟수: %d회(최근: %@)";
+"uses.never" = "아직 실행하지 않음";
+"uses.hint" = "단축키와 [실행] 버튼으로 오류 없이 끝난 횟수입니다.";
 "file" = "파일";
 "reveal" = "Finder에서 보기";
 "relink" = "파일 다시 선택…";

@@ -33,6 +33,9 @@ struct ScriptRow: View {
             Text(script.name).lineLimit(1).truncationMode(.middle)
             if !script.fileExists { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
             Spacer(minLength: 4)
+            if script.uses > 0 {
+                Text(String(format: L("uses.count"), script.uses)).font(.caption.monospacedDigit()).foregroundColor(.secondary).help(L("uses.hint"))
+            }
             if let hotkey = script.hotkey {
                 Text(hotkey.label).font(.system(size: 12, design: .monospaced)).kerning(1)
                     .foregroundColor(problem ? .red : (script.enabled ? .primary : .secondary))
@@ -71,9 +74,10 @@ struct ScriptDetail: View {
                         }
                     }
                 }
-                HStack(spacing: 8) {
+                HStack(spacing: 12) {
                     Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
                         .disabled(!script.fileExists).help(L("runHint"))
+                    Text(usesText).font(.callout).foregroundColor(.secondary).help(L("uses.hint"))
                     Spacer()
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -89,6 +93,13 @@ struct ScriptDetail: View {
             }
             .padding(16).frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+extension ScriptDetail {
+    var usesText: String {
+        guard let last = script.lastRun, script.uses > 0 else { return L("uses.never") }
+        return String(format: L("uses.detail"), script.uses, last.formatted(date: .numeric, time: .shortened))
     }
 }
 
@@ -126,8 +137,9 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
                 } else {
-                    HSplitView {
-                        list.frame(minWidth: 280, idealWidth: 340)
+                    // A plain stack, not HSplitView: no divider line between the columns (the list keeps a fixed width).
+                    HStack(spacing: 12) {
+                        list.frame(width: 340)
                         Group {
                             if let id = model.selection, let binding = model.binding(for: id) {
                                 ScriptDetail(model: model, script: binding)
@@ -136,7 +148,7 @@ struct MainView: View {
                             }
                         }
                         .frame(minWidth: 340, maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(nsColor: .textBackgroundColor))
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
                     }
                 }
             }

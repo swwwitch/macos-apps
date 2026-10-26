@@ -15,6 +15,10 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     var path: String
     var hotkey: Hotkey?
     var enabled: Bool
+    /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
+    var runCount: Int?
+    var lastRun: Date?
+    var uses: Int { runCount ?? 0 }
 
     static let extensions: Set<String> = ["jsx", "js", "jsxbin"]
     static func accepts(_ url: URL) -> Bool { extensions.contains(url.pathExtension.lowercased()) }
@@ -26,6 +30,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         self.id = id; self.path = path; self.name = name ?? Self.defaultName(for: path); self.hotkey = hotkey; self.enabled = enabled
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
+    mutating func recordRun(at date: Date = Date()) { runCount = uses + 1; lastRun = date }
 }
 
 /// The registered scripts, kept in Application Support/VectorKeys/Scripts.json.

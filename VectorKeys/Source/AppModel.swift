@@ -120,7 +120,9 @@ struct RunRecord: Identifiable {
     }
     private func finish(_ script: ScriptEntry, _ outcome: RunOutcome) {
         switch outcome {
-        case .success: record(script.name, L("result.success"), error: false)
+        case .success:
+            if let index = library.scripts.firstIndex(where: { $0.id == script.id }) { library.scripts[index].recordRun() }
+            record(script.name, L("result.success"), error: false)
         case .noIllustrator: record(script.name, L("result.noIllustrator"), error: true)
         case .automationDenied: record(script.name, L("result.automation"), error: true)
         case .fileMissing: record(script.name, L("result.fileMissing"), error: true)

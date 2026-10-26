@@ -13,6 +13,7 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Drag to reorder the list (not while searching).
 - A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
 - Only the file's location is stored. Edit the script and the next run uses the new contents.
+- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted.
 
 ## Shortcuts
 - Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.

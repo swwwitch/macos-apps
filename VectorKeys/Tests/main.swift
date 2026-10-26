@@ -26,6 +26,13 @@ library.scripts[0].enabled = false
 (winners, duplicates) = library.activeHotkeys()
 check(winners.map(\.1) == [library.scripts[1].id] && duplicates.isEmpty, "disabled script frees the key")
 
+// Run count: old lists without the fields load as 0
+let old = #"{"version":1,"scripts":[{"id":"x","name":"A","path":"/s/A.jsx","enabled":true}]}"#
+var loaded = (try? JSONDecoder().decode(Library.self, from: Data(old.utf8)))?.scripts.first
+check(loaded?.uses == 0 && loaded?.lastRun == nil, "1.0.0 list loads with no runs")
+loaded?.recordRun(); loaded?.recordRun(at: Date(timeIntervalSince1970: 100))
+check(loaded?.uses == 2 && loaded?.lastRun == Date(timeIntervalSince1970: 100), "runs counted")
+
 // Saving round trip
 let file = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("VectorKeys-test-\(UUID().uuidString).json")
 do { try library.save(to: file) } catch { check(false, "save: \(error)") }
