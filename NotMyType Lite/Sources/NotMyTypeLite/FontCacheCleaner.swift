@@ -202,7 +202,8 @@ final class RunningAdobeApps: ObservableObject {
     @Published private(set) var entries: [Entry] = []
     private var observers: [NSObjectProtocol] = []
 
-    init() {
+    init(entries: [Entry]? = nil) {
+        if let entries { self.entries = entries; return }
         refresh()
         let center = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
@@ -242,14 +243,18 @@ final class QuitAdobeAppsWindow {
     static let shared = QuitAdobeAppsWindow()
     private var window: NSWindow?
 
-    func show() {
+    func show(apps: RunningAdobeApps? = nil) {
         window?.close()
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 200),
-                              styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        let apps = apps ?? RunningAdobeApps()
+        let visibleHeight = NSScreen.main?.visibleFrame.height ?? 800
+        let height = min(max(320, 260 + CGFloat(apps.entries.count) * 44), max(320, visibleHeight - 100))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: height),
+                              styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+        window.contentMinSize = NSSize(width: 520, height: 320)
         window.title = L("フォントキャッシュを消去")
         window.isReleasedWhenClosed = false
-        let hosting = NSHostingView(rootView: QuitAdobeAppsView())
-        hosting.sizingOptions = [.preferredContentSize]
+        let hosting = NSHostingView(rootView: QuitAdobeAppsView(apps: apps))
+        hosting.sizingOptions = []
         window.contentView = hosting
         window.center()
         self.window = window
@@ -261,30 +266,39 @@ final class QuitAdobeAppsWindow {
 }
 
 private struct QuitAdobeAppsView: View {
-    @StateObject private var apps = RunningAdobeApps()
+    @StateObject private var apps: RunningAdobeApps
+
+    init(apps: RunningAdobeApps) { _apps = StateObject(wrappedValue: apps) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("Adobeアプリを終了してください")).font(.headline)
             Text(L("アプリが使っている間は、フォントキャッシュを消しても作り直されません。すべて終了すると「フォントキャッシュを消去」を押せます。保存していないドキュメントがあれば、それぞれのアプリが確認します。"))
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach(apps.entries) { entry in
-                    HStack(spacing: 8) {
-                        if let icon = entry.app?.icon {
-                            Image(nsImage: icon).resizable().frame(width: 18, height: 18).opacity(entry.isRunning ? 1 : 0.4)
-                        }
-                        Button(L("%@を終了", entry.name)) { apps.quit(entry) }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(apps.entries) { entry in
+                        HStack(spacing: 8) {
+                            if let icon = entry.app?.icon {
+                                Image(nsImage: icon).resizable().frame(width: 18, height: 18).opacity(entry.isRunning ? 1 : 0.4)
+                            }
+                            Button { apps.quit(entry) } label: {
+                                Text(L("%@を終了", entry.name))
+                                    .lineLimit(2).multilineTextAlignment(.leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                             .disabled(!entry.isRunning)
-                        if !entry.isRunning {
-                            Text(L("終了しました")).font(.caption).foregroundStyle(.secondary)
+                            if !entry.isRunning {
+                                Text(L("終了しました")).font(.caption).foregroundStyle(.secondary).fixedSize()
+                            }
                         }
                     }
                 }
-                Button(L("すべてのAdobeアプリを終了")) { apps.quitAll() }
-                    .disabled(!apps.anyRunning)
-                    .padding(.top, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Button(L("すべてのAdobeアプリを終了")) { apps.quitAll() }
+                .disabled(!apps.anyRunning)
             HStack {
                 Spacer()
                 Button(L("キャンセル")) { QuitAdobeAppsWindow.shared.close() }
@@ -298,6 +312,6 @@ private struct QuitAdobeAppsView: View {
             }
         }
         .padding(20)
-        .frame(width: 420)
+        .frame(minWidth: 520, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
     }
 }

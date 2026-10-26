@@ -493,6 +493,8 @@
 
 ## NotMyType
 
+- 2026-10-26｜v1.61.2（build 100）｜通常配布版：キャッシュ消去画面の高さ不足を修正。一覧だけスクロールし、見出し・下部ボタンを固定。99／23の追加変更を統合。ビルド・公証・公開の結果はリリース記録を参照。
+
 - 2026-10-26｜v1.61.1（build 99）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.61.1（build 99）｜Record NotMyType local builds 99 and 23; hide debug links behind Option（ソース変更記録：`c786aa74`）
 - 2026-10-26｜v1.61.0（build 96）｜NotMyType: add font-folder debug menu and keep All Fonts visible（ソース変更記録：`532b4e3e`）
@@ -512,6 +514,8 @@
 最新の変更内容・未確認項目：[NotMyType両版の履歴](NotMyType/CHANGELOG.md)。
 
 ## NotMyType Lite
+
+- 2026-10-26｜v1.8.2（build 24）｜通常配布版：キャッシュ消去画面の高さ不足を修正。一覧だけスクロールし、見出し・下部ボタンを固定。99／23の追加変更を統合。ビルド・公証・公開の結果はリリース記録を参照。
 
 - 2026-10-26｜v1.8.1（build 23）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.8.1（build 23）｜Record NotMyType local builds 99 and 23; hide debug links behind Option（ソース変更記録：`c786aa74`）
