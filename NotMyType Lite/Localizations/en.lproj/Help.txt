@@ -166,3 +166,5 @@ Selecting the app with Command-Tab restores the main window when no normal windo
 Switching to another sidebar category clears the search query. Option-click a category to keep the current query.
 
 Option-click the Search Options button while filters are set to clear all filters without opening the panel. Search text and sidebar selection are preserved. With no filters, the panel opens normally.
+
+Drag font families, individual styles, or multiple selected rows from the list onto a sidebar set to add them without removing their existing memberships.

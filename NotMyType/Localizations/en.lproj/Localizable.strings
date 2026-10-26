@@ -567,3 +567,7 @@
 "%@年代" = "%@s";
 
 "検索オプション（Option＋クリックで全解除）" = "Search Options (Option-click to clear all filters)";
+
+"プロジェクトに追加" = "Add to Project";
+
+"一致・追加（%d）" = "Matched and Added (%d)";

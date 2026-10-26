@@ -27,8 +27,11 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
         outline.rowHeight = 24
         outline.style = .inset
         outline.allowsMultipleSelection = true
+        outline.verticalMotionCanBeginDrag = true
         outline.usesAlternatingRowBackgroundColors = false
         outline.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        outline.setDraggingSourceOperationMask(.copy, forLocal: true)
+        outline.setDraggingSourceOperationMask([], forLocal: false)
         outline.dataSource = context.coordinator
         outline.delegate = context.coordinator
         outline.target = context.coordinator
@@ -119,6 +122,15 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             return nil
         }
 
+        func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
+            guard let box = item as? Box else { return nil }
+            let files = box.node.file.map { [$0] } ?? box.node.family.files
+            guard let data = FontMembershipDrag.encode(files.map(\.id)) else { return nil }
+            let payload = NSPasteboardItem()
+            payload.setData(data, forType: NSPasteboard.PasteboardType(FontMembershipDrag.type))
+            return payload
+        }
+
         // MARK: データ
 
         func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
@@ -195,6 +207,17 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
             let setsItem = NSMenuItem(title: L("セットに追加"), action: nil, keyEquivalent: "")
             setsItem.submenu = sets
             menu.addItem(setsItem)
+            let projects = NSMenu()
+            for project in store.data.projects {
+                let item = add(projects, project.name) { $0.addToProject(project.id, files) }
+                let included = selectedIDs.intersection(project.files)
+                item.state = included.isEmpty ? .off : (included == selectedIDs ? .on : .mixed)
+            }
+            if !store.data.projects.isEmpty { projects.addItem(.separator()) }
+            add(projects, L("新規プロジェクト…")) { $0.newProject(with: files) }
+            let projectsItem = NSMenuItem(title: L("プロジェクトに追加"), action: nil, keyEquivalent: "")
+            projectsItem.submenu = projects
+            menu.addItem(projectsItem)
             let collections = NSMenu()
             for name in store.collectionNames {
                 add(collections, name) { $0.addToCollection(name, files) }

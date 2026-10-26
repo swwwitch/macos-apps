@@ -219,6 +219,7 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
     var sources: [ProjectSource] = []
     var approved: Set<String> = []
     var excludedFiles: Set<UUID> = []
+    var manualFiles: [UUID] = []
     /// PostScript名が完全に一致したファイル。files はこれと承認した候補のファイル
     var matched: [UUID] = []
     var files: [UUID] = []
@@ -237,6 +238,7 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
         sources = try container.decodeIfPresent([ProjectSource].self, forKey: .sources) ?? []
         approved = try container.decodeIfPresent(Set<String>.self, forKey: .approved) ?? []
         excludedFiles = try container.decodeIfPresent(Set<UUID>.self, forKey: .excludedFiles) ?? []
+        manualFiles = try container.decodeIfPresent([UUID].self, forKey: .manualFiles) ?? []
         files = try container.decodeIfPresent([UUID].self, forKey: .files) ?? []
         matched = try container.decodeIfPresent([UUID].self, forKey: .matched) ?? files
         candidates = try container.decodeIfPresent([ProjectCandidate].self, forKey: .candidates) ?? []
@@ -247,9 +249,21 @@ struct FontProject: Codable, Identifiable, Hashable, Sendable {
 
     var pendingCount: Int { candidates.filter { !approved.contains($0.name) }.count }
 
+    var confirmedFiles: [UUID] {
+        var seen = Set<UUID>()
+        return (matched + manualFiles).filter { !excludedFiles.contains($0) && seen.insert($0).inserted }
+    }
+
+    mutating func addFiles(_ ids: [UUID]) {
+        var known = Set(manualFiles)
+        manualFiles += ids.filter { known.insert($0).inserted }
+        excludedFiles.subtract(ids)
+        refreshFiles()
+    }
+
     mutating func refreshFiles() {
         var seen = Set<UUID>()
-        files = (matched + candidates.filter { approved.contains($0.name) }.map(\.file)).filter { !excludedFiles.contains($0) && seen.insert($0).inserted }
+        files = (confirmedFiles + candidates.filter { approved.contains($0.name) }.map(\.file)).filter { !excludedFiles.contains($0) && seen.insert($0).inserted }
     }
 }
 
@@ -596,6 +610,7 @@ extension LibraryData {
         for index in projects.indices {
             projects[index].files.removeAll { ids.contains($0) }
             projects[index].matched.removeAll { ids.contains($0) }
+            projects[index].manualFiles.removeAll { ids.contains($0) }
             projects[index].candidates.removeAll { ids.contains($0.file) }
         }
     }
@@ -733,6 +748,8 @@ extension LibraryData {
             if let index = projects.firstIndex(where: { $0.id == project.id }) {
                 let known = Set(projects[index].files)
                 projects[index].files += project.files.compactMap { idMap[$0] }.filter { !known.contains($0) }
+                let knownManual = Set(projects[index].manualFiles)
+                projects[index].manualFiles += project.manualFiles.compactMap { idMap[$0] }.filter { !knownManual.contains($0) }
                 projects[index].approved.formUnion(project.approved)
                 projects[index].excludedFiles.formUnion(project.excludedFiles.compactMap { idMap[$0] })
                 let excluded = projects[index].excludedFiles
@@ -742,6 +759,7 @@ extension LibraryData {
                 var copy = project
                 copy.files = project.files.compactMap { idMap[$0] }
                 copy.matched = project.matched.compactMap { idMap[$0] }
+                copy.manualFiles = project.manualFiles.compactMap { idMap[$0] }
                 copy.excludedFiles = Set(project.excludedFiles.compactMap { idMap[$0] })
                 copy.candidates = project.candidates.compactMap { candidate in
                     idMap[candidate.file].map { ProjectCandidate(name: candidate.name, file: $0) }

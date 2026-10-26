@@ -868,7 +868,7 @@ final class LibraryStore: ObservableObject {
     func setFiles(_ id: UUID) -> [FontFile] { files(withIDs: data.sets.first { $0.id == id }?.files ?? []) }
 
     /// id のファイルをライブラリの順で返す
-    private func files(withIDs ids: [UUID]) -> [FontFile] {
+    func files(withIDs ids: [UUID]) -> [FontFile] {
         if positionCache == nil {
             var positions: [UUID: Int] = [:]
             for (index, file) in data.files.enumerated() { positions[file.id] = index }
@@ -1523,6 +1523,19 @@ final class LibraryStore: ObservableObject {
     // MARK: プロジェクト
 
     func project(_ id: UUID) -> FontProject? { data.projects.first { $0.id == id } }
+
+    func addToProject(_ id: UUID, _ files: [FontFile]) {
+        guard !files.isEmpty else { return }
+        updateProject(id) { $0.addFiles(files.map(\.id)) }
+    }
+
+    func newProject(with files: [FontFile]) {
+        guard let name = askName(title: L("新規プロジェクト"), initial: L("名称未設定プロジェクト")) else { return }
+        var project = FontProject(name: name)
+        project.addFiles(files.map(\.id))
+        data.projects.append(project)
+        save()
+    }
 
     func removeFromProject(_ id: UUID, _ files: [FontFile]) {
         let ids = Set(files.map(\.id))

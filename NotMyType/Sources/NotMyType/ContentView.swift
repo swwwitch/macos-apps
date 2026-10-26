@@ -103,7 +103,7 @@ struct ContentView: View {
                 .disabled(store.selection.isEmpty)
             Button(L("アクティブにする")) { store.setActive(store.selectedFiles, true) }
                 .keyboardShortcut(.defaultAction)
-                .disabled(store.selection.isEmpty)
+                .disabled(store.selectedFiles.allSatisfy { store.isActive($0) })
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -323,6 +323,7 @@ private struct SidebarView: View {
                 store.selectSidebar(.project(project.id), keepingSearch: preserveSearch)
             }, edit: { ProjectEditorWindow.shared.show(project.id) }))
         }
+        .modifier(FontMembershipDrop { ids in store.addToProject(project.id, store.files(withIDs: ids)) })
         .tag(SidebarItem.project(project.id))
     }
 
@@ -342,6 +343,7 @@ private struct SidebarView: View {
             Spacer()
             Text("\(store.count(.set(set.id)))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
+        .modifier(FontMembershipDrop { ids in store.addToSet(set.id, store.files(withIDs: ids)) })
         .tag(SidebarItem.set(set.id))
     }
 

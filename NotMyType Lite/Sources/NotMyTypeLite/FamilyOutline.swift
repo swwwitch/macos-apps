@@ -27,8 +27,11 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
         outline.rowHeight = 24
         outline.style = .inset
         outline.allowsMultipleSelection = true
+        outline.verticalMotionCanBeginDrag = true
         outline.usesAlternatingRowBackgroundColors = false
         outline.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        outline.setDraggingSourceOperationMask(.copy, forLocal: true)
+        outline.setDraggingSourceOperationMask([], forLocal: false)
         outline.dataSource = context.coordinator
         outline.delegate = context.coordinator
         outline.target = context.coordinator
@@ -117,6 +120,15 @@ struct FamilyOutline: NSViewRepresentable, Equatable {
                 if let child = box.children.first(where: { $0.node.id == id }) { return child }
             }
             return nil
+        }
+
+        func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
+            guard let box = item as? Box else { return nil }
+            let files = box.node.file.map { [$0] } ?? box.node.family.files
+            guard let data = FontMembershipDrag.encode(files.map(\.id)) else { return nil }
+            let payload = NSPasteboardItem()
+            payload.setData(data, forType: NSPasteboard.PasteboardType(FontMembershipDrag.type))
+            return payload
         }
 
         // MARK: データ

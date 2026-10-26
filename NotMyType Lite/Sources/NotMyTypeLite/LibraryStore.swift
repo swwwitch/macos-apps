@@ -755,7 +755,7 @@ final class LibraryStore: ObservableObject {
     func setFiles(_ id: UUID) -> [FontFile] { files(withIDs: data.sets.first { $0.id == id }?.files ?? []) }
 
     /// id のファイルをライブラリの順で返す
-    private func files(withIDs ids: [UUID]) -> [FontFile] {
+    func files(withIDs ids: [UUID]) -> [FontFile] {
         if positionCache == nil {
             var positions: [UUID: Int] = [:]
             for (index, file) in data.files.enumerated() { positions[file.id] = index }

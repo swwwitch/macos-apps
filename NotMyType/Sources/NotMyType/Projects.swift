@@ -418,7 +418,7 @@ private struct ProjectEditorView: View {
                 Button(L("外したフォントをすべて戻す")) { store.restoreProjectFonts(projectID) }
             }
             Picker("", selection: $tab) {
-                Text(L("一致（%d）", project.matched.filter { !project.excludedFiles.contains($0) }.count)).tag(0)
+                Text(L("一致・追加（%d）", project.confirmedFiles.count)).tag(0)
                 Text(L("候補（%d）", project.candidates.filter { !project.excludedFiles.contains($0.file) }.count)).tag(1)
                 Text(L("見つからない（%d）", project.missing.count)).tag(2)
             }
@@ -451,7 +451,7 @@ private struct ProjectEditorView: View {
         List {
             switch tab {
             case 0:
-                ForEach(project.matched.filter { !project.excludedFiles.contains($0) }, id: \.self) { id in
+                ForEach(project.confirmedFiles, id: \.self) { id in
                     if let file = byID[id] { fileRow(file) }
                 }
             case 1:

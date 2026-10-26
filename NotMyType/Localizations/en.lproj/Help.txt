@@ -225,3 +225,6 @@ Switching to another sidebar category clears the search query. Option-click a ca
 Right-click a project font and choose Remove from Project to exclude it, including after rescanning sources. Restore All Removed Fonts in the project editor restores exclusions. Font files and library entries are retained. The Vendor search option combines with the sidebar, search text, and other filters.
 
 Option-click the Search Options button while filters are set to clear all filters without opening the panel. Search text and sidebar selection are preserved. With no filters, the panel opens normally.
+
+Drag font families, individual styles, or multiple selected rows from the list onto a sidebar set to add them without removing their existing memberships.
+Projects also accept font drops. Add to Project in the context menu lets you choose an existing or new project. Manual additions survive source rescans; adding an excluded font restores it.
