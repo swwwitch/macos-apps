@@ -286,6 +286,14 @@ struct HotkeyField: View {
     }
 
     private var recording: Bool { recorder.recordingID == id }
+    private func toggleRecording() {
+        recorder.start(id, allowsOption: allowsOption) { candidate in
+            if let owner = others.first(where: { $0.1 == candidate })?.0 { return HotkeyText.duplicate(candidate.label, owner) }
+            combo = candidate
+            recorder.touch()
+            return nil
+        }
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 8) {
@@ -299,14 +307,12 @@ struct HotkeyField: View {
                     .padding(.horizontal, 6).padding(.vertical, 2)
                     .background(RoundedRectangle(cornerRadius: 4).stroke(recording ? Color.accentColor : Color.secondary.opacity(0.4)))
                     .accessibilityLabel(combo?.label ?? HotkeyText.unset)
-                Button(recording ? HotkeyText.cancel : HotkeyText.change) {
-                    recorder.start(id, allowsOption: allowsOption) { candidate in
-                        if let owner = others.first(where: { $0.1 == candidate })?.0 { return HotkeyText.duplicate(candidate.label, owner) }
-                        combo = candidate
-                        recorder.touch()
-                        return nil
-                    }
-                }
+                    // Clicking the field starts recording at once, like 変更…; a second click cancels.
+                    .contentShape(Rectangle())
+                    .onTapGesture { toggleRecording() }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction { toggleRecording() }
+                Button(recording ? HotkeyText.cancel : HotkeyText.change) { toggleRecording() }
                 if let defaultCombo {
                     Button(HotkeyText.reset) {
                         recorder.stop()

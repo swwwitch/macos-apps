@@ -200,7 +200,7 @@ final class HotkeyRecorder: ObservableObject {
 @MainActor
 final class HotkeySet {
     var action: ((UInt32) -> Void)?
-    private let signature: OSType
+    private nonisolated let signature: OSType
     private var references: [UInt32: EventHotKeyRef] = [:]
     private var wanted: [UInt32: KeyCombo] = [:]
     private var handler: EventHandlerRef?
@@ -217,9 +217,12 @@ final class HotkeySet {
             guard GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil,
                                     MemoryLayout<EventHotKeyID>.size, nil, &id) == noErr else { return OSStatus(eventNotHandledErr) }
             let owner = Unmanaged<HotkeySet>.fromOpaque(context).takeUnretainedValue()
-            let number = id.id, signature = id.signature
+            // Another HotkeySet of the same app (e.g. the app hotkey and the feature hotkeys) gets the event next.
+            // Returning noErr here would swallow its keys: the handler installed last is called first.
+            guard id.signature == owner.signature else { return OSStatus(eventNotHandledErr) }
+            let number = id.id
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { if signature == owner.signature { owner.action?(number) } }
+                MainActor.assumeIsolated { owner.action?(number) }
             }
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
@@ -283,6 +286,14 @@ struct HotkeyField: View {
     }
 
     private var recording: Bool { recorder.recordingID == id }
+    private func toggleRecording() {
+        recorder.start(id, allowsOption: allowsOption) { candidate in
+            if let owner = others.first(where: { $0.1 == candidate })?.0 { return HotkeyText.duplicate(candidate.label, owner) }
+            combo = candidate
+            recorder.touch()
+            return nil
+        }
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 8) {
@@ -296,14 +307,12 @@ struct HotkeyField: View {
                     .padding(.horizontal, 6).padding(.vertical, 2)
                     .background(RoundedRectangle(cornerRadius: 4).stroke(recording ? Color.accentColor : Color.secondary.opacity(0.4)))
                     .accessibilityLabel(combo?.label ?? HotkeyText.unset)
-                Button(recording ? HotkeyText.cancel : HotkeyText.change) {
-                    recorder.start(id, allowsOption: allowsOption) { candidate in
-                        if let owner = others.first(where: { $0.1 == candidate })?.0 { return HotkeyText.duplicate(candidate.label, owner) }
-                        combo = candidate
-                        recorder.touch()
-                        return nil
-                    }
-                }
+                    // Clicking the field starts recording at once, like 変更…; a second click cancels.
+                    .contentShape(Rectangle())
+                    .onTapGesture { toggleRecording() }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction { toggleRecording() }
+                Button(recording ? HotkeyText.cancel : HotkeyText.change) { toggleRecording() }
                 if let defaultCombo {
                     Button(HotkeyText.reset) {
                         recorder.stop()
