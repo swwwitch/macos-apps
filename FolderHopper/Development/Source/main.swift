@@ -427,7 +427,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
                                            "로그인 시 실행, 시작 시 표시, 메뉴 막대 아이콘, 앱 표시 단축키, 즐겨찾는 폴더, 숨긴 기록, 윈도우를 표시할 화면은 Mac마다 설정합니다.")))
         }
     }
-    @objc func showAbout() {
+    @objc func showAbout() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
         NSApp.orderFrontStandardAboutPanel(options: [
@@ -438,7 +438,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         ])
         NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
                                  styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)

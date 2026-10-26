@@ -196,6 +196,49 @@
 - 1.47.1 (119) の頻発クラッシュ報告に対応。120・121の暫定修正は実機で再発したため、1.47.2 (122) でSwiftUIのWindowGroup/openWindowを廃止し、AppKitの書類ウインドウ管理へ変更。
 - ビルド・バックアップ付き両配置・署名内容一致・/Applications版の実機検証完了。全閉じと2書類再表示5回の前後で同一PID、122のクラッシュレポートなし。正常終了・ファイルからの再起動、未保存変更の保存確認も検証。公開リリース未実施。
 
+
+## 更新前のローカル作業記録（2026-10-26統合）
+
+
+## 2026-10-25 Dock非表示時のアプリメニュー修正
+
+担当：公証Macの本チャット。ソース実装・共通回帰テスト・代表コンパイル完了。公証配布担当は20261025-DockMenu-Notarized。元チャット 01a170a2-82f0-7c40-8a87-4cc262f95242。署名・公証・配置・公開・pushは今回の作業範囲外。差分・結果はShared/ReleasePreparation/20261025-DockMenu/。
+
+
+## AppStore-11-20261026 公証Mac担当
+
+正本の未コミット変更を保全しShared/ReleasePreparation/20261026-AppStore-11/sourceでStore構成を調整。ユーザーは11アプリの実装・署名・アップロード・審査提出を許可（公開は手動）。通常配布版は置換しない。
+
+| 2026-10-26 | ListMatch | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | BundleIDInspector | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | BreaklineTrimmer | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | MarkdownKitchen | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | SiteMirror | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | FileCaravan | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | note2markdown | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | SettingsHop | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | NotMyType Lite | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | CarmaChameleon | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+| 2026-10-26 | MenuShot | Store版調整・検証・審査提出 | 調査中 | 公証Mac | 版/build確定前 | 元チャット01a17467-caf8-7e12-9140-d79303a6dd2e |
+
+新規提出停止・申請中なら取り下げ：IdBackgroundOff、PrefsPreset、SettingsCourier、CCAutoUpdateOff、BrowserSwitcher、CommandDee、VectorMate。現在状態を確認し、取消後の状態を記録する。販売停止・レコード削除は行わない。
+
+
+## 2026-10-26 NotMyType 96 / Lite 21 notarization release
+In progress on MacBookPro13-M5-2025.local. Human handoff authorization verified in source chat 01a17147-6826-7911-8e42-cc45a77f2daf. Target SHA 2a8f2cd81368dfea1e77a19534f2316427dd1f67; full 1.61.0/build96, Lite 1.8.0/build21. Workspace Shared/ReleasePreparation/20261026-NotMyType-2a8f2cd. Dirty/untracked backup Shared/Backups/Build/NotMyType-Git-20261026-121947 (769 files). App Store Lite work remains separate. No publication until required physical drag/drop validation succeeds.
+
+2026-10-26T12:29:05.558147+09:00 — NotMyType 1.61.0/96 and Lite 1.8.0/21: exact source 2a8f2cd, Developer ID signed universal apps and DMGs both Accepted, stapled, Gatekeeper and mounted-content checks passed. Final full includes preserved FontDB; superseded candidate without FontDB is not distributable. Required Lite/both-edition drag/drop runtime checks remain pending; user manual confirmation requested. Deployment, Latest/Archive, public GitHub/note and completion updates not performed. Evidence: Shared/ReleasePreparation/20261026-NotMyType-2a8f2cd/REPORT.md. Overall IN PROGRESS, not complete.
+
+
+## 2026-10-26 note attachment-only policy (all apps)
+Human instruction verified in source thread 01a17147-6826-7911-8e42-cc45a77f2daf: replace only the new notarized distribution build attachment; do not append update news or history. Preserve existing article body, past history, tags and header image. Only minimal references required for the replacement attachment may change. Public download/SHA-256 verification remains required. This overrides earlier article-body/history update requirements for NotMyType96/Lite21 and all other app releases. Checklist updated on this notarization Mac. Actual note replacement remains unperformed.
+
+
+## 2026-10-26T12:36:26.808329+09:00 NotMyType96 / Lite21 publication hold
+Source-thread handoff 01a17147-6826-7911-8e42-cc45a77f2daf reports font-cache cleanup app-list dialog clipping on both ordinary editions. Current notarized full96/Lite21 artifacts do NOT include a fix; do not publish or mark complete. Wait for direct user build cue or revised confirmed SHA; avoid parallel edits and duplicate version increments. Suggested development acceptance: 0/1/3/many apps, long names, running-state changes; constrained height, scrolling list, persistent heading and bottom actions while preserving cleanup/quit confirmation. No source/version changes performed here. Evidence Shared/ReleasePreparation/20261026-NotMyType-2a8f2cd/REPORT.md.
+
+2026-10-26T13:38:17.847762+09:00 — User directly confirmed Lite1.8.0/build21 family, multi-selection and individual-face drag into a set all work. Record these Lite runtime checks as passed. Cache-dialog clipping remains unresolved; publication hold and wait for build cue/revised SHA remain unchanged. No new build/deployment/publication.
+
 | 2026-10-26 | noteリンク追加6アプリ | 工程3〜12再開 | 公開照合途中・全体未完了 | 公証Mac・2026-10-26T21:18:14.029549+09:00 | 1de13fc／a3e8525、既存版/buildを再利用 | 6件GitHub公開・5件note公開を実ダウンロード/内包検証。ShotSorter note同時編集、SettingsHop Projects対象項目不明、SettingsCourier現行ソース未反映を保留。[工程別記録](ReleaseRecords/20261026-note-links.md)。 |
 
 
@@ -320,3 +363,24 @@
 - 開発Mac MacBook-Pro-14-2024-sw.local、main。ユーザーのコミット・プッシュ指示で開始。対象は通常版1.62.1（102）とLite1.9.0（25）、既存ビルド番号を維持。
 - 両版のビルド・署名・ローカライズ確認済み。通常版102の起動後に利用者から「よい感じ」と確認。Lite実機動作・Adobe貼り付け・公証・配置・公開は未確認。
 - 無関係な変更は除外し保持。コミット前の差分保全：.local/release-backups/notmytype-commit-102-25。対象SHAは本記録を含むコミット。
+
+## 更新前のローカル配布記録（2026-10-27保全）
+
+最新版の進捗は上部の記録を参照。以下は更新前の履歴を保持したもの。
+
+| 日付 | アプリ | 依頼 | 状態 | 担当 | 対象 | 根拠 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 | MenuShot | 新規アプリ：メニューバーと開いたメニューだけを背景透明で撮る（元チャット「スクショの課題」）。秒数の変更・入力監視でのホットキー・点滅・Quick Look・影と角丸の改善まで | 工程1・2完了（工程3以降は未実施） | 開発Mac・2026-10-26 | GitHub main 842335d680cdc8d7225fea742e020e1445e4db51・1.3.2 (8) | 工程1：MenuShot に未コミット変更なし、手元とorigin/mainが842335dで一致、版1.3.2・build 8（配布済み番号は1〜8を順に使用、戻していない）、コミットはMenuShotフォルダーだけ（ほかのアプリの未コミット変更は混ぜていない）。工程2：test.sh PASS（範囲計算12件、4言語のキー・プレースホルダー一致、ヘルプ）、build.sh 成功、/Applications と Latest Builds の署名・内容一致（publish_latest.py）。/Applications版で実機確認：ウインドウを閉じても常駐（同一PID）、開き直しで再表示、メニューの「MenuShotを終了」で終了、再起動は/Applicationsのパス、設定の差分なし（ウインドウ位置を除く）。撮影はユーザーが Biscuit・Illustrator・Path Finder のメニューで確認（二重写り・影・角丸の修正後「バッチリ」）。サブメニュー付きの撮影はハーネスでも確認。未確認：入力監視を許可したときのメニュー表示中のホットキー、Quick Look、点滅、Path Finderでの選択表示、ログイン起動。Developer ID署名・公証・DMG・Release・note・個別リポジトリは未実施。 |
+
+
+## 2026-10-27 全アプリ再ビルド（公証Mac）
+
+2026-10-27T00:38:20.156121+09:00。ソース02d5fd8＋保全済みローカル変更の隔離コピーから49本再ビルド・Developer ID署名成功。47本はバックアップ後に両配置先の署名・全内容一致と/Applicationsからの起動を確認。SettingsCourier（9<13）・VectorKeys（5<6）は配置保留。VectorMaestroはGit内ソースなし。SettingsCourierの既存版には実行ファイル欠落・署名不良が残る。今回の公証・DMG・公開更新・全機能実機確認は未実施／全体未完了。検証・バックアップ：`/Users/takano/Git/macos-apps/Shared/ReleasePreparation/AllApps-Rebuild-20261027-000641/REPORT.md`。
+
+## 2026-10-27 全アプリ共通ホットキー欄・通常配布更新
+
+- 担当：公証Mac MacBookPro13-M5-2025.local、本チャット。main。ユーザーが既存未コミット変更の反映・47本のApple公証と両配置先更新を承認。続けてGit更新とNotMyType両版更新を指示。
+- 基点：5eb6fa1（GitHub fetch・ff後、ローカル変更をstashから保持して統合）。対象SHAは本ソース確定コミット。版・buildは既存確定値を維持。
+- 全49本ビルド成功・既存test.sh 34本成功。30アプリが共通欄採用、18コピー同期。SettingsCourierとVectorKeysは旧ソースのため配置対象外。
+- 最新取り込み後、NotMyType 1.62.1/102、Lite 1.9.0/25、ShotSorter、MightyEditを再ビルド。後者は説明文の生成元も更新し、再生成後の文言を保持する。
+- 配布前にソースcommit・push。公証・配置は進行中。結果：Shared/ReleasePreparation/20261027-AllApps-HotkeyClick/。

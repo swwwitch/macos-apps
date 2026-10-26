@@ -115,10 +115,10 @@ T = {
                          '暂存区与剪贴板分开，用 ⌘C 拷贝的内容不会改变。',
                          '⇧를 더하면 선택하면서 이동합니다. ⌃K로 오려 둔 텍스트는 ControlMate의 보관함에 들어가고 ⌃Y로 붙여넣습니다. '
                          '보관함은 클립보드와 별개이므로 ⌘C로 복사한 내용은 바뀌지 않습니다.'),
-    'group.assist.hint': ('⌃J は日本語入力の変換を確定してから右へ移動します。⌃⌘X／⌃⌘Z はカーソルから行頭／行末までを選択してクリップボードにコピーします。',
-                          '⌃J confirms the input method\'s text, then moves right. ⌃⌘X / ⌃⌘Z select from the caret to the line start / end and copy it to the clipboard.',
-                          '⌃J 先确认输入法的文字，再向右移动。⌃⌘X／⌃⌘Z 选择从光标到行首／行尾的文字并拷贝到剪贴板。',
-                          '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다. ⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 끝까지 선택해 클립보드에 복사합니다.'),
+    'group.assist.hint': ('⌃J は日本語入力の変換を確定してから右へ移動します。⌃⌘X／⌃⌘Z はカーソルから行頭／段落末までを選択してクリップボードにコピーします。',
+                          '⌃J confirms the input method\'s text, then moves right. ⌃⌘X / ⌃⌘Z select from the caret to the line start / paragraph end and copy it to the clipboard.',
+                          '⌃J 先确认输入法的文字，再向右移动。⌃⌘X／⌃⌘Z 选择从光标到行首／段落末尾的文字并拷贝到剪贴板。',
+                          '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다. ⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 단락 끝까지 선택해 클립보드에 복사합니다.'),
     'group.paragraph.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
                              '⌃X でカットした文字は控えに入り、⌃Y でペーストします。',
                              'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
@@ -144,7 +144,7 @@ T = {
     'cmd.home': ('Home', 'Home', 'Home', 'Home'),
     'cmd.end': ('End', 'End', 'End', 'End'),
     'cmd.copyToLineStart': ('行頭まで選択してコピー', 'Select to line start and copy', '选到行首并拷贝', '행 처음까지 선택해 복사'),
-    'cmd.copyToLineEnd': ('行末まで選択してコピー', 'Select to line end and copy', '选到行尾并拷贝', '행 끝까지 선택해 복사'),
+    'cmd.copyToLineEnd': ('段落末までコピー', 'Copy to paragraph end', '拷贝到段落末尾', '단락 끝까지 복사'),
     'cmd.copyToTextEnd': ('文章の末尾まで選択してコピー', 'Select to end of text and copy', '选到文末并拷贝', '글 끝까지 선택해 복사'),
     'cmd.moveParagraphUp': ('段落を上へ移動', 'Move paragraph up', '段落上移', '단락을 위로 이동'),
     'cmd.moveParagraphDown': ('段落を下へ移動', 'Move paragraph down', '段落下移', '단락을 아래로 이동'),
@@ -176,13 +176,13 @@ T = {
                               '⌃J confirms the input method\'s text, then moves right.',
                               '⌃J 先确认输入法的文字，再向右移动。', '⌃J는 입력기의 변환을 확정한 뒤 오른쪽으로 이동합니다.'),
     'category.editing.hint': ('段落の移動・選択は、アクセシビリティで文字を読み取れる入力欄で使えます。⌃S をすばやく2回押すと段落をカットします。'
-                              '⌃⌘X／⌃⌘Z はカーソルから行頭／行末まで、⌃⌥⌘Z は文章の末尾までを選択してクリップボードにコピーします。',
+                              '⌃⌘X／⌃⌘Z はカーソルから行頭／段落末まで、⌃⌥⌘Z は文章の末尾までを選択してクリップボードにコピーします。',
                               'Moving and selecting paragraphs work in fields whose text Accessibility can read. Press ⌃S twice quickly to cut the paragraph. '
-                              '⌃⌘X / ⌃⌘Z select from the caret to the line start / end, ⌃⌥⌘Z to the end of the text, and copy it to the clipboard.',
+                              '⌃⌘X / ⌃⌘Z select from the caret to the line start / paragraph end, ⌃⌥⌘Z to the end of the text, and copy it to the clipboard.',
                               '移动和选择段落仅适用于可通过辅助功能读取文字的输入栏。快速按两次 ⌃S 可剪切段落。'
-                              '⌃⌘X／⌃⌘Z 选择从光标到行首／行尾、⌃⌥⌘Z 选择到文末的文字并拷贝到剪贴板。',
+                              '⌃⌘X／⌃⌘Z 选择从光标到行首／段落末尾、⌃⌥⌘Z 选择到文末的文字并拷贝到剪贴板。',
                               '단락 이동과 선택은 손쉬운 사용으로 텍스트를 읽을 수 있는 입력란에서 작동합니다. ⌃S를 빠르게 두 번 누르면 단락을 오려둡니다. '
-                              '⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 끝까지, ⌃⌥⌘Z는 글 끝까지 선택해 클립보드에 복사합니다.'),
+                              '⌃⌘X / ⌃⌘Z는 커서부터 행 처음 / 단락 끝까지, ⌃⌥⌘Z는 글 끝까지 선택해 클립보드에 복사합니다.'),
     'category.killYank.hint': ('⌃K・⌃X でカットした文字は ControlMate の控えに入り、⌃Y でペーストします。⌃K・⌃Y は素通しにするアプリでも ControlMate が処理します。ただしブラウザーの⌃I・⌃KはSpreadsheet Helperを優先し、そのまま渡します。'
                                '控えはクリップボードとは別なので、⌘C でコピーした内容は変わりません。',
                                'Text cut with ⌃K or ⌃X goes into ControlMate\'s kill buffer; ⌃Y pastes it. ⌃K and ⌃Y are handled by ControlMate even in pass-through apps. Browser ⌃I and ⌃K pass through to give Spreadsheet Helper priority. '
@@ -291,7 +291,7 @@ HELP_JA = '''## 使い方
 ### 入力の補助
 - ⌃M：Enter、⌃J：確定して右へ
 - ⌃,／⌃.：Home／End
-- ⌃⌘X／⌃⌘Z：行頭まで／行末まで選択してコピー
+- ⌃⌘X／⌃⌘Z：行頭まで／段落末までコピー
 - ⌃⌥⌘Z：文章の末尾まで選択してコピー
 ### 段落と行の編集
 - ⌃⇧↑／⌃⇧↓：段落を上下の段落と入れ替え
@@ -363,7 +363,7 @@ HELP_EN = '''## Getting started
 ### Typing helpers
 - ⌃M: Enter, ⌃J: confirm, then move right
 - ⌃, / ⌃.: Home / End
-- ⌃⌘X / ⌃⌘Z: select to line start / end and copy
+- ⌃⌘X / ⌃⌘Z: select to line start / paragraph end and copy
 - ⌃⌥⌘Z: select to the end of the text and copy
 ### Paragraphs and lines
 - ⌃⇧↑ / ⌃⇧↓: swap the paragraph with the one above / below
@@ -435,7 +435,7 @@ HELP_ZH = '''## 使用方法
 ### 输入辅助
 - ⌃M：Enter，⌃J：确认后向右
 - ⌃,／⌃.：Home／End
-- ⌃⌘X／⌃⌘Z：选到行首／行尾并拷贝
+- ⌃⌘X／⌃⌘Z：选到行首／段落末尾并拷贝
 - ⌃⌥⌘Z：选到文末并拷贝
 ### 段落与行编辑
 - ⌃⇧↑／⌃⇧↓：与上／下段落交换
@@ -502,7 +502,7 @@ HELP_KO = '''## 사용 방법
 ### 입력 보조
 - ⌃M: Enter, ⌃J: 확정 후 오른쪽으로
 - ⌃, / ⌃.: Home / End
-- ⌃⌘X / ⌃⌘Z: 행 처음 / 끝까지 선택해 복사
+- ⌃⌘X / ⌃⌘Z: 행 처음 / 단락 끝까지 선택해 복사
 - ⌃⌥⌘Z: 글 끝까지 선택해 복사
 ### 단락과 행 편집
 - ⌃⇧↑ / ⌃⇧↓: 위 / 아래 단락과 바꾸기
@@ -550,6 +550,10 @@ HELP_KO = '''## 사용 방법
 ControlMate를 종료한 뒤 응용 프로그램 폴더에서 휴지통으로 옮깁니다.
 시스템 설정의 손쉬운 사용 목록에서도 제거할 수 있습니다.'''
 
+HELP_JA += '\n\n⌃⌘Z は折り返しを越え、改行の直前までをコピーします。段落末では何もしません。文字や選択範囲を取得できない場合は失敗理由を表示します（InDesign は専用キーで処理）。'
+HELP_EN += '\n\n⌃⌘Z copies across wrapped lines up to the paragraph break, excluding the break. At paragraph end it does nothing. Unreadable or unselectable text reports a failure (InDesign uses its own keys).'
+HELP_ZH += '\n\n⌃⌘Z 跨越自动换行，拷贝到段落分隔符之前，不包含分隔符。在段尾不执行操作。无法读取或选择文字时显示失败原因（InDesign 使用专用按键）。'
+HELP_KO += '\n\n⌃⌘Z는 자동 줄바꿈을 넘어 단락 구분자 직전까지 복사합니다. 단락 끝에서는 아무 작업도 하지 않습니다. 텍스트를 읽거나 선택할 수 없으면 실패 이유를 표시합니다(InDesign은 전용 키 사용).'
 T['helpText'] = (HELP_JA, HELP_EN, HELP_ZH, HELP_KO)
 
 

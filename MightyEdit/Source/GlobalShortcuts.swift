@@ -225,7 +225,7 @@ final class GlobalShortcuts: NSObject {
         }
     }
 
-    func showPreferences() {
+    func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 880, height: 620),
                                   styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)

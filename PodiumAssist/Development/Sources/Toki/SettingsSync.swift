@@ -152,6 +152,8 @@ final class SettingsSync: NSObject, ObservableObject {
         /// Older per-app export files (extension without dot) and a converter to UserDefaults values.
         var legacyExtensions: [String] = []
         var legacyImport: ((Data) -> NSDictionary?)? = nil
+        /// Omit the human-readable Mac name from shared/exported metadata.
+        var includesDeviceName: Bool = true
     }
 
     /// Called on the main thread after settings from another Mac were applied.
@@ -188,7 +190,12 @@ final class SettingsSync: NSObject, ObservableObject {
     var transferTitle: String { text("書き出し・読み込み", "Export & Import", "导出与导入", "내보내기 및 가져오기") }
     var exportTitle: String { text("書き出す…", "Export…", "导出…", "내보내기…") }
     var importTitle: String { text("読み込む…", "Import…", "导入…", "가져오기…") }
-    private var appName: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "App" }
+    /// File and folder names use this. Info.plist `SWSettingsSyncName` keeps them stable when the app's display name changes
+    /// (NotMyType Lite keeps "NotMyTypeLite-Settings.sync"); otherwise CFBundleName.
+    private var appName: String {
+        (Bundle.main.object(forInfoDictionaryKey: "SWSettingsSyncName") as? String)
+            ?? (Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "App"
+    }
 
     var folder: URL? { defaults.string(forKey: Self.folderKey).map { URL(fileURLWithPath: $0, isDirectory: true) } }
     var enabled: Bool { folder != nil }
@@ -353,8 +360,10 @@ final class SettingsSync: NSObject, ObservableObject {
 
     /// Same layout for the sync file and an exported file, so either can be imported.
     private func makeRecord(_ values: NSDictionary) -> NSDictionary {
-        ["version": 1, "app": Bundle.main.bundleIdentifier ?? appName, "device": deviceID,
-         "deviceName": Host.current().localizedName ?? "", "modified": Date(), "values": values]
+        var record: [String: Any] = ["version": 1, "app": Bundle.main.bundleIdentifier ?? appName,
+                                     "device": deviceID, "modified": Date(), "values": values]
+        if configuration.includesDeviceName { record["deviceName"] = Host.current().localizedName ?? "" }
+        return record as NSDictionary
     }
 
     private func readRecord(at file: URL, _ completion: @escaping @MainActor (NSDictionary?) -> Void) {

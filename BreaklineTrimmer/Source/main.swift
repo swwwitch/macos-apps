@@ -1197,7 +1197,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         if mainWindow == nil { openedAtLaunch = true } else { showMain() }
     }
 
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 460), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle"); window.isReleasedWhenClosed = false
@@ -1228,7 +1228,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         guard notification.object as? NSWindow === mainWindow else { return }
         if !MainActor.assumeIsolated({ model.keepRunning }) { DispatchQueue.main.async { NSApp.terminate(nil) } }
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: L("helpItem"), text: Self.helpText, heading: "BreaklineTrimmer") }
         }

@@ -11,3 +11,6 @@ xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$roo
 
 xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$root/WindowActivationPolicy.swift" "$root/Tests/DockPresenceTests.swift" -o "$stage/dock-presence"
 "$stage/dock-presence"
+
+xcrun swiftc -module-cache-path "$stage/cache" "$root/StartupWindow.swift" "$root/Tests/AppSwitcherWindowRevealTests.swift" -o "$stage/app-switcher"
+"$stage/app-switcher"

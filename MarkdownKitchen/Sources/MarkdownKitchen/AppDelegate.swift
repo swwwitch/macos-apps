@@ -75,5 +75,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         application.reply(toOpenOrPrint: .success)
     }
     @objc func showWindow() { MainWindow.show() }
-    @objc func showSettings() { SettingsWindow.shared.show() }
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); SettingsWindow.shared.show() }
 }

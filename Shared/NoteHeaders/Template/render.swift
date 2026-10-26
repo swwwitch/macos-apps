@@ -12,7 +12,7 @@ let ink = NSColor(calibratedRed: 0.13, green: 0.085, blue: 0.025, alpha: 1)
 func text(_ value: String, x: CGFloat, y: CGFloat, size: CGFloat, weight: NSFont.Weight) {
     (value as NSString).draw(at: NSPoint(x: x, y: y), withAttributes: [.font: NSFont.systemFont(ofSize: size, weight: weight), .foregroundColor: ink])
 }
-text("小さなMacアプリ工房", x: 510, y: 480, size: 36, weight: .bold)
+text("自作Macアプリ", x: 510, y: 480, size: 36, weight: .bold)
 NSColor(calibratedRed: 0.96, green: 0.76, blue: 0.09, alpha: 1).setFill()
 NSRect(x: 510, y: 465, width: 288, height: 5).fill()
 let lines = args[3].components(separatedBy: "|")

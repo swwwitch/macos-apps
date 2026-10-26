@@ -262,7 +262,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         StartupWindow.userRequestedWindow(); showMain(); return true }
-    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send(); if !StartupWindow.suppressInitialWindow && mainWindow != nil && !NSApp.windows.contains(where: { $0.isVisible }) { showMain() } }
+    func applicationDidBecomeActive(_ notification: Notification) { model.objectWillChange.send() }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func windowWillClose(_ notification: Notification) {
         if notification.object as? NSWindow === mainWindow, !UserDefaults.standard.bool(forKey: "resident"), !model.busy { NSApp.terminate(nil) }
@@ -273,7 +273,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if a.runModal() == .alertSecondButtonReturn { model.stop() }
         return .terminateCancel
     }
-    @objc func showSettings() {
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if settings == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 500), styleMask: [.titled,.closable,.resizable], backing: .buffered, defer: false); w.title = L("settingsTitle"); w.isReleasedWhenClosed = false
             // Resizable from the designed size upward; the hosting view reports only its minimum.
@@ -282,7 +282,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         settings?.makeKeyAndOrderFront(nil)
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "FileCaravan — " + L("help"), text: L("helpContent")) } }
         NSApp.activate(ignoringOtherApps: true)
         helpWindow?.makeKeyAndOrderFront(nil)

@@ -105,5 +105,16 @@ check(TextRanges.paragraphEdge(text, selection: NSRange(location: 5, length: 0),
 check(TextRanges.paragraphEdge(text, selection: NSRange(location: 6, length: 0), end: false, extend: true) == NSRange(location: 4, length: 2), "⌃⇧A")
 check(TextRanges.paragraphEdge(text, selection: NSRange(location: 7, length: 0), end: true, extend: false) == NSRange(location: 7, length: 0), "⌃E at the end stays")
 
+// Copy to paragraph end crosses visual wraps and excludes paragraph separators.
+check(CommandTable.match(code: 6, mods: .command, in: all)?.action == .copyToParagraphEnd, "⌃⌘Z copies paragraph")
+check(inDesign.first { $0.id == "copyToLineEnd" }?.action == .keys([CommandTable.paragraphDownSelect, Stroke(code: 123, mods: .shift, label: "⇧←"), CommandTable.copy]), "InDesign copies paragraph without break")
+for separator in ["\n", "\r", "\r\n", "\u{2029}"] {
+    let sample = ("あ😀 long wrapped paragraph" + separator + "next") as NSString
+    let range = TextRanges.paragraphEdge(sample, selection: NSRange(location: 3, length: 0), end: true, extend: true)
+    check(sample.substring(with: range) == " long wrapped paragraph", "copy excludes separator \(separator.debugDescription)")
+    check(TextRanges.paragraphEdge(sample, selection: NSRange(location: NSMaxRange(range), length: 0), end: true, extend: true).length == 0, "copy at paragraph end is empty")
+}
+check(TextRanges.paragraphEdge("" as NSString, selection: NSRange(location: 0, length: 0), end: true, extend: true).length == 0, "empty copy")
+
 if failures > 0 { print("\(failures) failure(s)"); exit(1) }
 print("PASS: command table, per-app resolution, triggers and paragraph ranges")

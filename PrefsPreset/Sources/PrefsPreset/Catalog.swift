@@ -18,6 +18,7 @@ let customCategory = "追加した項目"
 /// カテゴリの並びとサイドバーのアイコン
 let categoryOrder: [(name: String, symbol: String)] = [
     ("一般", "macwindow"),
+    ("名前", "desktopcomputer"),
     ("エッセンシャル設定", "star"),
     ("表示", "textformat"),
     ("キーボード", "keyboard"),
@@ -99,8 +100,9 @@ let catalog: [PrefItem] = [
     // すべての画面・操作スペースの壁紙。「そのほか」は読むだけで書かない
     flag("一般", "ダウンロードしたアプリの確認ダイアログ", "com.apple.LaunchServices", "LSQuarantine"),
     item("一般", "壁紙", wallpaperDomain, "AllSpacesAndDisplays", ["gray50": "カラー（黒50%）", "other": "そのほか"]),
-    item("一般", "コンピュータ名", computerNameDomain, "ComputerName"),
-    item("一般", "ローカルホスト名", computerNameDomain, "LocalHostName"),
+    item("名前", "コンピュータ名", computerNameDomain, "ComputerName"),
+    item("名前", "ローカルホスト名", computerNameDomain, "LocalHostName"),
+    item("名前", "ホスト名", computerNameDomain, "HostName"),
     item("一般", "AirDrop", "com.apple.sharingd", "DiscoverableMode",
          ["Off": "受信しない", "Contacts Only": "連絡先のみ", "Everyone": "すべての人（10分間）"]),
 

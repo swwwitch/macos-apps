@@ -29,7 +29,7 @@ enum StartupWindow {
         if language.hasPrefix("ko") { return ko }
         return en
     }
-    static var detail: String { text("ログイン時の自動起動ではメインウインドウを表示しません。手動で起動・開き直したときは表示します。", "Automatic login launch does not show the main window. Opening or reopening the app manually shows it.", "登录时自动启动不显示主窗口。手动启动或重新打开应用时显示主窗口。", "로그인 시 자동 실행할 때는 메인 윈도우를 표시하지 않습니다. 수동으로 실행하거나 다시 열면 표시합니다.") }
+    static var detail: String { text("ログイン時の自動起動ではメインウインドウを表示しません。手動で起動・開き直したときや、⌘Tabで選択したときは表示します。", "Automatic login launch does not show the main window. Opening or reopening the app manually, or selecting it with ⌘Tab, shows the main window.", "登录时自动启动不显示主窗口。手动启动、重新打开应用或使用 ⌘Tab 选择应用时显示主窗口。", "로그인 시 자동 실행할 때는 메인 윈도우를 표시하지 않습니다. 수동 실행, 다시 열기 또는 ⌘Tab으로 앱을 선택하면 메인 윈도우를 표시합니다.") }
 }
 
 /// Hide background presence, but keep the application menu available for regular windows.
@@ -147,5 +147,45 @@ struct StartupWindowGate: NSViewRepresentable {
                 window.orderOut(nil)
             }
         }
+    }
+}
+
+/// ⌘Tab activates the app without sending applicationShouldHandleReopen.
+/// Use the same app-owned main-window action as the menu-bar item.
+@MainActor
+enum AppSwitcherWindowReveal {
+    private static var observers: [NSObjectProtocol] = []
+    private static var ready = false
+    private static var auxiliaryActivation = false
+    private static var reveal: (() -> Void)?
+    /// An explicit settings/help action from a status menu owns the next activation.
+    nonisolated static func preserveAuxiliaryWindowOnActivation() {
+        MainActor.assumeIsolated {
+            if !NSApp.isActive { auxiliaryActivation = true }
+        }
+    }
+    static func install(show: @escaping () -> Void) {
+        reveal = show
+        guard observers.isEmpty else { return }
+        ready = NSApp.isRunning
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: NSApplication.didFinishLaunchingNotification, object: NSApp, queue: .main) { _ in
+            // Initial activation belongs to launch policy, particularly quiet login launch.
+            DispatchQueue.main.async { ready = true }
+        })
+        observers.append(center.addObserver(forName: NSApplication.didBecomeActiveNotification, object: NSApp, queue: .main) { _ in
+            MainActor.assumeIsolated {
+                let mouseActivation = NSEvent.pressedMouseButtons != 0
+                let showMain = !auxiliaryActivation
+                auxiliaryActivation = false
+                guard ready, !mouseActivation, showMain else { return }
+                DispatchQueue.main.async {
+                    guard NSApp.isActive, NSApp.modalWindow == nil,
+                          !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }
+                    StartupWindow.userRequestedWindow()
+                    reveal?()
+                }
+            }
+        })
     }
 }

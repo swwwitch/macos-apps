@@ -118,7 +118,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func showSettings() { SettingsWindow.shared.show() }
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); SettingsWindow.shared.show() }
 
     /// メニューバーのメニューの先頭：プロジェクトの一覧。選ぶとまとめてアクティブにする（すべてアクティブなら解除）
     static func projectMenuItems() -> [NSMenuItem] {

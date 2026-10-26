@@ -872,7 +872,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func addToRight() { MainActor.assumeIsolated { model.addOnlyItems(from: .left) } }
     @objc func addToLeft() { MainActor.assumeIsolated { model.addOnlyItems(from: .right) } }
     @objc func clearLists() { MainActor.assumeIsolated { model.clear() } }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 460), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             w.title = L("settingsTitle"); w.isReleasedWhenClosed = false
@@ -904,7 +904,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         guard notification.object as? NSWindow === mainWindow else { return }
         if !MainActor.assumeIsolated({ model.keepRunning }) { DispatchQueue.main.async { NSApp.terminate(nil) } }
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "ListMatch — " + L("help"), text: L("helpContent")) }
         }

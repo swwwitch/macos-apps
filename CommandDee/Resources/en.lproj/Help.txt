@@ -69,8 +69,3 @@ Choose Settings… (⌘,) from the menu bar icon.
 - Check for Updates… and Automatically Check for Updates in the app menu show that updates are not configured, and make no network access, until an update feed and signing key are set up.
 - Choose Menu Bar Settings… in the app menu to show or hide the menu bar icon. Hiding it does not quit the app.
 Manual launch and reopening show the main window; automatic login launch does not.
-
-
-## Dock visibility and application menus
-
-Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.

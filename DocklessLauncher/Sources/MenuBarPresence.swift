@@ -37,6 +37,7 @@ final class MenuBarPresence: NSObject, NSMenuDelegate {
         guard !installed else { return }
         installed = true
         self.name = name; reveal = show; preferences = settings; self.help = help; self.extraItems = extraItems
+        AppSwitcherWindowReveal.install(show: show)
         defaultEnabled = existing != nil
         item = existing ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if existing == nil { item?.menu = makeMenu() }
@@ -131,10 +132,11 @@ final class MenuBarPresence: NSObject, NSMenuDelegate {
     }
     private func apply() { item?.isVisible = enabled; check?.state = enabled ? .on : .off }
     @objc private func show() { StartupWindow.userRequestedWindow(); NSApp.unhideWithoutActivation(); reveal?() }
-    @objc private func showPreferences() { preferences?() }
-    @objc private func showHelp() { help?() }
+    @objc private func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); preferences?() }
+    @objc private func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); help?() }
     @objc private func toggle(_ sender: NSButton) { save(sender.state == .on) }
     @objc func showSettings() {
+        AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation()
         if settingsWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 160), styleMask: [.titled, .closable], backing: .buffered, defer: false)
             window.title = name + " — " + text("メニューバー設定", "Menu Bar Settings", "菜单栏设置", "메뉴 막대 설정")

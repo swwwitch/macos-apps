@@ -382,7 +382,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard notification.object as? NSWindow === mainWindow else { return }
         if !MainActor.assumeIsolated({ MenuBarPresence.shared.enabled }) { NSApp.terminate(nil) }
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 660, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false); w.title = "IdBackgroundOff — " + L("help"); w.isReleasedWhenClosed = false
             let scroll = NSScrollView(frame: w.contentView!.bounds); scroll.autoresizingMask = [.width, .height]; scroll.hasVerticalScroller = true

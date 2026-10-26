@@ -263,7 +263,7 @@ final class HotkeySet {
     }
 }
 
-/// One hotkey row: [key] [変更…] [初期値に戻す] [割り当てを解除], with the message underneath.
+/// One hotkey row: [clickable key] [初期値に戻す] [割り当てを解除], with the message underneath.
 /// `others` are the app's other hotkeys (title, combo) so the same key is not assigned twice.
 struct HotkeyField: View {
     let id: String

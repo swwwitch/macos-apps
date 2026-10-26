@@ -384,7 +384,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
          (StartupWindow.text("隠す", "Hide", "隐藏", "가리기"), KeyCombo(code: UInt32(kVK_ANSI_H), modifiers: UInt32(cmdKey))),
          (StartupWindow.text("しまう", "Minimize", "最小化", "최소화"), KeyCombo(code: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey)))]
     }
-    @objc func showAbout() {
+    @objc func showAbout() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
         NSApp.orderFrontStandardAboutPanel(options: [
@@ -393,7 +393,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
             .version: build
         ])
     }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         guard !busy else {
             // Say why instead of a bare beep: settings wait until the switch finishes.
             MainActor.assumeIsolated { TransientMessage.show(L("切り替え中は設定を開けません。完了してからお試しください。")) }

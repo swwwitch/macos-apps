@@ -479,7 +479,7 @@ struct SettingsView: View {
         if !model.start(request, quiet: true) { show() }
     }
     @objc func chooseFile() { show(); model.chooseFile() }
-    @objc func showSettings() {
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if settings == nil {
             settings = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 680), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             // Resizable from the designed size upward; the hosting view reports only its minimum.
@@ -488,7 +488,7 @@ struct SettingsView: View {
         }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             let text = Bundle.main.url(forResource: "Help", withExtension: "txt").flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? L("help")
             helpWindow = HelpDocument.makeWindow(windowTitle: L("help"), text: text, heading: "KeynoteSweeper")

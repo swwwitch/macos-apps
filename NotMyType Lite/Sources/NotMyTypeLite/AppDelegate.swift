@@ -112,7 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func showSettings() { SettingsWindow.shared.show() }
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); SettingsWindow.shared.show() }
 }
 
 /// 選んだときにクロージャーを呼ぶメニュー項目（ターゲットは自分自身。メニューが項目を持っている間は生きている）

@@ -1,6 +1,6 @@
 # 全アプリのアップデート履歴
 
-最終更新：2026-10-26（日本時間）
+最終更新：2026-10-27（日本時間）
 
 日付・バージョン・build番号付きの箇条書きで記録します。今後は機能変更・修正・ビルド更新の都度、該当アプリの先頭へ追記します。
 
@@ -59,6 +59,8 @@
 
 ## BreaklineTrimmer
 
+- 2026-10-27｜v1.4.0（build 15）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.4.0（build 12）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.4.0（build 12）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.4.0（build 11）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -72,6 +74,8 @@
 既存の詳細：[README](BreaklineTrimmer/README.md)。
 
 ## BrowserSwitcher
+
+- 2026-10-27｜v1.7.0（build 64）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v1.7.0（build 61）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.7.0（build 61）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -91,6 +95,8 @@
 
 ## BundleIDInspector
 
+- 2026-10-27｜v1.1.0（build 16）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.1.0（build 14）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.1.0（build 14）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.1.0（build 13）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -108,6 +114,8 @@
 既存の詳細：[README](BundleIDInspector/README.md)。
 
 ## CCAutoUpdateOff
+
+- 2026-10-27｜v1.4.0（build 20）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.4.0（build 18）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.4.0（build 18）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -127,6 +135,8 @@
 
 ## CarmaChameleon
 
+- 2026-10-27｜v0.15.0（build 51）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v0.15.0（build 49）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.15.0（build 49）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v0.15.0（build 48）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -145,6 +155,8 @@
 
 ## ClipTidy
 
+- 2026-10-27｜v1.0.1（build 3）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.0.1（build 3）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.0.0（build 2）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
@@ -154,6 +166,8 @@
 既存の詳細：[README](ClipTidy/README.md)。
 
 ## CommandDee
+
+- 2026-10-27｜v1.9.0（build 60）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v1.9.0（build 58）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.9.0（build 58）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -173,6 +187,8 @@
 
 ## ControlMate
 
+- 2026-10-27｜v1.3.2（build 6）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.3.1（build 5）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.3.1（build 5）｜ControlMate 1.3.1: pass browser Control-I and Control-K to Spreadsheet Helper（ソース変更記録：`df13440a`）
 - 2026-10-26｜v1.3.0（build 4）｜ControlMate 1.3.0（build 4）：InDesign 対応、コピー系のキーを Z に（ソース変更記録：`4865bbaf`）
@@ -182,6 +198,8 @@
 既存の詳細：[README](ControlMate/README.md)。
 
 ## DocklessLauncher
+
+- 2026-10-27｜v1.11.0（build 30）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.11.0（build 28）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.11.0（build 28）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -201,6 +219,8 @@
 
 ## EventDocMaker
 
+- 2026-10-27｜v1.1.0（build 2）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.1.0（build 2）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.1.0（build 2）｜EventDocMaker 1.1.0（build 2）：イベント管理とExcelからの取り込み（ソース変更記録：`417d17c1`）
 - 2026-10-26｜v1.0.0（build 1）｜EventDocMaker 1.0.0（build 1）：イベントの表からテンプレートの文書をまとめて書き出す新規アプリ（ソース変更記録：`f40b35cb`）
@@ -208,6 +228,8 @@
 既存の詳細：[README](EventDocMaker/README.md)。
 
 ## ExtensionLinker
+
+- 2026-10-27｜v0.3.3（build 56）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v0.3.3（build 54）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.3.3（build 54）｜docs: organize workspace navigation and development entry points（ソース変更記録：`12314874`）
@@ -226,6 +248,8 @@
 既存の詳細：[README](ExtensionLinker/README.md)。
 
 ## FavoriteFolders
+
+- 2026-10-27｜v1.3.7（build 13）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 旧名 FavoritesTidy（1.2.0まで）。
 
@@ -247,6 +271,8 @@
 
 ## FileCaravan
 
+- 2026-10-27｜v1.1.0（build 37）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.1.0（build 35）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.1.0（build 35）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.1.0（build 34）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -265,6 +291,8 @@
 
 ## FileSorter
 
+- 2026-10-27｜v1.0.1（build 2）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.0.1（build 2）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.0.0（build 1）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
@@ -274,6 +302,8 @@
 既存の詳細：[README](FileSorter/README.md)。
 
 ## FnNumpad
+
+- 2026-10-27｜v1.1.0（build 8）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.1.0（build 8）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.1.0（build 8）｜ControlMate 1.1.0（build 2）を追加、FnNumpad 1.1.0（build 8）（ソース変更記録：`76e0f52b`）
@@ -293,6 +323,8 @@
 
 ## FolderHopper
 
+- 2026-10-27｜v0.2.0（build 125）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v0.2.0（build 123）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.2.0（build 123）｜docs: organize workspace navigation and development entry points（ソース変更記録：`12314874`）
 - 2026-10-25｜v0.2.0（build 123）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -310,6 +342,8 @@
 既存の詳細：[README](FolderHopper/README.md)。
 
 ## HotkeyHound
+
+- 2026-10-27｜v0.4.0（build 20）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v0.4.0（build 18）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.4.0（build 18）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -329,6 +363,8 @@
 
 ## IdBackgroundOff
 
+- 2026-10-27｜v1.1.2（build 22）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.1.2（build 20）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.1.2（build 20）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.1.2（build 19）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -346,6 +382,8 @@
 既存の詳細：[README](IdBackgroundOff/README.md)。
 
 ## IncrementPaste
+
+- 2026-10-27｜v1.1.0（build 12）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v1.1.0（build 11）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.1.0（build 11）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -365,6 +403,8 @@
 
 ## KageTrimmer
 
+- 2026-10-27｜v1.4.0（build 75）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.4.0（build 74）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.4.0（build 74）｜docs: organize workspace navigation and development entry points（ソース変更記録：`12314874`）
 - 2026-10-25｜v1.4.0（build 74）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -382,6 +422,8 @@
 既存の詳細：[README](KageTrimmer/README.md)。
 
 ## KakkoReplace
+
+- 2026-10-27｜v0.4.0（build 71）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v0.4.0（build 70）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.4.0（build 70）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -401,6 +443,8 @@
 
 ## KeynoteMaestro
 
+- 2026-10-27｜v1.2.2（build 30）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.2.2（build 29）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.2.2（build 29）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.2.2（build 28）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -413,6 +457,8 @@
 既存の詳細：[README](KeynoteMaestro/README.md)。
 
 ## KeynoteSweeper
+
+- 2026-10-27｜v1.2.0（build 15）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.2.0（build 14）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.2.0（build 14）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -432,6 +478,8 @@
 
 ## LinkMaker
 
+- 2026-10-27｜v1.3.5（build 40）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.3.5（build 39）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.3.5（build 39）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.3.5（build 38）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -450,6 +498,8 @@
 
 ## ListMatch
 
+- 2026-10-27｜v1.6.0（build 14）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.6.0（build 13）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.6.0（build 13）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.6.0（build 12）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -466,6 +516,8 @@
 既存の詳細：[README](ListMatch/README.md)。
 
 ## MarkdownKitchen
+
+- 2026-10-27｜v1.47.3（build 125）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v1.47.3（build 125）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-26｜v1.47.3（build 125）｜Route MarkdownKitchen settings to a resizable AppKit window (125)（ソース変更記録：`597326db`）
@@ -485,6 +537,8 @@
 
 ## MenuShot
 
+- 2026-10-27｜v1.3.3（build 9）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.3.3（build 9）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.3.2（build 8）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
@@ -496,6 +550,8 @@
 既存の詳細：[README](MenuShot/README.md)。
 
 ## MightyEdit
+
+- 2026-10-27｜v0.3.3（build 116）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v0.3.3（build 116）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v0.3.3（build 116）｜Add clipboard text removal and align MightyEdit hotkey settings（ソース変更記録：`728b6e0b`）
@@ -514,6 +570,8 @@
 既存の詳細：[README](MightyEdit/README.md)。
 
 ## NotMyType
+
+- 2026-10-27｜v1.62.1（build 102）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-27｜v1.62.0（build 101）｜検証結果の訂正：ライブラリの二重矢印は利用者確認で未解決。左側の動作を右端へ移して1つにする再修正を受付。
 
@@ -541,6 +599,8 @@
 
 ## NotMyType Lite
 
+- 2026-10-27｜v1.9.0（build 25）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.8.2（build 24）｜通常配布版：キャッシュ消去画面の高さ不足を修正。一覧だけスクロールし、見出し・下部ボタンを固定。99／23の追加変更を統合。ビルド・公証・公開の結果はリリース記録を参照。
 
 - 2026-10-26｜v1.8.1（build 23）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
@@ -563,6 +623,8 @@
 
 ## PDF2Keynote
 
+- 2026-10-27｜v1.2.0（build 25）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
+
 - 2026-10-26｜v1.2.0（build 24）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.2.0（build 24）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.2.0（build 23）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -580,6 +642,8 @@
 既存の詳細：[README](PDF2Keynote/README.md)。
 
 ## PasteInARow
+
+- 2026-10-27｜v1.5.0（build 24）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v1.5.0（build 23）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.5.0（build 23）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -599,6 +663,8 @@
 
 ## PasteMatchStyle
 
+- 2026-10-27｜v1.1.0（build 13）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.1.0（build 12）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.1.0（build 12）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.1.0（build 11）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -616,6 +682,8 @@
 既存の詳細：[README](PasteMatchStyle/README.md)。
 
 ## PrefsPreset
+
+- 2026-10-27｜v1.2.1（build 27）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.2.1（build 23）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.2.1（build 23）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -635,6 +703,8 @@
 
 ## ProjectFolder
 
+- 2026-10-27｜v1.12.0（build 28）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.12.0（build 27）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.12.0（build 27）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.12.0（build 26）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -653,12 +723,16 @@
 
 ## ScreenTake
 
+- 2026-10-27｜v1.0.1（build 2）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.0.1（build 2）｜アイコンをカチンコ（画面とポインタ入り）に変更：旧アイコンが日の丸に見えたため
 - 2026-10-26｜v1.0.0（build 1）｜ScreenTake 1.0.0（build 1）を新規追加：画面・ウインドウ・音声・カメラの収録と簡易編集、ポインタは別レイヤー（ソース変更記録：`2251e28d`）
 
 既存の詳細：[README](ScreenTake/README.md)。
 
 ## SettingsCourier
+
+- 2026-10-27｜v1.3.2（build 9）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 ソースが配布済み版より古いため配置保留。
 
 - 2026-10-26｜ソースのURLのみ｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。配布版1.4.2（13）のソース確認待ち、ビルド・配置は保留。
 
@@ -679,6 +753,8 @@
 
 ## SettingsHop
 
+- 2026-10-27｜v1.7.2（build 23）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.7.2（build 23）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
 - 2026-10-26｜v1.5.2（build 19）｜通常版：「プライバシーとセキュリティ」を常に一番上から表示（アクセシビリティ許可時、`?Privacy` で開いてAXで一覧を先頭へスクロール）。配置済み
@@ -697,6 +773,8 @@
 
 ## ShotSorter
 
+- 2026-10-27｜v1.1.0（build 3）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-27｜v1.1.0（build 3）｜通常版：複数ウォッチフォルダー、PNGドロップで命名、Visionの文字をコメントとクリップボードへ出力。QRCode専用命名を削除。整形設定を設定画面へ移し改行を保持、範囲OCRの初期ホットキーを⌘⇧1へ変更。開発用ビルド、公証・配布は未実施。
 
 - 2026-10-26｜v1.0.1（build 2）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
@@ -708,6 +786,8 @@
 既存の詳細：[README](ShotSorter/README.md)。
 
 ## SiteMirror
+
+- 2026-10-27｜v1.5.3（build 16）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.5.3（build 16）｜設定「情報」の解説記事（note）リンクを公開済み個別記事へ更新。
 
@@ -726,6 +806,8 @@
 
 ## SpreadsheetHelper
 
+- 2026-10-27｜v1.5.0（build 19）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.5.0（build 18）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.5.0（build 18）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.5.0（build 17）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -743,6 +825,8 @@
 
 ## VectorKeys
 
+- 2026-10-27｜v1.3.1（build 5）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 ソースが配布済み版より古いため配置保留。
+
 - 2026-10-26｜v1.3.1（build 5）｜主画面の見出しを「Illustratorでスクリプトを高速実行」に（4言語）。［ツール］＞［アイテム名の検索と置換…］に⌘F。/ApplicationsとLatest Buildsへ配置。
 - 2026-10-26｜v1.3.0（build 4）｜3カラム（カテゴリ・一覧・詳細）とカテゴリの作成・名前変更・削除・振り分け（KMのグループ名をカテゴリに）。ホットキーの押し方（1回／2回、KMの2回タップを引き継ぎ）。一覧の並べ替え（手動・名前順・ショートカット順）。詳細欄の見出しを左列に。「使用回数を表示」。ホットキー欄はクリックで記録し［変更…］ボタンを廃止（共通部品）。複数選択（まとめてドラッグ・カテゴリ変更・削除）、ドロップ先のカテゴリを反転表示、［ツール］＞［統計…］（使用順・カテゴリ付き）［アイテム名の検索と置換…］［KMマクロのナンバリングを削除］［KMマクロをオフ／オンに］。⌘Zで削除・名前変更・カテゴリ変更・取り込みを取り消し、削除時はImportedの.jsxをゴミ箱へ。重なるUIを整理（上の追加ボタン・詳細の有効チェック・設定のホットキータブを廃止、使用回数の表示は［表示］メニューへ）。/ApplicationsとLatest Buildsへ配置。
 - 2026-10-26｜v1.2.0（build 3）｜Keyboard Maestroの書き出し（.kmmacros）をドラッグ／⌘Iで取り込み。スクリプトを1つ実行するだけのマクロの名前・ホットキー・オン／オフを引き継ぎ、マクロ内のコードはImportedに.jsxで保存（MaestroPackのスクリプトは読まない）。/ApplicationsとLatest Buildsへ配置。
@@ -758,6 +842,8 @@
 既存の詳細：[README](VectorMaestro/README.md)。
 
 ## VectorMate
+
+- 2026-10-27｜v2.19.2（build 81）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
 
 - 2026-10-26｜v2.19.2（build 80）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v2.19.2（build 80）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
@@ -777,6 +863,8 @@
 
 ## YohakuTrimmer
 
+- 2026-10-27｜v1.2.0（build 13）｜通常配布版：共通ホットキー欄をクリックして記録開始する方式へ反映し、［変更…］ボタンを廃止。既存のローカル変更も統合。 公証・配置は進行中。
+
 - 2026-10-26｜v1.2.0（build 12）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.2.0（build 12）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）
 - 2026-10-25｜v1.2.0（build 11）｜Keep application menus available while Dock-hidden apps have regular windows（ソース変更記録：`41725ff4`）
@@ -794,6 +882,8 @@
 既存の詳細：[README](YohakuTrimmer/README.md)。
 
 ## note2markdown
+
+- 2026-10-27｜v1.3.0（build 14）｜通常配布版：既存のローカル変更と共通部品を統合して再ビルド。 公証・配置は進行中。
 
 - 2026-10-26｜v1.3.0（build 13）｜ソースの現在版を記録。これは配布・公開の完了記録ではありません。
 - 2026-10-25｜v1.3.0（build 13）｜Record Dock menu release build numbers and verified distribution history（ソース変更記録：`ccff0cc6`）

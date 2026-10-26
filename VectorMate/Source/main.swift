@@ -1173,15 +1173,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     func applicationDidBecomeActive(_ notification: Notification) {
         model.refreshPermission()
         if mainWindow?.isVisible == true { model.refreshSettingsState() }
-        // ⌘Tab sends no reopen event: with no window on screen, bring one back. Checked on the next turn of the run loop,
-        // so a window this app is opening itself (設定…, ヘルプ) counts.
-        DispatchQueue.main.async { [weak self] in
-            // Automatic login launch must not reveal the window on activation.
-            guard let self, NSApp.isActive, !(StartupWindow.suppressInitialWindow && Date().timeIntervalSince(self.launchedAt) < 2) else { return }
-            let windows = NSApp.windows.filter { !($0 is NSPanel) && $0.canBecomeMain && $0.styleMask.contains(.titled) }
-            guard !windows.contains(where: { $0.isVisible }), !self.unitPalette.isVisible, !self.quickPalette.isVisible, !self.transformPalette.isVisible else { return }
-            if let minimized = windows.first(where: { $0.isMiniaturized }) { minimized.deminiaturize(nil) } else { self.showMain() }
-        }
+        // Shared AppSwitcherWindowReveal opens the designated main window on application selection.
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         StartupWindow.userRequestedWindow(); showMain(); return true }
@@ -1223,9 +1215,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         model.refreshPermission(); model.refreshSettingsState()
         NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func showPreferences() { openPreferences(tab: nil) }
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); openPreferences(tab: nil) }
     /// Opens 設定 on the tab with this title (the 「ホットキーを設定…」 button of 基本UI).
-    func openPreferences(tab: String?) {
+    func openPreferences(tab: String?) { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle"); window.isReleasedWhenClosed = false
@@ -1250,7 +1242,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         for sub in view.subviews { if let found = tabView(sub) { return found } }
         return nil
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil { helpWindow = HelpDocument.makeWindow(windowTitle: "VectorMate — " + L("help"), text: L("helpContent")) }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }

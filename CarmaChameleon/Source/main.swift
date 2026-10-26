@@ -730,14 +730,14 @@ struct FormatSettingsView: View {
     func applicationWillTerminate(_ notification: Notification) { KeynoteBridge.removeRuntimeScript() }
     @objc func quit() { NSApp.terminate(nil) }
     @objc func choose() { show(); model.chooseFiles() }
-    @objc func showSettings() {
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if settings == nil { settings = NSWindow(contentRect:NSRect(x:0,y:0,width:620,height:640),styleMask:[.titled,.closable,.resizable],backing:.buffered,defer:false); settings!.title = L("settingsWindow")
             // Resizable from the designed size upward; the hosting view reports only its minimum.
             let hosting = NSHostingView(rootView:SettingsView()); hosting.sizingOptions = [.minSize]
             settings!.contentView = hosting; settings!.contentMinSize = NSSize(width:620,height:640); settings!.isReleasedWhenClosed = false; settings!.center() }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             let text = Bundle.main.url(forResource:"Help",withExtension:"txt").flatMap { try? String(contentsOf:$0,encoding:.utf8) } ?? L("help")
             helpWindow = HelpDocument.makeWindow(windowTitle:L("help"), text:text, heading:"CarmaChameleon")

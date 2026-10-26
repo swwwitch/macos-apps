@@ -212,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         NSApp.mainMenu = main
     }
 
-    @objc private func showAbout() {
+    @objc private func showAbout() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         NSApp.activate(ignoringOtherApps: true)
         NSApp.orderFrontStandardAboutPanel(nil)
     }
@@ -442,7 +442,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         item.button?.toolTip = "CommandDee\n\(statusLabel.stringValue)\n\(lastResult)"
     }
 
-    @objc private func showHelp() {
+    @objc private func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if window == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             panel.title = ""
@@ -478,7 +478,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSText
         window?.makeKeyAndOrderFront(nil)
     }
 
-    @objc private func showPreferences() {
+    @objc private func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferencesWindow == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 560),
                                  styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
