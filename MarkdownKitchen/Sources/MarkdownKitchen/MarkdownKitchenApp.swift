@@ -126,19 +126,6 @@ final class SettingsWindow {
     static let shared = SettingsWindow()
     private var window: NSWindow?
 
-    /// SwiftUI can open its Settings scene through a system settings action.
-    /// Adopt that populated window so every subsequent entry point reuses it.
-    func adoptSceneWindow(_ incoming: NSWindow) {
-        guard window !== incoming else { return }
-        let previous = window
-        window = incoming
-        incoming.title = L("設定")
-        incoming.styleMask.insert(.resizable)
-        incoming.contentMinSize = NSSize(width: 520, height: 400)
-        incoming.contentMaxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-        if let previous, previous !== incoming { previous.close() }
-    }
-
     func show() {
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 400),
@@ -151,6 +138,7 @@ final class SettingsWindow {
             window.contentView = hosting
             window.contentMinSize = NSSize(width: 520, height: 400)
             window.center()
+            window.setFrameAutosaveName("MarkdownKitchenResizableSettings")
             self.window = window
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -181,19 +169,32 @@ final class SettingsWindow {
     }
 }
 
-/// Identify the system-created settings window without replacing its view graph.
+/// Keep the system Settings scene alive, but route presentation to the AppKit
+/// window. SwiftUI's Settings host can reapply fixed sizing after view layout.
 private struct SettingsSceneWindowCapture: NSViewRepresentable {
     func makeNSView(context: Context) -> CaptureView { CaptureView() }
     func updateNSView(_ view: CaptureView, context: Context) {}
     final class CaptureView: NSView {
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
+            NotificationCenter.default.removeObserver(self)
             guard let window else { return }
+            NotificationCenter.default.addObserver(self,
+                selector: #selector(settingsBecameKey(_:)),
+                name: NSWindow.didBecomeKeyNotification, object: window)
+            Self.route(window)
+        }
+        private static func route(_ window: NSWindow?) {
             DispatchQueue.main.async { [weak window] in
                 guard let window else { return }
-                SettingsWindow.shared.adoptSceneWindow(window)
+                window.orderOut(nil)
+                SettingsWindow.shared.show()
             }
         }
+        @objc private func settingsBecameKey(_ notification: Notification) {
+            Self.route(notification.object as? NSWindow)
+        }
+        deinit { NotificationCenter.default.removeObserver(self) }
     }
 }
 
