@@ -51,6 +51,7 @@
 - [ShotSorter](#shotsorter)
 - [SiteMirror](#sitemirror)
 - [SpreadsheetHelper](#spreadsheethelper)
+- [VectorKeys](#vectorkeys)
 - [VectorMaestro](#vectormaestro)
 - [VectorMate](#vectormate)
 - [YohakuTrimmer](#yohakutrimmer)
@@ -711,6 +712,10 @@
 - 2026-10-17｜v1.4.4（build 13）｜SpreadsheetHelper 1.4.4（build 13）：CellCopyCleaner から改名、表の操作のショートカットを追加（ソース変更記録：`9a2fb1b4`）
 
 既存の詳細：[README](SpreadsheetHelper/README.md)。
+
+## VectorKeys
+
+- 2026-10-26｜v1.0.0（build 1）｜新規。登録した.jsxをIllustrator前面時だけ効くショートカットで実行。/ApplicationsとLatest Buildsへ配置（公証・公開は未実施）。
 
 ## VectorMaestro
 

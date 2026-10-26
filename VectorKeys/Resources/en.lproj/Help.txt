@@ -1,0 +1,41 @@
+## Basics
+VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is in front.
+- Choose File > Add Scripts… (⌘O), or drag .jsx files onto the window. You can add several at once.
+- Select a script to see its file and shortcut on the right. Click Change…, then press the keys to assign.
+- The checkbox in the list turns each script's shortcut on or off.
+- Run brings Illustrator to the front, then runs the script.
+- Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
+- Recent Runs shows the latest results. When a script stops with an error, Illustrator's message is shown. Not saved; cleared when the app quits.
+
+## Managing scripts
+- You can add .jsx, .js and .jsxbin files. The same file is not added twice.
+- Change the name in its field. The file name stays.
+- Drag to reorder the list (not while searching).
+- A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
+- Only the file's location is stored. Edit the script and the next run uses the new contents.
+
+## Shortcuts
+- Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.
+- App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
+- ⌘O: Add scripts
+- ⌘0: Open the main window
+- ⌘,: Settings
+- ⌘W: Close the window
+- ⌘?: This help
+When two scripts share a key, only the one higher in the list reacts, and the key is shown in red.
+
+## Permissions and privacy
+- Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
+The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
+
+## Quitting and staying open
+Closing the window keeps the app running and the shortcuts working. Reopen it from the Dock or the menu bar icon. Quit with VectorKeys > Quit VectorKeys (⌘Q).
+
+## Troubleshooting
+- A shortcut does nothing: check that Illustrator is in front, "Use hotkeys" is on and the script's checkbox is on. A red key is a duplicate or is used by another app.
+- "Not allowed to control Illustrator": turn on Adobe Illustrator for VectorKeys in System Settings > Privacy & Security > Automation.
+- "File not found": use Choose Another File… to point to it again.
+- An earlier run does not finish: a script that shows a dialog box holds the next run until it is closed. Up to 3 runs wait; more are skipped.
+
+## Removing and restoring
+Select a script and click − (or press Delete). The file itself is not deleted. To clear everything, quit the app and delete Scripts.json.

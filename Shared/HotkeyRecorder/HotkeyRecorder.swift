@@ -200,7 +200,7 @@ final class HotkeyRecorder: ObservableObject {
 @MainActor
 final class HotkeySet {
     var action: ((UInt32) -> Void)?
-    private let signature: OSType
+    private nonisolated let signature: OSType
     private var references: [UInt32: EventHotKeyRef] = [:]
     private var wanted: [UInt32: KeyCombo] = [:]
     private var handler: EventHandlerRef?
@@ -217,9 +217,12 @@ final class HotkeySet {
             guard GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil,
                                     MemoryLayout<EventHotKeyID>.size, nil, &id) == noErr else { return OSStatus(eventNotHandledErr) }
             let owner = Unmanaged<HotkeySet>.fromOpaque(context).takeUnretainedValue()
-            let number = id.id, signature = id.signature
+            // Another HotkeySet of the same app (e.g. the app hotkey and the feature hotkeys) gets the event next.
+            // Returning noErr here would swallow its keys: the handler installed last is called first.
+            guard id.signature == owner.signature else { return OSStatus(eventNotHandledErr) }
+            let number = id.id
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { if signature == owner.signature { owner.action?(number) } }
+                MainActor.assumeIsolated { owner.action?(number) }
             }
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)

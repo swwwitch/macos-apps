@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>VectorKeys</string>
+	<key>CFBundleExecutable</key>
+	<string>VectorKeys</string>
+	<key>CFBundleIconFile</key>
+	<string>VectorKeys.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>jp.dtp-transit.vectorkeys</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>VectorKeys</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>登録したスクリプトをIllustratorで実行するために使用します。</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 swwwitch</string>
+	<key>SWAppFamily</key>
+	<string>swwwitch</string>
+	<key>SWNoteArticleURL</key>
+	<string>https://note.com/swwwitch/m/m057948d2fbeb</string>
+</dict>
+</plist>
