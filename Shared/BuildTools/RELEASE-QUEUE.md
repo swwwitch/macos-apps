@@ -164,3 +164,12 @@
 - ビルド・バックアップ付き両配置・署名内容一致・/Applications版の実機検証完了。全閉じと2書類再表示5回の前後で同一PID、122のクラッシュレポートなし。正常終了・ファイルからの再起動、未保存変更の保存確認も検証。公開リリース未実施。
 
 | 2026-10-26 | noteリンク追加6アプリ | 工程3〜12再開 | 公開照合途中・全体未完了 | 公証Mac・2026-10-26T21:18:14.029549+09:00 | 1de13fc／a3e8525、既存版/buildを再利用 | 6件GitHub公開・5件note公開を実ダウンロード/内包検証。ShotSorter note同時編集、SettingsHop Projects対象項目不明、SettingsCourier現行ソース未反映を保留。[工程別記録](ReleaseRecords/20261026-note-links.md)。 |
+
+
+## 2026-10-26 all-app installation integrity audit
+
+- User requested checking all apps after missing executables were found. Canonical workspace: ~/Git/macos-apps. Existing tracked/staged/untracked work preserved at .local/release-backups/app-integrity-20261026.
+- Checked 50 managed apps in both installation destinations: 36 pass signatures and content equality; 14 have anomalies. Missing /Applications executables: ClipTidy, FileSorter, MenuShot, SettingsHop, ShotSorter, SiteMirror.
+- Six bundle-root self-links cause signature errors; MarkdownKitchen Latest Builds and VectorMate have Sparkle sealed-resource failures. Latest Builds presence changed during the audit; do not use incomplete copies as repair sources or duplicate ongoing release work.
+- Added read-only audit tool and four passing tests. Product versions/builds unchanged. Report: [full per-app versions and results](ReleaseRecords/20261026-app-integrity.md).
+- Steps 1/2 PARTIAL: audit source/tests recorded independently; product fixes, builds, localization and runtime/settings-retention verification remain pending. No product release start signal inferred from this inspection request. No notarization/deployment/publication. Overall recovery INCOMPLETE.
