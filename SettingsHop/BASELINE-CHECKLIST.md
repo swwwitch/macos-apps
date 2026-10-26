@@ -24,7 +24,7 @@
 | B13 | 待機負荷・復帰 | 実装済み・実機未確認 | ポーリング・監視なし。CPU・メモリは未計測 |
 | B14 | 見出し左の現行アプリアイコン・共通ヘッダー・表示・アクセシビリティ | 一部実機確認済み | currentAppIcon()＋機能見出し「システム設定を開く」＋補足説明、AppSurface背景、行ボタンにaccessibilityLabel/Hint。ライトモードの画面を撮影して確認。ダークモード・VoiceOverは未確認 |
 | B15 | 多言語 | 自動テスト済み | `make-resources.py` で4言語、`test.sh` でキー（画面名の pane.* を含む）とプレースホルダーの一致、ヘルプを検証 |
-| B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実装済み・実機未確認 | ヘルプメニュー（⌘?）とメニューバーからHelp.txt。note記事は未作成のためまとめページ |
+| B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実装済み・実機未確認 | ヘルプメニュー（⌘?）とメニューバーからHelp.txt。note記事は https://note.com/swwwitch/n/n9b5032198e57 |
 | B17 | プライバシー | ソース確認済み | 外部通信なし（更新の配信先は未設定）。設定の値を読まない。ログなし |
 | B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 配置確認済み | `build.sh --deploy` で両方へ配置、publish_latest.pyが署名・内容一致を確認（1.0.0 / 1）。/Applications版を起動し `ps` でパスを確認。更新は未設定のため準備中。Developer ID署名・公証は未実施 |
 | B19 | マスタード基調の共通アイコン | 実機確認済み | `Assets/GenerateIcon.swift`（KeynoteSweeperと同じ地色・縁・影）。モチーフは歯車と跳ぶ矢印。1024pxと主画面の52pxで確認 |
@@ -33,7 +33,7 @@
 | B22 | 手動起動は表示・ログイン自動起動は非表示 | 一部実機確認済み | 手動起動で表示を確認。ログイン起動は未確認 |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、⌘0。⌘1はこのアプリの「システム設定」が使うため、⌘0の別名にはならない（MainWindowShortcutAliasの仕様どおり） |
 | B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | contentMinSize 560×600、SettingsTabsでタブ復元、即時反映、タイトル「設定」 |
-| B25 | アプリ情報と目印 | 実装済み・実機未確認 | 「情報」タブ、SWNoteArticleURL（まとめページ）、NSHumanReadableCopyright、SWAppFamily。個別GitHubリポジトリは未作成のため macos-apps を開く |
+| B25 | アプリ情報と目印 | 実装済み・実機未確認 | 「情報」タブ、SWNoteArticleURL（個別note記事）、NSHumanReadableCopyright、SWAppFamily。個別GitHubリポジトリは未作成のため macos-apps を開く |
 | B26 | 証明書での署名 | 実機確認済み | TeamIdentifier=PL9S9PXX96（codesign -dv） |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | ビープは使わず、失敗はウインドウに表示 |
 | B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰、行ボタンのaccessibilityLabel、tintはダーク用の明るいマスタード |
@@ -52,3 +52,5 @@
 - 別コピー起動：未実施
 - /ApplicationsとLatest Buildsへの配置：実施（版・build・署名・内容一致はpublish_latest.pyで確認）
 - /Applicationsのアプリを起動：実施（起動のみ）
+
+2026-10-26：1.7.2（23）で情報タブの解説記事リンクを設定。配布版での表示・リンク先の確認はリリース記録に従う。
