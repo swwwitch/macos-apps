@@ -60,6 +60,42 @@ enum MenuCapture {
         let byID = Dictionary(uniqueKeysWithValues: windows.map { ($0.windowID, $0) })
         let scale = CGFloat(SCContentFilter(display: display, excludingWindows: []).pointPixelScale)
 
+        // Experimental native capture: display coordinates preserve menu geometry and system shadows.
+        // Capture the complete tree together, without cutting corners or painting replacement shadows.
+        let selected = (plan.bar + plan.menus).compactMap { byID[$0.id] }
+        let filter = SCContentFilter(display: display, including: selected)
+        let config = SCStreamConfiguration()
+        config.width = max(1, Int((plan.crop.width * scale).rounded()))
+        config.height = max(1, Int((plan.crop.height * scale).rounded()))
+        config.sourceRect = plan.crop.offsetBy(dx: -display.frame.minX, dy: -display.frame.minY)
+        config.showsCursor = false
+        config.backgroundColor = .clear
+        config.ignoreShadowsDisplay = !shadow
+        config.ignoreShadowsSingleWindow = !shadow
+        config.ignoreGlobalClipDisplay = false
+        config.shouldBeOpaque = false
+        if #available(macOS 14.2, *) { config.includeChildWindows = false }
+        let native: CGImage
+        if #available(macOS 26.0, *) {
+            let screenshot = SCScreenshotConfiguration()
+            screenshot.width = config.width
+            screenshot.height = config.height
+            screenshot.sourceRect = config.sourceRect
+            screenshot.showsCursor = false
+            screenshot.ignoreShadows = !shadow
+            screenshot.ignoreClipping = false
+            screenshot.includeChildWindows = true
+            let result = try await SCScreenshotManager.captureScreenshot(contentFilter: filter, configuration: screenshot)
+            guard let captured = result.sdrImage else { throw CaptureError.failed("native screenshot missing SDR image") }
+            native = captured
+        } else {
+            native = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
+        }
+        return MenuPicture(image: native, scale: scale, area: plan.crop)
+    }
+
+    /// Previous compositor retained for regression comparison, not used by the native test build.
+    private static func legacyCapture(windows: [SCWindow], byID: [CGWindowID: SCWindow], plan: MenuLayout.Plan, scale: CGFloat, shadow: Bool) async throws -> MenuPicture {
         var shots: [Shot] = []
         for box in plan.bar {
             // A status item that went away is skipped; the rest of the bar is still fine.
@@ -131,6 +167,58 @@ enum MenuCapture {
         return output.makeImage()
     }
 
+    private static func makeInnerBorder(from image: CGImage) -> CGImage? {
+        let width = image.width, height = image.height, bytesPerRow = width * 4
+        var source = [UInt8](repeating: 0, count: bytesPerRow * height)
+        var edge = [UInt8](repeating: 0, count: bytesPerRow * height)
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
+        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+        let drewImage = source.withUnsafeMutableBytes { storage -> Bool in
+            guard let context = CGContext(data: storage.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                                          bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drewImage else { return nil }
+        func alpha(_ x: Int, _ y: Int) -> UInt8 {
+            guard x >= 0, x < width, y >= 0, y < height else { return 0 }
+            return source[y * bytesPerRow + x * 4 + 3]
+        }
+        for y in 0..<height {
+            for x in 0..<width {
+                let center = Int(alpha(x, y))
+                guard center > 0 else { continue }
+                // A one-pixel Euclidean-radius kernel contains only the four
+                // cardinal neighbours. The previous 3x3 square also included
+                // diagonals (distance sqrt(2)), which made rounded corners two
+                // pixels thick in places and produced a visible staircase.
+                // Keeping the source alpha values here preserves the original
+                // subpixel coverage as antialiasing for the inner hairline.
+                let innerAlpha = min(
+                    center,
+                    Int(alpha(x - 1, y)),
+                    Int(alpha(x + 1, y)),
+                    Int(alpha(x, y - 1)),
+                    Int(alpha(x, y + 1))
+                )
+                let coverage = max(0, center - innerAlpha)
+                let lineAlpha = UInt8(min(255, Int((Double(coverage) * 0.30).rounded())))
+                guard lineAlpha > 0 else { continue }
+                let offset = y * bytesPerRow + x * 4
+                let gray = UInt8((Double(lineAlpha) * 0.18).rounded())
+                edge[offset] = gray
+                edge[offset + 1] = gray
+                edge[offset + 2] = gray
+                edge[offset + 3] = lineAlpha
+            }
+        }
+        return edge.withUnsafeMutableBytes { storage in
+            guard let context = CGContext(data: storage.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                                          bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo) else { return nil }
+            return context.makeImage()
+        }
+    }
+
     static func compose(_ shots: [Shot], crop: CGRect, scale: CGFloat, shadow: Bool) -> CGImage? {
         let width = Int((crop.width * scale).rounded()), height = Int((crop.height * scale).rounded())
         let space = shots.first?.image.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
@@ -138,7 +226,14 @@ enum MenuCapture {
               let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
                                       bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue) else { return nil }
         context.interpolationQuality = .none
-        for shot in shots {
+        for (index, shot) in shots.enumerated() {
+            // Finish the bar before menus, so a menu overlapping its lower edge stays on top.
+            if shot.isMenu && !shots[..<index].contains(where: { $0.isMenu }),
+               let bar = shots.first(where: { !$0.isMenu }) {
+                let barRect = MenuLayout.placement(of: bar.frame, in: crop, scale: scale)
+                context.setFillColor(CGColor(gray: 0.75, alpha: 1))
+                context.fill(CGRect(x: 0, y: barRect.minY, width: CGFloat(width), height: 1))
+            }
             context.saveGState()
             let rect = MenuLayout.placement(of: shot.frame, in: crop, scale: scale)
             if shadow && shot.isMenu {
@@ -150,6 +245,9 @@ enum MenuCapture {
             }
             context.draw(shot.image, in: rect)
             context.restoreGState()
+            if shot.isMenu, let edge = makeInnerBorder(from: shot.image) {
+                context.draw(edge, in: rect)
+            }
         }
         return context.makeImage()
     }
