@@ -61,7 +61,7 @@ class DeploymentTests(unittest.TestCase):
     def test_default_distribution_path(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(latest_builds_dir(), DEFAULT_LATEST_BUILDS)
-            self.assertEqual(latest_builds_dir(), Path.home()/'sw Dropbox/takano masahiro/Dropbox-shared/sw_app/Latest Builds')
+            self.assertEqual(latest_builds_dir(), Path.home()/'sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds')
 
     def test_process_check_failure_stops_before_replacement(self):
         with tempfile.TemporaryDirectory() as tmp:

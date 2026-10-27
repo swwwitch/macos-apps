@@ -83,7 +83,7 @@ B20の共通部分は全アプリで同じUIとし、次の構成に揃える。
 B18の納品先は次の2か所とし、同じ最終ビルドを両方へ配置する。開発フォルダーにビルドを残すだけで納品完了にしない。
 
 - `/Applications/<正式アプリ名>.app`
-- `/Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app/Latest Builds/<正式アプリ名>.app`
+- `/Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/<正式アプリ名>.app`
 
 - ビルドと必要な検証を終えたアプリを配置する。途中の試験ビルドは最終版として配置しない。
 - 既存版はBundle IDを照合し、同名の別アプリを上書きしない。置換前にワークスペース内へ復元可能なバックアップを保存する。

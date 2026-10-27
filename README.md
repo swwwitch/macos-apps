@@ -2,7 +2,7 @@
 
 [全アプリのアップデート履歴（日付・バージョン付き）](APP-UPDATE-HISTORY.md)
 
-各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、配布物はDropbox内 `sw_app/Latest Builds` を使用します。リポジトリ内の `Latest Builds` は配布一覧の資料です。開発フォルダ内の `.app` はビルド出力です。
+各アプリの開発フォルダ、共通部品、最新ビルドを管理します。起動するアプリは `/Applications`、配布物はDropbox内 `sw_app-Latest Builds` を使用します。リポジトリ内の `Latest Builds` は配布一覧の資料です。開発フォルダ内の `.app` はビルド出力です。
 
 [変更履歴](CHANGELOG.md) · [フォルダーの使い分け](WORKSPACE.md) · [リリース作業チェックリスト](Shared/BuildTools/RELEASE-CHECKLIST.md)
 

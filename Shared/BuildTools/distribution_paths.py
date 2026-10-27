@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-DEFAULT_LATEST_BUILDS = Path.home() / "sw Dropbox/takano masahiro/Dropbox-shared/sw_app/Latest Builds"
+DEFAULT_LATEST_BUILDS = Path.home() / "sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds"
 
 def latest_builds_dir():
     value = os.environ.get("SW_APP_LATEST_BUILDS")

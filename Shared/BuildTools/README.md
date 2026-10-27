@@ -37,7 +37,7 @@
 ## 開発先と配布先の分離（2026-10-20）
 
 開発先は `~/Git/macos-apps`。配布先は `/Applications` と
-`~/sw Dropbox/takano masahiro/Dropbox-shared/sw_app/Latest Builds` です。
+`~/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds` です。
 共通設定 `distribution_paths.py` を配置・検証スクリプトで使用します。
 別のMacでDropboxの場所が異なる場合は、`SW_APP_LATEST_BUILDS` に配布先の絶対パスを設定してください。
 `python3 Shared/BuildTools/distribution_paths.py` で有効な配布先を確認できます。
