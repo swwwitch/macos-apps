@@ -643,3 +643,6 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main
 - 開始SHA: 6336f80bdcee3410df256edf9ab8fd3c7098ffc0
 - 内容: ファイル実行と直書きコードの保存・編集・実行。状態: 1.6.0 (9) 実装・テスト・検証ビルド・署名検証完了。開始: 2026-10-28 JST。検証用ビルド作成依頼に対応。Illustrator実機操作、公証・配布配置・公開は未実施。pushは自動承認レビューで保留。
+
+## VectorKeys コード見出し削除（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点7fe76a0。内容: コード入力欄上部の重複見出しを非表示。状態: 1.6.0 (10) 検証ビルド・署名検証完了。GUI確認・公証・配布配置・公開未実施。

@@ -141,7 +141,9 @@ struct StepRow: View {
             Text("\(index + 1)").font(.caption.monospacedDigit()).foregroundColor(.secondary).frame(width: 16, alignment: .trailing)
             Image(systemName: symbol).foregroundColor(.secondary).frame(width: 18).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).lineLimit(2).truncationMode(.middle)
+                if case .code = step {} else {
+                    Text(title).lineLimit(2).truncationMode(.middle)
+                }
                 if case .code(let source) = step {
                     TextEditor(text: Binding(get: { source }, set: { model.updateCode(script.id, at: index, source: $0) }))
                         .font(.system(.body, design: .monospaced))
