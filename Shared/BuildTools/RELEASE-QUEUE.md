@@ -18,6 +18,14 @@
 - 成果物：FavoriteFolders/build/FavoriteFolders.app、1.3.8（14）。実行ファイルSHA-256 c0f37f1a8dc8b5db91690ed997df487bdba610e4bc81077466e194a514403e89。
 - 未確認：GUIでの設定ファイル読み込み・DFXへの実保存・Optionクリックによるフォルダ選択。公証・配布先配置・公開・commit/pushは未実施。詳細：FavoriteFolders/Tests/BUILD-NOTES-20261027.md。
 
+## 2026-10-27 VectorKeys：スクリプト実行専用へ整理
+
+- 要望：メニューコマンド実行を削除し、スクリプトを呼び出して実行するだけにする。「整理したらビルドまで実行」の指示あり。
+- 担当：このチャット、実機 MacBookPro13-M5-2025（指定開発Macとは異なる）。main、入力SHA 8491a08ad523052582e943487cdc849a6e7ad840。開始2026-10-27（日本時間）。
+- ソース差異：git fetch origin後もソースは1.3.1（5）。配布済みは1.4.0（6）、同梱READMEにメニューコマンド・複数手順の追加記録、MenuCommands.tsvあり。旧ソースや生成済み.appを最新ソースとして編集しない。
+- 状態：スクリプト専用の手元ソースで単体テスト・4言語検証PASS。検証ビルド成功（VectorKeys/build/VectorKeys.app、1.3.1 build 5、ad-hoc署名、codesign検証PASS）。実機動作・公証は未確認。build 6のソース取得・保存済み手順データとの互換性確認・削除実装の確定は保留。配布先は置換しない。版・buildは変更しない。
+
+
 ## 2026-10-27 ShotSorter：メインウインドウへのドロップ・QRCode専用命名の削除
 
 - 開始：2026-10-27（日本時間）。担当：開発Mac MacBook-Pro-14-2024-sw（実機名一致）、ブランチmain、入力SHA 95f484d41ab09f61329144924f534d11633ca38e、実装対象SHA 93c589df4d5cc5121f00f984fddcaff0a13732e4。ユーザー「gitを更新してビルド」で着手。改行保持を追加。実装・検証用ビルド・GitHubへのpush成功。通常版1.1.0（3）。配布は公証Mac担当。
