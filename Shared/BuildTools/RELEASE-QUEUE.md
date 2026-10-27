@@ -604,3 +604,17 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 対象ea64d78をGitHub mainへpush済み。ビルド・自動テスト・公証Accepted・バックアップ付き両配置・署名と全内容一致・/Applications起動を確認。設定差分なし。
 - 実キー・Illustrator実行・全機能UI・公開更新は未確認。旧ソースによるVectorKeys配布保留はこのリリースで解消。
 - [配布記録](ReleaseRecords/20261027-vectorkeys-1.5.0-build7.md)。
+
+## VectorKeys — 設定の共有タブ不足（2026-10-27受付）
+
+- ユーザー報告：設定に共有・書き出しなどのタブがない。
+- 確認：1.5.0（7）のSettingsViewは「起動・常駐」「情報」のみ。B29は初版の「パスがMac固有」を理由に適用外のまま。共通SettingsSyncはビルド対象だが、設定・共有UIは未接続。
+- 要望：共通仕様B29に合わせ「情報」の直前に「設定の共有」タブを追加し、書き出し・読み込み・同期を用意する。共有可能な設定とMac固有のパス・権限・起動設定を区別し、一覧とスクリプトの移行範囲を確認する。既存データを保持する。
+- 状態：受付・未実装。担当：開発Mac MacBook-Pro-14-2024-sw、本チャット。版・build未割当。「ビルドを更新」または定時開始条件で着手。今回ビルド・配布は未実施。
+
+## VectorKeys 設定共有 開発開始（2026-10-27 14:24 JST）
+- ユーザーのビルド更新指示で開始。開発Mac MacBook-Pro-14-2024-sw.local、main、基点a4608b8。対象SHAは確定コミット。1.5.1（8）。設定共有タブ・共通同期接続を実装。公証・配置は公証Mac担当、未実施。
+
+### VectorKeys 設定共有 開発検証完了
+- 1.5.1（8）。設定共有3キー・共通UI・受信後更新・4言語説明を実装。VectorKeys/test.shとShared/SettingsSync/test.sh PASS、NO_DEPLOY既存署名ビルド成功。詳細：VectorKeys/Tests/BUILD-NOTES-20261027-sharing.md。対象SHAは本記録を含む確定コミット。
+- 公証・両配置先更新・実機UI・公開は未実施。開発Macのインストール版はbuild 6。公証Macへの依頼送信は未実施。

@@ -58,6 +58,10 @@ struct RunRecord: Identifiable {
         registerHotkeys()
     }
 
+    func reloadSharedSettings() {
+        hotkeysEnabled = defaults.object(forKey: "hotkeysEnabled") as? Bool ?? true
+    }
+
     // MARK: Saving
 
     private var saveWork: DispatchWorkItem?

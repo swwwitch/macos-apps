@@ -1,3 +1,5 @@
+"sharing.note" = "Shares global hotkey enablement, usage-count display and sort order.";
+"sharing.perMac" = "The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.";
 "heading" = "Run Illustrator Scripts Fast";
 "subtitle" = "Runs your scripts with keyboard shortcuts while Illustrator is in front.";
 "useHotkeysHint" = "When off, all script shortcuts are paused.";

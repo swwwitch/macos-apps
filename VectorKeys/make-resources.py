@@ -3,7 +3,9 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''heading|Illustratorでスクリプトを高速実行|Run Illustrator Scripts Fast|在 Illustrator 中快速运行脚本|Illustrator에서 스크립트를 빠르게 실행
+rows = '''sharing.note|ホットキー全体の有効状態・使用回数表示・並び順を共有します。|Shares global hotkey enablement, usage-count display and sort order.|共享全局快捷键启用状态、使用次数显示和排序。|전체 단축키 활성 상태, 사용 횟수 표시와 정렬 순서를 공유합니다.
+sharing.perMac|スクリプト一覧・実ファイル・項目別ホットキー、起動・常駐・呼び出しホットキー・ウインドウ位置は共有しません。|The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.|不共享脚本列表、文件、各项目快捷键、启动与常驻设置、应用启动快捷键及窗口位置。|스크립트 목록과 파일, 항목별 단축키, 시작 및 상주 설정, 앱 호출 단축키와 윈도우 위치는 공유하지 않습니다.
+heading|Illustratorでスクリプトを高速実行|Run Illustrator Scripts Fast|在 Illustrator 中快速运行脚本|Illustrator에서 스크립트를 빠르게 실행
 subtitle|登録したスクリプトを、Illustratorが前面のときにキーボードショートカットで実行します。|Runs your scripts with keyboard shortcuts while Illustrator is in front.|在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本。|Illustrator가 앞에 있을 때 등록한 스크립트를 키보드 단축키로 실행합니다.
 useHotkeysHint|オフにすると、スクリプトのショートカットをすべて一時停止します。|When off, all script shortcuts are paused.|关闭后暂停所有脚本快捷键。|끄면 모든 스크립트 단축키를 일시 정지합니다.
 state.hint|スクリプトのショートカットは、Illustratorが前面のときだけ働きます。|Script shortcuts work only while Illustrator is in front.|脚本快捷键仅在 Illustrator 位于前台时有效。|스크립트 단축키는 Illustrator가 앞에 있을 때만 작동합니다.

@@ -73,3 +73,6 @@ Closing the window keeps the app running and the shortcuts working. Reopen it fr
 
 ## Removing and restoring
 Select a script and click − (or press Delete). The file itself is not deleted (only .jsx files saved from Keyboard Maestro code go to the Trash when nothing else uses them). Deleting, renaming with Tools, changing categories and importing can be undone with Edit > Undo (⌘Z). To clear everything, quit the app and delete Scripts.json.
+
+
+Share Settings provides export, import and folder sync through iCloud Drive or Dropbox. Import replaces shared preferences after confirmation. Update all syncing Macs to 1.5.1 or later. Shares global hotkey enablement, usage-count display and sort order. The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.

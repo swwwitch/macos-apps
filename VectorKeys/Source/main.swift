@@ -45,6 +45,8 @@ import Carbon
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
 
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 700), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "VectorKeys"; window.titleVisibility = .hidden

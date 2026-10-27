@@ -1,3 +1,5 @@
+"sharing.note" = "共享全局快捷键启用状态、使用次数显示和排序。";
+"sharing.perMac" = "不共享脚本列表、文件、各项目快捷键、启动与常驻设置、应用启动快捷键及窗口位置。";
 "heading" = "在 Illustrator 中快速运行脚本";
 "subtitle" = "在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本。";
 "useHotkeysHint" = "关闭后暂停所有脚本快捷键。";

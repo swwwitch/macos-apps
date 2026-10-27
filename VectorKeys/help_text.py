@@ -305,3 +305,7 @@ Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그�
 목록에서 선택하고 − 버튼(또는 Delete 키)으로 삭제합니다. 파일 자체는 삭제되지 않습니다(Keyboard Maestro 코드에서 저장한 .jsx만 다른 곳에서 쓰지 않으면 휴지통으로 옮깁니다). 삭제, 도구로 이름 변경, 카테고리 변경, 가져오기는 [편집] > [실행 취소](⌘Z)로 되돌릴 수 있습니다. 모두 지우려면 앱을 종료한 뒤 Scripts.json을 삭제하세요.
 """,
 }
+
+SHARING_HELP = {'ja': '設定の「設定の共有」で書き出し・読み込み・iCloud DriveやDropboxなどのフォルダー同期ができます。読み込みは確認後に共有設定を置き換えます。同期する全Macを1.5.1以降へ更新してください。 ホットキー全体の有効状態・使用回数表示・並び順を共有します。 スクリプト一覧・実ファイル・項目別ホットキー、起動・常駐・呼び出しホットキー・ウインドウ位置は共有しません。', 'en': 'Share Settings provides export, import and folder sync through iCloud Drive or Dropbox. Import replaces shared preferences after confirmation. Update all syncing Macs to 1.5.1 or later. Shares global hotkey enablement, usage-count display and sort order. The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.', 'zh-Hans': '共享设置标签页提供导出、导入及 iCloud Drive 或 Dropbox 文件夹同步。确认后导入会替换共享设置。所有同步的 Mac 均须更新至 1.5.1 或更高版本。 共享全局快捷键启用状态、使用次数显示和排序。 不共享脚本列表、文件、各项目快捷键、启动与常驻设置、应用启动快捷键及窗口位置。', 'ko': '설정 공유 탭에서 내보내기, 가져오기 및 iCloud Drive나 Dropbox 폴더 동기화를 사용합니다. 확인 후 공유 설정을 교체합니다. 모든 동기화 Mac을 1.5.1 이상으로 업데이트하세요. 전체 단축키 활성 상태, 사용 횟수 표시와 정렬 순서를 공유합니다. 스크립트 목록과 파일, 항목별 단축키, 시작 및 상주 설정, 앱 호출 단축키와 윈도우 위치는 공유하지 않습니다.'}
+for language, text in SHARING_HELP.items():
+    HELP[language] += "\n\n" + text + "\n"

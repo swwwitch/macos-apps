@@ -570,7 +570,7 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (AboutSection.title, AnyView(AboutView()))])
+        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
     }
 }
