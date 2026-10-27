@@ -598,3 +598,9 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 開始：2026-10-27T14:00:36.412806+09:00。担当：公証Mac MacBookPro13-M5-2025.local、本チャット。main。基点bbca047。対象SHAは本番号確定コミット。
 - ユーザー「今回はそちらで版・build番号を上げて、公証・両配置先への更新まで進めてください」により、版決定の開発担当限定ルールの今回限りの例外が明示承認された。1.5.0（7）に確定し、commit・push後に同じソースからビルド・公証・バックアップ付き両配置・起動を検証する。
 - 状態：ソース番号確定、公証前。成果物・検証：Shared/ReleasePreparation/20261027-VectorKeys-1.5.0-build7/。
+
+### VectorKeys 1.5.0（7）完了結果
+
+- 対象ea64d78をGitHub mainへpush済み。ビルド・自動テスト・公証Accepted・バックアップ付き両配置・署名と全内容一致・/Applications起動を確認。設定差分なし。
+- 実キー・Illustrator実行・全機能UI・公開更新は未確認。旧ソースによるVectorKeys配布保留はこのリリースで解消。
+- [配布記録](ReleaseRecords/20261027-vectorkeys-1.5.0-build7.md)。

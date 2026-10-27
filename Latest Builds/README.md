@@ -47,3 +47,5 @@
 | [InsertSnippets](InsertSnippets.app) | 1.11.2 | 28 | `jp.dtp-transit.insertsnippets` |
 | [NotMyType Lite](NotMyType%20Lite.app) | 1.9.0 | 25 | `jp.dtp-transit.notmytypelite` |
 | [SVGExporter](SVGExporter.app) | 1.2.4 | 10 | `jp.dtp-transit.svgexporter` |
+
+| [VectorKeys](VectorKeys.app) | 1.5.0 | 7 |

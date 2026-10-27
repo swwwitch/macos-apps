@@ -14,3 +14,8 @@
 ## 通常配布版の番号確定
 
 - 2026-10-27：ユーザーがこの公証Macでの番号決定・公証・両配置先更新を明示承認。1.5.0（7）に確定。基点bbca047と同じスクリプト専用化のコードを使用し、配布用に再ビルド・公証する。結果はShared/ReleasePreparation/20261027-VectorKeys-1.5.0-build7/に記録。
+
+## 1.5.0（7）通常配布の結果
+
+- ソースea64d78からビルド・既存test.sh成功。Apple公証Accepted、staple・Gatekeeper・署名検証成功。旧版1.4.0/6の両バックアップ後、/ApplicationsとLatest Buildsへ配置し、全内容・署名・版/build一致と/Applications起動を確認。設定差分なし。
+- 実キー入力・Illustrator実行・全機能UIは未確認。詳細：Shared/BuildTools/ReleaseRecords/20261027-vectorkeys-1.5.0-build7.md。
