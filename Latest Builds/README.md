@@ -17,7 +17,7 @@
 | [DocklessLauncher](DocklessLauncher.app) | 1.11.0 | 30 | `jp.dtp-transit.applauncher` |
 | [ExtensionLinker](ExtensionLinker.app) | 0.3.3 | 56 | `local.takano.DutiGUI` |
 | [FileCaravan](FileCaravan.app) | 1.1.0 | 37 | `local.takano.FolderMover` |
-| [FnNumpad](FnNumpad.app) | 1.0.0 | 7 | `jp.dtp-transit.fnnumpad` |
+| [FnNumpad](FnNumpad.app) | 1.1.0 | 8 | `jp.dtp-transit.fnnumpad` |
 | [FolderHopper](FolderHopper.app) | 0.2.0 | 125 | `jp.local.FolderMover` |
 | [HotkeyHound](HotkeyHound.app) | 0.4.0 | 20 | `jp.dtp-transit.hotkeyhound` |
 | [IdBackgroundOff](IdBackgroundOff.app) | 1.1.2 | 22 | `local.takano.IdAsyncOff` |
@@ -28,22 +28,22 @@
 | [KeynoteSweeper](KeynoteSweeper.app) | 1.2.0 | 15 | `jp.local.KeynoteSweeper` |
 | [LinkMaker](LinkMaker.app) | 1.3.5 | 40 | `jp.dtp-transit.linkmaker` |
 | [ListMatch](ListMatch.app) | 1.6.0 | 14 | `jp.dtp-transit.listdiff` |
-| [MarkdownKitchen](MarkdownKitchen.app) | 1.47.0 | 119 | `jp.dtp-transit.markdownkitchen` |
-| [MightyEdit](MightyEdit.app) | 0.3.0 | 113 | `jp.local.TextPalette` |
-| [NotMyType](NotMyType.app) | 1.57.0 | 88 | `jp.dtp-transit.notmytype` |
+| [MarkdownKitchen](MarkdownKitchen.app) | 1.47.3 | 125 | `jp.dtp-transit.markdownkitchen` |
+| [MightyEdit](MightyEdit.app) | 0.3.3 | 116 | `jp.local.TextPalette` |
+| [NotMyType](NotMyType.app) | 1.62.1 | 102 | `jp.dtp-transit.notmytype` |
 | [PDF2Keynote](PDF2Keynote.app) | 1.2.0 | 25 | `jp.local.PDF2Keynote` |
 | [PasteInARow](PasteInARow.app) | 1.5.0 | 24 | `jp.dtp-transit.pasteinarow` |
 | [PasteMatchStyle](PasteMatchStyle.app) | 1.1.0 | 13 | `jp.dtp-transit.pastematchstyle` |
 | [PodiumAssist](PodiumAssist.app) | 3.3.19 | 85 | `jp.local.toki` |
-| [PrefsPreset](PrefsPreset.app) | 1.2.1 | 24 | `jp.dtp-transit.prefspreset` |
+| [PrefsPreset](PrefsPreset.app) | 1.2.1 | 27 | `jp.dtp-transit.prefspreset` |
 | [ProjectFolder](ProjectFolder.app) | 1.12.0 | 28 | `jp.dtp-transit.foldermaker` |
 | [QuickIconExporter](QuickIconExporter.app) | 1.2.0 | 42 | `jp.dtp-transit.quickiconexporter` |
 | [SettingsCourier](SettingsCourier.app) | 1.4.2 | 13 | `jp.dtp-transit.settingscourier` |
-| [SiteMirror](SiteMirror.app) | 1.5.2 | 15 | `jp.dtp-transit.sitemirror` |
+| [SiteMirror](SiteMirror.app) | 1.5.3 | 16 | `jp.dtp-transit.sitemirror` |
 | [SpreadsheetHelper](SpreadsheetHelper.app) | 1.5.0 | 19 | `jp.dtp-transit.spreadsheethelper` |
 | [VectorMate](VectorMate.app) | 2.19.2 | 81 | `jp.dtp-transit.vectormate` |
 | [YohakuTrimmer](YohakuTrimmer.app) | 1.2.0 | 13 | `jp.dtp-transit.yohakutrimmer` |
 | [note2markdown](note2markdown.app) | 1.3.0 | 14 | `jp.dtp-transit.note2markdown` |
 | [InsertSnippets](InsertSnippets.app) | 1.11.2 | 28 | `jp.dtp-transit.insertsnippets` |
-| [NotMyType Lite](NotMyType%20Lite.app) | 1.6.0 | 9 | `jp.dtp-transit.notmytypelite` |
+| [NotMyType Lite](NotMyType%20Lite.app) | 1.9.0 | 25 | `jp.dtp-transit.notmytypelite` |
 | [SVGExporter](SVGExporter.app) | 1.2.4 | 10 | `jp.dtp-transit.svgexporter` |

@@ -384,3 +384,9 @@ Source-thread handoff 01a17147-6826-7911-8e42-cc45a77f2daf reports font-cache cl
 - 全49本ビルド成功・既存test.sh 34本成功。30アプリが共通欄採用、18コピー同期。SettingsCourierとVectorKeysは旧ソースのため配置対象外。
 - 最新取り込み後、NotMyType 1.62.1/102、Lite 1.9.0/25、ShotSorter、MightyEditを再ビルド。後者は説明文の生成元も更新し、再生成後の文言を保持する。
 - 配布前にソースcommit・push。公証・配置は進行中。結果：Shared/ReleasePreparation/20261027-AllApps-HotkeyClick/。
+
+### 上記の配布結果
+
+- ソース44d8513をGitHub mainへpush・一致確認。NotMyType 1.62.1/102、Lite1.9.0/25を含む47本が公証・バックアップ付き両配置・署名全内容一致・/Applications起動確認済み。
+- SettingsCourierとVectorKeysは旧ソースのため保留。追加の共通ウインドウ回帰テスト2項目（Dockフォーカス・閉じた主画面再表示）は失敗し未解決。全機能UI・実キー入力・再ログイン・公開更新は未実施。
+- [配布記録](ReleaseRecords/20261027-hotkey-click-release.md)。
