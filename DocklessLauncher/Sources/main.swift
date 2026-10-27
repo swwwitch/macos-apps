@@ -890,7 +890,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         frame.origin.x = min(frame.origin.x, visible.maxX - frame.width)
         window.setFrame(frame, display: true, animate: true)
     }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         model.refreshLogin()
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -905,7 +905,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)
     }
     @objc func addApp() { showMainWindow(); model.chooseApps() }
-    @objc func help() {
+    @objc func help() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "DocklessLauncher — " + L("help"), text: L("helpText"), heading: L("helpHeading")) } }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }

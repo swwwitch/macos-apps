@@ -680,7 +680,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
-    @objc func showPreferences() { settingsViews.editProfile(.saved); shortcuts?.showPreferences() }
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); settingsViews.editProfile(.saved); shortcuts?.showPreferences() }
 
     @objc func showTypography() {
         targetSession.bind(frontPID: NSWorkspace.shared.frontmostApplication?.processIdentifier)
@@ -840,7 +840,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         shortcuts?.refreshForPaletteVisibility()
     }
     @objc func quit() { NSApp.terminate(nil) }
-    @objc func showAbout() {
+    @objc func showAbout() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         let info = Bundle.main.infoDictionary ?? [:]
         let version = info["CFBundleShortVersionString"] as? String ?? ""
         let build = info["CFBundleVersion"] as? String ?? ""

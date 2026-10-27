@@ -46,7 +46,7 @@ enum Action: Equatable {
     case keys([Stroke])
     case killToLineEnd, killToLineStart, yank, selectParagraph, moveParagraphUp, moveParagraphDown
     /// ⌃A / ⌃E: start / end of the paragraph, as macOS's own ⌃A / ⌃E; with ⇧ the selection is extended.
-    case paragraphStart, paragraphEnd
+    case paragraphStart, paragraphEnd, copyToParagraphEnd
     /// Selects with the strokes, then cuts into the kill buffer (for apps whose text Accessibility cannot read).
     case killSelecting([Stroke])
     /// InDesign's ⌃K: runs the user's script (deletes to the paragraph end, keeps a trailing 「。」); without it, killSelecting.
@@ -115,7 +115,7 @@ enum CommandTable {
         Command(id: "copyToLineStart", key: 7, keyLabel: "X", mods: .command, group: .assist, category: .editing,
                 action: .keys([Stroke(code: 123, mods: [.shift, .command], label: "⇧⌘←"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         Command(id: "copyToLineEnd", key: 6, keyLabel: "Z", mods: .command, group: .assist, category: .editing,
-                action: .keys([Stroke(code: 124, mods: [.shift, .command], label: "⇧⌘→"), Stroke(code: 8, mods: .command, label: "⌘C")])),
+                action: .copyToParagraphEnd),
         Command(id: "copyToTextEnd", key: 6, keyLabel: "Z", mods: [.option, .command], group: .assist, category: .editing,
                 action: .keys([Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         // Kill/Yank
@@ -170,7 +170,7 @@ enum CommandTable {
             "lineStart": .action(.keys([paragraphUpSelect, left])),
             "lineEnd": .action(.keys([paragraphDownSelect, right, left])),
             "copyToLineStart": .action(.keys([Stroke(code: 115, mods: .shift, label: "⇧Home"), copy])),
-            "copyToLineEnd": .action(.keys([Stroke(code: 119, mods: .shift, label: "⇧End"), copy])),
+            "copyToLineEnd": .action(.keys([paragraphDownSelect, Stroke(code: 123, mods: .shift, label: "⇧←"), copy])),
             "copyToTextEnd": .action(.keys([Stroke(code: 119, mods: [.shift, .command], label: "⇧⌘End"), copy])),
             "selectParagraph": .action(.keys([paragraphUpSelect, left, paragraphDownSelect, copy])),
             "killLine": .action(.inDesignScript(path: inDesignKillScript, fallback: [paragraphDownSelect, Stroke(code: 123, mods: .shift, label: "⇧←")])),

@@ -213,7 +213,7 @@
 "hotkey.pauseUntilRelaunch" = "Pause (until relaunch)";
 "hotkey.reset" = "Reset to Default Assignments";
 "hotkey.failureNote" = "Registration failed: choose another key";
-"hotkey.note" = "Click Change… and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key already used by another action or by Show palette cannot be assigned. A registration failure is shown under the field. The scope under each action name is saved as soon as you choose it. “Only While Palette Is Shown” leaves the key unregistered while the palette is hidden, so it goes straight to the front app.";
+"hotkey.note" = "Click the hotkey field and press the keys to assign (include ⌘ or ⌃; Esc cancels). Reset to Default and Clear are also available. A key already used by another action or by Show palette cannot be assigned. A registration failure is shown under the field. The scope under each action name is saved as soon as you choose it. “Only While Palette Is Shown” leaves the key unregistered while the palette is hidden, so it goes straight to the front app.";
 "hotkey.axScope" = "Scope for %@";
 "hotkey.scopeTip" = "Where this hotkey works. Saved as soon as you choose.";
 "scope.global" = "All Apps";

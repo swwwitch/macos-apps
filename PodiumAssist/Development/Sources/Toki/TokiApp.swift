@@ -315,7 +315,7 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         revealWindow()
     }
 
-    @objc private func showPreferences() {
+    @objc private func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         preparePreferencesWindow()
         settings.refresh()
         NSApp.activate(ignoringOtherApps: true)

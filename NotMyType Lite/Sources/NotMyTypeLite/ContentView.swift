@@ -733,6 +733,12 @@ private struct PreviewView: View {
                         .accessibilityLabel(L("プレビューのオプション"))
                         .popover(isPresented: $optionsShown, arrowEdge: .bottom) { PreviewOptionsPanel() }
                 }
+                if !showsGlyphs && mode == PreviewStyle.Mode.waterfall.rawValue { Spacer(minLength: 0) }
+                Button { optionsShown.toggle() } label: { Image(systemName: "slider.horizontal.3") }
+                    .buttonStyle(.borderless)
+                    .help(L("プレビューのオプション"))
+                    .accessibilityLabel(L("プレビューのオプション"))
+                    .popover(isPresented: $optionsShown, arrowEdge: .bottom) { PreviewOptionsPanel() }
             }
             .padding(.horizontal, 8)
             .padding(.top, 8)
@@ -756,8 +762,11 @@ private struct PreviewView: View {
                         Text(mode.title).tag(mode.rawValue)
                     }
                 }
+                .pickerStyle(.menu)
                 .labelsHidden()
-                .fixedSize()
+                .frame(width: 96)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
                 .help(L("プレビューの表示"))
                 TextField(L("プレビューの文字"), text: $sample)
                     .textFieldStyle(.roundedBorder)

@@ -41,7 +41,8 @@ To restore, quit Default Folder X, copy a backup as Favorites.plist to ~/Library
 Choose FavoriteFolders > Settings… (⌘,).
 - Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon and the app launch keyboard shortcut.
 - General: Shorten paths inside Dropbox (on by default), Count how often each folder is used (off by default), Confirm before saving (on by default) asks before quitting and reopening Default Folder X to save. Open Backups Folder.
-- Settings Sharing: export, import and sync category names and the Confirm before saving choice.
+- Settings Sharing: manual export includes the selected set’s favorites, order, separators and hotkeys, plus category names, notes and save confirmation. Import replaces unsaved edits, quits Default Folder X and restores the list; click Save to apply it. The same folder set must already exist. Old files contain no favorites; export again with this version. Automatic sync shares only category names, notes and save confirmation.
+- Option-click the Default Folder X open/quit button to open settings. Existing Accessibility access allows selecting Folders; otherwise the status explains the fallback. No permission is requested.
 - About: version and links.
 
 ## Keyboard shortcuts

@@ -88,7 +88,7 @@ import Carbon
         showMainWindow()
     }
 
-    @objc private func showSettings() {
+    @objc private func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if settingsWindow == nil {
             let controller = ShortcutSettingsController(shortcut: shortcut)
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)

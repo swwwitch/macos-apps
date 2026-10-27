@@ -30,7 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバーはMacごとに設定します。",
                                        "Open at login, the startup window and the menu bar are set on each Mac.",
                                        "登录时打开、启动时的窗口和菜单栏在每台 Mac 上分别设置。",
-                                       "로그인 시 열기, 시작 시 윈도우, 메뉴 막대는 Mac마다 설정합니다.")))
+                                       "로그인 시 열기, 시작 시 윈도우, 메뉴 막대는 Mac마다 설정합니다."),
+            includesDeviceName: false))
     }
 
     // Closing the window keeps the app running; reopen from the Dock, ⌘0 or the menu bar icon.
@@ -59,5 +60,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
     }
-    @objc func showSettings() { SettingsWindow.shared.show() }
+    @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); SettingsWindow.shared.show() }
 }

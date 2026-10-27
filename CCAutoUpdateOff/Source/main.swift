@@ -490,7 +490,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func showMain() { guard mainWindow != nil else { return }; NSApp.activate(ignoringOtherApps: true); mainWindow.makeKeyAndOrderFront(nil) }
     @objc func recheck() { watcher.start(); model.scheduleMailTimer(); model.check() }
     @objc func openCreativeCloud() { Mailer.openCreativeCloud() }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 560), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             w.title = L("settingsTitle"); w.isReleasedWhenClosed = false
@@ -507,7 +507,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         guard notification.object as? NSWindow === mainWindow else { return }
         if !model.keepRunning { NSApp.terminate(nil) }
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "CCAutoUpdateOff — " + L("help"), text: L("helpContent")) }
         }

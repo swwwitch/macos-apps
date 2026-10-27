@@ -413,7 +413,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if let window = mainWindow, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         model.refresh()
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 600), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -427,7 +427,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if let window = preferences, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)
     }
-    @objc func help() {
+    @objc func help() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil { helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "FnNumpad — " + L("help"), text: L("helpText"), heading: L("helpHeading")) } }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }

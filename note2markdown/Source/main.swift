@@ -591,7 +591,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func exportAndOpen() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow, then: .open) } }
     @objc func exportToKitchen() { showMain(); MainActor.assumeIsolated { model.export(from: mainWindow, then: .markdownKitchen) } }
     @objc func copyMarkdown() { MainActor.assumeIsolated { model.copy() } }
-    @objc func showPreferences() {
+    @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if preferences == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 460), styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             w.title = L("settingsTitle"); w.isReleasedWhenClosed = false
@@ -609,7 +609,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         guard notification.object as? NSWindow === mainWindow else { return }
         if !MainActor.assumeIsolated({ model.keepRunning }) { DispatchQueue.main.async { NSApp.terminate(nil) } }
     }
-    @objc func showHelp() {
+    @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {
             helpWindow = MainActor.assumeIsolated { HelpDocument.makeWindow(windowTitle: "note2markdown — " + L("help"), text: L("helpContent")) }
         }

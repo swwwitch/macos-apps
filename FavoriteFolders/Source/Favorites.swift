@@ -233,3 +233,24 @@ enum FolderKey {
         return p
     }
 }
+
+/// Manual settings files include the selected folder set; automatic sync never writes DFX data.
+enum FavoritesTransfer {
+    static let key = "favoriteFoldersSnapshot"
+    static func export(set: String, items: [FavoriteItem]) throws -> NSDictionary {
+        guard !set.isEmpty else { throw CocoaError(.fileReadNoSuchFile) }
+        return [key: ["version": 1, "set": set, "favorites": try Favorites.data(items)]]
+    }
+    static func decode(_ values: NSDictionary) throws -> (set: String, items: [FavoriteItem])? {
+        guard let raw = values[key] else { return nil } // Older files contain only app preferences.
+        guard let snapshot = raw as? [String: Any], snapshot["version"] as? Int == 1,
+              let set = snapshot["set"] as? String, !set.isEmpty,
+              let data = snapshot["favorites"] as? Data,
+              let rows = try PropertyListSerialization.propertyList(from: data, format: nil) as? [[String: Any]],
+              rows.allSatisfy({ row in
+                  let item = FavoriteItem(raw: row)
+                  return item.isSeparator || (row["name"] is String && item.fileURL != nil)
+              }) else { throw CocoaError(.propertyListReadCorrupt) }
+        return (set, rows.map { FavoriteItem(raw: $0) })
+    }
+}

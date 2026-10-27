@@ -100,3 +100,5 @@ The UI item / meaning column distinguishes labels from shared source, candidates
 Show UI item / meaning toggles the column (off initially; your choice is retained). Select one row and choose Edit Label / Match Screenshot… to enter and save a label. Use Automatic Label clears the field; save to remove the custom label. Load a screenshot to see the image and text recognized locally on this Mac. Choose text, compare the key and value, edit, and save. A screenshot alone cannot confirm the matching key. Images are not saved or uploaded. Labels are saved per app and key and included in SettingsCourier settings export and sync. Update all Macs to 1.4.2 or later. Existing labels are migrated automatically; the old JSON file is retained as a backup.
 
 Double-click an unknown mapping or label in the UI item / meaning column to edit it inline. Enter or leaving the cell saves; Esc cancels. Save an empty field to remove the custom label. For screenshots, use Edit Label / Match Screenshot….
+
+Selecting the app in the ⌘Tab application switcher shows its main window and restores it if minimized. Automatic login launch stays quiet.

@@ -62,6 +62,7 @@ final class TextActions: @unchecked Sendable {
             case .moveParagraphDown: failure = moveParagraph(pid: pid, up: false)
             case .paragraphStart: failure = moveToParagraphEdge(pid: pid, end: false, extend: extend)
             case .paragraphEnd: failure = moveToParagraphEdge(pid: pid, end: true, extend: extend)
+            case .copyToParagraphEnd: failure = copyToParagraphEnd(pid: pid)
             case .killSelecting(let strokes): failure = killSelecting(strokes, pid: pid)
             case .inDesignScript(let path, let fallback): failure = runInDesignScript(path, fallback: fallback, pid: pid)
             case .unsupported: failure = L("result.unsupported")
@@ -154,6 +155,25 @@ final class TextActions: @unchecked Sendable {
            field.select(TextRanges.paragraphEdge(field.text, selection: field.selection, end: end, extend: extend)) { return nil }
         KeySender.send(Stroke(code: end ? 124 : 123, mods: extend ? [.shift, .command] : .command, label: ""), to: pid)
         return nil
+    }
+
+    /// ⌃⌘Z: copy through the paragraph content end, excluding its break, across visual wraps.
+    private func copyToParagraphEnd(pid: pid_t) -> String? {
+        let allowed = DispatchQueue.main.sync {
+            MainActor.assumeIsolated {
+                NSWorkspace.shared.frontmostApplication?.processIdentifier == pid && !ExcludedApps.shared.frontAppExcluded
+            }
+        }
+        guard allowed else { return nil }
+        if let field = FocusedText(pid: pid) {
+            let range = TextRanges.paragraphEdge(field.text, selection: field.selection, end: true, extend: true)
+            guard range.length > 0 else { return nil }
+            if field.select(range) {
+                return clipboardCommand("C", pid: pid) ? nil : L("result.copyFailed")
+            }
+            return L("result.copyFailed")
+        }
+        return L("result.noText")
     }
 
     /// ⌃S selects the paragraph and copies it; pressed again within the double-click interval, the selection is cut.

@@ -58,12 +58,18 @@ enum MyPreset {
             let previous = folder.appendingPathComponent(previousName)
             if FileManager.default.fileExists(atPath: file.path) {
                 try? FileManager.default.removeItem(at: previous)
-                try FileManager.default.copyItem(at: file, to: previous)
+                let previousData = try Data(contentsOf: file)
+                guard let root = try PropertyListSerialization.propertyList(from: previousData, format: nil) as? [String: Any] else {
+                    throw CocoaError(.propertyListReadCorrupt)
+                }
+                let sanitized = PresetExportPolicy.removingMachineNames(from: root)
+                try PropertyListSerialization.data(fromPropertyList: sanitized, format: .xml, options: 0)
+                    .write(to: previous, options: .atomic)
             }
             try data.write(to: file, options: .atomic)
             store.message = (L("マイプリセットを保存しました"),
                              L("%@件の設定を「%@」に保存しました。新しいMacでは「マイプリセットを読み込む」を選び、「適用」を押します。",
-                               String(store.entries.count), file.path))
+                               String(store.entries.filter { PresetImportPolicy.canImport(domains: $0.item.domains) }.count), file.path))
         } catch {
             store.message = (L("マイプリセットを保存できませんでした"), error.localizedDescription)
         }

@@ -43,7 +43,8 @@ Default Folder X の設定で「常に名前順に並べる」がオンのとき
 ［FavoriteFolders］＞［設定…］（⌘,）で開きます。
 - 起動・常駐：ログイン時に起動、Dockとアプリケーションスイッチャーに表示しない、ウインドウを閉じても常駐、メニューバーのアイコン、アプリ起動のホットキー。
 - 一般：「Dropbox 内のパスを短く表示する」（初期値オン）、「フォルダーを使った回数を記録する」（初期値オフ）、「保存の前に確認する」（初期値オン）。オンのとき、Default Folder X の起動中に保存すると、終了と起動し直しの確認を出します。バックアップのフォルダーを開くボタン。
-- 設定の共有：カテゴリの名前と「保存の前に確認する」の書き出し・読み込みと同期。
+- 設定の共有：書き出しには選択中のフォルダセットのお気に入り・並び順・区切り線・ホットキー、カテゴリ名・メモ・保存前確認を含みます。読み込みで未保存の編集を置き換え、Default Folder Xを終了して一覧へ復元します。［保存］で反映してください。同名のフォルダセットを先に用意してください。旧形式にはお気に入りを含まないため、修正版で書き出し直してください。自動同期はカテゴリ名・メモ・保存前確認のみです。
+- 起動／終了ボタンのOption＋クリックでDefault Folder Xの設定を開きます。既存のアクセシビリティ許可がある場合は「フォルダ」を選択し、選べなければ状態欄に案内します。追加の許可要求は行いません。
 - 情報：バージョンとリンク。
 
 ## ホットキー
@@ -117,7 +118,8 @@ To restore, quit Default Folder X, copy a backup as Favorites.plist to ~/Library
 Choose FavoriteFolders > Settings… (⌘,).
 - Launch & Residency: Open at login, Hide from Dock and App Switcher, Keep running after closing the window, the menu bar icon and the app launch keyboard shortcut.
 - General: Shorten paths inside Dropbox (on by default), Count how often each folder is used (off by default), Confirm before saving (on by default) asks before quitting and reopening Default Folder X to save. Open Backups Folder.
-- Settings Sharing: export, import and sync category names and the Confirm before saving choice.
+- Settings Sharing: manual export includes the selected set’s favorites, order, separators and hotkeys, plus category names, notes and save confirmation. Import replaces unsaved edits, quits Default Folder X and restores the list; click Save to apply it. The same folder set must already exist. Old files contain no favorites; export again with this version. Automatic sync shares only category names, notes and save confirmation.
+- Option-click the Default Folder X open/quit button to open settings. Existing Accessibility access allows selecting Folders; otherwise the status explains the fallback. No permission is requested.
 - About: version and links.
 
 ## Keyboard shortcuts
@@ -191,7 +193,8 @@ Default Folder X 设为始终按名称排序时，此处设置的顺序不会反
 选取 FavoriteFolders >“设置…”（⌘,）。
 - 启动与常驻：登录时启动、不在程序坞和应用切换器中显示、关闭窗口后继续运行、菜单栏图标、启动应用快捷键。
 - 通用：“缩短 Dropbox 内的路径”（默认打开）、“记录每个文件夹的使用次数”（默认关闭）、“保存前确认”（默认打开），在 Default Folder X 运行时保存前确认退出并重新打开。“打开备份文件夹”按钮。
-- 设置共享：导出、导入和同步类别名称及“保存前确认”的选择。
+- 设置共享：手动导出当前组的收藏、顺序、分隔线、快捷键及类别名称、备注和保存确认。导入替换未保存的编辑，退出 Default Folder X 并恢复列表。请点击保存以应用。请先创建同名组。旧文件不含收藏，请用此版本重新导出。自动同步仅包含类别名称、备注和保存确认。
+- 按住 Option 点击 Default Folder X 启动/退出按钮可打开设置。已有辅助功能权限时选择文件夹，否则在状态栏提示。不会请求额外权限。
 - 关于：版本和链接。
 
 ## 快捷键
@@ -265,7 +268,8 @@ Default Folder X가 항상 이름순으로 정렬하도록 설정되어 있으�
 FavoriteFolders > 설정…(⌘,)을 선택합니다.
 - 실행·상주: 로그인 시 실행, Dock 및 앱 전환기에서 숨기기, 윈도우를 닫아도 계속 실행, 메뉴 막대 아이콘, 앱 실행 키보드 단축키.
 - 일반: 'Dropbox 안의 경로를 짧게 표시'(기본값 켬), '폴더 사용 횟수 기록'(기본값 끔), '저장하기 전에 확인'(기본값 켬). Default Folder X 실행 중에 저장할 때 종료 후 다시 열기를 확인합니다. 백업 폴더 열기 버튼.
-- 설정 공유: 카테고리 이름과 '저장하기 전에 확인' 선택의 내보내기·가져오기와 동기화.
+- 설정 공유: 수동 내보내기는 선택한 세트의 즐겨찾기·순서·구분선·단축키와 카테고리 이름·메모·저장 확인을 포함합니다. 가져오기는 저장하지 않은 편집을 바꾸고 Default Folder X를 종료해 목록을 복원합니다. 저장을 눌러 적용하세요. 같은 이름의 세트가 먼저 있어야 합니다. 이전 파일에는 즐겨찾기가 없으므로 이 버전에서 다시 내보내세요. 자동 동기화는 카테고리 이름·메모·저장 확인만 공유합니다.
+- Default Folder X 실행/종료 버튼을 Option 키를 누른 채 클릭하면 설정을 엽니다. 기존 손쉬운 사용 권한이 있으면 폴더를 선택하고, 실패하면 상태에 안내합니다. 추가 권한을 요청하지 않습니다.
 - 정보: 버전과 링크.
 
 ## 키보드 단축키

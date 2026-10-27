@@ -1036,9 +1036,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if let window = mainWindow, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func showPreferencesAction() { showPreferences() }
+    @objc func showPreferencesAction() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation(); showPreferences() }
     /// `tab` selects a tab by its index (the 「ホットキー一覧」 button of the main window opens 1, the hotkeys).
-    func showPreferences(tab: Int? = nil) {
+    func showPreferences(tab: Int? = nil) { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         model.refreshLogin()
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 820, height: 620), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -1069,7 +1069,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         for child in view.subviews { if let tabs = tabView(in: child) { return tabs } }
         return nil
     }
-    @objc func help() {
+    @objc func help() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil { helpWindow = HelpDocument.makeWindow(windowTitle: "KeynoteMaestro — " + L("help"), text: L("helpText") + "\n\n" + keyList(), heading: L("helpHeading")) }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }

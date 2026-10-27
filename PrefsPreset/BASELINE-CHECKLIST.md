@@ -55,3 +55,19 @@
 ### B30 2026-10-25改定
 
 メイン・設定ウインドウがある間はDock・⌘Tabとアプリメニューを表示。最小化中も保持し、対象ウインドウをすべて閉じると非表示。パレットは除外。設定値は保持。共通AppKit回帰テスト17項目成功。各アプリのコンパイル結果はShared/ReleasePreparation/20261025-DockMenu/に記録し、個別の画面操作は未確認。署名・公証・配布は未実施。
+
+## 名前カテゴリ追加（2026-10-25 / build25）
+
+- B14/B15: Catalog.swiftの「名前」にComputerName・LocalHostName・HostNameを配置。日英中韓の文字列・ヘルプを更新。
+- ソース・ビルド: 既存scutil読み取り経路を使用。releaseビルドと署名検証に成功。
+- 自動検証: 4言語リソース検査、プリセット読み込み時の名前除外テストに成功。
+- 実機確認: /Applicationsのbuild25を起動し、「名前」の選択、3行、取得した2つの名前とHostName未設定表示をAXで確認。名前の書き換えは未確認。
+- 配布確認: deploy_both.pyで既存版をバックアップし、/ApplicationsとDropbox Latest Buildsに配置。両方のversion/build・署名・内容の一致を確認。
+
+## Mac名を共有しない（2026-10-26 / build27）
+
+- B08/B10/B15: presetDataで3種類の名前とhostを保存対象外とし、マイプリセット前回分も除外。共有設定のdeviceNameをこのアプリでは出力しない。既定の書き出し名をPrefsPreset.prefspresetへ変更。4言語ヘルプ更新。
+- 自動検証: プリセット読み込み・書き出しの名前除外、混在ドメイン、他設定保持、再適用を検証。4言語チェック成功。
+- ビルド・配布: releaseビルド、署名検証、バックアップ付き両配布先更新、version/build・署名・内容一致を確認。
+- 実機確認: /Applicationsのbuild27起動と既定ファイル名を確認。共有同期の実フォルダー往復は未確認（同期フォルダー未指定、既定iCloud先の既存プリセット0件）。
+- 実書き出し検証: FoundationのPropertyListSerializationで出力を読み戻し、名前3項目とhostが含まれず、他の192項目が保持されることを確認。

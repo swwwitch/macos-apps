@@ -114,7 +114,7 @@ Creative Cloudの［環境設定］→［アプリ］の「自動更新」と、
 設定の「メール送信」をオンにして宛先を入れると、自動更新がオンの間、1日1回メールで知らせます（初期値はオフ）。「送信時刻」で送る時刻を指定できます（初期値は9:00）。その時刻を過ぎてからオンになった日は、気づいた時点で送ります。Macの「メール」アプリに設定したアカウントから送ります。最初の1回だけ、macOSが「メール」の制御の許可を求めます。「テスト送信」で届くか確認してください。送信時刻にMacがスリープしている場合は、復帰後に送ります。
 
 起動・常駐
-見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、Macにログインしたときに自動で起動します（初期値はオフ）。「Dockとアプリケーションスイッチャーに表示しない」をオンにすると（初期値はオフ）、メイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます。メニューバーのアイコンは状態を表します：雲にチェック＝オフ、雲に「!」＝注意（以前のバージョンを削除がオンを含む）、塗りつぶした雲に「!」＝自動更新されるアプリあり、斜線の雲＝読み取れない。
+見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、Macにログインしたときに自動で起動します（初期値はオフ）。「Dockとアプリケーションスイッチャーに表示しない」をオンにすると（初期値はオフ）、メイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します。メニューバーのアイコン（表示しているとき）か、Finderでアプリを開き直すと表示できます。 ⌘Tabのアプリケーションスイッチャーでアプリを選ぶと、メインウインドウを表示します。最小化中なら元に戻します。ログイン時の自動起動では表示しません。メニューバーのアイコンは状態を表します：雲にチェック＝オフ、雲に「!」＝注意（以前のバージョンを削除がオンを含む）、塗りつぶした雲に「!」＝自動更新されるアプリあり、斜線の雲＝読み取れない。
 
 設定の共有
 設定の「設定の共有」タブで、知らせる内容・通知・メール送信（宛先と送信時刻）の設定を書き出し・読み込みできます（「書き出す…」「読み込む…」、CCAutoUpdateOff-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
@@ -158,7 +158,7 @@ Mail
 Turn on Mail and enter an address to get one mail a day while auto-update is on (off by default). Send at sets the time (9:00 by default); if it turns on after that time, the mail goes out when it is noticed. It is sent from the account set up in the Mail app. macOS asks once for permission to control Mail. Use Send Test Mail to check. If the Mac is asleep at the send time, it goes out after waking.
 
 Startup and background
-The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Hide from Dock and App Switcher (off by default) the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show it from the menu bar icon (when shown) or by opening the app again in Finder. The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
+The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Hide from Dock and App Switcher (off by default) the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close; show it from the menu bar icon (when shown) or by opening the app again in Finder. Selecting the app in the ⌘Tab application switcher shows its main window and restores it if minimized. Automatic login launch stays quiet. The menu bar icon shows the state: cloud with a check = off, cloud with ! = caution (including Remove previous versions), filled cloud with ! = apps update automatically, crossed-out cloud = cannot read.
 
 Sharing settings
 In the Sharing tab of Settings, Export… and Import… save and load what to report, notifications and mail (address and send time) as CCAutoUpdateOff-Settings.plist. Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
@@ -202,7 +202,7 @@ Creative Cloud“偏好设置 → 应用”中的“自动更新”和各应用�
 开启“发送邮件”并填写地址后，自动更新开启期间每天发送一封邮件（默认关闭）。可在“发送时间”中指定时间（默认 9:00）；若在该时间之后才开启，则在检测到时发送。使用“邮件”应用中设置的账户发送，首次会请求控制“邮件”的权限。请用“发送测试邮件”确认。发送时间时 Mac 处于睡眠状态，会在唤醒后发送。
 
 启动与后台
-持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。开启“不在程序坞和应用程序切换器中显示”（默认关闭）后，即使窗口打开也不在程序坞和 ⌘Tab 切换器中显示图标；可通过菜单栏图标（显示时）或在访达中再次打开应用来显示。菜单栏图标表示状态：云朵带勾＝关闭，云朵带“!”＝注意（含删除以前的版本），实心云朵带“!”＝有应用会自动更新，带斜线的云朵＝无法读取。
+持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。开启“不在程序坞和应用程序切换器中显示”（默认关闭）后，即使窗口打开也不在程序坞和 ⌘Tab 切换器中显示图标；可通过菜单栏图标（显示时）或在访达中再次打开应用来显示。 在 ⌘Tab 应用程序切换器中选择应用会显示主窗口，并恢复已最小化的主窗口。登录时自动启动仍不显示主窗口。菜单栏图标表示状态：云朵带勾＝关闭，云朵带“!”＝注意（含删除以前的版本），实心云朵带“!”＝有应用会自动更新，带斜线的云朵＝无法读取。
 
 设置共享
 在设置的“设置共享”标签中，可以导出和导入提醒内容、通知和发送邮件（收件人与发送时间）的设置（“导出…”“导入…”，CCAutoUpdateOff-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。

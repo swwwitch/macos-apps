@@ -164,7 +164,7 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - Enabling or disabling all hotkeys, pausing, turning off single actions and excluded apps work the same regardless of scope. Duplicate keys are detected even while the palette is hidden. “Reset to Default Assignments” also resets the scope to “All Apps”.
 ### Changing Hotkeys
 1. Open Settings… in the menu bar, or press **⌘,** while MightyEdit is the active app.
-2. On the Hotkeys tab, click Change… for an action and press the keys to assign (include ⌘ or ⌃; Esc cancels). The key is saved at once.
+2. On the Hotkeys tab, click the hotkey field for an action and press the keys to assign (include ⌘ or ⌃; Esc cancels). The key is saved at once.
 3. Reset to Default restores the original key and Clear removes it. Standard keys such as ⌘C and keys used by another action or by Show palette cannot be assigned; the reason appears under the field.
 - Pausing and resetting all assignments are also available. Existing assignments are kept. A registration failure appears under the action’s field. The Show palette key is changed with the same kind of field on Startup & Background.
 - Switch Button Style is at the top of the Hotkeys tab. The hotkeys for Wrap at Character Count and Batch Formatting open their windows.

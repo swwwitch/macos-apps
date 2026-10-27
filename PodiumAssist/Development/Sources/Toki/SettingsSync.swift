@@ -152,6 +152,8 @@ final class SettingsSync: NSObject, ObservableObject {
         /// Older per-app export files (extension without dot) and a converter to UserDefaults values.
         var legacyExtensions: [String] = []
         var legacyImport: ((Data) -> NSDictionary?)? = nil
+        /// Omit the human-readable Mac name from shared/exported metadata.
+        var includesDeviceName: Bool = true
     }
 
     /// Called on the main thread after settings from another Mac were applied.
@@ -358,8 +360,10 @@ final class SettingsSync: NSObject, ObservableObject {
 
     /// Same layout for the sync file and an exported file, so either can be imported.
     private func makeRecord(_ values: NSDictionary) -> NSDictionary {
-        ["version": 1, "app": Bundle.main.bundleIdentifier ?? appName, "device": deviceID,
-         "deviceName": Host.current().localizedName ?? "", "modified": Date(), "values": values]
+        var record: [String: Any] = ["version": 1, "app": Bundle.main.bundleIdentifier ?? appName,
+                                     "device": deviceID, "modified": Date(), "values": values]
+        if configuration.includesDeviceName { record["deviceName"] = Host.current().localizedName ?? "" }
+        return record as NSDictionary
     }
 
     private func readRecord(at file: URL, _ completion: @escaping @MainActor (NSDictionary?) -> Void) {

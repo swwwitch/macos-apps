@@ -382,7 +382,7 @@ func writeSpotlightRule(_ rule: String, _ value: NSObject?) {
     CFPreferencesAppSynchronize(spotlightDomain)
 }
 
-/// コンピュータ名（一般 → 情報 → 名前）とローカルホスト名。キーは scutil の名前。書き込みには管理者権限が要る
+/// コンピュータ名（一般 → 情報 → 名前）・ローカルホスト名・ホスト名。キーは scutil の名前。書き込みには管理者権限が要る
 let computerNameDomain = "ComputerName"
 
 func readComputerName(_ key: String) -> NSObject? {
@@ -724,9 +724,9 @@ final class Store: ObservableObject {
         }
         let root: [String: Any] = [
             "format": "PrefsPreset", "version": 1, "created": Date(),
-            "host": Host.current().localizedName ?? "", "entries": items,
+            "entries": items,
         ]
-        return try PropertyListSerialization.data(fromPropertyList: root, format: .xml, options: 0)
+        return try PropertyListSerialization.data(fromPropertyList: PresetExportPolicy.removingMachineNames(from: root), format: .xml, options: 0)
     }
 
     /// 全項目の「変更後」の値をセットとして書き出す
@@ -861,8 +861,7 @@ func savePreset() {
     let store = Store.shared
     let panel = NSSavePanel()
     panel.allowedContentTypes = [presetType]
-    panel.nameFieldStringValue = store.presetURL?.lastPathComponent
-        ?? "\(Host.current().localizedName ?? "Mac").prefspreset"
+    panel.nameFieldStringValue = "PrefsPreset.prefspreset"
     NSApp.activate(ignoringOtherApps: true)
     if panel.runModal() == .OK, let url = panel.url { store.save(to: url) }
 }

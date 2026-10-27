@@ -1,3 +1,10 @@
+"favoritesTransferNote" = "Exports the selected set’s favorites, order, separators and hotkeys, plus category names, notes and save confirmation. Import replaces unsaved edits, quits Default Folder X and restores the list. Click Save to apply it. Create the folder set in Default Folder X first.";
+"importFavoritesStaged" = "Favorites imported. Click Save to apply them to Default Folder X.";
+"importLegacy" = "Imported legacy settings. This file contains no favorites, order or hotkeys.";
+"importSetMissing" = "The folder set is missing. Create a set with the same name in Default Folder X, then import again.";
+"dfxOptionHint" = "Option-click to open Folders in Default Folder X settings.";
+"dfxFoldersOpened" = "Opened Folders in Default Folder X settings.";
+"dfxFoldersFallback" = "Could not select Folders automatically. If Default Folder X settings opened, select Folders there.";
 "heading" = "Tidy Default Folder X Favorite Folders";
 "subtitle" = "Sort, group, annotate and count the folders you use most.";
 "folderSet" = "Folder set:";

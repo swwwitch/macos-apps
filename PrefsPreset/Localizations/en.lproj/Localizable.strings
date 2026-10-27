@@ -136,6 +136,7 @@
 "通知をオフ" = "Silence Notifications";
 "通知は設定ファイルからは切り替えられないため、システム設定の「集中モード」を開きます。「おやすみモード」をオンにしてください。" = "Notifications can’t be changed through preference files, so this opens Focus in System Settings. Turn on Do Not Disturb there.";
 "一般" = "General";
+"名前" = "Names";
 "キーボード" = "Keyboard";
 "文字入力" = "Text Input";
 "マウス" = "Mouse";
@@ -180,6 +181,7 @@
 "壁紙" = "Wallpaper";
 "コンピュータ名" = "Computer name";
 "ローカルホスト名" = "Local hostname";
+"ホスト名" = "Host name";
 "AirDrop" = "AirDrop";
 "キーのリピート速度" = "Key repeat rate";
 "リピート入力認識までの時間" = "Delay until repeat";

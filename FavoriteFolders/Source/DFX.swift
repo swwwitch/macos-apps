@@ -29,7 +29,28 @@ enum DFX {
         }.sorted()
         return (found, current ?? found.first)
     }
-    static func favoritesURL(set: String) -> URL { supportFolder.appendingPathComponent(set, isDirectory: true).appendingPathComponent("Favorites.plist") }
+    /// DFX localizes the default set's name in preferences but keeps its directory as "Default Set".
+    static var defaultSetNames: Set<String> {
+        var names: Set<String> = ["Default Set", "デフォルト設定"]
+        if let url = appURL, let bundle = Bundle(url: url) {
+            for language in bundle.localizations {
+                if let path = bundle.path(forResource: language, ofType: "lproj"), let localized = Bundle(path: path) {
+                    names.insert(localized.localizedString(forKey: "Default Set", value: "Default Set", table: nil))
+                }
+            }
+        }
+        return names
+    }
+    static func favoritesURL(set: String) -> URL {
+        favoritesURL(set: set, root: supportFolder, defaultNames: defaultSetNames)
+    }
+    /// Exact existing paths take priority, so a custom set is never redirected to another set.
+    static func favoritesURL(set: String, root: URL, defaultNames: Set<String>) -> URL {
+        let exact = root.appendingPathComponent(set, isDirectory: true).appendingPathComponent("Favorites.plist")
+        guard !FileManager.default.fileExists(atPath: exact.path), defaultNames.contains(set) else { return exact }
+        let canonical = root.appendingPathComponent("Default Set", isDirectory: true).appendingPathComponent("Favorites.plist")
+        return FileManager.default.fileExists(atPath: canonical.path) ? canonical : exact
+    }
     /// Default Folder X's own 「常にソート」: when on, it re-sorts the menu and the order written here is not used.
     static var staysSorted: Bool { (preference("favoritesStaySorted") as? Bool) ?? false }
 
@@ -86,5 +107,45 @@ enum Backups {
         Array(urls.filter { $0.pathExtension == "plist" }
             .sorted { $0.lastPathComponent.suffix(21) > $1.lastPathComponent.suffix(21) }
             .dropFirst(limit))
+    }
+}
+
+extension DFX {
+    /// The vendor's Settings URL opens settings without Automation permission. If this app already
+    /// has Accessibility access, select the Folders toolbar item; never request permission here.
+    @MainActor static func openFolderSettings() async -> Bool {
+        guard let appURL else { return false }
+        let url = URL(string: "defaultfolderx://Settings")!
+        let opened = await withCheckedContinuation { continuation in
+            NSWorkspace.shared.open([url], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration()) { app, _ in
+                continuation.resume(returning: app != nil)
+            }
+        }
+        guard opened, AXIsProcessTrusted() else { return false }
+        for _ in 0..<30 {
+            guard let app = running else { return false }
+            if let front = NSWorkspace.shared.frontmostApplication,
+               front.processIdentifier != ProcessInfo.processInfo.processIdentifier,
+               front.processIdentifier != app.processIdentifier { return false }
+            let root = AXUIElementCreateApplication(app.processIdentifier)
+            func attribute(_ element: AXUIElement, _ key: String) -> CFTypeRef? {
+                var result: CFTypeRef?
+                return AXUIElementCopyAttributeValue(element, key as CFString, &result) == .success ? result : nil
+            }
+            func find(_ element: AXUIElement, inToolbar: Bool = false, depth: Int = 0) -> AXUIElement? {
+                guard depth < 12 else { return nil }
+                let toolbar = inToolbar || attribute(element, kAXRoleAttribute) as? String == kAXToolbarRole
+                let title = attribute(element, kAXTitleAttribute) as? String ?? ""
+                if toolbar, ["Folders", "フォルダ", "フォルダー", "文件夹", "폴더"].contains(title),
+                   attribute(element, kAXRoleAttribute) as? String == kAXButtonRole { return element }
+                for child in attribute(element, kAXChildrenAttribute) as? [AXUIElement] ?? [] {
+                    if let match = find(child, inToolbar: toolbar, depth: depth + 1) { return match }
+                }
+                return nil
+            }
+            if let button = find(root) { return AXUIElementPerformAction(button, kAXPressAction as CFString) == .success }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        return false
     }
 }
