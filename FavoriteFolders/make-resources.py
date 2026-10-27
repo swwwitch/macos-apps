@@ -2,7 +2,14 @@ from pathlib import Path
 import json
 root = Path(__file__).parent
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''heading|Default Folder Xのお気に入りフォルダーを整理|Tidy Default Folder X Favorite Folders|整理 Default Folder X 的个人收藏文件夹|Default Folder X 즐겨찾기 폴더 정리
+rows = '''favoritesTransferNote|選択中のフォルダセットのお気に入り・並び順・区切り線・ホットキーと、カテゴリ名・メモ・保存前の確認を書き出します。読み込みは未保存の編集を置き換え、Default Folder Xを終了して一覧に復元します。反映するには［保存］を押してください。フォルダセットは先にDefault Folder Xで用意してください。|Exports the selected set’s favorites, order, separators and hotkeys, plus category names, notes and save confirmation. Import replaces unsaved edits, quits Default Folder X and restores the list. Click Save to apply it. Create the folder set in Default Folder X first.|导出当前组的收藏、顺序、分隔线、快捷键及类别名称、备注和保存确认。导入替换未保存的编辑，退出 Default Folder X 并恢复列表。请点击保存以应用。请先在 Default Folder X 中创建文件夹组。|선택한 세트의 즐겨찾기·순서·구분선·단축키와 카테고리 이름·메모·저장 확인을 내보냅니다. 가져오기는 저장하지 않은 편집을 바꾸고 Default Folder X를 종료해 목록을 복원합니다. 저장을 눌러 적용하세요. 폴더 세트는 먼저 Default Folder X에서 만드세요.
+importFavoritesStaged|お気に入りを読み込みました。［保存］でDefault Folder Xに反映してください。|Favorites imported. Click Save to apply them to Default Folder X.|已导入收藏。请点击保存以应用到 Default Folder X。|즐겨찾기를 가져왔습니다. 저장을 눌러 Default Folder X에 적용하세요.
+importLegacy|旧形式の設定を読み込みました。このファイルにはお気に入りの一覧・並び順・ホットキーは含まれていません。|Imported legacy settings. This file contains no favorites, order or hotkeys.|已导入旧设置。此文件不含收藏列表、顺序或快捷键。|이전 설정을 가져왔습니다. 이 파일에는 즐겨찾기 목록·순서·단축키가 없습니다.
+importSetMissing|読み込み先のフォルダセットが見つかりません。Default Folder Xで同名のフォルダセットを作成してから、もう一度読み込んでください。|The folder set is missing. Create a set with the same name in Default Folder X, then import again.|找不到文件夹组。请先在 Default Folder X 中创建同名组，然后重新导入。|폴더 세트가 없습니다. Default Folder X에서 같은 이름의 세트를 만든 후 다시 가져오세요.
+dfxOptionHint|Option＋クリックでDefault Folder Xの設定の「フォルダ」を開きます。|Option-click to open Folders in Default Folder X settings.|按住 Option 点击以打开 Default Folder X 设置的文件夹。|Option 키를 누른 채 클릭하면 Default Folder X 설정의 폴더를 엽니다.
+dfxFoldersOpened|Default Folder Xの設定の「フォルダ」を開きました。|Opened Folders in Default Folder X settings.|已打开 Default Folder X 设置的文件夹。|Default Folder X 설정의 폴더를 열었습니다.
+dfxFoldersFallback|「フォルダ」を自動選択できませんでした。Default Folder Xの設定が開いた場合は「フォルダ」を選んでください。|Could not select Folders automatically. If Default Folder X settings opened, select Folders there.|无法自动选择文件夹。如果 Default Folder X 设置已打开，请选择文件夹。|폴더를 자동 선택하지 못했습니다. Default Folder X 설정이 열렸다면 폴더를 선택하세요.
+heading|Default Folder Xのお気に入りフォルダーを整理|Tidy Default Folder X Favorite Folders|整理 Default Folder X 的个人收藏文件夹|Default Folder X 즐겨찾기 폴더 정리
 subtitle|並べ替え・カテゴリ分け・メモ・使用回数で、よく使うフォルダーを管理します。|Sort, group, annotate and count the folders you use most.|通过排序、分类、备注和使用次数管理常用文件夹。|정렬·분류·메모·사용 횟수로 자주 쓰는 폴더를 관리합니다.
 folderSet|フォルダセット：|Folder set:|文件夹组：|폴더 세트:
 folderSetFixed|フォルダセット：%@|Folder set: %@|文件夹组：%@|폴더 세트: %@

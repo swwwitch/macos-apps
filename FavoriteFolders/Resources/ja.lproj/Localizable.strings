@@ -1,3 +1,10 @@
+"favoritesTransferNote" = "選択中のフォルダセットのお気に入り・並び順・区切り線・ホットキーと、カテゴリ名・メモ・保存前の確認を書き出します。読み込みは未保存の編集を置き換え、Default Folder Xを終了して一覧に復元します。反映するには［保存］を押してください。フォルダセットは先にDefault Folder Xで用意してください。";
+"importFavoritesStaged" = "お気に入りを読み込みました。［保存］でDefault Folder Xに反映してください。";
+"importLegacy" = "旧形式の設定を読み込みました。このファイルにはお気に入りの一覧・並び順・ホットキーは含まれていません。";
+"importSetMissing" = "読み込み先のフォルダセットが見つかりません。Default Folder Xで同名のフォルダセットを作成してから、もう一度読み込んでください。";
+"dfxOptionHint" = "Option＋クリックでDefault Folder Xの設定の「フォルダ」を開きます。";
+"dfxFoldersOpened" = "Default Folder Xの設定の「フォルダ」を開きました。";
+"dfxFoldersFallback" = "「フォルダ」を自動選択できませんでした。Default Folder Xの設定が開いた場合は「フォルダ」を選んでください。";
 "heading" = "Default Folder Xのお気に入りフォルダーを整理";
 "subtitle" = "並べ替え・カテゴリ分け・メモ・使用回数で、よく使うフォルダーを管理します。";
 "folderSet" = "フォルダセット：";

@@ -19,6 +19,13 @@ Default Folder X のお気に入り（Favorites.plist）を並べ替え、区切
 - ［Default Folder X を終了／起動］ボタン。ここで終了した Default Folder X は保存時と FavoriteFolders の終了時に起動し直す
 - 保存（⌘S）は Default Folder X を終了 → 外部変更の確認 → バックアップ → 書き込み → 起動し直し
 
+## 1.3.9（build 15）の変更
+
+- 設定の書き出しに、選択中のフォルダセットのお気に入り一覧・並び順・区切り線・ホットキーを含めます。読み込みではDefault Folder Xを終了して一覧に復元し、［保存］でバックアップ後に書き戻します。未保存の編集は読み込み確認の「置き換える」で置き換わります。
+- 同名のフォルダセットが必要です。旧形式の書き出しにはお気に入りが含まれていないため、修正版で書き出し直してください。自動同期は従来どおりカテゴリ名・メモ・保存前確認だけです。
+- Default Folder Xの起動／終了ボタンをOption＋クリックすると設定を開き、既存のアクセシビリティ許可がある場合は「フォルダ」を選択します。許可要求は行いません。自動選択できない場合は状態欄に案内します。
+- 既定セットの表示名と保存先が異なるMacに対応。「デフォルト設定」などの実フォルダーがあれば優先し、存在しない場合はDFXの既定セットの翻訳名を照合して既存の `Default Set/Favorites.plist` を参照します。フォルダー名の変更は不要です。
+
 ## しくみ
 
 - 場所：`~/Library/Application Support/com.stclairsoft.DefaultFolderX5/<フォルダセット>/Favorites.plist`（Setapp版も同じフォルダー）。フォルダセットは環境設定（`com.stclairsoft.DefaultFolderX5-setapp` または `com.stclairsoft.DefaultFolderX5`）の `folderSetInfo` から読む

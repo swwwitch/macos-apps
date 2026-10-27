@@ -1,3 +1,10 @@
+"favoritesTransferNote" = "导出当前组的收藏、顺序、分隔线、快捷键及类别名称、备注和保存确认。导入替换未保存的编辑，退出 Default Folder X 并恢复列表。请点击保存以应用。请先在 Default Folder X 中创建文件夹组。";
+"importFavoritesStaged" = "已导入收藏。请点击保存以应用到 Default Folder X。";
+"importLegacy" = "已导入旧设置。此文件不含收藏列表、顺序或快捷键。";
+"importSetMissing" = "找不到文件夹组。请先在 Default Folder X 中创建同名组，然后重新导入。";
+"dfxOptionHint" = "按住 Option 点击以打开 Default Folder X 设置的文件夹。";
+"dfxFoldersOpened" = "已打开 Default Folder X 设置的文件夹。";
+"dfxFoldersFallback" = "无法自动选择文件夹。如果 Default Folder X 设置已打开，请选择文件夹。";
 "heading" = "整理 Default Folder X 的个人收藏文件夹";
 "subtitle" = "通过排序、分类、备注和使用次数管理常用文件夹。";
 "folderSet" = "文件夹组：";

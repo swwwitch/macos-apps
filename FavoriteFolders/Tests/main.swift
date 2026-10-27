@@ -67,6 +67,22 @@ check(Favorites.fingerprint(Favorites.sorted(items, by: .name)) != Favorites.fin
 
 // The real file, read only (skipped when Default Folder X is not set up on this Mac)
 let sets = DFX.folderSets()
+// Localized default set names must resolve to DFX's canonical storage folder.
+let setRoot = FileManager.default.temporaryDirectory.appendingPathComponent("DFXSetTests-" + UUID().uuidString)
+let canonical = setRoot.appendingPathComponent("Default Set/Favorites.plist")
+try! FileManager.default.createDirectory(at: canonical.deletingLastPathComponent(), withIntermediateDirectories: true)
+try! Favorites.data(items).write(to: canonical)
+let defaultNames: Set<String> = ["Default Set", "デフォルト設定", "Jeu par défaut"]
+check(DFX.favoritesURL(set: "デフォルト設定", root: setRoot, defaultNames: defaultNames) == canonical, "Japanese default set resolves to Default Set")
+check(DFX.favoritesURL(set: "Jeu par défaut", root: setRoot, defaultNames: defaultNames) == canonical, "other DFX translations resolve to Default Set")
+check(DFX.favoritesURL(set: "Work", root: setRoot, defaultNames: defaultNames).path == setRoot.appendingPathComponent("Work/Favorites.plist").path, "missing custom set never uses the default favorites")
+let exact = setRoot.appendingPathComponent("デフォルト設定/Favorites.plist")
+try! FileManager.default.createDirectory(at: exact.deletingLastPathComponent(), withIntermediateDirectories: true)
+try! Favorites.data([]).write(to: exact)
+check(DFX.favoritesURL(set: "デフォルト設定", root: setRoot, defaultNames: defaultNames) == exact, "existing exact set takes priority over a translated default name")
+try! FileManager.default.removeItem(at: setRoot)
+check(DFX.favoritesURL(set: "デフォルト設定", root: setRoot, defaultNames: defaultNames) == exact, "missing default file is not invented")
+
 // Backups keep the newest 30 (regression: 1.0.0–1.2.0 deleted every backup right after making it)
 let stamps = (1...35).map { URL(fileURLWithPath: "/b/Favorites-\($0 % 2 == 0 ? "デフォルト設定" : "x")-202610\(String(format: "%02d", $0))-120000.plist") }
 let removed = Backups.pruned(stamps + [URL(fileURLWithPath: "/b/notes.txt")])
@@ -152,6 +168,25 @@ edited.clearHotkey()
 check(edited.raw["hotkey"] == nil && edited.hotkeyText.isEmpty, "clearHotkey removes the hotkey")
 
 check(NSImage(systemSymbolName: "folder.badge.gearshape", accessibilityDescription: nil) != nil, "menu bar SF Symbol exists")
+
+// A complete manual settings file must restore order, separators, hotkeys and opaque DFX data.
+let snapshot = try! FavoritesTransfer.export(set: "Main", items: withExtra)
+let wire = try! PropertyListSerialization.data(fromPropertyList: ["values": snapshot], format: .xml, options: 0)
+let record = try! PropertyListSerialization.propertyList(from: wire, format: nil) as! NSDictionary
+let restored = try! FavoritesTransfer.decode(record["values"] as! NSDictionary)!
+check(restored.set == "Main" && Favorites.fingerprint(restored.items) == Favorites.fingerprint(withExtra), "settings file restores the selected set, order, separators and hotkeys")
+check(NSDictionary(dictionary: restored.items[0].raw) == NSDictionary(dictionary: withExtra[0].raw), "settings transfer preserves bookmark and unknown DFX fields")
+check(try! FavoritesTransfer.decode(["categoryNames": ["Main|top": "Work"]]) == nil, "legacy preferences never replace favorites with an empty list")
+let empty = try! FavoritesTransfer.decode(FavoritesTransfer.export(set: "Main", items: []))!
+check(empty.items.isEmpty, "an explicitly exported empty favorites list can be restored")
+for bad: NSDictionary in [
+    [FavoritesTransfer.key: "broken"],
+    [FavoritesTransfer.key: ["version": 2, "set": "Main", "favorites": Data()]],
+    [FavoritesTransfer.key: ["version": 1, "set": "Main", "favorites": try! PropertyListSerialization.data(fromPropertyList: [["name": "bad"]], format: .xml, options: 0)]]
+] {
+    do { _ = try FavoritesTransfer.decode(bad); check(false, "invalid snapshot rejected") }
+    catch { check(true, "invalid snapshot rejected before changing favorites") }
+}
 
 print(failures == 0 ? "All tests passed" : "\(failures) failed")
 exit(failures == 0 ? 0 : 1)

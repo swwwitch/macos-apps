@@ -43,6 +43,34 @@ import SwiftUI
         notes = defaults.dictionary(forKey: "folderNotes") as? [String: String] ?? [:]
     }
 
+    func importFavorites(_ values: NSDictionary) async throws -> Bool {
+        guard let snapshot = try FavoritesTransfer.decode(values) else {
+            status = L("importLegacy")
+            return true
+        }
+        guard !busy, DFX.folderSets().sets.contains(snapshot.set) else {
+            throw NSError(domain: "FavoriteFolders", code: 1, userInfo: [NSLocalizedDescriptionKey: L("importSetMissing")])
+        }
+        // The file's Replace confirmation also confirms discarding unsaved edits.
+        busy = true
+        defer { busy = false; dfxRunning = DFX.running != nil }
+        if let running = DFX.running {
+            guard await DFX.quit(running) else {
+                throw NSError(domain: "FavoriteFolders", code: 2, userInfo: [NSLocalizedDescriptionKey: L("quitFailed2")])
+            }
+            dfxQuitHere = true
+        }
+        setName = snapshot.set
+        // Read after DFX quits, so Save retains its external-change protection and backup.
+        load()
+        guard (try? Favorites.read(fileURL)) != nil else { throw CocoaError(.fileReadCorruptFile) }
+        items = snapshot.items
+        isDirty = Favorites.fingerprint(items) != loadedFingerprint
+        selection = []; undoManager.removeAllActions(); refreshStats()
+        status = L("importFavoritesStaged")
+        return true
+    }
+
     func note(for item: FavoriteItem) -> String { notes[FolderKey.of(item.path)] ?? "" }
     func setNote(_ text: String, for item: FavoriteItem) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -657,8 +685,18 @@ struct MainView: View {
                 Text(model.status.isEmpty ? " " : model.status).font(.callout).foregroundColor(.secondary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
                 if model.busy { ProgressView().controlSize(.small) }
-                Button(model.dfxRunning ? L("quitDFX") : L("launchDFX")) { Task { await model.toggleDFX() } }
-                    .disabled(model.busy || !model.dfxFound).help(model.dfxRunning ? L("quitDFXHint") : "")
+                Button(model.dfxRunning ? L("quitDFX") : L("launchDFX")) {
+                    let folders = NSEvent.modifierFlags.contains(.option)
+                    Task {
+                        if folders {
+                            guard !model.busy else { return }
+                            model.busy = true
+                            model.status = await DFX.openFolderSettings() ? L("dfxFoldersOpened") : L("dfxFoldersFallback")
+                            model.busy = false; model.dfxRunning = DFX.running != nil
+                        } else { await model.toggleDFX() }
+                    }
+                }
+                    .disabled(model.busy || !model.dfxFound).help(L("dfxOptionHint"))
                 Button(L("reload"), action: reload).disabled(model.busy)
                 Button(L("save"), action: save).buttonStyle(.borderedProminent).disabled(!model.isDirty || model.busy)
             }
@@ -771,14 +809,23 @@ struct SettingsView: View {
         MenuBarPresence.shared.install(name: "FavoriteFolders", symbol: "folder.badge.gearshape", show: { [weak self] in self?.show() }, settings: { [weak self] in self?.showSettings() }, help: { [weak self] in self?.showHelp() })
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
-            note: StartupWindow.text("カテゴリの名前と「保存の前に確認する」の選択を書き出し・同期します。",
-                                     "Exports and syncs category names and the Confirm before saving choice.",
-                                     "导出并同步类别名称和“保存前确认”的选择。",
-                                     "카테고리 이름과 '저장하기 전에 확인' 선택을 내보내고 동기화합니다."),
+            note: StartupWindow.text("カテゴリ名・メモ・保存前の確認を同期します。お気に入りの一覧・並び順・ホットキーは手動の書き出し・読み込みで移します。",
+                                     "Syncs category names, notes and save confirmation. Transfer favorites, order and hotkeys using manual export and import.",
+                                     "同步类别名称、备注和保存确认。收藏列表、顺序和快捷键通过手动导出和导入转移。",
+                                     "카테고리 이름·메모·저장 확인을 동기화합니다. 즐겨찾기 목록·순서·단축키는 수동 내보내기와 가져오기로 옮깁니다."),
             perMac: StartupWindow.text("ログイン時の起動・常駐・メニューバーの表示はMacごとに設定します。",
                                        "Open at login, keep running and the menu bar icon are set on each Mac.",
                                        "登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。",
-                                       "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
+                                       "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다."),
+            fileExport: { [weak self] in
+                guard let model = self?.model, !model.busy else { throw CocoaError(.userCancelled) }
+                return try FavoritesTransfer.export(set: model.setName, items: model.items)
+            },
+            fileImport: { [weak self] values in
+                guard let self else { return false }
+                return try await self.model.importFavorites(values)
+            },
+            fileNote: L("favoritesTransferNote")))
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.suppressInitialWindow { show() }
     }

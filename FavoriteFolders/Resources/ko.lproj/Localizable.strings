@@ -1,3 +1,10 @@
+"favoritesTransferNote" = "선택한 세트의 즐겨찾기·순서·구분선·단축키와 카테고리 이름·메모·저장 확인을 내보냅니다. 가져오기는 저장하지 않은 편집을 바꾸고 Default Folder X를 종료해 목록을 복원합니다. 저장을 눌러 적용하세요. 폴더 세트는 먼저 Default Folder X에서 만드세요.";
+"importFavoritesStaged" = "즐겨찾기를 가져왔습니다. 저장을 눌러 Default Folder X에 적용하세요.";
+"importLegacy" = "이전 설정을 가져왔습니다. 이 파일에는 즐겨찾기 목록·순서·단축키가 없습니다.";
+"importSetMissing" = "폴더 세트가 없습니다. Default Folder X에서 같은 이름의 세트를 만든 후 다시 가져오세요.";
+"dfxOptionHint" = "Option 키를 누른 채 클릭하면 Default Folder X 설정의 폴더를 엽니다.";
+"dfxFoldersOpened" = "Default Folder X 설정의 폴더를 열었습니다.";
+"dfxFoldersFallback" = "폴더를 자동 선택하지 못했습니다. Default Folder X 설정이 열렸다면 폴더를 선택하세요.";
 "heading" = "Default Folder X 즐겨찾기 폴더 정리";
 "subtitle" = "정렬·분류·메모·사용 횟수로 자주 쓰는 폴더를 관리합니다.";
 "folderSet" = "폴더 세트:";
