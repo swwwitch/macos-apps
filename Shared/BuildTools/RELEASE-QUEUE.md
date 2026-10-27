@@ -577,3 +577,18 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - ソース44d8513をGitHub mainへpush・一致確認。NotMyType 1.62.1/102、Lite1.9.0/25を含む47本が公証・バックアップ付き両配置・署名全内容一致・/Applications起動確認済み。
 - SettingsCourierとVectorKeysは旧ソースのため保留。追加の共通ウインドウ回帰テスト2項目（Dockフォーカス・閉じた主画面再表示）は失敗し未解決。全機能UI・実キー入力・再ログイン・公開更新は未実施。
 - [配布記録](ReleaseRecords/20261027-hotkey-click-release.md)。
+
+## VectorKeys 公証配布の再開（2026-10-27）
+
+- ユーザー「VectorKeysプッシュしました」を受け、全アプリ反映時の保留を再開。担当：公証Mac MacBookPro13-M5-2025.local、本チャット。main。開始：2026-10-27T13:51:25.705693+09:00。
+- 対象SHA：d3d70bbc7edd2aa28f5d80fe3075ccc82435178a。VectorKeys 1.4.0（6）、開発側の版・buildを維持。当初は共通欄のクリック記録を含む既存版の公証を再開。後続のユーザー直接指示により、スクリプト専用化へ切り替えた。
+- 状態：ビルド開始。記録：Shared/ReleasePreparation/20261027-VectorKeys-1.4.0-build6/。
+
+### VectorKeys スクリプト専用化の再開（直接指示）
+
+- ユーザー「受付中の『スクリプト専用化』進めてほしい」で実装再開。担当は上記公証Mac、本チャット。入力SHA d3d70bb。指定開発Macではないが、ユーザーの直接指示を優先して実装。版・buildの確定値を質問中。
+- 1.4.0/6の既存ソース公証はAcceptedだが、新要望に切り替えたため旧機能版は配置しない。
+- メニュー追加・選択・実行・AX専用UIを削除。旧データは保持し、メニュー手順が残る項目は部分実行せず、ホットキーを登録しない。KMもスクリプトだけのマクロを取り込む。
+- 単体・互換性・Runner事前拒否・4言語パリティ成功。現行1.4.0/6で検証ビルドし、番号確定前に配布しない。
+
+- スクリプト専用版の検証ビルド・署名・単体/互換/Runner/4言語検証成功。番号確定前に配布しない。詳細：VectorKeys/Tests/BUILD-NOTES-20261027-script-only.md。最終ソースはこの記録の確定コミット。

@@ -14,13 +14,13 @@ struct Hotkey: Codable, Hashable {
     var key: Key { Key(code: code, modifiers: modifiers) }
 }
 
-/// One step of an item.
+/// A saved step. Legacy menu cases remain decodable so existing libraries round-trip without data loss.
 enum Step: Codable, Hashable {
     /// A script file run with do javascript.
     case script(path: String)
-    /// app.executeMenuCommand(id). title is the menu path from the bundled list, for display and for switching to menuItem.
+    /// Legacy command record, retained for decoding only; never executed.
     case menuCommand(id: String, title: String?)
-    /// Menu titles from the menu bar down, pressed through Accessibility (for commands the ID cannot run).
+    /// Legacy menu-title record, retained for decoding only; never executed.
     case menuItem(path: [String])
 
     var scriptPath: String? { if case .script(let path) = self { return path }; return nil }
@@ -34,7 +34,7 @@ enum Step: Codable, Hashable {
     }
 }
 
-/// One registered item: steps (scripts and menu commands) run in order by one shortcut.
+/// One registered script item; script files run in order by one hotkey.
 struct ScriptEntry: Codable, Identifiable, Hashable {
     var id: String
     var name: String
@@ -73,8 +73,10 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         self.id = id; self.path = path; self.name = name ?? Self.defaultName(for: path); self.hotkey = hotkey; self.enabled = enabled
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
-    /// Ready to run: every script file is there (menu steps always are).
-    var isAvailable: Bool { !actions.isEmpty && actions.allSatisfy(\.exists) }
+    /// Never execute only the script portion of a legacy mixed item. Keep its data for explicit editing.
+    var hasUnsupportedSteps: Bool { actions.contains { $0.scriptPath == nil } }
+    var scriptsOnly: Bool { !actions.isEmpty && !hasUnsupportedSteps }
+    var isAvailable: Bool { scriptsOnly && actions.allSatisfy(\.exists) }
     mutating func recordRun(at date: Date = Date()) { runCount = uses + 1; lastRun = date }
 }
 
@@ -110,7 +112,7 @@ struct Library: Codable, Equatable {
     mutating func add(entries: [ScriptEntry]) -> [ScriptEntry] {
         var known = Set(scripts.map(\.identity))
         var added: [ScriptEntry] = []
-        for entry in entries where !known.contains(entry.identity) && entry.actions.allSatisfy({ $0.scriptPath.map { ScriptEntry.accepts(URL(fileURLWithPath: $0)) } ?? true }) {
+        for entry in entries where entry.scriptsOnly && !known.contains(entry.identity) && entry.actions.allSatisfy({ $0.scriptPath.map { ScriptEntry.accepts(URL(fileURLWithPath: $0)) } ?? true }) {
             known.insert(entry.identity)
             added.append(entry)
         }
@@ -226,7 +228,7 @@ struct Library: Codable, Equatable {
     /// Returns the winners and the ids that lose to an earlier script.
     func activeHotkeys() -> (winners: [(Hotkey, String)], duplicates: Set<String>) {
         var seen: Set<Hotkey> = [], winners: [(Hotkey, String)] = [], duplicates: Set<String> = []
-        for script in scripts where script.enabled {
+        for script in scripts where script.enabled && script.scriptsOnly {
             guard let hotkey = script.hotkey else { continue }
             if seen.contains(hotkey) { duplicates.insert(script.id); continue }
             seen.insert(hotkey); winners.append((hotkey, script.id))
@@ -270,54 +272,12 @@ enum SortOrder: String, CaseIterable {
     }
 }
 
-/// Menu titles: 「表示 > 100% 表示」 split into its levels, compared without a trailing ellipsis.
-enum MenuTitles {
-    static func split(_ path: String) -> [String] {
-        path.components(separatedBy: CharacterSet(charactersIn: ">›➤")).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-    }
-    /// 「新規...」「新規…」 → 「新規」.
-    static func plain(_ title: String) -> String {
-        var text = title.trimmingCharacters(in: .whitespaces)
-        for suffix in ["...", "…"] where text.hasSuffix(suffix) { text = String(text.dropLast(suffix.count)).trimmingCharacters(in: .whitespaces) }
-        return text
-    }
-    static func matches(_ wanted: String, _ actual: String) -> Bool { plain(wanted) == plain(actual) }
-}
-
-/// The bundled list of menu command IDs (Resources/MenuCommands.tsv: menu path <TAB> ID).
-struct MenuCommand: Hashable, Identifiable {
-    var path: [String]
-    var id: String
-    var title: String { path.joined(separator: " › ") }
-    static func parse(_ text: String) -> [MenuCommand] {
-        text.split(separator: "\n").compactMap { line in
-            let cols = line.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
-            guard cols.count >= 2, !cols[1].isEmpty else { return nil }
-            return MenuCommand(path: MenuTitles.split(cols[0]), id: cols[1])
-        }
-    }
-}
-
 enum ScriptText {
     static func quote(_ text: String) -> String {
         "\"" + text.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
     }
     /// Runs the file with `do javascript`, addressing Illustrator by its path so the one in front is used when several versions are open.
     /// A long timeout: scripts that open a dialog box keep `do javascript` waiting until it is closed.
-    /// app.executeMenuCommand with the ID as a JavaScript string literal.
-    static func menuCommandJS(_ id: String) -> String {
-        let escaped = id.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'")
-        return "app.executeMenuCommand('" + escaped + "');"
-    }
-    static func appleScript(appPath: String, code: String) -> String {
-        """
-        with timeout of 3600 seconds
-        tell application \(quote(appPath))
-        do javascript \(quote(code))
-        end tell
-        end timeout
-        """
-    }
     static func appleScript(appPath: String, file: String) -> String {
         """
         with timeout of 3600 seconds

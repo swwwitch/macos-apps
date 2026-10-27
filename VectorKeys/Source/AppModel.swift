@@ -137,7 +137,7 @@ struct RunRecord: Identifiable {
     /// counts (a single and a double press of one key are different hotkeys); without it, every script key does.
     func otherHotkeys(except id: String, taps: Int?? = .none) -> [(String, KeyCombo)] {
         library.scripts.compactMap { script in
-            guard script.id != id, script.enabled, let hotkey = script.hotkey else { return nil }
+            guard script.id != id, script.enabled, script.scriptsOnly, let hotkey = script.hotkey else { return nil }
             if case .some(let wanted) = taps, hotkey.taps != wanted { return nil }
             return (script.name, KeyCombo(code: hotkey.code, modifiers: hotkey.modifiers))
         }
@@ -147,6 +147,7 @@ struct RunRecord: Identifiable {
 
     /// From the window: bring Illustrator to the front first, as the hotkey would find it.
     func runFromWindow(_ script: ScriptEntry) {
+        guard script.scriptsOnly else { record(script.name, L("legacy.unsupported"), error: true); return }
         guard let app = Illustrator.running else { record(script.name, L("result.noIllustrator"), error: true); return }
         app.activate(options: [])
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in self?.start(script) }
@@ -164,10 +165,8 @@ struct RunRecord: Identifiable {
             record(script.name, L("result.success"), error: false)
         case .noIllustrator: record(script.name, L("result.noIllustrator"), error: true)
         case .automationDenied: record(script.name, L("result.automation"), error: true)
-        case .accessibilityDenied: record(script.name, L("result.accessibility"), error: true)
+        case .unsupportedSteps: record(script.name, L("legacy.unsupported"), error: true)
         case .fileMissing(let step): record(script.name, String(format: L("result.fileMissingStep"), step), error: true)
-        case .menuMissing(let step, let title): record(script.name, String(format: L("result.menuMissing"), step, title), error: true)
-        case .menuDisabled(let step, let title): record(script.name, String(format: L("result.menuDisabled"), step, title), error: true)
         case .failed(let step, let reason): record(script.name, String(format: L("result.failedStep"), step, reason), error: true)
         }
     }
@@ -213,8 +212,6 @@ struct RunRecord: Identifiable {
                     switch part {
                     case .file(let path): steps.append(.script(path: path))
                     case .code(let code): steps.append(.script(path: try saveImportedCode(code, name: item.name)))
-                    case .menuCommand(let id): steps.append(.menuCommand(id: id, title: menuCommandTitle(id)))
-                    case .menuItem(let path): steps.append(.menuItem(path: path))
                     }
                 }
             } catch { failed.append(item.name); continue }
@@ -305,13 +302,6 @@ struct RunRecord: Identifiable {
 
     // MARK: Steps
 
-    /// The bundled menu command IDs (Resources/MenuCommands.tsv), read once.
-    lazy var menuCommands: [MenuCommand] = {
-        guard let url = Bundle.main.url(forResource: "MenuCommands", withExtension: "tsv"), let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
-        return MenuCommand.parse(text)
-    }()
-    func menuCommandTitle(_ id: String) -> String? { menuCommands.first { $0.id == id }?.title }
-
     private func editSteps(_ id: String, _ change: (inout [Step]) -> Void) {
         guard let index = library.scripts.firstIndex(where: { $0.id == id }) else { return }
         undoable(L("undo.steps")) {
@@ -338,31 +328,6 @@ struct RunRecord: Identifiable {
         }
     }
     func removeStep(_ id: String, at index: Int) { editSteps(id) { if $0.indices.contains(index) { $0.remove(at: index) } } }
-    /// A menu command the ID does not run: press the same menu item by its titles instead (needs Accessibility).
-    func pressByTitle(_ id: String, at index: Int) {
-        editSteps(id) { steps in
-            guard case .menuCommand(_, let title?)? = steps[safe: index] else { return }
-            steps[index] = .menuItem(path: MenuTitles.split(title))
-        }
-    }
-    /// A new item with one step, in the category chosen in the sidebar, selected for editing.
-    func newItem(_ step: Step, name: String) {
-        var entry = ScriptEntry(steps: [step], name: name)
-        entry.category = currentCategory
-        undoable(L("undo.add")) { library.scripts.append(entry) }
-        selection = [entry.id]
-    }
-    /// Which sheet asks for a menu command: for a new item, or for a step of an item.
-    enum MenuTarget: Identifiable, Equatable { case newItem, step(String); var id: String { if case .step(let i) = self { return i }; return "" } }
-    @Published var menuPicker: MenuTarget?
-    func pickedMenu(_ step: Step, name: String) {
-        guard let target = menuPicker else { return }
-        menuPicker = nil
-        switch target {
-        case .newItem: newItem(step, name: name)
-        case .step(let id): addStep(step, to: id)
-        }
-    }
     func binding(for id: String) -> Binding<ScriptEntry>? {
         guard library.scripts.contains(where: { $0.id == id }) else { return nil }
         return Binding(get: { self.library.scripts.first { $0.id == id } ?? ScriptEntry(id: id, path: "") },

@@ -32,10 +32,9 @@ struct ScriptRow: View {
         HStack(spacing: 8) {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
             Text(script.name).lineLimit(1).truncationMode(.middle)
-            if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
+            if script.hasUnsupportedSteps { Badge(text: L("legacy.badge"), color: .orange).help(L("legacy.unsupported")) }
+            else if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
             if script.actions.count > 1 { Badge(text: String(format: L("steps.count"), script.actions.count)).help(L("steps")) }
-            else if case .menuCommand? = script.actions.first { Image(systemName: "menubar.rectangle").foregroundColor(.secondary).help(L("step.menuCommand")).accessibilityLabel(L("step.menuCommand")) }
-            else if case .menuItem? = script.actions.first { Image(systemName: "menubar.rectangle").foregroundColor(.secondary).help(L("step.menuItem")).accessibilityLabel(L("step.menuItem")) }
             Spacer(minLength: 4)
             if showUses && script.uses > 0 {
                 Text(String(format: L("uses.count"), script.uses)).font(.caption.monospacedDigit()).foregroundColor(.secondary).help(L("uses.hint"))
@@ -94,7 +93,7 @@ struct ScriptDetail: View {
                         HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
                                                                              set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
                                     allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
-                                    registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled, allowsOption: true)
+                                    registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled && script.scriptsOnly, allowsOption: true)
                         Picker(L("taps.label"), selection: Binding(get: { script.hotkey?.taps ?? 1 }, set: { script.hotkey?.taps = $0 == 2 ? 2 : nil })) {
                             Text(L("taps.single")).tag(1)
                             Text(L("taps.double")).tag(2)
@@ -110,7 +109,7 @@ struct ScriptDetail: View {
     }
 }
 
-/// The steps of an item, run in order: insert scripts and menu commands, reorder and remove them.
+/// Script files run in order. Legacy unsupported steps are retained until the user removes them.
 struct StepsEditor: View {
     @ObservedObject var model: AppModel
     let script: ScriptEntry
@@ -122,14 +121,10 @@ struct StepsEditor: View {
             }
             HStack(spacing: 8) {
                 Button { model.addScriptSteps(to: script.id) } label: { Label(L("step.addScript"), systemImage: "plus") }
-                Button { model.menuPicker = .step(script.id) } label: { Label(L("step.addMenu"), systemImage: "plus") }
             }
             .padding(.top, 2)
-            if script.actions.contains(where: { if case .menuItem = $0 { return true }; return false }) && !AXIsProcessTrusted() {
-                HStack(spacing: 8) {
-                    Text(L("step.needsAccessibility")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
-                    Button(AccessibilityText.text("open")) { _ = AccessibilitySettingsLocator.shared.open() }.controlSize(.small)
-                }
+            if script.hasUnsupportedSteps {
+                Text(L("legacy.unsupported")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -157,10 +152,7 @@ struct StepRow: View {
                     Divider()
                     Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(missing)
                     Button(L("relink")) { model.relink(script.id, step: index) }
-                case .menuCommand(_, let menuTitle):
-                    Divider()
-                    Button(L("step.pressByTitle")) { model.pressByTitle(script.id, at: index) }.disabled(menuTitle == nil).help(L("step.pressByTitleHint"))
-                case .menuItem:
+                case .menuCommand, .menuItem:
                     EmptyView()
                 }
                 Divider()
@@ -186,64 +178,9 @@ struct StepRow: View {
     private var detail: String {
         switch step {
         case .script(let path): return missing ? L("badge.missingHint") : (path as NSString).deletingLastPathComponent
-        case .menuCommand(let id, _): return L("step.menuCommand") + "：" + id
-        case .menuItem: return L("step.menuItem")
+        case .menuCommand(let id, _): return L("legacy.badge") + "：" + id
+        case .menuItem: return L("legacy.badge")
         }
-    }
-}
-
-/// Picks a menu command from the bundled list (run by ID), or a menu item typed by its titles (pressed by title).
-struct MenuPickerSheet: View {
-    @ObservedObject var model: AppModel
-    @State private var search = ""
-    @State private var picked: String?
-    @State private var titles = ""
-    private var found: [MenuCommand] {
-        let words = search.split(separator: " ").map(String.init)
-        guard !words.isEmpty else { return model.menuCommands }
-        return model.menuCommands.filter { command in words.allSatisfy { command.title.localizedCaseInsensitiveContains($0) || command.id.localizedCaseInsensitiveContains($0) } }
-    }
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L(model.menuPicker == .newItem ? "menuPicker.titleNew" : "menuPicker.titleStep")).font(.headline)
-            Text(L("menuPicker.byID")).font(.subheadline.weight(.semibold))
-            TextField(L("menuPicker.search"), text: $search).textFieldStyle(.roundedBorder)
-            List(found, selection: $picked) { command in
-                HStack {
-                    Text(command.title).lineLimit(1).truncationMode(.middle)
-                    Spacer(minLength: 8)
-                    Text(command.id).font(.caption.monospaced()).foregroundColor(.secondary).lineLimit(1)
-                }
-                .tag(command.id)
-            }
-            .contextMenu(forSelectionType: String.self) { _ in } primaryAction: { ids in if let id = ids.first { add(id) } }
-            .frame(minHeight: 240)
-            HStack {
-                let custom = search.trimmingCharacters(in: .whitespaces)
-                if !custom.isEmpty && !model.menuCommands.contains(where: { $0.id == custom }) && !custom.contains(" ") {
-                    Button(String(format: L("menuPicker.useID"), custom)) { model.pickedMenu(.menuCommand(id: custom, title: nil), name: custom) }
-                }
-                Spacer()
-                Button(L("add")) { if let picked { add(picked) } }.disabled(picked == nil).keyboardShortcut(.defaultAction)
-            }
-            Divider()
-            Text(L("menuPicker.byTitle")).font(.subheadline.weight(.semibold))
-            Text(L("menuPicker.byTitleHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-            HStack {
-                TextField(L("menuPicker.titlesPlaceholder"), text: $titles).textFieldStyle(.roundedBorder)
-                Button(L("add")) {
-                    let path = MenuTitles.split(titles)
-                    model.pickedMenu(.menuItem(path: path), name: MenuTitles.plain(path.last ?? ""))
-                }
-                .disabled(MenuTitles.split(titles).count < 2)
-            }
-            HStack { Spacer(); Button(L("cancel")) { model.menuPicker = nil }.keyboardShortcut(.cancelAction) }
-        }
-        .padding(20).frame(width: 600, height: 620).tint(appTint)
-    }
-    private func add(_ id: String) {
-        guard let command = model.menuCommands.first(where: { $0.id == id }) else { return }
-        model.pickedMenu(.menuCommand(id: command.id, title: command.title), name: MenuTitles.plain(command.path.last ?? command.id))
     }
 }
 
@@ -530,7 +467,6 @@ struct MainView: View {
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
         .sheet(isPresented: $model.showReplace) { ReplaceNamesSheet(model: model) }
-        .sheet(item: $model.menuPicker) { _ in MenuPickerSheet(model: model) }
         .confirmationDialog(L("deleteConfirm"), isPresented: $confirmDelete) {
             Button(L("delete"), role: .destructive) { model.delete(model.selection) }
             Button(L("cancel"), role: .cancel) {}
@@ -587,11 +523,8 @@ struct MainView: View {
             .onDeleteCommand { if !model.selection.isEmpty { confirmDelete = true } }
             HStack {
                 // The same frame for both symbols: "minus" is shorter than "plus" and would make a lower button.
-                Menu {
-                    Button(L("addMenu")) { model.chooseFiles() }
-                    Button(L("addMenuCommand")) { model.menuPicker = .newItem }
-                } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
-                .menuIndicator(.hidden).fixedSize().help(L("addItem")).accessibilityLabel(L("addItem"))
+                Button { model.chooseFiles() } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
+                    .help(L("addMenu")).accessibilityLabel(L("addMenu"))
                 Button { confirmDelete = true } label: { Image(systemName: "minus").frame(width: 16, height: 16) }.disabled(model.selection.isEmpty)
                     .help(L("delete")).accessibilityLabel(L("delete"))
                 Spacer()
@@ -637,7 +570,6 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-            AccessibilitySection(required: model.library.scripts.contains { $0.actions.contains { if case .menuItem = $0 { return true }; return false } })
         })), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
     }

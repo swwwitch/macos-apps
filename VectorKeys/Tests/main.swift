@@ -124,35 +124,43 @@ var thrice = tapped; thrice["Triggers"] = [["MacroTriggerType": "HotKey", "KeyCo
 check(KMImport.hotkey(of: thrice) == nil, "three taps left out")
 let kmData = try! PropertyListSerialization.data(fromPropertyList: export, format: .xml, options: 0)
 let parsed = KMImport.parse(kmData)!
-check(parsed.items.map(\.name) == ["File", "Code", "Open", "Menu", "Off"], "importable macros: \(parsed.items.map(\.name))")
+check(parsed.items.map(\.name) == ["File", "Code", "Open", "Off"], "importable macros: \(parsed.items.map(\.name))")
 check(parsed.items.allSatisfy { $0.group == "G" }, "group kept for the category")
 check(parsed.items[0].parts == [.file(("~/s/A.jsx" as NSString).expandingTildeInPath)] && parsed.items[0].hotkey == Hotkey(code: 17, modifiers: 256 | 2048 | 4096), "path expanded, hotkey kept")
 check(parsed.items[1].parts == [.code("alert(1); // 50%")] && !parsed.items[1].enabled, "code kept, off state kept")
-check(parsed.skipped.map(\.reason) == [.severalSteps, .variable, .notScript], "skip reasons: \(parsed.skipped.map(\.reason))")
+check(parsed.skipped.map(\.reason) == [.severalSteps, .variable, .notScript, .notScript], "skip reasons: \(parsed.skipped.map(\.reason))")
 check(KMImport.parse(Data("not a plist".utf8)) == nil, "unreadable file")
 let finder: [[String: Any]] = [["Name": "Finder", "Macros": [macro("Close", [["MacroActionType": "SelectMenuItem", "Menu": ["File", "Close"], "TargetingType": "Front"]])]]]
 check(KMImport.parse(try! PropertyListSerialization.data(fromPropertyList: finder, format: .xml, options: 0))!.items.isEmpty, "front-app menu outside Illustrator groups left out")
 check(KMImport.fileName(for: "a/b:c", taken: ["a／b：c.jsx"]) == "a／b：c 2.jsx", "file name made safe and unique")
 
-// Steps and menu commands
-check(KMImport.menuCommand(inAppleScript: #"tell application "Adobe Illustrator" to do javascript "app.executeMenuCommand('selectall');""#) == "selectall", "AppleScript menu command")
-check(KMImport.menuCommand(inAppleScript: #"tell application "Adobe Illustrator" to do javascript "app.executeMenuCommand(\"group\")""#) == "group", "escaped double quotes")
-check(KMImport.menuCommand(inAppleScript: #"tell application "Adobe Illustrator" to do javascript "app.selection = null; app.executeMenuCommand('group')""#) == nil, "other code refused")
-let multi: [[String: Any]] = [["Name": "M", "Macros": [macro("Two steps", [
-    ["MacroActionType": "ExecuteAppleScript", "Text": #"tell application "Adobe Illustrator" to do javascript "app.executeMenuCommand('selectall')""#],
-    ["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "/s/T.jsx"]],
-    ["MacroActionType": "SelectMenuItem", "Menu": ["選択", "選択範囲の保存..."], "TargetApplication": ["BundleIdentifier": "com.adobe.illustrator"], "TargetingType": "Specific"]])]]]
-let multiParsed = KMImport.parse(try! PropertyListSerialization.data(fromPropertyList: multi, format: .xml, options: 0))!
-check(multiParsed.items.first?.parts == [.menuCommand("selectall"), .file("/s/T.jsx"), .menuItem(["選択", "選択範囲の保存..."])], "several steps in order")
-var stepped = ScriptEntry(steps: [.menuCommand(id: "selectall", title: nil), .script(path: "/s/T.jsx")], name: "X")
-check(stepped.path == "/s/T.jsx" && stepped.identity.hasPrefix("item:"), "multi-step item keeps first script as path")
-stepped.actions = [.menuCommand(id: "group", title: "オブジェクト › グループ")]
-check(stepped.identity == "command:group" && stepped.isAvailable, "single command identity")
+// Legacy menu entries remain decodable but never run, register a key, or enter a new library.
+var stepped = ScriptEntry(steps: [.menuCommand(id: "selectall", title: nil), .script(path: "/s/T.jsx")], name: "Mixed", hotkey: Hotkey(code: 2, modifiers: 256))
+stepped.category = "Saved"; stepped.kmUID = "Original"; stepped.runCount = 8
+let savedMixed = try! JSONEncoder().encode(stepped)
+let decodedMixed = try! JSONDecoder().decode(ScriptEntry.self, from: savedMixed)
+check(decodedMixed == stepped && decodedMixed.category == "Saved" && decodedMixed.uses == 8, "legacy mixed item round-trips without lost data")
+check(stepped.hasUnsupportedSteps && !stepped.scriptsOnly && !stepped.isAvailable, "mixed item is blocked in full, not partially run")
+var blocked = Library(); blocked.scripts = [stepped]
+check(blocked.activeHotkeys().winners.isEmpty && blocked.keyTargets().isEmpty, "legacy menu keys are not intercepted")
+var additions = Library()
+check(additions.add(entries: [stepped]).isEmpty, "cannot create a menu item")
+stepped.actions = [.menuItem(path: ["File", "Close"])]
+check(!stepped.isAvailable && !stepped.scriptsOnly, "legacy AX menu item is blocked")
+stepped.actions = []
+check(!stepped.isAvailable && !stepped.scriptsOnly, "empty item is not runnable")
 let legacy = #"{"id":"L","name":"A","path":"/s/A.jsx","enabled":true}"#
 check((try? JSONDecoder().decode(ScriptEntry.self, from: Data(legacy.utf8)))?.actions == [.script(path: "/s/A.jsx")], "1.3 item is one script step")
-check(MenuTitles.split("選択 › 選択範囲の保存...") == ["選択", "選択範囲の保存..."] && MenuTitles.matches("新規...", "新規…"), "menu titles")
-check(MenuCommand.parse("ファイル > 新規...\tnew\nbad line\n").map(\.id) == ["new"], "bundled list parse")
-check(ScriptText.menuCommandJS("Adobe AI Save For Web") == "app.executeMenuCommand('Adobe AI Save For Web');", "menu command JS")
+let menuMacro = macro("Menu plus script", [["MacroActionType": "SelectMenuItem", "Menu": ["File", "Close"], "TargetingType": "Front"], ["MacroActionType": "PlugIn", "PlugInFolderName": "Ai Execute Script File", "PlugInParameters": ["Script path": "/s/T.jsx"]]])
+let mixedKM = try! PropertyListSerialization.data(fromPropertyList: [["Name":"Illustrator", "Macros":[menuMacro]]], format: .xml, options: 0)
+let mixedResult = KMImport.parse(mixedKM)!
+check(mixedResult.items.isEmpty && mixedResult.skipped.count == 1, "KM menu plus script is skipped as a whole")
+let appleMenu = macro("Menu by code", [["MacroActionType":"ExecuteAppleScript", "Text":"app.executeMenuCommand('group')"]])
+let menuData = try! PropertyListSerialization.data(fromPropertyList: [["Name":"Illustrator", "Macros":[appleMenu]]], format:.xml, options:0)
+check(KMImport.parse(menuData)!.items.isEmpty, "KM menu AppleScript is not converted to a script")
+let scriptsMacro = macro("Two scripts", [["MacroActionType":"PlugIn", "PlugInFolderName":"Ai Execute Script File", "PlugInParameters":["Script path":"/s/First.jsx"]], ["MacroActionType":"PlugIn", "PlugInFolderName":"Ai Execute Jsx Text", "PlugInParameters":["Jsx code":"alert(2);"]]])
+let scriptsData = try! PropertyListSerialization.data(fromPropertyList: [["Name":"Scripts", "Macros":[scriptsMacro]]], format:.xml, options:0)
+check(KMImport.parse(scriptsData)!.items.first?.parts == [.file("/s/First.jsx"), .code("alert(2);")], "multiple script steps keep their order")
 
 // AppleScript
 let script = ScriptText.appleScript(appPath: "/Applications/Adobe Illustrator 2026/Adobe Illustrator.app", file: "/s/a \"q\".jsx")

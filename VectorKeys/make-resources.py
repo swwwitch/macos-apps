@@ -13,33 +13,17 @@ add.skipped|スクリプトではないファイルを%d個とばしました（
 empty|スクリプトがまだありません。［スクリプトを追加…］で選ぶか、ここへ .jsx ファイルをドラッグしてください。|No scripts yet. Click Add Scripts… or drag .jsx files here.|还没有脚本。点按“添加脚本…”或将 .jsx 文件拖到此处。|아직 스크립트가 없습니다. [스크립트 추가…]를 클릭하거나 .jsx 파일을 여기로 드래그하세요.
 selectScript|スクリプトを選んでください|Select a script|请选择脚本|스크립트를 선택하세요
 count|%d本|%d scripts|%d 个|%d개
-steps|手順|Steps|步骤|단계
+legacy.badge|旧メニュー手順・実行不可|Legacy menu step — unavailable|旧菜单步骤・不可运行|이전 메뉴 단계 · 실행 불가
+legacy.unsupported|以前のメニュー手順を含むため、この項目は実行しません。保存データは残しています。メニュー手順を削除すると、残ったスクリプトだけを実行できます。|This item contains legacy menu steps and will not run. Its saved data is retained. Remove those steps to run the remaining scripts.|此项目包含旧菜单步骤，因此不会运行。已保留保存的数据。删除菜单步骤后即可运行其余脚本。|이전 메뉴 단계가 있어 이 항목은 실행하지 않습니다. 저장 데이터는 보존됩니다. 메뉴 단계를 삭제하면 남은 스크립트를 실행할 수 있습니다.
+steps|スクリプト|Scripts|脚本|스크립트
 steps.count|手順%d|%d steps|%d 个步骤|단계 %d개
 steps.empty|手順がありません。下のボタンで挿入してください。|No steps. Insert one with the buttons below.|没有步骤。请用下方按钮插入。|단계가 없습니다. 아래 버튼으로 넣으세요.
 step.addScript|スクリプトの実行|Run Script|运行脚本|스크립트 실행
-step.addMenu|メニューコマンドの実行|Run Menu Command|运行菜单命令|메뉴 명령 실행
-step.menuCommand|メニューコマンド（ID）|Menu command (ID)|菜单命令（ID）|메뉴 명령(ID)
-step.menuItem|メニュー項目を押す（アクセシビリティ）|Press menu item (Accessibility)|按下菜单项（辅助功能）|메뉴 항목 누르기(손쉬운 사용)
-step.pressByTitle|メニュー項目を名前で押すに切り替え|Press the Menu Item by Its Title Instead|改为按名称按下菜单项|이름으로 메뉴 항목 누르기로 전환
-step.pressByTitleHint|コマンドIDで動かないメニューは、項目名で押す方式に切り替えます（アクセシビリティの許可が要ります。日本語版のメニュー名です）。|For a menu the command ID does not run: press it by its titles instead (needs Accessibility; Japanese menu titles).|对于命令 ID 无法运行的菜单，改为按名称按下（需要辅助功能权限；使用日文菜单名称）。|명령 ID로 실행되지 않는 메뉴는 이름으로 누르는 방식으로 바꿉니다(손쉬운 사용 권한 필요, 일본어 메뉴 이름).
-step.needsAccessibility|「メニュー項目を押す」手順にはアクセシビリティの許可が要ります。|Press Menu Item steps need Accessibility access.|“按下菜单项”步骤需要辅助功能权限。|'메뉴 항목 누르기' 단계에는 손쉬운 사용 권한이 필요합니다.
 stepMenu|手順の操作|Step actions|步骤操作|단계 작업
 moveUp|上へ|Move Up|上移|위로
 moveDown|下へ|Move Down|下移|아래로
 addItem|追加|Add|添加|추가
-addMenuCommand|メニューコマンドを追加…|Add Menu Command…|添加菜单命令…|메뉴 명령 추가…
-menuPicker.titleNew|メニューコマンドを追加|Add Menu Command|添加菜单命令|메뉴 명령 추가
-menuPicker.titleStep|メニューコマンドの実行を挿入|Insert Run Menu Command|插入“运行菜单命令”|메뉴 명령 실행 넣기
-menuPicker.byID|コマンドIDで実行（許可不要・言語に依存しない）|Run by command ID (no permission needed, any language)|按命令 ID 运行（无需权限，不受语言影响）|명령 ID로 실행(권한 불필요, 언어 무관)
-menuPicker.search|メニュー名・IDで検索（例：アートボード 整列）|Search by menu name or ID|按菜单名称或 ID 搜索|메뉴 이름·ID로 검색
-menuPicker.useID|「%@」をコマンドIDとして追加|Add “%@” as a command ID|将“%@”作为命令 ID 添加|“%@”을(를) 명령 ID로 추가
-menuPicker.byTitle|メニュー項目を名前で押す（IDで動かないとき）|Press a menu item by its titles (when the ID does not run it)|按名称按下菜单项（ID 无法运行时）|이름으로 메뉴 항목 누르기(ID로 실행되지 않을 때)
-menuPicker.byTitleHint|「選択 › 選択範囲の保存」のように、メニューバーから「›」で区切って入力します。アクセシビリティの許可が要り、Illustratorの表示言語のメニュー名で書きます。|Type the titles from the menu bar, separated by “›”. Needs Accessibility access; use the titles in Illustrator’s language.|从菜单栏开始用“›”分隔输入名称。需要辅助功能权限，并使用 Illustrator 显示语言的菜单名称。|메뉴 막대부터 “›”로 구분해 입력합니다. 손쉬운 사용 권한이 필요하며 Illustrator 표시 언어의 메뉴 이름으로 씁니다.
-menuPicker.titlesPlaceholder|例：選択 › 選択範囲の保存...|e.g. Select › Save Selection...|例：选择 › 存储所选对象...|예: 선택 › 선택 영역 저장...
-result.accessibility|アクセシビリティの許可がないため、メニュー項目を押せません。設定の「起動・常駐」で許可してください。|Cannot press the menu item without Accessibility access. Allow it in Settings > Launch & Background.|没有辅助功能权限，无法按下菜单项。请在设置的“启动与常驻”中允许。|손쉬운 사용 권한이 없어 메뉴 항목을 누를 수 없습니다. 설정의 '실행 및 상주'에서 허용하세요.
 result.fileMissingStep|手順%dのファイルが見つかりません。|The file of step %d was not found.|找不到步骤 %d 的文件。|단계 %d의 파일을 찾을 수 없습니다.
-result.menuMissing|手順%d：メニュー「%@」が見つかりません。|Step %d: the menu “%@” was not found.|步骤 %d：找不到菜单“%@”。|단계 %d: 메뉴 “%@”을(를) 찾을 수 없습니다.
-result.menuDisabled|手順%d：メニュー「%@」は今は使えません。|Step %d: the menu “%@” is not available now.|步骤 %d：菜单“%@”当前不可用。|단계 %d: 메뉴 “%@”을(를) 지금은 사용할 수 없습니다.
 result.failedStep|手順%dでエラー：%@|Error at step %d: %@|步骤 %d 出错：%@|단계 %d 오류: %@
 undo.steps|手順の変更|Change Steps|更改步骤|단계 변경
 undo.add|追加|Add|添加|추가
