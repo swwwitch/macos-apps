@@ -15,8 +15,18 @@ struct FontMembershipDrop: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // Extend the drop surface into the row's existing vertical insets.
+            // Cancel this padding after attaching the drop handler so List keeps its normal row height.
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 6)
             .contentShape(Rectangle())
-            .background(RoundedRectangle(cornerRadius: 5).fill(targeted ? Color.accentColor.opacity(0.2) : Color.clear))
+            .background(RoundedRectangle(cornerRadius: 6).fill(targeted ? Color.accentColor.opacity(0.25) : Color.clear))
+            .overlay {
+                RoundedRectangle(cornerRadius: 6)
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                    .opacity(targeted ? 1 : 0)
+                    .allowsHitTesting(false)
+            }
             .onDrop(of: [FontMembershipDrag.type], isTargeted: $targeted) { providers in
                 let matching = providers.filter { $0.hasItemConformingToTypeIdentifier(FontMembershipDrag.type) }
                 guard !matching.isEmpty else { return false }
@@ -28,5 +38,6 @@ struct FontMembershipDrop: ViewModifier {
                 }
                 return true
             }
+            .padding(.vertical, -6)
     }
 }

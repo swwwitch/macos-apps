@@ -242,3 +242,18 @@ Hold Option to reveal Tools > Links > Debug, which opens the Adobe Fonts, OH MY 
 
 
 Activation and deactivation display progress and completed file counts. Wait for completion before switching again or quitting. The action reads Deactivate when all selected editable fonts are active; otherwise it reads Activate.
+
+
+Use List / Cards above the font list to switch views. Cards compare typefaces using common sample text and text size. Click a card to select it; Command-click selects multiple cards. Right-click for actions or drag cards to a set or project in the sidebar. The view mode, sample text and size are saved.
+
+
+Double-click a card to focus on that font in the same window, hiding the other controls. Use Back to list or Escape to return. Open Preview Options to change Japanese, English or custom text, text size, line spacing and columns. Custom text starts with the list sample. Reduce Motion uses a fade instead of a flip.
+
+
+Switch between List view and Card view. Double-click a card for Card focus view, which has no paragraph/card mode switch. Line spacing sets baseline distance relative to text size (24pt at 1.0 means 24pt). Presets have no blank paragraph lines; custom blank lines are retained.
+
+
+Card focus options are visible by default. Weight/style and PostScript name appear below the family name. Choose Black on White, White on Black or Custom colors. Custom colors allow separate text and background colors. palt starts off; enabling it changes spacing in supported fonts.
+
+
+Press Command-Return in Card view to focus the selected card. With multiple cards selected, the first in display order is used. Line spacing starts at 1.0 and ranges from 0.5 to 2.5. Space before and after paragraphs are independent, each 0–96pt (default 0), without changing line spacing within paragraphs.

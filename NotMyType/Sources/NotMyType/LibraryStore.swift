@@ -1093,11 +1093,8 @@ final class LibraryStore: ObservableObject {
 
     /// 優先の順位：設定のウォッチフォルダーの一覧で上にあるフォルダーほど小さい。どのウォッチフォルダーにも入っていなければその後ろ（ユーザー指定）
     func priority(of file: FontFile) -> Int {
-        let folders = WatchFolders.shared.folders
-        for (index, folder) in folders.enumerated() where file.path.hasPrefix(folder.hasSuffix("/") ? folder : folder + "/") {
-            return index
-        }
-        return folders.count
+        let prefixes = WatchFolders.shared.folders.map { $0.hasSuffix("/") ? $0 : $0 + "/" }
+        return DuplicateFolderPriority.rank(path: file.path, folderPrefixes: prefixes)
     }
 
     /// PostScript名が同じ別の書体があれば、そのパス（名前の衝突）
@@ -1198,7 +1195,7 @@ final class LibraryStore: ObservableObject {
         }
 
         func priority(of file: FontFile) -> Int {
-            folderPrefixes.firstIndex { file.path.hasPrefix($0) } ?? folderPrefixes.count
+            DuplicateFolderPriority.rank(path: file.path, folderPrefixes: folderPrefixes)
         }
 
         /// 規則でほかのどれかに負けるファイルの番号。各ファイルが規則のどちら側に当たるかを先に1回だけ調べ、
@@ -1314,8 +1311,9 @@ final class LibraryStore: ObservableObject {
         let ranked = files.enumerated().map { (rank: priority(of: $0.element), preferred: duplicatePreference($0.element) == true,
                                                offset: $0.offset, file: $0.element) }
         return ranked.sorted {
-            if $0.rank != $1.rank { return $0.rank < $1.rank }
+            // Honor the resolved preference (including an explicit user choice) before location.
             if $0.preferred != $1.preferred { return $0.preferred }
+            if $0.rank != $1.rank { return $0.rank < $1.rank }
             return $0.offset < $1.offset
         }.map(\.file)
     }

@@ -6,9 +6,30 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @ObservedObject private var store = LibraryStore.shared
     @State private var isTargeted = false
+    @ObservedObject private var cardPresentation = FontCardPresentation.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("previewVisible") private var previewVisible = true
 
     var body: some View {
+        ZStack {
+            libraryContent
+                .opacity(cardPresentation.card == nil ? 1 : 0)
+                .allowsHitTesting(cardPresentation.card == nil)
+                .disabled(cardPresentation.card != nil)
+                .accessibilityHidden(cardPresentation.card != nil)
+            if let card = cardPresentation.card {
+                FontCardDetailView(family: FontFamily(name: card.family.name, files: [card.file]),
+                                   sample: card.sample, size: card.size, cardScale: card.cardScale)
+                    .id(card.id)
+                    .transition(reduceMotion ? .opacity : .asymmetric(
+                        insertion: .modifier(active: CardFlipEffect(angle: -90), identity: CardFlipEffect(angle: 0)),
+                        removal: .modifier(active: CardFlipEffect(angle: 90), identity: CardFlipEffect(angle: 0))))
+                    .zIndex(1)
+            }
+        }
+    }
+
+    private var libraryContent: some View {
         VStack(spacing: 0) {
             header
             HSplitView {
@@ -28,6 +49,7 @@ struct ContentView: View {
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
         // Finderからフォントファイルやフォルダーをドロップしてライブラリに加える
         .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
+            guard cardPresentation.card == nil else { return false }
             let group = DispatchGroup()
             let dropped = DroppedURLs()
             for provider in providers {
@@ -148,6 +170,38 @@ private struct SidebarView: View {
     @AppStorage(LibraryStore.SidebarSection.orderKey) private var order = ""
     @State private var optionsShown = false
 
+
+    private func toggleCategory(_ expanded: Binding<Bool>) {
+        let next = !expanded.wrappedValue
+        if NSEvent.modifierFlags.contains(.option) {
+            expandedProjects = next
+            expandedLibrary = next
+            expandedSystem = next
+            expandedKinds = next
+            expandedVendors = next
+            expandedCollections = next
+            expandedSmartSets = next
+            expandedSets = next
+        } else {
+            expanded.wrappedValue = next
+        }
+    }
+
+    private func categoryHeader(_ title: String, expanded: Binding<Bool>) -> some View {
+        Button { toggleCategory(expanded) } label: {
+            HStack {
+                Text(title).font(.caption.weight(.semibold))
+                Spacer()
+                Image(systemName: expanded.wrappedValue ? "chevron.down" : "chevron.right")
+                    .font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(.secondary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(expanded.wrappedValue ? L("展開中") : L("折りたたみ中"))
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 区分の表示と並び順（「…」ボタン）
@@ -163,18 +217,7 @@ private struct SidebarView: View {
             .padding(.top, 6)
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
                 // A plain list row avoids the native Section disclosure entirely.
-                Button { expandedLibrary.toggle() } label: {
-                    HStack {
-                        Text(L("ライブラリ")).font(.caption.weight(.semibold))
-                        Spacer()
-                        Image(systemName: expandedLibrary ? "chevron.down" : "chevron.right")
-                            .font(.caption2.weight(.semibold))
-                    }
-                    .foregroundStyle(.secondary)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityValue(expandedLibrary ? L("展開中") : L("折りたたみ中"))
+                categoryHeader(L("ライブラリ"), expanded: $expandedLibrary)
                 row(.all, L("すべてのフォント"), "textformat")
                 if expandedLibrary {
                     row(.duplicates, L("重複"), "square.on.square")
@@ -210,22 +253,28 @@ private struct SidebarView: View {
         case .system:
             if store.includeUserFonts && showSystem {
                 // フォントフォルダー。System は切り替え・取り除きができない
-                Section(isExpanded: $expandedSystem) {
+                categoryHeader(section.title, expanded: $expandedSystem)
+                    .padding(.top, 8)
+                if expandedSystem {
                     row(.folder(.user), SystemFolder.user.title, "person")
                     row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
-                } header: { Text(section.title) }
+                }
             }
         case .kinds:
             if showKinds {
-                Section(isExpanded: $expandedKinds) {
+                categoryHeader(section.title, expanded: $expandedKinds)
+                    .padding(.top, 8)
+                if expandedKinds {
                     ForEach(FontKind.allCases, id: \.self) { kind in
                         row(.kind(kind), kind.title, kind.symbol)
                     }
-                } header: { Text(section.title) }
+                }
             }
         case .vendors:
             if showVendors {
-                Section(isExpanded: $expandedVendors) {
+                categoryHeader(section.title, expanded: $expandedVendors)
+                    .padding(.top, 8)
+                if expandedVendors {
                     ForEach(LibraryStore.vendors, id: \.id) { vendor in
                         iconRow(.vendor(vendor.id), vendor.title) { VendorIcon(id: vendor.id) }
                     }
@@ -234,20 +283,24 @@ private struct SidebarView: View {
                         .contextMenu {
                             Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() }
                         }
-                } header: { Text(section.title) }
+                }
             }
         case .collections:
             if showCollections && !store.collectionNames.isEmpty {
-                Section(isExpanded: $expandedCollections) {
+                categoryHeader(section.title, expanded: $expandedCollections)
+                    .padding(.top, 8)
+                if expandedCollections {
                     ForEach(store.collectionNames, id: \.self) { name in
                         row(.collection(name), name, "square.stack")
                     }
-                } header: { Text(section.title) }
+                }
             }
         case .smartSets:
             if showSmartSets {
                 // 条件で中身が決まるセット
-                Section(isExpanded: $expandedSmartSets) {
+                categoryHeader(section.title, expanded: $expandedSmartSets)
+                    .padding(.top, 8)
+                if expandedSmartSets {
                     row(.favorites, L("お気に入り"), "star")
                     row(.active, L("アクティブ"), "checkmark.circle")
                     if showRecent { row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark") }
@@ -269,11 +322,13 @@ private struct SidebarView: View {
                                 Button(L("スマートセットを削除…")) { store.deleteSmartSet(smartSet.id) }
                             }
                     }
-                } header: { Text(section.title) }
+                }
             }
         case .projects:
             if showProjects {
-                Section(isExpanded: $expandedProjects) {
+                categoryHeader(section.title, expanded: $expandedProjects)
+                    .padding(.top, 8)
+                if expandedProjects {
                     ForEach(store.data.projects) { project in
                         projectRow(project)
                             .contextMenu {
@@ -286,11 +341,13 @@ private struct SidebarView: View {
                                 Button(L("プロジェクトを削除…")) { store.deleteProject(project.id) }
                             }
                     }
-                } header: { Text(section.title) }
+                }
             }
         case .sets:
             if showSets {
-                Section(isExpanded: $expandedSets) {
+                categoryHeader(section.title, expanded: $expandedSets)
+                    .padding(.top, 8)
+                if expandedSets {
                     ForEach(store.data.sets) { set in
                         setRow(set)
                             .contextMenu {
@@ -301,7 +358,7 @@ private struct SidebarView: View {
                                 Button(L("セットを削除…")) { store.deleteSet(set.id) }
                             }
                     }
-                } header: { Text(section.title) }
+                }
             }
         }
     }
@@ -456,9 +513,39 @@ private struct FamilyListView: View {
     @AppStorage(NameDisplay.key) private var nameDisplay = NameDisplay.localized.rawValue
     @AppStorage("previewVisible") private var previewVisible = true
 
+    @AppStorage("fontList.cards") private var cards = false
+    @AppStorage("fontList.sample") private var cardSample = "あいうえお ABCDE abcde 0123456789"
+    @AppStorage("fontList.sampleSize") private var cardSize = 32.0
+    @AppStorage("fontList.cardScale") private var cardScale = 1.0
+
     var body: some View {
         let families = store.shownFamilies
         VStack(spacing: 0) {
+            HStack {
+                Picker(L("表示"), selection: $cards) {
+                    Text(L("通常表示")).tag(false)
+                    Text(L("カード表示")).tag(true)
+                }.pickerStyle(.segmented).frame(width: 190)
+                Spacer()
+            }.padding(8)
+            if cards {
+                VStack(spacing: 8) {
+                    TextField(L("比較するサンプルテキスト"), text: $cardSample)
+                        .textFieldStyle(.roundedBorder)
+                    HStack {
+                        Text(L("文字サイズ")).frame(width: 80, alignment: .leading)
+                        Slider(value: $cardSize, in: 12...72, step: 1)
+                            .accessibilityLabel(L("文字サイズ"))
+                        Text("\(Int(cardSize)) pt").monospacedDigit().frame(width: 50)
+                    }
+                    HStack {
+                        Text(L("カードサイズ")).frame(width: 80, alignment: .leading)
+                        Slider(value: $cardScale, in: 0.75...1.75, step: 0.05)
+                            .accessibilityLabel(L("カードサイズ"))
+                        Text("\(Int((cardScale * 100).rounded()))%").monospacedDigit().frame(width: 50)
+                    }
+                }.padding(.horizontal, 8).padding(.bottom, 8)
+            }
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
                 TextField(L("ファミリー名・PostScript名で検索"), text: $store.searchText)
@@ -507,6 +594,8 @@ private struct FamilyListView: View {
             Divider()
             if families.isEmpty {
                 emptyView
+            } else if cards {
+                FontCardsView(families: families, sample: cardSample, size: cardSize, cardScale: cardScale)
             } else {
                 FamilyOutline(nodes: store.shownNodes, version: store.listVersion, selection: store.selection)
                 .equatable()

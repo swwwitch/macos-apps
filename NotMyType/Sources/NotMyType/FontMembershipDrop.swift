@@ -15,8 +15,16 @@ struct FontMembershipDrop: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // Reserve the same full-row target before and during a drag so rows do not shift.
+            .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
             .contentShape(Rectangle())
-            .background(RoundedRectangle(cornerRadius: 5).fill(targeted ? Color.accentColor.opacity(0.2) : Color.clear))
+            .background(RoundedRectangle(cornerRadius: 6).fill(targeted ? Color.accentColor.opacity(0.25) : Color.clear))
+            .overlay {
+                RoundedRectangle(cornerRadius: 6)
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                    .opacity(targeted ? 1 : 0)
+                    .allowsHitTesting(false)
+            }
             .onDrop(of: [FontMembershipDrag.type], isTargeted: $targeted) { providers in
                 let matching = providers.filter { $0.hasItemConformingToTypeIdentifier(FontMembershipDrag.type) }
                 guard !matching.isEmpty else { return false }

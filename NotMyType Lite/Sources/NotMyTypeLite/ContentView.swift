@@ -130,40 +130,59 @@ private struct SidebarView: View {
     @AppStorage(LibraryStore.SidebarSection.smartSets.expandedKey) private var expandedSmartSets = true
     @AppStorage(LibraryStore.SidebarSection.sets.expandedKey) private var expandedSets = true
 
+
+    private func toggleCategory(_ expanded: Binding<Bool>) {
+        let next = !expanded.wrappedValue
+        if NSEvent.modifierFlags.contains(.option) {
+            expandedLibrary = next
+            expandedSystem = next
+            expandedSmartSets = next
+            expandedSets = next
+        } else {
+            expanded.wrappedValue = next
+        }
+    }
+
+    private func categoryHeader(_ title: String, expanded: Binding<Bool>) -> some View {
+        Button { toggleCategory(expanded) } label: {
+            HStack {
+                Text(title).font(.caption.weight(.semibold))
+                Spacer()
+                Image(systemName: expanded.wrappedValue ? "chevron.down" : "chevron.right")
+                    .font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(.secondary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(expanded.wrappedValue ? L("展開中") : L("折りたたみ中"))
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             List(selection: Binding<SidebarItem?>(get: { store.sidebar }, set: { if let item = $0 { store.selectSidebar(item) } })) {
-                Section {
-                    row(.all, L("すべてのフォント"), "textformat")
-                    if expandedLibrary {
-                        row(.duplicates, L("重複"), "square.on.square")
-                            .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
-                        row(.missing, L("見つからない"), "exclamationmark.triangle")
-                        // Creative Cloud が入れたフォント（切り替えは Creative Cloud で）
-                        // ほかの行と同じ線画のアイコンにする（色付きのロゴは浮いて見える、ユーザー指摘）
-                        row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "f.cursive")
-                            .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
-                    }
-                } header: {
-                    Button { expandedLibrary.toggle() } label: {
-                        HStack {
-                            Text(L("ライブラリ"))
-                            Spacer()
-                            Image(systemName: expandedLibrary ? "chevron.down" : "chevron.right")
-                                .font(.caption2.weight(.semibold))
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityValue(expandedLibrary ? L("展開中") : L("折りたたみ中"))
+                categoryHeader(L("ライブラリ"), expanded: $expandedLibrary)
+                row(.all, L("すべてのフォント"), "textformat")
+                if expandedLibrary {
+                    row(.duplicates, L("重複"), "square.on.square")
+                        .contextMenu { Button(L("重複フォントを解決…")) { DuplicateResolverWindow.shared.show() } }
+                    row(.missing, L("見つからない"), "exclamationmark.triangle")
+                    // Creative Cloud が入れたフォント（切り替えは Creative Cloud で）
+                    // ほかの行と同じ線画のアイコンにする（色付きのロゴは浮いて見える、ユーザー指摘）
+                    row(.folder(.adobeFonts), SystemFolder.adobeFonts.title, "f.cursive")
+                        .contextMenu { Button(L("fonts.adobe.comを開く")) { store.openAdobeFontsWeb() } }
                 }
                 // フォントフォルダー。System は切り替え・取り除きができない
-                Section(isExpanded: $expandedSystem) {
+                categoryHeader(LibraryStore.SidebarSection.system.title, expanded: $expandedSystem)
+                    .padding(.top, 8)
+                if expandedSystem {
                     row(.folder(.user), SystemFolder.user.title, "person")
                     row(.folder(.allUsers), SystemFolder.allUsers.title, "person.2")
-                } header: { Text(LibraryStore.SidebarSection.system.title) }
+                }
                 // 条件で中身が決まるセット
-                Section(isExpanded: $expandedSmartSets) {
+                categoryHeader(LibraryStore.SidebarSection.smartSets.title, expanded: $expandedSmartSets)
+                    .padding(.top, 8)
+                if expandedSmartSets {
                     row(.active, L("アクティブ"), "checkmark.circle")
                     row(.inactive, L("非アクティブ"), "circle")
                     row(.japanese, L("日本語をサポート"), "character.ja")
@@ -177,8 +196,10 @@ private struct SidebarView: View {
                                 Button(L("スマートセットを削除…")) { store.deleteSmartSet(smartSet.id) }
                             }
                     }
-                } header: { Text(LibraryStore.SidebarSection.smartSets.title) }
-                Section(isExpanded: $expandedSets) {
+                }
+                categoryHeader(LibraryStore.SidebarSection.sets.title, expanded: $expandedSets)
+                    .padding(.top, 8)
+                if expandedSets {
                     ForEach(store.data.sets) { set in
                         setRow(set)
                             .contextMenu {
@@ -189,7 +210,7 @@ private struct SidebarView: View {
                                 Button(L("セットを削除…")) { store.deleteSet(set.id) }
                             }
                     }
-                } header: { Text(LibraryStore.SidebarSection.sets.title) }
+                }
             }
             .listStyle(.sidebar)
             Divider()
