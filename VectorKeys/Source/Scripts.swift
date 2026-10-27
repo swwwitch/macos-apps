@@ -18,16 +18,24 @@ struct Hotkey: Codable, Hashable {
 enum Step: Codable, Hashable {
     /// A script file run with do javascript.
     case script(path: String)
+    case code(source: String)
     /// Legacy command record, retained for decoding only; never executed.
     case menuCommand(id: String, title: String?)
     /// Legacy menu-title record, retained for decoding only; never executed.
     case menuItem(path: [String])
 
     var scriptPath: String? { if case .script(let path) = self { return path }; return nil }
-    var exists: Bool { scriptPath.map { FileManager.default.fileExists(atPath: $0) } ?? true }
+    var isSupported: Bool {
+        switch self { case .script, .code: return true; case .menuCommand, .menuItem: return false }
+    }
+    var exists: Bool {
+        if case .code(let source) = self { return !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        return scriptPath.map { FileManager.default.fileExists(atPath: $0) } ?? true
+    }
     var identity: String {
         switch self {
         case .script(let path): return path
+        case .code(let source): return "code:" + source
         case .menuCommand(let id, _): return "command:" + id
         case .menuItem(let path): return "menu:" + path.joined(separator: " > ")
         }
@@ -74,7 +82,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
     /// Never execute only the script portion of a legacy mixed item. Keep its data for explicit editing.
-    var hasUnsupportedSteps: Bool { actions.contains { $0.scriptPath == nil } }
+    var hasUnsupportedSteps: Bool { actions.contains { !$0.isSupported } }
     var scriptsOnly: Bool { !actions.isEmpty && !hasUnsupportedSteps }
     var isAvailable: Bool { scriptsOnly && actions.allSatisfy(\.exists) }
     mutating func recordRun(at date: Date = Date()) { runCount = uses + 1; lastRun = date }
@@ -278,6 +286,9 @@ enum ScriptText {
     }
     /// Runs the file with `do javascript`, addressing Illustrator by its path so the one in front is used when several versions are open.
     /// A long timeout: scripts that open a dialog box keep `do javascript` waiting until it is closed.
+    static func appleScript(appPath: String, code: String) -> String {
+        "with timeout of 3600 seconds\ntell application \(quote(appPath))\ndo javascript \(quote(code))\nend tell\nend timeout"
+    }
     static func appleScript(appPath: String, file: String) -> String {
         """
         with timeout of 3600 seconds

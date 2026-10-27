@@ -1,3 +1,9 @@
+"code.unavailable" = "Unavailable";
+"code.unavailableHint" = "A file is missing or inline code is empty.";
+"code.title" = "Inline JavaScript";
+"code.add" = "Add JavaScript Code";
+"code.empty" = "Enter JavaScript code.";
+"code.hint" = "Code runs in Illustrator.";
 "sharing.note" = "Shares global hotkey enablement, usage-count display and sort order.";
 "sharing.perMac" = "The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.";
 "heading" = "Run Illustrator Scripts Fast";
@@ -15,7 +21,7 @@
 "steps" = "Scripts";
 "steps.count" = "%d steps";
 "steps.empty" = "No steps. Insert one with the buttons below.";
-"step.addScript" = "Run Script";
+"step.addScript" = "Choose Script File";
 "stepMenu" = "Step actions";
 "moveUp" = "Move Up";
 "moveDown" = "Move Down";

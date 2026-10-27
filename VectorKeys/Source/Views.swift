@@ -33,7 +33,7 @@ struct ScriptRow: View {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
             Text(script.name).lineLimit(1).truncationMode(.middle)
             if script.hasUnsupportedSteps { Badge(text: L("legacy.badge"), color: .orange).help(L("legacy.unsupported")) }
-            else if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
+            else if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("code.unavailable"), color: .orange).help(L("code.unavailableHint")) }
             if script.actions.count > 1 { Badge(text: String(format: L("steps.count"), script.actions.count)).help(L("steps")) }
             Spacer(minLength: 4)
             if showUses && script.uses > 0 {
@@ -120,7 +120,8 @@ struct StepsEditor: View {
                 StepRow(model: model, script: script, index: index, step: step)
             }
             HStack(spacing: 8) {
-                Button { model.addScriptSteps(to: script.id) } label: { Label(L("step.addScript"), systemImage: "plus") }
+                Button { model.addScriptSteps(to: script.id) } label: { Label(L("step.addScript"), systemImage: "doc") }
+                Button { model.addStep(.code(source: ""), to: script.id) } label: { Label(L("code.add"), systemImage: "chevron.left.forwardslash.chevron.right") }
             }
             .padding(.top, 2)
             if script.hasUnsupportedSteps {
@@ -141,6 +142,12 @@ struct StepRow: View {
             Image(systemName: symbol).foregroundColor(.secondary).frame(width: 18).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).lineLimit(2).truncationMode(.middle)
+                if case .code(let source) = step {
+                    TextEditor(text: Binding(get: { source }, set: { model.updateCode(script.id, at: index, source: $0) }))
+                        .font(.system(.body, design: .monospaced))
+                        .frame(minWidth: 220, minHeight: 150)
+                        .accessibilityLabel(L("code.title"))
+                }
                 Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary).lineLimit(2).truncationMode(.middle).textSelection(.enabled)
             }
             Spacer(minLength: 4)
@@ -152,7 +159,7 @@ struct StepRow: View {
                     Divider()
                     Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(missing)
                     Button(L("relink")) { model.relink(script.id, step: index) }
-                case .menuCommand, .menuItem:
+                case .code, .menuCommand, .menuItem:
                     EmptyView()
                 }
                 Divider()
@@ -166,10 +173,11 @@ struct StepRow: View {
     }
     private var missing: Bool { !step.exists }
     private var symbol: String {
-        switch step { case .script: return "doc.text"; case .menuCommand: return "command"; case .menuItem: return "menubar.rectangle" }
+        switch step { case .code: return "chevron.left.forwardslash.chevron.right"; case .script: return "doc.text"; case .menuCommand: return "command"; case .menuItem: return "menubar.rectangle" }
     }
     private var title: String {
         switch step {
+        case .code: return L("code.title")
         case .script(let path): return (path as NSString).lastPathComponent
         case .menuCommand(let id, let menuTitle): return menuTitle ?? id
         case .menuItem(let path): return path.joined(separator: " › ")
@@ -177,6 +185,7 @@ struct StepRow: View {
     }
     private var detail: String {
         switch step {
+        case .code: return L(missing ? "code.empty" : "code.hint")
         case .script(let path): return missing ? L("badge.missingHint") : (path as NSString).deletingLastPathComponent
         case .menuCommand(let id, _): return L("legacy.badge") + "：" + id
         case .menuItem: return L("legacy.badge")
@@ -410,6 +419,7 @@ struct MainView: View {
                         Image(systemName: "doc.badge.plus").font(.system(size: 32)).foregroundColor(.secondary).accessibilityHidden(true)
                         Text(L("empty")).foregroundColor(.secondary).multilineTextAlignment(.center)
                         Button(L("addMenu")) { model.chooseFiles() }.keyboardShortcut(.defaultAction)
+                        Button(L("code.add")) { model.addCode() }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
@@ -523,7 +533,10 @@ struct MainView: View {
             .onDeleteCommand { if !model.selection.isEmpty { confirmDelete = true } }
             HStack {
                 // The same frame for both symbols: "minus" is shorter than "plus" and would make a lower button.
-                Button { model.chooseFiles() } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
+                Menu {
+                    Button(L("addMenu")) { model.chooseFiles() }
+                    Button(L("code.add")) { model.addCode() }
+                } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
                     .help(L("addMenu")).accessibilityLabel(L("addMenu"))
                 Button { confirmDelete = true } label: { Image(systemName: "minus").frame(width: 16, height: 16) }.disabled(model.selection.isEmpty)
                     .help(L("delete")).accessibilityLabel(L("delete"))

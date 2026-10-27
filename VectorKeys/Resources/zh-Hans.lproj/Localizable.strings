@@ -1,3 +1,9 @@
+"code.unavailable" = "无法运行";
+"code.unavailableHint" = "文件不存在或代码为空。";
+"code.title" = "直接输入 JavaScript";
+"code.add" = "添加 JavaScript 代码";
+"code.empty" = "请输入 JavaScript 代码。";
+"code.hint" = "代码在 Illustrator 中运行。";
 "sharing.note" = "共享全局快捷键启用状态、使用次数显示和排序。";
 "sharing.perMac" = "不共享脚本列表、文件、各项目快捷键、启动与常驻设置、应用启动快捷键及窗口位置。";
 "heading" = "在 Illustrator 中快速运行脚本";
@@ -15,7 +21,7 @@
 "steps" = "脚本";
 "steps.count" = "%d 个步骤";
 "steps.empty" = "没有步骤。请用下方按钮插入。";
-"step.addScript" = "运行脚本";
+"step.addScript" = "指定脚本文件";
 "stepMenu" = "步骤操作";
 "moveUp" = "上移";
 "moveDown" = "下移";

@@ -181,6 +181,17 @@ struct RunRecord: Identifiable {
 
     // MARK: Editing
 
+    func addCode() {
+        var entry = ScriptEntry(steps: [.code(source: "")], name: L("code.title"))
+        entry.category = currentCategory
+        undoable(L("undo.add")) { library.scripts.append(entry); selection = [entry.id] }
+    }
+    func updateCode(_ id: String, at index: Int, source: String) {
+        editSteps(id) { steps in
+            guard steps.indices.contains(index), case .code = steps[index] else { return }
+            steps[index] = .code(source: source)
+        }
+    }
     func add(urls: [URL]) {
         let accepted = urls.filter(ScriptEntry.accepts)
         // Added while a category is chosen in the sidebar: the scripts go into it.

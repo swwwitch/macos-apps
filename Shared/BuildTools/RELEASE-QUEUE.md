@@ -638,3 +638,8 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 ### VectorKeys 設定共有 開発検証完了
 - 1.5.1（8）。設定共有3キー・共通UI・受信後更新・4言語説明を実装。VectorKeys/test.shとShared/SettingsSync/test.sh PASS、NO_DEPLOY既存署名ビルド成功。詳細：VectorKeys/Tests/BUILD-NOTES-20261027-sharing.md。対象SHAは本記録を含む確定コミット。
 - 公証・両配置先更新・実機UI・公開は未実施。開発Macのインストール版はbuild 6。公証Macへの依頼送信は未実施。
+
+## VectorKeys 直書きJavaScript対応（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main
+- 開始SHA: 6336f80bdcee3410df256edf9ab8fd3c7098ffc0
+- 内容: ファイル実行と直書きコードの保存・編集・実行。状態: 1.6.0 (9) 実装・テスト・検証ビルド・署名検証完了。開始: 2026-10-28 JST。検証用ビルド作成依頼に対応。Illustrator実機操作、公証・配布配置・公開は未実施。pushは自動承認レビューで保留。

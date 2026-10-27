@@ -57,6 +57,9 @@ final class ScriptRunner {
             case .script(let path):
                 guard FileManager.default.fileExists(atPath: path) else { return .fileMissing(step: number) }
                 if let stop = osascript(ScriptText.appleScript(appPath: appPath, file: path), step: number) { return stop }
+            case .code(let source):
+                guard !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .failed(step: number, message: L("code.empty")) }
+                if let stop = osascript(ScriptText.appleScript(appPath: appPath, code: source), step: number) { return stop }
             case .menuCommand, .menuItem:
                 return .unsupportedSteps
             }

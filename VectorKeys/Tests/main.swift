@@ -168,4 +168,20 @@ check(script.contains("tell application \"/Applications/Adobe Illustrator 2026/A
 check(script.contains("do javascript (POSIX file \"/s/a \\\"q\\\".jsx\" as alias)"), "file quoted")
 check(OSAScript.cleanError("-: execution error: Adobe Illustratorでエラーが起きました：Error 21: undefined is not an object (-2700)") == "Error 21: undefined is not an object", "error cleaned")
 
+// Inline code retains exact Unicode, newlines, quotes and backslashes through JSON.
+let inlineSource = "// 日本語\nalert(\"C:\\\\test\");\n'quoted';"
+let inlineEntry = ScriptEntry(steps: [.code(source: inlineSource)], name: "Inline", hotkey: key)
+check(inlineEntry.scriptsOnly && inlineEntry.isAvailable, "inline code is executable without a file")
+check(inlineEntry.path.isEmpty, "inline code has no external file")
+let inlineData = try JSONEncoder().encode(inlineEntry)
+check(try JSONDecoder().decode(ScriptEntry.self, from: inlineData) == inlineEntry, "inline code JSON round trip")
+check(!ScriptEntry(steps: [.code(source: " \n\t")], name: "Empty").isAvailable, "blank code is unavailable")
+let mixedCode = ScriptEntry(steps: [.code(source: inlineSource), .menuItem(path: ["File"])], name: "Legacy")
+check(!mixedCode.scriptsOnly, "legacy steps remain blocked with inline code")
+var inlineLibrary = Library()
+inlineLibrary.scripts = [inlineEntry]
+check(inlineLibrary.activeHotkeys().winners.count == 1, "inline code supports hotkeys")
+let inlineAppleScript = ScriptText.appleScript(appPath: "/Applications/Illustrator.app", code: inlineSource)
+check(inlineAppleScript.contains("do javascript " + ScriptText.quote(inlineSource)), "code is quoted as text instead of a file")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

@@ -1,3 +1,9 @@
+"code.unavailable" = "実行不可";
+"code.unavailableHint" = "ファイルが見つからないか、直書きコードが空です。";
+"code.title" = "JavaScriptコードの直書き";
+"code.add" = "JavaScriptコードを追加";
+"code.empty" = "JavaScriptコードを入力してください。";
+"code.hint" = "コードはIllustratorで実行されます。";
 "sharing.note" = "ホットキー全体の有効状態・使用回数表示・並び順を共有します。";
 "sharing.perMac" = "スクリプト一覧・実ファイル・項目別ホットキー、起動・常駐・呼び出しホットキー・ウインドウ位置は共有しません。";
 "heading" = "Illustratorでスクリプトを高速実行";
@@ -15,7 +21,7 @@
 "steps" = "スクリプト";
 "steps.count" = "手順%d";
 "steps.empty" = "手順がありません。下のボタンで挿入してください。";
-"step.addScript" = "スクリプトの実行";
+"step.addScript" = "ファイルの指定";
 "stepMenu" = "手順の操作";
 "moveUp" = "上へ";
 "moveDown" = "下へ";

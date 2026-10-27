@@ -74,6 +74,7 @@ import Carbon
         return [item]
     }
     @objc func toggleHotkeys() { model.hotkeysEnabled.toggle() }
+    @objc func addCode() { show(); model.addCode() }
     @objc func addScripts() { show(); model.chooseFiles() }
     @objc func importKM() { show(); model.chooseKMFiles() }
     @objc func stripNumbering() { model.stripNumbering() }
@@ -141,6 +142,7 @@ import Carbon
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("addMenu"), #selector(addScripts), "o")
+        add(file, L("code.add"), #selector(addCode), "")
         add(file, L("km.import"), #selector(importKM), "i")
         add(file, L("pauseHotkeys"), #selector(toggleHotkeys), "")
         file.addItem(.separator())

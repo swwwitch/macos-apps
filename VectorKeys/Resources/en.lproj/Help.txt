@@ -76,3 +76,7 @@ Select a script and click − (or press Delete). The file itself is not deleted 
 
 
 Share Settings provides export, import and folder sync through iCloud Drive or Dropbox. Import replaces shared preferences after confirmation. Update all syncing Macs to 1.5.1 or later. Shares global hotkey enablement, usage-count display and sort order. The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.
+
+
+## JavaScript
+Choose File > Add JavaScript Code and enter code in the editor. File and inline code steps can be mixed and run in order. Empty code cannot run. Code is saved for editing after restart.

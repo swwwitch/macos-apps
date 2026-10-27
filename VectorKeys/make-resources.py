@@ -3,7 +3,13 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''sharing.note|ホットキー全体の有効状態・使用回数表示・並び順を共有します。|Shares global hotkey enablement, usage-count display and sort order.|共享全局快捷键启用状态、使用次数显示和排序。|전체 단축키 활성 상태, 사용 횟수 표시와 정렬 순서를 공유합니다.
+rows = '''code.unavailable|実行不可|Unavailable|无法运行|실행 불가
+code.unavailableHint|ファイルが見つからないか、直書きコードが空です。|A file is missing or inline code is empty.|文件不存在或代码为空。|파일이 없거나 직접 입력한 코드가 비어 있습니다.
+code.title|JavaScriptコードの直書き|Inline JavaScript|直接输入 JavaScript|JavaScript 코드 직접 입력
+code.add|JavaScriptコードを追加|Add JavaScript Code|添加 JavaScript 代码|JavaScript 코드 추가
+code.empty|JavaScriptコードを入力してください。|Enter JavaScript code.|请输入 JavaScript 代码。|JavaScript 코드를 입력하세요.
+code.hint|コードはIllustratorで実行されます。|Code runs in Illustrator.|代码在 Illustrator 中运行。|코드는 Illustrator에서 실행됩니다.
+sharing.note|ホットキー全体の有効状態・使用回数表示・並び順を共有します。|Shares global hotkey enablement, usage-count display and sort order.|共享全局快捷键启用状态、使用次数显示和排序。|전체 단축키 활성 상태, 사용 횟수 표시와 정렬 순서를 공유합니다.
 sharing.perMac|スクリプト一覧・実ファイル・項目別ホットキー、起動・常駐・呼び出しホットキー・ウインドウ位置は共有しません。|The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.|不共享脚本列表、文件、各项目快捷键、启动与常驻设置、应用启动快捷键及窗口位置。|스크립트 목록과 파일, 항목별 단축키, 시작 및 상주 설정, 앱 호출 단축키와 윈도우 위치는 공유하지 않습니다.
 heading|Illustratorでスクリプトを高速実行|Run Illustrator Scripts Fast|在 Illustrator 中快速运行脚本|Illustrator에서 스크립트를 빠르게 실행
 subtitle|登録したスクリプトを、Illustratorが前面のときにキーボードショートカットで実行します。|Runs your scripts with keyboard shortcuts while Illustrator is in front.|在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本。|Illustrator가 앞에 있을 때 등록한 스크립트를 키보드 단축키로 실행합니다.
@@ -20,7 +26,7 @@ legacy.unsupported|以前のメニュー手順を含むため、この項目は�
 steps|スクリプト|Scripts|脚本|스크립트
 steps.count|手順%d|%d steps|%d 个步骤|단계 %d개
 steps.empty|手順がありません。下のボタンで挿入してください。|No steps. Insert one with the buttons below.|没有步骤。请用下方按钮插入。|단계가 없습니다. 아래 버튼으로 넣으세요.
-step.addScript|スクリプトの実行|Run Script|运行脚本|스크립트 실행
+step.addScript|ファイルの指定|Choose Script File|指定脚本文件|스크립트 파일 지정
 stepMenu|手順の操作|Step actions|步骤操作|단계 작업
 moveUp|上へ|Move Up|上移|위로
 moveDown|下へ|Move Down|下移|아래로
