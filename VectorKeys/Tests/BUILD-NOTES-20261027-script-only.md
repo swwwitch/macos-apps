@@ -10,3 +10,7 @@
 - 配布版・build番号は開発担当の確定待ち。既存/Applications・Latest Buildsの1.4.0（6）は更新しない。この新機能版の公証・配布・UI・Illustrator実行は未実施。
 - 先に作成したメニュー対応版1.4.0（6）の公証Acceptedは別成果物。スクリプト専用版の公証根拠に使わない。
 - 最終検証はソース確定コミット後に再ビルドし、Shared/ReleasePreparation/20261027-VectorKeys-ScriptOnly-FinalValidation/へ記録する。
+
+## 通常配布版の番号確定
+
+- 2026-10-27：ユーザーがこの公証Macでの番号決定・公証・両配置先更新を明示承認。1.5.0（7）に確定。基点bbca047と同じスクリプト専用化のコードを使用し、配布用に再ビルド・公証する。結果はShared/ReleasePreparation/20261027-VectorKeys-1.5.0-build7/に記録。

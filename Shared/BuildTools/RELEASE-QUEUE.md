@@ -592,3 +592,9 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 単体・互換性・Runner事前拒否・4言語パリティ成功。現行1.4.0/6で検証ビルドし、番号確定前に配布しない。
 
 - スクリプト専用版の検証ビルド・署名・単体/互換/Runner/4言語検証成功。番号確定前に配布しない。詳細：VectorKeys/Tests/BUILD-NOTES-20261027-script-only.md。最終ソースはこの記録の確定コミット。
+
+## VectorKeys 1.5.0（7）公証・配置
+
+- 開始：2026-10-27T14:00:36.412806+09:00。担当：公証Mac MacBookPro13-M5-2025.local、本チャット。main。基点bbca047。対象SHAは本番号確定コミット。
+- ユーザー「今回はそちらで版・build番号を上げて、公証・両配置先への更新まで進めてください」により、版決定の開発担当限定ルールの今回限りの例外が明示承認された。1.5.0（7）に確定し、commit・push後に同じソースからビルド・公証・バックアップ付き両配置・起動を検証する。
+- 状態：ソース番号確定、公証前。成果物・検証：Shared/ReleasePreparation/20261027-VectorKeys-1.5.0-build7/。
