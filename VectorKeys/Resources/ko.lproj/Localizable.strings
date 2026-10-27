@@ -1,3 +1,7 @@
+"ui.hotkeyHelp" = "단축키 도움말";
+"ui.addStep" = "단계 추가";
+"ui.stepNumber" = "단계 %d";
+"ui.subtitle" = "단축키로 파일과 JavaScript 실행";
 "code.unavailable" = "실행 불가";
 "code.unavailableHint" = "파일이 없거나 직접 입력한 코드가 비어 있습니다.";
 "code.title" = "JavaScript 코드 직접 입력";

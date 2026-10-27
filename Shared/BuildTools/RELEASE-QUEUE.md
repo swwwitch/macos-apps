@@ -646,3 +646,6 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ## VectorKeys コード見出し削除（2026-10-28）
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点7fe76a0。内容: コード入力欄上部の重複見出しを非表示。状態: 1.6.0 (10) 検証ビルド・署名検証完了。GUI確認・公証・配布配置・公開未実施。
+
+## VectorKeys UI整理（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点62c9002。開始: 2026-10-28 JST。コード欄の全幅化、詳細画面・ヘッダー・追加操作・説明・履歴の整理。状態: 検証用1.6.0 (11) テスト・4言語検証・ビルド・署名検証合格。実機起動と保存済み直書き項目の表示を確認。ユーザーの外観確認済み。配布更新なし。

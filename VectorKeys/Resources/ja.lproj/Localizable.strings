@@ -1,3 +1,7 @@
+"ui.hotkeyHelp" = "ホットキーの使い方";
+"ui.addStep" = "手順を追加";
+"ui.stepNumber" = "手順 %d";
+"ui.subtitle" = "ファイルやJavaScriptをホットキーで実行";
 "code.unavailable" = "実行不可";
 "code.unavailableHint" = "ファイルが見つからないか、直書きコードが空です。";
 "code.title" = "JavaScriptコードの直書き";

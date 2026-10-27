@@ -59,52 +59,52 @@ struct ScriptDetail: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
     @AppStorage("showUses") private var showUses = true
+    @State private var showHotkeyHelp = false
     var body: some View {
         ScrollView {
-            // Labels in the left column, everything else in the right one.
-            Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 12, verticalSpacing: 14) {
-                GridRow {
-                    Text(L("name")).gridColumnAlignment(.trailing)
-                    TextField("", text: $script.name).textFieldStyle(.roundedBorder).font(.body.weight(.semibold)).accessibilityLabel(L("name"))
-                }
-                GridRow {
-                    Text(L("category"))
-                    Picker("", selection: Binding(get: { script.category ?? "" }, set: { model.setCategory($0.isEmpty ? nil : $0, for: [script.id]) })) {
-                        Text(L("category.none")).tag("")
-                        ForEach(model.library.categoryList, id: \.self) { Text($0).tag($0) }
-                    }
-                    .labelsHidden().fixedSize().accessibilityLabel(L("category"))
-                }
-                GridRow {
-                    Text(L("steps"))
-                    StepsEditor(model: model, script: script)
-                }
-                GridRow {
-                    Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 12) {
+                        TextField(L("name"), text: $script.name)
+                            .textFieldStyle(.plain).font(.system(size: 18, weight: .semibold))
+                            .accessibilityLabel(L("name"))
                         Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
-                            .disabled(!script.isAvailable).help(L("runHint"))
-                        if showUses { Text(usesText).font(.callout).foregroundColor(.secondary).help(L("uses.hint")) }
+                            .buttonStyle(.borderedProminent).disabled(!script.isAvailable).help(L("runHint"))
+                    }
+                    HStack(spacing: 8) {
+                        Text(L("category")).font(.caption).foregroundColor(.secondary)
+                        Picker("", selection: Binding(get: { script.category ?? "" }, set: { model.setCategory($0.isEmpty ? nil : $0, for: [script.id]) })) {
+                            Text(L("category.none")).tag("")
+                            ForEach(model.library.categoryList, id: \.self) { Text($0).tag($0) }
+                        }
+                        .labelsHidden().fixedSize().accessibilityLabel(L("category"))
+                        Spacer(minLength: 0)
                     }
                 }
-                GridRow {
-                    Text(L("hotkey"))
-                    VStack(alignment: .leading, spacing: 8) {
-                        HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
-                                                                             set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
-                                    allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
-                                    registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled && script.scriptsOnly, allowsOption: true)
-                        Picker(L("taps.label"), selection: Binding(get: { script.hotkey?.taps ?? 1 }, set: { script.hotkey?.taps = $0 == 2 ? 2 : nil })) {
-                            Text(L("taps.single")).tag(1)
-                            Text(L("taps.double")).tag(2)
-                        }
-                        .pickerStyle(.segmented).fixedSize().disabled(script.hotkey == nil || !script.enabled)
-                        if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
-                        Text(L("hotkeyHint") + "\n" + L("taps.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                StepsEditor(model: model, script: script)
+                Divider()
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(L("hotkey")).font(.subheadline.weight(.semibold))
+                    HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
+                        set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
+                        allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
+                        registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled && script.scriptsOnly, allowsOption: true)
+                    Picker(L("taps.label"), selection: Binding(get: { script.hotkey?.taps ?? 1 }, set: { script.hotkey?.taps = $0 == 2 ? 2 : nil })) {
+                        Text(L("taps.single")).tag(1)
+                        Text(L("taps.double")).tag(2)
                     }
+                    .pickerStyle(.segmented).frame(maxWidth: 260).disabled(script.hotkey == nil || !script.enabled)
+                    if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
+                    DisclosureGroup(L("ui.hotkeyHelp"), isExpanded: $showHotkeyHelp) {
+                        Text(L("hotkeyHint") + "\n" + L("taps.hint"))
+                            .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
+                    }.font(.caption).foregroundColor(.secondary)
+                }
+                if showUses && script.uses > 0 {
+                    Text(usesText).font(.caption).foregroundColor(.secondary).help(L("uses.hint"))
                 }
             }
-            .padding(16).frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -114,15 +114,16 @@ struct StepsEditor: View {
     @ObservedObject var model: AppModel
     let script: ScriptEntry
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             if script.actions.isEmpty { Text(L("steps.empty")).foregroundColor(.secondary) }
             ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
                 StepRow(model: model, script: script, index: index, step: step)
             }
-            HStack(spacing: 8) {
-                Button { model.addScriptSteps(to: script.id) } label: { Label(L("step.addScript"), systemImage: "doc") }
-                Button { model.addStep(.code(source: ""), to: script.id) } label: { Label(L("code.add"), systemImage: "chevron.left.forwardslash.chevron.right") }
-            }
+            Menu {
+                Button(L("step.addScript")) { model.addScriptSteps(to: script.id) }
+                Button(L("code.add")) { model.addStep(.code(source: ""), to: script.id) }
+            } label: { Label(L("ui.addStep"), systemImage: "plus") }
+            .fixedSize().menuStyle(.borderlessButton).font(.caption).foregroundColor(.secondary)
             .padding(.top, 2)
             if script.hasUnsupportedSteps {
                 Text(L("legacy.unsupported")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
@@ -137,23 +138,43 @@ struct StepRow: View {
     let index: Int
     let step: Step
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text("\(index + 1)").font(.caption.monospacedDigit()).foregroundColor(.secondary).frame(width: 16, alignment: .trailing)
-            Image(systemName: symbol).foregroundColor(.secondary).frame(width: 18).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                if case .code = step {} else {
-                    Text(title).lineLimit(2).truncationMode(.middle)
+        VStack(alignment: .leading, spacing: 8) {
+            if case .code(let source) = step {
+                HStack {
+                    if script.actions.count > 1 {
+                        Text(String(format: L("ui.stepNumber"), index + 1)).font(.caption).foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    stepMenu
                 }
-                if case .code(let source) = step {
-                    TextEditor(text: Binding(get: { source }, set: { model.updateCode(script.id, at: index, source: $0) }))
-                        .font(.system(.body, design: .monospaced))
-                        .frame(minWidth: 220, minHeight: 150)
-                        .accessibilityLabel(L("code.title"))
+                TextEditor(text: Binding(get: { source }, set: { model.updateCode(script.id, at: index, source: $0) }))
+                    .font(.system(size: 12, design: .monospaced))
+                    .frame(minHeight: 240)
+                    .padding(8)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.18)))
+                    .accessibilityLabel(L("code.title"))
+                if missing { Text(L("code.empty")).font(.caption).foregroundColor(.secondary) }
+            } else {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: symbol).foregroundColor(.secondary).padding(.top, 2).accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title).lineLimit(2).truncationMode(.middle)
+                        Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
+                            .lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+                    }
+                    Spacer(minLength: 0)
+                    stepMenu
                 }
-                Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary).lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
+                .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.15)))
             }
-            Spacer(minLength: 4)
-            Menu {
+        }
+    }
+    private var stepMenu: some View {
+        Menu {
                 Button(L("moveUp")) { model.moveStep(script.id, from: index, by: -1) }.disabled(index == 0)
                 Button(L("moveDown")) { model.moveStep(script.id, from: index, by: 1) }.disabled(index == script.actions.count - 1)
                 switch step {
@@ -168,10 +189,6 @@ struct StepRow: View {
                 Button(L("delete")) { model.removeStep(script.id, at: index) }
             } label: { Image(systemName: "ellipsis.circle") }
             .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help(L("stepMenu")).accessibilityLabel(L("stepMenu"))
-        }
-        .padding(.vertical, 4).padding(.horizontal, 8)
-        .background(RoundedRectangle(cornerRadius: 5).fill(Color(nsColor: .controlBackgroundColor)))
-        .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.secondary.opacity(0.2)))
     }
     private var missing: Bool { !step.exists }
     private var symbol: String {
@@ -396,24 +413,23 @@ struct MainView: View {
     @State private var search = ""
     @State private var confirmDelete = false
     @State private var dropTargeted = false
+    @State private var showRecent = false
     @AppStorage("sortOrder") private var sortOrder = SortOrder.manual.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                VStack(spacing: 4) {
-                    Image(nsImage: currentAppIcon()).resizable().frame(width: 52, height: 52).accessibilityHidden(true)
-                    AppVersionLabel()
+                Image(nsImage: currentAppIcon()).resizable().frame(width: 40, height: 40).accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("heading")).font(.system(size: 18, weight: .semibold))
+                    Text(L("ui.subtitle")).font(.caption).foregroundStyle(.secondary)
                 }
-                VStack(alignment: .leading, spacing: 4) { Text(L("heading")).font(.system(size: 22, weight: .semibold)); Text(L("subtitle")).foregroundStyle(.secondary) }
-                Spacer()
-                Toggle(L("useHotkeys"), isOn: $model.hotkeysEnabled).toggleStyle(.switch).help(L("useHotkeysHint"))
-            }
-            HStack(spacing: 8) {
-                Spacer()
-                Label(L(model.illustratorFront ? "state.front" : "state.back"), systemImage: model.illustratorFront ? "circle.fill" : "circle")
-                    .font(.caption).foregroundColor(.secondary).labelStyle(.titleAndIcon)
-                    .help(L("state.hint"))
+                Spacer(minLength: 12)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Toggle(L("useHotkeys"), isOn: $model.hotkeysEnabled).toggleStyle(.switch).controlSize(.small).help(L("useHotkeysHint"))
+                    Label(L(model.illustratorFront ? "state.front" : "state.back"), systemImage: model.illustratorFront ? "circle.fill" : "circle")
+                        .font(.caption2).foregroundColor(.secondary).help(L("state.hint"))
+                }
             }
             Group {
                 if model.library.scripts.isEmpty && model.library.categoryList.isEmpty {
@@ -428,8 +444,8 @@ struct MainView: View {
                 } else {
                     // Plain stacks, not split views: no divider lines between the columns (fixed widths on the left).
                     HStack(spacing: 12) {
-                        CategorySidebar(model: model).frame(width: 190)
-                        list.frame(width: 340)
+                        CategorySidebar(model: model).frame(width: 154)
+                        list.frame(width: 286)
                         Group {
                             if let id = model.selectedID, let binding = model.binding(for: id) {
                                 ScriptDetail(model: model, script: binding)
@@ -439,7 +455,7 @@ struct MainView: View {
                                 Text(L("selectScript")).foregroundColor(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
-                        .frame(minWidth: 360, maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
                         .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
                     }
                 }
@@ -457,8 +473,8 @@ struct MainView: View {
                 group.notify(queue: .main) { model.open(urls: urls) }
                 return true
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(L("recent")).font(.headline)
+            DisclosureGroup(isExpanded: $showRecent) {
+                VStack(alignment: .leading, spacing: 6) {
                 if model.records.isEmpty {
                     Text(L("recentEmpty")).font(.caption).foregroundColor(.secondary)
                 } else {
@@ -472,6 +488,23 @@ struct MainView: View {
                         }
                     }
                 }
+                }
+                .padding(.top, 6)
+            } label: {
+                HStack(spacing: 8) {
+                    Text(L("recent")).font(.caption)
+                    if let record = model.records.first {
+                        Image(systemName: record.isError ? "exclamationmark.triangle.fill" : "checkmark.circle")
+                            .foregroundColor(record.isError ? .orange : .secondary)
+                        Text(record.name + " · " + record.text).font(.caption).foregroundColor(record.isError ? .orange : .secondary)
+                            .lineLimit(1).help(record.text)
+                    }
+                    Spacer()
+                    AppVersionLabel()
+                }
+            }
+            .onChange(of: model.records.first?.date) { _ in
+                if model.records.first?.isError == true { showRecent = true }
             }
         }
         .padding(20)

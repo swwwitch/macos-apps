@@ -1,3 +1,7 @@
+"ui.hotkeyHelp" = "快捷键说明";
+"ui.addStep" = "添加步骤";
+"ui.stepNumber" = "步骤 %d";
+"ui.subtitle" = "使用快捷键运行文件和 JavaScript";
 "code.unavailable" = "无法运行";
 "code.unavailableHint" = "文件不存在或代码为空。";
 "code.title" = "直接输入 JavaScript";

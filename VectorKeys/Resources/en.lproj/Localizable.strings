@@ -1,3 +1,7 @@
+"ui.hotkeyHelp" = "Hotkey Help";
+"ui.addStep" = "Add Step";
+"ui.stepNumber" = "Step %d";
+"ui.subtitle" = "Run files and JavaScript with hotkeys";
 "code.unavailable" = "Unavailable";
 "code.unavailableHint" = "A file is missing or inline code is empty.";
 "code.title" = "Inline JavaScript";

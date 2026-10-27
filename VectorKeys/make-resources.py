@@ -3,7 +3,11 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''code.unavailable|実行不可|Unavailable|无法运行|실행 불가
+rows = '''ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말
+ui.addStep|手順を追加|Add Step|添加步骤|단계 추가
+ui.stepNumber|手順 %d|Step %d|步骤 %d|단계 %d
+ui.subtitle|ファイルやJavaScriptをホットキーで実行|Run files and JavaScript with hotkeys|使用快捷键运行文件和 JavaScript|단축키로 파일과 JavaScript 실행
+code.unavailable|実行不可|Unavailable|无法运行|실행 불가
 code.unavailableHint|ファイルが見つからないか、直書きコードが空です。|A file is missing or inline code is empty.|文件不存在或代码为空。|파일이 없거나 직접 입력한 코드가 비어 있습니다.
 code.title|JavaScriptコードの直書き|Inline JavaScript|直接输入 JavaScript|JavaScript 코드 직접 입력
 code.add|JavaScriptコードを追加|Add JavaScript Code|添加 JavaScript 代码|JavaScript 코드 추가
