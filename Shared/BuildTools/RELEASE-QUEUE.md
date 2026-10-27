@@ -2,6 +2,10 @@
 
 ## 2026-10-27 FavoriteFolders：設定読み込みの反映修正
 
+- 配布完了：ユーザーがApple公証送信・公証用登録名の確認を明示承認。source bee83bc176cf40fb34df9228735f1bf0d0710fd3、通常版1.3.9（15）。Apple公証Accepted（e3b0e56d-6a5e-4fe8-8eda-70a955168417）、stapler・Gatekeeper PASS。旧版バックアップ後に両配置先の署名・全内容一致、/Applications版の起動と21件の表示を確認。Latest BuildsのREADME・バージョン一覧を更新。以前の保留記載は経過記録。詳細：ReleaseRecords/20261027-favoritefolders-1.3.9.md。
+
+- ソース確定：bee83bc176cf40fb34df9228735f1bf0d0710fd3をGitHub mainへpush済み。自動承認審査がApple公証への送信を「Appleへのペイロード送信の明示承認なし」として拒否。署名済み成果物は.local/release-preparation/FavoriteFolders-1.3.9-build15-20261027/SignedApps/に保全。公証・Latest Builds配置は承認待ち。
+
 - Git更新承認：ユーザー「コミットとプッシュ」により再開。1.3.9（15）のビルド・Developer ID署名・署名検証済み。対象ソースを確定し、push後に公証・両配置先の更新を継続する。以前の配布保留記載は経過記録。
 
 - 配布保留：自動承認審査がcommit・GitHub mainへのpushを明示承認不足として拒否。最新版ビルド・署名を先に準備し、ユーザーへGit更新の承認を求める。未コミット成果物をLatest Buildsへ配置しない。
