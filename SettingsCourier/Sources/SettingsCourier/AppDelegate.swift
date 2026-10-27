@@ -19,13 +19,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     /// 設定の共有：登録したアプリの一覧と、書き出すキーの選択を書き出し・同期する。アプリの設定そのものは .settingscourier で運ぶ
     private func startSettingsSync() {
-        SettingsSync.shared.onImport = { Courier.shared.reload() }
+        _ = CustomSettingLabels.shared // Migrate saved labels before the sync baseline is captured.
+        SettingsSync.shared.onImport = { Courier.shared.reload(); CustomSettingLabels.shared.reload() }
         SettingsSync.shared.start(.init(
             keys: [Courier.appsKey, Courier.excludedKeysKey, Courier.includedKeysKey, Courier.extraFilesKey],
-            note: StartupWindow.text("登録したアプリの一覧と書き出すキーの選択を同期します。アプリの設定の値は、同期フォルダーの SettingsCourier フォルダーで受け渡します。",
-                                     "Syncs the list of registered apps and which keys to export. App setting values are handed over through the SettingsCourier folder in the sync folder.",
-                                     "同步已登记的应用列表以及要导出的键的选择。应用的设置值通过同步文件夹中的 SettingsCourier 文件夹交接。",
-                                     "등록한 앱 목록과 내보낼 키 선택을 동기화합니다. 앱의 설정 값은 동기화 폴더 안의 SettingsCourier 폴더로 주고받습니다."),
+            prefixes: [CustomSettingLabels.prefix],
+            note: StartupWindow.text("登録したアプリの一覧、書き出すキーの選択、手入力した「画面上の項目／意味」を同期します。項目名を同期するMacはすべて1.4.2以降に更新してください。アプリの設定の値は、同期フォルダーの SettingsCourier フォルダーで受け渡します。",
+                                     "Syncs registered apps, export selections, and user-entered UI labels. Update every Mac to 1.4.2 or later to sync labels. App setting values are handed over through the SettingsCourier folder in the sync folder.",
+                                     "同步应用列表、导出键选择和手动输入的界面项目名称。同步名称的所有 Mac 均须更新至 1.4.2 或更高版本。应用的设置值通过同步文件夹中的 SettingsCourier 文件夹交接。",
+                                     "등록 앱 목록, 내보낼 키 선택, 직접 입력한 화면 항목 이름을 동기화합니다. 이름을 동기화할 모든 Mac을 1.4.2 이상으로 업데이트하세요. 앱의 설정 값은 동기화 폴더 안의 SettingsCourier 폴더로 주고받습니다."),
             perMac: StartupWindow.text("ログイン時の起動・起動時の表示・メニューバーはMacごとに設定します。",
                                        "Open at login, the startup window and the menu bar are set on each Mac.",
                                        "登录时打开、启动时的窗口和菜单栏在每台 Mac 上分别设置。",

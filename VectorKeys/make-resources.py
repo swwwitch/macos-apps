@@ -13,6 +13,36 @@ add.skipped|スクリプトではないファイルを%d個とばしました（
 empty|スクリプトがまだありません。［スクリプトを追加…］で選ぶか、ここへ .jsx ファイルをドラッグしてください。|No scripts yet. Click Add Scripts… or drag .jsx files here.|还没有脚本。点按“添加脚本…”或将 .jsx 文件拖到此处。|아직 스크립트가 없습니다. [스크립트 추가…]를 클릭하거나 .jsx 파일을 여기로 드래그하세요.
 selectScript|スクリプトを選んでください|Select a script|请选择脚本|스크립트를 선택하세요
 count|%d本|%d scripts|%d 个|%d개
+steps|手順|Steps|步骤|단계
+steps.count|手順%d|%d steps|%d 个步骤|단계 %d개
+steps.empty|手順がありません。下のボタンで挿入してください。|No steps. Insert one with the buttons below.|没有步骤。请用下方按钮插入。|단계가 없습니다. 아래 버튼으로 넣으세요.
+step.addScript|スクリプトの実行|Run Script|运行脚本|스크립트 실행
+step.addMenu|メニューコマンドの実行|Run Menu Command|运行菜单命令|메뉴 명령 실행
+step.menuCommand|メニューコマンド（ID）|Menu command (ID)|菜单命令（ID）|메뉴 명령(ID)
+step.menuItem|メニュー項目を押す（アクセシビリティ）|Press menu item (Accessibility)|按下菜单项（辅助功能）|메뉴 항목 누르기(손쉬운 사용)
+step.pressByTitle|メニュー項目を名前で押すに切り替え|Press the Menu Item by Its Title Instead|改为按名称按下菜单项|이름으로 메뉴 항목 누르기로 전환
+step.pressByTitleHint|コマンドIDで動かないメニューは、項目名で押す方式に切り替えます（アクセシビリティの許可が要ります。日本語版のメニュー名です）。|For a menu the command ID does not run: press it by its titles instead (needs Accessibility; Japanese menu titles).|对于命令 ID 无法运行的菜单，改为按名称按下（需要辅助功能权限；使用日文菜单名称）。|명령 ID로 실행되지 않는 메뉴는 이름으로 누르는 방식으로 바꿉니다(손쉬운 사용 권한 필요, 일본어 메뉴 이름).
+step.needsAccessibility|「メニュー項目を押す」手順にはアクセシビリティの許可が要ります。|Press Menu Item steps need Accessibility access.|“按下菜单项”步骤需要辅助功能权限。|'메뉴 항목 누르기' 단계에는 손쉬운 사용 권한이 필요합니다.
+stepMenu|手順の操作|Step actions|步骤操作|단계 작업
+moveUp|上へ|Move Up|上移|위로
+moveDown|下へ|Move Down|下移|아래로
+addItem|追加|Add|添加|추가
+addMenuCommand|メニューコマンドを追加…|Add Menu Command…|添加菜单命令…|메뉴 명령 추가…
+menuPicker.titleNew|メニューコマンドを追加|Add Menu Command|添加菜单命令|메뉴 명령 추가
+menuPicker.titleStep|メニューコマンドの実行を挿入|Insert Run Menu Command|插入“运行菜单命令”|메뉴 명령 실행 넣기
+menuPicker.byID|コマンドIDで実行（許可不要・言語に依存しない）|Run by command ID (no permission needed, any language)|按命令 ID 运行（无需权限，不受语言影响）|명령 ID로 실행(권한 불필요, 언어 무관)
+menuPicker.search|メニュー名・IDで検索（例：アートボード 整列）|Search by menu name or ID|按菜单名称或 ID 搜索|메뉴 이름·ID로 검색
+menuPicker.useID|「%@」をコマンドIDとして追加|Add “%@” as a command ID|将“%@”作为命令 ID 添加|“%@”을(를) 명령 ID로 추가
+menuPicker.byTitle|メニュー項目を名前で押す（IDで動かないとき）|Press a menu item by its titles (when the ID does not run it)|按名称按下菜单项（ID 无法运行时）|이름으로 메뉴 항목 누르기(ID로 실행되지 않을 때)
+menuPicker.byTitleHint|「選択 › 選択範囲の保存」のように、メニューバーから「›」で区切って入力します。アクセシビリティの許可が要り、Illustratorの表示言語のメニュー名で書きます。|Type the titles from the menu bar, separated by “›”. Needs Accessibility access; use the titles in Illustrator’s language.|从菜单栏开始用“›”分隔输入名称。需要辅助功能权限，并使用 Illustrator 显示语言的菜单名称。|메뉴 막대부터 “›”로 구분해 입력합니다. 손쉬운 사용 권한이 필요하며 Illustrator 표시 언어의 메뉴 이름으로 씁니다.
+menuPicker.titlesPlaceholder|例：選択 › 選択範囲の保存...|e.g. Select › Save Selection...|例：选择 › 存储所选对象...|예: 선택 › 선택 영역 저장...
+result.accessibility|アクセシビリティの許可がないため、メニュー項目を押せません。設定の「起動・常駐」で許可してください。|Cannot press the menu item without Accessibility access. Allow it in Settings > Launch & Background.|没有辅助功能权限，无法按下菜单项。请在设置的“启动与常驻”中允许。|손쉬운 사용 권한이 없어 메뉴 항목을 누를 수 없습니다. 설정의 '실행 및 상주'에서 허용하세요.
+result.fileMissingStep|手順%dのファイルが見つかりません。|The file of step %d was not found.|找不到步骤 %d 的文件。|단계 %d의 파일을 찾을 수 없습니다.
+result.menuMissing|手順%d：メニュー「%@」が見つかりません。|Step %d: the menu “%@” was not found.|步骤 %d：找不到菜单“%@”。|단계 %d: 메뉴 “%@”을(를) 찾을 수 없습니다.
+result.menuDisabled|手順%d：メニュー「%@」は今は使えません。|Step %d: the menu “%@” is not available now.|步骤 %d：菜单“%@”当前不可用。|단계 %d: 메뉴 “%@”을(를) 지금은 사용할 수 없습니다.
+result.failedStep|手順%dでエラー：%@|Error at step %d: %@|步骤 %d 出错：%@|단계 %d 오류: %@
+undo.steps|手順の変更|Change Steps|更改步骤|단계 변경
+undo.add|追加|Add|添加|추가
 tools.kmOff|選んだスクリプトのKMマクロをオフにする|Turn Off the Selected Scripts’ KM Macros|关闭所选脚本的 KM 宏|선택한 스크립트의 KM 매크로 끄기
 tools.kmOn|選んだスクリプトのKMマクロをオンに戻す|Turn the Selected Scripts’ KM Macros Back On|重新打开所选脚本的 KM 宏|선택한 스크립트의 KM 매크로 다시 켜기
 km.turnOffButton|KMの元のマクロをオフにする（%d本）|Turn Off the Original KM Macros (%d)|关闭 KM 中的原始宏（%d 个）|KM의 원래 매크로 끄기(%d개)
@@ -81,20 +111,18 @@ km.import|Keyboard Maestroから取り込む…|Import from Keyboard Maestro…|
 km.title|Keyboard Maestroからの取り込み|Import from Keyboard Maestro|从 Keyboard Maestro 导入|Keyboard Maestro에서 가져오기
 km.added|%d本を追加しました。|Added %d scripts.|已添加 %d 个脚本。|스크립트 %d개를 추가했습니다.
 km.already|%d本は登録済みのため追加しませんでした。|%d were already in the list.|%d 个已在列表中，未添加。|%d개는 이미 등록되어 추가하지 않았습니다.
-km.skipped|スクリプトを1つ実行するだけのマクロではないため、%d本は取り込みませんでした：|%d macros were not imported because they do more than run one script:|%d 个宏不只是运行一个脚本，因此未导入：|스크립트 하나만 실행하는 매크로가 아니어서 %d개는 가져오지 않았습니다:
+km.skipped|VectorKeysで実行できない手順を含むため、%d本は取り込みませんでした：|%d macros were not imported because they have steps VectorKeys cannot run:|%d 个宏含有 VectorKeys 无法运行的步骤，因此未导入：|VectorKeys에서 실행할 수 없는 단계가 있어 %d개는 가져오지 않았습니다:
 km.more|ほか%d本|and %d more|另有 %d 个|외 %d개
-km.reason.notScript|スクリプトの実行なし|no script step|无脚本步骤|스크립트 실행 없음
-km.reason.severalSteps|ほかの手順あり|other steps|含其他步骤|다른 단계 있음
+km.reason.notScript|実行できる手順なし|nothing it can run|无可运行的步骤|실행할 수 있는 단계 없음
+km.reason.severalSteps|実行できない手順あり|steps it cannot run|含无法运行的步骤|실행할 수 없는 단계 있음
 km.reason.variable|変数を使用|uses variables|使用变量|변수 사용
 km.reason.notJSX|.jsx以外のファイル|not a .jsx file|非 .jsx 文件|.jsx 이외의 파일
 km.saveFailed|コードをファイルに保存できませんでした：%@|Could not save the code as a file: %@|无法将代码存储为文件：%@|코드를 파일로 저장하지 못했습니다: %@
 km.unreadable|読み込めないファイル：%@|Could not read: %@|无法读取：%@|읽을 수 없는 파일: %@
 km.turnOff|同じショートカットのマクロがKeyboard Maestroで有効なままだと、スクリプトが2回実行されます。下のボタンか［ツール］からオフにできます。|If the same macros stay on in Keyboard Maestro, the scripts run twice. Turn them off with the button below or from Tools.|如果 Keyboard Maestro 中的同名宏仍然启用，脚本会运行两次。可用下方按钮或“工具”关闭它们。|Keyboard Maestro에서 같은 매크로가 켜져 있으면 스크립트가 두 번 실행됩니다. 아래 버튼이나 [도구]에서 끌 수 있습니다.
 listSeparator|、|, |、|, 
-file|ファイル|File|文件|파일
 reveal|Finderに表示|Show in Finder|在访达中显示|Finder에서 보기
 relink|ファイルを選び直す…|Choose Another File…|重新选择文件…|파일 다시 선택…
-relinkHint|移動・名前を変えたスクリプトを指定し直します。ショートカットはそのまま残ります。|Points to a moved or renamed script. The shortcut stays.|重新指定已移动或重命名的脚本。快捷键保持不变。|이동하거나 이름을 바꾼 스크립트를 다시 지정합니다. 단축키는 그대로 유지됩니다.
 badge.missing|ファイルなし|Missing|文件丢失|파일 없음
 badge.missingHint|ファイルが見つかりません。移動した場合は［ファイルを選び直す…］で指定し直してください。|File not found. If it was moved, use Choose Another File… to point to it.|找不到文件。如果已移动，请用“重新选择文件…”重新指定。|파일을 찾을 수 없습니다. 이동했다면 [파일 다시 선택…]으로 다시 지정하세요.
 runHint|Illustratorを前面にしてから実行します。|Brings Illustrator to the front, then runs.|先将 Illustrator 置于前台再运行。|Illustrator를 앞으로 가져온 뒤 실행합니다.
@@ -103,8 +131,6 @@ hotkey.duplicate|ほかのスクリプトと同じキーです。一覧で上に
 deleteConfirm|選んだスクリプトを一覧から削除しますか？|Remove the selected scripts from the list?|从列表中删除所选脚本？|선택한 스크립트를 목록에서 삭제할까요?
 deleteConfirmDetail|ファイルそのものは削除しません。ショートカットの割り当ては消えます。|The file itself is not deleted. Its shortcut is removed.|不会删除文件本身，但会移除其快捷键。|파일 자체는 삭제하지 않습니다. 단축키 지정은 사라집니다.
 saveFailed|一覧を保存できませんでした：%@|Could not save the list: %@|无法存储列表：%@|목록을 저장하지 못했습니다: %@
-result.fileMissing|ファイルが見つかりません。|File not found.|找不到文件。|파일을 찾을 수 없습니다.
-result.failed|エラーで止まりました：%@|Stopped with an error: %@|因错误而停止：%@|오류로 중지됨: %@
 aboutDetail|登録したスクリプトを、Illustratorが前面のときにキーボードショートカットで実行します。サポート：同梱のREADME.md|Runs your scripts with keyboard shortcuts while Illustrator is in front. Support: bundled README.md|在 Illustrator 位于前台时用键盘快捷键运行已登记的脚本。支持：内置 README.md|Illustrator가 앞에 있을 때 등록한 스크립트를 키보드 단축키로 실행합니다. 지원: 포함된 README.md
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…

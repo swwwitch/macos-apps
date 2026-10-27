@@ -40,6 +40,55 @@
 - ソース反映済み：sync.py で写し17本（NotMyType・NotMyType Lite を同期先に追加）を同一内容に。直接コンパイルのアプリ（ClipTidy・ControlMate・EventDocMaker・FavoriteFolders・FileSorter・InsertSnippets・MenuShot・ScreenTake・SettingsHop・ShotSorter・VectorMate）は次のビルドで反映。
 - 状態：VectorKeys 1.0.0 (1) だけビルド・配置済み（欄クリックは実機未確認）。ほかのアプリのビルド・実機確認・配布は未実施。版・buildは未更新。各アプリの次のリリースに含める。
 
+## 2026-10-26 KageTrimmerのフォルダー監視で長い影だけを処理する要望
+
+- 2026-10-27追加要望：添付例のようにパネル・メニュー・サブメニューが重なり、輪郭や影が不均等な画像は自動適用から除外する。参考画像：`/Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/Pictures/ss-944-1664-144-20261027-092919.png`。単一の矩形ウインドウ周囲の通常の影と、複数の矩形・段差・重なりを含む影を区別する。通常のドロップシャドウの上下差だけを理由に除外しない。形状を確実に判定できない場合も自動処理をスキップし、元画像を保持する。手動処理は従来どおり。未実装・未検証。
+- 元チャット：01a17781-4f9d-7163-b0c8-dee48d236a70。ユーザー確認：「macOS標準の長い影だけを処理し、短く調整済みの影はそのまま残す」動作でよい。
+- フォルダー監視の既存スクリーンショット判定に影の長さの条件を加え、短く調整済みの影はスキップする。手動処理の対象条件は変更しない。現在オフの監視設定は保持する。
+- ソース確認済み：FolderWatcher.isWindowScreenshotは撮影種別、またはEXIF Screenshotと透明余白／四隅で判定し、現在は影の長さを比較していない。ShadowProcessor.detectContentを調査・再利用し、影の濃さのしきい値、Retina倍率、上下左右の影の非対称性を考慮して判定基準を検証する。具体的なしきい値は未決定。標準の長い影・調整済みXS/S/L・影なし・範囲指定／全画面・CleanShot Xを比較し、誤判定を確認する。
+- 状態：受付・ソース確認済み。実装・ビルド・実機確認・配布は未実施。次の「ビルドを更新」の合図または定時処理で着手し、進行中のリリースと重複実行しない。
+
+## 2026-10-26 MenuShotの背景色・保存形式設定の受付
+
+- 元チャット：01a17782-13c3-7011-b328-b952a9859a4b。ユーザー要望：「背景色の設定 透明、黒、グレー」「保存形式など」「BreaklineTrimmerに準じて」。
+- 背景は透明・黒・グレーを選べるようにし、プレビューだけでなく保存画像・クリップボードにも反映する。既存の透明を初期値として保持し、選択を保存する。BreaklineTrimmerのグレー（sRGB 0.5）と透明の市松表示を参考にする。白の追加は明示されていないため必須にはしない。
+- 保存形式はBreaklineTrimmerと同じPNG・JPEG・PSDを基準とする。初期値PNG。JPEGは透明部分を白にし、その旨を表示、画質90%。PSDは透明を保持する統合画像。拡張子・保存処理・表示を形式に合わせ、クリップボードは従来の画像互換性を保つ。
+- 保存先・保存後の表示・ファイル名などの出力設定もBreaklineTrimmerの既存構成を参考に整理する。MenuShotには元画像ファイルがないため「元画像と同じフォルダ」は設けない。既存の保存先・撮影・設定値を保持し、同名ファイルは上書きしない。関連する日英中韓の表示・ヘルプも整合する。
+- ソース確認済み：MenuShotは現在透明PNG保存、BreaklineTrimmerは背景を保存・コピーへ反映しPNG/JPEG/PSD出力に対応。状態：受付済み、実装・ビルド・実機確認・配布は未実施。AGENTS.mdの開始条件に従い、次の「ビルドを更新」の合図または定時処理で着手する。進行中のMenuShot App Store版対応と重複実行しない。
+
+## 2026-10-26 追加ビルド検証・公証Macへの統合依頼
+
+- ユーザーの「ビルド」で以下のデバッグメニュー・LETSリンク・ライブラリ折りたたみ変更に着手し実装完了。
+- 確定SHA：532b4e3ed0b2ac6994f2dba2a27743034a7db428。GitHub mainへpushしls-remoteで一致確認。無関係の未コミット変更は含めていない。
+- 通常/LiteともNO_DEPLOYの既存経路でarm64・x86_64コンパイル、日英localizationチェック成功。制限下で失敗したアイコン生成は通常アクセスで既存工程を再実行し成功、既存Apple Distributionローカル署名のdeep/strict検証も成功。公証成功とは区別する。
+- 公証Macのリリースチャット01a16bb3-a7cc-76c1-b27f-c7ab19a4f8daがキャッシュダイアログ修正と通常1.61.1/97・Lite1.8.1/22を進行中のため、こちらは版番号更新と配布配置を行わず、上記SHAの統合を依頼済み。
+- 未完了：統合ビルドの実機操作、両配置先への更新、Developer ID署名・公証・公開。送信成功を統合完了と扱わない。検証境界はNotMyType/Tests/BUILD-NOTES-20261026-debug.md。
+
+## 2026-10-26 NotMyTypeプロ版のデバッグメニュー受付
+
+- 元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。
+- 対象：NotMyTypeプロ版のみ。ツール内に「デバッグ」サブメニューを追加し、以下の保存フォルダーをFinderで開く項目を設ける。
+  - Adobe Fonts：~/Library/Application Support/Adobe/CoreSync/plugins/livetype（ユーザー指定のこのMacのパス：/Users/takano/Library/Application Support/Adobe/CoreSync/plugins/livetype）
+  - OH MY FONT：/Library/Fonts/oh_my_font
+  - フォントワークスLETS：~/Library/Fonts/（2026-10-26ユーザー訂正。旧指定のApplication Support/Fontworks/LETS/Download Font/Fontは使用しない。進行中の統合リリース担当に修正依頼。）
+  - Morisawa Fonts：~/Library/Fonts/MorisawaFonts（ユーザー指定のこのMacのパス：/Users/takano/Library/Fonts/MorisawaFonts）
+- 実装方針：ユーザーホームは実行ユーザーのホームから解決し、takanoを固定しない。フォルダーを開くだけでフォントの変更・削除・ON/OFFは行わない。存在しない場合はその旨を案内し、フォルダーを自動作成しない。Lite版には追加しない。既存のメニュー・翻訳経路を再利用する。
+- 状態：受付済み。実装・ビルド・実機確認は未実施。AGENTS.mdの開始条件に従い、次のビルド合図または定時処理で着手。版・buildは未更新。進行中のリリースと重複実行しない。
+
+## 2026-10-26 NotMyTypeサイドバー・リンク変更の受付
+
+- 元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。
+- NotMyType・NotMyType Lite：サイドバーの「ライブラリ」カテゴリを折りたたんでも「すべてのフォント」は表示・選択できるようにする。他のカテゴリの折りたたみ動作は維持する。通常版ContentView.swiftのライブラリSectionとLite版の同Sectionを確認済み。
+- NotMyType（プロ版のみ）：リンク集の「Fontworks（フォントワークス）」を「フォントワークスLETS」に変更し、リンク先を https://lets.fontworks.co.jp/fonts に変更する。Lite版の名称・URLは変更しない。
+- 状態：受付済み、実装・ビルド・実機確認は未実施。AGENTS.mdの開始条件に従い、次のビルド合図または定時処理で着手する。版・buildは未更新。進行中の公証リリースと重複実行しない。
+
+## App Store審査取り下げ指示（2026-10-26）
+
+- ユーザー指示：IdBackgroundOff、PrefsPreset、SettingsCourier、CCAutoUpdateOff、BrowserSwitcher、CommandDee、VectorMateがApp Store申請中なら取り下げる。これらの新規審査提出も停止する。通常配布の停止や公開済みアプリの販売停止、アプリレコードの削除は対象外。
+- 公証Macの「macOSアプリのリリース作業」（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da）へ現在状態の確認・該当申請の取消・取消後の再確認を依頼済み。送信成功のみ確認しており、取り下げ完了は未確認。
+- 「BrowserSwitcher・CommandDee・VectorMateなど」の名称未指定分は、申請一覧と実装からアクセシビリティ／キー送信が中心の候補を特定して報告するよう依頼。曖昧な対象の一括取消は行わない。別途Store構成の調整・申請を依頼した11アプリは一律取消の対象としない。
+- 元チャット：App Store向けにアプリを調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。
+
 要望は受付時に記録し、実装は「ビルドを更新」の合図、または毎日04:00（Asia/Tokyo）まで保留する。明示的な保留・取り消しを優先する。
 
 | 受付日 | アプリ | 要望・元チャット | 状態 | 担当Mac・開始日時 | 対象コミット・版・build | 工程記録 |
@@ -47,6 +96,11 @@
 | 2026-10-26 | VectorKeys | 主画面の見出しを「Illustratorでスクリプトを高速実行」に、［アイテム名の検索と置換…］に⌘F。元チャット：5bd56bfd-50f5-4935-b85e-c056c310edca | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 83c725d・1.3.1 (5) | ビルド入力に未コミット差分なし。test.sh PASS（単体＋4言語）、ビルド・両配置先の版/build/署名（PL9S9PXX96）一致。/Applications版で見出しの表示をスクリーンショットで確認、ツールメニューの［アイテム名の検索と置換…］のキーが⌘F（AXMenuItemCmdChar F・修飾0）。起動・終了→再起動で Scripts.json 不変・二重起動でプロセス1つ・閉じても同一PIDで常駐・open -a で再表示。未確認：⌘Fを押してシートが開く操作。工程3以降は未実施。 |
 | 2026-10-26 | VectorKeys | KM取り込み（.kmmacros、MaestroPackのコードは使わない）、3カラム＋カテゴリ、複数選択の振り分け、押し方（1回／2回）、並べ替え、ツール（統計・検索と置換・ナンバリング削除・KMマクロのオフ／オン）、⌘Z、UI整理、共通HotkeyFieldの［変更…］廃止。元チャット：5bd56bfd-50f5-4935-b85e-c056c310edca | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | b63b392・1.3.0 (4) | test.sh PASS（単体＋4言語）。ビルド入力に未コミット差分なしを確認してビルド、両配置先の版/build/署名（PL9S9PXX96）一致。/Applications版で起動・終了→再起動で Scripts.json 不変（8本・カテゴリ1・2回押し3本）・二重起動でプロセス1つ・閉じても同一PIDで常駐・open -a で再表示。ユーザー実機確認：KM取り込み、複数選択のドラッグ、ナンバリング削除。未確認：2回押しの実行、⌘Z、KMマクロのオフ／オン、削除時のゴミ箱移動、検索と置換・統計の画面操作、欄クリックでの記録。工程3以降は未実施。 |
 | 2026-10-26 | VectorKeys | 使った回数の表示（成功した実行を数え、一覧に回数・詳細欄に回数と最終実行日時。リセットなし）、左右カラムの仕切り線なし・間12pt・右カラム角丸、＋−ボタンの高さ、ホットキー欄のクリックで記録開始（共通部品 bfb0e10）。元チャット：5bd56bfd-50f5-4935-b85e-c056c310edca | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 60ba4ef・1.1.0 (2) | test.sh PASS（単体＋4言語）、ビルド・両配置先の版/build/署名一致。/Applications版で回数表示（3回・最終日時）をスクリーンショットで確認、終了→再起動で Scripts.json 不変（回数・キー保持）、二重起動でプロセス1つ、閉じても同一PIDで常駐し open -a で再表示、ショートカット実行はユーザー確認済み。欄クリックでの記録開始は未確認。工程3以降は未実施。 |
+| 2026-10-26 | ControlMate | 各ブラウザーの⌃I・⌃KはSpreadsheet Helperを優先する。Chromeの⌃Kの挙動不良からのユーザー指示。元チャット：01a17667-f2ba-7472-aa56-f456427d0009 | ローカル利用版の両配置・起動確認済み、公証公開は未実施 | 開発Mac | 1.3.1 (5)、df13440 | Commands.resolvedでブラウザーのtab／killLineを除外。27ブラウザーID・空／初期設定・非ブラウザーの従来動作と日英中韓のテスト成功。SKIP_PUBLISH=1でビルド、Apple Distributionローカル署名検証成功。Developer ID証明書なしのため公証・DMG・配布を停止。両配置先は1.3.0 (4)のまま。実機キー操作は未確認。詳細はControlMate/BASELINE-CHECKLIST.md。  2026-10-26 13:32 JST ユーザーの更新指示で既存と同じApple Distribution署名版を両配置先へ更新。旧版バックアップ、版/build/署名/内容一致、/Applicationsからの起動を確認。公証・公開配布とは区別する。 |
+| 2026-10-26 | NotMyType・NotMyType Lite（通常配布の該当機能） | 「フォントキャッシュを消去」でAdobeアプリが増えると見出しと下部ボタンが切れる。画像 ss-1064-680-144-20261026-123457.png。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf | 受付・ソース確認済み、実装待ち | 開発Mac | 現行通常96・Lite21 | QuitAdobeAppsWindowは420×200で生成、リサイズ不可。アプリ一覧は非スクロールVStack。内容に応じた高さ調整と画面内の上限、一覧のみスクロール、見出しとキャンセル／消去ボタン常時表示を修正方針とする。0・1・3・多数件、長い名前、起動終了による件数変化で検証。終了確認とキャッシュ消去処理は保持。別途App Store版で削除する機能は再導入しない。次のビルド合図で実装。進行中リリース担当へ不具合を通知。 |
+| 2026-10-26 | NotMyType・NotMyType Lite | 選択フォントがすべてアクティブなら右下の「アクティブにする」をディム。混在は有効。 | 実装・配置・実機確認済み | 開発Mac | 通常1.61.0/96・Lite1.8.0/21 | 元チャット：01a17147-6826-7911-8e42-cc45a77f2daf |
+| 2026-10-26 | NotMyType・NotMyType Lite | フォント一覧からサイドバーのセット・プロジェクトへドラッグ＆ドロップで追加。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf | ビルド・配置・push済み（Liteドラッグ実機検証保留） | — | — | 通常版はセット・プロジェクト、Lite版は既存のセットを対象（Liteへのプロジェクト機能新設は含めない）。ファミリー・個別書体・複数選択に対応。追加済み項目は重複させず、元の所属やフォントファイルを移動・削除しない。ドロップ先を明示し、プロジェクトは再読み込み後の追加保持・除外解除を確認する。既存の外部ファイルドロップによる登録を保持。 |
+| 2026-10-26 | NotMyType（通常版のみ） | フォントの右クリックメニューに「プロジェクトに追加」を追加。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf | ビルド・配置・push済み（Liteドラッグ実機検証保留） | — | — | 既存プロジェクトを選ぶサブメニューを想定。「セットに追加」と「コレクションに追加」の間に配置。複数選択に対応し、追加済み状態・除外済みフォントの再追加・参照元再読み込み後の保持を確認する。既存プロジェクトや参照元を保持。Lite版は対象外。 |
 | 2026-10-26 | ControlMate | コピー系のキー変更（ユーザー選択）：行末まで選択してコピー ⌃⌘K → ⌃⌘Z、文章の末尾まで選択してコピー ⌃⌥⌘X → ⌃⌥⌘Z。行頭まで選択してコピー ⌃⌘X は据え置き。理由：⌃K は見た目がカット。キー重複確認：⌃⌘Z・⌃⌥⌘Z の KM 使用は Illustrator（対象外）と Finder・Path Finder の「DTP Zipperで圧縮」（入力の補助の素通し）だけ。C は PasteInARow「スロットに追加」⌃⌥⌘C と重なるため不採用。元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 4865bba・1.3.0 (4) | 2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。KM の10本を osascript で個別にオフ（enabled=false を読み戻して確認）。InDesign での実機確認と工程3以降は未実施。 |
 | 2026-10-26 | ControlMate | InDesign を対象外にせず、InDesign 用に調整する（参考：~/Desktop/InDesign：Emacキーバインド Macros.kmmacros）。ユーザー選択：⌃K は既存スクリプト ~/Git/indesign-scripts/jsx/text/IdDeleteFromCursorToEnd.jsx を実行（「。」を残す・控えには入れない）。InDesign だけのキー（⌃= 拡大、⌃- 縮小、⌃L、⌃1 見開き、⌃U／⌃V ページ、⌃O・⌃M の Enter、⌃H、⌃\）は KM に残す。元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 4865bba・1.3.0 (4) | 案：初期の対象外アプリから InDesign を外す（保存済みの一覧に InDesign がある利用者は設定で外す必要あり。既存設定は自動で変えない）。アプリ別の差し替え表（nativeKeys）に InDesign を追加：⌃A=⇧⌘↑→←、⌃E=⇧⌘↓→→→←（KM と同じ）、⌃⌘X=⇧Home→⌘C、⌃⌘Z=⇧End→⌘C、⌃⌥⌘Z=⇧⌘End→⌘C（InDesign の ⌘←／⌘→ は単語移動のため）。⌃K は AppleScript の do script（language javascript、undo mode entire script）で上記 .jsx を実行（Info.plist に NSAppleEventsUsageDescription、オートメーション許可が要る）。⌃X は ⇧⌘↑＋カット、⌃S は ⇧⌘↑→←→⇧⌘↓＋コピー（文字を読めないため）。⌃⇧↑↓ は InDesign では未対応（理由を［直前の操作］に表示）。InDesign では ⌃U・⌃M を ControlMate で扱わず KM へ通す（アプリ別に外すキーの表を追加）。KM「InDesign：Emacキーバインド」のうち ControlMate と重なるマクロ（前の文字・次の文字・前の行・次の行・段落末尾・削除（次の文字）・esc・Tab・Kill・Yank）は、ユーザーの指示でビルドと同時にこちらから個別にオフにする（グループは有効のまま、Zoom・見開き・page up/down・Enter・改行・削除（前の文字）・⌃\ は残す）。2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。KM の10本を osascript で個別にオフ（enabled=false を読み戻して確認）。InDesign での実機確認と工程3以降は未実施。 |
 | 2026-10-26 | ControlMate | 【2026-10-26 ユーザーが修正】控えは分けない。⌃K と ⌃X はどちらも同じ控え（標準のクリップボードとは別）に入れ、⌃Y でペーストする。⌃Z（yankKilled）は削除する。（当初の「⌃K→⌃Y、⌃X→⌃Z のペアに分ける」は取り消し。）元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | ddf1e42・1.2.0 (3) | 案：Commands.swift から yankKilled を削除。設定の表の Kill/Yank は「行末までカット ⌃K」「段落頭までカット ⌃X」「控えた文字をペースト ⌃Y」の3行。キーボード図の Z は空ける。ヘルプ（4言語）・カテゴリの説明・README から ⌃Z を外す。保存済みの disabledCommands に yankKilled が残っても無視される。追加指示（ユーザー了承）：⌃K と ⌃Y は素通しにせず常に ControlMate が処理する（対象外アプリだけは除く）。Safari・Chrome などでも ⌃X の文字を ⌃Y で貼れるようにするため。Command に素通しの一覧を見ない印を付け、resolved() で passthrough を飛ばす。設定の［素通しにするアプリ］の説明と「Emacs の基本操作」のキー一覧から ⌃K・⌃Y を外す。Chrome などで文字を読めない欄は、従来どおり ⇧⌘→＋カット／メニューのペーストで処理する（Chrome・Safari・Firefox での ⌃K／⌃Y を実機確認する）。2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。キー操作の実機確認と工程3以降は未実施。 |
@@ -56,14 +110,25 @@
 | 2026-10-26 | ControlMate | Caps Lock を常に ⌃ として扱うオプションを追加（ユーザー選択「常に ⌃ として扱う」）。オンのとき Caps Lock を押している間のキーは、ControlMate のキー以外も ⌃ 付きで送る（ターミナルの ⌃C など）。Caps Lock を使ったあとの大文字ロックは従来どおり押す前の状態に戻す。元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 76e0f52・1.1.0 (2) | 案：設定［キー］→［⌃ の代わりに押すキー］に「Caps Lock を常に ⌃ として扱う」を追加（初期値OFF、Caps Lock か両方を選んだキーボードで有効）。KeyTap で一致しないキーにも .maskControl を足して通す。FnNumpad と同時に使う場合のタップの順序と、Caps Lock 単独押しの扱いを実機で確認する。2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。キー操作の実機確認と工程3以降（公証Mac）は未実施。 |
 | 2026-10-26 | FnNumpad | Caps Lock を常に ⌃ として扱うオプションを追加（ControlMate と同様、ユーザー選択「常に ⌃ として扱う」）。切り替えキーが Caps Lock のとき、テンキーに変換しないキーは ⌃ 付きで送る。元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 76e0f52・1.1.0 (8)（配布済み 1.0.0 build 7 の次） | 案：設定［キー］→［切り替えキー］に同じ文言のオプションを追加（初期値OFF）。NumpadTap で Caps Lock 押下中かつ KeyMap に無いキーへ .maskControl を足す。ControlMate と文言・挙動を揃える。2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。キー操作の実機確認と工程3以降（公証Mac）は未実施。 |
 | 2026-10-26 | ControlMate | ⌃A／⌃E を見た目の行頭・行末（⌘←／⌘→）ではなく段落の先頭・末尾へ動かす。macOS標準の⌃A／⌃E（moveToBeginning/EndOfParagraph）と⌃K（段落末尾までカット）に揃える。⇧付き（⌃⇧A／⌃⇧E）は段落の先頭・末尾まで選択。AXで文字を読めない欄は従来の⌘←／⌘→で代用。元チャット：ControlMate新規作成（Emacsキー補完）。 | 工程1・2実施（開発Mac） | 開発Mac・2026-10-26 | 76e0f52・1.1.0 (2) | ソース確認：Sources/Commands.swift の lineStart／lineEnd が .keys([⌘←])／.keys([⌘→])。Action に段落の先頭・末尾への移動を足し、TextActions で FocusedText＋TextRanges.paragraphs から位置を決めて select する。テストに段落先頭・末尾の位置を追加。ヘルプ（4言語）の⌃A／⌃E の説明を更新。2026-10-26 実装・自動テスト・ビルド・両配置先の一致・起動を確認。キー操作の実機確認と工程3以降（公証Mac）は未実施。 |
+| 2026-10-26 | MenuShot | App Store申請版のみ、入力監視（イベントタップ）を使う撮影ホットキーを削り、カウントダウン撮影だけにする。画面収録の許可・撮影機能は残す。ユーザー明示：App Store申請版のみ削る。通常配布版の撮影ホットキーは保持する。元チャット：App Store向けアプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | ソース確認：Source/KeyTap.swiftのCGEvent.tapCreate・CGPreflightListenEventAccess、main.swiftのCGRequestListenEventAccessと既存カウントダウン処理あり。Store構成から撮影ホットキーの登録・イベントタップ・入力監視の状態確認／許可要求・設定UI・関連説明を除外し、翻訳・ヘルプを整合する。既存カウントダウンの開始・秒数変更・取消・メニューを開いた状態での撮影、画面収録の許可／拒否と保存先アクセスをSandboxで検証する。通常配布版と成果物を分離し、Sparkle除外を確認。今回はソース調査・受付のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | CarmaChameleon | App Store向け調整：同梱pandocを残し、pandoc・Typstのダウンロード／導入、外部XeLaTeX、Illustrator連携を削る。ユーザー指定理由：審査ガイドライン2.5.2の実行コードダウンロード制限。元チャット：App Store向けアプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | 既存Store/App.entitlements・Helper.entitlementsとAPP_STORE分岐を再利用。EngineManager.swift・PDFEngineManager.swiftにはダウンロード処理のStore除外、main.swiftには外部TeX選択のStore除外が既存。実行経路・保存済み設定経由も確認する。Illustratorの変換・プリセット取得・設定UI・送信実装をStore構成から除外し、翻訳・ヘルプ・提供形式を整合。同梱pandocと必要な同梱エンジンの署名・Sandbox継承・選択ファイル入出力を検証。追加で見つかったInDesign・Photoshop等の外部連携は適合性確認対象として記録し、未検証を対応済みとしない。通常配布版と成果物を分離し、Sparkle除外・提出時のApple公式要件を確認。今回はソース調査・受付のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | NotMyType Lite | App Store向け調整。CTFontManagerによるフォント有効化を残し、フォントキャッシュ削除（管理者権限のatsutil）、再ログイン、Illustrator・InDesignへのJSX送信を削る。ユーザー明示：Lite版のみ削る。通常のNotMyTypeは変更対象外。元チャット：App Store向けアプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | ソース確認：FontLibrary.swiftのCTFontManager登録・解除（session/persistent）とFontCacheCleaner.swiftのatsutil・管理者権限実行あり。Liteの削除対象の実装・メニュー・設定・翻訳・ヘルプを整合し、再ログインとJSX送信の実装・導線の有無を実装時に追跡する。フォント有効化はSandboxでスコープ別・選択フォルダーへのアクセス・再起動後・外部アプリからの利用を検証する。必要最小限の権限・Sparkle除外を確認。今回は調査・受付のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | SettingsHop | App Store向け調整：URLでシステム設定を開く機能を残し、アクセシビリティによる行へのスクロール・フォーカスを外す。元チャット：App Store向けアプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | Source/Panes.swiftのURL遷移を維持。Source/RowLocator.swiftとmain.swiftのAX補助・AccessibilitySettingsLocator呼び出し・許可チェック・権限設定UI・説明をStore構成から除外し、build.shの共有Accessibility依存と翻訳・ヘルプを整合する。URLで到達する画面までの動作として案内し、行への自動移動を保証しない。Sandbox・必要最小限の権限・Sparkle除外・OSごとのURL遷移を検証する。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | ListMatch | App Store向け調整。ユーザー評価：問題なし。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | Sandbox構成、ファイル選択・保存・再起動後のアクセスを確認する。「問題なし」は審査通過・現行版の実機検証済みを意味しない。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | BundleIDInspector | App Store向け調整。ユーザー評価：問題なし。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | 既存AppStore/SandboxQAのentitlementsと検証記録を再利用し、現行版で再検証する。2026-10-09の旧版QAを現行版の検証済みとしない。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | BreaklineTrimmer | App Store版から旧Bundle IDの設定引き継ぎ処理（CFPreferencesCopyAppValue）を外す。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | Source/main.swiftのmigrateFromFormerBundleID呼び出し・実装（CFPreferencesCopyKeyListを含む）をStore構成から除外する。現行Bundle IDの保存済み設定を保持する。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | MarkdownKitchen | App Store向け調整。RegisterEventHotKeyによるホットキーを維持する方針。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | 現行HotkeyRecorder.swiftで利用を確認。Sandbox実機で登録・解除・記録中の停止・他アプリ使用中の呼び出しを検証する。進行中の書類ウインドウ修正の未コミット変更を保持する。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | SiteMirror | App Store版にnetwork client権限を付ける。/usr/bin/diffはできれば自前処理へ置き換える。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | MirrorDiff.swiftの外部diff呼び出しを確認。entitlementsと保存先アクセスを整備し、内製差分の追加・削除・改行・空ファイル・大容量・キャンセルを確認する。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | FileCaravan | /bin/mvをFileManagerへ置換。ユーザーがフォルダーを選び、その場所のアクセス許可を保存する。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | Source/MoveEngine.swiftに/bin/mvあり。既存APP_STOREビルド・FolderAccess.swiftのsecurity-scoped bookmark・AppStore/FileCaravan.entitlementsを再利用する。同名衝突時の上書き防止、別ボリューム移動、部分失敗、再起動後のアクセス、失効時の再選択を検証する。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
+| 2026-10-26 | note2markdown | App Store版はURL入力方式にし、最前面ブラウザーのURL取得機能を外す。 元チャット：App Store向け7アプリ調整（01a17467-caf8-7e12-9140-d79303a6dd2e）。 | 公証Macへ依頼済み・着手確認待ち | 公証Mac・2026-10-26 | — | Source/FrontBrowser.swiftのAX実装とmain.swiftの呼び出し・ボタン・アクセシビリティ設定・説明をStore構成から除外し、翻訳とヘルプを更新。URL入力による取得・変換・保存、通信権限を検証する。 共通：Store構成のSandbox・必要最小限の権限・Sparkle除外を確認。通常配布版と成果物を分離。今回はソース調査のみ、実装・ビルド・実機検証・提出は未実施。 |
 | 2026-10-26 | ClipTidy | 「NotionのページURLを短く」をFirefox以外のブラウザーでも適用する（このチャット）。 | 受付・開始条件待ち | — | — | Firefox限定のアプリ条件をブラウザー対象へ拡張し、一覧のFirefox表示も実態に合わせる。ブラウザー以外へ無条件に拡大しない。保存済みの旧プリセットを移行し、ユーザー編集済みの条件・ON/OFFを保持する。実装・ビルド・配置・検証は未実施。 |
 | 2026-10-26 | ClipTidy | TwitterのURLを https://x.com/ に統一する（このチャット）。https://twitter.com/ と既存の https://mobile.twitter.com/ を対象に、パス・クエリを保持してドメインを変換する。 | 受付・開始条件待ち | — | — | 現在のプリセットはmobile.twitter.com→twitter.com。表示名・翻訳・ヘルプを整合し、保存済みの旧プリセットにも反映する。ユーザー編集済みのルールやON/OFFを上書きしない。実装・ビルド・配置・検証は未実施。 |
 | 2026-10-26 | ClipTidy | メイン画面のルール一覧に「Dropboxリンクが準備完了したら知らせる」も表示する。このチャットでユーザーが依頼。既存の共有リンク通知を一覧から発見し、有効・無効を切り替えられるようにする。 | 受付・開始条件待ち | — | — | 現状確認：Source/Views.swiftの一覧はmodel.rulesのみ、Dropbox通知は別設定model.dropboxPrompt。既存設定と同じ値へ結び付け、保存済みのON/OFFを保持する。通知は書き換え処理後に実行されるため一覧末尾に表示し、直接ダウンロードへの変更はボタン押下時のまま維持。実装・ビルド・配置・実機検証は未実施。 |
 | 2026-10-26 | EventDocMaker | 仕様変更：イベントごとの項目（フォルダー名・種別・仮の日付・タイトル（abc）〜Doorkeeper購入者数（個人）の約90項目、ユーザーが一覧を提示）をアプリ内で入力する（このチャット）。テンプレートは EventDoc/Templates（1.0.0 が読む場所と同じ、ユーザー確認） | 完了 1.1.0 (2) | 開発Mac・2026-10-26（ユーザー「ビルドを作成」） | 1.1.0 (2)・GitHub main 417d17c18a5ecdb456e9b5f6fa08339fe63d1e6b | 未決：テンプレートの場所、イベントの保存形式（複数イベントの一覧）、Excelからの読み込みを残すか、同名項目（Spend〜Engagement RateがX広告とCSS Nite広告で2回）の区別、Excelの計算列（差分・開演後の比率・視聴率など）をアプリで計算するか、新しい項目（Twitterアカウント@・フォロワー数・YouTubeアーカイブD／通し・X：各アカウント・Unique Impressions など）の変数名。 突き合わせ（2026-10-26）：テンプレートが使うのに一覧に無い項目＝Doorkeeper売上・Doorkeeper購入者数・STORES売上・STORES購入者数・スパチャ件数／売上・アーカイブ売上・プロフィール（EventCeeBeeDeeInfo・EventTitle・EventStoresfreelance は元の手順でも値が入らない）。一覧にあるがテンプレートで使わない項目＝タイトル＋講演者・Twitterアカウント@・フォロワー数と差分・メールアドレス・Slido・YouTubeアーカイブD／通し・X：各アカウント・Unique Impressions〜Engagement Rate・CSS Nite広告・視聴率・YouTubeコメント人数・開演後の比率。Doorkeeper購入者数（個人）だけでは合計（銀振・法人）を出せない。 追加要望（同日）：使い捨てでなくイベント管理にしたい。イベント管理データベースがあり、イベントごとにデータを持つ。保存場所・形式（イベントフォルダーごとのファイルか、1つのデータベースか）、既存イベントの取り込み、複数Macでの共有は未決。 追加要望（同日）：イベントの情報入力は「開催前」「終了後」のタブに分ける。項目の振り分け案はチャットで提示、確認待ち。 追加要望（同日）：既存のデータは livestream-配信/配信に関してのまとめ.xlsx から取り込む。調査済み：シート「新しいまとめ」、列Aが項目名（ルビ付き）、列B〜GQが1イベント1列（#1〜198、DTP Transit 134・CSS Nite 64）、行4〜129。仮の日付・アンケート回答期限はExcelの日付シリアル値、開始・終了時刻は1日の割合。数式の結果「0」は空とみなす。同名の項目（Spend〜Engagement Rate は行77〜83がX広告・行85〜90がCSS Nite広告、Twitterアカウントは行25と121）は区別が必要。フォルダー名は重複あり（InDesign・macTips など）なので識別は#か仮の日付込みのフォルダー名で。GY列などはA1の番号でINDEXする取り出し用の列で、取り込み対象外。 個人用で公開しない（ユーザー、2026-10-26）：note記事・個別リポジトリ・公証・配布DMGは作らない。 回答（同日）：ユーザーの一覧にないExcelの項目も入力画面に表示する。 実装：保存はイベントフォルダーの event.json（無ければ EventData、ユーザー「はい」）、一覧にない項目も表示、Excelの全125項目、タブは開催前・終了後（＋文書を作る）。工程2：test.sh PASS、build.sh 成功、両配置先の署名・内容一致、#195でExcel自身の表と113項目一致、一時フォルダーで取り込み・書き出し、本番Excelから198件を取り込み（フォルダー170・EventData28）、/Applications版で一覧表示と閉じても常駐・再表示・⌘Q・再起動・設定差分なし。画面からの入力操作とExcel取り込みの確認画面は未確認。 |
 | 2026-10-26 | EventDocMaker | 新規：KM「____ドキュメント生成」をアプリ化（このチャット） | 完了 1.0.0 (1) | 開発Mac・2026-10-26 | 1.0.0 (1)・GitHub main f40b35c | 工程1：新規、READMEの更新履歴と「元の手順から変えたところ」。工程2：test.sh PASS、build.sh 成功、両配置先の署名・内容一致、実物のEventDoc（テンプレート39本）を一時フォルダーへ書き出して変数の残りなし、画面から読み込み→書き出し（40件＋QR）、/Applications版で閉じても常駐・再表示・⌘Q・再起動・設定の差分なし・設定とヘルプ表示。本番のExcelからの読み込みとPath Finderで開くは未確認。 |
-| 2026-10-26 | ClipTidy | 新規アプリの公証・配布・公開 | 工程3〜5・7・8・10・11成功／工程6・12追加実機確認あり・全体未完了 | 公証Mac MacBookPro13-M5-2025.local・2026-10-26T03:30:21.500419+09:00 | 1.0.0 (2)・5af44a623e523e62cb034a71e854ba5928510fdd | アプリ・DMG Accepted、stapler・Gatekeeper・内包全内容一致、両配置先一致、主要機能と設定保持を配布版で実機確認。GitHub/note実ダウンロードSHA・内包版・署名・公証照合成功。Release: https://github.com/swwwitch/macos-apps/releases/tag/ClipTidy-v1.0.0-build2 / note: https://note.com/swwwitch/n/n42b01cf44c67。未確認はREPORTとProjectsに記録。復元可能な保全: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261026-ClipTidy-ShotSorter-FileSorter-20261026-025744。個別リポジトリなし。 |
-| 2026-10-26 | ShotSorter | 新規アプリの公証・配布・公開 | 工程3〜5・7・8・10・11成功／工程6・12追加実機確認あり・全体未完了 | 公証Mac MacBookPro13-M5-2025.local・2026-10-26T03:30:22.944259+09:00 | 1.0.0 (1)・5af44a623e523e62cb034a71e854ba5928510fdd | アプリ・DMG Accepted、stapler・Gatekeeper・内包全内容一致、両配置先一致、主要機能と設定保持を配布版で実機確認。GitHub/note実ダウンロードSHA・内包版・署名・公証照合成功。Release: https://github.com/swwwitch/macos-apps/releases/tag/ShotSorter-v1.0.0-build1 / note: https://note.com/swwwitch/n/n986d53b12004。未確認はREPORTとProjectsに記録。復元可能な保全: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261026-ClipTidy-ShotSorter-FileSorter-20261026-025744。個別リポジトリなし。 |
-| 2026-10-26 | FileSorter | 新規アプリの公証・配布・公開 | 工程3〜5・7・8・10・11成功／工程6・12追加実機確認あり・全体未完了 | 公証Mac MacBookPro13-M5-2025.local・2026-10-26T03:30:24.336036+09:00 | 1.0.0 (1)・5af44a623e523e62cb034a71e854ba5928510fdd | アプリ・DMG Accepted、stapler・Gatekeeper・内包全内容一致、両配置先一致、主要機能と設定保持を配布版で実機確認。GitHub/note実ダウンロードSHA・内包版・署名・公証照合成功。Release: https://github.com/swwwitch/macos-apps/releases/tag/FileSorter-v1.0.0-build1 / note: https://note.com/swwwitch/n/n10488ee3c9b0。未確認はREPORTとProjectsに記録。復元可能な保全: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261026-ClipTidy-ShotSorter-FileSorter-20261026-025744。個別リポジトリなし。 |
+| 2026-10-26 | ClipTidy | 新規：KM「Clipboard changes」をアプリ化（コピーした文字のルール書き換え・Dropboxリンク）（このチャット） | 完了 1.0.0 (2) | 開発Mac・2026-10-26 | 1.0.0 (2)・GitHub main e8abf214d9390000daac67e6f145f0d67c09b700 | 工程1：新規アプリ、READMEの更新履歴に記載。工程2：test.sh PASS（単体＋4言語）、build.sh 成功、/ApplicationsとLatest Buildsへ配置し署名・内容一致、/Applications版で閉じても常駐・再表示・⌘Q終了・再起動・設定の差分なし・設定とヘルプの表示を確認。書き換え（mobile.twitter.com）とDropboxのパネル表示を実機確認。パネルの［直接ダウンロード］のクリックは未確認。 |
+| 2026-10-26 | ShotSorter | 新規：KM「スクショをリネーム」「OCR」をアプリ化（ユーザー指示で振り分けは FileSorter に分離）（このチャット） | 完了 1.0.0 (1) | 開発Mac・2026-10-26 | 1.0.0 (1)・GitHub main e8abf214d9390000daac67e6f145f0d67c09b700 | 工程1：新規アプリ、READMEの更新履歴に記載。工程2：test.sh PASS（単体＋4言語）、build.sh 成功、/ApplicationsとLatest Buildsへ配置し署名・内容一致、/Applications版で閉じても常駐・再表示・⌘Q終了・再起動・設定の差分なし・設定とヘルプの表示を確認。一時フォルダーで改名、VisionでQRCode名を確認。Finderのコメント（Apple Events）・⌃⌥Oの範囲選択（画面収録）は未確認。 |
+| 2026-10-26 | FileSorter | 新規：KM「ダウンロード」フォルダーの請求書・音楽の振り分けをアプリ化（このチャット） | 完了 1.0.0 (1) | 開発Mac・2026-10-26 | 1.0.0 (1)・GitHub main e8abf214d9390000daac67e6f145f0d67c09b700 | 工程1：新規アプリ、READMEの更新履歴に記載。工程2：test.sh PASS（単体＋4言語）、build.sh 成功、/ApplicationsとLatest Buildsへ配置し署名・内容一致、/Applications版で閉じても常駐・再表示・⌘Q終了・再起動・設定の差分なし・設定とヘルプの表示を確認。一時フォルダーで移動・途中ファイル待ち・起動前のファイルを動かさないことを確認。「今あるファイルを振り分ける…」は未確認。 |
 | 2026-10-26 | MenuShot | 新規アプリ：メニューバーと開いたメニューだけを背景透明で撮る（元チャット「スクショの課題」）。秒数の変更・入力監視でのホットキー・点滅・Quick Look・影と角丸の改善まで | 工程1・2完了（工程3以降は未実施） | 開発Mac・2026-10-26 | GitHub main 842335d680cdc8d7225fea742e020e1445e4db51・1.3.2 (8) | 工程1：MenuShot に未コミット変更なし、手元とorigin/mainが842335dで一致、版1.3.2・build 8（配布済み番号は1〜8を順に使用、戻していない）、コミットはMenuShotフォルダーだけ（ほかのアプリの未コミット変更は混ぜていない）。工程2：test.sh PASS（範囲計算12件、4言語のキー・プレースホルダー一致、ヘルプ）、build.sh 成功、/Applications と Latest Builds の署名・内容一致（publish_latest.py）。/Applications版で実機確認：ウインドウを閉じても常駐（同一PID）、開き直しで再表示、メニューの「MenuShotを終了」で終了、再起動は/Applicationsのパス、設定の差分なし（ウインドウ位置を除く）。撮影はユーザーが Biscuit・Illustrator・Path Finder のメニューで確認（二重写り・影・角丸の修正後「バッチリ」）。サブメニュー付きの撮影はハーネスでも確認。ユーザーが実機確認（2026-10-26）：入力監視を許可してメニュー表示中のホットキーで撮影、点滅、Path Finderでの選択表示、Quick Look（設定［出力］でオン）。未確認：ログイン起動。Developer ID署名・公証・DMG・Release・note・個別リポジトリは未実施。 |
 | 2026-10-26 | VectorMaestro | 新規：KMのIllustratorマクロを取り込み、Illustrator前面時のホットキーで実行するアプリ（このチャット。旧版・複製グループは除外、使用頻度の高いものから） | 工程1・2完了（工程3以降は未実施） | 開発Mac・2026-10-26 | 1.0.0 (1) | 工程1：新規アプリ、READMEの更新履歴に記載、コミットはVectorMaestroフォルダーとこの行だけ。工程2：test.sh PASS（単体＋4言語）、build.sh 成功、/ApplicationsとLatest Buildsの署名・内容一致、/Applications版で閉じても常駐・再表示・二重起動防止・メニューからの終了・設定とヘルプの表示を確認。実データで88本（呼び出し先2本を含む）を取り込み。未確認：アプリからのIllustrator実行（オートメーション許可）・ホットキー実行・キー送信・メニュー選択・KMのオン・オフボタン、ログイン起動。Developer ID署名・公証・DMG・Release・noteは未実施。 |
 | 2026-10-26 | VectorMaestro | アプリ内で編集できるように：名前・グループ・手順の中身（プラグインの引数を含む）・手順の追加・削除・並べ替え（このチャット。ユーザー指示「今すぐ実装・ビルド」） | 工程1・2完了（工程3以降は未実施） | 開発Mac・2026-10-26 | 1.1.0 (2) | 工程1：READMEの更新履歴に記載、コミットはVectorMaestroフォルダーとこの行だけ。工程2：test.sh PASS（編集済みの保護・1.0.0のライブラリの読み込みを追加）、build.sh 成功、/ApplicationsとLatest Buildsの署名・内容一致。/Applications版で詳細欄（名前・グループ・手順の一覧・手順を追加）、JSXとメニューの編集シートの表示、キャンセルでライブラリが変わらないことを確認。未確認：入力して保存する操作、メニューから選ぶ・キーの記録・条件の編集・手順の追加と並べ替えの実操作。 |
@@ -74,6 +139,12 @@
 | 2026-10-26 | SettingsHop | 設定の「設定の共有」タブを外す（共有する項目がない、ユーザー判断） | 取り消し（ユーザー「残して」） | — | — | タブ・SettingsSyncはそのまま。 |
 | 2026-10-26 | SettingsHop | ⌃⌥Q：1回押しでシステム設定、ダブルクリック間隔内の2回押しでメインウインドウ（方式A、当初案の逆） | 工程1・2確定・実機確認済み | 開発Mac・2026-10-26 | 1.4.0 (15)・fd5366a＋ce757e4 | 2回目のあとシステム設定が3秒以内に前面へ来たらウインドウを戻す（didActivateApplicationを監視）。test.sh PASS、両配置先の署名・内容一致、/Applicationsから起動。osascriptの合成キーはホットキーに届かず（NSLogで確認）自動の実機試験は不可、2026-10-26 ユーザーが手で確認：システム設定が未起動からの2回押しでウインドウが前面に出る。GitHub main ce757e4a92a9383b06f68610832d13dccac911c7。 |
 | 2026-10-26 | SettingsHop | 「デフォルトのWebブラウザ」のAX探索の範囲を絞る（AppleScript版の高速化から） | 工程1・2確定（版変更なし） | 開発Mac・2026-10-26 | 1.3.1 (14)・866099d | Swiftの全探索は0.08〜0.13秒（実測、絞り込み版と差なし）のため絞り込みは不採用・コメントに記録。配布済み1.3.1 (14)の未コミット分（AXPressでメニューを開く）を確定。test.sh PASS、検証ビルド成功、両配置先Info.plist一致。GitHub main 866099dd7e343e2c0665a52956c41d2aa4087777。アプリからの実機操作は未確認（関数単体でフォーカス移動を確認）。 |
+| 2026-10-26 | SettingsHop | プライバシーとセキュリティの「セキュリティ」欄へのリンクを追加（⌘キーなし）。AppleScriptが必要かもという指摘に対し、URLアンカーで足りることを実測。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 0a96f82・1.5.0 (17)（配布済み 1.4.1 (16) の次） | 工程1：Panes.swift に .security（`com.apple.settings.PrivacySecurity.extension?Security`、⌘キーなし・Pane.unkeyed）、4言語の文字列・ヘルプ・README更新履歴。アンカーなし・`?Security` で開き比べ、`?Security` でセキュリティ欄（アプリケーションの実行許可・FileVault）までスクロールすることを確認。工程2：test.sh PASS（URL・⌘キー・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動し［ファイル］＞「セキュリティ」でシステム設定がセキュリティ欄を表示することを確認。GitHub main 0a96f82 へpush。未実施：設定保持・再表示・終了の再確認（今回の変更は項目の追加のみ）、工程3以降（公証Mac） |
+| 2026-10-26 | SettingsHop | メインウインドウのリサイズをなくす（ユーザー「このアプリのメインウインドウはリサイズなし」）。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 4437543・1.5.1 (18)（1.5.2と同じコミット） | 工程1：styleMaskから.resizableを外し、NSHostingController（sizingOptions=.preferredContentSize）＋MainViewの frame(width: 420) で高さを中身に合わせる。自前でsetFrameする方式は描画が崩れたため不採用。README・APP-UPDATE-HISTORY.md更新。工程2：test.sh PASS、build.sh --deploy で両配置先の版・署名・内容一致、/Applications 版で緑の拡大ボタンが無効（AX）・大きさ420×671、数字キーで項目を開いて状態表示が出ても大きさが変わらないことを確認。起動・再表示・終了・設定保持は1.5.2の行の実機確認と同じ（同一コミット）。未確認：状態表示が2行に折り返したときの高さの追従 |
+| 2026-10-26 | SettingsHop | 「プライバシーとセキュリティ」は常にそのトップを開く（ユーザー「プライバシーとセキュリティのトップにリンク」）。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 4437543・1.5.2 (19) | 工程1：アンカーなしは前回の位置（下位画面・スクロール位置）で開くことを実測。アクセシビリティ許可時は `PrivacySecurity.extension?Privacy`（未知のアンカー、メイン一覧を末尾までスクロールした状態で開く）で開き、ウインドウのタイトルが SecurityPrivacyExtension.appex の表示名（InfoPlist.loctable、全言語）になったら右側の一覧の縦スクロールバーのAXValueを0にする（RowLocator.scrollToTop）。未許可時は従来どおり。ヘルプ4言語・README・APP-UPDATE-HISTORY.md更新。工程2：test.sh PASS、build.sh --deploy で両配置先の版・署名・内容一致、/Applications 版の［ファイル］＞「プライバシーとセキュリティ」で、位置情報サービスの下位画面からとセキュリティ欄からの両方で一番上が表示されることを確認（SettingsHopはアクセシビリティ許可済み）。GitHub main 4437543 へpush。実機（/Applications 1.5.2、2026-10-26 18:10）：赤ボタンで閉じてもプロセスは残る（常駐）、open -a で開き直すとウインドウ表示、閉じた状態からFinder前面でSystem Eventsの⌃⌥Q送信によりウインドウが再表示（ただしfrontmostはfalse。合成キーのため実キーでの前面化は別途確認）、メニューの「SettingsHopを終了」でプロセス終了、再起動で/Applications版が起動しウインドウ表示、ユーザー設定 closeAfterOpen=1 が終了・再起動後も保持。未確認：アクセシビリティ未許可時の動作、実キーの⌃⌥Qでの前面化、ログイン起動、工程3以降（公証Mac） |
+| 2026-10-26 | SettingsHop | プライバシーとセキュリティの「カメラ」「マイク」を追加、どちらも⌘キーなし（ユーザー「カメラを入れて」「マイクも」「どっちもキーボードショートカットは不要」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.6.0 (20)・9778b44 | Privacy_Camera／Privacy_Microphone をURLで開いてシステム設定のタイトルが「カメラ」「マイク」になることを実測。Option＋クリック対象に含めたが行選択は未確認。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
+| 2026-10-26 | SettingsHop | 表示する項目とキーボードショートカットを設定で編集（ユーザー「どの項目を表示するか、どのキーボードショートカットにするかを設定で編集できるようにしたい」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.7.0 (21)・9778b44 | 設定［項目］タブ：表示スイッチとキー（⌘1〜⌘9／なし）、使用中の数字は元の項目から外す、最後の1項目は隠せない、［初期設定に戻す］。defaults hiddenPanes・paneKeys（設定の共有対象）。一時設定（オートメーション非表示・カメラ⌘2）で［ファイル］メニューへの反映をAXで確認し、設定は消去済み。設定画面のスイッチ・ポップアップ操作は未確認（作業中の入力を奪うため中止）。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
+| 2026-10-26 | SettingsHop | メインウインドウ右下の「直前のアプリ」表示を削除（ユーザー「参照しなくなったので」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.7.1 (22)・9778b44 | Option＋クリックの動作は維持。4言語の文言とヘルプの説明を削除。表示の見た目は未確認。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
 | 2026-10-25 | NotMyType・NotMyType Lite | 検索オプションボタンをOption＋クリックすると、条件設定中はパネルを開かず検索オプションを全解除 | 完了（通常1.60.1/95・Lite1.7.4/20） | — | — | 通常クリックはパネル表示を維持。既存clearFiltersを使用しベンダーを含む全オプションを解除。検索文字列とサイドバー選択は保持。条件未設定時は通常のパネル表示を想定。  実機Option全解除・未設定時表示・通常クリック・終了/起動/再表示確認。設定差分は通常版ウインドウ位置のみ、Liteなし（JSONキー順除外）。両配置先署名内容一致。GitHub main SHA 7cff96deeba36a08d48e25db9236c21d4cb1e0ba。 |
 | 2026-10-25 | NotMyType（通常版） | 検索オプションにベンダーを追加 | 1.60.0 (94) 完了 | — | — | 既存のベンダー判定を再利用し、検索文字列・ほかの絞り込みと組み合わせる。Adobe Fonts 1.59.0 (93) 更新後に受領。  GitHub main 937bd759d67afffb6379e5c1473ea0f0da6e4f4f。両配置先署名・内容一致、起動・再表示・終了、変更UI確認済み。除外の再読込保持は自動テストPASS、実機の参照元再読込は未実施。 |
 | 2026-10-25 | NotMyType（通常版） | リリース年の桁区切りを除去（2010年代・2020年代） | 1.60.0 (94) 完了 | 開発Mac | 1.60.0 (94) | ロケール依存整数書式を文字列書式へ変更、自動テストPASS。  GitHub main 937bd759d67afffb6379e5c1473ea0f0da6e4f4f。両配置先署名・内容一致、起動・再表示・終了、変更UI確認済み。除外の再読込保持は自動テストPASS、実機の参照元再読込は未実施。 |
@@ -138,12 +209,6 @@
 | 2026-10-24 | NotMyType | プレビューのオプションに「表示する情報」：プレビューの下のフォント情報に出す項目をチェックボックスで選ぶ。「プレビューの文字」の候補は今の一覧からポップアップメニューに変える（ユーザー指定）。元チャット：NotMyType開発（b6055d7f） | 実装・配置済み（未コミット） | 開発Mac・2026-10-24 | 1.28.0・build 53（ユーザー指示「進めてください」） | ユーザーの指示で新しい要望はビルドせず受付のみ。項目案：状態・形式・収録文字数・バージョン・PostScript名・場所・Finderで表示、公式の情報（FontDB）の書体名・ファイル名・メーカー・作者・リリース・初出・分類・シリーズ・言語・プラン・説明・公式ページ。初めはすべてオン。選んだ項目は UserDefaults に覚え、設定の同期に含める。公式の情報の項目がすべてオフなら見出し「公式の情報」も出さない |
 | 2026-10-24 | NotMyType | 壊れたフォントの点検（FontExplorer X Pro の「フォントを検査」相当）。ツールに「フォントを点検…」：選んだフォント（無ければライブラリ全体）を読み、問題のあるものを一覧にする。元チャット：NotMyType開発（b6055d7f） | 実装・配置済み（未コミット） | 開発Mac・2026-10-24 | 1.28.0・build 53（ユーザー指示「進めてください」） | ユーザーの指示で新しい要望はビルドせず受付のみ。案：点検項目＝CoreText で読めない・書体が0、必須のテーブル（cmap・head・hhea・hmtx・maxp・name・OS/2、post）が無い、字形の数が0、アウトライン（glyf か CFF/CFF2）が無い、PostScript名が空・不正な文字・長すぎる（63字超）、ファイルの中で PostScript名が重複、ファイルの大きさが0。結果は「壊れている」と「注意」に分け、Finderで表示・ライブラリから取り除く・セットに入れるを選べる。サイドバーの「ライブラリ」に「問題のあるフォント」を出すかは実装時に相談。3万6千件の全件点検は時間がかかるので裏で行い、進み具合を出す |
 | 2026-10-24 | CarmaChameleon | 起動時に「壊れているため開けません」。元チャット：01a16d4d-a076-7c00-81db-82b4e532b8dc（ss-744-784-144-20261024-184534.png） | 受付（診断済み・更新開始待ち） | このMacで読取診断・2026-10-24 | 配置済み 0.15.0・build 48、Bundle ID jp.local.PandocDesk | /Applications と Dropbox Latest Builds の両方で codesign --verify --deep --strict が invalid signature (code or signature have been modified)、arm64 と報告。公証チケットは付属するが現物の署名検証は失敗。spctl は internal error in Code Signing subsystem。security find-identity -v -p codesigning は有効ID 0件。破損経緯は未特定。ソース変更・ビルド・配置・起動確認は未実施。更新開始後、正常な配布物の復元可否を確認し、必要なら公証Macで正本から署名・公証・検証して両配置先を更新する。別署名への置換やGatekeeper回避は実施せず。 追加指示（2026-10-24）：次回ビルド時にアプリのコード署名を有効にする。Developer IDで署名・公証し、codesign --verify --deep --strict・stapler・Gatekeeperの検証に合格した成果物だけを配置する。配置後も両配置先の署名と内容一致、および /Applications からの起動を確認する。署名鍵不足や検証失敗時は配布せず未完了として報告する。今回の追記は即時ビルド開始の指示ではない。 |
-| 2026-10-26 | SettingsHop | プライバシーとセキュリティの「セキュリティ」欄へのリンクを追加（⌘キーなし）。AppleScriptが必要かもという指摘に対し、URLアンカーで足りることを実測。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 0a96f82・1.5.0 (17)（配布済み 1.4.1 (16) の次） | 工程1：Panes.swift に .security（`com.apple.settings.PrivacySecurity.extension?Security`、⌘キーなし・Pane.unkeyed）、4言語の文字列・ヘルプ・README更新履歴。アンカーなし・`?Security` で開き比べ、`?Security` でセキュリティ欄（アプリケーションの実行許可・FileVault）までスクロールすることを確認。工程2：test.sh PASS（URL・⌘キー・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動し［ファイル］＞「セキュリティ」でシステム設定がセキュリティ欄を表示することを確認。GitHub main 0a96f82 へpush。未実施：設定保持・再表示・終了の再確認（今回の変更は項目の追加のみ）、工程3以降（公証Mac） |
-| 2026-10-26 | SettingsHop | メインウインドウのリサイズをなくす（ユーザー「このアプリのメインウインドウはリサイズなし」）。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 4437543・1.5.1 (18)（1.5.2と同じコミット） | 工程1：styleMaskから.resizableを外し、NSHostingController（sizingOptions=.preferredContentSize）＋MainViewの frame(width: 420) で高さを中身に合わせる。自前でsetFrameする方式は描画が崩れたため不採用。README・APP-UPDATE-HISTORY.md更新。工程2：test.sh PASS、build.sh --deploy で両配置先の版・署名・内容一致、/Applications 版で緑の拡大ボタンが無効（AX）・大きさ420×671、数字キーで項目を開いて状態表示が出ても大きさが変わらないことを確認。起動・再表示・終了・設定保持は1.5.2の行の実機確認と同じ（同一コミット）。未確認：状態表示が2行に折り返したときの高さの追従 |
-| 2026-10-26 | SettingsHop | 「プライバシーとセキュリティ」は常にそのトップを開く（ユーザー「プライバシーとセキュリティのトップにリンク」）。元チャット：SettingsHop新規作成（このチャット） | 工程1・2確定 | 開発Mac・2026-10-26 | 4437543・1.5.2 (19) | 工程1：アンカーなしは前回の位置（下位画面・スクロール位置）で開くことを実測。アクセシビリティ許可時は `PrivacySecurity.extension?Privacy`（未知のアンカー、メイン一覧を末尾までスクロールした状態で開く）で開き、ウインドウのタイトルが SecurityPrivacyExtension.appex の表示名（InfoPlist.loctable、全言語）になったら右側の一覧の縦スクロールバーのAXValueを0にする（RowLocator.scrollToTop）。未許可時は従来どおり。ヘルプ4言語・README・APP-UPDATE-HISTORY.md更新。工程2：test.sh PASS、build.sh --deploy で両配置先の版・署名・内容一致、/Applications 版の［ファイル］＞「プライバシーとセキュリティ」で、位置情報サービスの下位画面からとセキュリティ欄からの両方で一番上が表示されることを確認（SettingsHopはアクセシビリティ許可済み）。GitHub main 4437543 へpush。実機（/Applications 1.5.2、2026-10-26 18:10）：赤ボタンで閉じてもプロセスは残る（常駐）、open -a で開き直すとウインドウ表示、閉じた状態からFinder前面でSystem Eventsの⌃⌥Q送信によりウインドウが再表示（ただしfrontmostはfalse。合成キーのため実キーでの前面化は別途確認）、メニューの「SettingsHopを終了」でプロセス終了、再起動で/Applications版が起動しウインドウ表示、ユーザー設定 closeAfterOpen=1 が終了・再起動後も保持。未確認：アクセシビリティ未許可時の動作、実キーの⌃⌥Qでの前面化、ログイン起動、工程3以降（公証Mac） |
-| 2026-10-26 | SettingsHop | プライバシーとセキュリティの「カメラ」「マイク」を追加、どちらも⌘キーなし（ユーザー「カメラを入れて」「マイクも」「どっちもキーボードショートカットは不要」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.6.0 (20)・9778b44 | Privacy_Camera／Privacy_Microphone をURLで開いてシステム設定のタイトルが「カメラ」「マイク」になることを実測。Option＋クリック対象に含めたが行選択は未確認。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
-| 2026-10-26 | SettingsHop | 表示する項目とキーボードショートカットを設定で編集（ユーザー「どの項目を表示するか、どのキーボードショートカットにするかを設定で編集できるようにしたい」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.7.0 (21)・9778b44 | 設定［項目］タブ：表示スイッチとキー（⌘1〜⌘9／なし）、使用中の数字は元の項目から外す、最後の1項目は隠せない、［初期設定に戻す］。defaults hiddenPanes・paneKeys（設定の共有対象）。一時設定（オートメーション非表示・カメラ⌘2）で［ファイル］メニューへの反映をAXで確認し、設定は消去済み。設定画面のスイッチ・ポップアップ操作は未確認（作業中の入力を奪うため中止）。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
-| 2026-10-26 | SettingsHop | メインウインドウ右下の「直前のアプリ」表示を削除（ユーザー「参照しなくなったので」）。元チャット：このチャット | 工程1・2確定 | 開発Mac・2026-10-26 | 1.7.1 (22)・9778b44 | Option＋クリックの動作は維持。4言語の文言とヘルプの説明を削除。表示の見た目は未確認。test.sh PASS（PaneLayoutの単体テスト7件・URL・4言語）、build.sh --deploy で /Applications と Latest Builds の版・署名・内容一致、/Applications 版を起動。工程2実機（1.7.1）：ウインドウを閉じても常駐、Dockから再表示、設定ウインドウ表示、osascriptでの終了・再起動OK、設定の差分なし（ウインドウ位置除く）。GitHub main 9778b44d770e07491e19c0d6125e81fbf76845a9（1.6.0〜1.7.1を1コミット）。 |
 | 2026-10-24 | NotMyType | FontDB（~/Git/macos-apps/FontDB/data/fonts.sqlite）で各フォントのメタデータを補う。アプリ内に持ち（ユーザー指定）、プレビューの下のフォント情報にファイル名・作者（デザイナー）・リリース年（発売日）などを載せ、検索にも使う。元チャット：NotMyType開発（b6055d7f） | 実装・配置済み（未コミット） | 開発Mac・2026-10-24 | 1.27.0・build 52（ユーザー指示「ビルド」） | ユーザーの指示で新しい要望はビルドせず受付のみ。調査（2026-10-24）：FontDB は fonts（6,582書体：morisawa 3,565・adobe 1,874・fontworks 896・flopdesign 247。名前・ファミリー・ウェイト・よみ・メーカー・シリーズ・分類・言語・プラン・発売日・初出・デザイナー・字形数・説明・URL）と files（7,987件：PostScript名・ファイル名・文字セット・メニュー名・バージョン・プラン）。値の入り：発売日68%・デザイナー51%・分類89%・説明76%。ライブラリ36,701件のうち PostScript名で12,221件が対応（モリサワ・フォントワークスはほぼ全部）。案：build.sh で fonts.sqlite を Resources に写して読み取り専用で使う（FontExplorerImport と同じ SQLite3）、フォント情報にファイル名（公式）・メーカー・デザイナー・発売日・初出・分類・シリーズ・言語・プラン・説明・公式ページ、検索欄でよみ・メーカー・デザイナー・分類・説明も引く、検索オプションに「分類」「リリース年（年代）」 |
 | 2026-10-24 | NotMyType | 重複の解決にフォルダーの優先。同じ PostScript 名のファイルが複数あるとき、設定のウォッチフォルダーの一覧で上にあるフォルダーのファイルを優先し、ウォッチフォルダーに入っていないファイルはその後ろ（ユーザー指定）。優先を効かせる場面：ファミリー・セット・プロジェクトをまとめてアクティブにするとき（優先のファイルだけ）、プロジェクトの照合と Adobe 向け自動アクティベートの名前の引き当て、「重複」の一覧で優先の印。あわせて設定のウォッチフォルダーの一覧に並べ替え（▲▼かドラッグ、ユーザー指定）。例：A P-OTF はせミン Std が fonts-essential/MORISAWA-all-2022 と fonts/MORISAWA-all-2020 にある。元チャット：NotMyType開発（b6055d7f） | 実装・配置済み（未コミット） | 開発Mac・2026-10-24 | 1.27.0・build 52（ユーザー指示「ビルド」） | ユーザーの指示で新しい要望はビルドせず受付のみ。未決：優先でない重複を一覧から隠す設定を足すか（勧めは隠さず印で区別、返事待ち）。LibraryStore.setActive・activateProject・ProjectDraft・AdobeAutoActivation の byPostScript を、優先順で選ぶ共通の関数に寄せる |
 | 2026-10-24 | NotMyType | ツールに「ライブラリを再構築…」。①全ファイルの情報（書体名・ベンダー・商標の持ち主・種類・収録文字数など）をファイルから読み直す、②無いファイルは同じ PostScript 名・ファイル名でウォッチフォルダー・フォントフォルダーから探してつなぎ直す（id を保ってセット・プロジェクトに残す）、③フォントフォルダー・ウォッチフォルダーを読み直して新しいファイルを足す、④それでも見つからないものは件数を見せて「取り除く／残す」を選ぶ、⑤状態の読み直しとライブラリの保存し直し（無い id への参照を掃除）。実行前に確認、進み具合を出す。元チャット：NotMyType開発（b6055d7f） | 実装・配置済み（未コミット） | 開発Mac・2026-10-24 | 1.27.0・build 52（ユーザー指示「ビルド」） | ユーザーの指示で新しい要望はビルドせず受付のみ。中身は回答した案（ユーザーの確認待ち）。36,701件で数十秒の見込み。fillMetadata・scanUserFonts・WatchFolders.scan・departed を流用できる |
@@ -197,6 +262,87 @@
 - ビルド・バックアップ付き両配置・署名内容一致・/Applications版の実機検証完了。全閉じと2書類再表示5回の前後で同一PID、122のクラッシュレポートなし。正常終了・ファイルからの再起動、未保存変更の保存確認も検証。公開リリース未実施。
 
 | 2026-10-26 | noteリンク追加6アプリ | 工程3〜12再開 | 公開照合途中・全体未完了 | 公証Mac・2026-10-26T21:18:14.029549+09:00 | 1de13fc／a3e8525、既存版/buildを再利用 | 6件GitHub公開・5件note公開を実ダウンロード/内包検証。ShotSorter note同時編集、SettingsHop Projects対象項目不明、SettingsCourier現行ソース未反映を保留。[工程別記録](ReleaseRecords/20261026-note-links.md)。 |
+### App Store対応11アプリ — 2026-10-26 公証Macへ引き継ぎ
+
+- ユーザー「公証Macで進めてください」「公証MacからApp Storeへの申請も進めて」により開始条件を解除。実装・検証・提出用署名・アップロード・審査提出まで許可。
+- 公証Macの既存チャット「macOSアプリのリリース作業」（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da、remote-control:env_e_6ac05aff10f88330a7affbabf4b86f99）へ全11件と追加の申請許可を送信済み。通常配布版を保持し、Store構成で調整する。
+- このMacのキューは未コミットのため、依頼全文をメッセージで引き継いだ。担当先で正本ソース・署名環境・重複作業を確認し、各アプリの工程結果を記録するよう依頼。送信成功は実装・アップロード・審査提出の完了を意味しない。
+- 公開時期は未指定のため、可能なら手動公開設定で審査提出するよう依頼。アカウント認証や未確定の必須事項があればユーザーに確認する。
+
+## 定時実行の確認（2026-10-26 04:02 JST以降）
+
+- ローカルの有効なコード署名IDは引き続き0件。公証Macへの直接実行経路は未確立、別チャットへの続行依頼について前回の確認への回答はない。B26に従い別署名でビルド・配置しない。既報の阻害要因につき再通知しない。
+- 公証Macの「macOSアプリのリリース作業」（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da）はApp Store向け調整・申請取り下げ確認で稼働中。重複開始せず、進行中を完了としない。
+- ClipTidyの新規3要望は受付状態。署名付きビルド・実機確認・公開を行う環境が整っておらず、本実行では実装・版更新・ビルド・配置は未実施。MightyEditの列ずれは後続行でローカル修正済みのため重複実装しない。MarkdownKitchenの公開も未実施として保持。
+- 新たに検証した配置・公開版がないため、バージョン一覧の値は変更していない。
+
+### MarkdownKitchen — 2026-10-26 / 空白設定画面・工程1と2
+
+- ユーザーの空白設定画面報告と工程1・2指示で開始。開発Mac、1.47.3 (123)。未コミットソースをShared/Backups/Build/MarkdownKitchen-source-20261026-111518へ保全。GitHubは1.47.0 (118)、両配置先は1.47.2 (122)、未送信コミットなしを確認。
+- 空のSettingsシーンを既存SettingsViewへ変更し、システム経由の設定ウインドウを既存の設定管理へ引き継ぐ。検証・commit/push進行中。公証・公開は今回の対象外。
+
+### MarkdownKitchen — 2026-10-26 / 工程1・2の確定記録
+
+- 開発Mac 1.47.3 (124)。GitHub main SHA: 42b1886bb4962ff7127376f75a9f0f36433f56ca（push後ls-remote一致）。MarkdownKitchenのみ20ファイルをcommit、他アプリの変更は保持。
+- テスト・4言語整合・ビルドPASS。/ApplicationsとLatest Buildsの版・署名・内容一致。更新版を起動済み。設定の空白修正、文書名更新、エディター／プレビュー解放を検証。リサイズ指定追加の端ドラッグは操作ツールエラーで未確認。
+- 検証詳細・保存処理の追加レビュー所見はMarkdownKitchen/RELEASE-VERIFICATION-20261026.md。公証Mac・Developer ID公証・公開リリースは未実施。
+
+### MarkdownKitchen — 2026-10-26 / 設定リサイズ再修正
+
+1.47.3 (125)、専用AppKit設定ウインドウへ表示先を統一。両配置先の署名・内容一致、起動・設定表示・ネイティブ拡大／復帰確認。端ドラッグはユーザー確認待ち。GitHub main 597326dへcommit/push。公証・公開は未実施。
+
+## 2026-10-26 NotMyType / Lite 開発Mac更新
+
+GitHub main: 2a8f2cd81368dfea1e77a19534f2316427dd1f67（リモート照合済み）。通常1.61.0/build96、Lite1.8.0/build21。両配置先の署名・内容一致、起動・終了確認。通常版の右クリックプロジェクト追加、セット・プロジェクトへのドラッグ、プロジェクト重複防止は実機確認。両版の全選択アクティブ時の右下ボタン無効・非アクティブ時の有効を確認。Liteドラッグは操作ツールで件数増を確認できず保留。複数・個別書体ドラッグと外部ドロップの今回の実機確認は未実施。テスト用データのみバックアップ後に除去、既存設定・所属を保持。日英ローカライズとビルド、プロジェクト保存・再読込モデルテストPASS。公証・DMG・公開未実施。
+
+## NotMyType / Lite release connection check - 2026-10-26T12:01:04+09:00
+
+Host: MacBook-Pro-14-2024-sw (development Mac). Commit 2a8f2cd81368dfea1e77a19534f2316427dd1f67 verified: full 1.61.0/96, Lite 1.8.0/21. No version bump.
+Step 3 BLOCKED: Codex thread inventory did not respond; stopped waiting. Read-only SSH to masahironoMacBook-Pro.local failed DNS resolution. Notarization host source, signing keys, UI and concurrent release owner are unverified. No remote mutation or backup performed.
+Steps 4-11 NOT STARTED: no Developer ID signing, notarization, DMG, deployment, GitHub Release, Projects or note publication, or download verification.
+Step 12: progress recorded only; no new verified remote/public version values. Release remains incomplete. Resume after notarization host connection and ownership checks. Lite drag runtime verification remains pending. Keep separate App Store work isolated.
+
+## 2026-10-26 12:08 JST - NotMyType / Lite release resume
+
+User identified this Mac as the notarization Mac. Observed ComputerName: MacBook-Pro-14-2024-sw.
+Step 3 SUCCESS: preserved dirty tracked/staged changes and untracked files at /Users/takano/Git/macos-apps/.local/release-backups/NotMyType-20261026-120847. GitHub fetch succeeded. HEAD is target 2a8f2cd81368dfea1e77a19534f2316427dd1f67; app directories are clean. Full 1.61.0/96, Lite 1.8.0/21, no version changes or forced overwrite.
+Step 4 BLOCKED: elevated security find-identity -v -p codesigning returned only Apple Distribution: masahiro takano (PL9S9PXX96), repeated 4 times; no Developer ID Application identity. User keychain search list contains login.keychain-db only. No fallback signature, build, submission or key changes performed. Existing signing route Shared/BuildTools/developer_id_release.py requires Developer ID Application: masahiro takano (PL9S9PXX96).
+Steps 5-11 NOT STARTED because signing prerequisite failed. Step 12 progress record only, no new notarized installation or public version to enter. Lite drag runtime verification still pending. Resume after required Developer ID Application certificate and matching private key are available; recheck identity and concurrent release ownership before proceeding.
+
+## 2026-10-26 release host diagnosis correction
+The user confirms notarization previously succeeded on their current Mac. The previous conclusion that their notarization Mac needs certificate import was premature. Shell observations apply only to this chat execution host MacBook-Pro-14-2024-sw. Both login/System keychains there expose Apple Distribution only; this is not evidence of certificate absence on the remote host. Remote chat 01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da (macOS app release work), host remote-control:env_e_6ac05aff10f88330a7affbabf4b86f99, is now readable and idle. No message dispatched or remote signing inspection performed yet. Do not create, revoke, or import certificates based on the earlier diagnosis.
+
+## NotMyType / Lite notarization handoff - 2026-10-26T12:18:48+09:00
+User explicitly authorized messaging the existing release chat. Sent full release steps 3-12, target SHA 2a8f2cd81368dfea1e77a19534f2316427dd1f67, full 1.61.0/96 and Lite 1.8.0/21, pending Lite drag runtime checks, separate App Store scope, and corrected signing-host diagnosis to thread 01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da on remote-control:env_e_6ac05aff10f88330a7affbabf4b86f99. Send succeeded; wait_threads confirmed active turn 01a17637-a27d-7062-ba0d-a0a8685d4d3d. Actual signing/notarization/publication not yet verified. This local chat will not run a duplicate release.
+
+## 2026-10-26 note更新方針（全アプリ共通）
+
+ユーザー指示：note記事には更新情報を追記せず、新しい公証済み配布ビルドの添付だけを差し替える。ほかのアプリも同様。既存本文・履歴・タグ・見出し画像は保持。公開後のダウンロード・SHA-256検証は継続。公証Macの「macOSアプリのリリース作業」（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da）へ伝達済み。実際の記事差し替え完了は未確認。RELEASE-CHECKLIST.md工程10を更新。
+
+## Local full-only build completion (2026-10-26T16:32:18+09:00)
+
+- Host: MacBook-Pro-14-2024-sw.local. User requested full edition only; full 1.61.1 (99) built and installed in /Applications and Dropbox Latest Builds. Lite was not rebuilt in this final operation (earlier local build: 1.8.1 (23)).
+- Full build/localization checks passed; existing Apple Distribution signature and deployment content comparison passed. /Applications full 99 launch confirmed. Prior app backups and settings snapshot retained under Shared/Backups/Build.
+- Debug moved to Tools > Links, normally hidden, Option visibility controlled during menu tracking. Runtime accessibility inspection confirmed normal hidden state; sustained Option-down visibility could not be verified with the UI automation key interface. Manual Option check remains pending. LETS debug path is ~/Library/Fonts/.
+- Not notarized; DMG, public release and remote cache-dialog integration remain separate pending work. No public-version parity claimed.
+
+## 2026-10-26 開発Mac：NotMyTypeと全アプリ履歴のGitHub確定
+
+- 実行Mac：MacBook-Pro-14-2024-sw.local。保全先：`.local/release-backups/NotMyType-99-history-20261026`（作業差分・ステージ済み差分・新規ドキュメント）。
+- 成功：フル1.61.1（99）／Lite1.8.1（23）のソースと履歴をc786aa7で確定。Lite再ビルドなし、版の重複更新なし。
+- 成功：43アプリの日付・版付き履歴APP-UPDATE-HISTORY.mdと共通更新ルールを5b9152dで確定。既存の無関係な変更はcommit対象外。
+- 成功：origin/mainへpush、リモートSHA `5b9152de384afb60730872da0afb424a994f98a0` を照合。
+- 検証：フル99のビルド・ローカライズ・両配置先一致・起動は既存記録を継承。今回ローカライズと署名を再検証成功。
+- 未確認：Option押下中のデバッグ表示、ライブラリ開閉の実機操作、今回版での全起動・再表示・終了・設定保持の通し検証。工程2の実機確認は未完了。
+- 未実施：今回版のDeveloper ID公証・DMG・公開。公証Macでのキャッシュ消去ダイアログ修正統合は別担当。
+
+## 2026-10-26 NotMyType：デバッグのPath Finder対応
+
+- 対象：プロ版のみ。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。
+- 要望：ツール→リンク集→デバッグでフォルダーを開くとき、Path Finderが起動していればPath Finderを使い、起動していなければFinderで開く。
+- OH MY FONTは不可視項目を表示するモードで開く。ファイル／フォルダーの不可視属性自体は変更しない。他サービスは表示設定を変更しない。
+- 状態：受付・未実装。次のビルド開始条件成立時に、既存のPath Finder連携を調べて再利用し、不可視表示の操作経路と設定への影響を確認する。起動中／未起動とOH MY FONTの表示を実機検証する。
+- 版・build：未割当。実装・検証後にAPP-UPDATE-HISTORY.mdとNotMyType/CHANGELOG.mdへ日付・版入りで追記する。
 
 
 ## 2026-10-26 all-app installation integrity audit
@@ -225,15 +371,13 @@
 - Restored canonical Unicode-named version inventory from its preserved Dropbox conflict copy and appended verified local versions; remote/public values explicitly unverified.
 - [Recovery evidence, per-app versions and verification limits](ReleaseRecords/20261027-app-recovery.md). Installation recovery COMPLETE at recorded audit time; root cause of Dropbox changes remains undetermined. Per-feature runtime, settings UI, new public releases and re-notarization were not performed or claimed.
 
-## 2026-10-26 NotMyType：デバッグのPath Finder対応
+## 2026-10-27 MarkdownKitchen — 設定タブの統合・順序（受付）
 
-- 対象：プロ版のみ。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。
-- 要望：ツール→リンク集→デバッグでフォルダーを開くとき、Path Finderが起動していればPath Finderを使い、起動していなければFinderで開く。
-- OH MY FONTは不可視項目を表示するモードで開く。ファイル／フォルダーの不可視属性自体は変更しない。他サービスは表示設定を変更しない。
-- 状態：受付・未実装。次のビルド開始条件成立時に、既存のPath Finder連携を調べて再利用し、不可視表示の操作経路と設定への影響を確認する。起動中／未起動とOH MY FONTの表示を実機検証する。
-- 版・build：未割当。実装・検証後にAPP-UPDATE-HISTORY.mdとNotMyType/CHANGELOG.mdへ日付・版入りで追記する。
-
-
+- 元チャット: 01a16880-b3a1-71a0-bdcd-d7cb43599c21。ユーザー要望: 設定の「HTML→Markdown」と「テーマ」を統合。統合後の名称は要検討・未確定。候補「変換・装飾」は提案であり承認済み名称ではない。
+- 追加指示: 「右クリック」は「ホットキー」に統合し、独立タブを廃止。タブ名は「ホットキー」を維持し、中で右クリック設定を見出し付きで区分する。既存の右クリック設定値を保持。
+- 機能設定の順序: 「ホットキー」（右クリック設定を含む）→「HTML→Markdown」と「テーマ」の統合タブ。「起動・常駐」は共通仕様どおり先頭、「設定の共有」「情報」は後方を維持する想定。
+- 統合時は既存の変換設定・テーマ・div設定と保存値を保持し、テーマ編集からのタブ選択導線、選択タブの保存番号移行、4言語も確認する。
+- 状態: 受付・実装／ビルド未着手。今回のメッセージに新たなビルド開始指示はない。
 
 ## 2026-10-27 NotMyType — ライブラリの開閉矢印が二重（受付）
 
@@ -243,7 +387,6 @@
 - 検証予定：展開／折りたたみの両方で矢印が1つ、見出しと矢印の操作が一致、すべてのフォントが選択可能、再起動後の状態保持。
 - 状態：受付・未実装／未ビルド。版・buildは未割当。次のビルド開始時に対応し、検証後に日付・版付き更新履歴へ追記。
 
-
 ## 2026-10-27 NotMyType — 字形一覧からコピー（受付）
 
 - 元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。直前のフル版の要望に続くため、対象はフル版として受付。Liteへの適用は未指定。
@@ -251,7 +394,6 @@
 - 実装時の確認：字形とUnicode文字列の対応、フォント情報を含む貼り付け形式、Unicodeを持たない字形・合字・異体字の扱いを調査する。文字としてのコピーと特定の字形の再現を区別し、対応できない字形を別文字として黙ってコピーしない。
 - 検証予定：Illustrator・InDesignのテキスト編集位置へ貼り付け、文字内容・適用フォント・字形の再現をそれぞれ確認。通常文字と異体字などの結果・制約を記録する。
 - 状態：受付・未実装／未ビルド。版・build未割当。次のビルド開始条件成立時に対応し、日付・版付きの更新履歴とヘルプへ反映する。
-
 
 ## 2026-10-27 NotMyType — アクティブ操作の名称とトグル化（受付）
 
@@ -261,6 +403,18 @@
 - 実装時に右クリックメニューと右下操作ボタンなど既存のアクティブ／解除導線を確認し、現在状態と次の操作が明確な表示に統一する。既存のチェックボックスの状態表示を維持する。
 - 状態：受付・未実装／未ビルド。次回ビルド開始時に対応。版・build未割当。全アクティブ／全非アクティブ／混在／選択なし／変更不可を検証し、日付・版入り履歴と翻訳・ヘルプへ反映する。
 
+## 2026-10-27｜1.62.0（build 101）検証用・フル版のみ
+
+- ライブラリの開閉矢印が二重になる表示を修正。すべてのフォントを常時表示する既存仕様を保持。
+- 一覧の右クリックと右下ボタンを「アクティブにする／非アクティブにする」の状態連動操作に変更。混在時はアクティブに揃え、変更不可の対象を除外。個別のメニューショートカットは従来の方向を維持。
+- 字形の右クリックに文字＋フォント情報のコピーと輪郭PDFのコピーを追加。Unicodeなしはテキストコピー不可。貼り付け先の設定によりフォント情報の扱いが異なる。
+- デバッグのフォルダーは起動中のPath Finderを優先、未起動ならFinderを使用。
+- OH MY FONTは許可済みPath Finderで不可視表示メニューを操作。許可なし・操作不可・Finderの場合は手動操作を案内するため、常に自動で不可視表示になるわけではない。
+- 検証済み：両アーキテクチャのビルド、日英ローカライズ、文字／RTF／PDFコピーの内部試験、両配置先の署名と内容一致、/Applicationsから起動、版101表示、矢印が1つであること。
+- 未確認：Illustrator／InDesignでの貼り付け結果、Path Finderの実際の切替、ライブラリ開閉とトグル操作の一連の実機検証。利用者の画面操作を検知したため追加UI操作は中止。
+- Lite版は変更・再ビルドなし。Developer ID公証・公開は未実施。
+
+保全：`.local/release-backups/notmytype101/before.patch`、配置前アプリはShared/Backups/Buildのdeploy_bothによるバックアップ。実行Mac：MacBook-Pro-14-2024-sw。検証用のみ、公証Macの公開作業を実行しない。
 
 ## 2026-10-27 NotMyType — コピー名称とIllustratorへのフォント保持（受付）
 
@@ -270,7 +424,6 @@
 - 実装時はIllustratorの実際のクリップボード形式と貼り付け設定を確認。通常のペーストで元のフォントが適用されるか、PostScript名・文字内容・編集可能性を検証する。Unicodeなしの字形はアウトラインコピーと区別する。
 - 状態：受付・未実装／未ビルド。次のビルド開始時に対応。版・build未割当。
 
-
 ## 2026-10-27 NotMyType — 二重矢印修正の再受付（101で未解決）
 
 - 対象：フル版。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。利用者の実機確認でbuild 101でも二重矢印が解消していない。前回の画面確認は修正完了の根拠として不十分だったため、未解決へ訂正する。
@@ -278,7 +431,6 @@
 - 次回実装では標準Sectionの開閉と独自Buttonの開閉が併存しない構造へ見直す。collapsible(false)の追加だけで解消済みとしない。
 - 検証：マウスを見出し上に置いた時／外した時、展開／折りたたみ、右端矢印のクリック、再起動後を確認。ユーザー指定の動作と位置を満たすまで完了にしない。
 - 状態：再受付・未解決。今回ソース・ビルドは変更なし。次のビルド開始時に対応。
-
 
 ## 2026-10-27 NotMyType — 字形プルダウンの分類追加（受付）
 
@@ -305,7 +457,6 @@
 - 検証予定：カテゴリ順・区切り線・代表文字と境界・補助平面・既存検索との併用・Unicodeなしの表示保持。
 - 状態：受付・未実装／未ビルド。版・build未割当。次回ビルド開始時に対応し、日英表示とヘルプ、日付・版付き更新履歴を更新する。
 
-
 ## 2026-10-27 01:38 JST NotMyType / Lite 検証ビルド
 
 - 担当：開発Mac MacBook-Pro-14-2024-sw.local、main、基点37c43982ce2eaadbe679ca9d11ad3f9232b0ca46。対象SHA未確定。ユーザーの検証ビルド指示で再開。
@@ -314,9 +465,15 @@
 - 結果（2026-10-27 01:42 JST、同開発Mac）：両版NO_DEPLOY=1ビルド成功。arm64/x86_64、日英ローカライズ、codesign --verify --deep --strict成功。フルのGlyphScope代表分類試験PASS。成果物は各アプリのbuildフォルダー。マニフェスト：NotMyType/Tests/verification-102-25.json。
 - 実機での進捗表示・切替・終了抑止、Illustrator貼り付けは未確認。対象は未コミット作業ツリー、基点SHAは上記。配布先への配置・公証・公開・commit/pushは未実施。検証ビルド作成のみ完了。
 
-
 ## 2026-10-27 NotMyType / Lite ソース確定
 
 - 開発Mac MacBook-Pro-14-2024-sw.local、main。ユーザーのコミット・プッシュ指示で開始。対象は通常版1.62.1（102）とLite1.9.0（25）、既存ビルド番号を維持。
 - 両版のビルド・署名・ローカライズ確認済み。通常版102の起動後に利用者から「よい感じ」と確認。Lite実機動作・Adobe貼り付け・公証・配置・公開は未確認。
 - 無関係な変更は除外し保持。コミット前の差分保全：.local/release-backups/notmytype-commit-102-25。対象SHAは本記録を含むコミット。
+
+## 定時実行の確認（2026-10-27 09:30 JST以降）
+
+- この実行環境の有効なコード署名IDは0件、SSH設定なし。公証Macへの別チャット送信について前回の確認への回答もなく、既報の阻害要因は継続。署名付きビルド・配布・公開は未実施。
+- 最新の担当分離（開発Macが版確定とNO_DEPLOY検証、公証Macだけが配布先へ書き込み）とnote添付差し替えのみの指示を確認し、定時実行プロンプトも整合。APP-UPDATE-HISTORY.md記録を反映。
+- 公証Macの既存リリースチャットは最新ターン完了。MenuShotのnote確認、ShotSorter保留を確認。公開完了とは判定せず、作業を重複開始していない。
+- 新たに検証した配置版・公開版がないため、バージョン一覧の値・版・buildを変更していない。前回と同じ阻害要因の再通知は行わない。

@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 
 // MARK: - 受け渡しフォルダー
 
@@ -127,7 +128,7 @@ extension Courier {
             guard let package = Package(url: url) else { continue }
             for app in package.apps {
                 // cfprefsd はファイルへの書き出しを後回しにすることがあるので、設定ファイルの日時だけでなく処理済みの記録とも比べる
-                let local = (try? FileManager.default.attributesOfItem(atPath: preferencesFile(app.bundleID).path))?[.modificationDate] as? Date
+                let local = preferenceModificationDate(preferencesFile(app.bundleID))
                 let seen = [local, handledDate(app.bundleID)].compactMap { $0 }.max()
                 let state: FolderEntry.State
                 if appURL(app.bundleID) == nil {
@@ -210,4 +211,14 @@ extension Courier {
         }
         scanFolder()
     }
+}
+
+
+/// Read only POSIX modification time. attributesOfItem also reads extended attributes,
+/// which can block the main thread on protected preference files during startup.
+func preferenceModificationDate(_ url: URL) -> Date? {
+    var info = stat()
+    guard url.path.withCString({ fstatat(AT_FDCWD, $0, &info, 0) }) == 0 else { return nil }
+    return Date(timeIntervalSince1970: Double(info.st_mtimespec.tv_sec)
+        + Double(info.st_mtimespec.tv_nsec) / 1_000_000_000)
 }

@@ -14,7 +14,27 @@ struct Hotkey: Codable, Hashable {
     var key: Key { Key(code: code, modifiers: modifiers) }
 }
 
-/// One registered script file.
+/// One step of an item.
+enum Step: Codable, Hashable {
+    /// A script file run with do javascript.
+    case script(path: String)
+    /// app.executeMenuCommand(id). title is the menu path from the bundled list, for display and for switching to menuItem.
+    case menuCommand(id: String, title: String?)
+    /// Menu titles from the menu bar down, pressed through Accessibility (for commands the ID cannot run).
+    case menuItem(path: [String])
+
+    var scriptPath: String? { if case .script(let path) = self { return path }; return nil }
+    var exists: Bool { scriptPath.map { FileManager.default.fileExists(atPath: $0) } ?? true }
+    var identity: String {
+        switch self {
+        case .script(let path): return path
+        case .menuCommand(let id, _): return "command:" + id
+        case .menuItem(let path): return "menu:" + path.joined(separator: " > ")
+        }
+    }
+}
+
+/// One registered item: steps (scripts and menu commands) run in order by one shortcut.
 struct ScriptEntry: Codable, Identifiable, Hashable {
     var id: String
     var name: String
@@ -25,6 +45,19 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     var category: String?
     /// The Keyboard Maestro macro it was imported from (turned off / on from Tools).
     var kmUID: String?
+    /// The steps. nil in lists saved before 1.4.0: those items are their one script (path).
+    var steps: [Step]?
+    /// The steps to run. Setting them keeps path on the first script, which older code and the import use.
+    var actions: [Step] {
+        get { steps ?? (path.isEmpty ? [] : [.script(path: path)]) }
+        set { steps = newValue; path = newValue.compactMap(\.scriptPath).first ?? "" }
+    }
+    /// What makes two items the same: the one step of a single-step item; a multi-step item is only itself.
+    var identity: String { actions.count == 1 ? actions[0].identity : "item:" + id }
+    init(id: String = UUID().uuidString, steps: [Step], name: String, hotkey: Hotkey? = nil, enabled: Bool = true) {
+        self.init(id: id, path: "", name: name, hotkey: hotkey, enabled: enabled)
+        actions = steps
+    }
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
     var runCount: Int?
     var lastRun: Date?
@@ -40,6 +73,8 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         self.id = id; self.path = path; self.name = name ?? Self.defaultName(for: path); self.hotkey = hotkey; self.enabled = enabled
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
+    /// Ready to run: every script file is there (menu steps always are).
+    var isAvailable: Bool { !actions.isEmpty && actions.allSatisfy(\.exists) }
     mutating func recordRun(at date: Date = Date()) { runCount = uses + 1; lastRun = date }
 }
 
@@ -70,13 +105,13 @@ struct Library: Codable, Equatable {
     mutating func add(paths: [String]) -> [ScriptEntry] {
         add(entries: paths.map { ScriptEntry(path: $0) })
     }
-    /// Adds entries whose file is not registered yet (and is a script), keeping their name, hotkey and on/off.
+    /// Adds entries not registered yet (the same file, command ID or menu path counts once), keeping their name, hotkey and on/off.
     @discardableResult
     mutating func add(entries: [ScriptEntry]) -> [ScriptEntry] {
-        var known = Set(scripts.map(\.path))
+        var known = Set(scripts.map(\.identity))
         var added: [ScriptEntry] = []
-        for entry in entries where !known.contains(entry.path) && ScriptEntry.accepts(URL(fileURLWithPath: entry.path)) {
-            known.insert(entry.path)
+        for entry in entries where !known.contains(entry.identity) && entry.actions.allSatisfy({ $0.scriptPath.map { ScriptEntry.accepts(URL(fileURLWithPath: $0)) } ?? true }) {
+            known.insert(entry.identity)
             added.append(entry)
         }
         scripts.append(contentsOf: added)
@@ -235,12 +270,54 @@ enum SortOrder: String, CaseIterable {
     }
 }
 
+/// Menu titles: 「表示 > 100% 表示」 split into its levels, compared without a trailing ellipsis.
+enum MenuTitles {
+    static func split(_ path: String) -> [String] {
+        path.components(separatedBy: CharacterSet(charactersIn: ">›➤")).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+    /// 「新規...」「新規…」 → 「新規」.
+    static func plain(_ title: String) -> String {
+        var text = title.trimmingCharacters(in: .whitespaces)
+        for suffix in ["...", "…"] where text.hasSuffix(suffix) { text = String(text.dropLast(suffix.count)).trimmingCharacters(in: .whitespaces) }
+        return text
+    }
+    static func matches(_ wanted: String, _ actual: String) -> Bool { plain(wanted) == plain(actual) }
+}
+
+/// The bundled list of menu command IDs (Resources/MenuCommands.tsv: menu path <TAB> ID).
+struct MenuCommand: Hashable, Identifiable {
+    var path: [String]
+    var id: String
+    var title: String { path.joined(separator: " › ") }
+    static func parse(_ text: String) -> [MenuCommand] {
+        text.split(separator: "\n").compactMap { line in
+            let cols = line.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
+            guard cols.count >= 2, !cols[1].isEmpty else { return nil }
+            return MenuCommand(path: MenuTitles.split(cols[0]), id: cols[1])
+        }
+    }
+}
+
 enum ScriptText {
     static func quote(_ text: String) -> String {
         "\"" + text.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
     }
     /// Runs the file with `do javascript`, addressing Illustrator by its path so the one in front is used when several versions are open.
     /// A long timeout: scripts that open a dialog box keep `do javascript` waiting until it is closed.
+    /// app.executeMenuCommand with the ID as a JavaScript string literal.
+    static func menuCommandJS(_ id: String) -> String {
+        let escaped = id.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'")
+        return "app.executeMenuCommand('" + escaped + "');"
+    }
+    static func appleScript(appPath: String, code: String) -> String {
+        """
+        with timeout of 3600 seconds
+        tell application \(quote(appPath))
+        do javascript \(quote(code))
+        end tell
+        end timeout
+        """
+    }
     static func appleScript(appPath: String, file: String) -> String {
         """
         with timeout of 3600 seconds

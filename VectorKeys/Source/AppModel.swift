@@ -164,8 +164,11 @@ struct RunRecord: Identifiable {
             record(script.name, L("result.success"), error: false)
         case .noIllustrator: record(script.name, L("result.noIllustrator"), error: true)
         case .automationDenied: record(script.name, L("result.automation"), error: true)
-        case .fileMissing: record(script.name, L("result.fileMissing"), error: true)
-        case .failed(let reason): record(script.name, String(format: L("result.failed"), reason), error: true)
+        case .accessibilityDenied: record(script.name, L("result.accessibility"), error: true)
+        case .fileMissing(let step): record(script.name, String(format: L("result.fileMissingStep"), step), error: true)
+        case .menuMissing(let step, let title): record(script.name, String(format: L("result.menuMissing"), step, title), error: true)
+        case .menuDisabled(let step, let title): record(script.name, String(format: L("result.menuDisabled"), step, title), error: true)
+        case .failed(let step, let reason): record(script.name, String(format: L("result.failedStep"), step, reason), error: true)
         }
     }
     private func record(_ name: String, _ text: String, error: Bool) {
@@ -194,7 +197,7 @@ struct RunRecord: Identifiable {
         if !exports.isEmpty { importKM(exports) }
     }
 
-    /// Imports the macros of Keyboard Maestro exports that run one Illustrator script. Code written in a macro
+    /// Imports the macros of Keyboard Maestro exports whose steps VectorKeys can run. Code written in a macro
     /// is saved as a .jsx file in Application Support/VectorKeys/Imported (the same code reuses its file).
     func importKM(_ urls: [URL]) {
         var items: [KMImport.Item] = [], skipped: [KMImport.Skipped] = [], unreadable: [String] = []
@@ -204,29 +207,36 @@ struct RunRecord: Identifiable {
         }
         var entries: [ScriptEntry] = [], failed: [String] = []
         for item in items {
-            switch item.source {
-            case .file(let path):
-                entries.append(ScriptEntry(path: path, name: item.name, hotkey: item.hotkey, enabled: item.enabled))
-            case .code(let code):
-                do { entries.append(ScriptEntry(path: try saveImportedCode(code, name: item.name), name: item.name, hotkey: item.hotkey, enabled: item.enabled)) }
-                catch { failed.append(item.name) }
-            }
-            if entries.last?.name == item.name {
-                if !item.group.isEmpty { entries[entries.count - 1].category = item.group }
-                entries[entries.count - 1].kmUID = item.uid
-            }
+            var steps: [Step] = []
+            do {
+                for part in item.parts {
+                    switch part {
+                    case .file(let path): steps.append(.script(path: path))
+                    case .code(let code): steps.append(.script(path: try saveImportedCode(code, name: item.name)))
+                    case .menuCommand(let id): steps.append(.menuCommand(id: id, title: menuCommandTitle(id)))
+                    case .menuItem(let path): steps.append(.menuItem(path: path))
+                    }
+                }
+            } catch { failed.append(item.name); continue }
+            var entry = ScriptEntry(steps: steps, name: item.name, hotkey: item.hotkey, enabled: item.enabled)
+            if !item.group.isEmpty { entry.category = item.group }
+            entry.kmUID = item.uid
+            entries.append(entry)
         }
-        // Imports before 1.3.0 lost the double press and the group: fill them in when the same script comes again
+        // Imports before 1.3.0 lost the double press and the group: fill them in when the same macro comes again
         // with the same key, without touching what was edited since (a changed key, an assigned category).
+        // The same macro is found by its Keyboard Maestro UID, or by its one step.
         var library = self.library
+        var existing: Set<String> = []
         for entry in entries {
-            guard let index = library.scripts.firstIndex(where: { $0.path == entry.path }) else { continue }
+            guard let index = library.scripts.firstIndex(where: { ($0.kmUID != nil && $0.kmUID == entry.kmUID) || $0.identity == entry.identity }) else { continue }
+            existing.insert(entry.id)
             if let new = entry.hotkey, let old = library.scripts[index].hotkey, old.key == new.key, old.taps == nil { library.scripts[index].hotkey = new }
             if library.scripts[index].category == nil, let category = entry.category { library.scripts[index].category = category }
             if library.scripts[index].kmUID == nil { library.scripts[index].kmUID = entry.kmUID }
         }
         for name in entries.compactMap(\.category) { library.addCategory(name) }
-        let added = library.add(entries: entries)
+        let added = library.add(entries: entries.filter { !existing.contains($0.id) })
         undoable(L("undo.import")) { self.library = library }
         if !added.isEmpty { selection = Set(added.map(\.id)) }
         var lines = [String(format: L("km.added"), added.count)]
@@ -277,15 +287,81 @@ struct RunRecord: Identifiable {
         if panel.runModal() == .OK { add(urls: panel.urls) }
     }
     /// Points an entry at another file (the script was moved or renamed). The name follows the file unless it was changed.
-    func relink(_ id: String) {
-        guard let index = library.scripts.firstIndex(where: { $0.id == id }) else { return }
+    /// Points a script step at another file (the script was moved or renamed). The item name follows the file
+    /// when it was the file name and this is the only step.
+    func relink(_ id: String, step: Int) {
+        guard let index = library.scripts.firstIndex(where: { $0.id == id }), case .script(let old)? = library.scripts[index].actions[safe: step] else { return }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
-        panel.directoryURL = URL(fileURLWithPath: (library.scripts[index].path as NSString).deletingLastPathComponent)
+        panel.directoryURL = URL(fileURLWithPath: (old as NSString).deletingLastPathComponent)
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        let old = library.scripts[index]
-        if old.name == ScriptEntry.defaultName(for: old.path) { library.scripts[index].name = ScriptEntry.defaultName(for: url.path) }
-        library.scripts[index].path = url.path
+        undoable(L("undo.steps")) {
+            var item = library.scripts[index]
+            if item.actions.count == 1 && item.name == ScriptEntry.defaultName(for: old) { item.name = ScriptEntry.defaultName(for: url.path) }
+            item.actions[step] = .script(path: url.path)
+            library.scripts[index] = item
+        }
+    }
+
+    // MARK: Steps
+
+    /// The bundled menu command IDs (Resources/MenuCommands.tsv), read once.
+    lazy var menuCommands: [MenuCommand] = {
+        guard let url = Bundle.main.url(forResource: "MenuCommands", withExtension: "tsv"), let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        return MenuCommand.parse(text)
+    }()
+    func menuCommandTitle(_ id: String) -> String? { menuCommands.first { $0.id == id }?.title }
+
+    private func editSteps(_ id: String, _ change: (inout [Step]) -> Void) {
+        guard let index = library.scripts.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) {
+            var steps = library.scripts[index].actions
+            change(&steps)
+            library.scripts[index].actions = steps
+        }
+    }
+    /// Asks for script files and adds each as a step (after `index`, or at the end).
+    func addScriptSteps(to id: String) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true; panel.canChooseDirectories = false
+        panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
+        panel.prompt = L("add")
+        guard panel.runModal() == .OK else { return }
+        editSteps(id) { $0 += panel.urls.filter(ScriptEntry.accepts).map { .script(path: $0.path) } }
+    }
+    func addStep(_ step: Step, to id: String) { editSteps(id) { $0.append(step) } }
+    func moveStep(_ id: String, from: Int, by offset: Int) {
+        editSteps(id) { steps in
+            let to = from + offset
+            guard steps.indices.contains(from), steps.indices.contains(to) else { return }
+            steps.swapAt(from, to)
+        }
+    }
+    func removeStep(_ id: String, at index: Int) { editSteps(id) { if $0.indices.contains(index) { $0.remove(at: index) } } }
+    /// A menu command the ID does not run: press the same menu item by its titles instead (needs Accessibility).
+    func pressByTitle(_ id: String, at index: Int) {
+        editSteps(id) { steps in
+            guard case .menuCommand(_, let title?)? = steps[safe: index] else { return }
+            steps[index] = .menuItem(path: MenuTitles.split(title))
+        }
+    }
+    /// A new item with one step, in the category chosen in the sidebar, selected for editing.
+    func newItem(_ step: Step, name: String) {
+        var entry = ScriptEntry(steps: [step], name: name)
+        entry.category = currentCategory
+        undoable(L("undo.add")) { library.scripts.append(entry) }
+        selection = [entry.id]
+    }
+    /// Which sheet asks for a menu command: for a new item, or for a step of an item.
+    enum MenuTarget: Identifiable, Equatable { case newItem, step(String); var id: String { if case .step(let i) = self { return i }; return "" } }
+    @Published var menuPicker: MenuTarget?
+    func pickedMenu(_ step: Step, name: String) {
+        guard let target = menuPicker else { return }
+        menuPicker = nil
+        switch target {
+        case .newItem: newItem(step, name: name)
+        case .step(let id): addStep(step, to: id)
+        }
     }
     func binding(for id: String) -> Binding<ScriptEntry>? {
         guard library.scripts.contains(where: { $0.id == id }) else { return nil }
@@ -299,9 +375,10 @@ struct RunRecord: Identifiable {
     /// ⌘Z brings back both the entries and those files.
     func delete(_ ids: Set<String>) {
         let removed = library.scripts.filter { ids.contains($0.id) }
-        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.map(\.path))
+        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
         let imported = Library.folder.appendingPathComponent("Imported", isDirectory: true).path + "/"
-        let files = TrashedFiles(Set(removed.map(\.path)).filter { $0.hasPrefix(imported) && !remaining.contains($0) }.map { URL(fileURLWithPath: $0) })
+        let paths = Set(removed.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let files = TrashedFiles(paths.filter { $0.hasPrefix(imported) && !remaining.contains($0) }.map { URL(fileURLWithPath: $0) })
         undoable(L("undo.delete"), files: files) {
             library.scripts.removeAll { ids.contains($0.id) }
             files.trash()
@@ -432,4 +509,8 @@ final class TrashedFiles {
             if (try? FileManager.default.moveItem(at: inTrash, to: items[index].original)) != nil { items[index].inTrash = nil }
         }
     }
+}
+
+extension Array {
+    subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
 }

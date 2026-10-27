@@ -32,7 +32,10 @@ struct ScriptRow: View {
         HStack(spacing: 8) {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
             Text(script.name).lineLimit(1).truncationMode(.middle)
-            if !script.fileExists { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
+            if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("badge.missing"), color: .orange).help(L("badge.missingHint")) }
+            if script.actions.count > 1 { Badge(text: String(format: L("steps.count"), script.actions.count)).help(L("steps")) }
+            else if case .menuCommand? = script.actions.first { Image(systemName: "menubar.rectangle").foregroundColor(.secondary).help(L("step.menuCommand")).accessibilityLabel(L("step.menuCommand")) }
+            else if case .menuItem? = script.actions.first { Image(systemName: "menubar.rectangle").foregroundColor(.secondary).help(L("step.menuItem")).accessibilityLabel(L("step.menuItem")) }
             Spacer(minLength: 4)
             if showUses && script.uses > 0 {
                 Text(String(format: L("uses.count"), script.uses)).font(.caption.monospacedDigit()).foregroundColor(.secondary).help(L("uses.hint"))
@@ -74,24 +77,15 @@ struct ScriptDetail: View {
                     .labelsHidden().fixedSize().accessibilityLabel(L("category"))
                 }
                 GridRow {
-                    Text(L("file"))
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(script.path).font(.callout).foregroundColor(.secondary).textSelection(.enabled)
-                            .lineLimit(3).truncationMode(.middle).fixedSize(horizontal: false, vertical: true)
-                        if !script.fileExists {
-                            Text(L("badge.missingHint")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
-                        }
-                        HStack(spacing: 8) {
-                            Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: script.path)]) }
-                                .disabled(!script.fileExists)
-                            Button(L("relink")) { model.relink(script.id) }.help(L("relinkHint"))
-                        }
-                        HStack(spacing: 12) {
-                            Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
-                                .disabled(!script.fileExists).help(L("runHint"))
-                            if showUses { Text(usesText).font(.callout).foregroundColor(.secondary).help(L("uses.hint")) }
-                        }
-                        .padding(.top, 4)
+                    Text(L("steps"))
+                    StepsEditor(model: model, script: script)
+                }
+                GridRow {
+                    Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+                    HStack(spacing: 12) {
+                        Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
+                            .disabled(!script.isAvailable).help(L("runHint"))
+                        if showUses { Text(usesText).font(.callout).foregroundColor(.secondary).help(L("uses.hint")) }
                     }
                 }
                 GridRow {
@@ -113,6 +107,143 @@ struct ScriptDetail: View {
             }
             .padding(16).frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+/// The steps of an item, run in order: insert scripts and menu commands, reorder and remove them.
+struct StepsEditor: View {
+    @ObservedObject var model: AppModel
+    let script: ScriptEntry
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if script.actions.isEmpty { Text(L("steps.empty")).foregroundColor(.secondary) }
+            ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
+                StepRow(model: model, script: script, index: index, step: step)
+            }
+            HStack(spacing: 8) {
+                Button { model.addScriptSteps(to: script.id) } label: { Label(L("step.addScript"), systemImage: "plus") }
+                Button { model.menuPicker = .step(script.id) } label: { Label(L("step.addMenu"), systemImage: "plus") }
+            }
+            .padding(.top, 2)
+            if script.actions.contains(where: { if case .menuItem = $0 { return true }; return false }) && !AXIsProcessTrusted() {
+                HStack(spacing: 8) {
+                    Text(L("step.needsAccessibility")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
+                    Button(AccessibilityText.text("open")) { _ = AccessibilitySettingsLocator.shared.open() }.controlSize(.small)
+                }
+            }
+        }
+    }
+}
+
+struct StepRow: View {
+    @ObservedObject var model: AppModel
+    let script: ScriptEntry
+    let index: Int
+    let step: Step
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text("\(index + 1)").font(.caption.monospacedDigit()).foregroundColor(.secondary).frame(width: 16, alignment: .trailing)
+            Image(systemName: symbol).foregroundColor(.secondary).frame(width: 18).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).lineLimit(2).truncationMode(.middle)
+                Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary).lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+            }
+            Spacer(minLength: 4)
+            Menu {
+                Button(L("moveUp")) { model.moveStep(script.id, from: index, by: -1) }.disabled(index == 0)
+                Button(L("moveDown")) { model.moveStep(script.id, from: index, by: 1) }.disabled(index == script.actions.count - 1)
+                switch step {
+                case .script(let path):
+                    Divider()
+                    Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(missing)
+                    Button(L("relink")) { model.relink(script.id, step: index) }
+                case .menuCommand(_, let menuTitle):
+                    Divider()
+                    Button(L("step.pressByTitle")) { model.pressByTitle(script.id, at: index) }.disabled(menuTitle == nil).help(L("step.pressByTitleHint"))
+                case .menuItem:
+                    EmptyView()
+                }
+                Divider()
+                Button(L("delete")) { model.removeStep(script.id, at: index) }
+            } label: { Image(systemName: "ellipsis.circle") }
+            .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help(L("stepMenu")).accessibilityLabel(L("stepMenu"))
+        }
+        .padding(.vertical, 4).padding(.horizontal, 8)
+        .background(RoundedRectangle(cornerRadius: 5).fill(Color(nsColor: .controlBackgroundColor)))
+        .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.secondary.opacity(0.2)))
+    }
+    private var missing: Bool { !step.exists }
+    private var symbol: String {
+        switch step { case .script: return "doc.text"; case .menuCommand: return "command"; case .menuItem: return "menubar.rectangle" }
+    }
+    private var title: String {
+        switch step {
+        case .script(let path): return (path as NSString).lastPathComponent
+        case .menuCommand(let id, let menuTitle): return menuTitle ?? id
+        case .menuItem(let path): return path.joined(separator: " › ")
+        }
+    }
+    private var detail: String {
+        switch step {
+        case .script(let path): return missing ? L("badge.missingHint") : (path as NSString).deletingLastPathComponent
+        case .menuCommand(let id, _): return L("step.menuCommand") + "：" + id
+        case .menuItem: return L("step.menuItem")
+        }
+    }
+}
+
+/// Picks a menu command from the bundled list (run by ID), or a menu item typed by its titles (pressed by title).
+struct MenuPickerSheet: View {
+    @ObservedObject var model: AppModel
+    @State private var search = ""
+    @State private var picked: String?
+    @State private var titles = ""
+    private var found: [MenuCommand] {
+        let words = search.split(separator: " ").map(String.init)
+        guard !words.isEmpty else { return model.menuCommands }
+        return model.menuCommands.filter { command in words.allSatisfy { command.title.localizedCaseInsensitiveContains($0) || command.id.localizedCaseInsensitiveContains($0) } }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L(model.menuPicker == .newItem ? "menuPicker.titleNew" : "menuPicker.titleStep")).font(.headline)
+            Text(L("menuPicker.byID")).font(.subheadline.weight(.semibold))
+            TextField(L("menuPicker.search"), text: $search).textFieldStyle(.roundedBorder)
+            List(found, selection: $picked) { command in
+                HStack {
+                    Text(command.title).lineLimit(1).truncationMode(.middle)
+                    Spacer(minLength: 8)
+                    Text(command.id).font(.caption.monospaced()).foregroundColor(.secondary).lineLimit(1)
+                }
+                .tag(command.id)
+            }
+            .contextMenu(forSelectionType: String.self) { _ in } primaryAction: { ids in if let id = ids.first { add(id) } }
+            .frame(minHeight: 240)
+            HStack {
+                let custom = search.trimmingCharacters(in: .whitespaces)
+                if !custom.isEmpty && !model.menuCommands.contains(where: { $0.id == custom }) && !custom.contains(" ") {
+                    Button(String(format: L("menuPicker.useID"), custom)) { model.pickedMenu(.menuCommand(id: custom, title: nil), name: custom) }
+                }
+                Spacer()
+                Button(L("add")) { if let picked { add(picked) } }.disabled(picked == nil).keyboardShortcut(.defaultAction)
+            }
+            Divider()
+            Text(L("menuPicker.byTitle")).font(.subheadline.weight(.semibold))
+            Text(L("menuPicker.byTitleHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                TextField(L("menuPicker.titlesPlaceholder"), text: $titles).textFieldStyle(.roundedBorder)
+                Button(L("add")) {
+                    let path = MenuTitles.split(titles)
+                    model.pickedMenu(.menuItem(path: path), name: MenuTitles.plain(path.last ?? ""))
+                }
+                .disabled(MenuTitles.split(titles).count < 2)
+            }
+            HStack { Spacer(); Button(L("cancel")) { model.menuPicker = nil }.keyboardShortcut(.cancelAction) }
+        }
+        .padding(20).frame(width: 600, height: 620).tint(appTint)
+    }
+    private func add(_ id: String) {
+        guard let command = model.menuCommands.first(where: { $0.id == id }) else { return }
+        model.pickedMenu(.menuCommand(id: command.id, title: command.title), name: MenuTitles.plain(command.path.last ?? command.id))
     }
 }
 
@@ -399,6 +530,7 @@ struct MainView: View {
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
         .sheet(isPresented: $model.showReplace) { ReplaceNamesSheet(model: model) }
+        .sheet(item: $model.menuPicker) { _ in MenuPickerSheet(model: model) }
         .confirmationDialog(L("deleteConfirm"), isPresented: $confirmDelete) {
             Button(L("delete"), role: .destructive) { model.delete(model.selection) }
             Button(L("cancel"), role: .cancel) {}
@@ -440,8 +572,10 @@ struct MainView: View {
             }
             .contextMenu(forSelectionType: String.self) { ids in
                 if let id = ids.first, let script = model.library.scripts.first(where: { $0.id == id }) {
-                    Button(L("run")) { model.runFromWindow(script) }.disabled(!script.fileExists)
-                    Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: script.path)]) }.disabled(!script.fileExists)
+                    Button(L("run")) { model.runFromWindow(script) }.disabled(!script.isAvailable)
+                    if let path = script.actions.compactMap(\.scriptPath).first {
+                        Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!FileManager.default.fileExists(atPath: path))
+                    }
                     Menu(L("category")) {
                         Button(L("category.none")) { model.setCategory(nil, for: ids) }
                         ForEach(model.library.categoryList, id: \.self) { name in Button(name) { model.setCategory(name, for: ids) } }
@@ -453,7 +587,11 @@ struct MainView: View {
             .onDeleteCommand { if !model.selection.isEmpty { confirmDelete = true } }
             HStack {
                 // The same frame for both symbols: "minus" is shorter than "plus" and would make a lower button.
-                Button { model.chooseFiles() } label: { Image(systemName: "plus").frame(width: 16, height: 16) }.help(L("addMenu")).accessibilityLabel(L("addMenu"))
+                Menu {
+                    Button(L("addMenu")) { model.chooseFiles() }
+                    Button(L("addMenuCommand")) { model.menuPicker = .newItem }
+                } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
+                .menuIndicator(.hidden).fixedSize().help(L("addItem")).accessibilityLabel(L("addItem"))
                 Button { confirmDelete = true } label: { Image(systemName: "minus").frame(width: 16, height: 16) }.disabled(model.selection.isEmpty)
                     .help(L("delete")).accessibilityLabel(L("delete"))
                 Spacer()
@@ -499,6 +637,7 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
+            AccessibilitySection(required: model.library.scripts.contains { $0.actions.contains { if case .menuItem = $0 { return true }; return false } })
         })), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
     }

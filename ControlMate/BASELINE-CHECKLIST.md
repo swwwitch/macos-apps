@@ -64,3 +64,7 @@
 - 成果物：ControlMate/ControlMate.app、1.3.1 (5)。既存ローカル成果物はbuild.shでControlMate/Backupsへ保全。
 - 実機：Chrome等とSpreadsheet Helperを併用したキー操作、設定保持、起動・再表示・終了は未確認。
 - 配布：Developer ID証明書が見つからないため公証・DMG・両配置先置換・公開は未実施。/ApplicationsとDropbox Latest BuildsはBundle ID jp.dtp-transit.controlmate、1.3.0 (4)のまま。
+
+### ローカル利用版の更新（2026-10-26 13:32 JST）
+
+ユーザーの「ControlMate更新してください」により、既存と同じApple Distribution署名の1.3.1 (5)を/ApplicationsとDropbox Latest Buildsへ配置。deploy_both.pyが両旧版をShared/Backups/Build/20261026-133216-146396へ保全し、Bundle ID・版/build・署名・内容一致を確認。設定データの変更なし。/Applications/ControlMate.app/Contents/MacOS/ControlMateの起動を確認。公証・公開配布とChrome等の実機キー操作は未確認。

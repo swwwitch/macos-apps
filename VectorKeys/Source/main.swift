@@ -44,6 +44,12 @@ import Carbon
     func applicationDidFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
+        AccessibilityText.neededOverride = [
+            "「メニュー項目を押す」手順（コマンドIDで動かないメニューを項目名で押す）に使います。スクリプトとメニューコマンド（ID）の実行には要りません。",
+            "Used by Press Menu Item steps (menus the command ID cannot run, pressed by their titles). Scripts and menu commands by ID run without it.",
+            "用于“按下菜单项”步骤（按名称按下无法用命令 ID 运行的菜单）。运行脚本和菜单命令（ID）不需要此权限。",
+            "'메뉴 항목 누르기' 단계(명령 ID로 실행되지 않는 메뉴를 이름으로 누름)에 사용합니다. 스크립트와 메뉴 명령(ID) 실행에는 필요하지 않습니다."
+        ]
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 700), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "VectorKeys"; window.titleVisibility = .hidden
@@ -72,6 +78,7 @@ import Carbon
     }
     @objc func toggleHotkeys() { model.hotkeysEnabled.toggle() }
     @objc func addScripts() { show(); model.chooseFiles() }
+    @objc func addMenuCommand() { show(); model.menuPicker = .newItem }
     @objc func importKM() { show(); model.chooseKMFiles() }
     @objc func stripNumbering() { model.stripNumbering() }
     @objc func replaceNames() { show(); model.showReplace = true }
@@ -138,6 +145,7 @@ import Carbon
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("addMenu"), #selector(addScripts), "o")
+        add(file, L("addMenuCommand"), #selector(addMenuCommand), "")
         add(file, L("km.import"), #selector(importKM), "i")
         add(file, L("pauseHotkeys"), #selector(toggleHotkeys), "")
         file.addItem(.separator())

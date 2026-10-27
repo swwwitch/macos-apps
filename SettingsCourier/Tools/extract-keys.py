@@ -6,7 +6,7 @@ from pathlib import Path
 
 src = Path(__file__).resolve().parent.parent / "Sources/SettingsCourier"
 keys = []
-for f in ["SettingsCourierApp.swift", "ContentView.swift", "Courier.swift", "SettingsView.swift", "FullDiskAccessSection.swift", "Folder.swift", "Files.swift"]:
+for f in ["SettingsCourierApp.swift", "ContentView.swift", "Courier.swift", "SettingsView.swift", "FullDiskAccessSection.swift", "Folder.swift", "Files.swift", "SettingLabels.swift", "SettingLabelEditor.swift", "InlineSettingLabel.swift"]:
     for m in re.finditer(r'\bL\("((?:[^"\\]|\\.)*)"', (src / f).read_text()):
         if m.group(1) not in keys:
             keys.append(m.group(1))

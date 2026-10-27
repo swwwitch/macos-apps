@@ -9,6 +9,13 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 - 右上の「ホットキーを使う」をオフにすると、すべてのショートカットを一時停止します（メニューバーのアイコンからも切り替えられます）。
 - 「最近の実行」に直近の結果が出ます。エラーで止まったときは、Illustratorが返したメッセージを表示します。履歴は保存せず、終了すると消えます。
 
+## 手順（スクリプトとメニューコマンド）
+1つのアイテムに手順をいくつでも入れられ、ショートカット1つで上から順に実行します。途中でエラーになったら、そこで止めて「最近の実行」に手順の番号と理由を出します。
+- 右側の「手順」の下の［＋ スクリプトの実行］［＋ メニューコマンドの実行］で挿入します。各手順の … から上へ・下へ・削除ができます。
+- メニューコマンドは、名前やIDで検索して選びます。コマンドID（app.executeMenuCommand）で実行するので、許可は要らず、Illustratorの表示言語に関係なく動きます。
+- IDで動かないメニュー（「選択範囲の保存」など）は、手順の … ＞［メニュー項目を名前で押すに切り替え］か、選択画面の「メニュー項目を名前で押す」で、項目名で押す手順にします。これにはアクセシビリティの許可が要り、Illustratorの表示言語のメニュー名で書きます。
+- 一覧の下の＋や［ファイル］＞［メニューコマンドを追加…］で、メニューコマンド1つの新しいアイテムも作れます。
+
 ## スクリプトの管理
 - 追加できるのは .jsx・.js・.jsxbin です。同じファイルは二重に登録しません。
 - 名前は欄で変えられます。ファイル名は変わりません。
@@ -19,7 +26,7 @@ VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面�
 
 ## Keyboard Maestroから取り込む
 Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへドラッグするか、［ファイル］＞［Keyboard Maestroから取り込む…］（⌘I）で選びます。
-- 取り込むのは、Illustratorのスクリプトを1つ実行するだけのマクロです（Ai Execute Script File・Ai Execute Jsx Text・Illustratorで .jsx を開く）。名前・ホットキー・オン／オフを引き継ぎます。
+- 取り込むのは、すべての手順がVectorKeysで実行できるマクロです：スクリプト（Ai Execute Script File・Ai Execute Jsx Text・Illustratorで .jsx を開く）、メニューコマンド（AppleScriptの executeMenuCommand）、Illustratorのメニューの選択。複数の手順はそのまま並びます。名前・ホットキー・オン／オフを引き継ぎます。
 - マクロに書かれたコードは .jsx ファイルとして ~/Library/Application Support/VectorKeys/Imported に保存します。
 - ほかの手順があるマクロや変数を使うマクロは取り込まず、理由を表示します。
 - Keyboard Maestro側の同じマクロは、オフにしてください。有効なままだとスクリプトが2回実行されます。取り込み後のダイアログボックスのボタン、または［ツール］＞［選んだスクリプトのKMマクロをオフにする］でオフにできます（オンに戻す項目もあります）。初めて使うときはKeyboard Maestroを操作する許可を求められます。
@@ -56,6 +63,7 @@ Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへ�
 ## 権限とプライバシー
 - オートメーション（Adobe Illustrator）：スクリプトの実行に使います。初めての実行で許可を求められます。
 - オートメーション（Keyboard Maestro）：取り込んだ元のマクロのオン・オフに使います。
+- アクセシビリティ：「メニュー項目を押す」手順だけに使います。スクリプトとメニューコマンド（ID）は許可なしで動きます。設定の「起動・常駐」で状態を確認できます。
 一覧は ~/Library/Application Support/VectorKeys/Scripts.json に保存します。スクリプトのファイルは読むだけで、書き換えません。外部への送信はしません。
 
 ## 終了と常駐
@@ -79,6 +87,13 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
 - Recent Runs shows the latest results. When a script stops with an error, Illustrator's message is shown. Not saved; cleared when the app quits.
 
+## Steps (scripts and menu commands)
+An item can hold any number of steps; one shortcut runs them from the top. When a step fails, the run stops there and Recent Runs shows the step number and the reason.
+- Insert steps with + Run Script and + Run Menu Command under Steps on the right. Use … on a step to move it up or down or delete it.
+- Pick a menu command by searching its name or ID. It runs by command ID (app.executeMenuCommand): no permission is needed and Illustrator's language does not matter.
+- For a menu the ID does not run (such as Save Selection), use … > Press the Menu Item by Its Title Instead, or Press a menu item by its titles in the picker. This needs Accessibility access and the titles in Illustrator's language.
+- + under the list and File > Add Menu Command… make a new item with one menu command.
+
 ## Managing scripts
 - You can add .jsx, .js and .jsxbin files. The same file is not added twice.
 - Change the name in its field. The file name stays.
@@ -89,7 +104,7 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 
 ## Import from Keyboard Maestro
 Drag macros exported from Keyboard Maestro (.kmmacros) onto the window, or choose File > Import from Keyboard Maestro… (⌘I).
-- Macros that only run one Illustrator script are imported (Ai Execute Script File, Ai Execute Jsx Text, or opening a .jsx with Illustrator). Their name, hot key and on/off state come along.
+- Macros whose every step VectorKeys can run are imported: scripts (Ai Execute Script File, Ai Execute Jsx Text, opening a .jsx with Illustrator), menu commands (executeMenuCommand in AppleScript) and Illustrator menu selections. Several steps stay in order. Their name, hot key and on/off state come along.
 - Code written in a macro is saved as a .jsx file in ~/Library/Application Support/VectorKeys/Imported.
 - Macros with other steps or variables are not imported; the reason is shown.
 - Turn the same macros off in Keyboard Maestro, or the scripts run twice. Use the button after importing, or Tools > Turn Off the Selected Scripts’ KM Macros (there is also an item to turn them back on). The first time, you are asked to allow controlling Keyboard Maestro.
@@ -126,6 +141,7 @@ When two scripts share a key, only the one higher in the list reacts, and the ke
 ## Permissions and privacy
 - Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
 - Automation (Keyboard Maestro): used to turn imported original macros off or on.
+- Accessibility: used only by Press Menu Item steps. Scripts and menu commands by ID run without it. See its state in Settings > Launch & Background.
 The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
 
 ## Quitting and staying open
@@ -149,6 +165,13 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 关闭右上角的“使用快捷键”可暂停所有快捷键（也可从菜单栏图标切换）。
 - “最近运行”显示最近的结果。因错误停止时，会显示 Illustrator 返回的信息。不会保存，退出应用时清除。
 
+## 步骤（脚本和菜单命令）
+一个项目可以包含任意多个步骤，用一个快捷键从上到下依次运行。某一步出错时会在该处停止，并在“最近运行”中显示步骤编号和原因。
+- 用右侧“步骤”下方的“＋ 运行脚本”“＋ 运行菜单命令”插入。可用各步骤的 … 上移、下移或删除。
+- 按名称或 ID 搜索并选择菜单命令。它按命令 ID（app.executeMenuCommand）运行，无需权限，也不受 Illustrator 显示语言影响。
+- 对于 ID 无法运行的菜单（如“存储所选对象”），用步骤的 … >“改为按名称按下菜单项”，或在选择界面中用“按名称按下菜单项”。这需要辅助功能权限，并使用 Illustrator 显示语言的菜单名称。
+- 也可用列表下方的 ＋ 或“文件”>“添加菜单命令…”新建只含一个菜单命令的项目。
+
 ## 管理脚本
 - 可添加 .jsx、.js 和 .jsxbin。同一文件不会重复登记。
 - 可在名称栏中更改名称，文件名不变。
@@ -159,7 +182,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 
 ## 从 Keyboard Maestro 导入
 将从 Keyboard Maestro 导出的宏（.kmmacros）拖到窗口中，或选择“文件”>“从 Keyboard Maestro 导入…”（⌘I）。
-- 只导入仅运行一个 Illustrator 脚本的宏（Ai Execute Script File、Ai Execute Jsx Text，或用 Illustrator 打开 .jsx）。名称、快捷键和开关状态会一并导入。
+- 只导入所有步骤都能由 VectorKeys 运行的宏：脚本（Ai Execute Script File、Ai Execute Jsx Text、用 Illustrator 打开 .jsx）、菜单命令（AppleScript 中的 executeMenuCommand）以及 Illustrator 菜单选择。多个步骤按原顺序保留。名称、快捷键和开关状态会一并导入。
 - 宏中写入的代码会存储为 .jsx 文件，位于 ~/Library/Application Support/VectorKeys/Imported。
 - 含其他步骤或使用变量的宏不会导入，并显示原因。
 - 请在 Keyboard Maestro 中关闭相同的宏，否则脚本会运行两次。可用导入后对话框中的按钮，或“工具”>“关闭所选脚本的 KM 宏”关闭（也有重新打开的项目）。首次使用时会请求控制 Keyboard Maestro 的许可。
@@ -196,6 +219,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 ## 权限与隐私
 - 自动化（Adobe Illustrator）：用于运行脚本。首次运行时会请求许可。
 - 自动化（Keyboard Maestro）：用于关闭或打开已导入的原始宏。
+- 辅助功能：仅用于“按下菜单项”步骤。脚本和菜单命令（ID）无需此权限即可运行。可在设置的“启动与常驻”中查看状态。
 列表存储在 ~/Library/Application Support/VectorKeys/Scripts.json。脚本文件只读取，不会修改。不会向外部发送任何内容。
 
 ## 退出与常驻
@@ -219,6 +243,13 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 - 오른쪽 위의 '단축키 사용'을 끄면 모든 단축키를 일시 정지합니다(메뉴 막대 아이콘에서도 전환 가능).
 - '최근 실행'에 최근 결과가 표시됩니다. 오류로 멈추면 Illustrator가 반환한 메시지를 표시합니다. 저장하지 않으며 앱을 종료하면 지워집니다.
 
+## 단계(스크립트와 메뉴 명령)
+한 항목에 단계를 몇 개든 넣을 수 있고, 단축키 하나로 위에서부터 차례로 실행합니다. 도중에 오류가 나면 그 자리에서 멈추고 '최근 실행'에 단계 번호와 이유를 표시합니다.
+- 오른쪽 '단계' 아래의 [＋ 스크립트 실행] [＋ 메뉴 명령 실행]으로 넣습니다. 각 단계의 …에서 위로·아래로·삭제를 할 수 있습니다.
+- 메뉴 명령은 이름이나 ID로 검색해 고릅니다. 명령 ID(app.executeMenuCommand)로 실행하므로 권한이 필요 없고 Illustrator 표시 언어와 관계없이 동작합니다.
+- ID로 실행되지 않는 메뉴('선택 영역 저장' 등)는 단계의 … > [이름으로 메뉴 항목 누르기로 전환]이나 선택 화면의 '이름으로 메뉴 항목 누르기'로 바꿉니다. 손쉬운 사용 권한이 필요하며 Illustrator 표시 언어의 메뉴 이름으로 씁니다.
+- 목록 아래의 ＋나 [파일] > [메뉴 명령 추가…]로 메뉴 명령 하나짜리 새 항목도 만들 수 있습니다.
+
 ## 스크립트 관리
 - .jsx, .js, .jsxbin을 추가할 수 있습니다. 같은 파일은 중복 등록하지 않습니다.
 - 이름은 칸에서 바꿀 수 있습니다. 파일 이름은 바뀌지 않습니다.
@@ -229,7 +260,7 @@ VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 �
 
 ## Keyboard Maestro에서 가져오기
 Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그하거나 [파일] > [Keyboard Maestro에서 가져오기…](⌘I)로 선택합니다.
-- Illustrator 스크립트 하나만 실행하는 매크로를 가져옵니다(Ai Execute Script File, Ai Execute Jsx Text, Illustrator로 .jsx 열기). 이름, 단축키, 켜기/끄기 상태를 이어받습니다.
+- 모든 단계를 VectorKeys에서 실행할 수 있는 매크로를 가져옵니다: 스크립트(Ai Execute Script File, Ai Execute Jsx Text, Illustrator로 .jsx 열기), 메뉴 명령(AppleScript의 executeMenuCommand), Illustrator 메뉴 선택. 여러 단계는 순서대로 유지됩니다. 이름, 단축키, 켜기/끄기 상태를 이어받습니다.
 - 매크로에 쓰인 코드는 ~/Library/Application Support/VectorKeys/Imported에 .jsx 파일로 저장합니다.
 - 다른 단계가 있거나 변수를 쓰는 매크로는 가져오지 않고 이유를 표시합니다.
 - Keyboard Maestro의 같은 매크로는 꺼 주세요. 켜져 있으면 스크립트가 두 번 실행됩니다. 가져온 뒤 대화상자의 버튼이나 [도구] > [선택한 스크립트의 KM 매크로 끄기]로 끌 수 있습니다(다시 켜는 항목도 있습니다). 처음 사용할 때 Keyboard Maestro 제어 허용을 요청합니다.
@@ -266,6 +297,7 @@ Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그�
 ## 권한과 개인정보
 - 자동화(Adobe Illustrator): 스크립트 실행에 사용합니다. 처음 실행할 때 허용을 요청합니다.
 - 자동화(Keyboard Maestro): 가져온 원래 매크로를 끄고 켜는 데 사용합니다.
+- 손쉬운 사용: '메뉴 항목 누르기' 단계에만 사용합니다. 스크립트와 메뉴 명령(ID)은 권한 없이 실행됩니다. 설정의 '실행 및 상주'에서 상태를 확인할 수 있습니다.
 목록은 ~/Library/Application Support/VectorKeys/Scripts.json에 저장합니다. 스크립트 파일은 읽기만 하고 수정하지 않습니다. 외부로 아무것도 보내지 않습니다.
 
 ## 종료와 상주

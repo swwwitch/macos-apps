@@ -94,3 +94,9 @@ Opening or reopening the app manually shows the main window. Automatic login lau
 ## Dock visibility and application menus
 
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
+
+The UI item / meaning column distinguishes labels from shared source, candidates with matching app localization keys, and unknown mappings. Actual wording may vary by version or language. Search also matches labels. Select one row and choose Inspect Value… to view and copy the full typed plist, including arrays, dictionaries and base64 data. Only saved preferences are listed; unsaved defaults and settings in other files are not included.
+
+Show UI item / meaning toggles the column (off initially; your choice is retained). Select one row and choose Edit Label / Match Screenshot… to enter and save a label. Use Automatic Label clears the field; save to remove the custom label. Load a screenshot to see the image and text recognized locally on this Mac. Choose text, compare the key and value, edit, and save. A screenshot alone cannot confirm the matching key. Images are not saved or uploaded. Labels are saved per app and key and included in SettingsCourier settings export and sync. Update all Macs to 1.4.2 or later. Existing labels are migrated automatically; the old JSON file is retained as a backup.
+
+Double-click an unknown mapping or label in the UI item / meaning column to edit it inline. Enter or leaving the cell saves; Esc cancels. Save an empty field to remove the custom label. For screenshots, use Edit Label / Match Screenshot….

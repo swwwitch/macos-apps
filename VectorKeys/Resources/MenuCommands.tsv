@@ -1,0 +1,725 @@
+ファイル > 新規...	new
+ファイル > テンプレートから新規...	newFromTemplate
+ファイル > 開く...	open
+ファイル > Bridge で参照...	Adobe Bridge Browse
+ファイル > 閉じる	close
+ファイル > 保存	save
+ファイル > 別名で保存...	saveas
+ファイル > 複製を保存...	saveacopy
+ファイル > テンプレートとして保存...	saveastemplate
+ファイル > 選択したスライスを保存...	Adobe AI Save Selected Slices
+ファイル > 復帰	revert
+ファイル > Adobe Stock を検索...	Search Adobe Stock
+ファイル > 配置...	AI Place
+ファイル > 選択範囲を書き出し...	exportSelection
+ファイル > パッケージ...	Package Menu Item
+ファイル > 書き出し > スクリーン用に書き出し...	exportForScreens
+ファイル > スクリプト > その他のスクリプト...	ai_browse_for_script
+ファイル > ドキュメント設定...	document
+ファイル > ドキュメントのカラーモード > CMYK カラー	doc-color-cmyk
+ファイル > ドキュメントのカラーモード > RGB カラー	doc-color-rgb
+ファイル > ファイル情報...	File Info
+ファイル > プリント...	Print
+ファイル > 終了	quit
+Illustrator > Illustrator を終了	quit
+編集 > 取り消し	undo
+編集 > やり直し	redo
+編集 > カット	cut
+編集 > コピー	copy
+編集 > ペースト	paste
+編集 > 前面へペースト	pasteFront
+編集 > 背面へペースト	pasteBack
+編集 > 同じ位置にペースト	pasteInPlace
+編集 > すべてのアートボードにペースト	pasteInAllArtboard
+編集 > 書式なしでペースト	pasteWithoutFormatting
+編集 > 消去	clear
+編集 > 検索と置換...	Find and Replace
+編集 > 次を検索	Find Next
+編集 > カスタム辞書を編集...	Edit Custom Dictionary...
+編集 > カラーを編集 > オブジェクトを再配色...	Recolor Art Dialog
+編集 > カラーを編集 > カラーバランス調整...	Adjust3
+編集 > カラーを編集 > 前後にブレンド	Colors3
+編集 > カラーを編集 > 左右にブレンド	Colors4
+編集 > カラーを編集 > 上下にブレンド	Colors5
+編集 > カラーを編集 > CMYK に変換	Colors8
+編集 > カラーを編集 > グレースケールに変換	Colors7
+編集 > カラーを編集 > RGB に変換	Colors9
+編集 > カラーを編集 > カラー反転	Colors6
+編集 > カラーを編集 > オーバープリントブラック...	Overprint2
+編集 > カラーを編集 > 彩度調整...	Saturate3
+編集 > オリジナルを編集	EditOriginal Menu Item
+編集 > 透明の分割・統合プリセット...	Transparency Presets
+編集 > プリントプリセット...	Print Presets
+編集 > Adobe PDF プリセット...	PDF Presets
+編集 > 遠近グリッドプリセット...	PerspectiveGridPresets
+編集 > カラー設定...	color
+編集 > プロファイルの指定...	assignprofile
+編集 > キーボードショートカット...	KBSC Menu Item
+編集 > 環境設定 > 一般...	preference
+編集 > 環境設定 > 選択範囲・アンカー表示...	selectPref
+編集 > 環境設定 > テキスト...	keyboardPref
+編集 > 環境設定 > 単位...	unitundoPref
+編集 > 環境設定 > ガイド・グリッド...	guidegridPref
+編集 > 環境設定 > スマートガイド...	snapPref
+編集 > 環境設定 > スライス...	slicePref
+編集 > 環境設定 > ハイフネーション...	hyphenPref
+編集 > 環境設定 > プラグイン・仮想記憶ディスク...	pluginPref
+編集 > 環境設定 > ユーザーインターフェイス...	UIPref
+編集 > 環境設定 > パフォーマンス...	GPUPerformancePref
+編集 > 環境設定 > ブラックのアピアランス...	BlackPref
+Illustrator > 環境設定 > 一般...	preference
+Illustrator > 環境設定 > 選択範囲・アンカー表示...	selectPref
+Illustrator > 環境設定 > テキスト...	keyboardPref
+Illustrator > 環境設定 > 単位...	unitundoPref
+Illustrator > 環境設定 > ガイド・グリッド...	guidegridPref
+Illustrator > 環境設定 > スマートガイド...	snapPref
+Illustrator > 環境設定 > スライス...	slicePref
+Illustrator > 環境設定 > ハイフネーション...	hyphenPref
+Illustrator > 環境設定 > プラグイン・仮想記憶ディスク...	pluginPref
+Illustrator > 環境設定 > ユーザーインターフェイス...	UIPref
+Illustrator > 環境設定 > パフォーマンス...	GPUPerformancePref
+Illustrator > 環境設定 > ファイル管理...	FilePref
+Illustrator > 環境設定 > クリップボード...	ClipboardPref
+Illustrator > 環境設定 > ブラックのアピアランス...	BlackPref
+オブジェクト > 変形 > 変形の繰り返し	transformagain
+オブジェクト > 変形 > 移動...	transformmove
+オブジェクト > 変形 > 回転...	transformrotate
+オブジェクト > 変形 > リフレクト...	transformreflect
+オブジェクト > 変形 > 拡大・縮小...	transformscale
+オブジェクト > 変形 > シアー...	transformshear
+オブジェクト > 変形 > 個別に変形...	Transform v23
+オブジェクト > 変形 > バウンディングボックスのリセット	AI Reset Bounding Box
+オブジェクト > 重ね順 > 最前面へ	sendToFront
+オブジェクト > 重ね順 > 前面へ	sendForward
+オブジェクト > 重ね順 > 背面へ	sendBackward
+オブジェクト > 重ね順 > 最背面へ	sendToBack
+オブジェクト > 重ね順 > 選択しているレイヤーに移動	Selection Hat 2
+オブジェクト > 整列 > 水平方向左に整列	Horizontal Align Left
+オブジェクト > 整列 > 水平方向中央に整列	Horizontal Align Center
+オブジェクト > 整列 > 水平方向右に整列	Horizontal Align Right
+オブジェクト > 整列 > 垂直方向上に整列	Vertical Align Top
+オブジェクト > 整列 > 垂直方向中央に整列	Vertical Align Center
+オブジェクト > 整列 > 垂直方向下に整列	Vertical Align Bottom
+オブジェクト > グループ	group
+オブジェクト > グループ解除	ungroup
+オブジェクト > すべてグループ解除	ungroupAll
+オブジェクト > ロック > 選択	lock
+オブジェクト > ロック > 前面のすべてのアートワーク	Selection Hat 5
+オブジェクト > ロック > その他のレイヤー	Selection Hat 7
+オブジェクト > すべてをロック解除	unlockAll
+オブジェクト > 隠す > 選択	hide
+オブジェクト > 隠す > 前面のすべてのアートワーク	Selection Hat 4
+オブジェクト > 隠す > その他のレイヤー	Selection Hat 6
+オブジェクト > すべてを表示	showAll
+オブジェクト > 分割・拡張...	Expand3
+オブジェクト > アピアランスを分割	expandStyle
+オブジェクト > 画像の切り抜き	Crop Image
+オブジェクト > ラスタライズ...	Rasterize 8 menu item
+オブジェクト > グラデーションメッシュを作成...	make mesh
+オブジェクト > モザイクオブジェクトを作成...	AI Object Mosaic Plug-in4
+オブジェクト > 透明部分を分割・統合...	Flatten Transparency
+オブジェクト > ピクセルグリッドに最適化	Make Pixel Perfect
+オブジェクト > スライス > 作成	AISlice Make Slice
+オブジェクト > スライス > 解除	AISlice Release Slice
+オブジェクト > スライス > ガイドから作成	AISlice Create from Guides
+オブジェクト > スライス > 選択範囲から作成	AISlice Create from Selection
+オブジェクト > スライス > スライスを複製	AISlice Duplicate
+オブジェクト > スライス > スライスを結合	AISlice Combine
+オブジェクト > スライス > スライスを分割...	AISlice Divide
+オブジェクト > スライス > すべてを削除	AISlice Delete All Slices
+オブジェクト > スライス > スライスオプション...	AISlice Slice Options
+オブジェクト > スライス > アートボードサイズでクリップ	AISlice Clip to Artboard
+オブジェクト > トリムマークを作成	TrimMark v25
+オブジェクト > パス > 連結	join
+オブジェクト > パス > 平均...	average
+オブジェクト > パス > パスのアウトライン	OffsetPath v22
+オブジェクト > パス > パスのオフセット...	OffsetPath v23
+オブジェクト > パス > パスの方向反転	Reverse Path Direction
+オブジェクト > パス > 単純化...	simplify menu item
+オブジェクト > パス > アンカーポイントの追加	Add Anchor Points2
+オブジェクト > パス > アンカーポイントを削除	Remove Anchor Points menu
+オブジェクト > パス > 背面のオブジェクトを分割	Knife Tool2
+オブジェクト > パス > グリッドに分割...	Rows and Columns....
+オブジェクト > パス > パスの削除...	cleanup menu item
+オブジェクト > シェイプ > シェイプに変換	Convert to Shape
+オブジェクト > シェイプ > シェイプを拡張	Expand Shape
+オブジェクト > パターン > 作成	Adobe Make Pattern
+オブジェクト > パターン > パターンを編集	Adobe Edit Pattern
+オブジェクト > パターン > タイルの境界線カラー...	Adobe Pattern Tile Color
+オブジェクト > リピート > ラジアル	Make Radial Repeat
+オブジェクト > リピート > グリッド	Make Grid Repeat
+オブジェクト > リピート > ミラー	Make Symmetry Repeat
+オブジェクト > リピート > 解除	Release Repeat Art
+オブジェクト > リピート > オプション...	Repeat Art Options
+オブジェクト > ブレンド > 作成	Path Blend Make
+オブジェクト > ブレンド > 解除	Path Blend Release
+オブジェクト > ブレンド > 拡張	Path Blend Expand
+オブジェクト > ブレンド > ブレンドオプション...	Path Blend Options
+オブジェクト > ブレンド > ブレンド軸を置き換え	Path Blend Replace Spine
+オブジェクト > ブレンド > ブレンド軸を反転	Path Blend Reverse Spine
+オブジェクト > ブレンド > 前後を反転	Path Blend Reverse Stack
+オブジェクト > エンベロープ > ワープで作成...	Make Warp
+オブジェクト > エンベロープ > メッシュで作成...	Create Envelope Grid
+オブジェクト > エンベロープ > 最前面のオブジェクトで作成	Make Envelope
+オブジェクト > エンベロープ > 解除	Release Envelope
+オブジェクト > エンベロープ > エンベロープオプション...	Envelope Options
+オブジェクト > エンベロープ > 拡張	Expand Envelope
+オブジェクト > エンベロープ > オブジェクトを編集	Edit Envelope Contents
+オブジェクト > 遠近 > 選択面の図形にする	Attach to Active Plane
+オブジェクト > 遠近 > 遠近グリッド上から解除	Release with Perspective
+オブジェクト > 遠近 > オブジェクトに合わせて面を移動	Show Object Grid Plane
+オブジェクト > 遠近 > テキストを編集	Edit Original Object
+オブジェクト > ライブペイント > 作成	Make Planet X
+オブジェクト > ライブペイント > 結合	Marge Planet X
+オブジェクト > ライブペイント > 解除	Release Planet X
+オブジェクト > ライブペイント > 隙間オプション...	Planet X Options
+オブジェクト > ライブペイント > 拡張	Expand Planet X
+オブジェクト > 画像トレース > 作成	Make Image Tracing
+オブジェクト > 画像トレース > 作成して拡張	Make and Expand Image Tracing
+オブジェクト > 画像トレース > 解除	Release Image Tracing
+オブジェクト > 画像トレース > 拡張	Expand Image Tracing
+オブジェクト > テキストの回り込み > 作成	Make Text Wrap
+オブジェクト > テキストの回り込み > 解除	Release Text Wrap
+オブジェクト > テキストの回り込み > テキストの回り込みオプション...	Text Wrap Options...
+オブジェクト > クリッピングマスク > 作成	makeMask
+オブジェクト > クリッピングマスク > 解除	releaseMask
+オブジェクト > クリッピングマスク > マスクを編集	editMask
+オブジェクト > 複合パス > 作成	compoundPath
+オブジェクト > 複合パス > 解除	noCompoundPath
+オブジェクト > アートボード > アートボードに変換	setCropMarks
+オブジェクト > アートボード > オブジェクト全体に合わせる	Fit Artboard to artwork bounds
+オブジェクト > アートボード > 選択オブジェクトに合わせる	Fit Artboard to selected Art
+オブジェクト > グラフ > 設定...	setGraphStyle
+オブジェクト > グラフ > データ...	editGraphData
+オブジェクト > グラフ > デザイン...	graphDesigns
+オブジェクト > グラフ > 棒グラフ...	setBarDesign
+オブジェクト > グラフ > マーカー...	setIconDesign
+書式 > Adobe Fonts のその他のフォント...	Browse Typekit Fonts Menu IllustratorUI
+書式 > 字形	alternate glyph palette plugin
+書式 > エリア内文字オプション...	area-type-options
+書式 > パス上文字オプション > 虹	Rainbow
+書式 > パス上文字オプション > 歪み	Skew
+書式 > パス上文字オプション > 3D リボン	3D ribbon
+書式 > パス上文字オプション > 階段状	Stair Step
+書式 > パス上文字オプション > 引力	Gravity
+書式 > パス上文字オプション > パス上文字オプション...	typeOnPathOptions
+書式 > パス上文字オプション > パス上文字を更新	updateLegacyTOP
+書式 > 合成フォント...	Adobe internal composite font plugin
+書式 > 禁則処理設定...	Adobe Kinsoku Settings
+書式 > 文字組みアキ量設定...	Adobe MojiKumi Settings
+書式 > スレッドテキストオプション > 作成	threadTextCreate
+書式 > スレッドテキストオプション > 選択部分をスレッドから除外	releaseThreadedTextSelection
+書式 > スレッドテキストオプション > スレッドのリンクを解除	removeThreading
+書式 > 箇条書き > テキストに変換	convert list style to text
+書式 > ヘッドラインを合わせる	fitHeadline
+書式 > アウトラインを作成	outline
+書式 > 環境に無いフォントを解決する...	Adobe IllustratorUI Resolve Missing Font
+書式 > 大文字と小文字の変更 > すべて大文字	UpperCase Change Case Item
+書式 > 大文字と小文字の変更 > すべて小文字	LowerCase Change Case Item
+書式 > 大文字と小文字の変更 > 単語の先頭のみ大文字	Title Case Change Case Item
+書式 > 大文字と小文字の変更 > 文頭のみ大文字	Sentence case Change Case Item
+書式 > 句読点の自動調節...	Adobe Illustrator Smart Punctuation Menu Item
+書式 > 最適なマージン揃え	Adobe Optical Alignment Item
+書式 > 制御文字を表示	showHiddenChar
+書式 > 組み方向 > 横組み	type-horizontal
+書式 > 組み方向 > 縦組み	type-vertical
+選択 > すべてを選択	selectall
+選択 > 作業アートボードのすべてを選択	selectallinartboard
+選択 > 選択を解除	deselectall
+選択 > 再選択	Find Reselect menu item
+選択 > 選択範囲を反転	Inverse menu item
+選択 > 前面のオブジェクト	Selection Hat 8
+選択 > 背面のオブジェクト	Selection Hat 9
+選択 > 共通 > テキスト > フォントファミリー	Find Text Font Family menu item
+選択 > 共通 > テキスト > フォントファミリー (スタイル)	Find Text Font Family Style menu item
+選択 > 共通 > テキスト > フォントファミリー (スタイルとサイズ)	Find Text Font Family Style Size menu item
+選択 > 共通 > テキスト > フォントサイズ	Find Text Font Size menu item
+選択 > 共通 > テキスト > テキストカラー (塗り)	Find Text Fill Color menu item
+選択 > 共通 > テキスト > テキストカラー (線)	Find Text Stroke Color menu item
+選択 > 共通 > テキスト > テキストカラー (塗りと線)	Find Text Fill Stroke Color menu item
+選択 > オブジェクト > 同一レイヤー上のすべて	Selection Hat 3
+選択 > オブジェクト > セグメント	Selection Hat 1
+選択 > オブジェクト > 絵筆ブラシストローク	Bristle Brush Strokes menu item
+選択 > オブジェクト > ブラシストローク	Brush Strokes menu item
+選択 > オブジェクト > クリッピングマスク	Clipping Masks menu item
+選択 > オブジェクト > 孤立点	Stray Points menu item
+選択 > オブジェクト > すべてのテキストオブジェクト	Text Objects menu item
+選択 > オブジェクト > ポイント文字オブジェクト	Point Text Objects menu item
+選択 > オブジェクト > エリア内文字オブジェクト	Area Text Objects menu item
+選択 > オブジェクトを一括選択|選択解除	SmartEdit Menu Item
+選択 > 選択範囲を保存...	Selection Hat 10
+選択 > 選択範囲を編集...	Selection Hat 11
+効果 > 前回の効果を適用	Adobe Apply Last Effect
+効果 > 前回の効果	Adobe Last Effect
+効果 > ドキュメントのラスタライズ効果設定...	Live Rasterize Effect Setting
+効果 > 3D とマテリアル > 押し出し・ベベル	Live Adobe Geometry3D Extrude
+効果 > 3D とマテリアル > 回転体	Live Adobe Geometry3D Revolve
+効果 > 3D とマテリアル > 膨張	Live Adobe Geometry3D Inflate
+効果 > 3D とマテリアル > 回転	Live Adobe Geometry3D Rotate
+効果 > 3D とマテリアル > マテリアル	Live Adobe Geometry3D Materials
+効果 > SVG フィルター > SVG フィルターを適用...	Live SVG Filters
+効果 > SVG フィルター > SVG フィルターの読み込み...	SVG Filter Import
+効果 > スタイライズ > ぼかし...	Live Feather
+効果 > スタイライズ > ドロップシャドウ...	Live Adobe Drop Shadow
+効果 > スタイライズ > 光彩 (内側)...	Live Inner Glow
+効果 > スタイライズ > 光彩 (外側)...	Live Outer Glow
+効果 > スタイライズ > 落書き...	Live Scribble Fill
+効果 > スタイライズ > 角を丸くする...	Live Adobe Round Corners
+効果 > トリムマーク	Live Trim Marks
+効果 > パス > オブジェクトのアウトライン	Live Outline Object
+効果 > パス > パスのアウトライン	Live Outline Stroke
+効果 > パス > パスのオフセット...	Live Offset Path
+効果 > パスの変形 > ジグザグ...	Live Zig Zag
+効果 > パスの変形 > パスの自由変形...	Live Free Distort
+効果 > パスの変形 > パンク・膨張...	Live Pucker & Bloat
+効果 > パスの変形 > ラフ...	Live Roughen
+効果 > パスの変形 > ランダム・ひねり...	Live Scribble and Tweak
+効果 > パスの変形 > 変形...	Live Transform
+効果 > パスの変形 > 旋回...	Live Twist
+効果 > パスファインダー > 交差	Live Pathfinder Intersect
+効果 > パスファインダー > 中マド	Live Pathfinder Exclude
+効果 > パスファインダー > 前面オブジェクトで型抜き	Live Pathfinder Subtract
+効果 > パスファインダー > 背面オブジェクトで型抜き	Live Pathfinder Minus Back
+効果 > パスファインダー > 分割	Live Pathfinder Divide
+効果 > パスファインダー > 刈り込み	Live Pathfinder Trim
+効果 > パスファインダー > 合流	Live Pathfinder Merge
+効果 > パスファインダー > 切り抜き	Live Pathfinder Crop
+効果 > パスファインダー > アウトライン	Live Pathfinder Outline
+効果 > パスファインダー > 濃い混色	Live Pathfinder Hard Mix
+効果 > パスファインダー > 薄い混色...	Live Pathfinder Soft Mix
+効果 > パスファインダー > トラップ...	Live Pathfinder Trap
+効果 > ラスタライズ...	Live Rasterize
+効果 > ワープ > 円弧...	Live Deform Arc
+効果 > ワープ > 下弦...	Live Deform Arc Lower
+効果 > ワープ > 上弦...	Live Deform Arc Upper
+効果 > ワープ > アーチ...	Live Deform Arch
+効果 > ワープ > でこぼこ...	Live Deform Bulge
+効果 > ワープ > 貝殻 (下向き)...	Live Deform Shell Lower
+効果 > ワープ > 貝殻 (上向き)...	Live Deform Shell Upper
+効果 > ワープ > 旗...	Live Deform Flag
+効果 > ワープ > 波形...	Live Deform Wave
+効果 > ワープ > 魚形...	Live Deform Fish
+効果 > ワープ > 上昇...	Live Deform Rise
+効果 > ワープ > 魚眼レンズ...	Live Deform Fisheye
+効果 > ワープ > 膨張...	Live Deform Inflate
+効果 > ワープ > 絞り込み...	Live Deform Squeeze
+効果 > ワープ > 旋回...	Live Deform Twist
+効果 > 形状に変換 > 長方形...	Live Rectangle
+効果 > 形状に変換 > 角丸長方形...	Live Rounded Rectangle
+効果 > 形状に変換 > 楕円形...	Live Ellipse
+効果 > 効果ギャラリー...	Live PSAdapter_plugin_GEfc
+効果 > ぼかし > ぼかし (ガウス)...	Live Adobe PSL Gaussian Blur
+効果 > ぼかし > ぼかし (放射状)...	Live PSAdapter_plugin_RdlB
+効果 > ぼかし > ぼかし (詳細)...	Live PSAdapter_plugin_SmrB
+効果 > アーティスティック > こする...	Live PSAdapter_plugin_SmdS
+効果 > アーティスティック > エッジのポスタリゼーション...	Live PSAdapter_plugin_PstE
+効果 > アーティスティック > カットアウト...	Live PSAdapter_plugin_Ct
+効果 > アーティスティック > スポンジ...	Live PSAdapter_plugin_Spng
+効果 > アーティスティック > ドライブラシ...	Live PSAdapter_plugin_DryB
+効果 > アーティスティック > ネオン光彩...	Live PSAdapter_plugin_NGlw
+効果 > アーティスティック > パレットナイフ...	Live PSAdapter_plugin_PltK
+効果 > アーティスティック > フレスコ...	Live PSAdapter_plugin_Frsc
+効果 > アーティスティック > ラップ...	Live PSAdapter_plugin_PlsW
+効果 > アーティスティック > 塗料...	Live PSAdapter_plugin_PntD
+効果 > アーティスティック > 水彩画...	Live PSAdapter_plugin_Wtrc
+効果 > アーティスティック > 粒状フィルム...	Live PSAdapter_plugin_FlmG
+効果 > アーティスティック > 粗いパステル画...	Live PSAdapter_plugin_RghP
+効果 > アーティスティック > 粗描き...	Live PSAdapter_plugin_Undr
+効果 > アーティスティック > 色鉛筆...	Live PSAdapter_plugin_ClrP
+効果 > スケッチ > ぎざぎざのエッジ...	Live PSAdapter_plugin_TrnE
+効果 > スケッチ > ちりめんじわ...	Live PSAdapter_plugin_Rtcl
+効果 > スケッチ > ウォーターペーパー...	Live PSAdapter_plugin_WtrP
+効果 > スケッチ > クレヨンのコンテ画...	Live PSAdapter_plugin_CntC
+効果 > スケッチ > クロム...	Live PSAdapter_plugin_Chrm
+効果 > スケッチ > グラフィックペン...	Live PSAdapter_plugin_GraP
+効果 > スケッチ > コピー...	Live PSAdapter_plugin_Phtc
+効果 > スケッチ > スタンプ...	Live PSAdapter_plugin_Stmp
+効果 > スケッチ > チョーク・木炭画...	Live PSAdapter_plugin_ChlC
+効果 > スケッチ > ノート用紙...	Live PSAdapter_plugin_NtPr
+効果 > スケッチ > ハーフトーンパターン...	Live PSAdapter_plugin_HlfS
+効果 > スケッチ > プラスター...	Live PSAdapter_plugin_Plst
+効果 > スケッチ > 木炭画...	Live PSAdapter_plugin_Chrc
+効果 > スケッチ > 浅浮彫り...	Live PSAdapter_plugin_BsRl
+効果 > テクスチャ > クラッキング...	Live PSAdapter_plugin_Crql
+効果 > テクスチャ > ステンドグラス...	Live PSAdapter_plugin_StnG
+効果 > テクスチャ > テクスチャライザー...	Live PSAdapter_plugin_Txtz
+効果 > テクスチャ > パッチワーク...	Live PSAdapter_plugin_Ptch
+効果 > テクスチャ > モザイクタイル...	Live PSAdapter_plugin_MscT
+効果 > テクスチャ > 粒状...	Live PSAdapter_plugin_Grn
+効果 > ビデオ > NTSC カラー	Live PSAdapter_plugin_NTSC
+効果 > ビデオ > インターレース解除...	Live PSAdapter_plugin_Dntr
+効果 > ピクセレート > カラーハーフトーン...	Live PSAdapter_plugin_ClrH
+効果 > ピクセレート > メゾティント...	Live PSAdapter_plugin_Mztn
+効果 > ピクセレート > 水晶...	Live PSAdapter_plugin_Crst
+効果 > ピクセレート > 点描...	Live PSAdapter_plugin_Pntl
+効果 > ブラシストローク > はね...	Live PSAdapter_plugin_Spt
+効果 > ブラシストローク > インク画 (外形)...	Live PSAdapter_plugin_InkO
+効果 > ブラシストローク > エッジの強調...	Live PSAdapter_plugin_AccE
+効果 > ブラシストローク > ストローク (スプレー)...	Live PSAdapter_plugin_SprS
+効果 > ブラシストローク > ストローク (斜め)...	Live PSAdapter_plugin_AngS
+効果 > ブラシストローク > ストローク (暗)...	Live PSAdapter_plugin_DrkS
+効果 > ブラシストローク > 墨絵...	Live PSAdapter_plugin_Smie
+効果 > ブラシストローク > 網目...	Live PSAdapter_plugin_Crsh
+効果 > 変形 > ガラス...	Live PSAdapter_plugin_Gls
+効果 > 変形 > 光彩拡散...	Live PSAdapter_plugin_DfsG
+効果 > 変形 > 海の波紋...	Live PSAdapter_plugin_OcnR
+効果 > 表現手法 > エッジの光彩...	Live PSAdapter_plugin_GlwE
+表示 > CPU|GPU で表示	View using GPU
+表示 > アウトライン	preview
+表示 > オーバープリントプレビュー	ink
+表示 > ピクセルプレビュー	raster
+表示 > 校正設定 > 作業用 CMYK : Japan Color 2001 Coated	proof-document
+表示 > 校正設定 > 以前の Macintosh RGB (ガンマ 1.8)	proof-mac-rgb
+表示 > 校正設定 > インターネット標準 RGB (sRGB)	proof-win-rgb
+表示 > 校正設定 > モニター RGB	proof-monitor-rgb
+表示 > 校正設定 > P 型 (1 型) 色覚	proof-colorblindp
+表示 > 校正設定 > D 型 (2 型) 色覚	proof-colorblindd
+表示 > 校正設定 > カスタム...	proof-custom
+表示 > 色の校正	proofColors
+表示 > ズームイン	zoomin
+表示 > ズームアウト	zoomout
+表示 > アートボードを全体表示	fitin
+表示 > すべてのアートボードを全体表示	fitall
+表示 > スライスを表示|隠す	AISlice Feedback Menu
+表示 > スライスをロック	AISlice Lock Menu
+表示 > 100% 表示	actualsize
+表示 > 境界線を表示|隠す	edge
+表示 > アートボードを表示|隠す	artboard
+表示 > プリント分割を表示|隠す	pagetiling
+表示 > バウンディングボックスを表示|隠す	AI Bounding Box Toggle
+表示 > 透明グリッドを表示|隠す	TransparencyGrid Menu Item
+表示 > テンプレートを表示|隠す	showtemplate
+表示 > グラデーションガイドを表示|隠す	Gradient Feedback
+表示 > ライブペイントの隙間を表示|隠す	Show Gaps Planet X
+表示 > コーナーウィジェットを表示|隠す	Live Corner Annotator
+表示 > スマートガイド	Snapomatic on-off menu item
+表示 > 遠近グリッド > グリッドを表示|隠す	Show Perspective Grid
+表示 > 遠近グリッド > 定規を表示|隠す	Show Ruler
+表示 > 遠近グリッド > グリッドにスナップ	Snap to Grid
+表示 > 遠近グリッド > グリッドをロック|ロック解除	Lock Perspective Grid
+表示 > 遠近グリッド > 測点をロック|ロック解除	Lock Station Point
+表示 > 遠近グリッド > グリッドを定義...	Define Perspective Grid
+表示 > 遠近グリッド > グリッドをプリセットとして保存...	Save Perspective Grid as Preset
+表示 > 定規 > 定規を表表示|隠す	ruler
+表示 > 定規 > アートボード定規に変更	rulerCoordinateSystem
+表示 > 定規 > ビデオ定規を表示|隠す	videoruler
+表示 > テキストのスレッドを表示|隠す	textthreads
+表示 > ガイド > ガイドを表示|隠す	showguide
+表示 > ガイド > ガイドをロック|ロック解除	lockguide
+表示 > ガイド > ガイドを作成	makeguide
+表示 > ガイド > ガイドを解除	releaseguide
+表示 > ガイド > ガイドを消去	clearguide
+表示 > グリッドを表示|隠す	showgrid
+表示 > グリッドにスナップ	snapgrid
+表示 > ポイントにスナップ	snappoint
+表示 > 新規表示...	newview
+表示 > 表示の編集...	editview
+ウィンドウ > 新規ウィンドウ	newwindow
+ウィンドウ > アレンジ > 重ねて表示	cascade
+ウィンドウ > アレンジ > 並べて表示	tile
+ウィンドウ > アレンジ > ウィンドウを分離	floatInWindow
+ウィンドウ > アレンジ > すべてのウィンドウを分離	floatAllInWindows
+ウィンドウ > アレンジ > すべてのウィンドウを統合	consolidateAllWindows
+ウィンドウ > Exchange でエクステンションを検索...	Browse Add-Ons Menu
+ウィンドウ > ワークスペース > 「現在のワークスペース」をリセット	Adobe Reset Workspace
+ウィンドウ > ワークスペース > 新規ワークスペース...	Adobe New Workspace
+ウィンドウ > ワークスペース > ワークスペースの管理...	Adobe Manage Workspace
+ウィンドウ > コントロール	drover control palette plugin
+ウィンドウ > ツールバー > 基本	Adobe Basic Toolbar Menu
+ウィンドウ > ツールバー > 詳細	Adobe Advanced Toolbar Menu
+ウィンドウ > ツールバー > 新しいツールバー...	New Tools Panel
+ウィンドウ > ツールバー > ツールバーを管理...	Manage Tools Panel
+ウィンドウ > 3D とマテリアル	Adobe 3D Panel
+ウィンドウ > CC ライブラリ	Adobe CSXS Extension com.adobe.DesignLibraries.angularCC ライブラリ
+ウィンドウ > CSS プロパティ	CSS Menu Item
+ウィンドウ > SVG インタラクティビティ	Adobe SVG Interactivity Palette
+ウィンドウ > アクション	Adobe Action Palette
+ウィンドウ > アセットの書き出し	Adobe SmartExport Panel Menu Item
+ウィンドウ > アピアランス	Style Palette
+ウィンドウ > アートボード	Adobe Artboard Palette
+ウィンドウ > カラー	Adobe Color Palette
+ウィンドウ > カラーガイド	Adobe Harmony Palette
+ウィンドウ > グラデーション	Adobe Gradient Palette
+ウィンドウ > グラフィックスタイル	Adobe Style Palette
+ウィンドウ > コメント	Adobe Commenting Palette
+ウィンドウ > シンボル	Adobe Symbol Palette
+ウィンドウ > スウォッチ	Adobe Swatches Menu Item
+ウィンドウ > ドキュメント情報	DocInfo1
+ウィンドウ > ナビゲーター	AdobeNavigator
+ウィンドウ > パスファインダー	Adobe PathfinderUI
+ウィンドウ > パターンオプション	Adobe Pattern Panel Toggle
+ウィンドウ > ブラシ	Adobe BrushManager Menu Item
+ウィンドウ > プロパティ	Adobe Property Palette
+ウィンドウ > リンク	Adobe LinkPalette Menu Item
+ウィンドウ > レイヤー	AdobeLayerPalette1
+ウィンドウ > 分割・統合プレビュー	Adobe Flattening Preview
+ウィンドウ > 分版プレビュー	Adobe Separation Preview Panel
+ウィンドウ > 変形	AdobeTransformObjects1
+ウィンドウ > 変数	Adobe Variables Palette Menu Item
+ウィンドウ > 属性	internal palettes posing as plug-in menus-attributes
+ウィンドウ > 情報	internal palettes posing as plug-in menus-info
+ウィンドウ > 整列	AdobeAlignObjects2
+ウィンドウ > 書式 > OpenType	internal palettes posing as plug-in menus-opentype
+ウィンドウ > 書式 > タブ	internal palettes posing as plug-in menus-tab
+ウィンドウ > 書式 > 字形	alternate glyph palette plugin 2
+ウィンドウ > 書式 > 文字	internal palettes posing as plug-in menus-character
+ウィンドウ > 書式 > 文字スタイル	Character Styles
+ウィンドウ > 書式 > 段落	internal palettes posing as plug-in menus-paragraph
+ウィンドウ > 書式 > 段落スタイル	Adobe Paragraph Styles Palette
+ウィンドウ > 線	Adobe Stroke Palette
+ウィンドウ > 自動選択	AI Magic Wand
+ウィンドウ > 透明	Adobe Transparency Palette Menu Item
+ウィンドウ > 画像トレース	Adobe Vectorize Panel
+ウィンドウ > グラフィックスタイルライブラリ > その他のライブラリ...	Adobe Art Style Plugin Other libraries menu item
+ウィンドウ > シンボルライブラリ > その他のライブラリ...	Adobe Symbol Palette Plugin Other libraries menu item
+ウィンドウ > ブラシライブラリ > その他のライブラリ...	AdobeBrushMgrUI Other libraries menu item
+ヘルプ > Illustrator ヘルプ...	helpcontent
+ヘルプ > Illustrator について...	about
+Illustrator > Illustrator について...	about
+ヘルプ > システム情報...	System Info
+その他のパネル > 新規シンボル	Adobe New Symbol Shortcut
+その他のパネル > カラーパネルを表示 (2)	Adobe Color Palette Secondary
+その他のパネル > アクションバッチ	Adobe Actions Batch
+その他のパネル > 新規塗りを追加	Adobe New Fill Shortcut
+その他のパネル > 新規線を追加	Adobe New Stroke Shortcut
+その他のパネル > 新規グラフィックスタイル	Adobe New Style Shortcut
+その他のパネル > 新規レイヤー	AdobeLayerPalette2
+その他のパネル > 新規レイヤー (オプション表示)	AdobeLayerPalette3
+その他のパネル > リンクを更新	Adobe Update Link Shortcut
+その他のパネル > 新規スウォッチ	Adobe New Swatch Shortcut Menu
+表示 > トリミング表示	TrimView
+Object > Objects on Path > Options	Options Objects on Path
+Object > Objects on Path > Expand	Expand Objects on Path
+Window > Type > Reflow Viewer	ReflowWindowMenu
+Window > Contextual Task Bar	_GenericPluginMenuItem 25
+Object > Path > Smooth	smooth menu item
+Edit > Preferences > Touch Workspace	TouchPref
+Select > Update Selection	Selection Hat 14
+Object > Ungroup All	ungroup all
+Window > Toolbars > Getting Started	Adobe Quick Toolbar Menu
+Type > Composite Fonts	Adobe internal composite font plugin
+Type > Kinsoku Shori Settings	Adobe Kinsoku Settings
+Type > Mojikumi Settings	Adobe MojiKumi Settings
+Type > Bullets and Numbering > Convert to text	convert list style to text
+Edit > Edit Colors > Generative Recolor (Beta)	Generative Recolor Art Dialog
+Window > Libraries	Adobe CSXS Extension com.adobe.DesignLibraries.angularLibraries
+Window > History	Adobe History Panel Menu Item
+Window > Version History	Adobe Version History File Menu Item
+Window > Swatch Libraries > Other Library...	AdobeSwatch_ Other libraries menu item
+Edit > Spelling > Auto Spell Check	Auto Spell Check
+View > GPU Preview / Preview on CPU	GPU Preview
+Object > Distribute > Horizontal Distribute Center	Horizontal Distribute Center
+Object > Distribute > Horizontal Distribute Left	Horizontal Distribute Left
+Object > Distribute > Horizontal Distribute Right	Horizontal Distribute Right
+Object > Intertwine > Edit	Partial Rearrange Edit
+Object > Intertwine > Make	Partial Rearrange Make
+Object > Intertwine > Release	Partial Rearrange Release
+Help > Support Community	supportCommunity
+Object > Distribute > Vertical Distribute Bottom	Vertical Distribute Bottom
+Object > Distribute > Vertical Distribute Center	Vertical Distribute Center
+Object > Distribute > Vertical Distribute Top	Vertical Distribute Top
+Help > Submit Bug/Feature Request...	wishform
+ウィンドウ > ライブラリ	Adobe CSXS Extension com.adobe.DesignLibraries.angularLibraries
+ウィンドウ > ヒストリー	Adobe History Panel Menu Item
+ウィンドウ > バージョン履歴	Adobe Version History File Menu Item
+ウィンドウ > スウォッチライブラリ > その他のライブラリ...	AdobeSwatch_ Other libraries menu item
+編集 > スペルチェック > 自動スペルチェック	Auto Spell Check
+表示 > GPU プレビュー / CPU でプレビュー	GPU Preview
+オブジェクト > 分布 > 水平方向中央に分布	Horizontal Distribute Center
+オブジェクト > 分布 > 水平方向左に分布	Horizontal Distribute Left
+オブジェクト > 分布 > 水平方向右に分布	Horizontal Distribute Right
+オブジェクト > クロスと重なり > 編集	Partial Rearrange Edit
+オブジェクト > クロスと重なり > 作成	Partial Rearrange Make
+オブジェクト > クロスと重なり > 解除	Partial Rearrange Release
+ヘルプ > サポートコミュニティ	supportCommunity
+オブジェクト > 分布 > 垂直方向下に分布	Vertical Distribute Bottom
+オブジェクト > 分布 > 垂直方向中央に分布	Vertical Distribute Center
+オブジェクト > 分布 > 垂直方向上に分布	Vertical Distribute Top
+ヘルプ > バグを報告 / 機能改善をリクエスト...	wishform
+オブジェクト > 整列 > キーオブジェクトに整列	Align To Key Object
+オブジェクト > 整列 > アートボードに整列	Align To Artboard
+オブジェクト > 分布 > 垂直方向等間隔に分布	Vertical Distribute Space
+オブジェクト > 分布 > 水平方向等間隔に分布	Horizontal Distribute Space
+オブジェクト > 生成 > 書き直し > テキストを生成...	GenAIConsolidatedGenerateTextGenerate
+オブジェクト > 整列 > 選択範囲に揃える	Align To Selection
+ウィンドウ > コンセプトからベクター生成	SketchToVectorUnified
+書式 > Retype	ReTypeTypeMenu
+オブジェクト > 生成 > コンセプトからベクター生成	GenAIConsolidatedTrace
+オブジェクト > 整列 > 水平・垂直方向中央に整列	Horizontal && Vertical Align Center
+編集 > プロンプトで編集	EditGeneratedObjectEditMenu
+オブジェクト > 背景を削除	Remove Background Object Menu
+その他 > 前のドキュメントグループに移動	navigateToPreviousDocumentGroup
+その他 > 次のドキュメントグループに移動	navigateToNextDocumentGroup
+その他 > 前のドキュメントに移動	navigateToPreviousDocument
+その他 > 次のドキュメントに移動	navigateToNextDocument
+その他 > 新規ファイル (ダイアログなし)	new2
+その他 > 単位を切り換え	switchSelTool
+その他のオブジェクト > 編集モードを終了	exitFocus
+その他のオブジェクト > 選択オブジェクト編集モード	enterFocus
+その他のオブジェクト > 平均・連結	avgAndJoin
+その他のオブジェクト > パスファインダーの繰り返し	repeatPathfinder
+その他のオブジェクト > 他を隠す	hide2
+その他のオブジェクト > 他をロック	lock2
+その他のテキスト > 下線	~textUnderline
+その他のテキスト > 斜体	~textItalic
+その他のテキスト > 太字	~textBold
+その他のテキスト > 上付き文字	~superScript
+その他のテキスト > 下付き文字	~subscript
+その他のテキスト > コンポーザーを切り換え	toggleLineComposer
+その他のテキスト > 自動ハイフネーションを切り換え	toggleAutoHyphen
+その他のテキスト > 両端揃え	justifyAll
+その他のテキスト > 均等配置 (最終行右 / 下揃え)	justifyRight
+その他のテキスト > 均等配置 (最終行中央揃え)	justifyCenter
+その他のテキスト > 均等配置 (最終行左 / 上揃え)	justify
+その他のテキスト > 右 / 下揃え	rightAlign
+その他のテキスト > 中央揃え	centerAlign
+その他のテキスト > 左 / 上揃え	leftAlign
+その他のテキスト > フォントを強調表示 (2)	highlightFont2
+その他のテキスト > フォントを強調表示	highlightFont
+その他のテキスト > 文字の縦横比をリセット	clearTypeScale
+その他のテキスト > 空白	spacing
+その他のテキスト > トラッキングを解除	clearTrack
+その他のテキスト > トラッキング	tracking
+その他のテキスト > 文字間隔を狭く	~kernCloser
+その他のテキスト > 文字間隔を広く	~kernFurther
+その他のテキスト > フォントサイズを小さく (設定値×5)	sizeStepDown
+その他のテキスト > フォントサイズを大きく (設定値×5)	sizeStepUp
+その他のテキスト > フォントサイズを小さく (設定値参照)	faceSizeDown
+その他のテキスト > フォントサイズを大きく (設定値参照)	faceSizeUp
+書式 > 分割文字を挿入 > 強制改行	~forcedLineBreak
+書式 > 空白文字を挿入 > 細いスペース	~thinSpace
+書式 > 空白文字を挿入 > 極細スペース	~hairSpace
+書式 > 空白文字を挿入 > EN スペース	~enSpace
+書式 > 空白文字を挿入 > EM スペース	~emSpace
+書式 > 特殊文字を挿入 > 引用符 > 右一重引用符	~singleRightQuote
+書式 > 特殊文字を挿入 > 引用符 > 左一重引用符	~singleLeftQuote
+書式 > 特殊文字を挿入 > 引用符 > 右二重引用符	~doubleRightQuote
+書式 > 特殊文字を挿入 > 引用符 > 左二重引用符	~doubleLeftQuote
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > 任意ハイフン	~discretionaryHyphen
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > EN ダッシュ	~enDash
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > EM ダッシュ	~emDash
+書式 > 特殊文字を挿入 > 記号 > 商標記号	~trademarkSymbol
+書式 > 特殊文字を挿入 > 記号 > セクション記号	~sectionSymbol
+書式 > 特殊文字を挿入 > 記号 > 登録商標記号	~registeredTrademark
+書式 > 特殊文字を挿入 > 記号 > 段落記号	~paragraphSymbol
+書式 > 特殊文字を挿入 > 記号 > 省略記号	~ellipsis
+書式 > 特殊文字を挿入 > 記号 > 著作権記号	~copyright
+書式 > 特殊文字を挿入 > 記号 > ビュレット	~bullet
+ファイル > すべてを閉じる	closeAll
+オブジェクト > 生成 > 生成塗りつぶし (シェイプ)...	GenAIConsolidatedShapeFill
+オブジェクト > 生成 > 裁ち落としを印刷	GenAIConsolidatedBleed
+オブジェクト > 生成 > 生成再配色	GenAIConsolidatedRecolor
+オブジェクト > 生成 > パターンを生成	GenAIConsolidatedPatterns
+オブジェクト > 生成 > 生成履歴	GenAIConsolidatedVariations
+オブジェクト > アートボード > 方向切り替え	Switch Orientation
+オブジェクト > 生成 > ベクターを生成...	GenAIConsolidatedGenerateVectors
+ヘルプ > 新機能...	whatsNewContent
+ファイル > 編集に招待...	Invite People
+Object > Align > Align To Key Object	Align To Key Object
+Object > Align > Align To Artboard	Align To Artboard
+Object > Distribute > Vertical Distribute Space	Vertical Distribute Space
+Object > Distribute > Horizontal Distribute Space	Horizontal Distribute Space
+Object > Generative > Rewrite > Generate Text...	GenAIConsolidatedGenerateTextGenerate
+Object > Align > Align To Selection	Align To Selection
+Window > Concept to Vector	SketchToVectorUnified
+Type > Retype	ReTypeTypeMenu
+Object > Generative > Concept to Vector	GenAIConsolidatedTrace
+Object > Align > Horizontal & Vertical Align Center	Horizontal && Vertical Align Center
+Edit > Prompt to edit	EditGeneratedObjectEditMenu
+Object > Remove Background	Remove Background Object Menu
+Other Misc > Navigate to Previous Document Group	navigateToPreviousDocumentGroup
+Other Misc > Navigate to Next Document Group	navigateToNextDocumentGroup
+Other Misc > Navigate to Previous Document	navigateToPreviousDocument
+Other Misc > Navigate to Next Document	navigateToNextDocument
+Other Misc > New File (No Dialog)	new2
+Other Misc > Switch Units	switchSelTool
+Other Object > Exit Isolation Mode	exitFocus
+Other Object > Isolate Selected Object	enterFocus
+Other Object > Average & Join	avgAndJoin
+Other Object > Repeat Pathfinder	repeatPathfinder
+Other Object > Hide Others	hide2
+Other Object > Lock Others	lock2
+Other Text > Underline	~textUnderline
+Other Text > Italic	~textItalic
+Other Text > Bold	~textBold
+Other Text > Superscript	~superScript
+Other Text > Subscript	~subscript
+Other Text > Toggle Line Composer	toggleLineComposer
+Other Text > Toggle Auto Hyphenation	toggleAutoHyphen
+Other Text > Justify All Lines	justifyAll
+Other Text > Justify Text Right	justifyRight
+Other Text > Justify Text Center	justifyCenter
+Other Text > Justify Text Left	justify
+Other Text > Right Align Text	rightAlign
+Other Text > Center Text	centerAlign
+Other Text > Left Align Text	leftAlign
+Other Text > Highlight Font (Secondary)	highlightFont2
+Other Text > Highlight Font	highlightFont
+Other Text > Uniform Type	clearTypeScale
+Other Text > Spacing	spacing
+Other Text > Clear Tracking	clearTrack
+Other Text > Tracking	tracking
+Other Text > Kern Tighter	~kernCloser
+Other Text > Kern Looser	~kernFurther
+Other Text > Font Size Step Down	sizeStepDown
+Other Text > Font Size Step Up	sizeStepUp
+Other Text > Point Size Down	faceSizeDown
+Other Text > Point Size Up	faceSizeUp
+Type > Insert Break Character > Forced Line Break	~forcedLineBreak
+Type > Insert WhiteSpace Character > Thin Space	~thinSpace
+Type > Insert WhiteSpace Character > Hair Space	~hairSpace
+Type > Insert WhiteSpace Character > En Space	~enSpace
+Type > Insert WhiteSpace Character > Em Space	~emSpace
+Type > Insert Special Character > Quotation Marks > Single Right Quotation Marks	~singleRightQuote
+Type > Insert Special Character > Quotation Marks > Single Left Quotation Marks	~singleLeftQuote
+Type > Insert Special Character > Quotation Marks > Double Right Quotation Marks	~doubleRightQuote
+Type > Insert Special Character > Quotation Marks > Double Left Quotation Marks	~doubleLeftQuote
+Type > Insert Special Character > Hyphens And Dashes > Discretionary Hyphen	~discretionaryHyphen
+Type > Insert Special Character > Hyphens And Dashes > En Dash	~enDash
+Type > Insert Special Character > Hyphens And Dashes > Em Dash	~emDash
+Type > Insert Special Character > Symbols > Trademark Symbol	~trademarkSymbol
+Type > Insert Special Character > Symbols > Section Symbol	~sectionSymbol
+Type > Insert Special Character > Symbols > Registered Trademark Symbol	~registeredTrademark
+Type > Insert Special Character > Symbols > Paragraph Symbol	~paragraphSymbol
+Type > Insert Special Character > Symbols > Ellipsis	~ellipsis
+Type > Insert Special Character > Symbols > Copyright Symbol	~copyright
+Type > Insert Special Character > Symbols > Bullet	~bullet
+File > Close All	closeAll
+Object > Generative > Gen Shape Fill...	GenAIConsolidatedShapeFill
+Object > Generative > Print Bleed	GenAIConsolidatedBleed
+Object > Generative > Generative Recolor	GenAIConsolidatedRecolor
+Object > Generative > Generate Patterns	GenAIConsolidatedPatterns
+Object > Generative > Generation History	GenAIConsolidatedVariations
+Object > Artboards > Switch Orientation	Switch Orientation
+Object > Generative > Generate Vectors...	GenAIConsolidatedGenerateVectors
+Help > What's New...	whatsNewContent
+File > Invite to Edit…	Invite People
+書式 > エリア内文字オプション...	areatextoptions
+その他 > コピー (2)	copy2
+その他 > カット (2)	cut2
+その他 > ヘルプ (2)	helpcontent2
+その他 > ペースト (2)	paste2
+ファイル > テンプレートとして保存...	saveasTemplate
+編集 > 環境設定 > 選択範囲・アンカー表示...	selectionPref
+Illustrator > 環境設定 > 選択範囲・アンカー表示...	selectionPref
+ヘルプ > システム情報...	systemInfo
+書式 > パス上文字オプション > 3D リボン	textpathtype3d
+書式 > パス上文字オプション > 引力	textpathtypeGravity
+書式 > パス上文字オプション > パス上文字オプション...	textpathtypeOptions
+書式 > パス上文字オプション > 虹	textpathtypeRainbow
+書式 > パス上文字オプション > 歪み	textpathtypeSkew
+書式 > パス上文字オプション > 階段状	textpathtypestairs
+その他 > 取り消し (2)	undo2
+編集 > 環境設定 > ユーザーインターフェイス...	userInterfacePref
+Illustrator > 環境設定 > ユーザーインターフェイス...	userInterfacePref
+その他 > ズームイン (2)	zoomin2
+その他 > 下付き文字 (2)	~subscript2
+その他 > 上付き文字 (2)	~superScript2
+Other Misc > Copy (Secondary)	copy2
+Other Misc > Cut (Secondary)	cut2
+Other Misc > Help (Secondary)	helpcontent2
+Other Misc > Paste (Secondary)	paste2
+Other Misc > Undo (Secondary)	undo2
+Other Misc > Zoom In (Secondary)	zoomin2
+Other Misc > Subscript (Secondary)	~subscript2
+Other Misc > Superscript (Secondary)	~superScript2

@@ -2,8 +2,8 @@
 # Latest Builds の .app を /Applications へ入れる・更新する
 # - 未インストール、または Latest Builds の方が新しいものだけ対象（version → build の順で比較）
 # - /Applications 側は Bundle ID で探す（改名前の名前で入っていても置き換える）
-# - 起動中のアプリは終了して入れ替え、あとで起動し直す
-# - 実行前に一覧を出して確認する
+# - 起動中のアプリは終了して入れ替え、起動し直す
+# - 対象一覧を表示して自動実行する
 # - 最後に /Applications/swApps に /Applications の自作アプリへのシンボリックリンクを作り直す
 
 emulate -L zsh
@@ -48,17 +48,20 @@ find_installed() {
 
 running_pids() { pgrep -f "^$1/Contents/MacOS/" }
 
+# ⌘Q と同じ通常の終了を依頼する（未保存の書類を失わないよう強制終了はしない）
+# 10秒以内に終わらなければ 1 を返す
 quit_app() {
-  local app=$1 i
-  local -a pids=($(running_pids "$app"))
-  (( ${#pids} )) || return 0
-  kill -TERM $pids 2>/dev/null
-  for (( i = 0; i < 50; i++ )); do
-    running_pids "$app" >/dev/null || return 0
+  local app=$1 i bid
+  running_pids "$app" >/dev/null || return 0
+  bid=$(plist_value "$app" CFBundleIdentifier)
+  osascript -l JavaScript -e "ObjC.import('AppKit');
+    var a = \$.NSRunningApplication.runningApplicationsWithBundleIdentifier('$bid');
+    for (var i = 0; i < a.count; i++) a.objectAtIndex(i).terminate;" >/dev/null 2>&1
+  for (( i = 0; i < 100; i++ )); do
+    running_pids "$app" >/dev/null || { sleep 0.3; return 0 }
     sleep 0.1
   done
-  kill -KILL $(running_pids "$app") 2>/dev/null
-  sleep 0.3
+  return 1
 }
 
 # LINK_DIR のシンボリックリンクを作り直す（リンク以外のファイルには触れない）
@@ -77,10 +80,29 @@ refresh_links() {
   print "リンクを更新: $LINK_DIR（$(ls "$LINK_DIR" | wc -l | tr -d ' ') 本）"
 }
 
+# このスクリプトを実行中のウインドウを閉じ、他にウインドウが無ければターミナルを終了する
+# （シェルの終了後に閉じるので「プロセスを終了しますか？」は出ない）
+close_terminal() {
+  local my_tty=$(tty) win_id
+  win_id=$(osascript -e "tell application \"Terminal\"
+    repeat with w in windows
+      repeat with t in tabs of w
+        if tty of t is \"$my_tty\" then return id of w
+      end repeat
+    end repeat
+  end tell" 2>/dev/null)
+  [[ -n "$win_id" ]] || return
+  nohup osascript -e "delay 0.5
+    tell application \"Terminal\"
+      close (every window whose id is $win_id)
+      if (count windows) is 0 then quit
+    end tell" >/dev/null 2>&1 &!
+}
+
 finish() {
   print
   refresh_links
-  print; read -k1 "?キーを押すと閉じます"
+  close_terminal
   exit 0
 }
 
@@ -132,7 +154,7 @@ fi
 print "次の ${#plan_src} 本を入れます:"
 for l in $plan_label; do print "  $l"; done
 print
-read -q "?実行しますか？ [y/N] " || { print; print "中止しました。"; finish }
+print "更新を自動実行します（起動中のアプリは終了して入れ替え、起動し直します）。"
 print; print
 
 typeset -i ok=0 ng=0
@@ -153,11 +175,14 @@ for (( i = 1; i <= ${#plan_src}; i++ )); do
   fi
   xattr -dr com.apple.quarantine "$tmp" 2>/dev/null
 
+  # コピー中に起動したアプリも含め、置換直前に終了させる
   was_running=0
   for target in "$old" "$dest"; do
     [[ -n "$target" && -d "$target" ]] || continue
-    if running_pids "$target" >/dev/null; then
-      was_running=1; quit_app "$target"
+    running_pids "$target" >/dev/null || continue
+    was_running=1
+    if ! quit_app "$target"; then
+      rm -rf "$tmp"; print "スキップ（終了しなかった。未保存の書類などを確認）"; (( ng++ )); continue 2
     fi
   done
 
@@ -168,9 +193,11 @@ for (( i = 1; i <= ${#plan_src}; i++ )); do
   fi
 
   if (( was_running )); then
-    open "$dest" && print -n "再起動 … "
+    open "$dest" && print "完了（起動し直しました）" || print "完了（起動し直せませんでした）"
+  else
+    print "完了"
   fi
-  print "完了"; (( ok++ ))
+  (( ok++ ))
 done
 
 print

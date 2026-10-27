@@ -5,10 +5,14 @@ import SwiftUI
 struct KeyRow: Identifiable {
     let key: String
     let value: NSObject
+    let label: SettingLabel?
     var id: String { key }
 }
 
 struct ContentView: View {
+    @ObservedObject private var customLabels = CustomSettingLabels.shared
+    @AppStorage("showSettingLabels") private var showSettingLabels = false
+    @State private var editingLabel: SettingLabelTarget?
     @ObservedObject private var courier = Courier.shared
     @ObservedObject private var sync = SettingsSync.shared
     @AppStorage(Courier.selectedAppKey) private var selectedApp = ""
@@ -17,6 +21,7 @@ struct ContentView: View {
     @State private var search = ""
     /// 読んだのに中身が取れなかった（アクセスの確認で拒否された）
     @State private var unreadable = false
+    @State private var inspectedRow: KeyRow?
     @State private var showsFolderImport = false
     /// 一覧で選んでいるアプリ（⌘クリック・⇧クリックで複数）
     @State private var selection = Set<String>()
@@ -47,6 +52,8 @@ struct ContentView: View {
         }
         .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: [])
         .task(id: "\(selectedApp)\u{1}\(courier.revision)") { reloadRows() }
+        .onChange(of: customLabels.revision) { reloadRows() }
+        .sheet(item: $editingLabel) { target in SettingLabelEditor(target: target) }
         .onAppear {
             if current == nil { selectedApp = courier.apps.first?.bundleID ?? "" }
             courier.scanFolder()
@@ -57,6 +64,19 @@ struct ContentView: View {
         }
         // 同期フォルダーを選び直したら、受け渡しフォルダーも変わる
         .onChange(of: sync.pathText) { courier.scanFolder() }
+        .sheet(item: $inspectedRow) { row in
+            VStack(alignment: .leading, spacing: 12) {
+                Text(row.key).font(.headline).textSelection(.enabled)
+                Text(row.label?.title ?? L("対応不明")).textSelection(.enabled)
+                Text(row.label?.evidence ?? L("画面上の文言との対応情報がありません")).font(.caption).foregroundStyle(.secondary)
+                Text(L("取得値（型を保持したplist表示）")).font(.subheadline)
+                ScrollView([.horizontal, .vertical]) {
+                    Text(SettingLabels.fullValue(row.value)).font(.system(.body, design: .monospaced))
+                        .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                }
+                HStack { Spacer(); Button(L("閉じる")) { inspectedRow = nil }.keyboardShortcut(.cancelAction) }
+            }.padding(20).frame(width: 680, height: 440)
+        }
         .sheet(isPresented: $showsFolderImport) { FolderImportView() }
         .sheet(item: $courier.pendingImport) { ImportView(box: $0) }
         .alert(courier.message?.title ?? "", isPresented: Binding(
@@ -72,7 +92,10 @@ struct ContentView: View {
         guard let app = current, courier.canRead(app.bundleID) else { rows = []; unreadable = false; return }
         let values = readSettings(app.bundleID)
         unreadable = isUnreadable(app.bundleID, values)
-        rows = values.map { KeyRow(key: $0.key, value: $0.value) }
+        let bundle = appURL(app.bundleID).flatMap { Bundle(url: $0) }
+        rows = values.map { KeyRow(key: $0.key, value: $0.value,
+            label: customLabels.title(bundleID: app.bundleID, key: $0.key).map { SettingLabel(title: $0, evidence: L("ユーザー入力")) }
+                ?? SettingLabels.resolve(key: $0.key, bundleID: app.bundleID, bundle: bundle)) }
             .sorted { $0.key.localizedStandardCompare($1.key) == .orderedAscending }
         selectedKeys.formIntersection(rows.map(\.key))
     }
@@ -196,7 +219,7 @@ struct ContentView: View {
     // MARK: キーの一覧
 
     private var visibleRows: [KeyRow] {
-        search.isEmpty ? rows : rows.filter { $0.key.localizedCaseInsensitiveContains(search) || describe($0.value).localizedCaseInsensitiveContains(search) }
+        search.isEmpty ? rows : rows.filter { $0.key.localizedCaseInsensitiveContains(search) || describe($0.value).localizedCaseInsensitiveContains(search) || ($0.label?.title.localizedCaseInsensitiveContains(search) ?? false) }
     }
 
     @ViewBuilder private var detail: some View {
@@ -219,14 +242,33 @@ struct ContentView: View {
                         .help(L("設定を読み直す"))
                 }
                 HStack(spacing: 8) {
-                    SearchField(placeholder: L("キー・値で検索"), text: $search).frame(maxWidth: 260)
+                    SearchField(placeholder: L("項目・キー・値で検索"), text: $search).frame(maxWidth: 260)
                     Spacer()
                     Text(L("書き出す項目 %@／%@", String(rows.filter { courier.isIncluded(app.bundleID, $0.key, $0.value) }.count), String(rows.count)))
                         .font(.callout).foregroundStyle(.secondary)
                     Button(L("初めの選択に戻す")) { courier.resetSelection(app.bundleID) }
                         .help(L("ウインドウの位置などMacごとに異なるキーと日付だけを外した状態に戻す"))
                 }
-                if courier.canRead(app.bundleID) { table(app) } else { readPrompt }
+                HStack {
+                    Toggle(L("画面上の項目／意味を表示"), isOn: $showSettingLabels).toggleStyle(.checkbox)
+                    Spacer()
+                    Button(L("項目名を編集・スクショで照合…")) {
+                        if let row = rows.first(where: { selectedKeys.contains($0.key) }) {
+                            editingLabel = SettingLabelTarget(bundleID: app.bundleID, appName: app.name, row: row)
+                        }
+                    }.disabled(selectedKeys.count != 1)
+                }
+                if courier.canRead(app.bundleID) {
+                    table(app)
+                    HStack {
+                        Text(L("保存済みの値を表示しています。未保存の初期値や、別ファイルの設定は含みません。"))
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
+                        Button(L("取得値の詳細…")) {
+                            inspectedRow = rows.first { selectedKeys.contains($0.key) }
+                        }.disabled(selectedKeys.count != 1)
+                    }
+                } else { readPrompt }
                 ExtraFilesView(app: app)
             }
         } else {
@@ -237,8 +279,8 @@ struct ContentView: View {
         }
     }
 
-    private func table(_ app: CourierApp) -> some View {
-        Table(visibleRows, selection: $selectedKeys) {
+    @TableColumnBuilder<KeyRow, Never>
+    private func valueColumns(_ app: CourierApp) -> some TableColumnContent<KeyRow, Never> {
             TableColumn(L("書き出す")) { row in
                 Toggle("", isOn: Binding(
                     get: { courier.isIncluded(app.bundleID, row.key, row.value) },
@@ -256,17 +298,46 @@ struct ContentView: View {
                     .foregroundStyle(courier.isIncluded(app.bundleID, row.key, row.value) ? .primary : .secondary)
                     .help(isExcludedByDefault(row.key, row.value) ? L("Macごとに異なる値のため、初めは書き出しません") : row.key)
             }
-            .width(min: 180, ideal: 280)
+            .width(min: 120, ideal: 180)
             TableColumn(L("種類")) { row in Text(typeName(row.value)).foregroundStyle(.secondary) }
                 .width(min: 50, ideal: 60)
             TableColumn(L("値")) { row in
                 Text(describe(row.value)).lineLimit(1).truncationMode(.tail).textSelection(.enabled)
                     .foregroundStyle(.secondary)
             }
-            .width(min: 120, ideal: 280)
+            .width(min: 100, ideal: 180)
+    }
+
+    @TableColumnBuilder<KeyRow, Never>
+    private func labelColumn(_ app: CourierApp) -> some TableColumnContent<KeyRow, Never> {
+        TableColumn(L("画面上の項目／意味")) { row in
+            InlineSettingLabel(bundleID: app.bundleID, row: row)
+                .id(app.bundleID + "\u{1}" + row.key)
+        }
+        .width(min: 150, ideal: 240)
+    }
+
+    private func table(_ app: CourierApp) -> some View {
+        Group {
+            if showSettingLabels {
+                Table(visibleRows, selection: $selectedKeys) {
+                    valueColumns(app)
+                    labelColumn(app)
+                }
+            } else {
+                Table(visibleRows, selection: $selectedKeys) { valueColumns(app) }
+            }
         }
         .contextMenu(forSelectionType: String.self) { keys in
             let targets = rows.filter { keys.contains($0.key) }.map { ($0.key, $0.value) }
+            Button(L("項目名を編集・スクショで照合…")) {
+                if let row = rows.first(where: { keys.contains($0.key) }) {
+                    editingLabel = SettingLabelTarget(bundleID: app.bundleID, appName: app.name, row: row)
+                }
+            }.disabled(keys.count != 1)
+            Button(L("取得値の詳細…")) { inspectedRow = rows.first { keys.contains($0.key) } }
+                .disabled(keys.count != 1)
+            Divider()
             Button(L("書き出す")) { courier.setIncluded(app.bundleID, targets, true) }
             Button(L("書き出さない")) { courier.setIncluded(app.bundleID, targets, false) }
         }

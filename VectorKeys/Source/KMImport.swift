@@ -1,13 +1,16 @@
 import Foundation
 
-/// Reads a Keyboard Maestro export (.kmmacros) and keeps the macros that only run one Illustrator script.
+/// Reads a Keyboard Maestro export (.kmmacros) and keeps the macros whose every step is a script, a menu command
+/// (executeMenuCommand in AppleScript) or an Illustrator menu item.
 /// Only the values written in the macro are read (a script path, the user's own code); the plug-ins' scripts
 /// (sttk3 MaestroPack) are neither read nor copied, and VectorKeys runs the script with its own do javascript.
 enum KMImport {
-    enum Source: Equatable {
+    enum Part: Equatable {
         case file(String)
         /// ExtendScript written in the macro itself (Ai Execute Jsx Text); saved as a .jsx file on import.
         case code(String)
+        case menuCommand(String)
+        case menuItem([String])
     }
     struct Item: Equatable {
         var name: String
@@ -17,15 +20,15 @@ enum KMImport {
         var uid: String?
         var hotkey: Hotkey?
         var enabled: Bool
-        var source: Source
+        var parts: [Part]
     }
     struct Skipped: Equatable {
         var name: String
         var reason: Reason
     }
     enum Reason: String, Error, Equatable {
-        case notScript          // no script step (menus, keys, other apps…)
-        case severalSteps       // more than the one script step
+        case notScript          // no step VectorKeys can run (keys, other apps…)
+        case severalSteps       // some steps VectorKeys cannot run
         case variable           // the path or code uses %…% tokens
         case notJSX             // a file that is not .jsx / .js / .jsxbin
     }
@@ -38,11 +41,12 @@ enum KMImport {
         var items: [Item] = [], skipped: [Skipped] = []
         for group in groups {
             let groupName = group["Name"] as? String ?? ""
+            let illustratorGroup = isIllustratorGroup(group)
             for macro in group["Macros"] as? [[String: Any]] ?? [] {
                 let name = macro["Name"] as? String ?? ""
-                switch source(of: macro["Actions"] as? [[String: Any]] ?? []) {
-                case .success(let source):
-                    items.append(Item(name: name, group: groupName, uid: macro["UID"] as? String, hotkey: hotkey(of: macro), enabled: bool(macro["IsActive"], default: true), source: source))
+                switch parts(of: macro["Actions"] as? [[String: Any]] ?? [], frontIsIllustrator: illustratorGroup) {
+                case .success(let parts):
+                    items.append(Item(name: name, group: groupName, uid: macro["UID"] as? String, hotkey: hotkey(of: macro), enabled: bool(macro["IsActive"], default: true), parts: parts))
                 case .failure(let reason):
                     skipped.append(Skipped(name: name, reason: reason))
                 }
@@ -51,37 +55,70 @@ enum KMImport {
         return (items, skipped)
     }
 
-    /// The one script step of a macro. Comments and turned-off actions do not count.
-    private static func source(of actions: [[String: Any]]) -> Result<Source, Reason> {
+    /// Every step of a macro, in order. Comments and turned-off actions do not count.
+    private static func parts(of actions: [[String: Any]], frontIsIllustrator: Bool) -> Result<[Part], Reason> {
         let steps = actions.filter { bool($0["IsActive"], default: true) && $0["MacroActionType"] as? String != "Comment" }
-        let found = steps.compactMap(scriptSource)
-        guard let first = found.first else { return .failure(.notScript) }
-        guard steps.count == 1 else { return .failure(.severalSteps) }
-        switch first {
-        case .file(let path):
-            if path.contains("%") { return .failure(.variable) }
-            if !ScriptEntry.accepts(URL(fileURLWithPath: path)) { return .failure(.notJSX) }
-            return .success(.file((path as NSString).expandingTildeInPath))
-        case .code(let code):
-            if Tokens.contains(code) { return .failure(.variable) }
-            return .success(first)
+        let found = steps.map { part($0, frontIsIllustrator: frontIsIllustrator) }
+        if found.allSatisfy({ $0 == nil }) { return .failure(.notScript) }
+        if found.contains(where: { $0 == nil }) { return .failure(.severalSteps) }
+        var parts: [Part] = []
+        for part in found.compactMap({ $0 }) {
+            switch part {
+            case .file(let path):
+                if path.contains("%") { return .failure(.variable) }
+                if !ScriptEntry.accepts(URL(fileURLWithPath: path)) { return .failure(.notJSX) }
+                parts.append(.file((path as NSString).expandingTildeInPath))
+            case .code(let code):
+                if Tokens.contains(code) { return .failure(.variable) }
+                parts.append(part)
+            case .menuCommand, .menuItem:
+                parts.append(part)
+            }
         }
+        return .success(parts)
     }
 
-    private static func scriptSource(_ action: [String: Any]) -> Source? {
+    /// AppleScript that only runs one menu command: tell application "Adobe Illustrator…" to do javascript "app.executeMenuCommand('id')".
+    static func menuCommand(inAppleScript text: String) -> String? {
+        let pattern = #"^\s*tell application "[^"]*Illustrator[^"]*"(?:\s+to)?\s*do javascript\s*"\s*app\.executeMenuCommand\(\s*\\?['"]([^'"\\]+)\\?['"]\s*\)\s*;?\s*"\s*(?:end tell)?\s*$"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]),
+              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let range = Range(match.range(at: 1), in: text) else { return nil }
+        return String(text[range])
+    }
+
+    /// A group that works in Illustrator: available only in Illustrator, or named for it (Illustrator…, Ai-…).
+    static func isIllustratorGroup(_ group: [String: Any]) -> Bool {
+        let targeting = group["Targeting"] as? [String: Any]
+        if targeting?["Targeting"] as? String == "Included",
+           (targeting?["TargetingApps"] as? [[String: Any]] ?? []).contains(where: { ($0["BundleIdentifier"] as? String)?.lowercased().hasPrefix("com.adobe.illustrator") == true }) { return true }
+        let name = group["Name"] as? String ?? ""
+        return (name.localizedCaseInsensitiveContains("Illustrator") || name.hasPrefix("Ai-") || name.hasPrefix("Ai ")) && !name.contains("以外") && !name.localizedCaseInsensitiveContains("except")
+    }
+
+    private static func part(_ action: [String: Any], frontIsIllustrator: Bool) -> Part? {
         switch action["MacroActionType"] as? String {
         case "PlugIn":
             let parameters = action["PlugInParameters"] as? [String: Any] ?? [:]
             switch action["PlugInFolderName"] as? String {
-            case "Ai Execute Script File": return (parameters["Script path"] as? String).map(Source.file)
-            case "Ai Execute Jsx Text": return (parameters["Jsx code"] as? String).map(Source.code)
+            case "Ai Execute Script File": return (parameters["Script path"] as? String).map(Part.file)
+            case "Ai Execute Jsx Text": return (parameters["Jsx code"] as? String).map(Part.code)
             default: return nil
             }
         case "Open1File":
             // A script opened with Illustrator runs it.
             let app = action["Application"] as? [String: Any]
             guard let bundle = app?["BundleIdentifier"] as? String, bundle.lowercased().hasPrefix("com.adobe.illustrator") else { return nil }
-            return (action["Path"] as? String).map(Source.file)
+            return (action["Path"] as? String).map(Part.file)
+        case "ExecuteAppleScript":
+            return (action["Text"] as? String).flatMap(menuCommand(inAppleScript:)).map(Part.menuCommand)
+        case "SelectMenuItem":
+            // A menu of Illustrator, or of the front app in a group that works in Illustrator.
+            let app = (action["TargetApplication"] as? [String: Any])?["BundleIdentifier"] as? String
+            let front = (action["TargetingType"] as? String) == "Front" && frontIsIllustrator
+            guard front || app?.lowercased().hasPrefix("com.adobe.illustrator") == true,
+                  let menu = action["Menu"] as? [String], !menu.isEmpty, !menu.joined().contains("%") else { return nil }
+            return .menuItem(menu)
         default:
             return nil
         }

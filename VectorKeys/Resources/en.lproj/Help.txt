@@ -7,6 +7,13 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 - Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
 - Recent Runs shows the latest results. When a script stops with an error, Illustrator's message is shown. Not saved; cleared when the app quits.
 
+## Steps (scripts and menu commands)
+An item can hold any number of steps; one shortcut runs them from the top. When a step fails, the run stops there and Recent Runs shows the step number and the reason.
+- Insert steps with + Run Script and + Run Menu Command under Steps on the right. Use … on a step to move it up or down or delete it.
+- Pick a menu command by searching its name or ID. It runs by command ID (app.executeMenuCommand): no permission is needed and Illustrator's language does not matter.
+- For a menu the ID does not run (such as Save Selection), use … > Press the Menu Item by Its Title Instead, or Press a menu item by its titles in the picker. This needs Accessibility access and the titles in Illustrator's language.
+- + under the list and File > Add Menu Command… make a new item with one menu command.
+
 ## Managing scripts
 - You can add .jsx, .js and .jsxbin files. The same file is not added twice.
 - Change the name in its field. The file name stays.
@@ -17,7 +24,7 @@ VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is
 
 ## Import from Keyboard Maestro
 Drag macros exported from Keyboard Maestro (.kmmacros) onto the window, or choose File > Import from Keyboard Maestro… (⌘I).
-- Macros that only run one Illustrator script are imported (Ai Execute Script File, Ai Execute Jsx Text, or opening a .jsx with Illustrator). Their name, hot key and on/off state come along.
+- Macros whose every step VectorKeys can run are imported: scripts (Ai Execute Script File, Ai Execute Jsx Text, opening a .jsx with Illustrator), menu commands (executeMenuCommand in AppleScript) and Illustrator menu selections. Several steps stay in order. Their name, hot key and on/off state come along.
 - Code written in a macro is saved as a .jsx file in ~/Library/Application Support/VectorKeys/Imported.
 - Macros with other steps or variables are not imported; the reason is shown.
 - Turn the same macros off in Keyboard Maestro, or the scripts run twice. Use the button after importing, or Tools > Turn Off the Selected Scripts’ KM Macros (there is also an item to turn them back on). The first time, you are asked to allow controlling Keyboard Maestro.
@@ -54,6 +61,7 @@ When two scripts share a key, only the one higher in the list reacts, and the ke
 ## Permissions and privacy
 - Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
 - Automation (Keyboard Maestro): used to turn imported original macros off or on.
+- Accessibility: used only by Press Menu Item steps. Scripts and menu commands by ID run without it. See its state in Settings > Launch & Background.
 The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
 
 ## Quitting and staying open

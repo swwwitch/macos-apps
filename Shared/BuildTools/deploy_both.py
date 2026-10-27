@@ -2,7 +2,8 @@
 """Place a verified app in /Applications and Latest Builds (AGENTS.md / BASELINE B18).
 
 - Refuses if an existing copy has a different Bundle ID or a newer integer build.
-- Refuses while the app is running (quit it first; a busy app refuses to quit by itself).
+- Never quits a running app: a destination whose copy is running is skipped and reported
+  (Install Latest Apps.command then updates /Applications from Latest Builds).
 - Backs up existing copies to Shared/Backups/Build/<stamp>/{Applications,LatestBuilds}/.
 - Verifies the signature and that every file (mode + SHA-256) matches the source.
 - Updates the app's row in Latest Builds/README.md (version, build).
@@ -63,13 +64,21 @@ def main():
         print(f'Verified {source}; deployment skipped (NO_DEPLOY=1).')
         return
     executable = meta['CFBundleExecutable']
-    # Match only processes whose command line starts with the executable path (not shells mentioning it).
-    running = subprocess.run(['pgrep', '-f', '^.*/' + re.escape(source.name) + '/Contents/MacOS/' + re.escape(executable) + '( |$)'], capture_output=True)
-    if running.returncode not in (0, 1):
-        sys.exit('Cannot check running applications; nothing was replaced.')
-    if running.returncode == 0:
-        sys.exit(f'{source.stem} is running; quit it before deployment.')
     destinations = {'Applications': Path('/Applications') / source.name, 'LatestBuilds': latest_builds_dir() / source.name}
+    # Never quit a running copy (BASELINE: do not quit the user's apps without asking); skip only that destination.
+    # Install Latest Apps.command later quits, replaces and relaunches the /Applications copy with the user's consent.
+    busy = {}
+    for label, dest in destinations.items():
+        # Match only processes whose command line starts with the executable path (not shells mentioning it).
+        running = subprocess.run(['pgrep', '-f', '^' + re.escape(str(dest / 'Contents/MacOS' / executable)) + '( |$)'], capture_output=True)
+        if running.returncode not in (0, 1):
+            sys.exit('Cannot check running applications; nothing was replaced.')
+        if running.returncode == 0:
+            busy[label] = destinations[label]
+    for label in busy:
+        del destinations[label]
+    if not destinations:
+        sys.exit(f'{source.stem} is running from every destination; quit it before deployment.')
     for dest in destinations.values():
         if dest.exists():
             old = info(dest)
@@ -124,6 +133,10 @@ def main():
         print('Latest Builds/README.md updated')
     else:
         print('Latest Builds/README.md has no row for', source.stem, '- add it by hand')
+    for dest in busy.values():
+        print(f'NOT UPDATED: {dest} is running.')
+        if 'LatestBuilds' in destinations:
+            print('  Run "Install Latest Apps.command" in Latest Builds to quit, replace and relaunch it.')
 
 
 if __name__ == '__main__':

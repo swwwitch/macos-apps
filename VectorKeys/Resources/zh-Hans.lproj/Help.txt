@@ -7,6 +7,13 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 - 关闭右上角的“使用快捷键”可暂停所有快捷键（也可从菜单栏图标切换）。
 - “最近运行”显示最近的结果。因错误停止时，会显示 Illustrator 返回的信息。不会保存，退出应用时清除。
 
+## 步骤（脚本和菜单命令）
+一个项目可以包含任意多个步骤，用一个快捷键从上到下依次运行。某一步出错时会在该处停止，并在“最近运行”中显示步骤编号和原因。
+- 用右侧“步骤”下方的“＋ 运行脚本”“＋ 运行菜单命令”插入。可用各步骤的 … 上移、下移或删除。
+- 按名称或 ID 搜索并选择菜单命令。它按命令 ID（app.executeMenuCommand）运行，无需权限，也不受 Illustrator 显示语言影响。
+- 对于 ID 无法运行的菜单（如“存储所选对象”），用步骤的 … >“改为按名称按下菜单项”，或在选择界面中用“按名称按下菜单项”。这需要辅助功能权限，并使用 Illustrator 显示语言的菜单名称。
+- 也可用列表下方的 ＋ 或“文件”>“添加菜单命令…”新建只含一个菜单命令的项目。
+
 ## 管理脚本
 - 可添加 .jsx、.js 和 .jsxbin。同一文件不会重复登记。
 - 可在名称栏中更改名称，文件名不变。
@@ -17,7 +24,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 
 ## 从 Keyboard Maestro 导入
 将从 Keyboard Maestro 导出的宏（.kmmacros）拖到窗口中，或选择“文件”>“从 Keyboard Maestro 导入…”（⌘I）。
-- 只导入仅运行一个 Illustrator 脚本的宏（Ai Execute Script File、Ai Execute Jsx Text，或用 Illustrator 打开 .jsx）。名称、快捷键和开关状态会一并导入。
+- 只导入所有步骤都能由 VectorKeys 运行的宏：脚本（Ai Execute Script File、Ai Execute Jsx Text、用 Illustrator 打开 .jsx）、菜单命令（AppleScript 中的 executeMenuCommand）以及 Illustrator 菜单选择。多个步骤按原顺序保留。名称、快捷键和开关状态会一并导入。
 - 宏中写入的代码会存储为 .jsx 文件，位于 ~/Library/Application Support/VectorKeys/Imported。
 - 含其他步骤或使用变量的宏不会导入，并显示原因。
 - 请在 Keyboard Maestro 中关闭相同的宏，否则脚本会运行两次。可用导入后对话框中的按钮，或“工具”>“关闭所选脚本的 KM 宏”关闭（也有重新打开的项目）。首次使用时会请求控制 Keyboard Maestro 的许可。
@@ -54,6 +61,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 ## 权限与隐私
 - 自动化（Adobe Illustrator）：用于运行脚本。首次运行时会请求许可。
 - 自动化（Keyboard Maestro）：用于关闭或打开已导入的原始宏。
+- 辅助功能：仅用于“按下菜单项”步骤。脚本和菜单命令（ID）无需此权限即可运行。可在设置的“启动与常驻”中查看状态。
 列表存储在 ~/Library/Application Support/VectorKeys/Scripts.json。脚本文件只读取，不会修改。不会向外部发送任何内容。
 
 ## 退出与常驻

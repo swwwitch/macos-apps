@@ -22,7 +22,6 @@ SettingsCourierヘルプ	SettingsCourier Help	SettingsCourier 帮助	SettingsCou
 Finderで表示	Show in Finder	在访达中显示	Finder에서 보기
 読み直す	Reload	重新读取	다시 읽기
 設定を読み直す	Read the settings again	重新读取设置	설정 다시 읽기
-キー・値で検索	Search keys and values	搜索键和值	키·값 검색
 書き出す項目 %@／%@	Exported items %@/%@	导出的项目 %@/%@	내보낼 항목 %@/%@
 初めの選択に戻す	Reset Selection	恢复初始选择	처음 선택으로 되돌리기
 ウインドウの位置などMacごとに異なるキーと日付だけを外した状態に戻す	Go back to leaving out only per-Mac keys such as window positions, and dates	恢复为仅排除窗口位置等因 Mac 而异的键和日期	창 위치 등 Mac마다 다른 키와 날짜만 제외한 상태로 되돌리기
@@ -150,3 +149,37 @@ SettingsCourierの書き出しファイルではありません：%@	Not Setting
 バックアップのファイルは、1つずつ開いて元に戻してください。	Open backup files one at a time to restore them.	请逐个打开备份文件进行恢复。	백업 파일은 하나씩 열어 되돌리십시오.
 %@個のファイル	%@ files	%@ 个文件	파일 %@개
 同期フォルダーの SettingsCourier フォルダーに書き出します。SettingsCourierが起動している間だけ働き、値が変わっていなければ書きません。	Writes to the SettingsCourier folder in the sync folder. Works only while SettingsCourier is running, and writes nothing if the values have not changed.	写入同步文件夹中的 SettingsCourier 文件夹。仅在 SettingsCourier 运行时有效，值未改变时不会写入。	동기화 폴더 안의 SettingsCourier 폴더에 씁니다. SettingsCourier가 실행 중일 때만 작동하며 값이 바뀌지 않았으면 쓰지 않습니다.
+項目・キー・値で検索	Search item, key or value	搜索项目、键或值	항목·키·값 검색
+画面上の項目／意味	UI item / meaning	界面项目／含义	화면 항목 / 의미
+対応不明	Unknown mapping	对应关系未知	대응 정보 없음
+画面上の文言との対応情報がありません	No mapping to a UI label is available.	暂无与界面文案的对应信息。	화면 문구와의 대응 정보가 없습니다.
+取得値の詳細…	Inspect Value…	查看值详情…	값 자세히 보기…
+取得値（型を保持したplist表示）	Read value (plist preserving types)	读取的值（保留类型的 plist）	읽은 값 (자료형을 유지한 plist)
+閉じる	Close	关闭	닫기
+保存済みの値を表示しています。未保存の初期値や、別ファイルの設定は含みません。	Shows saved values; unsaved defaults and settings in other files are not included.	显示已保存的值，不包含未保存的默认值及其他文件中的设置。	저장된 값만 표시합니다. 저장되지 않은 기본값과 다른 파일의 설정은 포함하지 않습니다.
+メニューバーに表示	Show icon in menu bar	在菜单栏显示图标	메뉴 막대에 아이콘 표시
+設定の共有：同期フォルダー	Settings Sharing: Sync Folder	设置共享：同步文件夹	설정 공유: 동기화 폴더
+共通部品のソースで確認（アプリの版により文言が異なる場合があります）	From shared source (wording may vary by app version)	已通过共用组件源码确认（文案可能因版本而异）	공통 소스에서 확인 (앱 버전에 따라 문구가 다를 수 있음)
+SettingsCourierのソースで確認	Verified in SettingsCourier source	已通过 SettingsCourier 源码确认	SettingsCourier 소스에서 확인
+ウインドウの位置・サイズ	Window position and size	窗口位置和大小	윈도우 위치 및 크기
+分割ビューの位置・サイズ	Split view position and size	分栏视图位置和大小	분할 보기 위치 및 크기
+内部保存値（設定画面の項目ではありません）	Internal saved value (not a settings control)	内部保存值（非设置界面项目）	내부 저장 값 (설정 화면 항목이 아님)
+候補：アプリ内の翻訳キーが一致。画面との対応は未確認です	Candidate: matching localization key; UI mapping not verified	候选：应用内翻译键匹配，尚未确认界面对应关系	후보: 앱 내 번역 키 일치. 화면 대응은 미확인
+ユーザー入力	User entered	用户输入	사용자 입력
+画面上の項目／意味を表示	Show UI item / meaning	显示界面项目／含义	화면 항목 / 의미 표시
+項目名を編集・スクショで照合…	Edit Label / Match Screenshot…	编辑名称／对照截图…	항목 이름 편집 / 스크린샷 대조…
+項目名を編集	Edit Label	编辑项目名称	항목 이름 편집
+取得値：%@	Read value: %@	读取的值：%@	읽은 값: %@
+入力した項目名はSettingsCourierの設定の書き出し・同期に含まれます。対象アプリの設定値は変更しません。	Labels are included in SettingsCourier settings export and sync. The target app’s settings are unchanged.	名称包含在 SettingsCourier 的设置导出和同步中，不会更改目标应用的设置值。	입력한 이름은 SettingsCourier 설정 내보내기 및 동기화에 포함됩니다. 대상 앱의 설정 값은 변경하지 않습니다.
+スクショを読み込む…	Load Screenshot…	载入截图…	스크린샷 불러오기…
+読み取った文字を選ぶと入力欄に入ります。画像とキー・取得値を見比べ、必要なら修正して保存してください。	Choose recognized text to fill the field. Compare the image with the key and value, edit if needed, then save.	选择识别的文字以填入输入框。请对照图片、键和值，按需修改后保存。	인식한 문구를 선택하면 입력란에 들어갑니다. 이미지와 키·값을 대조한 뒤 필요하면 수정하고 저장하세요.
+設定画面のスクショから項目名を読み取れます。画像は保存・送信しません。	Read labels from a screenshot of settings. Images are not saved or uploaded.	可从设置截图中读取项目名称。不会保存或上传图片。	설정 화면 스크린샷에서 항목 이름을 읽습니다. 이미지는 저장하거나 전송하지 않습니다.
+自動表示に戻す	Use Automatic Label	恢复自动显示	자동 표시로 되돌리기
+保存	Save	保存	저장
+文字を読み取り中…	Recognizing text…	正在识别文字…	문자 인식 중…
+文字が見つかりませんでした。手入力するか、別の画像を選んでください。	No text found. Enter a label manually or choose another image.	未找到文字。请手动输入或选择其他图片。	문자를 찾지 못했습니다. 직접 입력하거나 다른 이미지를 선택하세요.
+%@件の候補（キーとの対応は未確認）	%@ candidates (key mapping not verified)	%@ 个候选（尚未确认与键的对应关系）	후보 %@개 (키 대응은 미확인)
+画像を読み取れませんでした：%@	Could not read the image: %@	无法读取图片：%@	이미지를 읽을 수 없습니다: %@
+項目名を保存できませんでした：%@	Could not save the label: %@	无法保存名称：%@	항목 이름을 저장할 수 없습니다: %@
+ダブルクリックで編集。Enterまたは別のセルへ移動で保存、Escでキャンセル。空欄で保存すると自動表示に戻ります。	Double-click to edit. Enter or leaving the cell saves; Esc cancels. Save an empty field to restore the automatic label.	双击编辑。按 Enter 或移到其他单元格保存，Esc 取消。保存空白内容可恢复自动显示。	두 번 클릭하여 편집합니다. Enter 또는 다른 셀로 이동하면 저장하고 Esc로 취소합니다. 빈칸으로 저장하면 자동 표시로 돌아갑니다.
+項目名を保存できませんでした	Could Not Save Label	无法保存项目名称	항목 이름을 저장할 수 없습니다
