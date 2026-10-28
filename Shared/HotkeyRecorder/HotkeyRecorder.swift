@@ -238,7 +238,7 @@ final class HotkeySet {
                 }
             }
             return noErr
-        }, UInt32(specs.count), &specs, Unmanaged.passUnretained(self).toOpaque(), &handler)
+        }, specs.count, &specs, Unmanaged.passUnretained(self).toOpaque(), &handler)
         HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.setSuspended(recording) }
     }
 
