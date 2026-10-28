@@ -200,6 +200,10 @@ final class HotkeyRecorder: ObservableObject {
 @MainActor
 final class HotkeySet {
     var action: ((UInt32) -> Void)?
+    /// Opt-in edge callbacks; existing clients keep their repeated press behavior.
+    var released: ((UInt32) -> Void)?
+    var suppressRepeatedPresses = false
+    private var held: Set<UInt32> = []
     private nonisolated let signature: OSType
     private var references: [UInt32: EventHotKeyRef] = [:]
     private var wanted: [UInt32: KeyCombo] = [:]
@@ -210,7 +214,7 @@ final class HotkeySet {
     /// signature: four characters unique to the app, e.g. "LkMk".
     init(signature: String) {
         self.signature = signature.utf8.reduce(0) { ($0 << 8) | OSType($1) }
-        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        var specs = [kEventHotKeyPressed, kEventHotKeyReleased].map { EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32($0)) }
         handlerStatus = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
             guard let context, let event else { return OSStatus(eventNotHandledErr) }
             var id = EventHotKeyID()
@@ -221,11 +225,20 @@ final class HotkeySet {
             // Returning noErr here would swallow its keys: the handler installed last is called first.
             guard id.signature == owner.signature else { return OSStatus(eventNotHandledErr) }
             let number = id.id
+            let isRelease = GetEventKind(event) == UInt32(kEventHotKeyReleased)
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { owner.action?(number) }
+                MainActor.assumeIsolated {
+                    if isRelease {
+                        owner.held.remove(number)
+                        owner.released?(number)
+                    } else {
+                        let first = owner.held.insert(number).inserted
+                        if first || !owner.suppressRepeatedPresses { owner.action?(number) }
+                    }
+                }
             }
             return noErr
-        }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
+        }, UInt32(specs.count), &specs, Unmanaged.passUnretained(self).toOpaque(), &handler)
         HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in self?.setSuspended(recording) }
     }
 
@@ -253,6 +266,7 @@ final class HotkeySet {
         return status
     }
     private func detach(_ number: UInt32) {
+        held.remove(number)
         if let reference = references.removeValue(forKey: number) { UnregisterEventHotKey(reference) }
     }
     private func setSuspended(_ value: Bool) {

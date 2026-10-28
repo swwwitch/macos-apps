@@ -4,7 +4,7 @@ set -euo pipefail
 cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/SettingsHop-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
-xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework ApplicationServices Source/Panes.swift Source/RowLocator.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework ApplicationServices Source/Panes.swift Source/RowLocator.swift Source/LaunchPolicy.swift Tests/main.swift -o "$stage/tests"
 "$stage/tests"
 python3 make-resources.py >/dev/null
 python3 - <<'PY'

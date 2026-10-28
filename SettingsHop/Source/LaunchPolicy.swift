@@ -10,3 +10,16 @@ enum LaunchPolicy {
         loginLaunch && enabled && !hasFiles
     }
 }
+
+/// Pairs distinct key presses. The interval is measured between key-down events.
+struct AppHotkeyPressSequence {
+    private var firstPress: TimeInterval?
+    mutating func press(at time: TimeInterval, interval: TimeInterval) -> Bool {
+        if let first = firstPress, time >= first, time - first <= interval {
+            firstPress = nil
+            return true
+        }
+        firstPress = time
+        return false
+    }
+}

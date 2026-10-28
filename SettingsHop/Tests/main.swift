@@ -36,5 +36,11 @@ check(PaneLayout(hiddenPlist: nil, keysPlist: ["camera": "1"]).key(for: .systemS
 var single = PaneLayout(); single.hidden = Set(Pane.allCases.dropFirst())
 check(!single.canHide(.systemSettings) && single.canHide(.camera), "the last visible pane cannot be hidden")
 
+var sequence = AppHotkeyPressSequence()
+check(!sequence.press(at: 1, interval: 0.5), "first press shows window")
+check(sequence.press(at: 1.5, interval: 0.5), "double interval boundary opens settings")
+check(!sequence.press(at: 1.6, interval: 0.5), "third press starts new pair")
+check(!sequence.press(at: 2.2, interval: 0.5), "expired interval starts new pair")
+check(sequence.press(at: 2.3, interval: 0.5), "fresh pair opens settings")
 print(failures == 0 ? "All tests passed" : "\(failures) failed")
 exit(failures == 0 ? 0 : 1)

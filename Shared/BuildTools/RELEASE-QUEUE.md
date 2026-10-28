@@ -750,3 +750,9 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ### VectorKeys 詳細情報・カラー更新 開発検証結果
 - 通常版1.11.0（20）。⌘Delete・名前インライン編集・情報更新・解説ページ／コードURL・アイテム全体の背景色・Illustrator前面時だけのパレット表示を実装。単体／Runner／4言語検証・NO_DEPLOYビルド・証明書署名検証PASS。成果物VectorKeys/build/VectorKeys.app。対象SHAは本記録を含む確定コミット。マニフェストと検証範囲：VectorKeys/Tests/BUILD-NOTES-20261029-details-colors.md。最終実機UI操作・公証・配置・公開は未確認／未実施。今回の受付項目はこの更新に統合。
+## SettingsHop 2回押し・2026-10-29
+
+- 担当: MacBookPro13-M5-2025.local / 公証Mac（実装・検証・ビルドの明示例外）。開始: 2026-10-29T05:27:31.874441+09:00
+- ブランチ: codex/settingshop-double-press。実装前SHA: da38b4a。対象: 1.8.0 (24)。状態: 実装・テスト中。
+- 1回でメイン表示、ダブルクリック間隔内の2回でメインを隠しシステム設定。リピート除外。未回答のメニュー要望は対象外。通常版のみ。公開・Store提出なし。
+- 保全: 正本 `.local/settingshop-doublepress-20261029/local-work-before.tar.gz`。実キー・再表示・設定保持は未確認。

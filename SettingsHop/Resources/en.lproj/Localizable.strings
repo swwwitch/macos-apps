@@ -38,7 +38,7 @@
 "launchShortcut" = "App launch keyboard shortcut";
 "openShortcuts" = "Open Shortcuts";
 "shortcutDetail" = "In Shortcuts, create an Open App action for SettingsHop and assign a key. It works even when the app is not running.";
-"appHotkeyHint" = "While SettingsHop is running, press it in any app to show the main window. When it is not running, use the key assigned with Open Shortcuts above.";
+"appHotkeyHint" = "Press once to show the main window. Press twice within the system double-click interval to hide it and open System Settings. Holding the key does not count as two presses. Available while running.";
 "openMainWindow" = "Open Main Window";
 "settings" = "Settings…";
 "settingsWindow" = "Settings";

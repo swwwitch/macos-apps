@@ -246,6 +246,7 @@ struct PaneLayoutSettings: View {
     var helpWindow: NSWindow?
     var fileMenu: NSMenu?
     var isDuplicate = false
+    private var hotkeyPressSequence = AppHotkeyPressSequence()
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
@@ -278,7 +279,18 @@ struct PaneLayoutSettings: View {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onOpened = { [weak self] in self?.window.performClose(nil) }
         model.onLayoutChanged = { [weak self] in self?.rebuildPaneMenu() }
-        model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
+        model.hotkeys.suppressRepeatedPresses = true
+        model.hotkeys.action = { [weak self] _ in
+            guard let self else { return }
+            if self.hotkeyPressSequence.press(at: ProcessInfo.processInfo.systemUptime, interval: NSEvent.doubleClickInterval) {
+                // orderOut bypasses windowShouldClose: a double press must not quit a nonresident app.
+                self.window.orderOut(nil)
+                if !self.model.open(.systemSettings, fromMainWindow: false) { self.show() }
+            } else {
+                StartupWindow.userRequestedWindow()
+                self.show()
+            }
+        }
         model.registerAppHotkey()
         installArrowKeys()
         model.trackPreviousApp()
