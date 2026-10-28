@@ -680,3 +680,5 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 対象: KeynoteSweeper / ShotSorter / SettingsHop / SiteMirror / QuickIconExporter / LinkMaker / PodiumAssist / NotMyType / NotMyType Lite / MarkdownKitchen / VectorMate / CarmaChameleon。版・buildは確定ソースのまま。
 - 状態: 着手。成果物 `Shared/ReleasePreparation/Rebuild12-20261029`。
 - 1回目ビルド（対象SHA 188a6c7）: 7本成功。MarkdownKitchen / NotMyType / NotMyType Lite / QuickIconExporter / SiteMirror はSwift 6.4（Xcode 27.1）で共有SettingsSync.swift:584のSendingRisksDataRaceエラー。`fileImport` を `@MainActor` クロージャ型に修正しsync.pyで配布、SettingsSyncテストPASS、唯一の利用元FavoriteFoldersのビルド成功。MarkdownKitchenは188a6c7の未採番変更を含むためbuildを126へ更新（ユーザー指示「上げる必要があれば通常の手順で」）。5本は修正コミットから再ビルド。
+- 補足: e3ee5c3 にはbee83bc以降未同期だった各アプリのSettingsSync.swiftコピー（fileExport/fileImport/fileNote追加）の同期分も含まれる。ビルド時にsync済みの内容と同一。NotMyType／NotMyType Liteはsync.py対象外で各build.shが共有元から取り込むため、修正版コピーを続くコミットで記録。
+- 再ビルド: MarkdownKitchen 1.47.3 (126) テストPASS、NotMyType 1.63.3 (106)、NotMyType Lite 1.9.0 (25)、QuickIconExporter 1.2.0 (42)、SiteMirror 1.5.3 (16) ビルド成功（成果物 `Shared/ReleasePreparation/Rebuild12-20261029-b`）。1回目の7本は公証Accepted。
