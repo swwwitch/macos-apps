@@ -86,6 +86,7 @@ import Carbon
     @objc func addCode() { show(); model.addCode() }
     @objc func addScripts() { show(); model.chooseFiles() }
     @objc func importKM() { show(); model.chooseKMFiles() }
+    @objc func refreshScriptInformation() { model.updateScriptInformation() }
     @objc func stripNumbering() { model.stripNumbering() }
     @objc func replaceNames() { show(); model.showReplace = true }
     /// 表示 › 使用回数を表示 (the views read the same "showUses" default through @AppStorage).
@@ -166,6 +167,7 @@ import Carbon
         view.addItem(.separator())
         add(view, L("showUses"), #selector(toggleShowUses), "")
         let tools = NSMenu(title: L("toolsMenu")); let toolsItem = NSMenuItem(title: L("toolsMenu"), action: nil, keyEquivalent: ""); toolsItem.submenu = tools; bar.addItem(toolsItem)
+        add(tools, L("tools.refreshInfo"), #selector(refreshScriptInformation), "")
         add(tools, L("tools.stats"), #selector(showStats), "")
         tools.addItem(.separator())
         add(tools, L("tools.replace"), #selector(replaceNames), "f")
@@ -187,6 +189,7 @@ import Carbon
 extension Delegate: NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(stripNumbering) || menuItem.action == #selector(replaceNames) { return !model.selection.isEmpty }
+        if menuItem.action == #selector(refreshScriptInformation) { return !model.updatingInformation }
         if menuItem.action == #selector(toggleShowUses) { menuItem.state = UserDefaults.standard.bool(forKey: "showUses") ? .on : .off }
         if menuItem.action == #selector(kmOff) || menuItem.action == #selector(kmOn) { return !model.selectedKMUIDs.isEmpty }
         if menuItem.action == #selector(toggleHotkeys) { menuItem.title = L(model.hotkeysEnabled ? "pauseHotkeys" : "resumeHotkeys") }
