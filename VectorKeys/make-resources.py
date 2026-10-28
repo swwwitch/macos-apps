@@ -3,7 +3,15 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''source.preview|Quick Lookで見る|Quick Look|快速查看|훑어보기
+rows = '''item.filename|ファイル名|Filename|文件名|파일 이름
+item.display|アイテムの表示設定|Item Display Options|项目显示选项|항목 표시 옵션
+sort.uses|回数|Usage Count|使用次数|사용 횟수
+palette.behavior|パレットの動作|Palette Behavior|面板行为|팔레트 동작
+palette.mode0|パレットを開閉（アイテムのホットキーは実行できる）|Toggle palette (item hotkeys enabled)|切换面板（启用项目快捷键）|팔레트 열기/닫기(항목 단축키 사용)
+palette.mode1|パレットを開閉（アイテムのホットキーは実行できない）|Toggle palette (item hotkeys disabled)|切换面板（禁用项目快捷键）|팔레트 열기/닫기(항목 단축키 사용 안 함)
+palette.mode2|パレットを開き、何か実行したら閉じる|Open palette and close after running an item|打开面板，执行项目后关闭|팔레트를 열고 항목 실행 후 닫기
+palette.behaviorHint|ホットキー無効モードは、パレットを閉じている間もこのカテゴリのアイテムに適用します。実行後に閉じるモードではアイテムのホットキーも使用できます。|Disabled item hotkeys remain disabled while the palette is closed. Auto-close mode allows item hotkeys.|禁用模式在面板关闭时仍禁用此分类的项目快捷键。自动关闭模式允许项目快捷键。|단축키 사용 안 함 모드는 팔레트가 닫혀 있어도 적용됩니다. 실행 후 닫기 모드에서는 항목 단축키를 사용할 수 있습니다.
+source.preview|Quick Lookで見る|Quick Look|快速查看|훑어보기
 meta.scriptName|スクリプト名|Script Name|脚本名称|스크립트 이름
 meta.openReadme|READMEを開く|Open README|打开 README|README 열기
 meta.released|初回リリース|First Release|首次发布|최초 릴리스

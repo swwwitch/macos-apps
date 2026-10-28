@@ -1,3 +1,11 @@
+"item.filename" = "文件名";
+"item.display" = "项目显示选项";
+"sort.uses" = "使用次数";
+"palette.behavior" = "面板行为";
+"palette.mode0" = "切换面板（启用项目快捷键）";
+"palette.mode1" = "切换面板（禁用项目快捷键）";
+"palette.mode2" = "打开面板，执行项目后关闭";
+"palette.behaviorHint" = "禁用模式在面板关闭时仍禁用此分类的项目快捷键。自动关闭模式允许项目快捷键。";
 "source.preview" = "快速查看";
 "meta.scriptName" = "脚本名称";
 "meta.openReadme" = "打开 README";

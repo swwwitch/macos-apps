@@ -36,7 +36,7 @@ import Carbon
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
-        UserDefaults.standard.register(defaults: ["resident": true, "showUses": true])
+        UserDefaults.standard.register(defaults: ["resident": true, "showUses": false])
         if let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier: id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
             isDuplicate = true
             other.activate(options: [.activateAllWindows])
@@ -48,7 +48,7 @@ import Carbon
         guard !isDuplicate else { return }
 
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
-        SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
+        SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "itemShowVersion", "itemShowFilename", "itemShowUses", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
         model.showPalette = { [weak self] in self?.palettes.show($0) }
         model.paletteRenamed = { [weak self] in self?.palettes.rename($0, to: $1) }
         buildMenus()

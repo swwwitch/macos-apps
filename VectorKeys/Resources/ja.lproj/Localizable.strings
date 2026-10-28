@@ -1,3 +1,11 @@
+"item.filename" = "ファイル名";
+"item.display" = "アイテムの表示設定";
+"sort.uses" = "回数";
+"palette.behavior" = "パレットの動作";
+"palette.mode0" = "パレットを開閉（アイテムのホットキーは実行できる）";
+"palette.mode1" = "パレットを開閉（アイテムのホットキーは実行できない）";
+"palette.mode2" = "パレットを開き、何か実行したら閉じる";
+"palette.behaviorHint" = "ホットキー無効モードは、パレットを閉じている間もこのカテゴリのアイテムに適用します。実行後に閉じるモードではアイテムのホットキーも使用できます。";
 "source.preview" = "Quick Lookで見る";
 "meta.scriptName" = "スクリプト名";
 "meta.openReadme" = "READMEを開く";

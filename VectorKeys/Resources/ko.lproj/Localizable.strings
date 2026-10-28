@@ -1,3 +1,11 @@
+"item.filename" = "파일 이름";
+"item.display" = "항목 표시 옵션";
+"sort.uses" = "사용 횟수";
+"palette.behavior" = "팔레트 동작";
+"palette.mode0" = "팔레트 열기/닫기(항목 단축키 사용)";
+"palette.mode1" = "팔레트 열기/닫기(항목 단축키 사용 안 함)";
+"palette.mode2" = "팔레트를 열고 항목 실행 후 닫기";
+"palette.behaviorHint" = "단축키 사용 안 함 모드는 팔레트가 닫혀 있어도 적용됩니다. 실행 후 닫기 모드에서는 항목 단축키를 사용할 수 있습니다.";
 "source.preview" = "훑어보기";
 "meta.scriptName" = "스크립트 이름";
 "meta.openReadme" = "README 열기";

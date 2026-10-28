@@ -87,7 +87,7 @@ Select a category and click the palette button below the categories, or choose V
 
 
 ## Layout / Hotkeys / SCRIPTMETA
-Drag either column divider to resize; widths stay on this Mac. In Settings > Palettes, assign each category an opening hotkey that works in other apps too. The global hotkey switch pauses these keys. Keys are saved with the library and follow category renaming/deletion. Local SCRIPTMETA comments with Script-ID and Version display the script version, for files and inline code. Missing, unreadable or binary metadata has no version display. The first 256 KiB is read and refreshed on app activation.
+Drag either column divider to resize; widths stay on this Mac. In the right panel after selecting a category, assign each category an opening hotkey that works in other apps too. The global hotkey switch pauses these keys. Keys are saved with the library and follow category renaming/deletion. Local SCRIPTMETA comments with Script-ID and Version display the script version, for files and inline code. Missing, unreadable or binary metadata has no version display. The first 256 KiB is read and refreshed on app activation.
 
 
 ## Script Information
@@ -104,3 +104,6 @@ Literal SCRIPT_NAME, SCRIPT_VERSION, SCRIPT_AUTHOR, SCRIPT_RELEASED, SCRIPT_UPDA
 
 ## Quick Look
 Click Quick Look on a file step to open the standard macOS preview. Close it to return. Supported formats and presentation depend on Quick Look; the file is not modified.
+
+
+Use the display button beside sorting in Items (second column) to show version, usage count and filenames; all default to off. Select multiple rows and right-click Sort: name and hotkey ascend, usage descends. Only selected slots in each category change; Undo is available. In the category right panel, enable palettes and set their shortcut and behavior. Disabled item hotkeys remain disabled while closed. Auto-close closes when a run is accepted and allows item hotkeys.

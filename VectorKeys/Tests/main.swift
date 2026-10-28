@@ -247,4 +247,23 @@ check(ScriptMetadata.parse(#"var SCRIPT_VERSION = "v" + version;"#) == nil, "exp
 check(ScriptMetadata.parse(#"const SCRIPT_AUTHOR = 'Takano\u0020Masahiro';"#)?.fields["Author"] == "Takano Masahiro", "single quotes and Unicode escape")
 check(ScriptMetadata.parse(#"let SCRIPT_AUTHOR = "Takano\"M";"#)?.fields["Author"] == "Takano\"M", "escaped quote decoded")
 
+// Selected sorting keeps unselected slots and category membership, and persists palette settings.
+var selectionSort = Library()
+_ = selectionSort.add(paths: ["/s/Z.jsx", "/s/Keep.jsx", "/s/A.jsx"])
+let selectedIDs = Set([selectionSort.scripts[0].id, selectionSort.scripts[2].id])
+selectionSort.sortSelected(selectedIDs, by: .name) { _ in "A" }
+check(selectionSort.scripts.map(\.name) == ["A", "Keep", "Z"], "selected sort preserves unselected position")
+for _ in 0..<9 { selectionSort.scripts[2].recordRun() }
+selectionSort.sortSelected(selectedIDs, by: .uses) { _ in "A" }
+check(selectionSort.scripts.map(\.name) == ["Z", "Keep", "A"], "usage sort is descending")
+selectionSort.paletteEnabled = ["Demo": false]
+selectionSort.paletteModes = ["Demo": 2]
+selectionSort.addCategory("Demo")
+selectionSort.renameCategory("Demo", to: "Renamed")
+check(selectionSort.paletteModes?["Renamed"] == 2 && !selectionSort.allowsPalette("Renamed"), "palette options follow rename")
+let restoredOptions = try JSONDecoder().decode(Library.self, from: JSONEncoder().encode(selectionSort))
+check(restoredOptions == selectionSort, "palette settings persist")
+selectionSort.deleteCategory("Renamed")
+check(selectionSort.paletteModes?["Renamed"] == nil, "palette options removed with category")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

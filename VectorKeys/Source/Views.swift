@@ -25,19 +25,25 @@ struct Badge: View {
 }
 
 struct ScriptRow: View {
+    @AppStorage("itemShowVersion") private var showVersion = false
+    @AppStorage("itemShowFilename") private var showFilename = false
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
-    @AppStorage("showUses") private var showUses = true
+    @AppStorage("itemShowUses") private var showUses = false
     var body: some View {
         HStack(spacing: 8) {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
             VStack(alignment: .leading, spacing: 2) {
                 Text(script.name).lineLimit(1).truncationMode(.middle)
-                if let version = model.version(for: script) { Text(version).font(.caption2).foregroundColor(.secondary) }
+                if showFilename {
+                    ForEach(script.actions.compactMap(\.scriptPath), id: \.self) { path in
+                        Text((path as NSString).lastPathComponent).font(.caption).foregroundColor(.secondary)
+                    }
+                }
+                if showVersion, let version = model.version(for: script) { Text(version).font(.caption2).foregroundColor(.secondary) }
             }
             if script.hasUnsupportedSteps { Badge(text: L("legacy.badge"), color: .orange).help(L("legacy.unsupported")) }
             else if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("code.unavailable"), color: .orange).help(L("code.unavailableHint")) }
-            if script.actions.count > 1 { Badge(text: String(format: L("steps.count"), script.actions.count)).help(L("steps")) }
             Spacer(minLength: 4)
             if showUses && script.uses > 0 {
                 Text(String(format: L("uses.count"), script.uses)).font(.caption.monospacedDigit()).foregroundColor(.secondary).help(L("uses.hint"))
@@ -61,7 +67,7 @@ extension Hotkey {
 struct ScriptDetail: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
-    @AppStorage("showUses") private var showUses = true
+    @AppStorage("showUses") private var showUses = false
     @State private var showHotkeyHelp = false
     var body: some View {
         ScrollView {
@@ -478,7 +484,7 @@ struct MainView: View {
                             } else if model.selection.count > 1 {
                                 MultipleSelection(model: model)
                             } else {
-                                Text(L("selectScript")).foregroundColor(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
+                                CategoryDetail(model: model, category: model.categoryFilter)
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -563,6 +569,7 @@ struct MainView: View {
                     Text(L("sort.hotkey")).tag(SortOrder.hotkey.rawValue)
                 }
                 .labelsHidden().fixedSize().help(L("sort.hint")).accessibilityLabel(L("sort.label"))
+                ItemDisplayOptions()
             }
             List(selection: $model.selection) {
                 if model.categoryFilter == AppModel.allCategories && !model.library.categoryList.isEmpty {
@@ -582,6 +589,13 @@ struct MainView: View {
                     Button(L("run")) { model.runFromWindow(script) }.disabled(!script.isAvailable)
                     if let path = script.actions.compactMap(\.scriptPath).first {
                         Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!FileManager.default.fileExists(atPath: path))
+                    }
+                    if ids.count > 1 {
+                        Menu(L("sort.label")) {
+                            Button(L("sort.name")) { model.sortSelected(ids, by: .name); sortOrder = SortOrder.manual.rawValue }
+                            Button(L("sort.uses")) { model.sortSelected(ids, by: .uses); sortOrder = SortOrder.manual.rawValue }
+                            Button(L("sort.hotkey")) { model.sortSelected(ids, by: .hotkey); sortOrder = SortOrder.manual.rawValue }
+                        }
                     }
                     Menu(L("category")) {
                         Button(L("category.none")) { model.setCategory(nil, for: ids) }
@@ -617,6 +631,7 @@ struct MainView: View {
     @ViewBuilder private func row(_ script: ScriptEntry) -> some View {
         if let binding = model.binding(for: script.id) {
             ScriptRow(model: model, script: binding).tag(script.id)
+                .listRowSeparator(.visible)
                 // Dragging a row onto a category in the sidebar moves it there.
                 .itemProvider { NSItemProvider(object: script.id as NSString) }
         }
@@ -644,29 +659,47 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (L("palette.settings"), AnyView(PaletteHotkeySettings(model: model, launcher: launcher))), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
+        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
     }
 }
 
-struct PaletteHotkeySettings: View {
+struct ItemDisplayOptions: View {
+    @AppStorage("itemShowUses") private var uses = false
+    @AppStorage("itemShowVersion") private var version = false
+    @AppStorage("itemShowFilename") private var filename = false
+    var body: some View {
+        Menu {
+            Toggle(L("meta.version"), isOn: $version)
+            Toggle(L("sort.uses"), isOn: $uses)
+            Toggle(L("item.filename"), isOn: $filename)
+        } label: { Image(systemName: "slider.horizontal.3") }
+        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+        .accessibilityLabel(L("item.display")).help(L("item.display"))
+    }
+}
+
+struct CategoryDetail: View {
     @ObservedObject var model: AppModel
-    @ObservedObject var launcher: AppLauncherHotkey
+    let category: String
     var body: some View {
         ScrollView {
-            SettingsSection(L("palette.settings")) {
-                Text(L("palette.keyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                ForEach(model.paletteCategories, id: \.self) { category in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(model.categoryTitle(category)).font(.subheadline.weight(.semibold))
-                        HotkeyField(id: "palette-" + category, combo: Binding(get: {
-                            model.library.paletteHotkeys?[category].map { KeyCombo(code: $0.code, modifiers: $0.modifiers) }
-                        }, set: { model.setPaletteHotkey($0, for: category) }), allowsClear: true,
-                        others: model.paletteConflicts(except: category) + (launcher.enabled ? launcher.combo.map { [(L("launchShortcut"), $0)] } ?? [] : []),
-                        registered: !model.failedPaletteHotkeys.contains(category), isEnabled: model.hotkeysEnabled)
-                    }.padding(.vertical, 4)
-                }
-            }.padding(16)
+            VStack(alignment: .leading, spacing: 16) {
+                Text(model.categoryTitle(category)).font(.title2.weight(.semibold))
+                Toggle(L("palette.show"), isOn: Binding(get: { model.library.allowsPalette(category) }, set: { model.setPaletteEnabled($0, for: category) }))
+                Text(L("hotkey")).font(.headline)
+                HotkeyField(id: "palette-" + category, combo: Binding(get: {
+                    model.library.paletteHotkeys?[category].map { KeyCombo(code: $0.code, modifiers: $0.modifiers) }
+                }, set: { model.setPaletteHotkey($0, for: category) }), allowsClear: true,
+                others: model.paletteConflicts(except: category), registered: !model.failedPaletteHotkeys.contains(category),
+                isEnabled: model.hotkeysEnabled && model.library.allowsPalette(category))
+                Picker(L("palette.behavior"), selection: Binding(get: { model.library.paletteMode(category) }, set: { model.setPaletteMode($0, for: category) })) {
+                    Text(L("palette.mode0")).tag(0)
+                    Text(L("palette.mode1")).tag(1)
+                    Text(L("palette.mode2")).tag(2)
+                }.pickerStyle(.radioGroup)
+                Text(L("palette.behaviorHint")).font(.caption).foregroundColor(.secondary)
+            }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
