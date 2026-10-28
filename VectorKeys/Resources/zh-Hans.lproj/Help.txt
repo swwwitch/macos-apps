@@ -92,3 +92,15 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 
 ## Script Information
 详情下方显示脚本信息。概述、版本、URL、作者读取 SCRIPTMETA 的 Description、Version、Meta-URL、Author。点击展开概述。README依次查找脚本同名.md、同目录README.md、README.txt，点击打开。备注随项目保存，不修改原脚本。多个步骤分别显示信息。缺失信息显示未提供。
+
+
+## Source Code
+文件步骤提供在访达中显示和打开源代码按钮。源代码使用.txt关联的已知文本编辑器打开，否则使用文本编辑，不使用脚本运行关联。文件缺失时禁用两个按钮，.jsxbin禁用源代码按钮。直接输入代码原地编辑。
+
+
+## SCRIPT Metadata
+也支持从 SCRIPT_NAME、SCRIPT_VERSION、SCRIPT_AUTHOR、SCRIPT_RELEASED、SCRIPT_UPDATED、SCRIPT_README_JA、SCRIPT_README_EN、SCRIPT_ARTICLE_URL 字符串常量读取信息。首次发布和更新日期分别显示。日语环境优先JA，否则优先EN，缺失时使用另一种。SCRIPTMETA优先。不执行表达式。快捷键设置、解除和按键次数排在同一行。
+
+
+## Quick Look
+点击文件步骤的快速查看打开macOS标准预览。关闭后返回。支持格式和显示内容取决于快速查看，不修改原文件。

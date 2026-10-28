@@ -1,3 +1,12 @@
+"source.preview" = "훑어보기";
+"meta.scriptName" = "스크립트 이름";
+"meta.openReadme" = "README 열기";
+"meta.released" = "최초 릴리스";
+"meta.releaseDate" = "릴리스 날짜";
+"source.reveal" = "Finder에서 보기";
+"source.open" = "소스 코드 열기";
+"source.hint" = "텍스트 편집기로 엽니다(.jsxbin 제외).";
+"source.failed" = "소스 코드를 열 수 없습니다.";
 "meta.info" = "스크립트 정보";
 "meta.summary" = "개요";
 "meta.notes" = "메모";

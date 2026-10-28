@@ -16,6 +16,7 @@ struct RunRecord: Identifiable {
 }
 
 @MainActor final class AppModel: ObservableObject {
+    var showQuickLook: ((URL) -> Void)?
     var showPalette: ((String) -> Void)?
     var paletteRenamed: ((String, String) -> Void)?
     @Published var failedPaletteHotkeys: Set<String> = []
@@ -238,6 +239,22 @@ struct RunRecord: Identifiable {
         }
         return scripts + paletteCategories.compactMap { category in
             library.paletteHotkeys?[category].map { (categoryTitle(category), KeyCombo(code: $0.code, modifiers: $0.modifiers)) }
+        }
+    }
+
+    /// Open via a text editor explicitly, never via the JSX handler (which may execute the script).
+    func openSource(_ path: String) {
+        guard FileManager.default.fileExists(atPath: path), (path as NSString).pathExtension.lowercased() != "jsxbin" else { return }
+        let workspace = NSWorkspace.shared
+        let textURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("VectorKeys-source.txt")
+        let preferred = workspace.urlForApplication(toOpen: textURL)
+        let bundleID = preferred.flatMap { Bundle(url: $0)?.bundleIdentifier } ?? ""
+        let editors: Set<String> = ["com.apple.TextEdit", "jp.co.artman21.Jedit-Pro", "jp.co.artman21.JeditOmega", "com.microsoft.VSCode", "com.barebones.bbedit", "com.coteditor.CotEditor", "com.sublimetext.4", "com.macromates.TextMate"]
+        guard let editor = editors.contains(bundleID) ? preferred : workspace.urlForApplication(withBundleIdentifier: "com.apple.TextEdit") else {
+            record("VectorKeys", L("source.failed"), error: true); return
+        }
+        workspace.open([URL(fileURLWithPath: path)], withApplicationAt: editor, configuration: NSWorkspace.OpenConfiguration()) { [weak self] _, error in
+            if let error { DispatchQueue.main.async { self?.record("VectorKeys", L("source.failed") + " " + error.localizedDescription, error: true) } }
         }
     }
 

@@ -350,12 +350,26 @@ enum ScriptMetadata {
             return value
         }
         var url: URL? {
-            guard let text = fields["Meta-URL"], let url = URL(string: text),
-                  ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil else { return nil }
+            Self.webURL(fields["Article-URL"]) ?? Self.webURL(fields["Meta-URL"])
+        }
+        func readmeURL(language: String) -> URL? {
+            let preferred = language.lowercased().hasPrefix("ja") ? "README-JA" : "README-EN"
+            let fallback = preferred == "README-JA" ? "README-EN" : "README-JA"
+            return Self.webURL(fields[preferred]) ?? Self.webURL(fields[fallback])
+        }
+        private static func webURL(_ text: String?) -> URL? {
+            guard let text, let url = URL(string: text), ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil else { return nil }
             return url
         }
     }
     static func parse(_ source: String) -> Info? {
+        var fields = variables(in: source)
+        let tags = parseTags(source)
+        if let tags { fields.merge(tags.fields) { _, tagged in tagged } }
+        guard !fields.isEmpty || tags != nil else { return nil }
+        return Info(fields: fields, summary: tags?.summary ?? "")
+    }
+    private static func parseTags(_ source: String) -> Info? {
         let lines = source.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n").components(separatedBy: "\n")
         var inside = false, description = false
         var info = Info(), summary: [String] = []
@@ -406,5 +420,51 @@ enum ScriptMetadata {
             var directory: ObjCBool = false
             return FileManager.default.fileExists(atPath: url.path, isDirectory: &directory) && !directory.boolValue
         }
+    }
+}
+
+extension ScriptMetadata {
+    static func variables(in source: String) -> [String: String] {
+        let names = ["SCRIPT_NAME": "Name", "SCRIPT_VERSION": "Version", "SCRIPT_AUTHOR": "Author",
+                     "SCRIPT_RELEASED": "First-Release-Date", "SCRIPT_UPDATED": "Updated-Date",
+                     "SCRIPT_README_JA": "README-JA", "SCRIPT_README_EN": "README-EN", "SCRIPT_ARTICLE_URL": "Article-URL"]
+        let pattern = #"//[^\r\n]*|/\*[\s\S]*?\*/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`|[A-Za-z_$][A-Za-z0-9_$]*|[^\s]"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [:] }
+        let text = source as NSString
+        let tokens = regex.matches(in: source, range: NSRange(location: 0, length: text.length)).map { text.substring(with: $0.range) }
+            .filter { !$0.hasPrefix("//") && !$0.hasPrefix("/*") }
+        guard tokens.count >= 4 else { return [:] }
+        var result: [String: String] = [:]
+        for i in 0...(tokens.count - 4) {
+            guard ["var", "let", "const"].contains(tokens[i]), let field = names[tokens[i + 1]], tokens[i + 2] == "=" else { continue }
+            guard i + 4 == tokens.count || [";", ","].contains(tokens[i + 4]), let value = literal(tokens[i + 3]), !value.isEmpty else { continue }
+            result[field] = value
+        }
+        return result
+    }
+    private static func literal(_ token: String) -> String? {
+        guard let quote = token.first, ["\"", "'"].contains(quote), token.last == quote else { return nil }
+        let chars = Array(token.dropFirst().dropLast())
+        var result = "", i = 0
+        while i < chars.count {
+            let char = chars[i]; i += 1
+            if char != "\\" { result.append(char); continue }
+            guard i < chars.count else { return nil }
+            let escaped = chars[i]; i += 1
+            switch escaped {
+            case "\\", "\"", "'", "/": result.append(escaped)
+            case "n": result.append("\n")
+            case "r": result.append("\r")
+            case "t": result.append("\t")
+            case "b": result.append("\u{8}")
+            case "f": result.append("\u{c}")
+            case "u", "x":
+                let count = escaped == "u" ? 4 : 2
+                guard i + count <= chars.count, let number = UInt32(String(chars[i..<(i + count)]), radix: 16), let scalar = UnicodeScalar(number) else { return nil }
+                result.unicodeScalars.append(scalar); i += count
+            default: return nil
+            }
+        }
+        return result
     }
 }

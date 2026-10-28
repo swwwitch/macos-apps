@@ -1,3 +1,12 @@
+"source.preview" = "Quick Lookで見る";
+"meta.scriptName" = "スクリプト名";
+"meta.openReadme" = "READMEを開く";
+"meta.released" = "初回リリース";
+"meta.releaseDate" = "リリース日";
+"source.reveal" = "Finderで表示";
+"source.open" = "ソースコードを開く";
+"source.hint" = "テキストエディタで開きます（.jsxbinは対象外）。";
+"source.failed" = "ソースコードを開けませんでした。";
 "meta.info" = "スクリプト情報";
 "meta.summary" = "概要（何をするもの）";
 "meta.notes" = "メモ";

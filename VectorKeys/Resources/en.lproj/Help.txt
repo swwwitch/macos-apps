@@ -92,3 +92,15 @@ Drag either column divider to resize; widths stay on this Mac. In Settings > Pal
 
 ## Script Information
 Script information appears below the detail editor. Overview, version, URL and author come from SCRIPTMETA Description, Version, Meta-URL and Author. Click to expand the overview. README searches for a same-named .md file, then README.md and README.txt in the script folder. Click to open. Notes are saved per item without editing the script. Multiple steps show their own metadata. Missing information is marked Not provided.
+
+
+## Source Code
+File steps have Show in Finder and Open Source Code buttons. Source opens in a known editor associated with .txt, with TextEdit as fallback, instead of the script execution handler. Missing files disable both buttons; .jsxbin disables source opening. Inline code is edited in place.
+
+
+## SCRIPT Metadata
+Literal SCRIPT_NAME, SCRIPT_VERSION, SCRIPT_AUTHOR, SCRIPT_RELEASED, SCRIPT_UPDATED, SCRIPT_README_JA, SCRIPT_README_EN and SCRIPT_ARTICLE_URL constants also provide metadata. Initial release and updated dates are separate. README prefers JA in Japanese and EN otherwise, falling back to the other. SCRIPTMETA takes priority. Expressions are never evaluated. Hotkey recording, clearing and press-count selection share one row.
+
+
+## Quick Look
+Click Quick Look on a file step to open the standard macOS preview. Close it to return. Supported formats and presentation depend on Quick Look; the file is not modified.

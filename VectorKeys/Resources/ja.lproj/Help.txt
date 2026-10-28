@@ -92,3 +92,15 @@ Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへ�
 
 ## Script Information
 詳細画面の下部にスクリプト情報を表示します。概要はSCRIPTMETAのDescription、版はVersion、URLはMeta-URL、作者はAuthorです。概要はクリックして開きます。READMEはスクリプトと同名の.md、同じフォルダーのREADME.md、README.txtの順に探し、クリックで開きます。メモは項目ごとに入力・保存でき、元のスクリプトは変更しません。複数手順は手順ごとに情報を表示します。取得できない情報は未記載と表示します。
+
+
+## Source Code
+ファイル手順の［Finderで表示］で原本の位置を開き、［ソースコードを開く］でテキストエディタに開きます。.txtに関連付けられた既知のテキストエディタを使い、それ以外はテキストエディットを使います。スクリプト実行用の関連付けは使いません。ファイル不在時は両ボタン、.jsxbinはソースボタンを無効にします。直書きコードはその場で編集します。
+
+
+## SCRIPT Metadata
+SCRIPT_NAME・SCRIPT_VERSION・SCRIPT_AUTHOR・SCRIPT_RELEASED・SCRIPT_UPDATED・SCRIPT_README_JA・SCRIPT_README_EN・SCRIPT_ARTICLE_URLの文字列定数からも情報を取得します。初回リリース日と更新日は別に表示します。READMEは日本語環境ではJAを優先、それ以外はENを優先し、なければ他方を使用します。SCRIPTMETAに記載がある項目はそちらを優先します。変数の計算式は評価しません。ホットキー欄・解除・1回/2回押すは一行で操作できます。
+
+
+## Quick Look
+ファイル手順の［Quick Lookで見る］でmacOS標準のプレビューを開けます。閉じると元の画面へ戻ります。対応形式と表示内容はQuick Lookに従い、原本は変更しません。

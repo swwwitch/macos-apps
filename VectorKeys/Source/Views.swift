@@ -88,15 +88,17 @@ struct ScriptDetail: View {
                 Divider()
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L("hotkey")).font(.subheadline.weight(.semibold))
-                    HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
-                        set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
-                        allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
-                        registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled && script.scriptsOnly, allowsOption: true)
-                    Picker(L("taps.label"), selection: Binding(get: { script.hotkey?.taps ?? 1 }, set: { script.hotkey?.taps = $0 == 2 ? 2 : nil })) {
-                        Text(L("taps.single")).tag(1)
-                        Text(L("taps.double")).tag(2)
-                    }
-                    .pickerStyle(.segmented).frame(maxWidth: 260).disabled(script.hotkey == nil || !script.enabled)
+                    HStack(spacing: 12) {
+                        HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
+                            set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
+                            allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
+                            registered: !model.failedHotkeys.contains(script.id), isEnabled: script.enabled && script.scriptsOnly, allowsOption: true)
+                        Picker(L("taps.label"), selection: Binding(get: { script.hotkey?.taps ?? 1 }, set: { script.hotkey?.taps = $0 == 2 ? 2 : nil })) {
+                            Text(L("taps.single")).tag(1)
+                            Text(L("taps.double")).tag(2)
+                        }
+                        .pickerStyle(.segmented).labelsHidden().fixedSize().disabled(script.hotkey == nil || !script.enabled)
+                    }.controlSize(.small)
                     if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
                     DisclosureGroup(L("ui.hotkeyHelp"), isExpanded: $showHotkeyHelp) {
                         Text(L("hotkeyHint") + "\n" + L("taps.hint"))
@@ -172,6 +174,15 @@ struct StepRow: View {
                         }
                         Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
                             .lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+                        if case .script(let path) = step {
+                            HStack(spacing: 8) {
+                                Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
+                                Button(L("source.reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }
+                                Button(L("source.open")) { model.openSource(path) }
+                                    .help(L("source.hint")).disabled((path as NSString).pathExtension.lowercased() == "jsxbin")
+                            }
+                            .controlSize(.small).disabled(missing).padding(.top, 4)
+                        }
                     }
                     Spacer(minLength: 0)
                     stepMenu
@@ -703,6 +714,7 @@ struct MetadataFields: View {
             } else {
                 field(L("meta.summary"), value: nil)
             }
+            if let name = info?.fields["Name"], !name.isEmpty { field(L("meta.scriptName"), value: name) }
             field(L("meta.version"), value: info?.version)
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("URL").font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
@@ -713,14 +725,18 @@ struct MetadataFields: View {
             }
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("README").font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
-                if let readme {
+                if let url = info?.readmeURL(language: Locale.preferredLanguages.first ?? "en") {
+                    Link(L("meta.openReadme"), destination: url).font(.callout).help(url.absoluteString)
+                } else if let readme {
                     Button(readme.lastPathComponent) { NSWorkspace.shared.open(readme) }
                         .buttonStyle(.link).font(.callout).help(readme.path)
                 } else { Text(L("meta.absent")).font(.caption).foregroundColor(.secondary) }
             }
             field(L("meta.author"), value: info?.fields["Author"])
             if let target = info?.fields["Target-App"], !target.isEmpty { field(L("meta.target"), value: target) }
-            if let date = info?.fields["Release-Date"], !date.isEmpty { field(L("meta.date"), value: date) }
+            if let date = info?.fields["First-Release-Date"], !date.isEmpty { field(L("meta.released"), value: date) }
+            if let date = info?.fields["Updated-Date"], !date.isEmpty { field(L("meta.date"), value: date) }
+            else if let date = info?.fields["Release-Date"], !date.isEmpty { field(L("meta.releaseDate"), value: date) }
         }
     }
     private func field(_ label: String, value: String?) -> some View {

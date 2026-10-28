@@ -222,4 +222,29 @@ try "specific".write(to: specificReadme, atomically: true, encoding: .utf8)
 check(ScriptMetadata.readme(for: readmeDir.appendingPathComponent("Example.jsx").path) == specificReadme, "script README preferred over folder README")
 try FileManager.default.removeItem(at: readmeDir)
 
+let variableSource = #"""
+var SCRIPT_NAME = "InsertNewTextJ"; /* スクリプト名 */
+var SCRIPT_VERSION = "v1.1.1";
+var SCRIPT_AUTHOR = "Masahiro Takano (@swwwitch)";
+var SCRIPT_RELEASED = "2025-04-01";
+var SCRIPT_UPDATED = "2026-10-04";
+var SCRIPT_README_JA = "https://github.com/swwwitch/illustrator-scripts/blob/master/readme-ja/InsertNewTextJ.md";
+var SCRIPT_README_EN = "https://github.com/swwwitch/illustrator-scripts/blob/master/readme-en/InsertNewTextJ.md";
+var SCRIPT_ARTICLE_URL = "https://note.com/dtp_tranist/n/n509eb6aa0a19";
+"""#
+let variableInfo = ScriptMetadata.parse(variableSource)
+check(variableInfo?.fields["Name"] == "InsertNewTextJ" && variableInfo?.version == "v1.1.1", "SCRIPT_NAME/VERSION literals parsed")
+check(variableInfo?.fields["Author"] == "Masahiro Takano (@swwwitch)", "SCRIPT_AUTHOR literal parsed")
+check(variableInfo?.fields["First-Release-Date"] == "2025-04-01" && variableInfo?.fields["Updated-Date"] == "2026-10-04", "initial release and updated date are distinct")
+check(variableInfo?.readmeURL(language: "ja-JP")?.path.contains("readme-ja") == true, "Japanese README selected")
+check(variableInfo?.readmeURL(language: "en-US")?.path.contains("readme-en") == true, "English README selected")
+check(variableInfo?.url?.host == "note.com", "article URL parsed")
+check(ScriptMetadata.parse(metaSource + "\n" + variableSource)?.version == "1.2.3", "SCRIPTMETA takes priority")
+check(ScriptMetadata.parse(#"/* var SCRIPT_VERSION = "9"; */"#) == nil, "commented assignments ignored")
+check(ScriptMetadata.parse(#"var sample = 'var SCRIPT_VERSION = "9";';"#) == nil, "quoted assignments ignored")
+check(ScriptMetadata.parse(#"var SCRIPT_VERSION = computeVersion();"#) == nil, "computed metadata never evaluated")
+check(ScriptMetadata.parse(#"var SCRIPT_VERSION = "v" + version;"#) == nil, "expressions not mistaken for literal version")
+check(ScriptMetadata.parse(#"const SCRIPT_AUTHOR = 'Takano\u0020Masahiro';"#)?.fields["Author"] == "Takano Masahiro", "single quotes and Unicode escape")
+check(ScriptMetadata.parse(#"let SCRIPT_AUTHOR = "Takano\"M";"#)?.fields["Author"] == "Takano\"M", "escaped quote decoded")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

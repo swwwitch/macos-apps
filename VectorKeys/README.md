@@ -63,3 +63,15 @@ Assets/make-icon.sh  # アイコンを作り直す
 
 ### スクリプト情報（1.8.1）
 詳細下部に概要・版・URL・README・作者・メモを表示。SCRIPTMETAのDescription/Version/Meta-URL/Authorを読み、概要は開閉式。READMEは同名.md、同フォルダーREADME.md/README.txtの順に探します。メモは登録項目へ保存し原本を変更しません。複数手順は各手順の情報を分けて表示します。
+
+### 1.8.2 (15)
+ファイル手順に［Finderで表示］［ソースコードを開く］を追加。ソースは実行用のファイル関連付けを使わずテキストエディタに開きます。不在ファイル・バイナリは適切に無効化します。
+
+### 1.8.3 (16)
+ホットキー欄・割り当て解除・1回/2回押すの選択を一行に配置。「押し方」のラベルは表示しません。狭いウインドウでも収まるよう詳細欄の最小幅を調整。Finder・ソースボタンも含みます。
+
+### SCRIPT変数（1.9.0 / 17）
+SCRIPT_NAME/VERSION/AUTHOR/RELEASED/UPDATED/README_JA/README_EN/ARTICLE_URLの文字列定数から情報を取得。SCRIPTMETA優先で不足を補完します。READMEは言語に応じJA/ENを選択。初回公開と更新日を区別し、変数の式を実行・評価しません。Finder・ソースボタンとホットキー一行化も含みます。
+
+### Quick Look（1.9.1 / 18）
+ファイル手順の［Quick Lookで見る］からmacOS標準のプレビューを開きます。表示可能な形式はQuick Lookに従います。

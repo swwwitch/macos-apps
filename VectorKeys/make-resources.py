@@ -3,7 +3,16 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''meta.info|スクリプト情報|Script Information|脚本信息|스크립트 정보
+rows = '''source.preview|Quick Lookで見る|Quick Look|快速查看|훑어보기
+meta.scriptName|スクリプト名|Script Name|脚本名称|스크립트 이름
+meta.openReadme|READMEを開く|Open README|打开 README|README 열기
+meta.released|初回リリース|First Release|首次发布|최초 릴리스
+meta.releaseDate|リリース日|Release Date|发布日期|릴리스 날짜
+source.reveal|Finderで表示|Show in Finder|在访达中显示|Finder에서 보기
+source.open|ソースコードを開く|Open Source Code|打开源代码|소스 코드 열기
+source.hint|テキストエディタで開きます（.jsxbinは対象外）。|Open in a text editor (.jsxbin excluded).|在文本编辑器中打开（不支持 .jsxbin）。|텍스트 편집기로 엽니다(.jsxbin 제외).
+source.failed|ソースコードを開けませんでした。|Could not open the source code.|无法打开源代码。|소스 코드를 열 수 없습니다.
+meta.info|スクリプト情報|Script Information|脚本信息|스크립트 정보
 meta.summary|概要（何をするもの）|Overview|概述|개요
 meta.notes|メモ|Notes|备注|메모
 meta.author|作者|Author|作者|작성자

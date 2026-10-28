@@ -661,3 +661,15 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ## VectorKeys スクリプト情報欄（2026-10-28）
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点7fd6a12。概要・メモ・版・URL・README・作者を詳細下部へ追加。状態: 検証用1.8.1 (14) テスト・4言語・ビルド・署名検証合格。実機で概要の開閉、版・作者・対象・更新日・メモ欄を確認。README/URLリンク操作・メモ再起動復元のGUI検証は未実施。公証・配置・公開未実施。
+
+## VectorKeys Finder・ソースボタン（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0。ファイル手順にFinder表示とテキストエディタで開くボタン。状態: 1.8.2 (15) テスト・4言語・ビルド・署名検証合格。実機ボタン表示確認。後続UI変更と併せ1.8.3 (16)で提供。
+
+## VectorKeys ホットキー欄の一行化（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0＋ソースボタン変更。ホットキー・解除・押す回数を横並び、押し方ラベル非表示。状態: 1.8.3 (16) ビルド・署名検証合格、1.9.0 (17)で実機一行化とラベル非表示を確認。後続1.9.1 (18)に統合。
+
+## VectorKeys SCRIPT変数メタデータ（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0＋ボタン/一行化。SCRIPT_NAME/VERSION/AUTHOR/RELEASED/UPDATED/README_JA/README_EN/ARTICLE_URLの文字列定数を補完。状態: 1.9.0 (17) テスト・4言語・ビルド・署名検証合格。InsertNewTextJの変数由来URL・日本語README・初回公開日・更新日を実機確認。後続1.9.1 (18)に統合。
+
+## VectorKeys Quick Look（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0＋継続変更。ファイル手順のQuick Lookボタン。状態: 1.9.1 (18) テスト・4言語・ビルド・署名検証合格。実機でJSXのQuick Look内容表示と詳細への復帰を確認。公証・配置・公開未実施。

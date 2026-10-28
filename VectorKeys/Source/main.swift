@@ -26,6 +26,7 @@ import Carbon
 @MainActor final class Delegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let model = AppModel()
     let launcher = AppLauncherHotkey()
+    let sourcePreview = SourcePreviewController()
     lazy var palettes = CategoryPalettes(model: model)
     var window: NSWindow!
     var settings: NSWindow?
@@ -58,6 +59,10 @@ import Carbon
         host.sizingOptions = [.minSize]
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
+        model.showQuickLook = { [weak self] url in
+            guard let self else { return }
+            self.sourcePreview.show(url, in: self.window)
+        }
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 980, height: 600)
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }

@@ -14,10 +14,10 @@ cp Info.plist "$app/Contents/Info.plist"
 cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Assets/VectorKeys.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
-  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon "${UPDATE_SWIFT_FLAGS[@]}" \
+  -framework AppKit -framework Quartz -framework SwiftUI -framework ServiceManagement -framework Carbon "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
-  Source/{Scripts,KMImport,Runner,AppModel,Views,Palettes,Columns,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/VectorKeys"
+  Source/{Scripts,KMImport,Runner,AppModel,Views,Palettes,Columns,SourcePreview,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/VectorKeys"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

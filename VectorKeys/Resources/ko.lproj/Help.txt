@@ -92,3 +92,15 @@ Keyboard Maestro에서 내보낸 매크로(.kmmacros)를 윈도우로 드래그�
 
 ## Script Information
 상세 편집기 아래에 스크립트 정보를 표시합니다. 개요, 버전, URL, 작성자는 SCRIPTMETA의 Description, Version, Meta-URL, Author에서 읽습니다. 개요를 클릭하면 펼칩니다. README는 스크립트와 같은 이름의 .md, 같은 폴더의 README.md, README.txt 순으로 찾아 클릭하여 엽니다. 메모는 항목별로 저장하며 원본은 수정하지 않습니다. 여러 단계는 각 정보를 표시하고 누락 정보는 미기재로 표시합니다.
+
+
+## Source Code
+파일 단계에 Finder에서 보기와 소스 코드 열기 버튼을 제공합니다. 소스는 .txt에 연결된 알려진 편집기로 열며, 없으면 텍스트 편집기를 사용합니다. 스크립트 실행 연결은 사용하지 않습니다. 파일이 없으면 두 버튼, .jsxbin이면 소스 버튼을 비활성화합니다. 직접 입력 코드는 그 자리에서 편집합니다.
+
+
+## SCRIPT Metadata
+SCRIPT_NAME, SCRIPT_VERSION, SCRIPT_AUTHOR, SCRIPT_RELEASED, SCRIPT_UPDATED, SCRIPT_README_JA, SCRIPT_README_EN, SCRIPT_ARTICLE_URL 문자열 상수도 읽습니다. 최초 릴리스와 업데이트 날짜를 구분합니다. 일본어 환경은 JA, 그 외는 EN을 우선하고 없으면 다른 언어를 사용합니다. SCRIPTMETA를 우선하며 수식은 실행하지 않습니다. 단축키, 해제, 누름 횟수를 한 줄에 배치합니다.
+
+
+## Quick Look
+파일 단계의 훑어보기를 클릭하면 macOS 표준 미리보기를 엽니다. 닫으면 돌아옵니다. 지원 형식과 표시 내용은 훑어보기에 따르며 원본을 수정하지 않습니다.

@@ -20,8 +20,8 @@ struct ResizableColumns: NSViewRepresentable {
         }
         split.adjustSubviews()
         let saved = UserDefaults.standard.array(forKey: Coordinator.key) as? [Double]
-        let first = max(130, min(saved?.first ?? 154, split.bounds.width - 582))
-        let second = max(220, min(saved?.dropFirst().first ?? 286, split.bounds.width - first - 362))
+        let first = max(130, min(saved?.first ?? 154, split.bounds.width - 672))
+        let second = max(220, min(saved?.dropFirst().first ?? 286, split.bounds.width - first - 452))
         split.setPosition(first, ofDividerAt: 0)
         split.setPosition(first + split.dividerThickness + second, ofDividerAt: 1)
         context.coordinator.initialWidths = [first, second]
@@ -40,20 +40,20 @@ struct ResizableColumns: NSViewRepresentable {
             dividerIndex == 0 ? 130 : splitView.subviews[0].frame.width + splitView.dividerThickness + 220
         }
         func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-            let remaining: CGFloat = dividerIndex == 0 ? 220 + 360 + splitView.dividerThickness * 2 : 360 + splitView.dividerThickness
+            let remaining: CGFloat = dividerIndex == 0 ? 220 + 450 + splitView.dividerThickness * 2 : 450 + splitView.dividerThickness
             return max(130, splitView.bounds.width - remaining)
         }
         func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool { false }
         func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
             guard splitView.subviews.count == 3 else { return }
             let usable = splitView.bounds.width - splitView.dividerThickness * 2
-            guard usable >= 710 else { return }
+            guard usable >= 800 else { return }
             let restore = ready ? initialWidths : nil
-            let first = max(130, min(restore?.first ?? splitView.subviews[0].frame.width, usable - 580))
-            let second = max(220, min(restore?.last ?? splitView.subviews[1].frame.width, usable - first - 360))
+            let first = max(130, min(restore?.first ?? splitView.subviews[0].frame.width, usable - 670))
+            let second = max(220, min(restore?.last ?? splitView.subviews[1].frame.width, usable - first - 450))
             if ready { initialWidths = nil }
             var x: CGFloat = 0
-            for (view, width) in zip(splitView.subviews, [first, second, max(360, usable - first - second)]) {
+            for (view, width) in zip(splitView.subviews, [first, second, max(450, usable - first - second)]) {
                 view.frame = NSRect(x: x, y: 0, width: width, height: splitView.bounds.height)
                 x += width + splitView.dividerThickness
             }

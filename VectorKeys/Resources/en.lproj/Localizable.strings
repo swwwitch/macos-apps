@@ -1,3 +1,12 @@
+"source.preview" = "Quick Look";
+"meta.scriptName" = "Script Name";
+"meta.openReadme" = "Open README";
+"meta.released" = "First Release";
+"meta.releaseDate" = "Release Date";
+"source.reveal" = "Show in Finder";
+"source.open" = "Open Source Code";
+"source.hint" = "Open in a text editor (.jsxbin excluded).";
+"source.failed" = "Could not open the source code.";
 "meta.info" = "Script Information";
 "meta.summary" = "Overview";
 "meta.notes" = "Notes";
