@@ -121,12 +121,15 @@ struct ContentView: View {
                     .disabled(headings.isEmpty)
                     .help(L("すべての見出しを1段下げる（#を1つ増やす、⌘]）"))
                     .accessibilityLabel(L("すべての見出しを1段下げる"))
-                Menu(L("整形")) { TidyMenuItems(levels: levels) }
+                Menu(L("書式")) { FormatMenuItems() }
+                    .menuStyle(.button)
+                    .fixedSize()
+                Menu(L("ツール")) { TidyMenuItems(levels: levels) }
                     .menuStyle(.button)
                     .fixedSize()
                     .disabled(store.text.isEmpty)
                     .help(L("スペース・空行・記号の整理、改行や行の操作、HTMLの変換、目次の挿入。範囲を選択していればその中だけ（⌘Zで戻せます）"))
-                Menu(L("Doorkeeper用に整形")) { DoorkeeperThemeMenuItems() }
+                Menu(L("整形")) { DoorkeeperThemeMenuItems() }
                     .menuStyle(.button)
                     .fixedSize()
                     .disabled(store.text.isEmpty)

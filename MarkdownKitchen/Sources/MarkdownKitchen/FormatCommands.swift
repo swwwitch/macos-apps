@@ -305,15 +305,17 @@ private final class FormatMenuTarget: NSObject {
 struct FormatMenuCommands: Commands {
     var body: some Commands {
         CommandMenu(L("書式")) {
-            ForEach(Array(FormatAction.groups.enumerated()), id: \.offset) { index, group in
-                if index > 0 { Divider() }
-                // Headings 1–6 and Paragraph sit directly in the menu (the context menu keeps 変換 as a submenu).
-                items(group)
-            }
+            FormatMenuItems()
         }
     }
+}
 
-    @ViewBuilder private func items(_ group: [FormatAction]) -> some View {
-        ForEach(group, id: \.self) { action in ShortcutButton(action: action) }
+/// Shared by the menu bar and the manuscript toolbar.
+struct FormatMenuItems: View {
+    var body: some View {
+        ForEach(Array(FormatAction.groups.enumerated()), id: \.offset) { index, group in
+            if index > 0 { Divider() }
+            ForEach(group, id: \.self) { action in ShortcutButton(action: action) }
+        }
     }
 }
