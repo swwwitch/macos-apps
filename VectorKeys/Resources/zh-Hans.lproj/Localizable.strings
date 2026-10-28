@@ -1,3 +1,6 @@
+"palette.settings" = "面板";
+"palette.keyHint" = "为每个分类设置打开面板的快捷键，在其他应用中也可使用。默认未设置。";
+"meta.version" = "版本";
 "palette.show" = "显示为面板";
 "palette.empty" = "此分类中没有脚本。";
 "palette.hint" = "点按以在 Illustrator 中运行。";

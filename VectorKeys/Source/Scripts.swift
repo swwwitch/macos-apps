@@ -94,6 +94,7 @@ struct Library: Codable, Equatable {
     var scripts: [ScriptEntry] = []
     /// Category names in the sidebar order. Optional so lists saved before 1.3.0 still load.
     var categories: [String]?
+    var paletteHotkeys: [String: Hotkey]?
 
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("VectorKeys", isDirectory: true)
@@ -153,11 +154,13 @@ struct Library: Codable, Equatable {
         var list = categoryList
         if list.contains(new) { list.removeAll { $0 == old } } else if let index = list.firstIndex(of: old) { list[index] = new }
         categories = list
+        if let key = paletteHotkeys?.removeValue(forKey: old), paletteHotkeys?[new] == nil { paletteHotkeys?[new] = key }
         for index in scripts.indices where scripts[index].category == old { scripts[index].category = new }
     }
     /// Removes a category; its scripts become uncategorized (nothing is deleted).
     mutating func deleteCategory(_ name: String) {
         categories = categoryList.filter { $0 != name }
+        paletteHotkeys?.removeValue(forKey: name)
         for index in scripts.indices where scripts[index].category == name { scripts[index].category = nil }
     }
     mutating func setCategory(_ name: String?, for ids: Set<String>) {
@@ -333,5 +336,48 @@ enum OSAScript {
         if let range = text.range(of: " (", options: .backwards), text.hasSuffix(")") { text = String(text[..<range.lowerBound]) }
         text = text.replacingOccurrences(of: "\r", with: " ")
         return text.isEmpty ? message : text
+    }
+}
+
+/// Local SCRIPTMETA version only; no execution, web lookup or update download.
+enum ScriptMetadata {
+    static func version(in source: String) -> String? {
+        let lines = source.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n").components(separatedBy: "\n")
+        var inside = false, description = false
+        var identifier: String?, version: String?
+        for raw in lines {
+            var line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.hasPrefix("//") { line = String(line.dropFirst(2)).trimmingCharacters(in: .whitespaces) }
+            else if line.hasPrefix("*") { line = String(line.dropFirst()).trimmingCharacters(in: .whitespaces) }
+            if !inside {
+                if line == "SCRIPTMETA-BEGIN" { inside = true }
+                continue
+            }
+            if description {
+                if line == "Description-END" { description = false }
+                continue
+            }
+            if line == "Description-BEGIN" { description = true; continue }
+            if line == "SCRIPTMETA-END" {
+                if let id = identifier, !id.isEmpty, let value = version, !value.isEmpty, value.count <= 64 { return value }
+                inside = false; identifier = nil; version = nil
+                continue
+            }
+            let pair = line.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            guard pair.count == 2 else { continue }
+            let key = pair[0].trimmingCharacters(in: .whitespaces)
+            let value = pair[1].trimmingCharacters(in: .whitespaces)
+            if key == "Script-ID" { identifier = value }
+            if key == "Version" { version = value }
+        }
+        return nil
+    }
+    static func version(at path: String) -> String? {
+        guard let file = FileHandle(forReadingAtPath: path) else { return nil }
+        defer { try? file.close() }
+        // Header metadata is bounded, and binary JSX is never decoded as source.
+        guard (path as NSString).pathExtension.lowercased() != "jsxbin",
+              let data = try? file.read(upToCount: 262144), let text = String(data: data, encoding: .utf8) else { return nil }
+        return version(in: text)
     }
 }

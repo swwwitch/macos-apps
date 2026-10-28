@@ -655,3 +655,6 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ## 全アプリ 補足説明の開閉UI方針（2026-10-28）
 - ユーザー依頼: 必要時だけ説明を開く方式を他アプリにも採用。共通仕様へ記録。他アプリ個別への実装・検証・配布は未着手。
+
+## VectorKeys 可変カラム・カテゴリホットキー・版表示（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点ad49af1。開始: 2026-10-28 JST。3カラムの幅保存、カテゴリ別パレット表示キー、アプリ版をアイコン下、SCRIPTMETA Version読取。状態: 検証用1.8.0 (13) テスト・4言語検証・ビルド・署名検証合格。実機で両境界ドラッグ、アイコン下の版、登録スクリプトのSCRIPTMETA版、パレット設定画面を確認。実キーによるパレット表示は未確認。公証・配置・公開未実施。

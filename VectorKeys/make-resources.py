@@ -3,7 +3,10 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''palette.show|パレットとして表示|Show as Palette|显示为面板|팔레트로 표시
+rows = '''palette.settings|パレット|Palettes|面板|팔레트
+palette.keyHint|カテゴリごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。|Set a hotkey to open each category palette, even while using another app. No keys are assigned by default.|为每个分类设置打开面板的快捷键，在其他应用中也可使用。默认未设置。|다른 앱 사용 중에도 각 카테고리 팔레트를 여는 단축키를 설정합니다. 기본값은 미설정입니다.
+meta.version|バージョン|Version|版本|버전
+palette.show|パレットとして表示|Show as Palette|显示为面板|팔레트로 표시
 palette.empty|このカテゴリにはスクリプトがありません。|No scripts in this category.|此分类中没有脚本。|이 카테고리에 스크립트가 없습니다.
 palette.hint|クリックしてIllustratorで実行します。|Click to run in Illustrator.|点按以在 Illustrator 中运行。|클릭하여 Illustrator에서 실행합니다.
 ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말

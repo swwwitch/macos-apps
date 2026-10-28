@@ -31,7 +31,10 @@ struct ScriptRow: View {
     var body: some View {
         HStack(spacing: 8) {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
-            Text(script.name).lineLimit(1).truncationMode(.middle)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(script.name).lineLimit(1).truncationMode(.middle)
+                if let version = model.version(for: script) { Text(version).font(.caption2).foregroundColor(.secondary) }
+            }
             if script.hasUnsupportedSteps { Badge(text: L("legacy.badge"), color: .orange).help(L("legacy.unsupported")) }
             else if !script.isAvailable && !script.actions.isEmpty { Badge(text: L("code.unavailable"), color: .orange).help(L("code.unavailableHint")) }
             if script.actions.count > 1 { Badge(text: String(format: L("steps.count"), script.actions.count)).help(L("steps")) }
@@ -40,7 +43,7 @@ struct ScriptRow: View {
                 Text(String(format: L("uses.count"), script.uses)).font(.caption.monospacedDigit()).foregroundColor(.secondary).help(L("uses.hint"))
             }
             if let hotkey = script.hotkey {
-                Text(hotkey.fullLabel).font(.system(size: 12, design: .monospaced)).kerning(1)
+                Text(hotkey.fullLabel).font(.system(size: 12, design: .monospaced)).kerning(1).fixedSize()
                     .foregroundColor(problem ? .red : (script.enabled ? .primary : .secondary))
                     .help(problem ? L(model.duplicateHotkeys.contains(script.id) ? "hotkey.duplicate" : "hotkey.failed") : (hotkey.isDouble ? L("taps.double") : ""))
             }
@@ -155,12 +158,16 @@ struct StepRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.18)))
                     .accessibilityLabel(L("code.title"))
+                if let version = model.version(for: step) { Text(L("meta.version") + " " + version).font(.caption).foregroundColor(.secondary) }
                 if missing { Text(L("code.empty")).font(.caption).foregroundColor(.secondary) }
             } else {
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: symbol).foregroundColor(.secondary).padding(.top, 2).accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(title).lineLimit(2).truncationMode(.middle)
+                        HStack {
+                            Text(title).lineLimit(2).truncationMode(.middle)
+                            if let version = model.version(for: step) { Text(version).font(.caption).foregroundColor(.secondary) }
+                        }
                         Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
                             .lineLimit(2).truncationMode(.middle).textSelection(.enabled)
                     }
@@ -423,7 +430,10 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Image(nsImage: currentAppIcon()).resizable().frame(width: 40, height: 40).accessibilityHidden(true)
+                VStack(spacing: 3) {
+                    Image(nsImage: currentAppIcon()).resizable().frame(width: 40, height: 40).accessibilityHidden(true)
+                    AppVersionLabel()
+                }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(L("heading")).font(.system(size: 18, weight: .semibold))
                     Text(L("ui.subtitle")).font(.caption).foregroundStyle(.secondary)
@@ -446,11 +456,10 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
                 } else {
-                    // Plain stacks, not split views: no divider lines between the columns (fixed widths on the left).
-                    HStack(spacing: 12) {
-                        CategorySidebar(model: model).frame(width: 154)
-                        list.frame(width: 286)
-                        Group {
+                    ResizableColumns(
+                        categories: AnyView(CategorySidebar(model: model).padding(.trailing, 6)),
+                        scripts: AnyView(list.padding(.horizontal, 6)),
+                        detail: AnyView(Group {
                             if let id = model.selectedID, let binding = model.binding(for: id) {
                                 ScriptDetail(model: model, script: binding)
                             } else if model.selection.count > 1 {
@@ -459,9 +468,10 @@ struct MainView: View {
                                 Text(L("selectScript")).foregroundColor(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
-                        .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-                    }
+                        .padding(.leading, 6))
+                    )
                 }
             }
             .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(appTint, lineWidth: 2).opacity(dropTargeted ? 1 : 0))
@@ -504,7 +514,6 @@ struct MainView: View {
                             .lineLimit(1).help(record.text)
                     }
                     Spacer()
-                    AppVersionLabel()
                 }
             }
             .onChange(of: model.records.first?.date) { _ in
@@ -622,7 +631,29 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
+        })), (L("palette.settings"), AnyView(PaletteHotkeySettings(model: model, launcher: launcher))), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
+    }
+}
+
+struct PaletteHotkeySettings: View {
+    @ObservedObject var model: AppModel
+    @ObservedObject var launcher: AppLauncherHotkey
+    var body: some View {
+        ScrollView {
+            SettingsSection(L("palette.settings")) {
+                Text(L("palette.keyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                ForEach(model.paletteCategories, id: \.self) { category in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(model.categoryTitle(category)).font(.subheadline.weight(.semibold))
+                        HotkeyField(id: "palette-" + category, combo: Binding(get: {
+                            model.library.paletteHotkeys?[category].map { KeyCombo(code: $0.code, modifiers: $0.modifiers) }
+                        }, set: { model.setPaletteHotkey($0, for: category) }), allowsClear: true,
+                        others: model.paletteConflicts(except: category) + (launcher.enabled ? launcher.combo.map { [(L("launchShortcut"), $0)] } ?? [] : []),
+                        registered: !model.failedPaletteHotkeys.contains(category), isEnabled: model.hotkeysEnabled)
+                    }.padding(.vertical, 4)
+                }
+            }.padding(16)
+        }
     }
 }

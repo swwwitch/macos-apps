@@ -184,4 +184,25 @@ check(inlineLibrary.activeHotkeys().winners.count == 1, "inline code supports ho
 let inlineAppleScript = ScriptText.appleScript(appPath: "/Applications/Illustrator.app", code: inlineSource)
 check(inlineAppleScript.contains("do javascript " + ScriptText.quote(inlineSource)), "code is quoted as text instead of a file")
 
+// SCRIPTMETA: only a closed local block with Script-ID; description content is not metadata.
+let metaSource = "/*\nSCRIPTMETA-BEGIN\nScript-ID=test.example\nVersion=1.2.3\nDescription-BEGIN\nVersion=999\nDescription-END\nSCRIPTMETA-END\n*/"
+check(ScriptMetadata.version(in: metaSource) == "1.2.3", "metadata ignores version inside description")
+check(ScriptMetadata.version(in: metaSource.replacingOccurrences(of: "\n", with: "\r\n")) == "1.2.3", "metadata CRLF")
+check(ScriptMetadata.version(in: metaSource.replacingOccurrences(of: "SCRIPTMETA-END", with: "")) == nil, "unterminated metadata ignored")
+check(ScriptMetadata.version(in: "// Version=2.0\nvar VERSION = '3.0';") == nil, "no guessed version")
+check(ScriptMetadata.version(in: metaSource.replacingOccurrences(of: "Script-ID=test.example", with: "")) == nil, "metadata requires identifier")
+check(ScriptMetadata.version(in: metaSource.replacingOccurrences(of: "SCRIPTMETA-BEGIN", with: "SCRIPTMETA-DIST-BEGIN")) == nil, "distribution block is not local version")
+let metaFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jsx")
+try metaSource.write(to: metaFile, atomically: true, encoding: .utf8)
+check(ScriptMetadata.version(at: metaFile.path) == "1.2.3", "metadata file read")
+try FileManager.default.removeItem(at: metaFile)
+var paletteLibrary = Library()
+paletteLibrary.categories = ["Demo"]
+paletteLibrary.paletteHotkeys = ["Demo": key]
+check(try JSONDecoder().decode(Library.self, from: JSONEncoder().encode(paletteLibrary)) == paletteLibrary, "palette keys JSON round trip")
+paletteLibrary.renameCategory("Demo", to: "Renamed")
+check(paletteLibrary.paletteHotkeys?["Demo"] == nil && paletteLibrary.paletteHotkeys?["Renamed"] == key, "category rename migrates key")
+paletteLibrary.deleteCategory("Renamed")
+check(paletteLibrary.paletteHotkeys?["Renamed"] == nil, "category deletion removes key")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

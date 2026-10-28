@@ -1,3 +1,6 @@
+"palette.settings" = "パレット";
+"palette.keyHint" = "カテゴリごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。";
+"meta.version" = "バージョン";
 "palette.show" = "パレットとして表示";
 "palette.empty" = "このカテゴリにはスクリプトがありません。";
 "palette.hint" = "クリックしてIllustratorで実行します。";

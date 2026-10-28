@@ -1,3 +1,6 @@
+"palette.settings" = "Palettes";
+"palette.keyHint" = "Set a hotkey to open each category palette, even while using another app. No keys are assigned by default.";
+"meta.version" = "Version";
 "palette.show" = "Show as Palette";
 "palette.empty" = "No scripts in this category.";
 "palette.hint" = "Click to run in Illustrator.";

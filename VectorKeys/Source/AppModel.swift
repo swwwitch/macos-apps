@@ -18,8 +18,57 @@ struct RunRecord: Identifiable {
 @MainActor final class AppModel: ObservableObject {
     var showPalette: ((String) -> Void)?
     var paletteRenamed: ((String, String) -> Void)?
+    @Published var failedPaletteHotkeys: Set<String> = []
+    @Published var scriptVersions: [String: String] = [:]
+    private let paletteKeys = HotkeySet(signature: "VKpl")
+    private var paletteNumbers: [UInt32: String] = [:]
+    private var metadataGeneration = UUID()
+    private var metadataWork: DispatchWorkItem?
+    var paletteCategories: [String] { [Self.allCategories] + library.categoryList + [Self.uncategorized] }
+    func categoryTitle(_ category: String) -> String {
+        category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
+    }
+    func setPaletteHotkey(_ combo: KeyCombo?, for category: String) {
+        undoable(L("hotkey")) {
+            if library.paletteHotkeys == nil { library.paletteHotkeys = [:] }
+            library.paletteHotkeys?[category] = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers) }
+        }
+    }
+    func paletteConflicts(except category: String) -> [(String, KeyCombo)] {
+        library.scripts.compactMap { script in
+            guard script.enabled, let key = script.hotkey else { return nil }
+            return (script.name, KeyCombo(code: key.code, modifiers: key.modifiers))
+        } + paletteCategories.filter { $0 != category }.compactMap { name in
+            library.paletteHotkeys?[name].map { (categoryTitle(name), KeyCombo(code: $0.code, modifiers: $0.modifiers)) }
+        }
+    }
+    func version(for step: Step) -> String? {
+        switch step {
+        case .script(let path): return scriptVersions[path]
+        case .code(let source): return ScriptMetadata.version(in: source)
+        default: return nil
+        }
+    }
+    func version(for script: ScriptEntry) -> String? {
+        script.actions.count == 1 ? version(for: script.actions[0]) : nil
+    }
+    func refreshVersions() {
+        metadataWork?.cancel()
+        let generation = UUID(); metadataGeneration = generation
+        let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let work = DispatchWorkItem { [weak self] in
+            var versions: [String: String] = [:]
+            for path in paths { versions[path] = ScriptMetadata.version(at: path) }
+            DispatchQueue.main.async {
+                guard let self, self.metadataGeneration == generation else { return }
+                if self.scriptVersions != versions { self.scriptVersions = versions }
+            }
+        }
+        metadataWork = work
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.3, execute: work)
+    }
     private let defaults = UserDefaults.standard
-    @Published var library = Library.load() { didSet { scheduleSave(); registerHotkeys() } }
+    @Published var library = Library.load() { didSet { scheduleSave(); registerHotkeys(); refreshVersions() } }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
@@ -57,7 +106,15 @@ struct RunRecord: Identifiable {
             log.info("hotkey \(number) pressed, Illustrator front: \(Illustrator.front != nil)")
             self?.pressed(number)
         }
+        paletteKeys.action = { [weak self] number in
+            guard let self, self.hotkeysEnabled, let category = self.paletteNumbers[number] else { return }
+            self.showPalette?(category)
+        }
+        observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refreshVersions() }
+        })
         registerHotkeys()
+        refreshVersions()
     }
 
     func reloadSharedSettings() {
@@ -95,6 +152,8 @@ struct RunRecord: Identifiable {
     /// A key is registered once; a single and a double press of it are told apart in pressed(_:).
     func registerHotkeys() {
         scriptKeys.unregisterAll()
+        paletteKeys.unregisterAll()
+        paletteNumbers = [:]
         numbers = [:]
         pendingTap?.work.cancel(); pendingTap = nil
         let duplicates = library.activeHotkeys().duplicates
@@ -108,6 +167,19 @@ struct RunRecord: Identifiable {
                 }
             }
         }
+        var paletteFailed: Set<String> = []
+        var occupied = Set(library.scripts.filter { $0.enabled }.compactMap { $0.hotkey?.key })
+        if hotkeysEnabled {
+            for (index, category) in paletteCategories.enumerated() {
+                guard let key = library.paletteHotkeys?[category] else { continue }
+                let number = UInt32(index + 1)
+                guard occupied.insert(key.key).inserted else { paletteFailed.insert(category); continue }
+                if paletteKeys.register(number, KeyCombo(code: key.code, modifiers: key.modifiers)) == noErr {
+                    paletteNumbers[number] = category
+                } else { paletteFailed.insert(category) }
+            }
+        }
+        if failedPaletteHotkeys != paletteFailed { failedPaletteHotkeys = paletteFailed }
         log.info("registered \(self.numbers.count) (failed \(failed.count)), enabled \(self.hotkeysEnabled), Illustrator front \(self.illustratorFront)")
         if failedHotkeys != failed { failedHotkeys = failed }
         if duplicateHotkeys != duplicates { duplicateHotkeys = duplicates }
@@ -142,10 +214,13 @@ struct RunRecord: Identifiable {
     /// Other scripts' hotkeys, for the duplicate check of a hotkey field. With `taps`, only the same press kind
     /// counts (a single and a double press of one key are different hotkeys); without it, every script key does.
     func otherHotkeys(except id: String, taps: Int?? = .none) -> [(String, KeyCombo)] {
-        library.scripts.compactMap { script in
+        let scripts = library.scripts.compactMap { script -> (String, KeyCombo)? in
             guard script.id != id, script.enabled, script.scriptsOnly, let hotkey = script.hotkey else { return nil }
             if case .some(let wanted) = taps, hotkey.taps != wanted { return nil }
             return (script.name, KeyCombo(code: hotkey.code, modifiers: hotkey.modifiers))
+        }
+        return scripts + paletteCategories.compactMap { category in
+            library.paletteHotkeys?[category].map { (categoryTitle(category), KeyCombo(code: $0.code, modifiers: $0.modifiers)) }
         }
     }
 
