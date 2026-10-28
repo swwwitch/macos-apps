@@ -673,3 +673,10 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ## VectorKeys Quick Look（2026-10-28）
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0＋継続変更。ファイル手順のQuick Lookボタン。状態: 1.9.1 (18) テスト・4言語・ビルド・署名検証合格。実機でJSXのQuick Look内容表示と詳細への復帰を確認。公証・配置・公開未実施。
+
+## Latest Builds 12本の再配置（2026-10-29）
+- 担当: 公証Mac MacBookPro13-M5-2025.local / main / 対象SHA 188a6c77108934b437f5c9589623617df170008f。開始: 2026-10-29T00:26+09:00。
+- 経緯: 2026-10-28、Dropbox同期が `sw_app-Latest Builds` の.app 12本で停止（ローカルとサーバーに別IDの同名アプリ）。12本はDropbox外へ退避し、サーバーからも削除済み。公証付きで作り直して再配置する。
+- 対象: KeynoteSweeper / ShotSorter / SettingsHop / SiteMirror / QuickIconExporter / LinkMaker / PodiumAssist / NotMyType / NotMyType Lite / MarkdownKitchen / VectorMate / CarmaChameleon。版・buildは確定ソースのまま。
+- 状態: 着手。成果物 `Shared/ReleasePreparation/Rebuild12-20261029`。
+- 1回目ビルド（対象SHA 188a6c7）: 7本成功。MarkdownKitchen / NotMyType / NotMyType Lite / QuickIconExporter / SiteMirror はSwift 6.4（Xcode 27.1）で共有SettingsSync.swift:584のSendingRisksDataRaceエラー。`fileImport` を `@MainActor` クロージャ型に修正しsync.pyで配布、SettingsSyncテストPASS、唯一の利用元FavoriteFoldersのビルド成功。MarkdownKitchenは188a6c7の未採番変更を含むためbuildを126へ更新（ユーザー指示「上げる必要があれば通常の手順で」）。5本は修正コミットから再ビルド。

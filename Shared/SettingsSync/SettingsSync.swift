@@ -157,7 +157,7 @@ final class SettingsSync: NSObject, ObservableObject {
         /// Extra content for manual transfer only; never included in automatic synchronization.
         var fileExport: (() throws -> NSDictionary)? = nil
         /// Validate and stage extra file content before applying preferences. False means cancelled.
-        var fileImport: ((NSDictionary) async throws -> Bool)? = nil
+        var fileImport: (@MainActor (NSDictionary) async throws -> Bool)? = nil
         var fileNote: String? = nil
     }
 

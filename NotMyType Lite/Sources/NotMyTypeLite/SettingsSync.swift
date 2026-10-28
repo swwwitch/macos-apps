@@ -154,6 +154,11 @@ final class SettingsSync: NSObject, ObservableObject {
         var legacyImport: ((Data) -> NSDictionary?)? = nil
         /// Omit the human-readable Mac name from shared/exported metadata.
         var includesDeviceName: Bool = true
+        /// Extra content for manual transfer only; never included in automatic synchronization.
+        var fileExport: (() throws -> NSDictionary)? = nil
+        /// Validate and stage extra file content before applying preferences. False means cancelled.
+        var fileImport: ((NSDictionary) async throws -> Bool)? = nil
+        var fileNote: String? = nil
     }
 
     /// Called on the main thread after settings from another Mac were applied.
@@ -500,7 +505,7 @@ final class SettingsSync: NSObject, ObservableObject {
     // MARK: Export & Import
 
     var transferNoteText: String {
-        configuration.note + " " + text(
+        (configuration.fileNote ?? configuration.note) + " " + text(
             "\(appName)-Settings.plist に書き出し、別のMacへの移行や控えに使えます。同期フォルダーのファイルも読み込めます。",
             "Exports to \(appName)-Settings.plist for moving to another Mac or keeping a backup. The file in a sync folder can be imported too.",
             "导出为 \(appName)-Settings.plist，可用于迁移到其他 Mac 或备份。也可以导入同步文件夹中的文件。",
@@ -514,7 +519,13 @@ final class SettingsSync: NSObject, ObservableObject {
         panel.message = text("書き出すファイルの名前と場所を選んでください", "Choose a name and location for the settings file",
                              "请选择要导出的文件名称和位置", "내보낼 파일의 이름과 위치를 선택하세요")
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        if makeRecord(currentValues()).write(to: url, atomically: true) {
+        let values = currentValues().mutableCopy() as! NSMutableDictionary
+        do {
+            if let extra = try configuration.fileExport?() {
+                for (key, value) in extra { values[key] = value }
+            }
+        } catch { report(error.localizedDescription, error: true); return }
+        if makeRecord(values).write(to: url, atomically: true) {
             report(text("「\(url.lastPathComponent)」に書き出しました", "Exported to “\(url.lastPathComponent)”",
                         "已导出到“\(url.lastPathComponent)”", "“\(url.lastPathComponent)”(으)로 내보냈습니다"))
         } else {
@@ -568,16 +579,21 @@ final class SettingsSync: NSObject, ObservableObject {
             let add = merge != nil && answer == .alertFirstButtonReturn
             let replace = answer == (merge != nil ? .alertSecondButtonReturn : .alertFirstButtonReturn)
             guard add || replace else { return }
-            if add, let merge {
-                let result = merge(synced, self.currentValues())
-                self.apply(result.values, removingMissing: false)
-                self.report(self.text("\(result.added)件を追加しました", "Added \(result.added) items", "已添加 \(result.added) 项", "\(result.added)개를 추가했습니다"))
-            } else {
-                self.apply(synced, removingMissing: !legacy)
-                self.report(self.text("設定を読み込みました", "Imported the settings", "已导入设置", "설정을 가져왔습니다"))
+            Task { @MainActor in
+                do {
+                    if let importFile = self.configuration.fileImport, !(try await importFile(values)) { return }
+                    if add, let merge {
+                        let result = merge(synced, self.currentValues())
+                        self.apply(result.values, removingMissing: false)
+                        self.report(self.text("\(result.added)件を追加しました", "Added \(result.added) items", "已添加 \(result.added) 项", "\(result.added)개를 추가했습니다"))
+                    } else {
+                        self.apply(synced, removingMissing: !legacy)
+                        self.report(self.text("設定を読み込みました", "Imported the settings", "已导入设置", "설정을 가져왔습니다"))
+                    }
+                    // Pass the imported settings on to the sync folder.
+                    if self.enabled { self.lastValues = nil; self.exportIfChanged() }
+                } catch { self.report(error.localizedDescription, error: true) }
             }
-            // Pass the imported settings on to the sync folder.
-            if self.enabled { self.lastValues = nil; self.exportIfChanged() }
         }
     }
 
