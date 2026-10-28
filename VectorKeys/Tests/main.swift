@@ -205,4 +205,21 @@ check(paletteLibrary.paletteHotkeys?["Demo"] == nil && paletteLibrary.paletteHot
 paletteLibrary.deleteCategory("Renamed")
 check(paletteLibrary.paletteHotkeys?["Renamed"] == nil, "category deletion removes key")
 
+let infoSource = "SCRIPTMETA-BEGIN\nScript-ID=example.info\nAuthor=Test Author\nMeta-URL=https://example.com/script?a=b\nDescription-BEGIN\nFirst line\n\nSecond line\nVersion=not metadata\nDescription-END\nSCRIPTMETA-END"
+let parsedInfo = ScriptMetadata.parse(infoSource)
+check(parsedInfo?.fields["Author"] == "Test Author", "author parsed without version")
+check(parsedInfo?.summary == "First line\n\nSecond line\nVersion=not metadata", "overview preserves paragraphs")
+check(parsedInfo?.url?.absoluteString == "https://example.com/script?a=b", "URL first equals separator")
+check(ScriptMetadata.parse(infoSource.replacingOccurrences(of: "https://example.com/script?a=b", with: "javascript:alert(1)"))?.url == nil, "only web links permitted")
+var noteEntry = ScriptEntry(path: "/test.jsx")
+noteEntry.notes = "Personal memo\n日本語"
+check(try JSONDecoder().decode(ScriptEntry.self, from: JSONEncoder().encode(noteEntry)).notes == noteEntry.notes, "memo JSON persistence")
+let readmeDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+try FileManager.default.createDirectory(at: readmeDir, withIntermediateDirectories: true)
+try "shared".write(to: readmeDir.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
+let specificReadme = readmeDir.appendingPathComponent("Example.md")
+try "specific".write(to: specificReadme, atomically: true, encoding: .utf8)
+check(ScriptMetadata.readme(for: readmeDir.appendingPathComponent("Example.jsx").path) == specificReadme, "script README preferred over folder README")
+try FileManager.default.removeItem(at: readmeDir)
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

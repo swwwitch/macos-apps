@@ -3,7 +3,14 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''palette.settings|パレット|Palettes|面板|팔레트
+rows = '''meta.info|スクリプト情報|Script Information|脚本信息|스크립트 정보
+meta.summary|概要（何をするもの）|Overview|概述|개요
+meta.notes|メモ|Notes|备注|메모
+meta.author|作者|Author|作者|작성자
+meta.target|対象アプリ|Target App|目标应用|대상 앱
+meta.date|更新日|Release Date|发布日期|업데이트 날짜
+meta.absent|未記載|Not provided|未提供|미기재
+palette.settings|パレット|Palettes|面板|팔레트
 palette.keyHint|カテゴリごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。|Set a hotkey to open each category palette, even while using another app. No keys are assigned by default.|为每个分类设置打开面板的快捷键，在其他应用中也可使用。默认未设置。|다른 앱 사용 중에도 각 카테고리 팔레트를 여는 단축키를 설정합니다. 기본값은 미설정입니다.
 meta.version|バージョン|Version|版本|버전
 palette.show|パレットとして表示|Show as Palette|显示为面板|팔레트로 표시

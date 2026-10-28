@@ -20,6 +20,15 @@ struct RunRecord: Identifiable {
     var paletteRenamed: ((String, String) -> Void)?
     @Published var failedPaletteHotkeys: Set<String> = []
     @Published var scriptVersions: [String: String] = [:]
+    @Published var scriptMetadata: [String: ScriptMetadata.Info] = [:]
+    @Published var scriptReadmes: [String: URL] = [:]
+    func metadata(for step: Step) -> ScriptMetadata.Info? {
+        switch step {
+        case .script(let path): return scriptMetadata[path]
+        case .code(let source): return ScriptMetadata.parse(source)
+        default: return nil
+        }
+    }
     private let paletteKeys = HotkeySet(signature: "VKpl")
     private var paletteNumbers: [UInt32: String] = [:]
     private var metadataGeneration = UUID()
@@ -58,10 +67,18 @@ struct RunRecord: Identifiable {
         let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
         let work = DispatchWorkItem { [weak self] in
             var versions: [String: String] = [:]
-            for path in paths { versions[path] = ScriptMetadata.version(at: path) }
+            var metadata: [String: ScriptMetadata.Info] = [:]
+            var readmes: [String: URL] = [:]
+            for path in paths {
+                metadata[path] = ScriptMetadata.read(at: path)
+                versions[path] = metadata[path]?.version
+                readmes[path] = ScriptMetadata.readme(for: path)
+            }
             DispatchQueue.main.async {
                 guard let self, self.metadataGeneration == generation else { return }
                 if self.scriptVersions != versions { self.scriptVersions = versions }
+                if self.scriptMetadata != metadata { self.scriptMetadata = metadata }
+                if self.scriptReadmes != readmes { self.scriptReadmes = readmes }
             }
         }
         metadataWork = work

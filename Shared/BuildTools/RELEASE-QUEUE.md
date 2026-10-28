@@ -658,3 +658,6 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ## VectorKeys 可変カラム・カテゴリホットキー・版表示（2026-10-28）
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点ad49af1。開始: 2026-10-28 JST。3カラムの幅保存、カテゴリ別パレット表示キー、アプリ版をアイコン下、SCRIPTMETA Version読取。状態: 検証用1.8.0 (13) テスト・4言語検証・ビルド・署名検証合格。実機で両境界ドラッグ、アイコン下の版、登録スクリプトのSCRIPTMETA版、パレット設定画面を確認。実キーによるパレット表示は未確認。公証・配置・公開未実施。
+
+## VectorKeys スクリプト情報欄（2026-10-28）
+- 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点7fd6a12。概要・メモ・版・URL・README・作者を詳細下部へ追加。状態: 検証用1.8.1 (14) テスト・4言語・ビルド・署名検証合格。実機で概要の開閉、版・作者・対象・更新日・メモ欄を確認。README/URLリンク操作・メモ再起動復元のGUI検証は未実施。公証・配置・公開未実施。

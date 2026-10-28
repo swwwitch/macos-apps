@@ -60,3 +60,6 @@ Assets/make-icon.sh  # アイコンを作り直す
 
 ### 1.8.0 (13)
 3カラムの境界ドラッグと幅保存、設定＞パレットのカテゴリ別表示ホットキー、アプリ版のアイコン下表示を追加。SCRIPTMETA v1.4のローカルコメントからScript-IDとVersionを読み、ファイル/直書きの版を表示します（説明ブロックは解析除外、タグがなければ非表示）。ファイルは先頭256KiB、アプリ再アクティブ化時に再取得。仕様: https://github.com/Yamonov/SCRIPTMETA/blob/main/SCRIPTMETA.md 。
+
+### スクリプト情報（1.8.1）
+詳細下部に概要・版・URL・README・作者・メモを表示。SCRIPTMETAのDescription/Version/Meta-URL/Authorを読み、概要は開閉式。READMEは同名.md、同フォルダーREADME.md/README.txtの順に探します。メモは登録項目へ保存し原本を変更しません。複数手順は各手順の情報を分けて表示します。

@@ -103,6 +103,8 @@ struct ScriptDetail: View {
                             .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
                     }.font(.caption).foregroundColor(.secondary)
                 }
+                Divider()
+                ScriptInfoView(model: model, script: $script)
                 if showUses && script.uses > 0 {
                     Text(usesText).font(.caption).foregroundColor(.secondary).help(L("uses.hint"))
                 }
@@ -654,6 +656,79 @@ struct PaletteHotkeySettings: View {
                     }.padding(.vertical, 4)
                 }
             }.padding(16)
+        }
+    }
+}
+
+struct ScriptInfoView: View {
+    @ObservedObject var model: AppModel
+    @Binding var script: ScriptEntry
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(L("meta.info")).font(.subheadline.weight(.semibold))
+            ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
+                if step.isSupported {
+                    VStack(alignment: .leading, spacing: 10) {
+                        if script.actions.count > 1 {
+                            Text(step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? String(format: L("ui.stepNumber"), index + 1))
+                                .font(.caption.weight(.semibold)).lineLimit(2)
+                        }
+                        MetadataFields(info: model.metadata(for: step), readme: step.scriptPath.flatMap { model.scriptReadmes[$0] })
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L("meta.notes")).font(.caption).foregroundColor(.secondary)
+                TextEditor(text: Binding(get: { script.notes ?? "" }, set: { script.notes = $0.isEmpty ? nil : $0 }))
+                    .font(.body).frame(minHeight: 72).padding(6)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.secondary.opacity(0.18)))
+                    .accessibilityLabel(L("meta.notes"))
+            }
+        }
+    }
+}
+
+struct MetadataFields: View {
+    let info: ScriptMetadata.Info?
+    let readme: URL?
+    @State private var overviewOpen = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let summary = info?.summary, !summary.isEmpty {
+                DisclosureGroup(L("meta.summary"), isExpanded: $overviewOpen) {
+                    Text(summary).font(.callout).textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
+                }.font(.caption)
+            } else {
+                field(L("meta.summary"), value: nil)
+            }
+            field(L("meta.version"), value: info?.version)
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text("URL").font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
+                if let url = info?.url {
+                    Link(url.absoluteString, destination: url).font(.callout).lineLimit(2).truncationMode(.middle)
+                        .help(url.absoluteString)
+                } else { Text(L("meta.absent")).font(.caption).foregroundColor(.secondary) }
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text("README").font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
+                if let readme {
+                    Button(readme.lastPathComponent) { NSWorkspace.shared.open(readme) }
+                        .buttonStyle(.link).font(.callout).help(readme.path)
+                } else { Text(L("meta.absent")).font(.caption).foregroundColor(.secondary) }
+            }
+            field(L("meta.author"), value: info?.fields["Author"])
+            if let target = info?.fields["Target-App"], !target.isEmpty { field(L("meta.target"), value: target) }
+            if let date = info?.fields["Release-Date"], !date.isEmpty { field(L("meta.date"), value: date) }
+        }
+    }
+    private func field(_ label: String, value: String?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text(label).font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
+            Text(value.flatMap { $0.isEmpty ? nil : $0 } ?? L("meta.absent"))
+                .font(.callout).foregroundColor(value == nil ? .secondary : .primary)
+                .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
         }
     }
 }

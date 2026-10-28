@@ -1,3 +1,10 @@
+"meta.info" = "スクリプト情報";
+"meta.summary" = "概要（何をするもの）";
+"meta.notes" = "メモ";
+"meta.author" = "作者";
+"meta.target" = "対象アプリ";
+"meta.date" = "更新日";
+"meta.absent" = "未記載";
 "palette.settings" = "パレット";
 "palette.keyHint" = "カテゴリごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。";
 "meta.version" = "バージョン";

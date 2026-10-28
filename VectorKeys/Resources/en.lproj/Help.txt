@@ -88,3 +88,7 @@ Select a category and click the palette button below the categories, or choose V
 
 ## Layout / Hotkeys / SCRIPTMETA
 Drag either column divider to resize; widths stay on this Mac. In Settings > Palettes, assign each category an opening hotkey that works in other apps too. The global hotkey switch pauses these keys. Keys are saved with the library and follow category renaming/deletion. Local SCRIPTMETA comments with Script-ID and Version display the script version, for files and inline code. Missing, unreadable or binary metadata has no version display. The first 256 KiB is read and refreshed on app activation.
+
+
+## Script Information
+Script information appears below the detail editor. Overview, version, URL and author come from SCRIPTMETA Description, Version, Meta-URL and Author. Click to expand the overview. README searches for a same-named .md file, then README.md and README.txt in the script folder. Click to open. Notes are saved per item without editing the script. Multiple steps show their own metadata. Missing information is marked Not provided.

@@ -67,6 +67,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         actions = steps
     }
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
+    var notes: String?
     var runCount: Int?
     var lastRun: Date?
     var uses: Int { runCount ?? 0 }
@@ -339,45 +340,71 @@ enum OSAScript {
     }
 }
 
-/// Local SCRIPTMETA version only; no execution, web lookup or update download.
+/// Read local metadata as text; never execute scripts or follow metadata URLs automatically.
 enum ScriptMetadata {
-    static func version(in source: String) -> String? {
+    struct Info: Equatable {
+        var fields: [String: String] = [:]
+        var summary = ""
+        var version: String? {
+            guard let value = fields["Version"], !value.isEmpty, value.count <= 64 else { return nil }
+            return value
+        }
+        var url: URL? {
+            guard let text = fields["Meta-URL"], let url = URL(string: text),
+                  ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil else { return nil }
+            return url
+        }
+    }
+    static func parse(_ source: String) -> Info? {
         let lines = source.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n").components(separatedBy: "\n")
         var inside = false, description = false
-        var identifier: String?, version: String?
+        var info = Info(), summary: [String] = []
         for raw in lines {
             var line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             if line.hasPrefix("//") { line = String(line.dropFirst(2)).trimmingCharacters(in: .whitespaces) }
             else if line.hasPrefix("*") { line = String(line.dropFirst()).trimmingCharacters(in: .whitespaces) }
             if !inside {
-                if line == "SCRIPTMETA-BEGIN" { inside = true }
+                if line == "SCRIPTMETA-BEGIN" { inside = true; info = Info(); summary = [] }
                 continue
             }
             if description {
                 if line == "Description-END" { description = false }
+                else { summary.append(line) }
                 continue
             }
             if line == "Description-BEGIN" { description = true; continue }
             if line == "SCRIPTMETA-END" {
-                if let id = identifier, !id.isEmpty, let value = version, !value.isEmpty, value.count <= 64 { return value }
-                inside = false; identifier = nil; version = nil
+                if let id = info.fields["Script-ID"], !id.isEmpty {
+                    info.summary = summary.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+                    return info
+                }
+                inside = false
                 continue
             }
             let pair = line.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
             guard pair.count == 2 else { continue }
             let key = pair[0].trimmingCharacters(in: .whitespaces)
             let value = pair[1].trimmingCharacters(in: .whitespaces)
-            if key == "Script-ID" { identifier = value }
-            if key == "Version" { version = value }
+            info.fields[key] = value
         }
         return nil
     }
-    static func version(at path: String) -> String? {
-        guard let file = FileHandle(forReadingAtPath: path) else { return nil }
+    static func read(at path: String) -> Info? {
+        guard (path as NSString).pathExtension.lowercased() != "jsxbin", let file = FileHandle(forReadingAtPath: path) else { return nil }
         defer { try? file.close() }
-        // Header metadata is bounded, and binary JSX is never decoded as source.
-        guard (path as NSString).pathExtension.lowercased() != "jsxbin",
-              let data = try? file.read(upToCount: 262144), let text = String(data: data, encoding: .utf8) else { return nil }
-        return version(in: text)
+        guard let data = try? file.read(upToCount: 262144), let text = String(data: data, encoding: .utf8) else { return nil }
+        return parse(text)
+    }
+    static func version(in source: String) -> String? { parse(source)?.version }
+    static func version(at path: String) -> String? { read(at: path)?.version }
+    static func readme(for path: String) -> URL? {
+        let script = URL(fileURLWithPath: path)
+        let folder = script.deletingLastPathComponent()
+        let candidates = [script.deletingPathExtension().appendingPathExtension("md"),
+                          folder.appendingPathComponent("README.md"), folder.appendingPathComponent("README.txt")]
+        return candidates.first { url in
+            var directory: ObjCBool = false
+            return FileManager.default.fileExists(atPath: url.path, isDirectory: &directory) && !directory.boolValue
+        }
     }
 }

@@ -88,3 +88,7 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 
 ## Layout / Hotkeys / SCRIPTMETA
 拖动列间边界调整宽度，保存在本机。在设置 > 面板中可为每个分类指定打开快捷键，其他应用中也有效。关闭全局快捷键开关可暂停。快捷键随列表保存，并跟随分类重命名与删除。文件和代码中的 SCRIPTMETA 注释若含 Script-ID 和 Version，将显示版本。标签缺失、不可读或二进制则不显示。读取前256KiB，应用激活时刷新。
+
+
+## Script Information
+详情下方显示脚本信息。概述、版本、URL、作者读取 SCRIPTMETA 的 Description、Version、Meta-URL、Author。点击展开概述。README依次查找脚本同名.md、同目录README.md、README.txt，点击打开。备注随项目保存，不修改原脚本。多个步骤分别显示信息。缺失信息显示未提供。

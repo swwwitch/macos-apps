@@ -1,3 +1,10 @@
+"meta.info" = "Script Information";
+"meta.summary" = "Overview";
+"meta.notes" = "Notes";
+"meta.author" = "Author";
+"meta.target" = "Target App";
+"meta.date" = "Release Date";
+"meta.absent" = "Not provided";
 "palette.settings" = "Palettes";
 "palette.keyHint" = "Set a hotkey to open each category palette, even while using another app. No keys are assigned by default.";
 "meta.version" = "Version";
