@@ -26,6 +26,7 @@ import Carbon
 @MainActor final class Delegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let model = AppModel()
     let launcher = AppLauncherHotkey()
+    lazy var palettes = CategoryPalettes(model: model)
     var window: NSWindow!
     var settings: NSWindow?
     var helpWindow: NSWindow?
@@ -47,6 +48,8 @@ import Carbon
 
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
         SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
+        model.showPalette = { [weak self] in self?.palettes.show($0) }
+        model.paletteRenamed = { [weak self] in self?.palettes.rename($0, to: $1) }
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 700), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "VectorKeys"; window.titleVisibility = .hidden
@@ -74,6 +77,7 @@ import Carbon
         return [item]
     }
     @objc func toggleHotkeys() { model.hotkeysEnabled.toggle() }
+    @objc func showCategoryPalette() { palettes.show(model.categoryFilter) }
     @objc func addCode() { show(); model.addCode() }
     @objc func addScripts() { show(); model.chooseFiles() }
     @objc func importKM() { show(); model.chooseKMFiles() }
@@ -153,6 +157,8 @@ import Carbon
         }
         edit.item(at: 1)?.keyEquivalentModifierMask = [.command, .shift]   // やり直す ⇧⌘Z
         let view = NSMenu(title: L("viewMenu")); let viewItem = NSMenuItem(title: L("viewMenu"), action: nil, keyEquivalent: ""); viewItem.submenu = view; bar.addItem(viewItem)
+        add(view, L("palette.show"), #selector(showCategoryPalette), "")
+        view.addItem(.separator())
         add(view, L("showUses"), #selector(toggleShowUses), "")
         let tools = NSMenu(title: L("toolsMenu")); let toolsItem = NSMenuItem(title: L("toolsMenu"), action: nil, keyEquivalent: ""); toolsItem.submenu = tools; bar.addItem(toolsItem)
         add(tools, L("tools.stats"), #selector(showStats), "")

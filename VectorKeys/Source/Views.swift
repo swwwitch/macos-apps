@@ -232,6 +232,8 @@ struct CategorySidebar: View {
                 ForEach(model.library.categoryList, id: \.self) { name in
                     row(name, name, symbol: "folder", count: model.scripts(in: name).count)
                         .contextMenu {
+                            Button(L("palette.show")) { model.showPalette?(name) }
+                            Divider()
                             Button(L("category.rename")) { model.renameCategory(name) }
                             Button(L("category.delete")) { confirmDelete = name }
                         }
@@ -247,6 +249,8 @@ struct CategorySidebar: View {
                 Button { if let name = model.currentCategory { confirmDelete = name } } label: { Image(systemName: "minus").frame(width: 16, height: 16) }
                     .disabled(model.currentCategory == nil).help(L("category.delete")).accessibilityLabel(L("category.delete"))
                 Spacer()
+                Button { model.showPalette?(model.categoryFilter) } label: { Image(systemName: "macwindow").frame(width: 16, height: 16) }
+                    .help(L("palette.show")).accessibilityLabel(L("palette.show"))
             }
         }
         .confirmationDialog(String(format: L("category.deleteConfirm"), confirmDelete ?? ""), isPresented: Binding(get: { confirmDelete != nil }, set: { if !$0 { confirmDelete = nil } })) {

@@ -1,0 +1,113 @@
+import AppKit
+import Combine
+import SwiftUI
+
+/// Clicking a script must preserve Illustrator's text/object selection and focus.
+final class CategoryPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+}
+
+@MainActor final class CategoryPalettes {
+    private let model: AppModel
+    private var panels: [String: CategoryPanel] = [:]
+    private var changes: AnyCancellable?
+
+    init(model: AppModel) {
+        self.model = model
+        changes = model.$library.sink { [weak self] library in
+            // Published fires before the assignment. Reconcile against the published value next turn.
+            DispatchQueue.main.async { self?.reconcile(library) }
+        }
+    }
+    private func title(_ category: String) -> String {
+        category == AppModel.allCategories ? L("category.all") :
+            category == AppModel.uncategorized ? L("category.none") : category
+    }
+    private func valid(_ category: String, in library: Library) -> Bool {
+        category == AppModel.allCategories || category == AppModel.uncategorized || library.categoryList.contains(category)
+    }
+    private func reconcile(_ library: Library) {
+        for category in Array(panels.keys) where !valid(category, in: library) {
+            panels.removeValue(forKey: category)?.close()
+        }
+    }
+    func show(_ category: String) {
+        guard valid(category, in: model.library) else { return }
+        if let existing = panels[category] { existing.orderFrontRegardless(); return }
+        let panel = CategoryPanel(contentRect: NSRect(x: 0, y: 0, width: 280, height: 360),
+            styleMask: [.titled, .closable, .resizable, .utilityWindow, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel.title = title(category)
+        panel.isReleasedWhenClosed = false
+        panel.level = .floating
+        panel.hidesOnDeactivate = false
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        panel.minSize = NSSize(width: 220, height: 150)
+        panel.contentView = NSHostingView(rootView: CategoryPaletteView(model: model, category: category))
+        let frameName = "VectorKeys.Palette." + Data(category.utf8).map { String(format: "%02x", $0) }.joined()
+        panel.center()
+        _ = panel.setFrameUsingName(frameName)
+        panel.setFrameAutosaveName(frameName)
+        if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(panel.frame) }) { panel.center() }
+        panels[category] = panel
+        panel.orderFrontRegardless()
+    }
+    func rename(_ old: String, to new: String) {
+        guard let previous = panels.removeValue(forKey: old) else { return }
+        let wasVisible = previous.isVisible
+        let frame = previous.frame
+        previous.close()
+        if wasVisible {
+            show(new)
+            panels[new]?.setFrame(frame, display: true)
+        }
+    }
+}
+
+struct CategoryPaletteView: View {
+    @ObservedObject var model: AppModel
+    let category: String
+    private var scripts: [ScriptEntry] { model.scripts(in: category) }
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                LazyVStack(spacing: 6) {
+                    if scripts.isEmpty {
+                        Text(L("palette.empty")).font(.callout).foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, minHeight: 80).padding(12)
+                    }
+                    ForEach(scripts) { script in
+                        Button { model.runFromWindow(script) } label: {
+                            HStack(spacing: 8) {
+                                Text(script.name).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+                                if let hotkey = script.hotkey {
+                                    Text(hotkey.fullLabel).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                                }
+                                if script.hasUnsupportedSteps || !script.isAvailable {
+                                    Image(systemName: "exclamationmark.triangle").foregroundColor(.orange)
+                                }
+                            }
+                            .padding(.horizontal, 10).padding(.vertical, 9).frame(maxWidth: .infinity)
+                            .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain).disabled(!script.enabled || !script.isAvailable)
+                        .help(script.isAvailable ? L("palette.hint") : L(script.hasUnsupportedSteps ? "legacy.unsupported" : "code.unavailableHint"))
+                    }
+                }.padding(10)
+            }
+            if let record = model.records.first {
+                Divider()
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: record.isError ? "exclamationmark.triangle.fill" : "checkmark.circle")
+                    Text(record.name + " · " + record.text).lineLimit(3)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .font(.caption).foregroundColor(record.isError ? .orange : .secondary)
+                .padding(10).help(record.text)
+                .accessibilityLabel(record.name + " " + record.text)
+            }
+        }
+        .background(Color(nsColor: AppSurface.color)).tint(appTint)
+    }
+}

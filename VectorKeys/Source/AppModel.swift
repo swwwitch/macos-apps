@@ -16,6 +16,8 @@ struct RunRecord: Identifiable {
 }
 
 @MainActor final class AppModel: ObservableObject {
+    var showPalette: ((String) -> Void)?
+    var paletteRenamed: ((String, String) -> Void)?
     private let defaults = UserDefaults.standard
     @Published var library = Library.load() { didSet { scheduleSave(); registerHotkeys() } }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
@@ -389,7 +391,9 @@ struct RunRecord: Identifiable {
     func renameCategory(_ name: String) {
         guard let new = askName(title: L("category.renameTitle"), value: name) else { return }
         undoable(L("undo.renameCategory")) { library.renameCategory(name, to: new) }
-        if categoryFilter == name { categoryFilter = new.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let renamed = new.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !renamed.isEmpty && renamed != name { paletteRenamed?(name, renamed) }
+        if categoryFilter == name && !renamed.isEmpty { categoryFilter = renamed }
     }
     func deleteCategory(_ name: String) {
         undoable(L("undo.deleteCategory")) { library.deleteCategory(name) }

@@ -17,7 +17,7 @@ xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-pa
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
-  Source/{Scripts,KMImport,Runner,AppModel,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/VectorKeys"
+  Source/{Scripts,KMImport,Runner,AppModel,Views,Palettes,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/VectorKeys"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

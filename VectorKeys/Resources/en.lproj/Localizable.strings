@@ -1,3 +1,6 @@
+"palette.show" = "Show as Palette";
+"palette.empty" = "No scripts in this category.";
+"palette.hint" = "Click to run in Illustrator.";
 "ui.hotkeyHelp" = "Hotkey Help";
 "ui.addStep" = "Add Step";
 "ui.stepNumber" = "Step %d";

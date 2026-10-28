@@ -80,3 +80,7 @@ Share Settings provides export, import and folder sync through iCloud Drive or D
 
 ## JavaScript
 Choose File > Add JavaScript Code and enter code in the editor. File and inline code steps can be mixed and run in order. Empty code cannot run. Code is saved for editing after restart.
+
+
+## Palette
+Select a category and click the palette button below the categories, or choose View > Show as Palette. The category context menu also opens it. Multiple category palettes can stay open; click a script to run it in Illustrator. Palettes float and remember their position and size. Close to hide, then reopen with the same command. Disabled or unavailable items cannot run. Palettes close when VectorKeys quits and do not reopen automatically.

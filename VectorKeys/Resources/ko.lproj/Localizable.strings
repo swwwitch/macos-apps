@@ -1,3 +1,6 @@
+"palette.show" = "팔레트로 표시";
+"palette.empty" = "이 카테고리에 스크립트가 없습니다.";
+"palette.hint" = "클릭하여 Illustrator에서 실행합니다.";
 "ui.hotkeyHelp" = "단축키 도움말";
 "ui.addStep" = "단계 추가";
 "ui.stepNumber" = "단계 %d";

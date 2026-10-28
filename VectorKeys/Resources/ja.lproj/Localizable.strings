@@ -1,3 +1,6 @@
+"palette.show" = "パレットとして表示";
+"palette.empty" = "このカテゴリにはスクリプトがありません。";
+"palette.hint" = "クリックしてIllustratorで実行します。";
 "ui.hotkeyHelp" = "ホットキーの使い方";
 "ui.addStep" = "手順を追加";
 "ui.stepNumber" = "手順 %d";

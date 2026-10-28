@@ -3,7 +3,10 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말
+rows = '''palette.show|パレットとして表示|Show as Palette|显示为面板|팔레트로 표시
+palette.empty|このカテゴリにはスクリプトがありません。|No scripts in this category.|此分类中没有脚本。|이 카테고리에 스크립트가 없습니다.
+palette.hint|クリックしてIllustratorで実行します。|Click to run in Illustrator.|点按以在 Illustrator 中运行。|클릭하여 Illustrator에서 실행합니다.
+ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말
 ui.addStep|手順を追加|Add Step|添加步骤|단계 추가
 ui.stepNumber|手順 %d|Step %d|步骤 %d|단계 %d
 ui.subtitle|ファイルやJavaScriptをホットキーで実行|Run files and JavaScript with hotkeys|使用快捷键运行文件和 JavaScript|단축키로 파일과 JavaScript 실행
