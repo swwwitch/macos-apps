@@ -107,3 +107,9 @@ Click Quick Look on a file step to open the standard macOS preview. Close it to 
 
 
 Use the display button beside sorting in Items (second column) to show version, usage count and filenames; all default to off. Select multiple rows and right-click Sort: name and hotkey ascend, usage descends. Only selected slots in each category change; Undo is available. In the category right panel, enable palettes and set their shortcut and behavior. Disabled item hotkeys remain disabled while closed. Auto-close closes when a run is accepted and allows item hotkeys.
+
+
+Select items in the item column and press Command-Delete for deletion confirmation. Text editing keeps standard deletion. Edit a category palette name inline in the right pane; Return or leaving the field commits. Empty or duplicate names are refused. Details and the context menu offer seven Finder-style colors and No Color. The entire item background is colored in lists and palettes, without changing file tags. Tools > Update Script Information reloads metadata. Article and Code URL are separate. Code URLs come from Code-URL/Source-URL, SCRIPT_CODE_URL/SCRIPT_GITHUB_URL, or a unique README link to the exact script filename. Online READMEs are fetched only by this command; failures appear in recent runs. Names, notes, hotkeys and script code remain unchanged.
+
+
+Palettes appear only while Illustrator is frontmost. Switching away hides them automatically; returning restores open palettes. Manually closed or auto-closed palettes stay closed. Opening a palette from VectorKeys waits invisibly until Illustrator becomes frontmost.

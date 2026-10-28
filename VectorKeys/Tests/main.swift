@@ -266,4 +266,24 @@ check(restoredOptions == selectionSort, "palette settings persist")
 selectionSort.deleteCategory("Renamed")
 check(selectionSort.paletteModes?["Renamed"] == nil, "palette options removed with category")
 
+
+// Code links must refer to this exact script, with no ambiguous candidate.
+let codeReadme = "[source](https://github.com/example/scripts/blob/main/Foo.jsx) [other](https://github.com/example/scripts/blob/main/Other.jsx)"
+check(ScriptMetadata.codeURL(in: codeReadme, scriptFilename: "Foo.jsx")?.path == "/example/scripts/blob/main/Foo.jsx", "README exact script")
+check(ScriptMetadata.codeURL(in: codeReadme, scriptFilename: "Missing.jsx") == nil, "unrelated links never guessed")
+check(ScriptMetadata.codeURL(in: codeReadme + " https://github.com/other/repo/blob/main/Foo.jsx", scriptFilename: "Foo.jsx") == nil, "ambiguous links rejected")
+let readmeBase = URL(string: "https://github.com/example/scripts/blob/main/docs/README.md")!
+check(ScriptMetadata.codeURL(in: "[code](../Foo.jsx)", scriptFilename: "Foo.jsx", relativeTo: readmeBase)?.path == "/example/scripts/blob/main/Foo.jsx", "relative code link")
+check(ScriptMetadata.codeURL(in: "[unsafe](javascript:Foo.jsx)", scriptFilename: "Foo.jsx") == nil, "non-web link rejected")
+check(ScriptMetadata.codeURL(in: codeReadme + " https://raw.githubusercontent.com/example/scripts/main/Foo.jsx", scriptFilename: "Foo.jsx") != nil, "raw and blob deduplicated")
+check(ScriptMetadata.readmeRequestURL(readmeBase)?.host == "raw.githubusercontent.com", "raw README text")
+check(ScriptMetadata.parse(#"var SCRIPT_CODE_URL = "https://github.com/example/scripts/blob/main/Foo.jsx";"#)?.codeURL?.host == "github.com", "code constant")
+check(ScriptMetadata.Info(fields: ["Code-URL": "javascript:alert(1)"]).codeURL == nil, "unsafe field refused")
+var coloredEntry = ScriptEntry(path: "/s/Foo.jsx")
+coloredEntry.tagColor = .purple
+let coloredRestored = try JSONDecoder().decode(ScriptEntry.self, from: JSONEncoder().encode(coloredEntry))
+check(coloredRestored.tagColor == .purple && coloredRestored.id == coloredEntry.id, "color persistence preserves identity")
+let legacyColorLibrary = try JSONDecoder().decode(Library.self, from: Data(old.utf8))
+check(legacyColorLibrary.scripts.first?.tagColor == nil, "legacy has no color")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

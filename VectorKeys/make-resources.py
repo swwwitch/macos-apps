@@ -3,7 +3,26 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''item.filename|ファイル名|Filename|文件名|파일 이름
+rows = '''palette.visibility|Illustratorが前面のときだけ表示し、ほかのアプリへ移ると隠します。Illustratorへ戻ると開いていたパレットを再表示します。|Palettes appear only while Illustrator is frontmost. Switching away hides them; returning restores open palettes.|仅在Illustrator位于前台时显示面板。切换应用时隐藏，返回时恢复已打开的面板。|Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다.
+item.color|カラー|Color|颜色|색상
+color.none|色なし|No Color|无颜色|색상 없음
+color.red|レッド|Red|红色|빨강
+color.orange|オレンジ|Orange|橙色|주황
+color.yellow|イエロー|Yellow|黄色|노랑
+color.green|グリーン|Green|绿色|초록
+color.blue|ブルー|Blue|蓝色|파랑
+color.purple|パープル|Purple|紫色|보라
+color.gray|グレー|Gray|灰色|회색
+color.selected|選択中|Selected|已选中|선택됨
+palette.name|パレット名|Palette Name|面板名称|팔레트 이름
+palette.nameInvalid|空の名前や、ほかのカテゴリと同じ名前は使えません。|Use a nonempty name that differs from other categories.|名称不能为空或与其他分类重复。|비어 있거나 다른 카테고리와 같은 이름은 사용할 수 없습니다.
+meta.articleURL|解説ページ（noteなど）|Article (note, etc.)|解说页面（note等）|해설 페이지(note 등)
+meta.codeURL|コードURL（GitHubなど）|Code URL (GitHub, etc.)|代码URL（GitHub等）|코드 URL(GitHub 등)
+tools.refreshInfo|スクリプトの情報をアップデート|Update Script Information|更新脚本信息|스크립트 정보 업데이트
+meta.refreshing|情報を更新中…|Updating information…|正在更新信息…|정보 업데이트 중…
+meta.refreshed|スクリプト情報を再読み込みしました。|Script information reloaded.|已重新载入脚本信息。|스크립트 정보를 다시 읽었습니다.
+meta.refreshPartial|ローカル情報を更新しました。オンラインのREADMEを%d件取得できませんでした。|Local information updated. Could not fetch %d online README files.|已更新本地信息。无法获取%d个在线README文件。|로컬 정보를 업데이트했습니다. 온라인 README %d개를 가져오지 못했습니다.
+item.filename|ファイル名|Filename|文件名|파일 이름
 item.display|アイテムの表示設定|Item Display Options|项目显示选项|항목 표시 옵션
 sort.uses|回数|Usage Count|使用次数|사용 횟수
 palette.behavior|パレットの動作|Palette Behavior|面板行为|팔레트 동작

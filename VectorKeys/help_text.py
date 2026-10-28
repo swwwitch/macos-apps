@@ -338,3 +338,19 @@ for lang, note in {
 "ko": "항목(두 번째 열)의 정렬 옆 표시 버튼에서 버전, 횟수, 파일 이름을 표시합니다. 기본값은 모두 꺼짐입니다. 여러 항목 선택 후 우클릭 정렬: 이름과 단축키는 오름차순, 횟수는 내림차순입니다. 카테고리별 선택 위치만 변경하며 실행 취소가 가능합니다. 카테고리 오른쪽 패널에서 팔레트, 단축키, 동작을 설정합니다. 단축키 비활성 모드는 닫혀 있을 때도 적용됩니다. 실행 후 닫기 모드는 실행 접수 시 닫으며 항목 단축키를 허용합니다."
 }.items():
     HELP[lang] += "\n\n" + note + "\n"
+
+for lang, note in {
+    "ja": "アイテム列で選択して⌘Deleteで削除確認を開きます。文字編集中は標準の文字削除を保持します。カテゴリ選択時の右ペインでパレット名を編集し、Returnまたはフォーカス移動で確定します。空欄・重複名は拒否します。アイテム詳細や右クリックのカラーからFinder準拠の7色と色なしを選べます。一覧とパレットでアイテム全体の背景を色付けし、実ファイルのタグは変更しません。ツール＞スクリプトの情報をアップデートで情報を再読み込みします。解説ページ（noteなど）とコードURL（GitHubなど）は別欄です。コードURLはCode-URL／Source-URL、SCRIPT_CODE_URL／SCRIPT_GITHUB_URL、またはREADME内の同名スクリプトへの一意なリンクから取得します。オンラインREADMEはこのコマンド実行時だけ取得し、失敗は最近の実行に表示します。アイテム名・メモ・ホットキーを保持し、スクリプト本体は更新しません。",
+    "en": "Select items in the item column and press Command-Delete for deletion confirmation. Text editing keeps standard deletion. Edit a category palette name inline in the right pane; Return or leaving the field commits. Empty or duplicate names are refused. Details and the context menu offer seven Finder-style colors and No Color. The entire item background is colored in lists and palettes, without changing file tags. Tools > Update Script Information reloads metadata. Article and Code URL are separate. Code URLs come from Code-URL/Source-URL, SCRIPT_CODE_URL/SCRIPT_GITHUB_URL, or a unique README link to the exact script filename. Online READMEs are fetched only by this command; failures appear in recent runs. Names, notes, hotkeys and script code remain unchanged.",
+    "zh-Hans": "在项目列选中项目后按Command-Delete打开删除确认，文字编辑保留标准删除操作。右侧可直接编辑分类面板名称，Return或移出焦点确认；不接受空名或重名。详情和右键菜单提供Finder式七色及无颜色。列表和面板为项目整体背景着色，不更改文件标签。工具＞更新脚本信息重新读取元数据，解说页面与代码URL分开显示。代码URL来自Code-URL/Source-URL、SCRIPT_CODE_URL/SCRIPT_GITHUB_URL或README内唯一的同名脚本链接。仅此命令获取在线README，失败在最近执行中显示。保留名称、备注、快捷键和脚本代码。",
+    "ko": "항목 열에서 선택하고 Command-Delete로 삭제 확인을 엽니다. 텍스트 편집은 표준 삭제를 유지합니다. 오른쪽에서 카테고리 팔레트 이름을 편집하고 Return 또는 포커스 이동으로 확정합니다. 빈 이름과 중복 이름은 거부합니다. 상세 및 우클릭 메뉴에서 Finder 스타일 7색과 색상 없음을 선택합니다. 목록과 팔레트에서 항목 전체 배경에 색상을 적용하며 파일 태그는 변경하지 않습니다. 도구 > 스크립트 정보 업데이트로 정보를 다시 읽습니다. 해설 페이지와 코드 URL은 별개입니다. Code-URL/Source-URL, SCRIPT_CODE_URL/SCRIPT_GITHUB_URL 또는 README의 정확한 파일명에 대한 고유 링크를 사용합니다. 온라인 README는 이 명령 실행 시에만 가져오며 오류는 최근 실행에 표시합니다. 이름, 메모, 단축키와 코드는 유지합니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"
+
+for lang, note in {
+"ja": "パレットはIllustratorが前面のときだけ表示します。ほかのアプリへ切り替えると自動で隠れ、Illustratorへ戻ると開いていたパレットが再表示されます。手動で閉じたパレットや実行後に閉じたパレットは再表示しません。VectorKeysの主画面でパレットを開いた場合も、Illustratorへ戻るまで非表示で待機します。",
+"en": "Palettes appear only while Illustrator is frontmost. Switching away hides them automatically; returning restores open palettes. Manually closed or auto-closed palettes stay closed. Opening a palette from VectorKeys waits invisibly until Illustrator becomes frontmost.",
+"zh-Hans": "面板仅在Illustrator位于前台时显示。切换应用自动隐藏，返回时恢复已打开的面板。手动关闭或执行后关闭的面板不会恢复。在VectorKeys中打开时，也会隐藏等待Illustrator成为前台。",
+"ko": "팔레트는 Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 자동으로 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다. 수동으로 닫거나 실행 후 닫힌 팔레트는 복원하지 않습니다. VectorKeys에서 열면 Illustrator로 돌아올 때까지 숨겨진 상태로 대기합니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"

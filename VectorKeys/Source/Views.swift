@@ -34,7 +34,9 @@ struct ScriptRow: View {
         HStack(spacing: 8) {
             Toggle("", isOn: $script.enabled).labelsHidden().accessibilityLabel(script.name).help(L("enabledHint"))
             VStack(alignment: .leading, spacing: 2) {
-                Text(script.name).lineLimit(1).truncationMode(.middle)
+                HStack(spacing: 6) {
+                    Text(script.name).lineLimit(1).truncationMode(.middle)
+                }
                 if showFilename {
                     ForEach(script.actions.compactMap(\.scriptPath), id: \.self) { path in
                         Text((path as NSString).lastPathComponent).font(.caption).foregroundColor(.secondary)
@@ -90,6 +92,7 @@ struct ScriptDetail: View {
                         Spacer(minLength: 0)
                     }
                 }
+                ItemColorPicker(color: Binding(get: { script.tagColor }, set: { model.setColor($0, for: [script.id]) }))
                 StepsEditor(model: model, script: script)
                 Divider()
                 VStack(alignment: .leading, spacing: 10) {
@@ -484,7 +487,7 @@ struct MainView: View {
                             } else if model.selection.count > 1 {
                                 MultipleSelection(model: model)
                             } else {
-                                CategoryDetail(model: model, category: model.categoryFilter)
+                                CategoryDetail(model: model, category: model.categoryFilter).id(model.categoryFilter)
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -590,6 +593,12 @@ struct MainView: View {
                     if let path = script.actions.compactMap(\.scriptPath).first {
                         Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!FileManager.default.fileExists(atPath: path))
                     }
+                    Menu(L("item.color")) {
+                        Button(L("color.none")) { model.setColor(nil, for: ids) }
+                        ForEach(ItemTag.allCases, id: \.self) { color in
+                            Button { model.setColor(color, for: ids) } label: { Label(L("color." + color.rawValue), systemImage: "circle.fill").foregroundColor(color.displayColor) }
+                        }
+                    }
                     if ids.count > 1 {
                         Menu(L("sort.label")) {
                             Button(L("sort.name")) { model.sortSelected(ids, by: .name); sortOrder = SortOrder.manual.rawValue }
@@ -606,6 +615,7 @@ struct MainView: View {
                 }
             }
             .onDeleteCommand { if !model.selection.isEmpty { confirmDelete = true } }
+            .background(ItemDeleteShortcut { if !model.selection.isEmpty { confirmDelete = true } })
             HStack {
                 // The same frame for both symbols: "minus" is shorter than "plus" and would make a lower button.
                 Menu {
@@ -632,6 +642,7 @@ struct MainView: View {
         if let binding = model.binding(for: script.id) {
             ScriptRow(model: model, script: binding).tag(script.id)
                 .listRowSeparator(.visible)
+                .listRowBackground(script.tagColor.map { $0.displayColor.opacity(0.22) })
                 // Dragging a row onto a category in the sidebar moves it there.
                 .itemProvider { NSItemProvider(object: script.id as NSString) }
         }
@@ -682,10 +693,23 @@ struct ItemDisplayOptions: View {
 struct CategoryDetail: View {
     @ObservedObject var model: AppModel
     let category: String
+    @State private var name = ""
+    @State private var invalidName = false
+    @FocusState private var editingName: Bool
+    private var editable: Bool { category != AppModel.allCategories && category != AppModel.uncategorized }
+    private func commitName() {
+        guard editable, model.categoryFilter == category else { return }
+        invalidName = !model.renameCategory(category, to: name)
+    }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(model.categoryTitle(category)).font(.title2.weight(.semibold))
+                if editable {
+                    TextField(L("palette.name"), text: $name).textFieldStyle(.plain).font(.title2.weight(.semibold))
+                        .focused($editingName).onSubmit { commitName() }.accessibilityLabel(L("palette.name"))
+                        .onChange(of: editingName) { focused in if !focused { commitName() } }
+                    if invalidName { Text(L("palette.nameInvalid")).font(.caption).foregroundColor(.red) }
+                } else { Text(model.categoryTitle(category)).font(.title2.weight(.semibold)) }
                 Toggle(L("palette.show"), isOn: Binding(get: { model.library.allowsPalette(category) }, set: { model.setPaletteEnabled($0, for: category) }))
                 Text(L("hotkey")).font(.headline)
                 HotkeyField(id: "palette-" + category, combo: Binding(get: {
@@ -698,10 +722,78 @@ struct CategoryDetail: View {
                     Text(L("palette.mode1")).tag(1)
                     Text(L("palette.mode2")).tag(2)
                 }.pickerStyle(.radioGroup)
+                Text(L("palette.visibility")).font(.caption).foregroundColor(.secondary)
                 Text(L("palette.behaviorHint")).font(.caption).foregroundColor(.secondary)
             }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
         }
+        .onAppear { name = model.categoryTitle(category) }
+        .onChange(of: category) { _ in name = model.categoryTitle(category); invalidName = false }
     }
+}
+
+extension ItemTag {
+    var displayColor: Color {
+        switch self {
+        case .red: return Color(nsColor: .systemRed)
+        case .orange: return Color(nsColor: .systemOrange)
+        case .yellow: return Color(nsColor: .systemYellow)
+        case .green: return Color(nsColor: .systemGreen)
+        case .blue: return Color(nsColor: .systemBlue)
+        case .purple: return Color(nsColor: .systemPurple)
+        case .gray: return Color(nsColor: .systemGray)
+        }
+    }
+}
+
+struct ItemColorPicker: View {
+    @Binding var color: ItemTag?
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(L("item.color")).font(.caption).foregroundColor(.secondary)
+            HStack(spacing: 10) {
+                Button { color = nil } label: {
+                    Image(systemName: "nosign").font(.system(size: 18)).frame(width: 25, height: 25)
+                        .overlay(Circle().strokeBorder(color == nil ? Color.primary : .clear, lineWidth: 2))
+                }.help(L("color.none")).accessibilityLabel(L("color.none"))
+                ForEach(ItemTag.allCases, id: \.self) { tag in
+                    Button { color = tag } label: {
+                        Circle().fill(tag.displayColor.opacity(0.65))
+                            .overlay(Circle().strokeBorder(tag.displayColor, lineWidth: 1.5))
+                            .frame(width: 20, height: 20).padding(3)
+                            .overlay(Circle().strokeBorder(color == tag ? Color.primary : .clear, lineWidth: 2))
+                    }.help(L("color." + tag.rawValue)).accessibilityLabel(L("color." + tag.rawValue))
+                        .accessibilityValue(color == tag ? L("color.selected") : "")
+                }
+            }.buttonStyle(.plain)
+        }
+    }
+}
+
+/// Only the item column owns this local shortcut; text editing retains Command-Delete.
+struct ItemDeleteShortcut: NSViewRepresentable {
+    let action: () -> Void
+    final class ShortcutView: NSView {
+        var action: () -> Void = {}
+        var monitor: Any?
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if let monitor { NSEvent.removeMonitor(monitor); self.monitor = nil }
+            guard window != nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                guard let self, self.window?.isKeyWindow == true, event.keyCode == 51,
+                      event.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting([.capsLock, .numericPad, .function]) == .command,
+                      let responder = self.window?.firstResponder as? NSView,
+                      !(responder is NSTextView), !(responder is NSTextField) else { return event }
+                var host: NSView? = self.superview
+                while let view = host, !(view is NSHostingView<AnyView>) { host = view.superview }
+                guard let host, responder === host || responder.isDescendant(of: host) else { return event }
+                self.action(); return nil
+            }
+        }
+        deinit { if let monitor { NSEvent.removeMonitor(monitor) } }
+    }
+    func makeNSView(context: Context) -> ShortcutView { let view = ShortcutView(); view.action = action; return view }
+    func updateNSView(_ view: ShortcutView, context: Context) { view.action = action }
 }
 
 struct ScriptInfoView: View {
@@ -709,7 +801,10 @@ struct ScriptInfoView: View {
     @Binding var script: ScriptEntry
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L("meta.info")).font(.subheadline.weight(.semibold))
+            HStack {
+                Text(L("meta.info")).font(.subheadline.weight(.semibold))
+                if model.updatingInformation { ProgressView().controlSize(.small); Text(L("meta.refreshing")).font(.caption).foregroundColor(.secondary) }
+            }
             ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
                 if step.isSupported {
                     VStack(alignment: .leading, spacing: 10) {
@@ -717,7 +812,7 @@ struct ScriptInfoView: View {
                             Text(step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? String(format: L("ui.stepNumber"), index + 1))
                                 .font(.caption.weight(.semibold)).lineLimit(2)
                         }
-                        MetadataFields(info: model.metadata(for: step), readme: step.scriptPath.flatMap { model.scriptReadmes[$0] })
+                        MetadataFields(info: model.metadata(for: step), readme: step.scriptPath.flatMap { model.scriptReadmes[$0] }, codeURL: step.scriptPath.flatMap { model.scriptCodeURLs[$0] })
                     }
                 }
             }
@@ -736,6 +831,7 @@ struct ScriptInfoView: View {
 struct MetadataFields: View {
     let info: ScriptMetadata.Info?
     let readme: URL?
+    let codeURL: URL?
     @State private var overviewOpen = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -750,10 +846,16 @@ struct MetadataFields: View {
             if let name = info?.fields["Name"], !name.isEmpty { field(L("meta.scriptName"), value: name) }
             field(L("meta.version"), value: info?.version)
             HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text("URL").font(.caption).foregroundColor(.secondary).frame(width: 78, alignment: .leading)
+                Text(L("meta.articleURL")).font(.caption).foregroundColor(.secondary).frame(width: 110, alignment: .leading)
                 if let url = info?.url {
                     Link(url.absoluteString, destination: url).font(.callout).lineLimit(2).truncationMode(.middle)
                         .help(url.absoluteString)
+                } else { Text(L("meta.absent")).font(.caption).foregroundColor(.secondary) }
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(L("meta.codeURL")).font(.caption).foregroundColor(.secondary).frame(width: 110, alignment: .leading)
+                if let url = info?.codeURL ?? codeURL {
+                    Link(url.absoluteString, destination: url).font(.callout).lineLimit(2).truncationMode(.middle).help(url.absoluteString)
                 } else { Text(L("meta.absent")).font(.caption).foregroundColor(.secondary) }
             }
             HStack(alignment: .firstTextBaseline, spacing: 10) {

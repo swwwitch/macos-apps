@@ -24,6 +24,38 @@ struct RunRecord: Identifiable {
     @Published var scriptVersions: [String: String] = [:]
     @Published var scriptMetadata: [String: ScriptMetadata.Info] = [:]
     @Published var scriptReadmes: [String: URL] = [:]
+    @Published var scriptCodeURLs: [String: URL] = [:]
+    @Published var updatingInformation = false
+    private var remoteCodeURLs: [String: URL] = [:]
+    /// User-requested refresh; preferences, item names and script files are never changed.
+    func updateScriptInformation() {
+        guard !updatingInformation else { return }
+        updatingInformation = true
+        let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        Task {
+            var found: [String: URL] = [:]
+            var failed = 0
+            for path in paths {
+                let info = ScriptMetadata.read(at: path)
+                guard info?.codeURL == nil,
+                      let readme = info?.readmeURL(language: Locale.preferredLanguages.first ?? "en"),
+                      let requestURL = ScriptMetadata.readmeRequestURL(readme) else { continue }
+                do {
+                    var request = URLRequest(url: requestURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 12)
+                    request.setValue("text/plain, text/markdown", forHTTPHeaderField: "Accept")
+                    let (data, response) = try await URLSession.shared.data(for: request)
+                    guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), data.count <= 1_048_576,
+                          let text = String(data: data, encoding: .utf8) else { failed += 1; continue }
+                    found[path] = ScriptMetadata.codeURL(in: text, scriptFilename: (path as NSString).lastPathComponent, relativeTo: readme)
+                } catch { failed += 1 }
+            }
+            let currentPaths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+            remoteCodeURLs = found.filter { currentPaths.contains($0.key) }
+            updatingInformation = false
+            refreshVersions()
+            record("VectorKeys", failed == 0 ? L("meta.refreshed") : String(format: L("meta.refreshPartial"), failed), error: failed > 0)
+        }
+    }
     func metadata(for step: Step) -> ScriptMetadata.Info? {
         switch step {
         case .script(let path): return scriptMetadata[path]
@@ -86,16 +118,24 @@ struct RunRecord: Identifiable {
             var versions: [String: String] = [:]
             var metadata: [String: ScriptMetadata.Info] = [:]
             var readmes: [String: URL] = [:]
+            var codeURLs: [String: URL] = [:]
             for path in paths {
                 metadata[path] = ScriptMetadata.read(at: path)
                 versions[path] = metadata[path]?.version
                 readmes[path] = ScriptMetadata.readme(for: path)
+                codeURLs[path] = metadata[path]?.codeURL
+                if codeURLs[path] == nil, let readme = readmes[path], let text = ScriptMetadata.readText(at: readme) {
+                    codeURLs[path] = ScriptMetadata.codeURL(in: text, scriptFilename: (path as NSString).lastPathComponent)
+                }
             }
             DispatchQueue.main.async {
                 guard let self, self.metadataGeneration == generation else { return }
                 if self.scriptVersions != versions { self.scriptVersions = versions }
                 if self.scriptMetadata != metadata { self.scriptMetadata = metadata }
                 if self.scriptReadmes != readmes { self.scriptReadmes = readmes }
+                let currentPaths = Set(paths)
+                let merged = self.remoteCodeURLs.filter { currentPaths.contains($0.key) }.merging(codeURLs) { _, local in local }
+                if self.scriptCodeURLs != merged { self.scriptCodeURLs = merged }
             }
         }
         metadataWork = work
@@ -517,12 +557,25 @@ struct RunRecord: Identifiable {
         undoable(L("undo.newCategory")) { added = library.addCategory(name) }
         if let added { categoryFilter = added }
     }
+    func setColor(_ color: ItemTag?, for ids: Set<String>) {
+        undoable(L("item.color")) {
+            for index in library.scripts.indices where ids.contains(library.scripts[index].id) { library.scripts[index].tagColor = color }
+        }
+    }
     func renameCategory(_ name: String) {
         guard let new = askName(title: L("category.renameTitle"), value: name) else { return }
+        _ = renameCategory(name, to: new)
+    }
+    @discardableResult func renameCategory(_ name: String, to new: String) -> Bool {
+        let clean = new.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty, name != Self.allCategories, name != Self.uncategorized,
+              clean == name || !library.categoryList.contains(clean) else { return false }
+        guard clean != name else { return true }
         undoable(L("undo.renameCategory")) { library.renameCategory(name, to: new) }
         let renamed = new.trimmingCharacters(in: .whitespacesAndNewlines)
         if !renamed.isEmpty && renamed != name { paletteRenamed?(name, renamed) }
         if categoryFilter == name && !renamed.isEmpty { categoryFilter = renamed }
+        return true
     }
     func deleteCategory(_ name: String) {
         undoable(L("undo.deleteCategory")) { library.deleteCategory(name) }

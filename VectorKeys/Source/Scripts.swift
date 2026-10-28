@@ -42,6 +42,11 @@ enum Step: Codable, Hashable {
     }
 }
 
+/// Finder's standard tag palette; these are app item labels, never filesystem tags.
+enum ItemTag: String, Codable, CaseIterable {
+    case red, orange, yellow, green, blue, purple, gray
+}
+
 /// One registered script item; script files run in order by one hotkey.
 struct ScriptEntry: Codable, Identifiable, Hashable {
     var id: String
@@ -67,6 +72,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         actions = steps
     }
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
+    var tagColor: ItemTag?
     var notes: String?
     var runCount: Int?
     var lastRun: Date?
@@ -364,6 +370,7 @@ enum ScriptMetadata {
             guard let value = fields["Version"], !value.isEmpty, value.count <= 64 else { return nil }
             return value
         }
+        var codeURL: URL? { Self.webURL(fields["Code-URL"]) ?? Self.webURL(fields["Source-URL"]) }
         var url: URL? {
             Self.webURL(fields["Article-URL"]) ?? Self.webURL(fields["Meta-URL"])
         }
@@ -440,7 +447,7 @@ enum ScriptMetadata {
 
 extension ScriptMetadata {
     static func variables(in source: String) -> [String: String] {
-        let names = ["SCRIPT_NAME": "Name", "SCRIPT_VERSION": "Version", "SCRIPT_AUTHOR": "Author",
+        let names = ["SCRIPT_CODE_URL": "Code-URL", "SCRIPT_GITHUB_URL": "Code-URL", "SCRIPT_NAME": "Name", "SCRIPT_VERSION": "Version", "SCRIPT_AUTHOR": "Author",
                      "SCRIPT_RELEASED": "First-Release-Date", "SCRIPT_UPDATED": "Updated-Date",
                      "SCRIPT_README_JA": "README-JA", "SCRIPT_README_EN": "README-EN", "SCRIPT_ARTICLE_URL": "Article-URL"]
         let pattern = #"//[^\r\n]*|/\*[\s\S]*?\*/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`|[A-Za-z_$][A-Za-z0-9_$]*|[^\s]"#
@@ -481,5 +488,52 @@ extension ScriptMetadata {
             }
         }
         return result
+    }
+}
+
+
+extension ScriptMetadata {
+    /// Select only links to this exact script. A repository/homepage alone is not proof.
+    static func codeURL(in readme: String, scriptFilename: String, relativeTo base: URL? = nil) -> URL? {
+        guard !scriptFilename.isEmpty,
+              let regex = try? NSRegularExpression(pattern: #"https?://[^\s<>"\)\]]+|(?<=\]\()[^\s\)]+"#) else { return nil }
+        let text = readme as NSString
+        var candidates: [String: URL] = [:]
+        for match in regex.matches(in: readme, range: NSRange(location: 0, length: text.length)) {
+            let token = text.substring(with: match.range).replacingOccurrences(of: "&amp;", with: "&")
+            guard let url = URL(string: token, relativeTo: base)?.absoluteURL,
+                  ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil,
+                  url.lastPathComponent.removingPercentEncoding?.caseInsensitiveCompare(scriptFilename) == .orderedSame else { continue }
+            var normalized = URLComponents(url: url, resolvingAgainstBaseURL: true)
+            normalized?.query = nil; normalized?.fragment = nil
+            if url.host?.lowercased() == "raw.githubusercontent.com" {
+                let parts = url.pathComponents.filter { $0 != "/" }
+                if parts.count >= 4 {
+                    normalized?.host = "github.com"
+                    normalized?.path = "/" + (Array(parts.prefix(2)) + ["blob"] + Array(parts.dropFirst(2))).joined(separator: "/")
+                }
+            }
+            if let canonical = normalized?.url { candidates[canonical.absoluteString] = canonical }
+        }
+        return candidates.count == 1 ? candidates.values.first : nil
+    }
+    static func readText(at url: URL) -> String? {
+        guard url.isFileURL, let file = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? file.close() }
+        guard let data = try? file.read(upToCount: 524288) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+    static func readmeRequestURL(_ url: URL) -> URL? {
+        guard ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil else { return nil }
+        if url.host?.lowercased() == "github.com" {
+            var parts = url.pathComponents.filter { $0 != "/" }
+            guard parts.count >= 5, parts[2] == "blob" else { return nil }
+            parts.remove(at: 2)
+            var components = URLComponents()
+            components.scheme = "https"; components.host = "raw.githubusercontent.com"
+            components.path = "/" + parts.joined(separator: "/")
+            return components.url
+        }
+        return url
     }
 }
