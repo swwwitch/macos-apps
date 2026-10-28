@@ -756,3 +756,5 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - ブランチ: codex/settingshop-double-press。実装前SHA: da38b4a。対象: 1.8.0 (24)。状態: 実装・テスト中。
 - 1回でメイン表示、ダブルクリック間隔内の2回でメインを隠しシステム設定。リピート除外。未回答のメニュー要望は対象外。通常版のみ。公開・Store提出なし。
 - 保全: 正本 `.local/settingshop-doublepress-20261029/local-work-before.tar.gz`。実キー・再表示・設定保持は未確認。
+
+- SettingsHop 2回押し検証結果: 1.8.0 (24)、対象SHA `0ce65a5415cb219e0f6f35313c2747517b0ff699`。自動テスト・NO_DEPLOYビルド・Developer ID/runtime/timestamp署名検証・検証版GUI起動成功。起動前後の設定差分なし。実キー1回/2回/長押しと再表示はユーザー確認待ち。公証・配置・公開未実施。詳細 `SettingsHop/Tests/BUILD-NOTES-20261029-double-press.md`。
