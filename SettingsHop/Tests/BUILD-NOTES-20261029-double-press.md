@@ -7,6 +7,6 @@
 - 成果物: 正本 `.local/settingshop-doublepress-20261029/source/SettingsHop/build/SettingsHop.app`。
 - 実行ファイルSHA-256: `539f50b972483c334c25052f7b2cab957d969f778f3128117f32224b567bce03`。
 - GUI: 検証成果物を起動し1.8.0 (24)のメイン画面を確認。旧版はメニューから通常終了。起動前後のユーザー設定差分なし。
-- 実キーの1回/2回/押しっぱなし、ホットキーでの再表示: ユーザー確認待ち。合成キーと実キーを混同しない。
+- 実キー確認（2026-10-29、ユーザー回答「3項目とも正常」）: ⌃⌥Qの1回でメイン表示、すばやく2回でメインを閉じてシステム設定、押しっぱなしで2回扱いにならない、の3項目を確認済み。ホットキーによるメイン再表示も確認済み。
 - 公証・DMG・/ApplicationsとLatest Buildsへの配置・GitHub Release・note・Store提出: 未実施（今回の実装・検証・ビルド範囲外）。
 - 保全: 正本 `.local/settingshop-doublepress-20261029/local-work-before.tar.gz`。無関係な作業は保持。
