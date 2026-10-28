@@ -96,6 +96,18 @@ struct Library: Codable, Equatable {
     /// Category names in the sidebar order. Optional so lists saved before 1.3.0 still load.
     var categories: [String]?
     var paletteHotkeys: [String: Hotkey]?
+    var paletteEnabled: [String: Bool]?
+    var paletteModes: [String: Int]?
+    func allowsPalette(_ category: String) -> Bool { paletteEnabled?[category] ?? true }
+    func paletteMode(_ category: String) -> Int { paletteModes?[category] ?? 0 }
+    mutating func sortSelected(_ ids: Set<String>, by order: SortOrder, keyName: (Hotkey) -> String) {
+        // Replace only selected slots in each category, preserving every unselected row.
+        for category in Set(scripts.filter { ids.contains($0.id) }.map { $0.category ?? "" }) {
+            let slots = scripts.indices.filter { ids.contains(scripts[$0].id) && (scripts[$0].category ?? "") == category }
+            let sorted = order.sorted(slots.map { scripts[$0] }, keyName: keyName)
+            for (slot, entry) in zip(slots, sorted) { scripts[slot] = entry }
+        }
+    }
 
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("VectorKeys", isDirectory: true)
@@ -156,12 +168,16 @@ struct Library: Codable, Equatable {
         if list.contains(new) { list.removeAll { $0 == old } } else if let index = list.firstIndex(of: old) { list[index] = new }
         categories = list
         if let key = paletteHotkeys?.removeValue(forKey: old), paletteHotkeys?[new] == nil { paletteHotkeys?[new] = key }
+        if let value = paletteEnabled?.removeValue(forKey: old), paletteEnabled?[new] == nil { paletteEnabled?[new] = value }
+        if let value = paletteModes?.removeValue(forKey: old), paletteModes?[new] == nil { paletteModes?[new] = value }
         for index in scripts.indices where scripts[index].category == old { scripts[index].category = new }
     }
     /// Removes a category; its scripts become uncategorized (nothing is deleted).
     mutating func deleteCategory(_ name: String) {
         categories = categoryList.filter { $0 != name }
         paletteHotkeys?.removeValue(forKey: name)
+        paletteEnabled?.removeValue(forKey: name)
+        paletteModes?.removeValue(forKey: name)
         for index in scripts.indices where scripts[index].category == name { scripts[index].category = nil }
     }
     mutating func setCategory(_ name: String?, for ids: Set<String>) {
@@ -260,11 +276,12 @@ struct Library: Codable, Equatable {
 
 /// How the list is shown (the saved order stays as it is).
 enum SortOrder: String, CaseIterable {
-    case manual, name, hotkey
+    case manual, name, uses, hotkey
     func sorted(_ scripts: [ScriptEntry], keyName: (Hotkey) -> String) -> [ScriptEntry] {
         switch self {
         case .manual: return scripts
         case .name: return scripts.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        case .uses: return scripts.sorted { $0.uses > $1.uses }
         case .hotkey:
             // Scripts with a key first, by the key's name, then fewer modifiers, then single before double press.
             return scripts.sorted { a, b in
@@ -275,9 +292,7 @@ enum SortOrder: String, CaseIterable {
                 case let (x?, y?):
                     let nx = keyName(x), ny = keyName(y)
                     if nx != ny { return nx.localizedStandardCompare(ny) == .orderedAscending }
-                    if x.modifiers.nonzeroBitCount != y.modifiers.nonzeroBitCount { return x.modifiers.nonzeroBitCount < y.modifiers.nonzeroBitCount }
-                    if x.modifiers != y.modifiers { return x.modifiers < y.modifiers }
-                    return (x.taps ?? 1) < (y.taps ?? 1)
+                    return false // Equal letter: keep the existing order, ignoring modifiers and tap count.
                 }
             }
         }

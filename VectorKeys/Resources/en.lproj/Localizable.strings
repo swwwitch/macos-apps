@@ -1,3 +1,11 @@
+"item.filename" = "Filename";
+"item.display" = "Item Display Options";
+"sort.uses" = "Usage Count";
+"palette.behavior" = "Palette Behavior";
+"palette.mode0" = "Toggle palette (item hotkeys enabled)";
+"palette.mode1" = "Toggle palette (item hotkeys disabled)";
+"palette.mode2" = "Open palette and close after running an item";
+"palette.behaviorHint" = "Disabled item hotkeys remain disabled while the palette is closed. Auto-close mode allows item hotkeys.";
 "source.preview" = "Quick Look";
 "meta.scriptName" = "Script Name";
 "meta.openReadme" = "Open README";

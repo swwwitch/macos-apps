@@ -16,6 +16,7 @@ struct RunRecord: Identifiable {
 }
 
 @MainActor final class AppModel: ObservableObject {
+    var didExecute: ((ScriptEntry) -> Void)?
     var showQuickLook: ((URL) -> Void)?
     var showPalette: ((String) -> Void)?
     var paletteRenamed: ((String, String) -> Void)?
@@ -37,6 +38,21 @@ struct RunRecord: Identifiable {
     var paletteCategories: [String] { [Self.allCategories] + library.categoryList + [Self.uncategorized] }
     func categoryTitle(_ category: String) -> String {
         category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
+    }
+    func sortSelected(_ ids: Set<String>, by order: SortOrder) {
+        undoable(L("sort.label")) { library.sortSelected(ids, by: order) { KeyCombo.keyName($0.code) } }
+    }
+    func setPaletteEnabled(_ enabled: Bool, for category: String) {
+        undoable(L("palette.show")) {
+            if library.paletteEnabled == nil { library.paletteEnabled = [:] }
+            library.paletteEnabled?[category] = enabled
+        }
+    }
+    func setPaletteMode(_ mode: Int, for category: String) {
+        undoable(L("palette.behavior")) {
+            if library.paletteModes == nil { library.paletteModes = [:] }
+            library.paletteModes?[category] = mode
+        }
     }
     func setPaletteHotkey(_ combo: KeyCombo?, for category: String) {
         undoable(L("hotkey")) {
@@ -91,7 +107,7 @@ struct RunRecord: Identifiable {
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
     /// The sidebar choice: allCategories, uncategorized, or a category name.
-    @Published var categoryFilter = AppModel.allCategories
+    @Published var categoryFilter = AppModel.allCategories { didSet { selection = [] } }
     static let allCategories = "\u{0}all", uncategorized = "\u{0}none"
     @Published var records: [RunRecord] = []
     @Published var illustratorFront = Illustrator.front != nil
@@ -177,7 +193,10 @@ struct RunRecord: Identifiable {
         let duplicates = library.activeHotkeys().duplicates
         var failed: Set<String> = []
         if hotkeysEnabled && illustratorFront {
-            for (index, target) in library.keyTargets().enumerated() {
+            let blocked = Set(paletteCategories.filter { library.allowsPalette($0) && library.paletteMode($0) == 1 }.flatMap { scripts(in: $0).map(\.id) })
+            var available = library
+            for index in available.scripts.indices where blocked.contains(available.scripts[index].id) { available.scripts[index].enabled = false }
+            for (index, target) in available.keyTargets().enumerated() {
                 let number = UInt32(index + 1)
                 numbers[number] = (target.single, target.double)
                 if scriptKeys.register(number, KeyCombo(code: target.key.code, modifiers: target.key.modifiers)) != noErr {
@@ -189,7 +208,7 @@ struct RunRecord: Identifiable {
         var occupied = Set(library.scripts.filter { $0.enabled }.compactMap { $0.hotkey?.key })
         if hotkeysEnabled {
             for (index, category) in paletteCategories.enumerated() {
-                guard let key = library.paletteHotkeys?[category] else { continue }
+                guard library.allowsPalette(category), let key = library.paletteHotkeys?[category] else { continue }
                 let number = UInt32(index + 1)
                 guard occupied.insert(key.key).inserted else { paletteFailed.insert(category); continue }
                 if paletteKeys.register(number, KeyCombo(code: key.code, modifiers: key.modifiers)) == noErr {
@@ -271,6 +290,7 @@ struct RunRecord: Identifiable {
         let accepted = runner.run(script) { [weak self] outcome in
             MainActor.assumeIsolated { self?.finish(script, outcome) }
         }
+        if accepted { didExecute?(script) }
         if !accepted { record(script.name, L("result.busy"), error: true) }
     }
     private func finish(_ script: ScriptEntry, _ outcome: RunOutcome) {

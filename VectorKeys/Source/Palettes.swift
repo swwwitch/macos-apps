@@ -15,6 +15,12 @@ final class CategoryPanel: NSPanel {
 
     init(model: AppModel) {
         self.model = model
+        model.didExecute = { [weak self] script in
+            guard let self else { return }
+            for (category, panel) in self.panels where self.model.library.paletteMode(category) == 2 && self.model.scripts(in: category).contains(where: { $0.id == script.id }) {
+                panel.orderOut(nil)
+            }
+        }
         changes = model.$library.sink { [weak self] library in
             // Published fires before the assignment. Reconcile against the published value next turn.
             DispatchQueue.main.async { self?.reconcile(library) }
@@ -28,13 +34,17 @@ final class CategoryPanel: NSPanel {
         category == AppModel.allCategories || category == AppModel.uncategorized || library.categoryList.contains(category)
     }
     private func reconcile(_ library: Library) {
-        for category in Array(panels.keys) where !valid(category, in: library) {
+        for category in Array(panels.keys) where !valid(category, in: library) || !library.allowsPalette(category) {
             panels.removeValue(forKey: category)?.close()
         }
     }
     func show(_ category: String) {
-        guard valid(category, in: model.library) else { return }
-        if let existing = panels[category] { existing.orderFrontRegardless(); return }
+        guard valid(category, in: model.library), model.library.allowsPalette(category) else { return }
+        if let existing = panels[category] {
+            if existing.isVisible && model.library.paletteMode(category) != 2 { existing.orderOut(nil) }
+            else { existing.orderFrontRegardless() }
+            return
+        }
         let panel = CategoryPanel(contentRect: NSRect(x: 0, y: 0, width: 280, height: 360),
             styleMask: [.titled, .closable, .resizable, .utilityWindow, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = title(category)
