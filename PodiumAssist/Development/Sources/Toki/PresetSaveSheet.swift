@@ -11,7 +11,7 @@ struct PresetSaveSheet: View {
 
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
-             reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
+             keyboardAutomatic, keyboardBrightness, reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMinFactor, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
              volumeFeedback, notificationsOff, hideOthers
     }
 
@@ -55,8 +55,11 @@ struct PresetSaveSheet: View {
                     }
                     row(.reduceTransparency, L("透明度を下げる"), onOff(settings.reduceTransparency))
                     row(.reduceMotion, L("視差効果を減らす"), onOff(settings.reduceMotion))
+                    row(.keyboardAutomatic, L("環境光が暗い場合にキーボードの輝度を調整"), settings.keyboardAutomatic.map { $0 ? "ON" : "OFF" } ?? "–")
+                    row(.keyboardBrightness, L("キーボードの輝度"), settings.keyboardBrightness.map { "\(Int(($0 * 100).rounded()))%" } ?? "–")
                     row(.zoomHotkeys, L("キーボードショートカットを使って拡大・縮小"), onOff(settings.zoomHotkeys))
                     row(.zoomStyle, L("ズーム方法"), settings.zoomStyle.title)
+                    row(.zoomMinFactor, L("最大縮小率"), settings.zoomMinFactor.map(ZoomSettings.text) ?? "–")
                     row(.zoomMaxFactor, L("最大拡大率"), settings.zoomMaxFactor.map(ZoomSettings.text) ?? "–")
                     row(.zoomToggleShortcut, L("ショートカット：ズーム機能のオン／オフ"), Self.shortcutTitle(ZoomSettings.toggleShortcut, settings.zoomToggleShortcut))
                     row(.zoomInShortcut, L("ショートカット：拡大"), Self.shortcutTitle(ZoomSettings.zoomInShortcut, settings.zoomInShortcut))
@@ -146,7 +149,7 @@ struct PresetSaveSheet: View {
             .dark: preset.dark != nil, .hideDock: preset.hideDock != nil, .killDock: preset.killDock != nil,
             .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
             .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
-            .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
+            .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .keyboardAutomatic: preset.keyboardAutomatic != nil, .keyboardBrightness: preset.keyboardBrightness != nil, .zoomMinFactor: preset.zoomMinFactor != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
             .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil,
             .notificationsOff: preset.notificationsOff != nil,
             .hideOthers: preset.hideOthersOnSwitch != nil || preset.hideOthersDelay != nil]
@@ -174,6 +177,9 @@ struct PresetSaveSheet: View {
         preset.zoomHotkeys = value(.zoomHotkeys, settings.zoomHotkeys)
         preset.zoomStyle = value(.zoomStyle, settings.zoomStyle.rawValue)
         // Not saved while macOS has no value yet (the slider was never moved).
+        preset.keyboardAutomatic = included.contains(.keyboardAutomatic) ? settings.keyboardAutomatic : nil
+        preset.keyboardBrightness = included.contains(.keyboardBrightness) ? settings.keyboardBrightness : nil
+        preset.zoomMinFactor = included.contains(.zoomMinFactor) ? settings.zoomMinFactor : nil
         preset.zoomMaxFactor = included.contains(.zoomMaxFactor) ? settings.zoomMaxFactor : nil
         preset.zoomToggleShortcut = value(.zoomToggleShortcut, settings.zoomToggleShortcut)
         preset.zoomInShortcut = value(.zoomInShortcut, settings.zoomInShortcut)

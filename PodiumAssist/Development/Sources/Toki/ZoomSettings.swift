@@ -38,6 +38,13 @@ enum ZoomSettings {
                                          choices: [("120,8388608", "F2"), ("122,8388608", "F1"), ("24,1572864", "⌥⌘=")])
     static let maxFactorRange: ClosedRange<Double> = 1...40
 
+    /// Use logical display height (for example 945), not Retina backing pixels.
+    static func automaticFactors(height: Double) -> (min: Double, max: Double)? {
+        guard height.isFinite, height > 0 else { return nil }
+        let minimum = min(max(height / 500, 1), maxFactorRange.upperBound / 2)
+        return (minimum, minimum * 2)
+    }
+
     private static let pane = "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?Zoom"
     private static let domain = "com.apple.universalaccess" as CFString
     private static let hotkeysDomain = "com.apple.symbolichotkeys" as CFString
@@ -55,9 +62,11 @@ enum ZoomSettings {
     static var hotkeysEnabled: Bool { value("closeViewHotkeysEnabled")?.boolValue ?? false }
     static var style: Style { value("closeViewZoomMode").flatMap { Style(rawValue: $0.intValue) } ?? .fullScreen }
     /// nil until the slider has been moved once.
+    static var minFactor: Double? { value("closeViewFarPoint")?.doubleValue }
+
     static var maxFactor: Double? { value("closeViewNearPoint")?.doubleValue }
 
-    static func text(_ factor: Double) -> String { String(format: "%.1f", factor) }
+    static func text(_ factor: Double) -> String { String(format: "%.2f", factor) }
 
     static func current(_ shortcut: Shortcut) -> String {
         CFPreferencesAppSynchronize(hotkeysDomain)
@@ -104,13 +113,30 @@ enum ZoomSettings {
 
     /// Changes the given items in one visit to the Zoom pane; nil leaves an item as it is. Requires the Accessibility permission.
     @MainActor
-    static func apply(hotkeys: Bool?, style: Style?, maxFactor: Double?) async throws {
+    static func apply(hotkeys: Bool?, style: Style?, maxFactor: Double?, minFactor: Double? = nil) async throws {
         try await SystemSettingsSwitch.withPane(pane) { root in
             if let hotkeys {
                 try await SystemSettingsSwitch.press(SystemSettingsSwitch.waitFor("AX_ZOOM_ENABLE_HOTKEYS", in: root), to: hotkeys)
             }
             if let style { try await choose(style, in: root) }
-            if let maxFactor { try await setMaxFactor(maxFactor, in: root) }
+            if minFactor != nil || maxFactor != nil {
+                if SystemSettingsSwitch.find("AX_ZOOM_MAX_FACTOR", in: root) == nil {
+                    AXUIElementPerformAction(try await SystemSettingsSwitch.waitFor("AX_ZOOM_ADVANCED", in: root), kAXPressAction as CFString)
+                }
+                _ = try await SystemSettingsSwitch.waitFor("AX_ZOOM_MAX_FACTOR", in: root)
+            }
+            defer {
+                if minFactor != nil || maxFactor != nil,
+                   let ok = SystemSettingsSwitch.find("AX_OK", in: root) { AXUIElementPerformAction(ok, kAXPressAction as CFString) }
+            }
+            // Raise the upper limit first when the new lower limit exceeds the old upper limit.
+            if let minFactor, let maxFactor, minFactor > (Self.maxFactor ?? 1) {
+                try await setFactor(maxFactor, minimum: false, in: root)
+                try await setFactor(minFactor, minimum: true, in: root)
+            } else {
+                if let minFactor { try await setFactor(minFactor, minimum: true, in: root) }
+                if let maxFactor { try await setFactor(maxFactor, minimum: false, in: root) }
+            }
         }
     }
 
@@ -133,22 +159,18 @@ enum ZoomSettings {
         guard Self.style == style else { throw SettingsError(L("ズーム方法を変更できませんでした。")) }
     }
 
-    /// Opens 「詳細…」, drags the maximum zoom knob to the value (the slider is linear) and closes the sheet with OK.
+    /// Drags the requested zoom knob in the open advanced sheet (the slider is linear).
     /// The pointer moves for a moment and is put back.
     @MainActor
-    private static func setMaxFactor(_ target: Double, in root: AXUIElement) async throws {
+    private static func setFactor(_ target: Double, minimum: Bool, in root: AXUIElement) async throws {
+        let identifier = minimum ? "AX_ZOOM_MIN_FACTOR" : "AX_ZOOM_MAX_FACTOR"
+        let failure = minimum ? L("最大縮小率を変更できませんでした。") : L("最大拡大率を変更できませんでした。")
         let target = min(max(target, maxFactorRange.lowerBound), maxFactorRange.upperBound)
-        if SystemSettingsSwitch.find("AX_ZOOM_MAX_FACTOR", in: root) == nil {
-            AXUIElementPerformAction(try await SystemSettingsSwitch.waitFor("AX_ZOOM_ADVANCED", in: root), kAXPressAction as CFString)
-        }
-        let slider = try await SystemSettingsSwitch.waitFor("AX_ZOOM_MAX_FACTOR", in: root)
-        defer {
-            if let ok = SystemSettingsSwitch.find("AX_OK", in: root) { AXUIElementPerformAction(ok, kAXPressAction as CFString) }
-        }
+        let slider = try await SystemSettingsSwitch.waitFor(identifier, in: root)
         func number(_ name: String) -> Double? { (SystemSettingsSwitch.attribute(name, of: slider) as? NSNumber)?.doubleValue }
         guard let knob = (SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: slider) as? [AXUIElement])?.first,
               let low = number(kAXMinValueAttribute), let high = number(kAXMaxValueAttribute), high > low
-        else { throw SettingsError(L("最大拡大率を変更できませんでした。")) }
+        else { throw SettingsError(failure) }
         if let value = number(kAXValueAttribute), abs(value - target) < 0.05 { return }
         NSRunningApplication.runningApplications(withBundleIdentifier: SystemSettingsSwitch.settingsBundleID).first?.activate()
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -171,7 +193,7 @@ enum ZoomSettings {
             try await Task.sleep(nanoseconds: 300_000_000)
         }
         guard let value = number(kAXValueAttribute), abs(value - target) < 0.05 else {
-            throw SettingsError(L("最大拡大率を変更できませんでした。"))
+            throw SettingsError(failure)
         }
     }
 

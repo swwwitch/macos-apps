@@ -243,15 +243,16 @@ final class StatusBarController: NSObject, NSApplicationDelegate {
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.collectionBehavior.insert(.fullScreenNone)
         window.isReleasedWhenClosed = false
-        let host = NSHostingController(rootView:
+        let host = NSHostingView(rootView:
             MainView(countdown: countdown, settings: settings, presets: presets,
                      openPreferences: { [weak self] in self?.showPreferences() })
                 .frame(minWidth: minimum.width, maxWidth: .infinity, minHeight: minimum.height, maxHeight: .infinity)
                 .background(Color(nsColor: AppSurface.color), ignoresSafeAreaEdges: []))
-        // Allow shrinking below the initial size; scrollable content absorbs the height change.
-        host.sizingOptions = [.minSize]
-        host.preferredContentSize = size
-        window.contentViewController = host
+        // Keep window limits under AppKit's control. SwiftUI's computed minimum
+        // follows the active tab's contents and can prevent vertical resizing.
+        // The scroll view handles overflow inside the explicit minimum below.
+        host.sizingOptions = []
+        window.contentView = host
         window.setContentSize(size)
         window.contentMinSize = minimum
         restoreFrame(of: window, name: "TokiMainWindow", minimum: minimum)
@@ -402,6 +403,9 @@ struct Preset: Codable, Identifiable {
     var zoomHotkeys: Bool? = nil
     /// ZoomSettings.Style raw value.
     var zoomStyle: Int? = nil
+    var keyboardBrightness: Double? = nil
+    var keyboardAutomatic: Bool? = nil
+    var zoomMinFactor: Double? = nil
     var zoomMaxFactor: Double? = nil
     var zoomToggleShortcut: String? = nil
     var zoomInShortcut: String? = nil
@@ -974,6 +978,9 @@ final class MacSettings: ObservableObject {
     @Published var volumeFeedback = false
     @Published var zoomHotkeys = false
     @Published var zoomStyle = ZoomSettings.Style.fullScreen
+    @Published var keyboardBrightness: Double?
+    @Published var keyboardAutomatic: Bool?
+    @Published var zoomMinFactor: Double?
     @Published var zoomMaxFactor: Double?
     @Published var zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
     @Published var zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
@@ -1022,6 +1029,9 @@ final class MacSettings: ObservableObject {
         volumeFeedback = (CFPreferencesCopyAppValue(Self.volumeFeedbackKey, kCFPreferencesAnyApplication) as? NSNumber)?.boolValue ?? false
         zoomHotkeys = ZoomSettings.hotkeysEnabled
         zoomStyle = ZoomSettings.style
+        keyboardBrightness = KeyboardBacklight.brightness
+        keyboardAutomatic = KeyboardBacklight.automatic
+        zoomMinFactor = ZoomSettings.minFactor
         zoomMaxFactor = ZoomSettings.maxFactor
         zoomToggleShortcut = ZoomSettings.current(ZoomSettings.toggleShortcut)
         zoomInShortcut = ZoomSettings.current(ZoomSettings.zoomInShortcut)
@@ -1142,20 +1152,34 @@ final class MacSettings: ObservableObject {
     }
 
     /// Zoom items that live in System Settings; nil leaves an item as it is.
-    func setZoom(hotkeys: Bool? = nil, style: ZoomSettings.Style? = nil, maxFactor: Double? = nil, then: (() -> Void)? = nil) {
+    func setZoom(hotkeys: Bool? = nil, style: ZoomSettings.Style? = nil, maxFactor: Double? = nil, minFactor: Double? = nil, then: (() -> Void)? = nil) {
         let done: String
         if let hotkeys {
             done = hotkeys ? L("キーボードショートカットでの拡大・縮小をオンにしました。") : L("キーボードショートカットでの拡大・縮小をオフにしました。")
-        } else if let style, maxFactor == nil {
+        } else if let style, maxFactor == nil, minFactor == nil {
             done = L("ズーム方法を「%@」にしました。", style.title)
-        } else if let maxFactor, style == nil {
+        } else if let minFactor, maxFactor == nil, style == nil {
+            done = L("最大縮小率を%@にしました。", ZoomSettings.text(minFactor))
+        } else if let maxFactor, style == nil, minFactor == nil {
             done = L("最大拡大率を%@にしました。", ZoomSettings.text(maxFactor))
         } else {
             done = L("ズーム機能の設定を変更しました。")
         }
         inSystemSettings(working: L("システム設定でズーム機能を変更しています…"), done: done, then: then) {
-            try await ZoomSettings.apply(hotkeys: hotkeys, style: style, maxFactor: maxFactor)
+            try await ZoomSettings.apply(hotkeys: hotkeys, style: style, maxFactor: maxFactor, minFactor: minFactor)
         }
+    }
+
+    func setKeyboardAutomatic(_ value: Bool) {
+        error = !KeyboardBacklight.setAutomatic(value)
+        message = error ? L("キーボードの輝度を変更できませんでした。") : L("キーボードの輝度設定を変更しました。")
+        refresh()
+    }
+
+    func setKeyboardBrightness(_ value: Double) {
+        error = !KeyboardBacklight.setBrightness(value)
+        message = error ? L("キーボードの輝度を変更できませんでした。") : L("キーボードの輝度設定を変更しました。")
+        refresh()
     }
 
     func setZoomShortcut(_ shortcut: ZoomSettings.Shortcut, to value: String) {
@@ -1332,6 +1356,8 @@ final class MacSettings: ObservableObject {
         if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
         if let value = preset.hideOthersDelay { hideOthersDelay = AppSwitchHider.delay(value) }
         if let value = preset.hideOthersOnSwitch { hideOthersOnSwitch = value }
+        if let value = preset.keyboardAutomatic { setKeyboardAutomatic(value) }
+        if let value = preset.keyboardBrightness { setKeyboardBrightness(value) }
         // Timer state is independent of presets, including legacy timer fields.
         if let apps = preset.quitAppTargets { QuitAppsStore.shared.quit(apps, excluding: Set((preset.launchApps ?? []).map(\.id))) }
         if let apps = preset.launchApps { LaunchAppsStore.shared.launch(apps) }
@@ -1345,8 +1371,9 @@ final class MacSettings: ObservableObject {
             let hotkeys = preset.zoomHotkeys.flatMap { $0 != zoomHotkeys ? $0 : nil }
             let style = preset.zoomStyle.flatMap(ZoomSettings.Style.init(rawValue:)).flatMap { $0 != zoomStyle ? $0 : nil }
             let maxFactor = preset.zoomMaxFactor.flatMap { value in zoomMaxFactor.map { abs($0 - value) < 0.05 } == true ? nil : value }
-            if hotkeys != nil || style != nil || maxFactor != nil {
-                setZoom(hotkeys: hotkeys, style: style, maxFactor: maxFactor, then: finish)
+            let minFactor = preset.zoomMinFactor.flatMap { value in zoomMinFactor.map { abs($0 - value) < 0.05 } == true ? nil : value }
+            if hotkeys != nil || style != nil || maxFactor != nil || minFactor != nil {
+                setZoom(hotkeys: hotkeys, style: style, maxFactor: maxFactor, minFactor: minFactor, then: finish)
             } else { finish() }
         }
         let motion = { [self] in
@@ -1414,6 +1441,8 @@ struct ManualControlsView: View {
     /// The preset ✓ means "applied last"; a manual change makes that stale, so it is cleared.
     @AppStorage("lastAppliedPreset") private var lastApplied = ""
     @State private var pointerDraft = 1.0
+    @State private var keyboardBrightnessDraft = 0.0
+    @State private var zoomMinDraft = 1.0
     @State private var zoomDraft = 10.0
     /// Only widens the 解像度 menu; nothing on the Mac changes.
     @AppStorage("showAllResolutions") private var showAllResolutions = false
@@ -1422,7 +1451,7 @@ struct ManualControlsView: View {
         VStack(alignment: .leading, spacing: 16) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if section == .basic {
+                    if section == .display {
                         category(L("メニューバー")) {
                             basicChoiceRow(L("時計"), symbol: "clock", value: settings.analog,
                                            off: L("デジタル"), on: L("アナログ")) { settings.setClock($0) }
@@ -1516,19 +1545,42 @@ struct ManualControlsView: View {
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
                             HStack {
+                                Label(L("最大縮小率"), systemImage: "arrow.down.right.and.arrow.up.left").fixedSize()
+                                Spacer()
+                                Slider(value: $zoomMinDraft, in: 1...max(1, zoomDraft)) { editing in
+                                    if !editing { manual { settings.setZoom(minFactor: zoomMinDraft) } }
+                                }
+                                .frame(width: 140)
+                                Text(ZoomSettings.text(zoomMinDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                            .onAppear { zoomMinDraft = settings.zoomMinFactor ?? 1 }
+                            .onChange(of: settings.zoomMinFactor) { zoomMinDraft = $0 ?? 1 }
+                            HStack {
                                 Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
                                 Spacer()
                                 // Applied when the knob is released: System Settings is operated once per change.
-                                Slider(value: $zoomDraft, in: ZoomSettings.maxFactorRange, step: 0.5) { editing in
+                                Slider(value: $zoomDraft, in: min(zoomMinDraft, 40)...40) { editing in
                                     if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
                                 }
                                 .frame(width: 140)
-                                Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 32, alignment: .trailing)
+                                Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
                             .help(L("システム設定の「詳細…」のスライダーを動かします。変更中はポインタが一瞬動きます。"))
                             .onAppear { zoomDraft = settings.zoomMaxFactor ?? zoomDraft }
                             .onChange(of: settings.zoomMaxFactor) { if let value = $0 { zoomDraft = value } }
+                            HStack {
+                                Spacer()
+                                Button(L("自動設定")) {
+                                    // Resolve the display when clicked, before System Settings takes focus.
+                                    let height = NSScreen.main.map { Double($0.frame.height) } ?? Double(DisplayResolution.current?.height ?? 0)
+                                    guard let factors = ZoomSettings.automaticFactors(height: height) else { return }
+                                    manual { settings.setZoom(maxFactor: factors.max, minFactor: factors.min) }
+                                }
+                                .help(L("現在の画面の高さ÷500を最大縮小率、その2倍を最大拡大率に設定します。"))
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
                         }
                     }
                     if section == .basic {
@@ -1567,6 +1619,31 @@ struct ManualControlsView: View {
                             }
                             .font(.system(size: 12))
                         }
+                    }
+                    if section == .basic {
+                        category(L("キーボード")) {
+                            Toggle(L("環境光が暗い場合にキーボードの輝度を調整"), isOn: Binding(
+                                get: { settings.keyboardAutomatic ?? false },
+                                set: { value in manual { settings.setKeyboardAutomatic(value) } }))
+                                .disabled(settings.busy || settings.keyboardAutomatic == nil)
+                            HStack {
+                                Text(L("キーボードの輝度")).fixedSize()
+                                Spacer()
+                                Slider(value: $keyboardBrightnessDraft, in: 0...1) { editing in
+                                    if !editing { manual { settings.setKeyboardBrightness(keyboardBrightnessDraft) } }
+                                }
+                                .frame(width: 140)
+                                Text("\(Int((keyboardBrightnessDraft * 100).rounded()))%")
+                                    .monospacedDigit().frame(width: 40, alignment: .trailing)
+                            }
+                            .disabled(settings.busy || settings.keyboardBrightness == nil)
+                            .onAppear { keyboardBrightnessDraft = settings.keyboardBrightness ?? 0 }
+                            .onChange(of: settings.keyboardBrightness) { keyboardBrightnessDraft = $0 ?? 0 }
+                            if settings.keyboardBrightness == nil {
+                                Text(L("対応するキーボードが接続されていません。")).foregroundStyle(.secondary)
+                            }
+                        }
+                        .font(.system(size: 12))
                     }
                     if section == .timer {
                         TimerPanel(countdown: countdown)
