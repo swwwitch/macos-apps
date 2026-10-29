@@ -126,3 +126,5 @@ Even with Hide from Dock and App Switcher on, a main or settings window keeps th
 Selecting the app in the ⌘Tab application switcher shows its main window and restores it if minimized. Automatic login launch stays quiet.
 
 - Basic includes automatic keyboard brightness and a 0–100% brightness slider for supported keyboards. Menu bar clock, date, and weekday controls are in Display.
+
+- Select F3 for Shortcut: Zoom out. The Full Set preset uses F1 to toggle zoom, F2 to zoom in, and F3 to zoom out.

@@ -288,3 +288,5 @@
 "キーボードの輝度設定を変更しました。" = "Keyboard brightness settings changed.";
 
 "対応するキーボードが接続されていません。" = "No supported keyboard is connected.";
+
+"ショートカット：縮小" = "Shortcut: Zoom out";
