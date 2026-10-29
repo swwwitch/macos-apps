@@ -323,7 +323,7 @@ final class FamilyCell: NSTableCellView {
         detail.textColor = .secondaryLabelColor
         detail.lineBreakMode = .byTruncatingMiddle
         detail.alignment = .right
-        // ☆は行の右端（「n書体」・ファイル名の右、ユーザー指定）。書体の行も同じ幅を空けて右端をそろえる
+        // ♡は行の右端（「n書体」・ファイル名の右、ユーザー指定）。書体の行も同じ幅を空けて右端をそろえる
         let stack = NSStackView(views: [check, name, NSView(), warning, detail, star])
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -359,7 +359,7 @@ final class FamilyCell: NSTableCellView {
             case .postScript: set(postScript, nil, dimmed: dimmed)
             case .both: set(styles, postScript, dimmed: dimmed)
             }
-            // 書体の行は☆を出さないが、幅は残して右端をそろえる
+            // 書体の行は♡を出さないが、幅は残して右端をそろえる
             star.image = nil
             star.isEnabled = false
             star.toolTip = nil
@@ -388,7 +388,7 @@ final class FamilyCell: NSTableCellView {
             let favorite = store.isFavorite(family)
             star.isEnabled = true
             star.setAccessibilityElement(true)
-            star.image = NSImage(systemSymbolName: favorite ? "star.fill" : "star", accessibilityDescription: nil)
+            star.image = NSImage(systemSymbolName: favorite ? "heart.fill" : "heart", accessibilityDescription: nil)
             star.contentTintColor = favorite ? .systemOrange : .tertiaryLabelColor
             star.toolTip = favorite ? L("お気に入りから外す") : L("お気に入りに追加")
             star.setAccessibilityLabel(star.toolTip)

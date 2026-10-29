@@ -797,6 +797,14 @@ final class LibraryStore: ObservableObject {
         }
     }
 
+    func rating(_ file: FontFile) -> Int { min(5, max(0, data.ratings[file.id.uuidString] ?? 0)) }
+
+    func setRating(_ value: Int, files: [FontFile]) {
+        guard !files.isEmpty else { return }
+        for file in files { data.ratings[file.id.uuidString] = min(5, max(0, value)) }
+        save()
+    }
+
     func isFavorite(_ family: FontFamily) -> Bool { data.favorites.contains(family.name) }
 
     /// 選んだものが1つでもお気に入りでなければ全部をお気に入りに、全部お気に入りなら外す

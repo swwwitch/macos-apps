@@ -301,7 +301,7 @@ private struct SidebarView: View {
                 categoryHeader(section.title, expanded: $expandedSmartSets)
                     .padding(.top, 8)
                 if expandedSmartSets {
-                    row(.favorites, L("お気に入り"), "star")
+                    row(.favorites, L("お気に入り"), "heart")
                     row(.active, L("アクティブ"), "checkmark.circle")
                     if showRecent { row(.recentlyActivated, L("最近アクティブ"), "clock.badge.checkmark") }
                     row(.inactive, L("非アクティブ"), "circle")
@@ -517,6 +517,7 @@ private struct FamilyListView: View {
     @AppStorage("fontList.sample") private var cardSample = "あいうえお ABCDE abcde 0123456789"
     @AppStorage("fontList.sampleSize") private var cardSize = 32.0
     @AppStorage("fontList.cardScale") private var cardScale = 1.0
+    @State private var ratingFilter = -1
 
     var body: some View {
         let families = store.shownFamilies
@@ -530,6 +531,13 @@ private struct FamilyListView: View {
             }.padding(8)
             if cards {
                 VStack(spacing: 8) {
+                    Picker(L("レーティング"), selection: $ratingFilter) {
+                        Text(L("すべて")).tag(-1)
+                        Text(L("未評価")).tag(0)
+                        ForEach(1...5, id: \.self) { value in
+                            Text(String(repeating: "★", count: value) + String(repeating: "☆", count: 5 - value)).tag(value)
+                        }
+                    }
                     TextField(L("比較するサンプルテキスト"), text: $cardSample)
                         .textFieldStyle(.roundedBorder)
                     HStack {
@@ -595,7 +603,7 @@ private struct FamilyListView: View {
             if families.isEmpty {
                 emptyView
             } else if cards {
-                FontCardsView(families: families, sample: cardSample, size: cardSize, cardScale: cardScale)
+                FontCardsView(families: families, sample: cardSample, size: cardSize, cardScale: cardScale, ratingFilter: ratingFilter)
             } else {
                 FamilyOutline(nodes: store.shownNodes, version: store.listVersion, selection: store.selection)
                 .equatable()

@@ -13,18 +13,28 @@ struct FontCardsView: View {
     let size: Double
     let cardScale: Double
     var isolated = false
+    var ratingFilter = -1
 
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240 * cardScale), spacing: 12)], spacing: 12) {
                 ForEach(families) { family in
-                    ForEach(family.files) { file in
+                    ForEach(family.files.filter { ratingFilter < 0 || store.rating($0) == ratingFilter }) { file in
                         card(file, family: family)
                     }
                 }
             }
             .padding(12)
         }
+        .background(RatingKeyHandler { value in
+            guard !isolated, FontCardPresentation.shared.card == nil else { return false }
+            let files = families.flatMap(\.files).filter { file in
+                (ratingFilter < 0 || store.rating(file) == ratingFilter) && store.selectedFiles.contains(where: { $0.id == file.id })
+            }
+            guard !files.isEmpty else { return false }
+            store.setRating(value, files: files)
+            return true
+        })
         .background {
             if !isolated {
                 Button(L("カードフォーカス表示")) {
@@ -76,6 +86,21 @@ struct FontCardsView: View {
         let postScript = file.faces.map(\.postScriptName).joined(separator: L("、"))
         let title = mode == .postScript ? postScript : family.displayName
         return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 2) {
+                Spacer(minLength: 0)
+                ForEach(1...5, id: \.self) { value in
+                    Button {
+                        store.setRating(store.rating(file) == value ? 0 : value, files: [file])
+                    } label: {
+                        Image(systemName: store.rating(file) >= value ? "star.fill" : "star")
+                            .foregroundStyle(store.rating(file) >= value ? Color.orange : Color.secondary)
+                            .frame(width: 20, height: 22)
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel(L("レーティング") + " \(value)/5")
+                }
+            }
+
             HStack {
                 Image(systemName: store.isActive(file) ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(store.isActive(file) ? Color.accentColor : Color.secondary)
@@ -108,6 +133,7 @@ struct FontCardsView: View {
         .rotation3DEffect(.degrees(flippingID == file.id ? 90 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
         .onTapGesture(count: 2) { openFocus(file, family: family) }
         .onTapGesture {
+            NSApp.keyWindow?.makeFirstResponder(nil)
             let id = FamilyNode.fileID(file)
             if NSEvent.modifierFlags.contains(.command) {
                 if store.selection.contains(id) { store.selection.remove(id) }
@@ -124,7 +150,7 @@ struct FontCardsView: View {
             return provider
         }
         .contextMenu { menu(targets(file, family)) }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
         .accessibilityAddTraits(selected(file, family) ? .isSelected : [])
     }
 
