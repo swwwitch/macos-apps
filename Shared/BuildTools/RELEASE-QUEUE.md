@@ -790,3 +790,7 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 - 担当: 公証Mac MacBookPro13-M5-2025.local。本チャット。ブランチ codex/podium-mighty-release。基点 GitHub main 486451a。開始: 2026-10-29T17:33:55.157256+09:00。状態: ソース照合・配布前ビルド準備。
 - ユーザー「進めてください！」。既存版85/116を保持し、テスト・公証・配置・DMG・GitHub/note公開と公開DL検証を進める。未確認項目は別記録。保全: Shared/ReleasePreparation/20261029-PodiumAssist-MightyEdit/local-work-before.tar.gz。
 - SettingsHop別ブランチは1.7.2(23)基点のため現在1.8.0(24)を置換せず、今回2本の対象外。
+
+## 2026-10-29 PodiumAssist / MightyEdit 公開検証済み
+
+PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。

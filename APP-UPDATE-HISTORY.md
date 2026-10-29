@@ -1010,3 +1010,7 @@
 - 2026-10-28｜バージョン・build未確定（未ビルド）｜NotMyType通常版・Lite版：サイドバーカテゴリ名のクリックで開閉、Option＋クリックで全カテゴリを同じ状態に開閉。
 
 - 2026-10-28｜版・build未確定（未ビルド）｜NotMyType通常版・Lite版：すべてのカテゴリ見出しをライブラリと同じボタン行に統一。
+
+## 2026-10-29 PodiumAssist / MightyEdit 公開検証済み
+
+PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。
