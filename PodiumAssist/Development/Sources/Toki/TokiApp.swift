@@ -1510,21 +1510,6 @@ struct ManualControlsView: View {
                                 .font(.system(size: 12)).disabled(settings.busy)
                             Toggle(L("視差効果を減らす"), isOn: Binding(get: { settings.reduceMotion }, set: { value in manual { settings.setReduceMotion(value) } }))
                                 .font(.system(size: 12)).disabled(settings.busy)
-                            HStack {
-                                Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
-                                Spacer()
-                                // Applied when the knob is released, not on every step of the drag.
-                                Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
-                                    if !editing { manual { settings.setPointerSize(pointerDraft) } }
-                                }
-                                .frame(width: 96)
-                                Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
-                                Button(L("初期値に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
-                                    .disabled(settings.pointerSize == 1)
-                            }
-                            .font(.system(size: 12))
-                            .onAppear { pointerDraft = settings.pointerSize }
-                            .onChange(of: settings.pointerSize) { pointerDraft = $0 }
                         }
                     }
                     if section == .zoom {
@@ -1581,6 +1566,25 @@ struct ManualControlsView: View {
                                 .help(L("現在の画面の高さ÷500を最大縮小率、その2倍を最大拡大率に設定します。"))
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
+                        }
+                    }
+                    if section == .basic {
+                        category(L("見やすさ")) {
+                            HStack {
+                                Label(L("ポインタのサイズ"), systemImage: "cursorarrow").fixedSize()
+                                Spacer()
+                                // Applied when the knob is released, not on every step of the drag.
+                                Slider(value: $pointerDraft, in: PointerSize.range, step: 0.5) { editing in
+                                    if !editing { manual { settings.setPointerSize(pointerDraft) } }
+                                }
+                                .frame(width: 96)
+                                Text(PointerSize.text(pointerDraft)).monospacedDigit().frame(width: 28, alignment: .trailing)
+                                Button(L("初期値に戻す")) { pointerDraft = 1; manual { settings.setPointerSize(1) } }
+                                    .disabled(settings.pointerSize == 1)
+                            }
+                            .font(.system(size: 12))
+                            .onAppear { pointerDraft = settings.pointerSize }
+                            .onChange(of: settings.pointerSize) { pointerDraft = $0 }
                         }
                     }
                     if section == .basic {
