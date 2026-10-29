@@ -10,6 +10,7 @@
 "pane.microphone" = "麦克风";
 "pane.inputMonitoring" = "输入监控";
 "pane.automation" = "自动化";
+"pane.rapidZoom" = "设置快速缩放范围";
 "pane.security" = "安全性";
 "pane.airDrop" = "隔空投送与接力";
 "pane.loginItems" = "登录项";

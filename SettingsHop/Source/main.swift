@@ -278,7 +278,7 @@ struct PaneLayoutSettings: View {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.onOpened = { [weak self] in self?.window.performClose(nil) }
         model.onLayoutChanged = { [weak self] in self?.rebuildPaneMenu() }
-        model.hotkeys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
+        model.hotkeys.action = { [weak self] _ in self?.handleAppHotkey() }
         model.registerAppHotkey()
         installArrowKeys()
         model.trackPreviousApp()
@@ -296,6 +296,31 @@ struct PaneLayoutSettings: View {
                                        "로그인 시 실행, 계속 실행, 메뉴 막대 아이콘은 Mac마다 설정합니다.")))
         let login = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
         if !login && !StartupWindow.suppressInitialWindow { show() }
+    }
+    private var lastAppHotkey: TimeInterval?
+    private var waitingForRelease = false
+    private var releaseTimer: Timer?
+    private func handleAppHotkey() {
+        guard !waitingForRelease else { return }
+        waitingForRelease = true
+        releaseTimer?.invalidate()
+        releaseTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] timer in
+            guard let self else { timer.invalidate(); return }
+            guard let combo = self.model.appCombo else { self.waitingForRelease = false; timer.invalidate(); return }
+            if !CGEventSource.keyState(.combinedSessionState, key: CGKeyCode(combo.code)) {
+                self.waitingForRelease = false; timer.invalidate()
+            }
+        }
+        let now = ProcessInfo.processInfo.systemUptime
+        if let last = lastAppHotkey, now - last <= NSEvent.doubleClickInterval {
+            lastAppHotkey = nil
+            window.orderOut(nil)
+            _ = Pane.systemSettings.open()
+        } else {
+            lastAppHotkey = now
+            StartupWindow.userRequestedWindow()
+            show()
+        }
     }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {

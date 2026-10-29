@@ -10,6 +10,7 @@
 "pane.microphone" = "マイク";
 "pane.inputMonitoring" = "入力監視";
 "pane.automation" = "オートメーション";
+"pane.rapidZoom" = "高速ズームの範囲を設定";
 "pane.security" = "セキュリティ";
 "pane.airDrop" = "AirDropおよび連係";
 "pane.loginItems" = "ログイン項目";

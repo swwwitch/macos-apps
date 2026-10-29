@@ -48,3 +48,6 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - System Settings opens at the top instead of the pane: pane identifiers can change between macOS versions, so that pane may not open on your macOS.
 - “Could not open” appears: check that System Settings can open.
 - The window is gone: click SettingsHop in the Dock, or open it again from Finder.
+
+
+Test build: press the app hotkey once to show the main window, twice to hide it and open System Settings. Set Rapid Zoom Range has no default key. Direct arrival at the range controls is unverified.

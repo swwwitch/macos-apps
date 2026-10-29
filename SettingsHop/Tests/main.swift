@@ -5,8 +5,8 @@ func check(_ condition: Bool, _ message: String) {
     if condition { print("PASS:", message) } else { failures += 1; print("FAIL:", message) }
 }
 
-check(Pane.allCases.count == 15, "fifteen panes")
-check(Pane.allCases.map(\.defaultKey) == ["1", "", "2", "3", "4", "5", "", "", "", "", "", "6", "7", "8", "9"], "⌘1–⌘9 skipping Privacy & Security, Input Monitoring and Automation")
+check(Pane.allCases.count == 16, "sixteen panes")
+check(Pane.allCases.map(\.defaultKey) == ["1", "", "2", "3", "4", "5", "", "", "", "", "", "6", "7", "8", "9", ""], "⌘1–⌘9 skipping Privacy & Security, Input Monitoring and Automation")
 check(Pane.airDrop.url?.absoluteString == "x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension", "AirDrop & Handoff URL")
 check(Pane.systemSettings.url == nil && !Pane.systemSettings.isSubpane, "System Settings opens the app, not a URL")
 check(Pane.privacy.url?.absoluteString == "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension" && !Pane.privacy.isSubpane, "Privacy & Security URL")

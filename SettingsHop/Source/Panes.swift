@@ -5,13 +5,13 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 /// The System Settings panes the app opens, in display order.
 /// `anchor` is the Privacy & Security subpane; nil opens the pane itself (or the app for `.systemSettings`).
 enum Pane: String, CaseIterable {
-    case systemSettings, privacy, accessibility, fullDiskAccess, filesAndFolders, screenRecording, camera, microphone, inputMonitoring, automation, security, loginItems, defaultBrowser, keyboardShortcuts, airDrop
+    case systemSettings, privacy, accessibility, fullDiskAccess, filesAndFolders, screenRecording, camera, microphone, inputMonitoring, automation, security, loginItems, defaultBrowser, keyboardShortcuts, airDrop, rapidZoom
 
     static let settingsBundleID = "com.apple.systempreferences"
 
     var anchor: String? {
         switch self {
-        case .systemSettings, .privacy, .loginItems, .defaultBrowser, .keyboardShortcuts, .airDrop: return nil
+        case .systemSettings, .privacy, .loginItems, .defaultBrowser, .keyboardShortcuts, .airDrop, .rapidZoom: return nil
         case .accessibility: return "Privacy_Accessibility"
         case .fullDiskAccess: return "Privacy_AllFiles"
         case .filesAndFolders: return "Privacy_FilesAndFolders"
@@ -29,6 +29,7 @@ enum Pane: String, CaseIterable {
         case .systemSettings: return nil
         case .privacy: return URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension")
         // The Security section at the bottom of Privacy & Security (the anchor scrolls there; macOS 26, tried).
+        case .rapidZoom: return URL(string: "x-apple.systempreferences:com.apple.preference.universalaccess?Seeing_Zoom_Options")
         case .security: return URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Security")
         case .loginItems: return URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")
         // Desktop & Dock. Anchors (?Browser etc.) do not scroll to the default web browser row (macOS 26, tried).
@@ -67,12 +68,13 @@ enum Pane: String, CaseIterable {
         case .keyboardShortcuts: return "keyboard"
         case .inputMonitoring: return "eye"
         case .automation: return "gearshape.2"
+        case .rapidZoom: return "plus.magnifyingglass"
         case .security: return "lock.shield"
         case .airDrop: return "dot.radiowaves.left.and.right"
         }
     }
     /// Panes without a ⌘ key by default (the user's choice); ⌘ plus a digit only reaches nine.
-    static let unkeyed: Set<Pane> = [.privacy, .camera, .microphone, .inputMonitoring, .automation, .security]
+    static let unkeyed: Set<Pane> = [.privacy, .camera, .microphone, .inputMonitoring, .automation, .security, .rapidZoom]
     /// The default ⌘1–⌘9 in display order, skipping `unkeyed` (""). Settings › Items can change them.
     var defaultKey: String {
         guard !Pane.unkeyed.contains(self) else { return "" }
@@ -87,6 +89,10 @@ enum Pane: String, CaseIterable {
     @discardableResult
     func open(workspace: NSWorkspace = .shared) -> Bool {
         if let url { return workspace.open(url) }
+        // Activate an existing instance without sending a reopen event, preserving its current pane.
+        if let running = NSRunningApplication.runningApplications(withBundleIdentifier: Pane.settingsBundleID).first {
+            return running.activate(options: [.activateIgnoringOtherApps])
+        }
         guard let app = workspace.urlForApplication(withBundleIdentifier: Pane.settingsBundleID) else { return false }
         workspace.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
         return true

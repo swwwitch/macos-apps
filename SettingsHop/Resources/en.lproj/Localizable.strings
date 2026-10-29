@@ -10,6 +10,7 @@
 "pane.microphone" = "Microphone";
 "pane.inputMonitoring" = "Input Monitoring";
 "pane.automation" = "Automation";
+"pane.rapidZoom" = "Set Rapid Zoom Range";
 "pane.security" = "Security";
 "pane.airDrop" = "AirDrop & Handoff";
 "pane.loginItems" = "Login Items";

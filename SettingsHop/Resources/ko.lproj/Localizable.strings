@@ -10,6 +10,7 @@
 "pane.microphone" = "마이크";
 "pane.inputMonitoring" = "입력 모니터링";
 "pane.automation" = "자동화";
+"pane.rapidZoom" = "빠른 확대/축소 범위 설정";
 "pane.security" = "보안";
 "pane.airDrop" = "AirDrop 및 Handoff";
 "pane.loginItems" = "로그인 항목";

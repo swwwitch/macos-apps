@@ -15,6 +15,7 @@ pane.camera|カメラ|Camera|摄像头|카메라
 pane.microphone|マイク|Microphone|麦克风|마이크
 pane.inputMonitoring|入力監視|Input Monitoring|输入监控|입력 모니터링
 pane.automation|オートメーション|Automation|自动化|자동화
+pane.rapidZoom|高速ズームの範囲を設定|Set Rapid Zoom Range|设置快速缩放范围|빠른 확대/축소 범위 설정
 pane.security|セキュリティ|Security|安全性|보안
 pane.airDrop|AirDropおよび連係|AirDrop & Handoff|隔空投送与接力|AirDrop 및 Handoff
 pane.loginItems|ログイン項目|Login Items|登录项|로그인 항목
@@ -84,3 +85,9 @@ for i, lang in enumerate(['ja', 'en', 'zh-Hans', 'ko']):
     (p / 'InfoPlist.strings').write_text('"CFBundleDisplayName" = "SettingsHop";\n')
     (p / 'Help.txt').write_text(helptexts[i])
 print('resources:', len(table), 'keys x 4 languages')
+
+verification_notes = {'ja': '検証用：呼び出しキーの1回押しで表示、2回押しで閉じてシステム設定を開きます。高速ズームの範囲を設定はキーなし。ズーム詳細の入口を使用します。範囲設定への直接到達は未確認です。', 'en': 'Test build: press the app hotkey once to show the main window, twice to hide it and open System Settings. Set Rapid Zoom Range has no default key. Direct arrival at the range controls is unverified.', 'zh-Hans': '测试版：按一次显示主窗口，连续按两次隐藏并打开系统设置。快速缩放范围默认无快捷键，直接到达尚未验证。', 'ko': '테스트 빌드: 한 번 누르면 메인 윈도우 표시, 두 번 누르면 숨기고 시스템 설정 열기. 빠른 확대 범위의 기본 키는 없으며 직접 이동은 미확인입니다.'}
+for language, note in verification_notes.items():
+    path = __import__("pathlib").Path(__file__).parent / "Resources" / (language + ".lproj") / "Help.txt"
+    with path.open("a") as handle:
+        handle.write("\n\n" + note + "\n")
