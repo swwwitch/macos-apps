@@ -4,6 +4,8 @@ import Foundation
   let suite = "podium-tests-" + UUID().uuidString
   let defaults = UserDefaults(suiteName: suite)!
   defer { defaults.removePersistentDomain(forName: suite) }
+  // This test isolates user-preset persistence; built-in seeding is covered separately.
+  defaults.set(true, forKey: "builtInPresetsV1Installed")
   let store = PresetStore(defaults: defaults)
   var preset = Preset(); preset.name = "Test"; preset.dark = true
   preset.launchApps = [QuitAppTarget(id:"a",name:"A",path:"/a.app")]
