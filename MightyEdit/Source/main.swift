@@ -106,10 +106,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         menu.insertItem(displayRoot, at: 2)
         statusItem.menu = menu
 
-        let defaults: [TextTransform: Int] = [.minify: 28, .sum: 29, .join: 26, .joinAll: 27, .number: 1, .circled: 3, .alphabet: 4, .bullet: 6, .markdown: 7,
-                                             .addCommas: 10, .removeCommas: 11, .dateSpecial: 12, .bracketAlphabet: 13,
+        let defaults: [TextTransform: Int] = [.minify: 28, .sum: HotkeyBinding(key: 24, modifiers: UInt32(controlKey | optionKey | cmdKey)).encoded, .join: 26, .joinAll: 27, .number: 1, .circled: 3, .alphabet: 4, .bullet: 6, .markdown: 7,
+                                             .addCommas: HotkeyBinding(key: 43, modifiers: UInt32(controlKey | optionKey | cmdKey)).encoded,
+                                             .removeCommas: HotkeyBinding(key: 47, modifiers: UInt32(controlKey | optionKey | cmdKey)).encoded, .dateSpecial: 12, .bracketAlphabet: 13,
                                              .invertSign: HotkeyBinding(key: 27, modifiers: UInt32(controlKey)).encoded,
                                              .removeClipboardText: HotkeyBinding(key: 2, modifiers: UInt32(optionKey | shiftKey | cmdKey)).encoded]
+        let hotkeyMigration = "numericHotkeysMigrated034"
+        if !UserDefaults.standard.bool(forKey: hotkeyMigration) {
+            for (operation, oldDefault) in [(TextTransform.addCommas, 10), (.removeCommas, 11), (.sum, 29)] {
+                let key = "shortcutDigit-\(operation.rawValue)"
+                if UserDefaults.standard.object(forKey: key) as? Int == oldDefault {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
+            }
+            UserDefaults.standard.set(true, forKey: hotkeyMigration)
+        }
         // 0.2.17: ⌃⌥⌘Y, palette-only by default (HotkeyScope.paletteDefaults). ⌃⌥⌘D until 0.2.14 was also CommandDee's
         // palette key (both apps received it); ⌃⌥⌘V in 0.2.16 met a Keyboard Maestro macro. A key set by the user is kept.
         let displayShortcut = (id: 10000, title: L("hotkey.toggleDisplay"), digit: HotkeyBinding(key: 16, modifiers: UInt32(cmdKey | controlKey | optionKey)).encoded)

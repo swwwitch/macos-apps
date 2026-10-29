@@ -2,6 +2,8 @@
 // Japanese UI text for binaries without the app bundle (unit tests).
 enum LocalizationFallback {
     static let japanese: [String: String] = [
+        "hotkey.search": "機能名・ホットキーで検索",
+        "hotkey.searchEmpty": "該当する項目はありません",
         "op.removeClipboardText": "クリップボードのテキストを削除",
         "tip.removeClipboardText": "選択したテキストからクリップボードの文字列をすべて削除",
         "msg.clipboardTextEmpty": "削除する文字列を先にコピーしてください",
