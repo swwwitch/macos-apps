@@ -1,3 +1,5 @@
+"hotkey.search" = "搜索功能名称或快捷键";
+"hotkey.searchEmpty" = "没有匹配的项目";
 "op.removeClipboardText" = "删除剪贴板文本";
 "tip.removeClipboardText" = "从所选文本中删除所有与剪贴板文本完全匹配的内容";
 "msg.clipboardTextEmpty" = "请先拷贝要删除的文本";

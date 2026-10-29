@@ -116,8 +116,8 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 
 ## Numbers and Periods
 ### Digit Grouping
-- **⌃,**: Add Commas
-- **⌃⌥,**: Remove Commas
+- **⌃⌥⌘,**: Add Commas
+- **⌃⌥⌘.**: Remove Commas
 - Converts between 1234567.89 and 1,234,567.89. Only the integer part of half-width numbers is affected; signs, decimals, surrounding text and line breaks are kept.
 - Commas in sentences and sequences such as 1,2,3 are not changed. CSV parsing and full-width digits are not supported.
 - Numbers that are clearly years, such as 2026年, 2026-10-06, 2026/10/6 or 西暦2026, are skipped. A standalone 2026 or 2026円 is treated as an ordinary number.
@@ -150,12 +150,12 @@ MightyEdit converts text you select in other apps: removing line breaks, numberi
 - **⌃7**: Markdown List
 - **⌃⌥1**: Date Special
 - **⌃⌥4**: ［A］ bracketed list
-- **⌃,**: Add Commas
-- **⌃⌥,**: Remove Commas
+- **⌃⌥⌘,**: Add Commas
+- **⌃⌥⌘.**: Remove Commas
 - **⌃⌘-**: Remove Line Breaks
 - **⌃⌥⌘-**: Remove All Line Breaks
 - **⌃⌥⇧⌘-**: Minify
-- **⌃⌘=**: Sum Numbers (on JIS keyboards, also press Shift to type =)
+- **⌃⌥⌘=**: Sum Numbers (on JIS keyboards, also press Shift to type =)
 - **⌃-**: Invert Sign
 ### Using Hotkeys
 - Select text in the target app, then press the key; it runs at once (only once while held). With the default scope “All Apps”, hotkeys work even while the palette is hidden.
@@ -233,3 +233,5 @@ Remove Clipboard Text: the default hotkey is Option+Shift+Command+D. Change it i
 ## Dock visibility and application menus
 
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
+
+In Settings > Hotkeys, search by function name or current hotkey, using symbols such as ⌃⌥⌘, or names such as Control+Option+Command+,. Clear the search to show all items. Click a key field to start recording immediately; there is no Change button.

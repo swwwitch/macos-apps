@@ -2,7 +2,7 @@ import AppKit
 import Carbon
 
 // Uses the same Carbon registration approach as BrowserSwitcher/Source/main.swift.
-final class GlobalShortcuts: NSObject {
+final class GlobalShortcuts: NSObject, NSSearchFieldDelegate {
     var additionalPreferenceTabs: [(String, NSView)] = []
     var actionEnabled: (Int) -> Bool = { _ in true }
     func reloadConfiguration() { register() }
@@ -22,6 +22,9 @@ final class GlobalShortcuts: NSObject {
     let menu = NSMenu(title: L("menu.hotkeys"))
     private var preferences: NSWindow?
     private var preferenceRows: [(id: Int, scope: NSPopUpButton)] = []
+    private var searchField: NSSearchField?
+    private var searchableGroups: [(view: NSView, rows: [(id: Int, title: String, view: NSView)])] = []
+    private var noSearchResults: NSTextField?
     /// While a settings field records a key, every hotkey is released so the keystroke reaches the field.
     private var recording = false
     /// The palette key (PaletteShortcut), offered to the fields so the same key is not assigned twice.
@@ -258,6 +261,19 @@ final class GlobalShortcuts: NSObject {
             let resetButton = NSButton(title: L("hotkey.reset"), target: self, action: #selector(reset))
             resetButton.bezelStyle = .rounded
             column.addArrangedSubview(resetButton)
+            let search = NSSearchField()
+            search.placeholderString = L("hotkey.search")
+            search.setAccessibilityLabel(L("hotkey.search"))
+            search.delegate = self
+            search.sendsSearchStringImmediately = true
+            column.addArrangedSubview(search)
+            search.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
+            searchField = search
+            let empty = NSTextField(labelWithString: L("hotkey.searchEmpty"))
+            empty.textColor = .secondaryLabelColor
+            empty.isHidden = true
+            column.addArrangedSubview(empty)
+            noSearchResults = empty
             var groupedIDs = [("パレット操作", [10000])]
             for (name, operations) in PaletteConfiguration.groups {
                 var ids = operations.map(\.rawValue)
@@ -273,6 +289,7 @@ final class GlobalShortcuts: NSObject {
                 let categoryActions = ids.compactMap { id in actions.first { $0.id == id } }
                 guard !categoryActions.isEmpty else { continue }
                 var items: [NSView] = []
+                var searchRows: [(id: Int, title: String, view: NSView)] = []
                 for action in categoryActions {
                 let row = NSStackView()
                 row.orientation = .horizontal
@@ -297,9 +314,11 @@ final class GlobalShortcuts: NSObject {
                 row.distribution = .fill
                 row.addArrangedSubview(field)
                 items.append(row)
+                searchRows.append((action.id, action.title, row))
                 preferenceRows.append((action.id, scopeMenu))
                 }
                 let group = MainActor.assumeIsolated { SettingsUI.group(PaletteConfiguration.displayName(for: category), items) }
+                searchableGroups.append((group, searchRows))
                 column.addArrangedSubview(group)
                 group.widthAnchor.constraint(equalTo: column.widthAnchor).isActive = true
             }
@@ -340,7 +359,27 @@ final class GlobalShortcuts: NSObject {
         for row in preferenceRows {
             row.scope.selectItem(at: HotkeyScope.allCases.firstIndex(of: scope(row.id)) ?? 0)
         }
+        applySearch()
         if preferences != nil { MainActor.assumeIsolated { HotkeyRecorder.shared.touch() } }
+    }
+
+    func controlTextDidChange(_ notification: Notification) { applySearch() }
+
+    private func applySearch() {
+        let query = searchField?.stringValue ?? ""
+        var visible = 0
+        for group in searchableGroups {
+            var groupVisible = false
+            for row in group.rows {
+                let value = digit(row.id)
+                let match = HotkeySearch.matches(query, title: row.title,
+                    labels: [binding(value)?.label ?? L("hotkey.none"), label(value)])
+                row.view.isHidden = !match
+                if match { visible += 1; groupVisible = true }
+            }
+            group.view.isHidden = !groupVisible
+        }
+        noSearchResults?.isHidden = visible > 0
     }
 
     /// The shared hotkey field (Shared/HotkeyRecorder) for one action; shortcutDigit-<id> keeps its saved form.

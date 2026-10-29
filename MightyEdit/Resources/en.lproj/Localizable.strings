@@ -1,3 +1,5 @@
+"hotkey.search" = "Search functions or hotkeys";
+"hotkey.searchEmpty" = "No matching items";
 "op.removeClipboardText" = "Remove Clipboard Text";
 "tip.removeClipboardText" = "Remove every exact occurrence of the clipboard text from the selection";
 "msg.clipboardTextEmpty" = "Copy the text to remove first";
