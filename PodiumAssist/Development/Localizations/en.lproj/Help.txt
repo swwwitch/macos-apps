@@ -2,6 +2,7 @@ A menu bar app that controls your Mac’s display settings and a timer, for semi
 
 ## How to Use
 The main window has five tabs: Presets, Basic, Display, Zoom, and Timer. Display contains appearance, display, and visibility settings. Basic contains the clock, date, weekday, distractions, privacy, and Dock settings. Zoom is divided into Keyboard Shortcuts and Options. Timer contains start time, duration, and end time. Scroll to see all settings.
+- Auto Set uses the current screen’s logical height divided by 500 for minimum zoom and twice that value for maximum zoom (945 → 1.89 / 3.78). Zoom factors stay within 1–40.
 
 ### Display
 - **Clock**: switch the menu bar clock between Digital and Analog. You can also show or hide the Date and Day of Week (for the digital clock).
@@ -123,3 +124,5 @@ Open Accessibility Settings opens the pane and selects this app when existing pe
 Even with Hide from Dock and App Switcher on, a main or settings window keeps the app in the Dock and ⌘Tab so its application menus remain available. Minimized windows stay listed. Close all such windows to hide the app; palettes alone do not show it. Your saved setting is preserved.
 
 Selecting the app in the ⌘Tab application switcher shows its main window and restores it if minimized. Automatic login launch stays quiet.
+
+- Basic includes automatic keyboard brightness and a 0–100% brightness slider for supported keyboards. Menu bar clock, date, and weekday controls are in Display.
