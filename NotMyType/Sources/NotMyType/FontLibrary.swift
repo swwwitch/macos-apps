@@ -279,6 +279,7 @@ struct LibraryData: Codable, Sendable {
     var departed: [String: UUID] = [:]
     /// ファミリー名。ファイルを入れ替えても残るよう、ファイルではなく名前で覚える
     var favorites: Set<String> = []
+    var ratings: [String: Int] = [:]
     /// 重複の優先の規則（「重複フォントを解決」で選んだもの）。ウォッチフォルダーの順位が同じときだけ使う
     var folderRules: [FolderRule] = []
     /// 同じフォルダーの中の重複など、規則にできない組でファイルごとに選んだ優先
@@ -296,6 +297,7 @@ struct LibraryData: Codable, Sendable {
         smartSets = try container.decodeIfPresent([SmartSet].self, forKey: .smartSets) ?? []
         active = try container.decodeIfPresent(Set<UUID>.self, forKey: .active) ?? []
         favorites = try container.decodeIfPresent(Set<String>.self, forKey: .favorites) ?? []
+        ratings = try container.decodeIfPresent([String: Int].self, forKey: .ratings) ?? [:]
         folderRules = try container.decodeIfPresent([FolderRule].self, forKey: .folderRules) ?? []
         preferredFiles = try container.decodeIfPresent(Set<UUID>.self, forKey: .preferredFiles) ?? []
     }
@@ -771,6 +773,11 @@ extension LibraryData {
         for smartSet in other.smartSets where !smartSets.contains(where: { $0.id == smartSet.id }) { smartSets.append(smartSet) }
         active.formUnion(other.active.compactMap { idMap[$0] })
         favorites.formUnion(other.favorites)
+        for (oldID, newID) in idMap {
+            if ratings[newID.uuidString] == nil, let value = other.ratings[oldID.uuidString] {
+                ratings[newID.uuidString] = value
+            }
+        }
         // 規則は場所の組で合わせる。こちらに逆向きの規則があれば、こちらを残す
         for rule in other.folderRules where !folderRules.contains(where: {
             ($0.preferred == rule.preferred && $0.other == rule.other) || ($0.preferred == rule.other && $0.other == rule.preferred)

@@ -78,7 +78,7 @@ Hidden font files and fonts inside hidden folders are included. Finder visibilit
 - Right-click a set to activate or deactivate all of it, rename it or delete it. Deleting a set keeps the fonts in the library.
 
 ### Favorites
-- Click the ☆ at the right end of a family row (after the style count) to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
+- Click the ♡ at the right end of a family row (after the style count) to add it to Favorites (click again to remove it). Right-click and choose "Toggle Favorite" to switch several at once.
 - "Favorites" in the sidebar lists only favorite families. Favorites are remembered by family name, so they remain even if you replace the files.
 
 ### System Fonts
@@ -257,3 +257,5 @@ Card focus options are visible by default. Weight/style and PostScript name appe
 
 
 Press Command-Return in Card view to focus the selected card. With multiple cards selected, the first in display order is used. Line spacing starts at 1.0 and ranges from 0.5 to 2.5. Space before and after paragraphs are independent, each 0–96pt (default 0), without changing line spacing within paragraphs.
+
+Rate each card from 1 to 5 using its top-right stars. Click the same star again to clear the rating. Select cards and press 1–5 to rate them, except while editing text. Use the Rating filter above to show all cards, unrated cards, or an exact rating.
