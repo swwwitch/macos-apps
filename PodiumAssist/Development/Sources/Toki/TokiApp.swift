@@ -409,6 +409,7 @@ struct Preset: Codable, Identifiable {
     var zoomMaxFactor: Double? = nil
     var zoomToggleShortcut: String? = nil
     var zoomInShortcut: String? = nil
+    var zoomOutShortcut: String? = nil
     var resolution: DisplayResolution? = nil
     var hideDesktop: Bool? = nil
     var hideOthersOnSwitch: Bool? = nil
@@ -444,6 +445,7 @@ struct Preset: Codable, Identifiable {
         preset.zoomMaxFactor = 20
         preset.zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
         preset.zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
+        preset.zoomOutShortcut = ZoomSettings.zoomOutShortcut.defaultValue
         preset.notificationsOff = false
         preset.launchApps = []
         preset.quitAppTargets = []
@@ -465,6 +467,7 @@ struct Preset: Codable, Identifiable {
         preset.zoomHotkeys = true
         preset.zoomToggleShortcut = "122,8388608"
         preset.zoomInShortcut = "120,8388608"
+        preset.zoomOutShortcut = "99,8388608"
         preset.notificationsOff = true
         return preset
     }
@@ -984,6 +987,7 @@ final class MacSettings: ObservableObject {
     @Published var zoomMaxFactor: Double?
     @Published var zoomToggleShortcut = ZoomSettings.toggleShortcut.defaultValue
     @Published var zoomInShortcut = ZoomSettings.zoomInShortcut.defaultValue
+    @Published var zoomOutShortcut = ZoomSettings.zoomOutShortcut.defaultValue
     @Published var resolution: DisplayResolution?
     /// Do Not Disturb as PodiumAssist last set it: the Focus state itself is not readable without Full Disk Access.
     @Published var notificationsOff = UserDefaults.standard.bool(forKey: "notificationsOffLastSet") {
@@ -1035,6 +1039,7 @@ final class MacSettings: ObservableObject {
         zoomMaxFactor = ZoomSettings.maxFactor
         zoomToggleShortcut = ZoomSettings.current(ZoomSettings.toggleShortcut)
         zoomInShortcut = ZoomSettings.current(ZoomSettings.zoomInShortcut)
+        zoomOutShortcut = ZoomSettings.current(ZoomSettings.zoomOutShortcut)
     }
 
     func setResolution(_ value: DisplayResolution) {
@@ -1354,6 +1359,7 @@ final class MacSettings: ObservableObject {
         if let value = preset.volumeFeedback { setVolumeFeedback(value); if error { return } }
         if let value = preset.zoomToggleShortcut, value != zoomToggleShortcut { setZoomShortcut(ZoomSettings.toggleShortcut, to: value); if error { return } }
         if let value = preset.zoomInShortcut, value != zoomInShortcut { setZoomShortcut(ZoomSettings.zoomInShortcut, to: value); if error { return } }
+        if let value = preset.zoomOutShortcut, value != zoomOutShortcut { setZoomShortcut(ZoomSettings.zoomOutShortcut, to: value); if error { return } }
         if let value = preset.hideOthersDelay { hideOthersDelay = AppSwitchHider.delay(value) }
         if let value = preset.hideOthersOnSwitch { hideOthersOnSwitch = value }
         if let value = preset.keyboardAutomatic { setKeyboardAutomatic(value) }
@@ -1518,6 +1524,7 @@ struct ManualControlsView: View {
                                 .font(.system(size: 12)).disabled(settings.busy)
                             zoomShortcutRow(L("ショートカット：ズーム機能のオン／オフ"), ZoomSettings.toggleShortcut, settings.zoomToggleShortcut)
                             zoomShortcutRow(L("ショートカット：拡大"), ZoomSettings.zoomInShortcut, settings.zoomInShortcut)
+                            zoomShortcutRow(L("ショートカット：縮小"), ZoomSettings.zoomOutShortcut, settings.zoomOutShortcut)
                         }
                         category(L("オプション")) {
                             HStack {

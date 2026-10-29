@@ -11,7 +11,7 @@ struct PresetSaveSheet: View {
 
     enum Item: CaseIterable, Hashable {
         case clock, showDate, showWeekday, dark, hideDock, killDock, hideDesktop, pointerSize, resolution,
-             keyboardAutomatic, keyboardBrightness, reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMinFactor, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut,
+             keyboardAutomatic, keyboardBrightness, reduceTransparency, reduceMotion, zoomHotkeys, zoomStyle, zoomMinFactor, zoomMaxFactor, zoomToggleShortcut, zoomInShortcut, zoomOutShortcut,
              volumeFeedback, notificationsOff, hideOthers
     }
 
@@ -63,6 +63,7 @@ struct PresetSaveSheet: View {
                     row(.zoomMaxFactor, L("最大拡大率"), settings.zoomMaxFactor.map(ZoomSettings.text) ?? "–")
                     row(.zoomToggleShortcut, L("ショートカット：ズーム機能のオン／オフ"), Self.shortcutTitle(ZoomSettings.toggleShortcut, settings.zoomToggleShortcut))
                     row(.zoomInShortcut, L("ショートカット：拡大"), Self.shortcutTitle(ZoomSettings.zoomInShortcut, settings.zoomInShortcut))
+                    row(.zoomOutShortcut, L("ショートカット：縮小"), Self.shortcutTitle(ZoomSettings.zoomOutShortcut, settings.zoomOutShortcut))
                     row(.volumeFeedback, L("音量を変更するときにフィードバックを再生"), onOff(settings.volumeFeedback))
                     HStack {
                         Toggle(L("通知"), isOn: binding(.notificationsOff))
@@ -150,7 +151,7 @@ struct PresetSaveSheet: View {
             .hideDesktop: preset.hideDesktop != nil, .pointerSize: preset.pointerSize != nil, .resolution: preset.resolution != nil,
             .reduceTransparency: preset.reduceTransparency != nil, .reduceMotion: preset.reduceMotion != nil, .volumeFeedback: preset.volumeFeedback != nil,
             .zoomHotkeys: preset.zoomHotkeys != nil, .zoomStyle: preset.zoomStyle != nil, .keyboardAutomatic: preset.keyboardAutomatic != nil, .keyboardBrightness: preset.keyboardBrightness != nil, .zoomMinFactor: preset.zoomMinFactor != nil, .zoomMaxFactor: preset.zoomMaxFactor != nil,
-            .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil,
+            .zoomToggleShortcut: preset.zoomToggleShortcut != nil, .zoomInShortcut: preset.zoomInShortcut != nil, .zoomOutShortcut: preset.zoomOutShortcut != nil,
             .notificationsOff: preset.notificationsOff != nil,
             .hideOthers: preset.hideOthersOnSwitch != nil || preset.hideOthersDelay != nil]
         return Set(has.filter(\.value).map(\.key))
@@ -183,6 +184,7 @@ struct PresetSaveSheet: View {
         preset.zoomMaxFactor = included.contains(.zoomMaxFactor) ? settings.zoomMaxFactor : nil
         preset.zoomToggleShortcut = value(.zoomToggleShortcut, settings.zoomToggleShortcut)
         preset.zoomInShortcut = value(.zoomInShortcut, settings.zoomInShortcut)
+        preset.zoomOutShortcut = value(.zoomOutShortcut, settings.zoomOutShortcut)
         preset.notificationsOff = value(.notificationsOff, notificationsOff)
     }
 }

@@ -36,6 +36,8 @@ enum ZoomSettings {
                                          choices: [("122,8388608", "F1"), ("120,8388608", "F2"), ("28,1572864", "⌥⌘8")])
     static let zoomInShortcut = Shortcut(id: "17", defaultValue: "24,1572864",
                                          choices: [("120,8388608", "F2"), ("122,8388608", "F1"), ("24,1572864", "⌥⌘=")])
+    static let zoomOutShortcut = Shortcut(id: "19", defaultValue: "27,1572864",
+                                          choices: [("99,8388608", "F3"), ("27,1572864", "⌥⌘−")])
     static let maxFactorRange: ClosedRange<Double> = 1...40
 
     /// Use logical display height (for example 945), not Retina backing pixels.
@@ -50,7 +52,7 @@ enum ZoomSettings {
     private static let hotkeysDomain = "com.apple.symbolichotkeys" as CFString
     private static let hotkeysKey = "AppleSymbolicHotKeys" as CFString
     /// Character codes of the keys in the choices (key code → ASCII); keys without a character use 65535.
-    private static let characters: [Int: Int] = [28: 56, 24: 61]
+    private static let characters: [Int: Int] = [28: 56, 24: 61, 27: 45]
 
     // MARK: - Reading
 
