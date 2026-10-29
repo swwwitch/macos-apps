@@ -193,3 +193,14 @@ MenuShot은 메뉴 막대와 열린 메뉴만 배경(데스크탑과 다른 윈�
 - 삭제: MenuShot을 종료하고 응용 프로그램 폴더에서 휴지통으로 옮깁니다. 캡처한 이미지는 저장 위치에 남습니다.
 """,
 }
+
+for _lang, _text in {
+'ja': '\nメニュー経路\n撮影直前の選択メニューを読み取ります。設定の［出力］→［メニュー経路］で7形式と「をクリック」の有無を選択・保存します。ショートカット後は［撮影］［テキストのみ］を選びます。テキストのみは画像を保存せずコピーします。末尾除去機能はありません。起動・常駐のアクセシビリティ設定から権限を許可してください。未許可や未選択の場合は経路を取得できません。コマンドは実行しません。',
+'en': '\nMenu Path\nThe selected path is read before capture. Choose one of seven formats and the optional Japanese click suffix in Settings > Output > Menu Path. After the hotkey choose Capture or Text Only (no image saved). Trailing text is preserved. Grant Accessibility permission in Startup settings. Unavailable paths cannot be copied. No command is executed.',
+'zh-Hans': '\n菜单路径\n截图前读取选中的路径。在设置的输出中选择七种格式和日文点击后缀。快捷键后选择拍摄或仅文本。仅文本不保存图片。不会移除末尾文字。请在启动设置中授予辅助功能权限。不会执行命令。',
+'ko': '\n메뉴 경로\n촬영 전 선택 경로를 읽습니다. 설정의 출력에서 일곱 형식과 일본어 클릭 안내를 선택합니다. 단축키 후 촬영 또는 텍스트만을 선택합니다. 텍스트만은 이미지를 저장하지 않습니다. 끝 문자열을 제거하지 않습니다. 시작 설정에서 손쉬운 사용 권한을 허용하세요. 명령은 실행하지 않습니다.'
+}.items():
+    HELP[_lang] += _text + '\n'
+
+for _lang in HELP:
+    HELP[_lang] += "\n" + {"ja": "入力監視は起動・常駐にあります。アプリ呼出用の内蔵ホットキーは削除され、撮影用のみ使用します。", "en": "Input Monitoring is in Startup settings. Only the capture hotkey is registered; the app invocation hotkey is removed.", "zh-Hans": "输入监控位于启动设置。仅保留拍摄快捷键，已移除唤起应用快捷键。", "ko": "입력 모니터링은 시작 설정에 있습니다. 앱 호출 단축키를 제거하고 촬영 단축키만 사용합니다."}[_lang] + "\n"

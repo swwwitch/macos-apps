@@ -5,6 +5,8 @@ cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/MenuShot-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Layout.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/MenuPath.swift Tests/MenuPath/main.swift -o "$stage/path-tests"
+"$stage/path-tests"
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework ScreenCaptureKit Source/Layout.swift Source/Capture.swift Tests/Rendering/main.swift -o "$stage/render-tests"
 "$stage/render-tests"
 "$stage/tests"

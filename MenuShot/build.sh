@@ -17,7 +17,7 @@ xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx14.0 -module-cache-pa
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices -framework ScreenCaptureKit -framework Quartz "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
-  ../Shared/HotkeyManifest/HotkeyManifest.swift Source/{Layout,Capture,KeyTap,Feedback,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/MenuShot"
+  ../Shared/HotkeyManifest/HotkeyManifest.swift ../Shared/Accessibility/AccessibilityPermission.swift Source/{MenuPath,Layout,Capture,KeyTap,Feedback,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/MenuShot"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

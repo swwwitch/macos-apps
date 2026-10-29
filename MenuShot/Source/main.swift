@@ -22,7 +22,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     @Published var folderPath = UserDefaults.standard.string(forKey: "saveFolder") ?? "" { didSet { defaults.set(folderPath, forKey: "saveFolder") } }
     var folder: URL { folderPath.isEmpty ? MenuCapture.systemScreenshotFolder : URL(fileURLWithPath: folderPath, isDirectory: true) }
 
-    /// Keys shared by 設定の共有. The folder, startup, residency and the app hotkey stay per Mac.
+    /// Keys shared by 設定の共有. The folder, startup and residency stay per Mac.
     nonisolated static let sharedKeys: Set<String> = ["captureDelay", "barRange", "drawShadow", "copyToClipboard", "playSound", "flashScreen", "openQuickLook", "captureHotkeyEnabled", "captureHotkey"]
     /// Re-reads the shared settings after an import so the next save does not write the old values back.
     func reloadSharedSettings() {
@@ -40,7 +40,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     // MARK: Hotkeys
     /// ⌃⌥⇧⌘4 (the user's choice, 2026-10-26). Not used by macOS, Keyboard Maestro or the other sw_apps (checked that day).
     static let defaultCaptureCombo = KeyCombo(code: UInt32(kVK_ANSI_4), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.shift | KeyCombo.command)
-    static let captureFieldID = "captureHotkey", appFieldID = "appHotkey"
+    static let captureFieldID = "captureHotkey"
     static func readCombo(_ key: String, default value: KeyCombo?) -> KeyCombo? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return value }
         return data.isEmpty ? nil : try? JSONDecoder().decode(KeyCombo.self, from: data)
@@ -48,13 +48,9 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     private func writeCombo(_ combo: KeyCombo?, _ key: String) { defaults.set(combo.flatMap { try? JSONEncoder().encode($0) } ?? Data(), forKey: key) }
     @Published var captureHotkeyEnabled = UserDefaults.standard.object(forKey: "captureHotkeyEnabled") as? Bool ?? true { didSet { defaults.set(captureHotkeyEnabled, forKey: "captureHotkeyEnabled"); registerHotkeys() } }
     @Published var captureCombo = Model.readCombo("captureHotkey", default: Model.defaultCaptureCombo) { didSet { writeCombo(captureCombo, "captureHotkey"); registerHotkeys() } }
-    /// Shows the main window from any app (per Mac). Unassigned at first.
-    @Published var appHotkeyEnabled = UserDefaults.standard.object(forKey: "appHotkeyEnabled") as? Bool ?? true { didSet { defaults.set(appHotkeyEnabled, forKey: "appHotkeyEnabled"); registerHotkeys() } }
-    @Published var appCombo = Model.readCombo("appHotkey", default: nil) { didSet { writeCombo(appCombo, "appHotkey"); registerHotkeys() } }
     @Published var captureHotkeyRegistered = true
-    @Published var appHotkeyRegistered = true
     let hotkeys = HotkeySet(signature: "MnSt")
-    enum HotkeyID: UInt32 { case app = 1, capture = 2 }
+    enum HotkeyID: UInt32 { case capture = 2 }
     let keyTap = KeyTap()
     @Published var inputMonitoring = KeyTap.hasPermission
     /// The capture key goes through the event tap (works with a menu open).
@@ -68,7 +64,7 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     }
     func registerHotkeys() {
         hotkeys.unregisterAll()
-        captureHotkeyRegistered = true; appHotkeyRegistered = true
+        captureHotkeyRegistered = true
         keyTap.combo = captureHotkeyEnabled ? captureCombo : nil
         inputMonitoring = KeyTap.hasPermission
         // With Input Monitoring the capture key is watched by the event tap only (it also arrives while a menu is open);
@@ -78,10 +74,8 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
             keyTap.stop(); tapActive = false
             if captureHotkeyEnabled, let captureCombo { captureHotkeyRegistered = hotkeys.register(HotkeyID.capture.rawValue, captureCombo) == noErr }
         }
-        if appHotkeyEnabled, let appCombo { appHotkeyRegistered = hotkeys.register(HotkeyID.app.rawValue, appCombo) == noErr }
         var items: [HotkeyManifest.Item] = []
         if let captureCombo { items.append(.init(id: "captureHotkey", title: L("captureHotkey"), keyCode: Int(captureCombo.code), modifiers: Int(captureCombo.modifiers), enabled: captureHotkeyEnabled)) }
-        if let appCombo { items.append(.init(id: "appHotkey", title: SettingsUI.shortcutTitle, keyCode: Int(appCombo.code), modifiers: Int(appCombo.modifiers), enabled: appHotkeyEnabled)) }
         HotkeyManifest.publish(items)
     }
 
@@ -95,11 +89,13 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     @Published var lastImage: NSImage?
     @Published var permitted = MenuCapture.hasPermission
     private var timer: Timer?
+    private var chooseOutputAfterCapture = false
 
     /// The 撮影 button and the menu items: count down so a menu can be opened, then capture.
     /// The hotkey captures at once when a menu is already open (it is pressed with the menu showing).
     func start(fromHotkey: Bool = false) {
         guard countdown == nil, !busy else { return }  // Already counting or saving; a second press changes nothing.
+        chooseOutputAfterCapture = fromHotkey
         if fromHotkey && MenuCapture.menuIsOpen() { capture(); return }
         guard delay > 0 else { capture(); return }
         countdown = delay
@@ -118,6 +114,19 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
     }
     private func stopTimer() { timer?.invalidate(); timer = nil; countdown = nil }
 
+    @Published var rawMenuPath = ""
+    @Published var pathFormat = UserDefaults.standard.integer(forKey: "menuPathFormat") {
+        didSet { UserDefaults.standard.set(pathFormat, forKey: "menuPathFormat") }
+    }
+    @Published var appendMenuClick = UserDefaults.standard.object(forKey: "appendMenuClick") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(appendMenuClick, forKey: "appendMenuClick") }
+    }
+    var menuPath: String {
+        guard hasMenuPath else { return rawMenuPath }
+        return MenuPathFormat.render(rawMenuPath.components(separatedBy: "→"), style: pathFormat, appendClick: appendMenuClick)
+    }
+    @Published var hasMenuPath = false
+
     func capture() {
         guard !busy else { return }
         permitted = MenuCapture.hasPermission
@@ -126,12 +135,38 @@ func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
             CGRequestScreenCaptureAccess()
             report(L("needPermission"), failed: true); return
         }
+        let selectedPath = MenuPathReader.read()
+        hasMenuPath = selectedPath != nil
+        rawMenuPath = selectedPath ?? (AXIsProcessTrusted()
+            ? StartupWindow.text("選択中のメニュー経路を取得できません", "Selected menu path unavailable", "无法获取选中的菜单路径", "선택한 메뉴 경로를 가져올 수 없습니다")
+            : StartupWindow.text("メニュー経路の取得にはアクセシビリティ権限が必要です", "Accessibility permission is required to read the menu path", "读取菜单路径需要辅助功能权限", "메뉴 경로를 읽으려면 손쉬운 사용 권한이 필요합니다"))
         busy = true
         let range = range, shadow = shadow, folder = folder
         Task {
             defer { busy = false }
             do {
                 let picture = try await MenuCapture.capture(range: range, shadow: shadow)
+                var output = 0 // screenshot
+                if chooseOutputAfterCapture {
+                    let alert = NSAlert()
+                    alert.messageText = StartupWindow.text("取り出す内容を選択", "Choose Output", "选择输出内容", "출력 선택")
+                    alert.addButton(withTitle: StartupWindow.text("撮影", "Capture", "仅截图", "스크린샷만"))
+                    alert.addButton(withTitle: StartupWindow.text("テキストのみ", "Text Only", "仅菜单路径", "메뉴 경로만"))
+                    alert.addButton(withTitle: StartupWindow.text("キャンセル", "Cancel", "取消", "취소"))
+                    alert.buttons[1].isEnabled = hasMenuPath
+                    if !hasMenuPath { alert.informativeText = menuPath }
+                    NSApp.activate(ignoringOtherApps: true)
+                    output = alert.runModal().rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+                    if output != 0 && output != 1 { return }
+                }
+                if output == 1 {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(menuPath, forType: .string)
+                    lastImage = nil
+                    lastURL = nil
+                    report(StartupWindow.text("メニュー経路をコピーしました", "Menu path copied", "已复制菜单路径", "메뉴 경로 복사됨"), failed: false)
+                    return
+                }
                 let url = try MenuCapture.save(picture, in: folder, prefix: L("filePrefix"))
                 if copyToClipboard { MenuCapture.copy(picture) }
                 if flashScreen { ScreenFlash.show(picture.area) }
@@ -211,6 +246,13 @@ struct MainView: View {
             .frame(minHeight: 220, maxHeight: .infinity)
             .background(Color(nsColor: .textBackgroundColor)).cornerRadius(8)
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.gray.opacity(0.25)))
+            if !model.menuPath.isEmpty {
+                Text(model.menuPath).textSelection(.enabled)
+                Button(StartupWindow.text("メニュー経路をコピー", "Copy Menu Path", "复制菜单路径", "메뉴 경로 복사")) {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(model.menuPath, forType: .string)
+                }.disabled(!model.hasMenuPath)
+            }
             HStack(spacing: 10) {
                 if let left = model.countdown {
                     Button(String(format: L("cancelCountdown"), left)) { model.cancel() }.keyboardShortcut(.cancelAction).controlSize(.large)
@@ -273,25 +315,6 @@ struct SettingsView: View {
                                       presenceExtra: MenuBarPresenceView(), shortcutTitle: L("launchShortcut"), shortcutButton: L("openShortcuts"), shortcutDetail: L("shortcutDetail")) {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app"))
                 }
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(SettingsUI.shortcutTitle).padding(.top, 4)
-                    Toggle(HotkeyText.enable, isOn: $model.appHotkeyEnabled)
-                    HotkeyField(id: Model.appFieldID, combo: $model.appCombo, allowsClear: true,
-                                others: model.captureCombo.map { [(L("captureHotkey"), $0)] } ?? [],
-                                registered: model.appHotkeyRegistered, isEnabled: model.appHotkeyEnabled)
-                    Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }.frame(maxWidth: .infinity, alignment: .leading)
-            }
-            ScreenRecordingSection(model: model)
-        })), (L("captureTab"), AnyView(VStack(spacing: 16) {
-            SettingsSection(L("captureHotkey")) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Toggle(HotkeyText.enable, isOn: $model.captureHotkeyEnabled)
-                    HotkeyField(id: Model.captureFieldID, combo: $model.captureCombo, defaultCombo: Model.defaultCaptureCombo, allowsClear: true,
-                                others: model.appCombo.map { [(SettingsUI.shortcutTitle, $0)] } ?? [],
-                                registered: model.captureHotkeyRegistered, isEnabled: model.captureHotkeyEnabled)
-                    Text(L("captureHotkeyDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }.frame(maxWidth: .infinity, alignment: .leading)
             }
             SettingsSection(L("inputMonitoring")) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -301,6 +324,17 @@ struct SettingsView: View {
                     }
                     Text(L("inputMonitoringReason")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     if !model.inputMonitoring { Button(L("allowInputMonitoring")) { model.requestInputMonitoring() } }
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+            AccessibilitySection()
+            ScreenRecordingSection(model: model)
+        })), (L("captureTab"), AnyView(VStack(spacing: 16) {
+            SettingsSection(L("captureHotkey")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Toggle(HotkeyText.enable, isOn: $model.captureHotkeyEnabled)
+                    HotkeyField(id: Model.captureFieldID, combo: $model.captureCombo, defaultCombo: Model.defaultCaptureCombo, allowsClear: true,
+                                registered: model.captureHotkeyRegistered, isEnabled: model.captureHotkeyEnabled)
+                    Text(L("captureHotkeyDetail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             SettingsSection(L("delayTitle")) {
@@ -319,6 +353,16 @@ struct SettingsView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
         })), (L("outputTab"), AnyView(VStack(spacing: 16) {
+            SettingsSection(StartupWindow.text("メニュー経路", "Menu Path", "菜单路径", "메뉴 경로")) {
+                VStack(alignment: .leading, spacing: 10) {
+                Picker(StartupWindow.text("テキスト形式", "Text Format", "文本格式", "텍스트 형식"), selection: $model.pathFormat) {
+                    ForEach(0..<7, id: \.self) { style in
+                        Text(MenuPathFormat.render(["選択", "共通", "アピアランス"], style: style, appendClick: model.appendMenuClick)).tag(style)
+                    }
+                }
+                Toggle(StartupWindow.text("末尾に「をクリック」を付ける", "Append Japanese click instruction", "添加日文点击说明", "일본어 클릭 안내 추가"), isOn: $model.appendMenuClick)
+                }
+            }
             SettingsSection(L("folderTitle")) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(model.folder.path).font(.callout).textSelection(.enabled).lineLimit(2).truncationMode(.middle)
@@ -359,6 +403,8 @@ struct SettingsView: View {
         }
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AccessibilityText.neededOverride = ["選択中のメニュー経路の読み取りに使用します。", "Used to read the selected menu path.", "用于读取选中的菜单路径。", "선택한 메뉴 경로를 읽는 데 사용합니다."]
+
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
@@ -373,7 +419,6 @@ struct SettingsView: View {
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         model.hotkeys.action = { [weak self] number in
             switch Model.HotkeyID(rawValue: number) {
-            case .app: StartupWindow.userRequestedWindow(); self?.show()
             // Never activates MenuShot: that would close the menu being captured.
             case .capture: self?.model.start(fromHotkey: true)
             case nil: break

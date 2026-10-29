@@ -45,3 +45,8 @@ With Keep running after closing the window on, MenuShot keeps running after you 
 - The menu bar background is transparent: when Show menu bar background is off in macOS 26, only the menu bar text is captured.
 - Some menu bar icons are missing: what apps such as Bartender draw over the menu bar is not captured.
 - Uninstall: quit MenuShot and move it from Applications to the Trash. Captured pictures stay in the save folder.
+
+Menu Path
+The selected path is read before capture. Choose one of seven formats and the optional Japanese click suffix in Settings > Output > Menu Path. After the hotkey choose Capture or Text Only (no image saved). Trailing text is preserved. Grant Accessibility permission in Startup settings. Unavailable paths cannot be copied. No command is executed.
+
+Input Monitoring is in Startup settings. Only the capture hotkey is registered; the app invocation hotkey is removed.
