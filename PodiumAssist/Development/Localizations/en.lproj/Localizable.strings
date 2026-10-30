@@ -246,7 +246,7 @@
 "終了時に未保存の書類がある場合は、各アプリの確認画面で操作してください。" = "If an app has unsaved documents, respond to its save confirmation.";
 "切り換える" = "Switch Preset";
 
-"プリセットのアプリ" = "Preset Apps";
+"プリセット選択時に起動・終了するアプリ" = "Apps to Launch or Quit When Selecting a Preset";
 
 "macOSのデフォルト" = "macOS Defaults";
 
@@ -267,15 +267,15 @@
 
 "プリセット（%@）に保存" = "Save to Preset (%@)";
 
-"最大縮小率" = "Minimum zoom";
+"最小拡大率" = "Minimum zoom";
 
-"最大縮小率を変更できませんでした。" = "Could not change the minimum zoom.";
+"最小拡大率を変更できませんでした。" = "Could not change the minimum zoom.";
 
-"最大縮小率を%@にしました。" = "Minimum zoom set to %@.";
+"最小拡大率を%@にしました。" = "Minimum zoom set to %@.";
 
 "自動設定" = "Auto Set";
 
-"現在の画面の高さ÷500を最大縮小率、その2倍を最大拡大率に設定します。" = "Set minimum zoom to the current screen height divided by 500, and maximum zoom to twice that value.";
+"現在の画面の高さ÷500を最小拡大率、その2倍を最大拡大率に設定します。" = "Set minimum zoom to the current screen height divided by 500, and maximum zoom to twice that value.";
 
 "キーボード" = "Keyboard";
 
@@ -290,3 +290,7 @@
 "対応するキーボードが接続されていません。" = "No supported keyboard is connected.";
 
 "ショートカット：縮小" = "Shortcut: Zoom out";
+
+"画面の高さ %@ → 最大 %@／最小 %@" = "Screen height %@ → maximum %@ / minimum %@";
+
+"計算結果は現在の設定と一致しています。" = "The calculated values already match the current settings.";

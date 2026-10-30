@@ -166,7 +166,7 @@ enum ZoomSettings {
     @MainActor
     private static func setFactor(_ target: Double, minimum: Bool, in root: AXUIElement) async throws {
         let identifier = minimum ? "AX_ZOOM_MIN_FACTOR" : "AX_ZOOM_MAX_FACTOR"
-        let failure = minimum ? L("最大縮小率を変更できませんでした。") : L("最大拡大率を変更できませんでした。")
+        let failure = minimum ? L("最小拡大率を変更できませんでした。") : L("最大拡大率を変更できませんでした。")
         let target = min(max(target, maxFactorRange.lowerBound), maxFactorRange.upperBound)
         let slider = try await SystemSettingsSwitch.waitFor(identifier, in: root)
         func number(_ name: String) -> Double? { (SystemSettingsSwitch.attribute(name, of: slider) as? NSNumber)?.doubleValue }

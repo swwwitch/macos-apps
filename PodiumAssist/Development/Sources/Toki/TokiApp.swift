@@ -845,7 +845,7 @@ struct PreferencesView: View {
                 AccessibilitySection()
             })),
             (L("アプリ"), AnyView(VStack(alignment: .leading, spacing: 20) {
-                SettingsSection(L("プリセットのアプリ")) { PresetAppsSettings(presets: presets) }
+                SettingsSection(L("プリセット選択時に起動・終了するアプリ")) { PresetAppsSettings(presets: presets) }
                 SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
             })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
@@ -1164,7 +1164,7 @@ final class MacSettings: ObservableObject {
         } else if let style, maxFactor == nil, minFactor == nil {
             done = L("ズーム方法を「%@」にしました。", style.title)
         } else if let minFactor, maxFactor == nil, style == nil {
-            done = L("最大縮小率を%@にしました。", ZoomSettings.text(minFactor))
+            done = L("最小拡大率を%@にしました。", ZoomSettings.text(minFactor))
         } else if let maxFactor, style == nil, minFactor == nil {
             done = L("最大拡大率を%@にしました。", ZoomSettings.text(maxFactor))
         } else {
@@ -1172,6 +1172,20 @@ final class MacSettings: ObservableObject {
         }
         inSystemSettings(working: L("システム設定でズーム機能を変更しています…"), done: done, then: then) {
             try await ZoomSettings.apply(hotkeys: hotkeys, style: style, maxFactor: maxFactor, minFactor: minFactor)
+        }
+    }
+
+    func setAutomaticZoom(height: Double, minimum: Double, maximum: Double) {
+        let summary = L("画面の高さ %@ → 最大 %@／最小 %@", String(Int(height)), ZoomSettings.text(maximum), ZoomSettings.text(minimum))
+        refresh()
+        if let actualMin = zoomMinFactor, let actualMax = zoomMaxFactor,
+           abs(actualMin - minimum) < 0.05, abs(actualMax - maximum) < 0.05 {
+            error = false
+            message = L("計算結果は現在の設定と一致しています。") + " " + summary
+            return
+        }
+        setZoom(maxFactor: maximum, minFactor: minimum) { [weak self] in
+            self?.message = summary
         }
     }
 
@@ -1537,22 +1551,10 @@ struct ManualControlsView: View {
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
                             HStack {
-                                Label(L("最大縮小率"), systemImage: "arrow.down.right.and.arrow.up.left").fixedSize()
-                                Spacer()
-                                Slider(value: $zoomMinDraft, in: 1...max(1, zoomDraft)) { editing in
-                                    if !editing { manual { settings.setZoom(minFactor: zoomMinDraft) } }
-                                }
-                                .frame(width: 140)
-                                Text(ZoomSettings.text(zoomMinDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
-                            }
-                            .font(.system(size: 12)).disabled(settings.busy)
-                            .onAppear { zoomMinDraft = settings.zoomMinFactor ?? 1 }
-                            .onChange(of: settings.zoomMinFactor) { zoomMinDraft = $0 ?? 1 }
-                            HStack {
                                 Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
                                 Spacer()
                                 // Applied when the knob is released: System Settings is operated once per change.
-                                Slider(value: $zoomDraft, in: min(zoomMinDraft, 40)...40) { editing in
+                                Slider(value: $zoomDraft, in: min(zoomMinDraft, 40)...max(8, max(zoomMinDraft, settings.zoomMaxFactor ?? 1))) { editing in
                                     if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
                                 }
                                 .frame(width: 140)
@@ -1563,16 +1565,34 @@ struct ManualControlsView: View {
                             .onAppear { zoomDraft = settings.zoomMaxFactor ?? zoomDraft }
                             .onChange(of: settings.zoomMaxFactor) { if let value = $0 { zoomDraft = value } }
                             HStack {
+                                Label(L("最小拡大率"), systemImage: "arrow.down.right.and.arrow.up.left").fixedSize()
+                                Spacer()
+                                Slider(value: $zoomMinDraft, in: 1...max(1, min(zoomDraft, max(4, settings.zoomMinFactor ?? 1)))) { editing in
+                                    if !editing { manual { settings.setZoom(minFactor: zoomMinDraft) } }
+                                }
+                                .frame(width: 70)
+                                .frame(width: 140, alignment: .leading)
+                                Text(ZoomSettings.text(zoomMinDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
+                            }
+                            .font(.system(size: 12)).disabled(settings.busy)
+                            .onAppear { zoomMinDraft = settings.zoomMinFactor ?? 1 }
+                            .onChange(of: settings.zoomMinFactor) { zoomMinDraft = $0 ?? 1 }
+                            HStack {
                                 Spacer()
                                 Button(L("自動設定")) {
                                     // Resolve the display when clicked, before System Settings takes focus.
                                     let height = NSScreen.main.map { Double($0.frame.height) } ?? Double(DisplayResolution.current?.height ?? 0)
                                     guard let factors = ZoomSettings.automaticFactors(height: height) else { return }
-                                    manual { settings.setZoom(maxFactor: factors.max, minFactor: factors.min) }
+                                    manual { settings.setAutomaticZoom(height: height, minimum: factors.min, maximum: factors.max) }
                                 }
-                                .help(L("現在の画面の高さ÷500を最大縮小率、その2倍を最大拡大率に設定します。"))
+                                .help(L("現在の画面の高さ÷500を最小拡大率、その2倍を最大拡大率に設定します。"))
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
+                            if let height = NSScreen.main.map({ Double($0.frame.height) }),
+                               let factors = ZoomSettings.automaticFactors(height: height) {
+                                Text(L("画面の高さ %@ → 最大 %@／最小 %@", String(Int(height)), ZoomSettings.text(factors.max), ZoomSettings.text(factors.min)))
+                                    .font(.system(size: 11)).foregroundStyle(.secondary)
+                            }
                         }
                     }
                     if section == .basic {
