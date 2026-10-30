@@ -899,3 +899,11 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 ## 2026-10-29 PodiumAssist / MightyEdit 公開検証済み
 
 PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。
+
+## 2026-10-30 NotMyType 通常版 公証・配布開始
+
+- ユーザー指示：本チャット「公証ビルド作成、配布」。元チャット：01a18a55-03bc-7d31-9eb7-378114c34298。
+- 担当：開発Mac MacBook-Pro-14-2024-sw.local / main。基点ccef808。対象SHA：採番・検証後に確定。開始：2026-10-30T10:38:24.864867+09:00。
+- 対象：カード5段階評価、数字1〜5、評価絞り込み、ハートお気に入り。通常版1.64.0（107）を開発担当で確定する。Lite対象外。
+- 状態：開発検証開始。公証担当への依頼は未送信、重複担当確認待ち。このMacの署名IDは0件。署名代替・開発Macからの配置は行わない。
+- 開発検証結果：日英翻訳検査・arm64 ReleaseコンパイルPASS。実機・Universal・署名は未確認。公証Macの既存チャット「macOSアプリのリリース作業」へ対象SHAを渡す準備中。
