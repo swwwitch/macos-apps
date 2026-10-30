@@ -39,7 +39,7 @@
 "launchShortcut" = "启动应用快捷键";
 "openShortcuts" = "打开快捷指令";
 "shortcutDetail" = "在快捷指令中为 SettingsHop 创建“打开 App”并分配按键，应用未运行时也可使用。";
-"appHotkeyHint" = "SettingsHop 运行时，在任何应用中按下即可显示主窗口。未运行时请使用上方“打开快捷指令”中分配的按键。";
+"appHotkeyHint" = "按一次显示主窗口。在系统双击间隔内按两次可隐藏窗口并打开系统设置。长按不会计为两次。应用运行时可用。";
 "openMainWindow" = "打开主窗口";
 "settings" = "设置…";
 "settingsWindow" = "设置";

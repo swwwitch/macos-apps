@@ -787,6 +787,17 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 ## VectorKeys Quick Look（2026-10-28）
 - 担当: 開発Mac MacBook-Pro-14-2024-sw.local / main / 基点64250c0＋継続変更。ファイル手順のQuick Lookボタン。状態: 1.9.1 (18) テスト・4言語・ビルド・署名検証合格。実機でJSXのQuick Look内容表示と詳細への復帰を確認。公証・配置・公開未実施。
 
+## Latest Builds 12本の再配置（2026-10-29）
+- 担当: 公証Mac MacBookPro13-M5-2025.local / main / 対象SHA 188a6c77108934b437f5c9589623617df170008f。開始: 2026-10-29T00:26+09:00。
+- 経緯: 2026-10-28、Dropbox同期が `sw_app-Latest Builds` の.app 12本で停止（ローカルとサーバーに別IDの同名アプリ）。12本はDropbox外へ退避し、サーバーからも削除済み。公証付きで作り直して再配置する。
+- 対象: KeynoteSweeper / ShotSorter / SettingsHop / SiteMirror / QuickIconExporter / LinkMaker / PodiumAssist / NotMyType / NotMyType Lite / MarkdownKitchen / VectorMate / CarmaChameleon。版・buildは確定ソースのまま。
+- 状態: 着手。成果物 `Shared/ReleasePreparation/Rebuild12-20261029`。
+- 1回目ビルド（対象SHA 188a6c7）: 7本成功。MarkdownKitchen / NotMyType / NotMyType Lite / QuickIconExporter / SiteMirror はSwift 6.4（Xcode 27.1）で共有SettingsSync.swift:584のSendingRisksDataRaceエラー。`fileImport` を `@MainActor` クロージャ型に修正しsync.pyで配布、SettingsSyncテストPASS、唯一の利用元FavoriteFoldersのビルド成功。MarkdownKitchenは188a6c7の未採番変更を含むためbuildを126へ更新（ユーザー指示「上げる必要があれば通常の手順で」）。5本は修正コミットから再ビルド。
+- 補足: e3ee5c3 にはbee83bc以降未同期だった各アプリのSettingsSync.swiftコピー（fileExport/fileImport/fileNote追加）の同期分も含まれる。ビルド時にsync済みの内容と同一。NotMyType／NotMyType Liteはsync.py対象外で各build.shが共有元から取り込むため、修正版コピーを続くコミットで記録。
+- 再ビルド: MarkdownKitchen 1.47.3 (126) テストPASS、NotMyType 1.63.3 (106)、NotMyType Lite 1.9.0 (25)、QuickIconExporter 1.2.0 (42)、SiteMirror 1.5.3 (16) ビルド成功（成果物 `Shared/ReleasePreparation/Rebuild12-20261029-b`）。1回目の7本は公証Accepted。
+- 開発Mac報告（01:02）: サーバーの12本は削除されておらず、開発Macも再ダウンロードで一致。削除は行わず通常配置で上書きする方針。
+- 配置（2026-10-29 01:04〜01:06、公証Mac）: deploy_notarized_apps.pyで12本とも deployed_and_launch_verified。/ApplicationsとLatest Buildsの内容一致、stapler・Gatekeeper（Notarized Developer ID）確認。旧版は `Shared/Backups/Build/20261029-0105*`。Latest Builds/README.mdの12行更新を確認。版: KeynoteSweeper 1.2.0 (15)、ShotSorter 1.1.0 (3)、SettingsHop 1.7.2 (23)、SiteMirror 1.5.3 (16)、QuickIconExporter 1.2.0 (42)、LinkMaker 1.3.5 (40)、PodiumAssist 3.3.19 (85)、NotMyType 1.63.3 (106)、NotMyType Lite 1.9.0 (25)、MarkdownKitchen 1.47.3 (126)、VectorMate 2.19.2 (81)、CarmaChameleon 0.15.0 (51)。起動確認のみで各機能の実機操作は未実施。DMG・GitHub Release・note・アプリのバージョン一覧.mdは今回対象外・未更新。
+- Dropbox（公証Mac）: 01:07:40にLatest Buildsのアップロード終了、以降静止。ユーザーがメニューバー「ファイルは最新の状態です」を確認。開発Mac側の受信確認は未報告。
 ## VectorKeys 複数選択アイテムの右クリックソート（2026-10-29受付）
 - 要望：アイテムを複数選択し、右クリックのコンテキストメニューから選択アイテムをソートできるようにする。項目は「名前」「回数」「ホットキー（アルファベット部分）」の3つ。
 - ホットキーのソート基準は修飾キーではなくアルファベット部分とする。未選択アイテムを一括ソートする要望とは区別する。昇順／降順、未割り当て・アルファベット以外のキー、複数カテゴリにまたがる選択の扱いは未指定。
@@ -852,6 +863,14 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 
 ### VectorKeys 詳細情報・カラー更新 開発検証結果
 - 通常版1.11.0（20）。⌘Delete・名前インライン編集・情報更新・解説ページ／コードURL・アイテム全体の背景色・Illustrator前面時だけのパレット表示を実装。単体／Runner／4言語検証・NO_DEPLOYビルド・証明書署名検証PASS。成果物VectorKeys/build/VectorKeys.app。対象SHAは本記録を含む確定コミット。マニフェストと検証範囲：VectorKeys/Tests/BUILD-NOTES-20261029-details-colors.md。最終実機UI操作・公証・配置・公開は未確認／未実施。今回の受付項目はこの更新に統合。
+## SettingsHop 2回押し・2026-10-29
+
+- 担当: MacBookPro13-M5-2025.local / 公証Mac（実装・検証・ビルドの明示例外）。開始: 2026-10-29T05:27:31.874441+09:00
+- ブランチ: codex/settingshop-double-press。実装前SHA: da38b4a。対象: 1.8.0 (24)。状態: 実装・テスト中。
+- 1回でメイン表示、ダブルクリック間隔内の2回でメインを隠しシステム設定。リピート除外。未回答のメニュー要望は対象外。通常版のみ。公開・Store提出なし。
+- 保全: 正本 `.local/settingshop-doublepress-20261029/local-work-before.tar.gz`。実キー・再表示・設定保持は未確認。
+
+- SettingsHop 2回押し検証結果: 1.8.0 (24)、対象SHA `0ce65a5415cb219e0f6f35313c2747517b0ff699`。自動テスト・NO_DEPLOYビルド・Developer ID/runtime/timestamp署名検証・検証版GUI起動成功。起動前後の設定差分なし。実キー1回/2回/長押しと再表示はユーザー確認待ち。公証・配置・公開未実施。詳細 `SettingsHop/Tests/BUILD-NOTES-20261029-double-press.md`。
 
 ## VectorKeys カテゴリ内を分類する任意ディバイダー（2026-10-29受付）
 - 要望：カテゴリ内でアイテムをグループ分けできるよう、任意のアイテム間にディバイダーを挿入できるようにする。既存の各行の区切り線とは別に、利用者が位置を指定する分類用の区切りとして扱う。配置を保存し、再起動後も保持する。既存のアイテム・設定を保持する。挿入・移動・削除の操作とソート時の扱いを実装時に整理する。
@@ -864,3 +883,14 @@ User explicitly authorized messaging the existing release chat. Sent full releas
 ## VectorKeys 統計ウインドウの項目追加と表示切り替え（2026-10-29受付）
 - 要望：統計ウインドウに「スクリプト名」「パス」を追加する。各表示項目は個別に表示・非表示を切り替えられるようにする（追加2項目だけでなく既存項目も対象）。表示選択を保存し、再起動後も保持する。既存の統計データ・使用回数を保持する。複数手順・直書きコードのスクリプト名／パスの扱いは実装時に整理し、存在しないファイルパスを推測しない。
 - 元チャット：本チャット（VectorKeys）。状態：受付・未実装。「ビルドを更新」または毎日04:00（Asia/Tokyo）の開始条件で着手。今回の実装・ビルド・配布は未実施。
+- SettingsHop 1.8.0 (24) 実キー確認（2026-10-29）: ユーザー「3項目とも正常」。1回でメイン表示・2回でメインを閉じシステム設定・長押しリピート除外を確認。今回の実装・自動テスト・署名ビルド・実キー検証は完了。公証・配置・公開は未実施のまま。対象ソースSHA `0ce65a5415cb219e0f6f35313c2747517b0ff699`。
+
+## PodiumAssist 3.3.19 (91)・MightyEdit 0.3.4 (117) 公証公開 2026-10-29
+
+- 担当: 公証Mac MacBookPro13-M5-2025.local。本チャット。ブランチ codex/podium-mighty-release。基点 GitHub main 486451a。開始: 2026-10-29T17:33:55.157256+09:00。状態: ソース照合・配布前ビルド準備。
+- ユーザー「進めてください！」。既存版85/116を保持し、テスト・公証・配置・DMG・GitHub/note公開と公開DL検証を進める。未確認項目は別記録。保全: Shared/ReleasePreparation/20261029-PodiumAssist-MightyEdit/local-work-before.tar.gz。
+- SettingsHop別ブランチは1.7.2(23)基点のため現在1.8.0(24)を置換せず、今回2本の対象外。
+
+## 2026-10-29 PodiumAssist / MightyEdit 公開検証済み
+
+PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。

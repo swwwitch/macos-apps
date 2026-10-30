@@ -29,6 +29,7 @@ Choose SettingsHop > Settings… (⌘,).
 - About: version and links.
 
 ## Keyboard shortcuts
+Press once to show the main window. Press twice within the system double-click interval to hide it and open System Settings. Holding the key does not count as two presses.
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
 - 1–9 (or ⌘1–⌘9): open the item given that key in Settings › Items (by default Privacy & Security, Camera, Microphone, Input Monitoring, Automation and Security have none) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)

@@ -11,3 +11,5 @@
 - 公証・/Applications・Latest Builds・DMG・公開は未実施。
 
 - NO_DEPLOY検証ビルド成功・codesign deep/strict成功。マニフェスト：BUILD-MANIFEST-20261029-19.txt、SHA-256 `a0b8bf41db5f82b72dfa3d8848585a03ba5045e2430782cc515cf97133646397`。
+
+- GitHub先行更新1ba9e12へ統合。前述のShared/SettingsSyncの1行は先行コミットe3ee5c3で確定済みであり、統合後のソースとビルド入力は一致する。記録末尾の競合は双方の記録を保持して解消。

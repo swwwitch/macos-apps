@@ -31,6 +31,7 @@ SettingsHopのウインドウで項目をクリックすると、システム設
 - 情報：バージョンとリンク。
 
 ## ホットキー
+1回でメインウインドウを表示します。システムのダブルクリック間隔内に2回押すと、メインウインドウを閉じてシステム設定を開きます。押しっぱなしのリピートは2回押しとして扱いません。
 - ⌃⌥Q：どのアプリからでもSettingsHopのウインドウを表示（起動中のとき。設定の「起動・常駐」で変更・無効化できます）
 - 1〜9（または⌘1〜⌘9）：設定の［項目］で割り当てた項目を開く（初期設定ではプライバシーとセキュリティ・カメラ・マイク・入力監視・オートメーション・セキュリティはキーなし）（SettingsHopが前面のとき）
 - ↑↓：項目を選ぶ、Return：選んだ項目を開く（メインウインドウ）
@@ -82,6 +83,7 @@ Choose SettingsHop > Settings… (⌘,).
 - About: version and links.
 
 ## Keyboard shortcuts
+Press once to show the main window. Press twice within the system double-click interval to hide it and open System Settings. Holding the key does not count as two presses.
 - ⌃⌥Q: show the SettingsHop window from any app (while it is running; change or turn it off in Launch & Residency settings)
 - 1–9 (or ⌘1–⌘9): open the item given that key in Settings › Items (by default Privacy & Security, Camera, Microphone, Input Monitoring, Automation and Security have none) (while SettingsHop is active)
 - ↑↓: choose an item, Return: open it (main window)
@@ -133,6 +135,7 @@ With “Keep running after closing the window” on, SettingsHop keeps running a
 - 关于：版本和链接。
 
 ## 快捷键
+按一次显示主窗口。在系统双击间隔内按两次可隐藏主窗口并打开系统设置。长按产生的重复不计为两次。
 - ⌃⌥Q：在任何应用中显示 SettingsHop 窗口（运行时；可在“启动与常驻”设置中更改或停用）
 - 1–9（或 ⌘1–⌘9）：打开在设置 › 项目中分配了该按键的项目（默认情况下隐私与安全性、摄像头、麦克风、输入监控、自动化、安全性没有按键）（SettingsHop 在最前时）
 - ↑↓：选择项目，Return：打开所选项目（主窗口）
@@ -184,6 +187,7 @@ SettingsHop > 설정…(⌘,)을 선택합니다.
 - 정보: 버전과 링크.
 
 ## 키보드 단축키
+한 번 누르면 메인 윈도우를 표시합니다. 시스템 이중 클릭 간격 안에 두 번 누르면 메인 윈도우를 숨기고 시스템 설정을 엽니다. 길게 누르기는 두 번으로 세지 않습니다.
 - ⌃⌥Q: 어느 앱에서든 SettingsHop 윈도우 표시(실행 중일 때. 설정의 '실행·상주'에서 변경하거나 끌 수 있음)
 - 1–9(또는 ⌘1–⌘9): 설정 › 항목에서 그 키를 지정한 항목 열기(기본값에서는 개인정보 보호 및 보안, 카메라, 마이크, 입력 모니터링, 자동화, 보안은 키 없음)(SettingsHop이 앞에 있을 때)
 - ↑↓: 항목 선택, Return: 선택한 항목 열기(메인 윈도우)
