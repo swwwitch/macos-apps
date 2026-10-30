@@ -1039,3 +1039,5 @@
 ## 2026-10-29 PodiumAssist / MightyEdit 公開検証済み
 
 PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。
+
+- 2026-10-30｜NotMyType v1.63.3（106、ユーザー指定）｜評価閾値修正版f2862bbのアプリ/DMG公証・両配置・GitHub/note公開と両公開先実DL照合成功。詳細 Shared/BuildTools/ReleaseRecords/20261030-NotMyType106-rating-threshold.md。全機能実キー・Intel実機は未確認。
