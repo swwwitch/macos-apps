@@ -19,7 +19,7 @@ struct FontCardsView: View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240 * cardScale), spacing: 12)], spacing: 12) {
                 ForEach(families) { family in
-                    ForEach(family.files.filter { ratingFilter < 0 || store.rating($0) == ratingFilter }) { file in
+                    ForEach(family.files.filter { RatingFilter.matches(store.rating($0), selection: ratingFilter) }) { file in
                         card(file, family: family)
                     }
                 }
@@ -29,7 +29,7 @@ struct FontCardsView: View {
         .background(RatingKeyHandler { value in
             guard !isolated, FontCardPresentation.shared.card == nil else { return false }
             let files = families.flatMap(\.files).filter { file in
-                (ratingFilter < 0 || store.rating(file) == ratingFilter) && store.selectedFiles.contains(where: { $0.id == file.id })
+                RatingFilter.matches(store.rating(file), selection: ratingFilter) && store.selectedFiles.contains(where: { $0.id == file.id })
             }
             guard !files.isEmpty else { return false }
             store.setRating(value, files: files)

@@ -258,4 +258,4 @@ Card focus options are visible by default. Weight/style and PostScript name appe
 
 Press Command-Return in Card view to focus the selected card. With multiple cards selected, the first in display order is used. Line spacing starts at 1.0 and ranges from 0.5 to 2.5. Space before and after paragraphs are independent, each 0–96pt (default 0), without changing line spacing within paragraphs.
 
-Rate each card from 1 to 5 using its top-right stars. Click the same star again to clear the rating. Select cards and press 1–5 to rate them, except while editing text. Use the Rating filter above to show all cards, unrated cards, or an exact rating.
+Rate each card from 1 to 5 using its top-right stars. Click the same star again to clear the rating. Select cards and press 1–5 to rate them, except while editing text. Use the Rating filter above to show all cards, unrated cards, or the selected rating and higher. Selecting three stars includes ratings of three, four, and five.
