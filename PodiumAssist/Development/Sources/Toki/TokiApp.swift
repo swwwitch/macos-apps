@@ -931,7 +931,37 @@ struct WideDatePicker: NSViewRepresentable {
 
     final class Picker: NSDatePicker {
         var width: CGFloat = 0
+        private var shiftStepDate: Date?
         override var intrinsicContentSize: NSSize { NSSize(width: width, height: super.intrinsicContentSize.height) }
+
+        override func keyDown(with event: NSEvent) {
+            let modifiers = event.modifierFlags.intersection([.shift, .control, .option, .command])
+            if datePickerElements == .hourMinute, isEnabled, modifiers == .shift,
+               event.keyCode == 126 || event.keyCode == 125 {
+                dateValue = dateValue.addingTimeInterval(event.keyCode == 126 ? 600 : -600)
+                sendAction(action, to: target)
+                return
+            }
+            super.keyDown(with: event)
+        }
+
+        override func mouseDown(with event: NSEvent) {
+            let modifiers = event.modifierFlags.intersection([.shift, .control, .option, .command])
+            if datePickerElements == .hourMinute, modifiers == .shift {
+                shiftStepDate = dateValue
+            }
+            defer { shiftStepDate = nil }
+            super.mouseDown(with: event)
+        }
+
+        override func sendAction(_ action: Selector?, to target: Any?) -> Bool {
+            if let previous = shiftStepDate, dateValue != previous {
+                // Replace each native step, including repeated presses, with ten minutes.
+                dateValue = previous.addingTimeInterval(dateValue > previous ? 600 : -600)
+                shiftStepDate = dateValue
+            }
+            return super.sendAction(action, to: target)
+        }
     }
 
     func makeNSView(context: Context) -> Picker {
