@@ -2,6 +2,8 @@
 
 ## 2026-11-01 InputMaestro：ControlMateとFnNumpadの統合アプリを新設
 
+- 確定記録：ソースSHA＝c52669c228f782c65cc0e8c8f6fd868e2597454b、GitHub保存先＝codex/inputmaestro-integration-20261101。開始時mainだった共有作業ツリーが並行作業でcodex/filesorter-screenshot-rename-20261101へ切り替わっていたため、ソースコミット後は専用ブランチを作成してpush。mainへのpushはnon-fast-forwardで拒否され、強制更新していない。main統合・公証担当Macへの実引き継ぎは未実施。
+
 - 開始記録：2026-11-01 JST、ユーザー「ビルドを更新」。開発担当Mac＝MacBook-Pro-14-2024-sw.local、ブランチ＝main、入力SHA＝9068227c96152f37521313108259c886670d5fc6、対象SHA＝未確定。新規通常版0.1.0（1）。ControlMate・FnNumpad・ShotSorter文字認識の統合を実装・ワークスペース内検証。公証・配置・公開は未実施。
 
 - 受付日：2026-11-01（JST）。元チャット：入力関連アプリの統合検討（本チャット）。
