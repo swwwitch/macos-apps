@@ -4,7 +4,18 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''workspace.switch|編集画面|Workspace|编辑界面|편집 화면
+rows = '''components.addedToGroup|グループに追加しました。|Added to group.|已添加到组。|그룹에 추가했습니다.
+componentSidebar.kind|分類の表示|Classification View|分类视图|분류 표시
+componentCategory.none|未分類|Uncategorized|未分类|미분류
+components.addToGroup|グループに追加|Add to Group|添加到组|그룹에 추가
+componentCategory.title|カテゴリ|Category|类别|카테고리
+componentCategory.new|新しいカテゴリ|New Category|新建类别|새 카테고리
+componentCategory.newTitle|新しいカテゴリの名前|Name of the new category|新类别的名称|새 카테고리 이름
+componentCategory.renameTitle|カテゴリの名前を変更|Rename the category|重命名类别|카테고리 이름 변경
+componentCategory.rename|名前を変更…|Rename…|重命名…|이름 변경…
+componentCategory.delete|カテゴリを削除|Delete Category|删除类别|카테고리 삭제
+componentCategory.deleteDetail|コンポーネントは削除せず、未分類に移します。|Components are kept and become uncategorized.|保留组件并移至未分类。|컴포넌트는 유지하고 미분류로 이동합니다.
+workspace.switch|編集画面|Workspace|编辑界面|편집 화면
 actions.title|アクション|Actions|动作|액션
 components.edit|コンポーネントを編集|Edit Component|编辑组件|컴포넌트 편집
 components.detach|アクションから外す|Remove from Action|从动作移除|액션에서 제거
@@ -27,8 +38,8 @@ divider.title|区切り|Divider|分隔线|구분선
 divider.add|区切りを追加|Add Divider|添加分隔线|구분선 추가
 stats.columns|表示する項目|Visible Columns|显示项目|표시 항목
 stats.path|パス|Path|路径|경로
-watch.autoGroup|サブディレクトリを自動的にグループへ追加|Automatically Group Subdirectories|自动将子目录添加为分组|하위 디렉터리 자동 그룹 추가
-watch.groupHint|初期値OFF。階層は「親/子」のカテゴリ名にします。同じ相対階層名は同じグループにまとめ、既存の分類は変更しません。|Off by default. Hierarchies use Parent/Child category names. Equal relative paths share a group. Existing assignments are preserved.|默认关闭。层级使用父/子分类名，相同相对路径合并，保留已有分类。|기본 꺼짐. 상위/하위 카테고리 이름을 사용하고 같은 상대 경로는 합칩니다. 기존 분류를 유지합니다.
+watch.autoGroup|サブディレクトリを自動的にカテゴリへ追加|Automatically Categorize Subdirectories|自动将子目录添加为类别|하위 디렉터리 자동 카테고리 추가
+watch.groupHint|初期値OFF。階層は「親/子」のカテゴリ名にします。既存のコンポーネント分類は保持し、アクションのグループは変更しません。|Off by default. Subdirectories create component categories; existing assignments and action groups are preserved.|默认关闭。子目录创建组件类别，保留已有分类和动作组。|기본 꺼짐. 하위 폴더는 컴포넌트 카테고리를 만들며 기존 분류와 액션 그룹은 유지합니다.
 watch.exclusions|除外するフォルダー|Excluded Folders|排除文件夹|제외할 폴더
 watch.saveExclusions|除外設定を保存|Save Exclusions|保存排除设置|제외 설정 저장
 watch.exclusionHint|1行に1つ、フォルダー名を指定します。すべての階層で大文字・小文字を区別せず一致したフォルダーと配下を除外します。登録済みアイテムは削除しません。|One folder name per line. Case-insensitive exact matches at any depth exclude the whole subtree. Existing items are kept.|每行一个名称。任意层级忽略大小写完全匹配，排除其下所有内容。保留已有项目。|한 줄에 폴더 이름 하나. 모든 깊이에서 대소문자 구분 없이 정확히 일치하는 폴더와 하위를 제외하며 기존 항목은 유지합니다.
@@ -71,7 +82,7 @@ palette.behavior|パレットの動作|Palette Behavior|面板行为|팔레트 �
 palette.mode0|パレットを開閉（アイテムのホットキーは実行できる）|Toggle palette (item hotkeys enabled)|切换面板（启用项目快捷键）|팔레트 열기/닫기(항목 단축키 사용)
 palette.mode1|パレットを開閉（アイテムのホットキーは実行できない）|Toggle palette (item hotkeys disabled)|切换面板（禁用项目快捷键）|팔레트 열기/닫기(항목 단축키 사용 안 함)
 palette.mode2|パレットを開き、何か実行したら閉じる|Open palette and close after running an item|打开面板，执行项目后关闭|팔레트를 열고 항목 실행 후 닫기
-palette.behaviorHint|ホットキー無効モードは、パレットを閉じている間もこのカテゴリのアイテムに適用します。実行後に閉じるモードではアイテムのホットキーも使用できます。|Disabled item hotkeys remain disabled while the palette is closed. Auto-close mode allows item hotkeys.|禁用模式在面板关闭时仍禁用此分类的项目快捷键。自动关闭模式允许项目快捷键。|단축키 사용 안 함 모드는 팔레트가 닫혀 있어도 적용됩니다. 실행 후 닫기 모드에서는 항목 단축키를 사용할 수 있습니다.
+palette.behaviorHint|ホットキー無効モードは、パレットを閉じている間もこのグループのアイテムに適用します。実行後に閉じるモードではアイテムのホットキーも使用できます。|Disabled item hotkeys remain disabled while the palette is closed. Auto-close mode allows item hotkeys.|禁用模式在面板关闭时仍禁用此组的项目快捷键。自动关闭模式允许项目快捷键。|단축키 사용 안 함 모드는 팔레트가 닫혀 있어도 적용됩니다. 실행 후 닫기 모드에서는 항목 단축키를 사용할 수 있습니다.
 source.preview|Quick Lookで見る|Quick Look|快速查看|훑어보기
 meta.scriptName|スクリプト名|Script Name|脚本名称|스크립트 이름
 meta.openReadme|READMEを開く|Open README|打开 README|README 열기
@@ -89,10 +100,10 @@ meta.target|対象アプリ|Target App|目标应用|대상 앱
 meta.date|更新日|Release Date|发布日期|업데이트 날짜
 meta.absent|未記載|Not provided|未提供|미기재
 palette.settings|パレット|Palettes|面板|팔레트
-palette.keyHint|カテゴリごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。|Set a hotkey to open each category palette, even while using another app. No keys are assigned by default.|为每个分类设置打开面板的快捷键，在其他应用中也可使用。默认未设置。|다른 앱 사용 중에도 각 카테고리 팔레트를 여는 단축키를 설정합니다. 기본값은 미설정입니다.
+palette.keyHint|グループごとにパレットを開くホットキーを設定します。他のアプリの操作中も使用できます。初期状態は未設定です。|Set a hotkey to open each group palette, even while using another app. No keys are assigned by default.|为每个组设置打开面板的快捷键，在其他应用中也可使用。默认未设置。|다른 앱 사용 중에도 각 그룹 팔레트를 여는 단축키를 설정합니다. 기본값은 미설정입니다.
 meta.version|バージョン|Version|版本|버전
 palette.show|パレットとして表示|Show as Palette|显示为面板|팔레트로 표시
-palette.empty|このカテゴリにはスクリプトがありません。|No scripts in this category.|此分类中没有脚本。|이 카테고리에 스크립트가 없습니다.
+palette.empty|このグループにはスクリプトがありません。|No scripts in this group.|此组中没有脚本。|이 그룹에 스크립트가 없습니다.
 palette.hint|クリックしてIllustratorで実行します。|Click to run in Illustrator.|点按以在 Illustrator 中运行。|클릭하여 Illustrator에서 실행합니다.
 ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말
 ui.addStep|コンポーネントを追加|Add Component|添加组件|컴포넌트 추가
@@ -140,7 +151,7 @@ km.failed|Keyboard Maestroのマクロを切り替えられませんでした：
 undo.import|取り込み|Import|导入|가져오기
 undo.delete|削除|Delete|删除|삭제
 undo.rename|名前の変更|Rename|重命名|이름 변경
-undo.category|カテゴリの変更|Change Category|更改类别|카테고리 변경
+undo.category|グループの変更|Change Group|更改组|그룹 변경
 undo.newCategory|カテゴリの作成|New Category|新建类别|카테고리 만들기
 undo.renameCategory|カテゴリ名の変更|Rename Category|重命名类别|카테고리 이름 변경
 undo.deleteCategory|カテゴリの削除|Delete Category|删除类别|카테고리 삭제
@@ -167,19 +178,19 @@ toolsMenu|ツール|Tools|工具|도구
 tools.stripNumbering|KMマクロのナンバリングを削除|Remove KM Macro Numbering|删除 KM 宏编号|KM 매크로 번호 삭제
 tools.stripped|%d本の名前から番号を外しました|Removed the numbering from %d names|已从 %d 个名称中删除编号|이름 %d개에서 번호를 지웠습니다
 selectedCount|%d本を選択中|%d scripts selected|已选择 %d 个|%d개 선택됨
-selectedHint|選んだスクリプトを左のカテゴリへドラッグしても振り分けられます。⌘クリック・⇧クリックで選択を増やせます。|You can also drag the selected scripts onto a category on the left. ⌘-click or ⇧-click to select more.|也可以将所选脚本拖到左侧的类别。⌘点按或⇧点按可增加选择。|선택한 스크립트를 왼쪽 카테고리로 드래그해도 나눌 수 있습니다. ⌘클릭·⇧클릭으로 선택을 늘릴 수 있습니다.
+selectedHint|選んだスクリプトを左のグループへドラッグしても振り分けられます。⌘クリック・⇧クリックで選択を増やせます。|You can also drag the selected scripts onto a group on the left. ⌘-click or ⇧-click to select more.|也可以将所选脚本拖到左侧的组。⌘点按或⇧点按可增加选择。|선택한 스크립트를 왼쪽 그룹로 드래그해도 나눌 수 있습니다. ⌘클릭·⇧클릭으로 선택을 늘릴 수 있습니다.
 category.mixed|（複数）|(Mixed)|（多个）|(여러 개)
-category|グループ|Group|类别|카테고리
+category|グループ|Group|组|그룹
 category.all|すべて|All|全部|전체
-category.none|未分類|Uncategorized|未分类|미분류
-category.new|新しいカテゴリ|New Category|新建类别|새 카테고리
-category.newTitle|新しいカテゴリの名前|Name of the new category|新类别的名称|새 카테고리 이름
-category.renameTitle|カテゴリの名前を変更|Rename the category|重命名类别|카테고리 이름 변경
+category.none|未分類|Ungrouped|未分组|미분류
+category.new|新しいグループ|New Group|新建组|새 그룹
+category.newTitle|新しいグループの名前|Name of the new group|新组的名称|새 그룹 이름
+category.renameTitle|グループの名前を変更|Rename the group|重命名组|그룹 이름 변경
 category.rename|名前を変更…|Rename…|重命名…|이름 변경…
-category.delete|カテゴリを削除|Delete Category|删除类别|카테고리 삭제
-category.deleteConfirm|カテゴリ「%@」を削除しますか？|Delete the category “%@”?|删除类别“%@”？|카테고리 “%@”을(를) 삭제할까요?
-category.deleteDetail|中のスクリプトは削除せず、未分類に移します。|The scripts in it are kept and become uncategorized.|其中的脚本不会被删除，而是移到未分类。|안의 스크립트는 삭제하지 않고 미분류로 옮깁니다.
-category.name|カテゴリ名|Category name|类别名称|카테고리 이름
+category.delete|グループを削除|Delete Group|删除组|그룹 삭제
+category.deleteConfirm|グループ「%@」を削除しますか？|Delete the group “%@”?|删除组“%@”？|그룹 “%@”을(를) 삭제할까요?
+category.deleteDetail|アクションは削除せず、未分類に移します。|Actions are kept and become ungrouped.|保留动作并移至未分组。|액션은 유지하고 미분류로 이동합니다.
+category.name|グループ名|Group name|组名称|그룹 이름
 taps.label|押し方|Press|按法|누르는 방법
 taps.single|1回押す|Press once|按一次|한 번 누르기
 taps.double|2回押す|Press twice|按两次|두 번 누르기

@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Carbon
 import SwiftUI
 import UniformTypeIdentifiers
@@ -91,8 +92,8 @@ struct RunRecord: Identifiable {
     func informationIDs(_ scope: InformationScope) -> Set<String> {
         if editingComponents {
             switch scope {
-            case .selectedItems: return Set((library.components ?? []).filter { $0.id == componentSelection }.map(\.id))
-            case .selectedGroup: return componentFilter == Self.allCategories ? [] : Set(componentsInCurrentGroup.map(\.id))
+            case .selectedItems: return componentSelections.intersection(Set((library.components ?? []).map(\.id)))
+            case .selectedGroup: return componentFilter == Self.allCategories && componentActionGroupFilter == Self.allCategories ? [] : Set(componentsInCurrentGroup.map(\.id))
             case .all: return Set((library.components ?? []).map(\.id))
             }
         }
@@ -236,10 +237,28 @@ struct RunRecord: Identifiable {
         DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.3, execute: work)
     }
     private let defaults = UserDefaults.standard
-    @Published var library = Library.load() { didSet { library.reconcileComponents(previous: oldValue); scheduleSave(); registerHotkeys(); refreshVersions() } }
+    private let libraryStore = LibraryStore(Library.load())
+    private var libraryChanges: AnyCancellable?
+    var libraryPublisher: Published<Library>.Publisher { libraryStore.$value }
+    var library: Library {
+        get { libraryStore.value }
+        set {
+            let before = libraryStore.value
+            guard libraryStore.replace(newValue) else { return }
+            let after = libraryStore.value
+            scheduleSave()
+            if before.keyRegistrationState != after.keyRegistrationState { registerHotkeys() }
+            if before.metadataPaths != after.metadataPaths { refreshVersions() }
+        }
+    }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
     @Published var editingComponents = true
-    @Published var componentSelection: String?
+    @Published var componentActionGroupFilter = AppModel.allCategories { didSet { componentSelections = [] } }
+    @Published var componentSelections: Set<String> = []
+    var componentSelection: String? {
+        get { componentSelections.count == 1 ? componentSelections.first : nil }
+        set { componentSelections = newValue.map { [$0] } ?? [] }
+    }
     @Published var componentFilter = AppModel.allCategories { didSet { componentSelection = nil } }
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
@@ -266,6 +285,7 @@ struct RunRecord: Identifiable {
     private var observers: [NSObjectProtocol] = []
 
     init() {
+        libraryChanges = libraryStore.objectWillChange.sink { [weak self] in self?.objectWillChange.send() }
         configureWatching()
         observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
             let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
@@ -462,11 +482,28 @@ struct RunRecord: Identifiable {
     }
     func updateComponent(_ id: String, step: Step) {
         guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
-        undoable(L("undo.steps")) { library.components![i].step = step }
+        undoable(L("undo.steps")) { var next = library; next.components?[i].step = step; library = next }
     }
     func attachComponent(_ component: Component, to id: String) {
         guard let i = library.scripts.firstIndex(where: { $0.id == id }) else { return }
         undoable(L("undo.steps")) { library.scripts[i].componentIDs = (library.scripts[i].componentIDs ?? []) + [component.id] }
+    }
+    func addComponentToGroup(_ id: String, category: String?, revealAction: Bool = true) {
+        addComponentsToGroup([id], category: category, revealAction: revealAction)
+    }
+    func addComponentsToGroup(_ ids: Set<String>, category: String?, revealAction: Bool = false) {
+        var actionIDs: [String] = []
+        undoable(L("undo.add")) {
+            var next = library
+            for component in next.components ?? [] where ids.contains(component.id) {
+                if let id = next.addComponentAction(component.id, category: category) { actionIDs.append(id) }
+            }
+            library = next
+        }
+        guard !actionIDs.isEmpty else { return }
+        if revealAction {
+            editingComponents = false; categoryFilter = category ?? Self.uncategorized; selection = Set(actionIDs)
+        } else { record(L("components.title"), L("components.addedToGroup"), error: false) }
     }
     func newAction() {
         editingComponents = false
@@ -476,7 +513,7 @@ struct RunRecord: Identifiable {
     func registerComponent(code: Bool) {
         if code {
             var component = Component(name: L("code.title"), step: .code(source: "")); component.category = currentComponentCategory
-            undoable(L("undo.add")) { library.components = (library.components ?? []) + [component]; componentSelection = component.id }
+            undoable(L("undo.add")) { library.components = (library.components ?? []) + [component]; revealComponent(component.id) }
         } else {
             let panel = NSOpenPanel(); panel.allowsMultipleSelection = true
             panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
@@ -660,7 +697,12 @@ struct RunRecord: Identifiable {
 
     var currentComponentCategory: String? { [Self.allCategories, Self.uncategorized].contains(componentFilter) ? nil : componentFilter }
     var componentsInCurrentGroup: [Component] {
-        (library.components ?? []).filter { componentFilter == Self.allCategories || $0.category == currentComponentCategory }
+        let candidates = componentActionGroupFilter == Self.allCategories ? (library.components ?? []) : library.componentsUsed(by: Set(scripts(in: componentActionGroupFilter).map(\.id)))
+        return candidates.filter { componentFilter == Self.allCategories || $0.category == currentComponentCategory }
+    }
+    private func revealComponent(_ id: String?) {
+        componentActionGroupFilter = Self.allCategories
+        componentSelection = id
     }
     func addComponentFiles(_ urls: [URL]) {
         undoable(L("undo.add")) {
@@ -674,14 +716,19 @@ struct RunRecord: Identifiable {
                 }
             }
             library.components = pool
+            revealComponent(componentSelection)
         }
     }
     func editComponent(_ id: String, _ change: (inout Component) -> Void) {
         guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
-        undoable(L("undo.steps")) { change(&library.components![i]) }
+        undoable(L("undo.steps")) {
+            var next = library
+            guard var component = next.components?[i] else { return }
+            change(&component); next.components?[i] = component; library = next
+        }
     }
     func newComponentCategory() {
-        guard let name = askName(title: L("category.newTitle"), value: ""), !name.isEmpty else { return }
+        guard let name = askName(title: L("componentCategory.newTitle"), value: ""), !name.isEmpty else { return }
         undoable(L("undo.newCategory")) {
             var names = library.componentCategoryList
             if !names.contains(name) { names.append(name) }; library.componentCategories = names
@@ -689,11 +736,11 @@ struct RunRecord: Identifiable {
         componentFilter = name
     }
     func renameComponentCategory(_ name: String) {
-        guard let new = askName(title: L("category.renameTitle"), value: name), !new.isEmpty, new != name, !library.componentCategoryList.contains(new) else { return }
-        undoable(L("category.rename")) { library.renameComponentCategory(name, to: new) }; componentFilter = new
+        guard let new = askName(title: L("componentCategory.renameTitle"), value: name), !new.isEmpty, new != name, !library.componentCategoryList.contains(new) else { return }
+        undoable(L("componentCategory.rename")) { library.renameComponentCategory(name, to: new) }; componentFilter = new
     }
     func deleteComponentCategory(_ name: String) {
-        undoable(L("category.delete")) { library.deleteComponentCategory(name) }; componentFilter = Self.allCategories
+        undoable(L("componentCategory.delete")) { library.deleteComponentCategory(name) }; componentFilter = Self.allCategories
     }
     func relinkComponent(_ id: String) {
         let panel = NSOpenPanel(); panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }

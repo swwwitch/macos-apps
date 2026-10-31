@@ -787,3 +787,44 @@ enum PaletteSearch {
         }
     }
 }
+
+
+extension Library {
+    /// Only fields that affect registered keys. Text edits do not cancel pending taps.
+    struct KeyRegistrationState: Equatable {
+        struct Action: Equatable { let id: String; let hotkey: Hotkey?; let enabled: Bool; let supported: Bool; let category: String? }
+        let actions: [Action]
+        let categories: [String]
+        let hotkeys: [String: Hotkey]?
+        let enabled: [String: Bool]?
+        let modes: [String: Int]?
+    }
+    var keyRegistrationState: KeyRegistrationState {
+        KeyRegistrationState(actions: scripts.map { .init(id: $0.id, hotkey: $0.hotkey, enabled: $0.enabled, supported: $0.scriptsOnly, category: $0.category) }, categories: categoryList, hotkeys: paletteHotkeys, enabled: paletteEnabled, modes: paletteModes)
+    }
+    var metadataPaths: Set<String> { Set((scripts.flatMap(\.actions) + (components ?? []).map(\.step)).compactMap(\.scriptPath)) }
+}
+
+
+extension Library {
+    /// A component stays in its group; its new action belongs to the chosen category.
+    @discardableResult
+    mutating func addComponentAction(_ componentID: String, category: String?) -> String? {
+        guard let component = components?.first(where: { $0.id == componentID }) else { return nil }
+        if let existing = scripts.first(where: { !$0.isDivider && $0.componentIDs == [componentID] && $0.category == category }) { return existing.id }
+        if let category { addCategory(category) }
+        var action = ScriptEntry(steps: [component.step], name: component.name)
+        action.componentIDs = [component.id]; action.category = category
+        scripts.append(action)
+        return action.id
+    }
+}
+
+
+extension Library {
+    /// Filter through action references without changing a component's own classification.
+    func componentsUsed(by actionIDs: Set<String>) -> [Component] {
+        let ids = Set(scripts.filter { actionIDs.contains($0.id) }.flatMap { $0.componentIDs ?? [] })
+        return (components ?? []).filter { ids.contains($0.id) }
+    }
+}
