@@ -915,9 +915,19 @@ struct ItemTagsEditor: View {
 }
 struct WatchFolderSettings: View {
     @ObservedObject var model: AppModel
+    @State private var exclusions = ""
     var body: some View {
         ScrollView {
             SettingsSection(L("watch.title")) {
+                Toggle(L("watch.autoGroup"), isOn: $model.watchAutoGroup)
+                Text(L("watch.groupHint")).font(.caption).foregroundColor(.secondary)
+                Text(L("watch.exclusions")).font(.subheadline.weight(.semibold))
+                TextEditor(text: $exclusions).font(.body).frame(height: 66).padding(4)
+                    .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Color.secondary.opacity(0.3)))
+                    .accessibilityLabel(L("watch.exclusions"))
+                Button(L("watch.saveExclusions")) { model.setWatchExclusions(exclusions) }
+                Text(L("watch.exclusionHint")).font(.caption).foregroundColor(.secondary)
+                Divider()
                 ForEach(model.watchFolders, id: \.self) { path in
                     HStack {
                         Text(path).lineLimit(2).truncationMode(.middle).textSelection(.enabled)
@@ -935,6 +945,6 @@ struct WatchFolderSettings: View {
                     Text(L("watch.detail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             }.padding(16)
-        }
+        }.onAppear { exclusions = model.watchExcludedNames.joined(separator: "\n") }
     }
 }

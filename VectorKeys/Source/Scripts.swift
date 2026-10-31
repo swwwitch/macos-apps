@@ -544,39 +544,47 @@ extension ScriptMetadata {
 
 /// Read-only folder discovery. Never executes scripts or follows directory symlinks.
 enum WatchedScripts {
-    struct Scan { var files: [String: Set<String>] = [:]; var errors: [String] = [] }
-    static func scan(_ roots: [String]) -> Scan {
+    struct Scan { var files: [String: Set<String>] = [:]; var groups: Set<String> = []; var fileGroups: [String: Set<String>] = [:]; var errors: [String] = [] }
+    static func scan(_ roots: [String], excluding names: [String] = []) -> Scan {
         var result = Scan()
         let fm = FileManager.default
+        let excluded = Set(names.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }.filter { !$0.isEmpty })
         for path in roots {
             let root = URL(fileURLWithPath: path).standardizedFileURL.resolvingSymlinksInPath()
             guard let values = try? root.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey]), values.isDirectory == true, values.isSymbolicLink != true,
-                  let listing = fm.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles, .skipsPackageDescendants], errorHandler: { url, _ in result.errors.append(url.path); return true }) else {
+                  let listing = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles, .skipsPackageDescendants], errorHandler: { url, _ in result.errors.append(url.path); return true }) else {
                 result.errors.append(path); continue
             }
             for case let url as URL in listing {
-                guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey]) else { continue }
+                guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey]) else { continue }
                 if values.isSymbolicLink == true { listing.skipDescendants(); continue }
-                guard values.isRegularFile == true, ScriptEntry.accepts(url) else { continue }
+                if values.isDirectory == true && excluded.contains(url.lastPathComponent.lowercased()) { listing.skipDescendants(); continue }
                 let prefix = root.path.hasSuffix("/") ? root.path : root.path + "/"
                 let canonical = url.resolvingSymlinksInPath()
                 guard canonical.path.hasPrefix(prefix) else { continue }
-                let folders = String(canonical.path.dropFirst(prefix.count)).split(separator: "/").dropLast().map(String.init)
+                let relative = String(canonical.path.dropFirst(prefix.count))
+                if values.isDirectory == true { result.groups.insert(relative); continue }
+                guard values.isRegularFile == true, ScriptEntry.accepts(url) else { continue }
+                let folders = relative.split(separator: "/").dropLast().map(String.init)
+                if !folders.isEmpty { result.fileGroups[canonical.path, default: []].insert(folders.joined(separator: "/")) }
                 result.files[canonical.path, default: []].formUnion(folders)
             }
         }
         return result
     }
-    @discardableResult static func merge(_ scan: Scan, into library: inout Library, ignoring: Set<String> = []) -> Int {
+    @discardableResult static func merge(_ scan: Scan, into library: inout Library, ignoring: Set<String> = [], autoGroup: Bool = false) -> Int {
         var added = 0
+        if autoGroup { for group in scan.groups.sorted() { library.addCategory(group) } }
         for path in scan.files.keys.sorted() where !ignoring.contains(path) {
             let matches = library.scripts.indices.filter { library.scripts[$0].actions.contains { $0.scriptPath.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path == path } ?? false } }
             if matches.isEmpty {
                 var entry = ScriptEntry(path: path)
                 entry.folderTags = Array(scan.files[path] ?? []).sorted()
+                if autoGroup, let groups = scan.fileGroups[path], groups.count == 1 { entry.category = groups.first }
                 library.scripts.append(entry); added += 1
             } else {
                 for i in matches {
+                    if autoGroup, library.scripts[i].category == nil, library.scripts[i].actions.count == 1, let groups = scan.fileGroups[path], groups.count == 1 { library.scripts[i].category = groups.first }
                     library.scripts[i].folderTags = Array(Set(library.scripts[i].folderTags ?? []).union(scan.files[path] ?? [])).sorted()
                 }
             }

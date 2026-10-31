@@ -116,3 +116,6 @@ Palettes appear only while Illustrator is frontmost. Switching away hides them a
 
 
 Enter comma-separated tags in item details and press Return or Save Tags. Saving an empty field removes manual tags. Filter with the tag menu above the list. Settings > Watch Folders adds folders, scans initially and every 15 seconds. Each nested folder name becomes a separate folder tag. Stopping watching keeps imported items. Missing or moved originals never delete existing entries or tags. Items deleted from the list are not re-added by watching. Hidden files and symlinks are skipped. Watch paths stay on this Mac.
+
+
+Automatically Group Subdirectories defaults to off. When enabled, each hierarchy (including empty folders) becomes a category; new or uncategorized single-file items are assigned. Names use Parent/Child; equal relative paths across roots share a category. Existing assignments stay unchanged. Enter excluded folder names one per line and save. Defaults: single-function and backup. Case-insensitive exact names at any depth exclude the subtree from imports, tags and groups. Existing entries, tags and categories are not deleted.

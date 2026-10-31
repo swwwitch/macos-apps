@@ -18,6 +18,14 @@ struct RunRecord: Identifiable {
 @MainActor final class AppModel: ObservableObject {
     @Published var tagFilter = ""
     @Published var watchFolders = UserDefaults.standard.stringArray(forKey: "watchFolders") ?? []
+    @Published var watchAutoGroup = UserDefaults.standard.bool(forKey: "watchAutoGroup") {
+        didSet { defaults.set(watchAutoGroup, forKey: "watchAutoGroup"); configureWatching() }
+    }
+    @Published var watchExcludedNames = UserDefaults.standard.stringArray(forKey: "watchExcludedNames") ?? ["single-function", "backup"]
+    func setWatchExclusions(_ text: String) {
+        watchExcludedNames = Array(Set(text.components(separatedBy: .newlines).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty })).sorted()
+        defaults.set(watchExcludedNames, forKey: "watchExcludedNames"); configureWatching()
+    }
     @Published var watchScanning = false
     @Published var watchStatus = ""
     private var watchTimer: Timer?
@@ -52,13 +60,13 @@ struct RunRecord: Identifiable {
     func scanWatchedFolders() {
         guard !watchScanning, !watchFolders.isEmpty else { return }
         watchScanning = true
-        let roots = watchFolders, generation = watchGeneration
+        let roots = watchFolders, generation = watchGeneration, exclusions = watchExcludedNames, autoGroup = watchAutoGroup
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let scan = WatchedScripts.scan(roots)
+            let scan = WatchedScripts.scan(roots, excluding: exclusions)
             DispatchQueue.main.async {
                 guard let self, generation == self.watchGeneration else { return }
                 var updated = self.library
-                let count = WatchedScripts.merge(scan, into: &updated, ignoring: self.watchIgnored)
+                let count = WatchedScripts.merge(scan, into: &updated, ignoring: self.watchIgnored, autoGroup: autoGroup)
                 if updated != self.library { self.library = updated }
                 self.watchScanning = false
                 self.watchStatus = scan.errors.isEmpty ? String(format: L("watch.result"), scan.files.count, count) : String(format: L("watch.error"), scan.errors.count)

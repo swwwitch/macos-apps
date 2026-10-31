@@ -363,3 +363,11 @@ for lang, note in {
 "ko": "상세에서 쉼표로 구분한 태그를 입력하고 Return 또는 태그 저장으로 확정합니다. 빈 값 저장은 수동 태그를 삭제합니다. 목록 위 태그 메뉴로 필터링합니다. 설정의 감시 폴더를 추가하면 즉시 읽고 15초마다 확인합니다. 각 하위 폴더 이름을 별도 태그로 추가합니다. 감시 해제나 원본 이동·삭제로 기존 항목과 태그를 삭제하지 않습니다. 목록에서 삭제한 파일은 다시 추가하지 않습니다. 숨김 파일과 심볼릭 링크는 제외하며 경로는 이 Mac에만 저장합니다."
 }.items():
     HELP[lang] += "\n\n" + note + "\n"
+
+for lang, note in {
+"ja": "ウォッチフォルダーの「サブディレクトリを自動的にグループへ追加」は初期OFFです。ONにすると空フォルダーを含む各階層をカテゴリとして作成し、新規・未分類の単一ファイル項目を所属させます。階層名は「親/子」、複数ルートの同じ相対階層名は同じカテゴリにまとめます。既存分類は保持します。「除外するフォルダー」は1行に1つ入力して保存します。初期値はsingle-functionとbackup。すべての階層で名前の大文字・小文字を区別せず完全一致し、その配下もタグ取り込み・カテゴリ化から除外します。登録済み項目・タグ・カテゴリは自動削除しません。",
+"en": "Automatically Group Subdirectories defaults to off. When enabled, each hierarchy (including empty folders) becomes a category; new or uncategorized single-file items are assigned. Names use Parent/Child; equal relative paths across roots share a category. Existing assignments stay unchanged. Enter excluded folder names one per line and save. Defaults: single-function and backup. Case-insensitive exact names at any depth exclude the subtree from imports, tags and groups. Existing entries, tags and categories are not deleted.",
+"zh-Hans": "自动分组默认关闭。开启后，各层子目录（含空目录）成为分类，新项目及未分类的单文件项目归入对应分类。父/子形式命名，各根目录同名相对路径合并。已有分类保持。排除名称每行一个并保存，默认single-function及backup。任意层级忽略大小写完全匹配后排除所有下层，不导入标签或分组。不会自动删除已有项目、标签或分类。",
+"ko": "하위 디렉터리 자동 그룹은 기본 꺼짐입니다. 켜면 빈 폴더를 포함한 각 계층을 카테고리로 만들고 신규·미분류 단일 파일 항목을 배정합니다. 상위/하위 이름을 쓰고 같은 상대 경로는 합치며 기존 분류는 유지합니다. 제외 이름은 한 줄씩 입력해 저장합니다. 기본값은 single-function과 backup입니다. 모든 깊이에서 대소문자 구분 없이 정확히 일치하는 폴더 및 하위를 가져오기·태그·그룹에서 제외합니다. 기존 항목과 태그, 카테고리는 삭제하지 않습니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"

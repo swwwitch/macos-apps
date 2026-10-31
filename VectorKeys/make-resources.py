@@ -4,7 +4,12 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''tags.title|タグ|Tags|标签|태그
+rows = '''watch.autoGroup|サブディレクトリを自動的にグループへ追加|Automatically Group Subdirectories|自动将子目录添加为分组|하위 디렉터리 자동 그룹 추가
+watch.groupHint|初期値OFF。階層は「親/子」のカテゴリ名にします。同じ相対階層名は同じグループにまとめ、既存の分類は変更しません。|Off by default. Hierarchies use Parent/Child category names. Equal relative paths share a group. Existing assignments are preserved.|默认关闭。层级使用父/子分类名，相同相对路径合并，保留已有分类。|기본 꺼짐. 상위/하위 카테고리 이름을 사용하고 같은 상대 경로는 합칩니다. 기존 분류를 유지합니다.
+watch.exclusions|除外するフォルダー|Excluded Folders|排除文件夹|제외할 폴더
+watch.saveExclusions|除外設定を保存|Save Exclusions|保存排除设置|제외 설정 저장
+watch.exclusionHint|1行に1つ、フォルダー名を指定します。すべての階層で大文字・小文字を区別せず一致したフォルダーと配下を除外します。登録済みアイテムは削除しません。|One folder name per line. Case-insensitive exact matches at any depth exclude the whole subtree. Existing items are kept.|每行一个名称。任意层级忽略大小写完全匹配，排除其下所有内容。保留已有项目。|한 줄에 폴더 이름 하나. 모든 깊이에서 대소문자 구분 없이 정확히 일치하는 폴더와 하위를 제외하며 기존 항목은 유지합니다.
+tags.title|タグ|Tags|标签|태그
 tags.all|すべてのタグ|All Tags|所有标签|모든 태그
 tags.input|タグをカンマで区切って入力|Enter comma-separated tags|输入标签，以逗号分隔|쉼표로 구분한 태그 입력
 tags.save|タグを保存|Save Tags|保存标签|태그 저장

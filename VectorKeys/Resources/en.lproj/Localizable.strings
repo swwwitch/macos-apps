@@ -1,3 +1,8 @@
+"watch.autoGroup" = "Automatically Group Subdirectories";
+"watch.groupHint" = "Off by default. Hierarchies use Parent/Child category names. Equal relative paths share a group. Existing assignments are preserved.";
+"watch.exclusions" = "Excluded Folders";
+"watch.saveExclusions" = "Save Exclusions";
+"watch.exclusionHint" = "One folder name per line. Case-insensitive exact matches at any depth exclude the whole subtree. Existing items are kept.";
 "tags.title" = "Tags";
 "tags.all" = "All Tags";
 "tags.input" = "Enter comma-separated tags";

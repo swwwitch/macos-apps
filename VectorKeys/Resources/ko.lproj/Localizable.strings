@@ -1,3 +1,8 @@
+"watch.autoGroup" = "하위 디렉터리 자동 그룹 추가";
+"watch.groupHint" = "기본 꺼짐. 상위/하위 카테고리 이름을 사용하고 같은 상대 경로는 합칩니다. 기존 분류를 유지합니다.";
+"watch.exclusions" = "제외할 폴더";
+"watch.saveExclusions" = "제외 설정 저장";
+"watch.exclusionHint" = "한 줄에 폴더 이름 하나. 모든 깊이에서 대소문자 구분 없이 정확히 일치하는 폴더와 하위를 제외하며 기존 항목은 유지합니다.";
 "tags.title" = "태그";
 "tags.all" = "모든 태그";
 "tags.input" = "쉼표로 구분한 태그 입력";

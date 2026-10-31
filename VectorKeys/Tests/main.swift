@@ -307,6 +307,23 @@ let restoredWatch = try JSONDecoder().decode(Library.self, from: JSONEncoder().e
 check(restoredWatch == watchedLibrary, "tag persistence")
 var ignoredLibrary = Library()
 check(WatchedScripts.merge(scan, into: &ignoredLibrary, ignoring: [watchedFile.path]) == 0, "deleted items not reimported")
+
+let excludedFolder = nested.appendingPathComponent("BACKUP", isDirectory: true)
+try FileManager.default.createDirectory(at: excludedFolder, withIntermediateDirectories: true)
+try "// excluded".write(to: excludedFolder.appendingPathComponent("Ignored.jsx"), atomically: true, encoding: .utf8)
+let excludedScan = WatchedScripts.scan([watchRoot.path], excluding: ["backup", "single-function"])
+check(excludedScan.files.count == 1 && !excludedScan.groups.contains("One/Two/BACKUP"), "excludes folder subtree at any depth without case sensitivity")
+var groupedLibrary = Library()
+WatchedScripts.merge(excludedScan, into: &groupedLibrary, autoGroup: true)
+check(groupedLibrary.scripts.first?.category == "One/Two" && groupedLibrary.categoryList.contains("One"), "hierarchy groups and script assignment")
+groupedLibrary.scripts[0].category = "Manual"
+WatchedScripts.merge(excludedScan, into: &groupedLibrary, autoGroup: true)
+check(groupedLibrary.scripts[0].category == "Manual", "manual classification preserved")
+var ungroupedLibrary = Library()
+WatchedScripts.merge(excludedScan, into: &ungroupedLibrary)
+check(ungroupedLibrary.categoryList.isEmpty && ungroupedLibrary.scripts.first?.category == nil, "default grouping remains off")
+try FileManager.default.removeItem(at: excludedFolder)
+
 try FileManager.default.removeItem(at: watchedFile)
 WatchedScripts.merge(WatchedScripts.scan([watchRoot.path]), into: &watchedLibrary)
 check(watchedLibrary.scripts.count == 1, "missing original keeps item and metadata")
