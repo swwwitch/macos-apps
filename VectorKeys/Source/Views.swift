@@ -1,4 +1,5 @@
 import AppKit
+import os
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -920,6 +921,8 @@ struct ComponentLibraryView: View {
     }
 }
 
+private let componentDragLog = Logger(subsystem: "jp.dtp-transit.vectorkeys", category: "component-drag")
+
 struct ComponentWorkspace: View {
     @ObservedObject var model: AppModel
     @State private var search = ""
@@ -928,12 +931,34 @@ struct ComponentWorkspace: View {
     @State private var hoveredGroup: String?
     private func acceptComponentDrop(_ items: [String], group: String?) -> Bool {
         guard group.map({ model.library.categoryList.contains($0) }) ?? true else { return false }
-        let prefix = "VectorKeys.components:"
-        let ids = Set(items.filter { $0.hasPrefix(prefix) }.flatMap { String($0.dropFirst(prefix.count)).split(separator: ",").map(String.init) })
+        let ids = items.reduce(into: Set<String>()) { $0.formUnion(ComponentDragPayload.decode($1)) }
             .intersection(Set((model.library.components ?? []).map(\.id)))
-        guard !ids.isEmpty else { return false }
+        guard !ids.isEmpty else {
+            componentDragLog.notice("drop-rejected: no valid component IDs")
+            return false
+        }
         model.addComponentsToGroup(ids, category: group)
+        componentDragLog.notice("drop-applied count=\(ids.count, privacy: .public)")
         return true
+    }
+    private func receiveComponentDrop(_ providers: [NSItemProvider], group: String?) -> Bool {
+        let readable = providers.filter { $0.canLoadObject(ofClass: NSString.self) }
+        componentDragLog.notice("drop-receive providers=\(providers.count, privacy: .public) readable=\(readable.count, privacy: .public)")
+        guard !readable.isEmpty else { return false }
+        for provider in readable {
+            _ = provider.loadObject(ofClass: NSString.self) { object, error in
+                guard error == nil, let text = object as? String else {
+                    componentDragLog.notice("drop-decode-failed")
+                    return
+                }
+                DispatchQueue.main.async { MainActor.assumeIsolated { _ = acceptComponentDrop([text], group: group) } }
+            }
+        }
+        return true
+    }
+    private func dropHover(_ over: Bool, group: String) {
+        hoveredGroup = over ? group : nil
+        if over { componentDragLog.notice("drop-enter") }
     }
     private func picked(_ id: String) -> Set<String> { model.componentSelections.contains(id) ? model.componentSelections : [id] }
     private func groupMenu(_ ids: Set<String>) -> some View {
@@ -951,13 +976,21 @@ struct ComponentWorkspace: View {
                 List(selection: Binding(get: { model.componentActionGroupFilter }, set: { if let value = $0 { model.componentActionGroupFilter = value } })) {
                     Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
                     ForEach(model.library.categoryList, id: \.self) { name in
-                        Label(name, systemImage: "folder").tag(name)
+                        Label(name, systemImage: "folder")
+                            .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                            .contentShape(Rectangle()).tag(name)
                             .listRowBackground(hoveredGroup == name ? appTint.opacity(0.22) : Color.clear)
-                            .dropDestination(for: String.self) { items, _ in acceptComponentDrop(items, group: name) }
-                                isTargeted: { over in hoveredGroup = over ? name : nil }
+                            .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredGroup == name }, set: { dropHover($0, group: name) })) { providers in
+                                receiveComponentDrop(providers, group: name)
+                            }
                     }
-                    Label(L("category.none"), systemImage: "tray").tag(AppModel.uncategorized)
-                        .dropDestination(for: String.self) { items, _ in acceptComponentDrop(items, group: nil) }
+                    Label(L("category.none"), systemImage: "tray")
+                        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                        .contentShape(Rectangle()).tag(AppModel.uncategorized)
+                        .listRowBackground(hoveredGroup == AppModel.uncategorized ? appTint.opacity(0.22) : Color.clear)
+                        .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredGroup == AppModel.uncategorized }, set: { dropHover($0, group: AppModel.uncategorized) })) { providers in
+                            receiveComponentDrop(providers, group: nil)
+                        }
                 }
             }.padding(.trailing, 4)),
             categories: AnyView(VStack(alignment: .leading, spacing: 6) {
@@ -987,8 +1020,14 @@ struct ComponentWorkspace: View {
                             Text(component.name).lineLimit(2)
                             Spacer()
                             if !component.step.exists { Image(systemName: "exclamationmark.triangle").foregroundColor(.orange) }
-                        }.padding(4).background(RoundedRectangle(cornerRadius: 5).fill(component.tagColor?.displayColor.opacity(0.22) ?? .clear)).tag(component.id)
-                        .draggable("VectorKeys.components:" + picked(component.id).sorted().joined(separator: ","))
+                        }.padding(4).frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                        .background(RoundedRectangle(cornerRadius: 5).fill(component.tagColor?.displayColor.opacity(0.22) ?? .clear))
+                        .contentShape(Rectangle()).tag(component.id)
+                        .onDrag {
+                            let ids = picked(component.id)
+                            componentDragLog.notice("drag-begin count=\(ids.count, privacy: .public)")
+                            return NSItemProvider(object: ComponentDragPayload.encode(ids) as NSString)
+                        }
                         .contextMenu { groupMenu(picked(component.id)) }
 
                     }
