@@ -1,7 +1,7 @@
 # PasteMaestro 1.0.0（1）開発用ビルド検証
 
 - 日時：2026-11-01 JST、開発担当 MacBook-Pro-14-2024-sw.local。
-- ブランチ：main。基点：9068227c96152f37521313108259c886670d5fc6。対象SHA：本記録を含む実装コミット（確定後キューへ実SHAを追記）。
+- ブランチ：main。基点：9068227c96152f37521313108259c886670d5fc6。対象SHA：42a3c30dc9fbe0d7d22cad2dadd999547551dd57。
 - macOS 26.7.1（25G241）、arm64、最低macOS 13。Universalは未作成。
 - 成果物：PasteMaestro/PasteMaestro.app。Bundle ID：jp.dtp-transit.pastemaestro。
 - 実行：NO_DEPLOY=1 SKIP_PUBLISH=1 ./PasteMaestro/build.sh。通常の制限内ではSwiftマクロの実行制限が発生したため、ビルドは許可された環境で実行。
