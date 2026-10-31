@@ -4,7 +4,15 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''source.path|パス|Path|路径|경로
+rows = '''components.title|コンポーネント|Components|组件|컴포넌트
+components.choose|登録済みコンポーネントから追加…|Add Registered Component…|添加已注册组件…|등록된 컴포넌트 추가…
+components.attach|アクションに追加|Add to Action|添加到动作|액션에 추가
+components.shared|変更は、このコンポーネントを使うすべてのアクションに反映されます。参照中のコンポーネントは削除できません。|Changes affect all actions using this component. Referenced components cannot be deleted.|更改会影响使用此组件的所有动作。不能删除被引用的组件。|변경은 이 컴포넌트를 사용하는 모든 액션에 반영됩니다. 참조 중인 컴포넌트는 삭제할 수 없습니다.
+components.references|使用するアクション：%d件|Used by %d actions|用于%d个动作|사용하는 액션: %d개
+components.select|コンポーネントを選択してください。|Select a component.|请选择组件。|컴포넌트를 선택하세요.
+action.new|アクションを追加|Add Action|添加动作|액션 추가
+group.recent|最近使ったスクリプト|Recently Used Scripts|最近使用的脚本|최근 사용한 스크립트
+source.path|パス|Path|路径|경로
 palette.filenames|ファイル名を追加|Include Filenames|添加文件名|파일 이름 추가
 info.selected|選択しているアイテム|Selected Items|所选项目|선택한 항목
 info.group|選択しているグループ|Selected Group|所选分组|선택한 그룹
@@ -81,7 +89,7 @@ palette.show|パレットとして表示|Show as Palette|显示为面板|팔레�
 palette.empty|このカテゴリにはスクリプトがありません。|No scripts in this category.|此分类中没有脚本。|이 카테고리에 스크립트가 없습니다.
 palette.hint|クリックしてIllustratorで実行します。|Click to run in Illustrator.|点按以在 Illustrator 中运行。|클릭하여 Illustrator에서 실행합니다.
 ui.hotkeyHelp|ホットキーの使い方|Hotkey Help|快捷键说明|단축키 도움말
-ui.addStep|手順を追加|Add Step|添加步骤|단계 추가
+ui.addStep|コンポーネントを追加|Add Component|添加组件|컴포넌트 추가
 ui.stepNumber|手順 %d|Step %d|步骤 %d|단계 %d
 ui.subtitle|ファイルやJavaScriptをホットキーで実行|Run files and JavaScript with hotkeys|使用快捷键运行文件和 JavaScript|단축키로 파일과 JavaScript 실행
 code.unavailable|実行不可|Unavailable|无法运行|실행 불가
@@ -104,7 +112,7 @@ selectScript|スクリプトを選んでください|Select a script|请选择�
 count|%d本|%d scripts|%d 个|%d개
 legacy.badge|旧メニュー手順・実行不可|Legacy menu step — unavailable|旧菜单步骤・不可运行|이전 메뉴 단계 · 실행 불가
 legacy.unsupported|以前のメニュー手順を含むため、この項目は実行しません。保存データは残しています。メニュー手順を削除すると、残ったスクリプトだけを実行できます。|This item contains legacy menu steps and will not run. Its saved data is retained. Remove those steps to run the remaining scripts.|此项目包含旧菜单步骤，因此不会运行。已保留保存的数据。删除菜单步骤后即可运行其余脚本。|이전 메뉴 단계가 있어 이 항목은 실행하지 않습니다. 저장 데이터는 보존됩니다. 메뉴 단계를 삭제하면 남은 스크립트를 실행할 수 있습니다.
-steps|スクリプト|Scripts|脚本|스크립트
+steps|コンポーネント|Components|脚本|스크립트
 steps.count|手順%d|%d steps|%d 个步骤|단계 %d개
 steps.empty|手順がありません。下のボタンで挿入してください。|No steps. Insert one with the buttons below.|没有步骤。请用下方按钮插入。|단계가 없습니다. 아래 버튼으로 넣으세요.
 step.addScript|ファイルの指定|Choose Script File|指定脚本文件|스크립트 파일 지정
@@ -155,7 +163,7 @@ tools.stripped|%d本の名前から番号を外しました|Removed the numberin
 selectedCount|%d本を選択中|%d scripts selected|已选择 %d 个|%d개 선택됨
 selectedHint|選んだスクリプトを左のカテゴリへドラッグしても振り分けられます。⌘クリック・⇧クリックで選択を増やせます。|You can also drag the selected scripts onto a category on the left. ⌘-click or ⇧-click to select more.|也可以将所选脚本拖到左侧的类别。⌘点按或⇧点按可增加选择。|선택한 스크립트를 왼쪽 카테고리로 드래그해도 나눌 수 있습니다. ⌘클릭·⇧클릭으로 선택을 늘릴 수 있습니다.
 category.mixed|（複数）|(Mixed)|（多个）|(여러 개)
-category|カテゴリ|Category|类别|카테고리
+category|グループ|Group|类别|카테고리
 category.all|すべて|All|全部|전체
 category.none|未分類|Uncategorized|未分类|미분류
 category.new|新しいカテゴリ|New Category|新建类别|새 카테고리

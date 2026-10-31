@@ -1,3 +1,6 @@
+## Components / Actions
+Components register script files or ExtendScript code. Add an Action and choose registered components in its detail pane; they run in order and stop on error. Components are shared: editing one affects all referencing actions. Referenced components cannot be deleted. Deleting an action keeps its components. Assign hotkeys to actions and show groups as palettes. Existing file import creates a component and a single-component action together. Old data is backed up to Scripts.pre-components.json before migration. Recently Used Scripts lists up to ten successfully run actions, newest first.
+
 ## Basics
 VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is in front.
 - Choose File > Add Scripts… (⌘O), or drag .jsx files onto the window. You can add several at once.

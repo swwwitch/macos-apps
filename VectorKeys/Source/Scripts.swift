@@ -59,6 +59,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     /// The Keyboard Maestro macro it was imported from (turned off / on from Tools).
     var kmUID: String?
     /// The steps. nil in lists saved before 1.4.0: those items are their one script (path).
+    var componentIDs: [String]?
     var steps: [Step]?
     /// The steps to run. Setting them keeps path on the first script, which older code and the import use.
     var actions: [Step] {
@@ -114,7 +115,40 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
 }
 
 /// The registered scripts, kept in Application Support/VectorKeys/Scripts.json.
+struct Component: Codable, Identifiable, Hashable {
+    var id: String = UUID().uuidString
+    var name: String
+    var step: Step
+}
+
 struct Library: Codable, Equatable {
+    var components: [Component]?
+    /// Cached steps keep old exports readable; component references are authoritative.
+    mutating func reconcileComponents(previous: Library? = nil) {
+        var pool = components ?? []
+        for i in scripts.indices where !scripts[i].isDivider {
+            let old = previous?.scripts.first { $0.id == scripts[i].id }
+            let edited = old != nil && old!.actions != scripts[i].actions
+            if scripts[i].componentIDs == nil || edited {
+                scripts[i].componentIDs = scripts[i].actions.map { step in
+                    if let existing = pool.first(where: { $0.step == step }) { return existing.id }
+                    let component = Component(name: step.scriptPath.map { ScriptEntry.defaultName(for: $0) } ?? L("code.title"), step: step)
+                    pool.append(component); return component.id
+                }
+            }
+            let ids = scripts[i].componentIDs ?? []
+            // Never silently execute a partial action when a reference is missing.
+            scripts[i].actions = ids.map { id in pool.first { $0.id == id }?.step ?? .menuCommand(id: "missing-component:" + id, title: nil) }
+        }
+        components = pool; version = 2
+    }
+    var recentlyUsed: [ScriptEntry] {
+        Array(scripts.filter { !$0.isDivider && $0.lastRun != nil }.sorted {
+            if $0.lastRun != $1.lastRun { return $0.lastRun! > $1.lastRun! }
+            return $0.id < $1.id
+        }.prefix(10))
+    }
+
     var version = 1
     var scripts: [ScriptEntry] = []
     /// Category names in the sidebar order. Optional so lists saved before 1.3.0 still load.
@@ -151,10 +185,24 @@ struct Library: Codable, Equatable {
 
     static func load(from url: URL = file) -> Library {
         guard let data = try? Data(contentsOf: url) else { return Library() }
-        return (try? JSONDecoder().decode(Library.self, from: data)) ?? Library()
+        guard var library = try? JSONDecoder().decode(Library.self, from: data) else { return Library() }
+        if library.version < 2 {
+            // Preserve the exact pre-migration bytes, once, before changing the in-memory model.
+            let backup = url.deletingPathExtension().appendingPathExtension("pre-components.json")
+            if !FileManager.default.fileExists(atPath: backup.path) {
+                do { try data.write(to: backup, options: .withoutOverwriting) }
+                catch { return library } // Do not migrate if backup cannot be made.
+            }
+        }
+        library.reconcileComponents()
+        return library
     }
     func save(to url: URL = file) throws {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        if let data = try? Data(contentsOf: url), let old = try? JSONDecoder().decode(Library.self, from: data), old.version < 2 {
+            let backup = url.deletingPathExtension().appendingPathExtension("pre-components.json")
+            if !FileManager.default.fileExists(atPath: backup.path) { try data.write(to: backup, options: .withoutOverwriting) }
+        }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(self).write(to: url, options: .atomic)
     }

@@ -1,3 +1,11 @@
+"components.title" = "コンポーネント";
+"components.choose" = "登録済みコンポーネントから追加…";
+"components.attach" = "アクションに追加";
+"components.shared" = "変更は、このコンポーネントを使うすべてのアクションに反映されます。参照中のコンポーネントは削除できません。";
+"components.references" = "使用するアクション：%d件";
+"components.select" = "コンポーネントを選択してください。";
+"action.new" = "アクションを追加";
+"group.recent" = "最近使ったスクリプト";
 "source.path" = "パス";
 "palette.filenames" = "ファイル名を追加";
 "info.selected" = "選択しているアイテム";
@@ -75,7 +83,7 @@
 "palette.empty" = "このカテゴリにはスクリプトがありません。";
 "palette.hint" = "クリックしてIllustratorで実行します。";
 "ui.hotkeyHelp" = "ホットキーの使い方";
-"ui.addStep" = "手順を追加";
+"ui.addStep" = "コンポーネントを追加";
 "ui.stepNumber" = "手順 %d";
 "ui.subtitle" = "ファイルやJavaScriptをホットキーで実行";
 "code.unavailable" = "実行不可";
@@ -98,7 +106,7 @@
 "count" = "%d本";
 "legacy.badge" = "旧メニュー手順・実行不可";
 "legacy.unsupported" = "以前のメニュー手順を含むため、この項目は実行しません。保存データは残しています。メニュー手順を削除すると、残ったスクリプトだけを実行できます。";
-"steps" = "スクリプト";
+"steps" = "コンポーネント";
 "steps.count" = "手順%d";
 "steps.empty" = "手順がありません。下のボタンで挿入してください。";
 "step.addScript" = "ファイルの指定";
@@ -149,7 +157,7 @@
 "selectedCount" = "%d本を選択中";
 "selectedHint" = "選んだスクリプトを左のカテゴリへドラッグしても振り分けられます。⌘クリック・⇧クリックで選択を増やせます。";
 "category.mixed" = "（複数）";
-"category" = "カテゴリ";
+"category" = "グループ";
 "category.all" = "すべて";
 "category.none" = "未分類";
 "category.new" = "新しいカテゴリ";

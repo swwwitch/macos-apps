@@ -92,7 +92,7 @@ struct RunRecord: Identifiable {
         switch scope {
         case .selectedItems: return Set(library.scripts.filter { selection.contains($0.id) && !$0.isDivider }.map(\.id))
         case .selectedGroup:
-            guard categoryFilter != Self.allCategories else { return [] }
+            guard categoryFilter != Self.allCategories, categoryFilter != Self.recentCategory else { return [] }
             return Set(scripts(in: categoryFilter).filter { !$0.isDivider }.map(\.id))
         case .all: return Set(library.scripts.filter { !$0.isDivider }.map(\.id))
         }
@@ -145,9 +145,9 @@ struct RunRecord: Identifiable {
     private var paletteNumbers: [UInt32: String] = [:]
     private var metadataGeneration = UUID()
     private var metadataWork: DispatchWorkItem?
-    var paletteCategories: [String] { [Self.allCategories] + library.categoryList + [Self.uncategorized] }
+    var paletteCategories: [String] { [Self.allCategories, Self.recentCategory] + library.categoryList + [Self.uncategorized] }
     func categoryTitle(_ category: String) -> String {
-        category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
+        category == Self.recentCategory ? L("group.recent") : category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
     }
     func sortSelected(_ ids: Set<String>, by order: SortOrder) {
         undoable(L("sort.label")) { library.sortSelected(ids, by: order) { KeyCombo.keyName($0.code) } }
@@ -224,12 +224,13 @@ struct RunRecord: Identifiable {
         DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.3, execute: work)
     }
     private let defaults = UserDefaults.standard
-    @Published var library = Library.load() { didSet { scheduleSave(); registerHotkeys(); refreshVersions() } }
+    @Published var library = Library.load() { didSet { library.reconcileComponents(previous: oldValue); scheduleSave(); registerHotkeys(); refreshVersions() } }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
     /// The sidebar choice: allCategories, uncategorized, or a category name.
     @Published var categoryFilter = AppModel.allCategories { didSet { selection = [] } }
+    static let recentCategory = "\u{0}recent"
     static let allCategories = "\u{0}all", uncategorized = "\u{0}none"
     @Published var records: [RunRecord] = []
     @Published var illustratorFront = Illustrator.front != nil
@@ -445,11 +446,43 @@ struct RunRecord: Identifiable {
         undoable(L("undo.add")) { library.scripts.append(entry); selection = [entry.id] }
     }
     func updateCode(_ id: String, at index: Int, source: String) {
-        editSteps(id) { steps in
-            guard steps.indices.contains(index), case .code = steps[index] else { return }
-            steps[index] = .code(source: source)
+        guard let entry = library.scripts.first(where: { $0.id == id }), let ids = entry.componentIDs, ids.indices.contains(index) else { return }
+        updateComponent(ids[index], step: .code(source: source))
+    }
+    func updateComponent(_ id: String, step: Step) {
+        guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) { library.components![i].step = step }
+    }
+    func attachComponent(_ component: Component, to id: String) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) { library.scripts[i].componentIDs = (library.scripts[i].componentIDs ?? []) + [component.id] }
+    }
+    func newAction() {
+        var entry = ScriptEntry(steps: [], name: L("action.new")); entry.category = currentCategory
+        undoable(L("undo.add")) { library.scripts.append(entry); if categoryFilter == Self.recentCategory { categoryFilter = Self.uncategorized }; selection = [entry.id] }
+    }
+    func registerComponent(code: Bool) {
+        if code {
+            undoable(L("undo.add")) { library.components = (library.components ?? []) + [Component(name: L("code.title"), step: .code(source: ""))] }
+        } else {
+            let panel = NSOpenPanel(); panel.allowsMultipleSelection = true
+            panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
+            guard panel.runModal() == .OK else { return }
+            undoable(L("undo.add")) {
+                var pool = library.components ?? []
+                for url in panel.urls where ScriptEntry.accepts(url) {
+                    let step = Step.script(path: url.path)
+                    if !pool.contains(where: { $0.step == step }) { pool.append(Component(name: ScriptEntry.defaultName(for: url.path), step: step)) }
+                }
+                library.components = pool
+            }
         }
     }
+    func deleteComponent(_ id: String) {
+        guard !library.scripts.contains(where: { $0.componentIDs?.contains(id) == true }) else { return }
+        undoable(L("delete")) { library.components?.removeAll { $0.id == id } }
+    }
+
     func add(urls: [URL]) {
         let accepted = urls.filter(ScriptEntry.accepts)
         // Added while a category is chosen in the sidebar: the scripts go into it.
@@ -567,9 +600,9 @@ struct RunRecord: Identifiable {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         undoable(L("undo.steps")) {
             var item = library.scripts[index]
-            if item.actions.count == 1 && item.name == ScriptEntry.defaultName(for: old) { item.name = ScriptEntry.defaultName(for: url.path) }
-            item.actions[step] = .script(path: url.path)
+            if item.userRenamed != true && item.actions.count == 1 && item.name == ScriptEntry.defaultName(for: old) { item.name = ScriptEntry.defaultName(for: url.path) }
             library.scripts[index] = item
+            if let ids = item.componentIDs, ids.indices.contains(step), let c = library.components?.firstIndex(where: { $0.id == ids[step] }) { library.components![c].step = .script(path: url.path) }
         }
     }
 
@@ -617,7 +650,7 @@ struct RunRecord: Identifiable {
         watchIgnored.formUnion(removedPaths.filter { path in roots.contains { path.hasPrefix($0) } })
         defaults.set(Array(watchIgnored), forKey: "watchIgnored")
         let removed = library.scripts.filter { ids.contains($0.id) }
-        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) } + (library.components ?? []).compactMap { $0.step.scriptPath })
         let imported = Library.folder.appendingPathComponent("Imported", isDirectory: true).path + "/"
         let paths = Set(removed.flatMap { $0.actions.compactMap(\.scriptPath) })
         let files = TrashedFiles(paths.filter { $0.hasPrefix(imported) && !remaining.contains($0) }.map { URL(fileURLWithPath: $0) })
@@ -633,10 +666,11 @@ struct RunRecord: Identifiable {
 
     /// The category new scripts go into: the one chosen in the sidebar, or none.
     var currentCategory: String? {
-        categoryFilter == Self.allCategories || categoryFilter == Self.uncategorized ? nil : categoryFilter
+        categoryFilter == Self.allCategories || categoryFilter == Self.uncategorized || categoryFilter == Self.recentCategory ? nil : categoryFilter
     }
     func scripts(in filter: String) -> [ScriptEntry] {
         switch filter {
+        case Self.recentCategory: return library.recentlyUsed
         case Self.allCategories: return library.scripts
         case Self.uncategorized: return library.scripts.filter { $0.category == nil }
         default: return library.scripts.filter { $0.category == filter }
