@@ -1076,3 +1076,9 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### VectorKeys 画面分離 検証結果（2026-11-01 JST）
 - 1.17.0（28）検証ビルド・証明書署名・codesign deep/strict・単体／Runner／4言語検証PASS。コンポーネント／アクションの上部切替と独立した分類・一覧・詳細を実装。ホットキーとパネルはアクション側のみ。既存設定保持と移行保全を検証。詳細：VectorKeys/Tests/BUILD-NOTES-20261101-workspaces.md。対象SHAは本記録を含む確定コミット。起動・実機UI・Illustrator実行は未確認。公証・配布なし。
+
+## ShotSorter 廃止・ソース削除（2026-11-01、ユーザー明示指示）
+- 元チャット：FileSorter（本チャット）。ユーザーが「開発対象から廃止し、ソースも削除」を指定。既存のShotSorter向け未完了要望・リリース・文字認識分離の待機項目は、本廃止指示で終了とし自動実行しない。過去の記録は履歴として保持。
+- 担当：開発Mac MacBook-Pro-14-2024-sw.local。開始：2026-11-01T02:07:11.415657+09:00。ブランチ：codex/filesorter-screenshot-rename-20261101、基点SHA：bebc95bd6d36a47d83882dc11b6ef4bf07e49377。対象SHAは本記録を含む確定コミット。
+- 作業：未コミット・未追跡・生成物を含むShotSorterフォルダーを.local/retired-apps/ShotSorter-20261101-020711/sourceへ保全し、開発ルートから削除。READMEの現行アプリ一覧から除外。版・buildは増やさない。
+- インストール済み.app、設定、Latest Builds、公開Release、noteは今回の削除範囲外で未変更。
