@@ -63,6 +63,7 @@ final class Model: ObservableObject {
     let tap = KeyTap()
     let integration = IntegrationModel()
     let ocr = OCRModel()
+    let symbols = SymbolsModel()
     let actions = TextActions()
     let capsLockGuard = CapsLockGuard()
     private var observers: [NSObjectProtocol] = []
@@ -79,7 +80,7 @@ final class Model: ObservableObject {
     }
 
     /// Keys shared by 設定の共有. The app lists, startup and the app hotkey stay per Mac.
-    static let sharedKeys: Set<String> = Set(["enabled", "trigger.ansi", "trigger.jis", "capsAsControl", "disabledCommands"]).union(IntegrationModel.sharedKeys).union(OCRModel.sharedKeys)
+    static let sharedKeys: Set<String> = Set(["enabled", "trigger.ansi", "trigger.jis", "capsAsControl", "disabledCommands"]).union(IntegrationModel.sharedKeys).union(OCRModel.sharedKeys).union(["symbols.enabled"])
 
     init() {
         integration.onChange = { [weak self] in self?.refresh() }
@@ -126,7 +127,7 @@ final class Model: ObservableObject {
 
     /// Re-reads the shared settings after SettingsSync applied them; save() would otherwise write the old values back.
     func reload() {
-        integration.reload(); ocr.reloadPreferences()
+        integration.reload(); ocr.reloadPreferences(); symbols.enabled = defaults.object(forKey: "symbols.enabled") as? Bool ?? true
         enabled = defaults.object(forKey: "enabled") as? Bool ?? true
         ansiTrigger = Model.loadTrigger("trigger.ansi", .control)
         jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
@@ -170,10 +171,14 @@ final class Model: ObservableObject {
     func registerHotkeys() {
         hotkeys.unregisterAll()
         appHotkeyRegistered = true
-        if ExcludedApps.shared.frontAppExcluded { return }
+        if ExcludedApps.shared.excludes(NSWorkspace.shared.frontmostApplication?.bundleIdentifier) { return }
         if appHotkeyEnabled, let appCombo { appHotkeyRegistered = hotkeys.register(1, appCombo) == noErr }
         ocr.hotkeyRegistered = true
-        if let combo = ocr.combo { ocr.hotkeyRegistered = (!appHotkeyEnabled || combo != appCombo) && hotkeys.register(2, combo) == noErr }
+        if ocr.enabled, let combo = ocr.combo { ocr.hotkeyRegistered = (!appHotkeyEnabled || combo != appCombo) && hotkeys.register(2, combo) == noErr }
+        var reserved = Set<KeyCombo>()
+        if appHotkeyEnabled, let combo = appCombo { reserved.insert(combo) }
+        if ocr.enabled, let combo = ocr.combo { reserved.insert(combo) }
+        symbols.register(using: hotkeys, reserved: reserved, paused: paused)
         var items: [HotkeyManifest.Item] = []
         if let appCombo { items.append(.init(id: "appHotkey", title: SettingsUI.shortcutTitle, keyCode: Int(appCombo.code), modifiers: Int(appCombo.modifiers), enabled: appHotkeyEnabled)) }
         // The command keys, for HotkeyHound: in every app but the excluded ones and the group's pass-through apps.
@@ -182,6 +187,11 @@ final class Model: ObservableObject {
             items.append(.init(id: command.id, title: L("cmd." + command.id), keyCode: Int(command.key), modifiers: modifiers,
                                enabled: enabled && !disabled.contains(command.id), scope: "except",
                                apps: ExcludedApps.shared.ids + (passLists[command.group]?.ids ?? [])))
+        }
+        if let combo = ocr.combo { items.append(.init(id: "ocr.hotkey", title: L("ocrTab"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: ocr.enabled, scope: "except", apps: ExcludedApps.shared.ids)) }
+        for item in SymbolDefinitions.all {
+            guard let combo = symbols.combos[item.id] else { continue }
+            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled, scope: "except", apps: ExcludedApps.shared.ids))
         }
         HotkeyManifest.publish(items)
     }
@@ -279,16 +289,19 @@ struct MainView: View {
             .background(Color(nsColor: .controlBackgroundColor))
             .border(Color(nsColor: .separatorColor), width: 1)
             TabView {
-                KeyboardView(model: model).tabItem { Text(L("editingTab")) }
-                NumpadPage(model: model.integration).tabItem { Text(L("numpadTab")) }
+                NumpadMainPage(model: model.integration).tabItem { Text(L("numpadTab")) }
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
+                    KeyboardView(model: model)
+                }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).tabItem { Text(L("editingTab")) }
                 OCRPage(model: model.ocr).tabItem { Text(L("ocrTab")) }
+                SymbolsPage(model: model.symbols).tabItem { Text(L("symbols.tab")) }
             }
             IntegrationStatus(model: model.integration)
             Spacer(minLength: 0)
             HStack {
                 Button(L("settingsButton")) { AppDelegate.shared?.showPreferences() }
                 Spacer()
-                Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 22)
@@ -404,10 +417,10 @@ struct Preferences: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                 }
                 AccessibilitySection()
+                ScreenRecordingSection(model: model.ocr)
             })),
             (L("numpadTab"), AnyView(NumpadPage(model: model.integration))),
-            (L("ocrTab"), AnyView(OCRPage(model: model.ocr))),
-            (L("keysTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
+            (L("editingTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("conversionTitle")) {
                     Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
                     Text(L("enableHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -435,8 +448,10 @@ struct Preferences: View {
                     .disabled(!model.enabled)
                 }
             })),
-            (L("passTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                Text(L("passExplanation")).fixedSize(horizontal: false, vertical: true)
+            (L("appCompatibility"), AnyView(VStack(alignment: .leading, spacing: 16) {
+                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
+                Text(L("editingPassthrough")).font(.headline)
+                DisclosureGroup(L("explanation")) { Text(L("passExplanation")).fixedSize(horizontal: false, vertical: true) }
                 ForEach(KeyGroup.allCases) { group in
                     SettingsSection(group.title) {
                         Text(group.keyList).font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -444,7 +459,6 @@ struct Preferences: View {
                     }
                 }
             })),
-            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
@@ -472,8 +486,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         ExcludedApps.shared.onChange = { [weak self] in self?.model.refresh() }
         model.hotkeys.action = { [weak self] number in
             if number == 2 { self?.model.ocr.recognizeArea(); return }
+            if number >= 10 { if let model = self?.model, !model.paused { model.symbols.insert(number, typer: model.integration.commaTyper) }; return }
             StartupWindow.userRequestedWindow(); self?.showMainWindow()
         }
+        model.symbols.onChange = { [weak self] in self?.model.registerHotkeys() }
         model.ocr.onHotkeyChange = { [weak self] in self?.model.registerHotkeys() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(
@@ -501,7 +517,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         menu.addItem(.separator())
         add(menu, L("openMainWindow"), #selector(openMainWindow))
         add(menu, L("settings"), #selector(showPreferences))
-        add(menu, L("recognizeButton"), #selector(recognize))
         add(menu, L("pause"), #selector(togglePause))
         menu.addItem(.separator())
         // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
@@ -628,7 +643,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if helpWindow == nil { helpWindow = HelpDocument.makeWindow(windowTitle: "InputMaestro — " + L("help"), text: L("helpText"), heading: L("helpHeading")) }
         NSApp.activate(ignoringOtherApps: true); helpWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func recognize() { model.ocr.recognizeArea() }
     @objc func togglePause() { model.togglePause() }
     @objc func about() {
         NSApp.activate(ignoringOtherApps: true)

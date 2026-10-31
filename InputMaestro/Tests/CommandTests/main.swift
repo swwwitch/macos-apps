@@ -116,5 +116,18 @@ for separator in ["\n", "\r", "\r\n", "\u{2029}"] {
 }
 check(TextRanges.paragraphEdge("" as NSString, selection: NSRange(location: 0, length: 0), end: true, extend: true).length == 0, "empty copy")
 
+// Copy to paragraph start must cross visual wraps and preserve UTF-16 boundaries.
+check(CommandTable.match(code: 7, mods: .command, in: all)?.action == .copyToParagraphStart, "control command X copies to paragraph start")
+check(inDesign.first { $0.id == "copyToLineStart" }?.action == .keys([CommandTable.paragraphUpSelect, CommandTable.copy]), "InDesign selects paragraph start rather than visual line")
+for separator in ["\n", "\r", "\r\n", "\u{2029}"] {
+    let prefix = "previous" + separator
+    let sample = (prefix + "あ😀 long wrapped paragraph") as NSString
+    let caret = (prefix + "あ😀 long wrapped") .utf16.count
+    let range = TextRanges.paragraphEdge(sample, selection: NSRange(location: caret, length: 0), end: false, extend: true)
+    check(sample.substring(with: range) == "あ😀 long wrapped", "paragraph start excludes previous paragraph and separator")
+    check(TextRanges.paragraphEdge(sample, selection: NSRange(location: prefix.utf16.count, length: 0), end: false, extend: true).length == 0, "paragraph start leaves clipboard unchanged")
+}
+check(TextRanges.paragraphEdge("" as NSString, selection: NSRange(location: 0, length: 0), end: false, extend: true).length == 0, "empty paragraph start")
+
 if failures > 0 { print("\(failures) failure(s)"); exit(1) }
 print("PASS: command table, per-app resolution, triggers and paragraph ranges")

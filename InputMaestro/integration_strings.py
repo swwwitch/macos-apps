@@ -37,3 +37,31 @@ T = {
 'ocr.ready': ('文字認識が完了しました。', 'Text recognition finished.', '文字识别完成。', '텍스트 인식이 완료되었습니다.'),
 'ocr.failed': ('文字認識に失敗しました。', 'Text recognition failed.', '文字识别失败。', '텍스트 인식에 실패했습니다.'),
 }
+
+T.update({
+'ocr.enable': ('文字認識を有効にする', 'Enable text recognition', '启用文字识别', '텍스트 인식 활성화'),
+'editingPassthrough': ('編集キーを素通しにするアプリ', 'Apps that receive editing keys unchanged', '直接传递编辑按键的应用', '편집 키를 그대로 전달할 앱'),
+'numpad.triggerHelp': ('このキーを押しながら、色の付いたキーを押します。', 'Hold this key and press a colored key.', '按住此键并按下彩色按键。', '이 키를 누른 채 색이 있는 키를 누르세요.'),
+})
+T['ocr.explanation'] = tuple(text.replace(old, new) for text, old, new in zip(T['ocr.explanation'],
+    ('ホットキーの初期値は未設定です。', 'The hotkey starts unassigned.', '快捷键默认未设置。', '단축키 기본값은 미설정입니다.'),
+    ('ホットキーの初期値は⌘⇧1です。画面収録の権限は設定の「起動・常駐」で確認します。', 'The default hotkey is ⌘⇧1. Screen recording permission is in Startup & Background settings.', '默认快捷键为 ⌘⇧1。屏幕录制权限位于“启动与后台”设置。', '기본 단축키는 ⌘⇧1입니다. 화면 기록 권한은 시작 및 백그라운드 설정에서 확인합니다.')))
+
+T['ocr.explanation'] = (
+    '⌘⇧1で範囲選択を開始し、日本語・英語をMac内で認識します。Escで取り消せます。自動コピーがONの場合、認識結果をクリップボードへコピーします。画面収録の権限は設定の「起動・常駐」で確認します。',
+    'Press ⌘⇧1 to select an area and recognize Japanese and English locally. Esc cancels. When automatic copying is on, the result is copied to the clipboard. Screen recording permission is in Startup & Background settings.',
+    '按 ⌘⇧1 选择区域并在本机识别日文和英文。Esc 取消。开启自动拷贝时，结果会拷贝到剪贴板。屏幕录制权限位于“启动与后台”设置。',
+    '⌘⇧1로 영역을 선택하여 일본어와 영어를 Mac에서 인식합니다. Esc로 취소합니다. 자동 복사가 켜져 있으면 결과를 클립보드로 복사합니다. 화면 기록 권한은 시작 및 백그라운드 설정에서 확인합니다.')
+
+T.update({
+'appCompatibility': ('アプリ対応', 'App Compatibility', '应用兼容性', '앱 호환성'),
+'cmd.copyToLineStart': ('段落先頭まで選択してコピー', 'Select to paragraph start and copy', '选到段落开头并拷贝', '단락 처음까지 선택해 복사'),
+})
+
+T.update({
+'symbols.tab': ('修飾キーと矢印キー', 'Modifier and Arrow Symbols', '修饰键与箭头符号', '보조 키 및 화살표 기호'),
+'symbols.enable': ('修飾キーと矢印の記号入力を有効にする', 'Enable modifier and arrow symbol input', '启用修饰键与箭头符号输入', '보조 키 및 화살표 기호 입력 활성화'),
+'symbols.modifiers': ('修飾キー', 'Modifier symbols', '修饰键符号', '보조 키 기호'),
+'symbols.arrows': ('矢印キー', 'Arrow symbols', '箭头符号', '화살표 기호'),
+'symbols.explanation': ('InsertSnippetsの記号入力を移植。指定のホットキーで⌃⌥⌘⇧や←↓→↑を文字として入力します。キー操作やカーソル移動ではありません。対象外アプリと自アプリでは実行せず、クリップボードは入力後に復元します。', 'Ported from InsertSnippets: hotkeys insert ⌃⌥⌘⇧ and ←↓→↑ as text. They do not press modifiers or move the cursor. Excluded apps and this app are skipped. The clipboard is restored after insertion.', '移植自 InsertSnippets。快捷键将 ⌃⌥⌘⇧ 和 ←↓→↑ 作为文字输入，不是按键操作或光标移动。在排除的应用和本应用中不执行。输入后恢复剪贴板。', 'InsertSnippets에서 이식했습니다. 단축키로 ⌃⌥⌘⇧ 및 ←↓→↑를 문자로 입력합니다. 키 누르기나 커서 이동이 아닙니다. 제외한 앱과 이 앱에서는 실행하지 않으며 입력 후 클립보드를 복원합니다.'),
+})

@@ -3,6 +3,10 @@ import SwiftUI
 import ImageIO
 
 @MainActor final class OCRModel: ObservableObject {
+    @Published var enabled = UserDefaults.standard.object(forKey: "ocr.enabled") as? Bool ?? true { didSet {
+        UserDefaults.standard.set(enabled, forKey: "ocr.enabled")
+        onHotkeyChange?()
+    } }
     @Published var screenAllowed = AreaCapture.allowed
     var frontExcluded: Bool { ExcludedApps.shared.excludes(NSWorkspace.shared.frontmostApplication?.bundleIdentifier) }
     @Published var text = ""
@@ -13,21 +17,22 @@ import ImageIO
     @Published var copyAutomatically = UserDefaults.standard.object(forKey: "ocr.copy") as? Bool ?? true { didSet { UserDefaults.standard.set(copyAutomatically, forKey: "ocr.copy") } }
     @Published var hotkeyRegistered = true
     var onHotkeyChange: (() -> Void)?
-    // Unassigned at first to avoid ShotSorter's ⌘⇧1 while both apps remain installed.
-    @Published var combo: KeyCombo? = Model.readCombo("ocr.hotkey") { didSet {
+    // User-specified ⌘⇧1; preserve saved custom shortcuts and explicit clears.
+    @Published var combo: KeyCombo? = OCRPreferences.shortcut(in: .standard).map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } { didSet {
         UserDefaults.standard.set(combo.flatMap { try? JSONEncoder().encode($0) } ?? Data(), forKey: "ocr.hotkey")
         onHotkeyChange?()
     } }
-    static let sharedKeys: Set<String> = ["ocr.join", "ocr.parens", "ocr.copy"]
+    static let sharedKeys: Set<String> = ["ocr.enabled", "ocr.join", "ocr.parens", "ocr.copy"]
     func reloadPreferences() {
         let d = UserDefaults.standard
         let join = d.object(forKey: "ocr.join") as? Bool ?? true
         let parens = d.object(forKey: "ocr.parens") as? Bool ?? true
         let copy = d.object(forKey: "ocr.copy") as? Bool ?? true
+        enabled = d.object(forKey: "ocr.enabled") as? Bool ?? true
         joinJapanese = join; fullwidthParens = parens; copyAutomatically = copy
     }
     func recognizeArea() {
-        guard !recognizing else { return }
+        guard enabled, !recognizing else { return }
         guard !frontExcluded else { status = L("ocr.excluded"); return }
         guard AreaCapture.allowed else {
             status = L("ocr.permission")
@@ -53,11 +58,10 @@ import ImageIO
                 text = output
                 if output.isEmpty { status = L("ocr.none") }
                 else if frontExcluded { status = L("ocr.excluded") }
-                else if copyAutomatically && NSPasteboard.general.changeCount == clipboardChange { copy(); status = L("ocr.copied") }
+                else if enabled && copyAutomatically && NSPasteboard.general.changeCount == clipboardChange { copy(); status = L("ocr.copied") }
                 else { status = L("ocr.ready") }
             case .failure(let error): status = L("ocr.failed") + " " + error.localizedDescription
             }
-            AppDelegate.shared?.showMainWindow()
         }
     }
     func copy() {
@@ -76,25 +80,29 @@ struct OCRPage: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                SettingsSection(L("ocrTab")) {
-                    Button(L("recognizeButton")) { model.recognizeArea() }.disabled(model.recognizing)
-                    if model.recognizing { ProgressView().controlSize(.small) }
-                    if !model.status.isEmpty { Text(model.status).textSelection(.enabled) }
-                    TextEditor(text: $model.text).frame(minHeight: 130).accessibilityLabel(L("ocr.result"))
-                    Button(L("ocr.copyButton")) { model.copy() }.disabled(model.text.isEmpty)
-                    DisclosureGroup(L("explanation")) { Text(L("ocr.explanation")) }
-                }
+                Toggle(L("ocr.enable"), isOn: $model.enabled)
+                if model.recognizing { ProgressView().controlSize(.small) }
+                if !model.status.isEmpty { Text(model.status).textSelection(.enabled) }
                 SettingsSection(L("ocr.formatting")) {
                     Toggle(L("ocr.join"), isOn: $model.joinJapanese)
                     Toggle(L("ocr.parens"), isOn: $model.fullwidthParens)
                     Toggle(L("ocr.autoCopy"), isOn: $model.copyAutomatically)
-                    HotkeyField(id: "ocr.hotkey", combo: $model.combo, allowsClear: true, registered: model.hotkeyRegistered)
+                    HotkeyField(id: "ocr.hotkey", combo: $model.combo, defaultCombo: KeyCombo(code: 18, modifiers: KeyCombo.command | KeyCombo.shift), allowsClear: true, registered: model.hotkeyRegistered, isEnabled: model.enabled)
                 }
-                SettingsSection(L("ocr.screenPermission")) {
-                    Text(model.screenAllowed ? AccessibilityText.text("allowed") : L("ocr.permission"))
-                    Button(L("ocr.openSettings")) { model.openScreenSettings() }
-                }
+
             }.padding(12)
+        }
+    }
+}
+
+struct ScreenRecordingSection: View {
+    @ObservedObject var model: OCRModel
+    var body: some View {
+        SettingsSection(L("ocr.screenPermission")) {
+            Label(AccessibilityText.text(model.screenAllowed ? "allowed" : "denied"), systemImage: model.screenAllowed ? "checkmark.circle.fill" : "minus.circle")
+                .foregroundColor(model.screenAllowed ? .green : .secondary)
+            if !model.screenAllowed { Text(L("ocr.permission")).fixedSize(horizontal: false, vertical: true) }
+            Button(L("ocr.openSettings")) { model.openScreenSettings() }
         }
     }
 }

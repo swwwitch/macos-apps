@@ -12,3 +12,7 @@ xcrun swiftc -module-cache-path build/ModuleCache Sources/Commands.swift Sources
 build/tests/routing
 xcrun swiftc -module-cache-path build/ModuleCache Sources/OCRServices.swift Tests/OCRTests/main.swift -framework Vision -o build/tests/ocr
 build/tests/ocr
+xcrun swiftc -module-cache-path build/ModuleCache Sources/OCRPreferences.swift Tests/PreferencesTests.swift -o build/tests/preferences
+build/tests/preferences
+xcrun swiftc -module-cache-path build/ModuleCache Sources/SymbolDefinitions.swift Tests/SymbolTests.swift -o build/tests/symbols
+build/tests/symbols

@@ -9,6 +9,7 @@ import SwiftUI
     // fn on both layouts avoids overlapping ControlMate's JIS Caps Lock default.
     @Published var jisTrigger = NumpadTrigger(rawValue: UserDefaults.standard.string(forKey: "numpad.jis") ?? "fn") ?? .fn { didSet { save() } }
     @Published var groups = Set(NumpadGroup.allCases.filter { UserDefaults.standard.object(forKey: "numpad." + $0.rawValue) as? Bool ?? true }) { didSet { save() } }
+    func isOn(_ group: NumpadGroup) -> Bool { numpadEnabled && groups.contains(group) }
     @Published var controlConflict = false
     @Published var numpadConflict = false
     func updateConflicts() {
@@ -48,7 +49,7 @@ struct NumpadPage: View {
             VStack(alignment: .leading, spacing: 16) {
                 IntegrationStatus(model: model)
                 SettingsSection(L("numpadTab")) {
-                    Toggle(L("numpadEnable"), isOn: $model.numpadEnabled)
+                    Toggle(L("enable"), isOn: $model.numpadEnabled)
                     Picker(L("trigger.ansi"), selection: $model.ansiTrigger) {
                         ForEach(NumpadTrigger.allCases) { Text(L("numpadTrigger." + $0.rawValue)).tag($0) }
                     }
@@ -68,5 +69,15 @@ struct NumpadPage: View {
                 }
             }.padding(12)
         }
+    }
+}
+
+struct NumpadMainPage: View {
+    @ObservedObject var model: IntegrationModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(L("enable"), isOn: $model.numpadEnabled)
+            NumpadKeyboardView(model: model)
+        }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

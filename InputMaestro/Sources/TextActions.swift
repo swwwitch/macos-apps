@@ -64,7 +64,8 @@ final class TextActions: @unchecked Sendable {
             case .moveParagraphDown: failure = moveParagraph(pid: pid, up: false)
             case .paragraphStart: failure = moveToParagraphEdge(pid: pid, end: false, extend: extend)
             case .paragraphEnd: failure = moveToParagraphEdge(pid: pid, end: true, extend: extend)
-            case .copyToParagraphEnd: failure = copyToParagraphEnd(pid: pid)
+            case .copyToParagraphStart: failure = copyToParagraphEdge(pid: pid, end: false)
+            case .copyToParagraphEnd: failure = copyToParagraphEdge(pid: pid, end: true)
             case .killSelecting(let strokes): failure = killSelecting(strokes, pid: pid)
             case .inDesignScript(let path, let fallback): failure = runInDesignScript(path, fallback: fallback, pid: pid)
             case .unsupported: failure = L("result.unsupported")
@@ -159,8 +160,8 @@ final class TextActions: @unchecked Sendable {
         return nil
     }
 
-    /// ⌃⌘Z: copy through the paragraph content end, excluding its break, across visual wraps.
-    private func copyToParagraphEnd(pid: pid_t) -> String? {
+    /// ⌃⌘X / ⌃⌘Z: copy to the paragraph start / content end, across visual wraps.
+    private func copyToParagraphEdge(pid: pid_t, end: Bool) -> String? {
         let allowed = DispatchQueue.main.sync {
             MainActor.assumeIsolated {
                 NSWorkspace.shared.frontmostApplication?.processIdentifier == pid && !ExcludedApps.shared.frontAppExcluded
@@ -168,7 +169,7 @@ final class TextActions: @unchecked Sendable {
         }
         guard allowed else { return nil }
         if let field = FocusedText(pid: pid) {
-            let range = TextRanges.paragraphEdge(field.text, selection: field.selection, end: true, extend: true)
+            let range = TextRanges.paragraphEdge(field.text, selection: field.selection, end: end, extend: true)
             guard range.length > 0 else { return nil }
             if field.select(range) {
                 return clipboardCommand("C", pid: pid) ? nil : L("result.copyFailed")
