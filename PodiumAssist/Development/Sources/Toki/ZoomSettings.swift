@@ -209,9 +209,9 @@ enum ZoomSettings {
         if let value = number(kAXValueAttribute), abs(value - target) < 0.05 { return }
         NSRunningApplication.runningApplications(withBundleIdentifier: SystemSettingsSwitch.settingsBundleID).first?.activate()
         try await Task.sleep(nanoseconds: 300_000_000)
-        try await reveal(slider, failure: failure)
         let pointer = CGEvent(source: nil)?.location
         defer { if let pointer { post(.mouseMoved, pointer) } }
+        try await reveal(slider, failure: failure)
         for attempt in 0..<3 {
             diagnostic("before-drag", ["attempt": attempt, "tree": snapshot(slider), "viewport": String(describing: viewport(of: slider))])
             guard let value = number(kAXValueAttribute), let track = frame(of: slider),
@@ -249,6 +249,15 @@ enum ZoomSettings {
         return viewport.insetBy(dx: -1, dy: -1).contains(track)
     }
 
+    /// Move the offscreen track toward the viewport center; bounded pixel scroll, negative means down.
+    static func scrollDelta(track: CGRect, viewport: CGRect) -> Int32? {
+        guard track.minY.isFinite, track.maxY.isFinite, viewport.minY.isFinite, viewport.maxY.isFinite,
+              viewport.height > 0, track.height > 0, !visible(track, in: viewport) else { return nil }
+        let distance = viewport.midY - track.midY
+        guard distance != 0 else { return nil }
+        return Int32((distance < 0 ? -1 : 1) * min(200, max(40, abs(distance))))
+    }
+
     private static func scrollArea(of element: AXUIElement) -> AXUIElement? {
         var current = element
         for _ in 0..<30 {
@@ -268,18 +277,44 @@ enum ZoomSettings {
     private static func reveal(_ slider: AXUIElement, failure: String) async throws {
         let result = AXUIElementPerformAction(slider, "AXScrollToVisible" as CFString)
         diagnostic("scroll-to-visible", ["result": result.rawValue])
+        var useWheel = false
+        var previousTrack: CGRect?
         for _ in 0..<8 {
-            try await Task.sleep(nanoseconds: 150_000_000)
+            try await Task.sleep(nanoseconds: 300_000_000)
             let area = scrollArea(of: slider)
             diagnostic("visibility", ["slider": snapshot(slider), "area": area.map { snapshot($0) } ?? [], "viewport": String(describing: area.flatMap { frame(of: $0) })])
             guard let track = frame(of: slider), let area, let viewport = frame(of: area) else {
                 throw SettingsError(failure + " [scroll-area-frame]")
             }
             if visible(track, in: viewport) { return }
-            let action = track.midY > viewport.midY ? "AXScrollDownByPage" : "AXScrollUpByPage"
-            let result = AXUIElementPerformAction(area, action as CFString)
-            diagnostic("scroll-page", ["action": action, "result": result.rawValue])
-            guard result == .success else { break }
+            if previousTrack == track { useWheel = true }
+            previousTrack = track
+            if !useWheel {
+                let action = track.midY > viewport.midY ? "AXScrollDownByPage" : "AXScrollUpByPage"
+                let result = AXUIElementPerformAction(area, action as CFString)
+                diagnostic("scroll-page", ["action": action, "result": result.rawValue])
+                if result == .success { continue }
+                useWheel = true
+            }
+            // macOS 26 can advertise AXScrollDownByPage but return cannotComplete.
+            // Use an ordinary wheel event inside the scroll area's left padding, away from controls.
+            guard NSWorkspace.shared.frontmostApplication?.bundleIdentifier == SystemSettingsSwitch.settingsBundleID,
+                  viewport.width > 16, viewport.height > 16,
+                  let delta = scrollDelta(track: track, viewport: viewport) else {
+                diagnostic("failure", ["stage": "scroll-wheel-target"])
+                throw SettingsError(failure + " [scroll-wheel-target]")
+            }
+            let point = CGPoint(x: viewport.minX + 4, y: viewport.midY)
+            post(.mouseMoved, point)
+            try await Task.sleep(nanoseconds: 80_000_000)
+            guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1,
+                                      wheel1: delta, wheel2: 0, wheel3: 0) else {
+                throw SettingsError(failure + " [scroll-wheel-create]")
+            }
+            wheel.location = point
+            wheel.flags = []
+            diagnostic("scroll-wheel", ["delta": delta, "point": "\(point)", "trackBefore": "\(track)"])
+            wheel.post(tap: .cghidEventTap)
         }
         diagnostic("failure", ["stage": "reveal"])
         throw SettingsError(failure + " [reveal]")
