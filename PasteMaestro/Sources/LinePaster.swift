@@ -23,7 +23,7 @@ struct SlotItem: Equatable {
 /// ⌘V is sent to the target, and the user's clipboard is put back afterwards.
 final class LinePaster {
     /// The target reads the clipboard asynchronously after ⌘V; the user's clipboard is restored after this.
-    static let restoreDelay: TimeInterval = 1.0
+    static let restoreDelay: TimeInterval = ClipboardGate.lineRestoreDelay
 
     private(set) var queue: [SlotItem] = []
     /// Where ⌃⌥V continues. It moves past starred lines (they stay) and wraps to the top at the end.
@@ -56,7 +56,7 @@ final class LinePaster {
     /// `stillTarget` is checked right before ⌘V is sent (B21).
     func paste(_ pick: Pick, appName: String, pid: pid_t, stillTarget: () -> Bool) -> PasteOutcome {
         guard let lease = ClipboardGate.begin() else { return .failed(M("busy")) }
-        defer { ClipboardGate.end(lease, after: 1.1) }
+        defer { ClipboardGate.end(lease, after: ClipboardGate.pasteHold) }
         guard AXIsProcessTrusted() else { return .failed(AccessibilityText.text("blocked")) }
         guard !queue.isEmpty else { return .failed(L("fail.empty")) }
         guard stillTarget() else { return .failed(L("fail.target")) }

@@ -32,7 +32,7 @@ final class IncrementPaster {
     /// `stillTarget` is checked right before the clipboard is changed and ⌘V is sent (B21).
     func paste(options: Incrementer.Options, firstAsIs: Bool, appName: String, pid: pid_t, stillTarget: () -> Bool) -> IncrementOutcome {
         guard let lease = ClipboardGate.begin() else { return .failed(M("busy")) }
-        defer { ClipboardGate.end(lease, after: 1.1) }
+        defer { ClipboardGate.end(lease, after: ClipboardGate.pasteHold) }
         guard AXIsProcessTrusted() else { return .failed(AccessibilityText.text("blocked")) }
         let pasteboard = NSPasteboard.general
         guard let text = pasteboard.string(forType: .string) else { return .failed(IL("fail.noText")) }

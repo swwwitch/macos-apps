@@ -1053,3 +1053,9 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### FileSorter 改名機能移植 開発検証結果（2026-11-01 JST）
 - 通常版1.1.0（3）、開発Mac MacBook-Pro-14-2024-sw.local。ブランチcodex/filesorter-screenshot-rename-20261101。対象SHAは本記録を含む確定コミット。test.sh・test-engine.sh・NO_DEPLOY=1ビルド・署名検証PASS。詳細：FileSorter/Tests/BUILD-NOTES-20261101.md。実機UI・公証・配置・公開は未実施。公証Macへ同じ版・buildで引き継ぐ。
+
+## PasteMaestro 連続貼り付けの待ち時間短縮 開発開始（2026-11-01 JST）
+
+- ユーザー「ビルドを更新して起動」で開始。開発Mac MacBook-Pro-14-2024-sw.local、ブランチcodex/pastemaestro-integration-20261101、基点d8b9953bb7c2e48ed20a098fdd214dd267e9f825。対象SHAは確定後記録。通常版1.0.1（2）。連番・1行ずつの1.1秒排他待ちを短縮し、クリップボード復元と新しいコピーの保護を保持する。状態：実装中。公証・配布なし。
+
+- 検証結果：通常版1.0.1（2）、連番・行の待ち1.1→0.15秒、行の復元1.0→0.10秒。ビルド・証明書署名・deep/strict・自動テスト（0.2秒間隔5連続を含む）PASS。workspace版の起動と1.0.1（2）表示を確認。他アプリでの実連打は未確認。詳細：PasteMaestro/Tests/BUILD-NOTES-build2-20261101.md。公証・配布なし。

@@ -16,3 +16,14 @@ check(ClipboardGate.busy, "stale token cannot release newer paste")
 ClipboardGate.end(second)
 check(!ClipboardGate.busy, "synchronous add completion releases")
 print("Clipboard arbitration: 8 checks passed")
+
+check(ClipboardGate.lineRestoreDelay < ClipboardGate.pasteHold, "restore must precede the next paste")
+check(ClipboardGate.pasteHold <= 0.2, "rapid paste must not use the old 1.1s hold")
+for _ in 0..<5 {
+    let lease = ClipboardGate.begin(blocked: false)!
+    ClipboardGate.end(lease, after: ClipboardGate.pasteHold)
+    check(ClipboardGate.busy, "hold while destination reads")
+    RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+    check(!ClipboardGate.busy, "next repeat allowed after 0.2s")
+}
+print("Rapid paste: 5 consecutive operations at 0.2s intervals passed")

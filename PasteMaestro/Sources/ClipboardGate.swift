@@ -9,6 +9,9 @@ enum LegacyApps {
 
 // All engines execute on the main queue. Keep asynchronous copies and delayed restores exclusive.
 enum ClipboardGate {
+    // Briefly allow the destination to read the clipboard before another paste.
+    static let pasteHold: TimeInterval = 0.15
+    static let lineRestoreDelay: TimeInterval = 0.10
     private static var token: UUID?
     static var busy: Bool { token != nil }
     static func begin(blocked: Bool = LegacyApps.running) -> UUID? {
