@@ -8,6 +8,10 @@
 
 作業ツリーの現在版は未コミット変更を含む場合があります。ビルド・配置・公証・公開の確認結果は各リリース記録を参照してください。App Store版の履歴は通常版へ混在させず、今後は区分を明記します。
 
+## PasteMaestro
+
+- 2026-11-01｜v1.0.0（build 1）｜通常版：IncrementPaste・PasteInARow・PasteMatchStyleを新規統合。3モード、共通設定、4言語ヘルプ、クリップボード排他と旧アプリ同時動作防止を追加。開発用検証ビルド。公証・配置・公開は未実施。
+
 ## 目次
 
 - [BreaklineTrimmer](#breaklinetrimmer)

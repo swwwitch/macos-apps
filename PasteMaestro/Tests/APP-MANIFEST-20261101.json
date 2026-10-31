@@ -1,0 +1,588 @@
+[
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Autoupdate",
+    "symlink": "Versions/Current/Autoupdate"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Headers",
+    "symlink": "Versions/Current/Headers"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Modules",
+    "symlink": "Versions/Current/Modules"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/PrivateHeaders",
+    "symlink": "Versions/Current/PrivateHeaders"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Resources",
+    "symlink": "Versions/Current/Resources"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Sparkle",
+    "symlink": "Versions/Current/Sparkle"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Updater.app",
+    "symlink": "Versions/Current/Updater.app"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+    "mode": "0o755",
+    "sha256": "37ed28aea99e860a7d02a01adb37e13d032ce64318c32f6be4ae1d4872849d36"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUAppcastSigningValidationStatus.h",
+    "mode": "0o644",
+    "sha256": "513d4607ac9ba03c2203b03df307f404216c3ce7f3436784fbbef1842c742749"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUDownloadData.h",
+    "mode": "0o644",
+    "sha256": "58184c2c068a8d43b1ee85651f9edd30a6a9e5899ac936baf4a5f15a6081d7b7"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUpdaterController.h",
+    "mode": "0o644",
+    "sha256": "f45dfdf2315664c5891b97ad0d7ffce9ab09d067effbd2921b10b58b4831ef0f"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriver.h",
+    "mode": "0o644",
+    "sha256": "0a0e476b61932196027dd7b94e78d187f810f80c7900168eb4a5956b63d54a77"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriverDelegate.h",
+    "mode": "0o644",
+    "sha256": "d906e549f7b108979727fa56f13c029906fe48c5602538513a4b480bb45a8c2d"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdateCheck.h",
+    "mode": "0o644",
+    "sha256": "1f7d05da2e466263aefe3e09130e56b2e65b8862579e07b9829c9bf5ed921c03"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdatePermissionRequest.h",
+    "mode": "0o644",
+    "sha256": "8c227246c2ea7461741db8bd7274936c3cbcbc7375fe814654d479b2650cd6bd"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdater.h",
+    "mode": "0o644",
+    "sha256": "a30b876dc722a2861fb8f271a0bf0c95bd664db4cf2af57d216d190f2e010ee7"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterDelegate.h",
+    "mode": "0o644",
+    "sha256": "20ea4bf5273eaa6560160941d680acec6565965162737f50ea4240845a7dde24"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterSettings.h",
+    "mode": "0o644",
+    "sha256": "ad7bdfc719775fe4cdf1490f45ef902ded4dcb3756402e64884397bee425edff"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserDriver.h",
+    "mode": "0o644",
+    "sha256": "db9fe6cf78aca0f2f79a99898d38daff566f96c823de2bb2b985511ad77017dc"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserUpdateState.h",
+    "mode": "0o644",
+    "sha256": "59f95e933f8b5b2b39c1e7c465aa39af021a2c88820b4b09dbcfc55b1dd19c30"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcast.h",
+    "mode": "0o644",
+    "sha256": "251d6ffa7cbc890999ddda3406834f45396cf887a71e5be9ff581883559df0a0"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcastItem.h",
+    "mode": "0o644",
+    "sha256": "21df22d4f0ebd4eaba530f77f520a29451a057b70093efec3104ce0253026cf9"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUErrors.h",
+    "mode": "0o644",
+    "sha256": "e7e84fa6ef85b549810682ec883593f560d79b776ebec5fb11d9558a6f1f78e5"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUExport.h",
+    "mode": "0o644",
+    "sha256": "5cef024266c54e12db620f78f4d106860de0fa2a2e230dffdfe04208bb447451"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUStandardVersionComparator.h",
+    "mode": "0o644",
+    "sha256": "7d407b9ce721d5c650e741ecb692e77f12ef3b5e18ea8136f72448e8d7208c6c"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdatePermissionResponse.h",
+    "mode": "0o644",
+    "sha256": "f9355c8044c7dc168bdaefa37ac2e986002ec328895f17119293e084dad96f21"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdater.h",
+    "mode": "0o644",
+    "sha256": "96f6f598d582ca87c9d17f3ccd7bccb0ae4f057ac6e8fafb854ad8d04de336f6"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdaterDelegate.h",
+    "mode": "0o644",
+    "sha256": "a1a08c33fd41ebdd105916d8181d222417f9feda01cdc42afa6a3151106cde36"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionComparisonProtocol.h",
+    "mode": "0o644",
+    "sha256": "28bbb424ac7ab81e2b93f61e359fefa3ed09d6a38d0b265004d2103c0f46bdb4"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionDisplayProtocol.h",
+    "mode": "0o644",
+    "sha256": "3f23c4fb9bbdbc19714580ee4dd7f73ffc31436ea733c9bb308c3f74e7ab512c"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/Sparkle.h",
+    "mode": "0o644",
+    "sha256": "3a442a32eb22a77bb5a08e61ac678daffdf6c697d33020b82a683baf40228e0c"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.modulemap",
+    "mode": "0o644",
+    "sha256": "2bcae1eb66d55dc49f58acfe856375a5bbc91c6e83bdb298d19442ae6264cfa6"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.private.modulemap",
+    "mode": "0o644",
+    "sha256": "db1d60f57b43a9eb17f3550f5720ac53466d4385368670fb5148da5b71f43f3a"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUAppcastItemStateResolver.h",
+    "mode": "0o644",
+    "sha256": "1c3be298008c19757ae3b27083622a005bce809a01f06d2c74f6dea16f3214ee"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUGentleUserDriverReminders.h",
+    "mode": "0o644",
+    "sha256": "f56d9d277f16417d79d66a484b4afcfc47c2a9957a8c487adb5c709dad895402"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUInstallationType.h",
+    "mode": "0o644",
+    "sha256": "52a1a445f58e7c6de94ac558c23913f8081647a499262affe9ac38ff790971d4"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUStandardUserDriver+Private.h",
+    "mode": "0o644",
+    "sha256": "acc764e731fe9e6d307fe32dea4d06b451964225c2b2a9745a23f035a9cdeaad"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUUserAgent+Private.h",
+    "mode": "0o644",
+    "sha256": "0c3ea7c6aabab32840e41c56bb22cfab4dee4dde3302603b6f4aba9ac1b5850c"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUAppcastItem+Private.h",
+    "mode": "0o644",
+    "sha256": "642ecbeecb323f7201a732b5953d60fefefa13cf894af28936dd0d7d001a101a"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUInstallerLauncher+Private.h",
+    "mode": "0o644",
+    "sha256": "cb2e9c465f08ab0309c2bf3a4d2f7c35d9c76ff5a4480694700a22298520dd94"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Base.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "bf93bdde8ad020f2ba210ecfa0e84b5365d0342355a3ca39d88fec0acb1e4a40"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Info.plist",
+    "mode": "0o644",
+    "sha256": "5fa024aa416c13614fb5588d378aa6c16371737d9980c57fcb3e32f8208f1b86"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ReleaseNotesColorStyle.css",
+    "mode": "0o644",
+    "sha256": "76bd6999758fd8e51d17e6b482db434f9b4768c02b037af6bd2e3a000ce8cbc1"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdateAlert.nib",
+    "mode": "0o644",
+    "sha256": "3987a333da7c2728ef2cb9656e5eeaf0832884873cabf78353fcb9099c5d8fbe"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdatePermissionPrompt.nib",
+    "mode": "0o644",
+    "sha256": "2e62b9d5a736d53b1eaf217432c4d0ad05217e897787cf1bdf1071ff22308d46"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ar.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "441182787471a3998908044515fe13e92230edaa7e2730638e72a49610f56cba"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ca.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "7ed0d5ca300649a7f13304015008f2dede98ad743a625c17d5a5fedacc1a3b1a"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/cs.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "99e66decf9bc46cf5622eead4e65b3b502e3775a4e8e0f03ef1b41683ea8d518"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/da.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "8d0ff69b79460185f941372655433bad3934f49e63bef0b4171bd66da71e55f0"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/de.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "311035a15227fb12e85eba2a46f3f6198d98ac5590d1d38c43c4ff7430d06599"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/el.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "638981a4f095d8b1dabb6230d452e470359711b81803bc5df8c21e1211fd3757"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/es.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "047b9affd0e995039072c24b8d7aa830624d03c89c524e4f58d7d6f13eca8352"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fa.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "ed9dda9e271f7a97b8a7f327e71a1b6d06e5e061b367e7da3d153e47dc319263"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fi.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "c14af9bac3fce436222a4ea277a7a6c0f9b42b2d84aceea75e758ce7538acae2"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fr.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "3d554dcd167b085e25a75248533f21f389593aeace912ab9952c825ffe141ce1"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/he.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "1d795bd7329d04b7ce84b6bdc845f917369e858b2b292f117b89a6666a185723"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hr.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "920041380a08b3ba50d44e8a83f59de551139845a72748d58f2387c65920b33a"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hu.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "cc2a16e4d487c6fab357b4f7d0fbbf7ec882371b2130413ffcb1b69cd540d2cf"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/is.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "403feba503410e9455cd0eaafe592a2576eedb24130ccf2cdb13dda4b101f87e"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/it.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "56a7445c1b68d76849ac59b98aa5c20c9002d5e07e9f0a2720486160f85b7366"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ja.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "e404910028af70579cfa208bb4fadd9e3592505fc89af208f4071f2309553fb2"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ko.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "a6269eb3f5a07d0c4f5d7467d5065372085aef7484c518a9d784ffd6c8f5aae4"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nb.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "ef6f0dcae90c440b47ece09909e9cdf35f3383f34e72a614c8c5c0752ecbffe0"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nl.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "ca9adf34fb93fe3f394ccc92114bf6a6b1f8a128bb5f362cb9f3247d7c26c77d"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nn.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "1db8c6853a550aa25382da2d55431a1c1d308d6a37676c4f8593cc1633f8a5ae"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pl.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "5c54b3f8e1eb3026e142e710e2167f2f839b73ab5ad7f18719230f33ae682aa9"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-BR.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "0292cadc2acfc34875c1e0b54e2d50de3833cd5e20c8660c8effe2b859aac84c"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-PT.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "31b28f3e5b5f9fe3d7abf71a779751d51ff632f3190155ef3cd97d2791a40fb1"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ro.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "b2bf064222c38a3672b01fe09406f799718cb0fc4e715121662639d6fdfea6ed"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ru.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "7193af28eb2a09b9fe7119cf6065a2150c6590971b22f98c56f356cd90851923"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sk.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "e158daaa4f3f91b57cee05ab896f2c1bc467317932cc53bb7c01e7daee9e5238"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sl.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "c62770c604a6c8c89e283357c8b322d8ce6a85f4d85c09002048331f65f8d980"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sv.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "4a21ad5bcf8d836d265710c2e4a0a64f07c9551f1c49694d6734a931d23efd39"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/th.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "4b6c8dc2ab69a0425de3aa9dc386c6539348e3983e47aa10f94c17e345a157a5"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/tr.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "b040d3f02d341eba047c15dfcafb60406d0847096a94466ecab512dcfb16abb5"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/uk.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "ff44d58635b3e8409d54b42b72c876a43e17fa98f6ea96b32583b9e88c747ab6"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/vi.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "2b3b4acbadf534cd0e812b97e589f80a4e1655b07c8907e98cc31df458ffd8b7"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_CN.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "e7f543b92977e9abc907241c411d8db0f59c4fee480859b3e88e4b495e0976c8"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_HK.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "3fc210132f33d89af3d25d27c7ea19426cf6d304be50254538456e0ec4fb7858"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_TW.lproj/Sparkle.strings",
+    "mode": "0o644",
+    "sha256": "76321e1dd844c9b6568cb4af7c63bb57d9d1b700109aeedd7e5721d78727b12d"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle",
+    "mode": "0o755",
+    "sha256": "43586ce162fe923beba54b7d3b9488cf9a4050fd9175133e27649efcb5ea79e8"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/Info.plist",
+    "mode": "0o644",
+    "sha256": "59ccb021c4e784681a2042e96feaf7c47eaa7c2a6468ce5c73d6f38274385c40"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater",
+    "mode": "0o755",
+    "sha256": "0410a942908d877d7223c11c47fd597b81dff10ee85557d3750ff76b7826b41d"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/PkgInfo",
+    "mode": "0o644",
+    "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/_CodeSignature/CodeResources",
+    "mode": "0o644",
+    "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/Info.plist",
+    "mode": "0o644",
+    "sha256": "098634fc77fd96310eff2a63d6080b76139e3b2138dade393cf1cd0ef9a4dd93"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader",
+    "mode": "0o755",
+    "sha256": "bec186a0258e4a96fa5fabe6d47e5753ac5948e09bc8ff5b86ba6f216a60656a"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/_CodeSignature/CodeResources",
+    "mode": "0o644",
+    "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/Info.plist",
+    "mode": "0o644",
+    "sha256": "c382d031b287e64e0d4e6e7eec4208600e8b2abbe100f348c3b12f8baf4a348d"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer",
+    "mode": "0o755",
+    "sha256": "8d5ce93a1ef46f05d6886b9cefef23b299287de03aede6e4d1ff527244a4ae67"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/_CodeSignature/CodeResources",
+    "mode": "0o644",
+    "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/B/_CodeSignature/CodeResources",
+    "mode": "0o644",
+    "sha256": "85e6f5f91b269206c625362b3dffa867b59e5b8e1b99da94ac41101ef8908160"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/Versions/Current",
+    "symlink": "B"
+  },
+  {
+    "path": "Contents/Frameworks/Sparkle.framework/XPCServices",
+    "symlink": "Versions/Current/XPCServices"
+  },
+  {
+    "path": "Contents/Info.plist",
+    "mode": "0o644",
+    "sha256": "137c2818ad889710e7db08322e6a71370786c88c6b9422eb677d8d665ede13de"
+  },
+  {
+    "path": "Contents/MacOS/PasteMaestro",
+    "mode": "0o755",
+    "sha256": "bd65a37faf07fe5793aca3b02893d3c8a5887c37c6ef02b67f7229942a3ffd3a"
+  },
+  {
+    "path": "Contents/Resources/Assets.car",
+    "mode": "0o644",
+    "sha256": "760bab7f610d9375377599bdb4307f02e2feb45cf2105ae0dd8d81e7968ea6ce"
+  },
+  {
+    "path": "Contents/Resources/PasteMaestro.icns",
+    "mode": "0o644",
+    "sha256": "2a18553777c1197772c069fc4a8ba4e1dfff55a402550c4a6782c87b2b022b5e"
+  },
+  {
+    "path": "Contents/Resources/en.lproj/Increment.strings",
+    "mode": "0o644",
+    "sha256": "095ac1d95918588e16ea04e635c0520201736e6ad41d3bfafcfd813abc36974c"
+  },
+  {
+    "path": "Contents/Resources/en.lproj/InfoPlist.strings",
+    "mode": "0o644",
+    "sha256": "a8801754b8a0d5d4f57f21a5c859986d1d183b93f23ebdbc9cf4badc84025938"
+  },
+  {
+    "path": "Contents/Resources/en.lproj/Localizable.strings",
+    "mode": "0o644",
+    "sha256": "1d509e45b76ed4a9843ab3c100a98eb865dae090c60ef735591c3c8b5e0c77c0"
+  },
+  {
+    "path": "Contents/Resources/en.lproj/Maestro.strings",
+    "mode": "0o644",
+    "sha256": "75b7436eb45716939cd911de56328c7fe561e41448566efe082c55eaf25a6dc9"
+  },
+  {
+    "path": "Contents/Resources/en.lproj/Style.strings",
+    "mode": "0o644",
+    "sha256": "b5384bc2642ae8eb3dddc07834e5cf4d3a904213d28bdc20b7f3913579722e5e"
+  },
+  {
+    "path": "Contents/Resources/ja.lproj/Increment.strings",
+    "mode": "0o644",
+    "sha256": "9494628d977621c845ae150ea561f63dbae5634e950ad664f8aafc98ecc67321"
+  },
+  {
+    "path": "Contents/Resources/ja.lproj/InfoPlist.strings",
+    "mode": "0o644",
+    "sha256": "a8801754b8a0d5d4f57f21a5c859986d1d183b93f23ebdbc9cf4badc84025938"
+  },
+  {
+    "path": "Contents/Resources/ja.lproj/Localizable.strings",
+    "mode": "0o644",
+    "sha256": "5d1e5040586d202e05082495a0da8e7a7d8fce5fd9aa469e236f7ca462dcb86d"
+  },
+  {
+    "path": "Contents/Resources/ja.lproj/Maestro.strings",
+    "mode": "0o644",
+    "sha256": "87e40c1b34a84aad546862a8094b78f77888e7e282838ece223a3265d4a484e1"
+  },
+  {
+    "path": "Contents/Resources/ja.lproj/Style.strings",
+    "mode": "0o644",
+    "sha256": "c8d829ad99b03cfca9109412f8fde560dfb03cb9996b78f8e1a1a7008570bab2"
+  },
+  {
+    "path": "Contents/Resources/ko.lproj/Increment.strings",
+    "mode": "0o644",
+    "sha256": "9fa570b575d35ace5cf7d1b3a71b80907b813ab2c64b907139a19899402967dd"
+  },
+  {
+    "path": "Contents/Resources/ko.lproj/InfoPlist.strings",
+    "mode": "0o644",
+    "sha256": "a8801754b8a0d5d4f57f21a5c859986d1d183b93f23ebdbc9cf4badc84025938"
+  },
+  {
+    "path": "Contents/Resources/ko.lproj/Localizable.strings",
+    "mode": "0o644",
+    "sha256": "f04a8c49ec0166afd7f32f542b16b7feffe92e9f2a9caed9576527dbbb7ef5a8"
+  },
+  {
+    "path": "Contents/Resources/ko.lproj/Maestro.strings",
+    "mode": "0o644",
+    "sha256": "66801ceed669b889cd00e33d72828cee172ce202b9121d878f028e0be015b774"
+  },
+  {
+    "path": "Contents/Resources/ko.lproj/Style.strings",
+    "mode": "0o644",
+    "sha256": "08656ff64bd0c05e2b55d3ebd17b33a281146075ae8d22b67e517190ab4885cb"
+  },
+  {
+    "path": "Contents/Resources/zh-Hans.lproj/Increment.strings",
+    "mode": "0o644",
+    "sha256": "ab8276de42f5d8b7fd638b95f28d38489189c2a83e9dc4803fdd7f23c0378a2f"
+  },
+  {
+    "path": "Contents/Resources/zh-Hans.lproj/InfoPlist.strings",
+    "mode": "0o644",
+    "sha256": "a8801754b8a0d5d4f57f21a5c859986d1d183b93f23ebdbc9cf4badc84025938"
+  },
+  {
+    "path": "Contents/Resources/zh-Hans.lproj/Localizable.strings",
+    "mode": "0o644",
+    "sha256": "6dbd45dcf29f73e17a8a045f1f7c2b6d7d49473f3f36b94b4c13a12f7a4662c8"
+  },
+  {
+    "path": "Contents/Resources/zh-Hans.lproj/Maestro.strings",
+    "mode": "0o644",
+    "sha256": "c37d1bc69ae729b57d6309581bed24c3c51d18a57fabd37fcb0d5891a954a442"
+  },
+  {
+    "path": "Contents/Resources/zh-Hans.lproj/Style.strings",
+    "mode": "0o644",
+    "sha256": "677cf023d76b252f046589e17b5ff2c4ddf922d04c8c0dcb5d7b34af14ea8b2e"
+  },
+  {
+    "path": "Contents/_CodeSignature/CodeResources",
+    "mode": "0o644",
+    "sha256": "9fa0cd6a7127b7ce8b3085abadd6ad7edd1f86f695ae7ca6c265656c2a324cf2"
+  }
+]

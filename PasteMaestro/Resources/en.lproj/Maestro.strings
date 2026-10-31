@@ -1,0 +1,12 @@
+"row" = "Paste line by line";
+"increment" = "Increment paste";
+"style" = "Match style";
+"add" = "Add selection";
+"mode" = "Paste mode";
+"explanation" = "Explanation";
+"legacy" = "An original paste app is running. PasteMaestro is paused. Quit the original app before using PasteMaestro.";
+"busy" = "A paste or clipboard restore is in progress. Please wait and try again.";
+"disabled" = "This feature is paused or disabled. Enable it in Settings.";
+"enableHint" = "Enable the hotkeys you want in Settings. The three original apps and their settings remain unchanged.";
+"showHotkey" = "Show app hotkey";
+"showHint" = "Shows the main window while PasteMaestro is running. Cannot launch the app when it is closed.";
