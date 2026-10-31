@@ -96,9 +96,11 @@ final class QuickPrefsPalette: NSObject, NSWindowDelegate {
     private let model: Model
     private var window: QuickPrefsWindow?
     init(model: Model) { self.model = model }
+    private lazy var visibility = IllustratorPaletteVisibility { [weak self] in self?.window }
     var isVisible: Bool { window?.isVisible == true }
 
     func show() {
+        _ = visibility
         if window == nil {
             let panel = QuickPrefsWindow(contentRect: NSRect(x: 0, y: 0, width: 280, height: 480),
                                          styleMask: [.titled, .closable, .utilityWindow], backing: .buffered, defer: false)

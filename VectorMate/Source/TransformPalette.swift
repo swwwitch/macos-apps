@@ -240,9 +240,11 @@ final class QuickTransformPalette: NSObject, NSWindowDelegate {
     private let state: QuickTransformState
     private var window: QuickTransformWindow?
     init(model: Model) { state = QuickTransformState(model: model) }
+    private lazy var visibility = IllustratorPaletteVisibility { [weak self] in self?.window }
     var isVisible: Bool { window?.isVisible == true }
 
     func show() {
+        _ = visibility
         if window == nil {
             let panel = QuickTransformWindow(contentRect: NSRect(x: 0, y: 0, width: 240, height: 480),
                                              styleMask: [.titled, .closable, .utilityWindow, .nonactivatingPanel], backing: .buffered, defer: false)

@@ -137,9 +137,9 @@ rows = [
 ('sets.choose', 'セットを選んでください', 'Choose a set', '请选择组合', '세트를 선택하세요'),
 ('sets.reset', 'すべて初期値に戻す', 'Reset All to Defaults', '全部恢复默认', '모두 기본값으로 되돌리기'),
 ('sets.resetConfirm', '単位セットを初期値（プリント（pt）・プリント（級）・ウェブ・プレゼン）に戻しますか？', 'Reset the unit sets to the defaults (Print (pt), Print (Q), Web, Presentation)?', '要将单位组合恢复为默认（印刷（pt）、印刷（级）、网页、演示）吗？', '단위 세트를 기본값(인쇄(pt), 인쇄(급), 웹, 프레젠테이션)으로 되돌릴까요?'),
-('sets.hint', '単位は「基本」「詳細」のどちらでも変わります。増減量とドキュメントの設定は、単位パレットのモードが「詳細」のときだけ変わります（「変更しない」の項目はそのまま。ドキュメントの設定は開いているドキュメントに対して行います）。増減量は、キー入力・角丸の半径は一般、サイズ/行送りは文字、ベースラインシフトは東アジア言語の単位で指定します。', 'Units change in both Basic and Detailed mode. The increments and document settings change only in Detailed mode (items set to Leave unchanged stay as they are; document settings apply to the open document). Keyboard increment and corner radius are in the General unit, size/leading in the Type unit, baseline shift in the East Asian unit.', '单位在“基本”和“详细”模式下都会更改。增量和文档设置仅在“详细”模式下更改（“不更改”的项目保持原样；文档设置作用于打开的文档）。键盘增量和圆角半径使用常规单位，大小/行距使用文字单位，基线偏移使用东亚文字单位。', '단위는 기본과 상세 모두에서 바뀝니다. 증감량과 도큐먼트 설정은 상세 모드에서만 바뀝니다(변경 안 함 항목은 그대로이며, 도큐먼트 설정은 열린 도큐먼트에 적용). 키보드 증감과 모퉁이 반경은 일반 단위, 크기/행간은 문자 단위, 기준선 이동은 동아시아 단위로 지정합니다.'),
+('sets.hint', '単位と増減量は「基本」「詳細」のどちらでも変わります。ドキュメントの設定は、単位パレットのモードが「詳細」のときだけ変わります（「変更しない」の項目はそのまま。ドキュメントの設定は開いているドキュメントに対して行います）。増減量は、キー入力・角丸の半径は一般、サイズ/行送りは文字、ベースラインシフトは東アジア言語の単位で指定します。', 'Units and increments change in both Basic and Detailed mode. Document settings change only in Detailed mode (items set to Leave unchanged stay as they are; document settings apply to the open document). Keyboard increment and corner radius are in the General unit, size/leading in the Type unit, baseline shift in the East Asian unit.', '单位和增量在“基本”和“详细”模式下都会更改。文档设置仅在“详细”模式下更改（“不更改”的项目保持原样；文档设置作用于打开的文档）。键盘增量和圆角半径使用常规单位，大小/行距使用文字单位，基线偏移使用东亚文字单位。', '단위와 증감량은 기본과 상세 모두에서 바뀝니다. 도큐먼트 설정은 상세 모드에서만 바뀝니다(변경 안 함 항목은 그대로이며, 도큐먼트 설정은 열린 도큐먼트에 적용). 키보드 증감과 모퉁이 반경은 일반 단위, 크기/행간은 문자 단위, 기준선 이동은 동아시아 단위로 지정합니다.'),
 ('sets.name', 'セット名', 'Set Name', '组名称', '세트 이름'),
-('sets.detailTitle', '詳細（増減量）', 'Detailed (increments)', '详细（增量）', '상세(증감량)'),
+('sets.detailTitle', '増減量', 'Increments', '增量', '증감량'),
 ('sets.otherTitle', 'その他（カラーモード、プレビュー）', 'Other (color mode, preview)', '其他（颜色模式、预览）', '기타(색상 모드, 미리 보기)'),
 ('sets.colorMode', 'カラーモード', 'Color mode', '颜色模式', '색상 모드'),
 ('sets.overprint', 'オーバープリントプレビュー', 'Overprint Preview', '叠印预览', '중복 인쇄 미리 보기'),
@@ -442,7 +442,7 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 - 1回の操作はIllustratorの取り消し1段分です（スライダーは刻みごと）。
 
 単位パレット
-「単位パレットを表示」（メニューバー・ファイルメニュー・メインウインドウの「単位パレット」ボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです。単位セット（初期値はプリント（pt）・プリント（級）・ウェブ・プレゼン）を一覧から選び、⌘Return・⌘クリック・ダブルクリックで切り替えます（Tab・↑↓で選択、Escで隠す。今の単位と同じセットは「— 現在」）。モードが「基本」のときは単位だけ、「詳細」のときはキー入力・角丸の半径・サイズ/行送り・ベースラインシフトと、開いているドキュメントのカラーモード・オーバープリントプレビュー・ラスタライズ効果の解像度・透明グリッドの色と、ピクセルにスナップも変えます（透明グリッドの色は SetSameGridColors と同じく、［ドキュメント設定］の色見本をクリックしてカラーパネルの16進数欄に書きます。マウスポインタが動きます）。セットは「セットを編集…」または設定の「単位セット」タブで追加・削除・並べ替え・編集できます。単位はスクリプトから書いても再起動まで効かないため、環境設定の［単位］を開いて各ポップアップを矢印キーで目的の単位にし、4つとも合っているときだけ［OK］を押します（合わなければ［キャンセル］）。操作のあと単位を読み直して確かめます。操作中はキーボードやマウスに触れないでください。
+「単位パレットを表示」（メニューバー・ファイルメニュー・メインウインドウの「単位パレット」ボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです。単位セット（初期値はプリント（pt）・プリント（級）・ウェブ・プレゼン）を一覧から選び、⌘Return・⌘クリック・ダブルクリックで切り替えます（Tab・↑↓で選択、Escで隠す。今の単位と同じセットは「— 現在」）。「基本」「詳細」のどちらでも単位と増減量（キー入力・角丸の半径・サイズ/行送り・ベースラインシフト）を変えます。「詳細」ではさらに、開いているドキュメントのカラーモード・オーバープリントプレビュー・ラスタライズ効果の解像度・透明グリッドの色と、ピクセルにスナップも変えます（透明グリッドの色は SetSameGridColors と同じく、［ドキュメント設定］の色見本をクリックしてカラーパネルの16進数欄に書きます。マウスポインタが動きます）。セットは「セットを編集…」または設定の「単位セット」タブで追加・削除・並べ替え・編集できます。単位はスクリプトから書いても再起動まで効かないため、環境設定の［単位］を開いて各ポップアップを矢印キーで目的の単位にし、4つとも合っているときだけ［OK］を押します（合わなければ［キャンセル］）。操作のあと単位を読み直して確かめます。操作中はキーボードやマウスに触れないでください。
 
 ツール（タブ）
 ［シェイプ形成ツールオプション］の「次のカラーを利用」を「スウォッチ」「オブジェクト」のラジオボタンで切り替えます。シェイプ形成ツールを選んでツールオプションを開き、一覧から選んで［OK］を押します（ドキュメントを開いておいてください。ツールはシェイプ形成ツールに切り替わります）。操作中はキーボードやマウスに触れないでください。
@@ -516,7 +516,7 @@ A floating palette opened with Show Quick Transform (menu bar, File menu, the ma
 - Each operation is one undo step in Illustrator (the slider, one per step).
 
 Units Palette
-A floating palette opened with Show Units Palette (menu bar, File menu, the Units Palette button of the main window, or a hotkey set in Settings). Pick a unit set (by default Print (pt), Print (Q), Web, Presentation) and switch with ⌘Return, ⌘-click or double-click (Tab / ↑↓ select, Esc hides; the set matching the current units is marked). In Basic mode only the units change; in Detailed mode the keyboard increment, corner radius, size/leading and baseline shift, and the open document’s color mode, Overprint Preview, raster effects resolution, transparency grid colors and Snap to Pixel change too (the grid colors are set as SetSameGridColors does: the swatches in Document Setup are clicked and the color panel’s hex field written; the pointer moves). Edit Sets… or the Unit Sets tab of Settings adds, deletes, reorders and edits the sets. Units written from a script only take effect after a restart, so the Units pane of Settings is opened, each popup is moved to the wanted unit with the arrow keys, and OK is pressed only when all four match (Cancel otherwise); the units are read again afterwards. Do not touch the keyboard or mouse meanwhile.
+A floating palette opened with Show Units Palette (menu bar, File menu, the Units Palette button of the main window, or a hotkey set in Settings). Pick a unit set (by default Print (pt), Print (Q), Web, Presentation) and switch with ⌘Return, ⌘-click or double-click (Tab / ↑↓ select, Esc hides; the set matching the current units is marked). Both Basic and Detailed modes change units and increments (keyboard increment, corner radius, size/leading and baseline shift). Detailed mode also changes the open document’s color mode, Overprint Preview, raster effects resolution, transparency grid colors and Snap to Pixel change too (the grid colors are set as SetSameGridColors does: the swatches in Document Setup are clicked and the color panel’s hex field written; the pointer moves). Edit Sets… or the Unit Sets tab of Settings adds, deletes, reorders and edits the sets. Units written from a script only take effect after a restart, so the Units pane of Settings is opened, each popup is moved to the wanted unit with the arrow keys, and OK is pressed only when all four match (Cancel otherwise); the units are read again afterwards. Do not touch the keyboard or mouse meanwhile.
 
 Tools tab
 Radio buttons for Pick Color From in the Shape Builder Tool Options (Color Swatches or Artwork). The Shape Builder tool is selected, its options are opened, the item is picked and OK is pressed (a document must be open; the Shape Builder tool stays selected). Do not touch the keyboard or mouse meanwhile.
@@ -590,7 +590,7 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 - 每次操作对应 Illustrator 的一步撤销（滑块为每个步进一步）。
 
 单位面板
-通过“显示单位面板”（菜单栏、文件菜单、主窗口的“单位面板”按钮或在设置中指定的快捷键）打开的浮动面板。从列表选择单位组合（默认：印刷（pt）、印刷（级）、网页、演示），按 ⌘Return、⌘点按或双击切换。“基本”模式仅更改单位；“详细”模式还会更改键盘增量、圆角半径、大小/行距、基线偏移，以及打开文档的颜色模式、叠印预览、栅格效果分辨率、透明度网格颜色和对齐像素（网格颜色会点按“文档设置”中的色块并写入颜色面板的十六进制栏，鼠标指针会移动）。可通过“编辑组合…”或设置的“单位组合”标签添加、删除、排序和编辑。会打开设置的“单位”，用方向键选择各弹出菜单，四项都正确时才按“好”。操作期间请勿触碰键盘和鼠标。
+通过“显示单位面板”（菜单栏、文件菜单、主窗口的“单位面板”按钮或在设置中指定的快捷键）打开的浮动面板。从列表选择单位组合（默认：印刷（pt）、印刷（级）、网页、演示），按 ⌘Return、⌘点按或双击切换。“基本”和“详细”模式都会更改单位及增量（键盘增量、圆角半径、大小/行距、基线偏移）；“详细”模式还会更改打开文档的颜色模式、叠印预览、栅格效果分辨率、透明度网格颜色和对齐像素（网格颜色会点按“文档设置”中的色块并写入颜色面板的十六进制栏，鼠标指针会移动）。可通过“编辑组合…”或设置的“单位组合”标签添加、删除、排序和编辑。会打开设置的“单位”，用方向键选择各弹出菜单，四项都正确时才按“好”。操作期间请勿触碰键盘和鼠标。
 
 工具（标签）
 用单选按钮切换“形状生成器工具选项”中的“拾色来源”（色板或图稿）。会选择形状生成器工具、打开其选项、选择项目并按“好”（需要打开文档；工具会保持为形状生成器工具）。操作期间请勿触碰键盘和鼠标。
@@ -664,7 +664,7 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 - 한 번의 조작은 Illustrator의 실행 취소 1단계입니다(슬라이더는 단위마다).
 
 단위 팔레트
-단위 팔레트 보기(메뉴 막대, 파일 메뉴, 메인 윈도우의 단위 팔레트 버튼 또는 설정에서 지정한 단축키)로 여는 떠 있는 팔레트입니다. 목록에서 단위 세트(기본값: 인쇄(pt), 인쇄(급), 웹, 프레젠테이션)를 골라 ⌘Return·⌘클릭·이중 클릭으로 전환합니다. 기본 모드는 단위만, 상세 모드는 키보드 증감·모퉁이 반경·크기/행간·기준선 이동과 열린 도큐먼트의 색상 모드·중복 인쇄 미리 보기·래스터 효과 해상도·투명도 격자 색상·픽셀에 물리기도 바꿉니다(격자 색상은 도큐먼트 설정의 색상 견본을 클릭해 색상 패널의 16진수 칸에 씁니다. 포인터가 움직입니다). 세트 편집… 또는 설정의 단위 세트 탭에서 추가·삭제·정렬·편집할 수 있습니다. 설정의 단위를 열어 각 팝업을 화살표 키로 맞추고 네 개가 모두 맞을 때만 확인을 누릅니다. 조작 중에는 키보드와 마우스를 만지지 마세요.
+단위 팔레트 보기(메뉴 막대, 파일 메뉴, 메인 윈도우의 단위 팔레트 버튼 또는 설정에서 지정한 단축키)로 여는 떠 있는 팔레트입니다. 목록에서 단위 세트(기본값: 인쇄(pt), 인쇄(급), 웹, 프레젠테이션)를 골라 ⌘Return·⌘클릭·이중 클릭으로 전환합니다. 기본과 상세 모드는 모두 단위와 증감량(키보드 증감·모퉁이 반경·크기/행간·기준선 이동)을 바꿉니다. 상세 모드는 추가로 열린 도큐먼트의 색상 모드·중복 인쇄 미리 보기·래스터 효과 해상도·투명도 격자 색상·픽셀에 물리기도 바꿉니다(격자 색상은 도큐먼트 설정의 색상 견본을 클릭해 색상 패널의 16진수 칸에 씁니다. 포인터가 움직입니다). 세트 편집… 또는 설정의 단위 세트 탭에서 추가·삭제·정렬·편집할 수 있습니다. 설정의 단위를 열어 각 팝업을 화살표 키로 맞추고 네 개가 모두 맞을 때만 확인을 누릅니다. 조작 중에는 키보드와 마우스를 만지지 마세요.
 
 도구(탭)
 도형 구성 도구 옵션의 색상 선택 위치(색상 견본 또는 아트워크)를 라디오 버튼으로 전환합니다. 도형 구성 도구를 선택하고 옵션을 열어 항목을 고른 뒤 확인을 누릅니다(도큐먼트가 열려 있어야 하며, 도구는 도형 구성 도구로 남습니다). 조작 중에는 키보드와 마우스를 만지지 마세요.

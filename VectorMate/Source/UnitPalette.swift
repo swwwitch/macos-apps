@@ -82,9 +82,11 @@ final class UnitPalette: NSObject, NSTableViewDataSource, NSTableViewDelegate, N
             .sink { [weak self] _ in self?.reload() }.store(in: &observers)
     }
 
+    private lazy var visibility = IllustratorPaletteVisibility { [weak self] in self?.window }
     var isVisible: Bool { window?.isVisible == true }
 
     func show() {
+        _ = visibility
         if window == nil { build() }
         model.refreshSettingsState()
         reload()
@@ -275,12 +277,12 @@ final class UnitPalette: NSObject, NSTableViewDataSource, NSTableViewDelegate, N
     /// The units, and in 詳細 the increments and document settings (the row's tooltip).
     static func summary(_ set: UnitSet, detail: Bool) -> String {
         var text = unitsLine(set, includeAsian: true)
-        guard detail else { return text }
         let increments = (0..<4).map { index -> String in
             let popup = UnitSettings.incrementUnitIndex[index]
             return UnitSettings.format(set.increments[index]) + UnitSettings.label(code: set.units[popup], popup: popup)
         }
         text += "\n" + String(format: L("palette.increments"), increments[0], increments[1], increments[2], increments[3])
+        guard detail else { return text }
         var document: [String] = []
         if let mode = set.colorMode { document.append(mode == .cmyk ? "CMYK" : "RGB") }
         if let overprint = set.overprintPreview { document.append(L(overprint ? "palette.overprintOn" : "palette.overprintOff")) }
@@ -298,4 +300,44 @@ final class UnitPalette: NSObject, NSTableViewDataSource, NSTableViewDelegate, N
     }
 
     func windowWillClose(_ notification: Notification) { selectedID = nil }
+}
+
+/// Keep palette interaction in this app possible, while hiding palettes over unrelated apps.
+@MainActor
+final class IllustratorPaletteVisibility {
+    private let window: () -> NSWindow?
+    private var suspended = false
+    private var activation: NSObjectProtocol?
+    private var closing: NSObjectProtocol?
+
+    init(window: @escaping () -> NSWindow?) {
+        self.window = window
+        activation = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.update() }
+        }
+        closing = NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification, object: nil, queue: .main
+        ) { [weak self] notification in
+            MainActor.assumeIsolated {
+                guard let self, let panel = notification.object as? NSWindow, panel === self.window() else { return }
+                self.suspended = false
+            }
+        }
+    }
+
+    deinit {
+        if let activation { NSWorkspace.shared.notificationCenter.removeObserver(activation) }
+        if let closing { NotificationCenter.default.removeObserver(closing) }
+    }
+
+    private func update() {
+        guard let front = NSWorkspace.shared.frontmostApplication, let panel = window() else { return }
+        if Illustrator.isIllustrator(front) {
+            if suspended { suspended = false; panel.orderFrontRegardless() }
+        } else if front.processIdentifier != ProcessInfo.processInfo.processIdentifier {
+            if panel.isVisible { suspended = true; panel.orderOut(nil) }
+        }
+    }
 }

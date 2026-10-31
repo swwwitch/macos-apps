@@ -134,10 +134,10 @@ enum UnitSettings {
     static func apply(_ set: UnitSet, detail: Bool) -> Result<Applied, SettingsFailure> {
         guard let app = runningIllustrator() else { return .failure(.notRunning) }
         guard AXIsProcessTrusted() else { return .failure(.notTrusted) }
-        let writes = detail ? incrementKeys.indices.map { index -> String in
+        let writes = incrementKeys.indices.map { index -> String in
             let code = set.units[incrementUnitIndex[index]]
             return "p.setRealPreference(\"\(incrementKeys[index])\", \(set.increments[index] * (units.indices.contains(code) ? units[code].points : 1)));"
-        } : []
+        }
         if let failure = setUnits(set.units, writes: writes, in: app) { return .failure(failure) }
         var skipped = false
         if detail, set.hasDocumentSettings {
