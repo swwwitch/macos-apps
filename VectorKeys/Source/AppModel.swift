@@ -252,6 +252,8 @@ struct RunRecord: Identifiable {
         }
     }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
+    @Published var actionSearch = ""
+    @Published var componentSearch = ""
     @Published var editingComponents = true
     @Published var componentActionGroupFilter = AppModel.allCategories { didSet { componentSelections = [] } }
     @Published var componentSelections: Set<String> = []
@@ -522,9 +524,26 @@ struct RunRecord: Identifiable {
 
         }
     }
-    func deleteComponent(_ id: String) {
-        guard !library.scripts.contains(where: { $0.componentIDs?.contains(id) == true }) else { return }
-        undoable(L("delete")) { library.components?.removeAll { $0.id == id } }
+    func deleteComponent(_ id: String) { deleteComponents([id]) }
+    func deleteComponents(_ ids: Set<String>) {
+        guard library.deletableComponents(ids) == ids, !ids.isEmpty else { return }
+        undoable(L("delete")) {
+            var next = library
+            guard let paths = next.removeComponents(ids) else { return }
+            // Suppression belongs to component registration, not action references.
+            setWatchIgnored(watchIgnored.union(paths))
+            library = next
+        }
+        componentSelections.subtract(ids)
+    }
+    func setComponentCategory(_ category: String?, ids: Set<String>) {
+        guard category.map({ library.componentCategoryList.contains($0) }) ?? true else { return }
+        undoable(L("componentCategory.title")) { library.setComponentCategory(category, ids: ids) }
+        componentFilter = category ?? Self.uncategorized
+        componentSelections = ids.intersection(Set((library.components ?? []).map(\.id)))
+    }
+    private func setWatchIgnored(_ paths: Set<String>) {
+        watchIgnored = paths; defaults.set(Array(paths), forKey: "watchIgnored")
     }
 
     func add(urls: [URL]) { editingComponents = true; addComponentFiles(urls) }
@@ -678,21 +697,22 @@ struct RunRecord: Identifiable {
     /// Removes scripts from the list. Code saved by an import (in Imported) goes to the Trash when nothing else uses it;
     /// ⌘Z brings back both the entries and those files.
     func delete(_ ids: Set<String>) {
-        let roots = watchFolders.map { $0 + "/" }
-        let removedPaths = library.scripts.filter { ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) }.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path }
-        watchIgnored.formUnion(removedPaths.filter { path in roots.contains { path.hasPrefix($0) } })
-        defaults.set(Array(watchIgnored), forKey: "watchIgnored")
-        let removed = library.scripts.filter { ids.contains($0.id) }
-        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) } + (library.components ?? []).compactMap { $0.step.scriptPath })
-        let imported = Library.folder.appendingPathComponent("Imported", isDirectory: true).path + "/"
-        let paths = Set(removed.flatMap { $0.actions.compactMap(\.scriptPath) })
-        let files = TrashedFiles(paths.filter { $0.hasPrefix(imported) && !remaining.contains($0) }.map { URL(fileURLWithPath: $0) })
-        undoable(L("undo.delete"), files: files) {
-            library.scripts.removeAll { ids.contains($0.id) }
-            files.trash()
-        }
+        undoable(L("undo.delete")) { library.scripts.removeAll { ids.contains($0.id) } }
         selection.subtract(ids)
     }
+    func placeActions(_ ids: Set<String>, before target: String?, within visible: [String]) {
+        undoable(L("undo.steps")) { _ = library.placeActions(ids, before: target, within: visible) }
+    }
+    func showAction(_ id: String) {
+        guard library.scripts.contains(where: { $0.id == id }) else { return }
+        editingComponents = false; actionSearch = ""; categoryFilter = Self.allCategories; selection = [id]
+    }
+    func showComponent(_ id: String) {
+        guard library.components?.contains(where: { $0.id == id }) == true else { return }
+        componentActionGroupFilter = Self.allCategories; componentFilter = Self.allCategories
+        componentSearch = ""; componentSelection = id; editingComponents = true
+    }
+
     func move(ids: [String], from source: IndexSet, to destination: Int) { library.move(ids: ids, from: source, to: destination) }
 
     var currentComponentCategory: String? { [Self.allCategories, Self.uncategorized].contains(componentFilter) ? nil : componentFilter }
@@ -766,7 +786,7 @@ struct RunRecord: Identifiable {
         guard let name = askName(title: L("category.newTitle"), value: "") else { return }
         var added: String?
         undoable(L("undo.newCategory")) { added = library.addCategory(name) }
-        if let added { categoryFilter = added }
+        if let added { if editingComponents { componentActionGroupFilter = added } else { categoryFilter = added } }
     }
     func setColor(_ color: ItemTag?, for ids: Set<String>) {
         undoable(L("item.color")) {
@@ -786,29 +806,45 @@ struct RunRecord: Identifiable {
         let renamed = new.trimmingCharacters(in: .whitespacesAndNewlines)
         if !renamed.isEmpty && renamed != name { paletteRenamed?(name, renamed) }
         if categoryFilter == name && !renamed.isEmpty { categoryFilter = renamed }
+        if componentActionGroupFilter == name && !renamed.isEmpty { componentActionGroupFilter = renamed }
         return true
     }
     func deleteCategory(_ name: String) {
         undoable(L("undo.deleteCategory")) { library.deleteCategory(name) }
         if categoryFilter == name { categoryFilter = Self.allCategories }
+        if componentActionGroupFilter == name { componentActionGroupFilter = Self.allCategories }
     }
     func setCategory(_ name: String?, for ids: Set<String>) { undoable(L("undo.category")) { library.setCategory(name, for: ids) } }
     /// Tools › アイテム名の検索と置換… opens the sheet in the main window.
     @Published var showReplace = false
-    func replaceNames(find: String, with replacement: String, regex: Bool, caseSensitive: Bool) {
+    var selectedNameTargets: [NamedLibraryItem] {
+        let visible: Set<String>
+        if editingComponents {
+            visible = Set(componentsInCurrentGroup.filter { componentSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(componentSearch) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(componentSearch) }.map(\.id))
+        } else {
+            visible = Set(scripts(in: categoryFilter).filter { actionSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(actionSearch) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(actionSearch) }.map(\.id))
+        }
+        return library.nameTargets(components: editingComponents, ids: (editingComponents ? componentSelections : selection).intersection(visible))
+    }
+    func replaceNames(find: String, with replacement: String, regex: Bool, caseSensitive: Bool, components: Bool? = nil, ids: Set<String>? = nil) {
+        let componentMode = components ?? editingComponents
+        let targets = ids ?? Set(selectedNameTargets.map(\.id))
         var count = 0
-        undoable(L("undo.rename")) { count = library.replaceNames(ids: selection, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) }
+        undoable(L("undo.rename")) {
+            count = componentMode ? library.replaceComponentNames(ids: targets, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) : library.replaceNames(ids: targets, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive)
+        }
         record("VectorKeys", String(format: L("replace.done"), count), error: false)
     }
-    /// Tools › KMマクロのナンバリングを削除, on the selected scripts.
     func stripNumbering() {
+        let componentMode = editingComponents, targets = Set(selectedNameTargets.map(\.id))
         var count = 0
-        undoable(L("undo.rename")) { count = library.stripNumbering(ids: selection) }
+        undoable(L("undo.rename")) { count = componentMode ? library.stripComponentNumbering(ids: targets) : library.stripNumbering(ids: targets) }
         record("VectorKeys", String(format: L("tools.stripped"), count), error: false)
     }
-    /// A row dropped on a category: when it is one of the selected rows, the whole selection goes along.
-    func dropped(_ id: String, on category: String?) {
-        setCategory(category, for: selection.contains(id) ? selection : [id])
+    func dropped(_ text: String, on category: String?) {
+        let ids = ActionDragPayload.decode(text)
+        if !ids.isEmpty { setCategory(category, for: ids.intersection(Set(library.scripts.map(\.id)))) }
+        else if library.scripts.contains(where: { $0.id == text }) { setCategory(category, for: selection.contains(text) ? selection : [text]) }
     }
     // MARK: Undo
 
@@ -817,12 +853,12 @@ struct RunRecord: Identifiable {
     /// Runs a change of the list and lets ⌘Z put the list back (and ⇧⌘Z redo it). Typing in a name field has its
     /// own undo; this covers the list operations: renaming by tools, categories, deleting, importing.
     private func undoable(_ name: String, files: TrashedFiles? = nil, _ change: () -> Void) {
-        let before = library
+        let before = library, ignoredBefore = watchIgnored
         change()
-        let after = library
-        guard after != before else { return }
-        registerUndo(name, undo: { [weak self] in files?.restore(); self?.library = before },
-                     redo: { [weak self] in self?.library = after; files?.trash() })
+        let after = library, ignoredAfter = watchIgnored
+        guard after != before || ignoredAfter != ignoredBefore else { return }
+        registerUndo(name, undo: { [weak self] in files?.restore(); self?.setWatchIgnored(ignoredBefore); self?.library = before },
+                     redo: { [weak self] in self?.setWatchIgnored(ignoredAfter); self?.library = after; files?.trash() })
     }
     private func registerUndo(_ name: String, undo: @escaping () -> Void, redo: @escaping () -> Void) {
         undoManager.registerUndo(withTarget: self) { model in
@@ -852,7 +888,7 @@ struct RunRecord: Identifiable {
         }
     }
     /// Tools › KMの元のマクロをオフにする / オンに戻す, for the selected scripts that came from Keyboard Maestro.
-    var selectedKMUIDs: [String] { library.scripts.filter { selection.contains($0.id) }.compactMap(\.kmUID) }
+    var selectedKMUIDs: [String] { editingComponents ? [] : library.scripts.filter { selection.contains($0.id) }.compactMap(\.kmUID) }
 
     /// A small name prompt (an alert with a text field). Returns nil on cancel or an empty name.
     private func askName(title: String, value: String) -> String? {
