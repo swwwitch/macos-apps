@@ -134,7 +134,7 @@ struct CommandDetail: View {
         case .menu(_, let dialog): return L(dialog ? "kind.dialog" : "kind.menu")
         case .effect: return L("kind.effect")
         case .code: return L("kind.code." + command.id)
-        case .action: return L("kind.action")
+        case .action, .recordedAction: return L("kind.action")
         case .namedAction(let set, let name): return String(format: L("kind.namedAction"), name, set)
         case .script: return L("kind.script")
         }

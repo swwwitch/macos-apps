@@ -2,7 +2,7 @@
 
 Illustratorの効果・パスファインダー・複合シェイプ・複合パス・線端などを、Illustratorの上に浮かぶパレットとホットキーで実行するAppKit/SwiftUIアプリ。Apple Silicon / macOS 13以降。Bundle ID `jp.dtp-transit.vectorfx`。
 
-Keyboard Maestroのパレット型グループ「Ai-アピアランス」（`sync-setting/keyboard maestro/outgo-2021/Ai-アピアランス Macros.kmmacros`）を移植した。KMでオンのマクロ33本が対象（オフのマクロ・区切りのマクロは除外）。
+Keyboard Maestroのパレット型グループ「Ai-アピアランス」（`sync-setting/keyboard maestro/outgo-2021/Ai-アピアランス Macros.kmmacros`）を移植した。1.0.0ではKMでオンだった33本、1.1.0で残りのマクロ（Ai-アピアランス Macros2.kmmacros）を追加して57項目。区切りのマクロは見出しに、「グラフィックスタイルを更新」（パネルメニューを座標クリック）は未移植。
 
 ## 動作
 
@@ -19,6 +19,11 @@ Keyboard Maestroのパレット型グループ「Ai-アピアランス」（`syn
 | パスのアウトライン・オブジェクトのアウトライン・パスファインダー（追加・分割・アウトライン・切り抜き）・複合パス | `executeMenuCommand` |
 | アピアランスを消去・項目を削除・複合シェイプ（Ai Do Action Text／Appearance Panel Action） | 一時アクション（.aiaを書いて loadAction → doScript → unloadAction、セット名「VectorFX Temporary」） |
 | グループの抜き（Ai Do Action） | `app.doScript("グループの抜き", "S2A")` |
+| ［効果］＞3D（クラシック）の各項目 | Ai 2026の［3D とマテリアル］（Live Adobe Geometry3D Extrude／Revolve／Rotate） |
+| ラスタライズ（キー入力で設定してReturn）・ラスタライズ（2回目以降） | 1項目「ラスタライズ」にまとめ、ダイアログボックスを開く |
+| 塗りを追加（⌘/）・線を追加（⌥⌘/） | Adobe New Fill Shortcut／Adobe New Stroke Shortcut |
+| テキストの塗りを白／黒＋アウトライン、オープンパス・つぶすの「丸型線端に」 | KMの中のアクション（.aia）を Resources/Actions に同梱し、セット名を差し替えて実行 |
+| 同じキーの重複（⇧E・⇧T・⇧K・K・`=`／`` ` ``） | 1キー1項目。先に移植した項目を優先し、重複した側はキーなし（項目を複製は =、リセット黒は K、白は W） |
 | 線端（Ai Execute Jsx Text） | 組み込みのExtendScript（グループ・複合パスの中も） |
 | スクリプトファイル（Open1File／Ai Execute Script File） | `do javascript (POSIX file …)`。場所は変更できる。KPTSketchy.jsx は現存しないため KPTSketchyPalette.jsx を既定にした |
 | 変形「上を基準に6px下げ、つぶす2」 | テキスト1つ：長方形（+1/+3）→［変形］高さ0・基準点上中央・フォントサイズの半分下へ。それ以外：高さ0・中央 |
@@ -44,4 +49,5 @@ Assets/make-icon.sh  # アイコンを作り直す
 
 ## 更新履歴
 
+- 1.1.0 (2)　2026-11-01：抜けていたマクロ24本を追加（パスファインダー5種、楕円形・角丸長方形、3D 3種、ランダム・ひねり、旋回、ラスタライズ、塗り・線の追加、項目を複製、リセット白・黒、テキストの塗り白・黒＋アウトライン、グラフィックスタイルを適用（最後）、アピアランスを分割（グループ解除）、オープンパスにする、変形：つぶして線にする）。「変形：テキストを線にする（＋1・＋3）」はKMで無効だったテキスト以外の手順を外した。既存の保存キーに新項目の既定キーを追加（空いているキーだけ）。
 - 1.0.0 (1)　2026-11-01：新規。KMの「Ai-アピアランス」パレットを移植（33項目・ホットキー17）。

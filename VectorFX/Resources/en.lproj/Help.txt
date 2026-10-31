@@ -6,10 +6,11 @@ VectorFX runs Illustrator effects, Pathfinder, compound paths, caps and more fro
 - Items ending with “…” open Illustrator's dialog box; the next command waits until it closes.
 
 ## Effects applied with values
-Drop Shadow, Offset Path, Rectangle, Zig Zag and Roughen are applied without a dialog box, using the values set in the main window. Lengths use the document's units.
+Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Roughen are applied without a dialog box, using the values set in the main window. Lengths use the document's units.
 - Option-click in the palette to open Illustrator's dialog box instead.
 - Double-click the effect in the Appearance panel to adjust it later.
 - With several objects selected, each gets its own effect.
+- 3D (Extrude & Bevel, Revolve, Rotate) opens the 3D and Materials effects.
 
 ## Main window
 - Left list: checked items appear in the palette. The right column shows the assigned hotkey.

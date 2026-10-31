@@ -8,10 +8,11 @@ VectorFXは、Illustratorの効果・パスファインダー・複合パス・�
 - 名前の後ろに「…」がある項目は、Illustratorのダイアログボックスを開きます。閉じるまで次の操作は待ちます。
 
 ## 値を指定して適用する効果
-ドロップシャドウ・パスのオフセット・長方形・ジグザグ・ラフは、ダイアログボックスを出さずに、メインウインドウで決めた値で効果を適用します。長さはドキュメントの単位です。
+ドロップシャドウ・パスのオフセット・長方形・楕円形・角丸長方形・ジグザグ・ラフは、ダイアログボックスを出さずに、メインウインドウで決めた値で効果を適用します。長さはドキュメントの単位です。
 - パレットでOptionを押しながらクリックすると、代わりにIllustratorのダイアログボックスを開きます。
 - 適用した効果は、アピアランスパネルでダブルクリックして調整できます。
 - 複数のオブジェクトを選んでいるときは、それぞれに効果を付けます。
+- 3D（押し出し・ベベル、回転体、回転）は［3D とマテリアル］の効果を開きます。
 
 ## メインウインドウ
 - 左の一覧：チェックを入れた項目がパレットに表示されます。右端は割り当てたホットキーです。
@@ -54,10 +55,11 @@ VectorFX runs Illustrator effects, Pathfinder, compound paths, caps and more fro
 - Items ending with “…” open Illustrator's dialog box; the next command waits until it closes.
 
 ## Effects applied with values
-Drop Shadow, Offset Path, Rectangle, Zig Zag and Roughen are applied without a dialog box, using the values set in the main window. Lengths use the document's units.
+Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Roughen are applied without a dialog box, using the values set in the main window. Lengths use the document's units.
 - Option-click in the palette to open Illustrator's dialog box instead.
 - Double-click the effect in the Appearance panel to adjust it later.
 - With several objects selected, each gets its own effect.
+- 3D (Extrude & Bevel, Revolve, Rotate) opens the 3D and Materials effects.
 
 ## Main window
 - Left list: checked items appear in the palette. The right column shows the assigned hotkey.
@@ -100,10 +102,11 @@ VectorFX 通过面板按钮和快捷键执行 Illustrator 的效果、路径查�
 - 名称后带“…”的项目会打开 Illustrator 的对话框，关闭前后续操作会等待。
 
 ## 以数值应用的效果
-投影、位移路径、矩形、波纹效果和粗糙化不显示对话框，而是使用主窗口中设定的数值应用效果。长度使用文档单位。
+投影、位移路径、矩形、椭圆、圆角矩形、波纹效果和粗糙化不显示对话框，而是使用主窗口中设定的数值应用效果。长度使用文档单位。
 - 在面板中按住 Option 单击可改为打开 Illustrator 的对话框。
 - 应用后可在“外观”面板中双击效果进行调整。
 - 选择多个对象时，每个对象分别添加效果。
+- 3D（凸出和斜角、绕转、旋转）会打开“3D 和材质”效果。
 
 ## 主窗口
 - 左侧列表：勾选的项目显示在面板中，右端为分配的快捷键。
@@ -146,10 +149,11 @@ VectorFX는 Illustrator의 효과, 패스파인더, 컴파운드 패스, 단면 
 - 이름 뒤에 “…”가 있는 항목은 Illustrator 대화상자를 엽니다. 닫을 때까지 다음 작업은 기다립니다.
 
 ## 값을 지정해 적용하는 효과
-그림자 만들기, 패스 이동, 사각형, 지그재그, 거칠게 하기는 대화상자 없이 메인 윈도우에서 정한 값으로 효과를 적용합니다. 길이는 문서 단위입니다.
+그림자 만들기, 패스 이동, 사각형, 타원, 둥근 사각형, 지그재그, 거칠게 하기는 대화상자 없이 메인 윈도우에서 정한 값으로 효과를 적용합니다. 길이는 문서 단위입니다.
 - 팔레트에서 Option을 누른 채 클릭하면 대신 Illustrator 대화상자를 엽니다.
 - 적용한 효과는 모양 패널에서 더블클릭해 조정할 수 있습니다.
 - 여러 개체를 선택하면 각각에 효과를 적용합니다.
+- 3D(돌출과 경사, 회전체, 회전)는 [3D 및 재질] 효과를 엽니다.
 
 ## 메인 윈도우
 - 왼쪽 목록: 체크한 항목이 팔레트에 표시됩니다. 오른쪽 끝은 지정한 단축키입니다.

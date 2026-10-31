@@ -14,14 +14,18 @@ struct StatusLine: Equatable {
 @MainActor final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
     /// Keys shared by 設定の共有. Script paths, startup, residency and the app hotkey stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["hiddenCommands", "commandKeys", "commandValues", "paletteHotkey", "paletteHotkeyEnabled"]
+    nonisolated static let sharedKeys: Set<String> = ["hiddenCommands", "commandKeys", "commandKeysKnown", "commandValues", "paletteHotkey", "paletteHotkeyEnabled"]
 
     // MARK: Palette items
 
     @Published var hidden: Set<String> = Model.storedHidden() { didSet { defaults.set(hidden.sorted(), forKey: "hiddenCommands"); updateRegistrations() } }
     /// Every command's key; a missing entry means none. Until the first change the original keys are used.
     @Published var keys: [String: KeyCombo] = Model.storedKeys() {
-        didSet { defaults.set((try? JSONEncoder().encode(keys)) ?? Data(), forKey: "commandKeys"); updateRegistrations() }
+        didSet {
+            defaults.set((try? JSONEncoder().encode(keys)) ?? Data(), forKey: "commandKeys")
+            defaults.set(Catalog.all.map(\.id), forKey: "commandKeysKnown")
+            updateRegistrations()
+        }
     }
     @Published var values: [String: [String: Double]] = Model.storedValues() { didSet { defaults.set(values, forKey: "commandValues") } }
     @Published var scriptPaths: [String: String] = UserDefaults.standard.dictionary(forKey: "scriptPaths") as? [String: String] ?? [:] {
@@ -36,9 +40,21 @@ struct StatusLine: Equatable {
     static var defaultKeys: [String: KeyCombo] {
         Dictionary(uniqueKeysWithValues: Catalog.all.compactMap { command in command.defaultKey.map { (command.id, $0.combo) } })
     }
+    /// Commands of 1.0.0, saved before "commandKeysKnown" existed.
+    static let firstCommands: Set<String> = ["roundCorners", "dropShadow", "warp", "outlineObject", "outlineStroke", "offsetPath", "pfAdd", "pfDivide", "pfOutline", "pfCrop",
+        "rectangle", "zigzag", "zigzagFlat", "freeDistort", "freeDistortScript", "puckerBloat", "roughen", "transform", "flatten", "removeItem", "sketchy", "strokeScale",
+        "clearAppearance", "clearKeepFill", "expandAppearance", "knockout", "makeCompoundShape", "releaseCompoundShape", "makeCompoundPath", "releaseCompoundPath",
+        "buttCap", "roundCap", "projectingCap"]
+    /// Saved keys, plus the default keys of commands added since (when the key is still free).
     static func storedKeys() -> [String: KeyCombo] {
-        guard let data = UserDefaults.standard.data(forKey: "commandKeys"), let keys = try? JSONDecoder().decode([String: KeyCombo].self, from: data) else { return defaultKeys }
-        return keys.filter { Catalog.command($0.key) != nil }
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "commandKeys"), let stored = try? JSONDecoder().decode([String: KeyCombo].self, from: data) else { return defaultKeys }
+        var keys = stored.filter { Catalog.command($0.key) != nil }
+        let known = defaults.stringArray(forKey: "commandKeysKnown").map(Set.init) ?? firstCommands
+        for command in Catalog.all where !known.contains(command.id) {
+            if let combo = command.defaultKey?.combo, !keys.values.contains(combo) { keys[command.id] = combo }
+        }
+        return keys
     }
     static func storedValues() -> [String: [String: Double]] {
         (UserDefaults.standard.dictionary(forKey: "commandValues") as? [String: [String: Double]]) ?? [:]
@@ -146,6 +162,11 @@ struct StatusLine: Equatable {
 
     // MARK: Running
 
+    /// Actions recorded in Illustrator, bundled under Resources/Actions.
+    nonisolated static func recordedAction(_ name: String) -> String? {
+        Bundle.main.url(forResource: name, withExtension: "aia", subdirectory: "Actions").flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+    }
+
     private let runner = CommandRunner()
     @Published var running = 0
 
@@ -154,7 +175,7 @@ struct StatusLine: Equatable {
         guard Illustrator.running != nil else { report(L("status.noIllustrator"), error: true); return }
         if fromWindow { Illustrator.running?.activate() }
         let values = Dictionary(uniqueKeysWithValues: command.params.map { ($0.key, value(command, $0)) })
-        let source = ScriptBuilder.source(for: command, values: values, dialog: dialog)
+        let source = ScriptBuilder.source(for: command, values: values, dialog: dialog, recorded: Model.recordedAction)
         let file = source == nil ? scriptPath(command) : nil
         running += 1
         let accepted = runner.run(source: source, file: file) { [weak self] outcome in

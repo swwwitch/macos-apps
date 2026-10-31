@@ -11,7 +11,7 @@ python3 make-resources.py
 app="$stage/VectorFX.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp Info.plist "$app/Contents/Info.plist"
-cp -R Resources/*.lproj "$app/Contents/Resources/"
+cp -R Resources/*.lproj Resources/Actions "$app/Contents/Resources/"
 cp Assets/VectorFX.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices "${UPDATE_SWIFT_FLAGS[@]}" \

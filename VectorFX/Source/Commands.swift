@@ -12,7 +12,7 @@ enum PaletteSection: String, CaseIterable {
 struct DefaultKey: Equatable {
     let code: UInt32
     let modifiers: UInt32
-    static let shift: UInt32 = 512, command: UInt32 = 256, option: UInt32 = 2048
+    static let shift: UInt32 = 512, command: UInt32 = 256, option: UInt32 = 2048, control: UInt32 = 4096
 }
 
 /// Values the user can change for an effect applied without its dialog box.
@@ -36,12 +36,14 @@ struct ParamSpec: Equatable {
 
 /// Live effects built from values (no dialog box). `dialog` is the Effect menu command used instead with Option.
 enum EffectKind: Equatable {
-    case dropShadow, offsetPath, rectangle, zigzag, roughen
+    case dropShadow, offsetPath, rectangle, roundedRectangle, ellipse, zigzag, roughen
     var dialog: String {
         switch self {
         case .dropShadow: return "Live Adobe Drop Shadow"
         case .offsetPath: return "Live Offset Path"
         case .rectangle: return "Live Rectangle"
+        case .roundedRectangle: return "Live Rounded Rectangle"
+        case .ellipse: return "Live Ellipse"
         case .zigzag: return "Live Zig Zag"
         case .roughen: return "Live Roughen"
         }
@@ -56,6 +58,8 @@ enum CommandAction: Equatable {
     case code(BuiltInCode)
     /// A one-event action loaded from text, run and unloaded again.
     case action(TempAction)
+    /// An action recorded in Illustrator, bundled as Resources/Actions/<name>.aia (loaded under VectorFX's own set name).
+    case recordedAction(String)
     /// An action of the user's own action set (Window › Actions).
     case namedAction(set: String, name: String)
     /// A script file; the path can be changed in the main window.
@@ -64,7 +68,12 @@ enum CommandAction: Equatable {
 
 enum BuiltInCode: Equatable {
     case cap(String)          // StrokeCap.BUTTENDCAP etc.
-    case flattenTransform     // Transform: height 0; for one text frame a line at half the font size
+    case flattenTransform     // One text frame: rectangle, height 0 and half the font size down
+    /// Height 0 → Pathfinder Outline → 1 pt round caps: an open line. moveHalf also moves text down by half the font size.
+    case openPath(moveHalf: Bool)
+    case resetFill(white: Bool)   // Clear Appearance, then fill white/black, no stroke, opacity 100
+    case pasteLastStyle           // the document's last graphic style
+    case expandUngroup            // Expand Appearance, ungroup, deselect
 }
 
 struct Command: Equatable {
@@ -100,16 +109,27 @@ enum Catalog {
                 params: [ParamSpec(key: "opacity", kind: .percent, defaultValue: 30, range: 0...100), length("offsetX", 2), length("offsetY", 2),
                          ParamSpec(key: "blur", kind: .length, defaultValue: 2, range: 0...1000)], defaultKey: key(2)),                      // ⇧D
         Command(id: "warp", section: .stylize, action: .menu("Live Deform Arc", dialog: true), defaultKey: key(9)),                          // ⇧V
+        Command(id: "extrude3D", section: .stylize, action: .menu("Live Adobe Geometry3D Extrude", dialog: true), defaultKey: key(20, 0)),   // 3
+        Command(id: "revolve3D", section: .stylize, action: .menu("Live Adobe Geometry3D Revolve", dialog: true)),
+        Command(id: "rotate3D", section: .stylize, action: .menu("Live Adobe Geometry3D Rotate", dialog: true)),
         Command(id: "outlineObject", section: .path, action: .menu("Live Outline Object", dialog: false), defaultKey: key(37)),               // ⇧L
         Command(id: "outlineStroke", section: .path, action: .menu("Live Outline Stroke", dialog: false), defaultKey: key(31)),               // ⇧O
         Command(id: "offsetPath", section: .path, action: .effect(.offsetPath),
                 params: [length("offset", 1), ParamSpec(key: "join", kind: .join, defaultValue: 2, range: 0...2)], defaultKey: key(1)),      // ⇧S
         Command(id: "pfAdd", section: .pathfinder, action: .menu("Live Pathfinder Add", dialog: false), defaultKey: key(35)),                 // ⇧P
+        Command(id: "pfIntersect", section: .pathfinder, action: .menu("Live Pathfinder Intersect", dialog: false)),
+        Command(id: "pfExclude", section: .pathfinder, action: .menu("Live Pathfinder Exclude", dialog: false)),
+        Command(id: "pfSubtract", section: .pathfinder, action: .menu("Live Pathfinder Subtract", dialog: false)),
+        Command(id: "pfMinusBack", section: .pathfinder, action: .menu("Live Pathfinder Minus Back", dialog: false)),
         Command(id: "pfDivide", section: .pathfinder, action: .menu("Live Pathfinder Divide", dialog: false)),
+        Command(id: "pfMerge", section: .pathfinder, action: .menu("Live Pathfinder Merge", dialog: false), defaultKey: key(5)),              // ⇧G
         Command(id: "pfOutline", section: .pathfinder, action: .menu("Live Pathfinder Outline", dialog: false)),
         Command(id: "pfCrop", section: .pathfinder, action: .menu("Live Pathfinder Crop", dialog: false), defaultKey: key(8)),                // ⇧C
         Command(id: "rectangle", section: .shape, action: .effect(.rectangle),
                 params: [length("extraWidth", 0), length("extraHeight", 0)], defaultKey: key(14)),                                       // ⇧E
+        Command(id: "ellipse", section: .shape, action: .effect(.ellipse), params: [length("extraWidth", 0), length("extraHeight", 0)]),
+        Command(id: "roundedRectangle", section: .shape, action: .effect(.roundedRectangle),
+                params: [length("extraWidth", 0), length("extraHeight", 0), ParamSpec(key: "cornerRadius", kind: .length, defaultValue: 1, range: 0...1000)]),
         Command(id: "zigzag", section: .distort, action: .effect(.zigzag),
                 params: [ParamSpec(key: "size", kind: .length, defaultValue: 0, range: 0...1000), ParamSpec(key: "ridges", kind: .count, defaultValue: 1, range: 0...100),
                          ParamSpec(key: "smooth", kind: .toggle, defaultValue: 0, range: 0...1)]),
@@ -122,21 +142,36 @@ enum Catalog {
         Command(id: "roughen", section: .distort, action: .effect(.roughen),
                 params: [ParamSpec(key: "size", kind: .length, defaultValue: 0, range: 0...1000), ParamSpec(key: "detail", kind: .count, defaultValue: 9, range: 0...100),
                          ParamSpec(key: "smooth", kind: .toggle, defaultValue: 1, range: 0...1)]),
+        Command(id: "scribbleTweak", section: .distort, action: .menu("Live Scribble and Tweak", dialog: true)),
         Command(id: "transform", section: .distort, action: .menu("Live Transform", dialog: true), defaultKey: key(17)),                     // ⇧T
+        Command(id: "flattenLine", section: .distort, action: .code(.openPath(moveHalf: true))),
         Command(id: "flatten", section: .distort, action: .code(.flattenTransform)),
+        Command(id: "twist", section: .distort, action: .menu("Live Twist", dialog: true)),
+        Command(id: "resetBlack", section: .misc, action: .code(.resetFill(white: false)), defaultKey: key(40, 0)),                          // K
+        Command(id: "resetWhite", section: .misc, action: .code(.resetFill(white: true)), defaultKey: key(13, 0)),                           // W
+        Command(id: "textBlack", section: .misc, action: .recordedAction("textBlackOutline")),
+        Command(id: "textWhite", section: .misc, action: .recordedAction("textWhiteOutline"), defaultKey: key(13)),                          // ⇧W
+        Command(id: "pasteLastStyle", section: .misc, action: .code(.pasteLastStyle),
+                defaultKey: key(9, DefaultKey.control | DefaultKey.option | DefaultKey.command)),                                         // ⌃⌥⌘V
+        Command(id: "duplicateItem", section: .misc, action: .action(.appearance(value: 3, name: "項目を複製")), defaultKey: key(24, 0)),     // =
+        Command(id: "addFill", section: .misc, action: .menu("Adobe New Fill Shortcut", dialog: false), defaultKey: key(19)),               // ⇧2
+        Command(id: "addStroke", section: .misc, action: .menu("Adobe New Stroke Shortcut", dialog: false), defaultKey: key(18)),           // ⇧1
         Command(id: "removeItem", section: .misc, action: .action(.appearance(value: 4, name: "項目を削除")), defaultKey: key(27, 0)),        // -
         Command(id: "sketchy", section: .misc, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/KPTSketchyPalette.jsx"), defaultKey: key(40)), // ⇧K
+        Command(id: "rasterize", section: .misc, action: .menu("Live Rasterize", dialog: true)),
         Command(id: "strokeScale", section: .misc, action: .script(defaultPath: "~/sw Dropbox/takano masahiro/sync-setting/ai/スクリプト/stroke/resize-all-stroke-width-master/すべての線幅を変更.jsx")),
         Command(id: "clearAppearance", section: .release, action: .action(.appearance(value: 6, name: "アピアランスを消去"))),
         Command(id: "clearKeepFill", section: .release, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/ClearAppearance.jsx"),
                 defaultKey: key(51, DefaultKey.option | DefaultKey.shift)),                                                                 // ⌥⇧⌫
         Command(id: "expandAppearance", section: .release, action: .script(defaultPath: "~/Git/ai-scripts/jsx/misc/ExpandAppearanceEachObject.jsx"),
                 defaultKey: key(31, DefaultKey.option | DefaultKey.shift | DefaultKey.command)),                                            // ⌥⇧⌘O
+        Command(id: "expandUngroup", section: .release, action: .code(.expandUngroup)),
         Command(id: "knockout", section: .release, action: .namedAction(set: "S2A", name: "グループの抜き"),
                 defaultKey: key(5, DefaultKey.option | DefaultKey.command)),                                                                // ⌥⌘G
         Command(id: "makeCompoundShape", section: .compoundShape, action: .action(.makeCompoundShape)),
         Command(id: "releaseCompoundShape", section: .compoundShape, action: .action(.releaseCompoundShape)),
         Command(id: "makeCompoundPath", section: .compoundPath, action: .menu("compoundPath", dialog: false)),
+        Command(id: "openPath", section: .compoundPath, action: .code(.openPath(moveHalf: false))),
         Command(id: "releaseCompoundPath", section: .compoundPath, action: .menu("noCompoundPath", dialog: false)),
         Command(id: "buttCap", section: .caps, action: .code(.cap("BUTTENDCAP"))),
         Command(id: "roundCap", section: .caps, action: .code(.cap("ROUNDENDCAP"))),
@@ -152,6 +187,16 @@ enum TempAction: Equatable {
     case makeCompoundShape, releaseCompoundShape
     static let setName = "VectorFX Temporary"
     static let actionName = "VectorFX"
+
+    /// A recorded .aia with its set and action renamed to VectorFX's own (so a set of the same name is never unloaded).
+    static func renamed(_ raw: String) -> String {
+        var text = raw.replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: #"/keyIndex \d+"#, with: "/keyIndex 0", options: .regularExpression)   // no function key while loaded
+        let set = name("name", setName, indent: ""), action = name("name", actionName, indent: "\t")
+        if let range = text.range(of: #"(?m)^/name \[ \d+\n[0-9a-f\s]+?\n\]"#, options: .regularExpression) { text.replaceSubrange(range, with: set) }
+        if let range = text.range(of: #"(?m)^\t/name \[ \d+\n[0-9a-f\s]+?\n\t\]"#, options: .regularExpression) { text.replaceSubrange(range, with: action) }
+        return text
+    }
 
     static func hex(_ text: String) -> String { text.utf8.map { String(format: "%02x", $0) }.joined() }
     private static func name(_ key: String, _ text: String, indent: String) -> String {

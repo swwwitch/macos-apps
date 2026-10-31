@@ -1,0 +1,133 @@
+/version 3
+/name [ 11
+	73746172742d626c61636b
+]
+/isOpen 1
+/actionCount 1
+/action-1 {
+	/name [ 28
+		e382a2e38394e382a2e383a9e383b3e382b973746172742d4b313030
+	]
+	/keyIndex 17
+	/colorIndex 0
+	/isOpen 0
+	/eventCount 4
+	/event-1 {
+		/useRulersIn1stQuadrant 0
+		/internalName (ai_plugin_appearance)
+		/localizedName [ 18
+			e382a2e38394e382a2e383a9e383b3e382b9
+		]
+		/isOpen 1
+		/isOn 1
+		/hasDialog 0
+		/parameterCount 1
+		/parameter-1 {
+			/key 1835363957
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 27
+				e382a2e38394e382a2e383a9e383b3e382b9e38292e6b688e58ebb
+			]
+			/value 6
+		}
+	}
+	/event-2 {
+		/useRulersIn1stQuadrant 0
+		/internalName (ai_plugin_setColor)
+		/localizedName [ 18
+			e382abe383a9e383bce38292e8a8ade5ae9a
+		]
+		/isOpen 1
+		/isOn 1
+		/hasDialog 0
+		/parameterCount 4
+		/parameter-1 {
+			/key 1768186740
+			/showInPalette 4294967295
+			/type (ustring)
+			/value [ 18
+				e382abe383a9e383bc2028e5a197e3828a29
+			]
+		}
+		/parameter-2 {
+			/key 1718185068
+			/showInPalette 4294967295
+			/type (boolean)
+			/value 1
+		}
+		/parameter-3 {
+			/key 1836349808
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 6
+				e381aae38197
+			]
+			/value 4294967295
+		}
+		/parameter-4 {
+			/key 1954115685
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 0
+
+			]
+			/value 4294967295
+		}
+	}
+	/event-3 {
+		/useRulersIn1stQuadrant 0
+		/internalName (adobe_commandManager)
+		/localizedName [ 33
+			e383a1e3838be383a5e383bce9a085e79baee381abe382a2e382afe382bbe382
+			b9
+		]
+		/isOpen 0
+		/isOn 1
+		/hasDialog 0
+		/parameterCount 3
+		/parameter-1 {
+			/key 1769238125
+			/showInPalette 4294967295
+			/type (ustring)
+			/value [ 19
+				4c697665204f75746c696e65204f626a656374
+			]
+		}
+		/parameter-2 {
+			/key 1818455661
+			/showInPalette 4294967295
+			/type (ustring)
+			/value [ 55
+				e58ab9e69e9c3a20e38391e382b93a20e382aae38396e382b8e382a7e382afe3
+				8388e381aee382a2e382a6e38388e383a9e382a4e383b3
+			]
+		}
+		/parameter-3 {
+			/key 1668114788
+			/showInPalette 4294967295
+			/type (integer)
+			/value 2164260954
+		}
+	}
+	/event-4 {
+		/useRulersIn1stQuadrant 0
+		/internalName (ai_plugin_appearance)
+		/localizedName [ 18
+			e382a2e38394e382a2e383a9e383b3e382b9
+		]
+		/isOpen 1
+		/isOn 1
+		/hasDialog 0
+		/parameterCount 1
+		/parameter-1 {
+			/key 1835363957
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 21
+				e696b0e8a68fe5a197e3828ae38292e8bfbde58aa0
+			]
+			/value 1
+		}
+	}
+}

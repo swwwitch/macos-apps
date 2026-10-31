@@ -19,7 +19,7 @@ ids = re.findall(r'Command\(id: "([^"]+)"', src)
 keys.update('cmd.' + i for i in ids)
 keys.update('section.' + s.strip() for s in re.search(r'case (stylize[^\n]+)', src).group(1).split(','))
 keys.update('param.' + k for k in re.findall(r'key: "([^"]+)"', src) + re.findall(r'length\("([^"]+)"', src))
-keys.update('kind.code.' + i for i in ['buttCap', 'roundCap', 'projectingCap', 'flatten'])
+keys.update('kind.code.' + i for i in re.findall(r'Command\(id: "([^"]+)"[^\n]*action: \.code\(', src))
 keys.update('status.err.' + f.strip() for f in re.search(r'enum Failure: String \{ case ([^}]+)\}', (root / 'Source/ScriptBuilder.swift').read_text()).group(1).split(','))
 sets = []
 for p in (root / 'Resources').glob('*.lproj/Localizable.strings'):
