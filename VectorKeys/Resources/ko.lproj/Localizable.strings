@@ -1,3 +1,5 @@
+"source.path" = "경로";
+"palette.filenames" = "파일 이름 추가";
 "info.selected" = "선택한 항목";
 "info.group" = "선택한 그룹";
 "info.all" = "모두";

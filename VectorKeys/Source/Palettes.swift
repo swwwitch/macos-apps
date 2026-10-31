@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Clicking a script must preserve Illustrator's text/object selection and focus.
 final class CategoryPanel: NSPanel {
-    override var canBecomeKey: Bool { false }
+    override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 }
 
@@ -77,11 +77,16 @@ final class CategoryPanel: NSPanel {
             styleMask: [.titled, .closable, .resizable, .utilityWindow, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = title(category)
         panel.isReleasedWhenClosed = false
+        panel.becomesKeyOnlyIfNeeded = true
         panel.level = .floating
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.minSize = NSSize(width: 220, height: 150)
-        panel.contentView = NSHostingView(rootView: CategoryPaletteView(model: model, category: category))
+        panel.contentView = NSHostingView(rootView: CategoryPaletteView(model: model, category: category, run: { [weak self] script in
+            self?.panels[category]?.makeFirstResponder(nil)
+            self?.panels[category]?.resignKey()
+            self?.model.runFromWindow(script)
+        }))
         let frameName = "VectorKeys.Palette." + Data(category.utf8).map { String(format: "%02x", $0) }.joined()
         panel.center()
         _ = panel.setFrameUsingName(frameName)
@@ -106,9 +111,19 @@ final class CategoryPanel: NSPanel {
 struct CategoryPaletteView: View {
     @ObservedObject var model: AppModel
     let category: String
-    private var scripts: [ScriptEntry] { model.scripts(in: category) }
+    let run: (ScriptEntry) -> Void
+    @State private var search = ""
+    @FocusState private var searchFocused: Bool
+    @AppStorage("paletteShowFilenames") private var showFilenames = false
+    private var scripts: [ScriptEntry] { PaletteSearch.filter(model.scripts(in: category), query: search) }
     var body: some View {
         VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                TextField(L("search"), text: $search).textFieldStyle(.roundedBorder).focused($searchFocused)
+                    .accessibilityLabel(L("search"))
+                Toggle(L("palette.filenames"), isOn: $showFilenames).font(.caption)
+            }.padding(10)
+            Divider()
             ScrollView {
                 LazyVStack(spacing: 6) {
                     if scripts.isEmpty {
@@ -117,9 +132,16 @@ struct CategoryPaletteView: View {
                     }
                     ForEach(scripts) { script in
                         if script.isDivider { HStack { Divider(); Text(script.name).font(.caption); Divider() }.padding(.vertical, 4) } else {
-                        Button { model.runFromWindow(script) } label: {
+                        Button { searchFocused = false; run(script) } label: {
                             HStack(spacing: 8) {
-                                Text(script.name).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(script.name).lineLimit(2)
+                                    if showFilenames {
+                                        ForEach(Array(script.actions.compactMap(\.scriptPath).enumerated()), id: \.offset) { _, path in
+                                            Text((path as NSString).lastPathComponent).font(.caption2).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle)
+                                        }
+                                    }
+                                }.frame(maxWidth: .infinity, alignment: .leading)
                                 if let hotkey = script.hotkey {
                                     Text(hotkey.fullLabel).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                                 }

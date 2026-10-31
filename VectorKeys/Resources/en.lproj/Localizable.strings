@@ -1,3 +1,5 @@
+"source.path" = "Path";
+"palette.filenames" = "Include Filenames";
 "info.selected" = "Selected Items";
 "info.group" = "Selected Group";
 "info.all" = "All";

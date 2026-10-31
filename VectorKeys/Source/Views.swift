@@ -70,14 +70,13 @@ struct ScriptDetail: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
     @AppStorage("showUses") private var showUses = false
-    @State private var showHotkeyHelp = false
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
                         TextField(L("name"), text: Binding(get: { script.name }, set: { script.name = $0; script.automaticName = nil; script.userRenamed = true }))
-                            .textFieldStyle(.plain).font(.system(size: 18, weight: .semibold))
+                            .textFieldStyle(.plain).font(.system(size: 16, weight: .semibold))
                             .accessibilityLabel(L("name"))
                         Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
                             .buttonStyle(.borderedProminent).disabled(!script.isAvailable).help(L("runHint"))
@@ -96,9 +95,9 @@ struct ScriptDetail: View {
                 ItemColorPicker(color: Binding(get: { script.tagColor }, set: { model.setColor($0, for: [script.id]) }))
                 StepsEditor(model: model, script: script)
                 Divider()
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(L("hotkey")).font(.subheadline.weight(.semibold))
-                    HStack(spacing: 12) {
+                    HStack(spacing: 8) {
                         HotkeyField(id: "script-" + script.id, combo: Binding(get: { script.hotkey.map { KeyCombo(code: $0.code, modifiers: $0.modifiers) } },
                             set: { combo in script.hotkey = combo.map { Hotkey(code: $0.code, modifiers: $0.modifiers, taps: script.hotkey?.taps) } }),
                             allowsClear: true, others: model.otherHotkeys(except: script.id, taps: .some(script.hotkey?.taps)),
@@ -110,10 +109,6 @@ struct ScriptDetail: View {
                         .pickerStyle(.segmented).labelsHidden().fixedSize().disabled(script.hotkey == nil || !script.enabled)
                     }.controlSize(.small)
                     if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
-                    DisclosureGroup(L("ui.hotkeyHelp"), isExpanded: $showHotkeyHelp) {
-                        Text(L("hotkeyHint") + "\n" + L("taps.hint"))
-                            .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
-                    }.font(.caption).foregroundColor(.secondary)
                 }
                 Divider()
                 ScriptInfoView(model: model, script: $script)
@@ -121,7 +116,7 @@ struct ScriptDetail: View {
                     Text(usesText).font(.caption).foregroundColor(.secondary).help(L("uses.hint"))
                 }
             }
-            .padding(20).frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -154,6 +149,7 @@ struct StepRow: View {
     let script: ScriptEntry
     let index: Int
     let step: Step
+    @State private var showPath = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if case .code(let source) = step {
@@ -182,8 +178,13 @@ struct StepRow: View {
                             Text(title).lineLimit(2).truncationMode(.middle)
                             if let version = model.version(for: step) { Text(version).font(.caption).foregroundColor(.secondary) }
                         }
-                        Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
-                            .lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+                        if missing {
+                            Text(detail).font(.caption).foregroundColor(.orange).lineLimit(2)
+                        } else {
+                            DisclosureGroup(L("source.path"), isExpanded: $showPath) {
+                                Text(detail).font(.caption).foregroundColor(.secondary).textSelection(.enabled)
+                            }.font(.caption).foregroundColor(.secondary)
+                        }
                         if case .script(let path) = step {
                             HStack(spacing: 8) {
                                 Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
@@ -191,13 +192,13 @@ struct StepRow: View {
                                 Button(L("source.open")) { model.openSource(path) }
                                     .help(L("source.hint")).disabled((path as NSString).pathExtension.lowercased() == "jsxbin")
                             }
-                            .controlSize(.small).disabled(missing).padding(.top, 4)
+                            .controlSize(.small).disabled(missing).padding(.top, 2)
                         }
                     }
                     Spacer(minLength: 0)
                     stepMenu
                 }
-                .padding(12)
+                .padding(8)
                 .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
                 .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.15)))
             }
@@ -843,18 +844,18 @@ extension ItemTag {
 struct ItemColorPicker: View {
     @Binding var color: ItemTag?
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(L("item.color")).font(.caption).foregroundColor(.secondary)
-            HStack(spacing: 10) {
+        HStack(spacing: 8) {
+            Text(L("item.color")).font(.caption).foregroundColor(.secondary).frame(width: 52, alignment: .leading)
+            HStack(spacing: 6) {
                 Button { color = nil } label: {
-                    Image(systemName: "nosign").font(.system(size: 18)).frame(width: 25, height: 25)
+                    Image(systemName: "nosign").font(.system(size: 16)).frame(width: 23, height: 23)
                         .overlay(Circle().strokeBorder(color == nil ? Color.primary : .clear, lineWidth: 2))
                 }.help(L("color.none")).accessibilityLabel(L("color.none"))
                 ForEach(ItemTag.allCases, id: \.self) { tag in
                     Button { color = tag } label: {
                         Circle().fill(tag.displayColor.opacity(0.65))
                             .overlay(Circle().strokeBorder(tag.displayColor, lineWidth: 1.5))
-                            .frame(width: 20, height: 20).padding(3)
+                            .frame(width: 17, height: 17).padding(3)
                             .overlay(Circle().strokeBorder(color == tag ? Color.primary : .clear, lineWidth: 2))
                     }.help(L("color." + tag.rawValue)).accessibilityLabel(L("color." + tag.rawValue))
                         .accessibilityValue(color == tag ? L("color.selected") : "")
@@ -894,12 +895,10 @@ struct ItemDeleteShortcut: NSViewRepresentable {
 struct ScriptInfoView: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
+    @State private var expanded = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(L("meta.info")).font(.subheadline.weight(.semibold))
-                if model.updatingInformation { ProgressView().controlSize(.small); Text(L("meta.refreshing")).font(.caption).foregroundColor(.secondary) }
-            }
+        DisclosureGroup(L("meta.info"), isExpanded: $expanded) {
+        VStack(alignment: .leading, spacing: 10) {
             ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
                 if step.isSupported {
                     VStack(alignment: .leading, spacing: 10) {
@@ -919,7 +918,8 @@ struct ScriptInfoView: View {
                     .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.secondary.opacity(0.18)))
                     .accessibilityLabel(L("meta.notes"))
             }
-        }
+        }.padding(.top, 6)
+        }.font(.subheadline)
     }
 }
 
@@ -985,14 +985,14 @@ struct ItemTagsEditor: View {
     let script: ScriptEntry
     @State private var text = ""
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(L("tags.title")).font(.caption).foregroundColor(.secondary)
-            TextField(L("tags.input"), text: $text).textFieldStyle(.roundedBorder)
-                .onSubmit { model.setTags(text, for: script.id) }
-            HStack {
-                Button(L("tags.save")) { model.setTags(text, for: script.id) }
-                Text(script.allTags.joined(separator: " · ")).font(.caption).foregroundColor(.secondary)
-            }
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Text(L("tags.title")).font(.caption).foregroundColor(.secondary).frame(width: 52, alignment: .leading)
+                TextField(L("tags.input"), text: $text).textFieldStyle(.roundedBorder)
+                    .onSubmit { model.setTags(text, for: script.id) }
+                Button { model.setTags(text, for: script.id) } label: { Image(systemName: "checkmark") }
+                    .help(L("tags.save")).accessibilityLabel(L("tags.save"))
+            }.controlSize(.small)
             if let tags = script.folderTags, !tags.isEmpty {
                 Text(L("tags.fromFolder") + tags.joined(separator: " · ")).font(.caption).foregroundColor(.secondary)
             }
