@@ -69,32 +69,16 @@ extension Hotkey {
 struct ScriptDetail: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
-    @AppStorage("showUses") private var showUses = false
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 8) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
-                        TextField(L("name"), text: Binding(get: { script.name }, set: { script.name = $0; script.automaticName = nil; script.userRenamed = true }))
-                            .textFieldStyle(.plain).font(.system(size: 16, weight: .semibold))
-                            .accessibilityLabel(L("name"))
-                        Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
-                            .buttonStyle(.borderedProminent).disabled(!script.isAvailable).help(L("runHint"))
-                    }
-                    HStack(spacing: 8) {
-                        Text(L("category")).font(.caption).foregroundColor(.secondary)
-                        Picker("", selection: Binding(get: { script.category ?? "" }, set: { model.setCategory($0.isEmpty ? nil : $0, for: [script.id]) })) {
-                            Text(L("category.none")).tag("")
-                            ForEach(model.library.categoryList, id: \.self) { Text($0).tag($0) }
-                        }
-                        .labelsHidden().fixedSize().accessibilityLabel(L("category"))
-                        Spacer(minLength: 0)
-                    }
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    TextField(L("name"), text: Binding(get: { script.name }, set: { value in
+                        var next = script; next.name = value; next.automaticName = nil; next.userRenamed = true; script = next
+                    })).textFieldStyle(.plain).font(.system(size: 16, weight: .semibold)).accessibilityLabel(L("name"))
+                    Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
+                        .buttonStyle(.borderedProminent).disabled(!script.isAvailable).help(L("runHint"))
                 }
-                ItemTagsEditor(model: model, script: script)
-                ItemColorPicker(color: Binding(get: { script.tagColor }, set: { model.setColor($0, for: [script.id]) }))
-                StepsEditor(model: model, script: script)
-                Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L("hotkey")).font(.subheadline.weight(.semibold))
                     HStack(spacing: 8) {
@@ -111,13 +95,8 @@ struct ScriptDetail: View {
                     if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
                 }
                 Divider()
-                ScriptOverviewView(model: model, script: script)
-                ScriptInfoView(model: model, script: $script)
-                if showUses && script.uses > 0 {
-                    Text(usesText).font(.caption).foregroundColor(.secondary).help(L("uses.hint"))
-                }
-            }
-            .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+                StepsEditor(model: model, script: script)
+            }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -135,9 +114,7 @@ struct StepsEditor: View {
                     Text("\(index + 1)").font(.caption).foregroundColor(.secondary)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(model.library.components?.first { $0.id == id }?.name ?? L("components.missing"))
-                        if let path = model.library.components?.first(where: { $0.id == id })?.step.scriptPath {
-                            Text(path).font(.caption).foregroundColor(.secondary).lineLimit(2).truncationMode(.middle).textSelection(.enabled).help(path)
-                        }
+
                     }
                     Spacer()
                     Menu {
@@ -159,112 +136,6 @@ struct StepsEditor: View {
     }
 }
 
-struct StepRow: View {
-    @ObservedObject var model: AppModel
-    let script: ScriptEntry
-    let index: Int
-    let step: Step
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if case .code(let source) = step {
-                HStack {
-                    Text(componentName).font(.caption).foregroundColor(.secondary)
-                    if script.actions.count > 1 {
-                        Text(String(format: L("ui.stepNumber"), index + 1)).font(.caption).foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    stepMenu
-                }
-                TextEditor(text: Binding(get: { source }, set: { model.updateCode(script.id, at: index, source: $0) }))
-                    .font(.system(size: 12, design: .monospaced))
-                    .frame(minHeight: 240)
-                    .padding(8)
-                    .background(Color(nsColor: .textBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.18)))
-                    .accessibilityLabel(L("code.title"))
-                if let version = model.version(for: step) { Text(L("meta.version") + " " + version).font(.caption).foregroundColor(.secondary) }
-                if missing { Text(L("code.empty")).font(.caption).foregroundColor(.secondary) }
-            } else {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: symbol).foregroundColor(.secondary).padding(.top, 2).accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(title).lineLimit(2).truncationMode(.middle)
-                            if let version = model.version(for: step) { Text(version).font(.caption).foregroundColor(.secondary) }
-                        }
-                        Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
-                            .lineLimit(2).truncationMode(.middle).textSelection(.enabled).help(detail)
-                        if case .script(let path) = step {
-                            HStack(spacing: 8) {
-                                Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
-                                Button(L("source.reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }
-                                Button(L("source.open")) { model.openSource(path) }
-                                    .help(L("source.hint")).disabled((path as NSString).pathExtension.lowercased() == "jsxbin")
-                            }
-                            .controlSize(.small).disabled(missing).padding(.top, 2)
-                        }
-                    }
-                    Spacer(minLength: 0)
-                    stepMenu
-                }
-                .padding(8)
-                .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
-                .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.secondary.opacity(0.15)))
-            }
-        }
-    }
-    private var stepMenu: some View {
-        Menu {
-                Button(L("moveUp")) { model.moveStep(script.id, from: index, by: -1) }.disabled(index == 0)
-                Button(L("moveDown")) { model.moveStep(script.id, from: index, by: 1) }.disabled(index == script.actions.count - 1)
-                switch step {
-                case .script(let path):
-                    Divider()
-                    Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(missing)
-                    Button(L("relink")) { model.relink(script.id, step: index) }
-                case .code, .menuCommand, .menuItem:
-                    EmptyView()
-                }
-                Divider()
-                Button(L("delete")) { model.removeStep(script.id, at: index) }
-            } label: { Image(systemName: "ellipsis.circle") }
-            .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help(L("stepMenu")).accessibilityLabel(L("stepMenu"))
-    }
-    private var componentName: String {
-        guard let ids = script.componentIDs, ids.indices.contains(index) else { return L("components.title") }
-        return model.library.components?.first { $0.id == ids[index] }?.name ?? L("components.title")
-    }
-    private var missing: Bool { !step.exists }
-    private var symbol: String {
-        switch step { case .code: return "chevron.left.forwardslash.chevron.right"; case .script: return "doc.text"; case .menuCommand: return "command"; case .menuItem: return "menubar.rectangle" }
-    }
-    private var title: String {
-        switch step {
-        case .code: return L("code.title")
-        case .script(let path): return (path as NSString).lastPathComponent
-        case .menuCommand(let id, let menuTitle): return menuTitle ?? id
-        case .menuItem(let path): return path.joined(separator: " › ")
-        }
-    }
-    private var detail: String {
-        switch step {
-        case .code: return L(missing ? "code.empty" : "code.hint")
-        case .script(let path): return missing ? L("badge.missingHint") : (path as NSString).deletingLastPathComponent
-        case .menuCommand(let id, _): return L("legacy.badge") + "：" + id
-        case .menuItem: return L("legacy.badge")
-        }
-    }
-}
-
-extension ScriptDetail {
-    var usesText: String {
-        guard let last = script.lastRun, script.uses > 0 else { return L("uses.never") }
-        return String(format: L("uses.detail"), script.uses, last.formatted(date: .numeric, time: .shortened))
-    }
-}
-
-/// The left column: all scripts, each category, and the uncategorized ones. Rows of the list can be dropped on a category.
 struct CategorySidebar: View {
     @ObservedObject var model: AppModel
     @State private var confirmDelete: String?
@@ -914,64 +785,6 @@ struct ItemDeleteShortcut: NSViewRepresentable {
     func updateNSView(_ view: ShortcutView, context: Context) { view.action = action }
 }
 
-struct ScriptOverviewView: View {
-    @ObservedObject var model: AppModel
-    let script: ScriptEntry
-    @State private var expanded = false
-    var body: some View {
-        DisclosureGroup(L("meta.summary"), isExpanded: $expanded) {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
-                    if step.isSupported {
-                        if script.actions.count > 1 {
-                            Text(step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? String(format: L("ui.stepNumber"), index + 1)).font(.caption.weight(.semibold))
-                        }
-                        let summary = model.metadata(for: step)?.summary ?? ""
-                        Text(summary.isEmpty ? L("meta.absent") : summary)
-                            .font(.callout).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-            }.padding(.top, 4)
-        }.font(.subheadline)
-    }
-}
-
-struct ScriptInfoView: View {
-    @ObservedObject var model: AppModel
-    @Binding var script: ScriptEntry
-    @State private var expanded = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    var body: some View {
-        DisclosureGroup(L("meta.info"), isExpanded: $expanded) {
-        VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
-                if step.isSupported {
-                    VStack(alignment: .leading, spacing: 10) {
-                        if script.actions.count > 1 {
-                            Text(step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? String(format: L("ui.stepNumber"), index + 1))
-                                .font(.caption.weight(.semibold)).lineLimit(2)
-                        }
-                        MetadataFields(info: model.metadata(for: step), readme: step.scriptPath.flatMap { model.scriptReadmes[$0] }, codeURL: step.scriptPath.flatMap { model.scriptCodeURLs[$0] })
-                    }
-                }
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text(L("meta.notes")).font(.caption).foregroundColor(.secondary)
-                TextEditor(text: Binding(get: { script.notes ?? "" }, set: { script.notes = $0.isEmpty ? nil : $0 }))
-                    .font(.body).frame(minHeight: 72).padding(6)
-                    .background(Color(nsColor: .textBackgroundColor))
-                    .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.secondary.opacity(0.18)))
-                    .accessibilityLabel(L("meta.notes"))
-            }
-        }.padding(.top, 6)
-        }.font(.subheadline)
-        .transaction { transaction in
-            transaction.animation = reduceMotion ? nil : .easeInOut(duration: 0.12)
-        }
-    }
-}
-
 struct MetadataFields: View {
     let info: ScriptMetadata.Info?
     let readme: URL?
@@ -1112,35 +925,72 @@ struct ComponentWorkspace: View {
     @State private var search = ""
     @State private var confirmDelete = false
     @State private var deleteGroup: String?
+    @State private var hoveredGroup: String?
+    private func acceptComponentDrop(_ items: [String], group: String?) -> Bool {
+        guard group.map({ model.library.categoryList.contains($0) }) ?? true else { return false }
+        let prefix = "VectorKeys.components:"
+        let ids = Set(items.filter { $0.hasPrefix(prefix) }.flatMap { String($0.dropFirst(prefix.count)).split(separator: ",").map(String.init) })
+            .intersection(Set((model.library.components ?? []).map(\.id)))
+        guard !ids.isEmpty else { return false }
+        model.addComponentsToGroup(ids, category: group)
+        return true
+    }
+    private func picked(_ id: String) -> Set<String> { model.componentSelections.contains(id) ? model.componentSelections : [id] }
+    private func groupMenu(_ ids: Set<String>) -> some View {
+        Menu(L("components.addToGroup")) {
+            Button(L("category.none")) { model.addComponentsToGroup(ids, category: nil) }
+            ForEach(model.library.categoryList, id: \.self) { name in
+                Button(name) { model.addComponentsToGroup(ids, category: name) }
+            }
+        }
+    }
     var body: some View {
         ResizableColumns(
-            categories: AnyView(VStack(spacing: 6) {
+            groups: AnyView(VStack(alignment: .leading, spacing: 6) {
+                Text(L("category")).font(.headline).padding(.horizontal, 8)
+                List(selection: Binding(get: { model.componentActionGroupFilter }, set: { if let value = $0 { model.componentActionGroupFilter = value } })) {
+                    Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
+                    ForEach(model.library.categoryList, id: \.self) { name in
+                        Label(name, systemImage: "folder").tag(name)
+                            .listRowBackground(hoveredGroup == name ? appTint.opacity(0.22) : Color.clear)
+                            .dropDestination(for: String.self) { items, _ in acceptComponentDrop(items, group: name) }
+                                isTargeted: { over in hoveredGroup = over ? name : nil }
+                    }
+                    Label(L("category.none"), systemImage: "tray").tag(AppModel.uncategorized)
+                        .dropDestination(for: String.self) { items, _ in acceptComponentDrop(items, group: nil) }
+                }
+            }.padding(.trailing, 4)),
+            categories: AnyView(VStack(alignment: .leading, spacing: 6) {
+                Text(L("componentCategory.title")).font(.headline).padding(.horizontal, 8)
                 List(selection: Binding(get: { model.componentFilter }, set: { if let value = $0 { model.componentFilter = value } })) {
                     Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
                     ForEach(model.library.componentCategoryList, id: \.self) { name in
                         Label(name, systemImage: "folder").tag(name)
                             .contextMenu {
-                                Button(L("category.rename")) { model.renameComponentCategory(name) }
-                                Button(L("category.delete")) { deleteGroup = name }
+                                Button(L("componentCategory.rename")) { model.renameComponentCategory(name) }
+                                Button(L("componentCategory.delete")) { deleteGroup = name }
                             }
                     }
-                    Label(L("category.none"), systemImage: "tray").tag(AppModel.uncategorized)
+                    Label(L("componentCategory.none"), systemImage: "tray").tag(AppModel.uncategorized)
                 }
                 HStack {
-                    Button { model.newComponentCategory() } label: { Image(systemName: "plus") }.help(L("category.new"))
-                    Button { deleteGroup = model.currentComponentCategory } label: { Image(systemName: "minus") }.disabled(model.currentComponentCategory == nil).help(L("category.delete"))
+                    Button { model.newComponentCategory() } label: { Image(systemName: "plus") }.help(L("componentCategory.new"))
+                    Button { deleteGroup = model.currentComponentCategory } label: { Image(systemName: "minus") }.disabled(model.currentComponentCategory == nil).help(L("componentCategory.delete"))
                     Spacer()
                 }
-            }.padding(.trailing, 6)),
+            }.padding(.horizontal, 4)),
             scripts: AnyView(VStack(spacing: 6) {
                 TextField(L("search"), text: $search).textFieldStyle(.roundedBorder)
-                List(selection: $model.componentSelection) {
+                List(selection: $model.componentSelections) {
                     ForEach(model.componentsInCurrentGroup.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(search) }) { component in
                         HStack {
                             Text(component.name).lineLimit(2)
                             Spacer()
                             if !component.step.exists { Image(systemName: "exclamationmark.triangle").foregroundColor(.orange) }
                         }.padding(4).background(RoundedRectangle(cornerRadius: 5).fill(component.tagColor?.displayColor.opacity(0.22) ?? .clear)).tag(component.id)
+                        .draggable("VectorKeys.components:" + picked(component.id).sorted().joined(separator: ","))
+                        .contextMenu { groupMenu(picked(component.id)) }
+
                     }
                 }.onDeleteCommand { confirmDelete = true }
                 HStack {
@@ -1156,6 +1006,11 @@ struct ComponentWorkspace: View {
             detail: AnyView(Group {
                 if let component = model.library.components?.first(where: { $0.id == model.componentSelection }) {
                     ComponentDetail(model: model, component: component)
+                } else if model.componentSelections.count > 1 {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(String(format: L("selectedCount"), model.componentSelections.count)).font(.headline)
+                        groupMenu(model.componentSelections)
+                    }.padding(20).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(L("components.title")).font(.headline)
@@ -1168,10 +1023,10 @@ struct ComponentWorkspace: View {
             Button(L("delete"), role: .destructive) { if canDelete, let id = model.componentSelection { model.deleteComponent(id); model.componentSelection = nil } }.disabled(!canDelete)
             Button(L("cancel"), role: .cancel) {}
         } message: { Text(L("components.deleteHint")) }
-        .confirmationDialog(L("category.delete"), isPresented: Binding(get: { deleteGroup != nil }, set: { if !$0 { deleteGroup = nil } })) {
-            Button(L("category.delete"), role: .destructive) { if let name = deleteGroup { model.deleteComponentCategory(name) }; deleteGroup = nil }
+        .confirmationDialog(L("componentCategory.delete"), isPresented: Binding(get: { deleteGroup != nil }, set: { if !$0 { deleteGroup = nil } })) {
+            Button(L("componentCategory.delete"), role: .destructive) { if let name = deleteGroup { model.deleteComponentCategory(name) }; deleteGroup = nil }
             Button(L("cancel"), role: .cancel) { deleteGroup = nil }
-        } message: { Text(L("category.deleteDetail")) }
+        } message: { Text(L("componentCategory.deleteDetail")) }
     }
     private var canDelete: Bool {
         guard let id = model.componentSelection else { return false }
@@ -1189,12 +1044,22 @@ struct ComponentDetail: View {
                     guard !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
                     model.editComponent(component.id) { $0.name = value; $0.userRenamed = true }
                 })).textFieldStyle(.plain).font(.system(size: 16, weight: .semibold))
-                Picker(L("category"), selection: Binding(get: { component.category ?? "" }, set: { value in model.editComponent(component.id) { $0.category = value.isEmpty ? nil : value } })) {
-                    Text(L("category.none")).tag("")
+                if case .script(let path) = component.step {
+                    Text((path as NSString).lastPathComponent).font(.subheadline.weight(.medium))
+                    Text(path).font(.caption).foregroundColor(.secondary).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 6) {
+                        Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }.disabled(!component.step.exists)
+                        Button(L("source.reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!component.step.exists)
+                        Button(L("source.open")) { model.openSource(path) }.disabled(!component.step.exists || (path as NSString).pathExtension.lowercased() == "jsxbin")
+                        Button(L("relink")) { model.relinkComponent(component.id) }
+                    }.controlSize(.small)
+                    if !component.step.exists { Text(L("badge.missingHint")).font(.caption).foregroundColor(.orange) }
+                }
+                Picker(L("componentCategory.title"), selection: Binding(get: { component.category ?? "" }, set: { value in model.editComponent(component.id) { $0.category = value.isEmpty ? nil : value } })) {
+                    Text(L("componentCategory.none")).tag("")
                     ForEach(model.library.componentCategoryList, id: \.self) { Text($0).tag($0) }
                 }.fixedSize()
                 Text(String(format: L("components.references"), model.library.scripts.filter { $0.componentIDs?.contains(component.id) == true }.count)).font(.caption).foregroundColor(.secondary)
-                DisclosureGroup(L("watch.help")) { Text(L("components.shared")).font(.caption).foregroundColor(.secondary) }
                 HStack {
                     Text(L("item.color")).font(.caption).foregroundColor(.secondary)
                     Button { model.editComponent(component.id) { $0.tagColor = nil } } label: { Image(systemName: "nosign") }.buttonStyle(.plain)
@@ -1209,16 +1074,7 @@ struct ComponentDetail: View {
                 })).textFieldStyle(.roundedBorder)
                 if let tags = component.folderTags, !tags.isEmpty { Text(L("tags.fromFolder") + tags.joined(separator: ", ")).font(.caption).foregroundColor(.secondary) }
                 switch component.step {
-                case .script(let path):
-                    Text((path as NSString).lastPathComponent).font(.headline)
-                    Text(path).font(.caption).foregroundColor(.secondary).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
-                    HStack {
-                        Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
-                        Button(L("source.reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }
-                        Button(L("source.open")) { model.openSource(path) }.disabled((path as NSString).pathExtension.lowercased() == "jsxbin")
-                    }.controlSize(.small).disabled(!component.step.exists)
-                    Button(L("relink")) { model.relinkComponent(component.id) }.controlSize(.small)
-                    if !component.step.exists { Text(L("badge.missingHint")).font(.caption).foregroundColor(.orange) }
+                case .script: EmptyView()
                 case .code(let source):
                     TextEditor(text: Binding(get: { source }, set: { model.updateComponent(component.id, step: .code(source: $0)) })).font(.system(size: 12, design: .monospaced)).frame(minHeight: 220)
                     if !component.step.exists { Text(L("code.empty")).font(.caption).foregroundColor(.orange) }
@@ -1226,7 +1082,8 @@ struct ComponentDetail: View {
                 }
                 if let info = model.metadata(for: component.step) {
                     if !info.summary.isEmpty { DisclosureGroup(L("meta.summary")) { Text(info.summary).font(.caption).textSelection(.enabled) } }
-                    DisclosureGroup(L("meta.info")) { MetadataFields(info: info, readme: component.step.scriptPath.flatMap { model.scriptReadmes[$0] }, codeURL: component.step.scriptPath.flatMap { model.scriptCodeURLs[$0] }) }
+                    Text(L("meta.info")).font(.subheadline.weight(.semibold))
+                    MetadataFields(info: info, readme: component.step.scriptPath.flatMap { model.scriptReadmes[$0] }, codeURL: component.step.scriptPath.flatMap { model.scriptCodeURLs[$0] })
                 }
                 Text(L("meta.notes")).font(.caption).foregroundColor(.secondary)
                 TextEditor(text: Binding(get: { component.notes ?? "" }, set: { value in model.editComponent(component.id) { $0.notes = value } })).frame(minHeight: 70)
