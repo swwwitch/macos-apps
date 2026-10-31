@@ -119,16 +119,37 @@ struct Component: Codable, Identifiable, Hashable {
     var id: String = UUID().uuidString
     var name: String
     var step: Step
+    var category: String?
+    var tags: [String]?
+    var folderTags: [String]?
+    var tagColor: ItemTag?
+    var notes: String?
+    var userRenamed: Bool?
 }
 
 struct Library: Codable, Equatable {
     var components: [Component]?
+    var componentCategories: [String]?
+    var componentCategoryList: [String] {
+        var names = componentCategories ?? []
+        for name in (components ?? []).compactMap(\.category) where !names.contains(name) { names.append(name) }
+        return names
+    }
+    mutating func renameComponentCategory(_ old: String, to new: String) {
+        guard !new.isEmpty, !componentCategoryList.contains(new) else { return }
+        componentCategories = componentCategoryList.map { $0 == old ? new : $0 }
+        for i in (components ?? []).indices where components![i].category == old { components![i].category = new }
+    }
+    mutating func deleteComponentCategory(_ name: String) {
+        componentCategories = componentCategoryList.filter { $0 != name }
+        for i in (components ?? []).indices where components![i].category == name { components![i].category = nil }
+    }
     /// Cached steps keep old exports readable; component references are authoritative.
     mutating func reconcileComponents(previous: Library? = nil) {
         var pool = components ?? []
         for i in scripts.indices where !scripts[i].isDivider {
             let old = previous?.scripts.first { $0.id == scripts[i].id }
-            let edited = old != nil && old!.actions != scripts[i].actions
+            let edited = old != nil && old!.actions != scripts[i].actions && old!.componentIDs == scripts[i].componentIDs
             if scripts[i].componentIDs == nil || edited {
                 scripts[i].componentIDs = scripts[i].actions.map { step in
                     if let existing = pool.first(where: { $0.step == step }) { return existing.id }
@@ -140,7 +161,26 @@ struct Library: Codable, Equatable {
             // Never silently execute a partial action when a reference is missing.
             scripts[i].actions = ids.map { id in pool.first { $0.id == id }?.step ?? .menuCommand(id: "missing-component:" + id, title: nil) }
         }
+        if componentCategories == nil {
+            componentCategories = categoryList
+            for i in pool.indices {
+                if let path = pool[i].step.scriptPath, pool[i].name != ScriptEntry.defaultName(for: path) { pool[i].userRenamed = true }
+                if let owner = scripts.first(where: { $0.componentIDs?.contains(pool[i].id) == true }) {
+                    pool[i].category = owner.category; pool[i].tags = owner.tags
+                    pool[i].folderTags = owner.folderTags; pool[i].tagColor = owner.tagColor; pool[i].notes = owner.notes
+                }
+            }
+        }
         components = pool; version = 2
+    }
+    mutating func moveComponentReference(actionID: String, from: Int, by offset: Int) {
+        guard let i = scripts.firstIndex(where: { $0.id == actionID }), var ids = scripts[i].componentIDs,
+              ids.indices.contains(from), ids.indices.contains(from + offset) else { return }
+        ids.swapAt(from, from + offset); scripts[i].componentIDs = ids
+    }
+    mutating func removeComponentReference(actionID: String, at index: Int) {
+        guard let i = scripts.firstIndex(where: { $0.id == actionID }), var ids = scripts[i].componentIDs, ids.indices.contains(index) else { return }
+        ids.remove(at: index); scripts[i].componentIDs = ids
     }
     var recentlyUsed: [ScriptEntry] {
         Array(scripts.filter { !$0.isDivider && $0.lastRun != nil }.sorted {
@@ -194,6 +234,12 @@ struct Library: Codable, Equatable {
                 catch { return library } // Do not migrate if backup cannot be made.
             }
         }
+        if library.componentCategories == nil {
+            let backup = url.deletingPathExtension().appendingPathExtension("pre-workspaces.json")
+            if !FileManager.default.fileExists(atPath: backup.path) {
+                do { try data.write(to: backup, options: .withoutOverwriting) } catch { return library }
+            }
+        }
         library.reconcileComponents()
         return library
     }
@@ -201,6 +247,10 @@ struct Library: Codable, Equatable {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         if let data = try? Data(contentsOf: url), let old = try? JSONDecoder().decode(Library.self, from: data), old.version < 2 {
             let backup = url.deletingPathExtension().appendingPathExtension("pre-components.json")
+            if !FileManager.default.fileExists(atPath: backup.path) { try data.write(to: backup, options: .withoutOverwriting) }
+        }
+        if let data = try? Data(contentsOf: url), let old = try? JSONDecoder().decode(Library.self, from: data), old.componentCategories == nil {
+            let backup = url.deletingPathExtension().appendingPathExtension("pre-workspaces.json")
             if !FileManager.default.fileExists(atPath: backup.path) { try data.write(to: backup, options: .withoutOverwriting) }
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -654,8 +704,27 @@ enum WatchedScripts {
         }
         return result
     }
-    @discardableResult static func merge(_ scan: Scan, into library: inout Library, ignoring: Set<String> = [], autoGroup: Bool = false) -> Int {
+    @discardableResult static func merge(_ scan: Scan, into library: inout Library, ignoring: Set<String> = [], autoGroup: Bool = false, componentsOnly: Bool = false) -> Int {
         var added = 0
+        if componentsOnly {
+            library.reconcileComponents()
+            var pool = library.components ?? []
+            var groups = library.componentCategoryList
+            if autoGroup { for group in scan.groups.sorted() where !groups.contains(group) { groups.append(group) } }
+            for path in scan.files.keys.sorted() where !ignoring.contains(path) {
+                if let i = pool.firstIndex(where: { $0.step.scriptPath.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path == path } ?? false }) {
+                    pool[i].folderTags = Array(Set(pool[i].folderTags ?? []).union(scan.files[path] ?? [])).sorted()
+                    if autoGroup, pool[i].category == nil, let names = scan.fileGroups[path], names.count == 1 { pool[i].category = names.first }
+                } else {
+                    var component = Component(name: ScriptEntry.defaultName(for: path), step: .script(path: path))
+                    component.folderTags = Array(scan.files[path] ?? []).sorted()
+                    if autoGroup, let names = scan.fileGroups[path], names.count == 1 { component.category = names.first }
+                    pool.append(component); added += 1
+                }
+            }
+            library.components = pool; library.componentCategories = groups
+            return added
+        }
         if autoGroup { for group in scan.groups.sorted() { library.addCategory(group) } }
         for path in scan.files.keys.sorted() where !ignoring.contains(path) {
             let matches = library.scripts.indices.filter { library.scripts[$0].actions.contains { $0.scriptPath.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path == path } ?? false } }
