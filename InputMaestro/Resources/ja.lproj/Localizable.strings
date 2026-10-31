@@ -193,3 +193,5 @@
 "symbols.modifiers" = "修飾キー";
 "symbols.arrows" = "矢印キー";
 "symbols.explanation" = "InsertSnippetsの記号入力を移植。指定のホットキーで⌃⌥⌘⇧や←↓→↑を文字として入力します。キー操作やカーソル移動ではありません。対象外アプリと自アプリでは実行せず、クリップボードは入力後に復元します。";
+"symbols.enableModifiers" = "修飾キーの記号入力を有効にする";
+"symbols.enableArrows" = "矢印の記号入力を有効にする";

@@ -80,7 +80,7 @@ final class Model: ObservableObject {
     }
 
     /// Keys shared by 設定の共有. The app lists, startup and the app hotkey stay per Mac.
-    static let sharedKeys: Set<String> = Set(["enabled", "trigger.ansi", "trigger.jis", "capsAsControl", "disabledCommands"]).union(IntegrationModel.sharedKeys).union(OCRModel.sharedKeys).union(["symbols.enabled"])
+    static let sharedKeys: Set<String> = Set(["enabled", "trigger.ansi", "trigger.jis", "capsAsControl", "disabledCommands"]).union(IntegrationModel.sharedKeys).union(OCRModel.sharedKeys).union(SymbolsModel.sharedKeys)
 
     init() {
         integration.onChange = { [weak self] in self?.refresh() }
@@ -127,7 +127,7 @@ final class Model: ObservableObject {
 
     /// Re-reads the shared settings after SettingsSync applied them; save() would otherwise write the old values back.
     func reload() {
-        integration.reload(); ocr.reloadPreferences(); symbols.enabled = defaults.object(forKey: "symbols.enabled") as? Bool ?? true
+        integration.reload(); ocr.reloadPreferences(); symbols.reload()
         enabled = defaults.object(forKey: "enabled") as? Bool ?? true
         ansiTrigger = Model.loadTrigger("trigger.ansi", .control)
         jisTrigger = Model.loadTrigger("trigger.jis", .capsLock)
@@ -191,7 +191,7 @@ final class Model: ObservableObject {
         if let combo = ocr.combo { items.append(.init(id: "ocr.hotkey", title: L("ocrTab"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: ocr.enabled, scope: "except", apps: ExcludedApps.shared.ids)) }
         for item in SymbolDefinitions.all {
             guard let combo = symbols.combos[item.id] else { continue }
-            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled, scope: "except", apps: ExcludedApps.shared.ids))
+            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled(for: item), scope: "except", apps: ExcludedApps.shared.ids))
         }
         HotkeyManifest.publish(items)
     }
@@ -295,7 +295,8 @@ struct MainView: View {
                     KeyboardView(model: model)
                 }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).tabItem { Text(L("editingTab")) }
                 OCRPage(model: model.ocr).tabItem { Text(L("ocrTab")) }
-                SymbolsPage(model: model.symbols).tabItem { Text(L("symbols.tab")) }
+                SymbolsPage(model: model.symbols, arrows: false).tabItem { Text(L("symbols.modifiers")) }
+                SymbolsPage(model: model.symbols, arrows: true).tabItem { Text(L("symbols.arrows")) }
             }
             IntegrationStatus(model: model.integration)
             Spacer(minLength: 0)

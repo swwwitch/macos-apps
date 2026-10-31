@@ -193,3 +193,5 @@
 "symbols.modifiers" = "Modifier symbols";
 "symbols.arrows" = "Arrow symbols";
 "symbols.explanation" = "Ported from InsertSnippets: hotkeys insert ⌃⌥⌘⇧ and ←↓→↑ as text. They do not press modifiers or move the cursor. Excluded apps and this app are skipped. The clipboard is restored after insertion.";
+"symbols.enableModifiers" = "Enable modifier symbol input";
+"symbols.enableArrows" = "Enable arrow symbol input";

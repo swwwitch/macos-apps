@@ -193,3 +193,5 @@
 "symbols.modifiers" = "보조 키 기호";
 "symbols.arrows" = "화살표 기호";
 "symbols.explanation" = "InsertSnippets에서 이식했습니다. 단축키로 ⌃⌥⌘⇧ 및 ←↓→↑를 문자로 입력합니다. 키 누르기나 커서 이동이 아닙니다. 제외한 앱과 이 앱에서는 실행하지 않으며 입력 후 클립보드를 복원합니다.";
+"symbols.enableModifiers" = "보조 키 기호 입력 활성화";
+"symbols.enableArrows" = "화살표 기호 입력 활성화";

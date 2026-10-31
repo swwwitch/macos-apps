@@ -65,3 +65,8 @@ T.update({
 'symbols.arrows': ('矢印キー', 'Arrow symbols', '箭头符号', '화살표 기호'),
 'symbols.explanation': ('InsertSnippetsの記号入力を移植。指定のホットキーで⌃⌥⌘⇧や←↓→↑を文字として入力します。キー操作やカーソル移動ではありません。対象外アプリと自アプリでは実行せず、クリップボードは入力後に復元します。', 'Ported from InsertSnippets: hotkeys insert ⌃⌥⌘⇧ and ←↓→↑ as text. They do not press modifiers or move the cursor. Excluded apps and this app are skipped. The clipboard is restored after insertion.', '移植自 InsertSnippets。快捷键将 ⌃⌥⌘⇧ 和 ←↓→↑ 作为文字输入，不是按键操作或光标移动。在排除的应用和本应用中不执行。输入后恢复剪贴板。', 'InsertSnippets에서 이식했습니다. 단축키로 ⌃⌥⌘⇧ 및 ←↓→↑를 문자로 입력합니다. 키 누르기나 커서 이동이 아닙니다. 제외한 앱과 이 앱에서는 실행하지 않으며 입력 후 클립보드를 복원합니다.'),
 })
+
+T.update({
+'symbols.enableModifiers': ('修飾キーの記号入力を有効にする', 'Enable modifier symbol input', '启用修饰键符号输入', '보조 키 기호 입력 활성화'),
+'symbols.enableArrows': ('矢印の記号入力を有効にする', 'Enable arrow symbol input', '启用箭头符号输入', '화살표 기호 입력 활성화'),
+})

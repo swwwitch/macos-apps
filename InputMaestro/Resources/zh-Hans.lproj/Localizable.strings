@@ -193,3 +193,5 @@
 "symbols.modifiers" = "修饰键符号";
 "symbols.arrows" = "箭头符号";
 "symbols.explanation" = "移植自 InsertSnippets。快捷键将 ⌃⌥⌘⇧ 和 ←↓→↑ 作为文字输入，不是按键操作或光标移动。在排除的应用和本应用中不执行。输入后恢复剪贴板。";
+"symbols.enableModifiers" = "启用修饰键符号输入";
+"symbols.enableArrows" = "启用箭头符号输入";
