@@ -1,3 +1,16 @@
+"tags.title" = "Tags";
+"tags.all" = "All Tags";
+"tags.input" = "Enter comma-separated tags";
+"tags.save" = "Save Tags";
+"tags.fromFolder" = "From folders: ";
+"watch.title" = "Watch Folders";
+"watch.add" = "Add Folder…";
+"watch.remove" = "Stop Watching";
+"watch.scan" = "Scan Now";
+"watch.result" = "Checked %d files, added %d";
+"watch.error" = "Could not read %d locations. Check connection and access.";
+"watch.help" = "Help";
+"watch.detail" = "Scans subfolders every 15 seconds. Each folder name below the root becomes a tag. Hidden files and symlinks are skipped. Names, keys, notes and manual tags are preserved. Missing files and existing tags are retained. Items deleted from the list are not automatically re-added. Stopping watching keeps imported items.";
 "palette.visibility" = "Palettes appear only while Illustrator is frontmost. Switching away hides them; returning restores open palettes.";
 "item.color" = "Color";
 "color.none" = "No Color";

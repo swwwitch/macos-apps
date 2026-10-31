@@ -72,6 +72,9 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         actions = steps
     }
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
+    var tags: [String]?
+    var folderTags: [String]?
+    var allTags: [String] { Array(Set((tags ?? []) + (folderTags ?? []))).sorted { $0.localizedStandardCompare($1) == .orderedAscending } }
     var tagColor: ItemTag?
     var notes: String?
     var runCount: Int?
@@ -535,5 +538,49 @@ extension ScriptMetadata {
             return components.url
         }
         return url
+    }
+}
+
+
+/// Read-only folder discovery. Never executes scripts or follows directory symlinks.
+enum WatchedScripts {
+    struct Scan { var files: [String: Set<String>] = [:]; var errors: [String] = [] }
+    static func scan(_ roots: [String]) -> Scan {
+        var result = Scan()
+        let fm = FileManager.default
+        for path in roots {
+            let root = URL(fileURLWithPath: path).standardizedFileURL.resolvingSymlinksInPath()
+            guard let values = try? root.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey]), values.isDirectory == true, values.isSymbolicLink != true,
+                  let listing = fm.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles, .skipsPackageDescendants], errorHandler: { url, _ in result.errors.append(url.path); return true }) else {
+                result.errors.append(path); continue
+            }
+            for case let url as URL in listing {
+                guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey]) else { continue }
+                if values.isSymbolicLink == true { listing.skipDescendants(); continue }
+                guard values.isRegularFile == true, ScriptEntry.accepts(url) else { continue }
+                let prefix = root.path.hasSuffix("/") ? root.path : root.path + "/"
+                let canonical = url.resolvingSymlinksInPath()
+                guard canonical.path.hasPrefix(prefix) else { continue }
+                let folders = String(canonical.path.dropFirst(prefix.count)).split(separator: "/").dropLast().map(String.init)
+                result.files[canonical.path, default: []].formUnion(folders)
+            }
+        }
+        return result
+    }
+    @discardableResult static func merge(_ scan: Scan, into library: inout Library, ignoring: Set<String> = []) -> Int {
+        var added = 0
+        for path in scan.files.keys.sorted() where !ignoring.contains(path) {
+            let matches = library.scripts.indices.filter { library.scripts[$0].actions.contains { $0.scriptPath.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path == path } ?? false } }
+            if matches.isEmpty {
+                var entry = ScriptEntry(path: path)
+                entry.folderTags = Array(scan.files[path] ?? []).sorted()
+                library.scripts.append(entry); added += 1
+            } else {
+                for i in matches {
+                    library.scripts[i].folderTags = Array(Set(library.scripts[i].folderTags ?? []).union(scan.files[path] ?? [])).sorted()
+                }
+            }
+        }
+        return added
     }
 }

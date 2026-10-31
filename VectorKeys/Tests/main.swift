@@ -286,4 +286,30 @@ check(coloredRestored.tagColor == .purple && coloredRestored.id == coloredEntry.
 let legacyColorLibrary = try JSONDecoder().decode(Library.self, from: Data(old.utf8))
 check(legacyColorLibrary.scripts.first?.tagColor == nil, "legacy has no color")
 
+
+let watchRoot = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).resolvingSymlinksInPath()
+let nested = watchRoot.appendingPathComponent("One/Two", isDirectory: true)
+try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+let watchedFile = nested.appendingPathComponent("Watched.jsx")
+try "// test".write(to: watchedFile, atomically: true, encoding: .utf8)
+try "// skip".write(to: nested.appendingPathComponent(".Hidden.jsx"), atomically: true, encoding: .utf8)
+try FileManager.default.createSymbolicLink(at: watchRoot.appendingPathComponent("Loop"), withDestinationURL: watchRoot)
+let scan = WatchedScripts.scan([watchRoot.path, watchRoot.path])
+check(scan.files.count == 1 && scan.files[watchedFile.path] == ["One", "Two"], "recursive folder tags, hidden and symlink skipped")
+var watchedLibrary = Library()
+check(WatchedScripts.merge(scan, into: &watchedLibrary) == 1, "initial import")
+watchedLibrary.scripts[0].name = "Custom"
+watchedLibrary.scripts[0].tags = ["Manual"]
+watchedLibrary.scripts[0].hotkey = key
+check(WatchedScripts.merge(scan, into: &watchedLibrary) == 0 && watchedLibrary.scripts[0].name == "Custom" && watchedLibrary.scripts[0].hotkey == key, "repeat import preserves edits and avoids duplicates")
+check(Set(watchedLibrary.scripts[0].allTags) == ["Manual", "One", "Two"], "manual and folder tags combined")
+let restoredWatch = try JSONDecoder().decode(Library.self, from: JSONEncoder().encode(watchedLibrary))
+check(restoredWatch == watchedLibrary, "tag persistence")
+var ignoredLibrary = Library()
+check(WatchedScripts.merge(scan, into: &ignoredLibrary, ignoring: [watchedFile.path]) == 0, "deleted items not reimported")
+try FileManager.default.removeItem(at: watchedFile)
+WatchedScripts.merge(WatchedScripts.scan([watchRoot.path]), into: &watchedLibrary)
+check(watchedLibrary.scripts.count == 1, "missing original keeps item and metadata")
+try FileManager.default.removeItem(at: watchRoot)
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

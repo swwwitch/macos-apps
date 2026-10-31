@@ -16,6 +16,55 @@ struct RunRecord: Identifiable {
 }
 
 @MainActor final class AppModel: ObservableObject {
+    @Published var tagFilter = ""
+    @Published var watchFolders = UserDefaults.standard.stringArray(forKey: "watchFolders") ?? []
+    @Published var watchScanning = false
+    @Published var watchStatus = ""
+    private var watchTimer: Timer?
+    private var watchGeneration = UUID()
+    private var watchIgnored = Set(UserDefaults.standard.stringArray(forKey: "watchIgnored") ?? [])
+    var allTags: [String] { Array(Set(library.scripts.flatMap(\.allTags))).sorted { $0.localizedStandardCompare($1) == .orderedAscending } }
+    func setTags(_ text: String, for id: String) {
+        let tags = Array(Set(text.components(separatedBy: CharacterSet(charactersIn: ",、\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty })).sorted()
+        undoable(L("tags.title")) { if let i = library.scripts.firstIndex(where: { $0.id == id }) { library.scripts[i].tags = tags } }
+    }
+    func chooseWatchFolder() {
+        let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = true
+        guard panel.runModal() == .OK else { return }
+        for url in panel.urls {
+            let path = url.standardizedFileURL.resolvingSymlinksInPath().path
+            if !watchFolders.contains(path) { watchFolders.append(path) }
+        }
+        configureWatching()
+    }
+    func removeWatchFolder(_ path: String) { watchFolders.removeAll { $0 == path }; configureWatching() }
+    private func configureWatching() {
+        defaults.set(watchFolders, forKey: "watchFolders")
+        watchGeneration = UUID(); watchScanning = false
+        watchTimer?.invalidate(); watchTimer = nil
+        guard !watchFolders.isEmpty else { watchStatus = ""; return }
+        scanWatchedFolders()
+        watchTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.scanWatchedFolders() }
+        }
+        watchTimer?.tolerance = 3
+    }
+    func scanWatchedFolders() {
+        guard !watchScanning, !watchFolders.isEmpty else { return }
+        watchScanning = true
+        let roots = watchFolders, generation = watchGeneration
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let scan = WatchedScripts.scan(roots)
+            DispatchQueue.main.async {
+                guard let self, generation == self.watchGeneration else { return }
+                var updated = self.library
+                let count = WatchedScripts.merge(scan, into: &updated, ignoring: self.watchIgnored)
+                if updated != self.library { self.library = updated }
+                self.watchScanning = false
+                self.watchStatus = scan.errors.isEmpty ? String(format: L("watch.result"), scan.files.count, count) : String(format: L("watch.error"), scan.errors.count)
+            }
+        }
+    }
     var didExecute: ((ScriptEntry) -> Void)?
     var showQuickLook: ((URL) -> Void)?
     var showPalette: ((String) -> Void)?
@@ -168,6 +217,7 @@ struct RunRecord: Identifiable {
     private var observers: [NSObjectProtocol] = []
 
     init() {
+        configureWatching()
         observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
             let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
             MainActor.assumeIsolated { self?.frontChanged(Illustrator.isIllustrator(app)) }
@@ -525,6 +575,10 @@ struct RunRecord: Identifiable {
     /// Removes scripts from the list. Code saved by an import (in Imported) goes to the Trash when nothing else uses it;
     /// ⌘Z brings back both the entries and those files.
     func delete(_ ids: Set<String>) {
+        let roots = watchFolders.map { $0 + "/" }
+        let removedPaths = library.scripts.filter { ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) }.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path }
+        watchIgnored.formUnion(removedPaths.filter { path in roots.contains { path.hasPrefix($0) } })
+        defaults.set(Array(watchIgnored), forKey: "watchIgnored")
         let removed = library.scripts.filter { ids.contains($0.id) }
         let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
         let imported = Library.folder.appendingPathComponent("Imported", isDirectory: true).path + "/"

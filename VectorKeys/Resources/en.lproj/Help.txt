@@ -113,3 +113,6 @@ Select items in the item column and press Command-Delete for deletion confirmati
 
 
 Palettes appear only while Illustrator is frontmost. Switching away hides them automatically; returning restores open palettes. Manually closed or auto-closed palettes stay closed. Opening a palette from VectorKeys waits invisibly until Illustrator becomes frontmost.
+
+
+Enter comma-separated tags in item details and press Return or Save Tags. Saving an empty field removes manual tags. Filter with the tag menu above the list. Settings > Watch Folders adds folders, scans initially and every 15 seconds. Each nested folder name becomes a separate folder tag. Stopping watching keeps imported items. Missing or moved originals never delete existing entries or tags. Items deleted from the list are not re-added by watching. Hidden files and symlinks are skipped. Watch paths stay on this Mac.

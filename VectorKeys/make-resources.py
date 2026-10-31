@@ -1,9 +1,23 @@
+# coding: utf-8
 from pathlib import Path
 import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''palette.visibility|Illustratorが前面のときだけ表示し、ほかのアプリへ移ると隠します。Illustratorへ戻ると開いていたパレットを再表示します。|Palettes appear only while Illustrator is frontmost. Switching away hides them; returning restores open palettes.|仅在Illustrator位于前台时显示面板。切换应用时隐藏，返回时恢复已打开的面板。|Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다.
+rows = '''tags.title|タグ|Tags|标签|태그
+tags.all|すべてのタグ|All Tags|所有标签|모든 태그
+tags.input|タグをカンマで区切って入力|Enter comma-separated tags|输入标签，以逗号分隔|쉼표로 구분한 태그 입력
+tags.save|タグを保存|Save Tags|保存标签|태그 저장
+tags.fromFolder|フォルダーから：|From folders: |来自文件夹：|폴더에서:
+watch.title|ウォッチフォルダー|Watch Folders|监视文件夹|감시 폴더
+watch.add|フォルダーを追加…|Add Folder…|添加文件夹…|폴더 추가…
+watch.remove|監視を解除|Stop Watching|停止监视|감시 해제
+watch.scan|今すぐ読み込む|Scan Now|立即读取|지금 읽기
+watch.result|%d件確認、新規%d件|Checked %d files, added %d|已检查%d个文件，新增%d个|%d개 확인, %d개 추가
+watch.error|読み取れない場所が%d件あります。フォルダーの接続とアクセス権を確認してください。|Could not read %d locations. Check connection and access.|无法读取%d个位置。请检查连接及访问权限。|%d개 위치를 읽지 못했습니다. 연결과 권한을 확인하세요.
+watch.help|説明|Help|说明|설명
+watch.detail|15秒ごとにサブフォルダーも読み込みます。ルートを除く各階層名をタグとして追加します。隠し項目・シンボリックリンクは読み込みません。既存の名前・キー・メモ・手動タグは保持します。移動・削除された原本や既存タグは自動削除しません。一覧から削除したファイルは監視から再登録しません。監視を解除しても登録済みの項目は残ります。|Scans subfolders every 15 seconds. Each folder name below the root becomes a tag. Hidden files and symlinks are skipped. Names, keys, notes and manual tags are preserved. Missing files and existing tags are retained. Items deleted from the list are not automatically re-added. Stopping watching keeps imported items.|每15秒读取子文件夹，各层名称作为标签。跳过隐藏项和符号链接。保留名称、快捷键、备注及手动标签。不自动删除缺失文件或已有标签。从列表删除的文件不会重新添加。停止监视保留已导入项。|15초마다 하위 폴더를 읽고 각 폴더 이름을 태그로 추가합니다. 숨김 항목과 심볼릭 링크는 제외합니다. 이름, 키, 메모, 수동 태그를 유지합니다. 사라진 파일과 기존 태그는 자동 삭제하지 않습니다. 목록에서 삭제한 파일은 다시 추가하지 않습니다. 감시 해제 후에도 항목을 유지합니다.
+palette.visibility|Illustratorが前面のときだけ表示し、ほかのアプリへ移ると隠します。Illustratorへ戻ると開いていたパレットを再表示します。|Palettes appear only while Illustrator is frontmost. Switching away hides them; returning restores open palettes.|仅在Illustrator位于前台时显示面板。切换应用时隐藏，返回时恢复已打开的面板。|Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다.
 item.color|カラー|Color|颜色|색상
 color.none|色なし|No Color|无颜色|색상 없음
 color.red|レッド|Red|红色|빨강
@@ -165,7 +179,7 @@ km.reason.notJSX|.jsx以外のファイル|not a .jsx file|非 .jsx 文件|.jsx 
 km.saveFailed|コードをファイルに保存できませんでした：%@|Could not save the code as a file: %@|无法将代码存储为文件：%@|코드를 파일로 저장하지 못했습니다: %@
 km.unreadable|読み込めないファイル：%@|Could not read: %@|无法读取：%@|읽을 수 없는 파일: %@
 km.turnOff|同じショートカットのマクロがKeyboard Maestroで有効なままだと、スクリプトが2回実行されます。下のボタンか［ツール］からオフにできます。|If the same macros stay on in Keyboard Maestro, the scripts run twice. Turn them off with the button below or from Tools.|如果 Keyboard Maestro 中的同名宏仍然启用，脚本会运行两次。可用下方按钮或“工具”关闭它们。|Keyboard Maestro에서 같은 매크로가 켜져 있으면 스크립트가 두 번 실행됩니다. 아래 버튼이나 [도구]에서 끌 수 있습니다.
-listSeparator|、|, |、|, 
+listSeparator|、|, |、|,
 reveal|Finderに表示|Show in Finder|在访达中显示|Finder에서 보기
 relink|ファイルを選び直す…|Choose Another File…|重新选择文件…|파일 다시 선택…
 badge.missing|ファイルなし|Missing|文件丢失|파일 없음

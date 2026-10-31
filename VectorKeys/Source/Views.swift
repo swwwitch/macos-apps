@@ -92,6 +92,7 @@ struct ScriptDetail: View {
                         Spacer(minLength: 0)
                     }
                 }
+                ItemTagsEditor(model: model, script: script)
                 ItemColorPicker(color: Binding(get: { script.tagColor }, set: { model.setColor($0, for: [script.id]) }))
                 StepsEditor(model: model, script: script)
                 Divider()
@@ -556,7 +557,8 @@ struct MainView: View {
     private var order: SortOrder { SortOrder(rawValue: sortOrder) ?? .manual }
     /// The scripts of the chosen category, searched and sorted for display.
     private func shown(_ scripts: [ScriptEntry]) -> [ScriptEntry] {
-        let found = search.isEmpty ? scripts : scripts.filter { $0.name.localizedCaseInsensitiveContains(search) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(search) }
+        let tagged = model.tagFilter.isEmpty ? scripts : scripts.filter { $0.allTags.contains(model.tagFilter) }
+        let found = search.isEmpty ? tagged : tagged.filter { $0.name.localizedCaseInsensitiveContains(search) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(search) }
         return order.sorted(found) { KeyCombo.keyName($0.code) }
     }
     /// Dragging rows reorders only the plain manual list (not while searching or sorted).
@@ -572,6 +574,11 @@ struct MainView: View {
                     Text(L("sort.hotkey")).tag(SortOrder.hotkey.rawValue)
                 }
                 .labelsHidden().fixedSize().help(L("sort.hint")).accessibilityLabel(L("sort.label"))
+                Menu {
+                    Button(L("tags.all")) { model.tagFilter = "" }
+                    ForEach(model.allTags, id: \.self) { tag in Button(tag) { model.tagFilter = tag } }
+                } label: { Label(model.tagFilter.isEmpty ? L("tags.title") : model.tagFilter, systemImage: "tag") }
+                .fixedSize()
                 ItemDisplayOptions()
             }
             List(selection: $model.selection) {
@@ -670,7 +677,7 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
+        })), (L("watch.title"), AnyView(WatchFolderSettings(model: model))), (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 460, maxHeight: .infinity)
     }
 }
@@ -880,6 +887,54 @@ struct MetadataFields: View {
             Text(value.flatMap { $0.isEmpty ? nil : $0 } ?? L("meta.absent"))
                 .font(.callout).foregroundColor(value == nil ? .secondary : .primary)
                 .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+
+struct ItemTagsEditor: View {
+    @ObservedObject var model: AppModel
+    let script: ScriptEntry
+    @State private var text = ""
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(L("tags.title")).font(.caption).foregroundColor(.secondary)
+            TextField(L("tags.input"), text: $text).textFieldStyle(.roundedBorder)
+                .onSubmit { model.setTags(text, for: script.id) }
+            HStack {
+                Button(L("tags.save")) { model.setTags(text, for: script.id) }
+                Text(script.allTags.joined(separator: " · ")).font(.caption).foregroundColor(.secondary)
+            }
+            if let tags = script.folderTags, !tags.isEmpty {
+                Text(L("tags.fromFolder") + tags.joined(separator: " · ")).font(.caption).foregroundColor(.secondary)
+            }
+        }
+        .onAppear { text = (script.tags ?? []).joined(separator: ", ") }
+        .onChange(of: script.id) { _ in text = (script.tags ?? []).joined(separator: ", ") }
+    }
+}
+struct WatchFolderSettings: View {
+    @ObservedObject var model: AppModel
+    var body: some View {
+        ScrollView {
+            SettingsSection(L("watch.title")) {
+                ForEach(model.watchFolders, id: \.self) { path in
+                    HStack {
+                        Text(path).lineLimit(2).truncationMode(.middle).textSelection(.enabled)
+                        Spacer()
+                        Button(L("watch.remove")) { model.removeWatchFolder(path) }
+                    }
+                }
+                HStack {
+                    Button(L("watch.add")) { model.chooseWatchFolder() }
+                    Button(L("watch.scan")) { model.scanWatchedFolders() }.disabled(model.watchScanning || model.watchFolders.isEmpty)
+                    if model.watchScanning { ProgressView().controlSize(.small) }
+                }
+                if !model.watchStatus.isEmpty { Text(model.watchStatus).font(.caption) }
+                DisclosureGroup(L("watch.help")) {
+                    Text(L("watch.detail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+            }.padding(16)
         }
     }
 }
