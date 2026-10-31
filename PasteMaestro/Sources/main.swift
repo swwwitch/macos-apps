@@ -17,7 +17,7 @@ final class Model: ObservableObject {
     @Published var shortcut = UserDefaults.standard.data(forKey: "pasteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .paste
     @Published var addEnabled = UserDefaults.standard.object(forKey: "addEnabled") as? Bool ?? false
     @Published var addShortcut = UserDefaults.standard.data(forKey: "addShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) }
-        .flatMap { $0 == .oldAdd ? nil : $0 } ?? .add
+        ?? .add
     @Published var trimIndent = UserDefaults.standard.object(forKey: "trimIndent") as? Bool ?? true
     @Published var stripMarkers = UserDefaults.standard.object(forKey: "stripMarkers") as? Bool ?? true
     /// Off by default, like the macro's local__notification = 0.
@@ -83,7 +83,7 @@ final class Model: ObservableObject {
             let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
             let keyCode = event.keyCode, eventWindow = event.window
             let handled = MainActor.assumeIsolated { () -> Bool in
-                guard let self, (NSApp.delegate as? AppDelegate)?.selectedFeature == "row", let window = self.mainWindow, eventWindow === window, window.attachedSheet == nil else { return false }
+                guard let self, let window = self.mainWindow, eventWindow === window, window.attachedSheet == nil else { return false }
                 switch keyCode {
                 case 36, 76:
                     guard flags.isSubset(of: [.command, .option]) else { return false }
@@ -118,7 +118,7 @@ final class Model: ObservableObject {
         shortcut = defaults.data(forKey: "pasteShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .paste
         addEnabled = defaults.object(forKey: "addEnabled") as? Bool ?? false
         addShortcut = defaults.data(forKey: "addShortcut").flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) }
-            .flatMap { $0 == .oldAdd ? nil : $0 } ?? .add
+            ?? .add
         trimIndent = defaults.object(forKey: "trimIndent") as? Bool ?? true
         stripMarkers = defaults.object(forKey: "stripMarkers") as? Bool ?? true
         notifyEach = defaults.object(forKey: "notifyEach") as? Bool ?? false
@@ -177,12 +177,17 @@ final class Model: ObservableObject {
     }
     func togglePause() { paused.toggle(); refreshHotkey() }
 
-    func addSelection() {
-        guard addEnabled, !paused, let front = NSWorkspace.shared.frontmostApplication, !blocked(front), !LegacyApps.running else { return }
+    func addSelection(fromWindow: Bool = false) {
+        guard (fromWindow || addEnabled), !paused, !LegacyApps.running else {
+            if fromWindow { report(.failed(M("disabled"))) }; return
+        }
+        guard let front = NSWorkspace.shared.frontmostApplication, !blocked(front) else {
+            if fromWindow { report(.failed(L("fail.noTarget"))) }; return
+        }
         let pid = front.processIdentifier
         paster.addSelection(appName: front.localizedName ?? "", pid: pid, trimIndent: trimIndent, stripMarkers: stripMarkers, stillTarget: { [weak self] in
             guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
-            return self.addEnabled && !self.paused && !LegacyApps.running && !self.blocked(now)
+            return (fromWindow || self.addEnabled) && !self.paused && !LegacyApps.running && !self.blocked(now)
         }) { [weak self] outcome in
             guard let self else { return }
             switch outcome {
@@ -233,7 +238,7 @@ final class Model: ObservableObject {
     /// Click in the window (the KM macro 「02)非連続ペースト」): bring back the previous app, wait until it is in front,
     /// then paste there. The window is ordered front again without activating PasteMaestro, so the next click is easy.
     func pasteFromWindow(_ pick: LinePaster.Pick, window: NSWindow?) {
-        guard !pasting, hotkeyEnabled, !paused, !LegacyApps.running else { report(.failed(M("disabled"))); return }
+        guard !pasting, !paused, !LegacyApps.running else { report(.failed(M("disabled"))); return }
         guard let target, !target.isTerminated else { report(.failed(L("fail.noTarget"))); return }
         guard !blocked(target) else { report(.failed(String(format: L("fail.excludedTarget"), target.localizedName ?? ""))); return }
         guard AXIsProcessTrusted() else { report(.failed(AccessibilityText.text("blocked"))); return }
@@ -249,7 +254,7 @@ final class Model: ObservableObject {
                     self.pasting = false
                     let outcome = self.paster.paste(pick, appName: target.localizedName ?? "", pid: pid, stillTarget: { [weak self] in
                         guard let self, let now = NSWorkspace.shared.frontmostApplication, now.processIdentifier == pid else { return false }
-                        return self.hotkeyEnabled && !self.paused && !LegacyApps.running && !self.blocked(now)
+                        return !self.paused && !LegacyApps.running && !self.blocked(now)
                     })
                     self.report(outcome)
                     // Kept in front for the next click, unless the last line has just closed it.
@@ -353,115 +358,6 @@ struct StatusRow: View {
 
 /// The lines the next presses paste, in BrowserSwitcher's list style: tall rows on the alternating
 /// content backgrounds, a line border and large semibold text. The first row is the next paste.
-struct QueueList: View {
-    static let rowHeight: CGFloat = 56
-    let lines: [SlotItem]
-    /// The row ⌃⌥V pastes next (filled number badge).
-    let nextIndex: Int?
-    /// Clicking a row only selects it; Return in the window pastes (see Model.pasteSelected).
-    @Binding var selected: Int?
-    /// ☆ → ★: a starred line stays in the slot after it is pasted.
-    let toggleStar: (Int) -> Void
-    var body: some View {
-        let colors = NSColor.alternatingContentBackgroundColors
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(lines.prefix(500).enumerated()), id: \.offset) { index, item in
-                        let chosen = selected == index
-                        let next = nextIndex == index
-                        HStack(spacing: 16) {
-                            Text("\(index + 1)")
-                                .font(.system(size: 15, weight: .semibold, design: .rounded)).monospacedDigit()
-                                .foregroundColor(next || chosen ? .white : .secondary)
-                                .frame(width: 32, height: 32)
-                                .background(Circle().fill(chosen ? Color.white.opacity(0.25) : next ? Color.accentColor : Color.primary.opacity(0.08)))
-                            Text(item.text)
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(chosen ? .white : next ? .primary : .secondary)
-                                .lineLimit(1).truncationMode(.tail)
-                            Spacer(minLength: 0)
-                            Button { toggleStar(index) } label: {
-                                Image(systemName: item.starred ? "star.fill" : "star")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(item.starred ? Color(nsColor: .systemYellow) : chosen ? .white.opacity(0.8) : .secondary)
-                                    .frame(width: 32, height: 32)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .help(L(item.starred ? "unstar" : "star"))
-                            .accessibilityLabel(L(item.starred ? "unstar" : "star"))
-                        }
-                        .padding(.leading, 16).padding(.trailing, 10)
-                        .frame(height: Self.rowHeight)
-                        .background(chosen ? Color(nsColor: .selectedContentBackgroundColor)
-                                    : Color(nsColor: index.isMultiple(of: 2) && colors.count > 1 ? colors[1] : colors[0]))
-                        .contentShape(Rectangle())
-                        .onTapGesture { selected = index }
-                        .id(index)
-                        .help(L("rowHint"))
-                        .accessibilityElement(children: .contain)
-                        .accessibilityLabel(String(format: L("ax.line"), String(index + 1), item.text) + (item.starred ? " ★" : ""))
-                        .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
-                        .accessibilityAction { selected = index }
-                        .accessibilityHint(L("rowHint"))
-                    }
-                }
-            }
-            .onChange(of: selected) { value in if let value { proxy.scrollTo(value) } }
-        }
-        .background(Color(nsColor: colors[0]))
-        .border(Color(nsColor: .separatorColor), width: 1)
-        .frame(maxWidth: .infinity, minHeight: Self.rowHeight * 3 + 2, idealHeight: Self.rowHeight * 6 + 2, maxHeight: .infinity)
-        .accessibilityLabel(L("queueTitle"))
-    }
-}
-
-struct RowView: View {
-    @ObservedObject var model: Model
-    private var mainWindow: NSWindow? { (NSApp.delegate as? AppDelegate)?.mainWindow }
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HeaderView().fixedSize(horizontal: false, vertical: true)
-            // The status block is hidden; only a problem that stops ⌃⌥V is shown here (B09, B27).
-            if !AccessibilitySection.isTrusted {
-                StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: AccessibilityText.text("title"),
-                          value: AccessibilityText.text("denied"))
-            } else if model.hotkeyFailed || model.addFailed {
-                StatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: L("hotkeyRow"),
-                          value: model.hotkeyFailed ? model.hotkeyStatus : model.addStatus)
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(String(format: L("queueCount"), String(model.upcoming.count))).font(.system(size: 13, weight: .semibold))
-                    Spacer()
-                    Button(L("pasteAll")) { model.pasteFromWindow(.all, window: mainWindow) }
-                        .disabled(model.upcoming.isEmpty || model.pasting).help(L("pasteAllHint"))
-                    Button(L("clear")) { model.clearQueue() }.disabled(model.upcoming.isEmpty).help(L("clearHint"))
-                }
-                if model.upcoming.isEmpty {
-                    Text(L("queueEmpty")).foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, minHeight: QueueList.rowHeight * 3 + 2, maxHeight: .infinity)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .border(Color(nsColor: .separatorColor), width: 1)
-                } else {
-                    QueueList(lines: model.upcoming, nextIndex: model.nextIndex, selected: $model.selected) { model.toggleStar($0) }
-                }
-                Text(L("queueHint") + "\n" + (model.targetName.map { String(format: L("clickTarget"), $0) } ?? L("clickNoTarget"))).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-            Text(model.status).foregroundColor(model.statusIsError ? .red : .secondary).textSelection(.enabled)
-            HStack {
-                Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Spacer()
-                Button(L("restart")) { model.restart() }.disabled(!model.canRestart).help(L("restartHint"))
-            }
-        }
-        .padding(.horizontal, 20).padding(.vertical, 22)
-        .frame(minWidth: 560, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color(nsColor: AppSurface.color))
-    }
-}
-
 struct Preferences: View {
     @ObservedObject var model: Model
     @ObservedObject var increment: IncrementModel
@@ -483,23 +379,8 @@ struct Preferences: View {
                 }
                 AccessibilitySection()
             })),
-            (L("hotkeyTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(L("pasteHotkey")) {
-                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    HotkeyField(id: "paste", combo: Binding(get: { model.pasteCombo }, set: { model.pasteCombo = $0 }),
-                                defaultCombo: Shortcut.paste.combo, others: MaestroRegistry.others(except: "row"),
-                                registered: !model.hotkeyFailed, isEnabled: model.hotkeyEnabled)
-                    DisclosureGroup(M("explanation")) { Text(L("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-                }
-                SettingsSection(L("addHotkey")) {
-                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.addEnabled }, set: { model.addEnabled = $0; model.save() }))
-                    HotkeyField(id: "add", combo: Binding(get: { model.addCombo }, set: { model.addCombo = $0 }),
-                                defaultCombo: Shortcut.add.combo, others: MaestroRegistry.others(except: "add"),
-                                registered: !model.addFailed, isEnabled: model.addEnabled)
-                    DisclosureGroup(M("explanation")) { Text(L("addHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-                }
-            })),
-            (L("pasteTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
+            (M("behavior"), AnyView(VStack(alignment: .leading, spacing: 16) {
+                DisclosureGroup(M("row")) { VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(L("cleanupTitle")) {
                     Toggle(L("trimIndent"), isOn: Binding(get: { model.trimIndent }, set: { model.trimIndent = $0; model.save() }))
                     Toggle(L("stripMarkers"), isOn: Binding(get: { model.stripMarkers }, set: { model.stripMarkers = $0; model.save() }))
@@ -513,9 +394,10 @@ struct Preferences: View {
                     Toggle(L("notifyEach"), isOn: Binding(get: { model.notifyEach }, set: { model.notifyEach = $0; model.save() }))
                     DisclosureGroup(M("explanation")) { Text(L("notifyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
                 }
+                } }
+                DisclosureGroup(M("increment")) { IncrementPreferences(model: increment) }
+                DisclosureGroup(M("style")) { StylePreferences(model: style) }
             })),
-            (M("increment"), AnyView(IncrementPreferences(model: increment))),
-            (M("style"), AnyView(StylePreferences(model: style))),
             (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
@@ -534,6 +416,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     private var compatibilityObservers: [NSObjectProtocol] = []
     var item: NSStatusItem!
     var mainWindow: NSWindow?
+    var rowPalette: NSPanel?
     var preferences: NSWindow?
     var helpWindow: NSWindow?
     let menu = NSMenu()
@@ -553,8 +436,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             })
         }
         ExcludedApps.shared.onChange = { [weak self] in self?.model.excludedAppsChanged(); self?.increment.excludedAppsChanged(); self?.style.excludedAppsChanged() }
-        model.closeMainWindow = { [weak self] in self?.mainWindow?.close() }
-        model.revealMainWindow = { [weak self] in self?.showMainWindow(activate: false) }
+        model.closeMainWindow = { [weak self] in self?.rowPalette?.close() }
+        model.revealMainWindow = { [weak self] in self?.showRowPalette() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload(); self?.increment.reload(); self?.style.reload() }
         SettingsSync.shared.start(.init(
             keys: ["hotkeyEnabled", "pasteShortcut", "addEnabled", "addShortcut", "trimIndent", "stripMarkers", "notifyEach", "closeWhenEmpty", "increment.hotkeyEnabled", "increment.incrementShortcut", "increment.step", "increment.dates", "increment.letters", "increment.firstAsIs", "increment.notifyEach", "style.hotkeyEnabled", "style.pasteShortcut", "style.useMenu", "style.menuTitles", "style.restoreClipboard"],
@@ -565,10 +448,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
                                        "登录时启动、常驻、菜单栏图标和排除的应用需在每台 Mac 上分别设置。",
                                        "로그인 시 실행, 상주, 메뉴 막대 아이콘, 제외할 앱은 Mac마다 설정합니다.")))
         AccessibilityText.neededOverride = [
-            "前面のアプリへ「ペースト」（⌘V）を送るために使用します。未許可の場合、⌃⌥V を押しても1行ずつペーストできません。",
-            "Used to send Paste (⌘V) to the front app. Without permission, ⌃⌥V cannot paste line by line.",
-            "用于向前台应用发送“粘贴”（⌘V）。未获授权时，按 ⌃⌥V 无法逐行粘贴。",
-            "앞에 있는 앱에 붙여넣기(⌘V)를 보내는 데 사용합니다. 권한이 없으면 ⌃⌥V를 눌러도 한 줄씩 붙여넣을 수 없습니다."
+            "他のアプリへコピー・貼り付けを送信し、書式を合わせるメニューを実行するために使用します。",
+            "Used to send Copy and Paste to other apps and run their matching-style menu commands.",
+            "用于向其他应用发送复制和粘贴，以及执行匹配样式菜单。",
+            "다른 앱에 복사와 붙여넣기를 보내고 스타일 맞추기 메뉴를 실행하는 데 사용합니다."
         ]
         WindowActivationPolicy.install()
         buildMainMenu()
@@ -578,6 +461,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         resultItem = menu.addItem(withTitle: model.status, action: nil, keyEquivalent: "")
         menu.addItem(.separator())
         add(menu, L("openMainWindow"), #selector(openMainWindow))
+        add(menu, M("openPalette"), #selector(openRowPalette))
         add(menu, L("settings"), #selector(showPreferences))
         add(menu, L("pause"), #selector(togglePause))
         add(menu, L("restart"), #selector(restart))
@@ -617,6 +501,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         add(appMenu, L("quit"), #selector(quit), "q")
         let fileRoot = NSMenuItem(); let fileMenu = NSMenu(title: L("file")); fileRoot.submenu = fileMenu; main.addItem(fileRoot)
         add(fileMenu, L("openMainWindow"), #selector(openMainWindow), "0")
+        add(fileMenu, M("openPalette"), #selector(openRowPalette))
         fileMenu.addItem(.separator())
         add(fileMenu, L("restart"), #selector(restart))
         fileMenu.addItem(.separator())
@@ -711,11 +596,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
                 window.setFrame(frame, display: false)
             }
             mainWindow = window
-            model.mainWindow = window
+
         }
         if let window = mainWindow, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         if activate { NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil) }
         else { mainWindow?.orderFrontRegardless() }
+    }
+    @objc func openRowPalette() { showRowPalette() }
+    func showRowPalette() {
+        model.refreshQueue()
+        if rowPalette == nil {
+            let panel = PastePalette(contentRect: NSRect(x: 0, y: 0, width: 460, height: 420), styleMask: [.titled, .closable, .resizable, .utilityWindow, .nonactivatingPanel], backing: .buffered, defer: false)
+            panel.title = M("row")
+            panel.level = .floating
+            panel.hidesOnDeactivate = false
+            panel.isReleasedWhenClosed = false
+            panel.isFloatingPanel = true
+            panel.contentView = NSHostingView(rootView: RowPaletteView(model: model))
+            panel.contentMinSize = NSSize(width: 380, height: 300)
+            panel.center(); panel.setFrameAutosaveName("RowPalette")
+            rowPalette = panel; model.mainWindow = panel
+        }
+        if let panel = rowPalette, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(panel.frame) }) { panel.center() }
+        rowPalette?.makeKeyAndOrderFront(nil)
     }
     @objc func showPreferences() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         model.refreshLogin()

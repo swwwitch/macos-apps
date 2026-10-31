@@ -193,42 +193,6 @@ struct StyleStatusRow: View {
     }
 }
 
-struct StyleMainView: View {
-    @ObservedObject var model: StyleModel
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            StyleHeaderView().fixedSize(horizontal: false, vertical: true)
-            VStack(alignment: .leading, spacing: 10) {
-                // Only a problem that stops the hotkey is shown above the result (B09, B27).
-                if !AccessibilitySection.isTrusted {
-                    StyleStatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: AccessibilityText.text("title"),
-                              value: AccessibilityText.text("denied"))
-                } else if model.hotkeyFailed || !model.hotkeyEnabled || model.paused {
-                    StyleStatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: SL("hotkeyRow"), value: model.hotkeyStatus)
-                } else {
-                    StyleStatusRow(symbol: "keyboard", tint: .secondary, title: SL("hotkeyRow"), value: model.hotkeyStatus)
-                }
-                StyleStatusRow(symbol: model.statusIsError ? "xmark.circle.fill" : "checkmark.circle", tint: model.statusIsError ? .red : .secondary,
-                          title: SL("lastResult"), value: model.status)
-            }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(nsColor: .controlBackgroundColor))
-            .border(Color(nsColor: .separatorColor), width: 1)
-            DisclosureGroup(M("explanation")) { Text(SL("mainHint")).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-            Spacer(minLength: 0)
-            HStack {
-                Button(SL("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Spacer()
-                Button(SL("strip")) { model.stripClipboard() }.help(SL("stripHint"))
-            }
-        }
-        .padding(.horizontal, 20).padding(.vertical, 22)
-        .frame(minWidth: 520, maxWidth: .infinity, minHeight: 340, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color(nsColor: AppSurface.color))
-    }
-}
-
 /// The menu titles, one per line. Saved when the editor loses focus or the window closes.
 struct StyleMenuTitlesEditor: View {
     @ObservedObject var model: StyleModel
@@ -259,14 +223,6 @@ struct StyleMenuTitlesEditor: View {
 struct StylePreferences: View {
  @ObservedObject var model: StyleModel
  var body: some View { VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(SL("pasteHotkey")) {
-                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    HotkeyField(id: "style", combo: Binding(get: { model.combo }, set: { model.combo = $0 }),
-                                defaultCombo: Shortcut.style.combo, others: MaestroRegistry.others(except: "style"), registered: !model.hotkeyFailed, isEnabled: model.hotkeyEnabled)
-                    DisclosureGroup(M("explanation")) { Text(SL("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-                }
-            }
             VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SL("menuTitlesTitle")) {
                     Toggle(SL("useMenu"), isOn: Binding(get: { model.useMenu }, set: { model.useMenu = $0; model.save() }))

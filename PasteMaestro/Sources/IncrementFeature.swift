@@ -262,62 +262,9 @@ struct IncrementValueBox: View {
     }
 }
 
-struct IncrementMainView: View {
-    @ObservedObject var model: IncrementModel
-    private var kindText: String {
-        guard model.current != nil, let next = model.next else { return "" }
-        if next.kind == .none { return IL(model.firstPending ? "kind.first" : "kind.none") }
-        return IL("kind." + next.kind.rawValue)
-    }
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            IncrementHeaderView().fixedSize(horizontal: false, vertical: true)
-            // Only a problem that stops the hotkey is shown here (B09, B27).
-            if !AccessibilitySection.isTrusted {
-                IncrementStatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: AccessibilityText.text("title"),
-                          value: AccessibilityText.text("denied"))
-            } else if model.hotkeyFailed {
-                IncrementStatusRow(symbol: "exclamationmark.triangle.fill", tint: .orange, title: IL("hotkeyRow"), value: model.hotkeyStatus)
-            }
-            HStack(alignment: .center, spacing: 10) {
-                IncrementValueBox(title: IL("clipboardTitle"), value: model.current, placeholder: IL("clipboardEmpty"))
-                Image(systemName: "arrow.right").font(.system(size: 18, weight: .semibold)).foregroundColor(.secondary).accessibilityHidden(true)
-                IncrementValueBox(title: String(format: IL("nextTitle"), model.shortcut.label), value: model.current == nil ? nil : model.next?.text,
-                         placeholder: "—", emphasized: true)
-            }
-            Text(kindText).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Image(systemName: model.statusIsError ? "exclamationmark.circle.fill" : "info.circle")
-                    .foregroundColor(model.statusIsError ? .red : .secondary).accessibilityHidden(true)
-                Text(model.status).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
-            }
-            .accessibilityElement(children: .combine)
-            DisclosureGroup(M("explanation")) { Text(IL("examples")).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-            Spacer(minLength: 0)
-            HStack {
-                Button(IL("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Spacer()
-                Button(IL("revert")) { model.revert() }.disabled(!model.canRevert).help(IL("revertHint"))
-            }
-        }
-        .padding(.horizontal, 20).padding(.vertical, 22)
-        .frame(minWidth: 560, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color(nsColor: AppSurface.color))
-    }
-}
-
 struct IncrementPreferences: View {
  @ObservedObject var model: IncrementModel
  var body: some View { VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(IL("incrementHotkey")) {
-                    Toggle(HotkeyText.enable, isOn: Binding(get: { model.hotkeyEnabled }, set: { model.hotkeyEnabled = $0; model.save() }))
-                    HotkeyField(id: "increment", combo: Binding(get: { model.combo }, set: { model.combo = $0 }),
-                                defaultCombo: Shortcut.increment.combo, others: MaestroRegistry.others(except: "increment"), registered: !model.hotkeyFailed, isEnabled: model.hotkeyEnabled,
-                                allowsOption: true)  // the default ⌥V is ⌥ alone
-                    DisclosureGroup(M("explanation")) { Text(IL("shortcutHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true) }
-                }
-            }
             VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(IL("rulesTitle")) {
                     HStack {
