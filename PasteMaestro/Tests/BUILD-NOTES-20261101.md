@@ -1,7 +1,7 @@
 # PasteMaestro 1.0.0（1）開発用ビルド検証
 
 - 日時：2026-11-01 JST、開発担当 MacBook-Pro-14-2024-sw.local。
-- ブランチ：main。基点：9068227c96152f37521313108259c886670d5fc6。対象SHA：42a3c30dc9fbe0d7d22cad2dadd999547551dd57。
+- 引き継ぎブランチ：codex/pastemaestro-integration-20261101。開始時ブランチ：main。開始時基点：9068227c96152f37521313108259c886670d5fc6。対象SHA：42a3c30dc9fbe0d7d22cad2dadd999547551dd57。
 - macOS 26.7.1（25G241）、arm64、最低macOS 13。Universalは未作成。
 - 成果物：PasteMaestro/PasteMaestro.app。Bundle ID：jp.dtp-transit.pastemaestro。
 - 実行：NO_DEPLOY=1 SKIP_PUBLISH=1 ./PasteMaestro/build.sh。通常の制限内ではSwiftマクロの実行制限が発生したため、ビルドは許可された環境で実行。
@@ -22,3 +22,9 @@
 ## 配布状況
 
 公証・DMG・/Applications・Dropbox Latest Buildsへの配置・GitHub Release・note記事・公開ダウンロード検証・配布版一覧更新は未実施。更新配信URL／公開鍵は未設定。開発用ビルドを公証済み配布物として扱わない。
+
+## Git確定記録
+
+- 実装コミット：42a3c30dc9fbe0d7d22cad2dadd999547551dd57。記録コミット：f20860628f537f30e71dc787ca93d96c16a98474。専用ブランチへのpushとリモートSHA一致を確認。
+- 並行作業が共有フォルダーのブランチをcodex/filesorter-screenshot-rename-20261101へ切り替えたため、実装コミットはFileSorter確定コミット79eb366の後に積まれた。PasteMaestroの2コミットには今回のソース・履歴・キューだけを含む。mainのpushは非fast-forwardで拒否され、mainへ統合していない。
+- 他作業のブランチを戻さず、専用worktreeでこの記録を確定。公証対象ソースSHAは上記実装コミットを指定できる。

@@ -9,7 +9,9 @@
 - 統合対象：3アプリの既存機能。実装時にソース・設定・ホットキー・クリップボード処理・翻訳・ヘルプを確認し、共通化と機能ごとの操作を整理する。新規アプリの共通仕様とBASELINE-CHECKLIST.mdを適用する。
 - 既存3アプリの廃止・削除・配布物の置換は未指示。既存ソース・保存設定・配布物を保持し、設定の引き継ぎ方法、同時起動による二重処理やホットキー競合を実装時に確認する。
 - 状態：開発用検証ビルド1.0.0（1）作成済み。増加・行・書式の統合、共通設定、4言語ヘルプ、排他制御・旧アプリ併用停止を実装。自動テスト・証明書署名・deep/strict検証PASS。起動・3モード・設定・同梱ヘルプを確認。他アプリ実貼り付け・実キーは未確認。詳細：PasteMaestro/Tests/BUILD-NOTES-20261101.md。公証・配置・公開は未実施。
-- 確定記録：開発Mac MacBook-Pro-14-2024-sw.local、main、実装対象SHA 42a3c30dc9fbe0d7d22cad2dadd999547551dd57、通常版1.0.0（1）。開発用成果物：PasteMaestro/PasteMaestro.app。Apple Distribution（PL9S9PXX96）署名・deep/strict PASS。APP-MANIFEST-20261101.jsonに全ファイルのハッシュ・権限・リンク先を記録。公証・配布は公証担当Macで行う。
+- 確定記録：開発Mac MacBook-Pro-14-2024-sw.local、引き継ぎブランチcodex/pastemaestro-integration-20261101、実装対象SHA 42a3c30dc9fbe0d7d22cad2dadd999547551dd57、通常版1.0.0（1）。開発用成果物：PasteMaestro/PasteMaestro.app。Apple Distribution（PL9S9PXX96）署名・deep/strict PASS。APP-MANIFEST-20261101.jsonに全ファイルのハッシュ・権限・リンク先を記録。公証・配布は公証担当Macで行う。
+
+- Git保存：専用ブランチcodex/pastemaestro-integration-20261101へpush済み、リモートf20860628f537f30e71dc787ca93d96c16a98474一致を確認。共有フォルダーの並行ブランチ切替を検知し、他作業を保全して専用worktreeで記録を追記。main統合は未実施。
 
 ## 2026-10-30 SettingsHop：1.8.1（25）番号確定
 
