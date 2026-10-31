@@ -1,0 +1,45 @@
+## Basics
+VectorFX runs Illustrator effects, Pathfinder, compound paths, caps and more from palette buttons and hotkeys.
+- Show the palette: press ⌃A (default) while Illustrator is in front; press again to hide it. You can also use Show Palette in the main window, File › Show/Hide Palette (⇧⌘P) or the menu bar icon.
+- The palette appears only while Illustrator is in front. It hides when you switch to another app and comes back with Illustrator. Clicking the palette keeps Illustrator's selection.
+- Run: click a button in the palette. It acts on the selected objects.
+- Items ending with “…” open Illustrator's dialog box; the next command waits until it closes.
+
+## Effects applied with values
+Drop Shadow, Offset Path, Rectangle, Zig Zag and Roughen are applied without a dialog box, using the values set in the main window. Lengths use the document's units.
+- Option-click in the palette to open Illustrator's dialog box instead.
+- Double-click the effect in the Appearance panel to adjust it later.
+- With several objects selected, each gets its own effect.
+
+## Main window
+- Left list: checked items appear in the palette. The right column shows the assigned hotkey.
+- Right side: Run in Illustrator (⌘Return), hotkey, effect values and the script file location.
+- Items whose script file is missing show ⚠. Choose the file again with Choose File….
+- The bottom line shows the last result, including why it failed. The palette shows it too.
+
+## Hotkeys
+- Item hotkeys work only while the palette is shown and Illustrator is in front, so keys without modifiers such as ⇧K or - can be used. Hide the palette and those keys type normally in Illustrator.
+- Assign: select an item in the main window, click the hotkey field and press the keys. Esc cancels. A key already used by another item is moved to this one.
+- Palette hotkey (default ⌃A): change or turn it off in Settings › Palette.
+- Show-app hotkey: assign it in Settings › Startup & Background to show the main window from any app (no default).
+- ⌘0 Open Main Window, ⌘, Settings, ⌘W Close Window, ⌘? Help
+
+## Settings
+Open with VectorFX › Settings… (⌘,).
+- Startup & Background: open at login, hide from Dock and App Switcher, keep running after closing the window, menu bar icon, show-app hotkey.
+- Palette: palette hotkey and Reset All to Defaults (items, hotkeys and effect values; script file locations are kept).
+- Sharing: export, import and sync the palette items, hotkeys and effect values.
+- About: version and links.
+
+## Permissions
+The first run asks whether VectorFX may control “Adobe Illustrator”. Choose Allow. If you did not, turn on “Adobe Illustrator” for VectorFX in System Settings › Privacy & Security › Automation. Accessibility permission is not used.
+
+## Keep running and quitting
+VectorFX keeps running after you close the window, so the palette and hotkeys keep working (turn this off in Settings to quit on close). Show it again from the Dock, the menu bar icon, by opening it from the Finder or with the show-app hotkey. Quit with VectorFX › Quit VectorFX (⌘Q) or from the menu bar icon.
+
+## Troubleshooting
+- “Select objects first”: select objects with the Selection tool. Commands do not run while text is being edited.
+- “Could not play the action…”: Knockout Group plays the action “グループの抜き” in the set “S2A” of the Actions panel. Load that set.
+- A hotkey does nothing: check that the palette is shown and Illustrator is in front. Another app using the same key (Keyboard Maestro, for example) may react as well.
+- Undo an effect with Undo (⌘Z) in Illustrator.
+- Start over: Settings › Palette › Reset All to Defaults. To remove the app, move VectorFX.app from Applications to the Trash.

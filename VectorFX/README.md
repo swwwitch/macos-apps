@@ -1,0 +1,47 @@
+# VectorFX
+
+Illustratorの効果・パスファインダー・複合シェイプ・複合パス・線端などを、Illustratorの上に浮かぶパレットとホットキーで実行するAppKit/SwiftUIアプリ。Apple Silicon / macOS 13以降。Bundle ID `jp.dtp-transit.vectorfx`。
+
+Keyboard Maestroのパレット型グループ「Ai-アピアランス」（`sync-setting/keyboard maestro/outgo-2021/Ai-アピアランス Macros.kmmacros`）を移植した。KMでオンのマクロ33本が対象（オフのマクロ・区切りのマクロは除外）。
+
+## 動作
+
+- パレット：Illustratorが前面のとき ⌃A（元のパレットと同じ）で表示／非表示。ほかのアプリが前面になると隠れ、Illustratorに戻ると再表示。`nonactivatingPanel` でIllustratorの選択を保つ。
+- 項目のホットキー：パレットを表示中かつIllustratorが前面のときだけ登録（KMの「パレット表示中だけ有効」と同じ）。修飾キーなしのキー（「項目を削除」の -）も割り当てられる。
+- 実行：ExtendScriptを組み立て、前面のIllustratorへパス指定の `do javascript`（osascript）。直列、待ちは3件まで。組み込みのスクリプトは `OK` / `ERR:nodoc|nosel|text|action` を返し、理由を画面に出す。
+
+## 元のマクロからの置き換え
+
+| 元のマクロの手順 | VectorFX |
+| --- | --- |
+| ［効果］メニュー＋キー入力で値を入れる（ドロップシャドウ 30%/2/2/2、パスのオフセット 1、長方形 +0/+0、ジグザグ 0・1、ジグザグ 0・0、ラフ 0・9・丸く） | `applyEffect` にLiveEffectのXML。値はメインウインドウで変更でき、長さはドキュメントの単位（`rulerUnits`）。Option＋クリックで元の［効果］メニュー（ダイアログボックス）。 |
+| ダイアログボックスを開くだけの効果（角を丸くする・ワープ円弧・パスの自由変形・パンク・膨張・変形） | `app.executeMenuCommand("Live …")` |
+| パスのアウトライン・オブジェクトのアウトライン・パスファインダー（追加・分割・アウトライン・切り抜き）・複合パス | `executeMenuCommand` |
+| アピアランスを消去・項目を削除・複合シェイプ（Ai Do Action Text／Appearance Panel Action） | 一時アクション（.aiaを書いて loadAction → doScript → unloadAction、セット名「VectorFX Temporary」） |
+| グループの抜き（Ai Do Action） | `app.doScript("グループの抜き", "S2A")` |
+| 線端（Ai Execute Jsx Text） | 組み込みのExtendScript（グループ・複合パスの中も） |
+| スクリプトファイル（Open1File／Ai Execute Script File） | `do javascript (POSIX file …)`。場所は変更できる。KPTSketchy.jsx は現存しないため KPTSketchyPalette.jsx を既定にした |
+| 変形「上を基準に6px下げ、つぶす2」 | テキスト1つ：長方形（+1/+3）→［変形］高さ0・基準点上中央・フォントサイズの半分下へ。それ以外：高さ0・中央 |
+
+未確認：Illustrator上での各項目の実行（特に変形 pinPoint 1 が上中央か、moveV_Pts の符号、Live … コマンドがダイアログボックスを開くか）。
+
+## しくみ
+
+- `Source/Commands.swift`：項目の一覧・既定キー・一時アクションの.aia（Foundationのみ、テスト対象）
+- `Source/ScriptBuilder.swift`：ExtendScriptの組み立て（テスト対象）
+- `Source/Runner.swift`：Illustratorの判定・osascript・直列実行
+- `Source/Model.swift`：設定（UserDefaults）・ホットキーの登録・実行結果
+- `Source/Palette.swift`：パレット、`Source/Views.swift`：主画面・設定、`Source/main.swift`：メニュー・起動
+- 外部通信なし（更新確認を除く。配信先は未設定）。権限：オートメーション（Illustrator）。アクセシビリティは使わない。
+
+## ビルド・テスト
+
+```
+./test.sh            # 単体テスト（生成スクリプトの構文チェックを含む）＋4言語の翻訳キー・プレースホルダー検証
+./build.sh           # build/VectorFX.app
+Assets/make-icon.sh  # アイコンを作り直す
+```
+
+## 更新履歴
+
+- 1.0.0 (1)　2026-11-01：新規。KMの「Ai-アピアランス」パレットを移植（33項目・ホットキー17）。
