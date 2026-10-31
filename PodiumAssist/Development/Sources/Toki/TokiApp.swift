@@ -1600,8 +1600,7 @@ struct ManualControlsView: View {
                                 Slider(value: $zoomMinDraft, in: 1...max(1, min(zoomDraft, max(4, settings.zoomMinFactor ?? 1)))) { editing in
                                     if !editing { manual { settings.setZoom(minFactor: zoomMinDraft) } }
                                 }
-                                .frame(width: 70)
-                                .frame(width: 140, alignment: .leading)
+                                .frame(width: 140)
                                 Text(ZoomSettings.text(zoomMinDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
                             }
                             .font(.system(size: 12)).disabled(settings.busy)
