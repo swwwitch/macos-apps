@@ -111,6 +111,7 @@ struct ScriptDetail: View {
                     if model.duplicateHotkeys.contains(script.id) { Text(L("hotkey.duplicate")).font(.caption).foregroundColor(.red) }
                 }
                 Divider()
+                ScriptOverviewView(model: model, script: script)
                 ScriptInfoView(model: model, script: $script)
                 if showUses && script.uses > 0 {
                     Text(usesText).font(.caption).foregroundColor(.secondary).help(L("uses.hint"))
@@ -149,7 +150,6 @@ struct StepRow: View {
     let script: ScriptEntry
     let index: Int
     let step: Step
-    @State private var showPath = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if case .code(let source) = step {
@@ -178,13 +178,8 @@ struct StepRow: View {
                             Text(title).lineLimit(2).truncationMode(.middle)
                             if let version = model.version(for: step) { Text(version).font(.caption).foregroundColor(.secondary) }
                         }
-                        if missing {
-                            Text(detail).font(.caption).foregroundColor(.orange).lineLimit(2)
-                        } else {
-                            DisclosureGroup(L("source.path"), isExpanded: $showPath) {
-                                Text(detail).font(.caption).foregroundColor(.secondary).textSelection(.enabled)
-                            }.font(.caption).foregroundColor(.secondary)
-                        }
+                        Text(detail).font(.caption).foregroundColor(missing ? .orange : .secondary)
+                            .lineLimit(2).truncationMode(.middle).textSelection(.enabled).help(detail)
                         if case .script(let path) = step {
                             HStack(spacing: 8) {
                                 Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
@@ -892,10 +887,34 @@ struct ItemDeleteShortcut: NSViewRepresentable {
     func updateNSView(_ view: ShortcutView, context: Context) { view.action = action }
 }
 
+struct ScriptOverviewView: View {
+    @ObservedObject var model: AppModel
+    let script: ScriptEntry
+    @State private var expanded = false
+    var body: some View {
+        DisclosureGroup(L("meta.summary"), isExpanded: $expanded) {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
+                    if step.isSupported {
+                        if script.actions.count > 1 {
+                            Text(step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? String(format: L("ui.stepNumber"), index + 1)).font(.caption.weight(.semibold))
+                        }
+                        let summary = model.metadata(for: step)?.summary ?? ""
+                        Text(summary.isEmpty ? L("meta.absent") : summary)
+                            .font(.callout).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }.padding(.top, 4)
+        }.font(.subheadline)
+    }
+}
+
 struct ScriptInfoView: View {
     @ObservedObject var model: AppModel
     @Binding var script: ScriptEntry
     @State private var expanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
         DisclosureGroup(L("meta.info"), isExpanded: $expanded) {
         VStack(alignment: .leading, spacing: 10) {
@@ -920,6 +939,9 @@ struct ScriptInfoView: View {
             }
         }.padding(.top, 6)
         }.font(.subheadline)
+        .transaction { transaction in
+            transaction.animation = reduceMotion ? nil : .easeInOut(duration: 0.12)
+        }
     }
 }
 
@@ -927,17 +949,8 @@ struct MetadataFields: View {
     let info: ScriptMetadata.Info?
     let readme: URL?
     let codeURL: URL?
-    @State private var overviewOpen = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if let summary = info?.summary, !summary.isEmpty {
-                DisclosureGroup(L("meta.summary"), isExpanded: $overviewOpen) {
-                    Text(summary).font(.callout).textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true).padding(.top, 4)
-                }.font(.caption)
-            } else {
-                field(L("meta.summary"), value: nil)
-            }
             if let name = info?.fields["Name"], !name.isEmpty { field(L("meta.scriptName"), value: name) }
             field(L("meta.version"), value: info?.version)
             HStack(alignment: .firstTextBaseline, spacing: 10) {
