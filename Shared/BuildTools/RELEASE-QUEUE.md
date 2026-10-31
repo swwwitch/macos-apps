@@ -2,6 +2,8 @@
 
 ## 2026-11-01 InputMaestro：ControlMateとFnNumpadの統合アプリを新設
 
+- 公証Macの権限設定待ち。ユーザーは先の許可操作が別Macだったと訂正し、公証Macで設定予定。note新規公開も明示承認済み。Safariで下書きnd338830e0d2eを本文・共通見出し画像付きで保存。公開・DMG添付は実機確認後。
+
 - 2026-11-01 02:23:07 JST 公証Mac MacBookPro13-M5-2025：0.1.3（4）、対象5d1750f、アプリ／DMGともAccepted・署名／stapler／Gatekeeper検証成功。/ApplicationsとLatest Buildsに同内容を配置・起動確認。AX／画面収録未許可・FnNumpad併用停止により外部キー／OCR実機確認ブロック、工程7～11未実施、全体未完了。詳細：Shared/BuildTools/ReleaseRecords/20261101-InputMaestro-0.1.3-build4-notarization.md。
 
 - 公証配布開始：2026-11-01T02:18:48.099079+09:00、担当MacBookPro13-M5-2025（公証）、ブランチcodex/inputmaestro-integration-20261101、対象SHA 5d1750f6b147a927d55a816c121e22b531469998（実装5494a2ab510ef4caff1dab917b1eb5d2cc93b1c2）、通常版0.1.3（4）。GitHub一致・署名ID・swwwitch-notary認証確認済み。既存作業は専用worktree分離で保持。工程4開始、配布・公開未実施。記録 /Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4。
