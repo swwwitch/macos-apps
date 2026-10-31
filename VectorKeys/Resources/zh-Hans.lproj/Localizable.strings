@@ -1,3 +1,7 @@
+"divider.title" = "分隔线";
+"divider.add" = "添加分隔线";
+"stats.columns" = "显示项目";
+"stats.path" = "路径";
 "watch.autoGroup" = "自动将子目录添加为分组";
 "watch.groupHint" = "默认关闭。层级使用父/子分类名，相同相对路径合并，保留已有分类。";
 "watch.exclusions" = "排除文件夹";
@@ -50,7 +54,7 @@
 "meta.releaseDate" = "发布日期";
 "source.reveal" = "在访达中显示";
 "source.open" = "打开源代码";
-"source.hint" = "在文本编辑器中打开（不支持 .jsxbin）。";
+"source.hint" = "在关联应用中打开（不支持 .jsxbin）。";
 "source.failed" = "无法打开源代码。";
 "meta.info" = "脚本信息";
 "meta.summary" = "概述";

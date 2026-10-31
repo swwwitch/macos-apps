@@ -329,4 +329,31 @@ WatchedScripts.merge(WatchedScripts.scan([watchRoot.path]), into: &watchedLibrar
 check(watchedLibrary.scripts.count == 1, "missing original keeps item and metadata")
 try FileManager.default.removeItem(at: watchRoot)
 
+
+let namedFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jsx")
+try #"var SCRIPT_DESCRIPTION_JA = "Japanese item";"#.write(to: namedFile, atomically: true, encoding: .utf8)
+var autoEntry = ScriptEntry(path: namedFile.path)
+check(autoEntry.name == "Japanese item", "description constant supplies item name")
+try #"var SCRIPT_DESCRIPTION_JA = "Updated description";"#.write(to: namedFile, atomically: true, encoding: .utf8)
+autoEntry.refreshAutomaticName()
+check(autoEntry.name == "Updated description", "automatic name refresh")
+autoEntry.name = "User custom name"
+autoEntry.refreshAutomaticName()
+check(autoEntry.name == "User custom name", "manual name survives metadata refresh")
+var legacyName = ScriptEntry(path: namedFile.path, name: "Legacy custom")
+legacyName.refreshAutomaticName()
+check(legacyName.name == "Legacy custom", "legacy custom name preserved")
+try FileManager.default.removeItem(at: namedFile)
+var boundary = ScriptEntry(steps: [], name: "Section", enabled: false); boundary.divider = true
+let z = ScriptEntry(path: "/test/Z.jsx"), a = ScriptEntry(path: "/test/A.jsx")
+check(SortOrder.name.sorted([z, boundary, a]) { _ in "" }.map(\.name) == ["Z", "Section", "A"], "divider blocks display sorting across sections")
+var dividedLibrary = Library(); dividedLibrary.scripts = [z, boundary, a]
+dividedLibrary.sortSelected(Set([z.id, a.id]), by: .name) { _ in "" }
+check(dividedLibrary.scripts.map(\.name) == ["Z", "Section", "A"], "divider blocks selected sorting across sections")
+check(dividedLibrary.byUse.count == 2 && !boundary.isAvailable, "divider excluded from stats and execution")
+let sr1 = StatisticsRow(rank: 1, id: "a", name: "Z", category: "B", scriptName: "B.jsx", path: "/b", uses: 12, last: nil, key: "T")
+let sr2 = StatisticsRow(rank: 2, id: "b", name: "A", category: "A", scriptName: "A.jsx", path: "/a", uses: 2, last: nil, key: "A")
+check(StatisticsRow.sorted([sr1, sr2], by: .uses, ascending: true).map(\.id) == ["b", "a"], "statistics numeric sorting")
+check(StatisticsRow.sorted([sr1, sr2], by: .category, ascending: false).map(\.id) == ["a", "b"], "statistics descending category sorting")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

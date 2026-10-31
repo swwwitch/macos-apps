@@ -1,3 +1,7 @@
+"divider.title" = "区切り";
+"divider.add" = "区切りを追加";
+"stats.columns" = "表示する項目";
+"stats.path" = "パス";
 "watch.autoGroup" = "サブディレクトリを自動的にグループへ追加";
 "watch.groupHint" = "初期値OFF。階層は「親/子」のカテゴリ名にします。同じ相対階層名は同じグループにまとめ、既存の分類は変更しません。";
 "watch.exclusions" = "除外するフォルダー";
@@ -50,7 +54,7 @@
 "meta.releaseDate" = "リリース日";
 "source.reveal" = "Finderで表示";
 "source.open" = "ソースコードを開く";
-"source.hint" = "テキストエディタで開きます（.jsxbinは対象外）。";
+"source.hint" = "ファイルに関連付けられたアプリで開きます（.jsxbinは対象外）。";
 "source.failed" = "ソースコードを開けませんでした。";
 "meta.info" = "スクリプト情報";
 "meta.summary" = "概要（何をするもの）";

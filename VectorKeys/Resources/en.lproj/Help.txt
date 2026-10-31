@@ -95,7 +95,7 @@ Script information appears below the detail editor. Overview, version, URL and a
 
 
 ## Source Code
-File steps have Show in Finder and Open Source Code buttons. Source opens in a known editor associated with .txt, with TextEdit as fallback, instead of the script execution handler. Missing files disable both buttons; .jsxbin disables source opening. Inline code is edited in place.
+File steps have Show in Finder and Open Source Code buttons. Source opens in the application associated with the file. Missing files disable both buttons; .jsxbin disables source opening. Inline code is edited in place.
 
 
 ## SCRIPT Metadata
@@ -119,3 +119,8 @@ Enter comma-separated tags in item details and press Return or Save Tags. Saving
 
 
 Automatically Group Subdirectories defaults to off. When enabled, each hierarchy (including empty folders) becomes a category; new or uncategorized single-file items are assigned. Names use Parent/Child; equal relative paths across roots share a category. Existing assignments stay unchanged. Enter excluded folder names one per line and save. Defaults: single-function and backup. Case-insensitive exact names at any depth exclude the subtree from imports, tags and groups. Existing entries, tags and categories are not deleted.
+
+
+Add dividers from the plus or context menu. They appear after the selection, can be dragged, deleted and renamed in details. Dividers never run or enter statistics. Sorting stays within divider boundaries. Visible Columns toggles each statistics column; clicking headers switches ascending/descending order. Script name uses metadata Name or filename; paths include all file steps. New files use SCRIPT_DESCRIPTION_JA when present. User-edited and legacy names survive information updates. Sources open with the file's associated application.
+
+A progress bar and processed-file count appear in the main window while updating information.

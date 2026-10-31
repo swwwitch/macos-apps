@@ -72,6 +72,10 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
         actions = steps
     }
     /// Successful runs (hotkey or Run button) and the last one. Optional so lists saved by 1.0.0 still load.
+    var divider: Bool?
+    var isDivider: Bool { divider == true }
+    /// Only new automatically named entries opt in; legacy/user-provided names stay untouched.
+    var automaticName: String?
     var tags: [String]?
     var folderTags: [String]?
     var allTags: [String] { Array(Set((tags ?? []) + (folderTags ?? []))).sorted { $0.localizedStandardCompare($1) == .orderedAscending } }
@@ -85,10 +89,16 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     static func accepts(_ url: URL) -> Bool { extensions.contains(url.pathExtension.lowercased()) }
     /// The file name without its extension: 「AlignToArtboard.jsx」 → 「AlignToArtboard」.
     static func defaultName(for path: String) -> String {
-        ((path as NSString).lastPathComponent as NSString).deletingPathExtension
+        if let description = ScriptMetadata.read(at: path)?.fields["Description-JA"]?.trimmingCharacters(in: .whitespacesAndNewlines), !description.isEmpty { return description }
+        return ((path as NSString).lastPathComponent as NSString).deletingPathExtension
     }
     init(id: String = UUID().uuidString, path: String, name: String? = nil, hotkey: Hotkey? = nil, enabled: Bool = true) {
         self.id = id; self.path = path; self.name = name ?? Self.defaultName(for: path); self.hotkey = hotkey; self.enabled = enabled
+        automaticName = name == nil ? self.name : nil
+    }
+    mutating func refreshAutomaticName() {
+        guard let previous = automaticName, name == previous, actions.count == 1, let path = actions[0].scriptPath else { return }
+        name = Self.defaultName(for: path); automaticName = name
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
     /// Never execute only the script portion of a legacy mixed item. Keep its data for explicit editing.
@@ -112,9 +122,17 @@ struct Library: Codable, Equatable {
     mutating func sortSelected(_ ids: Set<String>, by order: SortOrder, keyName: (Hotkey) -> String) {
         // Replace only selected slots in each category, preserving every unselected row.
         for category in Set(scripts.filter { ids.contains($0.id) }.map { $0.category ?? "" }) {
-            let slots = scripts.indices.filter { ids.contains(scripts[$0].id) && (scripts[$0].category ?? "") == category }
-            let sorted = order.sorted(slots.map { scripts[$0] }, keyName: keyName)
-            for (slot, entry) in zip(slots, sorted) { scripts[slot] = entry }
+            var slots: [Int] = []
+            func flush() {
+                let sorted = order.sorted(slots.map { scripts[$0] }, keyName: keyName)
+                for (slot, entry) in zip(slots, sorted) { scripts[slot] = entry }
+                slots = []
+            }
+            for i in scripts.indices where (scripts[i].category ?? "") == category {
+                if scripts[i].isDivider { flush() }
+                else if ids.contains(scripts[i].id) { slots.append(i) }
+            }
+            flush()
         }
     }
 
@@ -244,14 +262,14 @@ struct Library: Codable, Equatable {
         var changed = 0
         for index in scripts.indices where ids.contains(scripts[index].id) {
             guard let new = Self.replacing(in: scripts[index].name, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) else { return 0 }
-            if new != scripts[index].name { scripts[index].name = new; changed += 1 }
+            if new != scripts[index].name { scripts[index].name = new; scripts[index].automaticName = nil; changed += 1 }
         }
         return changed
     }
 
     /// Every script by use: most runs first, then the latest run, then name (scripts never run come last).
     var byUse: [ScriptEntry] {
-        scripts.sorted { a, b in
+        scripts.filter { !$0.isDivider }.sorted { a, b in
             if a.uses != b.uses { return a.uses > b.uses }
             if a.lastRun != b.lastRun { return (a.lastRun ?? .distantPast) > (b.lastRun ?? .distantPast) }
             return a.name.localizedStandardCompare(b.name) == .orderedAscending
@@ -287,6 +305,14 @@ struct Library: Codable, Equatable {
 enum SortOrder: String, CaseIterable {
     case manual, name, uses, hotkey
     func sorted(_ scripts: [ScriptEntry], keyName: (Hotkey) -> String) -> [ScriptEntry] {
+        var result: [ScriptEntry] = [], block: [ScriptEntry] = []
+        for script in scripts {
+            if script.isDivider { result += sortedBlock(block, keyName: keyName); block = []; result.append(script) }
+            else { block.append(script) }
+        }
+        return result + sortedBlock(block, keyName: keyName)
+    }
+    private func sortedBlock(_ scripts: [ScriptEntry], keyName: (Hotkey) -> String) -> [ScriptEntry] {
         switch self {
         case .manual: return scripts
         case .name: return scripts.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -450,7 +476,7 @@ enum ScriptMetadata {
 
 extension ScriptMetadata {
     static func variables(in source: String) -> [String: String] {
-        let names = ["SCRIPT_CODE_URL": "Code-URL", "SCRIPT_GITHUB_URL": "Code-URL", "SCRIPT_NAME": "Name", "SCRIPT_VERSION": "Version", "SCRIPT_AUTHOR": "Author",
+        let names = ["SCRIPT_DESCRIPTION_JA": "Description-JA", "SCRIPT_CODE_URL": "Code-URL", "SCRIPT_GITHUB_URL": "Code-URL", "SCRIPT_NAME": "Name", "SCRIPT_VERSION": "Version", "SCRIPT_AUTHOR": "Author",
                      "SCRIPT_RELEASED": "First-Release-Date", "SCRIPT_UPDATED": "Updated-Date",
                      "SCRIPT_README_JA": "README-JA", "SCRIPT_README_EN": "README-EN", "SCRIPT_ARTICLE_URL": "Article-URL"]
         let pattern = #"//[^\r\n]*|/\*[\s\S]*?\*/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`|[A-Za-z_$][A-Za-z0-9_$]*|[^\s]"#
@@ -590,5 +616,38 @@ enum WatchedScripts {
             }
         }
         return added
+    }
+}
+
+
+enum StatisticsColumn: String, CaseIterable { case rank, name, category, scriptName, path, uses, last, key }
+struct StatisticsRow: Identifiable {
+    let rank: Int, id: String, name: String, category: String, scriptName: String, path: String, uses: Int, last: Date?, key: String
+    func text(for column: StatisticsColumn) -> String {
+        switch column {
+        case .rank: return String(rank)
+        case .name: return name
+        case .category: return category
+        case .scriptName: return scriptName
+        case .path: return path
+        case .uses: return String(uses)
+        case .last: return last?.formatted(date: .numeric, time: .shortened) ?? ""
+        case .key: return key
+        }
+    }
+    static func sorted(_ rows: [Self], by column: StatisticsColumn, ascending: Bool) -> [Self] {
+        rows.sorted { a, b in
+            let result: ComparisonResult
+            switch column {
+            case .rank: result = a.rank == b.rank ? .orderedSame : a.rank < b.rank ? .orderedAscending : .orderedDescending
+            case .uses: result = a.uses == b.uses ? .orderedSame : a.uses < b.uses ? .orderedAscending : .orderedDescending
+            case .last:
+                let x = a.last ?? .distantPast, y = b.last ?? .distantPast
+                result = x.compare(y)
+            default: result = a.text(for: column).localizedStandardCompare(b.text(for: column))
+            }
+            if result == .orderedSame { return a.rank < b.rank }
+            return ascending ? result == .orderedAscending : result == .orderedDescending
+        }
     }
 }
