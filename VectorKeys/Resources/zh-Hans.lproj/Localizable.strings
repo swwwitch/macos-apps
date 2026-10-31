@@ -1,3 +1,8 @@
+"watch.autoGroup" = "自动将子目录添加为分组";
+"watch.groupHint" = "默认关闭。层级使用父/子分类名，相同相对路径合并，保留已有分类。";
+"watch.exclusions" = "排除文件夹";
+"watch.saveExclusions" = "保存排除设置";
+"watch.exclusionHint" = "每行一个名称。任意层级忽略大小写完全匹配，排除其下所有内容。保留已有项目。";
 "tags.title" = "标签";
 "tags.all" = "所有标签";
 "tags.input" = "输入标签，以逗号分隔";
