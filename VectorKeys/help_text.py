@@ -1,3 +1,4 @@
+# coding: utf-8
 # VectorKeys help (markup rendered by Shared/AppStandards/HelpDocument.swift). Keep the 4 languages parallel.
 HELP = {
  "ja": """## 基本操作
@@ -352,5 +353,13 @@ for lang, note in {
 "en": "Palettes appear only while Illustrator is frontmost. Switching away hides them automatically; returning restores open palettes. Manually closed or auto-closed palettes stay closed. Opening a palette from VectorKeys waits invisibly until Illustrator becomes frontmost.",
 "zh-Hans": "面板仅在Illustrator位于前台时显示。切换应用自动隐藏，返回时恢复已打开的面板。手动关闭或执行后关闭的面板不会恢复。在VectorKeys中打开时，也会隐藏等待Illustrator成为前台。",
 "ko": "팔레트는 Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 자동으로 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다. 수동으로 닫거나 실행 후 닫힌 팔레트는 복원하지 않습니다. VectorKeys에서 열면 Illustrator로 돌아올 때까지 숨겨진 상태로 대기합니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"
+
+for lang, note in {
+"ja": "アイテム詳細のタグ欄にカンマ区切りで入力し、Returnまたはタグを保存で確定します。欄を空にして保存すると手動タグを削除します。一覧上部のタグメニューで絞り込めます。設定＞ウォッチフォルダーでフォルダーを追加すると初回読み込みと15秒ごとの監視を開始します。サブフォルダー各階層の名前をタグとして追加し、フォルダー由来タグは別に表示します。監視を解除しても項目は残ります。フォルダー由来タグと登録済み項目は原本の移動・削除に連動して削除しません。一覧から削除したファイルは監視で再追加しません。隠し項目・シンボリックリンクは対象外です。パスと監視設定はこのMacだけに保存します。",
+"en": "Enter comma-separated tags in item details and press Return or Save Tags. Saving an empty field removes manual tags. Filter with the tag menu above the list. Settings > Watch Folders adds folders, scans initially and every 15 seconds. Each nested folder name becomes a separate folder tag. Stopping watching keeps imported items. Missing or moved originals never delete existing entries or tags. Items deleted from the list are not re-added by watching. Hidden files and symlinks are skipped. Watch paths stay on this Mac.",
+"zh-Hans": "在项目详情输入逗号分隔的标签，按Return或保存标签。保存空值删除手动标签。列表上方标签菜单可筛选。设置中的监视文件夹添加后立即读取，每15秒检查一次。各层子文件夹名成为单独的来源标签。停止监视保留项目；原本移动或删除不会自动删除已有项目和标签。从列表删除的文件不会重新添加。跳过隐藏项和符号链接。监视路径仅保存在本机。",
+"ko": "상세에서 쉼표로 구분한 태그를 입력하고 Return 또는 태그 저장으로 확정합니다. 빈 값 저장은 수동 태그를 삭제합니다. 목록 위 태그 메뉴로 필터링합니다. 설정의 감시 폴더를 추가하면 즉시 읽고 15초마다 확인합니다. 각 하위 폴더 이름을 별도 태그로 추가합니다. 감시 해제나 원본 이동·삭제로 기존 항목과 태그를 삭제하지 않습니다. 목록에서 삭제한 파일은 다시 추가하지 않습니다. 숨김 파일과 심볼릭 링크는 제외하며 경로는 이 Mac에만 저장합니다."
 }.items():
     HELP[lang] += "\n\n" + note + "\n"

@@ -1,3 +1,16 @@
+"tags.title" = "태그";
+"tags.all" = "모든 태그";
+"tags.input" = "쉼표로 구분한 태그 입력";
+"tags.save" = "태그 저장";
+"tags.fromFolder" = "폴더에서:";
+"watch.title" = "감시 폴더";
+"watch.add" = "폴더 추가…";
+"watch.remove" = "감시 해제";
+"watch.scan" = "지금 읽기";
+"watch.result" = "%d개 확인, %d개 추가";
+"watch.error" = "%d개 위치를 읽지 못했습니다. 연결과 권한을 확인하세요.";
+"watch.help" = "설명";
+"watch.detail" = "15초마다 하위 폴더를 읽고 각 폴더 이름을 태그로 추가합니다. 숨김 항목과 심볼릭 링크는 제외합니다. 이름, 키, 메모, 수동 태그를 유지합니다. 사라진 파일과 기존 태그는 자동 삭제하지 않습니다. 목록에서 삭제한 파일은 다시 추가하지 않습니다. 감시 해제 후에도 항목을 유지합니다.";
 "palette.visibility" = "Illustrator가 앞에 있을 때만 표시합니다. 다른 앱으로 전환하면 숨기고 돌아오면 열려 있던 팔레트를 다시 표시합니다.";
 "item.color" = "색상";
 "color.none" = "색상 없음";
@@ -160,7 +173,7 @@
 "km.saveFailed" = "코드를 파일로 저장하지 못했습니다: %@";
 "km.unreadable" = "읽을 수 없는 파일: %@";
 "km.turnOff" = "Keyboard Maestro에서 같은 매크로가 켜져 있으면 스크립트가 두 번 실행됩니다. 아래 버튼이나 [도구]에서 끌 수 있습니다.";
-"listSeparator" = ", ";
+"listSeparator" = ",";
 "reveal" = "Finder에서 보기";
 "relink" = "파일 다시 선택…";
 "badge.missing" = "파일 없음";
