@@ -83,16 +83,22 @@ struct RunRecord: Identifiable {
     @Published var scriptReadmes: [String: URL] = [:]
     @Published var scriptCodeURLs: [String: URL] = [:]
     @Published var updatingInformation = false
+    @Published var informationCompleted = 0
+    @Published var informationTotal = 0
     private var remoteCodeURLs: [String: URL] = [:]
     /// User-requested refresh; preferences, item names and script files are never changed.
     func updateScriptInformation() {
         guard !updatingInformation else { return }
         updatingInformation = true
         let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        informationCompleted = 0; informationTotal = paths.count
         Task {
+            defer { updatingInformation = false }
             var found: [String: URL] = [:]
             var failed = 0
             for path in paths {
+                defer { informationCompleted += 1 }
+                await Task.yield()
                 let info = ScriptMetadata.read(at: path)
                 guard info?.codeURL == nil,
                       let readme = info?.readmeURL(language: Locale.preferredLanguages.first ?? "en"),
@@ -108,7 +114,11 @@ struct RunRecord: Identifiable {
             }
             let currentPaths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
             remoteCodeURLs = found.filter { currentPaths.contains($0.key) }
-            updatingInformation = false
+            var renamed = library
+            for i in renamed.scripts.indices {
+                renamed.scripts[i].refreshAutomaticName()
+            }
+            if renamed != library { library = renamed }
             refreshVersions()
             record("VectorKeys", failed == 0 ? L("meta.refreshed") : String(format: L("meta.refreshPartial"), failed), error: failed > 0)
         }
@@ -359,18 +369,12 @@ struct RunRecord: Identifiable {
         }
     }
 
-    /// Open via a text editor explicitly, never via the JSX handler (which may execute the script).
+    /// Respect the user's file association, including JSX handlers.
     func openSource(_ path: String) {
         guard FileManager.default.fileExists(atPath: path), (path as NSString).pathExtension.lowercased() != "jsxbin" else { return }
-        let workspace = NSWorkspace.shared
-        let textURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("VectorKeys-source.txt")
-        let preferred = workspace.urlForApplication(toOpen: textURL)
-        let bundleID = preferred.flatMap { Bundle(url: $0)?.bundleIdentifier } ?? ""
-        let editors: Set<String> = ["com.apple.TextEdit", "jp.co.artman21.Jedit-Pro", "jp.co.artman21.JeditOmega", "com.microsoft.VSCode", "com.barebones.bbedit", "com.coteditor.CotEditor", "com.sublimetext.4", "com.macromates.TextMate"]
-        guard let editor = editors.contains(bundleID) ? preferred : workspace.urlForApplication(withBundleIdentifier: "com.apple.TextEdit") else {
-            record("VectorKeys", L("source.failed"), error: true); return
-        }
-        workspace.open([URL(fileURLWithPath: path)], withApplicationAt: editor, configuration: NSWorkspace.OpenConfiguration()) { [weak self] _, error in
+        let url = URL(fileURLWithPath: path)
+        guard let handler = NSWorkspace.shared.urlForApplication(toOpen: url) else { record("VectorKeys", L("source.failed"), error: true); return }
+        NSWorkspace.shared.open([url], withApplicationAt: handler, configuration: NSWorkspace.OpenConfiguration()) { [weak self] _, error in
             if let error { DispatchQueue.main.async { self?.record("VectorKeys", L("source.failed") + " " + error.localizedDescription, error: true) } }
         }
     }
@@ -410,6 +414,16 @@ struct RunRecord: Identifiable {
 
     // MARK: Editing
 
+    func addDivider() {
+        var entry = ScriptEntry(steps: [], name: L("divider.title"), enabled: false)
+        entry.divider = true
+        let last = library.scripts.lastIndex { selection.contains($0.id) }
+        entry.category = last.map { library.scripts[$0].category } ?? currentCategory
+        undoable(L("divider.add")) {
+            library.scripts.insert(entry, at: last.map { $0 + 1 } ?? library.scripts.count)
+            selection = [entry.id]
+        }
+    }
     func addCode() {
         var entry = ScriptEntry(steps: [.code(source: "")], name: L("code.title"))
         entry.category = currentCategory

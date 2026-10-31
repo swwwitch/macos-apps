@@ -116,6 +116,7 @@ struct CategoryPaletteView: View {
                             .frame(maxWidth: .infinity, minHeight: 80).padding(12)
                     }
                     ForEach(scripts) { script in
+                        if script.isDivider { HStack { Divider(); Text(script.name).font(.caption); Divider() }.padding(.vertical, 4) } else {
                         Button { model.runFromWindow(script) } label: {
                             HStack(spacing: 8) {
                                 Text(script.name).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
@@ -132,6 +133,7 @@ struct CategoryPaletteView: View {
                         }
                         .buttonStyle(.plain).disabled(!script.enabled || !script.isAvailable)
                         .help(script.isAvailable ? L("palette.hint") : L(script.hasUnsupportedSteps ? "legacy.unsupported" : "code.unavailableHint"))
+                        }
                     }
                 }.padding(10)
             }

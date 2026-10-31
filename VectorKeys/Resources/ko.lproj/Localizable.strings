@@ -1,3 +1,7 @@
+"divider.title" = "구분선";
+"divider.add" = "구분선 추가";
+"stats.columns" = "표시 항목";
+"stats.path" = "경로";
 "watch.autoGroup" = "하위 디렉터리 자동 그룹 추가";
 "watch.groupHint" = "기본 꺼짐. 상위/하위 카테고리 이름을 사용하고 같은 상대 경로는 합칩니다. 기존 분류를 유지합니다.";
 "watch.exclusions" = "제외할 폴더";
@@ -50,7 +54,7 @@
 "meta.releaseDate" = "릴리스 날짜";
 "source.reveal" = "Finder에서 보기";
 "source.open" = "소스 코드 열기";
-"source.hint" = "텍스트 편집기로 엽니다(.jsxbin 제외).";
+"source.hint" = "연결된 앱으로 엽니다(.jsxbin 제외).";
 "source.failed" = "소스 코드를 열 수 없습니다.";
 "meta.info" = "스크립트 정보";
 "meta.summary" = "개요";

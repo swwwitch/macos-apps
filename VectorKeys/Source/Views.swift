@@ -76,7 +76,7 @@ struct ScriptDetail: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 12) {
-                        TextField(L("name"), text: $script.name)
+                        TextField(L("name"), text: Binding(get: { script.name }, set: { script.name = $0; script.automaticName = nil }))
                             .textFieldStyle(.plain).font(.system(size: 18, weight: .semibold))
                             .accessibilityLabel(L("name"))
                         Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }
@@ -318,40 +318,105 @@ struct CategorySidebar: View {
 /// Tools › 統計: every script by use, with its category. Double-click a row to show it in the main window.
 struct StatsView: View {
     @ObservedObject var model: AppModel
-    private struct Row: Identifiable {
-        let rank: Int, id: String, name: String, category: String, uses: Int, last: Date?, key: String
-    }
-    private var rows: [Row] {
-        model.library.byUse.enumerated().map { index, script in
-            Row(rank: index + 1, id: script.id, name: script.name, category: script.category ?? L("category.none"),
+    @AppStorage("statisticsHiddenColumns") private var hidden = ""
+    private var rows: [StatisticsRow] {
+        model.library.byUse.enumerated().map { rank, script in
+            let names = script.actions.map { step in
+                model.metadata(for: step)?.fields["Name"] ?? step.scriptPath.map { ($0 as NSString).lastPathComponent } ?? L("code.title")
+            }
+            return StatisticsRow(rank: rank + 1, id: script.id, name: script.name, category: script.category ?? L("category.none"),
+                scriptName: names.joined(separator: " · "), path: script.actions.compactMap(\.scriptPath).joined(separator: " · "),
                 uses: script.uses, last: script.lastRun, key: script.hotkey?.fullLabel ?? "")
         }
     }
     var body: some View {
-        let rows = rows
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack {
                 Text(L("stats.title")).font(.headline)
                 Spacer()
-                Text(String(format: L("stats.total"), rows.reduce(0) { $0 + $1.uses }, rows.filter { $0.uses > 0 }.count, rows.count))
-                    .font(.callout).foregroundColor(.secondary)
+                Menu(L("stats.columns")) {
+                    ForEach(StatisticsColumn.allCases, id: \.self) { column in
+                        Toggle(column.title, isOn: Binding(get: { !hidden.components(separatedBy: "|").contains(column.rawValue) }, set: { visible in
+                            var keys = Set(hidden.components(separatedBy: "|").filter { !$0.isEmpty })
+                            if visible { keys.remove(column.rawValue) } else { keys.insert(column.rawValue) }
+                            hidden = keys.sorted().joined(separator: "|")
+                        }))
+                    }
+                }
             }
-            Table(rows) {
-                TableColumn("#") { Text("\($0.rank)").monospacedDigit().foregroundColor(.secondary) }.width(32)
-                TableColumn(L("name")) { Text($0.name).lineLimit(1) }
-                TableColumn(L("category")) { Text($0.category).foregroundColor(.secondary).lineLimit(1) }.width(min: 90, ideal: 140)
-                TableColumn(L("stats.uses")) { row in Text(row.uses > 0 ? "\(row.uses)" : "—").monospacedDigit().frame(maxWidth: .infinity, alignment: .trailing) }.width(60)
-                TableColumn(L("stats.last")) { row in Text(row.last?.formatted(date: .numeric, time: .shortened) ?? "—").monospacedDigit().foregroundColor(.secondary) }.width(min: 110, ideal: 130)
-                TableColumn(L("hotkey")) { Text($0.key).font(.system(size: 12, design: .monospaced)) }.width(min: 60, ideal: 80)
-            }
-            .contextMenu(forSelectionType: String.self) { _ in } primaryAction: { ids in
-                guard let id = ids.first else { return }
+            Text(String(format: L("stats.total"), rows.reduce(0) { $0 + $1.uses }, rows.filter { $0.uses > 0 }.count, rows.count)).font(.caption).foregroundColor(.secondary)
+            StatisticsTable(rows: rows, hidden: Set(hidden.components(separatedBy: "|"))) { id in
                 model.categoryFilter = AppModel.allCategories; model.selection = [id]
                 NSApp.windows.first { $0.frameAutosaveName == "MainWindow" }?.makeKeyAndOrderFront(nil)
             }
             Text(L("stats.hint")).font(.caption).foregroundColor(.secondary)
+        }.padding(16).frame(minWidth: 620, minHeight: 400).tint(appTint)
+    }
+}
+
+extension StatisticsColumn {
+    var title: String {
+        switch self {
+        case .rank: return "#"
+        case .name: return L("name")
+        case .category: return L("category")
+        case .scriptName: return L("meta.scriptName")
+        case .path: return L("stats.path")
+        case .uses: return L("stats.uses")
+        case .last: return L("stats.last")
+        case .key: return L("hotkey")
         }
-        .padding(16).frame(minWidth: 620, minHeight: 400).tint(appTint)
+    }
+}
+struct StatisticsTable: NSViewRepresentable {
+    let rows: [StatisticsRow]
+    let hidden: Set<String>
+    let openItem: (String) -> Void
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeNSView(context: Context) -> NSScrollView {
+        let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.hasHorizontalScroller = true
+        let table = NSTableView(); table.delegate = context.coordinator; table.dataSource = context.coordinator
+        table.usesAlternatingRowBackgroundColors = true; table.allowsColumnReordering = true; table.columnAutoresizingStyle = .noColumnAutoresizing
+        table.target = context.coordinator; table.doubleAction = #selector(Coordinator.openSelected)
+        for column in StatisticsColumn.allCases {
+            let native = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(column.rawValue))
+            native.title = column.title
+            native.width = column == .path ? 340 : column == .name || column == .scriptName ? 180 : column == .rank || column == .uses ? 55 : 130
+            native.minWidth = 36; native.sortDescriptorPrototype = NSSortDescriptor(key: column.rawValue, ascending: true)
+            table.addTableColumn(native)
+        }
+        table.sortDescriptors = [NSSortDescriptor(key: "uses", ascending: false)]
+        scroll.documentView = table
+        context.coordinator.table = table
+        updateNSView(scroll, context: context)
+        return scroll
+    }
+    func updateNSView(_ view: NSScrollView, context: Context) {
+        let coordinator = context.coordinator
+        coordinator.rows = rows; coordinator.openItem = openItem
+        for column in coordinator.table?.tableColumns ?? [] { column.isHidden = hidden.contains(column.identifier.rawValue) }
+        coordinator.sort()
+    }
+    final class Coordinator: NSObject, NSTableViewDataSource, NSTableViewDelegate {
+        weak var table: NSTableView?
+        var rows: [StatisticsRow] = [], shown: [StatisticsRow] = []
+        var openItem: (String) -> Void = { _ in }
+        func numberOfRows(in tableView: NSTableView) -> Int { shown.count }
+        func sort() {
+            let descriptor = table?.sortDescriptors.first
+            shown = StatisticsRow.sorted(rows, by: StatisticsColumn(rawValue: descriptor?.key ?? "uses") ?? .uses, ascending: descriptor?.ascending ?? false)
+            table?.reloadData()
+        }
+        func tableView(_ tableView: NSTableView, sortDescriptorsDidChange oldDescriptors: [NSSortDescriptor]) { sort() }
+        func tableView(_ tableView: NSTableView, viewFor column: NSTableColumn?, row: Int) -> NSView? {
+            guard shown.indices.contains(row), let key = column.flatMap({ StatisticsColumn(rawValue: $0.identifier.rawValue) }) else { return nil }
+            let text = shown[row].text(for: key)
+            let field = NSTextField(labelWithString: text.isEmpty ? "—" : text)
+            field.lineBreakMode = .byTruncatingMiddle; field.toolTip = text
+            field.setAccessibilityLabel((column?.title ?? "") + " " + text)
+            return field
+        }
+        @objc func openSelected() { guard let table, shown.indices.contains(table.clickedRow) else { return }; openItem(shown[table.clickedRow].id) }
     }
 }
 
@@ -468,6 +533,17 @@ struct MainView: View {
                         .font(.caption2).foregroundColor(.secondary).help(L("state.hint"))
                 }
             }
+            if model.updatingInformation {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text(L("meta.refreshing"))
+                        Spacer()
+                        Text("\(model.informationCompleted) / \(model.informationTotal)").monospacedDigit()
+                    }.font(.caption).foregroundColor(.secondary)
+                    ProgressView(value: Double(model.informationCompleted), total: Double(max(model.informationTotal, 1)))
+                        .progressViewStyle(.linear).accessibilityLabel(L("meta.refreshing"))
+                }
+            }
             Group {
                 if model.library.scripts.isEmpty && model.library.categoryList.isEmpty {
                     VStack(spacing: 10) {
@@ -475,6 +551,7 @@ struct MainView: View {
                         Text(L("empty")).foregroundColor(.secondary).multilineTextAlignment(.center)
                         Button(L("addMenu")) { model.chooseFiles() }.keyboardShortcut(.defaultAction)
                         Button(L("code.add")) { model.addCode() }
+                    Button(L("divider.add")) { model.addDivider() }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
@@ -484,7 +561,12 @@ struct MainView: View {
                         scripts: AnyView(list.padding(.horizontal, 6)),
                         detail: AnyView(Group {
                             if let id = model.selectedID, let binding = model.binding(for: id) {
-                                ScriptDetail(model: model, script: binding)
+                                if binding.wrappedValue.isDivider {
+                                    VStack(alignment: .leading) {
+                                        Text(L("divider.title")).font(.headline)
+                                        TextField(L("name"), text: binding.name).textFieldStyle(.roundedBorder)
+                                    }.padding(20)
+                                } else { ScriptDetail(model: model, script: binding) }
                             } else if model.selection.count > 1 {
                                 MultipleSelection(model: model)
                             } else {
@@ -600,6 +682,7 @@ struct MainView: View {
                     if let path = script.actions.compactMap(\.scriptPath).first {
                         Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!FileManager.default.fileExists(atPath: path))
                     }
+                    Button(L("divider.add")) { model.selection = ids; model.addDivider() }
                     Menu(L("item.color")) {
                         Button(L("color.none")) { model.setColor(nil, for: ids) }
                         ForEach(ItemTag.allCases, id: \.self) { color in
@@ -628,6 +711,7 @@ struct MainView: View {
                 Menu {
                     Button(L("addMenu")) { model.chooseFiles() }
                     Button(L("code.add")) { model.addCode() }
+                    Button(L("divider.add")) { model.addDivider() }
                 } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
                     .help(L("addMenu")).accessibilityLabel(L("addMenu"))
                 Button { confirmDelete = true } label: { Image(systemName: "minus").frame(width: 16, height: 16) }.disabled(model.selection.isEmpty)
@@ -647,7 +731,11 @@ struct MainView: View {
     }
     @ViewBuilder private func row(_ script: ScriptEntry) -> some View {
         if let binding = model.binding(for: script.id) {
-            ScriptRow(model: model, script: binding).tag(script.id)
+            Group {
+                if script.isDivider {
+                    HStack { Divider(); Text(script.name).font(.caption).foregroundColor(.secondary); Divider() }.frame(height: 22)
+                } else { ScriptRow(model: model, script: binding) }
+            }.tag(script.id)
                 .listRowSeparator(.visible)
                 .listRowBackground(script.tagColor.map { $0.displayColor.opacity(0.22) })
                 // Dragging a row onto a category in the sidebar moves it there.

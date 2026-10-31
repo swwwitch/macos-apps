@@ -4,7 +4,11 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''watch.autoGroup|サブディレクトリを自動的にグループへ追加|Automatically Group Subdirectories|自动将子目录添加为分组|하위 디렉터리 자동 그룹 추가
+rows = '''divider.title|区切り|Divider|分隔线|구분선
+divider.add|区切りを追加|Add Divider|添加分隔线|구분선 추가
+stats.columns|表示する項目|Visible Columns|显示项目|표시 항목
+stats.path|パス|Path|路径|경로
+watch.autoGroup|サブディレクトリを自動的にグループへ追加|Automatically Group Subdirectories|自动将子目录添加为分组|하위 디렉터리 자동 그룹 추가
 watch.groupHint|初期値OFF。階層は「親/子」のカテゴリ名にします。同じ相対階層名は同じグループにまとめ、既存の分類は変更しません。|Off by default. Hierarchies use Parent/Child category names. Equal relative paths share a group. Existing assignments are preserved.|默认关闭。层级使用父/子分类名，相同相对路径合并，保留已有分类。|기본 꺼짐. 상위/하위 카테고리 이름을 사용하고 같은 상대 경로는 합칩니다. 기존 분류를 유지합니다.
 watch.exclusions|除外するフォルダー|Excluded Folders|排除文件夹|제외할 폴더
 watch.saveExclusions|除外設定を保存|Save Exclusions|保存排除设置|제외 설정 저장
@@ -56,7 +60,7 @@ meta.released|初回リリース|First Release|首次发布|최초 릴리스
 meta.releaseDate|リリース日|Release Date|发布日期|릴리스 날짜
 source.reveal|Finderで表示|Show in Finder|在访达中显示|Finder에서 보기
 source.open|ソースコードを開く|Open Source Code|打开源代码|소스 코드 열기
-source.hint|テキストエディタで開きます（.jsxbinは対象外）。|Open in a text editor (.jsxbin excluded).|在文本编辑器中打开（不支持 .jsxbin）。|텍스트 편집기로 엽니다(.jsxbin 제외).
+source.hint|ファイルに関連付けられたアプリで開きます（.jsxbinは対象外）。|Open in the associated app (.jsxbin excluded).|在关联应用中打开（不支持 .jsxbin）。|연결된 앱으로 엽니다(.jsxbin 제외).
 source.failed|ソースコードを開けませんでした。|Could not open the source code.|无法打开源代码。|소스 코드를 열 수 없습니다.
 meta.info|スクリプト情報|Script Information|脚本信息|스크립트 정보
 meta.summary|概要（何をするもの）|Overview|概述|개요
