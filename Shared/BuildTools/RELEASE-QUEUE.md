@@ -2,6 +2,8 @@
 
 ## 2026-11-01 InputMaestro：ControlMateとFnNumpadの統合アプリを新設
 
+- 0.1.3（4）対象ソースSHA：5494a2ab510ef4caff1dab917b1eb5d2cc93b1c2、GitHub保存先codex/inputmaestro-integration-20261101。ソース・更新履歴・検証記録を確定。未確認UI・公証・配布・main統合は完了扱いにしていない。
+
 - 0.1.3（4）開発検証結果：ソース・版・更新履歴を更新、arm64ビルド・223キー4言語・回帰／設定検索テストPASS。検証用アプリの起動、通常3行削除、一時停止・再開、設定保持、ウインドウを閉じた後の常駐と再表示、⌘Qでプロセス終了と再起動を確認。実行ファイルSHA-256＝daa156a4762149ed2f59718e063d57274ed218f524ef906c3b76a2fb404e3c5c。配布先は未配置、GitHub公開リリース31件にInputMaestroなし。詳細：InputMaestro/RELEASE-VERIFICATION-20261101-BUILD4.md。未確認UI・公証・配布・main統合は同記録へ区別して記載。
 
 - 更新開始（2026-11-01 JST）：ユーザー「検証用ビルドを作成して起動」。開発Mac MacBook-Pro-14-2024-sw.local、専用ブランチcodex/inputmaestro-integration-20261101、入力SHA284fa470c1166c8c5e8e7e4545ea5fe1674d2ad4、対象SHA未確定、通常版0.1.3（4）。上部3行削除、見出し変更、5タブのON/OFF統一、役割整理、ホットキー一覧、全機能一時停止、アプリ対応の区分、設定検索、キーボード配列選択の共通化を実装・検証して起動。公証・配布は行わない。
