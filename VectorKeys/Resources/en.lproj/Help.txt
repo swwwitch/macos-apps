@@ -1,138 +1,26 @@
-## Components / Actions
-Components register script files or ExtendScript code. Add an Action and choose registered components in its detail pane; they run in order and stop on error. Components are shared: editing one affects all referencing actions. Referenced components cannot be deleted. Deleting an action keeps its components. Assign hotkeys to actions and show groups as palettes. Switch workspaces with Components / Actions at the top. Components use Categories; actions use Groups, which can become palettes. File names and paths appear below the component title; script information stays expanded. Action details contain only name, hotkey and ordered components. Right-click a component and choose Add to Group to create an action and set its hotkey. An existing single-component action in that group is reused. The component workspace has four columns: Groups, Categories, Items and Details. Groups and categories filter the items. Command-click or Shift-click to select multiple components, then right-click or drag them to a group. This registers a separate single-component action for each selected item, preserving component categories and reusing duplicates. File, code and watch-folder imports register components only. Components have independent classification and no hotkey or palette controls. In Actions, create an action and choose existing components in order; assign hotkeys and configure group palettes there. Data before separation is preserved in Scripts.pre-workspaces.json. Old data is backed up to Scripts.pre-components.json before migration. Recently Used Scripts lists up to ten successfully run actions, newest first.
+## Components and actions
+Switch workspaces at the top. A component is a .jsx, .js or .jsxbin file, or saved ExtendScript code. Components can be reused. An action runs one or more components in order and owns a hotkey. Categories organize components; groups organize actions and can become palettes.
 
-## Basics
-VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is in front.
-- Choose File > Add Scripts… (⌘O), or drag .jsx files onto the window. You can add several at once.
-- Select a script to see its file and shortcut on the right. Click the hotkey field, then press the keys to assign.
-- The checkbox in the list turns each script's shortcut on or off.
-- Run brings Illustrator to the front, then runs the script.
-- Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
-- Recent Runs shows the latest results. When a script stops with an error, Illustrator's message is shown. Not saved; cleared when the app quits.
+## Four component columns
+The columns are Groups, Categories, Items and Details. A group filters components referenced by its actions; a category filters the component's own classification. Select All to remove a filter. Search matches names and paths. Drag column boundaries to resize; component and action widths are stored separately on this Mac.
+Use the group column plus button to create a group and its context menu to rename or delete it. Deleting a group keeps actions as ungrouped. Component categories have their own add, rename and delete controls. Files and code are registered from the item plus button, File menu or file drop. Saving code does not run it.
+Command-click or Shift-click to select multiple items. Right-click or use Details to register them in a group, change their category or delete them. Dropping components onto a group creates a separate single-component action for each item, reusing identical references already in that group. Components keep their categories. Referenced components cannot be deleted; a mixed batch is rejected rather than partially deleted. Original files are never deleted by unregistering a component.
+Details show the file name and selectable path below the title, Quick Look, Finder, opening with the associated source editor and relinking. Binary source editing is unavailable. Script information stays expanded; the overview can be opened separately. Edit names, categories, tags, colors, notes and code here. Editing a shared definition affects every referencing action.
 
-## Running scripts
-Only script files can be added as steps. Multiple scripts run in order and stop at the first error.
-- Add a file with Run Script. Use each row’s … menu to move it or remove it.
-- Saved legacy menu steps are retained. An item containing any menu step does not run or register a hotkey. Explicitly remove those steps to run its remaining scripts.
+## Three action columns
+Groups, actions and details form the action workspace. Add an action, then choose registered components. Component-row menus move a step up/down, remove its reference or open the component editor. Definitions survive detaching. Runs follow the listed order and stop on missing, unsupported or failed steps; the app never silently runs only a remaining subset.
+Click the hotkey field and press keys; Escape cancels recording. Assign one-press or two-press keys or clear them. Duplicate and failed registrations are shown. Item hotkeys work while Illustrator is frontmost. The main hotkey switch pauses them. Run brings Illustrator forward before execution.
+With Manual order and an empty search, drop an action onto another row to place it before that row, or into the trailing gap to move it to the end. Up/Down context commands are also available. Dropping onto a group changes membership. Multi-selection supports sorting by name, usage and key letter. Add dividers or remove actions without deleting component definitions. Extra version, usage and filename display starts off and can be enabled in display options. Command-Delete removes selected list items while text editing keeps its normal behavior. Command-Z and Shift-Command-Z undo and redo list operations.
 
-## Managing scripts
-- You can add .jsx, .js and .jsxbin files. The same file is not added twice.
-- Change the name in its field. The file name stays.
-- Drag to reorder the list (not while searching).
-- A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
-- Only the file's location is stored. Edit the script and the next run uses the new contents.
-- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted. Turn off View > Show run counts to hide them (counting continues).
+## Palettes and recent actions
+In the action workspace, select a group to configure its palette, opening hotkey and behavior: toggle while keeping item keys, toggle with item keys blocked, or open and close after a run is accepted. Blocking applies even while the palette is closed. Palettes appear only when Illustrator is frontmost and hide in other apps. Palette search and Include Filenames are at the top. Recently Used Scripts lists up to ten distinct successfully executed actions, newest first.
 
-## Import from Keyboard Maestro
-Drag macros exported from Keyboard Maestro (.kmmacros) onto the window, or choose File > Import from Keyboard Maestro… (⌘I).
-- Import only macros whose active steps are script files or embedded JSX. Skip an entire macro if it includes a menu operation or another unsupported action; never import only its script portion. Names, hotkeys and enabled states are preserved.
-- Code written in a macro is saved as a .jsx file in ~/Library/Application Support/VectorKeys/Imported.
-- Macros with other steps or variables are not imported; the reason is shown.
-- Turn the same macros off in Keyboard Maestro, or the scripts run twice. Use the button after importing, or Tools > Turn Off the Selected Scripts’ KM Macros (there is also an item to turn them back on). The first time, you are asked to allow controlling Keyboard Maestro.
+## Watch folders, information and statistics
+Watch folders scan every 15 seconds, including subfolders, and register components. Folder names become tags; automatic categories are optional. Excluded folder names are entered one per line, initially single-function and backup. Hidden files and symlinks are skipped. Missing originals are retained. Deleting a watched component suppresses automatic re-registration, and Undo restores suppression too. Deleting an action does not affect folder monitoring.
+Information refresh targets selected items, the filtered classification or all items in the current workspace and shows progress. Manual names are retained. Automatic names use SCRIPT_DESCRIPTION_JA when present. Name replacement and KM numbering removal also target only the current workspace selection. Statistics show action usage, last success, names, groups, script names, paths and keys, with sortable optional columns. Opening a statistics row switches to the corresponding action.
 
-## Categories
-The left column sorts scripts into categories.
-- Click + below to make a category. Right-click to rename or delete it. Deleting keeps its scripts; they become Uncategorized.
-- Set a script's category with Category on the right, by dragging its row onto a category, or with Category in the right-click menu. Select several with ⌘-click or ⇧-click to drag, change or delete them together.
-- Scripts added while a category is chosen go into it. All shows the scripts under a heading for each category.
-- Macros imported from Keyboard Maestro take their group name as the category.
+Import Keyboard Maestro .kmmacros exports from File. Supported file/code steps become actions and components; unsupported menu steps are not executed. Original macros are retained. Tools can enable or disable the originals for selected actions; these controls are disabled in the component workspace.
 
-## Tools
-- Tools > Statistics…: every script by run count, with its category, last run and shortcut. Double-click a row to select it in the main window.
-- Tools > Find and Replace in Names…: finds and replaces in the selected scripts' names, with a before → after preview. Regular expressions ($1 for groups) and Match case are available. File names stay.
-- Tools > Remove KM Macro Numbering: removes numbering such as "11)" or "11)1 " from the start of the selected scripts' names (several at once). File names stay.
-
-## Sorting
-Next to the search field, choose Manual, By Name or By Shortcut. Dragging rows works in Manual while not searching. When scripts share a key, the one higher in the manual order reacts.
-
-## Shortcuts
-- Press: choose Press once or Press twice. When a key has both, the Press once script waits for a second press (about 0.3 s) before it runs. Keys pressed twice show "×2" in the list.
-- Click the key field to record a key. Click it again or press Esc to cancel.
-- Script shortcuts: registered only while Illustrator is in front, so the same keys keep their meaning in other apps. A key that Illustrator also uses runs the script instead.
-- App shortcut: assign it in Settings > Launch & Background to show the VectorKeys window from any app (none by default).
-- ⌘O: Add scripts
-- ⌘I: Import from Keyboard Maestro
-- ⌘F: Find and replace in names (while scripts are selected)
-- ⌘0: Open the main window
-- ⌘,: Settings
-- ⌘W: Close the window
-- ⌘?: This help
-When two scripts share a key, only the one higher in the list reacts, and the key is shown in red.
-
-## Permissions and privacy
-- Automation (Adobe Illustrator): used to run the scripts. You are asked the first time.
-- Automation (Keyboard Maestro): used to turn imported original macros off or on.
-- Accessibility access is not required. Running scripts in Illustrator uses Automation.
-The list is saved in ~/Library/Application Support/VectorKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
-
-## Quitting and staying open
-Closing the window keeps the app running and the shortcuts working. Reopen it from the Dock or the menu bar icon. Quit with VectorKeys > Quit VectorKeys (⌘Q).
-
-## Troubleshooting
-- A shortcut does nothing: check that Illustrator is in front, "Use hotkeys" is on and the script's checkbox is on. A red key is a duplicate or is used by another app.
-- "Not allowed to control Illustrator": turn on Adobe Illustrator for VectorKeys in System Settings > Privacy & Security > Automation.
-- "File not found": use Choose Another File… to point to it again.
-- An earlier run does not finish: a script that shows a dialog box holds the next run until it is closed. Up to 3 runs wait; more are skipped.
-
-## Removing and restoring
-Select a script and click − (or press Delete). The file itself is not deleted (only .jsx files saved from Keyboard Maestro code go to the Trash when nothing else uses them). Deleting, renaming with Tools, changing categories and importing can be undone with Edit > Undo (⌘Z). To clear everything, quit the app and delete Scripts.json.
-
-
-Share Settings provides export, import and folder sync through iCloud Drive or Dropbox. Import replaces shared preferences after confirmation. Update all syncing Macs to 1.5.1 or later. Shares global hotkey enablement, usage-count display and sort order. The script library, files, per-item hotkeys, startup and residency settings, launcher hotkey and window positions stay on this Mac.
-
-
-## JavaScript
-Choose File > Add JavaScript Code and enter code in the editor. File and inline code steps can be mixed and run in order. Empty code cannot run. Code is saved for editing after restart.
-
-
-## Palette
-Select a category and click the palette button below the categories, or choose View > Show as Palette. The category context menu also opens it. Multiple category palettes can stay open; click a script to run it in Illustrator. Palettes float and remember their position and size. Close to hide, then reopen with the same command. Disabled or unavailable items cannot run. Palettes close when VectorKeys quits and do not reopen automatically.
-
-
-## Layout / Hotkeys / SCRIPTMETA
-Drag either column divider to resize; widths stay on this Mac. In the right panel after selecting a category, assign each category an opening hotkey that works in other apps too. The global hotkey switch pauses these keys. Keys are saved with the library and follow category renaming/deletion. Local SCRIPTMETA comments with Script-ID and Version display the script version, for files and inline code. Missing, unreadable or binary metadata has no version display. The first 256 KiB is read and refreshed on app activation.
-
-
-## Script Information
-Script information appears below the detail editor. Overview, version, URL and author come from SCRIPTMETA Description, Version, Meta-URL and Author. Click to expand the overview. README searches for a same-named .md file, then README.md and README.txt in the script folder. Click to open. Notes are saved per item without editing the script. Multiple steps show their own metadata. Missing information is marked Not provided.
-
-
-## Source Code
-File steps have Show in Finder and Open Source Code buttons. Source opens in the application associated with the file. Missing files disable both buttons; .jsxbin disables source opening. Inline code is edited in place.
-
-
-## SCRIPT Metadata
-Literal SCRIPT_NAME, SCRIPT_VERSION, SCRIPT_AUTHOR, SCRIPT_RELEASED, SCRIPT_UPDATED, SCRIPT_README_JA, SCRIPT_README_EN and SCRIPT_ARTICLE_URL constants also provide metadata. Initial release and updated dates are separate. README prefers JA in Japanese and EN otherwise, falling back to the other. SCRIPTMETA takes priority. Expressions are never evaluated. Hotkey recording, clearing and press-count selection share one row.
-
-
-## Quick Look
-Click Quick Look on a file step to open the standard macOS preview. Close it to return. Supported formats and presentation depend on Quick Look; the file is not modified.
-
-
-Use the display button beside sorting in Items (second column) to show version, usage count and filenames; all default to off. Select multiple rows and right-click Sort: name and hotkey ascend, usage descends. Only selected slots in each category change; Undo is available. In the category right panel, enable palettes and set their shortcut and behavior. Disabled item hotkeys remain disabled while closed. Auto-close closes when a run is accepted and allows item hotkeys.
-
-
-Select items in the item column and press Command-Delete for deletion confirmation. Text editing keeps standard deletion. Edit a category palette name inline in the right pane; Return or leaving the field commits. Empty or duplicate names are refused. Details and the context menu offer seven Finder-style colors and No Color. The entire item background is colored in lists and palettes, without changing file tags. Tools > Update Script Information reloads metadata. Article and Code URL are separate. Code URLs come from Code-URL/Source-URL, SCRIPT_CODE_URL/SCRIPT_GITHUB_URL, or a unique README link to the exact script filename. Online READMEs are fetched only by this command; failures appear in recent runs. Names, notes, hotkeys and script code remain unchanged.
-
-
-Palettes appear only while Illustrator is frontmost. Switching away hides them automatically; returning restores open palettes. Manually closed or auto-closed palettes stay closed. Opening a palette from VectorKeys waits invisibly until Illustrator becomes frontmost.
-
-
-Enter comma-separated tags in item details and press Return or Save Tags. Saving an empty field removes manual tags. Filter with the tag menu above the list. Settings > Watch Folders adds folders, scans initially and every 15 seconds. Each nested folder name becomes a separate folder tag. Stopping watching keeps imported items. Missing or moved originals never delete existing entries or tags. Items deleted from the list are not re-added by watching. Hidden files and symlinks are skipped. Watch paths stay on this Mac.
-
-
-Automatically Group Subdirectories defaults to off. When enabled, each hierarchy (including empty folders) becomes a category; new or uncategorized single-file items are assigned. Names use Parent/Child; equal relative paths across roots share a category. Existing assignments stay unchanged. Enter excluded folder names one per line and save. Defaults: single-function and backup. Case-insensitive exact names at any depth exclude the subtree from imports, tags and groups. Existing entries, tags and categories are not deleted.
-
-
-Add dividers from the plus or context menu. They appear after the selection, can be dragged, deleted and renamed in details. Dividers never run or enter statistics. Sorting stays within divider boundaries. Visible Columns toggles each statistics column; clicking headers switches ascending/descending order. Script name uses metadata Name or filename; paths include all file steps. New files use SCRIPT_DESCRIPTION_JA when present. User-edited and legacy names survive information updates. Sources open with the file's associated application.
-
-A progress bar and processed-file count appear in the main window while updating information.
-
-
-Tools > Update Script Information offers Selected Items (multiple allowed), Selected Group and All. Empty targets are disabled. Progress counts the target files. Name changes stay within the chosen scope. Legacy filename-derived names can adopt SCRIPT_DESCRIPTION_JA; different legacy names and explicit manual names stay unchanged, even when a manual name equals the filename.
-
-
-The item detail pane uses compact rows. Save tags with Return or the checkmark button. Paths are always visible; click to expand script information. The Hotkey Help disclosure is removed. Search palette items by display name or filename. Dividers are hidden during a search and return when cleared. Include Filenames adds filenames below item names (off by default; saved across palettes). Inline code has no invented filename. The palette accepts keyboard focus for search and returns interaction to Illustrator when running an item.
-
-
-Overview expands independently of Script Information. File paths remain visible. Script Information animates in 0.12 seconds, or without animation when Reduce Motion is enabled.
+## Settings, permissions and quitting
+Command-comma opens Settings. Configure login launch, residency, Dock visibility and the app recall hotkey. The recall key works while VectorKeys is running; it is not a cold-launch shortcut. Manual launch shows the main window; login launch does not. Dock hiding keeps normal Dock behavior while a main or settings window exists. Closing a window can keep a resident app running; Command-Q quits. Command-W closes Settings.
+If macOS requests Automation permission, allow VectorKeys to control Illustrator in Privacy & Security settings. Missing files, empty code, key conflicts and execution errors remain visible in the app. Recent result messages are not retained after quitting, but action counts and last-success times are saved. Settings sharing excludes the library, paths and individual item keys. Pre-migration Scripts.pre-components.json and Scripts.pre-workspaces.json backups are preserved. Help and update checks are available from the menus.

@@ -82,7 +82,7 @@ import Carbon
         return [item]
     }
     @objc func toggleHotkeys() { model.hotkeysEnabled.toggle() }
-    @objc func showCategoryPalette() { palettes.show(model.categoryFilter) }
+    @objc func showCategoryPalette() { guard !model.editingComponents else { return }; palettes.show(model.categoryFilter) }
     @objc func addCode() { show(); model.addCode() }
     @objc func addScripts() { show(); model.chooseFiles() }
     @objc func importKM() { show(); model.chooseKMFiles() }
@@ -92,7 +92,7 @@ import Carbon
     @objc func stripNumbering() { model.stripNumbering() }
     @objc func replaceNames() { show(); model.showReplace = true }
     /// 表示 › 使用回数を表示 (the views read the same "showUses" default through @AppStorage).
-    @objc func toggleShowUses() { UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: "showUses"), forKey: "showUses") }
+    @objc func toggleShowUses() { UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: "itemShowUses"), forKey: "itemShowUses") }
     @objc func kmOff() { model.setInKM(model.selectedKMUIDs, enabled: false) }
     @objc func kmOn() { model.setInKM(model.selectedKMUIDs, enabled: true) }
     func windowWillReturnUndoManager(_ window: NSWindow) -> UndoManager? { window === self.window ? model.undoManager : nil }
@@ -194,12 +194,13 @@ import Carbon
 
 extension Delegate: NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if menuItem.action == #selector(stripNumbering) || menuItem.action == #selector(replaceNames) { return !model.selection.isEmpty }
+        if menuItem.action == #selector(stripNumbering) || menuItem.action == #selector(replaceNames) { return !model.selectedNameTargets.isEmpty }
         if menuItem.action == #selector(refreshScriptInformation) { return !model.updatingInformation && !model.informationIDs(.all).isEmpty }
         if menuItem.action == #selector(refreshSelectedInformation) { return !model.updatingInformation && !model.informationIDs(.selectedItems).isEmpty }
         if menuItem.action == #selector(refreshGroupInformation) { return !model.updatingInformation && !model.informationIDs(.selectedGroup).isEmpty }
-        if menuItem.action == #selector(toggleShowUses) { menuItem.state = UserDefaults.standard.bool(forKey: "showUses") ? .on : .off }
-        if menuItem.action == #selector(kmOff) || menuItem.action == #selector(kmOn) { return !model.selectedKMUIDs.isEmpty }
+        if menuItem.action == #selector(showCategoryPalette) { return !model.editingComponents }
+        if menuItem.action == #selector(toggleShowUses) { menuItem.state = UserDefaults.standard.bool(forKey: "itemShowUses") ? .on : .off; return !model.editingComponents }
+        if menuItem.action == #selector(kmOff) || menuItem.action == #selector(kmOn) { return !model.editingComponents && !model.selectedKMUIDs.isEmpty }
         if menuItem.action == #selector(toggleHotkeys) { menuItem.title = L(model.hotkeysEnabled ? "pauseHotkeys" : "resumeHotkeys") }
         return true
     }

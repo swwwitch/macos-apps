@@ -7,6 +7,8 @@ trap 'rm -rf "$stage"' EXIT
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.swift Source/KMImport.swift Tests/main.swift -o "$stage/tests"
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit Source/Scripts.swift Source/Runner.swift Tests/RunnerTests.swift -o "$stage/runner-tests"
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.swift Source/LibraryStore.swift Tests/LibraryStoreTests.swift -o "$stage/store-tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.swift Source/LibraryStore.swift Tests/AuditRegressionTests.swift -o "$stage/audit-tests"
+"$stage/audit-tests"
 "$stage/store-tests"
 "$stage/runner-tests"
 "$stage/tests"

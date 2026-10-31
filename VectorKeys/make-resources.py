@@ -4,7 +4,8 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''components.addedToGroup|グループに追加しました。|Added to group.|已添加到组。|그룹에 추가했습니다.
+rows = '''componentCategory.assign|カテゴリを変更|Change Category|更改类别|카테고리 변경
+components.addedToGroup|グループに追加しました。|Added to group.|已添加到组。|그룹에 추가했습니다.
 componentSidebar.kind|分類の表示|Classification View|分类视图|분류 표시
 componentCategory.none|未分類|Uncategorized|未分类|미분류
 components.addToGroup|グループに追加|Add to Group|添加到组|그룹에 추가

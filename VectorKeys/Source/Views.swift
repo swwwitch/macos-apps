@@ -119,7 +119,7 @@ struct StepsEditor: View {
                     }
                     Spacer()
                     Menu {
-                        Button(L("components.edit")) { model.componentFilter = AppModel.allCategories; model.componentSelection = id; model.editingComponents = true }
+                        Button(L("components.edit")) { model.showComponent(id) }
                         Divider()
                         Button(L("moveUp")) { model.moveStep(script.id, from: index, by: -1) }.disabled(index == 0)
                         Button(L("moveDown")) { model.moveStep(script.id, from: index, by: 1) }.disabled(index + 1 == script.actions.count)
@@ -234,7 +234,7 @@ struct StatsView: View {
             }
             Text(String(format: L("stats.total"), rows.reduce(0) { $0 + $1.uses }, rows.filter { $0.uses > 0 }.count, rows.count)).font(.caption).foregroundColor(.secondary)
             StatisticsTable(rows: rows, hidden: Set(hidden.components(separatedBy: "|"))) { id in
-                model.categoryFilter = AppModel.allCategories; model.selection = [id]
+                model.showAction(id)
                 NSApp.windows.first { $0.frameAutosaveName == "MainWindow" }?.makeKeyAndOrderFront(nil)
             }
             Text(L("stats.hint")).font(.caption).foregroundColor(.secondary)
@@ -316,9 +316,11 @@ struct ReplaceNamesSheet: View {
     @AppStorage("replace.with") private var replacement = ""
     @AppStorage("replace.regex") private var regex = false
     @AppStorage("replace.caseSensitive") private var caseSensitive = false
-    private var targets: [ScriptEntry] { model.library.scripts.filter { model.selection.contains($0.id) } }
-    private var preview: [(ScriptEntry, String)]? {
-        var rows: [(ScriptEntry, String)] = []
+    @State private var targetIDs: Set<String> = []
+    @State private var componentMode = false
+    private var targets: [NamedLibraryItem] { model.library.nameTargets(components: componentMode, ids: targetIDs) }
+    private var preview: [(NamedLibraryItem, String)]? {
+        var rows: [(NamedLibraryItem, String)] = []
         for script in targets {
             guard let new = Library.replacing(in: script.name, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) else { return nil }
             rows.append((script, new))
@@ -360,7 +362,7 @@ struct ReplaceNamesSheet: View {
                     Text(String(format: L("replace.changes"), changed.count)).font(.caption).foregroundColor(.secondary)
                     Spacer()
                     Button(L("cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
-                    Button(L("replace.button")) { model.replaceNames(find: find, with: replacement, regex: regex, caseSensitive: caseSensitive); dismiss() }
+                    Button(L("replace.button")) { model.replaceNames(find: find, with: replacement, regex: regex, caseSensitive: caseSensitive, components: componentMode, ids: Set(targets.map(\.id))); dismiss() }
                         .keyboardShortcut(.defaultAction).disabled(changed.isEmpty)
                 }
             } else {
@@ -369,6 +371,7 @@ struct ReplaceNamesSheet: View {
             }
         }
         .padding(20).frame(width: 520).tint(appTint)
+        .onAppear { componentMode = model.editingComponents; targetIDs = Set(model.selectedNameTargets.map(\.id)) }
     }
 }
 
@@ -397,7 +400,7 @@ struct MultipleSelection: View {
 
 struct MainView: View {
     @ObservedObject var model: AppModel
-    @State private var search = ""
+    @State private var hoveredAction: String?
     @State private var confirmDelete = false
     @State private var dropTargeted = false
     @State private var showRecent = false
@@ -535,28 +538,22 @@ struct MainView: View {
     private var order: SortOrder { SortOrder(rawValue: sortOrder) ?? .manual }
     /// The scripts of the chosen category, searched and sorted for display.
     private func shown(_ scripts: [ScriptEntry]) -> [ScriptEntry] {
-        let tagged = model.tagFilter.isEmpty ? scripts : scripts.filter { $0.allTags.contains(model.tagFilter) }
-        let found = search.isEmpty ? tagged : tagged.filter { $0.name.localizedCaseInsensitiveContains(search) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(search) }
+        let found = model.actionSearch.isEmpty ? scripts : scripts.filter { $0.name.localizedCaseInsensitiveContains(model.actionSearch) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(model.actionSearch) }
         return model.categoryFilter == AppModel.recentCategory ? found : order.sorted(found) { KeyCombo.keyName($0.code) }
     }
     /// Dragging rows reorders only the plain manual list (not while searching or sorted).
-    private var canReorder: Bool { search.isEmpty && order == .manual && model.categoryFilter != AppModel.recentCategory }
+    private var canReorder: Bool { model.actionSearch.isEmpty && order == .manual && model.categoryFilter != AppModel.recentCategory }
 
     private var list: some View {
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                TextField(L("search"), text: $search).textFieldStyle(.roundedBorder)
+                TextField(L("search"), text: $model.actionSearch).textFieldStyle(.roundedBorder)
                 Picker("", selection: $sortOrder) {
                     Text(L("sort.manual")).tag(SortOrder.manual.rawValue)
                     Text(L("sort.name")).tag(SortOrder.name.rawValue)
                     Text(L("sort.hotkey")).tag(SortOrder.hotkey.rawValue)
                 }
                 .labelsHidden().fixedSize().help(L("sort.hint")).accessibilityLabel(L("sort.label"))
-                Menu {
-                    Button(L("tags.all")) { model.tagFilter = "" }
-                    ForEach(model.allTags, id: \.self) { tag in Button(tag) { model.tagFilter = tag } }
-                } label: { Label(model.tagFilter.isEmpty ? L("tags.title") : model.tagFilter, systemImage: "tag") }
-                .fixedSize()
                 ItemDisplayOptions()
             }
             List(selection: $model.selection) {
@@ -575,14 +572,12 @@ struct MainView: View {
             .contextMenu(forSelectionType: String.self) { ids in
                 if let id = ids.first, let script = model.library.scripts.first(where: { $0.id == id }) {
                     Button(L("run")) { model.runFromWindow(script) }.disabled(!script.isAvailable)
-                    if let path = script.actions.compactMap(\.scriptPath).first {
-                        Button(L("reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }.disabled(!FileManager.default.fileExists(atPath: path))
-                    }
                     Button(L("divider.add")) { model.selection = ids; model.addDivider() }
-                    Menu(L("item.color")) {
-                        Button(L("color.none")) { model.setColor(nil, for: ids) }
-                        ForEach(ItemTag.allCases, id: \.self) { color in
-                            Button { model.setColor(color, for: ids) } label: { Label(L("color." + color.rawValue), systemImage: "circle.fill").foregroundColor(color.displayColor) }
+                    if canReorder, ids.count == 1 {
+                        let peers = model.scripts(in: script.category ?? AppModel.uncategorized).map(\.id)
+                        if let index = peers.firstIndex(of: id) {
+                            Button(L("moveUp")) { model.move(ids: peers, from: IndexSet(integer: index), to: index - 1) }.disabled(index == 0)
+                            Button(L("moveDown")) { model.move(ids: peers, from: IndexSet(integer: index), to: index + 2) }.disabled(index + 1 == peers.count)
                         }
                     }
                     if ids.count > 1 {
@@ -616,25 +611,50 @@ struct MainView: View {
             }
         }
     }
+    private func acceptActionDrop(_ providers: [NSItemProvider], before target: String?, within ids: [String]) -> Bool {
+        guard canReorder else { return false }
+        actionDragLog.notice("reorder-receive providers=\(providers.count, privacy: .public)")
+        for provider in providers where provider.canLoadObject(ofClass: NSString.self) {
+            _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+                guard let text = object as? String else { return }
+                let picked = ActionDragPayload.decode(text)
+                guard !picked.isEmpty else { return }
+                DispatchQueue.main.async { MainActor.assumeIsolated {
+                    guard self.canReorder else { return }
+                    let before = model.library.scripts.map(\.id)
+                    model.placeActions(picked, before: target, within: ids)
+                    actionDragLog.notice("reorder-applied changed=\(before != model.library.scripts.map(\.id), privacy: .public)")
+                } }
+            }
+        }
+        return true
+    }
     @ViewBuilder private func rows(_ scripts: [ScriptEntry]) -> some View {
         let ids = scripts.map(\.id)
-        if canReorder {
-            ForEach(scripts) { script in row(script) }.onMove { model.move(ids: ids, from: $0, to: $1) }
-        } else {
-            ForEach(scripts) { script in row(script) }
+        ForEach(scripts) { script in row(script, ids: ids) }
+        if canReorder, !ids.isEmpty {
+            Color.clear.frame(height: 6).listRowSeparator(.hidden)
+                .onDrop(of: [.utf8PlainText, .plainText], isTargeted: nil) { acceptActionDrop($0, before: nil, within: ids) }
         }
     }
-    @ViewBuilder private func row(_ script: ScriptEntry) -> some View {
+    @ViewBuilder private func row(_ script: ScriptEntry, ids: [String]) -> some View {
         if let binding = model.binding(for: script.id) {
             Group {
                 if script.isDivider {
                     HStack { Divider(); Text(script.name).font(.caption).foregroundColor(.secondary); Divider() }.frame(height: 22)
                 } else { ScriptRow(model: model, script: binding) }
-            }.tag(script.id)
+            }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle()).tag(script.id)
                 .listRowSeparator(.visible)
-                .listRowBackground(script.tagColor.map { $0.displayColor.opacity(0.22) })
-                // Dragging a row onto a category in the sidebar moves it there.
-                .itemProvider { NSItemProvider(object: script.id as NSString) }
+                .listRowBackground(hoveredAction == script.id ? appTint.opacity(0.22) : (script.tagColor?.displayColor.opacity(0.22) ?? Color.clear))
+                .onDrag {
+                    let picked = model.selection.contains(script.id) ? model.selection : [script.id]
+                    actionDragLog.notice("reorder-begin count=\(picked.count, privacy: .public)")
+                    return NSItemProvider(object: ActionDragPayload.encode(picked) as NSString)
+                }
+                .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredAction == script.id }, set: { over in hoveredAction = over && canReorder ? script.id : nil })) { providers in
+                    acceptActionDrop(providers, before: script.id, within: ids)
+                }
+
         }
     }
 }
@@ -921,11 +941,12 @@ struct ComponentLibraryView: View {
     }
 }
 
+private let actionDragLog = Logger(subsystem: "jp.dtp-transit.vectorkeys", category: "action-drag")
 private let componentDragLog = Logger(subsystem: "jp.dtp-transit.vectorkeys", category: "component-drag")
 
 struct ComponentWorkspace: View {
     @ObservedObject var model: AppModel
-    @State private var search = ""
+    @State private var deleteActionGroup: String?
     @State private var confirmDelete = false
     @State private var deleteGroup: String?
     @State private var hoveredGroup: String?
@@ -969,6 +990,14 @@ struct ComponentWorkspace: View {
             }
         }
     }
+    private func categoryMenu(_ ids: Set<String>) -> some View {
+        Menu(L("componentCategory.assign")) {
+            Button(L("componentCategory.none")) { model.setComponentCategory(nil, ids: ids) }
+            ForEach(model.library.componentCategoryList, id: \.self) { name in
+                Button(name) { model.setComponentCategory(name, ids: ids) }
+            }
+        }
+    }
     var body: some View {
         ResizableColumns(
             groups: AnyView(VStack(alignment: .leading, spacing: 6) {
@@ -983,6 +1012,10 @@ struct ComponentWorkspace: View {
                             .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredGroup == name }, set: { dropHover($0, group: name) })) { providers in
                                 receiveComponentDrop(providers, group: name)
                             }
+                            .contextMenu {
+                                Button(L("category.rename")) { model.renameCategory(name) }
+                                Button(L("category.delete")) { deleteActionGroup = name }
+                            }
                     }
                     Label(L("category.none"), systemImage: "tray")
                         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
@@ -991,6 +1024,12 @@ struct ComponentWorkspace: View {
                         .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredGroup == AppModel.uncategorized }, set: { dropHover($0, group: AppModel.uncategorized) })) { providers in
                             receiveComponentDrop(providers, group: nil)
                         }
+                }
+                HStack {
+                    Button { model.newCategory() } label: { Image(systemName: "plus") }.help(L("category.new"))
+                    Button { deleteActionGroup = model.componentActionGroupFilter } label: { Image(systemName: "minus") }
+                        .disabled([AppModel.allCategories, AppModel.uncategorized].contains(model.componentActionGroupFilter)).help(L("category.delete"))
+                    Spacer()
                 }
             }.padding(.trailing, 4)),
             categories: AnyView(VStack(alignment: .leading, spacing: 6) {
@@ -1013,9 +1052,9 @@ struct ComponentWorkspace: View {
                 }
             }.padding(.horizontal, 4)),
             scripts: AnyView(VStack(spacing: 6) {
-                TextField(L("search"), text: $search).textFieldStyle(.roundedBorder)
+                TextField(L("search"), text: $model.componentSearch).textFieldStyle(.roundedBorder)
                 List(selection: $model.componentSelections) {
-                    ForEach(model.componentsInCurrentGroup.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(search) }) { component in
+                    ForEach(model.componentsInCurrentGroup.filter { model.componentSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(model.componentSearch) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(model.componentSearch) }) { component in
                         HStack {
                             Text(component.name).lineLimit(2)
                             Spacer()
@@ -1028,10 +1067,18 @@ struct ComponentWorkspace: View {
                             componentDragLog.notice("drag-begin count=\(ids.count, privacy: .public)")
                             return NSItemProvider(object: ComponentDragPayload.encode(ids) as NSString)
                         }
-                        .contextMenu { groupMenu(picked(component.id)) }
+                        .contextMenu {
+                            let ids = picked(component.id)
+                            groupMenu(ids)
+                            categoryMenu(ids)
+                            Divider()
+                            Button(L("delete"), role: .destructive) { model.componentSelections = ids; confirmDelete = true }
+                                .disabled(model.library.deletableComponents(ids) != ids)
+                        }
 
                     }
-                }.onDeleteCommand { confirmDelete = true }
+                }.onDeleteCommand { if !model.componentSelections.isEmpty { confirmDelete = true } }
+                .background(ItemDeleteShortcut { if !model.componentSelections.isEmpty { confirmDelete = true } })
                 HStack {
                     Menu {
                         Button(L("step.addScript")) { model.registerComponent(code: false) }
@@ -1049,6 +1096,9 @@ struct ComponentWorkspace: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(String(format: L("selectedCount"), model.componentSelections.count)).font(.headline)
                         groupMenu(model.componentSelections)
+                        categoryMenu(model.componentSelections)
+                        Button(L("delete"), role: .destructive) { confirmDelete = true }.disabled(!canDelete)
+                        if !canDelete { Text(L("components.deleteHint")).font(.caption).foregroundColor(.secondary) }
                     }.padding(20).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
@@ -1059,17 +1109,20 @@ struct ComponentWorkspace: View {
             }.background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor))).padding(.leading, 6))
         )
         .confirmationDialog(L("deleteConfirm"), isPresented: $confirmDelete) {
-            Button(L("delete"), role: .destructive) { if canDelete, let id = model.componentSelection { model.deleteComponent(id); model.componentSelection = nil } }.disabled(!canDelete)
+            Button(L("delete"), role: .destructive) { if canDelete { model.deleteComponents(model.componentSelections) } }.disabled(!canDelete)
             Button(L("cancel"), role: .cancel) {}
         } message: { Text(L("components.deleteHint")) }
+        .confirmationDialog(L("category.delete"), isPresented: Binding(get: { deleteActionGroup != nil }, set: { if !$0 { deleteActionGroup = nil } })) {
+            Button(L("category.delete"), role: .destructive) { if let name = deleteActionGroup { model.deleteCategory(name) }; deleteActionGroup = nil }
+            Button(L("cancel"), role: .cancel) { deleteActionGroup = nil }
+        } message: { Text(L("category.deleteDetail")) }
         .confirmationDialog(L("componentCategory.delete"), isPresented: Binding(get: { deleteGroup != nil }, set: { if !$0 { deleteGroup = nil } })) {
             Button(L("componentCategory.delete"), role: .destructive) { if let name = deleteGroup { model.deleteComponentCategory(name) }; deleteGroup = nil }
             Button(L("cancel"), role: .cancel) { deleteGroup = nil }
         } message: { Text(L("componentCategory.deleteDetail")) }
     }
     private var canDelete: Bool {
-        guard let id = model.componentSelection else { return false }
-        return !model.library.scripts.contains { $0.componentIDs?.contains(id) == true }
+        !model.componentSelections.isEmpty && model.library.deletableComponents(model.componentSelections) == model.componentSelections
     }
 }
 
@@ -1094,7 +1147,7 @@ struct ComponentDetail: View {
                     }.controlSize(.small)
                     if !component.step.exists { Text(L("badge.missingHint")).font(.caption).foregroundColor(.orange) }
                 }
-                Picker(L("componentCategory.title"), selection: Binding(get: { component.category ?? "" }, set: { value in model.editComponent(component.id) { $0.category = value.isEmpty ? nil : value } })) {
+                Picker(L("componentCategory.title"), selection: Binding(get: { component.category ?? "" }, set: { value in model.setComponentCategory(value.isEmpty ? nil : value, ids: [component.id]) })) {
                     Text(L("componentCategory.none")).tag("")
                     ForEach(model.library.componentCategoryList, id: \.self) { Text($0).tag($0) }
                 }.fixedSize()

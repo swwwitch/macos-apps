@@ -711,11 +711,11 @@ enum WatchedScripts {
             var pool = library.components ?? []
             var groups = library.componentCategoryList
             if autoGroup { for group in scan.groups.sorted() where !groups.contains(group) { groups.append(group) } }
-            for path in scan.files.keys.sorted() where !ignoring.contains(path) {
+            for path in scan.files.keys.sorted() {
                 if let i = pool.firstIndex(where: { $0.step.scriptPath.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path == path } ?? false }) {
                     pool[i].folderTags = Array(Set(pool[i].folderTags ?? []).union(scan.files[path] ?? [])).sorted()
                     if autoGroup, pool[i].category == nil, let names = scan.fileGroups[path], names.count == 1 { pool[i].category = names.first }
-                } else {
+                } else if !ignoring.contains(path) {
                     var component = Component(name: ScriptEntry.defaultName(for: path), step: .script(path: path))
                     component.folderTags = Array(scan.files[path] ?? []).sorted()
                     if autoGroup, let names = scan.fileGroups[path], names.count == 1 { component.category = names.first }
@@ -839,5 +839,73 @@ enum ComponentDragPayload {
         let ids = text.dropFirst(prefix.count).split(separator: ",").map(String.init)
         guard ids.count <= 2048 else { return [] }
         return Set(ids.filter { !$0.isEmpty })
+    }
+}
+
+
+struct NamedLibraryItem: Identifiable {
+    let id: String
+    let name: String
+}
+extension Library {
+    func nameTargets(components componentMode: Bool, ids: Set<String>) -> [NamedLibraryItem] {
+        if componentMode { return (components ?? []).filter { ids.contains($0.id) }.map { .init(id: $0.id, name: $0.name) } }
+        return scripts.filter { ids.contains($0.id) && !$0.isDivider }.map { .init(id: $0.id, name: $0.name) }
+    }
+    @discardableResult mutating func replaceComponentNames(ids: Set<String>, find: String, with replacement: String, regex: Bool, caseSensitive: Bool) -> Int {
+        var changed = 0
+        for i in (components ?? []).indices where ids.contains(components![i].id) {
+            guard let name = Self.replacing(in: components![i].name, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) else { return 0 }
+            if name != components![i].name { components![i].name = name; components![i].userRenamed = true; changed += 1 }
+        }
+        return changed
+    }
+    @discardableResult mutating func stripComponentNumbering(ids: Set<String>) -> Int {
+        var changed = 0
+        for i in (components ?? []).indices where ids.contains(components![i].id) {
+            let name = Self.strippingNumbering(components![i].name)
+            if !name.isEmpty, name != components![i].name { components![i].name = name; components![i].userRenamed = true; changed += 1 }
+        }
+        return changed
+    }
+    func deletableComponents(_ ids: Set<String>) -> Set<String> {
+        let referenced = Set(scripts.flatMap { $0.componentIDs ?? [] })
+        return ids.intersection(Set((components ?? []).map(\.id))).subtracting(referenced)
+    }
+    mutating func setComponentCategory(_ category: String?, ids: Set<String>) {
+        if let category, !componentCategoryList.contains(category) { return }
+        for i in (components ?? []).indices where ids.contains(components![i].id) { components![i].category = category }
+    }
+    /// Returns canonical paths suppressed from watcher re-import. It never removes original files.
+    @discardableResult mutating func removeComponents(_ ids: Set<String>) -> Set<String>? {
+        guard !ids.isEmpty, deletableComponents(ids) == ids else { return nil }
+        let paths = Set((components ?? []).filter { ids.contains($0.id) }.compactMap { $0.step.scriptPath }.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path })
+        components?.removeAll { ids.contains($0.id) }
+        return paths
+    }
+    @discardableResult mutating func placeActions(_ selected: Set<String>, before target: String?, within visible: [String]) -> Bool {
+        let visibleSet = Set(visible)
+        let existing = scripts.filter { visibleSet.contains($0.id) }
+        guard existing.count == visible.count, Set(existing.map { $0.category ?? "" }).count == 1,
+              !selected.isEmpty, selected.isSubset(of: visibleSet), target.map({ visibleSet.contains($0) && !selected.contains($0) }) ?? true else { return false }
+        let picked = visible.filter { selected.contains($0) }
+        var order = visible.filter { !selected.contains($0) }
+        let index = target.flatMap { order.firstIndex(of: $0) } ?? order.count
+        order.insert(contentsOf: picked, at: index)
+        guard order != visible else { return false }
+        let entries = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
+        var next = order.makeIterator()
+        for i in scripts.indices where visibleSet.contains(scripts[i].id) {
+            if let id = next.next(), let entry = entries[id] { scripts[i] = entry }
+        }
+        return true
+    }
+}
+enum ActionDragPayload {
+    static let prefix = "VectorKeys.actions:"
+    static func encode(_ ids: Set<String>) -> String { prefix + ids.sorted().joined(separator: ",") }
+    static func decode(_ text: String) -> Set<String> {
+        guard text.hasPrefix(prefix), text.utf8.count <= 131072 else { return [] }
+        return Set(text.dropFirst(prefix.count).split(separator: ",").map(String.init))
     }
 }
