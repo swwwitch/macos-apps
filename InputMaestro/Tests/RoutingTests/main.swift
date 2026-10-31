@@ -34,3 +34,19 @@ precondition(route(blocked) === blocked, "excluded / disabled editing passes thr
 precondition(OCRText.clean("日 本 (test)", join: true, parens: true) == "日本 （test）")
 precondition(OCRText.clean("日 本 (test)", join: false, parens: false) == "日 本 (test)")
 print("PASS: combined routing, modifier release, synthetic events, disabled features, OCR formatting")
+
+final class ActionCapture: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: Action?
+    func record(_ action: Action) { lock.withLock { stored = action } }
+    var value: Action? { lock.withLock { stored } }
+}
+let capture = ActionCapture()
+tap.onAction = { action, _, _ in capture.record(action) }
+tap.update(TapState(active: true, commands: CommandTable.all, ansiTrigger: .capsLock, jisTrigger: .capsLock))
+precondition(route(event(123, true, [.maskControl, .maskShift])) == nil)
+precondition(capture.value == .copyToParagraphStart, "physical control arrow alias works with Caps Lock trigger preference")
+precondition(route(event(123, false, [])) == nil)
+let withoutControl = event(124, true, [.maskShift])
+precondition(route(withoutControl) === withoutControl, "alias does not consume shift arrow without control")
+print("PASS: added Control-arrow shortcut routing with Caps Lock trigger setting")

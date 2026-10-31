@@ -1,0 +1,28 @@
+import AppKit
+for (input, expected) in ArrowSequence.mappings {
+    var sequence = ArrowSequence()
+    precondition(sequence.feed("z", context: 1, allowed: true) == nil)
+    precondition(sequence.feed(String(input.last!), context: 1, allowed: true) == expected)
+    precondition(sequence.feed(String(input.last!), context: 1, allowed: true) == nil)
+    let original = CGEvent(keyboardEventSource: nil, virtualKey: 4, keyDown: true)!
+    let outputs = KeyTap.arrowEvents(expected, like: original)
+    precondition(outputs.count == 4)
+    precondition(outputs.map(\.type) == [.keyDown, .keyUp, .keyDown, .keyUp])
+    precondition(outputs.allSatisfy { $0.flags.isEmpty && $0.getIntegerValueField(.eventSourceUserData) == KeyTap.marker })
+    precondition(outputs[0].getIntegerValueField(.keyboardEventKeycode) == 51)
+    var length = 0; var chars = [UniChar](repeating: 0, count: 8)
+    outputs[2].keyboardGetUnicodeString(maxStringLength: 8, actualStringLength: &length, unicodeString: &chars)
+    precondition(String(utf16CodeUnits: chars, count: length) == expected)
+}
+var sequence = ArrowSequence()
+_ = sequence.feed("z", context: 1, allowed: true)
+precondition(sequence.feed("h", context: 2, allowed: true) == nil, "app or settings change resets prefix")
+_ = sequence.feed("z", context: 2, allowed: true); sequence.reset()
+precondition(sequence.feed("h", context: 2, allowed: true) == nil, "click or navigation resets prefix")
+_ = sequence.feed("z", context: 2, allowed: true)
+precondition(sequence.feed("h", context: 2, allowed: false) == nil, "disabled / IME / excluded passes through")
+precondition(sequence.feed("h", context: 2, allowed: true) == nil)
+_ = sequence.feed("z", context: 2, allowed: true)
+precondition(sequence.feed("x", context: 2, allowed: true) == nil, "unmatched text is untouched")
+precondition(sequence.feed("h", context: 2, allowed: true) == nil)
+print("PASS: zh/zj/zk/zl, unmatched input, reset boundaries, disabled/IME and balanced Unicode event pairs")

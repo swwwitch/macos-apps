@@ -561,6 +561,8 @@ from integration_strings import T as INTEGRATION
 T.update(INTEGRATION)
 T['helpText'] = tuple(text + '\n\n' + T['numpadPriority'][i] + '\n' + T['ocr.explanation'][i] + '\n' + T['ocr.permission'][i] + '\n' + T['conflict.control'][i] + '\n' + T['conflict.numpad'][i] for i, text in enumerate(T['helpText']))
 
+T['helpText'] = tuple(text + '\n\n' + T['copy.aliasHelp'][i] for i, text in enumerate(T['helpText']))
+
 def quote(text):
     return text.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 

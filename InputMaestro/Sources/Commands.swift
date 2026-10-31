@@ -83,6 +83,7 @@ struct Command: Identifiable, Equatable {
     /// Handled by InputMaestro even in the group's pass-through apps (only the excluded apps get it unchanged):
     /// ⌃K and ⌃Y share InputMaestro's kill buffer with ⌃X; browser ⌃K is reserved for Spreadsheet Helper.
     var ignoresPassthrough = false
+    var alternates: [Stroke] = []
     var action: Action
     var label: String { "⌃" + mods.symbols + keyLabel }
 }
@@ -113,11 +114,11 @@ enum CommandTable {
         Command(id: "moveParagraphDown", key: 125, keyLabel: "↓", mods: .shift, group: .paragraph, category: .editing, action: .moveParagraphDown),
         Command(id: "selectParagraph", key: 1, keyLabel: "S", group: .paragraph, category: .editing, action: .selectParagraph),
         Command(id: "copyToLineStart", key: 7, keyLabel: "X", mods: .command, group: .assist, category: .editing,
-                action: .copyToParagraphStart),
+                alternates: [Stroke(code: 123, mods: .shift, label: "⌃⇧←")], action: .copyToParagraphStart),
         Command(id: "copyToLineEnd", key: 6, keyLabel: "Z", mods: .command, group: .assist, category: .editing,
-                action: .copyToParagraphEnd),
+                alternates: [Stroke(code: 124, mods: .shift, label: "⌃⇧→")], action: .copyToParagraphEnd),
         Command(id: "copyToTextEnd", key: 6, keyLabel: "Z", mods: [.option, .command], group: .assist, category: .editing,
-                action: .keys([Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓"), Stroke(code: 8, mods: .command, label: "⌘C")])),
+                alternates: [Stroke(code: 124, mods: [.shift, .command], label: "⌃⇧⌘→")], action: .keys([Stroke(code: 125, mods: [.shift, .command], label: "⇧⌘↓"), Stroke(code: 8, mods: .command, label: "⌘C")])),
         // Kill/Yank
         Command(id: "killLine", key: 40, keyLabel: "K", group: .basic, category: .killYank, standard: true, ignoresPassthrough: true, action: .killToLineEnd),
         Command(id: "killToLineStart", key: 7, keyLabel: "X", group: .paragraph, category: .killYank, action: .killToLineStart),
@@ -143,7 +144,7 @@ enum CommandTable {
 
     /// The command for a key pressed with the trigger, among the ones in use.
     static func match(code: Int64, mods: Mods, in commands: [Command]) -> Command? {
-        commands.first { $0.key == code && ($0.mods == mods || ($0.carriesShift && $0.mods.union(.shift) == mods)) }
+        commands.first { ($0.key == code && ($0.mods == mods || ($0.carriesShift && $0.mods.union(.shift) == mods))) || $0.alternates.contains(where: { $0.code == code && $0.mods == mods }) }
     }
 
     /// What a command does in one app instead of the usual.

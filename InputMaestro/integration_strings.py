@@ -70,3 +70,18 @@ T.update({
 'symbols.enableModifiers': ('修飾キーの記号入力を有効にする', 'Enable modifier symbol input', '启用修饰键符号输入', '보조 키 기호 입력 활성화'),
 'symbols.enableArrows': ('矢印の記号入力を有効にする', 'Enable arrow symbol input', '启用箭头符号输入', '화살표 기호 입력 활성화'),
 })
+
+T.update({
+'arrows.mode': ('入力方法', 'Input mode', '输入方式', '입력 방식'),
+'arrows.google': ('Google日本語入力準拠', 'Google Japanese Input style', 'Google 日语输入方式', 'Google 일본어 입력 방식'),
+'arrows.custom': ('カスタム', 'Custom', '自定义', '사용자 설정'),
+'arrows.inputHint': ('英字入力時に順に入力します。日本語IMEの変換中はIME側で処理します。', 'Type sequentially in Latin input. During Japanese IME composition, the IME handles input.', '在英字输入模式下依次输入。日语输入法转换期间由输入法处理。', '영문 입력에서 순서대로 입력합니다. 일본어 IME 조합 중에는 IME가 처리합니다.'),
+})
+
+T['cmd.copyToLineEnd'] = ('段落末尾まで選択してコピー', 'Select to paragraph end and copy', '选到段落末尾并拷贝', '단락 끝까지 선택해 복사')
+
+T['copy.aliasHelp'] = (
+    'コピー用の追加ホットキー：⌃⇧←（段落先頭）、⌃⇧→（段落末尾）、⌃⇧⌘→（文章末尾）。既存の⌃⌘X、⌃⌘Z、⌃⌥⌘Zも使えます。各機能のON/OFFは2つのキーに共通です。',
+    'Additional copy hotkeys: ⌃⇧← (paragraph start), ⌃⇧→ (paragraph end), ⌃⇧⌘→ (text end). Existing ⌃⌘X, ⌃⌘Z and ⌃⌥⌘Z remain available. Each function switch controls both keys.',
+    '新增拷贝快捷键：⌃⇧←（段落开头）、⌃⇧→（段落末尾）、⌃⇧⌘→（文末）。原有 ⌃⌘X、⌃⌘Z、⌃⌥⌘Z 仍可用。每个功能的开关同时控制两个快捷键。',
+    '추가 복사 단축키: ⌃⇧←(단락 처음), ⌃⇧→(단락 끝), ⌃⇧⌘→(글 끝). 기존 ⌃⌘X, ⌃⌘Z, ⌃⌥⌘Z도 사용할 수 있습니다. 각 기능의 스위치는 두 키에 공통으로 적용됩니다.')

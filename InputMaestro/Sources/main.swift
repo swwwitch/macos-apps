@@ -108,6 +108,7 @@ final class Model: ObservableObject {
         observers.append(DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: .main) { [weak self] _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { MainActor.assumeIsolated { self?.refresh() } }
         })
+        observers.append(DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String), object: nil, queue: .main) { [weak self] _ in MainActor.assumeIsolated { self?.refresh() } })
         refresh()
     }
 
@@ -164,7 +165,8 @@ final class Model: ObservableObject {
         tap.update(TapState(active: enabled && !integration.controlConflict && !paused && !blocked,
                             commands: CommandTable.resolved(bundleID: front?.bundleIdentifier, passthrough: passthrough, disabled: disabled),
                             frontPID: front?.processIdentifier ?? 0, ansiTrigger: ansiTrigger, jisTrigger: jisTrigger,
-                            capsAsControl: enabled && !integration.controlConflict && !paused && !blocked && capsAsControl))
+                            capsAsControl: enabled && !integration.controlConflict && !paused && !blocked && capsAsControl,
+                            googleArrows: symbols.arrowsEnabled && symbols.arrowMode == .google && !paused && !blocked && !CommaTyper.inputMethodActive))
         registerHotkeys()
     }
 
@@ -191,7 +193,13 @@ final class Model: ObservableObject {
         if let combo = ocr.combo { items.append(.init(id: "ocr.hotkey", title: L("ocrTab"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: ocr.enabled, scope: "except", apps: ExcludedApps.shared.ids)) }
         for item in SymbolDefinitions.all {
             guard let combo = symbols.combos[item.id] else { continue }
-            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled(for: item), scope: "except", apps: ExcludedApps.shared.ids))
+            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled(for: item) && (!item.isArrow || symbols.arrowMode == .custom), scope: "except", apps: ExcludedApps.shared.ids))
+        }
+        for command in CommandTable.all {
+            for (index, shortcut) in command.alternates.enumerated() {
+                let modifiers = 4096 | (shortcut.mods.contains(.shift) ? 512 : 0) | (shortcut.mods.contains(.command) ? 256 : 0)
+                items.append(.init(id: command.id + ".alternate." + String(index), title: L("cmd." + command.id), keyCode: Int(shortcut.code), modifiers: modifiers, enabled: enabled && !disabled.contains(command.id), scope: "except", apps: ExcludedApps.shared.ids + (passLists[command.group]?.ids ?? [])))
+            }
         }
         HotkeyManifest.publish(items)
     }
@@ -229,7 +237,7 @@ extension KeyGroup {
     var title: String { L("group." + rawValue) }
     var hint: String { L("group." + rawValue + ".hint") }
     /// The keys the group covers, for the 「素通しにするアプリ」 tab.
-    var keyList: String { CommandTable.commands(in: self).filter { !$0.ignoresPassthrough }.map(\.label).joined(separator: " ") }
+    var keyList: String { CommandTable.commands(in: self).filter { !$0.ignoresPassthrough }.flatMap { [$0.label] + $0.alternates.map(\.label) }.joined(separator: " ") }
 }
 
 extension KeyCategory {
@@ -288,16 +296,16 @@ struct MainView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(nsColor: .controlBackgroundColor))
             .border(Color(nsColor: .separatorColor), width: 1)
-            TabView {
-                NumpadMainPage(model: model.integration).tabItem { Text(L("numpadTab")) }
-                VStack(alignment: .leading, spacing: 12) {
+            MainTabs(sections: [
+                (L("numpadTab"), AnyView(NumpadMainPage(model: model.integration))),
+                (L("editingTab"), AnyView(VStack(alignment: .leading, spacing: 12) {
                     Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
                     KeyboardView(model: model)
-                }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).tabItem { Text(L("editingTab")) }
-                OCRPage(model: model.ocr).tabItem { Text(L("ocrTab")) }
-                SymbolsPage(model: model.symbols, arrows: false).tabItem { Text(L("symbols.modifiers")) }
-                SymbolsPage(model: model.symbols, arrows: true).tabItem { Text(L("symbols.arrows")) }
-            }
+                }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading))),
+                (L("ocrTab"), AnyView(OCRPage(model: model.ocr))),
+                (L("symbols.modifiers"), AnyView(SymbolsPage(model: model.symbols, arrows: false))),
+                (L("symbols.arrows"), AnyView(SymbolsPage(model: model.symbols, arrows: true)))
+            ]).frame(minHeight: 320, maxHeight: .infinity)
             IntegrationStatus(model: model.integration)
             Spacer(minLength: 0)
             HStack {
@@ -380,7 +388,7 @@ struct KeyTable: View {
             ForEach(CommandTable.rows(in: category)) { row in
                 GridRow {
                     Text(L("cmd." + row.id)).frame(minWidth: 200, alignment: .leading)
-                    cell(row.standard).frame(minWidth: 110, alignment: .leading)
+                    cell(row.standard).frame(width: 96, alignment: .leading)
                     cell(row.extended).frame(minWidth: 110, alignment: .leading)
                 }
             }
@@ -388,10 +396,16 @@ struct KeyTable: View {
     }
     @ViewBuilder private func cell(_ command: Command?) -> some View {
         if let command {
-            Toggle(isOn: model.command(command.id)) {
-                Text(command.label).font(.system(size: 12, weight: .semibold, design: .monospaced))
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle(isOn: model.command(command.id)) {
+                    Text(command.label).font(.system(size: 12, weight: .semibold, design: .monospaced))
+                }.accessibilityLabel(command.label + " " + command.title)
+                ForEach(Array(command.alternates.enumerated()), id: \.offset) { _, shortcut in
+                    Toggle(isOn: model.command(command.id)) {
+                        Text(shortcut.label).font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    }.accessibilityLabel(shortcut.label + " " + command.title)
+                }
             }
-            .accessibilityLabel(command.label + " " + command.title)
         } else {
             Text("—").foregroundColor(.secondary).accessibilityHidden(true)
         }
@@ -490,7 +504,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             if number >= 10 { if let model = self?.model, !model.paused { model.symbols.insert(number, typer: model.integration.commaTyper) }; return }
             StartupWindow.userRequestedWindow(); self?.showMainWindow()
         }
-        model.symbols.onChange = { [weak self] in self?.model.registerHotkeys() }
+        model.symbols.onChange = { [weak self] in self?.model.refresh() }
         model.ocr.onHotkeyChange = { [weak self] in self?.model.registerHotkeys() }
         SettingsSync.shared.onImport = { [weak self] in self?.model.reload() }
         SettingsSync.shared.start(.init(

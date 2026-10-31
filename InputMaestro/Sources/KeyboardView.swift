@@ -103,7 +103,7 @@ struct KeyCapView: View {
     let layout: KeyboardLayout
 
     /// Every command on this key; the one without extra modifiers is drawn on the key, all of them in the tooltip.
-    var commands: [Command] { key.code.map { code in CommandTable.all.filter { $0.key == Int64(code) } } ?? [] }
+    var commands: [Command] { key.code.map { code in CommandTable.all.filter { $0.key == Int64(code) || $0.alternates.contains(where: { $0.code == Int64(code) }) } } ?? [] }
     var primary: Command? { commands.first { $0.mods.isEmpty } ?? commands.first }
     func isOn(_ command: Command) -> Bool { model.groupActive(command.group) && !model.disabled.contains(command.id) }
     /// The key(s) held instead of ⌃ for the layout shown: ⌃ and/or ⇪ (Caps Lock).
@@ -143,7 +143,10 @@ struct KeyCapView: View {
     var tooltip: String {
         if isTrigger { return L("kb.triggerHelp") }
         guard !commands.isEmpty else { return caption }
-        return commands.map { $0.label + " " + $0.title + (isOn($0) ? "" : " (" + L("kb.off") + ")") }.joined(separator: "\n")
+        return commands.map { command in
+            let labels = command.key == Int64(key.code ?? 0) ? [command.label] : command.alternates.filter { $0.code == Int64(key.code ?? 0) }.map(\.label)
+            return labels.joined(separator: " / ") + " " + command.title + (isOn(command) ? "" : " (" + L("kb.off") + ")")
+        }.joined(separator: "\n")
     }
     var background: Color {
         if isTrigger { return Color.accentColor.opacity(model.enabled ? 0.85 : 0.35) }

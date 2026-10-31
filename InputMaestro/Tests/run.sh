@@ -8,7 +8,7 @@ xcrun swiftc -module-cache-path build/ModuleCache Sources/Commands.swift Sources
 build/tests/commands
 xcrun swiftc -module-cache-path build/ModuleCache Sources/KeyMap.swift Sources/NumpadTap.swift Tests/KeyMapTests.swift -o build/tests/keymap
 build/tests/keymap
-xcrun swiftc -module-cache-path build/ModuleCache Sources/Commands.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/KeyTap.swift Sources/OCRText.swift Tests/RoutingTests/main.swift -o build/tests/routing
+xcrun swiftc -module-cache-path build/ModuleCache Sources/ArrowSequence.swift Sources/Commands.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/KeyTap.swift Sources/OCRText.swift Tests/RoutingTests/main.swift -o build/tests/routing
 build/tests/routing
 xcrun swiftc -module-cache-path build/ModuleCache Sources/OCRServices.swift Tests/OCRTests/main.swift -framework Vision -o build/tests/ocr
 build/tests/ocr
@@ -16,3 +16,5 @@ xcrun swiftc -module-cache-path build/ModuleCache Sources/OCRPreferences.swift T
 build/tests/preferences
 xcrun swiftc -module-cache-path build/ModuleCache Sources/SymbolDefinitions.swift Tests/SymbolTests.swift -o build/tests/symbols
 build/tests/symbols
+xcrun swiftc -module-cache-path build/ModuleCache Sources/ArrowSequence.swift Sources/Commands.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/KeyTap.swift Tests/ArrowTests/main.swift -o build/tests/arrows
+build/tests/arrows

@@ -129,5 +129,13 @@ for separator in ["\n", "\r", "\r\n", "\u{2029}"] {
 }
 check(TextRanges.paragraphEdge("" as NSString, selection: NSRange(location: 0, length: 0), end: false, extend: true).length == 0, "empty paragraph start")
 
+check(CommandTable.match(code: 123, mods: .shift, in: all)?.id == "copyToLineStart", "control shift left alias")
+check(CommandTable.match(code: 124, mods: .shift, in: all)?.id == "copyToLineEnd", "control shift right alias")
+check(CommandTable.match(code: 124, mods: [.shift, .command], in: all)?.id == "copyToTextEnd", "control shift command right alias")
+for command in all {
+    for shortcut in command.alternates {
+        check(!all.contains { $0.key == shortcut.code && $0.mods == shortcut.mods }, "alias does not shadow another command")
+    }
+}
 if failures > 0 { print("\(failures) failure(s)"); exit(1) }
 print("PASS: command table, per-app resolution, triggers and paragraph ranges")
