@@ -49,7 +49,6 @@ struct NumpadPage: View {
             VStack(alignment: .leading, spacing: 16) {
                 IntegrationStatus(model: model)
                 SettingsSection(L("numpadTab")) {
-                    Toggle(L("enable"), isOn: $model.numpadEnabled)
                     Picker(L("trigger.ansi"), selection: $model.ansiTrigger) {
                         ForEach(NumpadTrigger.allCases) { Text(L("numpadTrigger." + $0.rawValue)).tag($0) }
                     }
@@ -73,11 +72,12 @@ struct NumpadPage: View {
 }
 
 struct NumpadMainPage: View {
-    @ObservedObject var model: IntegrationModel
+    @ObservedObject var model: Model
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Toggle(L("enable"), isOn: $model.numpadEnabled)
-            NumpadKeyboardView(model: model)
+            FeatureToggle(title: L("enable"), enabled: Binding(get: { model.integration.numpadEnabled }, set: { model.integration.numpadEnabled = $0 }))
+            FeatureNotice(model: model, feature: .numpad)
+            NumpadKeyboardView(model: model.integration)
         }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

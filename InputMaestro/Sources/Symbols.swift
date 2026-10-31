@@ -59,11 +59,13 @@ import SwiftUI
 }
 struct SymbolsPage: View {
     @ObservedObject var model: SymbolsModel
+    @ObservedObject var owner: Model
     let arrows: Bool
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Toggle(L(arrows ? "symbols.enableArrows" : "symbols.enableModifiers"), isOn: arrows ? $model.arrowsEnabled : $model.modifiersEnabled)
+                FeatureToggle(title: L(arrows ? "symbols.enableArrows" : "symbols.enableModifiers"), enabled: arrows ? $model.arrowsEnabled : $model.modifiersEnabled)
+                FeatureNotice(model: owner, feature: arrows ? .arrows : .modifiers)
                 if arrows {
                     Picker(L("arrows.mode"), selection: $model.arrowMode) {
                         Text(L("arrows.google")).tag(ArrowMode.google)

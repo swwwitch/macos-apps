@@ -51,6 +51,18 @@ final class Model: ObservableObject {
     @Published var disabled = Set(UserDefaults.standard.stringArray(forKey: "disabledCommands") ?? [])
     @Published var keepRunning = UserDefaults.standard.object(forKey: "keepRunning") as? Bool ?? true
     @Published var paused = false
+    @Published var mainTab = 0
+    @Published var settingsTab = Model.initialSettingsTab()
+    @Published var settingsFocus = ""
+    static func initialSettingsTab() -> Int {
+        let d = UserDefaults.standard
+        var selected = d.integer(forKey: "shared.settings.selectedTabIndex")
+        if !d.bool(forKey: "settings.layout4") {
+            if selected >= 4 { selected += 1 }
+            d.set(selected, forKey: "shared.settings.selectedTabIndex"); d.set(true, forKey: "settings.layout4")
+        }
+        return min(max(selected, 0), 6)
+    }
     @Published var trusted = AccessibilitySection.isTrusted
     @Published var tapRunning = false
     /// The app the keys go to (the last one in front other than InputMaestro), for the main window.
@@ -83,9 +95,10 @@ final class Model: ObservableObject {
     static let sharedKeys: Set<String> = Set(["enabled", "trigger.ansi", "trigger.jis", "capsAsControl", "disabledCommands"]).union(IntegrationModel.sharedKeys).union(OCRModel.sharedKeys).union(SymbolsModel.sharedKeys)
 
     init() {
+        if defaults.object(forKey: "keyboardLayout") == nil, let old = defaults.string(forKey: "numpad.keyboardLayout") { defaults.set(old, forKey: "keyboardLayout") }
         integration.onChange = { [weak self] in self?.refresh() }
         let typer = integration.commaTyper
-        tap.numpad.onComma = { flags in MainActor.assumeIsolated { typer.type(flags: flags) } }
+        tap.numpad.onComma = { [weak self] flags in MainActor.assumeIsolated { guard let self, !self.paused, self.integration.numpadEnabled else { return }; typer.type(flags: flags) } }
         for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
             observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in MainActor.assumeIsolated { self?.refresh() } })
         }
@@ -94,6 +107,7 @@ final class Model: ObservableObject {
         tap.onCapsToggle = { on in MainActor.assumeIsolated { caps.toggled(to: on) } }
         tap.onCapsUsed = { MainActor.assumeIsolated { caps.markUsed() } }
         let actions = actions
+        actions.canPerform = { [weak self] in !(self?.paused ?? true) }
         tap.onAction = { action, extend, pid in actions.perform(action, extend: extend, pid: pid) }
         actions.onResult = { [weak self] failure in self?.lastFailure = failure }
         for list in passLists.values { list.onChange = { [weak self] in self?.refresh() } }
@@ -148,6 +162,7 @@ final class Model: ObservableObject {
 
     /// Starts the tap once Accessibility is granted and gives it the commands for the front app.
     func refresh() {
+        ocr.paused = paused
         ocr.screenAllowed = AreaCapture.allowed
         integration.updateConflicts()
         trusted = AccessibilitySection.isTrusted
@@ -176,7 +191,7 @@ final class Model: ObservableObject {
         if ExcludedApps.shared.excludes(NSWorkspace.shared.frontmostApplication?.bundleIdentifier) { return }
         if appHotkeyEnabled, let appCombo { appHotkeyRegistered = hotkeys.register(1, appCombo) == noErr }
         ocr.hotkeyRegistered = true
-        if ocr.enabled, let combo = ocr.combo { ocr.hotkeyRegistered = (!appHotkeyEnabled || combo != appCombo) && hotkeys.register(2, combo) == noErr }
+        if ocr.enabled && !paused, let combo = ocr.combo { ocr.hotkeyRegistered = (!appHotkeyEnabled || combo != appCombo) && hotkeys.register(2, combo) == noErr }
         var reserved = Set<KeyCombo>()
         if appHotkeyEnabled, let combo = appCombo { reserved.insert(combo) }
         if ocr.enabled, let combo = ocr.combo { reserved.insert(combo) }
@@ -187,22 +202,24 @@ final class Model: ObservableObject {
         for command in CommandTable.all {
             let modifiers = 4096 | (command.mods.contains(.shift) ? 512 : 0) | (command.mods.contains(.command) ? 256 : 0)
             items.append(.init(id: command.id, title: L("cmd." + command.id), keyCode: Int(command.key), modifiers: modifiers,
-                               enabled: enabled && !disabled.contains(command.id), scope: "except",
+                               enabled: enabled && !paused && !disabled.contains(command.id), scope: "except",
                                apps: ExcludedApps.shared.ids + (passLists[command.group]?.ids ?? [])))
         }
-        if let combo = ocr.combo { items.append(.init(id: "ocr.hotkey", title: L("ocrTab"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: ocr.enabled, scope: "except", apps: ExcludedApps.shared.ids)) }
+        if let combo = ocr.combo { items.append(.init(id: "ocr.hotkey", title: L("ocrTab"), keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: ocr.enabled && !paused, scope: "except", apps: ExcludedApps.shared.ids)) }
         for item in SymbolDefinitions.all {
             guard let combo = symbols.combos[item.id] else { continue }
-            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: symbols.enabled(for: item) && (!item.isArrow || symbols.arrowMode == .custom), scope: "except", apps: ExcludedApps.shared.ids))
+            items.append(.init(id: "symbols." + item.id, title: item.text, keyCode: Int(combo.code), modifiers: Int(combo.modifiers), enabled: !paused && symbols.enabled(for: item) && (!item.isArrow || symbols.arrowMode == .custom), scope: "except", apps: ExcludedApps.shared.ids))
         }
         for command in CommandTable.all {
             for (index, shortcut) in command.alternates.enumerated() {
                 let modifiers = 4096 | (shortcut.mods.contains(.shift) ? 512 : 0) | (shortcut.mods.contains(.command) ? 256 : 0)
-                items.append(.init(id: command.id + ".alternate." + String(index), title: L("cmd." + command.id), keyCode: Int(shortcut.code), modifiers: modifiers, enabled: enabled && !disabled.contains(command.id), scope: "except", apps: ExcludedApps.shared.ids + (passLists[command.group]?.ids ?? [])))
+                items.append(.init(id: command.id + ".alternate." + String(index), title: L("cmd." + command.id), keyCode: Int(shortcut.code), modifiers: modifiers, enabled: enabled && !paused && !disabled.contains(command.id), scope: "except", apps: ExcludedApps.shared.ids + (passLists[command.group]?.ids ?? [])))
             }
         }
         HotkeyManifest.publish(items)
     }
+
+    var menuStatus: String { paused ? L("allPaused") : L("readyAll") }
 
     var problem: Bool { !trusted || !tapRunning || !enabled || paused }
     var status: String {
@@ -281,36 +298,23 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HeaderView().fixedSize(horizontal: false, vertical: true)
-            VStack(alignment: .leading, spacing: 10) {
-                StatusRow(symbol: model.problem ? "exclamationmark.triangle.fill" : "keyboard", tint: model.problem ? .orange : .secondary,
-                          title: L("statusRow"), value: model.status)
-                StatusRow(symbol: "control", tint: .secondary, title: L("triggerRow"), value: model.triggerSummary)
-                if !model.targetName.isEmpty {
-                    StatusRow(symbol: "macwindow", tint: .secondary, title: L("targetRow"), value: targetText)
-                }
-                if let failure = model.lastFailure {
-                    StatusRow(symbol: "exclamationmark.circle", tint: .orange, title: L("failureRow"), value: failure)
-                }
-            }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(nsColor: .controlBackgroundColor))
-            .border(Color(nsColor: .separatorColor), width: 1)
             MainTabs(sections: [
-                (L("numpadTab"), AnyView(NumpadMainPage(model: model.integration))),
+                (L("numpadTab"), AnyView(NumpadMainPage(model: model))),
                 (L("editingTab"), AnyView(VStack(alignment: .leading, spacing: 12) {
-                    Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
+                    FeatureToggle(title: L("enable"), enabled: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
+                    FeatureNotice(model: model, feature: .editing)
                     KeyboardView(model: model)
                 }.padding(12).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading))),
-                (L("ocrTab"), AnyView(OCRPage(model: model.ocr))),
-                (L("symbols.modifiers"), AnyView(SymbolsPage(model: model.symbols, arrows: false))),
-                (L("symbols.arrows"), AnyView(SymbolsPage(model: model.symbols, arrows: true)))
-            ]).frame(minHeight: 320, maxHeight: .infinity)
-            IntegrationStatus(model: model.integration)
+                (L("ocrTab"), AnyView(OCRPage(model: model.ocr, owner: model))),
+                (L("symbols.modifiers"), AnyView(SymbolsPage(model: model.symbols, owner: model, arrows: false))),
+                (L("symbols.arrows"), AnyView(SymbolsPage(model: model.symbols, owner: model, arrows: true)))
+             ], selection: $model.mainTab).frame(minHeight: 320, maxHeight: .infinity)
             Spacer(minLength: 0)
             HStack {
                 Button(L("settingsButton")) { AppDelegate.shared?.showPreferences() }
+                Button(L("overview.title")) { AppDelegate.shared?.openSettingsTab(4) }
                 Spacer()
+                Button(L(model.paused ? "resumeAll" : "pauseAll")) { model.togglePause() }
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 22)
@@ -390,7 +394,7 @@ struct KeyTable: View {
                     Text(L("cmd." + row.id)).frame(minWidth: 200, alignment: .leading)
                     cell(row.standard).frame(width: 96, alignment: .leading)
                     cell(row.extended).frame(minWidth: 110, alignment: .leading)
-                }
+                }.id("cmd." + row.id)
             }
         }
     }
@@ -415,7 +419,7 @@ struct KeyTable: View {
 struct Preferences: View {
     @ObservedObject var model: Model
     var body: some View {
-        SettingsTabs(sections: [
+        SettingsSearchPage(model: model, sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
                 SettingsSection(SettingsUI.launchTitle) {
                     // LoginAtLaunchView already includes the automatic login launch explanation and the Dock option.
@@ -431,15 +435,13 @@ struct Preferences: View {
                         Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     }.frame(maxWidth: .infinity, alignment: .leading)
                 }
-                AccessibilitySection()
+                AccessibilitySection().id("permissions")
                 ScreenRecordingSection(model: model.ocr)
+                KeyboardDisplayPreferences().id("keyboardDisplay")
+                QuitRestartSection()
             })),
             (L("numpadTab"), AnyView(NumpadPage(model: model.integration))),
             (L("editingTab"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(L("conversionTitle")) {
-                    Toggle(L("enable"), isOn: Binding(get: { model.enabled }, set: { model.enabled = $0; model.save() }))
-                    Text(L("enableHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
                 SettingsSection(L("triggerTitle")) {
                     Picker(L("trigger.ansi"), selection: Binding(get: { model.ansiTrigger }, set: { model.ansiTrigger = $0; model.save() })) {
                         ForEach(TriggerKey.allCases) { Text($0.title).tag($0) }
@@ -454,7 +456,7 @@ struct Preferences: View {
                     Text(L("capsAsControlHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Text(L("triggerHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
-                .disabled(!model.enabled)
+                .disabled(!model.enabled).id("editing.trigger")
                 ForEach(KeyCategory.allCases) { category in
                     SettingsSection(category.title) {
                         KeyTable(model: model, category: category)
@@ -464,7 +466,7 @@ struct Preferences: View {
                 }
             })),
             (L("appCompatibility"), AnyView(VStack(alignment: .leading, spacing: 16) {
-                SettingsSection(ExcludedApps.title) { ExcludedAppsView() }
+                SettingsSection(L("compat.allFeatures")) { ExcludedAppsView() }
                 Text(L("editingPassthrough")).font(.headline)
                 DisclosureGroup(L("explanation")) { Text(L("passExplanation")).fixedSize(horizontal: false, vertical: true) }
                 ForEach(KeyGroup.allCases) { group in
@@ -474,6 +476,7 @@ struct Preferences: View {
                     }
                 }
             })),
+            (L("overview.title"), AnyView(HotkeyOverviewPage(model: model))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(AboutView()))
         ])
@@ -528,11 +531,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.setAccessibilityLabel("InputMaestro")
         menu.delegate = self
-        statusItem = menu.addItem(withTitle: model.status, action: nil, keyEquivalent: "")
+        statusItem = menu.addItem(withTitle: model.menuStatus, action: nil, keyEquivalent: "")
         menu.addItem(.separator())
         add(menu, L("openMainWindow"), #selector(openMainWindow))
         add(menu, L("settings"), #selector(showPreferences))
-        add(menu, L("pause"), #selector(togglePause))
+        add(menu, L("pauseAll"), #selector(togglePause))
         menu.addItem(.separator())
         // Help submenu: app help and the note article (BASELINE「メニューの共通構成」).
         let statusHelp = NSMenu(title: L("help")); add(statusHelp, L("appHelp"), #selector(help)); HelpLinks.addNoteItem(to: statusHelp)
@@ -590,12 +593,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     }
     func menuWillOpen(_ menu: NSMenu) {
         model.refresh()
-        statusItem.title = model.status
-        menu.items.first { $0.action == #selector(togglePause) }?.state = model.paused ? .on : .off
+        statusItem.title = model.menuStatus
+        menu.items.first { $0.action == #selector(togglePause) }?.title = L(model.paused ? "resumeAll" : "pauseAll")
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         // Not available → disabled instead of a silent no-op (B27).
-        if menuItem.action == #selector(togglePause) { menuItem.state = model.paused ? .on : .off; return model.enabled }
+        if menuItem.action == #selector(togglePause) { menuItem.title = L(model.paused ? "resumeAll" : "pauseAll"); return true }
         return true
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -640,6 +643,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if let window = mainWindow, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         NSApp.activate(ignoringOtherApps: true); mainWindow?.makeKeyAndOrderFront(nil)
     }
+    func openSettingsTab(_ index: Int) { model.settingsTab = index; model.settingsFocus = "page.\(index)"; showPreferences() }
     @objc func showPreferences() {
         model.refresh()
         if preferences == nil {

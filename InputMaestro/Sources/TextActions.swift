@@ -45,6 +45,8 @@ final class TextActions: @unchecked Sendable {
     /// Called on the main thread with a short message when a command could not be carried out, and nil on success.
     var onResult: (@MainActor (String?) -> Void)?
 
+    var canPerform: (@MainActor () -> Bool)?
+
     static let clipboardTimeout: TimeInterval = 1.0
     /// Too short and the restored clipboard is what gets pasted.
     static let pasteSettle: TimeInterval = 0.15
@@ -52,7 +54,7 @@ final class TextActions: @unchecked Sendable {
     func perform(_ action: Action, extend: Bool, pid: pid_t) {
         let doubleTap = NSEvent.doubleClickInterval
         queue.async { [self] in
-            let allowed = DispatchQueue.main.sync { NSWorkspace.shared.frontmostApplication?.processIdentifier == pid && !ExcludedApps.shared.frontAppExcluded }
+            let allowed = DispatchQueue.main.sync { MainActor.assumeIsolated { NSWorkspace.shared.frontmostApplication?.processIdentifier == pid && !ExcludedApps.shared.frontAppExcluded && (self.canPerform?() ?? true) } }
             guard allowed else { return }
             let failure: String?
             switch action {

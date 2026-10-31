@@ -69,12 +69,7 @@ struct KeyboardView: View {
                     .accessibilityElement(children: .combine)
                 }
                 Spacer()
-                Picker(L("kb.layout"), selection: $layoutChoice) {
-                    Text(String(format: L("kb.layoutAuto"), L(KeyboardLayout.detected == .jis ? "kb.jis" : "kb.ansi"))).tag("auto")
-                    Text(L("kb.ansi")).tag("ansi")
-                    Text(L("kb.jis")).tag("jis")
-                }
-                .fixedSize()
+
             }
             GeometryReader { geo in
                 let gap: CGFloat = 4

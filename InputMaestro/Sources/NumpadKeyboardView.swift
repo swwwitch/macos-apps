@@ -14,7 +14,7 @@ extension NumpadGroup {
 struct NumpadKeyboardView: View {
     @ObservedObject var model: IntegrationModel
     /// "auto", "ansi" or "jis".
-    @AppStorage("numpad.keyboardLayout") private var layoutChoice = "auto"
+    @AppStorage("keyboardLayout") private var layoutChoice = "auto"
     var layout: KeyboardLayout { KeyboardLayout(rawValue: layoutChoice) ?? .detected }
 
     var body: some View {
@@ -30,12 +30,7 @@ struct NumpadKeyboardView: View {
                     .accessibilityLabel(L("numpadGroup." + group.rawValue) + (model.isOn(group) ? "" : " (" + L("kb.off") + ")"))
                 }
                 Spacer()
-                Picker(L("kb.layout"), selection: $layoutChoice) {
-                    Text(String(format: L("kb.layoutAuto"), L(KeyboardLayout.detected == .jis ? "kb.jis" : "kb.ansi"))).tag("auto")
-                    Text(L("kb.ansi")).tag("ansi")
-                    Text(L("kb.jis")).tag("jis")
-                }
-                .fixedSize()
+
             }
             GeometryReader { geo in
                 let gap: CGFloat = 4

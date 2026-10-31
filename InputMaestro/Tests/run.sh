@@ -18,3 +18,5 @@ xcrun swiftc -module-cache-path build/ModuleCache Sources/SymbolDefinitions.swif
 build/tests/symbols
 xcrun swiftc -module-cache-path build/ModuleCache Sources/ArrowSequence.swift Sources/Commands.swift Sources/KeyMap.swift Sources/NumpadTap.swift Sources/KeyTap.swift Tests/ArrowTests/main.swift -o build/tests/arrows
 build/tests/arrows
+xcrun swiftc -module-cache-path build/ModuleCache Sources/SettingsSearchIndex.swift Tests/SettingsSearchTests.swift -o build/tests/settings-search
+build/tests/settings-search

@@ -3,6 +3,9 @@ import SwiftUI
 import ImageIO
 
 @MainActor final class OCRModel: ObservableObject {
+    @Published var paused = false { didSet { if paused && recognizing { suppressAutomaticCopy = true } } }
+    private var suppressAutomaticCopy = false
+    @Published var pendingResult = false
     @Published var enabled = UserDefaults.standard.object(forKey: "ocr.enabled") as? Bool ?? true { didSet {
         UserDefaults.standard.set(enabled, forKey: "ocr.enabled")
         onHotkeyChange?()
@@ -32,12 +35,13 @@ import ImageIO
         joinJapanese = join; fullwidthParens = parens; copyAutomatically = copy
     }
     func recognizeArea() {
-        guard enabled, !recognizing else { return }
+        guard enabled, !paused, !recognizing else { return }
         guard !frontExcluded else { status = L("ocr.excluded"); return }
         guard AreaCapture.allowed else {
             status = L("ocr.permission")
             return
         }
+        suppressAutomaticCopy = false; pendingResult = false
         recognizing = true; status = L("ocr.working")
         let join = joinJapanese, parens = fullwidthParens
         let clipboardChange = NSPasteboard.general.changeCount
@@ -58,6 +62,7 @@ import ImageIO
                 text = output
                 if output.isEmpty { status = L("ocr.none") }
                 else if frontExcluded { status = L("ocr.excluded") }
+                else if paused || suppressAutomaticCopy { pendingResult = true; status = L("ocr.held") }
                 else if enabled && copyAutomatically && NSPasteboard.general.changeCount == clipboardChange { copy(); status = L("ocr.copied") }
                 else { status = L("ocr.ready") }
             case .failure(let error): status = L("ocr.failed") + " " + error.localizedDescription
@@ -65,7 +70,8 @@ import ImageIO
         }
     }
     func copy() {
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty, !paused else { return }
+        pendingResult = false
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
     }
@@ -77,10 +83,13 @@ import ImageIO
 }
 struct OCRPage: View {
     @ObservedObject var model: OCRModel
+    @ObservedObject var owner: Model
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Toggle(L("ocr.enable"), isOn: $model.enabled)
+                FeatureToggle(title: L("ocr.enable"), enabled: $model.enabled)
+                FeatureNotice(model: owner, feature: .ocr)
+                if model.pendingResult && !model.paused { Button(L("ocr.copyHeld")) { model.copy(); model.status = L("ocr.copied") } }
                 if model.recognizing { ProgressView().controlSize(.small) }
                 if !model.status.isEmpty { Text(model.status).textSelection(.enabled) }
                 SettingsSection(L("ocr.formatting")) {
