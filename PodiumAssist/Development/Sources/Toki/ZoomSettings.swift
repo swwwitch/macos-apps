@@ -127,9 +127,12 @@ enum ZoomSettings {
                 }
                 _ = try await SystemSettingsSwitch.waitFor("AX_ZOOM_MAX_FACTOR", in: root)
             }
+            var committed = false
             defer {
-                if minFactor != nil || maxFactor != nil,
-                   let ok = SystemSettingsSwitch.find("AX_OK", in: root) { AXUIElementPerformAction(ok, kAXPressAction as CFString) }
+                if !committed, minFactor != nil || maxFactor != nil,
+                   let cancel = SystemSettingsSwitch.find("AX_CANCEL", in: root) {
+                    AXUIElementPerformAction(cancel, kAXPressAction as CFString)
+                }
             }
             // Raise the upper limit first when the new lower limit exceeds the old upper limit.
             if let minFactor, let maxFactor, minFactor > (Self.maxFactor ?? 1) {
@@ -139,7 +142,25 @@ enum ZoomSettings {
                 if let minFactor { try await setFactor(minFactor, minimum: true, in: root) }
                 if let maxFactor { try await setFactor(maxFactor, minimum: false, in: root) }
             }
+            if minFactor != nil || maxFactor != nil {
+                let ok = try await SystemSettingsSwitch.waitFor("AX_OK", in: root)
+                guard AXUIElementPerformAction(ok, kAXPressAction as CFString) == .success else {
+                    throw SettingsError(L("システム設定を変更できませんでした。"))
+                }
+                committed = true
+                // The sheet's AX value alone is not proof that the preferences were saved.
+                for _ in 0..<20 {
+                    if savedFactorsMatch(minimum: minFactor, maximum: maxFactor) { return }
+                    try await Task.sleep(nanoseconds: 100_000_000)
+                }
+                throw SettingsError(L("システム設定を変更できませんでした。"))
+            }
         }
+    }
+
+    private static func savedFactorsMatch(minimum: Double?, maximum: Double?) -> Bool {
+        (minimum.map { abs((minFactor ?? 1) - $0) < 0.05 } ?? true)
+            && (maximum.map { abs((maxFactor ?? 1) - $0) < 0.05 } ?? true)
     }
 
     @MainActor
@@ -170,16 +191,20 @@ enum ZoomSettings {
         let target = min(max(target, maxFactorRange.lowerBound), maxFactorRange.upperBound)
         let slider = try await SystemSettingsSwitch.waitFor(identifier, in: root)
         func number(_ name: String) -> Double? { (SystemSettingsSwitch.attribute(name, of: slider) as? NSNumber)?.doubleValue }
-        guard let knob = (SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: slider) as? [AXUIElement])?.first,
-              let low = number(kAXMinValueAttribute), let high = number(kAXMaxValueAttribute), high > low
+        guard let low = number(kAXMinValueAttribute), let high = number(kAXMaxValueAttribute), high > low
         else { throw SettingsError(failure) }
         if let value = number(kAXValueAttribute), abs(value - target) < 0.05 { return }
         NSRunningApplication.runningApplications(withBundleIdentifier: SystemSettingsSwitch.settingsBundleID).first?.activate()
         try await Task.sleep(nanoseconds: 300_000_000)
+        try await reveal(slider, failure: failure)
         let pointer = CGEvent(source: nil)?.location
         defer { if let pointer { post(.mouseMoved, pointer) } }
         for _ in 0..<3 {
-            guard let value = number(kAXValueAttribute), let track = frame(of: slider), let start = frame(of: knob) else { break }
+            guard let value = number(kAXValueAttribute), let track = frame(of: slider),
+                  let knob = (SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: slider) as? [AXUIElement])?.first(where: {
+                      SystemSettingsSwitch.attribute(kAXRoleAttribute, of: $0) as? String == kAXValueIndicatorRole
+                  }), let start = frame(of: knob), track.width > start.width,
+                  visible(track, in: viewport(of: slider)) else { break }
             if abs(value - target) < 0.05 { break }
             // The knob's center runs from half its width inside each end of the track.
             let span = track.width - start.width
@@ -197,6 +222,40 @@ enum ZoomSettings {
         guard let value = number(kAXValueAttribute), abs(value - target) < 0.05 else {
             throw SettingsError(failure)
         }
+    }
+
+    /// AX can expose offscreen controls. Never send mouse events until the track is inside its scroll viewport.
+    static func visible(_ track: CGRect, in viewport: CGRect?) -> Bool {
+        guard let viewport, track.width > 0, track.height > 0 else { return false }
+        return viewport.insetBy(dx: -1, dy: -1).contains(track)
+    }
+
+    private static func scrollArea(of element: AXUIElement) -> AXUIElement? {
+        var current = element
+        for _ in 0..<30 {
+            guard let parent = SystemSettingsSwitch.attribute(kAXParentAttribute, of: current),
+                  CFGetTypeID(parent) == AXUIElementGetTypeID() else { return nil }
+            current = unsafeBitCast(parent, to: AXUIElement.self)
+            if SystemSettingsSwitch.attribute(kAXRoleAttribute, of: current) as? String == kAXScrollAreaRole { return current }
+        }
+        return nil
+    }
+
+    private static func viewport(of element: AXUIElement) -> CGRect? {
+        scrollArea(of: element).flatMap { frame(of: $0) }
+    }
+
+    @MainActor
+    private static func reveal(_ slider: AXUIElement, failure: String) async throws {
+        AXUIElementPerformAction(slider, "AXScrollToVisible" as CFString)
+        for _ in 0..<8 {
+            try await Task.sleep(nanoseconds: 150_000_000)
+            guard let track = frame(of: slider), let area = scrollArea(of: slider), let viewport = frame(of: area) else { break }
+            if visible(track, in: viewport) { return }
+            let action = track.midY > viewport.midY ? "AXScrollDownByPage" : "AXScrollUpByPage"
+            guard AXUIElementPerformAction(area, action as CFString) == .success else { break }
+        }
+        throw SettingsError(failure)
     }
 
     private static func frame(of element: AXUIElement) -> CGRect? {
