@@ -87,10 +87,22 @@ struct RunRecord: Identifiable {
     @Published var informationTotal = 0
     private var remoteCodeURLs: [String: URL] = [:]
     /// User-requested refresh; preferences, item names and script files are never changed.
-    func updateScriptInformation() {
-        guard !updatingInformation else { return }
+    enum InformationScope { case selectedItems, selectedGroup, all }
+    func informationIDs(_ scope: InformationScope) -> Set<String> {
+        switch scope {
+        case .selectedItems: return Set(library.scripts.filter { selection.contains($0.id) && !$0.isDivider }.map(\.id))
+        case .selectedGroup:
+            guard categoryFilter != Self.allCategories else { return [] }
+            return Set(scripts(in: categoryFilter).filter { !$0.isDivider }.map(\.id))
+        case .all: return Set(library.scripts.filter { !$0.isDivider }.map(\.id))
+        }
+    }
+    func updateScriptInformation(_ scope: InformationScope = .all) {
+        let targetIDs = informationIDs(scope)
+        guard !updatingInformation, !targetIDs.isEmpty else { return }
         updatingInformation = true
-        let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        metadataWork?.cancel(); metadataGeneration = UUID()
+        let paths = Set(library.scripts.filter { targetIDs.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
         informationCompleted = 0; informationTotal = paths.count
         Task {
             defer { updatingInformation = false }
@@ -113,13 +125,12 @@ struct RunRecord: Identifiable {
                 } catch { failed += 1 }
             }
             let currentPaths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
-            remoteCodeURLs = found.filter { currentPaths.contains($0.key) }
+            for path in paths { remoteCodeURLs.removeValue(forKey: path) }
+            remoteCodeURLs.merge(found.filter { currentPaths.contains($0.key) }) { _, new in new }
             var renamed = library
-            for i in renamed.scripts.indices {
-                renamed.scripts[i].refreshAutomaticName()
-            }
+            renamed.refreshAutomaticNames(ids: targetIDs)
             if renamed != library { library = renamed }
-            refreshVersions()
+            refreshVersions(paths: paths)
             record("VectorKeys", failed == 0 ? L("meta.refreshed") : String(format: L("meta.refreshPartial"), failed), error: failed > 0)
         }
     }
@@ -177,15 +188,19 @@ struct RunRecord: Identifiable {
     func version(for script: ScriptEntry) -> String? {
         script.actions.count == 1 ? version(for: script.actions[0]) : nil
     }
-    func refreshVersions() {
+    func refreshVersions(paths requestedPaths: Set<String>? = nil) {
+        // Keep a scoped manual refresh from starting an unrelated full-library scan.
+        if updatingInformation && requestedPaths == nil { return }
         metadataWork?.cancel()
         let generation = UUID(); metadataGeneration = generation
-        let paths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let paths = requestedPaths ?? Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let partial = requestedPaths != nil
+        let oldVersions = scriptVersions, oldMetadata = scriptMetadata, oldReadmes = scriptReadmes, oldCodeURLs = scriptCodeURLs
         let work = DispatchWorkItem { [weak self] in
-            var versions: [String: String] = [:]
-            var metadata: [String: ScriptMetadata.Info] = [:]
-            var readmes: [String: URL] = [:]
-            var codeURLs: [String: URL] = [:]
+            var versions: [String: String] = partial ? oldVersions : [:]
+            var metadata: [String: ScriptMetadata.Info] = partial ? oldMetadata : [:]
+            var readmes: [String: URL] = partial ? oldReadmes : [:]
+            var codeURLs: [String: URL] = partial ? oldCodeURLs : [:]
             for path in paths {
                 metadata[path] = ScriptMetadata.read(at: path)
                 versions[path] = metadata[path]?.version
@@ -200,7 +215,7 @@ struct RunRecord: Identifiable {
                 if self.scriptVersions != versions { self.scriptVersions = versions }
                 if self.scriptMetadata != metadata { self.scriptMetadata = metadata }
                 if self.scriptReadmes != readmes { self.scriptReadmes = readmes }
-                let currentPaths = Set(paths)
+                let currentPaths = Set(self.library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
                 let merged = self.remoteCodeURLs.filter { currentPaths.contains($0.key) }.merging(codeURLs) { _, local in local }
                 if self.scriptCodeURLs != merged { self.scriptCodeURLs = merged }
             }

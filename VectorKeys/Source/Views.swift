@@ -76,7 +76,7 @@ struct ScriptDetail: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 12) {
-                        TextField(L("name"), text: Binding(get: { script.name }, set: { script.name = $0; script.automaticName = nil }))
+                        TextField(L("name"), text: Binding(get: { script.name }, set: { script.name = $0; script.automaticName = nil; script.userRenamed = true }))
                             .textFieldStyle(.plain).font(.system(size: 18, weight: .semibold))
                             .accessibilityLabel(L("name"))
                         Button { model.runFromWindow(script) } label: { Label(L("run"), systemImage: "play.fill") }

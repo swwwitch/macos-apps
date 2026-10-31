@@ -1,3 +1,6 @@
+"info.selected" = "所选项目";
+"info.group" = "所选分组";
+"info.all" = "全部";
 "divider.title" = "分隔线";
 "divider.add" = "添加分隔线";
 "stats.columns" = "显示项目";

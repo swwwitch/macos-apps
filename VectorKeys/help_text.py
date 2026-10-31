@@ -382,3 +382,11 @@ for lang, note in {
 
 for lang, note in {"ja": "情報更新中はメイン画面にプログレスバーと処理件数を表示します。", "en": "A progress bar and processed-file count appear in the main window while updating information.", "zh-Hans": "更新信息时，主窗口显示进度条和处理数量。", "ko": "정보 업데이트 중 메인 창에 진행 막대와 처리 수를 표시합니다."}.items():
     HELP[lang] += "\n" + note + "\n"
+
+for lang, note in {
+"ja": "ツール＞スクリプトの情報をアップデートで、選択しているアイテム（複数可）・選択しているグループ・すべてを選びます。対象がない項目は無効です。進捗件数は対象ファイル数です。名前の更新は指定範囲のみ。以前のファイル名由来の項目にもSCRIPT_DESCRIPTION_JAを適用しますが、異なる既存名や明示的な手動改名は保持します。手動名はファイル名と同じ文字列へ変更した場合も保持します。",
+"en": "Tools > Update Script Information offers Selected Items (multiple allowed), Selected Group and All. Empty targets are disabled. Progress counts the target files. Name changes stay within the chosen scope. Legacy filename-derived names can adopt SCRIPT_DESCRIPTION_JA; different legacy names and explicit manual names stay unchanged, even when a manual name equals the filename.",
+"zh-Hans": "工具＞更新脚本信息可选所选项目（支持多选）、所选分组或全部。无目标时禁用。进度按目标文件计数，名称更新限于指定范围。旧文件名来源的项目可采用SCRIPT_DESCRIPTION_JA，不同的已有名称及明确的手动改名保持，即使手动名与文件名相同。",
+"ko": "도구 > 스크립트 정보 업데이트에서 선택한 항목(복수 가능), 선택한 그룹, 모두를 고릅니다. 대상이 없으면 비활성입니다. 진행 수는 대상 파일 수이며 이름 변경은 선택 범위로 제한합니다. 기존 파일명 기반 이름에 SCRIPT_DESCRIPTION_JA를 적용하되 다른 기존 이름과 명시적 수동 이름은 유지합니다. 수동 이름이 파일명과 같아도 유지합니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"

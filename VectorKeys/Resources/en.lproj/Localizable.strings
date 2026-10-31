@@ -1,3 +1,6 @@
+"info.selected" = "Selected Items";
+"info.group" = "Selected Group";
+"info.all" = "All";
 "divider.title" = "Divider";
 "divider.add" = "Add Divider";
 "stats.columns" = "Visible Columns";
