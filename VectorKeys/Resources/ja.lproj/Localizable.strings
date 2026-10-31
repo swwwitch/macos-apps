@@ -1,3 +1,6 @@
+"info.selected" = "選択しているアイテム";
+"info.group" = "選択しているグループ";
+"info.all" = "すべて";
 "divider.title" = "区切り";
 "divider.add" = "区切りを追加";
 "stats.columns" = "表示する項目";

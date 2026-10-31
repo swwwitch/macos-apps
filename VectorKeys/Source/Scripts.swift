@@ -76,6 +76,7 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     var isDivider: Bool { divider == true }
     /// Only new automatically named entries opt in; legacy/user-provided names stay untouched.
     var automaticName: String?
+    var userRenamed: Bool?
     var tags: [String]?
     var folderTags: [String]?
     var allTags: [String] { Array(Set((tags ?? []) + (folderTags ?? []))).sorted { $0.localizedStandardCompare($1) == .orderedAscending } }
@@ -94,10 +95,14 @@ struct ScriptEntry: Codable, Identifiable, Hashable {
     }
     init(id: String = UUID().uuidString, path: String, name: String? = nil, hotkey: Hotkey? = nil, enabled: Bool = true) {
         self.id = id; self.path = path; self.name = name ?? Self.defaultName(for: path); self.hotkey = hotkey; self.enabled = enabled
+        userRenamed = name == nil ? nil : true
         automaticName = name == nil ? self.name : nil
     }
     mutating func refreshAutomaticName() {
-        guard let previous = automaticName, name == previous, actions.count == 1, let path = actions[0].scriptPath else { return }
+        guard userRenamed != true, !isDivider, actions.count == 1, let path = actions[0].scriptPath else { return }
+        let fileName = ((path as NSString).lastPathComponent as NSString).deletingPathExtension
+        if let previous = automaticName { guard name == previous else { return } }
+        else { guard name == fileName else { return } }
         name = Self.defaultName(for: path); automaticName = name
     }
     var fileExists: Bool { FileManager.default.fileExists(atPath: path) }
@@ -136,6 +141,9 @@ struct Library: Codable, Equatable {
         }
     }
 
+    mutating func refreshAutomaticNames(ids: Set<String>) {
+        for i in scripts.indices where ids.contains(scripts[i].id) { scripts[i].refreshAutomaticName() }
+    }
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("VectorKeys", isDirectory: true)
     }
@@ -233,7 +241,7 @@ struct Library: Codable, Equatable {
         var changed = 0
         for index in scripts.indices where ids.contains(scripts[index].id) {
             let stripped = Self.strippingNumbering(scripts[index].name)
-            if stripped != scripts[index].name && !stripped.isEmpty { scripts[index].name = stripped; changed += 1 }
+            if stripped != scripts[index].name && !stripped.isEmpty { scripts[index].name = stripped; scripts[index].automaticName = nil; scripts[index].userRenamed = true; changed += 1 }
         }
         return changed
     }
@@ -262,7 +270,7 @@ struct Library: Codable, Equatable {
         var changed = 0
         for index in scripts.indices where ids.contains(scripts[index].id) {
             guard let new = Self.replacing(in: scripts[index].name, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) else { return 0 }
-            if new != scripts[index].name { scripts[index].name = new; scripts[index].automaticName = nil; changed += 1 }
+            if new != scripts[index].name { scripts[index].name = new; scripts[index].automaticName = nil; scripts[index].userRenamed = true; changed += 1 }
         }
         return changed
     }

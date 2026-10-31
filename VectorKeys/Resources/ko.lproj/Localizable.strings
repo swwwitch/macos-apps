@@ -1,3 +1,6 @@
+"info.selected" = "선택한 항목";
+"info.group" = "선택한 그룹";
+"info.all" = "모두";
 "divider.title" = "구분선";
 "divider.add" = "구분선 추가";
 "stats.columns" = "표시 항목";

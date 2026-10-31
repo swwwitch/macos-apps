@@ -356,4 +356,29 @@ let sr2 = StatisticsRow(rank: 2, id: "b", name: "A", category: "A", scriptName: 
 check(StatisticsRow.sorted([sr1, sr2], by: .uses, ascending: true).map(\.id) == ["b", "a"], "statistics numeric sorting")
 check(StatisticsRow.sorted([sr1, sr2], by: .category, ascending: false).map(\.id) == ["a", "b"], "statistics descending category sorting")
 
+
+let migrationFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jsx")
+try #"var SCRIPT_DESCRIPTION_JA = "Description for existing item";"#.write(to: migrationFile, atomically: true, encoding: .utf8)
+let basename = migrationFile.deletingPathExtension().lastPathComponent
+var migrated = ScriptEntry(path: migrationFile.path, name: basename)
+migrated.userRenamed = nil; migrated.automaticName = nil
+migrated.refreshAutomaticName()
+check(migrated.name == "Description for existing item", "legacy filename migrates to description")
+var explicitFilename = ScriptEntry(path: migrationFile.path, name: basename)
+explicitFilename.refreshAutomaticName()
+check(explicitFilename.name == basename, "explicit user name equal to filename remains")
+var legacyCustom = ScriptEntry(path: migrationFile.path, name: "Custom display")
+legacyCustom.userRenamed = nil; legacyCustom.refreshAutomaticName()
+check(legacyCustom.name == "Custom display", "legacy custom name never overwritten")
+var scoped = Library()
+var targetEntry = ScriptEntry(path: migrationFile.path, name: basename)
+targetEntry.userRenamed = nil
+var outsideEntry = targetEntry; outsideEntry.id = "outside"
+scoped.scripts = [targetEntry, outsideEntry]
+scoped.refreshAutomaticNames(ids: [targetEntry.id])
+check(scoped.scripts[0].name == "Description for existing item" && scoped.scripts[1].name == basename, "scope limits name updates")
+let nameRoundTrip = try JSONDecoder().decode(ScriptEntry.self, from: JSONEncoder().encode(explicitFilename))
+check(nameRoundTrip.userRenamed == true, "manual-name marker persists")
+try FileManager.default.removeItem(at: migrationFile)
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

@@ -124,3 +124,6 @@ Automatically Group Subdirectories defaults to off. When enabled, each hierarchy
 Add dividers from the plus or context menu. They appear after the selection, can be dragged, deleted and renamed in details. Dividers never run or enter statistics. Sorting stays within divider boundaries. Visible Columns toggles each statistics column; clicking headers switches ascending/descending order. Script name uses metadata Name or filename; paths include all file steps. New files use SCRIPT_DESCRIPTION_JA when present. User-edited and legacy names survive information updates. Sources open with the file's associated application.
 
 A progress bar and processed-file count appear in the main window while updating information.
+
+
+Tools > Update Script Information offers Selected Items (multiple allowed), Selected Group and All. Empty targets are disabled. Progress counts the target files. Name changes stay within the chosen scope. Legacy filename-derived names can adopt SCRIPT_DESCRIPTION_JA; different legacy names and explicit manual names stay unchanged, even when a manual name equals the filename.
