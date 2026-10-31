@@ -12,7 +12,13 @@
 
 - 2026-11-01｜v1.0.0（build 1）｜通常版：IncrementPaste・PasteInARow・PasteMatchStyleを新規統合。3モード、共通設定、4言語ヘルプ、クリップボード排他と旧アプリ同時動作防止を追加。開発用検証ビルド。公証・配置・公開は未実施。
 
+## InputMaestro
+
+- 2026-11-01｜v0.1.0（build 1）｜通常版：ControlMateの編集キー、FnNumpadのテンキー入力、ShotSorterの範囲選択文字認識を新規統合。各機能の設定、旧アプリ起動時の対応機能停止、認識結果の整形・コピーを実装。既存3アプリを保持。公証・配置・公開は未実施。
+
 ## 目次
+
+- [InputMaestro](#inputmaestro)
 
 - [BreaklineTrimmer](#breaklinetrimmer)
 - [BrowserSwitcher](#browserswitcher)

@@ -1,5 +1,17 @@
 # リリースキュー
 
+## 2026-11-01 InputMaestro：ControlMateとFnNumpadの統合アプリを新設
+
+- 開始記録：2026-11-01 JST、ユーザー「ビルドを更新」。開発担当Mac＝MacBook-Pro-14-2024-sw.local、ブランチ＝main、入力SHA＝9068227c96152f37521313108259c886670d5fc6、対象SHA＝未確定。新規通常版0.1.0（1）。ControlMate・FnNumpad・ShotSorter文字認識の統合を実装・ワークスペース内検証。公証・配置・公開は未実施。
+
+- 受付日：2026-11-01（JST）。元チャット：入力関連アプリの統合検討（本チャット）。
+- ユーザー指示：「ControlMate＋FnNumpadを進めたい」「2本はそのまま新アプリ名は『InputMaestro』」。既存のControlMateとFnNumpadは名称・ソース・設定・配布物を保持し、別の新規アプリInputMaestroへ両機能を統合する。既存2本の改名・廃止・置換は行わない。
+- 初期対象：ControlMateのEmacsキーバインド補強とFnNumpadのテンキー入力。InsertSnippets、KakkoReplace、IncrementPasteは今回の対象に含めない。
+- 追加要望（2026-11-01 JST、同チャット）：ShotSorterの「文字認識」機能をInputMaestroへ移植する。ShotSorter側の既存機能・設定は保持する。実装時に現行の文字認識の入力方法・認識処理・結果の利用方法・ホットキー・必要権限・翻訳・ヘルプを確認し、既存の共通部品を再利用する。追加分も本ビルドで実装。
+- 実装時の確認事項：両機能を個別に有効／無効化できる構成、fn／Caps Lock／Controlの解釈と処理順序、既存2本との同時動作による二重処理防止を検討・検証する。既存設定を勝手に変更・移行しない。新規アプリの共通仕様とBASELINE-CHECKLIST.mdを適用する。
+- 状態：通常版0.1.0（1）の実装・arm64検証ビルド・証明書署名・起動確認済み。回帰テスト、統合キー処理、Vision認識、4言語検証PASS。実キー・範囲選択OCR・設定画面の実操作、Universal、公証・配布・公開は未確認／未実施。詳細：InputMaestro/RELEASE-VERIFICATION-20261101.md。
+- 担当Mac・ブランチ・対象SHA・版・build・開始日時：未確定（着手時に記録）。開発・検証は開発Macのワークスペース内、公証・配置・公開は公証担当Macで行う。
+
 ## 2026-11-01 PasteMaestro：貼り付け関連3アプリを新規統合
 
 - 開発開始：2026-11-01 JST。ユーザー「ビルドを更新」で開始。開発Mac MacBook-Pro-14-2024-sw.local、ブランチmain、基点9068227c96152f37521313108259c886670d5fc6、実装対象SHA：42a3c30dc9fbe0d7d22cad2dadd999547551dd57。通常版1.0.0（1）を新規作成。状態：開発用ビルド検証済み。既存の他アプリの未コミット変更を保持。公証・配布先配置なし。
