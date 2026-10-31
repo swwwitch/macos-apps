@@ -1,0 +1,10 @@
+{
+  "app": "InputMaestro",
+  "version": "0.1.3",
+  "build": "4",
+  "submission_id": "3ba78d6d-cbe8-4157-8023-c602822fd273",
+  "status": "Accepted",
+  "zip": "/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/Notarization/InputMaestro/InputMaestro-0.1.3-build4.zip",
+  "zip_sha256": "d367305a4e7f53c20eb647b70377a70ca75ced1d21986d79b00a77b62976f8f2",
+  "gatekeeper": "/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/SignedApps/InputMaestro.app: accepted\nsource=Notarized Developer ID\norigin=Developer ID Application: masahiro takano (PL9S9PXX96)\n"
+}

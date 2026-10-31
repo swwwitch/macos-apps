@@ -1,0 +1,24 @@
+{
+  "status": "installed-awaiting-functional-ui-check",
+  "time": "2026-11-01T02:21:28.337917+09:00",
+  "copies": [
+    {
+      "path": "/Applications/InputMaestro.app",
+      "version": "0.1.3",
+      "build": "4",
+      "content_match": true,
+      "signature": "verified",
+      "notarization": "verified"
+    },
+    {
+      "path": "/Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/InputMaestro.app",
+      "version": "0.1.3",
+      "build": "4",
+      "content_match": true,
+      "signature": "verified",
+      "notarization": "verified"
+    }
+  ],
+  "existing_app_backup": "Not applicable: both destinations absent before install",
+  "preferences_backup": "/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/Backups"
+}

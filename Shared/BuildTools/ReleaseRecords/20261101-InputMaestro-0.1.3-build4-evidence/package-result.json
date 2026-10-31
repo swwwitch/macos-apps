@@ -1,0 +1,8 @@
+{
+  "status": "verified",
+  "dmg": "/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/InputMaestro-0.1.3-build4-notarized.dmg",
+  "sha256": "edfd94116996de018896f9c499318455640a6beb9987eea5fd5e99bd9a355dc3",
+  "dmg_notary_id": "af800122-a58d-4802-8bfd-10cff86311b1",
+  "app_manifest": "app-manifest.json",
+  "readonly_mounted_contents_match": true
+}

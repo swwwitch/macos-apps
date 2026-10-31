@@ -2,6 +2,10 @@
 
 ## 2026-11-01 InputMaestro：ControlMateとFnNumpadの統合アプリを新設
 
+- 2026-11-01 02:23:07 JST 公証Mac MacBookPro13-M5-2025：0.1.3（4）、対象5d1750f、アプリ／DMGともAccepted・署名／stapler／Gatekeeper検証成功。/ApplicationsとLatest Buildsに同内容を配置・起動確認。AX／画面収録未許可・FnNumpad併用停止により外部キー／OCR実機確認ブロック、工程7～11未実施、全体未完了。詳細：Shared/BuildTools/ReleaseRecords/20261101-InputMaestro-0.1.3-build4-notarization.md。
+
+- 公証配布開始：2026-11-01T02:18:48.099079+09:00、担当MacBookPro13-M5-2025（公証）、ブランチcodex/inputmaestro-integration-20261101、対象SHA 5d1750f6b147a927d55a816c121e22b531469998（実装5494a2ab510ef4caff1dab917b1eb5d2cc93b1c2）、通常版0.1.3（4）。GitHub一致・署名ID・swwwitch-notary認証確認済み。既存作業は専用worktree分離で保持。工程4開始、配布・公開未実施。記録 /Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4。
+
 - 0.1.3（4）対象ソースSHA：5494a2ab510ef4caff1dab917b1eb5d2cc93b1c2、GitHub保存先codex/inputmaestro-integration-20261101。ソース・更新履歴・検証記録を確定。未確認UI・公証・配布・main統合は完了扱いにしていない。
 
 - 0.1.3（4）開発検証結果：ソース・版・更新履歴を更新、arm64ビルド・223キー4言語・回帰／設定検索テストPASS。検証用アプリの起動、通常3行削除、一時停止・再開、設定保持、ウインドウを閉じた後の常駐と再表示、⌘Qでプロセス終了と再起動を確認。実行ファイルSHA-256＝daa156a4762149ed2f59718e063d57274ed218f524ef906c3b76a2fb404e3c5c。配布先は未配置、GitHub公開リリース31件にInputMaestroなし。詳細：InputMaestro/RELEASE-VERIFICATION-20261101-BUILD4.md。未確認UI・公証・配布・main統合は同記録へ区別して記載。

@@ -1,0 +1,3 @@
+/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/InputMaestro-0.1.3-build4-notarized.dmg: accepted
+source=Notarized Developer ID
+origin=Developer ID Application: masahiro takano (PL9S9PXX96)

@@ -1,0 +1,29 @@
+Executable=/Users/takano/Git/macos-apps/.local/worktrees/inputmaestro-handoff-20261101/.local/release-inputmaestro-20261101-build4/SignedApps/InputMaestro.app/Contents/MacOS/InputMaestro
+Identifier=jp.dtp-transit.inputmaestro
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=5095 flags=0x10000(runtime) hashes=148+7 location=embedded
+VersionPlatform=1
+VersionMin=851968
+VersionSDK=1769984
+Hash type=sha256 size=32
+CandidateCDHash sha256=2ad1eec2b9927da98fe137477f2cde41ed15a6c4
+CandidateCDHashFull sha256=2ad1eec2b9927da98fe137477f2cde41ed15a6c4c2aeaa5471cb995ec7cb6822
+Hash choices=sha256
+CMSDigest=2ad1eec2b9927da98fe137477f2cde41ed15a6c4c2aeaa5471cb995ec7cb6822
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=999424
+Executable Segment flags=0x1
+Page size=16384
+CDHash=2ad1eec2b9927da98fe137477f2cde41ed15a6c4
+Signature size=8981
+Authority=Developer ID Application: masahiro takano (PL9S9PXX96)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+Timestamp=Nov 1, 2026 at 2:19:56
+Notarization Ticket=stapled
+Info.plist entries=28
+TeamIdentifier=PL9S9PXX96
+Runtime Version=27.2.0
+Sealed Resources version=2 rules=13 files=11
+Internal requirements count=1 size=188
