@@ -828,3 +828,16 @@ extension Library {
         return (components ?? []).filter { ids.contains($0.id) }
     }
 }
+
+
+/// A single text payload carries all selected component IDs; no code or paths are exposed.
+enum ComponentDragPayload {
+    static let prefix = "VectorKeys.components:"
+    static func encode(_ ids: Set<String>) -> String { prefix + ids.sorted().joined(separator: ",") }
+    static func decode(_ text: String) -> Set<String> {
+        guard text.utf8.count <= 131072, text.hasPrefix(prefix) else { return [] }
+        let ids = text.dropFirst(prefix.count).split(separator: ",").map(String.init)
+        guard ids.count <= 2048 else { return [] }
+        return Set(ids.filter { !$0.isEmpty })
+    }
+}

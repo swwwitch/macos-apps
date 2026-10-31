@@ -3,6 +3,13 @@ import Combine
 
 @main struct LibraryStoreTests {
     static func main() throws {
+        precondition(ComponentDragPayload.decode(ComponentDragPayload.encode(["A", "B"])) == ["A", "B"])
+        precondition(ComponentDragPayload.decode("unrelated:A").isEmpty)
+        precondition(ComponentDragPayload.decode(ComponentDragPayload.prefix).isEmpty)
+        precondition(ComponentDragPayload.decode(ComponentDragPayload.prefix + String(repeating: "A", count: 131073)).isEmpty)
+        let dragProvider = NSItemProvider(object: ComponentDragPayload.encode(["A", "B"]) as NSString)
+        precondition(dragProvider.canLoadObject(ofClass: NSString.self))
+        precondition(dragProvider.hasItemConformingToTypeIdentifier("public.utf8-plain-text") || dragProvider.hasItemConformingToTypeIdentifier("public.plain-text"), "drag provider advertises a type accepted by the group row")
         let emptyStore = LibraryStore(Library())
         var emptyPublications = 0
         let emptySubscription = emptyStore.$value.dropFirst().sink { _ in emptyPublications += 1 }
