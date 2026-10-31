@@ -390,3 +390,11 @@ for lang, note in {
 "ko": "도구 > 스크립트 정보 업데이트에서 선택한 항목(복수 가능), 선택한 그룹, 모두를 고릅니다. 대상이 없으면 비활성입니다. 진행 수는 대상 파일 수이며 이름 변경은 선택 범위로 제한합니다. 기존 파일명 기반 이름에 SCRIPT_DESCRIPTION_JA를 적용하되 다른 기존 이름과 명시적 수동 이름은 유지합니다. 수동 이름이 파일명과 같아도 유지합니다."
 }.items():
     HELP[lang] += "\n\n" + note + "\n"
+
+for lang, note in {
+"ja": "右のアイテム情報ペインはコンパクトな行構成です。タグは入力後にReturnまたはチェックボタンで保存します。パスとスクリプト情報はクリックして開きます。「ホットキーの使い方」の開閉項目は削除しました。パレット上部でアイテム名・ファイル名を検索できます。検索中は区切りを表示せず、空欄に戻すと復元します。「ファイル名を追加」をONにすると名前の下にファイル名を併記します（初期OFF、選択は全パレット共通で保存）。直書きコードに架空のファイル名は表示しません。検索入力時だけパレットがキー入力を受け、実行時はIllustratorへ操作を戻します。",
+"en": "The item detail pane uses compact rows. Save tags with Return or the checkmark button. Click to expand paths and script information. The Hotkey Help disclosure is removed. Search palette items by display name or filename. Dividers are hidden during a search and return when cleared. Include Filenames adds filenames below item names (off by default; saved across palettes). Inline code has no invented filename. The palette accepts keyboard focus for search and returns interaction to Illustrator when running an item.",
+"zh-Hans": "右侧详情采用紧凑行布局，标签以Return或勾选按钮保存，路径及脚本信息点击展开。已删除快捷键说明开闭项。面板上方可搜索项目名及文件名，搜索时隐藏分隔线，清空后恢复。添加文件名默认关闭，所有面板共享保存；代码项不生成文件名。搜索时面板接受键盘输入，执行时操作返回Illustrator。",
+"ko": "상세 패널은 간결한 행 구성이며 태그는 Return 또는 체크 버튼으로 저장합니다. 경로와 스크립트 정보는 클릭해 펼칩니다. 단축키 설명 항목은 제거했습니다. 팔레트 위에서 이름·파일명을 검색하고 검색 중 구분선을 숨기며 비우면 복원합니다. 파일 이름 추가는 기본 꺼짐이며 모든 팔레트에서 공유 저장합니다. 직접 입력 코드에 파일명을 만들지 않습니다. 검색 때만 키 입력을 받고 실행 시 Illustrator로 돌아갑니다."
+}.items():
+    HELP[lang] += "\n\n" + note + "\n"

@@ -4,7 +4,9 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''info.selected|選択しているアイテム|Selected Items|所选项目|선택한 항목
+rows = '''source.path|パス|Path|路径|경로
+palette.filenames|ファイル名を追加|Include Filenames|添加文件名|파일 이름 추가
+info.selected|選択しているアイテム|Selected Items|所选项目|선택한 항목
 info.group|選択しているグループ|Selected Group|所选分组|선택한 그룹
 info.all|すべて|All|全部|모두
 divider.title|区切り|Divider|分隔线|구분선

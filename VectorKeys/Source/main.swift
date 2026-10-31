@@ -48,7 +48,7 @@ import Carbon
         guard !isDuplicate else { return }
 
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
-        SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "itemShowVersion", "itemShowFilename", "itemShowUses", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
+        SettingsSync.shared.start(.init(keys: ["hotkeysEnabled", "showUses", "itemShowVersion", "itemShowFilename", "itemShowUses", "paletteShowFilenames", "sortOrder"], note: L("sharing.note"), perMac: L("sharing.perMac")))
         model.showPalette = { [weak self] in self?.palettes.show($0) }
         model.paletteRenamed = { [weak self] in self?.palettes.rename($0, to: $1) }
         buildMenus()

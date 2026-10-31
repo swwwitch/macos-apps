@@ -381,4 +381,13 @@ let nameRoundTrip = try JSONDecoder().decode(ScriptEntry.self, from: JSONEncoder
 check(nameRoundTrip.userRenamed == true, "manual-name marker persists")
 try FileManager.default.removeItem(at: migrationFile)
 
+
+let searchable = ScriptEntry(path: "/s/InvoiceFromClipboard.jsx", name: "Japanese display")
+var searchDivider = ScriptEntry(steps: [], name: "Invoice section", enabled: false); searchDivider.divider = true
+let directSearch = ScriptEntry(steps: [.code(source: "alert(1)")], name: "Other")
+check(PaletteSearch.filter([searchable, searchDivider, directSearch], query: "invoice").map(\.id) == [searchable.id], "palette searches filename and excludes divider")
+check(PaletteSearch.filter([searchable], query: "JAPANESE").count == 1, "palette name search ignores case")
+check(PaletteSearch.filter([searchable, searchDivider], query: "  ").count == 2, "empty search restores divider")
+check(PaletteSearch.filter([directSearch], query: "missing").isEmpty, "no invented filename for inline code")
+
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

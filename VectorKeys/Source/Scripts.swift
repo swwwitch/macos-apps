@@ -659,3 +659,14 @@ struct StatisticsRow: Identifiable {
         }
     }
 }
+
+
+enum PaletteSearch {
+    static func filter(_ scripts: [ScriptEntry], query: String) -> [ScriptEntry] {
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return scripts }
+        return scripts.filter { script in
+            !script.isDivider && (script.name.localizedCaseInsensitiveContains(query) || script.actions.compactMap(\.scriptPath).contains { ($0 as NSString).lastPathComponent.localizedCaseInsensitiveContains(query) })
+        }
+    }
+}

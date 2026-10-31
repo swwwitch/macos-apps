@@ -127,3 +127,6 @@ A progress bar and processed-file count appear in the main window while updating
 
 
 Tools > Update Script Information offers Selected Items (multiple allowed), Selected Group and All. Empty targets are disabled. Progress counts the target files. Name changes stay within the chosen scope. Legacy filename-derived names can adopt SCRIPT_DESCRIPTION_JA; different legacy names and explicit manual names stay unchanged, even when a manual name equals the filename.
+
+
+The item detail pane uses compact rows. Save tags with Return or the checkmark button. Click to expand paths and script information. The Hotkey Help disclosure is removed. Search palette items by display name or filename. Dividers are hidden during a search and return when cleared. Include Filenames adds filenames below item names (off by default; saved across palettes). Inline code has no invented filename. The palette accepts keyboard focus for search and returns interaction to Illustrator when running an item.
