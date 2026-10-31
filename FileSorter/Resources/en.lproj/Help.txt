@@ -39,3 +39,7 @@ With Keep running after closing the window on, watching continues after the wind
 - Nothing is moved: check that Sort and the rule are on, the watched folder and name conditions match, and the reason in Recent Activity.
 - “The destination folder is missing”: the destination was moved or deleted. Edit the rule and choose it again.
 - A file was moved by mistake: move it back from the destination folder. FileSorter never deletes files.
+
+
+Renames new PNGs using dimensions, DPI and time. Existing files are untouched automatically. Collisions get a number. Disable ShotSorter monitoring for the same folders first. Sorting rules run after automatic renaming. Original names cannot be restored automatically.
+{width} / {height} / {dpi} / {date}

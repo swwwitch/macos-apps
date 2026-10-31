@@ -15,6 +15,10 @@ struct Activity: Identifiable {
     var onWatchChange: (() -> Void)?
     @Published var sortEnabled = UserDefaults.standard.object(forKey: "sortEnabled") as? Bool ?? true { didSet { defaults.set(sortEnabled, forKey: "sortEnabled"); onWatchChange?() } }
     @Published var rules: [SortRule] = Model.loadRules() { didSet { if let data = try? JSONEncoder().encode(rules) { defaults.set(data, forKey: "rules") }; onWatchChange?() } }
+    @Published var shotEnabled = UserDefaults.standard.bool(forKey: "shotEnabled") { didSet { defaults.set(shotEnabled, forKey: "shotEnabled"); onWatchChange?() } }
+    @Published var shotFolders = WatchFolders.migrate(UserDefaults.standard) { didSet { defaults.set(shotFolders, forKey: "shotFolders"); onWatchChange?() } }
+    @Published var nameTemplate = UserDefaults.standard.string(forKey: "nameTemplate") ?? ShotNaming.defaultTemplate { didSet { defaults.set(nameTemplate, forKey: "nameTemplate") } }
+    static var screenshotLocation: String { WatchFolders.migrate(UserDefaults.standard).first ?? NSHomeDirectory() + "/Desktop" }
     // Notifications (B32: off until the user turns them on)
     @Published var notify = UserDefaults.standard.bool(forKey: "notify") { didSet { defaults.set(notify, forKey: "notify") } }
     @Published var activity: [Activity] = []
@@ -53,10 +57,12 @@ struct Activity: Identifiable {
 @MainActor final class Engine {
     let model: Model
     private var watchers: [String: FolderWatcher] = [:]
+    private var produced: Set<String> = []
     init(model: Model) { self.model = model }
 
     func refreshWatchers() {
-        let wanted = model.sortEnabled ? Set(model.rules.filter(\.enabled).map(\.folder)) : []
+        var wanted = model.sortEnabled ? Set(model.rules.filter(\.enabled).map { WatchFolders.canonical($0.folder) }) : []
+        if model.shotEnabled { wanted.formUnion(model.shotFolders.map(WatchFolders.canonical)) }
         for (path, watcher) in watchers where !wanted.contains(path) { watcher.stop(); watchers[path] = nil }
         for path in wanted where watchers[path] == nil {
             if let watcher = FolderWatcher(url: URL(fileURLWithPath: path), onNew: { [weak self] url in self?.handle(url) }) {
@@ -71,11 +77,34 @@ struct Activity: Identifiable {
     /// The first enabled rule for this folder whose condition matches.
     func rule(for url: URL) -> SortRule? {
         let folder = url.deletingLastPathComponent().path
-        return model.rules.first { $0.folder == folder && $0.matches(url.lastPathComponent) }
+        return model.rules.first { WatchFolders.canonical($0.folder) == WatchFolders.canonical(folder) && $0.matches(url.lastPathComponent) }
     }
     private func handle(_ url: URL) {
-        guard model.sortEnabled, let rule = rule(for: url) else { return }
-        move(url, rule)
+        if produced.remove(url.path) != nil { return }
+        var file = url
+        if model.shotEnabled, model.shotFolders.map(WatchFolders.canonical).contains(WatchFolders.canonical(url.deletingLastPathComponent().path)), ShotNaming.isCandidate(url.lastPathComponent) {
+            file = renameShot(url) ?? url
+        }
+        if model.sortEnabled, let rule = rule(for: file) { move(file, rule) }
+    }
+
+    @discardableResult func renameShot(_ url: URL) -> URL? {
+        guard url.pathExtension.lowercased() == "png", let info = ImageReader.info(url) else {
+            model.log("exclamationmark.triangle", String(format: L("log.notImage"), url.lastPathComponent), error: true); return nil
+        }
+        let name = ShotNaming.name(template: model.nameTemplate, info: info, date: Date())
+        if name == url.lastPathComponent { return url }
+        let target = ShotNaming.unique(name, in: url.deletingLastPathComponent())
+        do {
+            if watchers[WatchFolders.canonical(target.deletingLastPathComponent().path)] != nil { produced.insert(target.path) }
+            try FileManager.default.moveItem(at: url, to: target)
+            model.log("pencil", String(format: L("log.renamed"), target.lastPathComponent))
+            return target
+        } catch {
+            produced.remove(target.path)
+            model.log("exclamationmark.triangle", String(format: L("log.renameFailed"), url.lastPathComponent, error.localizedDescription), error: true)
+            return nil
+        }
     }
 
     /// Files already in the watched folders that a rule would move now (for 今あるファイルを振り分ける).
@@ -154,7 +183,7 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
         buildMenus()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 560), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "FileSorter"; window.titleVisibility = .hidden
-        let host = GrowingHostingView(rootView: MainView(model: model, sortExisting: { [weak self] in self?.engine.sortExisting() }))
+        let host = GrowingHostingView(rootView: MainView(model: model, renameFiles: { [weak self] in self?.renameFiles() }, sortExisting: { [weak self] in self?.engine.sortExisting() }))
         host.sizingOptions = [.minSize]
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
@@ -171,6 +200,11 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
     }
     func applicationWillTerminate(_ notification: Notification) { engine.stop() }
 
+    @objc func renameFiles() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.png]; panel.allowsMultipleSelection = true
+        guard panel.runModal() == .OK else { return }
+        for url in panel.urls { engine.renameShot(url) }
+    }
     @objc func sortExisting() { show(); engine.sortExisting() }
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
@@ -218,6 +252,7 @@ final class GrowingHostingView<Content: View>: NSHostingView<Content> {
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("sortExistingMenu"), #selector(sortExisting), "")
+        add(file, L("renameFiles"), #selector(renameFiles), "")
         file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let edit = NSMenu(title: L("editMenu")); let editItem = NSMenuItem(title: L("editMenu"), action: nil, keyEquivalent: ""); editItem.submenu = edit; bar.addItem(editItem)

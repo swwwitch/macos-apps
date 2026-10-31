@@ -169,3 +169,7 @@ FileSorter > 설정…(⌘,)으로 엽니다.
 - 잘못 이동함: 이동할 곳의 폴더에서 되돌려 놓으세요. FileSorter는 파일을 삭제하지 않습니다.
 """,
 }
+
+# Screenshot naming port (no OCR).
+EXTRA = {'ja': '新しいPNGを幅・高さ・解像度・日時で改名します。既存ファイルは自動処理しません。同名は番号を付けます。ShotSorterで同じフォルダーの監視をOFFにしてから有効にしてください。自動改名後に振り分けルールを適用します。元の名前への取り消しはできません。', 'en': 'Renames new PNGs using dimensions, DPI and time. Existing files are untouched automatically. Collisions get a number. Disable ShotSorter monitoring for the same folders first. Sorting rules run after automatic renaming. Original names cannot be restored automatically.', 'zh-Hans': '按尺寸、DPI和时间重命名新PNG。不会自动处理已有文件。同名时添加编号。请先关闭ShotSorter对相同文件夹的监视。自动重命名后应用分类规则。无法自动恢复原名。', 'ko': '새 PNG를 크기, DPI, 시간으로 변경합니다. 기존 파일은 자동 처리하지 않습니다. 같은 이름에는 번호를 붙입니다. 먼저 ShotSorter의 같은 폴더 감시를 끄세요. 자동 변경 후 분류 규칙을 적용합니다. 원래 이름은 자동 복원할 수 없습니다.'}
+for lang in HELP: HELP[lang] += "\n\n" + EXTRA[lang] + "\n{width} / {height} / {dpi} / {date}\n"

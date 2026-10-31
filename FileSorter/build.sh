@@ -17,7 +17,7 @@ xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-pa
   -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices -framework UserNotifications "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Accessibility/AccessibilityPermission.swift ../Shared/Notifications/NotificationPreferences.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
-  Source/{Rules,FolderWatcher,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/FileSorter"
+  Source/{Rules,Naming,ImageReader,FolderWatcher,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/FileSorter"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

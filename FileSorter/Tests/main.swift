@@ -20,4 +20,9 @@ let taken: Set<String> = ["/tmp/x/a.pdf", "/tmp/x/a 2.pdf"]
 check(FileNames.unique("a.pdf", in: URL(fileURLWithPath: "/tmp/x"), exists: { taken.contains($0.path) }).lastPathComponent == "a 3.pdf", "unique")
 check(FileNames.unique("folder", in: URL(fileURLWithPath: "/tmp/x"), exists: { $0.lastPathComponent == "folder" }).lastPathComponent == "folder 2", "unique without extension")
 
+let info = ImageInfo(width: 1920, height: 1080, dpi: 144)
+check(ShotNaming.name(template: "ss-{width}-{height}-{dpi}", info: info, date: Date()) == "ss-1920-1080-144.png", "image tokens")
+check(!ShotNaming.isCandidate("ss-test.png") && ShotNaming.isCandidate("Screenshot.PNG"), "candidate filtering")
+check(ShotNaming.name(template: "a/b:c", info: info, date: Date()) == "a-b-c.png", "safe filename")
+check(WatchFolders.normalize(["/tmp/a", "/tmp/a/../a"]).count == 1, "canonical deduplication")
 if failures == 0 { print("PASS: sort rules, partial files, unique names") } else { print("\(failures) failure(s)"); exit(1) }

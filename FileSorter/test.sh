@@ -4,7 +4,7 @@ set -euo pipefail
 cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/FileSorter-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
-xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Rules.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Rules.swift Source/Naming.swift Tests/main.swift -o "$stage/tests"
 "$stage/tests"
 python3 make-resources.py >/dev/null
 python3 - <<'PY'

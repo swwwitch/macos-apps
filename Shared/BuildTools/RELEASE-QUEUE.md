@@ -1028,3 +1028,15 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### VectorKeys 基本設計変更 検証結果（2026-11-01 JST）
 - 1.16.0（27）検証ビルド・証明書署名・codesign deep/strict・単体／Runner／4言語検証PASS。コンポーネント共有・アクション構成・旧データ保全移行・最近使った10件を実装。対象SHAは本記録を含む確定コミット。VectorKeys/Tests/BUILD-NOTES-20261101-components.mdを参照。起動・実機UI・Illustrator実行は未確認。公証・配布なし。
+
+## FileSorter スクリーンショット改名機能の移植（2026-11-01受付）
+- 要望：ShotSorterのスクリーンショット改名機能をFileSorterへ移植する。既存の命名処理・関連設定・監視と手動実行の導線・衝突回避・翻訳・ヘルプを確認し、FileSorterの既存の振り分け処理と設定を保持して統合する。
+- ShotSorter側の改名機能の削除は今回明示されていないため、削除範囲は未確定。文字認識機能の独立アプリ化とは別の要望として管理し、両アプリの監視による二重処理を実装時に確認する。
+- 元チャット：本チャット（FileSorter、チャットID未確認）。状態：受付・未実装。「ビルドを更新」または毎日04:00（Asia/Tokyo）の開始条件で着手。担当Mac・ブランチ・対象SHA・版・build・開始日時は着手時に記録する。今回の実装・ビルド・配布は未実施。
+
+
+### FileSorter 改名機能移植 開発開始（2026-11-01 JST）
+- 担当：開発Mac MacBook-Pro-14-2024-sw.local。ブランチmain、基点9068227c96152f37521313108259c886670d5fc6、対象SHAは確定時に記録。状態：実装中。開始日：2026-11-01（JST、時刻未確認）。通常版の改名機能・設定・4言語ヘルプ・検証ビルドを作成する。既存の他アプリの未コミット変更を保持。公証・配置は公証Macへ引き継ぐ。
+
+### FileSorter 改名機能移植 開発検証結果（2026-11-01 JST）
+- 通常版1.1.0（3）、開発Mac MacBook-Pro-14-2024-sw.local。ブランチcodex/filesorter-screenshot-rename-20261101。対象SHAは本記録を含む確定コミット。test.sh・test-engine.sh・NO_DEPLOY=1ビルド・署名検証PASS。詳細：FileSorter/Tests/BUILD-NOTES-20261101.md。実機UI・公証・配置・公開は未実施。公証Macへ同じ版・buildで引き継ぐ。

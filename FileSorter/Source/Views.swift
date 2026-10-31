@@ -19,6 +19,7 @@ func displayPath(_ path: String) -> String { (path as NSString).abbreviatingWith
 
 struct MainView: View {
     @ObservedObject var model: Model
+    let renameFiles: () -> Void
     let sortExisting: () -> Void
     @State private var editing: SortRule?
     @State private var isNew = false
@@ -59,6 +60,7 @@ struct MainView: View {
                 Button { if let selection { delete(selection) } } label: { Image(systemName: "minus") }.disabled(selection == nil).help(L("delete")).accessibilityLabel(L("delete"))
                 Button(L("edit")) { if let selection { edit(selection) } }.disabled(selection == nil)
                 Spacer()
+                Button(L("renameFiles"), action: renameFiles)
                 Button(L("sortExistingMenu"), action: sortExisting).help(L("sortExistingHint"))
             }
             Text(L("sort.detail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -165,9 +167,49 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-        })), (NotificationPreferences.title, AnyView(SettingsSection(NotificationPreferences.title) {
+        })), (L("renameTitle"), AnyView(SettingsSection(L("renameTitle")) { ScreenshotSettingsView(model: model) })), (NotificationPreferences.title, AnyView(SettingsSection(NotificationPreferences.title) {
             NotificationPermissionView(enabled: $model.notify, toggleTitle: L("notifyToggle"))
         })), (AboutSection.title, AnyView(AboutView()))])
             .frame(minWidth: 560, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
     }
 }
+
+struct ScreenshotSettingsView: View {
+    @ObservedObject var model: Model
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle(L("shot.enabled"), isOn: $model.shotEnabled)
+            Text(L("shot.folders")).font(.subheadline)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(model.shotFolders, id: \.self) { path in
+                        HStack {
+                            Text(displayPath(path)).lineLimit(1).truncationMode(.middle).help(path)
+                            Spacer()
+                            Button { NSWorkspace.shared.open(URL(fileURLWithPath: path)) } label: { Image(systemName: "arrow.up.forward.app") }
+                                .accessibilityLabel(L("openFolder"))
+                            Button(L("removeFolder")) { model.shotFolders.removeAll { $0 == path } }
+                        }
+                    }
+                }
+            }.frame(height: min(CGFloat(model.shotFolders.count) * 30, 150))
+            Button(L("addFolder")) {
+                if let path = chooseFolder(model.shotFolders.first ?? Model.screenshotLocation) {
+                    model.shotFolders = WatchFolders.normalize(model.shotFolders + [path])
+                }
+            }
+            HStack {
+                Text(L("shot.template"))
+                TextField("", text: $model.nameTemplate).font(.system(.body, design: .monospaced)).accessibilityLabel(L("shot.template"))
+                Button(L("resetDefault")) { model.nameTemplate = ShotNaming.defaultTemplate }.disabled(model.nameTemplate == ShotNaming.defaultTemplate)
+            }
+            Text(L("shot.templateHint") + "  " + ShotNaming.name(template: model.nameTemplate, info: ImageInfo(width: 1920, height: 1080, dpi: 144), date: Date()))
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            DisclosureGroup(L("explanation")) {
+                Text(L("shot.detail")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+}
+
