@@ -1,3 +1,9 @@
+"workspace.switch" = "Workspace";
+"actions.title" = "Actions";
+"components.edit" = "Edit Component";
+"components.detach" = "Remove from Action";
+"components.missing" = "Component Missing";
+"components.deleteHint" = "Referenced components cannot be deleted. Original files are kept.";
 "components.title" = "Components";
 "components.choose" = "Add Registered Component…";
 "components.attach" = "Add to Action";

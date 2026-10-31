@@ -4,7 +4,13 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''components.title|コンポーネント|Components|组件|컴포넌트
+rows = '''workspace.switch|編集画面|Workspace|编辑界面|편집 화면
+actions.title|アクション|Actions|动作|액션
+components.edit|コンポーネントを編集|Edit Component|编辑组件|컴포넌트 편집
+components.detach|アクションから外す|Remove from Action|从动作移除|액션에서 제거
+components.missing|コンポーネントが見つかりません|Component Missing|找不到组件|컴포넌트 없음
+components.deleteHint|アクションで使用中のコンポーネントは削除できません。元のファイルは削除しません。|Referenced components cannot be deleted. Original files are kept.|不能删除被动作引用的组件。保留原始文件。|액션에서 사용 중인 컴포넌트는 삭제할 수 없습니다. 원본 파일은 유지합니다.
+components.title|コンポーネント|Components|组件|컴포넌트
 components.choose|登録済みコンポーネントから追加…|Add Registered Component…|添加已注册组件…|등록된 컴포넌트 추가…
 components.attach|アクションに追加|Add to Action|添加到动作|액션에 추가
 components.shared|変更は、このコンポーネントを使うすべてのアクションに反映されます。参照中のコンポーネントは削除できません。|Changes affect all actions using this component. Referenced components cannot be deleted.|更改会影响使用此组件的所有动作。不能删除被引用的组件。|변경은 이 컴포넌트를 사용하는 모든 액션에 반영됩니다. 참조 중인 컴포넌트는 삭제할 수 없습니다.

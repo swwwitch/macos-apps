@@ -1,3 +1,9 @@
+"workspace.switch" = "编辑界面";
+"actions.title" = "动作";
+"components.edit" = "编辑组件";
+"components.detach" = "从动作移除";
+"components.missing" = "找不到组件";
+"components.deleteHint" = "不能删除被动作引用的组件。保留原始文件。";
 "components.title" = "组件";
 "components.choose" = "添加已注册组件…";
 "components.attach" = "添加到动作";

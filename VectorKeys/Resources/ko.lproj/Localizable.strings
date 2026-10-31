@@ -1,3 +1,9 @@
+"workspace.switch" = "편집 화면";
+"actions.title" = "액션";
+"components.edit" = "컴포넌트 편집";
+"components.detach" = "액션에서 제거";
+"components.missing" = "컴포넌트 없음";
+"components.deleteHint" = "액션에서 사용 중인 컴포넌트는 삭제할 수 없습니다. 원본 파일은 유지합니다.";
 "components.title" = "컴포넌트";
 "components.choose" = "등록된 컴포넌트 추가…";
 "components.attach" = "액션에 추가";

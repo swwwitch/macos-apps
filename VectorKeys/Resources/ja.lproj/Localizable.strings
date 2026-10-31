@@ -1,3 +1,9 @@
+"workspace.switch" = "編集画面";
+"actions.title" = "アクション";
+"components.edit" = "コンポーネントを編集";
+"components.detach" = "アクションから外す";
+"components.missing" = "コンポーネントが見つかりません";
+"components.deleteHint" = "アクションで使用中のコンポーネントは削除できません。元のファイルは削除しません。";
 "components.title" = "コンポーネント";
 "components.choose" = "登録済みコンポーネントから追加…";
 "components.attach" = "アクションに追加";

@@ -422,7 +422,9 @@ try! Data(old.utf8).write(to: legacyFile)
 let migrationResult = Library.load(from: legacyFile)
 let backupFile = legacyFile.deletingPathExtension().appendingPathExtension("pre-components.json")
 check((try? Data(contentsOf: backupFile)) == Data(old.utf8) && migrationResult.version == 2, "migration backs up exact original bytes")
-try? FileManager.default.removeItem(at: legacyFile); try? FileManager.default.removeItem(at: backupFile)
+let workspaceBackup = legacyFile.deletingPathExtension().appendingPathExtension("pre-workspaces.json")
+check((try? Data(contentsOf: workspaceBackup)) == Data(old.utf8), "workspace migration preserves original bytes")
+try? FileManager.default.removeItem(at: legacyFile); try? FileManager.default.removeItem(at: backupFile); try? FileManager.default.removeItem(at: workspaceBackup)
 
 // Exercise the same writeback observer as AppModel, including attaching an identical step twice.
 struct ObservedLibrary {
@@ -437,4 +439,44 @@ observed.library.components![sharedIndex].step = .code(source: "changed")
 check(observed.library.scripts[0].actions == [.code(source: "changed"), .code(source: "changed")], "observer propagates shared component mutation")
 observed.library.scripts[0].actions.removeLast()
 check(observed.library.scripts[0].componentIDs?.count == 1, "observer detaches without deleting component")
+// Independent component organization must never rewrite action groups or palette bindings.
+var separated = componentMigration
+separated.componentCategories = nil
+separated.scripts[0].category = "Original"
+separated.categories = ["Original"]
+separated.paletteHotkeys = ["Original": key]
+separated.paletteEnabled = ["Original": true]
+let originalActions = separated.scripts
+separated.reconcileComponents()
+check(separated.scripts == originalActions && separated.componentCategoryList == ["Original"], "organization migration preserves actions and imports classification")
+let ownerComponent = separated.scripts[0].componentIDs![0]
+separated.renameComponentCategory("Original", to: "Components only")
+check(separated.components?.first(where: { $0.id == ownerComponent })?.category == "Components only" && separated.scripts[0].category == "Original" && separated.paletteHotkeys?["Original"] == key, "component rename leaves action and palette unchanged")
+separated.deleteComponentCategory("Components only")
+check(separated.components?.first(where: { $0.id == ownerComponent })?.category == nil && separated.scripts == originalActions, "component group deletion keeps definitions and actions")
+var componentScan = WatchedScripts.Scan()
+componentScan.files["/watched/one.jsx"] = ["sub"]
+componentScan.groups = ["sub"]
+componentScan.fileGroups["/watched/one.jsx"] = ["sub"]
+let actionCount = separated.scripts.count
+check(WatchedScripts.merge(componentScan, into: &separated, autoGroup: true, componentsOnly: true) == 1 && separated.scripts.count == actionCount, "watch import creates component without action")
+check(separated.components?.last?.category == "sub", "watch classification belongs to component")
+// Identical code in distinct definitions retains reference identity when reordered, removed or undone.
+var equalDefinitions = Library()
+let c1 = Component(name: "First", step: .code(source: "same")), c2 = Component(name: "Second", step: .code(source: "same"))
+equalDefinitions.components = [c1, c2]
+var referenceAction = ScriptEntry(steps: [.code(source: "same"), .code(source: "same")], name: "Action")
+referenceAction.componentIDs = [c1.id, c2.id]
+equalDefinitions.scripts = [referenceAction]; equalDefinitions.reconcileComponents()
+let beforeReferenceMove = equalDefinitions
+equalDefinitions.moveComponentReference(actionID: referenceAction.id, from: 0, by: 1)
+equalDefinitions.reconcileComponents(previous: beforeReferenceMove)
+check(equalDefinitions.scripts[0].componentIDs == [c2.id, c1.id], "reordering equal code retains exact reference IDs")
+let beforeReferenceRemove = equalDefinitions
+equalDefinitions.removeComponentReference(actionID: referenceAction.id, at: 0)
+equalDefinitions.reconcileComponents(previous: beforeReferenceRemove)
+check(equalDefinitions.scripts[0].componentIDs == [c1.id] && equalDefinitions.components?.count == 2, "remove detaches exact ID and keeps definitions")
+let afterReferenceRemove = equalDefinitions
+equalDefinitions = beforeReferenceRemove; equalDefinitions.reconcileComponents(previous: afterReferenceRemove)
+check(equalDefinitions.scripts[0].componentIDs == [c2.id, c1.id], "undo preserves exact reference IDs")
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

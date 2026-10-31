@@ -129,17 +129,27 @@ struct StepsEditor: View {
     @State private var showComponents = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L("components.shared")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             if script.actions.isEmpty { Text(L("steps.empty")).foregroundColor(.secondary) }
-            ForEach(Array(script.actions.enumerated()), id: \.offset) { index, step in
-                StepRow(model: model, script: script, index: index, step: step)
+            ForEach(Array((script.componentIDs ?? []).enumerated()), id: \.offset) { index, id in
+                HStack(alignment: .top) {
+                    Text("\(index + 1)").font(.caption).foregroundColor(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(model.library.components?.first { $0.id == id }?.name ?? L("components.missing"))
+                        if let path = model.library.components?.first(where: { $0.id == id })?.step.scriptPath {
+                            Text(path).font(.caption).foregroundColor(.secondary).lineLimit(2).truncationMode(.middle).textSelection(.enabled).help(path)
+                        }
+                    }
+                    Spacer()
+                    Menu {
+                        Button(L("components.edit")) { model.componentFilter = AppModel.allCategories; model.componentSelection = id; model.editingComponents = true }
+                        Divider()
+                        Button(L("moveUp")) { model.moveStep(script.id, from: index, by: -1) }.disabled(index == 0)
+                        Button(L("moveDown")) { model.moveStep(script.id, from: index, by: 1) }.disabled(index + 1 == script.actions.count)
+                        Button(L("components.detach")) { model.removeStep(script.id, at: index) }
+                    } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).fixedSize()
+                }.padding(8).background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .controlBackgroundColor)))
             }
-            Menu {
-                Button(L("components.choose")) { showComponents = true }
-                Divider()
-                Button(L("step.addScript")) { model.addScriptSteps(to: script.id) }
-                Button(L("code.add")) { model.addStep(.code(source: ""), to: script.id) }
-            } label: { Label(L("ui.addStep"), systemImage: "plus") }
+            Button { showComponents = true } label: { Label(L("components.choose"), systemImage: "plus") }
             .fixedSize().menuStyle(.borderlessButton).font(.caption).foregroundColor(.secondary)
             .padding(.top, 2)
             if script.hasUnsupportedSteps {
@@ -519,7 +529,6 @@ struct MainView: View {
     @State private var confirmDelete = false
     @State private var dropTargeted = false
     @State private var showRecent = false
-    @State private var showComponentLibrary = false
     @AppStorage("sortOrder") private var sortOrder = SortOrder.manual.rawValue
 
     var body: some View {
@@ -532,18 +541,20 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(L("heading")).font(.system(size: 18, weight: .semibold))
                     Text(L("ui.subtitle")).font(.caption).foregroundStyle(.secondary)
-                    HStack {
-                        Button(L("components.title")) { showComponentLibrary = true }
-                        Button(L("action.new")) { model.newAction() }
-                    }.controlSize(.small)
                 }
                 Spacer(minLength: 12)
+                if !model.editingComponents {
                 VStack(alignment: .trailing, spacing: 4) {
                     Toggle(L("useHotkeys"), isOn: $model.hotkeysEnabled).toggleStyle(.switch).controlSize(.small).help(L("useHotkeysHint"))
                     Label(L(model.illustratorFront ? "state.front" : "state.back"), systemImage: model.illustratorFront ? "circle.fill" : "circle")
                         .font(.caption2).foregroundColor(.secondary).help(L("state.hint"))
                 }
             }
+            }
+            Picker(L("workspace.switch"), selection: $model.editingComponents) {
+                Text(L("components.title")).tag(true)
+                Text(L("actions.title")).tag(false)
+            }.pickerStyle(.segmented).frame(width: 300)
             if model.updatingInformation {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack {
@@ -556,11 +567,13 @@ struct MainView: View {
                 }
             }
             Group {
-                if model.library.scripts.isEmpty && model.library.categoryList.isEmpty {
+                if model.editingComponents {
+                    ComponentWorkspace(model: model)
+                } else if model.library.scripts.isEmpty && model.library.categoryList.isEmpty {
                     VStack(spacing: 10) {
                         Image(systemName: "doc.badge.plus").font(.system(size: 32)).foregroundColor(.secondary).accessibilityHidden(true)
                         Text(L("empty")).foregroundColor(.secondary).multilineTextAlignment(.center)
-                        Button(L("addMenu")) { model.chooseFiles() }.keyboardShortcut(.defaultAction)
+                        Button(L("action.new")) { model.newAction() }.keyboardShortcut(.defaultAction)
                         Button(L("code.add")) { model.addCode() }
                     Button(L("divider.add")) { model.addDivider() }
                     }
@@ -640,7 +653,6 @@ struct MainView: View {
         .frame(minWidth: 940, minHeight: 540)
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
-        .sheet(isPresented: $showComponentLibrary) { ComponentLibraryView(model: model, actionID: nil) }
         .sheet(isPresented: $model.showReplace) { ReplaceNamesSheet(model: model) }
         .confirmationDialog(L("deleteConfirm"), isPresented: $confirmDelete) {
             Button(L("delete"), role: .destructive) { model.delete(model.selection) }
@@ -721,8 +733,7 @@ struct MainView: View {
             HStack {
                 // The same frame for both symbols: "minus" is shorter than "plus" and would make a lower button.
                 Menu {
-                    Button(L("addMenu")) { model.chooseFiles() }
-                    Button(L("code.add")) { model.addCode() }
+                    Button(L("action.new")) { model.newAction() }
                     Button(L("divider.add")) { model.addDivider() }
                 } label: { Image(systemName: "plus").frame(width: 16, height: 16) }
                     .help(L("addMenu")).accessibilityLabel(L("addMenu"))
@@ -1075,50 +1086,151 @@ struct ComponentLibraryView: View {
     @State private var search = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(L("components.title")).font(.headline)
-                Spacer()
-                Button(L("close")) { dismiss() }
-            }
-            Text(L("components.shared")).font(.caption).foregroundColor(.secondary)
+            Text(L("components.choose")).font(.headline)
             TextField(L("search"), text: $search).textFieldStyle(.roundedBorder)
-            HSplitView {
-                List(selection: $selected) {
-                    ForEach((model.library.components ?? []).filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) }) { component in
-                        Text(component.name).tag(component.id)
-                    }
-                }.frame(minWidth: 190)
-                if let id = selected, let component = model.library.components?.first(where: { $0.id == id }) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        TextField(L("name"), text: Binding(get: { component.name }, set: { value in
-                            if let i = model.library.components?.firstIndex(where: { $0.id == id }), !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { model.library.components![i].name = value }
-                        })).textFieldStyle(.roundedBorder)
-                        let count = model.library.scripts.filter { $0.componentIDs?.contains(id) == true }.count
-                        Text(String(format: L("components.references"), count)).font(.caption).foregroundColor(.secondary)
-                        switch component.step {
-                        case .code(let source):
-                            TextEditor(text: Binding(get: { source }, set: { model.updateComponent(id, step: .code(source: $0)) }))
-                                .font(.system(size: 12, design: .monospaced))
-                        case .script(let path):
-                            Text(path).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
-                            Button(L("source.open")) { model.openSource(path) }.disabled(!component.step.exists || (path as NSString).pathExtension.lowercased() == "jsxbin")
-                        default: Text(L("legacy.unsupported"))
-                        }
-                        Spacer()
-                        HStack {
-                            Button(L("delete")) { model.deleteComponent(id); selected = nil }.disabled(count > 0)
-                            Spacer()
-                            if let actionID {
-                                Button(L("components.attach")) { model.attachComponent(component, to: actionID); dismiss() }
-                            }
-                        }
-                    }.padding(10).frame(minWidth: 340)
-                } else { Text(L("components.select")).foregroundColor(.secondary).frame(minWidth: 340, maxHeight: .infinity) }
+            List(selection: $selected) {
+                ForEach((model.library.components ?? []).filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) }) { component in
+                    VStack(alignment: .leading) {
+                        Text(component.name)
+                        if let path = component.step.scriptPath { Text(path).font(.caption).foregroundColor(.secondary).lineLimit(1).truncationMode(.middle) }
+                    }.tag(component.id)
+                }
             }
             HStack {
-                Button(L("step.addScript")) { model.registerComponent(code: false) }
-                Button(L("code.add")) { model.registerComponent(code: true); selected = model.library.components?.last?.id }
+                Button(L("cancel")) { dismiss() }
+                Spacer()
+                Button(L("components.attach")) {
+                    if let actionID, let component = model.library.components?.first(where: { $0.id == selected }) { model.attachComponent(component, to: actionID); dismiss() }
+                }.disabled(selected == nil || actionID == nil)
             }
-        }.padding(20).frame(width: 760, height: 520)
+        }.padding(20).frame(width: 650, height: 460)
+    }
+}
+
+struct ComponentWorkspace: View {
+    @ObservedObject var model: AppModel
+    @State private var search = ""
+    @State private var confirmDelete = false
+    @State private var deleteGroup: String?
+    var body: some View {
+        ResizableColumns(
+            categories: AnyView(VStack(spacing: 6) {
+                List(selection: Binding(get: { model.componentFilter }, set: { if let value = $0 { model.componentFilter = value } })) {
+                    Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
+                    ForEach(model.library.componentCategoryList, id: \.self) { name in
+                        Label(name, systemImage: "folder").tag(name)
+                            .contextMenu {
+                                Button(L("category.rename")) { model.renameComponentCategory(name) }
+                                Button(L("category.delete")) { deleteGroup = name }
+                            }
+                    }
+                    Label(L("category.none"), systemImage: "tray").tag(AppModel.uncategorized)
+                }
+                HStack {
+                    Button { model.newComponentCategory() } label: { Image(systemName: "plus") }.help(L("category.new"))
+                    Button { deleteGroup = model.currentComponentCategory } label: { Image(systemName: "minus") }.disabled(model.currentComponentCategory == nil).help(L("category.delete"))
+                    Spacer()
+                }
+            }.padding(.trailing, 6)),
+            scripts: AnyView(VStack(spacing: 6) {
+                TextField(L("search"), text: $search).textFieldStyle(.roundedBorder)
+                List(selection: $model.componentSelection) {
+                    ForEach(model.componentsInCurrentGroup.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(search) }) { component in
+                        HStack {
+                            Text(component.name).lineLimit(2)
+                            Spacer()
+                            if !component.step.exists { Image(systemName: "exclamationmark.triangle").foregroundColor(.orange) }
+                        }.padding(4).background(RoundedRectangle(cornerRadius: 5).fill(component.tagColor?.displayColor.opacity(0.22) ?? .clear)).tag(component.id)
+                    }
+                }.onDeleteCommand { confirmDelete = true }
+                HStack {
+                    Menu {
+                        Button(L("step.addScript")) { model.registerComponent(code: false) }
+                        Button(L("code.add")) { model.registerComponent(code: true) }
+                    } label: { Image(systemName: "plus") }.fixedSize()
+                    Button { confirmDelete = true } label: { Image(systemName: "minus") }.disabled(!canDelete)
+                    Spacer()
+                    Text("\(model.componentsInCurrentGroup.count)").font(.caption).foregroundColor(.secondary)
+                }
+            }.padding(.horizontal, 6)),
+            detail: AnyView(Group {
+                if let component = model.library.components?.first(where: { $0.id == model.componentSelection }) {
+                    ComponentDetail(model: model, component: component)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(L("components.title")).font(.headline)
+                        Text(L("components.select")).foregroundColor(.secondary)
+                    }.padding(20).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                }
+            }.background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor))).padding(.leading, 6))
+        )
+        .confirmationDialog(L("deleteConfirm"), isPresented: $confirmDelete) {
+            Button(L("delete"), role: .destructive) { if canDelete, let id = model.componentSelection { model.deleteComponent(id); model.componentSelection = nil } }.disabled(!canDelete)
+            Button(L("cancel"), role: .cancel) {}
+        } message: { Text(L("components.deleteHint")) }
+        .confirmationDialog(L("category.delete"), isPresented: Binding(get: { deleteGroup != nil }, set: { if !$0 { deleteGroup = nil } })) {
+            Button(L("category.delete"), role: .destructive) { if let name = deleteGroup { model.deleteComponentCategory(name) }; deleteGroup = nil }
+            Button(L("cancel"), role: .cancel) { deleteGroup = nil }
+        } message: { Text(L("category.deleteDetail")) }
+    }
+    private var canDelete: Bool {
+        guard let id = model.componentSelection else { return false }
+        return !model.library.scripts.contains { $0.componentIDs?.contains(id) == true }
+    }
+}
+
+struct ComponentDetail: View {
+    @ObservedObject var model: AppModel
+    let component: Component
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                TextField(L("name"), text: Binding(get: { component.name }, set: { value in
+                    guard !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                    model.editComponent(component.id) { $0.name = value; $0.userRenamed = true }
+                })).textFieldStyle(.plain).font(.system(size: 16, weight: .semibold))
+                Picker(L("category"), selection: Binding(get: { component.category ?? "" }, set: { value in model.editComponent(component.id) { $0.category = value.isEmpty ? nil : value } })) {
+                    Text(L("category.none")).tag("")
+                    ForEach(model.library.componentCategoryList, id: \.self) { Text($0).tag($0) }
+                }.fixedSize()
+                Text(String(format: L("components.references"), model.library.scripts.filter { $0.componentIDs?.contains(component.id) == true }.count)).font(.caption).foregroundColor(.secondary)
+                DisclosureGroup(L("watch.help")) { Text(L("components.shared")).font(.caption).foregroundColor(.secondary) }
+                HStack {
+                    Text(L("item.color")).font(.caption).foregroundColor(.secondary)
+                    Button { model.editComponent(component.id) { $0.tagColor = nil } } label: { Image(systemName: "nosign") }.buttonStyle(.plain)
+                    ForEach(ItemTag.allCases, id: \.self) { color in
+                        Button { model.editComponent(component.id) { $0.tagColor = color } } label: {
+                            Circle().fill(color.displayColor.opacity(0.6)).overlay(Circle().strokeBorder(color.displayColor, lineWidth: component.tagColor == color ? 3 : 1)).frame(width: 18, height: 18)
+                        }.buttonStyle(.plain).help(L("color." + color.rawValue))
+                    }
+                }
+                TextField(L("tags.input"), text: Binding(get: { (component.tags ?? []).joined(separator: ", ") }, set: { value in
+                    model.editComponent(component.id) { $0.tags = value.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } }
+                })).textFieldStyle(.roundedBorder)
+                if let tags = component.folderTags, !tags.isEmpty { Text(L("tags.fromFolder") + tags.joined(separator: ", ")).font(.caption).foregroundColor(.secondary) }
+                switch component.step {
+                case .script(let path):
+                    Text((path as NSString).lastPathComponent).font(.headline)
+                    Text(path).font(.caption).foregroundColor(.secondary).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+                    HStack {
+                        Button(L("source.preview")) { model.showQuickLook?(URL(fileURLWithPath: path)) }
+                        Button(L("source.reveal")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }
+                        Button(L("source.open")) { model.openSource(path) }.disabled((path as NSString).pathExtension.lowercased() == "jsxbin")
+                    }.controlSize(.small).disabled(!component.step.exists)
+                    Button(L("relink")) { model.relinkComponent(component.id) }.controlSize(.small)
+                    if !component.step.exists { Text(L("badge.missingHint")).font(.caption).foregroundColor(.orange) }
+                case .code(let source):
+                    TextEditor(text: Binding(get: { source }, set: { model.updateComponent(component.id, step: .code(source: $0)) })).font(.system(size: 12, design: .monospaced)).frame(minHeight: 220)
+                    if !component.step.exists { Text(L("code.empty")).font(.caption).foregroundColor(.orange) }
+                default: Text(L("legacy.unsupported")).foregroundColor(.orange)
+                }
+                if let info = model.metadata(for: component.step) {
+                    if !info.summary.isEmpty { DisclosureGroup(L("meta.summary")) { Text(info.summary).font(.caption).textSelection(.enabled) } }
+                    DisclosureGroup(L("meta.info")) { MetadataFields(info: info, readme: component.step.scriptPath.flatMap { model.scriptReadmes[$0] }, codeURL: component.step.scriptPath.flatMap { model.scriptCodeURLs[$0] }) }
+                }
+                Text(L("meta.notes")).font(.caption).foregroundColor(.secondary)
+                TextEditor(text: Binding(get: { component.notes ?? "" }, set: { value in model.editComponent(component.id) { $0.notes = value } })).frame(minHeight: 70)
+            }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 }
