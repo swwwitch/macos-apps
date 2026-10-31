@@ -1,7 +1,11 @@
 # coding: utf-8
 # VectorKeys help (markup rendered by Shared/AppStandards/HelpDocument.swift). Keep the 4 languages parallel.
 HELP = {
- "ja": """## 基本操作
+ "ja": """## コンポーネントとアクション
+「コンポーネント」でスクリプトファイルまたはExtendScriptコードを登録します。「アクションを追加」でアクションを作り、右ペインの「コンポーネントを追加」から登録済みのものを追加します。上から順に実行し、エラーで停止します。同じコンポーネントは複数のアクションで再利用でき、コードや参照先の変更はすべての参照先へ反映されます。参照中のコンポーネントは削除できません。アクションを削除してもコンポーネントは残ります。ホットキーはアクションに設定し、グループごとにパレット表示できます。従来のファイル追加はコンポーネントと単一アクションを同時に登録します。
+旧データは初回読み込み時にScripts.pre-components.jsonへバックアップして移行します。「最近使ったスクリプト」は実行に成功したアクションを最新順に最大10個表示します。
+
+## 基本操作
 VectorKeysは、登録したスクリプト（.jsx）を、Illustratorが前面のときにキーボードショートカットで実行します。
 - ［ファイル］＞［スクリプトを追加…］（⌘O）でファイルを選ぶか、ウインドウへ .jsx ファイルをドラッグします。複数まとめて追加できます。
 - 一覧で選ぶと、右側にファイルの場所とショートカットの欄が出ます。ホットキー欄をクリックしてからキーを押すと割り当てます。
@@ -77,7 +81,10 @@ Keyboard Maestroで書き出したマクロ（.kmmacros）をウインドウへ�
 ## 削除と復元
 一覧で選んで－ボタン（またはdeleteキー）で削除します。ファイルそのものは消えません（Keyboard Maestroから取り込んだコードの .jsx だけは、ほかで使っていなければゴミ箱へ移します）。削除・名前の変更（ツール）・カテゴリの変更・取り込みは［編集］＞［取り消す］（⌘Z）で戻せます。すべて消すときは、アプリを終了してから Scripts.json を削除します。
 """,
- "en": """## Basics
+ "en": """## Components / Actions
+Components register script files or ExtendScript code. Add an Action and choose registered components in its detail pane; they run in order and stop on error. Components are shared: editing one affects all referencing actions. Referenced components cannot be deleted. Deleting an action keeps its components. Assign hotkeys to actions and show groups as palettes. Existing file import creates a component and a single-component action together. Old data is backed up to Scripts.pre-components.json before migration. Recently Used Scripts lists up to ten successfully run actions, newest first.
+
+## Basics
 VectorKeys runs your scripts (.jsx) with keyboard shortcuts while Illustrator is in front.
 - Choose File > Add Scripts… (⌘O), or drag .jsx files onto the window. You can add several at once.
 - Select a script to see its file and shortcut on the right. Click the hotkey field, then press the keys to assign.
@@ -153,7 +160,10 @@ Closing the window keeps the app running and the shortcuts working. Reopen it fr
 ## Removing and restoring
 Select a script and click − (or press Delete). The file itself is not deleted (only .jsx files saved from Keyboard Maestro code go to the Trash when nothing else uses them). Deleting, renaming with Tools, changing categories and importing can be undone with Edit > Undo (⌘Z). To clear everything, quit the app and delete Scripts.json.
 """,
- "zh-Hans": """## 基本操作
+ "zh-Hans": """## Components / Actions
+组件注册脚本文件或ExtendScript代码。添加动作后，在详情面板中添加已注册组件并按顺序执行，遇到错误停止。组件可复用，修改影响所有引用动作。被引用的组件不可删除。删除动作保留组件。快捷键设置在动作上，分组可显示为面板。旧数据迁移前备份到Scripts.pre-components.json。最近使用的脚本显示最多十个成功执行的动作。
+
+## 基本操作
 VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记的脚本（.jsx）。
 - 选择“文件”>“添加脚本…”（⌘O），或将 .jsx 文件拖到窗口中。可一次添加多个。
 - 在列表中选择脚本，右侧会显示文件位置和快捷键栏。点按快捷键栏后按下按键即可分配。
@@ -229,7 +239,10 @@ VectorKeys 在 Illustrator 位于前台时，用键盘快捷键运行已登记�
 ## 删除与恢复
 在列表中选择后点按 −（或按 Delete 键）删除。文件本身不会被删除（仅从 Keyboard Maestro 代码保存的 .jsx 在没有其他用途时移到废纸篓）。删除、用工具重命名、更改类别和导入可用“编辑”>“撤销”（⌘Z）还原。若要全部清除，请退出应用后删除 Scripts.json。
 """,
- "ko": """## 기본 조작
+ "ko": """## Components / Actions
+컴포넌트에 스크립트 파일 또는 ExtendScript 코드를 등록합니다. 액션을 추가하고 상세 패널에서 등록된 컴포넌트를 순서대로 추가합니다. 오류가 발생하면 중지합니다. 컴포넌트 변경은 모든 참조 액션에 반영됩니다. 참조 중인 컴포넌트는 삭제할 수 없습니다. 액션 삭제 후에도 컴포넌트는 남습니다. 액션에 단축키를 지정하고 그룹을 팔레트로 표시합니다. 이전 데이터는 Scripts.pre-components.json에 백업 후 이전합니다. 최근 사용한 스크립트는 성공한 액션 최대 열 개를 최신순으로 표시합니다.
+
+## 기본 조작
 VectorKeys는 Illustrator가 앞에 있을 때 등록한 스크립트(.jsx)를 키보드 단축키로 실행합니다.
 - [파일] > [스크립트 추가…](⌘O)로 파일을 선택하거나 윈도우로 .jsx 파일을 드래그합니다. 여러 개를 한 번에 추가할 수 있습니다.
 - 목록에서 선택하면 오른쪽에 파일 위치와 단축키 칸이 나타납니다. 단축키 칸을 클릭한 뒤 키를 누르면 지정됩니다.

@@ -1,3 +1,11 @@
+"components.title" = "Components";
+"components.choose" = "Add Registered Component…";
+"components.attach" = "Add to Action";
+"components.shared" = "Changes affect all actions using this component. Referenced components cannot be deleted.";
+"components.references" = "Used by %d actions";
+"components.select" = "Select a component.";
+"action.new" = "Add Action";
+"group.recent" = "Recently Used Scripts";
 "source.path" = "Path";
 "palette.filenames" = "Include Filenames";
 "info.selected" = "Selected Items";
@@ -75,7 +83,7 @@
 "palette.empty" = "No scripts in this category.";
 "palette.hint" = "Click to run in Illustrator.";
 "ui.hotkeyHelp" = "Hotkey Help";
-"ui.addStep" = "Add Step";
+"ui.addStep" = "Add Component";
 "ui.stepNumber" = "Step %d";
 "ui.subtitle" = "Run files and JavaScript with hotkeys";
 "code.unavailable" = "Unavailable";
@@ -98,7 +106,7 @@
 "count" = "%d scripts";
 "legacy.badge" = "Legacy menu step — unavailable";
 "legacy.unsupported" = "This item contains legacy menu steps and will not run. Its saved data is retained. Remove those steps to run the remaining scripts.";
-"steps" = "Scripts";
+"steps" = "Components";
 "steps.count" = "%d steps";
 "steps.empty" = "No steps. Insert one with the buttons below.";
 "step.addScript" = "Choose Script File";
@@ -149,7 +157,7 @@
 "selectedCount" = "%d scripts selected";
 "selectedHint" = "You can also drag the selected scripts onto a category on the left. ⌘-click or ⇧-click to select more.";
 "category.mixed" = "(Mixed)";
-"category" = "Category";
+"category" = "Group";
 "category.all" = "All";
 "category.none" = "Uncategorized";
 "category.new" = "New Category";

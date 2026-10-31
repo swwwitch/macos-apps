@@ -1,3 +1,11 @@
+"components.title" = "组件";
+"components.choose" = "添加已注册组件…";
+"components.attach" = "添加到动作";
+"components.shared" = "更改会影响使用此组件的所有动作。不能删除被引用的组件。";
+"components.references" = "用于%d个动作";
+"components.select" = "请选择组件。";
+"action.new" = "添加动作";
+"group.recent" = "最近使用的脚本";
 "source.path" = "路径";
 "palette.filenames" = "添加文件名";
 "info.selected" = "所选项目";
@@ -75,7 +83,7 @@
 "palette.empty" = "此分类中没有脚本。";
 "palette.hint" = "点按以在 Illustrator 中运行。";
 "ui.hotkeyHelp" = "快捷键说明";
-"ui.addStep" = "添加步骤";
+"ui.addStep" = "添加组件";
 "ui.stepNumber" = "步骤 %d";
 "ui.subtitle" = "使用快捷键运行文件和 JavaScript";
 "code.unavailable" = "无法运行";
