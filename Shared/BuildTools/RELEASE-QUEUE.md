@@ -1070,3 +1070,7 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### VectorMate 2.22.0（85）統合検証結果（2026-11-02）
 - アピアランスf11038f2と正負反転dfa27d5e系統を統合。単体・4言語・49項目／88生成スクリプト・Universalビルド・署名検証PASS。不足アクション同梱を修正。旧常駐82を通常終了して85を起動し、アピアランス一覧・保存済み値・⌃−を確認。AX未許可表示で実適用は未確認。対象SHAは本記録を含む確定コミット。記録：VectorMate/Tests/BUILD-NOTES-20261102-integration.md。公証・配布先配置・公開なし。
+
+## VectorMate 2.22.0（85）公証・公開工程の依頼準備（2026-11-02 JST）
+- 対象455cf1499e469973759111585ad3fdf0cbeb36f9、codex/vectorassist-build-20261101。開発担当MacBook-Pro-14-2024-sw.localで引継ぎ準備。ユーザーが工程3〜12を指示。公証担当候補は既存「macOSアプリのリリース作業」（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da）。実機名と重複作業は受け手で再確認。
+- 状態：引継ぎ資料作成済み、チャット送信の明示許可待ち・未送信。工程3〜12は未実施。開発Macから配布・公開しない。記録：Shared/BuildTools/ReleaseRecords/20261102-VectorMate85-handoff.md。
