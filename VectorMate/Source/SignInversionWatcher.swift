@@ -133,8 +133,11 @@ final class SignInversionWatcher {
            AXUIElementIsAttributeSettable(field, kAXValueAttribute as CFString, &settable) == .success, settable.boolValue,
            AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, replacement.value as CFString) == .success {
             var selection = CFRange(location: replacement.selection.location, length: replacement.selection.length)
-            if let value = AXValueCreate(.cfRange, &selection) { AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, value) }
-            status(L("sign.done")); return true
+            // Adobe may acknowledge AXValue writes without changing the actual edit control.
+            if (read(valueKey) as? String) == replacement.value {
+                if let value = AXValueCreate(.cfRange, &selection) { AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, value) }
+                status(L("sign.done")); return true
+            }
         }
         // Custom Illustrator dialogs lack writable AXValue/selection attributes. Type into the
         // verified numeric field instead, preserving the clipboard and native text-edit undo.
