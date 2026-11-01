@@ -8,6 +8,8 @@ xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.s
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit Source/Scripts.swift Source/Runner.swift Tests/RunnerTests.swift -o "$stage/runner-tests"
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.swift Source/LibraryStore.swift Tests/LibraryStoreTests.swift -o "$stage/store-tests"
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Scripts.swift Source/LibraryStore.swift Tests/AuditRegressionTests.swift -o "$stage/audit-tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework JavaScriptCore Source/Scripts.swift Source/Runner.swift Tests/VariableOverrideTests.swift -o "$stage/variable-tests"
+"$stage/variable-tests"
 "$stage/audit-tests"
 "$stage/store-tests"
 "$stage/runner-tests"

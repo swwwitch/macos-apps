@@ -51,20 +51,38 @@ final class ScriptRunner {
     private func execute(_ script: ScriptEntry) -> RunOutcome {
         guard script.scriptsOnly else { return .unsupportedSteps }
         guard let app = Illustrator.running, let appPath = app.bundleURL?.path else { return .noIllustrator }
+        // Prepare every invocation before executing the first, so invalid overrides never run a partial action.
+        var prepared: [String] = []
         for (index, step) in script.actions.enumerated() {
             let number = index + 1
-            switch step {
-            case .script(let path):
-                guard FileManager.default.fileExists(atPath: path) else { return .fileMissing(step: number) }
-                if let stop = osascript(ScriptText.appleScript(appPath: appPath, file: path), step: number) { return stop }
-            case .code(let source):
-                guard !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .failed(step: number, message: L("code.empty")) }
-                if let stop = osascript(ScriptText.appleScript(appPath: appPath, code: source), step: number) { return stop }
-            case .menuCommand, .menuItem:
-                return .unsupportedSteps
-            }
+            if case .script(let path) = step, !FileManager.default.fileExists(atPath: path) { return .fileMissing(step: number) }
+            do { prepared.append(try Self.prepare(script, at: index, appPath: appPath)) }
+            catch { return .failed(step: number, message: error.localizedDescription) }
+        }
+        for (index, source) in prepared.enumerated() {
+            if let stop = osascript(source, step: index + 1) { return stop }
         }
         return .success
+    }
+
+    static func prepare(_ script: ScriptEntry, at index: Int, appPath: String) throws -> String {
+        let names = script.variableNames(at: index), values = script.arguments(at: index)
+        let arguments = script.positionalArguments(at: index)
+        let overrides = names.contains { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        switch script.actions[index] {
+        case .script(let path):
+            if !overrides { return ScriptText.appleScript(appPath: appPath, file: path, arguments: arguments) }
+            guard URL(fileURLWithPath: path).pathExtension.lowercased() != "jsxbin",
+                  let source = try? String(contentsOfFile: path, encoding: .utf8) else { throw VariableOverrides.Failure(key: "override.fileText", name: (path as NSString).lastPathComponent) }
+            let transformed = try VariableOverrides.apply(to: source, names: names, values: values, file: true)
+            return ScriptText.appleScript(appPath: appPath, code: transformed, arguments: arguments)
+        case .code(let source):
+            guard !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw VariableOverrides.Failure(key: "code.empty", name: "") }
+            let transformed = try VariableOverrides.apply(to: source, names: names, values: values)
+            return ScriptText.appleScript(appPath: appPath, code: transformed, arguments: arguments)
+        case .menuCommand, .menuItem:
+            throw VariableOverrides.Failure(key: "legacy.unsupported", name: "")
+        }
     }
 
     private func osascript(_ source: String, step: Int) -> RunOutcome? {

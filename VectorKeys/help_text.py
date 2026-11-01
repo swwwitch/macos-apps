@@ -13,7 +13,14 @@ HELP = {
 - アクションが参照しているコンポーネントは削除できません。混在した複数選択も一部だけ削除せず、使用中の項目を選択から外す必要があります。削除で原本ファイルを消すことはありません。
 - 右詳細のタイトル直下にファイル名とコピーできるパスを表示します。Quick Look、Finder、関連付けアプリでソースを開く、ファイルの選び直しに対応します。バイナリのソース編集はできません。情報は常時表示し、概要だけ必要時に開きます。名前・カテゴリ・タグ・色・メモを編集できます。コードやファイル参照の変更は、それを使う全アクションに反映されます。
 
+## スクリプトに渡す値
+SW_で始まるユーザー変数は自動認識します。各行の候補メニューに変数名と初期値を表示し、選ぶとその行に名前と初期値を入れます。保存済み設定を自動では上書きしません。ファイルとコードに対応し、元コード変更時に候補を更新します。外部エディタで変更したファイルは「候補を再読み込み」で更新できます。対象は実行時差し替えが可能な単純var宣言のみで、コメント・文字列・複雑な式・同名の複数宣言は候補に含めません。
+各欄は「変数名（省略可）」と値の組です。変数名を入れると、単独行の var 変数名 = 初期値; を実行用コードで差し替えます。元ファイルは変更しません。元の型に合わせ、数値は数値、文字列は入力した文字、真偽値はtrue／falseとして扱います。文字列の入力に引用符は不要です。不存在・同名の複数宣言・式の初期値・複数変数の同時宣言などは実行前エラーになります。ファイルはUTF-8テキストのみ対応し、#include・$.fileName・$.evalFileを使うファイルは対象外です。たとえばSTEP_SIGNに-1、STEP_MULTIPLIERに10を指定できます。変数名を空欄にした欄は従来の位置引数です。名前付きの欄を混ぜても位置を詰めません。
+アクション内の各コンポーネントに「値 1」「値 2」「値 3」を設定できます。ファイル参照・直接コードの両方で、arguments[0]、arguments[1]、arguments[2]として文字列を受け取ります。同じコンポーネントでもアクションや呼出し位置ごとに異なる値を保持します。数値が必要なコードではNumber(arguments[0])などで変換します。途中の空欄は詰めず、全欄が空なら従来の引数なし実行です。
+
 ## アクション：3カラム
+行の文字・余白をクリックして選択します。ドラッグは行末の三本線ハンドルから始めて、並べ替え先やグループへ落とします。⌘クリック・⇧クリックの複数選択にも対応します。
+右クリックの「複製」で、選択したアクションを元の直後・同じグループへ複製します。複数選択も可能です。構成・順序・変数名・値を引き継ぎ、ホットキーと使用履歴、Keyboard Maestroとの連動は初期化します。共有コンポーネントは増やさず、元のアクションを保持します。⌘Zで取り消せます。
 グループ、アクション一覧、詳細です。＋の「アクションを追加」から作成し、詳細の「登録済みコンポーネントから追加」で構成します。構成行のメニューから上へ・下へ・取り外し・コンポーネントを編集を選べます。取り外しても定義は残ります。実行は上から順番で、欠落・未対応・エラーがあれば停止し、残りだけを勝手に実行しません。
 ホットキー欄をクリックしてキーを押し、Escで記録を取り消します。1回押し／2回押しと解除を設定でき、重複や登録失敗を表示します。アイテムのホットキーはIllustratorが前面のときに働きます。全体の一時停止は「ホットキーを使う」で操作します。［実行］はIllustratorを前面へ移して実行します。
 一覧の「手動」で検索していないとき、行へドロップするとその行の前へ、一覧末尾の余白へ落とすと末尾へ並べ替えます。右クリックの上へ／下へも利用できます。グループへのドロップは所属変更です。複数選択の名前・回数・ホットキーのソート、区切りの追加、削除もできます。バージョン・回数・ファイル名の追加表示は表示設定から選び、初期値はOFFです。⌘Deleteは一覧の選択を削除し、テキスト編集中は文字入力を優先します。⌘Z／⇧⌘Zで一覧操作を取り消し・やり直します。
@@ -31,7 +38,17 @@ Keyboard Maestroの.kmmacrosファイルはファイルメニューから読み�
 ⌘,で設定を開き、起動・常駐・ログイン起動・アプリ呼び出しのキーなどを設定します。呼び出しキーは常駐中のアプリを表示するためのもので、未起動のアプリを起動するキーではありません。手動起動はメイン画面を表示し、ログイン起動は表示しません。Dockを隠す設定でもメイン・設定画面がある間は通常表示します。常駐中はウインドウを閉じてもアプリを終了せず、⌘Qで終了します。設定ウインドウは⌘Wで閉じられます。
 Illustrator操作のオートメーション許可が必要な場合は、システム設定のプライバシーとセキュリティでVectorKeysのIllustrator操作を許可してください。ホットキー重複・原本不在・空コード・実行エラーはアプリ内で確認できます。最近の実行結果は終了すると消えますが、アクションの回数と最終成功日時は保存します。設定共有は一覧やファイルパス・個別キーを共有せず、表示など対象の設定だけを共有します。旧データ移行前のScripts.pre-components.json／Scripts.pre-workspaces.jsonは保全します。アップデート確認とヘルプはアプリメニューから利用できます。
 """,
-"en": """## Components and actions
+"en": """Click an action name or row space to select it. Start dragging from the three-line handle at the row end to reorder or move to a group. Command-click and Shift-click retain multiple selection.
+
+Right-click Duplicate to copy selected actions immediately after their originals in the same groups. Component references, order and per-invocation names and values are retained. Hotkeys, usage history and Keyboard Maestro links are reset. Shared components and original actions are preserved. Undo is supported.
+
+SW_ user variables are detected automatically. Each row has a menu showing names and defaults; choosing one fills that row only. Saved settings are never automatically overwritten. Files and inline code are supported. Use Reload Candidates after editing a file externally. Only supported simple var declarations appear; comments, strings, complex expressions and duplicate declarations are excluded.
+
+Each row has an optional variable name and a value. A name replaces a standalone var name = literal; default in execution-only code; the original file is unchanged. Supported defaults are numbers, strings and booleans. Enter strings without quotes and booleans as true/false. Missing, ambiguous or complex declarations stop before execution. Named file overrides require UTF-8 text without #include, $.fileName or $.evalFile. Empty names keep positional arguments; mixed named slots do not shift positions.
+
+Values Passed to Script: Each component invocation has Value 1, Value 2 and Value 3. Both files and inline code receive strings as arguments[0], arguments[1] and arguments[2]. Values belong to each invocation, not the shared component. Empty positions are preserved; all empty fields keep execution without arguments. Convert numeric values with Number() in your script.
+
+## Components and actions
 Switch workspaces at the top. A component is a .jsx, .js or .jsxbin file, or saved ExtendScript code. Components can be reused. An action runs one or more components in order and owns a hotkey. Categories organize components; groups organize actions and can become palettes.
 
 ## Four component columns
@@ -58,7 +75,17 @@ Import Keyboard Maestro .kmmacros exports from File. Supported file/code steps b
 Command-comma opens Settings. Configure login launch, residency, Dock visibility and the app recall hotkey. The recall key works while VectorKeys is running; it is not a cold-launch shortcut. Manual launch shows the main window; login launch does not. Dock hiding keeps normal Dock behavior while a main or settings window exists. Closing a window can keep a resident app running; Command-Q quits. Command-W closes Settings.
 If macOS requests Automation permission, allow VectorKeys to control Illustrator in Privacy & Security settings. Missing files, empty code, key conflicts and execution errors remain visible in the app. Recent result messages are not retained after quitting, but action counts and last-success times are saved. Settings sharing excludes the library, paths and individual item keys. Pre-migration Scripts.pre-components.json and Scripts.pre-workspaces.json backups are preserved. Help and update checks are available from the menus.
 """,
-"zh-Hans": """## 组件与动作
+"zh-Hans": """点击动作名称或行内空白以选择。从行末三条线手柄开始拖动以排序或移到组。支持Command和Shift多选。
+
+右键选择复制，可将所选动作复制到原动作之后并保留所属组。保留组件引用、顺序以及每次调用的变量名和值，清除快捷键、使用记录和Keyboard Maestro关联。不复制共享组件，支持撤销。
+
+自动识别SW_用户变量。各行的候选菜单显示名称和初始值，选择后仅填写该行，不自动覆盖已保存设置。支持文件和直接代码；外部编辑后可重新载入候选。仅显示支持的简单var声明，排除注释、字符串、复杂表达式和同名多次声明。
+
+每行可输入变量名和值。填写名称时仅在执行代码中替换独立行 var 名称 = 字面值;，不修改原文件。支持数值、字符串与布尔值。字符串无需引号，布尔值请输入true/false。缺失、重名或复杂声明会在执行前停止。文件须为UTF-8文本且不依赖#include、$.fileName或$.evalFile。名称留空时仍作为位置参数传递，混合使用不改变位置。
+
+传给脚本的值：每次组件调用可设置值 1、值 2、值 3。文件与直接代码均通过 arguments[0]、arguments[1]、arguments[2] 接收字符串。值属于各次调用，不修改共享组件。保留中间空值；全部为空时不传参数。数字请在脚本内用 Number() 转换。
+
+## 组件与动作
 顶部切换编辑界面。组件是.jsx、.js、.jsxbin文件或保存的ExtendScript代码，可以在多个动作中复用。动作按顺序执行一个或多个组件并设置快捷键。类别整理组件，组整理动作并可显示为面板。
 
 ## 组件的四列界面
@@ -85,7 +112,17 @@ If macOS requests Automation permission, allow VectorKeys to control Illustrator
 ⌘逗号打开设置，可配置登录启动、常驻、Dock显示及呼出快捷键。呼出键只在应用运行时有效，不负责冷启动。手动启动显示主窗口，登录启动不显示。即使隐藏Dock，存在主窗口或设置窗口时仍正常显示。关闭窗口可继续常驻，⌘Q退出，⌘W关闭设置。
 需要自动化权限时，在系统设置的隐私与安全性中允许VectorKeys控制Illustrator。缺失文件、空代码、按键冲突及错误可在应用内查看。最近结果退出后清空，动作次数与最后成功时间保留。设置共享不包含列表、文件路径和项目快捷键，迁移前的Scripts.pre-components.json与Scripts.pre-workspaces.json备份会保留。可从菜单打开帮助和检查更新。
 """,
-"ko": """## 컴포넌트와 액션
+"ko": """액션 이름이나 행의 빈 공간을 클릭해 선택합니다. 행 끝의 세 줄 핸들에서 드래그하여 순서를 바꾸거나 그룹으로 이동합니다. Command와 Shift 다중 선택을 유지합니다.
+
+우클릭 복제로 선택한 액션을 원본 바로 뒤의 같은 그룹에 복제합니다. 컴포넌트 참조, 순서, 호출별 변수 이름과 값은 유지하며 단축키, 사용 기록, Keyboard Maestro 연결은 초기화합니다. 공유 컴포넌트와 원본은 유지하며 실행 취소를 지원합니다.
+
+SW_ 사용자 변수를 자동 인식합니다. 각 행의 메뉴에 이름과 초기값을 표시하며 선택한 행만 채웁니다. 저장된 설정은 자동으로 덮어쓰지 않습니다. 파일과 직접 코드를 지원하며 외부 편집 후 후보 다시 불러오기를 사용할 수 있습니다. 지원되는 단순 var 선언만 표시하고 주석, 문자열, 복잡한 식, 중복 선언은 제외합니다.
+
+각 행에는 선택적인 변수 이름과 값이 있습니다. 이름을 입력하면 실행용 코드에서 별도 줄의 var 이름 = 리터럴; 초기값만 바꾸며 원본은 변경하지 않습니다. 숫자, 문자열, 불리언을 지원합니다. 문자열은 따옴표 없이, 불리언은 true/false로 입력합니다. 없거나 중복되거나 복잡한 선언은 실행 전에 중단합니다. 파일은 #include, $.fileName, $.evalFile에 의존하지 않는 UTF-8 텍스트여야 합니다. 이름을 비우면 위치 인수이며 혼합해도 위치를 당기지 않습니다.
+
+스크립트에 전달할 값: 각 컴포넌트 호출에 값 1, 값 2, 값 3을 설정합니다. 파일과 직접 코드 모두 arguments[0], arguments[1], arguments[2]로 문자열을 받습니다. 값은 공유 컴포넌트가 아닌 각 호출에 저장합니다. 중간의 빈 값은 유지하며 모두 비어 있으면 인수 없이 실행합니다. 숫자는 스크립트에서 Number()로 변환합니다.
+
+## 컴포넌트와 액션
 상단에서 편집 화면을 전환합니다. 컴포넌트는 .jsx, .js, .jsxbin 파일 또는 저장한 ExtendScript 코드이며 여러 액션에서 재사용할 수 있습니다. 액션은 하나 이상의 컴포넌트를 순서대로 실행하고 단축키를 가집니다. 카테고리는 컴포넌트를, 그룹은 액션을 분류합니다. 그룹은 팔레트로 표시할 수 있습니다.
 
 ## 컴포넌트의 네 열
