@@ -1,3 +1,13 @@
+Click an action name or row space to select it. Start dragging from the three-line handle at the row end to reorder or move to a group. Command-click and Shift-click retain multiple selection.
+
+Right-click Duplicate to copy selected actions immediately after their originals in the same groups. Component references, order and per-invocation names and values are retained. Hotkeys, usage history and Keyboard Maestro links are reset. Shared components and original actions are preserved. Undo is supported.
+
+SW_ user variables are detected automatically. Each row has a menu showing names and defaults; choosing one fills that row only. Saved settings are never automatically overwritten. Files and inline code are supported. Use Reload Candidates after editing a file externally. Only supported simple var declarations appear; comments, strings, complex expressions and duplicate declarations are excluded.
+
+Each row has an optional variable name and a value. A name replaces a standalone var name = literal; default in execution-only code; the original file is unchanged. Supported defaults are numbers, strings and booleans. Enter strings without quotes and booleans as true/false. Missing, ambiguous or complex declarations stop before execution. Named file overrides require UTF-8 text without #include, $.fileName or $.evalFile. Empty names keep positional arguments; mixed named slots do not shift positions.
+
+Values Passed to Script: Each component invocation has Value 1, Value 2 and Value 3. Both files and inline code receive strings as arguments[0], arguments[1] and arguments[2]. Values belong to each invocation, not the shared component. Empty positions are preserved; all empty fields keep execution without arguments. Convert numeric values with Number() in your script.
+
 ## Components and actions
 Switch workspaces at the top. A component is a .jsx, .js or .jsxbin file, or saved ExtendScript code. Components can be reused. An action runs one or more components in order and owns a hotkey. Categories organize components; groups organize actions and can become palettes.
 

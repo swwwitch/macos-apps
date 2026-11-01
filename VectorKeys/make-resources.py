@@ -4,7 +4,29 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''componentCategory.assign|カテゴリを変更|Change Category|更改类别|카테고리 변경
+rows = '''action.dragHandle|ここからドラッグして並べ替え・グループ移動|Drag here to reorder or move to a group|从此处拖动以排序或移到组|여기서 드래그하여 순서 변경 또는 그룹 이동
+action.duplicate|複製|Duplicate|复制|복제
+action.copySuffix|のコピー|Copy|的副本|복사본
+invocation.noVariables|対応するSW_変数はありません|No supported SW_ variables|没有支持的SW_变量|지원되는 SW_ 변수가 없습니다
+invocation.refreshVariables|候補を再読み込み|Reload Candidates|重新载入候选|후보 다시 불러오기
+invocation.detectVariables|SW_ユーザー変数を選択|Choose an SW_ User Variable|选择SW_用户变量|SW_ 사용자 변수 선택
+invocation.variableHelp|変数名が空欄なら位置引数として渡します。名前を指定すると、その変数の単純な初期値を実行時だけ差し替えます。|Leave the name empty for a positional argument. A name replaces a simple variable default for this run only.|变量名留空时作为位置参数传递。填写名称时仅在本次执行中替换该变量的简单初始值。|이름을 비우면 위치 인수로 전달합니다. 이름을 지정하면 이번 실행에서만 변수의 단순 초기값을 바꿉니다.
+invocation.variable|変数名（省略可）|Variable name (optional)|变量名（可选）|변수 이름(선택)
+override.syntax|変数を安全に解析できません。%@|Cannot safely parse variable declarations. %@|无法安全解析变量声明。%@|변수 선언을 안전하게 분석할 수 없습니다. %@
+override.identifier|変数名が不正です：%@|Invalid variable name: %@|变量名无效：%@|잘못된 변수 이름: %@
+override.duplicate|同じ変数名が複数の欄にあります：%@|Variable specified more than once: %@|多个输入栏使用同一变量：%@|여러 입력란에 같은 변수 이름이 있습니다: %@
+override.missing|変数の宣言が見つかりません：%@|Variable declaration not found: %@|找不到变量声明：%@|변수 선언을 찾을 수 없습니다: %@
+override.ambiguous|同名の宣言が複数あるため差し替えできません：%@|Multiple declarations prevent replacement: %@|有多个同名声明，无法替换：%@|같은 이름의 선언이 여러 개여서 바꿀 수 없습니다: %@
+override.unsupported|単独行の var 変数 = 初期値; の形式に対応しています：%@|Use a standalone var name = literal; declaration: %@|仅支持独立行 var 变量 = 初始值;：%@|별도 줄의 var 이름 = 리터럴; 선언을 사용하세요: %@
+override.number|数値の初期値と数値の入力が必要です：%@|A numeric default and numeric input are required: %@|需要数值初始值和数值输入：%@|숫자 초기값과 숫자 입력이 필요합니다: %@
+override.boolean|値に true または false を入力してください：%@|Enter true or false: %@|请输入 true 或 false：%@|true 또는 false를 입력하세요: %@
+override.fileText|変数の差し替えはUTF-8のテキストファイルに対応しています：%@|Variable replacement requires a UTF-8 text file: %@|变量替换需要UTF-8文本文件：%@|변수 교체에는 UTF-8 텍스트 파일이 필요합니다: %@
+override.fileContext|このファイルは元の場所に依存するため変数を差し替えできません：%@|This file depends on its original location and cannot use variable replacement: %@|文件依赖原位置，无法替换变量：%@|원래 파일 위치에 의존하여 변수를 바꿀 수 없습니다: %@
+invocation.values|スクリプトに渡す値|Values Passed to Script|传给脚本的值|스크립트에 전달할 값
+invocation.value1|値 1|Value 1|值 1|값 1
+invocation.value2|値 2|Value 2|值 2|값 2
+invocation.value3|値 3|Value 3|值 3|값 3
+componentCategory.assign|カテゴリを変更|Change Category|更改类别|카테고리 변경
 components.addedToGroup|グループに追加しました。|Added to group.|已添加到组。|그룹에 추가했습니다.
 componentSidebar.kind|分類の表示|Classification View|分类视图|분류 표시
 componentCategory.none|未分類|Uncategorized|未分类|미분류

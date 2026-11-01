@@ -255,13 +255,13 @@ struct RunRecord: Identifiable {
     @Published var actionSearch = ""
     @Published var componentSearch = ""
     @Published var editingComponents = true
-    @Published var componentActionGroupFilter = AppModel.allCategories { didSet { componentSelections = [] } }
+    @Published var componentActionGroupFilter = AppModel.allCategories { didSet { if oldValue != componentActionGroupFilter { componentSelections = [] } } }
     @Published var componentSelections: Set<String> = []
     var componentSelection: String? {
         get { componentSelections.count == 1 ? componentSelections.first : nil }
         set { componentSelections = newValue.map { [$0] } ?? [] }
     }
-    @Published var componentFilter = AppModel.allCategories { didSet { componentSelection = nil } }
+    @Published var componentFilter = AppModel.allCategories { didSet { if oldValue != componentFilter { componentSelections = [] } } }
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
     /// The sidebar choice: allCategories, uncategorized, or a category name.
@@ -486,6 +486,29 @@ struct RunRecord: Identifiable {
         guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
         undoable(L("undo.steps")) { var next = library; next.components?[i].step = step; library = next }
     }
+    func setInvocationValue(_ value: String, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot) else { return }
+        let old = library.scripts[i].arguments(at: step)
+        guard (old.indices.contains(slot) ? old[slot] : "") != value else { return }
+        undoable(L("invocation.values")) { library.scripts[i].setArgument(value, at: step, slot: slot) }
+    }
+    func setInvocationVariable(_ value: String, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot),
+              library.scripts[i].variableNames(at: step)[slot] != value else { return }
+        undoable(L("invocation.values")) { library.scripts[i].setVariableName(value, at: step, slot: slot) }
+    }
+    func selectInvocationVariable(_ candidate: VariableOverrides.Candidate, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot) else { return }
+        undoable(L("invocation.values")) {
+            var next = library
+            next.scripts[i].setVariableName(candidate.name, at: step, slot: slot)
+            next.scripts[i].setArgument(candidate.value, at: step, slot: slot)
+            library = next
+        }
+    }
     func attachComponent(_ component: Component, to id: String) {
         guard let i = library.scripts.firstIndex(where: { $0.id == id }) else { return }
         undoable(L("undo.steps")) { library.scripts[i].componentIDs = (library.scripts[i].componentIDs ?? []) + [component.id] }
@@ -506,6 +529,15 @@ struct RunRecord: Identifiable {
         if revealAction {
             editingComponents = false; categoryFilter = category ?? Self.uncategorized; selection = Set(actionIDs)
         } else { record(L("components.title"), L("components.addedToGroup"), error: false) }
+    }
+    func duplicateActions(_ ids: Set<String>) {
+        guard library.scripts.contains(where: { ids.contains($0.id) && !$0.isDivider }) else { return }
+        undoable(L("action.duplicate")) {
+            let copies = library.duplicateActions(ids)
+            actionSearch = ""
+            if categoryFilter == Self.recentCategory { categoryFilter = Self.allCategories }
+            selection = Set(copies)
+        }
     }
     func newAction() {
         editingComponents = false

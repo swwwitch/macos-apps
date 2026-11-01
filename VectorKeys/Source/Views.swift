@@ -115,6 +115,8 @@ struct StepsEditor: View {
                     Text("\(index + 1)").font(.caption).foregroundColor(.secondary)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(model.library.components?.first { $0.id == id }?.name ?? L("components.missing"))
+                        InvocationValuesEditor(model: model, actionID: script.id, stepIndex: index,
+                            component: model.library.components?.first { $0.id == id })
 
                     }
                     Spacer()
@@ -134,6 +136,53 @@ struct StepsEditor: View {
                 Text(L("legacy.unsupported")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
             }
         }.sheet(isPresented: $showComponents) { ComponentLibraryView(model: model, actionID: script.id) }
+    }
+}
+
+private struct InvocationValuesEditor: View {
+    @ObservedObject var model: AppModel
+    let actionID: String
+    let stepIndex: Int
+    let component: Component?
+    @State private var candidates: [VariableOverrides.Candidate] = []
+    @State private var refresh = 0
+    private struct Request: Hashable { let step: Step?; let refresh: Int }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(L("invocation.values")).font(.caption).foregroundColor(.secondary).padding(.top, 6)
+                        ForEach(0..<3, id: \.self) { slot in
+                            HStack(spacing: 8) {
+                                Text([L("invocation.value1"), L("invocation.value2"), L("invocation.value3")][slot]).font(.caption).frame(width: 36, alignment: .leading)
+                                Menu {
+                                    if candidates.isEmpty { Text(L("invocation.noVariables")) }
+                                    ForEach(candidates) { candidate in
+                                        Button(candidate.name + " = " + candidate.literal) {
+                                            model.selectInvocationVariable(candidate, actionID: actionID, step: stepIndex, slot: slot)
+                                        }
+                                    }
+                                    Divider()
+                                    Button(L("invocation.refreshVariables")) { refresh += 1 }
+                                } label: { Image(systemName: "list.bullet") }
+                                .menuStyle(.borderlessButton).fixedSize().help(L("invocation.detectVariables"))
+                                TextField(L("invocation.variable"), text: Binding(
+                                    get: { model.library.scripts.first { $0.id == actionID }?.variableNames(at: stepIndex)[slot] ?? "" },
+                                    set: { model.setInvocationVariable($0, actionID: actionID, step: stepIndex, slot: slot) }
+                                )).textFieldStyle(.roundedBorder).frame(minWidth: 70, idealWidth: 130, maxWidth: 180).help(L("invocation.variableHelp"))
+                                TextField([L("invocation.value1"), L("invocation.value2"), L("invocation.value3")][slot], text: Binding(
+                                    get: {
+                                        let values = model.library.scripts.first { $0.id == actionID }?.arguments(at: stepIndex) ?? []
+                                        return values.indices.contains(slot) ? values[slot] : ""
+                                    },
+                                    set: { model.setInvocationValue($0, actionID: actionID, step: stepIndex, slot: slot) }
+                                )).textFieldStyle(.roundedBorder).labelsHidden()
+                            }
+                        }
+        }.task(id: Request(step: component?.step, refresh: refresh)) {
+            let step = component?.step
+            let result = await Task.detached(priority: .utility) { VariableOverrides.candidates(for: step) }.value
+            guard !Task.isCancelled else { return }
+            candidates = result
+        }
     }
 }
 
@@ -572,6 +621,8 @@ struct MainView: View {
             .contextMenu(forSelectionType: String.self) { ids in
                 if let id = ids.first, let script = model.library.scripts.first(where: { $0.id == id }) {
                     Button(L("run")) { model.runFromWindow(script) }.disabled(!script.isAvailable)
+                    Button(L("action.duplicate")) { model.duplicateActions(ids) }
+                        .disabled(!model.library.scripts.contains { ids.contains($0.id) && !$0.isDivider })
                     Button(L("divider.add")) { model.selection = ids; model.addDivider() }
                     if canReorder, ids.count == 1 {
                         let peers = model.scripts(in: script.category ?? AppModel.uncategorized).map(\.id)
@@ -639,24 +690,28 @@ struct MainView: View {
     }
     @ViewBuilder private func row(_ script: ScriptEntry, ids: [String]) -> some View {
         if let binding = model.binding(for: script.id) {
-            Group {
+            HStack(spacing: 8) {
                 if script.isDivider {
                     HStack { Divider(); Text(script.name).font(.caption).foregroundColor(.secondary); Divider() }.frame(height: 22)
                 } else { ScriptRow(model: model, script: binding) }
+                Image(systemName: "line.3.horizontal")
+                    .font(.caption).foregroundColor(.secondary)
+                    .frame(width: 20, height: 24).contentShape(Rectangle())
+                    .help(L("action.dragHandle")).accessibilityLabel(L("action.dragHandle"))
+                    .onDrag {
+                        let picked = model.selection.contains(script.id) ? model.selection : [script.id]
+                        actionDragLog.notice("reorder-begin count=\(picked.count, privacy: .public)")
+                        return NSItemProvider(object: ActionDragPayload.encode(picked) as NSString)
+                    }
             }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle()).tag(script.id)
                 .listRowSeparator(.visible)
                 .listRowBackground(hoveredAction == script.id ? appTint.opacity(0.22) : (script.tagColor?.displayColor.opacity(0.22) ?? Color.clear))
-                .onDrag {
-                    let picked = model.selection.contains(script.id) ? model.selection : [script.id]
-                    actionDragLog.notice("reorder-begin count=\(picked.count, privacy: .public)")
-                    return NSItemProvider(object: ActionDragPayload.encode(picked) as NSString)
-                }
                 .onDrop(of: [.utf8PlainText, .plainText], isTargeted: Binding(get: { hoveredAction == script.id }, set: { over in hoveredAction = over && canReorder ? script.id : nil })) { providers in
                     acceptActionDrop(providers, before: script.id, within: ids)
                 }
-
         }
     }
+
 }
 
 // MARK: Settings
@@ -1053,31 +1108,9 @@ struct ComponentWorkspace: View {
             }.padding(.horizontal, 4)),
             scripts: AnyView(VStack(spacing: 6) {
                 TextField(L("search"), text: $model.componentSearch).textFieldStyle(.roundedBorder)
-                List(selection: $model.componentSelections) {
-                    ForEach(model.componentsInCurrentGroup.filter { model.componentSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(model.componentSearch) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(model.componentSearch) }) { component in
-                        HStack {
-                            Text(component.name).lineLimit(2)
-                            Spacer()
-                            if !component.step.exists { Image(systemName: "exclamationmark.triangle").foregroundColor(.orange) }
-                        }.padding(4).frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-                        .background(RoundedRectangle(cornerRadius: 5).fill(component.tagColor?.displayColor.opacity(0.22) ?? .clear))
-                        .contentShape(Rectangle()).tag(component.id)
-                        .onDrag {
-                            let ids = picked(component.id)
-                            componentDragLog.notice("drag-begin count=\(ids.count, privacy: .public)")
-                            return NSItemProvider(object: ComponentDragPayload.encode(ids) as NSString)
-                        }
-                        .contextMenu {
-                            let ids = picked(component.id)
-                            groupMenu(ids)
-                            categoryMenu(ids)
-                            Divider()
-                            Button(L("delete"), role: .destructive) { model.componentSelections = ids; confirmDelete = true }
-                                .disabled(model.library.deletableComponents(ids) != ids)
-                        }
-
-                    }
-                }.onDeleteCommand { if !model.componentSelections.isEmpty { confirmDelete = true } }
+                NativeComponentList(model: model, components: model.componentsInCurrentGroup.filter {
+                    model.componentSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(model.componentSearch) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(model.componentSearch)
+                }, delete: { confirmDelete = true })
                 .background(ItemDeleteShortcut { if !model.componentSelections.isEmpty { confirmDelete = true } })
                 HStack {
                     Menu {
@@ -1181,5 +1214,115 @@ struct ComponentDetail: View {
                 TextEditor(text: Binding(get: { component.notes ?? "" }, set: { value in model.editComponent(component.id) { $0.notes = value } })).frame(minHeight: 70)
             }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+/// One AppKit event path owns selection, modifier clicks and drag initiation.
+private struct NativeComponentList: NSViewRepresentable {
+    @ObservedObject var model: AppModel
+    let components: [Component]
+    let delete: () -> Void
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    func makeNSView(context: Context) -> NSScrollView {
+        let table = ComponentTable()
+        table.headerView = nil
+        table.addTableColumn(NSTableColumn(identifier: NSUserInterfaceItemIdentifier("component")))
+        table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        table.allowsMultipleSelection = true
+        table.rowHeight = 36
+        table.intercellSpacing = NSSize(width: 0, height: 2)
+        table.delegate = context.coordinator; table.dataSource = context.coordinator
+        table.setDraggingSourceOperationMask(.copy, forLocal: true)
+        table.menu = NSMenu()
+        table.menu?.delegate = context.coordinator
+        let scroll = NSScrollView()
+        scroll.hasVerticalScroller = true; scroll.documentView = table
+        context.coordinator.table = table
+        return scroll
+    }
+    func updateNSView(_ view: NSScrollView, context: Context) {
+        let coordinator = context.coordinator
+        coordinator.parent = self
+        guard let table = coordinator.table else { return }
+        coordinator.syncing = true
+        let rows = components.map { Row(id: $0.id, name: $0.name, color: $0.tagColor, exists: $0.step.exists) }
+        if rows != coordinator.rows {
+            coordinator.rows = rows
+            table.reloadData()
+        }
+        let indexes = IndexSet(components.indices.filter { model.componentSelections.contains(components[$0].id) })
+        if indexes != table.selectedRowIndexes { table.selectRowIndexes(indexes, byExtendingSelection: false) }
+        coordinator.syncing = false
+    }
+    static func dismantleNSView(_ view: NSScrollView, coordinator: Coordinator) {
+        coordinator.commands = []; view.documentView = nil
+    }
+    struct Row: Equatable {
+        let id: String; let name: String; let color: ItemTag?; let exists: Bool
+    }
+    final class ComponentTable: NSTableView {
+        override func menu(for event: NSEvent) -> NSMenu? {
+            let row = self.row(at: convert(event.locationInWindow, from: nil))
+            guard row >= 0 else { return nil }
+            if !selectedRowIndexes.contains(row) { selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false) }
+            return super.menu(for: event)
+        }
+    }
+    final class Coordinator: NSObject, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate {
+        var parent: NativeComponentList
+        weak var table: NSTableView?
+        var rows: [Row] = []
+        var syncing = false
+        var commands: [() -> Void] = []
+        init(_ parent: NativeComponentList) { self.parent = parent }
+        func numberOfRows(in tableView: NSTableView) -> Int { rows.count }
+        func tableViewSelectionDidChange(_ notification: Notification) {
+            guard !syncing, let table else { return }
+            let ids = Set(table.selectedRowIndexes.filter { rows.indices.contains($0) }.map { rows[$0].id })
+            if parent.model.componentSelections != ids { parent.model.componentSelections = ids }
+        }
+        func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+            let value = rows[row]
+            let text = NSTextField(labelWithString: value.name + (value.exists ? "" : "  ⚠︎"))
+            text.lineBreakMode = .byTruncatingTail; text.font = .systemFont(ofSize: 13)
+            let cell = NSTableCellView()
+            cell.textField = text; cell.addSubview(text)
+            text.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([text.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 8), text.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -8), text.centerYAnchor.constraint(equalTo: cell.centerYAnchor)])
+            return cell
+        }
+        func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+            let view = NSTableRowView()
+            if let color = rows[row].color { view.backgroundColor = NSColor(color.displayColor).withAlphaComponent(0.22) }
+            return view
+        }
+        func tableView(_ tableView: NSTableView, pasteboardWriterForRow row: Int) -> NSPasteboardWriting? {
+            guard rows.indices.contains(row) else { return nil }
+            // AppKit has already resolved modifier selection before requesting writers.
+            componentDragLog.notice("drag-begin count=1")
+            return ComponentDragPayload.encode([rows[row].id]) as NSString
+        }
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            menu.removeAllItems(); commands = []
+            let ids = parent.model.componentSelections
+            guard !ids.isEmpty else { return }
+            func command(_ title: String, in destination: NSMenu, _ action: @escaping () -> Void) {
+                let item = NSMenuItem(title: title, action: #selector(invoke(_:)), keyEquivalent: "")
+                item.target = self; item.tag = commands.count; commands.append(action); destination.addItem(item)
+            }
+            let groups = NSMenu(); let group = NSMenuItem(title: L("components.addToGroup"), action: nil, keyEquivalent: "")
+            group.submenu = groups; menu.addItem(group)
+            command(L("category.none"), in: groups) { self.parent.model.addComponentsToGroup(ids, category: nil) }
+            for name in parent.model.library.categoryList { command(name, in: groups) { self.parent.model.addComponentsToGroup(ids, category: name) } }
+            let categories = NSMenu(); let category = NSMenuItem(title: L("componentCategory.assign"), action: nil, keyEquivalent: "")
+            category.submenu = categories; menu.addItem(category)
+            command(L("componentCategory.none"), in: categories) { self.parent.model.setComponentCategory(nil, ids: ids) }
+            for name in parent.model.library.componentCategoryList { command(name, in: categories) { self.parent.model.setComponentCategory(name, ids: ids) } }
+            menu.addItem(.separator())
+            command(L("delete"), in: menu) { self.parent.delete() }
+            menu.items.last?.isEnabled = parent.model.library.deletableComponents(ids) == ids
+            menu.autoenablesItems = false
+        }
+        @objc func invoke(_ sender: NSMenuItem) { if commands.indices.contains(sender.tag) { commands[sender.tag]() } }
     }
 }
