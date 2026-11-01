@@ -2,6 +2,7 @@ import AppKit
 import ServiceManagement
 import SwiftUI
 import Carbon
+import Combine
 
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
@@ -311,6 +312,7 @@ final class Model: ObservableObject {
     }
 
     /// The app's hotkeys with their titles, for refusing the same key twice.
+    var appearanceHotkey: (() -> KeyCombo?)?
     func otherHotkeys(except number: UInt32) -> [(String, KeyCombo)] {
         let all: [(UInt32, String, KeyCombo?)] = [(Self.brighterNumber, L("hotkey.brighter"), brighterCombo), (Self.darkerNumber, L("hotkey.darker"), darkerCombo),
                                                   (Self.paletteNumber, L("hotkey.palette"), paletteCombo), (Self.quickNumber, L("hotkey.quick"), quickCombo),
@@ -319,6 +321,7 @@ final class Model: ObservableObject {
                                                   (Self.signNumber, L("sign.title"), signCombo),
                                                   (Self.launchNumber, L("launch.hotkey"), launchCombo)]
         return all.compactMap { entry in entry.0 == number ? nil : entry.2.map { (entry.1, $0) } }
+            + (appearanceHotkey?().map { [(L("hotkey.appearanceTitle"), $0)] } ?? [])
     }
 
     /// ⌘; with その他 on: app.executeMenuCommand('showguide') in the Illustrator in front.
@@ -930,6 +933,7 @@ struct MetricsSection: View {
 
 struct MainView: View {
     @ObservedObject var model: Model
+    let appearance: AppearanceModel
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Header().fixedSize(horizontal: false, vertical: true)
@@ -960,6 +964,7 @@ struct MainView: View {
                     Note(text: L("tool.panelDetail"))
                     if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel) { Note(text: AccessibilityText.text("blocked")) }
                 })),
+                ("appearance", L("appearance.tab"), AnyView(AppearancePage(model: appearance))),
                 ("prefs", L("prefsets.mainTab"), AnyView(PrefPresetsPage(model: model))),
                 ("version", L("version.tab"), AnyView(VersionSwitchView())),
                 ("custom", L("tab.custom"), AnyView(CustomPage(model: model))),
@@ -973,9 +978,10 @@ struct MainView: View {
             ])
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
-                Button(L("palette.title")) { (NSApp.delegate as? AppDelegate)?.showUnitPalette() }
-                Button(L("quick.title")) { (NSApp.delegate as? AppDelegate)?.showQuickPalette() }
-                Button(L("transform.title")) { (NSApp.delegate as? AppDelegate)?.showTransformPalette() }
+                Button(L("palette.button")) { (NSApp.delegate as? AppDelegate)?.showUnitPalette() }
+                Button(L("quick.button")) { (NSApp.delegate as? AppDelegate)?.showQuickPalette() }
+                Button(L("transform.button")) { (NSApp.delegate as? AppDelegate)?.showTransformPalette() }
+                Button(L("appearance.button")) { (NSApp.delegate as? AppDelegate)?.toggleAppearancePalette() }
                 Spacer()
                 if model.busy { ProgressView().controlSize(.small); Text(L("working")).font(.caption).foregroundColor(.secondary) }
                 Button(L("reload")) { model.refreshSettingsState() }.disabled(model.busy)
@@ -993,6 +999,7 @@ func openPrivacy(_ anchor: String) {
 
 struct Preferences: View {
     @ObservedObject var model: Model
+    @ObservedObject var appearance: AppearanceModel
     var body: some View {
         SettingsTabs(sections: [
             (SettingsUI.launchTitle, AnyView(VStack(alignment: .leading, spacing: 16) {
@@ -1020,26 +1027,22 @@ struct Preferences: View {
                     HotkeyField(id: "darker", combo: $model.darkerCombo, defaultCombo: Model.darkerDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.darkerNumber),
                                 registered: !model.failedHotkeys.contains(Model.darkerNumber), isEnabled: model.hotkeysEnabled)
-                    Text(L("hotkey.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 SettingsSection(L("closeAll.title")) {
                     Text(L("hotkey.quick"))
                     HotkeyField(id: "quick", combo: $model.quickCombo, defaultCombo: Model.quickDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.quickNumber),
                                 registered: !model.failedHotkeys.contains(Model.quickNumber), isEnabled: model.hotkeysEnabled)
-                    Text(L("hotkey.quickHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Divider().padding(.vertical, 4)
                     Text(L("hotkey.transform"))
                     HotkeyField(id: "transform", combo: $model.transformCombo, defaultCombo: Model.transformDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.transformNumber),
                                 registered: !model.failedHotkeys.contains(Model.transformNumber), isEnabled: model.hotkeysEnabled)
-                    Text(L("hotkey.transformHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Divider().padding(.vertical, 4)
                     Text(L("hotkey.palette"))
                     HotkeyField(id: "palette", combo: $model.paletteCombo, defaultCombo: Model.paletteDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.paletteNumber),
                                 registered: !model.failedHotkeys.contains(Model.paletteNumber), isEnabled: model.hotkeysEnabled)
-                    Text(L("hotkey.paletteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 SettingsSection(L("sign.title")) {
                     HotkeyField(id: "sign", combo: $model.signCombo, defaultCombo: Model.signDefault, allowsClear: true,
@@ -1048,11 +1051,15 @@ struct Preferences: View {
                     Text(L("sign.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Text(model.signStatus).font(.caption).fixedSize(horizontal: false, vertical: true)
                 }
-                SettingsSection(L("hotkey.closeAll")) {
+                SettingsSection(L("hotkey.appearanceTitle")) {
+                    HotkeyField(id: AppearanceModel.paletteHotkeyFieldID, combo: $appearance.paletteCombo, defaultCombo: AppearanceModel.defaultPaletteCombo, allowsClear: true,
+                                others: model.otherHotkeys(except: 0).filter { $0.0 != L("hotkey.appearanceTitle") }, registered: appearance.paletteHotkeyRegistered, isEnabled: model.hotkeysEnabled)
+                }
+                AppearanceSettings(model: appearance)
+                SettingsSection(L("hotkey.closeAllTitle")) {
                     HotkeyField(id: "closeAll", combo: $model.closeAllCombo, defaultCombo: Model.closeAllDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.closeAllNumber),
                                 registered: !model.failedHotkeys.contains(Model.closeAllNumber), isEnabled: model.hotkeysEnabled)
-                    Text(L("hotkey.closeAllHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
             (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
@@ -1078,6 +1085,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     lazy var unitPalette = UnitPalette(model: model)
     lazy var quickPalette = QuickPrefsPalette(model: model)
     lazy var transformPalette = QuickTransformPalette(model: model)
+    /// The Appearance feature (ported from VectorFX): its own model, palette and hotkeys.
+    let appearance = AppearanceModel()
+    lazy var appearancePalette = AppearancePaletteController(model: appearance)
+    private var hotkeysSwitch: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
@@ -1104,6 +1115,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         add(menu, L("palette.menu"), #selector(showUnitPalette))
         add(menu, L("quick.menu"), #selector(showQuickPalette))
         add(menu, L("transform.menu"), #selector(showTransformPalette))
+        add(menu, L("appearance.menu"), #selector(toggleAppearancePalette))
         add(menu, L("openMainWindow"), #selector(showMain))
         add(menu, L("settings"), #selector(showPreferences))
         let help = NSMenu(title: L("help")); add(help, L("helpItem"), #selector(showHelp)); HelpLinks.addNoteItem(to: help)
@@ -1120,9 +1132,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         model.onQuickHotkey = { [weak self] in self?.quickPalette.toggle() }
         model.onTransformHotkey = { [weak self] in self?.transformPalette.toggle() }
         model.onCloseAllHotkey = { [weak self] in self?.closeAllPalettes() }
+        setUpAppearance()
         model.onLaunchHotkey = { [weak self] in self?.showMain() }
-        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings() }
-        SettingsSync.shared.start(.init(keys: Model.sharedKeys, prefixes: [],
+        SettingsSync.shared.showsNotes = false   // the 設定の共有 tab without the small explanations (user's choice)
+        SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings(); self?.appearance.reloadSharedSettings() }
+        SettingsSync.shared.start(.init(keys: Model.sharedKeys.union(AppearanceModel.sharedKeys), prefixes: [],
             note: StartupWindow.text("メトリクスの設定・ホットキー・単位セット・単位パレットのモード・環境設定セットを書き出し・同期します。",
                                      "Exports and syncs the Metrics options, the hotkeys, the unit sets, the Units Palette mode and the preference sets.",
                                      "导出并同步度量标准设置、快捷键、单位组合、单位面板的模式和偏好设置组合。",
@@ -1171,6 +1185,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         add(file, L("palette.menu"), #selector(showUnitPalette))
         add(file, L("quick.menu"), #selector(showQuickPalette))
         add(file, L("transform.menu"), #selector(showTransformPalette))
+        add(file, L("appearance.menu"), #selector(toggleAppearancePalette))
         file.addItem(.separator())
         add(file, L("bg.menu"), #selector(turnOffBackground))
         file.addItem(.separator())
@@ -1216,6 +1231,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         if unitPalette.isVisible { unitPalette.toggle() }
         if quickPalette.isVisible { quickPalette.toggle() }
         if transformPalette.isVisible { transformPalette.toggle() }
+        if appearance.paletteRequested { appearancePalette.hide() }
+    }
+    @objc func toggleAppearancePalette() {
+        appearancePalette.toggle()
+        // Shown from VectorMate, the palette waits for Illustrator: bring it forward.
+        if appearance.paletteRequested, Illustrator.front == nil { Illustrator.running?.activate() }
+    }
+    /// Palette key (⌃A) and command keys, registered only while Illustrator is in front (command keys also need the palette).
+    private func setUpAppearance() {
+        model.appearanceHotkey = { [weak self] in self?.appearance.paletteCombo }
+        appearance.reservedHotkeys = { [weak self] in
+            guard let self else { return [] }
+            return self.model.otherHotkeys(except: 0).filter { $0.0 != L("hotkey.appearanceTitle") }.map { $0.1 }
+        }
+        appearance.paletteHotkeyEnabled = model.hotkeysEnabled
+        hotkeysSwitch = model.$hotkeysEnabled.dropFirst().sink { [weak self] on in self?.appearance.paletteHotkeyEnabled = on }
+        appearance.paletteHotkeys.suppressRepeatedPresses = true
+        appearance.paletteHotkeys.action = { [weak self] _ in self?.appearancePalette.toggle() }
+        appearance.commandHotkeys.suppressRepeatedPresses = true
+        appearance.commandHotkeys.action = { [weak self] number in
+            guard let self, Illustrator.front != nil, let command = self.appearance.command(forHotkey: number) else { return }
+            self.appearance.run(command)
+        }
+        appearance.keyTap.action = { [weak self] id in
+            guard let self, Illustrator.front != nil, let command = Catalog.command(id) else { return }
+            self.appearance.run(command)
+        }
+        // Accessibility granted in System Settings: switch to the event tap when coming back.
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.appearance.updateRegistrations() }
+        }
+        appearancePalette.updateVisibility()
     }
     @objc func showQuickPalette() { quickPalette.show() }
     @objc func showTransformPalette() { transformPalette.show() }
@@ -1230,7 +1277,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it.
             window.title = ""; window.titleVisibility = .hidden
-            let hosting = NSHostingView(rootView: MainView(model: model))
+            let hosting = NSHostingView(rootView: MainView(model: model, appearance: appearance))
             hosting.sizingOptions = [.minSize]
             window.contentView = hosting
             window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("VectorMateMain")
@@ -1246,7 +1293,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         if preferences == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             window.title = L("settingsTitle"); window.isReleasedWhenClosed = false
-            let hosting = NSHostingView(rootView: Preferences(model: model))
+            let hosting = NSHostingView(rootView: Preferences(model: model, appearance: appearance))
             hosting.sizingOptions = [.minSize]
             window.contentView = hosting; window.center(); window.setFrameAutosaveName("VectorMateSettings")
             preferences = window

@@ -102,7 +102,7 @@ final class QuickPrefsPalette: NSObject, NSWindowDelegate {
     func show() {
         _ = visibility
         if window == nil {
-            let panel = QuickPrefsWindow(contentRect: NSRect(x: 0, y: 0, width: 280, height: 480),
+            let panel = QuickPrefsWindow(contentRect: NSRect(x: 0, y: 0, width: 230, height: 480),
                                          styleMask: [.titled, .closable, .utilityWindow], backing: .buffered, defer: false)
             panel.title = L("quick.title")
             panel.isFloatingPanel = true
@@ -165,6 +165,7 @@ struct QuickPrefsView: View {
             model.setQuick(items, on)
         }))
         .help(L(item.labelKey + "Tip"))
+        .fixedSize(horizontal: false, vertical: true)   // long labels wrap in the narrow palette
     }
 
     var body: some View {
@@ -221,8 +222,8 @@ struct QuickPrefsView: View {
             else if let result = model.quickResult, result.isError { Note(text: result.text) }
         }
         .disabled(model.busy || state == nil)
-        .padding(16)
-        .frame(width: 280)
+        .padding(12)
+        .frame(width: 230)
         .background(Color(nsColor: AppSurface.color))
         .onAppear {
             keyText = displayed(state)

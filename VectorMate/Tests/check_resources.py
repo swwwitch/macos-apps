@@ -14,9 +14,10 @@ for lang, table in tables.items():
     for key, value in table.items():
         if sorted(re.findall(r'%(?:\d\$)?l?[@d]', value)) != sorted(re.findall(r'%(?:\d\$)?l?[@d]', base.get(key, ''))):
             errors.append(f'{lang}: placeholders differ in {key}')
-source = '\n'.join(p.read_text() for p in (root / 'Source').glob('*.swift'))
+source = '\n'.join(p.read_text() for p in (root / 'Source').rglob('*.swift'))
 used = set(re.findall(r'L\("([^"]+)"\)', source)) | {k for k in re.findall(r'"((?:metrics|watch|bg|bright|shape|hotkey|fail)\.[A-Za-z0-9.]+)"', source) if not k.endswith('.')}
-used |= {'bright.level.' + k for k in ('dark', 'mediumDark', 'mediumLight', 'light')}
+used |= {'fx.' + key for key in re.findall(r'FX\("([^"\\]+)"\)', source)}
+used |= {'bright.level.'  + k for k in ('dark', 'mediumDark', 'mediumLight', 'light')}
 used |= {'on', 'off', 'undo', 'redo', 'cut', 'copy', 'paste', 'selectAll', 'minimize', 'zoom'}
 for key in sorted(used):
     if key not in base: errors.append(f'missing key {key}')

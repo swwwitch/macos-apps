@@ -112,6 +112,23 @@ struct UnitSetsEditor: View {
                 }.labelsHidden().fixedSize()
             }
             GridRow {
+                Text(L("sets.bleed")).foregroundColor(.secondary).fixedSize()
+                HStack(spacing: 6) {
+                    Picker("", selection: Binding(get: { model.unitSets[index].bleedMm != nil },
+                                                  set: { model.unitSets[index].bleedMm = $0 ? (model.unitSets[index].bleedMm ?? 3) : nil })) {
+                        Text(L("sets.keep")).tag(false)
+                        Text(L("sets.bleedSet")).tag(true)
+                    }.labelsHidden().fixedSize()
+                    if set.bleedMm != nil {
+                        TextField("", value: Binding(get: { model.unitSets[index].bleedMm ?? 0 }, set: { model.unitSets[index].bleedMm = min(max(0, $0), 500) }),
+                                  format: .number.precision(.fractionLength(0...3)))
+                            .frame(width: 60).multilineTextAlignment(.trailing)
+                            .accessibilityLabel(L("sets.bleed"))
+                        Text("mm").foregroundColor(.secondary)
+                    }
+                }
+            }
+            GridRow {
                 Text(L("sets.grid")).foregroundColor(.secondary).fixedSize()
                 HStack(spacing: 8) {
                     Picker("", selection: binding(index, \.gridMode)) {
