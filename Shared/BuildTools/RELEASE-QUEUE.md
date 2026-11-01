@@ -1136,3 +1136,5 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 - ユーザー「ビルドを作成」で開始。開発Mac MacBook-Pro-14-2024-sw.local、codex/pastemaestro-integration-20261101、基点06d61f52f9e732f25b13290943eb8e6addc68771。通常版1.2.0（4）。幅縮小、見出し「貼り付け」、現在値↓次の値、パレット行の手動並べ替え、新規行を最初の★の前へ挿入を実装。対象SHAは確定後記録。状態：実装中。実行中の旧アプリを終了・置換せず、専用worktree内で検証用ビルドを作成。公証・配布なし。
 
 - PasteMaestro build4検証結果：1.2.0（4）ワークスペース内ビルド・証明書署名・deep/strict・自動テストPASS。SlotQueueの★前挿入、重複識別、並べ替え、履歴復元を確認。成果物は専用worktree内、起動中旧版の置換なし。実機UI／ドラッグ／公証／配布は未確認・未実施。
+
+- PasteMaestro 1.2.0（4）実装対象SHA：5147d0044fbb0340ebecf322bc675cad8410538e、ブランチcodex/pastemaestro-integration-20261101。
