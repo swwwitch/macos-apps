@@ -907,3 +907,11 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 - 対象：カード5段階評価、数字1〜5、評価絞り込み、ハートお気に入り。通常版1.64.0（107）を開発担当で確定する。Lite対象外。
 - 状態：開発検証開始。公証担当への依頼は未送信、重複担当確認待ち。このMacの署名IDは0件。署名代替・開発Macからの配置は行わない。
 - 開発検証結果：日英翻訳検査・arm64 ReleaseコンパイルPASS。実機・Universal・署名は未確認。公証Macの既存チャット「macOSアプリのリリース作業」へ対象SHAを渡す準備中。
+
+## 2026-11-02 NotMyType 107 評価フィルター回帰修正
+
+- 開発担当：MacBook-Pro-14-2024-sw.local。専用ブランチ codex/notmytype107-rating-fix-20261102。基点 a3d75c6bcbbf3b311323ebfa31f51f354aeae650、配布106の仕様参照 f2862bb9fbf17dec11495ad6547cb985616e77af。
+- 1.64.0（107）を維持。指定評価以上、未評価0のみ、表示と数字キー対象の一致を復元。Lite変更なし。
+- 元checkoutの未コミット・未追跡ファイルを移動・変更せず保持し、独立worktreeで作業。NO_DEPLOY=1で検証。公証・配置は公証Mac担当、106保持。
+- 状態：検証中。
+- 検証完了：しきい値全件・数字キー対象・保存互換・既存テスト・日英翻訳PASS。NO_DEPLOY=1 Universalビルド/Apple Distribution署名検証PASS。版/build 1.64.0/107を維持。詳細 NotMyType/Tests/BUILD-NOTES-20261102-107.md。実機、公証・配置は未実施。確定SHAは本項目を含む開発修正コミット。

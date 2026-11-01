@@ -535,7 +535,7 @@ private struct FamilyListView: View {
                         Text(L("すべて")).tag(-1)
                         Text(L("未評価")).tag(0)
                         ForEach(1...5, id: \.self) { value in
-                            Text(String(repeating: "★", count: value) + String(repeating: "☆", count: 5 - value)).tag(value)
+                            Text(String(repeating: "★", count: value) + String(repeating: "☆", count: 5 - value) + L("以上")).tag(value)
                         }
                     }
                     TextField(L("比較するサンプルテキスト"), text: $cardSample)
