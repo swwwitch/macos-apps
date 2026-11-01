@@ -154,6 +154,8 @@ struct StartupWindowGate: NSViewRepresentable {
 /// Use the same app-owned main-window action as the menu-bar item.
 @MainActor
 enum AppSwitcherWindowReveal {
+    /// Optional app-specific launch gate. Existing adopters keep the default behavior.
+    static var activationRevealAllowed: () -> Bool = { true }
     private static var observers: [NSObjectProtocol] = []
     private static var ready = false
     private static var auxiliaryActivation = false
@@ -178,7 +180,7 @@ enum AppSwitcherWindowReveal {
                 let mouseActivation = NSEvent.pressedMouseButtons != 0
                 let showMain = !auxiliaryActivation
                 auxiliaryActivation = false
-                guard ready, !mouseActivation, showMain else { return }
+                guard ready, !mouseActivation, showMain, activationRevealAllowed() else { return }
                 DispatchQueue.main.async {
                     guard NSApp.isActive, NSApp.modalWindow == nil,
                           !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }

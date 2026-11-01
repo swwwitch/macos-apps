@@ -9,3 +9,5 @@ python3 Tests/check_resources.py
 
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework JavaScriptCore Source/Appearance/AppearanceCommands.swift Source/Appearance/AppearanceScripts.swift Source/Appearance/AppearanceLogic.swift Tests/Appearance/main.swift -o "$stage/appearance-tests"
 "$stage/appearance-tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework Carbon Source/LaunchPolicy.swift Tests/Launch/main.swift -o "$stage/launch-tests"
+"$stage/launch-tests"

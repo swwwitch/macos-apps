@@ -1090,6 +1090,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     lazy var appearancePalette = AppearancePaletteController(model: appearance)
     private var hotkeysSwitch: AnyCancellable?
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Preserve the login Apple Event before menus / shared setup can replace currentAppleEvent.
+        StartupWindow.captureLaunch()
+        AppSwitcherWindowReveal.activationRevealAllowed = {
+            LaunchPolicy.shouldRevealOnActivation(loginSuppressed: StartupWindow.suppressInitialWindow,
+                                                 commandHeld: NSEvent.modifierFlags.contains(.command))
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
         let loginLaunch = LaunchPolicy.isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
@@ -1273,6 +1282,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc func shapeArtwork() { model.setShapeSource(.artwork) }
 
     @objc func showMain() {
+        StartupWindow.userRequestedWindow()
         if mainWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it.

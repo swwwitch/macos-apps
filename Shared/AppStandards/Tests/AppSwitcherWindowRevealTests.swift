@@ -33,6 +33,8 @@ import AppKit
         selection()
         expect(reveals == 0, "initial activation follows launch policy")
         var steps: [() -> Void] = [
+            { app.selected = true; AppSwitcherWindowReveal.activationRevealAllowed = { false }; reveals = 0; selection() },
+            { expect(!main.isVisible && reveals == 0, "login activation gate suppresses delayed activation"); AppSwitcherWindowReveal.activationRevealAllowed = { true } },
             { app.selected = true; settings.orderFront(nil); reveals = 0; selection() },
             { expect(main.isVisible && reveals == 1, "closed main is displayed"); main.miniaturize(nil) },
             { reveals = 0; selection() },

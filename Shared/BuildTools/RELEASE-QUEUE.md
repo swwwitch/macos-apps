@@ -1309,3 +1309,10 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 - ユーザー「すべて実装」により所属カテゴリ強調・登録数・グループ並べ替え・カテゴリ並べ替え・コンポーネント選択再発対応を開始。開発Mac MacBook-Pro-14-2024-sw.local、codex/filesorter-screenshot-rename-20261101、基点e6718458、対象SHA未確定。2026-11-01日本時間開始。1.21.0（38）。実装・検証後commit/push。NO_DEPLOY workspaceのみ、公証・配布なし。
 
 - VectorKeys38結果：5項目を実装。1.21.0（38）で全回帰・4言語・ビルド・開発署名PASS、workspace起動・所属強調・重複除外件数・分類切替とモード往復後の選択をCUA確認。分類順序・保存／復元はデータ層テスト済み、実UIドラッグ完走と長時間再発は未確認。詳細VectorKeys/Tests/BUILD-NOTES-20261101-sidebar-selection.md。commit/push対象は本節を含むコミット。公証・配布なし。
+
+## VectorMate ログイン起動の表示抑止 開発開始（2026-11-02 JST）
+- ユーザー「修正を反映して検証用ビルドを作成して起動」により開始。担当：開発Mac MacBook-Pro-14-2024-sw.local、codex/vectorassist-build-20261101、入力8b637f7a、対象SHAは確定コミット。通常版2.22.1（86）予定。状態：修正・検証中。
+- 起動初期のApple Event捕捉と、共通のアクティブ化時再表示に対するVectorMate限定の抑止条件を追加。手動起動・開き直し・⌘Tab・明示操作を維持。SKIP_DEPLOY=1、公証・配布先配置・公開なし。対象455cf149の公証依頼は未送信のまま。
+
+### VectorMate ログイン起動修正 検証結果（2026-11-02）
+- 通常版2.22.1（86）。起動イベント早期保持とログイン時の自動アクティブ化による再表示抑止を実装。単体・4言語・アピアランス49項目／88生成スクリプト・起動判定・共通StartupWindow／Dock／AppSwitcher回帰テストPASS。Universal・署名検証成功。旧常駐84を通常終了してワークスペース86を起動、手動起動で主画面表示・アピアランス設定保持を確認。実ログイン・物理⌘Tabは未確認。対象SHAは本記録を含む確定コミット。記録：VectorMate/Tests/BUILD-NOTES-20261102-login.md。公証・配布先配置・公開なし。
