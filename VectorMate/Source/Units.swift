@@ -20,18 +20,20 @@ struct UnitSet: Codable, Identifiable, Equatable {
     var gridHex: String?
     /// 表示 → ピクセルにスナップ.
     var snapToPixel: Bool?
+    /// ［ドキュメント設定］の裁ち落とし (mm, all four sides).
+    var bleedMm: Double?
     enum ColorMode: String, Codable, CaseIterable { case cmyk, rgb }
     enum GridMode: String, Codable, CaseIterable { case matchTop, color }
-    var hasDocumentSettings: Bool { colorMode != nil || overprintPreview != nil || rasterResolution != nil || gridMode != nil || snapToPixel != nil }
+    var hasDocumentSettings: Bool { colorMode != nil || overprintPreview != nil || rasterResolution != nil || gridMode != nil || snapToPixel != nil || bleedMm != nil }
 
     static let defaults: [UnitSet] = [
         UnitSet(id: "mmPt", name: L("units.preset.mmPt"), units: [1, 2, 2, 2], increments: [0.1, 1, 1, 0.1],
-                colorMode: .cmyk, overprintPreview: true, rasterResolution: 300, snapToPixel: false),
+                colorMode: .cmyk, overprintPreview: true, rasterResolution: 300, snapToPixel: false, bleedMm: 3),
         UnitSet(id: "mmQH", name: L("units.preset.mmQH"), units: [1, 1, 5, 5], increments: [0.1, 1, 1, 0.5],
-                colorMode: .cmyk, overprintPreview: true, rasterResolution: 300, snapToPixel: false),
-        UnitSet(id: "px", name: L("units.preset.px"), units: [6, 6, 6, 6], increments: [1, 1, 1, 0.1], snapToPixel: true),
+                colorMode: .cmyk, overprintPreview: true, rasterResolution: 300, snapToPixel: false, bleedMm: 3),
+        UnitSet(id: "px", name: L("units.preset.px"), units: [6, 6, 6, 6], increments: [1, 1, 1, 0.1], snapToPixel: true, bleedMm: 0),
         UnitSet(id: "presentation", name: L("units.preset.presentation"), units: [6, 6, 6, 6], increments: [10, 20, 8, 1],
-                colorMode: .rgb, overprintPreview: false, rasterResolution: 300, snapToPixel: false)
+                colorMode: .rgb, overprintPreview: false, rasterResolution: 300, snapToPixel: false, bleedMm: 0)
     ]
     static let storeKey = "unitSets"
     static func load() -> [UnitSet] {
@@ -41,6 +43,14 @@ struct UnitSet: Codable, Identifiable, Equatable {
             UserDefaults.standard.set(true, forKey: "snapToPixelDefaultApplied")
             for index in sets.indices where sets[index].snapToPixel == nil {
                 if let builtIn = defaults.first(where: { $0.id == sets[index].id }) { sets[index].snapToPixel = builtIn.snapToPixel }
+            }
+            save(sets)
+        }
+        // 2.20 added 裁ち落とし: the built-in sets saved before get their value once (プリント 3 mm, ウェブ・プレゼン 0).
+        if !UserDefaults.standard.bool(forKey: "bleedDefaultApplied") {
+            UserDefaults.standard.set(true, forKey: "bleedDefaultApplied")
+            for index in sets.indices where sets[index].bleedMm == nil {
+                if let builtIn = defaults.first(where: { $0.id == sets[index].id }) { sets[index].bleedMm = builtIn.bleedMm }
             }
             save(sets)
         }
@@ -304,6 +314,7 @@ enum DocumentSettings {
             if case .failure(let failure) = evaluate("app.activeDocument.rasterEffectSettings.resolution = \(resolution); \"\"", in: app) { return .failure(failure) }
         }
         if let mode = set.gridMode, let failure = GridColors.apply(mode == .color ? (set.gridHex ?? "FFFFFF") : nil, root: root) { return .failure(failure) }
+        if let bleed = set.bleedMm, let failure = Bleed.apply(bleed, root: root) { return .failure(failure) }
         return .success(true)
     }
 }
@@ -366,7 +377,7 @@ enum GridColors {
         return nil
     }
 
-    private static func findDialog(_ root: AXUIElement) -> AXUIElement? {
+    static func findDialog(_ root: AXUIElement) -> AXUIElement? {
         AX.elements(root).first { el in
             dialogNames.contains(AX.string(el, kAXTitleAttribute) ?? "") || dialogNames.contains(AX.string(el, kAXDescriptionAttribute) ?? "")
         }
@@ -408,5 +419,83 @@ enum GridColors {
         guard let window = panel(root) else { return }
         if let close = AX.element(window, kAXCloseButtonAttribute) { AX.press(close) }
         _ = AX.wait(30) { panel(root) == nil ? true : nil }
+    }
+}
+
+/// ［ドキュメント設定］の裁ち落とし (measured 2026-11-01 on Illustrator 30.8 Japanese): the dialog's children are an
+/// AXStaticText 天 / 地 / 左 / 右 each followed by its AXTextField (value "3 mm"), and the link button
+/// すべての設定を同一にする. The bleed of an open document has no scripting property (only DocumentPreset has one).
+/// Every side is written as "<n> mm" (the unit in the text, so the document's units do not matter) and committed with
+/// Tab; a field that ignores AXValue is clicked and typed into. English names are unverified.
+enum Bleed {
+    static let sides = [["天", "Top"], ["地", "Bottom"], ["左", "Left"], ["右", "Right"]]
+
+    static func text(_ mm: Double) -> String {
+        let rounded = (mm * 1000).rounded() / 1000
+        return (rounded == rounded.rounded() ? String(Int(rounded)) : String(rounded)) + " mm"
+    }
+    /// The number at the start of a field ("3 mm" → 3).
+    static func value(_ text: String?) -> Double? {
+        guard let text else { return nil }
+        return Double(text.prefix { "0123456789.-".contains($0) })
+    }
+
+    /// Returns nil when done.
+    static func apply(_ mm: Double, root: AXUIElement) -> SettingsFailure? {
+        let dialog: AXUIElement
+        if let open = GridColors.findDialog(root) { dialog = open } else {
+            guard let item = MenuPath.find(root, GridColors.menuPaths), AX.press(item) else { return .menuNotFound }
+            guard let opened = AX.wait(50, { GridColors.findDialog(root) }) else { return .dialogNotFound }
+            dialog = opened
+        }
+        let children = AX.elements(dialog)
+        var fields: [AXUIElement] = []
+        for names in sides {
+            guard let label = children.firstIndex(where: { AX.role($0) == kAXStaticTextRole && names.contains(AX.string($0, kAXValueAttribute) ?? "") }),
+                  let field = children[label...].first(where: { AX.role($0) == kAXTextFieldRole }) else {
+                AX.pressButton(in: dialog, named: AX.cancelNames); return .controlNotFound
+            }
+            fields.append(field)
+        }
+        let wanted = text(mm)
+        for field in fields where value(AX.string(field, kAXValueAttribute)) != mm {
+            AXUIElementSetAttributeValue(field, kAXFocusedAttribute as CFString, kCFBooleanTrue)
+            AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, wanted as CFString)
+            Thread.sleep(forTimeInterval: 0.1)
+            AX.key(kVK_Tab)
+            Thread.sleep(forTimeInterval: 0.2)
+            if value(AX.string(field, kAXValueAttribute)) != mm { type(wanted, into: field) }
+        }
+        guard fields.allSatisfy({ value(AX.string($0, kAXValueAttribute)) == mm }) else {
+            AX.pressButton(in: dialog, named: AX.cancelNames); return .notChanged
+        }
+        AX.pressButton(in: dialog, named: AX.okNames)
+        _ = AX.wait(30) { GridColors.findDialog(root) == nil ? true : nil }
+        return nil
+    }
+
+    /// Clicks the field, selects its text (⌘A) and types `text`, then Tab.
+    private static func type(_ text: String, into field: AXUIElement) {
+        guard let frame = AX.frame(field) else { return }
+        AX.click(CGPoint(x: frame.midX, y: frame.midY))
+        let source = CGEventSource(stateID: .privateState)
+        for down in [true, false] {
+            let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(kVK_ANSI_A), keyDown: down)
+            event?.flags = .maskCommand
+            event?.post(tap: .cghidEventTap)
+            Thread.sleep(forTimeInterval: 0.03)
+        }
+        for character in text.utf16 {
+            for down in [true, false] {
+                let event = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: down)
+                var unit = character
+                event?.keyboardSetUnicodeString(stringLength: 1, unicodeString: &unit)
+                event?.flags = []
+                event?.post(tap: .cghidEventTap)
+                Thread.sleep(forTimeInterval: 0.02)
+            }
+        }
+        AX.key(kVK_Tab)
+        Thread.sleep(forTimeInterval: 0.2)
     }
 }

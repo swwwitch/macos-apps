@@ -331,6 +331,16 @@ enum InterfaceMenus {
         return .success(state)
     }
 
+    /// The menu order, except that the application frame is turned off before the application bar
+    /// (Illustrator keeps the bar while the frame is on).
+    static func order(_ wanted: State) -> [Item] {
+        var items = Item.allCases
+        guard wanted[.applicationFrame] == false, let bar = items.firstIndex(of: .applicationBar) else { return items }
+        items.removeAll { $0 == .applicationFrame }
+        items.insert(.applicationFrame, at: bar)
+        return items
+    }
+
     /// Blocking: presses the menu items whose checkmark differs from `wanted`, then reads them again.
     static func apply(_ wanted: State) -> Result<State, SettingsFailure> {
         guard AXIsProcessTrusted() else { return .failure(.notTrusted) }
@@ -338,7 +348,11 @@ enum InterfaceMenus {
         guard bringToFront(app) else { return .failure(.failed("activate")) }
         let root = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(root, 3)
-        for item in Item.allCases {
+        var wanted = wanted
+        // The application bar cannot be hidden while the application frame is on, so hiding the bar hides the frame too.
+        if wanted[.applicationBar] == false, wanted[.applicationFrame] == nil,
+           let frame = menuItem(root, .applicationFrame), isChecked(frame) { wanted[.applicationFrame] = false }
+        for item in order(wanted) {
             guard let value = wanted[item] else { continue }
             guard let el = menuItem(root, item) else { return .failure(.menuNotFound) }
             if isChecked(el) != value {
