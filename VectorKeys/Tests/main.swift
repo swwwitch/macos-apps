@@ -34,6 +34,7 @@ loaded?.recordRun(); loaded?.recordRun(at: Date(timeIntervalSince1970: 100))
 check(loaded?.uses == 2 && loaded?.lastRun == Date(timeIntervalSince1970: 100), "runs counted")
 
 // Saving round trip
+library.reconcileComponents()
 let file = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("VectorKeys-test-\(UUID().uuidString).json")
 do { try library.save(to: file) } catch { check(false, "save: \(error)") }
 check(Library.load(from: file) == library, "round trip")
@@ -390,4 +391,92 @@ check(PaletteSearch.filter([searchable], query: "JAPANESE").count == 1, "palette
 check(PaletteSearch.filter([searchable, searchDivider], query: "  ").count == 2, "empty search restores divider")
 check(PaletteSearch.filter([directSearch], query: "missing").isEmpty, "no invented filename for inline code")
 
+// Components: migration preserves action identity/settings, shares definitions and order.
+var componentMigration = try! JSONDecoder().decode(Library.self, from: Data(old.utf8))
+let preserved = componentMigration.scripts[0]
+componentMigration.scripts.append(ScriptEntry(steps: [.script(path: "/s/A.jsx"), .code(source: "alert(1)")], name: "combo"))
+componentMigration.reconcileComponents()
+check(componentMigration.components?.count == 2 && componentMigration.scripts[0].id == preserved.id && componentMigration.scripts[0].name == preserved.name, "migration preserves action and shares component")
+check(componentMigration.scripts[0].componentIDs?.first == componentMigration.scripts[1].componentIDs?.first, "shared references")
+let previous = componentMigration
+componentMigration.components![0].step = .script(path: "/new/A.jsx")
+componentMigration.reconcileComponents(previous: previous)
+check(componentMigration.scripts.allSatisfy { $0.actions.first == .script(path: "/new/A.jsx") }, "shared edit propagates to every action")
+let beforeMove = componentMigration
+componentMigration.scripts[1].actions.reverse()
+componentMigration.reconcileComponents(previous: beforeMove)
+check(componentMigration.scripts[1].actions.first == .code(source: "alert(1)") && componentMigration.components?.count == 2, "order edit reuses components")
+var round = try! JSONDecoder().decode(Library.self, from: JSONEncoder().encode(componentMigration))
+round.reconcileComponents()
+check(round == componentMigration, "component migration idempotent and JSON round trip")
+round.scripts[0].componentIDs = ["absent"]
+round.reconcileComponents()
+check(!round.scripts[0].scriptsOnly, "missing reference blocks whole action")
+var recent = Library()
+for i in 0..<12 { var entry = ScriptEntry(path: "/\(i).jsx"); entry.recordRun(at: Date(timeIntervalSince1970: Double(i))); recent.scripts.append(entry) }
+check(recent.recentlyUsed.count == 10 && recent.recentlyUsed.first?.path == "/11.jsx", "latest ten distinct actions")
+recent.scripts[0].recordRun(at: Date(timeIntervalSince1970: 20))
+check(recent.recentlyUsed.first?.path == "/0.jsx" && Set(recent.recentlyUsed.map(\.id)).count == 10, "reuse moves to top without duplicate")
+let legacyFile = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString + ".json")
+try! Data(old.utf8).write(to: legacyFile)
+let migrationResult = Library.load(from: legacyFile)
+let backupFile = legacyFile.deletingPathExtension().appendingPathExtension("pre-components.json")
+check((try? Data(contentsOf: backupFile)) == Data(old.utf8) && migrationResult.version == 2, "migration backs up exact original bytes")
+let workspaceBackup = legacyFile.deletingPathExtension().appendingPathExtension("pre-workspaces.json")
+check((try? Data(contentsOf: workspaceBackup)) == Data(old.utf8), "workspace migration preserves original bytes")
+try? FileManager.default.removeItem(at: legacyFile); try? FileManager.default.removeItem(at: backupFile); try? FileManager.default.removeItem(at: workspaceBackup)
+
+// Exercise the same writeback observer as AppModel, including attaching an identical step twice.
+struct ObservedLibrary {
+    var library: Library { didSet { library.reconcileComponents(previous: oldValue) } }
+}
+var observed = ObservedLibrary(library: componentMigration)
+let sharedID = observed.library.scripts[0].componentIDs![0]
+observed.library.scripts[0].componentIDs!.append(sharedID)
+check(observed.library.scripts[0].actions.count == 2, "observer resolves repeated component reference")
+let sharedIndex = observed.library.components!.firstIndex { $0.id == sharedID }!
+observed.library.components![sharedIndex].step = .code(source: "changed")
+check(observed.library.scripts[0].actions == [.code(source: "changed"), .code(source: "changed")], "observer propagates shared component mutation")
+observed.library.scripts[0].actions.removeLast()
+check(observed.library.scripts[0].componentIDs?.count == 1, "observer detaches without deleting component")
+// Independent component organization must never rewrite action groups or palette bindings.
+var separated = componentMigration
+separated.componentCategories = nil
+separated.scripts[0].category = "Original"
+separated.categories = ["Original"]
+separated.paletteHotkeys = ["Original": key]
+separated.paletteEnabled = ["Original": true]
+let originalActions = separated.scripts
+separated.reconcileComponents()
+check(separated.scripts == originalActions && separated.componentCategoryList == ["Original"], "organization migration preserves actions and imports classification")
+let ownerComponent = separated.scripts[0].componentIDs![0]
+separated.renameComponentCategory("Original", to: "Components only")
+check(separated.components?.first(where: { $0.id == ownerComponent })?.category == "Components only" && separated.scripts[0].category == "Original" && separated.paletteHotkeys?["Original"] == key, "component rename leaves action and palette unchanged")
+separated.deleteComponentCategory("Components only")
+check(separated.components?.first(where: { $0.id == ownerComponent })?.category == nil && separated.scripts == originalActions, "component group deletion keeps definitions and actions")
+var componentScan = WatchedScripts.Scan()
+componentScan.files["/watched/one.jsx"] = ["sub"]
+componentScan.groups = ["sub"]
+componentScan.fileGroups["/watched/one.jsx"] = ["sub"]
+let actionCount = separated.scripts.count
+check(WatchedScripts.merge(componentScan, into: &separated, autoGroup: true, componentsOnly: true) == 1 && separated.scripts.count == actionCount, "watch import creates component without action")
+check(separated.components?.last?.category == "sub", "watch classification belongs to component")
+// Identical code in distinct definitions retains reference identity when reordered, removed or undone.
+var equalDefinitions = Library()
+let c1 = Component(name: "First", step: .code(source: "same")), c2 = Component(name: "Second", step: .code(source: "same"))
+equalDefinitions.components = [c1, c2]
+var referenceAction = ScriptEntry(steps: [.code(source: "same"), .code(source: "same")], name: "Action")
+referenceAction.componentIDs = [c1.id, c2.id]
+equalDefinitions.scripts = [referenceAction]; equalDefinitions.reconcileComponents()
+let beforeReferenceMove = equalDefinitions
+equalDefinitions.moveComponentReference(actionID: referenceAction.id, from: 0, by: 1)
+equalDefinitions.reconcileComponents(previous: beforeReferenceMove)
+check(equalDefinitions.scripts[0].componentIDs == [c2.id, c1.id], "reordering equal code retains exact reference IDs")
+let beforeReferenceRemove = equalDefinitions
+equalDefinitions.removeComponentReference(actionID: referenceAction.id, at: 0)
+equalDefinitions.reconcileComponents(previous: beforeReferenceRemove)
+check(equalDefinitions.scripts[0].componentIDs == [c1.id] && equalDefinitions.components?.count == 2, "remove detaches exact ID and keeps definitions")
+let afterReferenceRemove = equalDefinitions
+equalDefinitions = beforeReferenceRemove; equalDefinitions.reconcileComponents(previous: afterReferenceRemove)
+check(equalDefinitions.scripts[0].componentIDs == [c2.id, c1.id], "undo preserves exact reference IDs")
 if failures == 0 { print("PASS: entries, adding, hotkeys, saving, AppleScript") } else { print("\(failures) failure(s)"); exit(1) }

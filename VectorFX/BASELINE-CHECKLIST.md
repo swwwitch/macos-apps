@@ -1,0 +1,52 @@
+# 共通仕様の実装と確認
+
+アプリ名：VectorFX
+バージョン/build：1.3.0 / 5
+確認OS/CPU：macOS 26 / Apple Silicon
+確認日：2026-11-01
+
+状態は「未実装／実装済み・実機未確認／実機確認済み／適用外」。証拠なしに完了へ変更しない。
+
+| ID | 項目 | 状態 | ソース・検証証拠・残件または適用外の理由 |
+| --- | --- | --- | --- |
+| B01 | 二重起動防止 | 実装済み・実機未確認 | `main.swift` applicationWillFinishLaunching（Bundle IDで既存インスタンスへ戻す）＋LSMultipleInstancesProhibited。ファイルは受け取らない |
+| B02 | ログイン起動設定 | 実装済み・実機未確認 | 共通 `LoginAtLaunch.swift`。初期値OFF |
+| B03 | ログイン時の非表示 | 実装済み・実機未確認 | `LaunchPolicy.isLoginLaunch`＋`StartupWindow.suppressInitialWindow` |
+| B04 | 常駐と再表示 | 実装済み・実機未確認 | 「ウインドウを閉じても常駐」初期値ON。Dock・メニューバー（MenuBarPresence）・アプリを呼び出すホットキーから再表示 |
+| B05 | 終了と処理保護 | 実装済み・実機未確認 | ⌘Q。実行中の `do javascript` はosascriptの子プロセスで、終了してもIllustrator側の処理は続く |
+| B06 | 標準キー操作 | 実装済み・実機未確認 | ⌘0・⌘W・⌘,・⌘?・⇧⌘P（パレット）・⌘Return（実行）・編集メニュー。キー記録はEscで取り消し |
+| B07 | ホットキー管理 | 実装済み・実機未確認 | パレットのホットキー（⌃A、変更・無効化・初期値・解除）、アプリを呼び出すホットキー（既定なし）、項目ごとのキー（変更・初期値・解除、重複は付け替え、登録失敗とパレットキーとの重複を表示）。項目キーはパレット表示中かつIllustrator前面のときだけ登録 |
+| B08 | 設定・位置の保持 | 実装済み・実機未確認 | UserDefaults、主画面・パレットの setFrameAutosaveName、画面外なら中央へ |
+| B09 | 権限の案内と再判定 | 実装済み・実機未確認 | オートメーション（Illustrator）：-1743で設定の場所を案内。アクセシビリティ：文字入力中のホットキー抑止（イベントタップ）だけに使用。設定の［起動・常駐］に共通の AccessibilitySection（理由は neededOverride、4言語）、未許可ならCarbonのホットキーに戻し［パレット］タブに案内。アプリに戻ったときに再判定 |
+| B10 | 原本保護・復元 | 実装済み・実機未確認 | ファイルは読むだけ。Illustratorの変更は⌘Zで取り消す（ヘルプに記載） |
+| B11 | 二重処理・中断対策 | 実装済み・実機未確認 | 直列実行、待ちは3件まで、超過は理由を表示 |
+| B12 | 成否・復旧表示 | 実装済み・実機未確認 | 組み込みスクリプトが OK／ERR:nodoc・nosel・text・action を返し、主画面とパレットに表示。スクリプトファイルは「実行しました」（中の成否はスクリプト側） |
+| B13 | 待機負荷・復帰 | 実装済み・実機未確認 | ポーリングなし（NSWorkspaceの前面アプリ通知で登録を切り替え）。CPU・メモリは未計測 |
+| B14 | 見出し左の現行アプリアイコン・共通ヘッダー・表示・アクセシビリティ | 一部実機確認済み | currentAppIcon()＋「アピアランスをパレットから操作」＋補足、AppSurface背景。ライトモードの主画面を撮影して確認。ダーク・VoiceOverは未確認 |
+| B15 | 多言語 | 自動テスト済み | `make-resources.py` 148キー×4言語、`test.sh` でキー・位置指定プレースホルダー・ヘルプを検証 |
+| B16 | 同梱ヘルプ・メニューからの表示・アプリ情報 | 実装済み・実機未確認 | ヘルプメニュー（⌘?）とメニューバーからHelp.txt。専用のnote記事は未作成のためまとめページ |
+| B17 | プライバシー | ソース確認済み | 外部通信なし（更新の配信先は未設定）。ログなし |
+| B18 | 更新・配布・最終版の/ApplicationsとLatest Buildsへの配置 | 未実施 | 開発Macでは検証ビルドのみ（AGENTS.md 担当分離）。配置・公証は公証担当Mac |
+| B19 | マスタード基調の共通アイコン | 実機確認済み | `Assets/GenerateIcon.swift`（VectorKeysと同じ地色・縁・影）。モチーフは影付きのカード＋fx＋きらめき。1024pxと主画面で確認 |
+| B20 | 共通UI統一 | 実装済み・実機未確認 | SettingsTabs「起動・常駐」（LaunchPresenceSection＋アプリを呼び出すホットキー）、「パレット」、「設定の共有」、「情報」 |
+| B21 | 対象外アプリの設定 | 適用外 | 作用する先はIllustratorだけ。パレット・キーはIllustratorが前面のときだけ有効で、実行直前にも前面を確認する |
+| B22 | 手動起動は表示・ログイン自動起動は非表示 | 一部実機確認済み | 手動起動で表示を確認。ログイン起動は未確認 |
+| B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、⌘0 |
+| B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | contentMinSize 560×560、SettingsTabs、即時反映、タイトル「設定」 |
+| B25 | アプリ情報と目印 | 実装済み・実機未確認 | 「情報」タブ、SWNoteArticleURL（まとめ）、NSHumanReadableCopyright、SWAppFamily |
+| B26 | 証明書での署名 | 実機確認済み | build.sh で PL9S9PXX96 署名、codesign --verify --deep --strict 成功 |
+| B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | ビープなし。失敗は状態欄とパレットに表示 |
+| B28 | ウインドウ位置とアクセシビリティの細目 | 実装済み・実機未確認 | 初回中央・画面外復帰、チェックボックス・パレットボタンにaccessibilityLabel |
+| B29 | 設定の書き出し・読み込みと同期 | 実装済み・実機未確認 | 共有キー hiddenCommands・commandKeys・commandValues・paletteHotkey・paletteHotkeyEnabled。スクリプトの場所・起動・常駐・アプリを呼び出すホットキーはMacごと。onImportで読み直し |
+| B30 | Dockとアプリケーションスイッチャーに表示しない | 実装済み・実機未確認 | 共通部品（LoginAtLaunchView内） |
+| B31 | アクセシビリティ設定を開く | 実装済み・実機未確認 | 共通 AccessibilitySection（AccessibilitySettingsLocator） |
+| B32 | 必要なアプリのみ標準通知と共通設定 | 適用外 | 結果はパレットと主画面に即時表示 |
+
+## 確認記録
+
+- ソース確認：実施
+- ビルド・自動テスト：`./build.sh` 成功、`./test.sh` 全件合格（生成ExtendScript 114本の構文チェック、効果XML・一時アクション・結果の解釈、4言語）
+- 実機：build版を起動して主画面を撮影。パレット表示、ホットキー、Illustratorでの各項目の実行は未確認
+- 閉じる・再表示・⌘Q・設定画面・ヘルプ：未実施
+- 再ログイン・OS側で自動起動OFF：未実施
+- /ApplicationsとLatest Buildsへの配置：未実施（公証担当Mac）

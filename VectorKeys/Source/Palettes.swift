@@ -43,7 +43,7 @@ final class CategoryPanel: NSPanel {
                 self.requested.remove(category)
             }
         }
-        changes = model.$library.sink { [weak self] library in
+        changes = model.libraryPublisher.sink { [weak self] library in
             // Published fires before the assignment. Reconcile against the published value next turn.
             DispatchQueue.main.async { self?.reconcile(library) }
         }
@@ -52,12 +52,9 @@ final class CategoryPanel: NSPanel {
         if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
         if let closeObserver { NotificationCenter.default.removeObserver(closeObserver) }
     }
-    private func title(_ category: String) -> String {
-        category == AppModel.allCategories ? L("category.all") :
-            category == AppModel.uncategorized ? L("category.none") : category
-    }
+    private func title(_ category: String) -> String { model.categoryTitle(category) }
     private func valid(_ category: String, in library: Library) -> Bool {
-        category == AppModel.allCategories || category == AppModel.uncategorized || library.categoryList.contains(category)
+        [AppModel.allCategories, AppModel.uncategorized, AppModel.recentCategory].contains(category) || library.categoryList.contains(category)
     }
     private func reconcile(_ library: Library) {
         for category in Array(panels.keys) where !valid(category, in: library) || !library.allowsPalette(category) {

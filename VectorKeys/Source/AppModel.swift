@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Carbon
 import SwiftUI
 import UniformTypeIdentifiers
@@ -66,7 +67,7 @@ struct RunRecord: Identifiable {
             DispatchQueue.main.async {
                 guard let self, generation == self.watchGeneration else { return }
                 var updated = self.library
-                let count = WatchedScripts.merge(scan, into: &updated, ignoring: self.watchIgnored, autoGroup: autoGroup)
+                let count = WatchedScripts.merge(scan, into: &updated, ignoring: self.watchIgnored, autoGroup: autoGroup, componentsOnly: true)
                 if updated != self.library { self.library = updated }
                 self.watchScanning = false
                 self.watchStatus = scan.errors.isEmpty ? String(format: L("watch.result"), scan.files.count, count) : String(format: L("watch.error"), scan.errors.count)
@@ -89,20 +90,28 @@ struct RunRecord: Identifiable {
     /// User-requested refresh; preferences, item names and script files are never changed.
     enum InformationScope { case selectedItems, selectedGroup, all }
     func informationIDs(_ scope: InformationScope) -> Set<String> {
+        if editingComponents {
+            switch scope {
+            case .selectedItems: return componentSelections.intersection(Set((library.components ?? []).map(\.id)))
+            case .selectedGroup: return componentFilter == Self.allCategories && componentActionGroupFilter == Self.allCategories ? [] : Set(componentsInCurrentGroup.map(\.id))
+            case .all: return Set((library.components ?? []).map(\.id))
+            }
+        }
         switch scope {
         case .selectedItems: return Set(library.scripts.filter { selection.contains($0.id) && !$0.isDivider }.map(\.id))
         case .selectedGroup:
-            guard categoryFilter != Self.allCategories else { return [] }
+            guard categoryFilter != Self.allCategories, categoryFilter != Self.recentCategory else { return [] }
             return Set(scripts(in: categoryFilter).filter { !$0.isDivider }.map(\.id))
         case .all: return Set(library.scripts.filter { !$0.isDivider }.map(\.id))
         }
     }
     func updateScriptInformation(_ scope: InformationScope = .all) {
         let targetIDs = informationIDs(scope)
+        let componentScope = editingComponents
         guard !updatingInformation, !targetIDs.isEmpty else { return }
         updatingInformation = true
         metadataWork?.cancel(); metadataGeneration = UUID()
-        let paths = Set(library.scripts.filter { targetIDs.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let paths = componentScope ? Set((library.components ?? []).filter { targetIDs.contains($0.id) }.compactMap { $0.step.scriptPath }) : Set(library.scripts.filter { targetIDs.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
         informationCompleted = 0; informationTotal = paths.count
         Task {
             defer { updatingInformation = false }
@@ -124,11 +133,15 @@ struct RunRecord: Identifiable {
                     found[path] = ScriptMetadata.codeURL(in: text, scriptFilename: (path as NSString).lastPathComponent, relativeTo: readme)
                 } catch { failed += 1 }
             }
-            let currentPaths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+            let currentPaths = Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) } + (library.components ?? []).compactMap { $0.step.scriptPath })
             for path in paths { remoteCodeURLs.removeValue(forKey: path) }
             remoteCodeURLs.merge(found.filter { currentPaths.contains($0.key) }) { _, new in new }
             var renamed = library
-            renamed.refreshAutomaticNames(ids: targetIDs)
+            if componentScope {
+                for i in (renamed.components ?? []).indices where targetIDs.contains(renamed.components![i].id) && renamed.components![i].userRenamed != true {
+                    if let path = renamed.components![i].step.scriptPath { renamed.components![i].name = ScriptEntry.defaultName(for: path) }
+                }
+            } else { renamed.refreshAutomaticNames(ids: targetIDs) }
             if renamed != library { library = renamed }
             refreshVersions(paths: paths)
             record("VectorKeys", failed == 0 ? L("meta.refreshed") : String(format: L("meta.refreshPartial"), failed), error: failed > 0)
@@ -145,9 +158,9 @@ struct RunRecord: Identifiable {
     private var paletteNumbers: [UInt32: String] = [:]
     private var metadataGeneration = UUID()
     private var metadataWork: DispatchWorkItem?
-    var paletteCategories: [String] { [Self.allCategories] + library.categoryList + [Self.uncategorized] }
+    var paletteCategories: [String] { [Self.allCategories, Self.recentCategory] + library.categoryList + [Self.uncategorized] }
     func categoryTitle(_ category: String) -> String {
-        category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
+        category == Self.recentCategory ? L("group.recent") : category == Self.allCategories ? L("category.all") : category == Self.uncategorized ? L("category.none") : category
     }
     func sortSelected(_ ids: Set<String>, by order: SortOrder) {
         undoable(L("sort.label")) { library.sortSelected(ids, by: order) { KeyCombo.keyName($0.code) } }
@@ -193,7 +206,7 @@ struct RunRecord: Identifiable {
         if updatingInformation && requestedPaths == nil { return }
         metadataWork?.cancel()
         let generation = UUID(); metadataGeneration = generation
-        let paths = requestedPaths ?? Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+        let paths = requestedPaths ?? Set(library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) } + (library.components ?? []).compactMap { $0.step.scriptPath })
         let partial = requestedPaths != nil
         let oldVersions = scriptVersions, oldMetadata = scriptMetadata, oldReadmes = scriptReadmes, oldCodeURLs = scriptCodeURLs
         let work = DispatchWorkItem { [weak self] in
@@ -215,7 +228,7 @@ struct RunRecord: Identifiable {
                 if self.scriptVersions != versions { self.scriptVersions = versions }
                 if self.scriptMetadata != metadata { self.scriptMetadata = metadata }
                 if self.scriptReadmes != readmes { self.scriptReadmes = readmes }
-                let currentPaths = Set(self.library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) })
+                let currentPaths = Set(self.library.scripts.flatMap { $0.actions.compactMap(\.scriptPath) } + (self.library.components ?? []).compactMap { $0.step.scriptPath })
                 let merged = self.remoteCodeURLs.filter { currentPaths.contains($0.key) }.merging(codeURLs) { _, local in local }
                 if self.scriptCodeURLs != merged { self.scriptCodeURLs = merged }
             }
@@ -224,12 +237,36 @@ struct RunRecord: Identifiable {
         DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.3, execute: work)
     }
     private let defaults = UserDefaults.standard
-    @Published var library = Library.load() { didSet { scheduleSave(); registerHotkeys(); refreshVersions() } }
+    private let libraryStore = LibraryStore(Library.load())
+    private var libraryChanges: AnyCancellable?
+    var libraryPublisher: Published<Library>.Publisher { libraryStore.$value }
+    var library: Library {
+        get { libraryStore.value }
+        set {
+            let before = libraryStore.value
+            guard libraryStore.replace(newValue) else { return }
+            let after = libraryStore.value
+            scheduleSave()
+            if before.keyRegistrationState != after.keyRegistrationState { registerHotkeys() }
+            if before.metadataPaths != after.metadataPaths { refreshVersions() }
+        }
+    }
     /// Selected scripts in the list (⌘-click / ⇧-click for several). The detail pane edits one of them.
+    @Published var actionSearch = ""
+    @Published var componentSearch = ""
+    @Published var editingComponents = true
+    @Published var componentActionGroupFilter = AppModel.allCategories { didSet { if oldValue != componentActionGroupFilter { componentSelections = [] } } }
+    @Published var componentSelections: Set<String> = []
+    var componentSelection: String? {
+        get { componentSelections.count == 1 ? componentSelections.first : nil }
+        set { componentSelections = newValue.map { [$0] } ?? [] }
+    }
+    @Published var componentFilter = AppModel.allCategories { didSet { if oldValue != componentFilter { componentSelections = [] } } }
     @Published var selection: Set<String> = []
     var selectedID: String? { selection.count == 1 ? selection.first : nil }
     /// The sidebar choice: allCategories, uncategorized, or a category name.
     @Published var categoryFilter = AppModel.allCategories { didSet { selection = [] } }
+    static let recentCategory = "\u{0}recent"
     static let allCategories = "\u{0}all", uncategorized = "\u{0}none"
     @Published var records: [RunRecord] = []
     @Published var illustratorFront = Illustrator.front != nil
@@ -250,6 +287,7 @@ struct RunRecord: Identifiable {
     private var observers: [NSObjectProtocol] = []
 
     init() {
+        libraryChanges = libraryStore.objectWillChange.sink { [weak self] in self?.objectWillChange.send() }
         configureWatching()
         observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
             let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
@@ -439,28 +477,108 @@ struct RunRecord: Identifiable {
             selection = [entry.id]
         }
     }
-    func addCode() {
-        var entry = ScriptEntry(steps: [.code(source: "")], name: L("code.title"))
-        entry.category = currentCategory
-        undoable(L("undo.add")) { library.scripts.append(entry); selection = [entry.id] }
-    }
+    func addCode() { editingComponents = true; registerComponent(code: true) }
     func updateCode(_ id: String, at index: Int, source: String) {
-        editSteps(id) { steps in
-            guard steps.indices.contains(index), case .code = steps[index] else { return }
-            steps[index] = .code(source: source)
+        guard let entry = library.scripts.first(where: { $0.id == id }), let ids = entry.componentIDs, ids.indices.contains(index) else { return }
+        updateComponent(ids[index], step: .code(source: source))
+    }
+    func updateComponent(_ id: String, step: Step) {
+        guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) { var next = library; next.components?[i].step = step; library = next }
+    }
+    func setInvocationValue(_ value: String, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot) else { return }
+        let old = library.scripts[i].arguments(at: step)
+        guard (old.indices.contains(slot) ? old[slot] : "") != value else { return }
+        undoable(L("invocation.values")) { library.scripts[i].setArgument(value, at: step, slot: slot) }
+    }
+    func setInvocationVariable(_ value: String, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot),
+              library.scripts[i].variableNames(at: step)[slot] != value else { return }
+        undoable(L("invocation.values")) { library.scripts[i].setVariableName(value, at: step, slot: slot) }
+    }
+    func selectInvocationVariable(_ candidate: VariableOverrides.Candidate, actionID: String, step: Int, slot: Int) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == actionID }),
+              library.scripts[i].actions.indices.contains(step), (0..<3).contains(slot) else { return }
+        undoable(L("invocation.values")) {
+            var next = library
+            next.scripts[i].setVariableName(candidate.name, at: step, slot: slot)
+            next.scripts[i].setArgument(candidate.value, at: step, slot: slot)
+            library = next
         }
     }
-    func add(urls: [URL]) {
-        let accepted = urls.filter(ScriptEntry.accepts)
-        // Added while a category is chosen in the sidebar: the scripts go into it.
-        let added = library.add(entries: accepted.map { url in
-            var entry = ScriptEntry(path: url.path); entry.category = currentCategory; return entry
-        })
-        if !added.isEmpty { selection = Set(added.map(\.id)) }
-        else if let path = accepted.first?.path, let existing = library.scripts.first(where: { $0.path == path }) { selection = [existing.id] }
-        let skipped = urls.count - accepted.count
-        if skipped > 0 { record("VectorKeys", String(format: L("add.skipped"), skipped), error: true) }
+    func attachComponent(_ component: Component, to id: String) {
+        guard let i = library.scripts.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) { library.scripts[i].componentIDs = (library.scripts[i].componentIDs ?? []) + [component.id] }
     }
+    func addComponentToGroup(_ id: String, category: String?, revealAction: Bool = true) {
+        addComponentsToGroup([id], category: category, revealAction: revealAction)
+    }
+    func addComponentsToGroup(_ ids: Set<String>, category: String?, revealAction: Bool = false) {
+        var actionIDs: [String] = []
+        undoable(L("undo.add")) {
+            var next = library
+            for component in next.components ?? [] where ids.contains(component.id) {
+                if let id = next.addComponentAction(component.id, category: category) { actionIDs.append(id) }
+            }
+            library = next
+        }
+        guard !actionIDs.isEmpty else { return }
+        if revealAction {
+            editingComponents = false; categoryFilter = category ?? Self.uncategorized; selection = Set(actionIDs)
+        } else { record(L("components.title"), L("components.addedToGroup"), error: false) }
+    }
+    func duplicateActions(_ ids: Set<String>) {
+        guard library.scripts.contains(where: { ids.contains($0.id) && !$0.isDivider }) else { return }
+        undoable(L("action.duplicate")) {
+            let copies = library.duplicateActions(ids)
+            actionSearch = ""
+            if categoryFilter == Self.recentCategory { categoryFilter = Self.allCategories }
+            selection = Set(copies)
+        }
+    }
+    func newAction() {
+        editingComponents = false
+        var entry = ScriptEntry(steps: [], name: L("action.new")); entry.category = currentCategory
+        undoable(L("undo.add")) { library.scripts.append(entry); if categoryFilter == Self.recentCategory { categoryFilter = Self.uncategorized }; selection = [entry.id] }
+    }
+    func registerComponent(code: Bool) {
+        if code {
+            var component = Component(name: L("code.title"), step: .code(source: "")); component.category = currentComponentCategory
+            undoable(L("undo.add")) { library.components = (library.components ?? []) + [component]; revealComponent(component.id) }
+        } else {
+            let panel = NSOpenPanel(); panel.allowsMultipleSelection = true
+            panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
+            guard panel.runModal() == .OK else { return }
+            addComponentFiles(panel.urls)
+
+        }
+    }
+    func deleteComponent(_ id: String) { deleteComponents([id]) }
+    func deleteComponents(_ ids: Set<String>) {
+        guard library.deletableComponents(ids) == ids, !ids.isEmpty else { return }
+        undoable(L("delete")) {
+            var next = library
+            guard let paths = next.removeComponents(ids) else { return }
+            // Suppression belongs to component registration, not action references.
+            setWatchIgnored(watchIgnored.union(paths))
+            library = next
+        }
+        componentSelections.subtract(ids)
+    }
+    func setComponentCategory(_ category: String?, ids: Set<String>) {
+        guard category.map({ library.componentCategoryList.contains($0) }) ?? true else { return }
+        undoable(L("componentCategory.title")) { library.setComponentCategory(category, ids: ids) }
+        componentFilter = category ?? Self.uncategorized
+        componentSelections = ids.intersection(Set((library.components ?? []).map(\.id)))
+    }
+    private func setWatchIgnored(_ paths: Set<String>) {
+        watchIgnored = paths; defaults.set(Array(paths), forKey: "watchIgnored")
+    }
+
+    func add(urls: [URL]) { editingComponents = true; addComponentFiles(urls) }
     /// Drops and the open panel bring .kmmacros files here; scripts go to add(urls:).
     func open(urls: [URL]) {
         let exports = urls.filter { $0.pathExtension.lowercased() == "kmmacros" }
@@ -472,6 +590,7 @@ struct RunRecord: Identifiable {
     /// Imports the macros of Keyboard Maestro exports whose steps VectorKeys can run. Code written in a macro
     /// is saved as a .jsx file in Application Support/VectorKeys/Imported (the same code reuses its file).
     func importKM(_ urls: [URL]) {
+        editingComponents = false
         var items: [KMImport.Item] = [], skipped: [KMImport.Skipped] = [], unreadable: [String] = []
         for url in urls {
             guard let data = try? Data(contentsOf: url), let result = KMImport.parse(data) else { unreadable.append(url.lastPathComponent); continue }
@@ -567,9 +686,9 @@ struct RunRecord: Identifiable {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         undoable(L("undo.steps")) {
             var item = library.scripts[index]
-            if item.actions.count == 1 && item.name == ScriptEntry.defaultName(for: old) { item.name = ScriptEntry.defaultName(for: url.path) }
-            item.actions[step] = .script(path: url.path)
+            if item.userRenamed != true && item.actions.count == 1 && item.name == ScriptEntry.defaultName(for: old) { item.name = ScriptEntry.defaultName(for: url.path) }
             library.scripts[index] = item
+            if let ids = item.componentIDs, ids.indices.contains(step), let c = library.components?.firstIndex(where: { $0.id == ids[step] }) { library.components![c].step = .script(path: url.path) }
         }
     }
 
@@ -594,13 +713,11 @@ struct RunRecord: Identifiable {
     }
     func addStep(_ step: Step, to id: String) { editSteps(id) { $0.append(step) } }
     func moveStep(_ id: String, from: Int, by offset: Int) {
-        editSteps(id) { steps in
-            let to = from + offset
-            guard steps.indices.contains(from), steps.indices.contains(to) else { return }
-            steps.swapAt(from, to)
-        }
+        undoable(L("undo.steps")) { library.moveComponentReference(actionID: id, from: from, by: offset) }
     }
-    func removeStep(_ id: String, at index: Int) { editSteps(id) { if $0.indices.contains(index) { $0.remove(at: index) } } }
+    func removeStep(_ id: String, at index: Int) {
+        undoable(L("undo.steps")) { library.removeComponentReference(actionID: id, at: index) }
+    }
     func binding(for id: String) -> Binding<ScriptEntry>? {
         guard library.scripts.contains(where: { $0.id == id }) else { return nil }
         return Binding(get: { self.library.scripts.first { $0.id == id } ?? ScriptEntry(id: id, path: "") },
@@ -612,31 +729,100 @@ struct RunRecord: Identifiable {
     /// Removes scripts from the list. Code saved by an import (in Imported) goes to the Trash when nothing else uses it;
     /// ⌘Z brings back both the entries and those files.
     func delete(_ ids: Set<String>) {
-        let roots = watchFolders.map { $0 + "/" }
-        let removedPaths = library.scripts.filter { ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) }.map { URL(fileURLWithPath: $0).standardizedFileURL.resolvingSymlinksInPath().path }
-        watchIgnored.formUnion(removedPaths.filter { path in roots.contains { path.hasPrefix($0) } })
-        defaults.set(Array(watchIgnored), forKey: "watchIgnored")
-        let removed = library.scripts.filter { ids.contains($0.id) }
-        let remaining = Set(library.scripts.filter { !ids.contains($0.id) }.flatMap { $0.actions.compactMap(\.scriptPath) })
-        let imported = Library.folder.appendingPathComponent("Imported", isDirectory: true).path + "/"
-        let paths = Set(removed.flatMap { $0.actions.compactMap(\.scriptPath) })
-        let files = TrashedFiles(paths.filter { $0.hasPrefix(imported) && !remaining.contains($0) }.map { URL(fileURLWithPath: $0) })
-        undoable(L("undo.delete"), files: files) {
-            library.scripts.removeAll { ids.contains($0.id) }
-            files.trash()
-        }
+        undoable(L("undo.delete")) { library.scripts.removeAll { ids.contains($0.id) } }
         selection.subtract(ids)
     }
+    func placeActions(_ ids: Set<String>, before target: String?, within visible: [String]) {
+        undoable(L("undo.steps")) { _ = library.placeActions(ids, before: target, within: visible) }
+    }
+    func showAction(_ id: String) {
+        guard library.scripts.contains(where: { $0.id == id }) else { return }
+        editingComponents = false; actionSearch = ""; categoryFilter = Self.allCategories; selection = [id]
+    }
+    func showComponent(_ id: String) {
+        guard library.components?.contains(where: { $0.id == id }) == true else { return }
+        componentActionGroupFilter = Self.allCategories; componentFilter = Self.allCategories
+        componentSearch = ""; componentSelection = id; editingComponents = true
+    }
+
     func move(ids: [String], from source: IndexSet, to destination: Int) { library.move(ids: ids, from: source, to: destination) }
+
+    var currentComponentCategory: String? { [Self.allCategories, Self.uncategorized].contains(componentFilter) ? nil : componentFilter }
+    func componentsInActionGroup(_ filter: String) -> [Component] {
+        filter == Self.allCategories ? (library.components ?? []) : library.componentsUsed(by: Set(scripts(in: filter).map(\.id)))
+    }
+    var componentsInCurrentGroup: [Component] {
+        componentsInActionGroup(componentActionGroupFilter).filter { componentFilter == Self.allCategories || $0.category == currentComponentCategory }
+    }
+    var selectedComponentCategories: Set<String> {
+        library.selectedComponentCategories(componentSelections, uncategorized: Self.uncategorized)
+    }
+    @discardableResult func reorderClassification(_ text: String, before target: String?, kind: ClassificationKind) -> Bool {
+        guard let payload = ClassificationDragPayload.decode(text), payload.kind == kind else { return false }
+        undoable(L("classification.reorder")) {
+            var next = library
+            _ = next.reorderClassification(payload.name, before: target, kind: kind)
+            library = next
+        }
+        return true
+    }
+    private func revealComponent(_ id: String?) {
+        componentActionGroupFilter = Self.allCategories
+        componentSelection = id
+    }
+    func addComponentFiles(_ urls: [URL]) {
+        undoable(L("undo.add")) {
+            var pool = library.components ?? []
+            for url in urls where ScriptEntry.accepts(url) {
+                let step = Step.script(path: url.path)
+                if let existing = pool.first(where: { $0.step == step }) { componentSelection = existing.id }
+                else {
+                    var component = Component(name: ScriptEntry.defaultName(for: url.path), step: step)
+                    component.category = currentComponentCategory; pool.append(component); componentSelection = component.id
+                }
+            }
+            library.components = pool
+            revealComponent(componentSelection)
+        }
+    }
+    func editComponent(_ id: String, _ change: (inout Component) -> Void) {
+        guard let i = library.components?.firstIndex(where: { $0.id == id }) else { return }
+        undoable(L("undo.steps")) {
+            var next = library
+            guard var component = next.components?[i] else { return }
+            change(&component); next.components?[i] = component; library = next
+        }
+    }
+    func newComponentCategory() {
+        guard let name = askName(title: L("componentCategory.newTitle"), value: ""), !name.isEmpty else { return }
+        undoable(L("undo.newCategory")) {
+            var names = library.componentCategoryList
+            if !names.contains(name) { names.append(name) }; library.componentCategories = names
+        }
+        componentFilter = name
+    }
+    func renameComponentCategory(_ name: String) {
+        guard let new = askName(title: L("componentCategory.renameTitle"), value: name), !new.isEmpty, new != name, !library.componentCategoryList.contains(new) else { return }
+        undoable(L("componentCategory.rename")) { library.renameComponentCategory(name, to: new) }; componentFilter = new
+    }
+    func deleteComponentCategory(_ name: String) {
+        undoable(L("componentCategory.delete")) { library.deleteComponentCategory(name) }; componentFilter = Self.allCategories
+    }
+    func relinkComponent(_ id: String) {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = ScriptEntry.extensions.compactMap { UTType(filenameExtension: $0) }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        updateComponent(id, step: .script(path: url.path))
+    }
 
     // MARK: Categories
 
     /// The category new scripts go into: the one chosen in the sidebar, or none.
     var currentCategory: String? {
-        categoryFilter == Self.allCategories || categoryFilter == Self.uncategorized ? nil : categoryFilter
+        categoryFilter == Self.allCategories || categoryFilter == Self.uncategorized || categoryFilter == Self.recentCategory ? nil : categoryFilter
     }
     func scripts(in filter: String) -> [ScriptEntry] {
         switch filter {
+        case Self.recentCategory: return library.recentlyUsed
         case Self.allCategories: return library.scripts
         case Self.uncategorized: return library.scripts.filter { $0.category == nil }
         default: return library.scripts.filter { $0.category == filter }
@@ -646,7 +832,7 @@ struct RunRecord: Identifiable {
         guard let name = askName(title: L("category.newTitle"), value: "") else { return }
         var added: String?
         undoable(L("undo.newCategory")) { added = library.addCategory(name) }
-        if let added { categoryFilter = added }
+        if let added { if editingComponents { componentActionGroupFilter = added } else { categoryFilter = added } }
     }
     func setColor(_ color: ItemTag?, for ids: Set<String>) {
         undoable(L("item.color")) {
@@ -666,29 +852,45 @@ struct RunRecord: Identifiable {
         let renamed = new.trimmingCharacters(in: .whitespacesAndNewlines)
         if !renamed.isEmpty && renamed != name { paletteRenamed?(name, renamed) }
         if categoryFilter == name && !renamed.isEmpty { categoryFilter = renamed }
+        if componentActionGroupFilter == name && !renamed.isEmpty { componentActionGroupFilter = renamed }
         return true
     }
     func deleteCategory(_ name: String) {
         undoable(L("undo.deleteCategory")) { library.deleteCategory(name) }
         if categoryFilter == name { categoryFilter = Self.allCategories }
+        if componentActionGroupFilter == name { componentActionGroupFilter = Self.allCategories }
     }
     func setCategory(_ name: String?, for ids: Set<String>) { undoable(L("undo.category")) { library.setCategory(name, for: ids) } }
     /// Tools › アイテム名の検索と置換… opens the sheet in the main window.
     @Published var showReplace = false
-    func replaceNames(find: String, with replacement: String, regex: Bool, caseSensitive: Bool) {
+    var selectedNameTargets: [NamedLibraryItem] {
+        let visible: Set<String>
+        if editingComponents {
+            visible = Set(componentsInCurrentGroup.filter { componentSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(componentSearch) || ($0.step.scriptPath ?? "").localizedCaseInsensitiveContains(componentSearch) }.map(\.id))
+        } else {
+            visible = Set(scripts(in: categoryFilter).filter { actionSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(actionSearch) || ($0.hotkey?.fullLabel ?? "").localizedCaseInsensitiveContains(actionSearch) }.map(\.id))
+        }
+        return library.nameTargets(components: editingComponents, ids: (editingComponents ? componentSelections : selection).intersection(visible))
+    }
+    func replaceNames(find: String, with replacement: String, regex: Bool, caseSensitive: Bool, components: Bool? = nil, ids: Set<String>? = nil) {
+        let componentMode = components ?? editingComponents
+        let targets = ids ?? Set(selectedNameTargets.map(\.id))
         var count = 0
-        undoable(L("undo.rename")) { count = library.replaceNames(ids: selection, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) }
+        undoable(L("undo.rename")) {
+            count = componentMode ? library.replaceComponentNames(ids: targets, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive) : library.replaceNames(ids: targets, find: find, with: replacement, regex: regex, caseSensitive: caseSensitive)
+        }
         record("VectorKeys", String(format: L("replace.done"), count), error: false)
     }
-    /// Tools › KMマクロのナンバリングを削除, on the selected scripts.
     func stripNumbering() {
+        let componentMode = editingComponents, targets = Set(selectedNameTargets.map(\.id))
         var count = 0
-        undoable(L("undo.rename")) { count = library.stripNumbering(ids: selection) }
+        undoable(L("undo.rename")) { count = componentMode ? library.stripComponentNumbering(ids: targets) : library.stripNumbering(ids: targets) }
         record("VectorKeys", String(format: L("tools.stripped"), count), error: false)
     }
-    /// A row dropped on a category: when it is one of the selected rows, the whole selection goes along.
-    func dropped(_ id: String, on category: String?) {
-        setCategory(category, for: selection.contains(id) ? selection : [id])
+    func dropped(_ text: String, on category: String?) {
+        let ids = ActionDragPayload.decode(text)
+        if !ids.isEmpty { setCategory(category, for: ids.intersection(Set(library.scripts.map(\.id)))) }
+        else if library.scripts.contains(where: { $0.id == text }) { setCategory(category, for: selection.contains(text) ? selection : [text]) }
     }
     // MARK: Undo
 
@@ -697,12 +899,12 @@ struct RunRecord: Identifiable {
     /// Runs a change of the list and lets ⌘Z put the list back (and ⇧⌘Z redo it). Typing in a name field has its
     /// own undo; this covers the list operations: renaming by tools, categories, deleting, importing.
     private func undoable(_ name: String, files: TrashedFiles? = nil, _ change: () -> Void) {
-        let before = library
+        let before = library, ignoredBefore = watchIgnored
         change()
-        let after = library
-        guard after != before else { return }
-        registerUndo(name, undo: { [weak self] in files?.restore(); self?.library = before },
-                     redo: { [weak self] in self?.library = after; files?.trash() })
+        let after = library, ignoredAfter = watchIgnored
+        guard after != before || ignoredAfter != ignoredBefore else { return }
+        registerUndo(name, undo: { [weak self] in files?.restore(); self?.setWatchIgnored(ignoredBefore); self?.library = before },
+                     redo: { [weak self] in self?.setWatchIgnored(ignoredAfter); self?.library = after; files?.trash() })
     }
     private func registerUndo(_ name: String, undo: @escaping () -> Void, redo: @escaping () -> Void) {
         undoManager.registerUndo(withTarget: self) { model in
@@ -732,7 +934,7 @@ struct RunRecord: Identifiable {
         }
     }
     /// Tools › KMの元のマクロをオフにする / オンに戻す, for the selected scripts that came from Keyboard Maestro.
-    var selectedKMUIDs: [String] { library.scripts.filter { selection.contains($0.id) }.compactMap(\.kmUID) }
+    var selectedKMUIDs: [String] { editingComponents ? [] : library.scripts.filter { selection.contains($0.id) }.compactMap(\.kmUID) }
 
     /// A small name prompt (an alert with a text field). Returns nil on cancel or an empty name.
     private func askName(title: String, value: String) -> String? {

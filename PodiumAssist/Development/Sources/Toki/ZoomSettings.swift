@@ -116,6 +116,7 @@ enum ZoomSettings {
     /// Changes the given items in one visit to the Zoom pane; nil leaves an item as it is. Requires the Accessibility permission.
     @MainActor
     static func apply(hotkeys: Bool?, style: Style?, maxFactor: Double?, minFactor: Double? = nil) async throws {
+        diagnostic("begin", ["minimum": minFactor as Any, "maximum": maxFactor as Any], reset: true)
         try await SystemSettingsSwitch.withPane(pane) { root in
             if let hotkeys {
                 try await SystemSettingsSwitch.press(SystemSettingsSwitch.waitFor("AX_ZOOM_ENABLE_HOTKEYS", in: root), to: hotkeys)
@@ -127,9 +128,13 @@ enum ZoomSettings {
                 }
                 _ = try await SystemSettingsSwitch.waitFor("AX_ZOOM_MAX_FACTOR", in: root)
             }
+            var committed = false
             defer {
-                if minFactor != nil || maxFactor != nil,
-                   let ok = SystemSettingsSwitch.find("AX_OK", in: root) { AXUIElementPerformAction(ok, kAXPressAction as CFString) }
+                if !committed, minFactor != nil || maxFactor != nil,
+                   let cancel = SystemSettingsSwitch.find("AX_CANCEL", in: root) {
+                    let result = AXUIElementPerformAction(cancel, kAXPressAction as CFString)
+                    diagnostic("cancel", ["result": result.rawValue])
+                }
             }
             // Raise the upper limit first when the new lower limit exceeds the old upper limit.
             if let minFactor, let maxFactor, minFactor > (Self.maxFactor ?? 1) {
@@ -139,7 +144,26 @@ enum ZoomSettings {
                 if let minFactor { try await setFactor(minFactor, minimum: true, in: root) }
                 if let maxFactor { try await setFactor(maxFactor, minimum: false, in: root) }
             }
+            if minFactor != nil || maxFactor != nil {
+                let ok = try await SystemSettingsSwitch.waitFor("AX_OK", in: root)
+                guard AXUIElementPerformAction(ok, kAXPressAction as CFString) == .success else {
+                    throw SettingsError(L("システム設定を変更できませんでした。"))
+                }
+                committed = true
+                // The sheet's AX value alone is not proof that the preferences were saved.
+                for _ in 0..<20 {
+                    diagnostic("saved-values", ["minimum": Self.minFactor as Any, "maximum": Self.maxFactor as Any])
+                    if savedFactorsMatch(minimum: minFactor, maximum: maxFactor) { return }
+                    try await Task.sleep(nanoseconds: 100_000_000)
+                }
+                throw SettingsError(L("システム設定を変更できませんでした。"))
+            }
         }
+    }
+
+    private static func savedFactorsMatch(minimum: Double?, maximum: Double?) -> Bool {
+        (minimum.map { abs((minFactor ?? 1) - $0) < 0.05 } ?? true)
+            && (maximum.map { abs((maxFactor ?? 1) - $0) < 0.05 } ?? true)
     }
 
     @MainActor
@@ -168,23 +192,41 @@ enum ZoomSettings {
         let identifier = minimum ? "AX_ZOOM_MIN_FACTOR" : "AX_ZOOM_MAX_FACTOR"
         let failure = minimum ? L("最小拡大率を変更できませんでした。") : L("最大拡大率を変更できませんでした。")
         let target = min(max(target, maxFactorRange.lowerBound), maxFactorRange.upperBound)
-        let slider = try await SystemSettingsSwitch.waitFor(identifier, in: root)
+        let identified = try await SystemSettingsSwitch.waitFor(identifier, in: root)
+        diagnostic("identified", ["identifier": identifier, "target": target, "tree": snapshot(identified)])
+        // Some OS versions place the identifier on a containing accessibility element.
+        guard let slider = descendant(role: kAXSliderRole, in: identified) else {
+            diagnostic("failure", ["stage": "slider-role", "identifier": identifier])
+            throw SettingsError(failure + " [slider-role]")
+        }
+        diagnostic("slider", ["tree": snapshot(slider)])
         func number(_ name: String) -> Double? { (SystemSettingsSwitch.attribute(name, of: slider) as? NSNumber)?.doubleValue }
-        guard let knob = (SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: slider) as? [AXUIElement])?.first,
-              let low = number(kAXMinValueAttribute), let high = number(kAXMaxValueAttribute), high > low
-        else { throw SettingsError(failure) }
+        guard let low = number(kAXMinValueAttribute), let high = number(kAXMaxValueAttribute), high > low
+        else {
+            diagnostic("failure", ["stage": "value-range"])
+            throw SettingsError(failure + " [value-range]")
+        }
         if let value = number(kAXValueAttribute), abs(value - target) < 0.05 { return }
         NSRunningApplication.runningApplications(withBundleIdentifier: SystemSettingsSwitch.settingsBundleID).first?.activate()
         try await Task.sleep(nanoseconds: 300_000_000)
         let pointer = CGEvent(source: nil)?.location
         defer { if let pointer { post(.mouseMoved, pointer) } }
-        for _ in 0..<3 {
-            guard let value = number(kAXValueAttribute), let track = frame(of: slider), let start = frame(of: knob) else { break }
+        try await reveal(slider, failure: failure)
+        for attempt in 0..<3 {
+            diagnostic("before-drag", ["attempt": attempt, "tree": snapshot(slider), "viewport": String(describing: viewport(of: slider))])
+            guard let value = number(kAXValueAttribute), let track = frame(of: slider),
+                  let knob = descendant(role: kAXValueIndicatorRole, in: slider),
+                  let start = frame(of: knob), track.width > start.width,
+                  visible(track, in: viewport(of: slider)) else {
+                diagnostic("failure", ["stage": "knob-geometry"])
+                throw SettingsError(failure + " [knob-geometry]")
+            }
             if abs(value - target) < 0.05 { break }
             // The knob's center runs from half its width inside each end of the track.
             let span = track.width - start.width
             let from = CGPoint(x: start.midX, y: start.midY)
             let to = CGPoint(x: start.midX + (target - value) / (high - low) * span, y: start.midY)
+            diagnostic("drag", ["from": "\(from)", "to": "\(to)", "low": low, "high": high, "value": value])
             post(.leftMouseDown, from)
             try await Task.sleep(nanoseconds: 80_000_000)
             for step in 1...8 {
@@ -193,19 +235,152 @@ enum ZoomSettings {
             }
             post(.leftMouseUp, to)
             try await Task.sleep(nanoseconds: 300_000_000)
+            diagnostic("after-drag", ["value": number(kAXValueAttribute) as Any])
         }
         guard let value = number(kAXValueAttribute), abs(value - target) < 0.05 else {
-            throw SettingsError(failure)
+            diagnostic("failure", ["stage": "drag-result", "value": number(kAXValueAttribute) as Any])
+            throw SettingsError(failure + " [drag-result]")
         }
+    }
+
+    /// AX can expose offscreen controls. Never send mouse events until the track is inside its scroll viewport.
+    static func visible(_ track: CGRect, in viewport: CGRect?) -> Bool {
+        guard let viewport, track.width > 0, track.height > 0 else { return false }
+        return viewport.insetBy(dx: -1, dy: -1).contains(track)
+    }
+
+    /// Move the offscreen track toward the viewport center; bounded pixel scroll, negative means down.
+    static func scrollDelta(track: CGRect, viewport: CGRect) -> Int32? {
+        guard track.minY.isFinite, track.maxY.isFinite, viewport.minY.isFinite, viewport.maxY.isFinite,
+              viewport.height > 0, track.height > 0, !visible(track, in: viewport) else { return nil }
+        let distance = viewport.midY - track.midY
+        guard distance != 0 else { return nil }
+        return Int32((distance < 0 ? -1 : 1) * min(200, max(40, abs(distance))))
+    }
+
+    private static func scrollArea(of element: AXUIElement) -> AXUIElement? {
+        var current = element
+        for _ in 0..<30 {
+            guard let parent = SystemSettingsSwitch.attribute(kAXParentAttribute, of: current),
+                  CFGetTypeID(parent) == AXUIElementGetTypeID() else { return nil }
+            current = unsafeBitCast(parent, to: AXUIElement.self)
+            if SystemSettingsSwitch.attribute(kAXRoleAttribute, of: current) as? String == kAXScrollAreaRole { return current }
+        }
+        return nil
+    }
+
+    private static func viewport(of element: AXUIElement) -> CGRect? {
+        scrollArea(of: element).flatMap { frame(of: $0) }
+    }
+
+    @MainActor
+    private static func reveal(_ slider: AXUIElement, failure: String) async throws {
+        let result = AXUIElementPerformAction(slider, "AXScrollToVisible" as CFString)
+        diagnostic("scroll-to-visible", ["result": result.rawValue])
+        var useWheel = false
+        var previousTrack: CGRect?
+        for _ in 0..<8 {
+            try await Task.sleep(nanoseconds: 300_000_000)
+            let area = scrollArea(of: slider)
+            diagnostic("visibility", ["slider": snapshot(slider), "area": area.map { snapshot($0) } ?? [], "viewport": String(describing: area.flatMap { frame(of: $0) })])
+            guard let track = frame(of: slider), let area, let viewport = frame(of: area) else {
+                throw SettingsError(failure + " [scroll-area-frame]")
+            }
+            if visible(track, in: viewport) { return }
+            if previousTrack == track { useWheel = true }
+            previousTrack = track
+            if !useWheel {
+                let action = track.midY > viewport.midY ? "AXScrollDownByPage" : "AXScrollUpByPage"
+                let result = AXUIElementPerformAction(area, action as CFString)
+                diagnostic("scroll-page", ["action": action, "result": result.rawValue])
+                if result == .success { continue }
+                useWheel = true
+            }
+            // macOS 26 can advertise AXScrollDownByPage but return cannotComplete.
+            // Use an ordinary wheel event inside the scroll area's left padding, away from controls.
+            guard NSWorkspace.shared.frontmostApplication?.bundleIdentifier == SystemSettingsSwitch.settingsBundleID,
+                  viewport.width > 16, viewport.height > 16,
+                  let delta = scrollDelta(track: track, viewport: viewport) else {
+                diagnostic("failure", ["stage": "scroll-wheel-target"])
+                throw SettingsError(failure + " [scroll-wheel-target]")
+            }
+            let point = CGPoint(x: viewport.minX + 4, y: viewport.midY)
+            post(.mouseMoved, point)
+            try await Task.sleep(nanoseconds: 80_000_000)
+            guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1,
+                                      wheel1: delta, wheel2: 0, wheel3: 0) else {
+                throw SettingsError(failure + " [scroll-wheel-create]")
+            }
+            wheel.location = point
+            wheel.flags = []
+            diagnostic("scroll-wheel", ["delta": delta, "point": "\(point)", "trackBefore": "\(track)"])
+            wheel.post(tap: .cghidEventTap)
+        }
+        diagnostic("failure", ["stage": "reveal"])
+        throw SettingsError(failure + " [reveal]")
     }
 
     private static func frame(of element: AXUIElement) -> CGRect? {
         guard let position = SystemSettingsSwitch.attribute(kAXPositionAttribute, of: element),
-              let size = SystemSettingsSwitch.attribute(kAXSizeAttribute, of: element) else { return nil }
+              let size = SystemSettingsSwitch.attribute(kAXSizeAttribute, of: element),
+              CFGetTypeID(position) == AXValueGetTypeID(), CFGetTypeID(size) == AXValueGetTypeID() else { return nil }
         var origin = CGPoint.zero, extent = CGSize.zero
         AXValueGetValue(position as! AXValue, .cgPoint, &origin)
         AXValueGetValue(size as! AXValue, .cgSize, &extent)
         return CGRect(origin: origin, size: extent)
+    }
+
+    private static func descendant(role: String, in root: AXUIElement) -> AXUIElement? {
+        var pending = [(root, 0)]
+        var visited = 0
+        while !pending.isEmpty, visited < 64 {
+            let (element, depth) = pending.removeFirst()
+            visited += 1
+            if SystemSettingsSwitch.attribute(kAXRoleAttribute, of: element) as? String == role { return element }
+            if depth < 5, let children = SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: element) as? [AXUIElement] {
+                pending.append(contentsOf: children.map { ($0, depth + 1) })
+            }
+        }
+        return nil
+    }
+
+    /// Only zoom control metadata; never record other applications, window titles or user text.
+    private static func snapshot(_ root: AXUIElement) -> [[String: String]] {
+        var pending = [(root, 0)]
+        var rows = [[String: String]]()
+        while !pending.isEmpty, rows.count < 24 {
+            let (element, depth) = pending.removeFirst()
+            var row = ["depth": String(depth), "frame": String(describing: frame(of: element))]
+            for key in [kAXRoleAttribute, kAXIdentifierAttribute, kAXValueAttribute, kAXMinValueAttribute, kAXMaxValueAttribute, kAXEnabledAttribute] {
+                if let value = SystemSettingsSwitch.attribute(key, of: element) { row[key] = String(describing: value) }
+            }
+            var actions: CFArray?
+            let result = AXUIElementCopyActionNames(element, &actions)
+            row["actionsResult"] = String(result.rawValue)
+            row["actions"] = String(describing: actions)
+            rows.append(row)
+            if depth < 3, let children = SystemSettingsSwitch.attribute(kAXChildrenAttribute, of: element) as? [AXUIElement] {
+                pending.append(contentsOf: children.map { ($0, depth + 1) })
+            }
+        }
+        return rows
+    }
+
+    private static func diagnostic(_ stage: String, _ values: [String: Any], reset: Bool = false) {
+        let folder = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/PodiumAssist")
+        let url = folder.appendingPathComponent("zoom-last.jsonl")
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        // Stringify optional numeric values so absent preferences are recorded, not dropped by JSON serialization.
+        var record = values.mapValues { String(describing: $0) }
+        record["stage"] = stage
+        record["time"] = ISO8601DateFormatter().string(from: Date())
+        guard var data = try? JSONSerialization.data(withJSONObject: record, options: [.sortedKeys]) else { return }
+        data.append(10)
+        if reset { try? data.write(to: url, options: .atomic); return }
+        guard let handle = try? FileHandle(forWritingTo: url) else { try? data.write(to: url); return }
+        defer { try? handle.close() }
+        _ = try? handle.seekToEnd()
+        try? handle.write(contentsOf: data)
     }
 
     private static func post(_ type: CGEventType, _ point: CGPoint) {
