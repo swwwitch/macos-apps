@@ -1,6 +1,7 @@
 "style" = "Match style";
-"title" = "Choose how to paste";
+"title" = "Paste";
 "emptyPalette" = "Select text and press %@ to add it to the slots.";
+"addSelection" = "Add selection";
 "legacy" = "An original paste app is running. PasteMaestro is paused. Quit the original app before using PasteMaestro.";
 "explanation" = "Explanation";
 "openPalette" = "Open palette";
@@ -13,11 +14,13 @@
 "showHint" = "Shows the main window while PasteMaestro is running. Cannot launch the app when it is closed.";
 "next" = "Next value";
 "row" = "Paste line by line";
-"paletteHint" = "Click to select; double-click or Return to paste. Option-Return keeps the row; Command-Return adds a newline. Starred rows stay.";
+"paletteHint" = "Click to select; double-click or Return to paste. Option-Return keeps the row; Command-Return adds a newline. Starred rows stay. Drag rows or select one and use the arrow buttons. Pasting resumes from the top after reordering. New lines go before the first star. Restart restores the manual order.";
 "subtitle" = "Increment, line by line, or match style";
 "disabled" = "This feature is paused or disabled. Enable it in Settings.";
 "pasteKey" = "Paste hotkey";
 "pasteItem" = "Paste selected row";
 "mode" = "Paste mode";
 "busy" = "A paste or clipboard restore is in progress. Please wait and try again.";
-"addSelection" = "Add selection";
+"moveUp" = "Move up";
+"moveDown" = "Move down";
+"dropEnd" = "Drop here to move to the end";

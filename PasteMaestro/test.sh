@@ -11,4 +11,6 @@ xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/MenuTitles.swift 
 "$STAGING/titles"
 xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/ClipboardGate.swift Tests/Gate/main.swift -o "$STAGING/gate"
 "$STAGING/gate"
+xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/SlotQueue.swift Tests/Slots/main.swift -o "$STAGING/slots"
+"$STAGING/slots"
 python3 Tests/check_resources.py

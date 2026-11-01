@@ -26,7 +26,7 @@ struct FunctionHotkey: View {
     let failed: Bool
     var allowsOption = false
     var body: some View {
-        HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             Toggle(title, isOn: $enabled).toggleStyle(.checkbox)
                 .frame(maxWidth: .infinity, alignment: .leading)
             HotkeyField(id: id, combo: $combo, defaultCombo: initial,
@@ -63,9 +63,9 @@ struct MaestroView: View {
                     switch selection {
                     case "increment":
                         FunctionHotkey(id: "increment", title: M("pasteKey"), enabled: Binding(get: { increment.hotkeyEnabled }, set: { increment.hotkeyEnabled = $0; increment.save() }), combo: Binding(get: { increment.combo }, set: { increment.combo = $0 }), initial: Shortcut.increment.combo, failed: increment.hotkeyFailed, allowsOption: true)
-                        HStack {
+                        VStack(spacing: 8) {
                             IncrementValueBox(title: IL("clipboardTitle"), value: increment.current, placeholder: IL("clipboardEmpty"))
-                            Image(systemName: "arrow.right").foregroundColor(.secondary)
+                            Image(systemName: "arrow.down").foregroundColor(.secondary)
                             IncrementValueBox(title: M("next"), value: increment.next?.text, placeholder: "—", emphasized: true)
                         }
                         result(increment.status, error: increment.statusIsError)
@@ -99,8 +99,8 @@ struct MaestroView: View {
                 Button(L("appHelp")) { delegate.help() }
             }
         }
-        .padding(20)
-        .frame(minWidth: 600, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
+        .padding(16)
+        .frame(minWidth: 420, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
         .background(Color(nsColor: AppSurface.color))
         .onAppear { delegate.selectedFeature = selection; increment.refreshPreview() }
         .onChange(of: selection) { value in delegate.selectedFeature = value; increment.watchClipboard(value == "increment") }

@@ -1,0 +1,30 @@
+import Foundation
+func check(_ test: @autoclosure () -> Bool, _ message: String) { precondition(test(), message) }
+var q = SlotQueue()
+q.append(["first", "same", "same", "last"])
+let original = q.items
+check(Set(q.items.map(\.id)).count == 4, "duplicates must retain distinct identities")
+q.toggleStar(2)
+q.append(["new1", "new2"])
+check(q.items.map(\.text) == ["first", "same", "new1", "new2", "same", "last"], "insert ordered block before first star")
+check(q.items[4].id == original[2].id && q.items[4].starred, "star identity preserved")
+let moving = q.items[5].id
+check(q.move(id: moving, before: q.items[0].id), "move last to first")
+check(q.items[0].id == moving && q.nextIndex == 0, "reorder restarts from visible first row")
+q.consumeNext()
+check(q.items[0].text == "first", "consume follows display order")
+q.clear()
+check(q.items.count == 1 && q.items[0].id == original[2].id, "clear keeps only starred duplicate")
+check(q.restart(), "restart restores full session")
+check(q.items.first?.id == moving && q.items.map(\.text) == ["last", "first", "same", "new1", "new2", "same"], "restart uses manual order")
+check(q.items.filter(\.starred).map(\.id) == [original[2].id], "restart must not star equal text")
+q.consume(id: original[1].id, keep: false)
+check(!q.items.contains { $0.id == original[1].id } && q.items.contains { $0.id == original[2].id }, "consume by stable identity")
+let snapshot = q.items
+check(!q.move(id: UUID(), before: nil) && q.items == snapshot, "stale source cannot mutate queue")
+check(!q.move(id: q.items[0].id, before: UUID()) && q.items == snapshot, "stale destination cannot mutate queue")
+var starred = SlotQueue(); starred.append(["star"]); starred.toggleStar(0); starred.consumeNext(); starred.append(["fresh"])
+check(starred.items.map(\.text) == ["fresh", "star"] && starred.nextIndex == 0, "new rows precede retained row and run next")
+var plain = SlotQueue(); plain.append(["A"]); plain.append(["B", "C"])
+check(plain.items.map(\.text) == ["A", "B", "C"], "without star append at end")
+print("Slot ordering: insertion, stable duplicate IDs, move, restart, retention and stale operations PASS")

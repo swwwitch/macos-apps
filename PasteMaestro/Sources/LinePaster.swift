@@ -12,12 +12,6 @@ enum AddOutcome {
     case failed(String)
 }
 
-/// One line in the slot. A starred line stays after it is pasted.
-struct SlotItem: Equatable {
-    var text: String
-    var starred = false
-}
-
 /// The slot: lines added with ⌃⌥⌘C only, kept in memory apart from the clipboard.
 /// ⌃⌥V pastes them from the top, the window pastes any of them. For each paste the line is put on the clipboard,
 /// ⌘V is sent to the target, and the user's clipboard is put back afterwards.
@@ -25,19 +19,12 @@ final class LinePaster {
     /// The target reads the clipboard asynchronously after ⌘V; the user's clipboard is restored after this.
     static let restoreDelay: TimeInterval = ClipboardGate.lineRestoreDelay
 
-    private(set) var queue: [SlotItem] = []
-    /// Where ⌃⌥V continues. It moves past starred lines (they stay) and wraps to the top at the end.
-    private(set) var cursor = 0
-    /// Every line added since the slot was last empty, for 「最初からやり直す」.
-    private var history: [String] = []
-    var canRestart: Bool { !history.isEmpty && queue.map(\.text) != history }
-    /// The row the next ⌃⌥V pastes.
-    var nextIndex: Int? { queue.isEmpty ? nil : (cursor < queue.count ? cursor : 0) }
-
-    func toggleStar(_ index: Int) {
-        guard queue.indices.contains(index) else { return }
-        queue[index].starred.toggle()
-    }
+    private var slots = SlotQueue()
+    var queue: [SlotItem] { slots.items }
+    var canRestart: Bool { slots.canRestart }
+    var nextIndex: Int? { slots.nextIndex }
+    func toggleStar(_ index: Int) { slots.toggleStar(index) }
+    @discardableResult func move(id: UUID, before anchor: UUID?) -> Bool { slots.move(id: id, before: anchor) }
 
     /// The user's clipboard taken before our own write, and the changeCount of that write.
     /// A second paste or add within the delay keeps the snapshot from the first one.
@@ -49,7 +36,7 @@ final class LinePaster {
         case next
         /// The row shown in the window; `text` guards against a list that changed after it was drawn.
         /// `newline` (⌘Return): the line is followed by a line break. `keep` (⌥Return): the line stays in the slot.
-        case line(index: Int, text: String, newline: Bool, keep: Bool)
+        case line(id: UUID, newline: Bool, keep: Bool)
         case all
     }
 
@@ -67,9 +54,9 @@ final class LinePaster {
         let first = nextIndex ?? 0
         switch pick {
         case .next: line = queue[first].text
-        case .line(let index, let text, let newline, _):
-            guard queue.indices.contains(index), queue[index].text == text else { return .failed(L("fail.stale")) }
-            line = newline ? text + "\n" : text
+        case .line(let id, let newline, _):
+            guard let item = queue.first(where: { $0.id == id }) else { return .failed(L("fail.stale")) }
+            line = newline ? item.text + "\n" : item.text
         case .all: line = queue.map(\.text).joined(separator: "\n")
         }
         let pasteboard = NSPasteboard.general
@@ -77,16 +64,9 @@ final class LinePaster {
         pasteboard.clearContents()
         guard pasteboard.setString(line, forType: .string) else { restore(saved); return .failed(L("fail.write")) }
         switch pick {
-        case .next:
-            if queue[first].starred { cursor = first + 1 } else { queue.remove(at: first); cursor = first }
-        case .line(let index, _, _, let keep):
-            if !keep && !queue[index].starred {
-                queue.remove(at: index)
-                if index < cursor { cursor -= 1 }
-            }
-        case .all:
-            queue.removeAll { !$0.starred }
-            cursor = 0
+        case .next: slots.consumeNext()
+        case .line(let id, _, let keep): slots.consume(id: id, keep: keep)
+        case .all: slots.clear()
         }
         // Explicit flags, so the held ⌃⌥ of ⌃⌥V does not leak into ⌘V (same as KakkoReplace). Key code 9 = V.
         down.flags = .maskCommand
@@ -136,9 +116,7 @@ final class LinePaster {
                     guard let text else { completion(.failed(L("fail.addNoText"))); return }
                     let added = LineRules.lines(from: text, trimIndent: trimIndent, stripMarkers: stripMarkers)
                     guard !added.isEmpty else { completion(.failed(L("fail.noLines"))); return }
-                    if self.queue.isEmpty { self.history = []; self.cursor = 0 }
-                    self.queue += added.map { SlotItem(text: $0) }
-                    self.history += added
+                    self.slots.append(added)
                     completion(.added(appName: appName, count: added.count, total: self.queue.count))
                 }
             } else if Date() >= deadline {
@@ -152,16 +130,8 @@ final class LinePaster {
     }
 
     /// The macro's 「clear」: removes the unstarred lines. 「最初からやり直す」 still brings them back.
-    func clear() { queue.removeAll { !$0.starred }; cursor = 0 }
-
-    /// Puts every line added since the slot was last empty back, in the order they were added.
-    func restart() -> Bool {
-        guard canRestart else { return false }
-        let starred = Set(queue.filter(\.starred).map(\.text))
-        queue = history.map { SlotItem(text: $0, starred: starred.contains($0)) }
-        cursor = 0
-        return true
-    }
+    func clear() { slots.clear() }
+    func restart() -> Bool { slots.restart() }
 
     // MARK: - Clipboard
 

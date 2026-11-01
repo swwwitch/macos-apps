@@ -1,6 +1,7 @@
 "style" = "匹配样式";
-"title" = "选择粘贴方式";
+"title" = "粘贴";
 "emptyPalette" = "选择文本后按 %@ 添加到列表。";
+"addSelection" = "添加所选文本";
 "legacy" = "原有粘贴应用正在运行，PasteMaestro已暂停。请先退出原有应用。";
 "explanation" = "说明";
 "openPalette" = "打开浮动面板";
@@ -13,11 +14,13 @@
 "showHint" = "应用运行时显示主窗口。无法启动尚未运行的应用。";
 "next" = "下一个值";
 "row" = "逐行粘贴";
-"paletteHint" = "单击选择，双击或Return粘贴。⌥Return保留行，⌘Return添加换行。星标行保留。";
+"paletteHint" = "单击选择，双击或Return粘贴。⌥Return保留行，⌘Return添加换行。星标行保留。 拖动行或选择后使用上下按钮。重排后从顶部粘贴。新行插入第一个星标前，重新开始恢复手动顺序。";
 "subtitle" = "递增、逐行或匹配样式";
 "disabled" = "此功能已暂停或禁用。请在设置中启用。";
 "pasteKey" = "粘贴快捷键";
 "pasteItem" = "粘贴所选行";
 "mode" = "粘贴方式";
 "busy" = "正在粘贴或恢复剪贴板。请稍后重试。";
-"addSelection" = "添加所选文本";
+"moveUp" = "上移";
+"moveDown" = "下移";
+"dropEnd" = "拖到此处移至末尾";

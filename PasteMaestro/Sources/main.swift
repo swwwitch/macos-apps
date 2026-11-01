@@ -276,7 +276,7 @@ final class Model: ObservableObject {
     /// Return: paste the chosen row. ⌥ keeps it in the list, ⌘ adds a line break.
     func pasteSelected(_ flags: NSEvent.ModifierFlags) {
         guard let index = selected, upcoming.indices.contains(index) else { NSSound.beep(); return }
-        pasteFromWindow(.line(index: index, text: upcoming[index].text, newline: flags.contains(.command), keep: flags.contains(.option)), window: mainWindow)
+        pasteFromWindow(.line(id: upcoming[index].id, newline: flags.contains(.command), keep: flags.contains(.option)), window: mainWindow)
     }
     func clearQueue() {
         paster.clear(); status = L("cleared"); statusIsError = false
@@ -287,6 +287,21 @@ final class Model: ObservableObject {
         paster.toggleStar(index); refreshQueue()
     }
 
+    func moveSlot(id: UUID, before anchor: UUID?) {
+        guard !pasting, !paster.adding, !ClipboardGate.busy else {
+            status = M("busy"); statusIsError = true; return
+        }
+        let selectedID = selected.flatMap { upcoming.indices.contains($0) ? upcoming[$0].id : nil }
+        if paster.move(id: id, before: anchor) {
+            refreshQueue()
+            selected = selectedID.flatMap { id in upcoming.firstIndex { $0.id == id } }
+        }
+    }
+    func moveSelected(_ delta: Int) {
+        guard let index = selected, upcoming.indices.contains(index), upcoming.indices.contains(index + delta) else { return }
+        let anchor = delta < 0 ? upcoming[index - 1].id : (index + 2 < upcoming.count ? upcoming[index + 2].id : nil)
+        moveSlot(id: upcoming[index].id, before: anchor)
+    }
     static func preview(_ line: String) -> String { line.count > 40 ? String(line.prefix(40)) + "…" : line }
 
     func restart() {
@@ -295,10 +310,12 @@ final class Model: ObservableObject {
         refreshQueue()
     }
     func refreshQueue() {
+        let selectedID = selected.flatMap { upcoming.indices.contains($0) ? upcoming[$0].id : nil }
         upcoming = paster.queue
         nextIndex = paster.nextIndex
-        // Keep the chosen row where it is (it now holds the next line); start on the first row.
-        selected = upcoming.isEmpty ? nil : min(selected ?? 0, upcoming.count - 1)
+        // Follow identity across insertion/reorder; if consumed, select the following row.
+        selected = selectedID.flatMap { id in upcoming.firstIndex { $0.id == id } }
+            ?? (upcoming.isEmpty ? nil : min(selected ?? 0, upcoming.count - 1))
         canRestart = paster.canRestart
     }
 
@@ -568,7 +585,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     func showMainWindow(activate: Bool = true) {
         model.refreshQueue()
         if mainWindow == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 560), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it (BASELINE「主画面の背景とタイトルバー」).
             window.title = ""
             window.titleVisibility = .hidden
@@ -577,23 +594,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             let hosting = NSHostingView(rootView: MaestroView(delegate: self, row: model, increment: increment, style: style))
             hosting.sizingOptions = [.minSize]
             // The hosting view sits on the shared surface view, so size the window from the SwiftUI content.
-            let fitting = hosting.fittingSize
-            let size = NSSize(width: max(560, ceil(fitting.width)), height: max(520, ceil(fitting.height)))
+            let size = NSSize(width: 440, height: 560)
             window.setContentSize(size)
             content.frame = NSRect(origin: .zero, size: size)
             hosting.frame = content.bounds
             hosting.autoresizingMask = [.width, .height]
             content.addSubview(hosting)
             window.contentView = content
-            window.contentMinSize = size
+            window.contentMinSize = NSSize(width: 420, height: 500)
             window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("MainWindow")
-            // A frame saved by an older layout must not cut off the content.
-            let current = window.contentRect(forFrameRect: window.frame).size
-            if current.width < size.width || current.height < size.height {
-                var frame = window.frame
-                let grow = NSSize(width: max(0, size.width - current.width), height: max(0, size.height - current.height))
-                frame.size.width += grow.width; frame.size.height += grow.height; frame.origin.y -= grow.height
-                window.setFrame(frame, display: false)
+            if !UserDefaults.standard.bool(forKey: "compactMainWindowV1") {
+                window.setContentSize(size)
+                UserDefaults.standard.set(true, forKey: "compactMainWindowV1")
             }
             mainWindow = window
 
