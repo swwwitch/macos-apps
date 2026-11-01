@@ -2,7 +2,7 @@ import Foundation
 
 /// The ExtendScript sent to Illustrator with `do javascript`. Every built-in script returns "OK" or "ERR:<reason>".
 enum ScriptBuilder {
-    enum Failure: String { case nodoc, nosel, text, needtext, nostyle, action, file }
+    enum Failure: String { case nodoc, nosel, text, nostyle, action, file }
 
     static func quoteJS(_ text: String) -> String {
         "\"" + text.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
@@ -27,42 +27,21 @@ enum ScriptBuilder {
             return wrap(effectBody(kind, value))
         case .code(.cap(let cap)):
             return wrap(capFunction + "for (var k = 0; k < sel.length; k++) setCap(sel[k], StrokeCap.\(cap));")
-        case .code(.flattenTransform):
-            // One text frame: a rectangle 1 × 3 (document units) larger, flattened at its top and moved down by half the font size.
-            return wrap(units + """
-            if (!(sel.length === 1 && sel[0].typename === "TextFrame")) return "ERR:needtext";
-            var size = sel[0].textRange.characterAttributes.size;
-            sel[0].applyEffect(\(quoteJS(shapeXML)).replace("#W#", U(1)).replace("#H#", U(3)));
-            sel[0].applyEffect(\(quoteJS(transformXML(pin: 1))).replace("#MV#", -size / 2));
-            """)
-        case .code(.openPath(let moveHalf)):
-            // Text: a rectangle around it first (and, with moveHalf, the line half the font size down from the top).
-            // Then height 0, Pathfinder Outline, and a 1 pt round-cap stroke (text) or round caps (paths).
+        case .code(.openPath):
+            // Text: a rectangle around it first.
+            // Transform (height 0) and Pathfinder Outline are both applied as XML without isPre, so they stack under the
+            // contents in that order (Transform above Outline), and Outline keeps unpainted artwork (ExtractUnpainted 0):
+            // the two steps the original macro left to the Appearance panel.
             let stroke = recorded("strokeRound1pt").map { TempAction.renamed($0) } ?? ""
             return wrap(units + runActionFunction + capFunction + """
             var isText = sel[0].typename === "TextFrame";
-            if (isText) {
-                var size = sel[0].textRange.characterAttributes.size;
-                for (var i = 0; i < sel.length; i++) {
-                    sel[i].applyEffect(\(quoteJS(shapeXML)).replace("#W#", 0).replace("#H#", 0));
-                    sel[i].applyEffect(\(quoteJS(transformXML(pin: moveHalf ? 1 : 4))).replace("#MV#", \(moveHalf ? "-size / 2" : "0")));
-                }
-            } else {
-                for (var j = 0; j < sel.length; j++) sel[j].applyEffect(\(quoteJS(transformXML(pin: 4))).replace("#MV#", 0));
+                        for (var i = 0; i < sel.length; i++) {
+                if (isText) sel[i].applyEffect(\(quoteJS(shapeXML)).replace("#W#", 0).replace("#H#", 0));
+                sel[i].applyEffect(\(quoteJS(transformXML(pin: 4))).replace("#MV#", 0));
+                sel[i].applyEffect(\(quoteJS(pathfinderOutlineXML)));
             }
-            app.executeMenuCommand("Live Pathfinder Outline");
             if (isText) { runAction(\(quoteJS(stroke)), \(quoteJS(TempAction.setName)), \(quoteJS(TempAction.actionName))); }
             else { for (var k = 0; k < sel.length; k++) setCap(sel[k], StrokeCap.ROUNDENDCAP); }
-            """)
-        case .code(.resetFill(let white)):
-            return wrap(runActionFunction + """
-            runAction(\(quoteJS(TempAction.appearance(value: 6, name: "アピアランスを消去").source)), \(quoteJS(TempAction.setName)), \(quoteJS(TempAction.actionName)));
-            var color;
-            if (doc.documentColorSpace === DocumentColorSpace.CMYK) { color = new CMYKColor(); color.cyan = 0; color.magenta = 0; color.yellow = 0; color.black = \(white ? 0 : 100); }
-            else { color = new RGBColor(); color.red = \(white ? 255 : 0); color.green = \(white ? 255 : 0); color.blue = \(white ? 255 : 0); }
-            doc.defaultStroked = false;
-            doc.defaultFillColor = color;
-            for (var i = 0; i < sel.length; i++) sel[i].opacity = 100;
             """)
         case .code(.pasteLastStyle):
             return wrap("""
@@ -72,9 +51,6 @@ enum ScriptBuilder {
             """)
         case .code(.expandUngroup):
             return wrap("app.executeMenuCommand(\"expandStyle\");\napp.executeMenuCommand(\"ungroup\");\napp.executeMenuCommand(\"deselectall\");")
-        case .recordedAction(let name):
-            guard let raw = recorded(name) else { return wrap("return \"ERR:file\";") }
-            return wrap(runActionFunction + "runAction(\(quoteJS(TempAction.renamed(raw))), \(quoteJS(TempAction.setName)), \(quoteJS(TempAction.actionName)));")
         case .action(let action):
             return wrap(runActionFunction + "runAction(\(quoteJS(action.source)), \(quoteJS(TempAction.setName)), \(quoteJS(TempAction.actionName)));")
         case .namedAction(let set, let name):
@@ -127,6 +103,9 @@ enum ScriptBuilder {
     static func shapeXML(shape: Int, name: String, radius: String = "9") -> String {
         "<LiveEffect name=\"Adobe Shape Effects\" isPre=\"1\"><Dict data=\"U DisplayString \(name) I Shape \(shape) R RelWidth #W# R RelHeight #H# R AbsWidth 0 R AbsHeight 0 R Absolute 0 R CornerRadius \(radius) \"/></LiveEffect>"
     }
+
+    /// Pathfinder › Outline (Command 6) under the contents, keeping unpainted artwork.
+    static let pathfinderOutlineXML = "<LiveEffect name=\"Adobe Pathfinder\"><Dict data=\"I Command 6 B ConvertCustom 1 B ExtractUnpainted 0 R Mix 0.5 R Precision 10 B RemovePoints 1 \"/></LiveEffect>"
 
     /// Height 0 %, moved #MV# points (negative = down); pin 1 top center, 4 center.
     static func transformXML(pin: Int) -> String {

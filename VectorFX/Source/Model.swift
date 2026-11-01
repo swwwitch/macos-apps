@@ -14,7 +14,7 @@ struct StatusLine: Equatable {
 @MainActor final class Model: ObservableObject {
     private let defaults = UserDefaults.standard
     /// Keys shared by 設定の共有. Script paths, startup, residency and the app hotkey stay per Mac.
-    nonisolated static let sharedKeys: Set<String> = ["hiddenCommands", "commandKeys", "commandKeysKnown", "commandValues", "paletteHotkey", "paletteHotkeyEnabled"]
+    nonisolated static let sharedKeys: Set<String> = ["skipWhileTyping", "hiddenCommands", "commandColors", "commandKeys", "commandKeysKnown", "commandValues", "paletteHotkey", "paletteHotkeyEnabled"]
 
     // MARK: Palette items
 
@@ -27,6 +27,12 @@ struct StatusLine: Equatable {
             updateRegistrations()
         }
     }
+    /// Finder tag colors by command id (rawValue of ItemTag); a missing entry means none.
+    @Published var colors: [String: String] = UserDefaults.standard.dictionary(forKey: "commandColors") as? [String: String] ?? [:] {
+        didSet { defaults.set(colors, forKey: "commandColors") }
+    }
+    func color(_ command: Command) -> ItemTag? { colors[command.id].flatMap(ItemTag.init(rawValue:)) }
+    func setColor(_ tag: ItemTag?, for command: Command) { colors[command.id] = tag?.rawValue }
     @Published var values: [String: [String: Double]] = Model.storedValues() { didSet { defaults.set(values, forKey: "commandValues") } }
     @Published var scriptPaths: [String: String] = UserDefaults.standard.dictionary(forKey: "scriptPaths") as? [String: String] ?? [:] {
         didSet { defaults.set(scriptPaths, forKey: "scriptPaths") }
@@ -62,7 +68,9 @@ struct StatusLine: Equatable {
     /// Re-reads the shared settings after an import so the next save does not write the old values back.
     func reloadSharedSettings() {
         hidden = Model.storedHidden(); keys = Model.storedKeys(); values = Model.storedValues()
+        colors = defaults.dictionary(forKey: "commandColors") as? [String: String] ?? [:]
         paletteHotkeyEnabled = defaults.object(forKey: "paletteHotkeyEnabled") as? Bool ?? true
+        skipWhileTyping = defaults.object(forKey: "skipWhileTyping") as? Bool ?? true
         paletteCombo = Model.storedCombo("paletteHotkey", default: Model.defaultPaletteCombo)
     }
 
@@ -96,7 +104,7 @@ struct StatusLine: Equatable {
         return previous
     }
     func resetAll() {
-        hidden = []; keys = Model.defaultKeys; values = [:]
+        hidden = []; keys = Model.defaultKeys; values = [:]; colors = [:]
     }
 
     // MARK: Hotkeys
@@ -146,15 +154,30 @@ struct StatusLine: Equatable {
         } else { paletteHotkeyRegistered = true }
         commandHotkeys.unregisterAll()
         var failed: Set<String> = []
-        if illustratorFront && paletteRequested {
+        var tapKeys: [KeyCombo: String] = [:]
+        let active = illustratorFront && paletteRequested
+        // With Accessibility the event tap takes the keys and leaves them to Illustrator while text is typed.
+        let tapping = active && skipWhileTyping && keyTap.setEnabled(true)
+        if !tapping { keyTap.setEnabled(false) }
+        if active {
             for (index, command) in Catalog.all.enumerated() {
                 guard let combo = keys[command.id], !hidden.contains(command.id) else { continue }
                 if combo == paletteCombo && paletteHotkeyEnabled { failed.insert(command.id); continue }
-                if commandHotkeys.register(UInt32(index + 1), combo) != noErr { failed.insert(command.id) }
+                if tapping { tapKeys[combo] = command.id }
+                else if commandHotkeys.register(UInt32(index + 1), combo) != noErr { failed.insert(command.id) }
             }
         }
+        keyTap.keys = tapKeys
         if failed != failedKeys { failedKeys = failed }
+        if tapping != typingGuardActive { typingGuardActive = tapping }
     }
+    let keyTap = KeyTap()
+    /// Leave keys that type characters to Illustrator while a type tool is active (needs Accessibility). Default on.
+    @Published var skipWhileTyping = UserDefaults.standard.object(forKey: "skipWhileTyping") as? Bool ?? true {
+        didSet { defaults.set(skipWhileTyping, forKey: "skipWhileTyping"); updateRegistrations() }
+    }
+    /// The event tap is in use (the guard works); false while the permission is missing or the palette is hidden.
+    @Published var typingGuardActive = false
     func command(forHotkey number: UInt32) -> Command? {
         let index = Int(number) - 1
         return Catalog.all.indices.contains(index) ? Catalog.all[index] : nil

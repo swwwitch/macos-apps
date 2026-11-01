@@ -13,6 +13,12 @@ import SwiftUI
     func applicationWillFinishLaunching(_ notification: Notification) {
         StartupWindow.captureLaunch()
         UserDefaults.standard.register(defaults: ["resident": true])
+        AccessibilityText.neededOverride = [
+            "Illustratorで文字を入力しているあいだ、修飾キーなしのホットキー（- や ⇧K など）を実行せずに文字として入力させるために使います。未許可でもホットキーは使えますが、文字入力中も実行されます。",
+            "Used to leave hotkeys without modifiers (such as - or ⇧K) to Illustrator while you type text there. Without it hotkeys still work, but they also run while typing.",
+            "用于在 Illustrator 中输入文字时，不执行不带修饰键的快捷键（如 - 或 ⇧K），而是作为文字输入。未授权时快捷键仍可使用，但输入文字时也会执行。",
+            "Illustrator에서 텍스트를 입력하는 동안 보조 키 없는 단축키(- 또는 ⇧K 등)를 실행하지 않고 문자로 입력되도록 하는 데 사용합니다. 권한이 없어도 단축키는 작동하지만 텍스트 입력 중에도 실행됩니다.",
+        ]
         if let id = Bundle.main.bundleIdentifier, let other = NSRunningApplication.runningApplications(withBundleIdentifier: id).first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
             isDuplicate = true
             other.activate(options: [.activateAllWindows])
@@ -42,6 +48,14 @@ import SwiftUI
             // The key may arrive after Illustrator lost the front; never act on another app.
             guard let self, Illustrator.front != nil, let command = self.model.command(forHotkey: number) else { return }
             self.model.run(command)
+        }
+        model.keyTap.action = { [weak self] id in
+            guard let self, Illustrator.front != nil, let command = Catalog.command(id) else { return }
+            self.model.run(command)
+        }
+        // Permission granted in System Settings: switch to the tap when coming back.
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.model.updateRegistrations() }
         }
         model.registerAppHotkey()
         // The palette controller follows the front app: keys are registered while Illustrator is in front, released for every other app.

@@ -15,12 +15,14 @@ Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Rou
 ## Main window
 - Left list: checked items appear in the palette. The right column shows the assigned hotkey.
 - Right side: Run in Illustrator (⌘Return), hotkey, effect values and the script file location.
+- Color: give each item one of the seven Finder tag colors (Red, Orange, Yellow, Green, Blue, Purple, Gray) from Color on the right or Control-click › Color in the list. The palette button and the list row take that color.
 - Items whose script file is missing show ⚠. Choose the file again with Choose File….
 - The bottom line shows the last result, including why it failed. The palette shows it too.
 
 ## Hotkeys
 - Item hotkeys work only while the palette is shown and Illustrator is in front, so keys without modifiers such as ⇧K or - can be used. Hide the palette and those keys type normally in Illustrator.
 - Assign: select an item in the main window, click the hotkey field and press the keys. Esc cancels. A key already used by another item is moved to this one.
+- While typing: while a type tool is active in Illustrator (including text editing) or a dialog box is open, keys without ⌘ or ⌃ (such as - or ⇧K) are typed instead of running (on by default, Settings › Palette). This needs Accessibility permission; without it, hotkeys also run while typing.
 - Palette hotkey (default ⌃A): change or turn it off in Settings › Palette.
 - Show-app hotkey: assign it in Settings › Startup & Background to show the main window from any app (no default).
 - ⌘0 Open Main Window, ⌘, Settings, ⌘W Close Window, ⌘? Help
@@ -29,11 +31,11 @@ Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Rou
 Open with VectorFX › Settings… (⌘,).
 - Startup & Background: open at login, hide from Dock and App Switcher, keep running after closing the window, menu bar icon, show-app hotkey.
 - Palette: palette hotkey and Reset All to Defaults (items, hotkeys and effect values; script file locations are kept).
-- Sharing: export, import and sync the palette items, hotkeys and effect values.
+- Sharing: export, import and sync the palette items, colors, hotkeys and effect values.
 - About: version and links.
 
 ## Permissions
-The first run asks whether VectorFX may control “Adobe Illustrator”. Choose Allow. If you did not, turn on “Adobe Illustrator” for VectorFX in System Settings › Privacy & Security › Automation. Accessibility permission is not used.
+The first run asks whether VectorFX may control “Adobe Illustrator”. Choose Allow. If you did not, turn on “Adobe Illustrator” for VectorFX in System Settings › Privacy & Security › Automation. Accessibility permission is used only to keep hotkeys from running while you type (allow it from Settings › Startup & Background).
 
 ## Keep running and quitting
 VectorFX keeps running after you close the window, so the palette and hotkeys keep working (turn this off in Settings to quit on close). Show it again from the Dock, the menu bar icon, by opening it from the Finder or with the show-app hotkey. Quit with VectorFX › Quit VectorFX (⌘Q) or from the menu bar icon.

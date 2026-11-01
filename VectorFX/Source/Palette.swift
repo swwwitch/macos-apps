@@ -101,6 +101,10 @@ struct PaletteButton: View {
     @ObservedObject var model: Model
     let command: Command
     @State private var hovering = false
+    private var background: Color {
+        if let tag = model.color(command) { return tag.displayColor.opacity(hovering ? 0.38 : 0.24) }
+        return hovering ? appTint.opacity(0.16) : Color(nsColor: .controlBackgroundColor)
+    }
     var body: some View {
         let available = model.scriptExists(command)
         Button {
@@ -109,8 +113,7 @@ struct PaletteButton: View {
             model.run(command, dialog: dialog)
         } label: {
             HStack(spacing: 6) {
-                Text(command.title).lineLimit(1).truncationMode(.tail)
-                if command.opensDialog { Text("…").foregroundColor(.secondary).padding(.leading, -6).accessibilityHidden(true) }
+                Text(command.displayTitle).lineLimit(1).truncationMode(.tail)
                 Spacer(minLength: 4)
                 if !available { Image(systemName: "exclamationmark.triangle").foregroundColor(.orange).accessibilityLabel(L("script.missing")) }
                 if let combo = model.keys[command.id] {
@@ -120,14 +123,14 @@ struct PaletteButton: View {
             }
             .padding(.horizontal, 8).padding(.vertical, 5)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 5).fill(hovering ? appTint.opacity(0.16) : Color(nsColor: .controlBackgroundColor)))
+            .background(RoundedRectangle(cornerRadius: 5).fill(background))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .focusable(false)
         .disabled(!available)
         .onHover { hovering = $0 }
-        .help(command.dialogAlternative != nil ? L("palette.optionHint") : (available ? command.title : L("script.missing")))
-        .accessibilityLabel(command.title)
+        .help(command.dialogAlternative != nil ? L("palette.optionHint") : (available ? command.displayTitle : L("script.missing")))
+        .accessibilityLabel(command.displayTitle)
     }
 }

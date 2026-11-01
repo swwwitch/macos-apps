@@ -15,6 +15,12 @@ struct DefaultKey: Equatable {
     static let shift: UInt32 = 512, command: UInt32 = 256, option: UInt32 = 2048, control: UInt32 = 4096
 }
 
+/// A command's color, from Finder's standard tag palette (an app label, never a file tag).
+enum ItemTag: String, CaseIterable {
+    case red, orange, yellow, green, blue, purple, gray
+    var title: String { L("color." + rawValue) }
+}
+
 /// Values the user can change for an effect applied without its dialog box.
 enum ParamKind: Equatable {
     /// In the document's units, like the effect dialog boxes.
@@ -58,8 +64,6 @@ enum CommandAction: Equatable {
     case code(BuiltInCode)
     /// A one-event action loaded from text, run and unloaded again.
     case action(TempAction)
-    /// An action recorded in Illustrator, bundled as Resources/Actions/<name>.aia (loaded under VectorFX's own set name).
-    case recordedAction(String)
     /// An action of the user's own action set (Window › Actions).
     case namedAction(set: String, name: String)
     /// A script file; the path can be changed in the main window.
@@ -68,10 +72,8 @@ enum CommandAction: Equatable {
 
 enum BuiltInCode: Equatable {
     case cap(String)          // StrokeCap.BUTTENDCAP etc.
-    case flattenTransform     // One text frame: rectangle, height 0 and half the font size down
-    /// Height 0 → Pathfinder Outline → 1 pt round caps: an open line. moveHalf also moves text down by half the font size.
-    case openPath(moveHalf: Bool)
-    case resetFill(white: Bool)   // Clear Appearance, then fill white/black, no stroke, opacity 100
+    /// Height 0 → Pathfinder Outline → 1 pt round caps: an open line.
+    case openPath
     case pasteLastStyle           // the document's last graphic style
     case expandUngroup            // Expand Appearance, ungroup, deselect
 }
@@ -82,10 +84,14 @@ struct Command: Equatable {
     let action: CommandAction
     var params: [ParamSpec] = []
     var defaultKey: DefaultKey? = nil
+    /// A script file that opens its own dialog box (or palette) before doing anything.
+    var dialogScript = false
     var title: String { L("cmd." + id) }
+    /// The title with "…" when a dialog box opens, as macOS menus do.
+    var displayTitle: String { title + (opensDialog ? "…" : "") }
     var opensDialog: Bool {
         if case .menu(_, let dialog) = action { return dialog }
-        return false
+        return dialogScript
     }
     /// Effects with values: Option (or the second button) opens Illustrator's dialog box instead.
     var dialogAlternative: String? {
@@ -137,32 +143,25 @@ enum Catalog {
                 params: [ParamSpec(key: "size", kind: .length, defaultValue: 0, range: 0...1000), ParamSpec(key: "ridges", kind: .count, defaultValue: 0, range: 0...100),
                          ParamSpec(key: "smooth", kind: .toggle, defaultValue: 0, range: 0...1)], defaultKey: key(38)),                       // ⇧J
         Command(id: "freeDistort", section: .distort, action: .menu("Live Free Distort", dialog: true)),
-        Command(id: "freeDistortScript", section: .distort, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/SmartFreeDistort.jsx"), defaultKey: key(3)), // ⇧F
+        Command(id: "freeDistortScript", section: .distort, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/SmartFreeDistort.jsx"), defaultKey: key(3), dialogScript: true), // ⇧F
         Command(id: "puckerBloat", section: .distort, action: .menu("Live Pucker & Bloat", dialog: true)),
         Command(id: "roughen", section: .distort, action: .effect(.roughen),
                 params: [ParamSpec(key: "size", kind: .length, defaultValue: 0, range: 0...1000), ParamSpec(key: "detail", kind: .count, defaultValue: 9, range: 0...100),
                          ParamSpec(key: "smooth", kind: .toggle, defaultValue: 1, range: 0...1)]),
         Command(id: "scribbleTweak", section: .distort, action: .menu("Live Scribble and Tweak", dialog: true)),
         Command(id: "transform", section: .distort, action: .menu("Live Transform", dialog: true), defaultKey: key(17)),                     // ⇧T
-        Command(id: "flattenLine", section: .distort, action: .code(.openPath(moveHalf: true))),
-        Command(id: "flatten", section: .distort, action: .code(.flattenTransform)),
         Command(id: "twist", section: .distort, action: .menu("Live Twist", dialog: true)),
-        Command(id: "resetBlack", section: .misc, action: .code(.resetFill(white: false)), defaultKey: key(40, 0)),                          // K
-        Command(id: "resetWhite", section: .misc, action: .code(.resetFill(white: true)), defaultKey: key(13, 0)),                           // W
-        Command(id: "textBlack", section: .misc, action: .recordedAction("textBlackOutline")),
-        Command(id: "textWhite", section: .misc, action: .recordedAction("textWhiteOutline"), defaultKey: key(13)),                          // ⇧W
         Command(id: "pasteLastStyle", section: .misc, action: .code(.pasteLastStyle),
                 defaultKey: key(9, DefaultKey.control | DefaultKey.option | DefaultKey.command)),                                         // ⌃⌥⌘V
         Command(id: "duplicateItem", section: .misc, action: .action(.appearance(value: 3, name: "項目を複製")), defaultKey: key(24, 0)),     // =
-        Command(id: "addFill", section: .misc, action: .menu("Adobe New Fill Shortcut", dialog: false), defaultKey: key(19)),               // ⇧2
-        Command(id: "addStroke", section: .misc, action: .menu("Adobe New Stroke Shortcut", dialog: false), defaultKey: key(18)),           // ⇧1
         Command(id: "removeItem", section: .misc, action: .action(.appearance(value: 4, name: "項目を削除")), defaultKey: key(27, 0)),        // -
-        Command(id: "sketchy", section: .misc, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/KPTSketchyPalette.jsx"), defaultKey: key(40)), // ⇧K
+        Command(id: "sketchy", section: .misc, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/KPTSketchyPalette.jsx"), defaultKey: key(40), dialogScript: true), // ⇧K
         Command(id: "rasterize", section: .misc, action: .menu("Live Rasterize", dialog: true)),
-        Command(id: "strokeScale", section: .misc, action: .script(defaultPath: "~/sw Dropbox/takano masahiro/sync-setting/ai/スクリプト/stroke/resize-all-stroke-width-master/すべての線幅を変更.jsx")),
+        Command(id: "strokeScale", section: .misc, action: .script(defaultPath: "~/sw Dropbox/takano masahiro/sync-setting/ai/スクリプト/stroke/resize-all-stroke-width-master/すべての線幅を変更.jsx"), dialogScript: true),
+        Command(id: "openPath", section: .misc, action: .code(.openPath)),
         Command(id: "clearAppearance", section: .release, action: .action(.appearance(value: 6, name: "アピアランスを消去"))),
         Command(id: "clearKeepFill", section: .release, action: .script(defaultPath: "~/Git/ai-scripts/jsx/fx/ClearAppearance.jsx"),
-                defaultKey: key(51, DefaultKey.option | DefaultKey.shift)),                                                                 // ⌥⇧⌫
+                defaultKey: key(51, DefaultKey.option | DefaultKey.shift), dialogScript: true),                                                                 // ⌥⇧⌫
         Command(id: "expandAppearance", section: .release, action: .script(defaultPath: "~/Git/ai-scripts/jsx/misc/ExpandAppearanceEachObject.jsx"),
                 defaultKey: key(31, DefaultKey.option | DefaultKey.shift | DefaultKey.command)),                                            // ⌥⇧⌘O
         Command(id: "expandUngroup", section: .release, action: .code(.expandUngroup)),
@@ -171,7 +170,6 @@ enum Catalog {
         Command(id: "makeCompoundShape", section: .compoundShape, action: .action(.makeCompoundShape)),
         Command(id: "releaseCompoundShape", section: .compoundShape, action: .action(.releaseCompoundShape)),
         Command(id: "makeCompoundPath", section: .compoundPath, action: .menu("compoundPath", dialog: false)),
-        Command(id: "openPath", section: .compoundPath, action: .code(.openPath(moveHalf: false))),
         Command(id: "releaseCompoundPath", section: .compoundPath, action: .menu("noCompoundPath", dialog: false)),
         Command(id: "buttCap", section: .caps, action: .code(.cap("BUTTENDCAP"))),
         Command(id: "roundCap", section: .caps, action: .code(.cap("ROUNDENDCAP"))),

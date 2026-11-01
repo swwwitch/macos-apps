@@ -8,14 +8,14 @@ func check(_ condition: Bool, _ message: String) {
 
 let ids = Catalog.all.map(\.id)
 check(Set(ids).count == ids.count, "command ids are unique")
-check(Catalog.all.count == 57, "57 commands from the original palette")
+check(Catalog.all.count == 49, "49 commands from the original palette")
 let keys = Catalog.all.compactMap(\.defaultKey).map { "\($0.code)-\($0.modifiers)" }
-check(Set(keys).count == keys.count && keys.count == 26, "26 default keys, none twice")
+check(Set(keys).count == keys.count && keys.count == 21, "21 default keys, none twice")
 check(PaletteSection.allCases.allSatisfy { !Catalog.commands(in: $0).isEmpty }, "every section has commands")
 check(Catalog.command("removeItem")?.defaultKey == DefaultKey(code: 27, modifiers: 0), "Remove Item keeps the bare - key")
 
 func recorded(_ name: String) -> String? { try? String(contentsOfFile: "Resources/Actions/\(name).aia", encoding: .utf8) }
-for name in ["textBlackOutline", "textWhiteOutline", "strokeRound1pt"] { check(recorded(name) != nil, "bundled action \(name)") }
+for name in ["strokeRound1pt"] { check(recorded(name) != nil, "bundled action \(name)") }
 
 // Every built-in script compiles (ExtendScript is ES3; JavaScriptCore checks the syntax).
 let context = JSContext()!
@@ -48,16 +48,23 @@ let clear = TempAction.appearance(value: 6, name: "アピアランスを消去")
 check(clear.contains("/internalName (ai_plugin_appearance)") && clear.contains("/value 6") && clear.contains("e382a2e38394e382a2e383a9e383b3e382b9e38292e6b688e58ebb"), "Clear Appearance action")
 check(clear.contains("/name [ 18\n\t5665637" ) || clear.hasPrefix("/version 3\n/name [ \(TempAction.setName.utf8.count)\n\t\(TempAction.hex(TempAction.setName))\n]"), "set name header")
 check(TempAction.makeCompoundShape.source.contains("/key 1835101029") && TempAction.releaseCompoundShape.source.contains("/internalName (ai_release_compound_shape)"), "compound shape actions")
-let white = TempAction.renamed(recorded("textWhiteOutline")!)
-check(white.hasPrefix("/version 3\n/name [ \(TempAction.setName.utf8.count)\n\t\(TempAction.hex(TempAction.setName))\n]") && white.contains("\t/name [ 8\n\t\t\(TempAction.hex(TempAction.actionName))\n\t]") && !white.contains("73746172742d7768697465") && white.contains("/keyIndex 0") && white.contains("/eventCount 5"), "recorded action renamed to VectorFX's set, events kept")
+let stroke = TempAction.renamed(recorded("strokeRound1pt")!)
+check(stroke.hasPrefix("/version 3\n/name [ \(TempAction.setName.utf8.count)\n\t\(TempAction.hex(TempAction.setName))\n]") && stroke.contains("\t/name [ 8\n\t\t\(TempAction.hex(TempAction.actionName))\n\t]") && !stroke.contains("e4b8b8e59e8be7b79ae7abafe381ab") && stroke.contains("/eventCount 1"), "recorded action renamed to VectorFX's set, events kept")
 let open = ScriptBuilder.source(for: Catalog.command("openPath")!, values: [:], recorded: recorded)!
-check(open.contains("Live Pathfinder Outline") && open.contains("ai_plugin_setStroke"), "Open path: outline and 1 pt round stroke")
-check(ScriptBuilder.source(for: Catalog.command("flatten")!, values: [:])!.contains("ERR:needtext"), "text-only flatten refuses other objects")
+check(open.contains("I Command 6") && open.contains("B ExtractUnpainted 0") && !open.contains("Live Pathfinder Outline") && open.contains("ai_plugin_setStroke"), "Open path: Outline effect keeps unpainted artwork, 1 pt round stroke")
+check(open.range(of: "Adobe Transform")!.lowerBound < open.range(of: "Adobe Pathfinder")!.lowerBound, "Transform is applied before Outline (stays above it)")
 check(ScriptBuilder.source(for: Catalog.command("roundedRectangle")!, values: [:])!.contains("I Shape 1") && ScriptBuilder.source(for: Catalog.command("ellipse")!, values: [:])!.contains("I Shape 2"), "rounded rectangle and ellipse shapes")
 check(TempAction.hex("項目を削除") == "e9a085e79baee38292e5898ae999a4", "UTF-8 hex like the Actions panel")
 
 check(CommandRunner.outcome("OK") == .success && CommandRunner.outcome("ERR:nosel\n") == .refused(.nosel) && CommandRunner.outcome("") == .success, "results from Illustrator")
 check(OSAScript.cleanError("-: execution error: Adobe Illustratorでエラーが起きました：Error 21: undefined is not an object (-2700)") == "Error 21: undefined is not an object", "error text trimmed")
+
+// 「しくみ」 steps.
+let shadowSteps = Logic.steps(for: Catalog.command("dropShadow")!, values: [:], recorded: recorded)
+check(shadowSteps.count == 5 && EffectKind.dropShadow.liveEffectName == "Adobe Drop Shadow", "drop shadow: check, units, effect, Option, send")
+check(Logic.events(in: recorded("strokeRound1pt")!) == ["線を設定"] && Logic.events(in: TempAction.appearance(value: 6, name: "アピアランスを消去").source) == ["アピアランス：アピアランスを消去"], "action events are listed by name")
+check(Catalog.all.allSatisfy { !Logic.steps(for: $0, values: [:], recorded: recorded).isEmpty }, "every command has steps")
+check(Catalog.command("roundCorners")!.opensDialog && Catalog.command("freeDistortScript")!.opensDialog && !Catalog.command("pfAdd")!.opensDialog && !Catalog.command("dropShadow")!.opensDialog, "… only for commands that open a dialog box")
 
 print(failures == 0 ? "ALL PASSED" : "\(failures) FAILED")
 exit(failures == 0 ? 0 : 1)

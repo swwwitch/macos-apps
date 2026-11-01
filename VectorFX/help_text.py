@@ -17,12 +17,14 @@ VectorFXは、Illustratorの効果・パスファインダー・複合パス・�
 ## メインウインドウ
 - 左の一覧：チェックを入れた項目がパレットに表示されます。右端は割り当てたホットキーです。
 - 右の欄：［Illustratorで実行］（⌘Return）、ホットキーの割り当て、効果の値、スクリプトファイルの場所。
+- カラー：項目ごとにFinderのタグと同じ7色（レッド・オレンジ・イエロー・グリーン・ブルー・パープル・グレイ）を付けられます。右の欄のカラー、または一覧の右クリック＞［カラー］で選びます。パレットのボタンと一覧の行がその色になります。
 - スクリプトファイルが見つからない項目には⚠が付きます。［ファイルを選ぶ…］で指定し直してください。
 - 下の欄に、最後に実行した結果（エラーの理由を含む）を表示します。パレットの下にも同じ内容が出ます。
 
 ## ホットキー
 - 項目ごとのホットキーは、パレットを表示していて、Illustratorが前面のときだけ使えます。そのため ⇧K や - のような修飾キーなしのキーも割り当てられます。パレットを隠せば、そのキーはIllustratorでふだんどおり使えます。
 - 割り当て：メインウインドウで項目を選び、ホットキー欄をクリックしてキーを押します。Escで取り消し。ほかの項目と同じキーを押すと、その項目から外して付け替えます。
+- 文字入力中：Illustratorで文字ツールを使っているあいだ（文字の編集中を含む）とダイアログボックスを開いているあいだは、⌘や⌃を含まないキー（- や ⇧K など）を実行せず、文字として入力させます（初期値オン、設定の［パレット］）。アクセシビリティの許可が必要です。許可がないときは、文字入力中もホットキーを実行します。
 - パレットを表示するホットキー（初期値 ⌃A）：設定の［パレット］で変更・無効化できます。
 - アプリを呼び出すホットキー：設定の［起動・常駐］で割り当てると、どのアプリからでもメインウインドウを表示します（初期値なし）。
 - ⌘0：メインウインドウを開く、⌘,：設定、⌘W：ウインドウを閉じる、⌘?：ヘルプ
@@ -31,11 +33,11 @@ VectorFXは、Illustratorの効果・パスファインダー・複合パス・�
 ［VectorFX］＞［設定…］（⌘,）で開きます。
 - 起動・常駐：ログイン時に起動、Dockとアプリケーションスイッチャーに表示しない、ウインドウを閉じても常駐、メニューバーのアイコン、アプリを呼び出すホットキー。
 - パレット：パレットを表示するホットキー、［すべて初期値に戻す］（表示する項目・ホットキー・効果の値。スクリプトファイルの場所は残ります）。
-- 設定の共有：パレットの項目・ホットキー・効果の値の書き出し・読み込みと同期。
+- 設定の共有：パレットの項目・カラー・ホットキー・効果の値の書き出し・読み込みと同期。
 - 情報：バージョンとリンク。
 
 ## 権限
-初めて実行するとき、「VectorFXが“Adobe Illustrator”を制御しようとしています」と確認されます。［許可］を選んでください。許可しなかった場合は、システム設定＞プライバシーとセキュリティ＞オートメーションで、VectorFXの「Adobe Illustrator」をオンにします。アクセシビリティの許可は使いません。
+初めて実行するとき、「VectorFXが“Adobe Illustrator”を制御しようとしています」と確認されます。［許可］を選んでください。許可しなかった場合は、システム設定＞プライバシーとセキュリティ＞オートメーションで、VectorFXの「Adobe Illustrator」をオンにします。アクセシビリティの許可は、文字入力中にホットキーを実行しないためにだけ使います（設定の［起動・常駐］から許可）。
 
 ## 常駐と終了
 ウインドウを閉じても常駐し、パレットとホットキーは使えます（設定でオフにすると、閉じたときに終了します）。再表示はDockのアイコン、メニューバーのアイコン、Finderから開き直す、アプリを呼び出すホットキーのいずれか。終了は［VectorFX］＞［VectorFXを終了］（⌘Q）またはメニューバーのアイコンから。
@@ -64,12 +66,14 @@ Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Rou
 ## Main window
 - Left list: checked items appear in the palette. The right column shows the assigned hotkey.
 - Right side: Run in Illustrator (⌘Return), hotkey, effect values and the script file location.
+- Color: give each item one of the seven Finder tag colors (Red, Orange, Yellow, Green, Blue, Purple, Gray) from Color on the right or Control-click › Color in the list. The palette button and the list row take that color.
 - Items whose script file is missing show ⚠. Choose the file again with Choose File….
 - The bottom line shows the last result, including why it failed. The palette shows it too.
 
 ## Hotkeys
 - Item hotkeys work only while the palette is shown and Illustrator is in front, so keys without modifiers such as ⇧K or - can be used. Hide the palette and those keys type normally in Illustrator.
 - Assign: select an item in the main window, click the hotkey field and press the keys. Esc cancels. A key already used by another item is moved to this one.
+- While typing: while a type tool is active in Illustrator (including text editing) or a dialog box is open, keys without ⌘ or ⌃ (such as - or ⇧K) are typed instead of running (on by default, Settings › Palette). This needs Accessibility permission; without it, hotkeys also run while typing.
 - Palette hotkey (default ⌃A): change or turn it off in Settings › Palette.
 - Show-app hotkey: assign it in Settings › Startup & Background to show the main window from any app (no default).
 - ⌘0 Open Main Window, ⌘, Settings, ⌘W Close Window, ⌘? Help
@@ -78,11 +82,11 @@ Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Rou
 Open with VectorFX › Settings… (⌘,).
 - Startup & Background: open at login, hide from Dock and App Switcher, keep running after closing the window, menu bar icon, show-app hotkey.
 - Palette: palette hotkey and Reset All to Defaults (items, hotkeys and effect values; script file locations are kept).
-- Sharing: export, import and sync the palette items, hotkeys and effect values.
+- Sharing: export, import and sync the palette items, colors, hotkeys and effect values.
 - About: version and links.
 
 ## Permissions
-The first run asks whether VectorFX may control “Adobe Illustrator”. Choose Allow. If you did not, turn on “Adobe Illustrator” for VectorFX in System Settings › Privacy & Security › Automation. Accessibility permission is not used.
+The first run asks whether VectorFX may control “Adobe Illustrator”. Choose Allow. If you did not, turn on “Adobe Illustrator” for VectorFX in System Settings › Privacy & Security › Automation. Accessibility permission is used only to keep hotkeys from running while you type (allow it from Settings › Startup & Background).
 
 ## Keep running and quitting
 VectorFX keeps running after you close the window, so the palette and hotkeys keep working (turn this off in Settings to quit on close). Show it again from the Dock, the menu bar icon, by opening it from the Finder or with the show-app hotkey. Quit with VectorFX › Quit VectorFX (⌘Q) or from the menu bar icon.
@@ -111,12 +115,14 @@ VectorFX 通过面板按钮和快捷键执行 Illustrator 的效果、路径查�
 ## 主窗口
 - 左侧列表：勾选的项目显示在面板中，右端为分配的快捷键。
 - 右侧：“在 Illustrator 中执行”（⌘Return）、快捷键、效果数值、脚本文件位置。
+- 颜色：可为每个项目设置与访达标签相同的 7 种颜色（红色、橙色、黄色、绿色、蓝色、紫色、灰色）。在右侧的“颜色”或列表中右键 ›“颜色”中选择，面板按钮和列表行会显示该颜色。
 - 找不到脚本文件的项目显示 ⚠，请用“选择文件…”重新指定。
 - 底部显示上次执行的结果（包括失败原因），面板底部也会显示。
 
 ## 快捷键
 - 各项目的快捷键仅在显示面板且 Illustrator 位于前台时可用，因此也可以使用 ⇧K 或 - 等不带修饰键的按键。隐藏面板后，这些键在 Illustrator 中照常使用。
 - 分配：在主窗口选择项目，单击快捷键栏并按键。按 Esc 取消。若按键已被其他项目使用，会从该项目移到此项目。
+- 输入文字时：在 Illustrator 中使用文字工具（包括编辑文字）或打开对话框时，不含 ⌘ 或 ⌃ 的按键（如 - 或 ⇧K）不执行命令而作为文字输入（默认开启，“设置”›“面板”）。需要辅助功能权限；未授权时输入文字时也会执行快捷键。
 - 显示面板的快捷键（默认 ⌃A）：在“设置”›“面板”中更改或关闭。
 - 显示应用快捷键：在“设置”›“启动与后台”中分配后，可从任何应用显示主窗口（无默认值）。
 - ⌘0 打开主窗口，⌘, 设置，⌘W 关闭窗口，⌘? 帮助
@@ -125,11 +131,11 @@ VectorFX 通过面板按钮和快捷键执行 Illustrator 的效果、路径查�
 通过“VectorFX”›“设置…”（⌘,）打开。
 - 启动与后台：登录时启动、在程序坞和应用切换器中隐藏、关闭窗口后继续运行、菜单栏图标、显示应用快捷键。
 - 面板：显示面板的快捷键、“全部恢复默认”（项目、快捷键和效果数值；保留脚本文件位置）。
-- 设置共享：导出、导入并同步面板项目、快捷键和效果数值。
+- 设置共享：导出、导入并同步面板项目、颜色、快捷键和效果数值。
 - 关于：版本和链接。
 
 ## 权限
-首次执行时会询问是否允许 VectorFX 控制“Adobe Illustrator”，请选择“允许”。若未允许，请在“系统设置”›“隐私与安全性”›“自动化”中为 VectorFX 打开“Adobe Illustrator”。不使用辅助功能权限。
+首次执行时会询问是否允许 VectorFX 控制“Adobe Illustrator”，请选择“允许”。若未允许，请在“系统设置”›“隐私与安全性”›“自动化”中为 VectorFX 打开“Adobe Illustrator”。辅助功能权限仅用于在输入文字时不执行快捷键（在“设置”›“启动与后台”中授权）。
 
 ## 常驻与退出
 关闭窗口后仍继续运行，面板和快捷键可继续使用（在设置中关闭后，关闭窗口即退出）。可通过程序坞图标、菜单栏图标、在访达中重新打开或显示应用快捷键再次显示。通过“VectorFX”›“退出 VectorFX”（⌘Q）或菜单栏图标退出。
@@ -158,12 +164,14 @@ VectorFX는 Illustrator의 효과, 패스파인더, 컴파운드 패스, 단면 
 ## 메인 윈도우
 - 왼쪽 목록: 체크한 항목이 팔레트에 표시됩니다. 오른쪽 끝은 지정한 단축키입니다.
 - 오른쪽: [Illustrator에서 실행](⌘Return), 단축키, 효과 값, 스크립트 파일 위치.
+- 색상: 항목마다 Finder 태그와 같은 7가지 색(빨간색, 주황색, 노란색, 초록색, 파란색, 보라색, 회색)을 지정할 수 있습니다. 오른쪽의 색상 또는 목록에서 오른쪽 클릭 › 색상으로 선택합니다. 팔레트 버튼과 목록 행이 그 색으로 표시됩니다.
 - 스크립트 파일을 찾을 수 없는 항목에는 ⚠가 표시됩니다. [파일 선택…]으로 다시 지정하세요.
 - 아래쪽에 마지막 실행 결과(실패 이유 포함)를 표시합니다. 팔레트 아래에도 표시됩니다.
 
 ## 단축키
 - 항목별 단축키는 팔레트가 표시되어 있고 Illustrator가 앞에 있을 때만 작동하므로 ⇧K나 - 같은 보조 키 없는 키도 사용할 수 있습니다. 팔레트를 가리면 그 키는 Illustrator에서 평소대로 사용됩니다.
 - 지정: 메인 윈도우에서 항목을 선택하고 단축키 칸을 클릭한 뒤 키를 누릅니다. Esc로 취소합니다. 다른 항목이 사용 중인 키는 그 항목에서 해제하고 이 항목에 지정합니다.
+- 텍스트 입력 중: Illustrator에서 문자 도구를 사용하는 동안(텍스트 편집 포함)과 대화상자가 열려 있는 동안에는 ⌘나 ⌃가 없는 키(- 또는 ⇧K 등)를 실행하지 않고 문자로 입력합니다(기본값 켬, 설정 › 팔레트). 손쉬운 사용 권한이 필요하며, 권한이 없으면 텍스트 입력 중에도 단축키가 실행됩니다.
 - 팔레트 표시 단축키(기본값 ⌃A): 설정 › 팔레트에서 변경하거나 끌 수 있습니다.
 - 앱 표시 단축키: 설정 › 시작 및 백그라운드에서 지정하면 어떤 앱에서든 메인 윈도우를 표시합니다(기본값 없음).
 - ⌘0 메인 윈도우 열기, ⌘, 설정, ⌘W 윈도우 닫기, ⌘? 도움말
@@ -172,11 +180,11 @@ VectorFX는 Illustrator의 효과, 패스파인더, 컴파운드 패스, 단면 
 [VectorFX] › [설정…](⌘,)으로 엽니다.
 - 시작 및 백그라운드: 로그인 시 실행, Dock 및 앱 전환기에서 가리기, 윈도우를 닫아도 계속 실행, 메뉴 막대 아이콘, 앱 표시 단축키.
 - 팔레트: 팔레트 표시 단축키, [모두 기본값으로 되돌리기](항목·단축키·효과 값. 스크립트 파일 위치는 유지).
-- 설정 공유: 팔레트 항목·단축키·효과 값의 내보내기·가져오기와 동기화.
+- 설정 공유: 팔레트 항목·색상·단축키·효과 값의 내보내기·가져오기와 동기화.
 - 정보: 버전과 링크.
 
 ## 권한
-처음 실행할 때 VectorFX가 'Adobe Illustrator'를 제어하도록 허용할지 묻습니다. [허용]을 선택하세요. 허용하지 않았다면 시스템 설정 › 개인정보 보호 및 보안 › 자동화에서 VectorFX의 'Adobe Illustrator'를 켜세요. 손쉬운 사용 권한은 사용하지 않습니다.
+처음 실행할 때 VectorFX가 'Adobe Illustrator'를 제어하도록 허용할지 묻습니다. [허용]을 선택하세요. 허용하지 않았다면 시스템 설정 › 개인정보 보호 및 보안 › 자동화에서 VectorFX의 'Adobe Illustrator'를 켜세요. 손쉬운 사용 권한은 텍스트 입력 중 단축키를 실행하지 않는 데에만 사용합니다(설정 › 시작 및 백그라운드에서 허용).
 
 ## 상주와 종료
 윈도우를 닫아도 계속 실행되어 팔레트와 단축키를 사용할 수 있습니다(설정에서 끄면 닫을 때 종료). Dock 아이콘, 메뉴 막대 아이콘, Finder에서 다시 열기, 앱 표시 단축키로 다시 표시합니다. [VectorFX] › [VectorFX 종료](⌘Q) 또는 메뉴 막대 아이콘에서 종료합니다.

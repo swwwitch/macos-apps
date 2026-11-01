@@ -69,7 +69,7 @@ struct CommandList: View {
                             .labelsHidden().toggleStyle(.checkbox)
                             .accessibilityLabel(String(format: L("list.showInPalette"), command.title))
                             .help(L("list.showInPaletteHint"))
-                            Text(command.title + (command.opensDialog ? "…" : "")).lineLimit(1)
+                            Text(command.displayTitle).lineLimit(1)
                                 .foregroundColor(model.hidden.contains(command.id) ? .secondary : .primary)
                             Spacer()
                             if !model.scriptExists(command) {
@@ -80,6 +80,18 @@ struct CommandList: View {
                             }
                         }
                         .tag(command.id)
+                        .listRowBackground(model.color(command).map { $0.displayColor.opacity(0.22) } ?? Color.clear)
+                        .contextMenu {
+                            Menu(L("item.color")) {
+                                Button(L("color.none")) { model.setColor(nil, for: command) }
+                                Divider()
+                                ForEach(ItemTag.allCases, id: \.self) { tag in
+                                    Button { model.setColor(tag, for: command) } label: {
+                                        Label(tag.title, systemImage: model.color(command) == tag ? "checkmark.circle.fill" : "circle.fill")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -95,8 +107,9 @@ struct CommandDetail: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(command.title).font(.title2.weight(.semibold))
+                    Text(command.displayTitle).font(.title2.weight(.semibold))
                     Text(kindText).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    ItemColorPicker(color: Binding(get: { model.color(command) }, set: { model.setColor($0, for: command) })).padding(.top, 6)
                 }
                 HStack(spacing: 8) {
                     Button(L("detail.run")) { model.run(command, fromWindow: true) }
@@ -125,6 +138,7 @@ struct CommandDetail: View {
                     }
                 }
                 if command.scriptPath != nil { ScriptFileSection(model: model, command: command) }
+                LogicSection(model: model, command: command)
             }
             .padding(20).frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -134,9 +148,79 @@ struct CommandDetail: View {
         case .menu(_, let dialog): return L(dialog ? "kind.dialog" : "kind.menu")
         case .effect: return L("kind.effect")
         case .code: return L("kind.code." + command.id)
-        case .action, .recordedAction: return L("kind.action")
+        case .action: return L("kind.action")
         case .namedAction(let set, let name): return String(format: L("kind.namedAction"), name, set)
         case .script: return L("kind.script")
+        }
+    }
+}
+
+extension ItemTag {
+    var displayColor: Color {
+        switch self {
+        case .red: return Color(nsColor: .systemRed)
+        case .orange: return Color(nsColor: .systemOrange)
+        case .yellow: return Color(nsColor: .systemYellow)
+        case .green: return Color(nsColor: .systemGreen)
+        case .blue: return Color(nsColor: .systemBlue)
+        case .purple: return Color(nsColor: .systemPurple)
+        case .gray: return Color(nsColor: .systemGray)
+        }
+    }
+}
+
+/// None plus Finder's seven tag colors, like VectorKeys.
+struct ItemColorPicker: View {
+    @Binding var color: ItemTag?
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(L("item.color") + " :").foregroundColor(.secondary)
+            HStack(spacing: 6) {
+                Button { color = nil } label: {
+                    Image(systemName: "nosign").font(.system(size: 16)).frame(width: 23, height: 23)
+                        .overlay(Circle().strokeBorder(color == nil ? Color.primary : .clear, lineWidth: 2))
+                }.help(L("color.none")).accessibilityLabel(L("color.none"))
+                ForEach(ItemTag.allCases, id: \.self) { tag in
+                    Button { color = tag } label: {
+                        Circle().fill(tag.displayColor.opacity(0.65))
+                            .overlay(Circle().strokeBorder(tag.displayColor, lineWidth: 1.5))
+                            .frame(width: 17, height: 17).padding(3)
+                            .overlay(Circle().strokeBorder(color == tag ? Color.primary : .clear, lineWidth: 2))
+                    }.help(tag.title).accessibilityLabel(tag.title)
+                        .accessibilityValue(color == tag ? L("color.selected") : "")
+                }
+            }.buttonStyle(.plain)
+        }
+    }
+}
+
+/// 「しくみ」: what the command does in Illustrator, step by step, and the ExtendScript it sends.
+struct LogicSection: View {
+    @ObservedObject var model: Model
+    let command: Command
+    @State private var showsSource = false
+    var body: some View {
+        let values = Dictionary(uniqueKeysWithValues: command.params.map { ($0.key, model.value(command, $0)) })
+        SettingsSection(L("logic.title")) {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(Logic.steps(for: command, values: values, recorded: Model.recordedAction).enumerated()), id: \.offset) { index, step in
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("\(index + 1).").monospacedDigit().foregroundColor(.secondary).frame(width: 20, alignment: .trailing)
+                        Text(step).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
+                    }
+                }
+                if let source = ScriptBuilder.source(for: command, values: values, recorded: Model.recordedAction) {
+                    DisclosureGroup(isExpanded: $showsSource) {
+                        ScrollView([.horizontal, .vertical]) {
+                            Text(source).font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading).padding(8)
+                        }
+                        .frame(height: 220)
+                        .background(Color(nsColor: .textBackgroundColor)).cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.gray.opacity(0.25)))
+                    } label: { Text(L("logic.source")) }
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -293,6 +377,7 @@ struct SettingsView: View {
                     Text(L("appHotkeyHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
+            AccessibilitySection()
         })), (L("settings.paletteTab"), AnyView(VStack(spacing: 16) {
             SettingsSection(L("settings.paletteKey")) {
                 VStack(alignment: .leading, spacing: 6) {
@@ -301,6 +386,15 @@ struct SettingsView: View {
                                 others: model.appCombo.map { [(SettingsUI.shortcutTitle, $0)] } ?? [],
                                 registered: model.paletteHotkeyRegistered, isEnabled: model.paletteHotkeyEnabled)
                     Text(L("settings.paletteKeyNote")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+            SettingsSection(L("settings.typing")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Toggle(L("settings.skipWhileTyping"), isOn: $model.skipWhileTyping)
+                    Text(L("settings.skipWhileTypingNote")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    if model.skipWhileTyping && !AccessibilitySection.isTrusted {
+                        Text(L("settings.skipNeedsAccess")).font(.caption).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
+                    }
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             SettingsSection(L("settings.items")) {

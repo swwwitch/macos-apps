@@ -4,7 +4,7 @@ set -euo pipefail
 cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/VectorFX-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
-xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Commands.swift Source/ScriptBuilder.swift Source/Runner.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Commands.swift Source/ScriptBuilder.swift Source/Logic.swift Source/Runner.swift Tests/main.swift -o "$stage/tests"
 "$stage/tests"
 python3 make-resources.py >/dev/null
 python3 - <<'PY'
@@ -20,6 +20,8 @@ keys.update('cmd.' + i for i in ids)
 keys.update('section.' + s.strip() for s in re.search(r'case (stylize[^\n]+)', src).group(1).split(','))
 keys.update('param.' + k for k in re.findall(r'key: "([^"]+)"', src) + re.findall(r'length\("([^"]+)"', src))
 keys.update('kind.code.' + i for i in re.findall(r'Command\(id: "([^"]+)"[^\n]*action: \.code\(', src))
+keys.update('logic.code.' + k for k in re.findall(r'return "([a-zA-Z]+)"', (root / 'Source/Logic.swift').read_text().split('var logicKey')[1]))
+keys.update('logic.code.' + k for k in ['openPath'])
 keys.update('status.err.' + f.strip() for f in re.search(r'enum Failure: String \{ case ([^}]+)\}', (root / 'Source/ScriptBuilder.swift').read_text()).group(1).split(','))
 sets = []
 for p in (root / 'Resources').glob('*.lproj/Localizable.strings'):
