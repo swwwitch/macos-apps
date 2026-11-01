@@ -99,5 +99,18 @@ do { _ = try SymbolicLinks.linkAll(from: src.appendingPathComponent("sub"), into
 catch { expect(error is SymbolicLinks.LinkError, "no files: \(error)") }
 try? fm.removeItem(at: root)
 
+// Sign inversion preserves formatting and rejects nonnumeric expressions / multiline input.
+for (input, output) in [("12.5 mm", "-12.5 mm"), ("-12.5 mm", "12.5 mm"), ("  +001.20pt  ", "  -001.20pt  "), (".5°", "-.5°"), ("-3%", "3%"), ("10級", "-10級")] {
+    expect(SignInversion.flip(input) == output, "sign: \(input)")
+}
+for input in ["text", "1+2", "1,000", "1\n2", "--2", "", "12 mm\n"] {
+    expect(SignInversion.flip(input) == nil, "sign unchanged: \(input)")
+}
+for input in ["0", "0.0 mm", "-0pt"] { expect(SignInversion.flip(input) == input, "zero preserved: \(input)") }
+let partial = SignInversion.replacement(value: "12.5 mm", selection: NSRange(location: 0, length: 4))
+expect(partial?.value == "-12.5 mm" && partial?.selection == NSRange(location: 0, length: 5), "selected number retains unit")
+expect(SignInversion.replacement(value: "-12 pt", selection: NSRange(location: 3, length: 0))?.value == "12 pt", "no selection uses whole field")
+expect(SignInversion.replacement(value: "12 mm", selection: NSRange(location: 0, length: 999)) == nil, "invalid range unchanged")
+
 if failures > 0 { print("\(failures) failure(s)"); exit(1) }
 print("All tests passed")

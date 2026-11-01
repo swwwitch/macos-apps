@@ -114,6 +114,11 @@ final class Model: ObservableObject {
     var onTransformHotkey: (() -> Void)?
     /// Closes 単位パレット・クイック環境設定・クイック変形 at once. ⌥W by default.
     @Published var closeAllCombo: KeyCombo? { didSet { store(closeAllCombo, "closeAllHotkey"); refreshHotkeys() } }
+    @Published var signCombo: KeyCombo? { didSet { store(signCombo, "signInversionHotkey"); refreshHotkeys() } }
+    @Published var signStatus = ""
+    let signWatcher = SignInversionWatcher()
+    static let signNumber: UInt32 = 9
+    static let signDefault = KeyCombo(code: UInt32(kVK_ANSI_Minus), modifiers: KeyCombo.option)
     var onCloseAllHotkey: (() -> Void)?
     /// アプリ起動のホットキー: shows the main window from any app while VectorMate runs. ⌃⌥⌘; by default; per Mac (not shared).
     @Published var launchCombo: KeyCombo? { didSet { store(launchCombo, "launchHotkey"); refreshHotkeys() } }
@@ -166,6 +171,7 @@ final class Model: ObservableObject {
         if !defaults.bool(forKey: "transformDefaultApplied") { defaults.removeObject(forKey: "transformHotkey"); defaults.set(true, forKey: "transformDefaultApplied") }
         transformCombo = defaults.data(forKey: "transformHotkey") == nil ? Self.transformDefault : Self.load("transformHotkey")
         closeAllCombo = defaults.data(forKey: "closeAllHotkey") == nil ? Self.closeAllDefault : Self.load("closeAllHotkey")
+        signCombo = defaults.data(forKey: "signInversionHotkey") == nil ? Self.signDefault : Self.load("signInversionHotkey")
         launchCombo = defaults.data(forKey: "launchHotkey") == nil ? Self.launchDefault : Self.load("launchHotkey")
         let base = Self.loadSyncFolder()
         syncFolder = base
@@ -181,6 +187,13 @@ final class Model: ObservableObject {
         tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
         artboardPanel = defaults.bool(forKey: "artboardToolPanel")
         gradientPanel = defaults.bool(forKey: "gradientToolPanel")
+        ExcludedApps.shared.configure(explanation: L("sign.excluded"))
+        ExcludedApps.shared.onChange = { [weak self] in self?.refreshHotkeys() }
+        signWatcher.allowed = { [weak self] in
+            guard let self else { return false }
+            return self.hotkeysEnabled && !self.paused && !self.busy && !ExcludedApps.shared.frontAppExcluded
+        }
+        signWatcher.status = { [weak self] in self?.signStatus = $0 }
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
@@ -226,6 +239,7 @@ final class Model: ObservableObject {
         trusted = now
         watcher.restart()
         toolWatcher.restart()
+        refreshHotkeys()
         onChange?()
     }
 
@@ -251,6 +265,9 @@ final class Model: ObservableObject {
     // MARK: Hotkeys
 
     func refreshHotkeys() {
+        signWatcher.combo = signCombo
+        if hotkeysEnabled && signCombo != nil && AXIsProcessTrusted() { signWatcher.start() }
+        else { signWatcher.stop(); signStatus = L(signCombo == nil || !hotkeysEnabled ? "sign.off" : "sign.permission") }
         let front = Illustrator.isIllustrator(NSWorkspace.shared.frontmostApplication)
         let pairs = [(Self.brighterNumber, brighterCombo), (Self.darkerNumber, darkerCombo), (Self.paletteNumber, paletteCombo), (Self.quickNumber, quickCombo),
                      (Self.transformNumber, transformCombo), (Self.closeAllNumber, closeAllCombo)]
@@ -279,7 +296,7 @@ final class Model: ObservableObject {
         let apps = [Illustrator.bundlePrefix]
         let entries: [(String, String, KeyCombo?)] = [("brighter", L("hotkey.brighter"), brighterCombo), ("darker", L("hotkey.darker"), darkerCombo),
                                                       ("palette", L("hotkey.palette"), paletteCombo), ("quick", L("hotkey.quick"), quickCombo),
-                                                      ("transform", L("hotkey.transform"), transformCombo), ("closeAll", L("hotkey.closeAll"), closeAllCombo)]
+                                                      ("transform", L("hotkey.transform"), transformCombo), ("closeAll", L("hotkey.closeAll"), closeAllCombo), ("sign", L("sign.title"), signCombo)]
         var items = entries.compactMap { id, title, combo in
             combo.map { HotkeyManifest.Item(id: id, title: title, keyCode: Int($0.code), modifiers: Int($0.modifiers), enabled: hotkeysEnabled, scope: "only", apps: apps) }
         }
@@ -299,6 +316,7 @@ final class Model: ObservableObject {
                                                   (Self.paletteNumber, L("hotkey.palette"), paletteCombo), (Self.quickNumber, L("hotkey.quick"), quickCombo),
                                                   (Self.transformNumber, L("hotkey.transform"), transformCombo),
                                                   (Self.closeAllNumber, L("hotkey.closeAll"), closeAllCombo),
+                                                  (Self.signNumber, L("sign.title"), signCombo),
                                                   (Self.launchNumber, L("launch.hotkey"), launchCombo)]
         return all.compactMap { entry in entry.0 == number ? nil : entry.2.map { (entry.1, $0) } }
     }
@@ -666,7 +684,7 @@ final class Model: ObservableObject {
 
     /// Keys shared by 設定の共有 (export/import and sync). 起動・常駐・メニューバー stay per Mac.
     static let sharedKeys: Set<String> = ["metricsEnabled", "metricsOffEnabled", "notifyApplied", "hotkeysEnabled",
-                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", "transformHotkey", "closeAllHotkey", UnitSet.storeKey, "unitPaletteDetail", PrefPreset.storeKey, SyncFolder.storeKey, "shortcutSource", "shortcutSetName", "linkSource.profiles", "linkSource.compositeFonts",
+                                          "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", "transformHotkey", "closeAllHotkey", "signInversionHotkey", UnitSet.storeKey, "unitPaletteDetail", PrefPreset.storeKey, SyncFolder.storeKey, "shortcutSource", "shortcutSetName", "linkSource.profiles", "linkSource.compositeFonts",
                                           "guideInTrimView", "controlDoubleTapSelect", "doubleTapKey", "artboardToolPanel", "gradientToolPanel"]
     /// Re-reads the shared settings after SettingsSync applied them, so the next save does not write the old values back.
     func reloadSharedSettings() {
@@ -680,6 +698,7 @@ final class Model: ObservableObject {
         quickCombo = defaults.data(forKey: "quickHotkey") == nil ? Self.quickDefault : Self.load("quickHotkey")
         transformCombo = defaults.data(forKey: "transformHotkey") == nil ? Self.transformDefault : Self.load("transformHotkey")
         closeAllCombo = defaults.data(forKey: "closeAllHotkey") == nil ? Self.closeAllDefault : Self.load("closeAllHotkey")
+        signCombo = defaults.data(forKey: "signInversionHotkey") == nil ? Self.signDefault : Self.load("signInversionHotkey")
         unitSets = UnitSet.load()
         unitDetail = defaults.bool(forKey: "unitPaletteDetail")
         prefPresets = PrefPreset.load()
@@ -694,6 +713,7 @@ final class Model: ObservableObject {
     }
 
     func stop() {
+        signWatcher.stop()
         watcher.isActive = false
         hotkeys.unregisterAll()
         if let activation { NSWorkspace.shared.notificationCenter.removeObserver(activation) }
@@ -1023,6 +1043,13 @@ struct Preferences: View {
                                 registered: !model.failedHotkeys.contains(Model.paletteNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.paletteHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                SettingsSection(L("sign.title")) {
+                    HotkeyField(id: "sign", combo: $model.signCombo, defaultCombo: Model.signDefault, allowsClear: true,
+                                others: model.otherHotkeys(except: Model.signNumber),
+                                isEnabled: model.hotkeysEnabled, allowsOption: true)
+                    Text(L("sign.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    Text(model.signStatus).font(.caption).fixedSize(horizontal: false, vertical: true)
+                }
                 SettingsSection(L("closeAll.title")) {
                     Text(L("hotkey.closeAll"))
                     HotkeyField(id: "closeAll", combo: $model.closeAllCombo, defaultCombo: Model.closeAllDefault, allowsClear: true,
@@ -1031,6 +1058,7 @@ struct Preferences: View {
                     Text(L("hotkey.closeAllHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             })),
+            (ExcludedApps.title, AnyView(SettingsSection(ExcludedApps.title) { ExcludedAppsView() })),
             (L("sets.tab"), AnyView(UnitSetsEditor(model: model))),
             (L("prefsets.tab"), AnyView(PrefPresetsEditor(model: model))),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),

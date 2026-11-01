@@ -15,12 +15,12 @@ cp Resources/PrivacyInfo.xcprivacy README.md Assets/VectorMate.icns "$app/Conten
 # Shared parts are compiled straight from Shared (no local copies to keep in sync).
 SHARED=(../Shared/AppStandards/AppHeader.swift ../Shared/AppStandards/AppSurface.swift ../Shared/AppStandards/StartupWindow.swift
         ../Shared/AppStandards/HelpDocument.swift ../Shared/AppStandards/SettingsSection.swift ../Shared/AppStandards/AboutSection.swift
-        ../Shared/LoginAtLaunch/LoginAtLaunch.swift
+        ../Shared/ExcludedApps/ExcludedApps.swift ../Shared/LoginAtLaunch/LoginAtLaunch.swift
         ../Shared/Accessibility/AccessibilityPermission.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/Updater/UpdateSupport.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift ../Shared/HotkeyManifest/HotkeyManifest.swift ../Shared/SettingsSync/SettingsSync.swift)
 for arch in arm64 x86_64; do
   xcrun swiftc "${UPDATE_SWIFT_FLAGS[@]}" -swift-version 5 -O -target "$arch-apple-macosx13.0" -module-cache-path "$stage/cache" \
     -framework AppKit -framework SwiftUI -framework Carbon -framework ServiceManagement -framework ApplicationServices \
-    "${SHARED[@]}" Source/MetricsScript.swift Source/Illustrator.swift Source/IllustratorSettings.swift Source/Units.swift Source/UnitPalette.swift Source/UnitSetsEditor.swift Source/PrefPresets.swift Source/PrefPresetsUI.swift Source/QuickPrefs.swift Source/TransformPalette.swift Source/ToolWatch.swift Source/VersionPinning.swift Source/Links.swift Source/ShortcutSet.swift Source/FactoryReset.swift Source/LaunchPolicy.swift Source/main.swift -o "$stage/VectorMate-$arch"
+    "${SHARED[@]}" Source/SignInversion.swift Source/SignInversionWatcher.swift Source/MetricsScript.swift Source/Illustrator.swift Source/IllustratorSettings.swift Source/Units.swift Source/UnitPalette.swift Source/UnitSetsEditor.swift Source/PrefPresets.swift Source/PrefPresetsUI.swift Source/QuickPrefs.swift Source/TransformPalette.swift Source/ToolWatch.swift Source/VersionPinning.swift Source/Links.swift Source/ShortcutSet.swift Source/FactoryReset.swift Source/LaunchPolicy.swift Source/main.swift -o "$stage/VectorMate-$arch"
 done
 xcrun lipo -create "$stage/VectorMate-arm64" "$stage/VectorMate-x86_64" -output "$app/Contents/MacOS/VectorMate"
 xcrun lipo -verify_arch arm64 "$app/Contents/MacOS/VectorMate"
