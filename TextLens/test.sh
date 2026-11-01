@@ -30,5 +30,8 @@ for p in (root / 'Resources').glob('*.lproj'):
 print('PASS: localization key and placeholder parity (4 languages), help present')
 PY
 
-xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework Vision Source/Services.swift Tests/vision.swift -o "$stage/vision"
+xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework Vision -framework VisionKit Source/Services.swift Tests/vision.swift -o "$stage/vision"
 "$stage/vision"
+
+xcrun swiftc -parse-as-library -swift-version 5 -module-cache-path "$stage/cache" -framework AppKit -framework Vision -framework VisionKit Source/Services.swift Tests/Comparison.swift -o "$stage/comparison"
+"$stage/comparison" "$stage"

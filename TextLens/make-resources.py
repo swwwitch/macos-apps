@@ -6,7 +6,7 @@ APP = 'TextLens'
 rows = '''processingTab|処理|Processing|处理|처리
 resultDisplay|認識結果の表示|Recognition Result Display|识别结果显示|인식 결과 표시
 explanation|説明|Explanation|说明|설명
-ocr.settings|Vision後の整形ルール|Formatting After Vision|Vision 识别后的格式规则|Vision 인식 후 서식 규칙
+ocr.settings|文字認識後の整形ルール|Formatting After Recognition|文字识别后的格式规则|문자 인식 후 서식 규칙
 ocr.keepLines|認識した文字の改行を保持し、コピー前に整形します。|Recognized line breaks are preserved; formatting is applied before copying.|保留识别的换行，并在拷贝前应用格式。|인식한 줄바꿈을 유지하고 복사 전에 서식을 적용합니다.
 heading|文字認識の結果と整形|Recognized Text and Formatting|识别文字与格式处理|인식한 텍스트와 서식
 subtitle|選んだ範囲の文字を読み取り、結果と整形ルールを確認します。|Read text in a selected area and review the result and formatting rules.|识别所选区域的文字，查看结果和格式规则。|선택한 영역의 텍스트를 읽고 결과와 서식 규칙을 확인합니다.

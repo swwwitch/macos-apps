@@ -14,7 +14,7 @@ cp Info.plist "$app/Contents/Info.plist"
 cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Assets/TextLens.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
-  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices -framework Vision -framework UserNotifications "${UPDATE_SWIFT_FLAGS[@]}" \
+  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices -framework Vision -framework VisionKit -framework UserNotifications "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift \
   ../Shared/ExcludedApps/ExcludedApps.swift ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Accessibility/AccessibilityPermission.swift ../Shared/Notifications/NotificationPreferences.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
   Source/{Naming,Services,Panels,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/TextLens"

@@ -1,7 +1,7 @@
 "processingTab" = "処理";
 "resultDisplay" = "認識結果の表示";
 "explanation" = "説明";
-"ocr.settings" = "Vision後の整形ルール";
+"ocr.settings" = "文字認識後の整形ルール";
 "ocr.keepLines" = "認識した文字の改行を保持し、コピー前に整形します。";
 "heading" = "文字認識の結果と整形";
 "subtitle" = "選んだ範囲の文字を読み取り、結果と整形ルールを確認します。";

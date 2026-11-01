@@ -72,7 +72,7 @@ struct Activity: Identifiable {
         Task.detached(priority: .userInitiated) {
             do {
                 guard let image = ImageReader.cgImage(url) else { throw CocoaError(.fileReadCorruptFile) }
-                let text = OCRText.clean(try TextRecognizer.recognize(image), join: join, parens: parens)
+                let text = OCRText.clean(try await TextRecognizer.recognize(image), join: join, parens: parens)
                 await MainActor.run { self.finishOCR(text) }
             } catch {
                 await MainActor.run { self.model.recognizing = false; self.model.log("exclamationmark.triangle", error.localizedDescription, error: true) }
@@ -99,7 +99,7 @@ struct Activity: Identifiable {
             defer { try? FileManager.default.removeItem(at: file) }
             do {
                 guard let image = ImageReader.cgImage(file) else { throw CocoaError(.fileReadCorruptFile) }
-                let text = OCRText.clean(try TextRecognizer.recognize(image), join: join, parens: parens)
+                let text = OCRText.clean(try await TextRecognizer.recognize(image), join: join, parens: parens)
                 await MainActor.run { self.finishOCR(text) }
             } catch {
                 await MainActor.run { self.model.recognizing = false; self.model.log("exclamationmark.triangle", error.localizedDescription, error: true) }

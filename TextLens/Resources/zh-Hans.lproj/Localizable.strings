@@ -1,7 +1,7 @@
 "processingTab" = "处理";
 "resultDisplay" = "识别结果显示";
 "explanation" = "说明";
-"ocr.settings" = "Vision 识别后的格式规则";
+"ocr.settings" = "文字识别后的格式规则";
 "ocr.keepLines" = "保留识别的换行，并在拷贝前应用格式。";
 "heading" = "识别文字与格式处理";
 "subtitle" = "识别所选区域的文字，查看结果和格式规则。";

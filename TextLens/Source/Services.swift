@@ -1,5 +1,6 @@
 import AppKit
 import Vision
+import VisionKit
 import ImageIO
 
 enum ImageReader {
@@ -10,8 +11,17 @@ enum ImageReader {
 }
 
 enum TextRecognizer {
-    /// Japanese and English text, top to bottom, one line per observation. Runs synchronously; call off the main thread.
-    static func recognize(_ image: CGImage) throws -> String {
+    /// Live Text's public analysis API preserves its detected text and reading order.
+    /// Older hardware that cannot run ImageAnalyzer keeps the original Vision path.
+    static func recognize(_ image: CGImage) async throws -> String {
+        guard ImageAnalyzer.isSupported else { return try recognizeLegacy(image) }
+        var configuration = ImageAnalyzer.Configuration(.text)
+        configuration.locales = ["ja-JP", "en-US"]
+        let result = try await ImageAnalyzer().analyze(image, orientation: .up, configuration: configuration)
+        return result.transcript
+    }
+
+    static func recognizeLegacy(_ image: CGImage) throws -> String {
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true

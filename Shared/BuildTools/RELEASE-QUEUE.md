@@ -1177,3 +1177,9 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### TextLens 新規分離 開発検証結果（2026-11-01 JST）
 - 通常版1.0.0（1）。開発Mac MacBook-Pro-14-2024-sw.local、ブランチcodex/filesorter-screenshot-rename-20261101。対象SHAは本記録を含むTextLens確定コミット。NO_DEPLOY=1ビルド・証明書署名・deep/strict・整形・4言語・Vision画像認識／原本不変検証PASS。主画面の表示確認済み（最終調整前の同版）。設定・ヘルプ表示、範囲選択と権限、再起動／ログイン等の実機は未確認。ShotSorter廃止を維持しTextLensへOCRのみ移管。詳細：TextLens/Tests/BUILD-NOTES-20261101.mdとマニフェスト。公証・配置・公開は未実施。
+
+## TextLens VisionKit縦組み比較 開発開始（2026-11-01 JST）
+- ユーザー「やってみてください」により比較試作を開始。担当：開発Mac MacBook-Pro-14-2024-sw.local、ブランチcodex/filesorter-screenshot-rename-20261101、基点133f695d09f15873261256cd0c51b7245d228e8d。開始：2026-11-01T13:52:00.797824+09:00。対象SHA・更新版/buildは比較結果により確定。VisionKit ImageAnalyzer.transcriptを公開APIで取得し、生成した縦組み・横組み画像を既存Visionと比較する。公証・配置・公開なし。状態：検証中。
+
+### TextLens VisionKit縦組み比較 開発検証結果（2026-11-01 JST）
+- 通常版1.1.0（2）。横組み2行はVision・VisionKitとも全文一致。縦組み2列は旧Visionが空、VisionKitが全文と右→左の列順一致。公開ImageAnalyzer.transcriptを使う方式へアプリの範囲選択・画像認識両経路を変更。非対応機器は旧方式。整形・4言語・原本不変・比較テスト、NO_DEPLOY=1ビルド・証明書署名PASS。担当Mac・ブランチは開始記録と同じ。対象SHAは本結果を含むVisionKit確定コミット。詳細とマニフェスト：TextLens/Tests/BUILD-NOTES-20261101-visionkit.md。Quick Lookとの実画像比較、ルビ・縦中横・複雑な段組み・GUI認識・公証・配置・公開は未確認／未実施。

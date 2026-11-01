@@ -1,7 +1,7 @@
 "processingTab" = "처리";
 "resultDisplay" = "인식 결과 표시";
 "explanation" = "설명";
-"ocr.settings" = "Vision 인식 후 서식 규칙";
+"ocr.settings" = "문자 인식 후 서식 규칙";
 "ocr.keepLines" = "인식한 줄바꿈을 유지하고 복사 전에 서식을 적용합니다.";
 "heading" = "인식한 텍스트와 서식";
 "subtitle" = "선택한 영역의 텍스트를 읽고 결과와 서식 규칙을 확인합니다.";

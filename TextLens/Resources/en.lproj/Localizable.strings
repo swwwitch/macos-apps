@@ -1,7 +1,7 @@
 "processingTab" = "Processing";
 "resultDisplay" = "Recognition Result Display";
 "explanation" = "Explanation";
-"ocr.settings" = "Formatting After Vision";
+"ocr.settings" = "Formatting After Recognition";
 "ocr.keepLines" = "Recognized line breaks are preserved; formatting is applied before copying.";
 "heading" = "Recognized Text and Formatting";
 "subtitle" = "Read text in a selected area and review the result and formatting rules.";
