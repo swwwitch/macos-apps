@@ -1316,3 +1316,8 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### VectorMate ログイン起動修正 検証結果（2026-11-02）
 - 通常版2.22.1（86）。起動イベント早期保持とログイン時の自動アクティブ化による再表示抑止を実装。単体・4言語・アピアランス49項目／88生成スクリプト・起動判定・共通StartupWindow／Dock／AppSwitcher回帰テストPASS。Universal・署名検証成功。旧常駐84を通常終了してワークスペース86を起動、手動起動で主画面表示・アピアランス設定保持を確認。実ログイン・物理⌘Tabは未確認。対象SHAは本記録を含む確定コミット。記録：VectorMate/Tests/BUILD-NOTES-20261102-login.md。公証・配布先配置・公開なし。
+
+## VectorMate 2.22.1（86）公証Macへ依頼送信（2026-11-02 JST）
+- ユーザーが既存「macOSアプリのリリース作業」への依頼を明示許可。公証Macの同チャット（01a16bb3-a7cc-76c1-b27f-c7ab19a4f8da、remote-control:env_e_6ac05aff10f88330a7affbabf4b86f99）へ工程3〜12の公証・DMG・配置・GitHub／note公開・公開ダウンロード検証・一覧／Projects更新を送信成功。
+- 確定対象54b4e675bd03b806ee2b23d144646c52d2ddd7f5、codex/vectorassist-build-20261101、通常版2.22.1（86）、jp.dtp-transit.vectormate。旧85／455cf149の未送信引継ぎ指定を今回86で置き換えた。再採番なし。
+- 開発Mac MacBook-Pro-14-2024-sw.localからの送信記録。実行Mac名・開始日時・重複作業・各工程の証跡は公証担当で確認／記録する。送信成功を工程完了と扱わない。工程3以降の成功はこの時点では未確認。86の実ログイン・物理⌘Tab・実適用の未確認事項も伝達済み。
