@@ -1,3 +1,5 @@
+Selecting components highlights their own categories without changing filters. Group counts show distinct referenced components and ignore search/category filters. Drag a sidebar three-line handle onto another classification to place it before that row, or onto Uncategorized to append it. Fixed rows cannot move. Group order is shared by both modes; category order is independent. Orders persist and support Undo.
+
 Click an action name or row space to select it. Start dragging from the three-line handle at the row end to reorder or move to a group. Command-click and Shift-click retain multiple selection.
 
 Right-click Duplicate to copy selected actions immediately after their originals in the same groups. Component references, order and per-invocation names and values are retained. Hotkeys, usage history and Keyboard Maestro links are reset. Shared components and original actions are preserved. Undo is supported.

@@ -4,7 +4,10 @@ import json
 root = Path(__file__).parent
 APP = 'VectorKeys'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
-rows = '''action.dragHandle|ここからドラッグして並べ替え・グループ移動|Drag here to reorder or move to a group|从此处拖动以排序或移到组|여기서 드래그하여 순서 변경 또는 그룹 이동
+rows = '''classification.reorder|分類の並べ替え|Reorder Classifications|重新排列分类|분류 순서 변경
+classification.member|選択したコンポーネントの所属カテゴリ|Category of selected components|所选组件所属类别|선택한 컴포넌트의 카테고리
+classification.drag|ここからドラッグして分類を並べ替え|Drag here to reorder classifications|从此处拖动以重新排序分类|여기서 드래그하여 분류 순서 변경
+action.dragHandle|ここからドラッグして並べ替え・グループ移動|Drag here to reorder or move to a group|从此处拖动以排序或移到组|여기서 드래그하여 순서 변경 또는 그룹 이동
 action.duplicate|複製|Duplicate|复制|복제
 action.copySuffix|のコピー|Copy|的副本|복사본
 invocation.noVariables|対応するSW_変数はありません|No supported SW_ variables|没有支持的SW_变量|지원되는 SW_ 변수가 없습니다

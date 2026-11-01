@@ -1,3 +1,6 @@
+"classification.reorder" = "Reorder Classifications";
+"classification.member" = "Category of selected components";
+"classification.drag" = "Drag here to reorder classifications";
 "action.dragHandle" = "Drag here to reorder or move to a group";
 "action.duplicate" = "Duplicate";
 "action.copySuffix" = "Copy";

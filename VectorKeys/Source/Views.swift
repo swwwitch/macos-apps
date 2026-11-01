@@ -186,6 +186,17 @@ private struct InvocationValuesEditor: View {
     }
 }
 
+private struct ClassificationHandle: View {
+    let name: String
+    let kind: ClassificationKind
+    var body: some View {
+        Image(systemName: "line.3.horizontal").font(.caption).foregroundColor(.secondary)
+            .frame(width: 18, height: 24).contentShape(Rectangle())
+            .help(L("classification.drag")).accessibilityLabel(L("classification.drag"))
+            .onDrag { NSItemProvider(object: ClassificationDragPayload(kind: kind, name: name).encoded as NSString) }
+    }
+}
+
 struct CategorySidebar: View {
     @ObservedObject var model: AppModel
     @State private var confirmDelete: String?
@@ -231,6 +242,7 @@ struct CategorySidebar: View {
             Label(title, systemImage: symbol).lineLimit(1)
             Spacer(minLength: 4)
             Text("\(count)").font(.caption.monospacedDigit()).foregroundColor(highlighted ? .white : .secondary)
+            if model.library.categoryList.contains(tag) { ClassificationHandle(name: tag, kind: .groups) }
         }
         .foregroundColor(highlighted ? .white : nil)
         .tag(tag)
@@ -244,7 +256,10 @@ struct CategorySidebar: View {
             for provider in providers {
                 _ = provider.loadObject(ofClass: NSString.self) { text, _ in
                     guard let id = text as? String else { return }
-                    DispatchQueue.main.async { MainActor.assumeIsolated { model.dropped(id, on: target) } }
+                    DispatchQueue.main.async { MainActor.assumeIsolated {
+                        if ClassificationDragPayload.decode(id) != nil { _ = model.reorderClassification(id, before: target, kind: .groups) }
+                        else { model.dropped(id, on: target) }
+                    } }
                 }
             }
             return true
@@ -1019,18 +1034,51 @@ struct ComponentWorkspace: View {
     }
     private func receiveComponentDrop(_ providers: [NSItemProvider], group: String?) -> Bool {
         let readable = providers.filter { $0.canLoadObject(ofClass: NSString.self) }
-        componentDragLog.notice("drop-receive providers=\(providers.count, privacy: .public) readable=\(readable.count, privacy: .public)")
         guard !readable.isEmpty else { return false }
+        let pending = DispatchGroup(), lock = NSLock()
+        var items: [String] = []
         for provider in readable {
-            _ = provider.loadObject(ofClass: NSString.self) { object, error in
-                guard error == nil, let text = object as? String else {
-                    componentDragLog.notice("drop-decode-failed")
-                    return
-                }
-                DispatchQueue.main.async { MainActor.assumeIsolated { _ = acceptComponentDrop([text], group: group) } }
+            pending.enter()
+            _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+                if let text = object as? String { lock.lock(); items.append(text); lock.unlock() }
+                pending.leave()
+            }
+        }
+        pending.notify(queue: .main) {
+            MainActor.assumeIsolated {
+                if items.contains(where: { ClassificationDragPayload.decode($0) != nil }) {
+                    guard items.count == 1 else { return }
+                    _ = model.reorderClassification(items[0], before: group, kind: .groups)
+                } else { _ = acceptComponentDrop(items, group: group) }
             }
         }
         return true
+    }
+    private func receiveCategoryOrder(_ providers: [NSItemProvider], before target: String?) -> Bool {
+        guard providers.count == 1, let provider = providers.first, provider.canLoadObject(ofClass: NSString.self) else { return false }
+        _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+            guard let text = object as? String else { return }
+            DispatchQueue.main.async { MainActor.assumeIsolated { _ = model.reorderClassification(text, before: target, kind: .categories) } }
+        }
+        return true
+    }
+    private func groupLabel(_ title: String, filter: String, symbol: String, movable: Bool = false) -> some View {
+        HStack {
+            Label(title, systemImage: symbol).lineLimit(1)
+            Spacer(minLength: 4)
+            Text("\(model.componentsInActionGroup(filter).count)").font(.caption.monospacedDigit()).foregroundColor(.secondary)
+            if movable { ClassificationHandle(name: filter, kind: .groups) }
+        }
+    }
+    private func categoryLabel(_ name: String, title: String? = nil, movable: Bool = false) -> some View {
+        HStack {
+            Label(title ?? name, systemImage: movable ? "folder" : "tray").lineLimit(1)
+            Spacer(minLength: 4)
+            if model.selectedComponentCategories.contains(name) {
+                Image(systemName: "checkmark.circle.fill").foregroundColor(appTint).help(L("classification.member"))
+            }
+            if movable { ClassificationHandle(name: name, kind: .categories) }
+        }.frame(maxWidth: .infinity, minHeight: 24, alignment: .leading).contentShape(Rectangle())
     }
     private func dropHover(_ over: Bool, group: String) {
         hoveredGroup = over ? group : nil
@@ -1058,9 +1106,9 @@ struct ComponentWorkspace: View {
             groups: AnyView(VStack(alignment: .leading, spacing: 6) {
                 Text(L("category")).font(.headline).padding(.horizontal, 8)
                 List(selection: Binding(get: { model.componentActionGroupFilter }, set: { if let value = $0 { model.componentActionGroupFilter = value } })) {
-                    Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
+                    groupLabel(L("category.all"), filter: AppModel.allCategories, symbol: "tray.full").tag(AppModel.allCategories)
                     ForEach(model.library.categoryList, id: \.self) { name in
-                        Label(name, systemImage: "folder")
+                        groupLabel(name, filter: name, symbol: "folder", movable: true)
                             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
                             .contentShape(Rectangle()).tag(name)
                             .listRowBackground(hoveredGroup == name ? appTint.opacity(0.22) : Color.clear)
@@ -1072,7 +1120,7 @@ struct ComponentWorkspace: View {
                                 Button(L("category.delete")) { deleteActionGroup = name }
                             }
                     }
-                    Label(L("category.none"), systemImage: "tray")
+                    groupLabel(L("category.none"), filter: AppModel.uncategorized, symbol: "tray")
                         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
                         .contentShape(Rectangle()).tag(AppModel.uncategorized)
                         .listRowBackground(hoveredGroup == AppModel.uncategorized ? appTint.opacity(0.22) : Color.clear)
@@ -1092,13 +1140,17 @@ struct ComponentWorkspace: View {
                 List(selection: Binding(get: { model.componentFilter }, set: { if let value = $0 { model.componentFilter = value } })) {
                     Label(L("category.all"), systemImage: "tray.full").tag(AppModel.allCategories)
                     ForEach(model.library.componentCategoryList, id: \.self) { name in
-                        Label(name, systemImage: "folder").tag(name)
+                        categoryLabel(name, movable: true).tag(name)
+                            .listRowBackground(model.selectedComponentCategories.contains(name) ? appTint.opacity(0.14) : Color.clear)
+                            .onDrop(of: [.utf8PlainText, .plainText], isTargeted: nil) { receiveCategoryOrder($0, before: name) }
                             .contextMenu {
                                 Button(L("componentCategory.rename")) { model.renameComponentCategory(name) }
                                 Button(L("componentCategory.delete")) { deleteGroup = name }
                             }
                     }
-                    Label(L("componentCategory.none"), systemImage: "tray").tag(AppModel.uncategorized)
+                    categoryLabel(AppModel.uncategorized, title: L("componentCategory.none")).tag(AppModel.uncategorized)
+                        .listRowBackground(model.selectedComponentCategories.contains(AppModel.uncategorized) ? appTint.opacity(0.14) : Color.clear)
+                        .onDrop(of: [.utf8PlainText, .plainText], isTargeted: nil) { receiveCategoryOrder($0, before: nil) }
                 }
                 HStack {
                     Button { model.newComponentCategory() } label: { Image(systemName: "plus") }.help(L("componentCategory.new"))
@@ -1238,12 +1290,14 @@ private struct NativeComponentList: NSViewRepresentable {
         let scroll = NSScrollView()
         scroll.hasVerticalScroller = true; scroll.documentView = table
         context.coordinator.table = table
+        table.selectionAfterMouseDown = { [weak coordinator = context.coordinator] in coordinator?.readSelection() }
         return scroll
     }
     func updateNSView(_ view: NSScrollView, context: Context) {
         let coordinator = context.coordinator
         coordinator.parent = self
         guard let table = coordinator.table else { return }
+        table.delegate = coordinator; table.dataSource = coordinator; table.menu?.delegate = coordinator
         coordinator.syncing = true
         let rows = components.map { Row(id: $0.id, name: $0.name, color: $0.tagColor, exists: $0.step.exists) }
         if rows != coordinator.rows {
@@ -1255,12 +1309,24 @@ private struct NativeComponentList: NSViewRepresentable {
         coordinator.syncing = false
     }
     static func dismantleNSView(_ view: NSScrollView, coordinator: Coordinator) {
-        coordinator.commands = []; view.documentView = nil
+        coordinator.commands = []
+        if let table = view.documentView as? ComponentTable { table.selectionAfterMouseDown = nil; table.delegate = nil; table.dataSource = nil }
+        view.documentView = nil
     }
     struct Row: Equatable {
         let id: String; let name: String; let color: ItemTag?; let exists: Bool
     }
+    final class PassiveCell: NSTableCellView {
+        // No controls in this cell: native row selection owns every text/blank mouse event.
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+    }
     final class ComponentTable: NSTableView {
+        var selectionAfterMouseDown: (@MainActor () -> Void)?
+        override func mouseDown(with event: NSEvent) {
+            window?.makeFirstResponder(self)
+            super.mouseDown(with: event)
+            selectionAfterMouseDown?()
+        }
         override func menu(for event: NSEvent) -> NSMenu? {
             let row = self.row(at: convert(event.locationInWindow, from: nil))
             guard row >= 0 else { return nil }
@@ -1276,7 +1342,8 @@ private struct NativeComponentList: NSViewRepresentable {
         var commands: [() -> Void] = []
         init(_ parent: NativeComponentList) { self.parent = parent }
         func numberOfRows(in tableView: NSTableView) -> Int { rows.count }
-        func tableViewSelectionDidChange(_ notification: Notification) {
+        func tableViewSelectionDidChange(_ notification: Notification) { readSelection() }
+        @MainActor func readSelection() {
             guard !syncing, let table else { return }
             let ids = Set(table.selectedRowIndexes.filter { rows.indices.contains($0) }.map { rows[$0].id })
             if parent.model.componentSelections != ids { parent.model.componentSelections = ids }
@@ -1285,7 +1352,7 @@ private struct NativeComponentList: NSViewRepresentable {
             let value = rows[row]
             let text = NSTextField(labelWithString: value.name + (value.exists ? "" : "  ⚠︎"))
             text.lineBreakMode = .byTruncatingTail; text.font = .systemFont(ofSize: 13)
-            let cell = NSTableCellView()
+            let cell = PassiveCell()
             cell.textField = text; cell.addSubview(text)
             text.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([text.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 8), text.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -8), text.centerYAnchor.constraint(equalTo: cell.centerYAnchor)])
