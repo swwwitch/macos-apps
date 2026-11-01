@@ -58,41 +58,107 @@ final class SignInversionWatcher {
     private func invert(in app: NSRunningApplication) -> Bool {
         let root = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(root, 0.05)
-        var focused: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(root, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
-              let focused, CFGetTypeID(focused) == AXUIElementGetTypeID() else { return false }
-        let field = focused as! AXUIElement
-        func read(_ key: String) -> CFTypeRef? {
+        func attribute(_ element: AXUIElement, _ key: String) -> CFTypeRef? {
             var value: CFTypeRef?
-            return AXUIElementCopyAttributeValue(field, key as CFString, &value) == .success ? value : nil
+            return AXUIElementCopyAttributeValue(element, key as CFString, &value) == .success ? value : nil
         }
-        guard let role = read(kAXRoleAttribute) as? String, [kAXTextFieldRole, kAXComboBoxRole].contains(role),
-              (read(kAXEnabledAttribute) as? Bool) == true,
-              (read(kAXSubroleAttribute) as? String) != kAXSecureTextFieldSubrole,
-              let original = read(kAXValueAttribute) as? String,
-              let rawRange = read(kAXSelectedTextRangeAttribute), CFGetTypeID(rawRange) == AXValueGetTypeID() else { return false }
-        var range = CFRange()
-        guard AXValueGetValue(rawRange as! AXValue, .cfRange, &range), range.location >= 0, range.length >= 0 else { return false }
-        guard let replacement = SignInversion.replacement(value: original, selection: NSRange(location: range.location, length: range.length)) else { return false }
+        func numericText(_ element: AXUIElement) -> (String, String)? {
+            for key in [kAXValueAttribute, kAXTitleAttribute, kAXDescriptionAttribute] {
+                if let text = attribute(element, key) as? String, SignInversion.flip(text) != nil { return (key, text) }
+            }
+            return nil
+        }
+        func isField(_ element: AXUIElement) -> Bool {
+            guard let role = attribute(element, kAXRoleAttribute) as? String,
+                  [kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole].contains(role),
+                  (attribute(element, kAXEnabledAttribute) as? Bool) != false,
+                  (attribute(element, kAXSubroleAttribute) as? String) != kAXSecureTextFieldSubrole else { return false }
+            return true
+        }
+        func focusedField() -> AXUIElement? {
+            // Adobe modal dialogs can expose the dialog itself as the application focus.
+            if let raw = attribute(root, kAXFocusedUIElementAttribute), CFGetTypeID(raw) == AXUIElementGetTypeID() {
+                var focused = raw as! AXUIElement
+                for _ in 0..<4 {
+                    if isField(focused), numericText(focused) != nil { return focused }
+                    guard let parent = attribute(focused, kAXParentAttribute), CFGetTypeID(parent) == AXUIElementGetTypeID() else { break }
+                    focused = parent as! AXUIElement
+                }
+            }
+            let windows = (attribute(root, kAXWindowsAttribute) as? [AXUIElement]) ?? []
+            var queue = windows, candidates: [AXUIElement] = []
+            var visited = 0
+            let deadline = Date().addingTimeInterval(0.15)
+            while !queue.isEmpty && visited < 160 && Date() < deadline {
+                let node = queue.removeFirst(); visited += 1
+                if isField(node), numericText(node) != nil {
+                    if (attribute(node, kAXFocusedAttribute) as? Bool) == true { return node }
+                    if let text = attribute(node, kAXSelectedTextAttribute) as? String, !text.isEmpty,
+                       SignInversion.flip(text) != nil { candidates.append(node) }
+                }
+                queue.append(contentsOf: (attribute(node, kAXChildrenAttribute) as? [AXUIElement]) ?? [])
+            }
+            return candidates.count == 1 ? candidates[0] : nil
+        }
+        guard let field = focusedField(), let (valueKey, original) = numericText(field) else {
+            diagnostics.error("sign: no uniquely focused numeric AX field")
+            status(L("sign.unsupported")); return false
+        }
+        func read(_ key: String) -> CFTypeRef? { attribute(field, key) }
+        var selectedRange: CFRange?
+        if let raw = read(kAXSelectedTextRangeAttribute), CFGetTypeID(raw) == AXValueGetTypeID() {
+            var range = CFRange()
+            if AXValueGetValue(raw as! AXValue, .cfRange, &range), range.location >= 0, range.length >= 0 { selectedRange = range }
+        }
+        let selectedText = read(kAXSelectedTextAttribute) as? String
+        let selected: String
+        if let range = selectedRange, range.length > 0 {
+            let source = original as NSString
+            guard range.location <= source.length, range.length <= source.length - range.location else { return false }
+            selected = source.substring(with: NSRange(location: range.location, length: range.length))
+        } else if let selectedText, !selectedText.isEmpty { selected = selectedText }
+        else { selected = original }
+        guard let converted = SignInversion.flip(selected) else { status(L("sign.notNumeric")); return false }
+        func stillFocused() -> Bool {
+            return allowed() && NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier
+                && !ExcludedApps.shared.frontAppExcluded
+                && focusedField().map { CFEqual($0, field) } == true
+                && (read(valueKey) as? String) == original
+        }
+        guard stillFocused() else { return false }
+        if converted == selected { return true }
         var settable = DarwinBoolean(false)
-        guard AXUIElementIsAttributeSettable(field, kAXValueAttribute as CFString, &settable) == .success, settable.boolValue,
-              NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier,
-              !ExcludedApps.shared.frontAppExcluded, (read(kAXValueAttribute) as? String) == original else { return false }
-        var currentFocus: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(root, kAXFocusedUIElementAttribute as CFString, &currentFocus) == .success,
-              let currentFocus, CFEqual(currentFocus, field) else { return false }
-        // Zero is a valid no-op: consume the hotkey so Option-minus cannot insert a dash.
-        if replacement.value == original { return true }
-        var latestRange = CFRange()
-        guard let latestRaw = read(kAXSelectedTextRangeAttribute), CFGetTypeID(latestRaw) == AXValueGetTypeID(),
-              AXValueGetValue(latestRaw as! AXValue, .cfRange, &latestRange), latestRange.location == range.location,
-              latestRange.length == range.length else { return false }
-        guard AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, replacement.value as CFString) == .success else { return false }
-        var selection = CFRange(location: replacement.selection.location, length: replacement.selection.length)
-        if let value = AXValueCreate(.cfRange, &selection) {
-            AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, value)
+        if let range = selectedRange,
+           let replacement = SignInversion.replacement(value: original, selection: NSRange(location: range.location, length: range.length)),
+           AXUIElementIsAttributeSettable(field, kAXValueAttribute as CFString, &settable) == .success, settable.boolValue,
+           AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, replacement.value as CFString) == .success {
+            var selection = CFRange(location: replacement.selection.location, length: replacement.selection.length)
+            if let value = AXValueCreate(.cfRange, &selection) { AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, value) }
+            status(L("sign.done")); return true
         }
-        status(L("sign.done"))
+        // Custom Illustrator dialogs lack writable AXValue/selection attributes. Type into the
+        // verified numeric field instead, preserving the clipboard and native text-edit undo.
+        // If selection information is absent, select the whole numeric field first.
+        let hasSelection = (selectedRange?.length ?? 0) > 0 || !(selectedText ?? "").isEmpty
+        guard SignInversion.flip(original) != nil else { status(L("sign.notNumeric")); return false }
+        let eventSource = CGEventSource(stateID: .privateState)
+        guard let down = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
+              let up = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: false),
+              let selectDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true),
+              let selectUp = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: false) else { return false }
+        let text = Array(converted.utf16)
+        down.flags = []; up.flags = []
+        down.keyboardSetUnicodeString(stringLength: text.count, unicodeString: text)
+        up.keyboardSetUnicodeString(stringLength: text.count, unicodeString: text)
+        selectDown.flags = .maskCommand; selectUp.flags = .maskCommand
+        DispatchQueue.main.async { [weak self] in
+            guard let self, stillFocused() else { return }
+            // Recheck the readable selection before dispatching any replacement.
+            if let selectedText, (read(kAXSelectedTextAttribute) as? String) != selectedText { return }
+            if !hasSelection { selectDown.postToPid(app.processIdentifier); selectUp.postToPid(app.processIdentifier) }
+            down.postToPid(app.processIdentifier); up.postToPid(app.processIdentifier)
+            self.status(L("sign.sent"))
+        }
         return true
     }
 }

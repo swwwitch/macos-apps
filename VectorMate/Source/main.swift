@@ -118,7 +118,7 @@ final class Model: ObservableObject {
     @Published var signStatus = ""
     let signWatcher = SignInversionWatcher()
     static let signNumber: UInt32 = 9
-    static let signDefault = KeyCombo(code: UInt32(kVK_ANSI_Minus), modifiers: KeyCombo.option)
+    static let signDefault = KeyCombo(code: UInt32(kVK_ANSI_Minus), modifiers: KeyCombo.control)
     var onCloseAllHotkey: (() -> Void)?
     /// アプリ起動のホットキー: shows the main window from any app while VectorMate runs. ⌃⌥⌘; by default; per Mac (not shared).
     @Published var launchCombo: KeyCombo? { didSet { store(launchCombo, "launchHotkey"); refreshHotkeys() } }
@@ -1022,21 +1022,19 @@ struct Preferences: View {
                                 registered: !model.failedHotkeys.contains(Model.darkerNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
-                SettingsSection(L("quick.title")) {
+                SettingsSection(L("closeAll.title")) {
                     Text(L("hotkey.quick"))
                     HotkeyField(id: "quick", combo: $model.quickCombo, defaultCombo: Model.quickDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.quickNumber),
                                 registered: !model.failedHotkeys.contains(Model.quickNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.quickHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-                SettingsSection(L("transform.title")) {
+                    Divider().padding(.vertical, 4)
                     Text(L("hotkey.transform"))
                     HotkeyField(id: "transform", combo: $model.transformCombo, defaultCombo: Model.transformDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.transformNumber),
                                 registered: !model.failedHotkeys.contains(Model.transformNumber), isEnabled: model.hotkeysEnabled)
                     Text(L("hotkey.transformHint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-                SettingsSection(L("palette.title")) {
+                    Divider().padding(.vertical, 4)
                     Text(L("hotkey.palette"))
                     HotkeyField(id: "palette", combo: $model.paletteCombo, defaultCombo: Model.paletteDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.paletteNumber),
@@ -1050,8 +1048,7 @@ struct Preferences: View {
                     Text(L("sign.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Text(model.signStatus).font(.caption).fixedSize(horizontal: false, vertical: true)
                 }
-                SettingsSection(L("closeAll.title")) {
-                    Text(L("hotkey.closeAll"))
+                SettingsSection(L("hotkey.closeAll")) {
                     HotkeyField(id: "closeAll", combo: $model.closeAllCombo, defaultCombo: Model.closeAllDefault, allowsClear: true,
                                 others: model.otherHotkeys(except: Model.closeAllNumber),
                                 registered: !model.failedHotkeys.contains(Model.closeAllNumber), isEnabled: model.hotkeysEnabled)

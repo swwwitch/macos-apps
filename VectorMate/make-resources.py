@@ -8,8 +8,12 @@ APPLE_EVENTS = ['Illustratorの選択中のテキストの自動カーニング�
                 '用于读取和设置 Illustrator 中所选文本的自动字距调整与比例间距，以及读取文件处理设置。',
                 'Illustrator에서 선택한 텍스트의 자동 커닝과 비례 메트릭을 읽고 설정하며, 파일 처리 설정을 읽는 데 사용합니다.']
 rows = [
+('sign.unsupported', 'この入力欄から数値を取得できませんでした。', 'This field does not expose numeric text.', '无法从此输入栏读取数值。', '이 입력 필드에서 숫자를 읽지 못했습니다.'),
+('sign.notNumeric', '対象が数値ではないため変更しませんでした。', 'The target is not numeric; no change was made.', '目标不是数值，未作更改。', '대상이 숫자가 아니므로 변경하지 않았습니다.'),
+('sign.sent', '正負反転した値を入力しました。確定前に入力欄を確認してください。', 'Entered the inverted value. Check the field before confirming.', '已输入反转后的数值。确认前请检查输入栏。', '부호를 반전한 값을 입력했습니다. 확정 전에 필드를 확인하세요.'),
+
 ('sign.title', '値の正負を反転', 'Invert Value Sign', '反转数值正负', '값의 부호 반전'),
-('sign.hint', '初期値は⌥−。Illustratorの編集可能な数値欄で、選択範囲（未選択なら全体）の正負を反転します。単位・小数桁を保持し、ゼロや数値以外は変更しません。AX書込み非対応の欄では実行しません。同じキーのKeyboard Maestroマクロは無効にしてください。', 'Default ⌥−. In editable Illustrator numeric fields, inverts the selection or the whole field if nothing is selected. Preserves units and decimals; zero and nonnumeric text stay unchanged. Unsupported AX fields are left alone. Disable any Keyboard Maestro macro using the same key.', '默认⌥−。在 Illustrator 可编辑数值栏中反转所选内容的正负；未选择时作用于整个栏。保留单位和小数位；零和非数值不变。不支持 AX 写入的栏不执行。请停用使用相同按键的 Keyboard Maestro 宏。', '기본값 ⌥−. Illustrator의 편집 가능한 숫자 필드에서 선택 영역(선택하지 않으면 전체)의 부호를 바꿉니다. 단위와 소수 자릿수를 유지하며 0과 숫자가 아닌 값은 바꾸지 않습니다. AX 쓰기를 지원하지 않는 필드는 건너뜁니다. 같은 키의 Keyboard Maestro 매크로는 비활성화하세요.'),
+('sign.hint', '初期値は⌃−。Illustratorの編集可能な数値欄で、選択範囲（未選択なら全体）の正負を反転します。単位・小数桁を保持し、ゼロや数値以外は変更しません。カスタム入力欄では数値を確認して文字入力で置換します。同じキーのKeyboard Maestroマクロは無効にしてください。', 'Default ⌃−. In editable Illustrator numeric fields, inverts the selection or the whole field if nothing is selected. Preserves units and decimals; zero and nonnumeric text stay unchanged. Custom numeric fields use verified text input when AX writing is unavailable. Disable any Keyboard Maestro macro using the same key.', '默认⌃−。在 Illustrator 可编辑数值栏中反转所选内容的正负；未选择时作用于整个栏。保留单位和小数位；零和非数值不变。自定义数值栏不支持 AX 写入时使用文字输入。请停用使用相同按键的 Keyboard Maestro 宏。', '기본값 ⌃−. Illustrator의 편집 가능한 숫자 필드에서 선택 영역(선택하지 않으면 전체)의 부호를 바꿉니다. 단위와 소수 자릿수를 유지하며 0과 숫자가 아닌 값은 바꾸지 않습니다. 사용자 정의 숫자 필드는 AX 쓰기 대신 문자 입력으로 바꿉니다. 같은 키의 Keyboard Maestro 매크로는 비활성화하세요.'),
 ('sign.ready', '正負反転のキー監視は有効です。', 'Sign inversion key monitoring is active.', '正负反转按键监视已启用。', '부호 반전 키 감시가 활성화되어 있습니다.'),
 ('sign.unavailable', 'キー監視を開始できませんでした。権限を確認してアプリを再起動してください。', 'Key monitoring could not start. Check permissions and restart the app.', '无法启动按键监视。请检查权限并重启应用。', '키 감시를 시작하지 못했습니다. 권한을 확인하고 앱을 다시 실행하세요.'),
 ('sign.permission', '正負反転にはアクセシビリティの許可が必要です。', 'Sign inversion requires Accessibility permission.', '正负反转需要辅助功能权限。', '부호 반전에는 손쉬운 사용 권한이 필요합니다.'),
@@ -450,7 +454,7 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 - マージンは定規の単位で、マイナスなら重なる向きです。反転・回転では基準点の側へずらします。プレビュー境界がオンなら線幅・効果を含めて測ります。
 - 1回の操作はIllustratorの取り消し1段分です（スライダーは刻みごと）。
 
-正負反転：⌥−でIllustratorの編集可能な数値欄の選択範囲（未選択なら全体）を反転します。単位・小数桁を保持し、ゼロ・非数値・AX書込み非対応の欄は変更しません。設定のホットキーで変更・解除できます。対象外アプリでは実行しません。同じキーのKMマクロは無効にしてください。クリップボードは使用しません。
+正負反転：⌃−でIllustratorの編集可能な数値欄の選択範囲（未選択なら全体）を反転します。単位・小数桁を保持し、ゼロ・非数値は変更しません。カスタム数値欄では文字入力で置換し、入力欄を特定できない場合は変更しません。設定のホットキーで変更・解除できます。対象外アプリでは実行しません。同じキーのKMマクロは無効にしてください。クリップボードは使用しません。
 
 単位パレット
 「単位パレットを表示」（メニューバー・ファイルメニュー・メインウインドウの「単位パレット」ボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです。単位セット（初期値はプリント（pt）・プリント（級）・ウェブ・プレゼン）を一覧から選び、⌘Return・⌘クリック・ダブルクリックで切り替えます（Tab・↑↓で選択、Escで隠す。今の単位と同じセットは「— 現在」）。「基本」「詳細」のどちらでも単位と増減量（キー入力・角丸の半径・サイズ/行送り・ベースラインシフト）を変えます。「詳細」ではさらに、開いているドキュメントのカラーモード・オーバープリントプレビュー・ラスタライズ効果の解像度・透明グリッドの色と、ピクセルにスナップも変えます（透明グリッドの色は SetSameGridColors と同じく、［ドキュメント設定］の色見本をクリックしてカラーパネルの16進数欄に書きます。マウスポインタが動きます）。セットは「セットを編集…」または設定の「単位セット」タブで追加・削除・並べ替え・編集できます。単位はスクリプトから書いても再起動まで効かないため、環境設定の［単位］を開いて各ポップアップを矢印キーで目的の単位にし、4つとも合っているときだけ［OK］を押します（合わなければ［キャンセル］）。操作のあと単位を読み直して確かめます。操作中はキーボードやマウスに触れないでください。
@@ -526,7 +530,7 @@ A floating palette opened with Show Quick Transform (menu bar, File menu, the ma
 - The margin is in ruler units; negative values overlap. After a flip or rotation it shifts toward the anchor side. With Preview bounds on, strokes and effects are measured.
 - Each operation is one undo step in Illustrator (the slider, one per step).
 
-Invert Value Sign: ⌥− inverts the selected numeric text in an editable Illustrator field, or the whole field if nothing is selected. Units and decimals are preserved; zero, nonnumeric text and unsupported AX fields are unchanged. Change or clear the key in Settings. Excluded apps are ignored. Disable the same-key KM macro. The clipboard is never used.
+Invert Value Sign: ⌃− inverts the selected numeric text in an editable Illustrator field, or the whole field if nothing is selected. Units and decimals are preserved; zero and nonnumeric text are unchanged. Custom numeric fields use text input; unidentified fields are left unchanged. Change or clear the key in Settings. Excluded apps are ignored. Disable the same-key KM macro. The clipboard is never used.
 
 Units Palette
 A floating palette opened with Show Units Palette (menu bar, File menu, the Units Palette button of the main window, or a hotkey set in Settings). Pick a unit set (by default Print (pt), Print (Q), Web, Presentation) and switch with ⌘Return, ⌘-click or double-click (Tab / ↑↓ select, Esc hides; the set matching the current units is marked). Both Basic and Detailed modes change units and increments (keyboard increment, corner radius, size/leading and baseline shift). Detailed mode also changes the open document’s color mode, Overprint Preview, raster effects resolution, transparency grid colors and Snap to Pixel change too (the grid colors are set as SetSameGridColors does: the swatches in Document Setup are clicked and the color panel’s hex field written; the pointer moves). Edit Sets… or the Unit Sets tab of Settings adds, deletes, reorders and edits the sets. Units written from a script only take effect after a restart, so the Units pane of Settings is opened, each popup is moved to the wanted unit with the arrow keys, and OK is pressed only when all four match (Cancel otherwise); the units are read again afterwards. Do not touch the keyboard or mouse meanwhile.
@@ -602,7 +606,7 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 - 边距使用标尺单位，负值为重叠方向。翻转和旋转后向参考点一侧移动。打开“预览边界”时包含描边和效果进行测量。
 - 每次操作对应 Illustrator 的一步撤销（滑块为每个步进一步）。
 
-正负反转：⌥−反转 Illustrator 可编辑数值栏的所选内容，未选择时处理整个栏。保留单位和小数位。零、非数值及不支持 AX 写入的栏不变。可在设置中更改或清除快捷键。排除的应用不执行。请停用同键 KM 宏。不使用剪贴板。
+正负反转：⌃−反转 Illustrator 可编辑数值栏的所选内容，未选择时处理整个栏。保留单位和小数位。零和非数值不变。自定义数值栏使用文字输入，无法确定输入栏时不更改。可在设置中更改或清除快捷键。排除的应用不执行。请停用同键 KM 宏。不使用剪贴板。
 
 单位面板
 通过“显示单位面板”（菜单栏、文件菜单、主窗口的“单位面板”按钮或在设置中指定的快捷键）打开的浮动面板。从列表选择单位组合（默认：印刷（pt）、印刷（级）、网页、演示），按 ⌘Return、⌘点按或双击切换。“基本”和“详细”模式都会更改单位及增量（键盘增量、圆角半径、大小/行距、基线偏移）；“详细”模式还会更改打开文档的颜色模式、叠印预览、栅格效果分辨率、透明度网格颜色和对齐像素（网格颜色会点按“文档设置”中的色块并写入颜色面板的十六进制栏，鼠标指针会移动）。可通过“编辑组合…”或设置的“单位组合”标签添加、删除、排序和编辑。会打开设置的“单位”，用方向键选择各弹出菜单，四项都正确时才按“好”。操作期间请勿触碰键盘和鼠标。
@@ -678,7 +682,7 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 - 여백은 눈금자 단위이며 음수는 겹치는 방향입니다. 반전·회전 후에는 기준점 쪽으로 옮깁니다. 미리 보기 경계를 켜면 선과 효과를 포함해 측정합니다.
 - 한 번의 조작은 Illustrator의 실행 취소 1단계입니다(슬라이더는 단위마다).
 
-부호 반전: ⌥−로 Illustrator의 편집 가능한 숫자 필드에서 선택 영역(미선택 시 전체)을 반전합니다. 단위와 소수 자릿수를 유지합니다. 0·숫자가 아닌 값·AX 쓰기 비지원 필드는 바꾸지 않습니다. 설정에서 키 변경·해제가 가능합니다. 제외한 앱은 건너뜁니다. 같은 키의 KM 매크로를 끄세요. 클립보드는 사용하지 않습니다.
+부호 반전: ⌃−로 Illustrator의 편집 가능한 숫자 필드에서 선택 영역(미선택 시 전체)을 반전합니다. 단위와 소수 자릿수를 유지합니다. 0·숫자가 아닌 값은 바꾸지 않습니다. 사용자 정의 숫자 필드는 문자 입력을 사용하며, 필드를 식별하지 못하면 바꾸지 않습니다. 설정에서 키 변경·해제가 가능합니다. 제외한 앱은 건너뜁니다. 같은 키의 KM 매크로를 끄세요. 클립보드는 사용하지 않습니다.
 
 단위 팔레트
 단위 팔레트 보기(메뉴 막대, 파일 메뉴, 메인 윈도우의 단위 팔레트 버튼 또는 설정에서 지정한 단축키)로 여는 떠 있는 팔레트입니다. 목록에서 단위 세트(기본값: 인쇄(pt), 인쇄(급), 웹, 프레젠테이션)를 골라 ⌘Return·⌘클릭·이중 클릭으로 전환합니다. 기본과 상세 모드는 모두 단위와 증감량(키보드 증감·모퉁이 반경·크기/행간·기준선 이동)을 바꿉니다. 상세 모드는 추가로 열린 도큐먼트의 색상 모드·중복 인쇄 미리 보기·래스터 효과 해상도·투명도 격자 색상·픽셀에 물리기도 바꿉니다(격자 색상은 도큐먼트 설정의 색상 견본을 클릭해 색상 패널의 16진수 칸에 씁니다. 포인터가 움직입니다). 세트 편집… 또는 설정의 단위 세트 탭에서 추가·삭제·정렬·편집할 수 있습니다. 설정의 단위를 열어 각 팝업을 화살표 키로 맞추고 네 개가 모두 맞을 때만 확인을 누릅니다. 조작 중에는 키보드와 마우스를 만지지 마세요.
