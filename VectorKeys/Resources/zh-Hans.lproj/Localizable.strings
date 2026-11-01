@@ -1,3 +1,6 @@
+"classification.reorder" = "重新排列分类";
+"classification.member" = "所选组件所属类别";
+"classification.drag" = "从此处拖动以重新排序分类";
 "action.dragHandle" = "从此处拖动以排序或移到组";
 "action.duplicate" = "复制";
 "action.copySuffix" = "的副本";

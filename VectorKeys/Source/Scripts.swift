@@ -1186,3 +1186,35 @@ enum VariableOverrides {
         return result as String
     }
 }
+
+/// Sidebar ordering payloads are disjoint from component registration and action movement.
+enum ClassificationKind: String, Codable { case groups, categories }
+struct ClassificationDragPayload: Codable, Equatable {
+    let kind: ClassificationKind
+    let name: String
+    static let prefix = "VectorKeys.classification:"
+    var encoded: String {
+        Self.prefix + String(data: try! JSONEncoder().encode(self), encoding: .utf8)!
+    }
+    static func decode(_ text: String) -> Self? {
+        guard text.utf8.count <= 131072, text.hasPrefix(prefix),
+              let data = String(text.dropFirst(prefix.count)).data(using: .utf8),
+              let value = try? JSONDecoder().decode(Self.self, from: data),
+              !value.name.isEmpty, !value.name.contains("\u{0}") else { return nil }
+        return value
+    }
+}
+extension Library {
+    @discardableResult mutating func reorderClassification(_ name: String, before target: String?, kind: ClassificationKind) -> Bool {
+        let original = kind == .groups ? categoryList : componentCategoryList
+        guard original.contains(name), target != name, target.map(original.contains) ?? true else { return false }
+        var next = original.filter { $0 != name }
+        next.insert(name, at: target.flatMap { next.firstIndex(of: $0) } ?? next.count)
+        guard next != original else { return false }
+        if kind == .groups { categories = next } else { componentCategories = next }
+        return true
+    }
+    func selectedComponentCategories(_ ids: Set<String>, uncategorized: String) -> Set<String> {
+        Set((components ?? []).filter { ids.contains($0.id) }.map { $0.category ?? uncategorized })
+    }
+}

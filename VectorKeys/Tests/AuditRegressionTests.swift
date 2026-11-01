@@ -96,6 +96,38 @@ import Combine
         precondition(duplicateStore.value == beforeDuplicate)
         duplicateStore.replace(duplicateLibrary)
         precondition(duplicateStore.value == duplicateLibrary)
+        var sidebars = beforeDuplicate
+        sidebars.categories = ["Group", "Empty", "Last"]
+        sidebars.componentCategories = ["Red", "Blue", "Empty"]
+        sidebars.components![0].category = "Red"
+        let loose = Component(name: "Loose", step: .code(source: "2"))
+        sidebars.components!.append(loose)
+        let sidebarBefore = sidebars
+        let payload = ClassificationDragPayload(kind: .groups, name: "Group")
+        precondition(ClassificationDragPayload.decode(payload.encoded) == payload)
+        precondition(ClassificationDragPayload.decode(ComponentDragPayload.encode(["Group"])) == nil)
+        precondition(ClassificationDragPayload.decode(ActionDragPayload.encode(["Group"])) == nil)
+        let special = ClassificationDragPayload(kind: .categories, name: "日本語,\n名")
+        precondition(ClassificationDragPayload.decode(special.encoded) == special)
+        precondition(sidebars.reorderClassification("Last", before: "Group", kind: .groups))
+        precondition(sidebars.categoryList == ["Last", "Group", "Empty"])
+        precondition(sidebars.reorderClassification("Last", before: nil, kind: .groups))
+        precondition(sidebars.categoryList == sidebarBefore.categoryList)
+        precondition(sidebars.reorderClassification("Blue", before: "Red", kind: .categories))
+        precondition(sidebars.componentCategoryList == ["Blue", "Red", "Empty"])
+        precondition(!sidebars.reorderClassification("missing", before: "Red", kind: .categories))
+        precondition(!sidebars.reorderClassification("Red", before: "fixed-all", kind: .categories))
+        precondition(sidebars.scripts == sidebarBefore.scripts && sidebars.components == sidebarBefore.components)
+        let selectedCategories = sidebars.selectedComponentCategories([duplicateComponent.id, loose.id], uncategorized: "none")
+        precondition(selectedCategories == ["Red", "none"])
+        precondition(sidebars.selectedComponentCategories([], uncategorized: "none").isEmpty)
+        precondition(sidebars.componentsUsed(by: [originalAction.id]).count == 1, "two references count as one component")
+        let sidebarURL = temp.appendingPathComponent("sidebar.json")
+        try sidebars.save(to: sidebarURL)
+        precondition(Library.load(from: sidebarURL) == sidebars)
+        let sidebarStore = LibraryStore(sidebars)
+        sidebarStore.replace(sidebarBefore); sidebarStore.replace(sidebars)
+        precondition(sidebarStore.value == sidebars)
         var library = Library()
         var scan = WatchedScripts.Scan()
         scan.files["/audit/a.jsx"] = ["One"]

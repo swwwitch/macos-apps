@@ -748,9 +748,23 @@ struct RunRecord: Identifiable {
     func move(ids: [String], from source: IndexSet, to destination: Int) { library.move(ids: ids, from: source, to: destination) }
 
     var currentComponentCategory: String? { [Self.allCategories, Self.uncategorized].contains(componentFilter) ? nil : componentFilter }
+    func componentsInActionGroup(_ filter: String) -> [Component] {
+        filter == Self.allCategories ? (library.components ?? []) : library.componentsUsed(by: Set(scripts(in: filter).map(\.id)))
+    }
     var componentsInCurrentGroup: [Component] {
-        let candidates = componentActionGroupFilter == Self.allCategories ? (library.components ?? []) : library.componentsUsed(by: Set(scripts(in: componentActionGroupFilter).map(\.id)))
-        return candidates.filter { componentFilter == Self.allCategories || $0.category == currentComponentCategory }
+        componentsInActionGroup(componentActionGroupFilter).filter { componentFilter == Self.allCategories || $0.category == currentComponentCategory }
+    }
+    var selectedComponentCategories: Set<String> {
+        library.selectedComponentCategories(componentSelections, uncategorized: Self.uncategorized)
+    }
+    @discardableResult func reorderClassification(_ text: String, before target: String?, kind: ClassificationKind) -> Bool {
+        guard let payload = ClassificationDragPayload.decode(text), payload.kind == kind else { return false }
+        undoable(L("classification.reorder")) {
+            var next = library
+            _ = next.reorderClassification(payload.name, before: target, kind: kind)
+            library = next
+        }
+        return true
     }
     private func revealComponent(_ id: String?) {
         componentActionGroupFilter = Self.allCategories

@@ -5,6 +5,7 @@ HELP = {
 上部で「コンポーネント」と「アクション」を切り替えます。コンポーネントはスクリプトファイル（.jsx、.js、.jsxbin）または直接記入したExtendScriptコードです。同じコンポーネントを複数のアクションで共有できます。アクションは1つ以上のコンポーネントを順に実行し、キーボードショートカットを持ちます。コンポーネントを分類するものはカテゴリ、アクションを分類してパネル化するものはグループです。
 
 ## コンポーネント：4カラム
+コンポーネントを選ぶと所属カテゴリを淡い色とマークで表示します。複数選択では各所属を表示し、フィルターは変更しません。グループ名横の数は、そのグループのアクションが参照するコンポーネントの重複を除いた数です。検索・カテゴリ絞り込みでは変わりません。グループ／カテゴリの三本線ハンドルを別の分類へ落とすとその前へ、未分類へ落とすと末尾へ並べ替えます。固定項目は動かせません。両モードのグループ順は共通で、順序は再起動後も保持し⌘Zで取り消せます。行本体へのコンポーネント登録と、ハンドルからの分類並べ替えは別操作です。
 左からグループ、カテゴリ、アイテム、詳細です。グループはその中のアクションが使うコンポーネントを、カテゴリはコンポーネント自体の分類を絞り込みます。「すべて」で絞り込みを解除します。検索は名前とファイルパスを対象にします。列の境界をドラッグして幅を調整でき、アクション画面とは別にこのMacへ保存します。
 - 左のグループ列の＋でグループを作成、右クリックで改名・削除できます。グループ削除はアクションを未分類へ移し、コンポーネントと原本ファイルを保持します。
 - カテゴリ列の＋でコンポーネントのカテゴリを作成できます。カテゴリの削除もコンポーネントを消さず未分類へ移します。
@@ -38,7 +39,9 @@ Keyboard Maestroの.kmmacrosファイルはファイルメニューから読み�
 ⌘,で設定を開き、起動・常駐・ログイン起動・アプリ呼び出しのキーなどを設定します。呼び出しキーは常駐中のアプリを表示するためのもので、未起動のアプリを起動するキーではありません。手動起動はメイン画面を表示し、ログイン起動は表示しません。Dockを隠す設定でもメイン・設定画面がある間は通常表示します。常駐中はウインドウを閉じてもアプリを終了せず、⌘Qで終了します。設定ウインドウは⌘Wで閉じられます。
 Illustrator操作のオートメーション許可が必要な場合は、システム設定のプライバシーとセキュリティでVectorKeysのIllustrator操作を許可してください。ホットキー重複・原本不在・空コード・実行エラーはアプリ内で確認できます。最近の実行結果は終了すると消えますが、アクションの回数と最終成功日時は保存します。設定共有は一覧やファイルパス・個別キーを共有せず、表示など対象の設定だけを共有します。旧データ移行前のScripts.pre-components.json／Scripts.pre-workspaces.jsonは保全します。アップデート確認とヘルプはアプリメニューから利用できます。
 """,
-"en": """Click an action name or row space to select it. Start dragging from the three-line handle at the row end to reorder or move to a group. Command-click and Shift-click retain multiple selection.
+"en": """Selecting components highlights their own categories without changing filters. Group counts show distinct referenced components and ignore search/category filters. Drag a sidebar three-line handle onto another classification to place it before that row, or onto Uncategorized to append it. Fixed rows cannot move. Group order is shared by both modes; category order is independent. Orders persist and support Undo.
+
+Click an action name or row space to select it. Start dragging from the three-line handle at the row end to reorder or move to a group. Command-click and Shift-click retain multiple selection.
 
 Right-click Duplicate to copy selected actions immediately after their originals in the same groups. Component references, order and per-invocation names and values are retained. Hotkeys, usage history and Keyboard Maestro links are reset. Shared components and original actions are preserved. Undo is supported.
 
@@ -75,7 +78,9 @@ Import Keyboard Maestro .kmmacros exports from File. Supported file/code steps b
 Command-comma opens Settings. Configure login launch, residency, Dock visibility and the app recall hotkey. The recall key works while VectorKeys is running; it is not a cold-launch shortcut. Manual launch shows the main window; login launch does not. Dock hiding keeps normal Dock behavior while a main or settings window exists. Closing a window can keep a resident app running; Command-Q quits. Command-W closes Settings.
 If macOS requests Automation permission, allow VectorKeys to control Illustrator in Privacy & Security settings. Missing files, empty code, key conflicts and execution errors remain visible in the app. Recent result messages are not retained after quitting, but action counts and last-success times are saved. Settings sharing excludes the library, paths and individual item keys. Pre-migration Scripts.pre-components.json and Scripts.pre-workspaces.json backups are preserved. Help and update checks are available from the menus.
 """,
-"zh-Hans": """点击动作名称或行内空白以选择。从行末三条线手柄开始拖动以排序或移到组。支持Command和Shift多选。
+"zh-Hans": """选择组件时突出所属类别，不改变筛选。组计数是引用组件的去重数量，不受搜索与类别筛选影响。从三线手柄拖到其他分类可排在其前，拖到未分类可移到末尾。固定项不可移动。两种模式共享组顺序，类别顺序独立，支持保存与撤销。
+
+点击动作名称或行内空白以选择。从行末三条线手柄开始拖动以排序或移到组。支持Command和Shift多选。
 
 右键选择复制，可将所选动作复制到原动作之后并保留所属组。保留组件引用、顺序以及每次调用的变量名和值，清除快捷键、使用记录和Keyboard Maestro关联。不复制共享组件，支持撤销。
 
@@ -112,7 +117,9 @@ If macOS requests Automation permission, allow VectorKeys to control Illustrator
 ⌘逗号打开设置，可配置登录启动、常驻、Dock显示及呼出快捷键。呼出键只在应用运行时有效，不负责冷启动。手动启动显示主窗口，登录启动不显示。即使隐藏Dock，存在主窗口或设置窗口时仍正常显示。关闭窗口可继续常驻，⌘Q退出，⌘W关闭设置。
 需要自动化权限时，在系统设置的隐私与安全性中允许VectorKeys控制Illustrator。缺失文件、空代码、按键冲突及错误可在应用内查看。最近结果退出后清空，动作次数与最后成功时间保留。设置共享不包含列表、文件路径和项目快捷键，迁移前的Scripts.pre-components.json与Scripts.pre-workspaces.json备份会保留。可从菜单打开帮助和检查更新。
 """,
-"ko": """액션 이름이나 행의 빈 공간을 클릭해 선택합니다. 행 끝의 세 줄 핸들에서 드래그하여 순서를 바꾸거나 그룹으로 이동합니다. Command와 Shift 다중 선택을 유지합니다.
+"ko": """컴포넌트를 선택하면 필터를 바꾸지 않고 소속 카테고리를 강조합니다. 그룹 수는 검색과 카테고리 필터에 영향받지 않는 중복 제외 참조 수입니다. 세 줄 핸들을 다른 분류에 놓으면 그 앞에, 미분류에 놓으면 끝에 배치합니다. 고정 항목은 이동할 수 없습니다. 두 모드는 그룹 순서를 공유하며 카테고리 순서는 독립적으로 저장되고 실행 취소를 지원합니다.
+
+액션 이름이나 행의 빈 공간을 클릭해 선택합니다. 행 끝의 세 줄 핸들에서 드래그하여 순서를 바꾸거나 그룹으로 이동합니다. Command와 Shift 다중 선택을 유지합니다.
 
 우클릭 복제로 선택한 액션을 원본 바로 뒤의 같은 그룹에 복제합니다. 컴포넌트 참조, 순서, 호출별 변수 이름과 값은 유지하며 단축키, 사용 기록, Keyboard Maestro 연결은 초기화합니다. 공유 컴포넌트와 원본은 유지하며 실행 취소를 지원합니다.
 

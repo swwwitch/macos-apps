@@ -1,3 +1,6 @@
+"classification.reorder" = "분류 순서 변경";
+"classification.member" = "선택한 컴포넌트의 카테고리";
+"classification.drag" = "여기서 드래그하여 분류 순서 변경";
 "action.dragHandle" = "여기서 드래그하여 순서 변경 또는 그룹 이동";
 "action.duplicate" = "복제";
 "action.copySuffix" = "복사본";

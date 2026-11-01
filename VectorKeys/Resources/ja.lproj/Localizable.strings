@@ -1,3 +1,6 @@
+"classification.reorder" = "分類の並べ替え";
+"classification.member" = "選択したコンポーネントの所属カテゴリ";
+"classification.drag" = "ここからドラッグして分類を並べ替え";
 "action.dragHandle" = "ここからドラッグして並べ替え・グループ移動";
 "action.duplicate" = "複製";
 "action.copySuffix" = "のコピー";
