@@ -1183,3 +1183,8 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 
 ### TextLens VisionKit縦組み比較 開発検証結果（2026-11-01 JST）
 - 通常版1.1.0（2）。横組み2行はVision・VisionKitとも全文一致。縦組み2列は旧Visionが空、VisionKitが全文と右→左の列順一致。公開ImageAnalyzer.transcriptを使う方式へアプリの範囲選択・画像認識両経路を変更。非対応機器は旧方式。整形・4言語・原本不変・比較テスト、NO_DEPLOY=1ビルド・証明書署名PASS。担当Mac・ブランチは開始記録と同じ。対象SHAは本結果を含むVisionKit確定コミット。詳細とマニフェスト：TextLens/Tests/BUILD-NOTES-20261101-visionkit.md。Quick Lookとの実画像比較、ルビ・縦中横・複雑な段組み・GUI認識・公証・配置・公開は未確認／未実施。
+
+## InputMaestro 文字認識をVisionKit方式へ変更・縦組み対応（2026-11-01受付）
+- 要望：InputMaestroの文字認識も、TextLens 1.1.0（2）と同様にVisionKit ImageAnalyzerの公開APIを使用し、縦組みを認識できるようにする。ImageAnalysis.transcriptで取得し、非対応機器では従来Visionへフォールバックする。既存の整形・自動コピーとクリップボード変更検知・対象外アプリ・取消・ホットキー・設定を保持し、非同期処理、ビルド経路、4言語ヘルプを整合させる。
+- 検証：TextLensの比較テストを参考に、InputMaestroの実際の認識経路で横組みと縦組み2列の全文・上→下／右→左の読み順を確認する。範囲選択の実機、権限、ルビ・縦中横・複雑な段組みは別途確認し、未確認を対応済みとしない。
+- 元チャット：本チャット（TextLens）。状態：受付・未実装。「ビルドを更新」または毎日04:00（Asia/Tokyo）の開始条件で着手。同アプリの進行中作業との重複を確認し、担当Mac・ブランチ・対象SHA・版・build・開始日時は着手時に記録する。今回の実装・ビルド・配布は未実施。
