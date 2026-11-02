@@ -55,3 +55,6 @@ PDF2Keynote/Tests/KeynoteOutput/
 
 # Local-only application; keep its source out of public commits
 /VectorMaestro/
+
+# Git更新前のローカル保全（証跡を保持し、公開対象から除外）
+/migration-backups/

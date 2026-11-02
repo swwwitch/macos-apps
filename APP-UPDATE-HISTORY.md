@@ -255,6 +255,8 @@
 
 ## FavoriteFolders
 
+- 2026-10-29｜v1.3.9（build 15）｜通常配布版：公証済みDMGを作成し、GitHub Releaseと個人note記事で公開。両公開先のDMGのSHA-256一致、現行Latest BuildsへのDMG配置を確認。
+
 - 2026-10-27｜v1.3.9（build 15）｜通常配布版：ソースbee83bcをDeveloper ID署名・Apple公証。旧版をバックアップして/ApplicationsとLatest Buildsへ配置し、署名・全内容一致、Gatekeeper受入、/Applications版の起動と21件の表示を確認。別Macでの書き出し・読み込みは未確認。
 
 - 2026-10-27｜v1.3.9（build 15）｜通常版・検証用：DFXの表示名「デフォルト設定」と保存先Default Setの差による読み込み失敗を修正。DFXの翻訳名から既存保存先を解決し、同名の実フォルダーがある場合はそちらを優先。データ移動なし。
@@ -1098,3 +1100,190 @@
 PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認はユーザー回答で正常。署名/公証/配置/GitHub/note公開DL検証成功。個別リポジトリ単体再ビルドと開発Mac現物版は未確認。詳細: Shared/BuildTools/ReleaseRecords/20261029-PodiumAssist-MightyEdit.md。
 
 - 2026-10-30｜NotMyType v1.63.3（106、ユーザー指定）｜評価閾値修正版f2862bbのアプリ/DMG公証・両配置・GitHub/note公開と両公開先実DL照合成功。詳細 Shared/BuildTools/ReleaseRecords/20261030-NotMyType106-rating-threshold.md。全機能実キー・Intel実機は未確認。
+
+## PodiumAssist build92 公開 — 2026-10-30T10:42:32.323443+09:00
+
+GitHub Release・既存noteへ3.3.19（92）公証DMGを公開。公開実ダウンロードSHA・内包版/build・署名・公証一致。/Applications・Latest Buildsの全内容一致を再確認。F3実機操作と開発Mac現物版は未確認。全体Doneにはしない。詳細: Shared/BuildTools/ReleaseRecords/20261030-PodiumAssist-build92-publication.md。
+
+## 全更新公証・実機確認で公開停止 2026-11-01T02:20:31.909918+09:00
+
+PodiumAssist3.3.19（96）とVectorKeys1.16.0（27）の確定ソースビルド・署名・app/DMG公証Accepted・内包検証は成功。実機でPodiumのズーム自動設定失敗、VectorKeysコンポーネント追加のdidset再帰クラッシュを確認。後続公開停止。両配置先を直前のPodium95/VectorKeys20へ復元し署名・公証・内容・再起動確認。全体未完了。詳細: Shared/BuildTools/ReleaseRecords/20261101-AllUpdates-blocked.md。
+
+
+## 2026-11-01T02:36:22.370028+09:00 両開発チャット修正依頼・PodiumAssist97再試験
+両チャットに修正依頼送付済み。PodiumAssist97（2348ac42）は再公証成功、/Applications実機で自動設定2回失敗。設定値の変更なし。両配置先は95へ復元し署名/公証/内容一致/起動確認。開発側build98再修正中。VectorKeysはbuild29確定待ち。Latest DMG・Release・note公開は前提失敗のため停止、全体完了にしない。証跡 Shared/ReleasePreparation/20261101-AllUpdates/PodiumAssist97-022900/REPORT.md。
+
+
+## 2026-11-01T02:45:01.425621+09:00 VectorKeys29 retest
+MacBookPro13-M5-2025.local. Source cced17500df7e29e1c5a8e523a971548fb159af0, 1.17.1 (29). Stages3-5 passed. Stage6 /Applications: code add/edit, multi-selection, batch menu registration and one-step Undo passed; previous recursion crash did not recur. Component-to-group drag registration remains unconfirmed after repeated attempts. Requested full-row hit regions and diagnostic build30 from development. All QA components/categories/groups/actions cleaned through UI; original empty library restored. Both destinations restored to signed/notarized 1.11.0(20), content equality and /Applications launch verified. Backup Shared/Backups/Build/20261101-021711-682943. Rejected29 preserved in /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/VectorKeys29-023828/RejectedDeployment. Evidence: vector-rollback.json, ui-checks.json. Stages7-11 unperformed; individual GitHub repository404 also awaits user response. Stage12 updated provisionally; overall incomplete. PodiumAssist destinations currently3.3.19(95), public GitHub remains92; development Mac install unknown.
+
+
+## 2026-11-01T02:47:12.524474+09:00 PodiumAssist99 intermediate
+MacBookPro13-M5-2025.local. Source5082c0695e8b7ff054bb3205be0401fdba1e982f, 3.3.19(99). Stages3-5 passed: six regression tests, four-language check, Developer ID signing, app/DMG Accepted, stapler/Gatekeeper, readonly DMG content validation. Both /Applications and Latest Builds installed99, full contents equal, signing/notarization/launch verified. Five presets semantically preserved. Feature UI test UNCONFIRMED: Mac locked; manual unlock requested. Do not treat launch as zoom-function verification. Stage7 DMG Latest and stages8-11 publication unchanged/unperformed. GitHub public remains3.3.19(92). Development Mac installed version unknown. Backup/deployment evidence in /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/PodiumAssist99-024316/Deployment and deployment-results.json; old95 original backup retained. VectorKeys currently installed1.11.0(20); 1.17.2(30) tests/notarization in progress, unpublished. Overall incomplete.
+
+
+## 2026-11-01T02:48:41.924041+09:00 Repair handoff and release hold
+Execution Mac: MacBookPro13-M5-2025.local. Both existing development chats received repair requests and returned fixed commits. PodiumAssist3.3.19(99), SHA5082c0695e8b7ff054bb3205be0401fdba1e982f: stages3-5 SUCCESS; both destinations99, signature/stapler/Gatekeeper/content equality/launch/presets5 verified. Feature UI test NOT PERFORMED because Mac locked. VectorKeys1.17.2(30), SHA516dc6f556f31faf49eb4a63e9f53b6c7003c2a5: source/tests/build/signature SUCCESS; app notarization BLOCKED: notarytool reported No Keychain password item found for profile swwwitch-notary after Mac locked. Do not infer missing signing key or replace identity. DMG/deployment/UI/publication NOT PERFORMED. Both installed VectorKeys destinations remain1.11.0(20). Earlier29 code-add/edit/multi-selection/batch-register/Undo passed, component drag unconfirmed;29 rejected copies and original20 backups preserved. No new DMG entered Notarized DMGs/Latest, no new Release/note published. Stage12 provisional versions updated, development Mac installs unknown. User asked to unlock Mac manually and to identify/authorize new VectorKeys repository because oldURL404. Overall INCOMPLETE; Projects must remain open/In Progress.
+Resume exact99/30, do not increment versions on notarization Mac; revalidate source/artifact and resume saved profile after unlock, then installed feature tests before Latest DMG and publication. Source/archive/evidence/backups remain under /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates.
+
+
+## 2026-11-01T04:22:31.944568+09:00 Current release state
+
+PodiumAssist3.3.19(99): /Applications, Latest Builds, Latest DMG, GitHub public and note public now99. Developer ID/app+DMG notarization/content equality/installed automatic+manual zoom/presets5 passed. Both public actual downloads match SHA256 3c76d5e436fb2901120f97eaf2a16a53b5b6270d0cbb84b704a92f060ad4941a. Release https://github.com/swwwitch/PodiumAssist/releases/tag/v3.3.19-build99; note https://note.com/swwwitch/n/n084fa4c99650. Evidence /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/PodiumAssist99-024316. Historical/development-Mac unknowns retained; max zoom restoration delta0.014119 documented.
+
+VectorKeys1.17.2(30): source/tests/build/signing/app+DMG notarization SUCCESS after unlock. /Applications and Latest Builds are30; launch/content/signature/notarization verified. New code-add/edit passed. Drag begins but no drop/apply observed in automation. Manual user drag requested; one harmless Release QA component remains for that check. Latest DMG/Release/note publication NOT PERFORMED pending result. New PUBLIC repository created under explicit user authorization: https://github.com/swwwitch/VectorKeys (initial README only). Source prepared locally in /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/VectorKeys30-024701/public-repo, not pushed. Original20 backup retained; same sourceSHA/build30 will be resumed.
+
+Development Mac installed versions NOT VERIFIED. Overall INCOMPLETE; queue/Projects not Done. Structured stage/evidence record: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/current-state.json.
+
+
+## 2026-11-01T05:33:30.860347+09:00 VectorKeys30 installed QA passed / publication access blocked
+Execution Mac MacBookPro13-M5-2025.local. User confirmed manual component drag creates one referenced action. Native pasted code persisted, exact /Applications app quit/relaunch retained it, QA data cleaned to original empty library. Both /Applications and Latest Builds remain1.17.2(30), Developer ID/notarization/content equality verified. Latest DMG30 updated with SHA2565c15b305817d239844552593b7c10a170cd3b7b8df7e2413620e1c5aa1115d82; list/checksums/Records updated. Source SHA516dc6f556f31faf49eb4a63e9f53b6c7003c2a5 unchanged. Standalone extracted-repository build passed. Public source tree547d0ff3a3ca4a8a156040ae0e98c4a66f097ddb ready locally; not pushed. GitHub new repo exists but git push403 and connector create_blob403 Resource not accessible by integration. Safari installation174439552 authentication open; user asked to add only VectorKeys while keeping existing selections. Release/note/public download stages NOT PERFORMED; article and common header ready locally. No duplicate Projects item created, overall incomplete. Development Mac installed version unknown. Preserve original20 backups. Evidence /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261101-AllUpdates/VectorKeys30-024701/NotarizationRetry.
+
+
+## 2026-11-01T15:04:05.109366+09:00 公証ビルド6本 作成済み（配置・公開未実施）
+- VectorFX 1.3.0 (5): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source f11038f259d80bfee14750bc3a3ca0919aa8f47f
+- VectorKeys 1.18.0 (31): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source f11038f259d80bfee14750bc3a3ca0919aa8f47f
+- VectorMate 2.20.0 (82): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source f11038f259d80bfee14750bc3a3ca0919aa8f47f
+- TextLens 1.1.0 (2): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source e63f3b7c8fd57d4dd1982ca21bfddf41c218fe23
+- FileSorter 1.1.0 (3): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source e63f3b7c8fd57d4dd1982ca21bfddf41c218fe23
+- PasteMaestro 1.1.0 (3): Developer ID/app+DMG Accepted/stapler/Gatekeeper/readonly DMG integrity verified; source 06d61f52f9e732f25b13290943eb8e6addc68771
+記録: /Users/takano/Git/macos-apps/Shared/BuildTools/ReleaseRecords/NewNotarized-20261101-145407.md。実機・配置・公開は未実施、全体リリース完了にしない。
+
+## 6本の配置・起動確認 2026-11-01T16:02:27.684132+09:00
+
+実行Mac: MacBookPro13-M5-2025.local。成功: 既存Bundle ID照合、旧アプリと設定保全、/Applications と /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds への配置、両配置先の版・build・全内容一致、署名・stapler・Gatekeeper、/Applications版の起動継続と画面表示、配置直後は既存設定キー変更なし。画面確認後、FileSorterのウインドウ位置と設定選択タブのみ変化し、ルール等の既存設定値は保持。新規追加の初期設定は既存値の変更と区別。
+
+| アプリ | 両配置先の版（build） | 起動・画面確認 |
+|---|---|---|
+| VectorFX | 1.3.0（5） | 1.3.0（5）メイン画面確認 |
+| VectorKeys | 1.18.0（31） | 1.18.0（31）、既存0コンポーネントと選択状態保持 |
+| VectorMate | 2.20.0（82） | 2.20.0（82）基本UI表示確認。Illustrator操作は未実施 |
+| TextLens | 1.1.0（2） | 1.1.0（2）OCRルール画面確認。OCR実行は未実施 |
+| FileSorter | 1.1.0（3） | 1.1.0（3）既存ルール・有効状態を保持。ファイル移動操作は未実施 |
+| PasteMaestro | 1.1.0（3） | 1.1.0（3）画面表示確認。既存貼り付けアプリ稼働のため競合回避で処理停止表示。既存アプリは保持 |
+
+未実施: 今回の変更機能の全実機テスト、開発Macのインストール版確認、GitHub/note公開と公開ダウンロード検証、Dropboxクラウド同期完了確認。全リリース完了にはしない。
+
+証跡・設定バックアップ: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/NewNotarized-20261101-145407/Deployment-20261101-154749
+
+旧アプリバックアップ:
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154802-845460/LatestBuilds/VectorKeys.app
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154802-845460/Applications/VectorKeys.app
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154808-980872/LatestBuilds/VectorMate.app
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154808-980872/Applications/VectorMate.app
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154821-439244/LatestBuilds/FileSorter.app
+- /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-154821-439244/Applications/FileSorter.app
+
+## Safariでnote公開・公開ダウンロード検証 2026-11-01T18:33:43.988102+09:00
+
+実行Mac: MacBookPro13-M5-2025.local。
+
+| アプリ | 版（build） | note公開記事 | 状態 |
+|---|---|---|---|
+| FileSorter | 1.1.0（3） | https://note.com/swwwitch/n/n10488ee3c9b0 | 成功：公開、タグ、添付、実DL SHA-256一致、DMG署名/公証/整合性、読み取り専用内包アプリの版・build・署名・公証・全内容一致 |
+| TextLens | 1.1.0（2） | https://note.com/swwwitch/n/n131d9288928a | 成功：公開、タグ、添付、実DL SHA-256一致、DMG署名/公証/整合性、読み取り専用内包アプリの版・build・署名・公証・全内容一致 |
+| PasteMaestro | 1.1.0（3） | https://note.com/swwwitch/n/n1a569bf63bbd | 成功：公開、タグ、添付、実DL SHA-256一致、DMG署名/公証/整合性、読み取り専用内包アプリの版・build・署名・公証・全内容一致 |
+| VectorFX | 1.3.0（5） | https://note.com/swwwitch/n/nf6c5f81acae6 | 成功：公開、タグ、添付、実DL SHA-256一致、DMG署名/公証/整合性、読み取り専用内包アプリの版・build・署名・公証・全内容一致 |
+| VectorKeys | 1.18.0（31） | https://note.com/swwwitch/n/n0322a57c4588 | 成功：公開、タグ、添付、実DL SHA-256一致、DMG署名/公証/整合性、読み取り専用内包アプリの版・build・署名・公証・全内容一致 |
+| VectorMate | 2.20.0（82） | https://note.com/dtp_tranist/n/n8554a434e90a | ブロック中：Safariはswwwitchログイン。dtp_tranist既存記事の編集権限なし。ユーザーへアカウント切り替えを依頼。未公開 |
+
+FileSorterは既存本文・共通見出し画像・6タグ・旧版添付・既存リンク・マガジンを保持して更新。TextLens/PasteMaestro/VectorFX/VectorKeysは新規、共通テンプレート画像、各5タグ、小さなMacアプリ工房に追加。関連記事リンクと確認済み/未確認範囲を明記。VectorMateの既存有料設定・本文・タグ・添付は未変更。
+
+GitHub Release・ソース公開・Projects更新は今回未実施。note公開をGitHub公開済みと混同しない。VectorKeys31は旧30の手動ドラッグ確認を引き継いで成功扱いしない。新機能の全操作確認と実ログイン等は未確認。全体完了にはしない。
+
+根拠・公開HTML保全・検証ログ: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/NewNotarized-20261101-145407/NotePublication。VectorMate追記案: VectorMate-update.html。
+
+SHA-256:
+- FileSorter: `ac03cc83ac15581da63b4af6ccb0ff370fb5ad9dc60c5bd2af09c09d089d0d40`
+- TextLens: `bad44a953d882df414f5bb3086fdacae282a1fe3bcbd7e0cc5e2069e2f39a417`
+- PasteMaestro: `a5d6e4c10302a0ad6489cc832f45bf6239cca26a0b22dc27a9353cd2031b5f59`
+- VectorFX: `88341a9abadf35a1467c0c887ded2bf2006a142552304ba30665fae38c4aa577`
+- VectorKeys: `160e968f65b1b6d4c5c1d4889af89448cc398dbb887b3d0776d2aab73770c2b9`
+
+## VectorMate 2.21.1（84）配置・Latest DMG 2026-11-01T21:18:10.716059+09:00
+
+公証Mac: MacBookPro13-M5-2025.local。確定SHA dfa27d5eb8700e405265d7aa39d968504174c23f。成功: 自動テスト、Universal、アプリ/DMG Developer ID署名・公証Accepted・stapler・Gatekeeper・DMG整合性・内包内容一致。/Applications版とLatest Builds版は2.21.1（84）で全内容一致、起動・既存設定保持を確認。配布版の正負反転はユーザー確認済み（自動検証と区別）。
+
+Latest DMG: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/Notarized DMGs/Latest/VectorMate-2.21.1-build84-notarized.dmg
+SHA-256: 109f1b646c196a5bb35ea132abd2f9e55e67b6794e5fb30bdde4225243ebb213
+過去版はArchive/VectorMateへ保全。旧アプリ: /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-211613-569690/LatestBuilds/VectorMate.app, /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-211613-569690/Applications/VectorMate.app。設定・証跡: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/VectorMate84-20261101-210825。開発Mac現物版は今回未確認。GitHub公開版は今回未更新、Releaseリンクは未確定。note既存記事は別アカウント編集権限待ち。全体完了にしない。
+
+## 最終中間記録 2026-11-01T21:26:40.161560+09:00
+
+実行Mac: MacBookPro13-M5-2025.local。VectorMate 2.21.1（84）、確定ソース `dfa27d5eb8700e405265d7aa39d968504174c23f`。
+
+| 工程 | 状態・根拠 |
+|---|---|
+| 3 | 成功：確定SHA隔離取得、ローカル変更保全 |
+| 4 | 成功：Universal・自動テスト・Developer ID署名・公証Accepted・チケット・Gatekeeper |
+| 5 | 成功：DMG署名・公証・整合性・読み取り専用内包照合 |
+| 6 | 成功：両配置・起動・既存設定保持・正負反転ユーザー確認。全パレット・単位変更の実機全件確認は未確認 |
+| 7 | 成功：Latest1本、旧81 Archive保全、SHA256SUMS更新 |
+| 8 | 成功：既存個別repo履歴保持、単独ビルド・テスト、Release公開 |
+| 9 | 成功：既存Issue1更新・Projects In Progress。重複作成なし |
+| 10 | ブロック中：Safariのnoteアカウント切り替え待ち。既存記事・有料設定等を保持 |
+| 11 | GitHub成功：実DL SHA・DMG/アプリ署名公証・内容一致。note未実施 |
+| 12 | 途中更新済み：開発Mac現物版は未確認、全体未完了 |
+
+- [GitHub Release](https://github.com/swwwitch/VectorMate/releases/tag/v2.21.1-build84)
+- 公開repoコミット: `db91bc86534682cb6ac60683acf58f81569dfa54`。Git tree `214289a00b5c3c3ef02434cb1624c8fa3d612df5` 一致。通常git push403を記録し、書き込み可能なGitHub連携で同期。
+- SHA-256: `109f1b646c196a5bb35ea132abd2f9e55e67b6794e5fb30bdde4225243ebb213`
+- 公証Macインストール版 / Latest Builds版 / GitHub公開版はいずれも2.21.1（84）。note公開版は2.19.2（81）のまま、更新未実施。開発Mac現物版は今回未確認。
+- 旧アプリと設定バックアップ: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/VectorMate84-20261101-210825/Deployment のresults.jsonに記録。公証・署名・公開実DLログも本作業領域に保存。
+- VectorKeys Git更新成功：1.21.0（38）、GitHub確定 `880ffcb7e873940c7ffd48d27c0d94abb1e6f2f3`、ローカルHEAD `1785e39e5dc22285eb11b0a5a7371a21e1b69a64`。保全 /Users/takano/Git/macos-apps/migration-backups/git-update-vectorkeys-20261101-211646、競合した更新キューは双方の追記を保持し復元照合。新38のビルド・公証・配置・公開は今回未実施。
+
+## VectorKeys 1.21.0（38）配置・Latest DMG 2026-11-01T22:23:10.576796+09:00
+
+公証Mac: MacBookPro13-M5-2025.local。確定SHA 880ffcb7e873940c7ffd48d27c0d94abb1e6f2f3。成功: 自動テスト、arm64、アプリ/DMG Developer ID署名・公証Accepted・stapler・Gatekeeper・DMG整合性・内包内容一致。/Applications版とLatest Builds版は1.21.0（38）で全内容一致、起動・既存設定保持を確認。配布版の選択・分類順・複製・件数・SW変数候補・値2のIllustrator実行・再起動保持を実機確認し、検証用データとウインドウ位置を元に復元済み。
+
+Latest DMG: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/Notarized DMGs/Latest/VectorKeys-1.21.0-build38-notarized.dmg
+SHA-256: d59335ce2cfb58bf185ab4da193e2f8af740832c61ab648b6a370428e494bfed
+過去版はArchive/VectorKeysへ保全。旧アプリ: /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-212956-406293/LatestBuilds/VectorKeys.app, /Users/takano/Git/macos-apps/Shared/Backups/Build/20261101-212956-406293/Applications/VectorKeys.app。設定・証跡: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/VectorKeys38-20261101-212736。開発Mac現物版は今回未確認。GitHub公開版は今回未更新、Releaseリンクは未確定。noteはGitHub Release後にGoogle Chromeで投稿予定。全体完了にしない。
+
+## VectorKeys 1.21.0（38）公開照合完了 2026-11-01T22:33:32.171556+09:00
+
+公証Mac: MacBookPro13-M5-2025.local。対象ソース `880ffcb7e873940c7ffd48d27c0d94abb1e6f2f3`。個別repo公開commit `821d851f351abbdd6952586ea4d293a7e79b9bc6`、tree `ba8d586743b3b1b43a76d9836f85c6a6a4c715e0`（既存履歴保持、単独build/test成功）。
+
+| 確認対象 | 版・build | 確認状況 |
+|---|---|---|
+| 開発Macの現物 | 未確認 | 公証Macの結果から推定しない |
+| 公証Mac /Applications | 1.21.0（38） | 署名・公証・起動・選択・分類強調・グループ/カテゴリのドラッグ順・複製・重複除外件数・SW変数候補・値2のIllustrator実行・再起動保持を確認。既存設定保持、QAデータ復元済み。物理ホットキーは今回未確認 |
+| Latest Buildsアプリ | 1.21.0（38） | /Applications・公証元と全内容一致、署名・公証検証済み |
+| Latest DMG | 1.21.0（38） | 各アプリ1本、旧版はArchive/VectorKeys保全、SHA256SUMS更新済み |
+| GitHub公開 | 1.21.0（38） | Release・タグ対象SHA・実DL SHA256・DMG整合性・内包版build・署名公証・全内容一致を確認 |
+| note公開 | 1.21.0（38） | Google Chromeで新規公開。旧URL404とnote検索0件を確認。共通見出し画像、説明・更新履歴・5タグ・添付・リンクを確認。実DL SHA256とDMG内包版build・署名公証・内容一致を検証 |
+
+GitHub Release: https://github.com/swwwitch/VectorKeys/releases/tag/v1.21.0-build38
+note: https://note.com/dtp_tranist/n/ncecd98ad1043
+SHA-256: `d59335ce2cfb58bf185ab4da193e2f8af740832c61ab648b6a370428e494bfed`
+
+工程3〜8・10〜11成功。工程9: 既存項目・Issue検索0件につき単一Projectsドラフトを作成し、根拠・公開リンク・未確認項目を記録、In Progress。工程12: 本一覧と記録を更新。公開工程は完了。物理キー操作と開発Mac現物版は未確認のため、全体QAの完了とは扱わない。
+
+保全: migration-backups/VectorKeys38-release-20261101-212736。旧アプリ: Shared/Backups/Build/20261101-212956-406293/{Applications,LatestBuilds}/VectorKeys.app。設定・QA前後データと証跡: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/VectorKeys38-20261101-212736/Deployment。署名不整合と見えた再検証はsandbox制限が原因であり、制限外のcodesign・Gatekeeper再検証は正常、成果物SHA不変。再ビルド・build増加なし。
+
+## PasteMaestro 1.2.0（4）公証・Latest更新 2026-11-02T05:21:24.446874+09:00
+
+公証Mac MacBookPro13-M5-2025.local、確定ソース 804aec37e86545dfb64967cff06f86b9dcf72c96。成功: 自動テスト、arm64、Developer ID/Runtime/タイムスタンプ、アプリ・DMG公証Accepted/stapler/Gatekeeper、読み取り専用DMG整合性と内包全内容一致。/ApplicationsとLatest Buildsアプリは1.2.0（4）で署名・公証・内容一致、配布版の起動・画面・設定保持を確認。変更機能QA: {"status": "passed", "scope": "compact main window, 3 modes, empty palette controls, settings and relaunch size", "at": "2026-11-02T05:21:23.803966+09:00", "settings_preserved": true, "expected_migration": "MainWindow compact440x560 content; compactMainWindowV1", "unverified": ["actual slot drag reordering", "physical hotkeys", "cross-app paste"], "reason": "existing paste apps running; conflict guard intentionally pauses processing; existing apps retained", "changed_existing_keys": ["NSWindow Frame MainWindow"], "added_keys": ["compactMainWindowV1", "NSWindow Frame RowPalette"]}。
+
+Latest DMG: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/Notarized DMGs/Latest/PasteMaestro-1.2.0-build4-notarized.dmg
+SHA-256: f3716aeb33099d0ab400d562eee251c6803437f8d1d1183a166ca12f94574d13
+旧アプリ保全: /Users/takano/Git/macos-apps/Shared/Backups/Build/20261102-052029-018150/LatestBuilds/PasteMaestro.app, /Users/takano/Git/macos-apps/Shared/Backups/Build/20261102-052029-018150/Applications/PasteMaestro.app。設定保全と根拠: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/NewVersions-20261102-051722/PasteMaestro4/Deployment。
+開発Mac現物版・物理ホットキー・他アプリへの実貼り付けは未確認。GitHub公開版は今回未確認、Release/note更新は未実施（対象外）、公開DL再検証も未実施。公開完了と混同しない。
+
+## Git更新・新バージョン確認 最終記録 2026-11-02T05:21:42.169896+09:00
+
+公証Mac MacBookPro13-M5-2025.local。GitHub main 498ac1f3を通常マージ、ローカルHEAD 968eef8de19cdc633db63e9a2d214d149eed85dd。36ファイルとpatch/stashを /Users/takano/Git/macos-apps/migration-backups/git-update-20261102-051535 に保全。元ローカル変更全行と未追跡ファイルのハッシュ照合成功。stash保持、push未実施。全originリモートブランチを版/build比較。
+
+成功: PasteMaestro 1.2.0（4）、確定SHA 804aec37e86545dfb64967cff06f86b9dcf72c96、アプリ/DMG公証Accepted、両配置・内容一致・設定保持・起動・3モード表示・空パレット・設定・再起動コンパクト寸法確認。行並べ替えの自動テスト成功。既存貼り付けアプリが起動中のため実貼り付け/実ドラッグは未確認。既存アプリは終了していない。Latestアプリと公証DMGを更新。
+ブロック中: NotMyType1.64.0（107）は配布106の評価しきい値修正を含まない。差分証拠 /Users/takano/Git/macos-apps/Shared/ReleasePreparation/NewVersions-20261102-051722/NotMyType107-regression.patch。ビルド・配布せず106保持。
+保留: VectorMate2.22.0（85）は別の開発チャットVectorAssistでログイン起動修正中、重複リリースしない。84保持。
+対象外: ShotSorter1.1.0（3）は過去配布済み番号、Latest現物は不在。旧版を新バージョン扱いして復活配置しない。他の比較対象は新番号なし。GitHub Release・note公開は今回未実施。
+
+## NotMyType 1.64.0（107）公証・Latest更新 2026-11-02T06:30:17.173762+09:00
+
+公証Mac MacBookPro13-M5-2025.local、確定ソース 5efcd7b0e0c6fcaeaf31d00eeaed47f6888044c7。成功: 自動テスト、Universal、Developer ID/Runtime/タイムスタンプ、アプリ・DMG公証Accepted/stapler/Gatekeeper、読み取り専用DMG整合性と内包全内容一致。/ApplicationsとLatest Buildsアプリは1.64.0（107）で署名・公証・内容一致、配布版の起動・画面・設定保持を確認。変更機能QA: {"status": "passed", "at": "2026-11-02T06:30:00.917590+09:00", "scope": "installed /Applications107 live rating3/4/5 all retained under >=3; unrated excluded rated card; cleared test rating and restored all/search state", "shared_library_semantically_preserved": true, "original_shared_library_bytes_restored": true, "existing_preferences_changed": [], "relaunch_verified": true, "unverified": ["physical numeric-key input", "Illustrator font application"]}。
+
+Latest DMG: /Users/takano/sw Dropbox/takano masahiro/Dropbox-shared/sw_app-Latest Builds/Notarized DMGs/Latest/NotMyType-1.64.0-build107-notarized.dmg
+SHA-256: 7a3b23dbf14d5ab933736f602285f58831605d5b482430f4d2991fe9227086fa
+旧アプリ保全: /Users/takano/Git/macos-apps/Shared/Backups/Build/20261102-062740-373816/LatestBuilds/NotMyType.app, /Users/takano/Git/macos-apps/Shared/Backups/Build/20261102-062740-373816/Applications/NotMyType.app。設定保全と根拠: /Users/takano/Git/macos-apps/Shared/ReleasePreparation/NotMyType107-20261102-062524/Deployment。
+開発Mac現物版・物理キー操作は未確認。GitHub公開版は今回未確認、Release/note更新は未実施（対象外）、公開DL再検証も未実施。公開完了と混同しない。
