@@ -26,8 +26,8 @@ final class MenuShortcuts: ObservableObject {
             switch self {
             case .addFonts: return KeyCombo(code: UInt32(kVK_ANSI_O), modifiers: KeyCombo.command)
             case .newSet: return KeyCombo(code: UInt32(kVK_ANSI_N), modifiers: KeyCombo.command | KeyCombo.shift)
-            case .activate: return KeyCombo(code: UInt32(kVK_ANSI_A), modifiers: KeyCombo.command | KeyCombo.shift)
-            case .deactivate: return KeyCombo(code: UInt32(kVK_ANSI_D), modifiers: KeyCombo.command | KeyCombo.shift)
+            case .activate: return KeyCombo(code: UInt32(kVK_ANSI_A), modifiers: KeyCombo.command | KeyCombo.option)
+            case .deactivate: return KeyCombo(code: UInt32(kVK_ANSI_D), modifiers: KeyCombo.command | KeyCombo.option)
             case .reveal: return KeyCombo(code: UInt32(kVK_ANSI_R), modifiers: KeyCombo.command)
             case .remove: return KeyCombo(code: UInt32(kVK_Delete), modifiers: KeyCombo.command)
             case .togglePreview: return KeyCombo(code: UInt32(kVK_ANSI_P), modifiers: KeyCombo.command | KeyCombo.option)
