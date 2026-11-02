@@ -1138,3 +1138,9 @@ PodiumAssist 3.3.19（91）・MightyEdit 0.3.4（117）の配布版実機確認�
 - PasteMaestro build4検証結果：1.2.0（4）ワークスペース内ビルド・証明書署名・deep/strict・自動テストPASS。SlotQueueの★前挿入、重複識別、並べ替え、履歴復元を確認。成果物は専用worktree内、起動中旧版の置換なし。実機UI／ドラッグ／公証／配布は未確認・未実施。
 
 - PasteMaestro 1.2.0（4）実装対象SHA：5147d0044fbb0340ebecf322bc675cad8410538e、ブランチcodex/pastemaestro-integration-20261101。
+
+## PasteMaestro 情報タブのnote記事URL変更（2026-11-02受付）
+
+- 要望：設定の「情報」にあるnote記事へのリンクを https://note.com/swwwitch/n/n1a569bf63bbd に変更する。元チャット：本チャット（PasteMaestro）、ユーザー指定URL。
+- 実装時はSWNoteArticleURLと情報タブの共通リンク表示を確認し、専用記事リンクへ更新する。同じ設定を参照するヘルプメニューのnote記事リンクも整合させる。「アプリのまとめ」のリンクは保持する。note本文の編集・公開は今回の対象外。
+- 状態：受付・未実装。次回の「ビルドを更新」または定時処理で着手。今回の実装・ビルド・配布は未実施。
