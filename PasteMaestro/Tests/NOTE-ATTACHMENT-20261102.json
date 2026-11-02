@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-02 JST",
+  "article": "https://note.com/swwwitch/n/n1a569bf63bbd",
+  "version": "1.2.0",
+  "build": "4",
+  "file": "PasteMaestro-1.2.0-build4-notarized.dmg",
+  "source_sha": "804aec37e86545dfb64967cff06f86b9dcf72c96",
+  "notarization_record_mac": "MacBookPro13-M5-2025.local",
+  "sha256": "f3716aeb33099d0ab400d562eee251c6803437f8d1d1183a166ca12f94574d13",
+  "attachment": "https://note.com/api/v2/attachments/download/8289d391f5b9b7631afb16db947874b5",
+  "old_attachment_removed_from_article": "c86175359a578d96ebc619e93d356af6",
+  "verified": [
+    "local DMG signature and stapled ticket",
+    "hash matches notarization Mac record and Latest SHA256SUMS",
+    "published version/build and single latest attachment in bottom download section",
+    "existing introduction, body, eyecatch and 3 embeds retained",
+    "five existing tags retained",
+    "public download bytes SHA-256 equal original DMG"
+  ],
+  "tags": [
+    "アプリ開発",
+    "Mac",
+    "作業効率化",
+    "クリップボード",
+    "PasteMaestro"
+  ],
+  "publication": "updated and verified",
+  "application_source_or_build_changed": false
+}
