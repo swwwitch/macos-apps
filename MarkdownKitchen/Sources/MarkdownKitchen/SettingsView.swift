@@ -7,10 +7,16 @@ struct SettingsView: View {
                 LoginAtLaunchView().fixedSize(horizontal: false, vertical: true)
                 MenuBarPresenceView()
             })),
-            (L("ホットキー"), AnyView(ShortcutSettingsView())),
-            (L("HTML→Markdown"), AnyView(HTMLToMarkdownSettingsView())),
-            (L("テーマ"), AnyView(VStack(alignment: .leading, spacing: 16) { DoorkeeperPresetsView(); DivBoxSettingsView() })),
-            (L("右クリック"), AnyView(ContextMenuSettingsView())),
+            (L("ホットキー"), AnyView(VStack(alignment: .leading, spacing: 24) {
+                ShortcutSettingsView()
+                ContextMenuSettingsView()
+            })),
+            (L("変換・装飾"), AnyView(VStack(alignment: .leading, spacing: 24) {
+                Text(L("HTML→Markdown")).font(.headline)
+                HTMLToMarkdownSettingsView()
+                DoorkeeperPresetsView()
+                DivBoxSettingsView()
+            })),
             (SettingsSync.shared.tabTitle, AnyView(SettingsSharingView())),
             (AboutSection.title, AnyView(VStack(spacing: 24) { AboutView(); AcknowledgmentsView() }))
         ]).padding(12)

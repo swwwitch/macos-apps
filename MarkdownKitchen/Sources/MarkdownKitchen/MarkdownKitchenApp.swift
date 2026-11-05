@@ -128,6 +128,7 @@ final class SettingsWindow {
     private var window: NSWindow?
 
     func show() {
+        AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation()
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 400),
                                   styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
@@ -284,9 +285,18 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate {
         if store.isMain { window.setFrameAutosaveName("MarkdownKitchenMain") }
         window.delegate = self
         store.window = window
+        NotificationCenter.default.addObserver(self, selector: #selector(checkExternalChanges),
+            name: NSApplication.didBecomeActiveNotification, object: nil)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    func windowDidBecomeKey(_ notification: Notification) { store.becameActive() }
+    func windowDidBecomeKey(_ notification: Notification) {
+        store.becameActive()
+        checkExternalChanges()
+    }
+    @objc private func checkExternalChanges() {
+        DispatchQueue.main.async { [weak self] in self?.store.checkExternalChanges() }
+    }
+    deinit { NotificationCenter.default.removeObserver(self) }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         // closeWindow performs the save confirmation and calls close directly.
         store.closeWindow()

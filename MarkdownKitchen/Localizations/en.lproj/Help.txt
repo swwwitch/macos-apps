@@ -117,9 +117,9 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 Open with the Settings button in the main window (⌘,).
 - **Startup & Background**: Open at login, Hide from Dock and App Switcher (the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close even with a window open; show it from the menu bar icon or by opening the app again in Finder), Show in menu bar
 - **Hotkeys**: change the keys for format, convert, paragraph and heading commands . Click Change… and press keys that include ⌘ or ⌃ (Esc cancels). Reset to Default, Clear (no key; shown as None) and Reset All below are also available. Standard keys such as ⌘C, the app’s standard keys and keys used by another item cannot be assigned. The keys work only while MarkdownKitchen is in front
-- **HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
+- **Conversion & Styling / HTML→Markdown**: Ignore inside div elements, Ignore inside table elements (both on by default)
 - **Right-Click**: choose which format items appear in the source’s right-click menu (all by default)
-- **Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
+- **Conversion & Styling / Themes**: Themes for Format for Doorkeeper (name, base color, h3 background strength)
 - **Sharing**: export the editor display, heading copy format, hotkeys, HTML→Markdown, themes and right-click settings to a file and import it on another Mac (Add adds only themes you do not have yet; Replace uses the file’s settings). Set a folder in iCloud Drive, Dropbox or similar as the sync folder to keep several Macs in step automatically. The source text, the open file, open at login, the startup window and the menu bar stay on each Mac.
 
 ## Hotkeys

@@ -201,6 +201,8 @@ final class MarkdownStore: ObservableObject {
     private var fileEncoding: String.Encoding = .utf8
     /// 読み込み・保存した時点のファイルの更新日時。ほかで書き換えられたかの判定に使う
     private var fileDate: Date?
+    private var ignoredExternalDate: Date?
+    private var checkingExternalChange = false
     static let fileKey = "markdownKitchen.filePath"
     static let editedKey = "markdownKitchen.fileEdited"
 
@@ -308,6 +310,7 @@ final class MarkdownStore: ObservableObject {
         fileURL = url
         fileEncoding = encoding
         fileDate = Self.modificationDate(url)
+        ignoredExternalDate = nil
         RecentFiles.shared.record(url)
         markSaved()
         message = nil
@@ -389,7 +392,7 @@ final class MarkdownStore: ObservableObject {
     func save() {
         guard let url = fileURL else { saveAs(); return }
         // Another app changed the file after it was loaded: ask before overwriting.
-        if let loadedDate = fileDate, let current = Self.modificationDate(url), current > loadedDate.addingTimeInterval(1) {
+        if let loadedDate = fileDate, let current = Self.modificationDate(url), current != loadedDate {
             let alert = NSAlert()
             alert.messageText = L("「%@」はほかのアプリで変更されています", url.lastPathComponent)
             alert.informativeText = L("上書きすると、ほかのアプリでの変更は失われます（上書き前の内容はアプリ内に控えます）。")
@@ -404,6 +407,28 @@ final class MarkdownStore: ObservableObject {
         write(to: url, encoding: fileEncoding)
     }
 
+    /// Check when returning from another app. Keeping the draft never acknowledges
+    /// the disk version for saving: save() still asks before overwriting it.
+    func checkExternalChanges() {
+        guard !checkingExternalChange, window?.isKeyWindow == true,
+              window?.attachedSheet == nil, NSApp.modalWindow == nil,
+              let url = fileURL, let previous = fileDate,
+              let current = Self.modificationDate(url), current != previous,
+              current != ignoredExternalDate else { return }
+        checkingExternalChange = true
+        defer { checkingExternalChange = false }
+        let alert = NSAlert()
+        alert.messageText = L("「%@」はほかのアプリで変更されています", url.lastPathComponent)
+        alert.informativeText = L("再読み込みすると現在の原稿をファイルの内容に置き換えます。編集中の内容を残す場合は「今の原稿を保持」を選んでください。")
+        alert.addButton(withTitle: L("今の原稿を保持"))
+        alert.addButton(withTitle: L("再読み込み"))
+        if alert.runModal() == .alertSecondButtonReturn {
+            load(url)
+        } else {
+            ignoredExternalDate = current
+        }
+    }
+
     /// 保存先を選んで書き出す。以後の⌘Sはそのファイルに上書き
     func saveAs() {
         let panel = NSSavePanel()
@@ -415,6 +440,18 @@ final class MarkdownStore: ObservableObject {
         panel.canCreateDirectories = true
         NSApp.activate(ignoringOtherApps: true)
         guard panel.runModal() == .OK, let url = panel.url else { return }
+        Self.prepareRestoredDocuments()
+        if let owner = ([Self.main] + Self.documents.values).first(where: {
+            $0 !== self && ($0.fileURL.map { DocumentFileIdentity.matches($0, url) } ?? false)
+        }) {
+            let alert = NSAlert()
+            alert.messageText = L("このファイルは別のウインドウで開かれています")
+            alert.informativeText = L("上書きせず、開いているウインドウを表示します。現在の原稿はそのまま残ります。")
+            alert.addButton(withTitle: L("開いているウインドウを表示"))
+            alert.addButton(withTitle: L("キャンセル"))
+            if alert.runModal() == .alertFirstButtonReturn { owner.bringWindowForward() }
+            return
+        }
         // Keep the encoding only when overwriting the same file; a new file is UTF-8.
         write(to: url, encoding: url == fileURL ? fileEncoding : .utf8)
     }
@@ -434,6 +471,7 @@ final class MarkdownStore: ObservableObject {
         fileURL = url
         fileEncoding = encoding
         fileDate = Self.modificationDate(url)
+        ignoredExternalDate = nil
         RecentFiles.shared.record(url)
         markSaved()
         message = L("保存しました：%@", url.lastPathComponent)

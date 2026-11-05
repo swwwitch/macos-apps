@@ -275,3 +275,25 @@
 "最近使ったファイルはありません" = "No Recent Files";
 
 "履歴を消去" = "Clear Menu";
+
+"変換・装飾" = "Conversion & Styling";
+
+"このファイルは別のウインドウで開かれています" = "This file is open in another window";
+
+"上書きせず、開いているウインドウを表示します。現在の原稿はそのまま残ります。" = "Show the existing window without overwriting the file. Your current draft will be kept.";
+
+"開いているウインドウを表示" = "Show Existing Window";
+
+"再読み込みすると現在の原稿をファイルの内容に置き換えます。編集中の内容を残す場合は「今の原稿を保持」を選んでください。" = "Reload replaces the current draft with the file contents. Choose Keep Current Draft to preserve your edits.";
+
+"今の原稿を保持" = "Keep Current Draft";
+
+"再読み込み" = "Reload";
+
+"「%@」が見つかりません" = "“%@” could not be found";
+
+"ファイルが移動または削除された可能性があります。新しい場所を指定するか、履歴から除外できます。" = "The file may have been moved or deleted. Locate it or remove it from recent files.";
+
+"場所を指定…" = "Locate…";
+
+"履歴から除外" = "Remove from Recent Files";

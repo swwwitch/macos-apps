@@ -200,7 +200,7 @@ enum FormatAction: CaseIterable {
         case .insertTableOfContents: store.insertTableOfContents(levels: MarkdownStore.storedLevels)
         case .markdownToText: store.beginTextConversion()
         case .plainMarkdown: store.convertHTMLToMarkdown()
-        case .editThemes: SettingsWindow.shared.show(tab: L("テーマ"))
+        case .editThemes: SettingsWindow.shared.show(tab: L("変換・装飾"))
         case .copyHTML: store.copyHTML()
         case .bold: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "**") }
         case .italic: store.format(title) { MarkdownFormat.toggleWrap($0, selection: $1, marker: "*") }
