@@ -4,7 +4,10 @@
 
 - 受付日：2026-11-01（JST）。元チャット：本チャット（InsertSnippetアプリ、チャットID未確認）。
 - 要望：InsertSnippetsの矢印記号（←↓→↑）と修飾キー記号（⌃⌥⌘⇧）の入力機能を削除する。関連UI・機能ホットキー登録・ヘルプ・翻訳を実装時に確認して整理し、通常のスニペット機能と個人スニペット・既存設定を保持する。InputMaestro側の同機能は今回の削除対象に含めない。
-- 状態：受付済み・未実装・未ビルド。次の「ビルドを更新」または毎日04:00（Asia/Tokyo）の定時処理で着手する。担当Mac・ブランチ・対象SHA・版・build・開始日時は着手時に確定する。
+- 状態：開発検証済み。開始 2026-11-06 05:03:52 JST。担当 開発Mac MacBook-Pro-14-2024-sw。記録ブランチ codex/insertsnippets-symbol-removal-queue。着手時SHA 1b311258a2d9486b79f77be76cfca35ed79999f1。対象は既定8記号の削除と既存データ移行。
+- 開発検証結果：1.12.0（30）。配布済み番号の照合は /Applications 1.11.2（28）、Latest Builds 1.11.2（29）、専用GitHub Release 1.11.2（23）。ローカルの非追跡ソースの作業前Info.plistは1.11.2（23）。Latest Builds 29と同一ソースかは未確認。
+- 自動テスト・140キー4言語・arm64ビルド・Apple Distribution署名の厳格検証は成功。別Bundle IDと合成設定で起動し、旧8件が消え個人登録と入力OFFの設定が残ることを画面と保存値で確認。⌘W後の再表示・⌘Q終了も確認。外部アプリでの実キー入力、公証・配布は未実施。
+- 実行ファイルSHA-256 d9f97012371f2628abbd0b815b70bcdeffb57223b763bc9796d2a72a066ea3f9。バンドルマニフェストSHA-256 64ccc2dfecdf2bbf70e01f7ec1eef26c911df8a936d7116bc4c818c034078156。非公開ソースマニフェストSHA-256 a0f5b2973be0e5772e3c756872ac7e2db2c40f02200bca8b25b01608fd1cf746。GitHubのコミットはキューと更新履歴のみ。
 
 ## 2026-11-01 VectorMate：VectorFXの移植と設定まわりの整理
 
