@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import SwiftUI
 
 @main
@@ -220,22 +221,48 @@ private struct UtilityWindowChrome: NSViewRepresentable {
 
 // Bundle identity, rather than the bundle path or build number, defines one app.
 @MainActor
+@MainActor
 private enum SingleInstanceLaunch {
+    // Keep the descriptor open for the process lifetime. Never unlink a live lock file.
+    private static var lockDescriptor: Int32 = -1
+
     static func enforce() {
         let current = NSRunningApplication.current
         guard let identifier = Bundle.main.bundleIdentifier else { return }
+        let directory = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support", isDirectory: true)
+            .appendingPathComponent(identifier, isDirectory: true)
+        do { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
+        catch { NSLog("Single-instance lock directory unavailable: %@", error.localizedDescription); exit(1) }
+        lockDescriptor = open(directory.appendingPathComponent("instance.lock").path, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR)
+        guard lockDescriptor >= 0 else { NSLog("Single-instance lock could not be opened"); exit(1) }
+        let ownsLock = flock(lockDescriptor, LOCK_EX | LOCK_NB) == 0
+        if !ownsLock {
+            guard errno == EWOULDBLOCK else { NSLog("Single-instance lock failed"); exit(1) }
+            // LaunchServices may not have registered the winning process yet.
+            for _ in 0..<40 {
+                if NSRunningApplication.runningApplications(withBundleIdentifier: identifier).contains(where: {
+                    !$0.isTerminated && $0.processIdentifier != current.processIdentifier
+                }) { break }
+                usleep(50_000)
+            }
+        }
         var candidates = NSRunningApplication.runningApplications(withBundleIdentifier: identifier)
             .filter { !$0.isTerminated }
         if !candidates.contains(where: { $0.processIdentifier == current.processIdentifier }) {
             candidates.append(current)
         }
+        if !ownsLock { candidates.removeAll { $0.processIdentifier == current.processIdentifier } }
         candidates.sort {
             let left = $0.launchDate ?? .distantPast
             let right = $1.launchDate ?? .distantPast
             return left == right ? $0.processIdentifier < $1.processIdentifier : left < right
         }
         guard let existing = candidates.first,
-              existing.processIdentifier != current.processIdentifier else { return }
+              existing.processIdentifier != current.processIdentifier else {
+            if !ownsLock { exit(0) }
+            return
+        }
         existing.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
         if let url = existing.bundleURL {
             let configuration = NSWorkspace.OpenConfiguration()
