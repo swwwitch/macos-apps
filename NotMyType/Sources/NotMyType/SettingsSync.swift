@@ -134,6 +134,8 @@ enum SettingsSyncJournal {
 @MainActor
 final class SettingsSync: NSObject, ObservableObject {
     static let shared = SettingsSync()
+    /// false hides the explanations under the controls (VectorMate); the status lines stay. Default true.
+    var showsNotes = true
     private static let folderKey = "settingsSyncFolder"
     private static let bookmarkKey = "settingsSyncFolderBookmark"
     private static let deviceKey = "settingsSyncDeviceID"
@@ -669,8 +671,10 @@ struct SettingsSyncView: View {
             Button(sync.nowTitle) { sync.syncNow() }.disabled(!sync.isAvailable)
             Button(sync.stopTitle) { sync.stop() }.disabled(!sync.isEnabled)
         }
-        Text(sync.noteText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-        Text(sync.perMacText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        if sync.showsNotes {
+            Text(sync.noteText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(sync.perMacText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 
@@ -688,7 +692,9 @@ struct SettingsTransferView: View {
                 .foregroundColor(sync.transferIsError ? .red : .secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        Text(sync.transferNoteText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        if sync.showsNotes {
+            Text(sync.transferNoteText).font(.system(size: 11)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

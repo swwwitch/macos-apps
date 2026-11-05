@@ -1,0 +1,604 @@
+{
+  "app": "NotMyType",
+  "version": "1.64.1",
+  "build": "108",
+  "bundleID": "jp.dtp-transit.notmytype",
+  "architectures": "x86_64 arm64",
+  "source_base": "c7b61efcf4a84a6dd7c412f4fc6f1b91806448c5",
+  "built_input_sha256": {
+    "NotMyType/Info.plist": "b20ddcbcd79f388b36519bf6dbddb3da8f8be6c6bd0d640ad1937826011fd41a",
+    "NotMyType/Package.swift": "85658a089a7d24a9fafcaaa09bf6af02c831a1ce3617fc7393cc2d15796d0dae",
+    "NotMyType/build.sh": "29b990e0c876428d88fb77da248491d03da4d6283c951278887a0d7f21971580",
+    "NotMyType/Sources/NotMyType/FontConverterRules.swift": "a00730d18ed8169a2e226528636d2eb697253b4a526e73f4f6d5346bc35a29aa",
+    "NotMyType/Sources/NotMyType/FontLibrary.swift": "396782bb1fe3b63e6ae09d90bad7cd1b42082e7a36a4cbac9b18a1828cbee008",
+    "NotMyType/Sources/NotMyType/TaskProgress.swift": "00d07480dc83984b4f6665bddd3f579da3fc2a122f498fca15fd50f14b0a1446",
+    "NotMyType/Sources/NotMyType/RatingKeyHandler.swift": "5908ba49041a823b4037f72ea3befcb4b7deed5e6f737a5adb2ad442ad2bc87a",
+    "NotMyType/Sources/NotMyType/FontChecker.swift": "188607802de4356f297ea850937a656499118f38a5cfc4cc796210df13ee9d5e",
+    "NotMyType/Sources/NotMyType/DuplicateResolver.swift": "90fa335647d6eb081feac9a4b46baea84519af386128f25eb43d3f1c13d70cac",
+    "NotMyType/Sources/NotMyType/InDesignFontScripts.swift": "400d6b179da2bf982cb82c497cd5e629311ea6f757a8dfe397cd740324ca0779",
+    "NotMyType/Sources/NotMyType/FontCacheCleaner.swift": "c24563a1267fb5a67552a03ecdf097a23dee52c5fcf152f45f02f580ea934d5d",
+    "NotMyType/Sources/NotMyType/SettingsView.swift": "e86c793acebf55672ffe7f88ce186acc01061968ffde597c77ed3e28d10e0a62",
+    "NotMyType/Sources/NotMyType/AdobeFontActivation.swift": "c9bc86d7f07e8a6351377a429e7932c42aa72101652c3316a98bb5999fc7f476",
+    "NotMyType/Sources/NotMyType/FontCardWindow.swift": "2174abd1804f7b8428a6a704e64b065bf8a84d6d2aae655dffc9dc70ff8deee1",
+    "NotMyType/Sources/NotMyType/Localization.swift": "0470a9d9c57f48a5b716dd7c91a9edd77c13c27b17822d16933ba6a08b717314",
+    "NotMyType/Sources/NotMyType/LibraryStore.swift": "71cec7b42a6a2acac61f9ad5c653f1a98e89071620c48314f6fc0030516432cf",
+    "NotMyType/Sources/NotMyType/SidebarRowClick.swift": "7f6249ef0e3fc7e7d6b6a45a7efaa28d69e331aa9ae70b9c23ed747b0667802e",
+    "NotMyType/Sources/NotMyType/FontWeightOrder.swift": "a000c4e8202ab9c9e3132d706e8e2e267af092c5154fe15891351e6c210e4dab",
+    "NotMyType/Sources/NotMyType/FontServices.swift": "0725f4133937ca7820413ce1ce1c5c663143bbe4c8eba86007afcf8d2c6ac96e",
+    "NotMyType/Sources/NotMyType/FontCardsView.swift": "0974c47f231a1be0b90bc56eaee366b88e319da13d0f9480e222205af0460f7a",
+    "NotMyType/Sources/NotMyType/NotMyTypeApp.swift": "d7d08afaaa61fd5fe7e4ac1d91fe298974d2f594b611fd23d9d2b2f32fa99259",
+    "NotMyType/Sources/NotMyType/LocalHelp.swift": "a5bb1560d7466396b22f9ef61af979708601c353f74fcc4bd7315a5dff3db1d0",
+    "NotMyType/Sources/NotMyType/FontDB.swift": "9f85888084107d579149bd28b29be9a770873c0ac5f718e96f48a667a0345739",
+    "NotMyType/Sources/NotMyType/LoginAtLaunch.swift": "e3c4d769e307c955b966e069083fd9f93f41c49e9ab3667a236af6db7de94937",
+    "NotMyType/Sources/NotMyType/HotkeyManifest.swift": "13bbd45add124a24f9fad962fdfc2475cd6baf997f0f739cc6e8d9328f0493ca",
+    "NotMyType/Sources/NotMyType/SettingsSync.swift": "13c087659c52b8e72204da4919e9ff9e0a8a58dfe18081b7697a80670f022d2e",
+    "NotMyType/Sources/NotMyType/FamilyNodeCache.swift": "034cd23fcfd9d294033374010d62b085e630b9dae7b06c4306482891482aa0d4",
+    "NotMyType/Sources/NotMyType/SettingsSection.swift": "631e7ca85da216c9aab870a441fe2d3428b9323fc54e6ec6b4a6e891a7da964d",
+    "NotMyType/Sources/NotMyType/FontDebugMenu.swift": "892dbea79f5b757107edb74f37db328c0842b16bc3cb2c44251dcba35c5367d0",
+    "NotMyType/Sources/NotMyType/BenchMode.swift": "7c9f4063d3a398338f0bf145840a278c4a5ac6adf848fe54424b1c1ef4198a64",
+    "NotMyType/Sources/NotMyType/AppSurface.swift": "a2c39481baaf1a3b36d75f7ed6546afaaf60cb5da666e57a31e61252ab5e6a32",
+    "NotMyType/Sources/NotMyType/AppHotkey.swift": "486efe4a9a3324b2f680cc3282d0ff08bd6375ccdb44e12ed00a30f25b2245fd",
+    "NotMyType/Sources/NotMyType/IllustratorFontConverter.swift": "16fe9a30109655e4494167c9cd41e745ca4ed73e526c5c1ad2d9086c80c30699",
+    "NotMyType/Sources/NotMyType/HelpDocument.swift": "e966c2505496e9a9369cf43919dea674e6613b1fc0a1bb8483b839aa91d6f2d9",
+    "NotMyType/Sources/NotMyType/GlyphClipboard.swift": "1d84e589572544efa80faec89902ae98ba7070adce8cddd19d9b42e744b24bb5",
+    "NotMyType/Sources/NotMyType/StartupWindow.swift": "32153a91128b700c4bcb18d90cee7aa8c015954806993d6ca9475e14475c2707",
+    "NotMyType/Sources/NotMyType/WatchFolders.swift": "280cbd4c4f65ced784b1db755132f344cdb68d2c565d248da2beab327469b0d2",
+    "NotMyType/Sources/NotMyType/HotkeyRecorder.swift": "802f5906595ffe780e466784d53833eb97725ad6543f88b5182ea29795f65d14",
+    "NotMyType/Sources/NotMyType/VendorLogos.swift": "4ef55db24380dbeee3439b7c7ec59df1a59c13c3a09079a8d1a941232081deb7",
+    "NotMyType/Sources/NotMyType/Projects.swift": "fdd8dffb2a3d229f89900ff5b7f64e8961834a62602c91ebebf57939fb2e1b15",
+    "NotMyType/Sources/NotMyType/LegacyMigration.swift": "86507322180a9441304950220e6209eb7ceb3e01921c4f15a0d169d4136c49d6",
+    "NotMyType/Sources/NotMyType/MenuBarPresence.swift": "aac6a5c65262f3fd10da9493c613cebc7c191d8c65ac7c4710ba4516e8a4b023",
+    "NotMyType/Sources/NotMyType/PreviewModeSwitch.swift": "55f0403a89402d82b9ebffb21b045bddbaffce24fe94da4e7656d35c4534768a",
+    "NotMyType/Sources/NotMyType/AdobeAutoActivation.swift": "3ab392cba222c805a893e7c3a08deb0e0dc37294d233e80141af338f0fdbe6e3",
+    "NotMyType/Sources/NotMyType/FontExplorerImport.swift": "ad0b835aadbd34cdeaed932ef23b0e1224ab1f62c71f722efe31c3bb2c0a2fa3",
+    "NotMyType/Sources/NotMyType/FontMembershipDrop.swift": "8680759bc1966f5c01d7fd0a36bf2c33a306903a5d02e4f45e50926483b2b3ab",
+    "NotMyType/Sources/NotMyType/MenuShortcuts.swift": "a7f1450bc641dba9f2d34429de1a8750cc51d6a0ae106c5958e5f3352db026c4",
+    "NotMyType/Sources/NotMyType/AppDelegate.swift": "f9388a75888c2dce8587b771665d1c4e54ee04038060a24aa338eb029e7962a4",
+    "NotMyType/Sources/NotMyType/GlyphScope.swift": "774519dace7a491e310f180958627387ca19d49d4384b5e9b5acc966924106cc",
+    "NotMyType/Sources/NotMyType/DebugFolderOpener.swift": "dcadd00fa2feec12d4fdeb21c24d6a4e4884b8da5918190c5bfdb0ad24999fb4",
+    "NotMyType/Sources/NotMyType/FontFileHandler.swift": "92d0e726a65f605dc3623029b4343ab95cd01c0d535df716a78e33d9c855af54",
+    "NotMyType/Sources/NotMyType/SmartSets.swift": "d472a931868350a9b6e6631963c92e0c6f8cda5d99aab04d38912eba314448a8",
+    "NotMyType/Sources/NotMyType/DuplicateFolderPriority.swift": "13824ddf3815e59507f07eef037c4c59facf6016b615e117542c4b6917a65a16",
+    "NotMyType/Sources/NotMyType/UpdateSupport.swift": "2b7b94b30816de890f2a7bafc8b6f9107ab92f7f2556d6d09c0499db7b8f6eef",
+    "NotMyType/Sources/NotMyType/FontParagraphLayout.swift": "0dddb182223c7852b6178851c36747f3c29943bfa7defb6814fff431f8b445d7",
+    "NotMyType/Sources/NotMyType/FamilyOutline.swift": "cb47c248177ce51dd71aee2e89e0f74f826ecf08bba5b24ad3f0a83df7864ff1",
+    "NotMyType/Sources/NotMyType/ContentView.swift": "347f4835e68c077253cc564526dd7844466940864e6f8f850b3f8c5867415523",
+    "NotMyType/Sources/NotMyType/AboutSection.swift": "94b77eedbde81cddb1982d0b4d06d78726d18f8c8b3d98e81d69f1c01a6c6368",
+    "NotMyType/Sources/NotMyType/GlyphView.swift": "b102569dd30a667ce843da6ed8a0f468c2a0141a6680553bc12e9b6db8b2a103",
+    "NotMyType/Sources/NotMyType/RatingFilter.swift": "c801b6b03938bbdd5edccdf57fa2f38302f6a04b5f0ccc7302bef3a982a10861",
+    "NotMyType/Tools/make-strings.py": "68569031aab17c635085ef781583af87827ef388888872bb6bbf3608c37c1f65",
+    "NotMyType/Tools/extract-keys.py": "da701ecf7315cdc5b4c84b8da1f61ebb3ae7d5d3b421779d204cdd40b674c0f4",
+    "NotMyType/Tools/sync-shared.py": "a806c50fec50c0a74959415dffb9fa1e6fe57432ced02eb7051485da6340fccc",
+    "NotMyType/Tools/translations.tsv": "70e6aabc1e5fff1d27fbb12d7bb8b35fb3c1e55b1abc472fe9a44bd1f7bccab2"
+  },
+  "bundle_files": [
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Autoupdate",
+      "symlink": "Versions/Current/Autoupdate"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Headers",
+      "symlink": "Versions/Current/Headers"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Modules",
+      "symlink": "Versions/Current/Modules"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/PrivateHeaders",
+      "symlink": "Versions/Current/PrivateHeaders"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Resources",
+      "symlink": "Versions/Current/Resources"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Sparkle",
+      "symlink": "Versions/Current/Sparkle"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Updater.app",
+      "symlink": "Versions/Current/Updater.app"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+      "mode": "0o755",
+      "sha256": "d93cef27f610801446854d8538f92d747242547d2e1765f6f6f53842a58289f9"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUAppcastSigningValidationStatus.h",
+      "mode": "0o644",
+      "sha256": "513d4607ac9ba03c2203b03df307f404216c3ce7f3436784fbbef1842c742749"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUDownloadData.h",
+      "mode": "0o644",
+      "sha256": "58184c2c068a8d43b1ee85651f9edd30a6a9e5899ac936baf4a5f15a6081d7b7"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUpdaterController.h",
+      "mode": "0o644",
+      "sha256": "f45dfdf2315664c5891b97ad0d7ffce9ab09d067effbd2921b10b58b4831ef0f"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriver.h",
+      "mode": "0o644",
+      "sha256": "0a0e476b61932196027dd7b94e78d187f810f80c7900168eb4a5956b63d54a77"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriverDelegate.h",
+      "mode": "0o644",
+      "sha256": "d906e549f7b108979727fa56f13c029906fe48c5602538513a4b480bb45a8c2d"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdateCheck.h",
+      "mode": "0o644",
+      "sha256": "1f7d05da2e466263aefe3e09130e56b2e65b8862579e07b9829c9bf5ed921c03"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdatePermissionRequest.h",
+      "mode": "0o644",
+      "sha256": "8c227246c2ea7461741db8bd7274936c3cbcbc7375fe814654d479b2650cd6bd"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdater.h",
+      "mode": "0o644",
+      "sha256": "a30b876dc722a2861fb8f271a0bf0c95bd664db4cf2af57d216d190f2e010ee7"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterDelegate.h",
+      "mode": "0o644",
+      "sha256": "20ea4bf5273eaa6560160941d680acec6565965162737f50ea4240845a7dde24"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterSettings.h",
+      "mode": "0o644",
+      "sha256": "ad7bdfc719775fe4cdf1490f45ef902ded4dcb3756402e64884397bee425edff"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserDriver.h",
+      "mode": "0o644",
+      "sha256": "db9fe6cf78aca0f2f79a99898d38daff566f96c823de2bb2b985511ad77017dc"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserUpdateState.h",
+      "mode": "0o644",
+      "sha256": "59f95e933f8b5b2b39c1e7c465aa39af021a2c88820b4b09dbcfc55b1dd19c30"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcast.h",
+      "mode": "0o644",
+      "sha256": "251d6ffa7cbc890999ddda3406834f45396cf887a71e5be9ff581883559df0a0"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcastItem.h",
+      "mode": "0o644",
+      "sha256": "21df22d4f0ebd4eaba530f77f520a29451a057b70093efec3104ce0253026cf9"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUErrors.h",
+      "mode": "0o644",
+      "sha256": "e7e84fa6ef85b549810682ec883593f560d79b776ebec5fb11d9558a6f1f78e5"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUExport.h",
+      "mode": "0o644",
+      "sha256": "5cef024266c54e12db620f78f4d106860de0fa2a2e230dffdfe04208bb447451"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUStandardVersionComparator.h",
+      "mode": "0o644",
+      "sha256": "7d407b9ce721d5c650e741ecb692e77f12ef3b5e18ea8136f72448e8d7208c6c"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdatePermissionResponse.h",
+      "mode": "0o644",
+      "sha256": "f9355c8044c7dc168bdaefa37ac2e986002ec328895f17119293e084dad96f21"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdater.h",
+      "mode": "0o644",
+      "sha256": "96f6f598d582ca87c9d17f3ccd7bccb0ae4f057ac6e8fafb854ad8d04de336f6"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdaterDelegate.h",
+      "mode": "0o644",
+      "sha256": "a1a08c33fd41ebdd105916d8181d222417f9feda01cdc42afa6a3151106cde36"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionComparisonProtocol.h",
+      "mode": "0o644",
+      "sha256": "28bbb424ac7ab81e2b93f61e359fefa3ed09d6a38d0b265004d2103c0f46bdb4"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionDisplayProtocol.h",
+      "mode": "0o644",
+      "sha256": "3f23c4fb9bbdbc19714580ee4dd7f73ffc31436ea733c9bb308c3f74e7ab512c"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Headers/Sparkle.h",
+      "mode": "0o644",
+      "sha256": "3a442a32eb22a77bb5a08e61ac678daffdf6c697d33020b82a683baf40228e0c"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.modulemap",
+      "mode": "0o644",
+      "sha256": "2bcae1eb66d55dc49f58acfe856375a5bbc91c6e83bdb298d19442ae6264cfa6"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.private.modulemap",
+      "mode": "0o644",
+      "sha256": "db1d60f57b43a9eb17f3550f5720ac53466d4385368670fb5148da5b71f43f3a"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUAppcastItemStateResolver.h",
+      "mode": "0o644",
+      "sha256": "1c3be298008c19757ae3b27083622a005bce809a01f06d2c74f6dea16f3214ee"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUGentleUserDriverReminders.h",
+      "mode": "0o644",
+      "sha256": "f56d9d277f16417d79d66a484b4afcfc47c2a9957a8c487adb5c709dad895402"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUInstallationType.h",
+      "mode": "0o644",
+      "sha256": "52a1a445f58e7c6de94ac558c23913f8081647a499262affe9ac38ff790971d4"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUStandardUserDriver+Private.h",
+      "mode": "0o644",
+      "sha256": "acc764e731fe9e6d307fe32dea4d06b451964225c2b2a9745a23f035a9cdeaad"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUUserAgent+Private.h",
+      "mode": "0o644",
+      "sha256": "0c3ea7c6aabab32840e41c56bb22cfab4dee4dde3302603b6f4aba9ac1b5850c"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUAppcastItem+Private.h",
+      "mode": "0o644",
+      "sha256": "642ecbeecb323f7201a732b5953d60fefefa13cf894af28936dd0d7d001a101a"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUInstallerLauncher+Private.h",
+      "mode": "0o644",
+      "sha256": "cb2e9c465f08ab0309c2bf3a4d2f7c35d9c76ff5a4480694700a22298520dd94"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Base.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "bf93bdde8ad020f2ba210ecfa0e84b5365d0342355a3ca39d88fec0acb1e4a40"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Info.plist",
+      "mode": "0o644",
+      "sha256": "5fa024aa416c13614fb5588d378aa6c16371737d9980c57fcb3e32f8208f1b86"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ReleaseNotesColorStyle.css",
+      "mode": "0o644",
+      "sha256": "76bd6999758fd8e51d17e6b482db434f9b4768c02b037af6bd2e3a000ce8cbc1"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdateAlert.nib",
+      "mode": "0o644",
+      "sha256": "3987a333da7c2728ef2cb9656e5eeaf0832884873cabf78353fcb9099c5d8fbe"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdatePermissionPrompt.nib",
+      "mode": "0o644",
+      "sha256": "2e62b9d5a736d53b1eaf217432c4d0ad05217e897787cf1bdf1071ff22308d46"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ar.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "441182787471a3998908044515fe13e92230edaa7e2730638e72a49610f56cba"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ca.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "7ed0d5ca300649a7f13304015008f2dede98ad743a625c17d5a5fedacc1a3b1a"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/cs.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "99e66decf9bc46cf5622eead4e65b3b502e3775a4e8e0f03ef1b41683ea8d518"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/da.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "8d0ff69b79460185f941372655433bad3934f49e63bef0b4171bd66da71e55f0"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/de.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "311035a15227fb12e85eba2a46f3f6198d98ac5590d1d38c43c4ff7430d06599"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/el.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "638981a4f095d8b1dabb6230d452e470359711b81803bc5df8c21e1211fd3757"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/es.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "047b9affd0e995039072c24b8d7aa830624d03c89c524e4f58d7d6f13eca8352"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fa.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "ed9dda9e271f7a97b8a7f327e71a1b6d06e5e061b367e7da3d153e47dc319263"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fi.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "c14af9bac3fce436222a4ea277a7a6c0f9b42b2d84aceea75e758ce7538acae2"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fr.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "3d554dcd167b085e25a75248533f21f389593aeace912ab9952c825ffe141ce1"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/he.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "1d795bd7329d04b7ce84b6bdc845f917369e858b2b292f117b89a6666a185723"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hr.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "920041380a08b3ba50d44e8a83f59de551139845a72748d58f2387c65920b33a"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hu.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "cc2a16e4d487c6fab357b4f7d0fbbf7ec882371b2130413ffcb1b69cd540d2cf"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/is.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "403feba503410e9455cd0eaafe592a2576eedb24130ccf2cdb13dda4b101f87e"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/it.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "56a7445c1b68d76849ac59b98aa5c20c9002d5e07e9f0a2720486160f85b7366"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ja.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "e404910028af70579cfa208bb4fadd9e3592505fc89af208f4071f2309553fb2"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ko.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "a6269eb3f5a07d0c4f5d7467d5065372085aef7484c518a9d784ffd6c8f5aae4"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nb.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "ef6f0dcae90c440b47ece09909e9cdf35f3383f34e72a614c8c5c0752ecbffe0"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nl.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "ca9adf34fb93fe3f394ccc92114bf6a6b1f8a128bb5f362cb9f3247d7c26c77d"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nn.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "1db8c6853a550aa25382da2d55431a1c1d308d6a37676c4f8593cc1633f8a5ae"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pl.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "5c54b3f8e1eb3026e142e710e2167f2f839b73ab5ad7f18719230f33ae682aa9"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-BR.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "0292cadc2acfc34875c1e0b54e2d50de3833cd5e20c8660c8effe2b859aac84c"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-PT.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "31b28f3e5b5f9fe3d7abf71a779751d51ff632f3190155ef3cd97d2791a40fb1"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ro.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "b2bf064222c38a3672b01fe09406f799718cb0fc4e715121662639d6fdfea6ed"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ru.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "7193af28eb2a09b9fe7119cf6065a2150c6590971b22f98c56f356cd90851923"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sk.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "e158daaa4f3f91b57cee05ab896f2c1bc467317932cc53bb7c01e7daee9e5238"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sl.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "c62770c604a6c8c89e283357c8b322d8ce6a85f4d85c09002048331f65f8d980"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sv.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "4a21ad5bcf8d836d265710c2e4a0a64f07c9551f1c49694d6734a931d23efd39"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/th.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "4b6c8dc2ab69a0425de3aa9dc386c6539348e3983e47aa10f94c17e345a157a5"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/tr.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "b040d3f02d341eba047c15dfcafb60406d0847096a94466ecab512dcfb16abb5"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/uk.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "ff44d58635b3e8409d54b42b72c876a43e17fa98f6ea96b32583b9e88c747ab6"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/vi.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "2b3b4acbadf534cd0e812b97e589f80a4e1655b07c8907e98cc31df458ffd8b7"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_CN.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "e7f543b92977e9abc907241c411d8db0f59c4fee480859b3e88e4b495e0976c8"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_HK.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "3fc210132f33d89af3d25d27c7ea19426cf6d304be50254538456e0ec4fb7858"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_TW.lproj/Sparkle.strings",
+      "mode": "0o644",
+      "sha256": "76321e1dd844c9b6568cb4af7c63bb57d9d1b700109aeedd7e5721d78727b12d"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle",
+      "mode": "0o755",
+      "sha256": "42e00d4cd762e66b1bddad7af556d8af3d4abb5971a63760740a2b2b0ade01ef"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/Info.plist",
+      "mode": "0o644",
+      "sha256": "59ccb021c4e784681a2042e96feaf7c47eaa7c2a6468ce5c73d6f38274385c40"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater",
+      "mode": "0o755",
+      "sha256": "003c5a138e43975fabe9e0b179978d2d73e6dedd339fec666bf226acaa753419"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/PkgInfo",
+      "mode": "0o644",
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/_CodeSignature/CodeResources",
+      "mode": "0o644",
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/Info.plist",
+      "mode": "0o644",
+      "sha256": "098634fc77fd96310eff2a63d6080b76139e3b2138dade393cf1cd0ef9a4dd93"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader",
+      "mode": "0o755",
+      "sha256": "bb43b80625336ce320a16e3b3c82c33dcb783e81286726c611f65260af9c1191"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/_CodeSignature/CodeResources",
+      "mode": "0o644",
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/Info.plist",
+      "mode": "0o644",
+      "sha256": "c382d031b287e64e0d4e6e7eec4208600e8b2abbe100f348c3b12f8baf4a348d"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer",
+      "mode": "0o755",
+      "sha256": "c1908c7f53c110537b42431e924d058cbed735ec9f208ed8110a962920a9c2a8"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/_CodeSignature/CodeResources",
+      "mode": "0o644",
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/B/_CodeSignature/CodeResources",
+      "mode": "0o644",
+      "sha256": "3d9f636718c0a39a072babdf190646c391c6f79a1d46dea6163699cde0574969"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/Versions/Current",
+      "symlink": "B"
+    },
+    {
+      "path": "Contents/Frameworks/Sparkle.framework/XPCServices",
+      "symlink": "Versions/Current/XPCServices"
+    },
+    {
+      "path": "Contents/Info.plist",
+      "mode": "0o644",
+      "sha256": "c2d68aea26137d56c3f3bac17309ffbd1338e5077dc674184652faec98b8db2d"
+    },
+    {
+      "path": "Contents/MacOS/NotMyType",
+      "mode": "0o755",
+      "sha256": "caa702ba99721ed44de5081095a867ba6032ddd6655c2f1c034a6ab52c2c9317"
+    },
+    {
+      "path": "Contents/PkgInfo",
+      "mode": "0o644",
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+    },
+    {
+      "path": "Contents/Resources/Assets.car",
+      "mode": "0o644",
+      "sha256": "3a6628369f3d333766d1da0a997564ae145afc28b006ad5d9820fe2f85d2a730"
+    },
+    {
+      "path": "Contents/Resources/FontDB.sqlite",
+      "mode": "0o644",
+      "sha256": "e08e54a852adeb7c0de741fc014c68ac1647d0bc1be0534cfe751072923219d7"
+    },
+    {
+      "path": "Contents/Resources/NotMyType.icns",
+      "mode": "0o644",
+      "sha256": "4a9bd2cab6a456947bc379dbcab11dcc6744c4941d5d01ce53d4b6d2c856807b"
+    },
+    {
+      "path": "Contents/Resources/en.lproj/Help.txt",
+      "mode": "0o644",
+      "sha256": "8a0c5c7e1bbfab51ecdfd63beb38fcb8c06d2e088045ed275e3410e238d693a9"
+    },
+    {
+      "path": "Contents/Resources/en.lproj/InfoPlist.strings",
+      "mode": "0o644",
+      "sha256": "c14371c9f3fd34195edbb4c801e64d19a7dff842008c1ca088739ba56ed6af42"
+    },
+    {
+      "path": "Contents/Resources/en.lproj/Localizable.strings",
+      "mode": "0o644",
+      "sha256": "be28222165502cca3ca190bf872683ecd3aca0263a86cb2614005a9df705c87b"
+    },
+    {
+      "path": "Contents/Resources/ja.lproj/Help.txt",
+      "mode": "0o644",
+      "sha256": "35755a6d7390307a4731444151e1b446959de84e0ad7a157a3a45ca2876b1a9e"
+    },
+    {
+      "path": "Contents/Resources/ja.lproj/InfoPlist.strings",
+      "mode": "0o644",
+      "sha256": "c14371c9f3fd34195edbb4c801e64d19a7dff842008c1ca088739ba56ed6af42"
+    },
+    {
+      "path": "Contents/Resources/ja.lproj/Localizable.strings",
+      "mode": "0o644",
+      "sha256": "b7dba7cb161dd502f1eda583b8447cc2d254924e408bb00ed308ac6d43662a61"
+    },
+    {
+      "path": "Contents/_CodeSignature/CodeResources",
+      "mode": "0o644",
+      "sha256": "69117889332bbb76d83092deb504e123a1e8f5f2a9c90fb6d541eeee6d87e698"
+    }
+  ],
+  "notarized": false,
+  "deployed": false
+}

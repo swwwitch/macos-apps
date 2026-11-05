@@ -1570,3 +1570,14 @@ SHA-256: 7a3b23dbf14d5ab933736f602285f58831605d5b482430f4d2991fe9227086fa
 開発Mac現物版・物理キー操作は未確認。GitHub公開版は今回未確認、Release/note更新は未実施（対象外）、公開DL再検証も未実施。公開完了と混同しない。
 
 - VectorMate86 公証/両配置/起動/設定保持/個別repo同期確認 2026-11-02T06:31:34.872036+09:00。実Illustrator適用のユーザー回答待ち。Workでブラウザー操作無効のため公開/note/Projects未完了。証跡 /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261102-VectorMate86-062353/REPORT.md。全体完了にしない。
+
+
+## NotMyType108・Lite27 開発確定（2026-11-06 JST）
+
+- 担当：開発Mac MacBook-Pro-14-2024-sw.local。ブランチcodex/notmytype-release-20261106、基点c7b61efcf4a84a6dd7c412f4fc6f1b91806448c5。元チャット01a17147-6826-7911-8e42-cc45a77f2daf、公証担当依頼01a17433-ccf5-7700-9f23-43efbe62689a。開始05:02 JST。専用worktreeで作業し、元checkoutの未コミット変更は不変。
+- 対象：二重起動防止73a2011c、配布107の評価しきい値・保存互換、初期ショートカット変更を保持。Latest Builds現物の通常1.64.0（107）／Lite1.9.1（26）より増番し、通常1.64.1（108）／Lite1.9.2（27）。
+- 状態：検証開始。NO_DEPLOY=1で両版ビルド、テスト、可能な実機確認後に対象差分のみcommit/push。公証・配置・公開は依頼元が担当。本工程では行わない。
+
+- 開発検証結果（2026-11-06 JST）：両版NO_DEPLOY Universalビルド・開発署名deep/strict成功。12プロセスの実flock回帰、未起動完了競合、起動日時nilの旧版再表示、異常終了後再取得、両版ロック独立、評価しきい値・旧形式保存互換、日英・サイドバー回帰成功。通常版108の実機4同時起動は全exit0（0.67秒）、既存PID900だけを保持。CUAで既存ウインドウと検索・プレビューの保持を確認。
+- 最終変更：ガードをSwiftUI初期化前へ移し、自プロセスと起動途中の他プロセスを再表示候補から除外。buildスクリプトが同期する両版のHotkeyRecorder／SettingsSyncコピーを確定。詳細と未確認項目：NotMyType/Tests/BUILD-NOTES-20261106-108-27.md。対象SHAは本記録を含むコミット、確定後に最終回答で完全SHAを引き継ぐ。公証担当は再採番せず通常108／Lite27を使用。
+- 未実施：公証・DMG・配置・公開。未確認：Lite実機、新版単独での起動終了・閉じて再表示、評価UIと数字キー。元checkoutと既存配布物は保持。

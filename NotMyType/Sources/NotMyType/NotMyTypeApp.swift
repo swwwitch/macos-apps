@@ -3,9 +3,16 @@ import Darwin
 import SwiftUI
 
 @main
+enum NotMyTypeLauncher {
+    @MainActor static func main() {
+        // Check before SwiftUI constructs scenes or touches the font library.
+        SingleInstanceLaunch.enforce()
+        NotMyTypeApp.main()
+    }
+}
+
 struct NotMyTypeApp: App {
     init() {
-        SingleInstanceLaunch.enforce()
         // 設定やライブラリを読む前に、旧 FontSwitcher の設定とライブラリを写す（初回だけ）
         LegacyMigration.run()
     }
@@ -221,7 +228,6 @@ private struct UtilityWindowChrome: NSViewRepresentable {
 
 // Bundle identity, rather than the bundle path or build number, defines one app.
 @MainActor
-@MainActor
 private enum SingleInstanceLaunch {
     // Keep the descriptor open for the process lifetime. Never unlink a live lock file.
     private static var lockDescriptor: Int32 = -1
@@ -239,27 +245,24 @@ private enum SingleInstanceLaunch {
         let ownsLock = flock(lockDescriptor, LOCK_EX | LOCK_NB) == 0
         if !ownsLock {
             guard errno == EWOULDBLOCK else { NSLog("Single-instance lock failed"); exit(1) }
-            // LaunchServices may not have registered the winning process yet.
+            // Wait for the lock owner to finish launching before requesting its window.
             for _ in 0..<40 {
                 if NSRunningApplication.runningApplications(withBundleIdentifier: identifier).contains(where: {
-                    !$0.isTerminated && $0.processIdentifier != current.processIdentifier
+                    !$0.isTerminated && $0.isFinishedLaunching && $0.processIdentifier != current.processIdentifier
                 }) { break }
                 usleep(50_000)
             }
         }
+        // A contender still inside App.init must never displace the lock owner.
+        // Finished legacy instances (without a lock) still receive reopen requests.
         var candidates = NSRunningApplication.runningApplications(withBundleIdentifier: identifier)
-            .filter { !$0.isTerminated }
-        if !candidates.contains(where: { $0.processIdentifier == current.processIdentifier }) {
-            candidates.append(current)
-        }
-        if !ownsLock { candidates.removeAll { $0.processIdentifier == current.processIdentifier } }
+            .filter { !$0.isTerminated && $0.isFinishedLaunching && $0.processIdentifier != current.processIdentifier }
         candidates.sort {
             let left = $0.launchDate ?? .distantPast
             let right = $1.launchDate ?? .distantPast
             return left == right ? $0.processIdentifier < $1.processIdentifier : left < right
         }
-        guard let existing = candidates.first,
-              existing.processIdentifier != current.processIdentifier else {
+        guard let existing = candidates.first else {
             if !ownsLock { exit(0) }
             return
         }
