@@ -271,6 +271,7 @@ final class MarkdownStore: ObservableObject {
         var target = target
         for url in urls {
             if let opened = ([main] + documents.values).first(where: { $0.fileURL.map { DocumentFileIdentity.matches($0, url) } ?? false }) {
+                RecentFiles.shared.record(url)
                 opened.bringWindowForward()
                 continue
             }
@@ -307,6 +308,7 @@ final class MarkdownStore: ObservableObject {
         fileURL = url
         fileEncoding = encoding
         fileDate = Self.modificationDate(url)
+        RecentFiles.shared.record(url)
         markSaved()
         message = nil
     }
@@ -432,6 +434,7 @@ final class MarkdownStore: ObservableObject {
         fileURL = url
         fileEncoding = encoding
         fileDate = Self.modificationDate(url)
+        RecentFiles.shared.record(url)
         markSaved()
         message = L("保存しました：%@", url.lastPathComponent)
     }

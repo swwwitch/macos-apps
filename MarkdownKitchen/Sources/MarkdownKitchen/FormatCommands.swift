@@ -116,7 +116,7 @@ enum FormatAction: CaseIterable {
         case .image: return L("画像")
         case .horizontalRule: return L("水平線")
         case .newParagraph: return L("新しい段落")
-        case .copyHeadings: return L("見出しをコピー")
+        case .copyHeadings: return L("見出しのみをコピー")
         case .raiseHeadings: return L("すべての見出しを1段上げる")
         case .lowerHeadings: return L("すべての見出しを1段下げる")
         case .findReplace: return L("検索と置換…")

@@ -61,6 +61,7 @@ struct MarkdownKitchenApp: App {
                     .keyboardShortcut("n", modifiers: [.command, .control])
                 Button(L("ファイルを開く…")) { MarkdownStore.shared.chooseFile() }
                     .keyboardShortcut("o", modifiers: .command)
+                RecentFilesMenu()
                 Button(L("保存")) { MarkdownStore.shared.save() }
                     .keyboardShortcut("s", modifiers: .command)
                 Button(L("別名で保存…")) { MarkdownStore.shared.saveAs() }

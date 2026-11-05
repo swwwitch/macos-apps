@@ -8,6 +8,7 @@ MarkdownKitchen shows your Markdown source on the left and only its headings on 
 ### Add the source
 1. Type or paste Markdown into Source on the left.
 2. You can also load a file with File > Open File… (⌘O) or by dropping a .md file onto the left pane or the Dock icon.
+- File > Open Recent reopens files you have opened or saved. Clear Menu clears only the list; it does not delete files.
 3. Headings appears on the right, indented by level. It updates as you type.
 
 ### What counts as a heading
@@ -100,7 +101,7 @@ Choose from the Format menu in the menu bar or from the source’s right-click m
 ## Copying
 - Choose a format in the pop-up at the top of the right pane (Markdown (# Heading), Markdown (blank line where the level changes), Tree (└ Heading), Simple Table of Contents or Text indented with tabs); the list then looks like that format.
 - **Simple Table of Contents**: numbers the top-level headings “1. ”, “2. ”… and indents deeper headings with full-width spaces, without markers.
-- Copy, or Edit > Copy Headings (⇧⌘C), copies all headings exactly as the list shows them.
+- Copy, or Edit > Copy Headings Only (⇧⌘C), copies all headings exactly as the list shows them.
 - Right-click a heading for **Show in Source** and **Copy This Heading**.
 
 ## Source Display
@@ -127,7 +128,7 @@ Open with the Settings button in the main window (⌘,).
 - **⌘O**: Open File
 - **⌘S**: Save
 - **⇧⌘S**: Save As
-- **⇧⌘C**: Copy Headings
+- **⇧⌘C**: Copy Headings Only
 - **⌘[** / **⌘]**: Raise / Lower All Headings One Level
 - **⌘F**: Find and Replace (⌘G / ⇧⌘G next / previous, Use Selection for Find (assign a key in Hotkeys), ⌘J Jump to Selection)
 - Keys for format and heading commands can be changed in the Hotkeys tab of Settings.

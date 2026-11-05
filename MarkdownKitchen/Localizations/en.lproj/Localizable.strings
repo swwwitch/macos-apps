@@ -21,7 +21,7 @@
 "見出し" = "Headings";
 "見出し%@：%@" = "Heading %@: %@";
 "見出しはありません" = "No headings";
-"見出しをコピー" = "Copy Headings";
+"見出しのみをコピー" = "Copy Headings Only";
 "設定" = "Settings";
 "設定…" = "Settings…";
 "読み込めませんでした：%@" = "Could not read: %@";
@@ -269,3 +269,9 @@
 
 "Markdown → テキスト変換" = "Markdown → Plain Text";
 "閉じる" = "Close";
+
+"最近使ったファイル" = "Open Recent";
+
+"最近使ったファイルはありません" = "No Recent Files";
+
+"履歴を消去" = "Clear Menu";
