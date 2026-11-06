@@ -1,0 +1,71 @@
+## Basics
+TermTally counts how many times each of up to five terms appears in a document, lists where they are, and unifies spelling variants. It is the Mac version of the InDesign script IdCountTermPalette: instead of an InDesign document, it works on all the text of a TextEdit document or a page open in Google Docs.
+- Click the document once, then come back to this window. Its name appears under Document.
+- Type terms and click Find (or press Return). Counts appear next to the fields and the matches on the right.
+- Pick the unify target with the circle left of a field (◉ marks it), then click Unify All… to replace what the other fields found.
+- Unchecked rows are excluded from the counts and from Unify All.
+- Pick a row, edit Rewrite This One, and click Change to change just that one place.
+- The × clears a term field. Option-click it to clear all the term fields.
+- Load Selection puts the text selected in the document into a term field.
+- Find Variants needs no terms: it lists the words written in more than one way in the document (Apple / apple / APPLE, and so on). Pick a group to put it in the term fields: the most used spelling becomes the unify target and the matches appear.
+- What counts as the same word: differences in case, width (numbers too), long vowels, middle dots, small kana, ヴ and okurigana. Katakana words, Latin words and kanji words with okurigana are looked at. These are candidates, so different words can end up in one group.
+- Phrases that differ only by を, such as 調整する／調整をする, also form groups. Each form of する has its own group, so 確認する and 確認をします are not paired.
+- Variant dictionary: variants in different scripts (ください／下さい, ウェブ／Web) and full-width and half-width symbols come from the bundled dictionary. Add your own under Dictionary in Settings.
+- Misspellings in the dictionary (ドラック→ドラッグ, facebook→Facebook) are found even when the right spelling is not used: it joins the group with a count of 0 and becomes the target.
+- To Review: words that can be right in context, such as 対象／対照. No target is chosen, so check the list and pick one or fix each place.
+- Target: the bold spelling becomes the target: the one last used for that group, the dictionary's, then the most used. Unifying remembers it.
+- Ignore stops showing the selected group (right-click also works). Undo it under Dictionary in Settings.
+- Above the list you can choose a kind (Katakana, Kanji, Latin, する／をする, Dictionary, To Review) and the order.
+- Copy Table copies group, spelling, count and target as a table for a spreadsheet.
+
+## Options
+- Do not count matches inside other terms: a term found inside a longer term is not counted for the shorter one.
+- Case Sensitive: when off, Apple and apple count as the same word.
+- Whole Word: skips matches that run on into the same script (letters, kanji, katakana), like apple in pineapple. It turns on when you pick a group of variants.
+- Within Paragraph: keeps the characters around a match inside its paragraph. The paragraph mark (¶) and what lies beyond it are not shown.
+- Color the matches (Display in Settings, on by default): shows the found text in colored bold in the list. Change the color with the standard color picker; Back to Red restores it. When off, it is only bold.
+- Characters Around: how much text the list shows around a match (0 to 20).
+- After changing terms or search conditions, click Find again before replacing.
+
+## Documents
+- TextEdit and other apps whose whole text Accessibility can read (web text fields and apps like VS Code, which show only part of it, are not used): read and changed from behind. Clicking a row selects and shows the text. Use Undo in that app to go back (in TextEdit, Unify All undoes in one step). The formatting of the replaced text is kept.
+- Google Docs (Safari, Chrome, Firefox and others): the body is not visible to Accessibility, so keystrokes are used and the browser comes forward briefly.
+  - Find reads the body with ⌘A and ⌘C and moves the cursor to the start of the document.
+  - Double-click a row or click Show to go to the text with the Google Docs find bar and select it.
+  - Unify All uses Replace all in Google Docs when nothing is excluded and no other word is affected: it is done at once and one ⌘Z undoes it. Otherwise it takes about 1 second per match: the text is selected, copied and compared with what was read before it is pasted over. The formatting of the replaced text is kept either way.
+  - Do not touch the keyboard or mouse while replacing. Switching to another app or tab stops it, and so does Stop.
+  - After replacing one by one, undo is ⌘Z in Google Docs, one match at a time. Version history also works.
+  - Only the body of the open tab is read. Headers, footers and footnotes are not; if the same word is there, the find bar's count differs and replacing stops without changing anything.
+  - The clipboard is restored afterwards, unless another app copied something in the meantime.
+
+## Keeping the Target
+- Turn on Keep This Document as the Target under Document: switching to other apps for research or mail leaves the target as it is.
+- TextEdit and the like are read and changed from behind. Google Docs brings the kept window forward when needed; if another tab is showing in that window, switch back first.
+- It ends when you quit TermTally or the target app.
+
+## Window
+- Keep the window in front of other apps (Display in Settings, on by default) lets you work while looking at the document.
+- Close, Esc or ⌘W closes the window. While the app keeps running, reopen it from the menu bar icon or the Dock.
+- Terms and settings stay for the next launch.
+
+## Shortcuts
+- Return: Find (Change in the Rewrite This One field)
+- ⌘0: Open the main window
+- ⌘,: Settings
+- ⌘W: Close the window
+- ⌘Q: Quit
+- App hotkey: set in Launch & Residency in Settings to show the window from any app (none by default).
+
+## Permissions
+- Accessibility: needed to read and change document text and to send keys to Google Docs. Find does not work without it. System Settings opens from the main window or from Settings.
+- Text is handled only on this Mac and is neither saved nor sent. There is no network use except update checks.
+
+## Troubleshooting
+- Document does not change: click the document, then come back. Clicking an app that cannot be read keeps the previous document.
+- Cannot read the text: apps that do not expose their text to Accessibility cannot be used.
+- Click in the Google Docs body: the cursor is in the title or a comment. Click the body.
+- The document differs from what was read: it was edited, the word is also in a header or footnote, or Match case is on in the find bar. Find again, or fix that place by hand.
+- The app does not quit: it does not quit while replacing. Quit again after it stops.
+
+## Removing
+Move the app to the Trash. Settings are in ~/Library/Preferences/jp.dtp-transit.termtally.plist.
