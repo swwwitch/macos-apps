@@ -1,5 +1,9 @@
 # TermTally
 
+## 1.1.1（3）— 2026-11-07
+
+設定ウインドウとメインを同じウインドウレベルに揃え、設定を開くと設定が前面、メインをクリックするとメインが前面になるよう修正。「ほかのアプリより手前に表示」の変更時も操作中のウインドウを保持。
+
 ## 1.1.0 (2) — 2026-11-07
 
 Compact window, resizable side panes, inline clear buttons, first variant selection, unchanged replacement disabled, stale permission message cleared, revised headings and note link. Development validation build only.

@@ -93,7 +93,14 @@ import Carbon
     func applyWindowLevel() {
         guard let window else { return }
         let level: NSWindow.Level = UserDefaults.standard.object(forKey: "alwaysOnTop") as? Bool ?? true ? .floating : .normal
+        // Keep both windows on the same level so normal clicks control their order.
+        // Preserve the key window when changing the always-on-top preference.
+        let keyWindow = NSApp.keyWindow
         if window.level != level { window.level = level }
+        if let settings, settings.level != level { settings.level = level }
+        if let keyWindow, (keyWindow === window || keyWindow === settings), keyWindow.isVisible {
+            keyWindow.orderFront(nil)
+        }
     }
 
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil); model.refreshTarget()
@@ -118,7 +125,10 @@ import Carbon
             let hosting = NSHostingView(rootView: SettingsView(model: model, launcher: launcher)); hosting.sizingOptions = [.minSize]
             settings!.title = L("settingsWindow"); settings!.contentView = hosting; settings!.contentMinSize = NSSize(width: 560, height: 460); settings!.isReleasedWhenClosed = false; settings!.center()
         }
-        settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+        applyWindowLevel()
+        if settings!.isMiniaturized { settings!.deminiaturize(nil) }
+        NSApp.activate(ignoringOtherApps: true)
+        settings!.makeKeyAndOrderFront(nil)
     }
     @objc func showHelp() {
         if helpWindow == nil {
