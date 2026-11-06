@@ -14,10 +14,10 @@ cp Info.plist "$app/Contents/Info.plist"
 cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Assets/TermTally.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
-  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon "${UPDATE_SWIFT_FLAGS[@]}" \
+  -framework PDFKit -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon "${UPDATE_SWIFT_FLAGS[@]}" \
   ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift ../Shared/Accessibility/AccessibilityPermission.swift \
   ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
-  Source/{Matching,VariantDictionary,DictionaryData,Targets,AppModel,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/TermTally"
+  Source/{Matching,VariantDictionary,DictionaryData,PDFText,Targets,AppModel,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/TermTally"
 embed_updates "$app"
 "$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"

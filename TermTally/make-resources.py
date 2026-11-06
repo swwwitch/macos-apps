@@ -5,6 +5,14 @@ root = Path(__file__).parent
 APP = 'TermTally'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
 rows = '''
+column.page|ページ|Page|页码|페이지
+pdf.readOnly|PDFは保存済みファイルの文字をチェックします（読み取り専用）。未保存の変更・画像内の文字は対象外です。置換とAcrobat内の位置選択はできません。|Checks text in the saved PDF (read only). Unsaved changes and image text are excluded. Replacement and selection in Acrobat are unavailable.|仅检查已保存PDF中的文字。未保存的修改和图片文字不在范围内。不支持替换或在Acrobat中选择位置。|저장된 PDF의 텍스트만 검사합니다. 저장하지 않은 변경과 이미지 텍스트는 제외됩니다. 바꾸기와 Acrobat 내 위치 선택은 지원하지 않습니다.
+pdf.summary|保存済みPDF：%dページ／文字未抽出：%dページ。画像内の文字はOCR対象外です。|Saved PDF: %d pages; %d pages without extracted text. No OCR for image text.|已保存PDF：%d页；未提取文字：%d页。不进行OCR。|저장된 PDF: %d페이지, 텍스트 미추출: %d페이지. OCR은 수행하지 않습니다.
+pdf.unavailable|PDFの保存先を取得できないか、ファイルを読めません。PDFをローカルに保存し、Acrobatで開き直してください。|Cannot locate or read the PDF. Save it locally and reopen it in Acrobat.|无法获取或读取PDF。请保存到本地并在Acrobat中重新打开。|PDF를 찾거나 읽을 수 없습니다. 로컬에 저장한 뒤 Acrobat에서 다시 여세요.
+pdf.locked|暗号化されたPDFは読み取れません。|The PDF is locked and cannot be read.|PDF已锁定，无法读取。|잠긴 PDF는 읽을 수 없습니다.
+pdf.copyingDenied|このPDFは文字のコピーが許可されていません。|This PDF does not allow copying text.|此PDF不允许复制文字。|이 PDF는 텍스트 복사를 허용하지 않습니다.
+pdf.noText|抽出できる文字がありません。画像だけのPDFにはOCRが必要です（この機能はOCRを行いません）。|No extractable text. Image-only PDFs need OCR, which this feature does not perform.|没有可提取的文字。纯图片PDF需要OCR，本功能不执行OCR。|추출할 텍스트가 없습니다. 이미지 PDF에는 OCR이 필요하며 이 기능은 OCR을 수행하지 않습니다.
+pdf.noNavigation|Acrobat内の該当位置への移動は未対応です。ページ番号を参照してください。|Navigation to a match in Acrobat is unavailable. Refer to the page number.|不支持跳转到Acrobat中的匹配位置，请参考页码。|Acrobat 내 해당 위치로 이동할 수 없습니다. 페이지 번호를 참조하세요.
 heading|表記の揺れを統一|Unify Spelling Variants|统一写法差异|표기 차이를 통일
 subtitle|テキストエディットやGoogleドキュメントで開いている文書のすべての文字を対象に、該当箇所を一覧しながら表記の揺れを統一します。|Searches all the text of the document open in TextEdit or Google Docs, lists the matches, and unifies spelling variants.|以“文本编辑”或 Google 文档中打开的文稿全部文字为对象，列出匹配位置并统一写法差异。|텍스트 편집기나 Google 문서에서 연 문서의 모든 글자를 대상으로, 해당 위치를 나열하며 표기 차이를 통일합니다.
 aboutDetail|語句の件数を数え、表記の揺れを統一します。サポート：同梱のREADME.md|Counts terms and unifies spelling variants. Support: bundled README.md|统计词语并统一写法差异。支持：内置的 README.md|용어를 세고 표기 차이를 통일합니다. 지원: 포함된 README.md
@@ -30,8 +38,8 @@ option.wholeWord|単語単位|Whole Word|全字匹配|단어 단위
 option.excludeContained|ほかの語句に含まれる分は数えない|Do not count matches inside other terms|不计入其他词语中包含的部分|다른 용어에 포함된 것은 세지 않음
 option.withinParagraph|段落内に限る|Within Paragraph|限于段落内|단락 안으로 한정
 target.docs|Googleドキュメント|Google Docs|Google 文档|Google 문서
-target.none|テキストエディットの書類かGoogleドキュメントをクリックしてください。|Click a TextEdit document or a Google Docs page.|请点按“文本编辑”的文稿或 Google 文档页面。|텍스트 편집기 문서나 Google 문서 페이지를 클릭하세요.
-target.unsupported|%@ の文字は読み取れません。テキストエディットの書類かGoogleドキュメントをクリックしてください。|Cannot read the text of %@. Click a TextEdit document or a Google Docs page.|无法读取 %@ 的文字。请点按“文本编辑”的文稿或 Google 文档页面。|%@의 글자를 읽을 수 없습니다. 텍스트 편집기 문서나 Google 문서 페이지를 클릭하세요.
+target.none|テキストエディット、Googleドキュメント、AcrobatのPDFをクリックしてください。|Click a TextEdit document, Google Docs page, or Acrobat PDF.|请点按“文本编辑”的文稿或 Google 文档页面。|텍스트 편집기 문서나 Google 문서 페이지를 클릭하세요.
+target.unsupported|%@ の文字は読み取れません。テキストエディット、Googleドキュメント、AcrobatのPDFをクリックしてください。|Cannot read the text of %@. Click a TextEdit document, Google Docs page, or Acrobat PDF.|无法读取 %@ 的文字。请点按“文本编辑”的文稿或 Google 文档页面。|%@의 글자를 읽을 수 없습니다. 텍스트 편집기 문서나 Google 문서 페이지를 클릭하세요.
 target.hint|最後に使っていた文書が対象です。［検索］を押すと、その時点のすべての文字を読み取ります。|The document you used last. Find reads all its text at that moment.|目标是最后使用的文稿。按“搜索”时读取当时的全部文字。|마지막에 사용한 문서가 대상입니다. [검색]을 누르면 그 시점의 모든 글자를 읽습니다.
 button.loadSelection|選択文字を取り込む|Load Selection|载入所选文字|선택 글자 가져오기
 button.collectVariants|揺れ候補を拾う|Find Variants|查找写法差异|표기 차이 찾기

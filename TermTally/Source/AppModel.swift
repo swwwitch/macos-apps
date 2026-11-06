@@ -110,7 +110,9 @@ private enum Key {
     }
 
     var hasKeyword: Bool { keywords.contains { !$0.isEmpty } }
-    var canReplace: Bool { matches != nil && !isStale && !isBusy }
+    var isPDF: Bool { target?.kind == .acrobatPDF }
+    var resultsArePDF: Bool { searchedTarget?.info.kind == .acrobatPDF }
+    var canReplace: Bool { matches != nil && !isStale && !isBusy && !isPDF && !resultsArePDF }
     var canChangeSelected: Bool { canReplace && selectedRow.map { $0.match.text != changeTo } == true }
     var canUnify: Bool { canReplace && lastKeywords.indices.contains(unifyTarget) && !lastKeywords[unifyTarget].isEmpty }
     var selectedRow: MatchRow? { rows.first { $0.id == selection } }
@@ -252,7 +254,7 @@ private enum Key {
             for match in list {
                 let isExcluded = excluded.contains(match)
                 if isExcluded { excludedCount += 1 } else { kept += 1 }
-                built.append(MatchRow(match: match, paragraph: Matcher.paragraphNumber(of: match.range.location, starts: starts),
+                built.append(MatchRow(match: match, paragraph: searchedTarget?.pdfSnapshot?.page(at: match.range.location) ?? Matcher.paragraphNumber(of: match.range.location, starts: starts),
                                       context: Matcher.context(of: match.range, in: text, length: contextLength, withinParagraph: withinParagraph), isExcluded: isExcluded,
                                       unifiesTo: !isExcluded && isUnifyField(index) ? lastKeywords[unifyTarget] : nil))
             }
@@ -264,6 +266,9 @@ private enum Key {
         let scope = searchedTarget?.info.appName ?? ""
         totalText = excludedCount > 0 ? String(format: L("status.totalWithExcluded"), keptTotal, scope, excludedCount) : String(format: L("status.total"), keptTotal, scope)
         listNote = isStale ? L("status.stale") : ""
+        if let pdf = searchedTarget?.pdfSnapshot {
+            listNote += String(format: L("pdf.summary"), pdf.pageCount, pdf.emptyPages)
+        }
         if let selection, !rows.contains(where: { $0.id == selection }) { self.selection = nil }
     }
     @Published private(set) var listNote = ""
@@ -284,7 +289,7 @@ private enum Key {
 
     /// Selects the row's text in the document. From a Docs window this takes the browser to the front for a moment.
     func showSelected() {
-        guard let row = selectedRow, matches != nil, !isStale, !isBusy else { return }
+        guard !isPDF, !resultsArePDF, let row = selectedRow, matches != nil, !isStale, !isBusy else { return }
         let keyword = lastKeywords[row.match.keywordIndex]
         let text = lastText
         run(sameDocument: true, { try $0.show(row.match, keyword: keyword, in: text) }) { [weak self] result in
@@ -395,6 +400,7 @@ private enum Key {
 
     /// 「選択文字を取り込む」: one line of selected text goes into the field typed in last, or the first empty one.
     func loadSelection() {
+        guard !isPDF else { return }
         run({ try $0.selectedText() }) { [weak self] result in
             guard let self else { return }
             switch result {

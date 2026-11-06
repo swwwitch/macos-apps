@@ -1,3 +1,11 @@
+"column.page" = "Page";
+"pdf.readOnly" = "Checks text in the saved PDF (read only). Unsaved changes and image text are excluded. Replacement and selection in Acrobat are unavailable.";
+"pdf.summary" = "Saved PDF: %d pages; %d pages without extracted text. No OCR for image text.";
+"pdf.unavailable" = "Cannot locate or read the PDF. Save it locally and reopen it in Acrobat.";
+"pdf.locked" = "The PDF is locked and cannot be read.";
+"pdf.copyingDenied" = "This PDF does not allow copying text.";
+"pdf.noText" = "No extractable text. Image-only PDFs need OCR, which this feature does not perform.";
+"pdf.noNavigation" = "Navigation to a match in Acrobat is unavailable. Refer to the page number.";
 "heading" = "Unify Spelling Variants";
 "subtitle" = "Searches all the text of the document open in TextEdit or Google Docs, lists the matches, and unifies spelling variants.";
 "aboutDetail" = "Counts terms and unifies spelling variants. Support: bundled README.md";
@@ -23,8 +31,8 @@
 "option.excludeContained" = "Do not count matches inside other terms";
 "option.withinParagraph" = "Within Paragraph";
 "target.docs" = "Google Docs";
-"target.none" = "Click a TextEdit document or a Google Docs page.";
-"target.unsupported" = "Cannot read the text of %@. Click a TextEdit document or a Google Docs page.";
+"target.none" = "Click a TextEdit document, Google Docs page, or Acrobat PDF.";
+"target.unsupported" = "Cannot read the text of %@. Click a TextEdit document, Google Docs page, or Acrobat PDF.";
 "target.hint" = "The document you used last. Find reads all its text at that moment.";
 "button.loadSelection" = "Load Selection";
 "button.collectVariants" = "Find Variants";

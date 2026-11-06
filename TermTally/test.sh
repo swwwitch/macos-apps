@@ -5,6 +5,8 @@ cd "${0:A:h}"
 stage=$(mktemp -d /private/tmp/TermTally-test.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 xcrun swiftc -swift-version 5 -module-cache-path "$stage/cache" Source/Matching.swift Source/VariantDictionary.swift Source/DictionaryData.swift Tests/main.swift -o "$stage/tests"
+xcrun swiftc -swift-version 5 -framework PDFKit -module-cache-path "$stage/cache" Source/PDFText.swift Tests/PDF/main.swift -o "$stage/pdf-tests"
+"$stage/pdf-tests" "${@}"
 "$stage/tests"
 python3 make-resources.py >/dev/null
 python3 - <<'PY'

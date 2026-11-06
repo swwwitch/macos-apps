@@ -92,11 +92,11 @@ struct MatchTable: View {
                     .labelsHidden().toggleStyle(.checkbox).help(L("tip.check")).accessibilityLabel(L("a11y.check"))
             }
             .width(22)
-            TableColumn(L("column.paragraph")) { row in Text("\(row.paragraph)").monospacedDigit() }.width(min: 36, ideal: 44, max: 70)
+            TableColumn(L(model.resultsArePDF ? "column.page" : "column.paragraph")) { row in Text("\(row.paragraph)").monospacedDigit() }.width(min: 36, ideal: 44, max: 70)
             TableColumn(L("column.context")) { row in ContextText(row: row, isSelected: row.id == model.selection, color: matchInRed ? MatchColor.color(matchColor) : nil) }
         }
         .contextMenu(forSelectionType: MatchRow.ID.self, menu: { _ in }, primaryAction: { _ in model.showSelected() })
-        .help(L(model.isGoogleDocs ? "tip.listDocs" : "tip.list"))
+        .help(L(model.resultsArePDF ? "pdf.noNavigation" : model.isGoogleDocs ? "tip.listDocs" : "tip.list"))
     }
 }
 
@@ -216,6 +216,9 @@ struct MainView: View {
             GroupBox(L("panel.target")) {
                 VStack(alignment: .leading, spacing: 6) {
                     targetLine
+                    if model.isPDF {
+                        Text(L("pdf.readOnly")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    }
                     Toggle(L("target.pin"), isOn: $model.isTargetPinned).disabled(model.target == nil || model.isBusy).help(L("tip.pin"))
                     Explanation(L(model.isTargetPinned ? "target.pinnedHint" : "target.hint"))
                 }
@@ -245,16 +248,16 @@ struct MainView: View {
                 Toggle(L("option.withinParagraph"), isOn: $model.withinParagraph).help(L("tip.withinParagraph"))
                 MatchTable(model: model).frame(minHeight: 200)
                 HStack(spacing: 6) {
-                    Text(model.listNote).font(.caption).foregroundColor(.secondary).lineLimit(2)
+                    Text(model.listNote).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                     Button(L("button.show")) { model.showSelected() }
-                        .disabled(model.selectedRow == nil || model.isStale || model.isBusy).help(L("tip.show"))
+                        .disabled(model.isPDF || model.resultsArePDF || model.selectedRow == nil || model.isStale || model.isBusy).help(L(model.isPDF ? "pdf.noNavigation" : "tip.show"))
                     Button(L(model.selectedRow?.isExcluded == true ? "button.include" : "button.exclude")) { model.toggleSelectedExcluded() }
                         .disabled(model.selectedRow == nil).help(L("tip.exclude"))
                 }
                 HStack(spacing: 6) {
                     Text(L("field.changeTo"))
-                    TextField("", text: $model.changeTo).textFieldStyle(.roundedBorder).onSubmit { model.changeSelected() }
+                    TextField("", text: $model.changeTo).disabled(model.isPDF || model.resultsArePDF).textFieldStyle(.roundedBorder).onSubmit { model.changeSelected() }
                         .help(L("tip.changeTo")).accessibilityLabel(L("field.changeTo"))
                     Button(L("button.change")) { model.changeSelected() }
                         .disabled(!model.canChangeSelected).help(L("tip.change"))
@@ -293,7 +296,7 @@ struct MainView: View {
                 Text(model.note).font(.callout).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             }
             HStack(spacing: 10) {
-                Button(L("button.loadSelection")) { model.loadSelection() }.disabled(model.isBusy).help(L("tip.loadSelection"))
+                Button(L("button.loadSelection")) { model.loadSelection() }.disabled(model.isBusy || model.isPDF).help(L("tip.loadSelection"))
                 Button(L("button.unify")) {
                     if model.unifyMatches.isEmpty { model.noteNothingToReplace() } else { confirmsUnify = true }
                 }

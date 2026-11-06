@@ -1,3 +1,11 @@
+"column.page" = "ページ";
+"pdf.readOnly" = "PDFは保存済みファイルの文字をチェックします（読み取り専用）。未保存の変更・画像内の文字は対象外です。置換とAcrobat内の位置選択はできません。";
+"pdf.summary" = "保存済みPDF：%dページ／文字未抽出：%dページ。画像内の文字はOCR対象外です。";
+"pdf.unavailable" = "PDFの保存先を取得できないか、ファイルを読めません。PDFをローカルに保存し、Acrobatで開き直してください。";
+"pdf.locked" = "暗号化されたPDFは読み取れません。";
+"pdf.copyingDenied" = "このPDFは文字のコピーが許可されていません。";
+"pdf.noText" = "抽出できる文字がありません。画像だけのPDFにはOCRが必要です（この機能はOCRを行いません）。";
+"pdf.noNavigation" = "Acrobat内の該当位置への移動は未対応です。ページ番号を参照してください。";
 "heading" = "表記の揺れを統一";
 "subtitle" = "テキストエディットやGoogleドキュメントで開いている文書のすべての文字を対象に、該当箇所を一覧しながら表記の揺れを統一します。";
 "aboutDetail" = "語句の件数を数え、表記の揺れを統一します。サポート：同梱のREADME.md";
@@ -23,8 +31,8 @@
 "option.excludeContained" = "ほかの語句に含まれる分は数えない";
 "option.withinParagraph" = "段落内に限る";
 "target.docs" = "Googleドキュメント";
-"target.none" = "テキストエディットの書類かGoogleドキュメントをクリックしてください。";
-"target.unsupported" = "%@ の文字は読み取れません。テキストエディットの書類かGoogleドキュメントをクリックしてください。";
+"target.none" = "テキストエディット、Googleドキュメント、AcrobatのPDFをクリックしてください。";
+"target.unsupported" = "%@ の文字は読み取れません。テキストエディット、Googleドキュメント、AcrobatのPDFをクリックしてください。";
 "target.hint" = "最後に使っていた文書が対象です。［検索］を押すと、その時点のすべての文字を読み取ります。";
 "button.loadSelection" = "選択文字を取り込む";
 "button.collectVariants" = "揺れ候補を拾う";

@@ -1,3 +1,11 @@
+"column.page" = "페이지";
+"pdf.readOnly" = "저장된 PDF의 텍스트만 검사합니다. 저장하지 않은 변경과 이미지 텍스트는 제외됩니다. 바꾸기와 Acrobat 내 위치 선택은 지원하지 않습니다.";
+"pdf.summary" = "저장된 PDF: %d페이지, 텍스트 미추출: %d페이지. OCR은 수행하지 않습니다.";
+"pdf.unavailable" = "PDF를 찾거나 읽을 수 없습니다. 로컬에 저장한 뒤 Acrobat에서 다시 여세요.";
+"pdf.locked" = "잠긴 PDF는 읽을 수 없습니다.";
+"pdf.copyingDenied" = "이 PDF는 텍스트 복사를 허용하지 않습니다.";
+"pdf.noText" = "추출할 텍스트가 없습니다. 이미지 PDF에는 OCR이 필요하며 이 기능은 OCR을 수행하지 않습니다.";
+"pdf.noNavigation" = "Acrobat 내 해당 위치로 이동할 수 없습니다. 페이지 번호를 참조하세요.";
 "heading" = "표기 차이를 통일";
 "subtitle" = "텍스트 편집기나 Google 문서에서 연 문서의 모든 글자를 대상으로, 해당 위치를 나열하며 표기 차이를 통일합니다.";
 "aboutDetail" = "용어를 세고 표기 차이를 통일합니다. 지원: 포함된 README.md";

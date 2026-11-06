@@ -3,7 +3,7 @@ import ApplicationServices
 
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
-enum TargetKind: Sendable { case accessibilityText, googleDocs }
+enum TargetKind: Sendable { case accessibilityText, googleDocs, acrobatPDF }
 
 /// What the window shows about the document being worked on.
 struct TargetInfo: Equatable, Sendable {
@@ -51,6 +51,7 @@ protocol TextTarget: AnyObject {
     var info: TargetInfo { get }
     /// Selecting a match needs the target in front (Google Docs) or works from behind (Accessibility text).
     var showsInBackground: Bool { get }
+    var pdfSnapshot: PDFTextSnapshot? { get }
     /// True for the same document, even when its window title changed by being edited.
     func isSameDocument(as other: TextTarget) -> Bool
     func readAll() throws -> String
@@ -59,6 +60,8 @@ protocol TextTarget: AnyObject {
     func replace(_ plan: [Match], keywords: [String], with replacement: String, in text: String,
                  progress: @escaping (Int) -> Void, isCancelled: @escaping () -> Bool) -> ReplaceOutcome
 }
+
+extension TextTarget { var pdfSnapshot: PDFTextSnapshot? { nil } }
 
 enum AX {
     static func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
@@ -109,6 +112,9 @@ enum TargetDetector {
         if isBrowser { AXUIElementSetAttributeValue(element, "AXManualAccessibility" as CFString, kCFBooleanTrue) }
         guard let window = AX.window(of: element) else { return nil }
         let title = AX.string(window, kAXTitleAttribute) ?? ""
+        if ["com.adobe.Acrobat.Pro", "com.adobe.Reader"].contains(app.bundleIdentifier ?? "") {
+            return AcrobatPDFTarget(window: window, info: TargetInfo(pid: app.processIdentifier, appName: name, title: title, kind: .acrobatPDF))
+        }
         if isBrowser {
             guard let url = pageURL(in: window), isGoogleDocument(url) else { return nil }
             return GoogleDocsTarget(app: app, axApp: element, window: window, windowTitle: title, appName: name)
@@ -602,4 +608,55 @@ final class GoogleDocsTarget: TextTarget {
         if !outcome.usedBulkReplace { outcome.text = model as String }
         return outcome
     }
+}
+
+
+/// Reads the saved file identified by Acrobat's window, never a visible-page text fragment.
+final class AcrobatPDFTarget: TextTarget {
+    let info: TargetInfo
+    let showsInBackground = false
+    private let window: AXUIElement
+    private let url: URL?
+    private(set) var pdfSnapshot: PDFTextSnapshot?
+
+    init(window: AXUIElement, info: TargetInfo) {
+        self.window = window; self.info = info
+        url = Self.documentURL(window)
+    }
+    private static func documentURL(_ window: AXUIElement) -> URL? {
+        let raw = AX.value(window, kAXDocumentAttribute)
+        let url = (raw as? URL) ?? (raw as? String).flatMap { URL(string: $0) }
+        return url?.isFileURL == true ? url?.standardizedFileURL : nil
+    }
+    func isSameDocument(as other: TextTarget) -> Bool {
+        guard let other = other as? AcrobatPDFTarget, let url, let otherURL = other.url else { return false }
+        return info.pid == other.info.pid && url == otherURL && CFEqual(window, other.window)
+    }
+    func readAll() throws -> String {
+        guard let url else { throw PDFTargetError(key: "pdf.unavailable") }
+        guard Self.documentURL(window) == url else { throw TargetError.documentChanged }
+        do {
+            let snapshot = try PDFTextSnapshot.read(url)
+            guard Self.documentURL(window) == url else { throw TargetError.documentChanged }
+            pdfSnapshot = snapshot
+            return snapshot.text
+        } catch let error as PDFTextSnapshot.Failure {
+            switch error {
+            case .unavailable: throw PDFTargetError(key: "pdf.unavailable")
+            case .locked: throw PDFTargetError(key: "pdf.locked")
+            case .copyingDenied: throw PDFTargetError(key: "pdf.copyingDenied")
+            case .noText: throw PDFTargetError(key: "pdf.noText")
+            }
+        }
+    }
+    func selectedText() throws -> String { throw PDFTargetError(key: "pdf.readOnly") }
+    func show(_ match: Match, keyword: String, in text: String) throws { throw PDFTargetError(key: "pdf.noNavigation") }
+    func replace(_ plan: [Match], keywords: [String], with replacement: String, in text: String,
+                 progress: @escaping (Int) -> Void, isCancelled: @escaping () -> Bool) -> ReplaceOutcome {
+        var result = ReplaceOutcome(); result.stopReason = L("pdf.readOnly"); return result
+    }
+}
+struct PDFTargetError: LocalizedError {
+    let key: String
+    var errorDescription: String? { L(key) }
 }

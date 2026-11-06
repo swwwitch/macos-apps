@@ -2,6 +2,7 @@
 # TermTally help (markup rendered by Shared/AppStandards/HelpDocument.swift). Keep the 4 languages parallel.
 HELP = {
  "ja": """## 基本操作
+Acrobat対応：保存済みのローカルPDFを全ページ読み取り、ページ番号付きでチェックします。原本は変更しません。未保存の変更・画像内の文字は対象外で、OCR・置換・Acrobat内の位置選択はできません。文字を抽出できなかったページ数を表示します。抽出順はPDFの内部構造によるため段組み等では見た目と異なる場合があります。
 左右のペインは境界をドラッグして幅を調整できます。語句欄内の×で消去できます。揺れ候補の取得後は最初の組を自動選択します。置換前後が同じ文字列なら［置換］は無効です。
 TermTallyは、最大5つの語句が文書にそれぞれいくつあるかを数え、該当箇所を一覧しながら表記の揺れを統一します。InDesignのスクリプト「IdCountTermPalette」のMac版で、ドキュメントの代わりに、テキストエディットの書類やGoogleドキュメントで開いているページのすべての文字を対象にします。
 - 対象にしたい文書を一度クリックしてから、このウインドウに戻ります。「対象のアプリ」に文書の名前が出ます。
@@ -75,6 +76,7 @@ TermTallyは、最大5つの語句が文書にそれぞれいくつあるかを�
 アプリをゴミ箱に入れます。設定は ~/Library/Preferences/jp.dtp-transit.termtally.plist です。
 """,
  "en": """## Basics
+Acrobat: checks all pages of the saved local PDF with page numbers, without changing the file. Unsaved changes and image text are excluded. OCR, replacement, and navigation in Acrobat are unavailable. Pages without extracted text are counted. Reading order depends on the PDF structure and may differ from the visual layout.
 Drag the dividers to resize the side panes. The clear button is inside each term field. Find Variants selects the first visible group. Replace is disabled for identical text.
 TermTally counts how many times each of up to five terms appears in a document, lists where they are, and unifies spelling variants. It is the Mac version of the InDesign script IdCountTermPalette: instead of an InDesign document, it works on all the text of a TextEdit document or a page open in Google Docs.
 - Click the document once, then come back to this window. Its name appears under Document.
@@ -148,6 +150,7 @@ TermTally counts how many times each of up to five terms appears in a document, 
 Move the app to the Trash. Settings are in ~/Library/Preferences/jp.dtp-transit.termtally.plist.
 """,
  "zh-Hans": """## 基本操作
+Acrobat：读取本地已保存PDF的所有页面并显示页码，不修改原文件。不包含未保存修改或图片文字。不支持OCR、替换或位置跳转。显示未提取文字的页数。提取顺序取决于PDF结构，可能与视觉顺序不同。
 拖动分隔线可调整左右面板宽度。清除按钮位于词语栏内。查找后自动选择第一组。文字相同时替换按钮不可用。
 TermTally 统计最多 5 个词语在文稿中各出现多少次，列出位置，并统一写法差异。它是 InDesign 脚本 IdCountTermPalette 的 Mac 版，以“文本编辑”的文稿或 Google 文档中打开的页面的全部文字为对象。
 - 先点按一次目标文稿，再回到此窗口。“对象”中会显示文稿名称。
@@ -221,6 +224,7 @@ TermTally 统计最多 5 个词语在文稿中各出现多少次，列出位置�
 将应用移到废纸篓。设置位于 ~/Library/Preferences/jp.dtp-transit.termtally.plist。
 """,
  "ko": """## 기본 조작
+Acrobat: 저장된 로컬 PDF의 모든 페이지를 읽고 페이지 번호를 표시합니다. 원본은 변경하지 않습니다. 저장하지 않은 변경과 이미지 텍스트는 제외됩니다. OCR, 바꾸기, 위치 이동은 지원하지 않습니다. 추출 순서는 PDF 구조에 따라 다를 수 있습니다.
 구분선을 드래그하여 패널 너비를 조절합니다. 첫 묶음이 자동 선택됩니다. 같은 글자로는 바꿀 수 없습니다.
 TermTally는 최대 5개의 용어가 문서에 각각 몇 개 있는지 세고, 해당 위치를 나열하며 표기 차이를 통일합니다. InDesign 스크립트 IdCountTermPalette의 Mac 버전으로, 텍스트 편집기 문서나 Google 문서에서 연 페이지의 모든 글자를 대상으로 합니다.
 - 대상 문서를 한 번 클릭한 뒤 이 윈도우로 돌아옵니다. [대상]에 문서 이름이 표시됩니다.

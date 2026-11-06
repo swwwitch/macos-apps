@@ -1,3 +1,11 @@
+"column.page" = "页码";
+"pdf.readOnly" = "仅检查已保存PDF中的文字。未保存的修改和图片文字不在范围内。不支持替换或在Acrobat中选择位置。";
+"pdf.summary" = "已保存PDF：%d页；未提取文字：%d页。不进行OCR。";
+"pdf.unavailable" = "无法获取或读取PDF。请保存到本地并在Acrobat中重新打开。";
+"pdf.locked" = "PDF已锁定，无法读取。";
+"pdf.copyingDenied" = "此PDF不允许复制文字。";
+"pdf.noText" = "没有可提取的文字。纯图片PDF需要OCR，本功能不执行OCR。";
+"pdf.noNavigation" = "不支持跳转到Acrobat中的匹配位置，请参考页码。";
 "heading" = "统一写法差异";
 "subtitle" = "以“文本编辑”或 Google 文档中打开的文稿全部文字为对象，列出匹配位置并统一写法差异。";
 "aboutDetail" = "统计词语并统一写法差异。支持：内置的 README.md";
