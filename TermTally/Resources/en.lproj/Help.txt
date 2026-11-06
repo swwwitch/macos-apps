@@ -1,4 +1,5 @@
 ## Basics
+Drag the dividers to resize the side panes. The clear button is inside each term field. Find Variants selects the first visible group. Replace is disabled for identical text.
 TermTally counts how many times each of up to five terms appears in a document, lists where they are, and unifies spelling variants. It is the Mac version of the InDesign script IdCountTermPalette: instead of an InDesign document, it works on all the text of a TextEdit document or a page open in Google Docs.
 - Click the document once, then come back to this window. Its name appears under Document.
 - Type terms and click Find (or press Return). Counts appear next to the fields and the matches on the right.

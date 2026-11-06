@@ -1,5 +1,9 @@
 # TermTally
 
+## 1.1.0 (2) — 2026-11-07
+
+Compact window, resizable side panes, inline clear buttons, first variant selection, unchanged replacement disabled, stale permission message cleared, revised headings and note link. Development validation build only.
+
 InDesignのスクリプト IdCountKeywordPalette.jsx（indesign-scripts `jsx/text/`、v1.3.0）のMac版。最大5つの語句の件数を数え、該当箇所を一覧しながら表記の揺れを統一するAppKit/SwiftUIアプリ。Apple Silicon / macOS 13以降。Bundle ID `jp.dtp-transit.termtally`。
 
 InDesignのドキュメントの代わりに、テキストエディットの書類やGoogleドキュメントで開いているページのすべての文字を対象にする。

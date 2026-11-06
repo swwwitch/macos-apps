@@ -36,15 +36,20 @@ struct KeywordRow: View {
             .buttonStyle(.plain).help(L("tip.unifyTarget"))
             .accessibilityLabel(String(format: L("a11y.unifyTarget"), index + 1))
             .accessibilityValue(L(model.unifyTarget == index ? "a11y.on" : "a11y.off"))
-            TextField("", text: Binding(get: { model.keywords[index] }, set: { model.keywords[index] = $0; model.lastActiveField = index }))
-                .textFieldStyle(.roundedBorder).focused(focus, equals: index).onSubmit { model.find() }
-                .help(L("tip.keyword")).accessibilityLabel(String(format: L("a11y.keyword"), index + 1))
-            Button {
-                if NSEvent.modifierFlags.contains(.option) { model.clearAllKeywords(); focus.wrappedValue = 0 }
-                else { model.clearKeyword(index); focus.wrappedValue = index }
-            } label: { Image(systemName: "xmark.circle.fill").foregroundColor(.secondary) }
-                .buttonStyle(.plain).opacity(model.keywords[index].isEmpty ? 0 : 1).disabled(model.keywords[index].isEmpty)
-                .help(L("tip.clearKeyword")).accessibilityLabel(String(format: L("a11y.clearKeyword"), index + 1))
+            HStack(spacing: 4) {
+                TextField("", text: Binding(get: { model.keywords[index] }, set: { model.keywords[index] = $0; model.lastActiveField = index }))
+                    .textFieldStyle(.plain).focused(focus, equals: index).onSubmit { model.find() }
+                    .help(L("tip.keyword")).accessibilityLabel(String(format: L("a11y.keyword"), index + 1))
+                Button {
+                    if NSEvent.modifierFlags.contains(.option) { model.clearAllKeywords(); focus.wrappedValue = 0 }
+                    else { model.clearKeyword(index); focus.wrappedValue = index }
+                } label: { Image(systemName: "xmark.circle.fill").foregroundColor(.secondary) }
+                    .buttonStyle(.plain).opacity(model.keywords[index].isEmpty ? 0 : 1).disabled(model.keywords[index].isEmpty)
+                    .help(L("tip.clearKeyword")).accessibilityLabel(String(format: L("a11y.clearKeyword"), index + 1))
+            }
+            .padding(.horizontal, 6).padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 5).fill(Color(nsColor: .textBackgroundColor)))
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.secondary.opacity(0.2)))
             Text(model.counts[index]).monospacedDigit().frame(width: 56, alignment: .trailing)
         }
     }
@@ -145,10 +150,10 @@ struct VariantList: View {
                     }
                 }
             }
-            .padding(.horizontal, 6).padding(.vertical, 10)
+            .padding(.horizontal, 6).padding(.vertical, 6)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .frame(width: 250)
+        .frame(minWidth: 170, idealWidth: 200, maxWidth: .infinity)
     }
 }
 
@@ -206,26 +211,26 @@ struct MainView: View {
                     .padding(.top, 4)
                     Toggle(L("option.excludeContained"), isOn: $model.excludeContained).help(L("tip.excludeContained"))
                 }
-                .padding(.horizontal, 6).padding(.vertical, 10)
+                .padding(.horizontal, 6).padding(.vertical, 6)
             }
             GroupBox(L("panel.target")) {
                 VStack(alignment: .leading, spacing: 6) {
                     targetLine
                     Toggle(L("target.pin"), isOn: $model.isTargetPinned).disabled(model.target == nil || model.isBusy).help(L("tip.pin"))
-                    Text(L(model.isTargetPinned ? "target.pinnedHint" : "target.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                    Explanation(L(model.isTargetPinned ? "target.pinnedHint" : "target.hint"))
                 }
-                .padding(.horizontal, 6).padding(.vertical, 10)
+                .padding(.horizontal, 6).padding(.vertical, 6)
             }
             GroupBox(L("panel.options")) {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle(L("option.caseSensitive"), isOn: $model.caseSensitive)
                     Toggle(L("option.wholeWord"), isOn: $model.wholeWord).help(L("tip.wholeWord"))
                 }
-                .padding(.horizontal, 6).padding(.vertical, 10).frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6).padding(.vertical, 6).frame(maxWidth: .infinity, alignment: .leading)
             }
             Spacer(minLength: 0)
         }
-        .frame(width: 320)
+        .frame(minWidth: 250, idealWidth: 280, maxWidth: 360)
     }
 
     private var rightColumn: some View {
@@ -252,10 +257,10 @@ struct MainView: View {
                     TextField("", text: $model.changeTo).textFieldStyle(.roundedBorder).onSubmit { model.changeSelected() }
                         .help(L("tip.changeTo")).accessibilityLabel(L("field.changeTo"))
                     Button(L("button.change")) { model.changeSelected() }
-                        .disabled(!model.canReplace || model.selectedRow == nil).help(L("tip.change"))
+                        .disabled(!model.canChangeSelected).help(L("tip.change"))
                 }
             }
-            .padding(.horizontal, 6).padding(.vertical, 10)
+            .padding(.horizontal, 6).padding(.vertical, 6)
         }
     }
 
@@ -268,7 +273,7 @@ struct MainView: View {
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L("heading")).font(.system(size: 22, weight: .semibold))
-                    Text(L("subtitle")).foregroundStyle(.secondary)
+                    Explanation(L("subtitle"))
                 }
                 Spacer()
             }
@@ -279,7 +284,11 @@ struct MainView: View {
                     Button(L("button.openAccessibility")) { AccessibilitySettingsLocator.shared.open(required: true) }
                 }
             }
-            HStack(alignment: .top, spacing: 12) { VariantList(model: model); leftColumn; rightColumn }
+            HSplitView {
+                VariantList(model: model)
+                ScrollView { leftColumn }.frame(minWidth: 250, idealWidth: 280, maxWidth: 360)
+                rightColumn.frame(minWidth: 300, idealWidth: 380, maxWidth: .infinity, maxHeight: .infinity)
+            }
             if !model.note.isEmpty {
                 Text(model.note).font(.callout).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             }
@@ -296,8 +305,8 @@ struct MainView: View {
                 Button(L("button.find")) { model.find() }.keyboardShortcut(.defaultAction).disabled(!model.hasKeyword || model.isBusy).help(L("tip.find"))
             }
         }
-        .padding(20)
-        .frame(minWidth: 1110, minHeight: 640)
+        .padding(12)
+        .frame(minWidth: 800, minHeight: 530)
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
         .onAppear { focus = model.keywords.firstIndex(of: "") ?? 0 }

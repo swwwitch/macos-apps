@@ -111,6 +111,7 @@ private enum Key {
 
     var hasKeyword: Bool { keywords.contains { !$0.isEmpty } }
     var canReplace: Bool { matches != nil && !isStale && !isBusy }
+    var canChangeSelected: Bool { canReplace && selectedRow.map { $0.match.text != changeTo } == true }
     var canUnify: Bool { canReplace && lastKeywords.indices.contains(unifyTarget) && !lastKeywords[unifyTarget].isEmpty }
     var selectedRow: MatchRow? { rows.first { $0.id == selection } }
     var showsOnSelect: Bool { currentTarget?.showsInBackground ?? false }
@@ -129,7 +130,10 @@ private enum Key {
         if target?.pid == app.processIdentifier { isTargetPinned = false; setTarget(nil) }
     }
 
-    func refreshTrust() { trusted = AXIsProcessTrusted() }
+    func refreshTrust() {
+        trusted = AXIsProcessTrusted()
+        if trusted && note == L("error.notTrusted") { note = "" }
+    }
 
     func refreshTarget() {
         refreshTrust()
@@ -320,7 +324,7 @@ private enum Key {
     }
 
     func changeSelected() {
-        guard canReplace, let row = selectedRow, changeTo != row.match.text else { return }
+        guard canChangeSelected, let row = selectedRow else { return }
         let replacement = changeTo
         let before = row.match.text
         // Continue at the row that takes this one's place among the same keyword.
@@ -420,6 +424,7 @@ private enum Key {
                 self.selectedGroup = nil
                 self.variantSource = (text, self.currentTarget)
                 self.hasCollected = true
+                if let first = self.visibleGroups.first { self.pickGroup(first.id) }
                 let shown = self.visibleGroups.count
                 self.note = shown == 0 ? L("status.noVariants") : String(format: L("status.variants"), shown)
             }

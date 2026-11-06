@@ -1,0 +1,24 @@
+Executable=/Users/takano/Git/macos-apps/TermTally/build/TermTally.app/Contents/MacOS/TermTally
+Identifier=jp.dtp-transit.termtally
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=4380 flags=0x0(none) hashes=130+3 location=embedded
+VersionPlatform=1
+VersionMin=851968
+VersionSDK=1769984
+Hash type=sha256 size=32
+CandidateCDHash sha256=24f08fadf5bf34e03a6be7bab2d7111e22f33613
+CandidateCDHashFull sha256=24f08fadf5bf34e03a6be7bab2d7111e22f336134b78c5e17afb47d1394ffcc1
+Hash choices=sha256
+CMSDigest=24f08fadf5bf34e03a6be7bab2d7111e22f336134b78c5e17afb47d1394ffcc1
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=868352
+Executable Segment flags=0x1
+Page size=16384
+CDHash=24f08fadf5bf34e03a6be7bab2d7111e22f33613
+Signature size=4788
+Authority=(unavailable)
+Info.plist=not bound
+TeamIdentifier=PL9S9PXX96
+Sealed Resources version=2 rules=13 files=16
+Internal requirements count=1 size=188

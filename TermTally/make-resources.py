@@ -5,7 +5,7 @@ root = Path(__file__).parent
 APP = 'TermTally'
 # Japanese, English, Simplified Chinese, Korean. All UI keys share one validated table.
 rows = '''
-heading|語句の件数を数えて表記を統一|Count Terms and Unify Spelling|统计词语并统一写法|용어를 세고 표기를 통일
+heading|表記の揺れを統一|Unify Spelling Variants|统一写法差异|표기 차이를 통일
 subtitle|テキストエディットやGoogleドキュメントで開いている文書のすべての文字を対象に、該当箇所を一覧しながら表記の揺れを統一します。|Searches all the text of the document open in TextEdit or Google Docs, lists the matches, and unifies spelling variants.|以“文本编辑”或 Google 文档中打开的文稿全部文字为对象，列出匹配位置并统一写法差异。|텍스트 편집기나 Google 문서에서 연 문서의 모든 글자를 대상으로, 해당 위치를 나열하며 표기 차이를 통일합니다.
 aboutDetail|語句の件数を数え、表記の揺れを統一します。サポート：同梱のREADME.md|Counts terms and unifies spelling variants. Support: bundled README.md|统计词语并统一写法差异。支持：内置的 README.md|용어를 세고 표기 차이를 통일합니다. 지원: 포함된 README.md
 sharing.note|検索のオプションと一覧の表示、該当文字の色、ウインドウを手前に表示する設定を同期します。語句は同期しません。|Syncs the search options, the list display, the match color and keeping the window on top. Terms are not synced.|同步搜索选项、列表显示、匹配文字颜色以及窗口保持在最前的设置。词语不同步。|검색 옵션, 목록 표시, 해당 글자 색, 윈도우를 항상 위에 두는 설정을 동기화합니다. 용어는 동기화하지 않습니다.
@@ -17,7 +17,7 @@ matchInRedDetail|該当箇所の一覧で、見つかった文字を選んだ色
 alwaysOnTop|ウインドウをほかのアプリより手前に表示する|Keep the window in front of other apps|窗口保持在其他应用之前|윈도우를 다른 앱보다 앞에 표시
 alwaysOnTopDetail|対象の文書を見ながら操作できるよう、初期値はオンです。オフにすると普通のウインドウになります。|On by default, so you can work while looking at the document. When off, it is an ordinary window.|默认打开，以便一边查看文稿一边操作。关闭后是普通窗口。|대상 문서를 보면서 작업할 수 있도록 기본으로 켜져 있습니다. 끄면 일반 윈도우가 됩니다.
 panel.keywords|語句（◉＝統一先）|Terms (◉ = Unify Target)|词语（◉＝统一目标）|용어(◉=통일 대상)
-panel.target|対象|Document|对象|대상
+panel.target|対象のアプリ|Target App|目标应用|대상 앱
 panel.options|オプション|Options|选项|옵션
 panel.matches|該当箇所|Matches|匹配位置|해당 위치
 field.total|合計 :|Total:|合计：|합계:

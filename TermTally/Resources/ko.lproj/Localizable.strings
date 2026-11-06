@@ -1,4 +1,4 @@
-"heading" = "용어를 세고 표기를 통일";
+"heading" = "표기 차이를 통일";
 "subtitle" = "텍스트 편집기나 Google 문서에서 연 문서의 모든 글자를 대상으로, 해당 위치를 나열하며 표기 차이를 통일합니다.";
 "aboutDetail" = "용어를 세고 표기 차이를 통일합니다. 지원: 포함된 README.md";
 "sharing.note" = "검색 옵션, 목록 표시, 해당 글자 색, 윈도우를 항상 위에 두는 설정을 동기화합니다. 용어는 동기화하지 않습니다.";
@@ -10,7 +10,7 @@
 "alwaysOnTop" = "윈도우를 다른 앱보다 앞에 표시";
 "alwaysOnTopDetail" = "대상 문서를 보면서 작업할 수 있도록 기본으로 켜져 있습니다. 끄면 일반 윈도우가 됩니다.";
 "panel.keywords" = "용어(◉=통일 대상)";
-"panel.target" = "대상";
+"panel.target" = "대상 앱";
 "panel.options" = "옵션";
 "panel.matches" = "해당 위치";
 "field.total" = "합계:";

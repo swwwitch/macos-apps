@@ -1,4 +1,4 @@
-"heading" = "Count Terms and Unify Spelling";
+"heading" = "Unify Spelling Variants";
 "subtitle" = "Searches all the text of the document open in TextEdit or Google Docs, lists the matches, and unifies spelling variants.";
 "aboutDetail" = "Counts terms and unifies spelling variants. Support: bundled README.md";
 "sharing.note" = "Syncs the search options, the list display, the match color and keeping the window on top. Terms are not synced.";
@@ -10,7 +10,7 @@
 "alwaysOnTop" = "Keep the window in front of other apps";
 "alwaysOnTopDetail" = "On by default, so you can work while looking at the document. When off, it is an ordinary window.";
 "panel.keywords" = "Terms (◉ = Unify Target)";
-"panel.target" = "Document";
+"panel.target" = "Target App";
 "panel.options" = "Options";
 "panel.matches" = "Matches";
 "field.total" = "Total:";

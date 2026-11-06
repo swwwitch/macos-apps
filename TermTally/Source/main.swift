@@ -47,7 +47,7 @@ import Carbon
         AccessibilityText.neededOverride = ["テキストエディットなどの本文を読み書きし、Googleドキュメントへキー操作を送るために必要です。", "Needed to read and change the text of TextEdit and similar apps, and to send keystrokes to Google Docs.", "用于读取和更改“文本编辑”等应用的正文，并向 Google 文档发送按键。", "텍스트 편집기 등의 본문을 읽고 바꾸고, Google 문서에 키 입력을 보내는 데 필요합니다."]
         SettingsSync.shared.onImport = { [weak self] in self?.model.reloadSharedSettings(); self?.applyWindowLevel() }
         SettingsSync.shared.start(.init(keys: Set(AppModel.sharedKeys + ["alwaysOnTop", "matchInRed", "matchColor"]), note: L("sharing.note"), perMac: L("sharing.perMac")))
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1240, height: 720), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 920, height: 580), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "TermTally"; window.titleVisibility = .hidden
         // A plain hosting view: the list would otherwise grow the window to fit every row.
         let host = NSHostingView(rootView: MainView(model: model, close: { [weak self] in self?.window.performClose(nil) }))
@@ -55,7 +55,11 @@ import Carbon
         window.contentView = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
-        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 1110, height: 640)
+        window.setFrameAutosaveName("MainWindow"); window.contentMinSize = NSSize(width: 800, height: 530)
+        if !UserDefaults.standard.bool(forKey: "compactLayoutV2") {
+            window.setContentSize(NSSize(width: 920, height: 580))
+            UserDefaults.standard.set(true, forKey: "compactLayoutV2")
+        }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         launcher.keys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         launcher.register()

@@ -1,4 +1,4 @@
-"heading" = "统计词语并统一写法";
+"heading" = "统一写法差异";
 "subtitle" = "以“文本编辑”或 Google 文档中打开的文稿全部文字为对象，列出匹配位置并统一写法差异。";
 "aboutDetail" = "统计词语并统一写法差异。支持：内置的 README.md";
 "sharing.note" = "同步搜索选项、列表显示、匹配文字颜色以及窗口保持在最前的设置。词语不同步。";
@@ -10,7 +10,7 @@
 "alwaysOnTop" = "窗口保持在其他应用之前";
 "alwaysOnTopDetail" = "默认打开，以便一边查看文稿一边操作。关闭后是普通窗口。";
 "panel.keywords" = "词语（◉＝统一目标）";
-"panel.target" = "对象";
+"panel.target" = "目标应用";
 "panel.options" = "选项";
 "panel.matches" = "匹配位置";
 "field.total" = "合计：";
