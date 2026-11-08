@@ -1570,3 +1570,13 @@ SHA-256: 7a3b23dbf14d5ab933736f602285f58831605d5b482430f4d2991fe9227086fa
 開発Mac現物版・物理キー操作は未確認。GitHub公開版は今回未確認、Release/note更新は未実施（対象外）、公開DL再検証も未実施。公開完了と混同しない。
 
 - VectorMate86 公証/両配置/起動/設定保持/個別repo同期確認 2026-11-02T06:31:34.872036+09:00。実Illustrator適用のユーザー回答待ち。Workでブラウザー操作無効のため公開/note/Projects未完了。証跡 /Users/takano/Git/macos-apps/Shared/ReleasePreparation/20261102-VectorMate86-062353/REPORT.md。全体完了にしない。
+
+## NotMyType両版：TypefaceSamplerのウエイト判定更新を反映（2026-11-08受付）
+
+- 要望：更新した `/Users/takano/Git/ai-scripts/jsx/fonts/TypefaceSampler.jsx` のフォントウエイト判定をアプリにも反映。元チャット：01a17147-6826-7911-8e42-cc45a77f2daf。通常版・Lite版の共通並べ替えを対象とする。
+- 参照確認：TypefaceSampler最終変更コミット `f69e6330d2a57518f56b82fffe6671e1cd2c6dea`（v1.4.13）、ファイルSHA-256 `6e13ded61d46e173490335ada947dace45aa38e1494d98cc39e8f119f5db28c6`。同ファイルに未コミット差分なし。両版FontWeightOrder.swiftは同一で、確定済み41984477の実装とも一致する。JSXは参照のみで変更しない。
+- 反映差分：WEIGHT_GROUPSの略称・多言語別名（semilight/demilight、rg、med、dm、hv、中国語・韓国語・ヘブライ語等）、全角英数字・全角空白の正規化、CamelCaseの分割と幅の複合語の保護、WIDTH_COMPOUND_PATTERNのwide追加、先頭ゼロ付き複数桁を数値ウエイトとしない判定、FrutigerのUltra Light表記の補正。
+- ファミリー固有の優先判定：YoOne／YoOrganicのUt・Bk・Ft、芯・鉛筆のH・F・HB・B・2B、ML／MoolongチョコレートのSemiMelt・Melt、OthoroのBook。斜体語を除いたスタイル名全体で照合し、一般の略称判定や数値判定より優先する。
+- 実装範囲：両版SourcesのFontWeightOrder.swiftへ同じ判定を移植。中央一覧のファミリー内書体・ファイル順とプレビュー内書体順へ既存呼出し経由で適用。同点のPostScript名順、TTC内最小スコア、キャッシュを保持。JSXの5段階フィルターや描画UIの新設は今回の並べ替え移植と分ける。
+- 検証予定：JSXのgetFontSortScoreとSwiftのスコア・並び順を共通ケースで比較。追加語、全角／CamelCase、幅＋斜体、先頭ゼロ、4ファミリー固有規則、既存FuturaPT／HelveticaNeue／Tazugane／UniversNextPro／Frutiger特例、同点・複数書体ファイルを回帰確認。両版の履歴も更新する。
+- 状態：差分調査・受付済み、アプリ未実装・未ビルド。AGENTS.mdの開始条件に従い次回「ビルドを更新」または04:00処理で着手。開始時に最新GitHub／配布版と担当を再照合し、既存108／27以降の変更を戻さない。既存の未コミット変更は保持。
