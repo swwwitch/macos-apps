@@ -18,6 +18,15 @@ let items = [folder("b", "/tmp/b", days: 3), folder("A", "/tmp/a", days: 1), sep
              folder("item10", "/z", days: 5), folder("item2", "/y", days: 2), folder("item1", "/x", days: 9), separatorB, folder("only", "/o", days: 0)]
 let names = { (list: [FavoriteItem]) in list.map { $0.isSeparator ? "|" : $0.name } }
 
+// Usage display crosses categories without changing stored data.
+let originalFingerprint = Favorites.fingerprint(items)
+let ranked = Favorites.usageDisplay(items, usage: [FolderKey.of("/o"): 9, FolderKey.of("/z"): 4, FolderKey.of("/tmp/a"): 4])
+check(names(ranked) == ["only", "A", "item10", "b", "item2", "item1"], "usage display ranks globally, ties and zero counts keep source order")
+check(ranked.map(\.id).count == Set(ranked.map(\.id)).count && ranked.count == 6, "usage display omits separators and retains each favorite")
+check(Favorites.fingerprint(items) == originalFingerprint, "usage display preserves saved order and category membership")
+check(Favorites.usageDisplay([], usage: [:]).isEmpty && Favorites.usageDisplay([separatorA], usage: [:]).isEmpty, "empty usage display")
+check(names(Favorites.usageDisplay(items, usage: [:])) == ["b", "A", "item10", "item2", "item1", "only"], "reset counts restores original relative order")
+
 // Categories
 let categories = Favorites.categories(items)
 check(categories.map(\.key) == ["top", "1000", "2000"], "categories are keyed top + separator dates")

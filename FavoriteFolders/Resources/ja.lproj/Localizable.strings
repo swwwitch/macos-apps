@@ -71,6 +71,8 @@
 "clearSearch" = "検索を消去";
 "findMenu" = "検索";
 "inDropbox" = "Dropbox内";
+"categoryDisplay" = "カテゴリ表示に戻す";
+"usageDisplayDetail" = "カテゴリをまとめて使用回数順に表示しています。保存する並び順・カテゴリは変更しません。";
 "sort.mostUsed" = "よく使う順";
 "noteEdit" = "メモを編集…";
 "noteFor" = "「%@」のメモ";

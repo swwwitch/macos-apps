@@ -71,6 +71,8 @@
 "clearSearch" = "검색 지우기";
 "findMenu" = "찾기";
 "inDropbox" = "Dropbox 안";
+"categoryDisplay" = "카테고리 표시로 돌아가기";
+"usageDisplayDetail" = "모든 카테고리를 사용 횟수순으로 표시합니다. 저장 순서와 카테고리는 변경하지 않습니다.";
 "sort.mostUsed" = "많이 쓴 순";
 "noteEdit" = "메모 편집…";
 "noteFor" = "‘%@’의 메모";

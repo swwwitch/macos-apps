@@ -10,6 +10,13 @@ import SwiftUI
     @Published var status = ""
     /// Search text: shows only matching favorites (name or path). Dragging is off while searching.
     @Published var query = ""
+    @Published var showsUsageOrder = false
+    var displayItems: [FavoriteItem] {
+        let displayed = showsUsageOrder ? Favorites.usageDisplay(items, usage: usageCounts) : items
+        return isSearching ? displayed.filter { $0.matches(query, note: note(for: $0)) } : displayed
+    }
+    func showCategories() { showsUsageOrder = false; status = "" }
+
     /// Bumped by ⌘F to move focus to the search field.
     @Published var searchFocusRequest = 0
     var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -232,6 +239,13 @@ import SwiftUI
         }.map(\.key))
     }
     func sort(_ order: SortOrder) {
+        if order == .mostUsed {
+            showsUsageOrder = true
+            selection = selection.intersection(Set(items.filter { !$0.isSeparator }.map(\.id)))
+            status = L("usageDisplayDetail")
+            return
+        }
+        showsUsageOrder = false
         let keys = selection.isEmpty ? nil : selectedCategoryKeys
         apply(Favorites.sorted(items, by: order, only: keys, usage: usageCounts), L("sortAction"))
         status = keys == nil ? String(format: L("sortedAll"), L("sort.\(order.rawValue)")) : String(format: L("sortedSelected"), L("sort.\(order.rawValue)"), keys!.count)
@@ -614,8 +628,11 @@ struct SortMenu: View {
     var body: some View {
         Menu {
             Section(model.selection.isEmpty ? L("sortScopeAll") : L("sortScopeSelected")) {
-                ForEach(SortOrder.allCases, id: \.self) { order in Button(L("sort.\(order.rawValue)")) { model.sort(order) } }
+                ForEach(SortOrder.allCases.filter { $0 != .mostUsed }, id: \.self) { order in Button(L("sort.\(order.rawValue)")) { model.sort(order) } }
             }
+            Divider()
+            Button(L("sort.mostUsed")) { model.sort(.mostUsed) }
+            Button(L("categoryDisplay")) { model.showCategories() }.disabled(!model.showsUsageOrder)
         } label: { Label(L("sortMenu"), systemImage: "arrow.up.arrow.down") }
         .fixedSize().disabled(model.items.isEmpty || model.busy)
     }
@@ -661,8 +678,8 @@ struct MainView: View {
                 Label(L("dfxNotFound"), systemImage: "exclamationmark.triangle").font(.callout).foregroundColor(.orange).fixedSize(horizontal: false, vertical: true)
             }
             List(selection: $model.selection) {
-                if model.isSearching {
-                    ForEach(model.items.filter { $0.matches(model.query, note: model.note(for: $0)) }) { item in FavoriteRow(model: model, item: item).tag(item.id) }
+                if model.isSearching || model.showsUsageOrder {
+                    ForEach(model.displayItems) { item in FavoriteRow(model: model, item: item).tag(item.id) }
                 } else {
                     if let first = model.categories.first { CategoryHeader(model: model, category: first).headerNotSelectable() }
                     ForEach(model.items) { item in
@@ -889,6 +906,7 @@ struct SettingsView: View {
             let hosting = NSHostingView(rootView: SettingsView(model: model)); hosting.sizingOptions = [.minSize]
             settings!.title = L("settingsWindow"); settings!.contentView = hosting; settings!.contentMinSize = NSSize(width: 560, height: 520); settings!.isReleasedWhenClosed = false; settings!.center()
         }
+        if settings!.isMiniaturized { settings!.deminiaturize(nil) }
         settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
     @objc func showHelp() {

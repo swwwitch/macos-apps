@@ -134,6 +134,15 @@ enum Favorites {
         return result
     }
 
+    /// Display-only ranking. Never changes the stored category membership or separators.
+    static func usageDisplay(_ items: [FavoriteItem], usage: [String: Int]) -> [FavoriteItem] {
+        items.enumerated().filter { !$0.element.isSeparator }.sorted { a, b in
+            let left = usage[FolderKey.of(a.element.path), default: 0]
+            let right = usage[FolderKey.of(b.element.path), default: 0]
+            return left == right ? a.offset < b.offset : left > right
+        }.map(\.element)
+    }
+
     /// Sorts the favorites inside each category (or only the categories listed in `only`). Separators stay where they are.
     /// The sort is stable, so equal names keep their current order.
     static func sorted(_ items: [FavoriteItem], by order: SortOrder, only keys: Set<String>? = nil, usage: [String: Int] = [:]) -> [FavoriteItem] {

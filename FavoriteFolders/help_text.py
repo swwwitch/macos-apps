@@ -1,6 +1,7 @@
 # FavoriteFolders help (markup rendered by Shared/AppStandards/HelpDocument.swift). Keep the 4 languages parallel.
 HELP = {
  "ja": """## 基本操作
+［よく使う順］はカテゴリの見出し・区切りを隠し、全件を使用回数の多い順に表示します。同数なら元の順序を保ち、検索にも適用します。保存する順序・カテゴリは変更せず、Default Folder Xの終了も不要です。この表示中はドラッグ並べ替えができません。［カテゴリ表示に戻す］で元の表示へ戻ります。
 FavoriteFoldersは、Default Folder X のお気に入り（Favorites.plist）を読み込み、並べ替えや区切り線によるカテゴリ分けをして書き戻します。
 - 並べ替え：［並べ替え］メニューから名前順・名前の逆順・場所（パス）順・追加日の新しい順／古い順を選びます。何も選択していなければすべてのカテゴリの中で、項目を選択していればその項目があるカテゴリの中だけで並べ替えます。区切り線の位置は変わりません。
 - 検索：上部の検索窓（⌘F）に入力すると、名前かパスに含むお気に入りだけを表示します。空白で区切ると、すべての語を含むものに絞ります。Esc か ⓧ で消去します。検索中はドラッグでの並べ替えはできません（並べ替えメニューや移動は使えます）。
@@ -76,6 +77,7 @@ FavoriteFoldersを未起動のときから呼び出すには、設定の「ア�
 - ウインドウが見つからない：DockのFavoriteFoldersをクリックするか、Finderからもう一度開きます。
 """,
  "en": """## Basics
+Most Used First hides category headings and separators and ranks all favorites by use count. Ties keep their original order, including during search. Stored order and categories are unchanged; Default Folder X need not quit. Drag reordering is unavailable in this view. Choose Return to Categories to restore the original view.
 FavoriteFolders reads the Default Folder X favorites (Favorites.plist), lets you sort them and group them into categories with separators, and writes them back.
 - Sort: choose By Name, By Name Descending, By Location (Path), Newest Added First or Oldest Added First from the Sort menu. With nothing selected, every category is sorted; with items selected, only their categories are. Separators stay where they are.
 - Search: type in the search field at the top (⌘F) to show only favorites whose name or path contains the text. Separate words with spaces to require all of them. Esc or ⓧ clears it. Dragging is off while searching (the Sort menu and moving still work).
@@ -151,6 +153,7 @@ With “Keep running after closing the window” on, FavoriteFolders keeps runni
 - The window is gone: click FavoriteFolders in the Dock, or open it again from Finder.
 """,
  "zh-Hans": """## 基本操作
+“最常用的在前”隐藏类别标题和分隔线，按使用次数显示所有收藏。次数相同时保持原顺序，搜索时也保持此顺序。不更改保存的顺序和类别，无需退出 Default Folder X。此视图不支持拖动排序。选择“返回类别视图”恢复原显示。
 FavoriteFolders 读取 Default Folder X 的个人收藏（Favorites.plist），可排序并用分隔线分成类别，然后写回。
 - 排序：从“排序”菜单选择按名称、按名称倒序、按位置（路径）、最近添加的在前或最早添加的在前。未选择任何项目时在每个类别内排序；选择项目时只在其所在类别内排序。分隔线位置不变。
 - 搜索：在顶部的搜索栏（⌘F）中输入，只显示名称或路径包含该文本的个人收藏。用空格分隔多个词时须全部包含。按 Esc 或 ⓧ 清除。搜索时无法拖移排序（排序菜单和移动仍可用）。
@@ -226,6 +229,7 @@ Default Folder X 设为始终按名称排序时，此处设置的顺序不会反
 - 找不到窗口：点击程序坞中的 FavoriteFolders，或从访达再次打开。
 """,
  "ko": """## 기본 조작
+많이 쓴 순은 카테고리 제목과 구분선을 숨기고 모든 즐겨찾기를 사용 횟수순으로 표시합니다. 동률이면 원래 순서를 유지하며 검색에도 적용됩니다. 저장 순서와 카테고리는 바뀌지 않고 Default Folder X를 종료할 필요도 없습니다. 이 보기에서는 드래그 정렬을 사용할 수 없습니다. 카테고리 표시로 돌아가기를 선택하면 원래 보기로 돌아갑니다.
 FavoriteFolders는 Default Folder X 즐겨찾기(Favorites.plist)를 읽어 정렬하고 구분선으로 카테고리를 나눈 뒤 다시 기록합니다.
 - 정렬: [정렬] 메뉴에서 이름순, 이름 역순, 위치(경로)순, 최근 추가순, 오래된 추가순을 선택합니다. 아무것도 선택하지 않으면 모든 카테고리 안에서, 항목을 선택하면 그 항목이 있는 카테고리 안에서만 정렬합니다. 구분선 위치는 바뀌지 않습니다.
 - 검색: 위쪽 검색란(⌘F)에 입력하면 이름이나 경로에 포함된 즐겨찾기만 표시합니다. 공백으로 구분하면 모든 단어를 포함하는 것만 남깁니다. Esc 또는 ⓧ로 지웁니다. 검색 중에는 드래그로 정렬할 수 없습니다(정렬 메뉴와 이동은 사용 가능).

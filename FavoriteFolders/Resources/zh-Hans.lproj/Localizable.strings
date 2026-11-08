@@ -71,6 +71,8 @@
 "clearSearch" = "清除搜索";
 "findMenu" = "查找";
 "inDropbox" = "在 Dropbox 中";
+"categoryDisplay" = "返回类别视图";
+"usageDisplayDetail" = "按使用次数显示所有类别，不更改保存的顺序和类别。";
 "sort.mostUsed" = "最常用的在前";
 "noteEdit" = "编辑备注…";
 "noteFor" = "“%@”的备注";

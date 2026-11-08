@@ -32,7 +32,7 @@
 | B21 | 対象外アプリの設定・処理抑制・標準キー操作の保持 | 適用外 | 他アプリの文字・操作に作用しない（Default Folder X の設定ファイルだけを扱う） |
 | B22 | 手動起動は表示・ログイン自動起動は非表示 | 実装済み・実機未確認 | StartupWindow |
 | B23 | 開き直しと⌘Tab・⌘0 | 実装済み・実機未確認 | applicationShouldHandleReopen、⌘0 |
-| B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | contentMinSize 560×520、SettingsTabs（タブ記憶） |
+| B24 | 設定ウインドウのふるまい | 実装済み・実機未確認 | contentMinSize 560×520、SettingsTabs（タブ記憶）。1.4.0（16）で再表示時の最小化復元を追加。メイン・設定とも通常レベル。前面表示とクリック往復は実機未確認、常に手前の設定はなし。 |
 | B25 | アプリ情報と目印 | 実装済み・実機未確認 | AboutView、Info.plist の SWNoteArticleURL（まとめ）・NSHumanReadableCopyright・SWAppFamily |
 | B26 | 証明書での署名 | 実装済み | build.sh でチーム証明書（301A41C0…）署名 |
 | B27 | 取消と失敗の伝え方 | 実装済み・実機未確認 | 確認ダイアログのEsc、保存できないときはメニュー項目を無効化、理由は状態欄 |

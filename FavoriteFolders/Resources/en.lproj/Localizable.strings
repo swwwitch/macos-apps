@@ -71,6 +71,8 @@
 "clearSearch" = "Clear Search";
 "findMenu" = "Find";
 "inDropbox" = "In Dropbox";
+"categoryDisplay" = "Return to Categories";
+"usageDisplayDetail" = "Showing all categories by use count. Saved order and categories are unchanged.";
 "sort.mostUsed" = "Most Used First";
 "noteEdit" = "Edit Note…";
 "noteFor" = "Note for “%@”";

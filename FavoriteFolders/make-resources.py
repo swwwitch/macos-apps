@@ -75,6 +75,8 @@ searchCount|%d件|%d found|%d 项|%d개
 clearSearch|検索を消去|Clear Search|清除搜索|검색 지우기
 findMenu|検索|Find|查找|찾기
 inDropbox|Dropbox内|In Dropbox|在 Dropbox 中|Dropbox 안
+categoryDisplay|カテゴリ表示に戻す|Return to Categories|返回类别视图|카테고리 표시로 돌아가기
+usageDisplayDetail|カテゴリをまとめて使用回数順に表示しています。保存する並び順・カテゴリは変更しません。|Showing all categories by use count. Saved order and categories are unchanged.|按使用次数显示所有类别，不更改保存的顺序和类别。|모든 카테고리를 사용 횟수순으로 표시합니다. 저장 순서와 카테고리는 변경하지 않습니다.
 sort.mostUsed|よく使う順|Most Used First|最常用的在前|많이 쓴 순
 noteEdit|メモを編集…|Edit Note…|编辑备注…|메모 편집…
 noteFor|「%@」のメモ|Note for “%@”|“%@”的备注|‘%@’의 메모

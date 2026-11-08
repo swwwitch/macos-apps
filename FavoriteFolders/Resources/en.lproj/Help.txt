@@ -1,4 +1,5 @@
 ## Basics
+Most Used First hides category headings and separators and ranks all favorites by use count. Ties keep their original order, including during search. Stored order and categories are unchanged; Default Folder X need not quit. Drag reordering is unavailable in this view. Choose Return to Categories to restore the original view.
 FavoriteFolders reads the Default Folder X favorites (Favorites.plist), lets you sort them and group them into categories with separators, and writes them back.
 - Sort: choose By Name, By Name Descending, By Location (Path), Newest Added First or Oldest Added First from the Sort menu. With nothing selected, every category is sorted; with items selected, only their categories are. Separators stay where they are.
 - Search: type in the search field at the top (⌘F) to show only favorites whose name or path contains the text. Separate words with spaces to require all of them. Esc or ⓧ clears it. Dragging is off while searching (the Sort menu and moving still work).
