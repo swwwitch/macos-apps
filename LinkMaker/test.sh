@@ -9,5 +9,7 @@ xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/LaunchPolicy.swif
 "$STAGING/launch-tests"
 xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/HotKey.swift Sources/HotkeyRecorder.swift Sources/StartupWindow.swift Sources/SettingsSection.swift Sources/ShortcutCombo.swift Tests/ShortcutTests.swift -o "$STAGING/shortcut-tests"
 "$STAGING/shortcut-tests"
+xcrun swiftc -module-cache-path "$STAGING/ModuleCache" Sources/Browser.swift Tests/BrowserTests.swift -o "$STAGING/browser-tests"
+"$STAGING/browser-tests"
 python3 Tests/check_resources.py
 python3 Tests/check_km_macro.py

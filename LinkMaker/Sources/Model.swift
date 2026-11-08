@@ -93,7 +93,7 @@ final class Model: ObservableObject {
             defaults.set(true, forKey: "migratedSelectionAskKeys")
         }
         if !defaults.bool(forKey: "migratedReopenAskKeys") {
-            for (name, signature) in [("forceReload", "15:2816"), ("translate", "17:2816"), ("privateWindow", "35:2816"), ("newWindow", "45:4352")] {
+            for (name, signature) in [("translate", "17:2816"), ("privateWindow", "35:2816"), ("newWindow", "45:4352")] {
                 if saved[name] == nil || saved[name]?.signature == signature {
                     saved[name] = nil
                     enabled[name] = false
@@ -102,6 +102,15 @@ final class Model: ObservableObject {
             defaults.set(try? JSONEncoder().encode(saved), forKey: "shortcuts")
             defaults.set(enabled, forKey: "actionEnabled")
             defaults.set(true, forKey: "migratedReopenAskKeys")
+        }
+        // Adopt the unified reload key only when the former default was saved.
+        // Explicit off/customized settings remain the user's choice.
+        if !defaults.bool(forKey: "migratedUnifiedReloadKey") {
+            if saved["forceReload"]?.signature == "15:2816" {
+                saved["forceReload"] = LinkAction.forceReload.defaultShortcut
+                defaults.set(try? JSONEncoder().encode(saved), forKey: "shortcuts")
+            }
+            defaults.set(true, forKey: "migratedUnifiedReloadKey")
         }
         // Migrate only the former default; preserve custom keys and enabled/double-tap settings.
         if !defaults.bool(forKey: "migratedCloseOtherTabsKey") {
@@ -228,7 +237,7 @@ final class Model: ObservableObject {
     /// The functions a key can run with this app in front: browser functions in an enabled browser,
     /// 「選択した文字列から」 in any app that is not excluded.
     func applies(_ action: LinkAction, front: NSRunningApplication?) -> Bool {
-        action.isGlobal ? !isExcluded(front) : isEnabledBrowser(front)
+        !isExcluded(front) && (action.isGlobal || isEnabledBrowser(front))
     }
 
     /// A key with a double-tap function waits this long for the second press before running its single-press function.
@@ -393,6 +402,7 @@ final class Model: ObservableObject {
         }
         if action.needsPage || action.group == .tabs {
             guard let app = target, let browser = Browser.find(app.bundleIdentifier) else { report(.failure(L("fail.noBrowser"))); return }
+            guard !isExcluded(app) else { report(.failure(String(format: L("fail.excluded"), app.localizedName ?? ""))); return }
             guard AccessibilitySection.isTrusted || action.group == .tabs else { report(.failure(AccessibilityText.text("blocked"))); return }
             busy = true
             let run = { [weak self] in
@@ -400,7 +410,11 @@ final class Model: ObservableObject {
                 if fromHotkey, NSWorkspace.shared.frontmostApplication?.processIdentifier != app.processIdentifier {
                     self?.busy = false; self?.report(.failure(L("fail.target"))); return
                 }
-                runner.run(action, browser: browser, app: app) { outcome in self?.busy = false; self?.report(outcome) }
+                guard let self, !app.isTerminated, self.isEnabledBrowser(app), !self.isExcluded(app),
+                      NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier else {
+                    self?.busy = false; self?.report(.failure(L("fail.target"))); return
+                }
+                runner.run(action, browser: browser, app: app) { [weak self] outcome in self?.busy = false; self?.report(outcome) }
             }
             if front?.processIdentifier == app.processIdentifier { run() }
             else { app.activate(options: []); DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: run) }

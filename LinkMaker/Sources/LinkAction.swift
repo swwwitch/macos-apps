@@ -23,6 +23,7 @@ enum LinkAction: String, CaseIterable, Codable {
 
     case reopenAsk
     case selOpenAsk
+    case showReader
 
     enum Group: String, CaseIterable { case copy, tabs, file, open, reopen, clipboard, selection }
 
@@ -31,7 +32,7 @@ enum LinkAction: String, CaseIterable, Codable {
         case .copyAsk, .copyURL, .copyTitleLine, .copyTitleSpace, .copyMarkdown, .copyHTML, .copyAmazon, .copyAmazonAffiliate: return .copy
         case .tabsAsk, .closeOtherTabs: return .tabs
         case .weblocAsk, .qrAsk: return .file
-        case .reopenAsk, .reloadClean, .forceReload, .editMode, .translate, .newWindow, .privateWindow: return .open
+        case .reopenAsk, .reloadClean, .forceReload, .showReader, .editMode, .translate, .newWindow, .privateWindow: return .open
         case .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion: return .reopen
         case .openClipboardURLs, .searchClipboardLines: return .clipboard
         case .selOpenAsk, .selOpenDefault, .selOpenChoose, .selOpenAll: return .selection
@@ -52,7 +53,7 @@ enum LinkAction: String, CaseIterable, Codable {
         let all = allCases.filter { $0.group == group }
         switch group {
         case .file: return [.weblocAsk, .qrAsk]
-        case .open: return [.reloadClean, .reopenAsk, .forceReload, .translate, .newWindow, .privateWindow, .editMode]
+        case .open: return [.reloadClean, .reopenAsk, .forceReload, .showReader, .translate, .newWindow, .privateWindow, .editMode]
         case .selection: return [.selOpenAsk] + all.filter { $0 != .selOpenAsk }
         case .copy: return [.copyAsk] + all.filter { $0 != .copyAsk }
         default: return all
@@ -96,6 +97,7 @@ enum LinkAction: String, CaseIterable, Codable {
         case .qrAsk: return "qrcode"
         case .reopenAsk, .reloadClean: return "arrow.clockwise"
         case .forceReload: return "exclamationmark.arrow.circlepath"
+        case .showReader: return "doc.text"
         case .editMode: return "pencil"
         case .translate: return "translate"
         case .newWindow: return "macwindow.badge.plus"
@@ -129,7 +131,8 @@ enum LinkAction: String, CaseIterable, Codable {
         // ⌥G asks the format (the URL-only macro's key).
         case .tabsAsk: return .km(5, Self.opt, "G")
         case .reloadClean: return .km(15, Self.opt, "R")
-        case .forceReload: return nil
+        case .forceReload: return Shortcut.km(15, 768, "R")
+        case .showReader: return Shortcut.km(15, Self.optCmd, "R")
         case .editMode: return .km(14, Self.optCmd, "E")
         case .translate: return nil
         case .newWindow: return nil

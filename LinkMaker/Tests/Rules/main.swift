@@ -79,7 +79,7 @@ expect(LinkAction.selOpenDefault.number == 19 && LinkAction.selOpenAll.number ==
 
 expect(LinkAction.reopenAsk.defaultShortcut?.signature == "45:2048", "Option N opens reopen menu")
 expect(LinkAction.reopenModes == [.forceReload, .translate, .privateWindow, .newWindow, .openSafari, .openChrome, .openFirefox, .openEdge, .openNotion], "reopen menu order")
-expect(LinkAction.reopenModes.prefix(4).allSatisfy { $0.defaultShortcut == nil }, "individual reopen actions have no default keys")
+expect(LinkAction.reopenModes.dropFirst().prefix(3).allSatisfy { $0.defaultShortcut == nil }, "individual reopen actions have no default keys")
 
 expect(!LinkAction.openSafari.canOpenFromMenu(url: "https://example.com", sourceBundleID: "com.apple.Safari", installed: true), "same browser disabled")
 expect(!LinkAction.openChrome.canOpenFromMenu(url: "https://example.com", sourceBundleID: "com.apple.Safari", installed: false), "missing browser disabled")
@@ -90,3 +90,8 @@ for url in ["", "chrome://settings", "https://notion.so.example.com", "https://n
 for url in ["https://notion.so/page", "https://www.notion.so/page", "https://team.notion.site/page"] {
     expect(LinkAction.openNotion.canOpenFromMenu(url: url, sourceBundleID: "com.apple.Safari", installed: true), "Notion page available")
 }
+
+expect(LinkAction.forceReload.defaultShortcut?.signature == "15:768", "unified hard reload")
+expect(LinkAction.showReader.defaultShortcut?.signature == "15:2304", "unified reader")
+expect(LinkAction.showReader.number > LinkAction.selOpenAsk.number, "new reader keeps existing action IDs")
+expect(LinkAction.listed(.open).contains(.showReader), "reader available in palette and settings")

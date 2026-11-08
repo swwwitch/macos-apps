@@ -481,6 +481,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
             window.delegate = self; window.isReleasedWhenClosed = false; window.center(); window.setFrameAutosaveName("Preferences"); preferences = window
         }
         if let window = preferences, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
+        if preferences?.isMiniaturized == true { preferences?.deminiaturize(nil) }
         NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)
     }
     @objc func help() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();

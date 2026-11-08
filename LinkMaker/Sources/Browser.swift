@@ -69,6 +69,36 @@ enum BrowserBridge {
         return AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
     }
 
+    /// Invoke a browser menu command, never a similarly titled link in web content.
+    /// No fallback reload key: Safari uses Option-Command-R for a different operation.
+    static func showReader(pid: pid_t) -> Bool {
+        guard AccessibilitySection.isTrusted,
+              NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
+              let bar = element(AXUIElementCreateApplication(pid), kAXMenuBarAttribute) else { return false }
+        let titles: Set<String> = [
+            "リーダーを表示", "リーダー表示に切り替え", "リーダービューに切り替え", "リーダービューを開く",
+            "リーディング モード", "リーディングモード", "イマーシブ リーダーで開く",
+            "Show Reader", "Show Reader View", "Enter Reader View", "Reading mode", "Reading Mode", "Open in Immersive Reader",
+            "显示阅读器", "显示阅读器视图", "进入阅读模式", "阅读模式", "在沉浸式阅读器中打开",
+            "읽기 도구 보기", "읽기 모드 시작", "읽기 모드", "몰입형 리더에서 열기"
+        ]
+        var budget = 600
+        func find(_ node: AXUIElement, depth: Int) -> AXUIElement? {
+            budget -= 1
+            guard budget > 0, depth < 7 else { return nil }
+            if value(node, kAXRoleAttribute) as? String == kAXMenuItemRole,
+               titles.contains(value(node, kAXTitleAttribute) as? String ?? ""),
+               value(node, kAXEnabledAttribute) as? Bool == true { return node }
+            for child in value(node, kAXChildrenAttribute) as? [AXUIElement] ?? [] {
+                if let match = find(child, depth: depth + 1) { return match }
+            }
+            return nil
+        }
+        guard let item = find(bar, depth: 0),
+              NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return false }
+        return AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
+    }
+
     // MARK: Reading the page (Accessibility)
 
     /// Title and URL of the focused tab. URL from the web area (DocklessLauncher's method); the title from the web area,

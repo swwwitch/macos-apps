@@ -47,6 +47,10 @@ final class ActionRunner {
         if action == .closeOtherTabs {
             completion(closeOtherTabs(browser: browser, pid: pid)); return
         }
+        if action == .showReader {
+            completion(BrowserBridge.showReader(pid: pid) ? .silent : .failure(L("fail.reader")))
+            return
+        }
         if action == .forceReload {
             let (code, flags) = browser.forceReloadKey
             BrowserBridge.key(code, flags, to: pid)
