@@ -262,7 +262,6 @@ struct MainView: View {
                 }
                 VStack(alignment:.leading,spacing:4) { Text(L("heading")).font(.system(size:22,weight:.semibold)); Text(L("subtitle")).foregroundStyle(.secondary) }
                 Spacer()
-                Text("CARMA CHAMELEON").font(.system(size:10,weight:.semibold,design:.rounded)).tracking(2).foregroundStyle(.secondary)
             }
             HStack(alignment:.top,spacing:16) {
                 VStack(alignment:.leading,spacing:12) {
@@ -735,7 +734,9 @@ struct FormatSettingsView: View {
             // Resizable from the designed size upward; the hosting view reports only its minimum.
             let hosting = NSHostingView(rootView:SettingsView()); hosting.sizingOptions = [.minSize]
             settings!.contentView = hosting; settings!.contentMinSize = NSSize(width:620,height:640); settings!.isReleasedWhenClosed = false; settings!.center() }
-        settings!.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
+        NSApp.activate(ignoringOtherApps:true)
+        if settings!.isMiniaturized { settings!.deminiaturize(nil) }
+        settings!.makeKeyAndOrderFront(nil)
     }
     @objc func showHelp() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
         if helpWindow == nil {

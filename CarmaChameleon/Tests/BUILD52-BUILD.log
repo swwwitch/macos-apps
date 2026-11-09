@@ -1,0 +1,14 @@
+../Shared/AppStandards/StartupWindow.swift:131:23: warning: immutable value 'window' was never used; consider replacing with '_' or removing it [#NoUsage]
+129 |         override func viewDidMoveToWindow() {
+130 |             super.viewDidMoveToWindow()
+131 |             guard let window, !Self.applied else { return }
+    |                       `- warning: immutable value 'window' was never used; consider replacing with '_' or removing it [#NoUsage]
+132 |             Self.applied = true
+133 |             // SwiftUI may attach the view before the initial Apple event is delivered.
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+/private/tmp/CarmaChameleon-build.cjqmqw/CarmaChameleon.app/Contents/Frameworks/Sparkle.framework: replacing existing signature
+Updates unconfigured (no feed; no network checks): jp.local.PandocDesk
+/private/tmp/CarmaChameleon-build.cjqmqw/CarmaChameleon.app/Contents/Resources/bin/pandoc: replacing existing signature
+/private/tmp/CarmaChameleon-build.cjqmqw/CarmaChameleon.app: replacing existing signature
+Verified /private/tmp/CarmaChameleon-build.cjqmqw/CarmaChameleon.app; deployment skipped (NO_DEPLOY=1).

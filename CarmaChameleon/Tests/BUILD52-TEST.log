@@ -1,0 +1,203 @@
+Tests/main.swift:23:11: warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 21 |     check((try fm.attributesOfItem(atPath:output.path)[.size] as! NSNumber).intValue > 0,"nonempty \(format.id)")
+ 22 | }
+ 23 | check(try String(contentsOf:input) == original,"source remains intact")
+    |           `- warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+ 24 | // Tables: CSV / TSV via pandoc; XLSX via XLSXImporter (integers without ".0", dates as yyyy/MM/dd, formula results).
+ 25 | let fixtures = URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("Tests/Fixtures")
+
+Tests/main.swift:405:11: warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+403 | let word = root.appendingPathComponent("日本語 sample.docx")
+404 | let roundtrip = try ConversionRunner().convert(engine:engine,input:word,folder:root,options:options)
+405 | check(try String(contentsOf:roundtrip).contains("日本語タイトル"),"Japanese DOCX roundtrip")
+    |           `- warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+406 | do {
+407 |     // ラスター画像の「余白を削除」(YohakuTrimmer) と「影」(KageTrimmer): a 200×120 opaque window.
+
+Tests/main.swift:476:19: warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+474 |         let again = try runner.convert(engine:engine,input:input,folder:root,options:keynote)
+475 |         check(again.lastPathComponent == "日本語 sample (2).key","Keynote name collision numbered again")
+476 |         check(try String(contentsOf:input) == original,"source intact after Keynote export")
+    |                   `- warning: 'init(contentsOf:)' was deprecated in macOS 15: Use `init(contentsOf:encoding:)` instead [#DeprecatedDeclaration]
+477 |         let cancelled = ConversionRunner(); cancelled.keynoteBridge = bridge; cancelled.cancel()
+478 |         do { _ = try cancelled.convert(engine:engine,input:pdf,folder:root,options:keynote); check(false,"cancelled Keynote export writes nothing") }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+PASS: output plain
+PASS: nonempty plain
+PASS: output idml
+PASS: nonempty idml
+PASS: output html5
+PASS: nonempty html5
+PASS: output gfm
+PASS: nonempty gfm
+PASS: output pptx
+PASS: nonempty pptx
+PASS: output docx
+PASS: nonempty docx
+PASS: output epub3
+PASS: nonempty epub3
+PASS: output rtf
+PASS: nonempty rtf
+PASS: output latex
+PASS: nonempty latex
+PASS: output odt
+PASS: nonempty odt
+PASS: source remains intact
+PASS: sample.csv → Markdown table
+PASS: sample.tsv → Markdown table
+PASS: sample.xlsx → Markdown table
+PASS: xlsx numbers and formula results as shown in Excel
+PASS: xlsx dates from cell format
+PASS: xlsx sheet name as heading
+PASS: xlsx → Word
+PASS: xlsx → structured text with bordered table
+PASS: .ai → PDF keeps the artwork (not re-typeset)
+PASS: PDF-compatible .ai has no warning
+PASS: .ai without PDF compatibility is converted with a warning
+PASS: .ai → Markdown via the embedded PDF text
+PASS: naming: file + number
+PASS: naming: single image keeps the file name
+PASS: naming: number, padding, artboard name, sanitized
+PASS: naming: artboard name only
+PASS: naming: falls back to the number without a name
+PASS: range parsing
+PASS: invalid ranges rejected
+PASS: PDF → one PNG per page
+PASS: PNG at 144 ppi, transparent, resolution recorded
+PASS: PDF page range → JPEG on white, padded number
+PASS: Markdown → raster image is refused
+PASS: PDF → SVG is refused
+PASS: .ai (simple) → PNG from the embedded PDF
+PASS: .psd (simple) → PNG keeps pixels, resolution and transparency
+PASS: .psd (simple) → PDF at its physical size
+PASS: .psd → Markdown is refused
+PASS: PDF → PNG by width (300 px)
+PASS: several images grouped in a folder named after the source, by height
+PASS: a single image is not put in a folder
+PASS: PDF → JPEG
+PASS: PDF → HEIC
+PASS: PDF → AVIF
+PASS: JPEG → PNG upright, pixels and resolution kept
+PASS: image resized by width
+PASS: image → PDF at its physical size
+PASS: images combined into one PDF in order
+PASS: format compatibility by input
+PASS: SRT → CSV (quoted, handle at the first ": ", multi-line joined)
+PASS: SRT → TSV
+PASS: SRT → Excel (read back by XLSXImporter)
+PASS: SRT → Excel split every 2 rows (header on each sheet)
+PASS: SRT only to CSV / Excel
+PASS: Shift_JIS → UTF-16 LE with BOM
+PASS: UTF-8 (BOM) → UTF-16 BE without BOM, extension kept
+PASS: guessed Shift_JIS is noted
+PASS: EUC-JP detected, LF → CRLF
+PASS: kana marks joined, compatibility ideograph kept, CRLF → LF
+PASS: chosen input encoding overrides detection
+PASS: UTF-16 only from text files
+PASS: Windows symbols → full-width
+PASS: Windows symbols → _
+PASS: NFC: kana, Hangul, accents joined; compatibility ideograph kept
+PASS: normalization can be turned off
+PASS: control characters, leading spaces, trailing spaces and periods removed
+PASS: spaces kept / _ / -
+PASS: reserved device names
+PASS: unknown file type copied under a safe name, original kept
+PASS: safe name in the same folder: no copy, noted
+PASS: safe name copied to another folder
+PASS: only 「ファイル名のみ」 takes unknown file types
+PASS: machine-dependent characters, Windows forms and emoji (option)
+PASS: leading period kept / _ / removed
+PASS: names shortened, extension and whole characters kept
+PASS: NFD name copied beside the original as NFC
+PASS: NFD name renamed in place to NFC (APFS keeps the spelling of a direct rename)
+PASS: folder copied with safe names inside, original kept
+PASS: folder renamed in place with everything inside
+PASS: folders only for 「ファイル名のみ」
+PASS: long names shortened inside a folder
+PASS: long path noted
+PASS: real .ai → PDF without Illustrator private data
+PASS: structured text equals MarkdownToText output
+PASS: structured text keeps heading mark and bullet
+PASS: Word → structured text via pandoc gfm
+PASS: collision numbering
+PASS: existing output remains intact
+PASS: invalid input fails
+PASS: temporary output removed after failure
+PASS: prelaunch cancellation
+PASS: active cancellation
+PASS: cancel returns promptly
+PASS: cancel cleanup
+PASS: Japanese DOCX roundtrip
+PASS: one raster output
+PASS: raster: margins kept when 余白を削除 is off
+PASS: one raster output
+PASS: raster: 余白を削除 cuts white and gray margins
+PASS: one raster output
+PASS: raster: image without margins unchanged
+PASS: one raster output
+PASS: raster: shadow replaced by S (202×122 incl. 1 px fringe + 54)
+PASS: one raster output
+PASS: raster: 影なし removes the shadow
+PASS: one raster output
+PASS: raster: 影なし leaves an image without a shadow
+PASS: one raster output
+PASS: raster: L adds a shadow to an image without one
+PASS: one raster output
+PASS: raster: margins removed, then XS shadow added
+PASS: one raster output
+PASS: raster: JPEG gets the same processing
+PASS: raster: shadow source unchanged
+All conversion tests passed.
+PASS: managed Typst path selected
+PASS: unknown PDF engine rejected
+PASS: Typst produced PDF pages
+PASS: Japanese text survives PDF conversion
+PASS: PDF body retained
+PASS: stale managed path is ignored
+PASS: IDML heading
+PASS: IDML bold and XML escaping
+PASS: IDML designmap story order
+PASS: IDML table cell order
+PASS: IDML merged cell span
+PASS: IDML table has valid block nesting
+PASS: rejected invalid.idml
+PASS: rejected empty.idml
+PASS: IDML to Markdown end to end
+PASS: IDML to DOCX preserves table text
+PASS: IDML to Japanese PDF
+PASS: IDML original unchanged
+PASS: PDF text layer import
+PDF text backend: pdftotext
+PASS: PDF to plain text, available backend (reading)
+PASS: PDF to plain text, available backend (layout)
+PASS: PDF to plain text, available backend (raw)
+PASS: PDF to DOCX end to end
+PASS: PDF to IDML roundtrip
+CoreGraphics PDF has logged an error. Set environment variable "CG_PDF_VERBOSE" to learn more.
+PASS: create image-only test PDF
+PASS: Japanese/English scanned PDF OCR
+PASS: create locked PDF fixture
+PASS: protected PDF rejected
+PASS: PDF input cancellation
+PASS: multi-page IDML retains first and last paragraphs
+PASS: HTML minify reduces output size
+PASS: HTML preserves quoted attribute whitespace
+PASS: HTML preserves inline word separation
+PASS: HTML preserves code block whitespace
+PASS: HTML preserves JavaScript
+PASS: HTML preserves CSS
+PASS: HTML preserves inline word separation
+PASS: HTML preserves code block whitespace
+PASS: HTML preserves JavaScript
+PASS: HTML preserves CSS
+PASS: HTML beautify adds readable indentation
+PASS: HTML beautify is stable
+PASS: standard HTML remains unchanged
+PASS: HTML formatting choice reaches conversion output
+PASS: pandoc code whitespace survives both HTML modes
+PASS: localization key parity and literal UI keys
+PASS: sample.md [defaults]
+PASS: sample.md [paren-ascii-bracket-renumber]
+PASS: sample.md [text-nolinkbelow-marker-rules]
+PASS: sample.md [no-trims]

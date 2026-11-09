@@ -13,6 +13,10 @@ SwiftUI/AppKitによるpandocの非公式ネイティブGUI。Apple Silicon / ma
 サポート: この開発フォルダのREADMEおよびBASELINE-CHECKLIST。公開問い合わせ先は未設定。
 アプリの配信更新・Developer ID署名・公証は未設定。ローカル用は証明書（PL9S9PXX96）で署名。診断ログは保存しない。
 
+## 0.15.1 / build 52（2026-11-09）
+
+2026-11-09｜v0.15.1（build 52）｜通常版：主画面右上の装飾的なアプリ名を削除。設定再表示時に最小化を復元して前面へ表示。公証・配布は未実施。
+
 ## 0.1.1 / build 2
 
 環境設定にPDFエンジン（Typst）の有無・版・更新確認・SHA-256検証付きインストールを追加。保存先はユーザー領域の `Application Support/PandocDesk/PDFEngines`。管理者権限は不要。日本語PDFにはHiragino Sansを指定。導入後はTypstを選択し、既存TeX環境は変更しない。MacTeX公式ダウンロードへの導線とXeLaTeX/LuaLaTeX検出も追加。

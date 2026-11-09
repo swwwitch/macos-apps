@@ -1,5 +1,19 @@
 # リリースキュー
 
+## CarmaChameleon 右上のアプリ名表示削除・全アプリ共通ルール（2026-11-09受付）
+
+- 受付日：2026-11-09（JST）。元チャット：本チャット（CarmaChameleon、01a1bf3b-959b-7220-8f2b-9d44ac314901）。
+- 要望：添付画面右上の「CARMA CHAMELEON」を削除し、ほかのアプリにも同様の装飾的なアプリ名を入れない。
+- ソース確認：CarmaChameleon/Source/main.swift の MainView ヘッダー内の Text("CARMA CHAMELEON") が対象。左の現行アイコン・版表示・機能見出し・補足説明を保持する。
+- 共通仕様：AGENTS.md、BASELINE.md（B14補足）、CHECKLIST-TEMPLATE.mdへ禁止ルールと確認項目を記録。既存アプリは次回UI改修・ビルド時に確認し、更新停止中のアプリをこの要望のみで再開しない。
+- 状態：受付済み・共通ルール記録。アプリの実装・ビルド・配布は未実施。AGENTS.mdの開始条件（「ビルドを更新」または毎日04:00 Asia/Tokyo）で既存作業へ統合して着手する。
+- 受付担当：開発Mac MacBook-Pro-14-2024-sw。記録開始：2026-11-09 JST。ブランチ：codex/filesorter-screenshot-rename-20261101。参照HEAD：ea25a47e7d5e15b8fb1d5e1fa4672ab25ffea439。実装開始日時・対象SHA・版・buildは未確定。
+
+- 開発開始：2026-11-09T16:47:47.562522+09:00。ユーザー「ビルドを更新」により開始。開発Mac MacBook-Pro-14-2024-sw、codex/carmachameleon-header-20261109、基点ea25a47e7d5e15b8fb1d5e1fa4672ab25ffea439。通常版0.15.1（52）。右上ロゴ文字列削除とB24設定復元を実施。対象SHAはcommit時に確定。状態：実装・検証中。公証・配置なし。
+
+
+- 開発検証結果（2026-11-09）：通常版0.15.1（52）、arm64ビルド・チーム証明書署名deep/strict・既存テスト175 PASS行（PDF・4言語含む）成功。対象SHAは本記録を含むコミット。既存配布版が稼働中のため新版の起動・GUI検証は未実施。公証・配置・公開は未実施。詳細CarmaChameleon/Tests/BUILD-NOTES-20261109.md。状態：開発検証完了、commit/push後に公証Macで継続。
+
 ## 2026-11-04 LinkMaker：スーパーリロードとリーダー表示のホットキー統一
 
 - 開発検証結果（2026-11-09 JST）：通常版1.4.0（41）。arm64ビルド・証明書署名・回帰テスト・4言語194キー・ブラウザー別キー変換と未許可時の抑止テストPASS。稼働中の既存版を終了・置換せず、実機確認は公証Macへ引き継ぐ。詳細：LinkMaker/Tests/BUILD-NOTES-20261109.md。実装対象SHAはcommit/push後に通知。
