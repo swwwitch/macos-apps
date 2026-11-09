@@ -138,7 +138,16 @@ let doc2 = "前\n## 古い見出し\n後"
 expectFormat(applied(doc2, MarkdownFormat.setBlock(doc2, selection: NSRange(location: 4, length: 0), to: .heading(3))), "前\n### 古い見出し\n後", "### 古い見出し", "heading 3")
 expectFormat(applied(doc2, MarkdownFormat.setBlock(doc2, selection: NSRange(location: 4, length: 0), to: .paragraph)), "前\n古い見出し\n後", "古い見出し", "paragraph")
 let lst = "a\nb\n\nc"
-expectFormat(applied(lst, MarkdownFormat.setBlock(lst, selection: NSRange(location: 0, length: 6), to: .orderedList)), "1. a\n2. b\n\n3. c", "1. a\n2. b\n\n3. c", "ordered")
+expectFormat(applied(lst, MarkdownFormat.setBlock(lst, selection: NSRange(location: 0, length: 6), to: .orderedList)), "1. a\n2. b\n3. c", "1. a\n2. b\n3. c", "ordered")
+let spacedNumbers = "前\n\nalpha\n　 \t\nbeta\n\n後"
+expectFormat(applied(spacedNumbers, MarkdownFormat.setBlock(spacedNumbers, selection: (spacedNumbers as NSString).range(of: "alpha\n　 \t\nbeta"), to: .orderedList)), "前\n\n1. alpha\n2. beta\n\n後", "1. alpha\n2. beta", "ordered removes whitespace-only lines within selection")
+let japaneseBullets = "・持ち込まれた貴重品の破損・紛失等には責任を負いかねます。各自管理をお願いします。\n\n・お子様をお連れになる場合は目を離さないように十分注意お願いします。\n　 \t\n・忘れ物がないようご注意お願いします。"
+let japaneseExpected = "- 持ち込まれた貴重品の破損・紛失等には責任を負いかねます。各自管理をお願いします。\n- お子様をお連れになる場合は目を離さないように十分注意お願いします。\n- 忘れ物がないようご注意お願いします。"
+expectFormat(applied(japaneseBullets, MarkdownFormat.setBlock(japaneseBullets, selection: NSRange(location: 0, length: (japaneseBullets as NSString).length), to: .unorderedList)), japaneseExpected, japaneseExpected, "Japanese bullets and blank lines")
+let partialBullets = "前\n\n・ a\n\n・　b\n\n後"
+expectFormat(applied(partialBullets, MarkdownFormat.setBlock(partialBullets, selection: (partialBullets as NSString).range(of: "・ a\n\n・　b"), to: .unorderedList)), "前\n\n- a\n- b\n\n後", "- a\n- b", "bullets preserve outside selection")
+let emptyBullets = " \n　\n"
+expectFormat(applied(emptyBullets, MarkdownFormat.setBlock(emptyBullets, selection: NSRange(location: 0, length: (emptyBullets as NSString).length), to: .unorderedList)), "\n", "", "blank-only selection remains a paragraph boundary")
 let ul = "- a\n- b"
 expectFormat(applied(ul, MarkdownFormat.setBlock(ul, selection: NSRange(location: 0, length: 7), to: .unorderedList)), "a\nb", "a\nb", "unordered off")
 expectFormat(applied(ul, MarkdownFormat.setBlock(ul, selection: NSRange(location: 0, length: 7), to: .orderedList)), "1. a\n2. b", "1. a\n2. b", "unordered to ordered")

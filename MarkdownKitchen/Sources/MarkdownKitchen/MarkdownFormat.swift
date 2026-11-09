@@ -113,10 +113,16 @@ enum MarkdownFormat {
             let pattern = ordered ? #"^\s*\d{1,9}[.)][ \t]+"# : #"^\s*[-*+][ \t]+"#
             let all = !content.isEmpty && content.allSatisfy { $0.range(of: pattern, options: .regularExpression) != nil }
             var number = 0
+            // Both list styles compact blank (including whitespace-only) lines.
+            lines = content
             lines = lines.map { line in
                 guard !line.trimmingCharacters(in: .whitespaces).isEmpty else { return line }
                 // Any list marker (and a heading mark) gives way to the new one.
-                let body = stripHeading(String(line.drop(while: { $0.isWhitespace })).replacingOccurrences(of: #"^\s*([-*+]|\d{1,9}[.)])[ \t]+"#, with: "", options: .regularExpression))
+                var body = stripHeading(String(line.drop(while: { $0.isWhitespace })).replacingOccurrences(of: #"^\s*([-*+]|\d{1,9}[.)])[ \t]+"#, with: "", options: .regularExpression))
+                if !ordered {
+                    // A Japanese bullet is a marker, but middle dots inside prose are text.
+                    body = body.replacingOccurrences(of: #"^・[ \t　]*"#, with: "", options: .regularExpression)
+                }
                 if all { return body }
                 number += 1
                 return (ordered ? "\(number). " : "- ") + body
