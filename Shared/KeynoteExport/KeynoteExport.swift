@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import Carbon
 import PDFKit
 import SwiftUI
@@ -217,6 +218,50 @@ enum KeynotePDFSplitter {
     }
 }
 
+/// Waits for our scripting helper, never the target application. File-backed output
+/// prevents a full stderr pipe from blocking stdout (or vice versa).
+enum AutomationProcess {
+    struct Result { let status: Int32; let output: String; let error: String }
+    struct TimedOut: Error {}
+
+    static func run(executable: URL, arguments: [String], timeout: TimeInterval,
+                    isCancelled: () -> Bool = { false }) throws -> Result {
+        if isCancelled() { throw CancellationError() }
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("AutomationProcess-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let outURL = folder.appendingPathComponent("stdout"), errURL = folder.appendingPathComponent("stderr")
+        FileManager.default.createFile(atPath: outURL.path, contents: nil, attributes: [.posixPermissions: 0o600])
+        FileManager.default.createFile(atPath: errURL.path, contents: nil, attributes: [.posixPermissions: 0o600])
+        let output = try FileHandle(forWritingTo: outURL), error = try FileHandle(forWritingTo: errURL)
+        defer { try? output.close(); try? error.close() }
+        let process = Process()
+        process.executableURL = executable; process.arguments = arguments
+        process.standardOutput = output; process.standardError = error
+        try process.run()
+        let start = ProcessInfo.processInfo.systemUptime
+        var stopped: Error?
+        while process.isRunning {
+            if isCancelled() { stopped = CancellationError() }
+            else if ProcessInfo.processInfo.systemUptime - start >= timeout { stopped = TimedOut() }
+            if stopped != nil {
+                // Only our child helper is stopped. Never terminate Keynote/Adobe apps.
+                process.terminate()
+                let grace = ProcessInfo.processInfo.systemUptime + 1
+                while process.isRunning && ProcessInfo.processInfo.systemUptime < grace { Thread.sleep(forTimeInterval: 0.02) }
+                if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.02)
+        }
+        process.waitUntilExit()
+        if let stopped { throw stopped }
+        return Result(status: process.terminationStatus,
+                      output: String(decoding: try Data(contentsOf: outURL), as: UTF8.self),
+                      error: String(decoding: try Data(contentsOf: errURL), as: UTF8.self))
+    }
+}
+
 /// Drives Keynote through the bundled compiled AppleScript via osascript.
 /// The Automation (Apple Events) permission is attributed to the calling app.
 struct KeynoteBridge {
@@ -245,22 +290,14 @@ struct KeynoteBridge {
     }
 
     @discardableResult
-    func run(_ arguments: [String]) throws -> String {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = [script.path] + arguments
-        let output = Pipe(), error = Pipe()
-        process.standardOutput = output
-        process.standardError = error
-        try process.run()
-        let outData = output.fileHandleForReading.readDataToEndOfFile()
-        let errData = error.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        let result = String(decoding: outData, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard process.terminationStatus == 0 else {
-            throw Self.error(from: String(decoding: errData, as: UTF8.self))
-        }
-        return result
+    func run(_ arguments: [String], timeout: TimeInterval = 600, isCancelled: () -> Bool = { false }) throws -> String {
+        let result: AutomationProcess.Result
+        do {
+            result = try AutomationProcess.run(executable: URL(fileURLWithPath: "/usr/bin/osascript"),
+                                               arguments: [script.path] + arguments, timeout: timeout, isCancelled: isCancelled)
+        } catch is AutomationProcess.TimedOut { throw KeynoteError.timeout }
+        guard result.status == 0 else { throw Self.error(from: result.error) }
+        return result.output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// osascript reports "execution error: <message> (<code>)".
@@ -319,7 +356,7 @@ enum KeynoteExporter {
         let prepared = try KeynotePDFSplitter.prepare(source: pdf, options: options, into: work, isCancelled: isCancelled)
         if isCancelled() { throw CancellationError() }
         progress(0, prepared.pages.count)
-        let documentID = try bridge.run(["create", String(prepared.slide.0), String(prepared.slide.1)] + (options.theme.map { [$0] } ?? []))
+        let documentID = try bridge.run(["create", String(prepared.slide.0), String(prepared.slide.1)] + (options.theme.map { [$0] } ?? []), isCancelled: isCancelled)
         // "addm" takes a sixth field per page: the master slide name ("" leaves it to Keynote).
         let usesMasters = prepared.pages.contains { $0.master != nil }
         var output: URL?
@@ -331,21 +368,21 @@ enum KeynoteExporter {
                 let values = chunk.flatMap { page in
                     [page.url.path, String(page.geometry.x), String(page.geometry.y), String(page.geometry.width), String(page.geometry.height)] + (usesMasters ? [page.master ?? ""] : [])
                 }
-                try bridge.run([usesMasters ? "addm" : "add", documentID, String(done + 1)] + values)
+                try bridge.run([usesMasters ? "addm" : "add", documentID, String(done + 1)] + values, isCancelled: isCancelled)
                 done += chunk.count
                 progress(done, prepared.pages.count)
             }
             if isCancelled() { throw CancellationError() }
             let target = destination()
             output = target
-            try bridge.run(["save", documentID, target.path])
+            try bridge.run(["save", documentID, target.path], isCancelled: isCancelled)
         } catch {
-            _ = try? bridge.run(["discard", documentID])
+            _ = try? bridge.run(["discard", documentID], timeout: 5)
             // The name was free before saving, so anything there now is our partial output.
             if let output, FileManager.default.fileExists(atPath: output.path) { try? FileManager.default.removeItem(at: output) }
             throw error
         }
-        if !options.openAfter { _ = try? bridge.run(["close", documentID]) }
+        if !options.openAfter { _ = try? bridge.run(["close", documentID], timeout: 5) }
         return output!
     }
 }

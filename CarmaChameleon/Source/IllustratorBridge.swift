@@ -72,24 +72,21 @@ enum IllustratorBridge {
             end using terms from
         end run
         """
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", runner, app.path, jsx] + arguments
-        let output = Pipe(), errorPipe = Pipe()
-        process.standardOutput = output; process.standardError = errorPipe
-        try process.run()
-        let outData = output.fileHandleForReading.readDataToEndOfFile()
-        let errData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
+        let prefix = terms == bundleID ? "illustrator" : terms == InDesignBridge.bundleID ? "indesign" : "photoshop"
+        let result: AutomationProcess.Result
+        do {
+            result = try AutomationProcess.run(executable: URL(fileURLWithPath: "/usr/bin/osascript"),
+                                               arguments: ["-e", runner, app.path, jsx] + arguments,
+                                               timeout: 3600, isCancelled: isCancelled)
+        } catch is AutomationProcess.TimedOut { throw error(prefix + "Timeout") }
         if isCancelled() { throw CancellationError() }
-        guard process.terminationStatus == 0 else {
-            let message = String(decoding: errData, as: UTF8.self)
-            let prefix = terms == bundleID ? "illustrator" : terms == InDesignBridge.bundleID ? "indesign" : "photoshop"
+        guard result.status == 0 else {
+            let message = result.error
             if message.contains("(-1743)") || message.contains("(-1744)") { throw error(prefix + "Denied") }
             if message.contains("(-1712)") { throw error(prefix + "Timeout") }
             throw error(prefix + "Failed", message.trimmingCharacters(in: .whitespacesAndNewlines))
         }
-        return String(decoding: outData, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// PDF preset names from Illustrator (launches it if needed).

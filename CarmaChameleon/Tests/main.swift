@@ -2,7 +2,18 @@ import Foundation
 import PDFKit
 import CoreText
 import ImageIO
+import Darwin
 setbuf(stdout, nil)
+if CommandLine.arguments.count > 1, CommandLine.arguments[1] == "--automation-fixture" {
+    if CommandLine.arguments.last == "output" {
+        FileHandle.standardError.write(Data(repeating: 101, count: 262144))
+        FileHandle.standardOutput.write(Data(repeating: 111, count: 262144))
+        exit(7)
+    }
+    signal(SIGTERM, SIG_IGN)
+    Thread.sleep(forTimeInterval: 30)
+    exit(0)
+}
 func L(_ key: String) -> String { key }
 let fm = FileManager.default
 let root = fm.temporaryDirectory.appendingPathComponent("PandocDesk-tests-"+UUID().uuidString)
@@ -13,6 +24,26 @@ let input = root.appendingPathComponent("日本語 sample.md")
 let original = "# 日本語タイトル\n\nHello **world**.\n\n## Second\n\n- First\n- Second\n"
 try original.write(to:input,atomically:true,encoding:.utf8)
 func check(_ value:Bool,_ message:String) { if !value { fatalError(message) }; print("PASS: " + message) }
+// A blocked scripting helper must not deadlock on stderr or make Cancel wait
+// for the application's Apple-event timeout. These children never control apps.
+let testExecutable = URL(fileURLWithPath: CommandLine.arguments[0])
+let capture = try AutomationProcess.run(executable: testExecutable, arguments: ["--automation-fixture", "output"], timeout: 5)
+check(capture.status == 7 && capture.output.utf8.count == 262144 && capture.error.utf8.count == 262144, "automation helper drains large stdout/stderr and preserves exit status")
+let cancelStart = ProcessInfo.processInfo.systemUptime
+do {
+    _ = try AutomationProcess.run(executable: testExecutable, arguments: ["--automation-fixture", "wait"], timeout: 10,
+                                  isCancelled: { ProcessInfo.processInfo.systemUptime - cancelStart > 0.1 })
+    fatalError("automation cancellation did not throw")
+} catch is CancellationError {
+    check(ProcessInfo.processInfo.systemUptime - cancelStart < 3, "automation cancel stops an unresponsive helper promptly")
+}
+let timeoutStart = ProcessInfo.processInfo.systemUptime
+do {
+    _ = try AutomationProcess.run(executable: testExecutable, arguments: ["--automation-fixture", "wait"], timeout: 0.1)
+    fatalError("automation timeout did not throw")
+} catch is AutomationProcess.TimedOut {
+    check(ProcessInfo.processInfo.systemUptime - timeoutStart < 3, "automation deadline stops an unresponsive helper")
+}
 var options = ConversionOptions()
 for format in OutputFormat.all where !["pdf","keynote","csv","xlsx","utf16","filename"].contains(format.id) && !format.isImage {
     options.format = format

@@ -730,7 +730,7 @@ struct FormatSettingsView: View {
     @objc func quit() { NSApp.terminate(nil) }
     @objc func choose() { show(); model.chooseFiles() }
     @objc func showSettings() { AppSwitcherWindowReveal.preserveAuxiliaryWindowOnActivation();
-        if settings == nil { settings = NSWindow(contentRect:NSRect(x:0,y:0,width:620,height:640),styleMask:[.titled,.closable,.resizable],backing:.buffered,defer:false); settings!.title = L("settingsWindow")
+        if settings == nil { settings = NSWindow(contentRect:NSRect(x:0,y:0,width:620,height:640),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false); settings!.title = L("settingsWindow")
             // Resizable from the designed size upward; the hosting view reports only its minimum.
             let hosting = NSHostingView(rootView:SettingsView()); hosting.sizingOptions = [.minSize]
             settings!.contentView = hosting; settings!.contentMinSize = NSSize(width:620,height:640); settings!.isReleasedWhenClosed = false; settings!.center() }
