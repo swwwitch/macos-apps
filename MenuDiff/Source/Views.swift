@@ -30,13 +30,14 @@ struct MainView: View {
             }
             if let diff = model.diff {
                 ResultsView(model: model, diff: diff)
-            } else {
-                Spacer(minLength: 0)
             }
             bottomBar
         }
         .padding(24)
-        .frame(minWidth: 600, minHeight: 600)
+        // 結果が無いあいだは幅640・高さは中身ぴったり（大きさは変えられない）。結果が出たら広げられる
+        .frame(minWidth: 600, idealWidth: 640, maxWidth: model.diff == nil ? 640 : .infinity,
+               maxHeight: model.diff == nil ? nil : .infinity, alignment: .top)
+        .fixedSize(horizontal: false, vertical: model.diff == nil)
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
     }
@@ -222,7 +223,7 @@ struct ResultsView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-            .fixedSize()
+            .frame(maxWidth: .infinity)  // 幅に収める（固定幅のウインドウからはみ出さない）
             if let note = note(for: model.category) {
                 Explanation(note)
             }
@@ -239,6 +240,7 @@ struct ResultsView: View {
                     }
             }
             .listStyle(.inset(alternatesRowBackgrounds: true))
+            .frame(minHeight: 200, maxHeight: .infinity)
             .overlay {
                 if rows.isEmpty { Text(L("empty.rows")).foregroundStyle(.secondary) }
             }

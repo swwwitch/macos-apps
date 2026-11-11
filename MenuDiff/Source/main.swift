@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Carbon
+import Combine
 
 /// The hotkey that shows the main window from any app while MenuDiff runs (per Mac). No default.
 @MainActor final class AppLauncherHotkey: ObservableObject {
@@ -43,15 +44,20 @@ import Carbon
         StartupWindow.captureLaunch()
         guard !isDuplicate else { return }
         buildMenus()
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 720), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 720), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = "MenuDiff"; window.titleVisibility = .hidden
         // A plain hosting view: the list would otherwise grow the window to fit every row.
         let host = NSHostingView(rootView: MainView(model: model))
-        host.sizingOptions = [.minSize]
+        // 結果が無いあいだは中身ぴったりで大きさを変えられない。結果が出たら広げられる（fitWindow）
+        host.sizingOptions = [.minSize, .maxSize]
         window.contentView = host
+        self.host = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
-        window.setFrameAutosaveName("MainWindow"); window.minSize = NSSize(width: 600, height: 600)
+        window.setFrameAutosaveName("MainWindow")
+        diffObserver = model.$diff.map { $0 != nil }.removeDuplicates().sink { [weak self] hasResults in
+            DispatchQueue.main.async { self?.fitWindow(hasResults: hasResults) }
+        }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         launcher.keys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
         launcher.register()
@@ -61,6 +67,43 @@ import Carbon
     }
 
     func applicationDidBecomeActive(_ notification: Notification) { if window != nil { model.trusted = AXIsProcessTrusted(); model.stateStamp += 1 } }
+
+    private var host: NSView?
+    private var diffObserver: AnyCancellable?
+    private let resultsSizeKey = "resultsWindowSize"
+
+    /// 結果が無いとき：幅640・高さは中身ぴったり、大きさは変えられない（余白の帯を出さない）
+    /// 結果が出たとき：大きさを変えられるようにし、前に使った大きさ（初回は画面に収まる高さ）に広げる。上端は動かさない
+    func fitWindow(hasResults: Bool) {
+        guard let window, let host = host as? NSHostingView<MainView> else { return }
+        let top = window.frame.maxY
+        if hasResults {
+            host.sizingOptions = [.minSize]
+            window.styleMask.insert(.resizable)
+            let visible = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+            let saved = UserDefaults.standard.string(forKey: resultsSizeKey).map(NSSizeFromString)
+            var frame = window.frame
+            frame.size.width = max(window.minSize.width, saved?.width ?? frame.width)
+            frame.size.height = min(visible.height, max(frame.height, saved?.height ?? min(visible.height, 1000)))
+            frame.origin.y = max(visible.minY, top - frame.height)
+            window.setFrame(frame, display: true, animate: window.isVisible)
+        } else {
+            if window.styleMask.contains(.resizable) {
+                UserDefaults.standard.set(NSStringFromSize(window.frame.size), forKey: resultsSizeKey)
+            }
+            window.styleMask.remove(.resizable)
+            host.sizingOptions = [.minSize, .maxSize]
+            host.layoutSubtreeIfNeeded()
+            var frame = window.frame
+            frame.origin.y = top - frame.height
+            window.setFrameOrigin(frame.origin)
+        }
+    }
+
+    func windowDidEndLiveResize(_ notification: Notification) {
+        guard let window, model.diff != nil else { return }
+        UserDefaults.standard.set(NSStringFromSize(window.frame.size), forKey: resultsSizeKey)
+    }
 
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
