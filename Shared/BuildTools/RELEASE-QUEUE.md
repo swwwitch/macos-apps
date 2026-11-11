@@ -1,5 +1,13 @@
 # リリースキュー
 
+## MenuDiff：新規・個人用（2026-11-11）
+
+- 受付日：2026-11-11（JST）。元チャット：本チャット（Illustratorのメニューをバージョン間で比較）。ai-scripts/helpers の AppleScript 版（スクリプトメニューへの登録と再起動が必要）の手間をなくすためアプリ化。
+- 要望：2つのバージョンの Illustrator のメニューを比較する。InDesign・Photoshop にも対応。未起動の版は自動で起動→読む→終了。ユーザーの選択で個人用の軽量版とし、BASELINE の設定・ログイン起動・4言語ヘルプ・更新確認・メニューバーアイコンは適用外（日本語ヘルプのみ）。公証・配置・公開はしない。
+- 開発：開発Mac MacBook-Pro-14-2024-sw、ブランチ codex/filesorter-screenshot-rename-20261101、基点 c9943f07199938717653e8b9ce4526404c49db31。通常版 1.0.0（1）。Bundle ID jp.dtp-transit.aimenudiff（AiMenuDiff から改名、Bundle ID は据え置き）。
+- 検証：./build.sh のビルド・証明書署名・codesign --verify --deep --strict 成功。試験用 CLI（--capture）で Illustrator 2027・2026（起動中）、Illustrator 2025（未起動→起動・読む・終了 21秒、前面アプリは変わらず）、Photoshop 2026（起動中）、InDesign 2027（未起動→16秒）・2026（起動中、終了させないこと）を確認。差分（追加・削除・改名・移動・ショートカット）は Ai 2026/2027・Id 2026/2027 の実データで確認。画面の配置はスクリーンショットで確認。アプリ画面の［比較］から結果一覧までの表示、二重起動・ウインドウを閉じる・終了の個別検証は未確認。
+- 状態：開発・検証（上記の範囲）完了、commit・push。対象SHA は push 後に追記。
+
 ## 2026-11-04 LinkMaker：スーパーリロードとリーダー表示のホットキー統一
 
 - 開発検証結果（2026-11-09 JST）：通常版1.4.0（41）。arm64ビルド・証明書署名・回帰テスト・4言語194キー・ブラウザー別キー変換と未許可時の抑止テストPASS。稼働中の既存版を終了・置換せず、実機確認は公証Macへ引き継ぐ。詳細：LinkMaker/Tests/BUILD-NOTES-20261109.md。実装対象SHAはcommit/push後に通知。
