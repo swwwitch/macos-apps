@@ -2,7 +2,7 @@
 MenuDiff reads the menus of two versions of Illustrator, InDesign or Photoshop and lists the differences. It never changes the apps or their menus.
 - Choose the app with Ai, Ps or Id under Target App.
 - Choose the versions in New and Old. Versions in /Applications and saved versions are listed. The button between them swaps them. The choice is remembered for each app.
-- Click Compare (⌘R) at the bottom right.
+- Click Compare (⌘R) at the bottom right. The results open in a separate, resizable window that is reused for each comparison. If you close it, choose File > Show Results Window (⌘2).
 ## Versions that are not running
 - A running version is read right away.
 - For a version that is not running, saved data is used. If there is none, MenuDiff launches that version, reads its menus and quits it. Only versions that MenuDiff launched are quit, and not if you started using it (it is in front) while waiting.

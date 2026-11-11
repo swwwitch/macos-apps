@@ -28,16 +28,12 @@ struct MainView: View {
                 Label(model.errorText, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange).textSelection(.enabled)
             }
-            if let diff = model.diff {
-                ResultsView(model: model, diff: diff)
-            }
             bottomBar
         }
         .padding(24)
-        // 結果が無いあいだは幅640・高さは中身ぴったり（大きさは変えられない）。結果が出たら広げられる
-        .frame(minWidth: 600, idealWidth: 640, maxWidth: model.diff == nil ? 640 : .infinity,
-               maxHeight: model.diff == nil ? nil : .infinity, alignment: .top)
-        .fixedSize(horizontal: false, vertical: model.diff == nil)
+        // 幅640・高さは中身ぴったり（大きさは変えられない）。結果は別ウインドウ
+        .frame(width: 640)
+        .fixedSize(horizontal: false, vertical: true)
         .background(Color(nsColor: AppSurface.color))
         .tint(appTint)
     }
@@ -199,6 +195,25 @@ struct AppTile: View {
 }
 
 // MARK: - 結果
+
+/// 結果のウインドウの中身
+struct ResultsWindowView: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        Group {
+            if let diff = model.diff {
+                ResultsView(model: model, diff: diff)
+            } else {
+                Text(L("empty.rows")).foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 560, maxWidth: .infinity, minHeight: 420, maxHeight: .infinity)
+        .background(Color(nsColor: AppSurface.color))
+        .tint(appTint)
+    }
+}
 
 struct ResultsView: View {
     @ObservedObject var model: AppModel

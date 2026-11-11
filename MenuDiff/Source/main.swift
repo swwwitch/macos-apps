@@ -48,15 +48,14 @@ import Combine
         window.title = "MenuDiff"; window.titleVisibility = .hidden
         // A plain hosting view: the list would otherwise grow the window to fit every row.
         let host = NSHostingView(rootView: MainView(model: model))
-        // 結果が無いあいだは中身ぴったりで大きさを変えられない。結果が出たら広げられる（fitWindow）
+        // 主画面は中身ぴったりで大きさを変えられない。結果は別ウインドウ（resultsWindow）
         host.sizingOptions = [.minSize, .maxSize]
         window.contentView = host
-        self.host = host
         window.delegate = self; window.isReleasedWhenClosed = false
         if UserDefaults.standard.string(forKey: "NSWindow Frame MainWindow") == nil { window.center() }  // First launch: no saved frame yet.
         window.setFrameAutosaveName("MainWindow")
-        diffObserver = model.$diff.map { $0 != nil }.removeDuplicates().sink { [weak self] hasResults in
-            DispatchQueue.main.async { self?.fitWindow(hasResults: hasResults) }
+        diffObserver = model.$resultsVersion.dropFirst().sink { [weak self] _ in
+            DispatchQueue.main.async { self?.updateResultsWindow() }
         }
         if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
         launcher.keys.action = { [weak self] _ in StartupWindow.userRequestedWindow(); self?.show() }
@@ -68,41 +67,33 @@ import Combine
 
     func applicationDidBecomeActive(_ notification: Notification) { if window != nil { model.trusted = AXIsProcessTrusted(); model.stateStamp += 1 } }
 
-    private var host: NSView?
     private var diffObserver: AnyCancellable?
-    private let resultsSizeKey = "resultsWindowSize"
+    var resultsWindow: NSWindow?
 
-    /// 結果が無いとき：幅640・高さは中身ぴったり、大きさは変えられない（余白の帯を出さない）
-    /// 結果が出たとき：大きさを変えられるようにし、前に使った大きさ（初回は画面に収まる高さ）に広げる。上端は動かさない
-    func fitWindow(hasResults: Bool) {
-        guard let window, let host = host as? NSHostingView<MainView> else { return }
-        let top = window.frame.maxY
-        if hasResults {
+    /// 結果のウインドウ（1枚を使い回す）。比較するたびに前に出し、結果が無くなったら閉じる
+    func updateResultsWindow() {
+        guard model.diff != nil else { resultsWindow?.orderOut(nil); return }
+        if resultsWindow == nil {
+            let results = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 640), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            let host = NSHostingView(rootView: ResultsWindowView(model: model))
             host.sizingOptions = [.minSize]
-            window.styleMask.insert(.resizable)
-            let visible = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-            let saved = UserDefaults.standard.string(forKey: resultsSizeKey).map(NSSizeFromString)
-            var frame = window.frame
-            frame.size.width = max(window.minSize.width, saved?.width ?? frame.width)
-            frame.size.height = min(visible.height, max(frame.height, saved?.height ?? min(visible.height, 1000)))
-            frame.origin.y = max(visible.minY, top - frame.height)
-            window.setFrame(frame, display: true, animate: window.isVisible)
-        } else {
-            if window.styleMask.contains(.resizable) {
-                UserDefaults.standard.set(NSStringFromSize(window.frame.size), forKey: resultsSizeKey)
+            results.contentView = host
+            results.isReleasedWhenClosed = false
+            results.contentMinSize = NSSize(width: 560, height: 420)
+            if UserDefaults.standard.string(forKey: "NSWindow Frame ResultsWindow") == nil, let main = window {
+                // 初回は主画面の右隣（入らなければ主画面に重ねる）
+                let visible = (main.screen ?? NSScreen.main)?.visibleFrame ?? main.frame
+                var frame = results.frame
+                frame.size.height = min(visible.height, max(640, main.frame.height))
+                frame.origin.x = main.frame.maxX + 12 + frame.width <= visible.maxX ? main.frame.maxX + 12 : max(visible.minX, main.frame.minX + 40)
+                frame.origin.y = max(visible.minY, main.frame.maxY - frame.height)
+                results.setFrame(frame, display: false)
             }
-            window.styleMask.remove(.resizable)
-            host.sizingOptions = [.minSize, .maxSize]
-            host.layoutSubtreeIfNeeded()
-            var frame = window.frame
-            frame.origin.y = top - frame.height
-            window.setFrameOrigin(frame.origin)
+            results.setFrameAutosaveName("ResultsWindow")
+            resultsWindow = results
         }
-    }
-
-    func windowDidEndLiveResize(_ notification: Notification) {
-        guard let window, model.diff != nil else { return }
-        UserDefaults.standard.set(NSStringFromSize(window.frame.size), forKey: resultsSizeKey)
+        resultsWindow?.title = model.windowTitle
+        resultsWindow?.makeKeyAndOrderFront(nil)
     }
 
     @objc func show() { guard let window else { return }; NSApp.activate(ignoringOtherApps: true); if window.isMiniaturized { window.deminiaturize(nil) }; window.makeKeyAndOrderFront(nil) }
@@ -116,11 +107,13 @@ import Combine
 
     @objc func compare() { show(); model.compare() }
     @objc func copyRows() { model.copyShownRows() }
+    @objc func showResults() { updateResultsWindow() }
     @objc func openFolder() { model.openSnapshotFolder() }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
         switch item.action {
         case #selector(compare): return model.canCompare
         case #selector(copyRows): return !model.shownRows.isEmpty
+        case #selector(showResults): return model.diff != nil
         default: return true
         }
     }
@@ -163,6 +156,7 @@ import Combine
         let file = NSMenu(title: L("fileMenu")); let fileItem = NSMenuItem(title: L("fileMenu"), action: nil, keyEquivalent: ""); fileItem.submenu = file; bar.addItem(fileItem)
         add(file, L("openMainWindow"), #selector(show), "0"); file.addItem(.separator())
         add(file, L("menu.compare"), #selector(compare), "r")
+        add(file, L("menu.showResults"), #selector(showResults), "2")
         add(file, L("menu.copyRows"), #selector(copyRows), "C")
         add(file, L("menu.openFolder"), #selector(openFolder), ""); file.addItem(.separator())
         file.addItem(withTitle: L("close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")

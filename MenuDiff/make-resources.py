@@ -75,6 +75,8 @@ settings.compareTab|比較|Compare|比较|비교
 settings.plugins|外すプラグインの名前|Plug-in Names to Leave Out|要排除的增效工具名称|제외할 플러그인 이름
 button.defaultPlugins|既定に戻す|Restore Defaults|恢复默认|기본값으로 복원
 settings.pluginsDetail|1行に1つずつ書きます。メニューのパスのどこかの項目名に含まれていれば外します（大文字と小文字は区別しません）。InDesign は「プラグインについて」に並ぶ会社名・製品名も自動で使います。|One name per line. An item is left out when any part of its menu path contains a name (case-insensitive). For InDesign, the company and product names under About Plug-ins are also used automatically.|每行一个名称。菜单路径的任一部分包含该名称时排除（不区分大小写）。InDesign 还会自动使用“关于增效工具”中的公司名和产品名。|한 줄에 하나씩 씁니다. 메뉴 경로의 어느 부분에든 이름이 들어 있으면 제외합니다(대소문자 구분 안 함). InDesign은 '플러그인에 관하여'에 나오는 회사·제품 이름도 자동으로 사용합니다.
+results.title|比較の結果|Comparison Results|比较结果|비교 결과
+menu.showResults|結果のウインドウを表示|Show Results Window|显示结果窗口|결과 윈도우 보기
 aboutDetail|Illustrator・InDesign・Photoshop のメニューをバージョン間で比較します。サポート：同梱のREADME.md|Compares the menus of Illustrator, InDesign and Photoshop between versions. Support: bundled README.md|在不同版本之间比较 Illustrator、InDesign 和 Photoshop 的菜单。支持：内置的 README.md|Illustrator, InDesign, Photoshop의 메뉴를 버전 간에 비교합니다. 지원: 내장된 README.md
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…

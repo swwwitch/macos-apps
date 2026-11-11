@@ -29,6 +29,7 @@ final class AppModel: ObservableObject {
             newName = UserDefaults.standard.string(forKey: Self.key("newName", product)) ?? ""
             diff = nil
             compared = nil
+            resultsVersion += 1
             errorText = ""
             status = ""
             refresh()
@@ -58,6 +59,13 @@ final class AppModel: ObservableObject {
         didSet { UserDefaults.standard.set(excludesPlugins, forKey: "excludesPlugins"); rebuildDiff() }
     }
     @Published var pluginNote = ""
+    /// 比較し直すたびに増える（結果のウインドウを前に出す合図）
+    @Published var resultsVersion = 0
+    /// 結果のウインドウのタイトル（比べた組）
+    var windowTitle: String {
+        guard let compared else { return L("results.title") }
+        return "\(compared.old.name) → \(compared.new.name)"
+    }
     private var compared: (old: MenuSnapshot, new: MenuSnapshot)?
 
     var visibleCategories: [ResultCategory] {
@@ -170,6 +178,7 @@ final class AppModel: ObservableObject {
                 self.category = first
             }
             self.status = ""
+            self.resultsVersion += 1
         }
     }
 

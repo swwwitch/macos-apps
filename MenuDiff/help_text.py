@@ -5,7 +5,7 @@ HELP = {
 MenuDiffは、Illustrator・InDesign・Photoshopの2つのバージョンのメニュー項目を読み、違いを一覧にします。アプリやメニューを書き換えることはありません。
 - ［対象アプリ］の［Ai］［Ps］［Id］で、比べるアプリを選びます。
 - ［新］と［旧］でバージョンを選びます。/Applications にあるものと、保存済みのものが並びます。間のボタンで入れ替えます。選択はアプリごとに覚えます。
-- 右下の［比較］（⌘R）を押します。
+- 右下の［比較］（⌘R）を押すと、結果が別のウインドウに出ます。結果のウインドウは大きさを変えられ、比較するたびに中身が入れ替わります。閉じても［ファイル］→［結果のウインドウを表示］（⌘2）で戻せます。
 ## 起動していないバージョン
 - 起動中のバージョンは、その場でメニューを読みます。
 - 起動していないバージョンは、保存済みのデータを使います。無いときは、そのバージョンを起動してメニューを読み、読み終えたら終了させます。終了させるのはMenuDiffが起動したものだけです。待っている間に使い始めた（前面にある）ときは終了させません。
@@ -43,7 +43,7 @@ MenuDiffは、Illustrator・InDesign・Photoshopの2つのバージョンのメ�
 MenuDiff reads the menus of two versions of Illustrator, InDesign or Photoshop and lists the differences. It never changes the apps or their menus.
 - Choose the app with Ai, Ps or Id under Target App.
 - Choose the versions in New and Old. Versions in /Applications and saved versions are listed. The button between them swaps them. The choice is remembered for each app.
-- Click Compare (⌘R) at the bottom right.
+- Click Compare (⌘R) at the bottom right. The results open in a separate, resizable window that is reused for each comparison. If you close it, choose File > Show Results Window (⌘2).
 ## Versions that are not running
 - A running version is read right away.
 - For a version that is not running, saved data is used. If there is none, MenuDiff launches that version, reads its menus and quits it. Only versions that MenuDiff launched are quit, and not if you started using it (it is in front) while waiting.
@@ -81,7 +81,7 @@ Reading menus requires Accessibility access. Turn on MenuDiff in System Settings
 MenuDiff 读取 Illustrator、InDesign 或 Photoshop 两个版本的菜单，并列出差异。不会更改应用或其菜单。
 - 在“目标应用”中用 Ai、Ps、Id 选择应用。
 - 在“新”和“旧”中选择版本。会列出 /Applications 中的版本和已存储的版本。中间的按钮可交换两者。每个应用分别记住选择。
-- 点按右下角的“比较”（⌘R）。
+- 点按右下角的“比较”（⌘R），结果会显示在单独的窗口中。结果窗口可调整大小，每次比较都会更新内容。关闭后可通过“文件”>“显示结果窗口”（⌘2）再次打开。
 ## 未运行的版本
 - 正在运行的版本会立即读取。
 - 未运行的版本使用已存储的数据。若没有，MenuDiff 会启动该版本、读取菜单后将其退出。只退出由 MenuDiff 启动的版本；等待期间若你开始使用（位于前台）则不退出。
@@ -119,7 +119,7 @@ MenuDiff 读取 Illustrator、InDesign 或 Photoshop 两个版本的菜单，并
 MenuDiff는 Illustrator, InDesign, Photoshop의 두 버전 메뉴를 읽고 차이를 나열합니다. 앱이나 메뉴를 변경하지 않습니다.
 - 대상 앱의 Ai, Ps, Id에서 비교할 앱을 선택합니다.
 - 새 버전과 이전 버전을 선택합니다. /Applications에 있는 버전과 저장된 버전이 표시됩니다. 가운데 버튼으로 서로 바꿉니다. 선택은 앱마다 기억합니다.
-- 오른쪽 아래의 비교(⌘R)를 클릭합니다.
+- 오른쪽 아래의 비교(⌘R)를 클릭하면 결과가 별도 윈도우에 표시됩니다. 결과 윈도우는 크기를 바꿀 수 있고 비교할 때마다 내용이 바뀝니다. 닫은 후에는 파일 > 결과 윈도우 보기(⌘2)로 다시 열 수 있습니다.
 ## 실행 중이 아닌 버전
 - 실행 중인 버전은 바로 읽습니다.
 - 실행 중이 아닌 버전은 저장된 데이터를 사용합니다. 없으면 MenuDiff가 그 버전을 실행해 메뉴를 읽고 종료합니다. MenuDiff가 실행한 것만 종료하며, 기다리는 동안 사용을 시작한(앞에 있는) 경우에는 종료하지 않습니다.

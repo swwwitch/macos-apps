@@ -68,6 +68,8 @@
 "settings.plugins" = "제외할 플러그인 이름";
 "button.defaultPlugins" = "기본값으로 복원";
 "settings.pluginsDetail" = "한 줄에 하나씩 씁니다. 메뉴 경로의 어느 부분에든 이름이 들어 있으면 제외합니다(대소문자 구분 안 함). InDesign은 '플러그인에 관하여'에 나오는 회사·제품 이름도 자동으로 사용합니다.";
+"results.title" = "비교 결과";
+"menu.showResults" = "결과 윈도우 보기";
 "aboutDetail" = "Illustrator, InDesign, Photoshop의 메뉴를 버전 간에 비교합니다. 지원: 내장된 README.md";
 "openMainWindow" = "메인 윈도우 열기";
 "settings" = "설정…";

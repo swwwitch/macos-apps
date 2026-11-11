@@ -68,6 +68,8 @@
 "settings.plugins" = "要排除的增效工具名称";
 "button.defaultPlugins" = "恢复默认";
 "settings.pluginsDetail" = "每行一个名称。菜单路径的任一部分包含该名称时排除（不区分大小写）。InDesign 还会自动使用“关于增效工具”中的公司名和产品名。";
+"results.title" = "比较结果";
+"menu.showResults" = "显示结果窗口";
 "aboutDetail" = "在不同版本之间比较 Illustrator、InDesign 和 Photoshop 的菜单。支持：内置的 README.md";
 "openMainWindow" = "打开主窗口";
 "settings" = "设置…";
