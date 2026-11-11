@@ -343,7 +343,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         TextEditor(text: $pluginText)
                             .font(.system(size: 12))
-                            .frame(minHeight: 160)
+                            .frame(height: 180)
                             .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(nsColor: .separatorColor)))
                             .onChange(of: pluginText) { text in
                                 UserDefaults.standard.set(text, forKey: PluginFilter.keywordsKey)
