@@ -283,8 +283,10 @@ enum FileHandling {
 /// The basic UI items of ViewToggles.jsx that are menu items with a checkmark. The checkmark is read through
 /// Accessibility (AXMenuItemMarkChar); preference keys are not used (ContextualTaskBarEnabled read 0 while checked, 2026-10-18).
 enum InterfaceMenus {
-    /// In the order shown (コンテキストタスクバー last).
-    enum Item: String, CaseIterable { case advancedToolbar, controlBar, helpBar, applicationBar, applicationFrame, snapToGlyph, contextualTaskBar }
+    /// Display items are listed in the order shown in the Basic UI.
+    enum Item: String, CaseIterable { case advancedToolbar, controlBar, helpBar, applicationBar, applicationFrame, contextualTaskBar, snapToGlyph, snapToGrid }
+    static let displayItems = Item.allCases.filter { !guideItems.contains($0) }
+    static let guideItems: [Item] = [.snapToGlyph, .snapToGrid]
     /// Menu paths, Japanese first (English unverified).
     static let paths: [Item: [[String]]] = [
         .advancedToolbar: [["ウィンドウ", "ツールバー", "詳細"], ["Window", "Toolbars", "Advanced"]],
@@ -293,11 +295,12 @@ enum InterfaceMenus {
         .helpBar: [["ウィンドウ", "ヘルプバー"], ["Window", "Help Bar"]],
         .applicationBar: [["ウィンドウ", "アプリケーションバー"], ["Window", "Application Bar"]],
         .applicationFrame: [["ウィンドウ", "アプリケーションフレーム"], ["Window", "Application Frame"]],
-        .snapToGlyph: [["表示", "グリフにスナップ"], ["View", "Snap to Glyph"]]
+        .snapToGlyph: [["表示", "グリフにスナップ"], ["View", "Snap to Glyph"]],
+        .snapToGrid: [["表示", "グリッドにスナップ"], ["View", "Snap to Grid"]]
     ]
     typealias State = [Item: Bool]
     /// クラシック表示 (formerly オールドスクール設定). The toolbar's two columns cannot be set: the toolbar panel is not exposed to Accessibility.
-    static let oldSchool: State = [.advancedToolbar: true, .contextualTaskBar: false, .controlBar: true, .snapToGlyph: false, .helpBar: false, .applicationBar: false, .applicationFrame: false]
+    static let oldSchool: State = [.advancedToolbar: true, .contextualTaskBar: false, .controlBar: true, .helpBar: false, .applicationBar: false, .applicationFrame: false]
 
     private static func menuItem(_ root: AXUIElement, _ item: Item) -> AXUIElement? { menuItem(root, paths: paths[item]!) }
     /// The menu item at the first of `paths` that exists (Japanese first, then English).
@@ -325,21 +328,17 @@ enum InterfaceMenus {
         AXUIElementSetMessagingTimeout(root, 3)
         var state: State = [:]
         for item in Item.allCases {
-            guard let el = menuItem(root, item) else { return .failure(.menuNotFound) }
+            guard let el = menuItem(root, item) else { continue }
             state[item] = isChecked(el)
         }
-        return .success(state)
+        return state.isEmpty ? .failure(.menuNotFound) : .success(state)
     }
 
-    /// The menu order, except that the application frame is turned off before the application bar
-    /// (Illustrator keeps the bar while the frame is on).
-    static func order(_ wanted: State) -> [Item] {
-        var items = Item.allCases
-        guard wanted[.applicationFrame] == false, let bar = items.firstIndex(of: .applicationBar) else { return items }
-        items.removeAll { $0 == .applicationFrame }
-        items.insert(.applicationFrame, at: bar)
-        return items
-    }
+    // Illustrator keeps the application bar while the frame is on.
+    static let applyOrder: [Item] = [
+        .applicationFrame, .applicationBar, .helpBar, .contextualTaskBar,
+        .controlBar, .advancedToolbar, .snapToGlyph, .snapToGrid
+    ]
 
     /// Blocking: presses the menu items whose checkmark differs from `wanted`, then reads them again.
     static func apply(_ wanted: State) -> Result<State, SettingsFailure> {
@@ -352,12 +351,21 @@ enum InterfaceMenus {
         // The application bar cannot be hidden while the application frame is on, so hiding the bar hides the frame too.
         if wanted[.applicationBar] == false, wanted[.applicationFrame] == nil,
            let frame = menuItem(root, .applicationFrame), isChecked(frame) { wanted[.applicationFrame] = false }
-        for item in order(wanted) {
+        if guideItems.contains(where: { wanted[$0] != nil }) {
+            switch evaluate("String(app.documents.length)", in: app) {
+            case .success("0"): return .failure(.noDocument)
+            case .failure(let failure): return .failure(failure)
+            case .success: break
+            }
+        }
+        for item in applyOrder {
             guard let value = wanted[item] else { continue }
             guard let el = menuItem(root, item) else { return .failure(.menuNotFound) }
             if isChecked(el) != value {
                 guard AX.press(el) else { return .failure(.failed("AXPress")) }
-                Thread.sleep(forTimeInterval: 0.3)
+                guard AX.wait(30, {
+                    menuItem(root, item).map { isChecked($0) == value } == true ? true : nil
+                }) != nil else { return .failure(.notChanged) }
             }
         }
         switch read() {

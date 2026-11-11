@@ -42,6 +42,7 @@ final class Model: ObservableObject {
     private var fileHandlingConfirmed = false
     /// 表示 → ガイド → ガイドをロック; nil when the menu cannot be read.
     @Published var guideLock: Bool?
+    @Published var guideDocumentOpen = false
     @Published var resetResult: OperationResult?
     /// Illustratorの設定を初期化 also moves ~/Library/Caches/com.adobe.illustrator. On by default.
     @Published var resetIncludesCache = UserDefaults.standard.object(forKey: "resetIncludesCache") as? Bool ?? true {
@@ -98,6 +99,7 @@ final class Model: ObservableObject {
     }
     /// Brightness steps pressed while an operation was running; applied together afterwards.
     private var pendingBrightness = 0
+    private var pendingBrightnessLevel: Int?
 
     /// ⇧F2 brighter / ⇧F1 darker, only while Illustrator is in front.
     @Published var hotkeysEnabled: Bool { didSet { defaults.set(hotkeysEnabled, forKey: "hotkeysEnabled"); refreshHotkeys() } }
@@ -146,6 +148,10 @@ final class Model: ObservableObject {
     static let closeAllDefault = KeyCombo(code: UInt32(kVK_ANSI_W), modifiers: KeyCombo.option)
     static let launchDefault = KeyCombo(code: UInt32(kVK_ANSI_Semicolon), modifiers: KeyCombo.control | KeyCombo.option | KeyCombo.command)
     static let brighterNumber: UInt32 = 1, darkerNumber: UInt32 = 2, paletteNumber: UInt32 = 3, quickNumber: UInt32 = 4, launchNumber: UInt32 = 5
+    private static let brightnessShortcuts: [(number: UInt32, combo: KeyCombo, level: Int)] = [
+        (10, KeyCombo(code: UInt32(kVK_F2), modifiers: KeyCombo.option | KeyCombo.shift), UIBrightness.levels.count - 1),
+        (11, KeyCombo(code: UInt32(kVK_F1), modifiers: KeyCombo.option | KeyCombo.shift), 1)
+    ]
     let hotkeys = HotkeySet(signature: "VcMt")
     private var registeredState: String?
     private var activation: NSObjectProtocol?
@@ -198,7 +204,21 @@ final class Model: ObservableObject {
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
-            if number == Self.guideNumber { self?.showGuides() } else if number == Self.launchNumber { self?.onLaunchHotkey?() } else if number == Self.paletteNumber { self?.onPaletteHotkey?() } else if number == Self.quickNumber { self?.onQuickHotkey?() } else if number == Self.transformNumber { self?.onTransformHotkey?() } else if number == Self.closeAllNumber { self?.onCloseAllHotkey?() } else { self?.stepBrightness(number == Self.brighterNumber ? 1 : -1, fromHotkey: true) }
+            guard let self else { return }
+            switch number {
+            case Self.guideNumber: self.showGuides()
+            case Self.launchNumber: self.onLaunchHotkey?()
+            case Self.paletteNumber: self.onPaletteHotkey?()
+            case Self.quickNumber: self.onQuickHotkey?()
+            case Self.transformNumber: self.onTransformHotkey?()
+            case Self.closeAllNumber: self.onCloseAllHotkey?()
+            case Self.brighterNumber: self.stepBrightness(1, fromHotkey: true)
+            case Self.darkerNumber: self.stepBrightness(-1, fromHotkey: true)
+            default:
+                if let shortcut = Self.brightnessShortcuts.first(where: { $0.number == number }) {
+                    self.setBrightness(shortcut.level, fromHotkey: true)
+                }
+            }
         }
         // After recording, register again so a conflict with another app is reported.
         HotkeyRecorder.shared.onRecordingChanged.append { [weak self] recording in
@@ -272,7 +292,7 @@ final class Model: ObservableObject {
         let front = Illustrator.isIllustrator(NSWorkspace.shared.frontmostApplication)
         let pairs = [(Self.brighterNumber, brighterCombo), (Self.darkerNumber, darkerCombo), (Self.paletteNumber, paletteCombo), (Self.quickNumber, quickCombo),
                      (Self.transformNumber, transformCombo), (Self.closeAllNumber, closeAllCombo)]
-        let state = "\(hotkeysEnabled):\(front):\(pairs.map { "\($0.0)=\($0.1?.label ?? "-")" }):\(launchCombo?.label ?? "-"):\(guideInTrim)"
+        let state = "\(hotkeysEnabled):\(front):\(ExcludedApps.shared.frontAppExcluded):\(signCombo?.label ?? "-"):\(pairs.map { "\($0.0)=\($0.1?.label ?? "-")" }):\(launchCombo?.label ?? "-"):\(guideInTrim)"
         guard state != registeredState else { return }
         registeredState = state
         var failed: Set<UInt32> = []
@@ -288,6 +308,14 @@ final class Model: ObservableObject {
         } else { hotkeys.unregister(Self.launchNumber) }
         // ⌘; is Illustrator's own key, so it is taken only while Illustrator is in front and the option is on.
         if guideInTrim && front { _ = hotkeys.register(Self.guideNumber, Self.guideCombo) } else { hotkeys.unregister(Self.guideNumber) }
+        let reservedCombos = pairs.compactMap { $0.1 } + [launchCombo, signCombo].compactMap { $0 }
+        for shortcut in Self.brightnessShortcuts {
+            if hotkeysEnabled && front && !ExcludedApps.shared.frontAppExcluded && !reservedCombos.contains(shortcut.combo) {
+                _ = hotkeys.register(shortcut.number, shortcut.combo)
+            } else {
+                hotkeys.unregister(shortcut.number)
+            }
+        }
         failedHotkeys = failed
         publishHotkeys()
     }
@@ -351,9 +379,13 @@ final class Model: ObservableObject {
                     TransientMessage.show(message.text)
                     self.refreshSettingsState()
                     self.onChange?()
-                    if self.pendingBrightness != 0 {
-                        let steps = self.pendingBrightness
-                        self.pendingBrightness = 0
+                    let steps = self.pendingBrightness
+                    let level = self.pendingBrightnessLevel
+                    self.pendingBrightness = 0
+                    self.pendingBrightnessLevel = nil
+                    if let level {
+                        self.setBrightness(UIBrightness.target(from: level, step: steps), fromHotkey: true)
+                    } else if steps != 0 {
                         self.stepBrightness(steps, fromHotkey: true)
                     }
                 }
@@ -398,9 +430,18 @@ final class Model: ObservableObject {
         }
     }
 
-    func setBrightness(_ level: Int) {
-        guard !busy, level != brightnessIndex else { return }
-        brightnessIndex = level
+    func setBrightness(_ level: Int, fromHotkey: Bool = false) {
+        if fromHotkey {
+            guard hotkeysEnabled, Illustrator.front != nil, !ExcludedApps.shared.frontAppExcluded else { return }
+            if busy {
+                pendingBrightnessLevel = level
+                pendingBrightness = 0
+                return
+            }
+        } else {
+            guard !busy, level != brightnessIndex else { return }
+            brightnessIndex = level
+        }
         perform({ UIBrightness.change(level: level) }) { [unowned self] result in
             let message = outcome(result) { _, after in String(format: L("bright.done"), self.levelName(after)) }
             interfaceResult = message
@@ -422,6 +463,18 @@ final class Model: ObservableObject {
         setInterface([item: value], message: String(format: L(value ? "ui.turnedOn" : "ui.turnedOff"), L("ui." + item.rawValue)))
     }
     func applyOldSchool() { setInterface(InterfaceMenus.oldSchool, message: L("ui.oldSchoolDone")) }
+
+    func lockGuides() {
+        guard !busy, guideDocumentOpen else { return }
+        perform({ () -> Result<Bool, SettingsFailure> in
+            guard let app = runningIllustrator() else { return .failure(.notRunning) }
+            return GuideLock.set(true, in: app)
+        }) { [unowned self] result in
+            let message = outcome(result) { _ in L("ui.guidesLocked") }
+            interfaceResult = message
+            return message
+        }
+    }
 
     func setShapeSource(_ source: ShapeBuilderColor.Source) {
         guard !busy, source != shapeSource else { return }
@@ -651,7 +704,7 @@ final class Model: ObservableObject {
     /// Reads brightness, the menu checkmarks and the Shape Builder color (never launches Illustrator, opens no dialog box).
     func refreshSettingsState() {
         guard !busy, let app = Illustrator.running else {
-            if Illustrator.running == nil { brightnessIndex = nil; interface = nil; shapeSource = nil; shapeNoDocument = false; units = nil; prefValues = nil; guideLock = nil }
+            if Illustrator.running == nil { brightnessIndex = nil; interface = nil; shapeSource = nil; shapeNoDocument = false; units = nil; prefValues = nil; guideLock = nil; guideDocumentOpen = false }
             return
         }
         DispatchQueue.global(qos: .utility).async {
@@ -671,6 +724,7 @@ final class Model: ObservableObject {
                     if let files, files.written > self.fileHandlingKnownAt { self.fileHandling = files.state; self.fileHandlingKnownAt = files.written; self.fileHandlingConfirmed = false }
                     self.guideLock = lock
                     self.shapeSource = try? shape.get()
+                    self.guideDocumentOpen = self.shapeSource != nil
                     if case .failure(.noDocument) = shape { self.shapeNoDocument = true } else { self.shapeNoDocument = false }
                 }
             }
@@ -836,14 +890,25 @@ struct InterfacePage: View {
                 Button(L("hotkey.open")) { (NSApp.delegate as? AppDelegate)?.openPreferences(tab: L("hotkey.tab")) }.controlSize(.small)
             }
             GroupTitle(text: L("ui.title")).padding(.top, 8)
-            ForEach(InterfaceMenus.Item.allCases, id: \.self) { item in
+            ForEach(InterfaceMenus.displayItems, id: \.self) { item in
                 Toggle(L("ui." + item.rawValue), isOn: Binding(get: { model.interface?[item] ?? false }, set: { model.setInterface(item, $0) }))
-                    .disabled(model.busy || model.interface == nil)
+                    .disabled(model.busy || model.interface?[item] == nil)
             }
             HStack {
                 Button(L("ui.oldSchool")) { model.applyOldSchool() }.disabled(model.busy || model.interface == nil)
             }.padding(.top, 4)
-            Note(text: L("ui.oldSchoolDetail"))
+            DisclosureGroup(L("ui.explanation")) { Note(text: L("ui.oldSchoolDetail")) }
+            GroupTitle(text: L("ui.guideTitle")).padding(.top, 8)
+            if !model.guideDocumentOpen { Note(text: L("ui.guideDocumentRequired")) }
+            HStack {
+                Button(L("ui.lockGuides")) { model.lockGuides() }
+                    .disabled(model.guideLock == nil)
+                Button(L("ui.snapToGlyphOff")) { model.setInterface(.snapToGlyph, false) }
+                    .disabled(model.interface?[.snapToGlyph] == nil)
+                Button(L("ui.snapToGridOff")) { model.setInterface(.snapToGrid, false) }
+                    .disabled(model.interface?[.snapToGrid] == nil)
+            }
+            .disabled(model.busy || !model.guideDocumentOpen)
             if model.interface == nil { Note(text: model.trusted ? model.notRunningText : AccessibilityText.text("blocked")) }
             ResultRow(result: model.interfaceResult)
         }
@@ -1309,7 +1374,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             preferences = window
         }
         if let window = preferences, !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) { window.center() }
-        NSApp.activate(ignoringOtherApps: true); preferences?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        if preferences?.isMiniaturized == true { preferences?.deminiaturize(nil) }
+        preferences?.makeKeyAndOrderFront(nil)
         // The tab view (SettingsTabs) exists once the window has laid out its SwiftUI content.
         if let tab {
             DispatchQueue.main.async { [weak self] in

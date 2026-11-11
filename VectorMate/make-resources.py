@@ -87,13 +87,21 @@ rows = [
 ('ui.title', '表示', 'Display', '显示', '표시'),
 ('ui.advancedToolbar', 'ツールバー（詳細）', 'Toolbar (Advanced)', '工具栏（高级）', '도구 막대(고급)'),
 ('ui.contextualTaskBar', 'コンテキストタスクバー', 'Contextual Task Bar', '上下文任务栏', '상황별 작업 표시줄'),
-('ui.controlBar', 'コントロールバー', 'Control Bar', '控制栏', '컨트롤 막대'),
+('ui.controlBar', 'コントロールパネル', 'Control Bar', '控制栏', '컨트롤 막대'),
 ('ui.helpBar', 'ヘルプバー', 'Help Bar', '帮助栏', '도움말 막대'),
 ('ui.applicationBar', 'アプリケーションバー', 'Application Bar', '应用程序栏', '응용 프로그램 막대'),
 ('ui.applicationFrame', 'アプリケーションフレーム', 'Application Frame', '应用程序框架', '응용 프로그램 프레임'),
 ('ui.snapToGlyph', 'グリフにスナップ', 'Snap to Glyph', '对齐字形', '글리프에 물리기'),
+('ui.guideTitle', 'ガイド関連', 'Guides and Snapping', '参考线与对齐', '안내선 및 물리기'),
+('ui.guideDocumentRequired', 'Illustratorでドキュメントを開いてから操作してください。', 'Open a document in Illustrator to use these commands.', '请先在 Illustrator 中打开文档。', 'Illustrator에서 도큐먼트를 연 다음 사용하세요.'),
+('ui.lockGuides', 'ガイドをロック', 'Lock Guides', '锁定参考线', '안내선 잠그기'),
+('ui.guidesLocked', 'ガイドをロックしました', 'Guides are locked', '参考线已锁定', '안내선이 잠겼습니다'),
+('ui.snapToGlyphOff', 'グリフにスナップをOFF', 'Turn Off Snap to Glyph', '关闭对齐字形', '글리프에 물리기 끄기'),
+('ui.snapToGridOff', 'グリッドにスナップをOFF', 'Turn Off Snap to Grid', '关闭对齐网格', '격자에 물리기 끄기'),
+('ui.snapToGrid', 'グリッドにスナップ', 'Snap to Grid', '对齐网格', '격자에 물리기'),
+('ui.explanation', '説明', 'Explanation', '说明', '설명'),
 ('ui.oldSchool', 'クラシック表示', 'Classic Layout', '经典布局', '클래식 레이아웃'),
-('ui.oldSchoolDetail', 'ツールバー：詳細／コントロールバー：ON／ヘルプバー：OFF／アプリケーションバー：OFF／アプリケーションフレーム：OFF／グリフにスナップ：OFF／コンテキストタスクバー：OFF。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。', 'Toolbar: Advanced / Contextual Task Bar: off / Control Bar: on / Snap to Glyph: off / Help Bar: off / Application Bar: off / Application Frame: off. The toolbar’s two-column layout cannot be switched from here; use « » at the top of the toolbar.', '工具栏：高级／上下文任务栏：关／控制栏：开／对齐字形：关／帮助栏：关／应用程序栏：关／应用程序框架：关。工具栏的双栏显示无法在此切换，请使用工具栏顶部的 «»。', '도구 막대: 고급 / 상황별 작업 표시줄: 끔 / 컨트롤 막대: 켬 / 글리프에 물리기: 끔 / 도움말 막대: 끔 / 응용 프로그램 막대: 끔 / 응용 프로그램 프레임: 끔. 도구 막대 2열 표시는 여기서 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.'),
+('ui.oldSchoolDetail', 'ツールバー：詳細／コントロールパネル：ON／ヘルプバー：OFF／アプリケーションバー：OFF／アプリケーションフレーム：OFF／コンテキストタスクバー：OFF。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。', 'Toolbar: Advanced / Contextual Task Bar: off / Control Bar: on / Help Bar: off / Application Bar: off / Application Frame: off. The toolbar’s two-column layout cannot be switched from here; use « » at the top of the toolbar.', '工具栏：高级／上下文任务栏：关／控制栏：开／帮助栏：关／应用程序栏：关／应用程序框架：关。工具栏的双栏显示无法在此切换，请使用工具栏顶部的 «»。', '도구 막대: 고급 / 상황별 작업 표시줄: 끔 / 컨트롤 막대: 켬 / 도움말 막대: 끔 / 응용 프로그램 막대: 끔 / 응용 프로그램 프레임: 끔. 도구 막대 2열 표시는 여기서 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.'),
 ('ui.oldSchoolDone', 'クラシック表示にしました', 'Classic layout applied', '已应用经典布局', '클래식 레이아웃을 적용했습니다'),
 ('ui.turnedOn', '%@をONにしました', 'Turned on: %@', '已打开：%@', '%@을(를) 켰습니다'),
 ('ui.turnedOff', '%@をOFFにしました', 'Turned off: %@', '已关闭：%@', '%@을(를) 껐습니다'),
@@ -625,8 +633,9 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 
 基本UI（タブ）
 明るさ：Illustratorの［設定］→［ユーザーインターフェイス］の明るさ（暗・やや暗め・やや明るめ・明）をラジオボタンで選びます。Illustratorが前面のときは ⇧F2 で1段明るく、⇧F1 で1段暗くします（「ホットキーを設定…」から設定の「ホットキー」タブを開いて変更・解除できます。ほかのアプリではキーを横取りしません）。変えるたびに環境設定のダイアログボックスを開いてボタンを押し、［OK］で閉じます。続けて押した分はまとめて反映します。
-表示：ツールバー（詳細）・コンテキストタスクバー・コントロールバー・ヘルプバー・アプリケーションバー・アプリケーションフレーム・グリフにスナップを、Illustratorのメニューの ✓ で読み、メニューを選んで切り替えます。
-クラシック表示：ツールバー：詳細、コンテキストタスクバー：OFF、コントロールバー：ON、グリフにスナップ：OFF、ヘルプバー：OFF、アプリケーションバー：OFF、アプリケーションフレーム：OFF にまとめて揃えます。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。
+表示：ツールバー（詳細）・コンテキストタスクバー・コントロールパネル・ヘルプバー・アプリケーションバー・アプリケーションフレームを、Illustratorのメニューの ✓ で読み、メニューを選んで切り替えます。
+クラシック表示：ツールバー：詳細、コンテキストタスクバー：OFF、コントロールパネル：ON、ヘルプバー：OFF、アプリケーションバー：OFF、アプリケーションフレーム：OFF にまとめて揃えます。ツールバーの2段表示はスクリプトから切り替えられないため、ツールバー上端の «» で切り替えてください。
+ガイド関連：Illustratorでドキュメントを開くと、ガイドをロックし、グリフとグリッドへのスナップをそれぞれオフにできます。
 
 クイック環境設定
 「クイック環境設定を表示」（メニューバー・ファイルメニュー・メインウインドウのボタン、または設定で割り当てたホットキー）で開く、前面に浮くパレットです（AiQuickPrefsPalette と同じ項目）。キー入力（∧∨・↑↓で次の整数へ、shift＋で10の倍数へ、option＋で0.1ずつ）と定規の単位、整列オプション（プレビュー境界・字形の境界）、変形オプション（パターン・角・線幅と効果。option＋クリックでまとめて切り替え）、コピー/ペースト（書式なしペースト・コピー元のレイヤーにペースト）、描画（リアルタイムの描画と編集・プレビュー更新）を切り替えます。定規の単位だけは環境設定の［単位］を開いて変えます。パレットが前面に来るたびに今の値を読み直します。
@@ -709,8 +718,9 @@ Checkboxes for Export in Background, Save in Background and Automatically Save R
 
 Basic UI tab
 Brightness: radio buttons for the brightness in Illustrator Settings → User Interface (Dark, Medium Dark, Medium Light, Light). While Illustrator is in front, ⇧F2 makes it one step brighter and ⇧F1 darker (Set Hotkeys… opens the Hotkeys tab of Settings to change or clear them; other apps keep the keys). Each change opens the Settings dialog box, clicks the button and closes it with OK; presses made meanwhile are applied together.
-Display: Toolbar (Advanced), Contextual Task Bar, Control Bar, Help Bar, Application Bar, Application Frame and Snap to Glyph are read from the checkmarks in Illustrator's menus and switched by choosing the menu item.
-Classic Layout: Toolbar Advanced, Contextual Task Bar off, Control Bar on, Snap to Glyph off, Help Bar off, Application Bar off, Application Frame off in one go. The toolbar's two-column layout cannot be switched from a script; use « » at the top of the toolbar.
+Display: Toolbar (Advanced), Contextual Task Bar, Control Bar, Help Bar, Application Bar, Application Frame are read from the checkmarks in Illustrator's menus and switched by choosing the menu item.
+Classic Layout: Toolbar Advanced, Contextual Task Bar off, Control Bar on, Help Bar off, Application Bar off, Application Frame off in one go. The toolbar's two-column layout cannot be switched from a script; use « » at the top of the toolbar.
+Guides and Snapping: Open a document in Illustrator to lock guides or turn off Snap to Glyph and Snap to Grid individually.
 
 Quick Preferences
 A floating palette opened with Show Quick Preferences (menu bar, File menu, the main window button, or a hotkey set in Settings), with the items of AiQuickPrefsPalette: keyboard increment (∧∨ / ↑↓ to the next whole number, Shift to multiples of 10, Option by 0.1) and ruler unit, Align options (preview bounds, glyph bounds), Transform options (pattern tiles, corners, strokes & effects; Option-click switches all), Copy / Paste (paste without formatting, paste remembers layers) and Drawing (real-time drawing & editing, Refresh Preview). Only the ruler unit opens the Units pane of Settings. The values are read again whenever the palette comes forward.
@@ -793,8 +803,9 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 
 基本界面（标签）
 亮度：用单选按钮选择 Illustrator“设置 → 用户界面”中的亮度（暗、中等深色、中等浅色、亮）。Illustrator 位于前台时，⇧F2 调亮一级，⇧F1 调暗一级（可通过“设置快捷键…”打开设置的“快捷键”标签进行更改或清除；不会占用其他应用的按键）。
-显示：工具栏（高级）、上下文任务栏、控制栏、帮助栏、应用程序栏、应用程序框架、对齐字形，根据 Illustrator 菜单的勾号读取，并通过选择菜单项切换。
-经典布局：一次设为工具栏高级、上下文任务栏关、控制栏开、对齐字形关、帮助栏关、应用程序栏关、应用程序框架关。工具栏的双栏显示无法通过脚本切换，请使用工具栏顶部的 «»。
+显示：工具栏（高级）、上下文任务栏、控制栏、帮助栏、应用程序栏、应用程序框架，根据 Illustrator 菜单的勾号读取，并通过选择菜单项切换。
+经典布局：一次设为工具栏高级、上下文任务栏关、控制栏开、帮助栏关、应用程序栏关、应用程序框架关。工具栏的双栏显示无法通过脚本切换，请使用工具栏顶部的 «»。
+参考线与对齐：在 Illustrator 中打开文档后，可以锁定参考线，并分别关闭对齐字形与对齐网格。
 
 快速偏好设置
 通过“显示快速偏好设置”打开的浮动面板，项目与 AiQuickPrefsPalette 相同：键盘增量与标尺单位、对齐选项、变换选项（option 点按一起切换）、拷贝/粘贴、绘图（实时绘图和编辑、刷新预览）。仅标尺单位会打开设置的“单位”更改。面板来到前面时会重新读取当前值。
@@ -877,8 +888,9 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 
 기본 UI(탭)
 밝기: Illustrator 설정 → 사용자 인터페이스의 밝기(어둡게, 약간 어둡게, 약간 밝게, 밝게)를 라디오 버튼으로 고릅니다. Illustrator가 앞에 있을 때 ⇧F2로 한 단계 밝게, ⇧F1로 한 단계 어둡게 합니다(단축키 설정…으로 설정의 단축키 탭을 열어 변경·해제할 수 있으며 다른 앱의 키는 가로채지 않습니다).
-표시: 도구 막대(고급), 상황별 작업 표시줄, 컨트롤 막대, 도움말 막대, 응용 프로그램 막대, 응용 프로그램 프레임, 글리프에 물리기를 Illustrator 메뉴의 체크 표시로 읽고 메뉴를 선택해 전환합니다.
-클래식 레이아웃: 도구 막대 고급, 상황별 작업 표시줄 끔, 컨트롤 막대 켬, 글리프에 물리기 끔, 도움말 막대 끔, 응용 프로그램 막대 끔, 응용 프로그램 프레임 끔으로 한 번에 맞춥니다. 도구 막대 2열 표시는 스크립트로 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.
+표시: 도구 막대(고급), 상황별 작업 표시줄, 컨트롤 막대, 도움말 막대, 응용 프로그램 막대, 응용 프로그램 프레임을 Illustrator 메뉴의 체크 표시로 읽고 메뉴를 선택해 전환합니다.
+클래식 레이아웃: 도구 막대 고급, 상황별 작업 표시줄 끔, 컨트롤 막대 켬, 도움말 막대 끔, 응용 프로그램 막대 끔, 응용 프로그램 프레임 끔으로 한 번에 맞춥니다. 도구 막대 2열 표시는 스크립트로 바꿀 수 없으니 도구 막대 위쪽의 «»를 사용하세요.
+안내선 및 물리기: Illustrator에서 도큐먼트를 열면 안내선을 잠그고 글리프와 격자에 물리기를 각각 끌 수 있습니다.
 
 빠른 환경설정
 빠른 환경설정 보기로 여는 떠 있는 팔레트이며 AiQuickPrefsPalette와 같은 항목입니다: 키보드 증감과 눈금자 단위, 정렬 옵션, 변형 옵션(option 클릭으로 함께 전환), 복사/붙여넣기, 그리기(실시간 그리기 및 편집, 미리 보기 새로 고침). 눈금자 단위만 설정의 단위를 열어 바꿉니다. 팔레트가 앞으로 올 때마다 현재 값을 다시 읽습니다.
