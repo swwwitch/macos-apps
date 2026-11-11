@@ -8,6 +8,10 @@ MenuDiff reads the menus of two versions of Illustrator, InDesign or Photoshop a
 - For a version that is not running, saved data is used. If there is none, MenuDiff launches that version, reads its menus and quits it. Only versions that MenuDiff launched are quit, and not if you started using it (it is in front) while waiting.
 - Reread updates the saved data.
 - If the menus are not ready after 4 minutes, MenuDiff stops. A dialog may be waiting.
+## Options
+- Don’t compare shortcuts: leaves key differences out, for example when you use your own shortcut set.
+- Leave out third-party plug-in items: leaves out items containing a name listed under Compare in Settings (XtreamPath, Astute, WordsFlow and so on) and the About Plug-ins items. For InDesign, the company and product names under About Plug-ins are used too. Saved data is not changed, so turning it off restores the full results.
+- Both rebuild the results without reading the menus again.
 ## Reading the results
 - Added / Removed: items that exist on one side only.
 - Renamed: a submenu paired with the one its items moved to, and one removed with one added item in the same menu. This is an estimate.

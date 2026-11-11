@@ -58,6 +58,16 @@
 "button.defaultFolder" = "使用默认";
 "button.choose" = "选取";
 "settings.folderDetail" = "已读取的菜单以“Ai31.0.0 ja_JP.tsv”（InDesign 为 Id，Photoshop 为 Ps）之类的名称存储。已存储的版本无需启动应用即可比较。";
+"field.options" = "比较方式";
+"option.ignoreShortcuts" = "不比较快捷键的变化";
+"tip.ignoreShortcuts" = "例如使用自己的快捷键集时，不在结果中显示按键差异。";
+"option.excludePlugins" = "排除第三方增效工具的项目";
+"tip.excludePlugins" = "排除名称包含设置“比较”中所列名称的项目以及“关于增效工具”的项目后进行比较。";
+"note.pluginsExcluded" = "已排除 %d 个第三方增效工具项目（两侧合计）。";
+"settings.compareTab" = "比较";
+"settings.plugins" = "要排除的增效工具名称";
+"button.defaultPlugins" = "恢复默认";
+"settings.pluginsDetail" = "每行一个名称。菜单路径的任一部分包含该名称时排除（不区分大小写）。InDesign 还会自动使用“关于增效工具”中的公司名和产品名。";
 "aboutDetail" = "在不同版本之间比较 Illustrator、InDesign 和 Photoshop 的菜单。支持：内置的 README.md";
 "openMainWindow" = "打开主窗口";
 "settings" = "设置…";

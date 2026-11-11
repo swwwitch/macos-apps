@@ -114,3 +114,68 @@ struct MenuDiff {
         newPaths.removeAll { pairedNew.contains($0) }
     }
 }
+
+/// 他社製プラグインの項目を比較から外す（スナップショットには残し、比べるときだけ外す）
+enum PluginFilter {
+    static let keywordsKey = "pluginKeywords"
+
+    /// 既定の名前。メニューのパスのどこかの項目名に含まれていれば外す（大文字小文字は区別しない）
+    static let defaultKeywords = [
+        "XtreamPath", "Astute", "VectorScribe", "WidthScribe", "InkScribe", "PathScribe", "Phantasm", "ColliderScribe",
+        "SubScribe", "DynamicSketch", "Texturino", "Rasterino", "Stylism", "MirrorMe", "InkQuest", "Hot Door", "CADtools",
+        "WordsFlow", "Em Software", "Nik Collection", "Topaz", "Imagenomic", "Portraiture", "Luminar",
+    ]
+
+    /// 設定の名前（1行1件）。未設定なら既定
+    static var keywords: [String] {
+        guard let text = UserDefaults.standard.string(forKey: keywordsKey) else { return defaultKeywords }
+        return parse(text)
+    }
+
+    static func parse(_ text: String) -> [String] {
+        text.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    /// 「プラグインについて」（About Plug-ins）の下の項目。InDesign はここに他社製だけが「会社>製品」で並ぶので名前として使う
+    static func isAboutPlugins(_ component: String) -> Bool {
+        ["プラグインについて", "About Plug-ins", "About Plug-Ins", "About Plugins"].contains(component)
+    }
+
+    static func detectedNames(in snapshot: MenuSnapshot) -> [String] {
+        let isInDesign = (snapshot.meta["product"] ?? "") == "InDesign" || snapshot.name.hasPrefix("Id")
+        guard isInDesign else { return [] }
+        var names: [String] = []
+        for entry in snapshot.entries {
+            let parts = entry.path.components(separatedBy: MenuReader.separator)
+            guard parts.count >= 3, isAboutPlugins(parts[1]) else { continue }
+            for part in parts[2...] {
+                let name = part.replacingOccurrences(of: "™", with: "").replacingOccurrences(of: "®", with: "")
+                    .replacingOccurrences(of: "...", with: "").replacingOccurrences(of: "…", with: "")
+                    .trimmingCharacters(in: .whitespaces)
+                if name.count >= 3 && !names.contains(name) { names.append(name) }
+            }
+        }
+        return names
+    }
+
+    static func isPluginItem(_ path: String, names: [String]) -> Bool {
+        let parts = path.components(separatedBy: MenuReader.separator)
+        if parts.count >= 2 && isAboutPlugins(parts[1]) { return true }
+        return parts.contains { part in names.contains { part.localizedCaseInsensitiveContains($0) } }
+    }
+
+    static func removingPlugins(from snapshot: MenuSnapshot, names: [String]) -> MenuSnapshot {
+        var filtered = snapshot
+        filtered.entries = snapshot.entries.filter { !isPluginItem($0.path, names: names) }
+        return filtered
+    }
+
+    /// 2つのスナップショットから外す名前（設定の名前＋InDesign で見つけた名前）
+    static func names(for snapshots: [MenuSnapshot], keywords: [String]) -> [String] {
+        var names = keywords
+        for snapshot in snapshots {
+            for name in detectedNames(in: snapshot) where !names.contains(name) { names.append(name) }
+        }
+        return names
+    }
+}

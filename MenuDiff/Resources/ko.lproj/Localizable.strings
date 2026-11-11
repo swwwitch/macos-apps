@@ -58,6 +58,16 @@
 "button.defaultFolder" = "기본값 사용";
 "button.choose" = "선택";
 "settings.folderDetail" = "읽은 메뉴는 “Ai31.0.0 ja_JP.tsv”(InDesign은 Id, Photoshop은 Ps) 같은 이름으로 저장됩니다. 저장된 버전은 앱을 실행하지 않고도 비교할 수 있습니다.";
+"field.options" = "비교 옵션";
+"option.ignoreShortcuts" = "단축키 변화는 비교하지 않음";
+"tip.ignoreShortcuts" = "예를 들어 자신의 단축키 세트를 쓸 때 키 차이를 결과에 표시하지 않습니다.";
+"option.excludePlugins" = "타사 플러그인 항목 제외";
+"tip.excludePlugins" = "설정의 비교에 있는 이름이 들어간 항목과 '플러그인에 관하여' 항목을 빼고 비교합니다.";
+"note.pluginsExcluded" = "타사 플러그인 항목 %d개를 제외했습니다(양쪽 합계).";
+"settings.compareTab" = "비교";
+"settings.plugins" = "제외할 플러그인 이름";
+"button.defaultPlugins" = "기본값으로 복원";
+"settings.pluginsDetail" = "한 줄에 하나씩 씁니다. 메뉴 경로의 어느 부분에든 이름이 들어 있으면 제외합니다(대소문자 구분 안 함). InDesign은 '플러그인에 관하여'에 나오는 회사·제품 이름도 자동으로 사용합니다.";
 "aboutDetail" = "Illustrator, InDesign, Photoshop의 메뉴를 버전 간에 비교합니다. 지원: 내장된 README.md";
 "openMainWindow" = "메인 윈도우 열기";
 "settings" = "설정…";

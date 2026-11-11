@@ -56,4 +56,18 @@ for app in AdobeApp.allCases {
     check(MenuReader.excludedDescendants(for: app).contains("\(app.title)>サービス"), "services excluded for \(app.title)")
 }
 
+// 他社製プラグインの項目を外す（設定の名前＋InDesign の「プラグインについて」）
+let idOld = snapshot("Id21.6 ja_JP", [
+    ("InDesign", ""), ("InDesign>プラグインについて", ""), ("InDesign>プラグインについて>Em Software", ""),
+    ("InDesign>プラグインについて>Em Software>WordsFlow™...", ""), ("ファイル", ""), ("ファイル>WordsFlow", ""),
+    ("ファイル>WordsFlow>Place with WordsFlow...", ""), ("ファイル>開く...", "⌘O"),
+])
+let idNames = PluginFilter.names(for: [idOld], keywords: [])
+check(idNames.contains("Em Software") && idNames.contains("WordsFlow"), "detected \(idNames)")
+let idFiltered = PluginFilter.removingPlugins(from: idOld, names: idNames)
+check(idFiltered.entries.map(\.path) == ["InDesign", "ファイル", "ファイル>開く..."], "filtered \(idFiltered.entries.map(\.path))")
+let aiFiltered = PluginFilter.removingPlugins(from: old, names: PluginFilter.defaultKeywords)
+check(!aiFiltered.entries.contains { $0.path.contains("XtreamPath") } && aiFiltered.entries.count == old.entries.count - 2, "ai plugins")
+check(PluginFilter.detectedNames(in: old).isEmpty, "no auto names outside InDesign")
+
 if failures == 0 { print("PASS: diff, snapshot format and title normalization") } else { print("\(failures) failure(s)"); exit(1) }

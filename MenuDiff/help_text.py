@@ -11,6 +11,10 @@ MenuDiffは、Illustrator・InDesign・Photoshopの2つのバージョンのメ�
 - 起動していないバージョンは、保存済みのデータを使います。無いときは、そのバージョンを起動してメニューを読み、読み終えたら終了させます。終了させるのはMenuDiffが起動したものだけです。待っている間に使い始めた（前面にある）ときは終了させません。
 - ［読み直す］で、保存済みのデータを新しくします。
 - 起動を4分待ってもメニューがそろわないときは止めます。ダイアログボックスで止まっていることがあります。
+## 比較のしかた
+- ［ショートカットの変化は比べない］：自分用のショートカットのセットを使っているときなど、キーの違いを結果に出しません。
+- ［他社製プラグインの項目を外す］：設定の［比較］に書いた名前（XtreamPath・Astute・WordsFlow など）を含む項目と、「プラグインについて」の項目を外して比べます。InDesign は「プラグインについて」に並ぶ会社名・製品名も使います。保存したデータからは消さないので、オフに戻せば元の結果になります。
+- どちらも読み直さずに、結果だけ作り直します。
 ## 結果の見方
 - 追加・削除：片方にだけある項目です。
 - 名前の変更：中身が移った先のサブメニューと、同じメニューの中で削除と追加が1つずつあったものを組にします。推定です。
@@ -45,6 +49,10 @@ MenuDiff reads the menus of two versions of Illustrator, InDesign or Photoshop a
 - For a version that is not running, saved data is used. If there is none, MenuDiff launches that version, reads its menus and quits it. Only versions that MenuDiff launched are quit, and not if you started using it (it is in front) while waiting.
 - Reread updates the saved data.
 - If the menus are not ready after 4 minutes, MenuDiff stops. A dialog may be waiting.
+## Options
+- Don’t compare shortcuts: leaves key differences out, for example when you use your own shortcut set.
+- Leave out third-party plug-in items: leaves out items containing a name listed under Compare in Settings (XtreamPath, Astute, WordsFlow and so on) and the About Plug-ins items. For InDesign, the company and product names under About Plug-ins are used too. Saved data is not changed, so turning it off restores the full results.
+- Both rebuild the results without reading the menus again.
 ## Reading the results
 - Added / Removed: items that exist on one side only.
 - Renamed: a submenu paired with the one its items moved to, and one removed with one added item in the same menu. This is an estimate.
@@ -79,6 +87,10 @@ MenuDiff 读取 Illustrator、InDesign 或 Photoshop 两个版本的菜单，并
 - 未运行的版本使用已存储的数据。若没有，MenuDiff 会启动该版本、读取菜单后将其退出。只退出由 MenuDiff 启动的版本；等待期间若你开始使用（位于前台）则不退出。
 - “重新读取”会更新已存储的数据。
 - 等待 4 分钟菜单仍未就绪时会停止。可能有对话框在等待。
+## 比较方式
+- “不比较快捷键的变化”：例如使用自己的快捷键集时，不在结果中显示按键差异。
+- “排除第三方增效工具的项目”：排除名称包含设置“比较”中所列名称（XtreamPath、Astute、WordsFlow 等）的项目以及“关于增效工具”的项目后进行比较。InDesign 还会使用“关于增效工具”中的公司名和产品名。已存储的数据不会改变，关闭后即恢复完整结果。
+- 两者都只重新生成结果，不会重新读取菜单。
 ## 查看结果
 - 新增／删除：只存在于一侧的项目。
 - 已重命名：将子项目移入的子菜单，以及同一菜单中各有一个删除和新增的项目配成一组。这是推测。
@@ -113,6 +125,10 @@ MenuDiff는 Illustrator, InDesign, Photoshop의 두 버전 메뉴를 읽고 차�
 - 실행 중이 아닌 버전은 저장된 데이터를 사용합니다. 없으면 MenuDiff가 그 버전을 실행해 메뉴를 읽고 종료합니다. MenuDiff가 실행한 것만 종료하며, 기다리는 동안 사용을 시작한(앞에 있는) 경우에는 종료하지 않습니다.
 - 다시 읽기로 저장된 데이터를 새로 고칩니다.
 - 4분을 기다려도 메뉴가 준비되지 않으면 중단합니다. 대화상자가 기다리고 있을 수 있습니다.
+## 비교 옵션
+- 단축키 변화는 비교하지 않음: 예를 들어 자신의 단축키 세트를 쓸 때 키 차이를 결과에 표시하지 않습니다.
+- 타사 플러그인 항목 제외: 설정의 비교에 적은 이름(XtreamPath, Astute, WordsFlow 등)이 들어간 항목과 '플러그인에 관하여' 항목을 빼고 비교합니다. InDesign은 '플러그인에 관하여'에 나오는 회사·제품 이름도 사용합니다. 저장된 데이터는 바뀌지 않으므로 끄면 전체 결과로 돌아갑니다.
+- 둘 다 메뉴를 다시 읽지 않고 결과만 다시 만듭니다.
 ## 결과 보기
 - 추가·삭제: 한쪽에만 있는 항목입니다.
 - 이름 변경: 하위 항목이 옮겨 간 하위 메뉴와, 같은 메뉴에서 삭제와 추가가 하나씩 있는 항목을 짝지은 것입니다. 추정입니다.

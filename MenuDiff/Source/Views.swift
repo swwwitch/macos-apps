@@ -86,6 +86,15 @@ struct MainView: View {
                     .padding(.top, 26)
                 sourceColumn(label: L("field.old"), selection: $model.oldName)
             }
+            Divider()
+            VStack(alignment: .leading, spacing: 8) {
+                sectionLabel(L("field.options"))
+                Toggle(L("option.ignoreShortcuts"), isOn: $model.ignoresShortcuts)
+                    .help(L("tip.ignoreShortcuts"))
+                Toggle(L("option.excludePlugins"), isOn: $model.excludesPlugins)
+                    .help(L("tip.excludePlugins"))
+            }
+            .disabled(model.isWorking)
         }
         .padding(18)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
@@ -207,7 +216,7 @@ struct ResultsView: View {
                     .help(L("tip.copy"))
             }
             Picker(L("a11y.category"), selection: $model.category) {
-                ForEach(ResultCategory.allCases) { category in
+                ForEach(model.visibleCategories) { category in
                     Text("\(category.title) \(model.count(of: category, in: diff))").tag(category)
                 }
             }
@@ -216,6 +225,9 @@ struct ResultsView: View {
             .fixedSize()
             if let note = note(for: model.category) {
                 Explanation(note)
+            }
+            if !model.pluginNote.isEmpty {
+                Explanation(model.pluginNote)
             }
             List(rows) { row in
                 ResultRowView(row: row)
@@ -290,6 +302,7 @@ struct SettingsView: View {
     @ObservedObject var launcher: AppLauncherHotkey
     @AppStorage("resident") var resident = false
     @State private var folderPath = SnapshotStore.folder.path
+    @State private var pluginText = PluginFilter.keywords.joined(separator: "\n")
 
     var body: some View {
         SettingsTabs(sections: [
@@ -307,6 +320,27 @@ struct SettingsView: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                 }
                 AccessibilitySection()
+            })),
+            (L("settings.compareTab"), AnyView(VStack(spacing: 16) {
+                SettingsSection(L("settings.plugins")) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        TextEditor(text: $pluginText)
+                            .font(.system(size: 12))
+                            .frame(minHeight: 160)
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(nsColor: .separatorColor)))
+                            .onChange(of: pluginText) { text in
+                                UserDefaults.standard.set(text, forKey: PluginFilter.keywordsKey)
+                            }
+                        HStack {
+                            Button(L("button.defaultPlugins")) {
+                                UserDefaults.standard.removeObject(forKey: PluginFilter.keywordsKey)
+                                pluginText = PluginFilter.defaultKeywords.joined(separator: "\n")
+                                UserDefaults.standard.removeObject(forKey: PluginFilter.keywordsKey)
+                            }
+                        }
+                        Explanation(L("settings.pluginsDetail"))
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                }
             })),
             (L("settings.saveTab"), AnyView(VStack(spacing: 16) {
                 SettingsSection(L("settings.folder")) {

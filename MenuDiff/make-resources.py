@@ -65,6 +65,16 @@ button.chooseFolder|選ぶ…|Choose…|选取…|선택…
 button.defaultFolder|既定に戻す|Use Default|使用默认|기본값 사용
 button.choose|選ぶ|Choose|选取|선택
 settings.folderDetail|読んだメニューを「Ai31.0.0 ja_JP.tsv」（InDesign は Id、Photoshop は Ps）のような名前で保存します。保存済みのバージョンは、アプリを起動しなくても比較できます。|Read menus are saved with names such as “Ai31.0.0 ja_JP.tsv” (Id for InDesign, Ps for Photoshop). Saved versions can be compared without launching the app.|已读取的菜单以“Ai31.0.0 ja_JP.tsv”（InDesign 为 Id，Photoshop 为 Ps）之类的名称存储。已存储的版本无需启动应用即可比较。|읽은 메뉴는 “Ai31.0.0 ja_JP.tsv”(InDesign은 Id, Photoshop은 Ps) 같은 이름으로 저장됩니다. 저장된 버전은 앱을 실행하지 않고도 비교할 수 있습니다.
+field.options|比較のしかた|Options|比较方式|비교 옵션
+option.ignoreShortcuts|ショートカットの変化は比べない|Don’t compare shortcuts|不比较快捷键的变化|단축키 변화는 비교하지 않음
+tip.ignoreShortcuts|自分用のキーボードショートカットのセットを使っているときなど、キーの違いを結果に出しません。|Leaves key differences out of the results, for example when you use your own shortcut set.|例如使用自己的快捷键集时，不在结果中显示按键差异。|예를 들어 자신의 단축키 세트를 쓸 때 키 차이를 결과에 표시하지 않습니다.
+option.excludePlugins|他社製プラグインの項目を外す|Leave out third-party plug-in items|排除第三方增效工具的项目|타사 플러그인 항목 제외
+tip.excludePlugins|設定の［比較］にある名前を含む項目と、「プラグインについて」の項目を外して比べます。|Leaves out items whose names contain a name listed under Compare in Settings, and the About Plug-ins items.|排除名称包含设置“比较”中所列名称的项目以及“关于增效工具”的项目后进行比较。|설정의 비교에 있는 이름이 들어간 항목과 '플러그인에 관하여' 항목을 빼고 비교합니다.
+note.pluginsExcluded|他社製プラグインの項目を%d件外しています（両方の合計）。|%d third-party plug-in items are left out (both sides combined).|已排除 %d 个第三方增效工具项目（两侧合计）。|타사 플러그인 항목 %d개를 제외했습니다(양쪽 합계).
+settings.compareTab|比較|Compare|比较|비교
+settings.plugins|外すプラグインの名前|Plug-in Names to Leave Out|要排除的增效工具名称|제외할 플러그인 이름
+button.defaultPlugins|既定に戻す|Restore Defaults|恢复默认|기본값으로 복원
+settings.pluginsDetail|1行に1つずつ書きます。メニューのパスのどこかの項目名に含まれていれば外します（大文字と小文字は区別しません）。InDesign は「プラグインについて」に並ぶ会社名・製品名も自動で使います。|One name per line. An item is left out when any part of its menu path contains a name (case-insensitive). For InDesign, the company and product names under About Plug-ins are also used automatically.|每行一个名称。菜单路径的任一部分包含该名称时排除（不区分大小写）。InDesign 还会自动使用“关于增效工具”中的公司名和产品名。|한 줄에 하나씩 씁니다. 메뉴 경로의 어느 부분에든 이름이 들어 있으면 제외합니다(대소문자 구분 안 함). InDesign은 '플러그인에 관하여'에 나오는 회사·제품 이름도 자동으로 사용합니다.
 aboutDetail|Illustrator・InDesign・Photoshop のメニューをバージョン間で比較します。サポート：同梱のREADME.md|Compares the menus of Illustrator, InDesign and Photoshop between versions. Support: bundled README.md|在不同版本之间比较 Illustrator、InDesign 和 Photoshop 的菜单。支持：内置的 README.md|Illustrator, InDesign, Photoshop의 메뉴를 버전 간에 비교합니다. 지원: 내장된 README.md
 openMainWindow|メインウインドウを開く|Open Main Window|打开主窗口|메인 윈도우 열기
 settings|設定…|Settings…|设置…|설정…

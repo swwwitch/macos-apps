@@ -28,6 +28,7 @@ final class AppModel: ObservableObject {
             oldName = UserDefaults.standard.string(forKey: Self.key("oldName", product)) ?? ""
             newName = UserDefaults.standard.string(forKey: Self.key("newName", product)) ?? ""
             diff = nil
+            compared = nil
             errorText = ""
             status = ""
             refresh()
@@ -49,6 +50,19 @@ final class AppModel: ObservableObject {
     @Published var query = ""
     /// 表示を更新するための目印（起動・終了・保存のたび）
     @Published var stateStamp = 0
+    /// 比較の選択（読み直さずに結果だけ作り直す）
+    @Published var ignoresShortcuts = UserDefaults.standard.bool(forKey: "ignoresShortcuts") {
+        didSet { UserDefaults.standard.set(ignoresShortcuts, forKey: "ignoresShortcuts"); rebuildDiff() }
+    }
+    @Published var excludesPlugins = UserDefaults.standard.bool(forKey: "excludesPlugins") {
+        didSet { UserDefaults.standard.set(excludesPlugins, forKey: "excludesPlugins"); rebuildDiff() }
+    }
+    @Published var pluginNote = ""
+    private var compared: (old: MenuSnapshot, new: MenuSnapshot)?
+
+    var visibleCategories: [ResultCategory] {
+        ignoresShortcuts ? ResultCategory.allCases.filter { $0 != .shortcuts } : ResultCategory.allCases
+    }
 
     private var observers: [NSObjectProtocol] = []
 
@@ -72,6 +86,13 @@ final class AppModel: ObservableObject {
         })
         observers.append(NotificationCenter.default.addObserver(forName: SnapshotStore.folderChanged, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.refresh() }
+        })
+        observers.append(NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.excludesPlugins else { return }
+                let names = PluginFilter.keywords
+                if names != self.lastKeywords { self.rebuildDiff() }
+            }
         })
     }
 
@@ -139,17 +160,38 @@ final class AppModel: ObservableObject {
         run {
             let oldSnapshot = try await self.snapshot(for: oldSource, forceRead: false)
             let newSnapshot = try await self.snapshot(for: newSource, forceRead: false)
-            self.diff = MenuDiff(old: oldSnapshot, new: newSnapshot)
-            self.comparedTitle = LF("compared.title", oldSnapshot.name, oldSnapshot.entries.count, newSnapshot.name, newSnapshot.entries.count)
+            self.compared = (oldSnapshot, newSnapshot)
+            self.rebuildDiff()
             if oldSnapshot.locale != newSnapshot.locale {
                 self.errorText = LF("warning.localeMismatch", oldSnapshot.locale, newSnapshot.locale)
             }
             if let diff = self.diff, self.count(of: self.category, in: diff) == 0,
-               let first = ResultCategory.allCases.first(where: { self.count(of: $0, in: diff) > 0 }) {
+               let first = self.visibleCategories.first(where: { self.count(of: $0, in: diff) > 0 }) {
                 self.category = first
             }
             self.status = ""
         }
+    }
+
+    private var lastKeywords: [String] = []
+
+    /// 選択（ショートカット・プラグイン）に合わせて結果を作り直す。読み直しはしない
+    func rebuildDiff() {
+        if ignoresShortcuts && category == .shortcuts { category = .added }
+        guard let compared else { return }
+        var old = compared.old, new = compared.new
+        pluginNote = ""
+        if excludesPlugins {
+            lastKeywords = PluginFilter.keywords
+            let names = PluginFilter.names(for: [old, new], keywords: lastKeywords)
+            let before = old.entries.count + new.entries.count
+            old = PluginFilter.removingPlugins(from: old, names: names)
+            new = PluginFilter.removingPlugins(from: new, names: names)
+            let removed = before - old.entries.count - new.entries.count
+            if removed > 0 { pluginNote = LF("note.pluginsExcluded", removed) }
+        }
+        diff = MenuDiff(old: old, new: new)
+        comparedTitle = LF("compared.title", old.name, old.entries.count, new.name, new.entries.count)
     }
 
     func reread(_ name: String) {

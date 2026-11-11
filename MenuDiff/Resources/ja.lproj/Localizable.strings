@@ -58,6 +58,16 @@
 "button.defaultFolder" = "既定に戻す";
 "button.choose" = "選ぶ";
 "settings.folderDetail" = "読んだメニューを「Ai31.0.0 ja_JP.tsv」（InDesign は Id、Photoshop は Ps）のような名前で保存します。保存済みのバージョンは、アプリを起動しなくても比較できます。";
+"field.options" = "比較のしかた";
+"option.ignoreShortcuts" = "ショートカットの変化は比べない";
+"tip.ignoreShortcuts" = "自分用のキーボードショートカットのセットを使っているときなど、キーの違いを結果に出しません。";
+"option.excludePlugins" = "他社製プラグインの項目を外す";
+"tip.excludePlugins" = "設定の［比較］にある名前を含む項目と、「プラグインについて」の項目を外して比べます。";
+"note.pluginsExcluded" = "他社製プラグインの項目を%d件外しています（両方の合計）。";
+"settings.compareTab" = "比較";
+"settings.plugins" = "外すプラグインの名前";
+"button.defaultPlugins" = "既定に戻す";
+"settings.pluginsDetail" = "1行に1つずつ書きます。メニューのパスのどこかの項目名に含まれていれば外します（大文字と小文字は区別しません）。InDesign は「プラグインについて」に並ぶ会社名・製品名も自動で使います。";
 "aboutDetail" = "Illustrator・InDesign・Photoshop のメニューをバージョン間で比較します。サポート：同梱のREADME.md";
 "openMainWindow" = "メインウインドウを開く";
 "settings" = "設定…";

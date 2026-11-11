@@ -58,6 +58,16 @@
 "button.defaultFolder" = "Use Default";
 "button.choose" = "Choose";
 "settings.folderDetail" = "Read menus are saved with names such as “Ai31.0.0 ja_JP.tsv” (Id for InDesign, Ps for Photoshop). Saved versions can be compared without launching the app.";
+"field.options" = "Options";
+"option.ignoreShortcuts" = "Don’t compare shortcuts";
+"tip.ignoreShortcuts" = "Leaves key differences out of the results, for example when you use your own shortcut set.";
+"option.excludePlugins" = "Leave out third-party plug-in items";
+"tip.excludePlugins" = "Leaves out items whose names contain a name listed under Compare in Settings, and the About Plug-ins items.";
+"note.pluginsExcluded" = "%d third-party plug-in items are left out (both sides combined).";
+"settings.compareTab" = "Compare";
+"settings.plugins" = "Plug-in Names to Leave Out";
+"button.defaultPlugins" = "Restore Defaults";
+"settings.pluginsDetail" = "One name per line. An item is left out when any part of its menu path contains a name (case-insensitive). For InDesign, the company and product names under About Plug-ins are also used automatically.";
 "aboutDetail" = "Compares the menus of Illustrator, InDesign and Photoshop between versions. Support: bundled README.md";
 "openMainWindow" = "Open Main Window";
 "settings" = "Settings…";
