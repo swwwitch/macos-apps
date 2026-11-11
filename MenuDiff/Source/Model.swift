@@ -1,5 +1,8 @@
 import AppKit
 
+func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
+func LF(_ key: String, _ args: CVarArg...) -> String { String(format: L(key), arguments: args) }
+
 /// メニュー項目1つ。path は「ファイル>書き出し>PNG...」の形
 struct MenuEntry: Hashable {
     var path: String
@@ -55,7 +58,7 @@ struct MenuSnapshot {
 
 /// 対応するアプリ
 enum AdobeApp: String, CaseIterable, Identifiable {
-    case illustrator, indesign, photoshop
+    case illustrator, photoshop, indesign  // 画面のボタンの並び（Ai・Ps・Id）
     var id: String { rawValue }
 
     var title: String {
@@ -147,16 +150,27 @@ struct AppInstall: Hashable {
     }
 }
 
-/// スナップショットの置き場所。AT-doc があればその中、無ければ Application Support
+/// スナップショットの置き場所。既定は Application Support/MenuDiff/Snapshots、設定で変えられる
 enum SnapshotStore {
-    static let folder: URL = {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let atDoc = home.appendingPathComponent("sw Dropbox/takano masahiro/Dropbox-shared/AT-doc")
-        if FileManager.default.fileExists(atPath: atDoc.path) {
-            return atDoc.appendingPathComponent("menu-titles")
+    static let folderKey = "snapshotFolder"
+    static let folderChanged = Notification.Name("MenuDiffSnapshotFolderChanged")
+
+    static var defaultFolder: URL {
+        FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/MenuDiff/Snapshots")
+    }
+
+    static var folder: URL {
+        if let path = UserDefaults.standard.string(forKey: folderKey), !path.isEmpty {
+            return URL(fileURLWithPath: path, isDirectory: true)
         }
-        return home.appendingPathComponent("Library/Application Support/MenuDiff")
-    }()
+        return defaultFolder
+    }
+
+    /// nil で既定に戻す
+    static func setFolder(_ url: URL?) {
+        if let url { UserDefaults.standard.set(url.path, forKey: folderKey) } else { UserDefaults.standard.removeObject(forKey: folderKey) }
+        NotificationCenter.default.post(name: folderChanged, object: nil)
+    }
 
     static func url(for name: String) -> URL { folder.appendingPathComponent(name + ".tsv") }
 

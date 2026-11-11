@@ -6,13 +6,15 @@ enum MenuReaderError: LocalizedError {
     case noMenuBar
     case launchFailed(String)
     case timedOut
+    case nothingToRead(String)
 
     var errorDescription: String? {
         switch self {
-        case .notTrusted: return "アクセシビリティが許可されていません。"
-        case .noMenuBar: return "メニューバーを読めませんでした。"
-        case .launchFailed(let message): return "起動できませんでした：\(message)"
-        case .timedOut: return "起動を待ちましたが、メニューがそろいませんでした。"
+        case .notTrusted: return L("error.notTrusted")
+        case .noMenuBar: return L("error.noMenuBar")
+        case .launchFailed(let message): return LF("error.launchFailed", message)
+        case .timedOut: return L("error.timedOut")
+        case .nothingToRead(let name): return LF("error.nothingToRead", name)
         }
     }
 }
@@ -181,13 +183,13 @@ enum MenuReader {
         var launchedApp: NSRunningApplication?
         let entries: [MenuEntry]
         if let running = install.runningApplication {
-            progress("\(install.displayName) のメニューを読んでいます...")
+            progress(LF("progress.reading", install.displayName))
             entries = try read(pid: running.processIdentifier, app: install.app)
         } else {
-            progress("\(install.displayName) を起動しています...")
+            progress(LF("progress.launching", install.displayName))
             let app = try await launch(install)
             launchedApp = app
-            progress("\(install.displayName) のメニューがそろうのを待っています...")
+            progress(LF("progress.waiting", install.displayName))
             do {
                 entries = try await waitForMenus(pid: app.processIdentifier, app: install.app)
             } catch {
@@ -195,9 +197,14 @@ enum MenuReader {
                 throw error
             }
         }
+        // 自分が起動したものだけ終了させる。待っている間に使い始めていたら（前面にある）残す
         if let app = launchedApp {
-            progress("\(install.displayName) を終了しています...")
-            app.terminate()
+            if app.isActive {
+                progress(LF("progress.leftRunning", install.displayName))
+            } else {
+                progress(LF("progress.quitting", install.displayName))
+                app.terminate()
+            }
         }
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

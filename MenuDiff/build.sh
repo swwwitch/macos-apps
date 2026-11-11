@@ -1,24 +1,31 @@
 #!/bin/zsh
-# ./build.sh  build build/MenuDiff.app（個人用。配置・公証はしない）
+# ./build.sh           build build/MenuDiff.app
+# ./build.sh --deploy  also place the verified build in /Applications and Latest Builds
 set -euo pipefail
 cd "${0:A:h}"
+UPDATER_ROOT="$PWD/../Shared/Updater"
+source "$UPDATER_ROOT/build-support.sh"
 stage=$(mktemp -d /private/tmp/MenuDiff-build.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
-[[ -f Assets/MenuDiff.icns ]] || Assets/make-icon.sh
+python3 make-resources.py
 app="$stage/MenuDiff.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp Info.plist "$app/Contents/Info.plist"
-cp Assets/MenuDiff.icns "$app/Contents/Resources/"
-cp -R Resources/ja.lproj "$app/Contents/Resources/"
+cp -R Resources/*.lproj "$app/Contents/Resources/"
+cp Assets/MenuDiff.icns README.md "$app/Contents/Resources/"
 xcrun swiftc -swift-version 5 -O -target arm64-apple-macosx13.0 -module-cache-path "$stage/cache" \
-  -framework AppKit -framework SwiftUI -framework ApplicationServices \
-  ../Shared/AppStandards/{AppHeader,AppSurface}.swift \
-  Source/{Model,MenuReader,MenuDiff,Views,main}.swift -o "$app/Contents/MacOS/MenuDiff"
-"../Shared/AppIcon/apply-app-icon.sh" "$app"
+  -framework AppKit -framework SwiftUI -framework ServiceManagement -framework Carbon -framework ApplicationServices "${UPDATE_SWIFT_FLAGS[@]}" \
+  ../Shared/AppStandards/{SettingsSection,LaunchPresenceSection,AppHeader,AppSurface,StartupWindow,HelpDocument,AboutSection}.swift ../Shared/MenuBarPresence/MenuBarPresence.swift ../Shared/HotkeyRecorder/HotkeyRecorder.swift ../Shared/Accessibility/AccessibilityPermission.swift \
+  ../Shared/LoginAtLaunch/LoginAtLaunch.swift ../Shared/Updater/UpdateSupport.swift ../Shared/SettingsSync/SettingsSync.swift \
+  Source/{Model,MenuReader,MenuDiff,AppModel,Views,LaunchPolicy,main}.swift -o "$app/Contents/MacOS/MenuDiff"
+embed_updates "$app"
+"$UPDATER_ROOT/../AppIcon/apply-app-icon.sh" "$app"
 xattr -cr "$app"
-# アクセシビリティの許可が再ビルド後も引き継がれるよう、チームの証明書で署名する（MENUDIFF_SIGNING_IDENTITY で上書き可）
+# Local builds sign with the team certificate so the designated requirement stays stable across rebuilds.
+# MENUDIFF_SIGNING_IDENTITY overrides it.
 SIGNING_IDENTITY="${MENUDIFF_SIGNING_IDENTITY:-301A41C0A37B6B578B7477229015992E8AA34E44}"
-codesign --force --sign "$SIGNING_IDENTITY" --timestamp=none "$app"
+SIGNING_OPTIONS=(--timestamp=none)
+codesign --force --sign "$SIGNING_IDENTITY" "${SIGNING_OPTIONS[@]}" "$app"
 codesign --verify --deep --strict "$app"
 mkdir -p build
 if [[ -d build/MenuDiff.app ]]; then
@@ -28,3 +35,7 @@ if [[ -d build/MenuDiff.app ]]; then
 fi
 ditto "$app" build/MenuDiff.app
 print "Built build/MenuDiff.app"
+
+if [[ "${1:-}" == "--deploy" && "${APP_STORE_BUILD:-0}" != 1 ]]; then
+    python3 ../Shared/BuildTools/publish_latest.py "$PWD/build/MenuDiff.app"
+fi

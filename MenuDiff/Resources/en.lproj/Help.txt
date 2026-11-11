@@ -1,0 +1,33 @@
+## Basics
+MenuDiff reads the menus of two versions of Illustrator, InDesign or Photoshop and lists the differences. It never changes the apps or their menus.
+- Choose the app with Ai, Ps or Id under Target App.
+- Choose the versions in New and Old. Versions in /Applications and saved versions are listed. The button between them swaps them. The choice is remembered for each app.
+- Click Compare (⌘R) at the bottom right.
+## Versions that are not running
+- A running version is read right away.
+- For a version that is not running, saved data is used. If there is none, MenuDiff launches that version, reads its menus and quits it. Only versions that MenuDiff launched are quit, and not if you started using it (it is in front) while waiting.
+- Reread updates the saved data.
+- If the menus are not ready after 4 minutes, MenuDiff stops. A dialog may be waiting.
+## Reading the results
+- Added / Removed: items that exist on one side only.
+- Renamed: a submenu paired with the one its items moved to, and one removed with one added item in the same menu. This is an estimate.
+- Moved: items with the same name that appear once on each side. Items that moved only because their parent changed are hidden.
+- Shortcuts: items on both sides whose key changed. The keys come from the shortcut set selected when the menus were read.
+- Filter finds menu names. Copy (⇧⌘C) copies the list on screen as tab-separated text. Right-click a row to copy its path.
+## Normalized and skipped items
+- The Apple menu and submenus whose contents depend on the Mac (fonts, recent files, scripts, libraries, presets) are not read.
+- Open document names and email addresses are not saved.
+- The year in the app menu (Photoshop 2026), Undo and Redo labels in the Edit menu, “New Window for …” and the workspace Reset item get fixed names.
+- Items whose names switch with their state (Show / Hide) keep the name shown when read.
+## Save folder
+Read menus are saved with names such as “Ai31.0.0 ja_JP.tsv” (Id for InDesign, Ps for Photoshop). The default is ~/Library/Application Support/MenuDiff/Snapshots; change it in the Saving tab of Settings. Saved versions can be compared even after the app is removed.
+## Settings and shortcuts
+In Settings (⌘,) > Startup & Background you can launch at login, keep running after the window closes, show the menu bar icon and set a shortcut to show the app. All are off by default and no shortcut is set. Closing the window quits; with Keep running on, reopen from the Dock or menu bar.
+## Permissions and data
+Reading menus requires Accessibility access. Turn on MenuDiff in System Settings > Privacy & Security > Accessibility. Only menu names and shortcuts are read; nothing is clicked. Data is written only to the save folder and nothing is sent anywhere (except update checks).
+## Troubleshooting
+- “Accessibility access is not allowed”: open Accessibility in Settings and turn on MenuDiff. If it is on but menus cannot be read, turn it off and on again, then restart MenuDiff.
+- “Menus were not ready”: launch that version yourself, close any dialog, then click Reread.
+- Versions in different languages show most items as added or removed.
+- Quit: choose Quit MenuDiff in the MenuDiff menu, or press ⌘Q.
+- Uninstall: move the app to the Trash. Settings are in ~/Library/Preferences/jp.dtp-transit.aimenudiff.plist; saved data is in the save folder.
