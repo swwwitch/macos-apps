@@ -1,0 +1,50 @@
+## Basics
+AlignKeys runs the buttons of the InDesign script Align to Nearest Edge (IdAlignToNearestEdgePalette.jsx) with keyboard shortcuts while InDesign is in front. The script is inside the app, so there is nothing else to install.
+- Click a field in the Hotkey column, then press the keys to assign. Clear removes the key.
+- The From the Center column is for shortcuts that center the object first, then align (like Option-click on the palette). The center buttons have none.
+- Click a button name to bring InDesign to the front and run it (each object on its own, centered on the page).
+- Open the Palette opens the script's palette in InDesign.
+- Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
+- Recent Runs shows the latest results. Not saved; cleared when the app quits.
+
+## Alignment
+- Top, bottom, left, right: aligns the edge facing that direction to the nearest guide, margin guide, page edge, or bleed edge in that direction. Press again to move on to the next line.
+- Top left, top right, bottom left, bottom right: aligns two edges to the nearest line in each direction.
+- Center, horizontal center, vertical center: aligns the center to the center of the page (or of the margins).
+- The key as assigned: each object moves on its own, and centering uses the page.
+- Add ⌥: everything moves by the same amount based on the bounds of the whole selection, keeping relative positions (Move selection as a unit).
+- Add ⇧: centers on the margins (inside the margin guides). This applies to the center buttons and From the Center.
+- Add ⌥⇧: both.
+- The defaults are ⌃⌘ with U I O / J K L / M , . (laid out like the 3×3 buttons). Horizontal center, vertical center and From the Center start unassigned. Restore a default from its field.
+- Top, bottom, left and right also run with ⌃⌘ and the arrow keys (↑ ↓ ← →), with the same ⌥ / ⇧ forms. Turn this on or off with the checkbox below the table. Keys in the table win when they overlap.
+- The settings of the palette opened in InDesign (center basis, move as a unit) are not used.
+- Each run is undone with a single Undo in InDesign.
+
+## Shortcuts
+- Button shortcuts: registered only while InDesign is in front, so the same keys keep their meaning in other apps.
+- Keys that InDesign's own shortcuts use: with "Leave keys that InDesign's own shortcuts use to InDesign" on (the default), they are not registered here and are listed under the field. The app reads the shortcut set InDesign uses (the .indk file in ~/Library/Preferences/Adobe InDesign, or InDesign's default set) and reads it again when InDesign comes back to the front after you changed shortcuts there. When off, this app wins.
+- App shortcut: assign it in Settings > Launch & Background to show the AlignKeys window from any app (none by default).
+- ⌘0: Open the main window
+- ⌘,: Settings
+- ⌘W: Close the window
+- ⌘?: This help
+When two places share a key (including the keys with ⌥ or ⇧ added), only the one higher in the table reacts, and the lower one shows a note.
+
+## Sharing settings
+Use the Settings Sharing tab in Settings for export, import and sync. The button hotkeys, whether the arrow keys are used and whether the hotkeys are used are shared. Open at login, keep running, the menu bar icon, the app hotkey and window positions are set on each Mac.
+
+## Permissions and privacy
+- Automation (Adobe InDesign): used to run the script. You are asked the first time.
+Settings are saved in this Mac's preferences for the app. Nothing is sent outside.
+
+## Quitting and staying open
+Closing the window keeps the app running and the shortcuts working. Reopen it from the Dock or the menu bar icon. Quit with AlignKeys > Quit AlignKeys (⌘Q).
+
+## Troubleshooting
+- A shortcut does nothing: check that InDesign is in front and "Use hotkeys" is on. If the field says the key could not be registered, another app is using it.
+- "Not allowed to control InDesign": turn on Adobe InDesign for AlignKeys in System Settings > Privacy & Security > Automation.
+- Nothing moves or a message appears: open a document in InDesign and select objects that can be moved. When there is no line to align to, InDesign tells you.
+- An earlier run does not finish: while a dialog box is open in InDesign, the next run waits until it is closed. Up to 3 runs wait; more are skipped.
+
+## Removing and restoring
+Clear removes a shortcut. To reset everything, quit the app and run defaults delete jp.dtp-transit.alignkeys in Terminal.
