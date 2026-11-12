@@ -71,6 +71,12 @@ rows = [
 ('tool.artboardPanel', 'アートボードツールを選んだらアートボードパネルを開く', 'Open the Artboards panel with the Artboard tool', '选择画板工具时打开“画板”面板', '대지 도구를 선택하면 대지 패널 열기'),
 ('tool.gradientPanel', 'グラデーションツールを選んだらグラデーションパネルを開く', 'Open the Gradient panel with the Gradient tool', '选择渐变工具时打开“渐变”面板', '그레이디언트 도구를 선택하면 그레이디언트 패널 열기'),
 ('tool.panelDetail', 'クリックやキーの後にツールを読み、ほかのツールから切り替わったときだけ開きます（［ウィンドウ］メニューに ✓ が付いていれば何もしません）。', 'The tool is read after clicks and keys; the panel opens only when the tool is switched to from another one (nothing happens when the Window menu item already has a checkmark).', '在点按或按键后读取工具，仅在从其他工具切换过来时打开（“窗口”菜单中已有 ✓ 时不执行任何操作）。', '클릭이나 키 입력 뒤에 도구를 읽고, 다른 도구에서 전환했을 때만 엽니다(윈도우 메뉴에 ✓가 있으면 아무것도 하지 않습니다).'),
+('pan.title', 'ドラッグでパン', 'Drag to Pan', '拖动平移视图', '드래그로 화면 이동'),
+('pan.toggle', 'マウスボタンのドラッグで画面をパンする', 'Pan the view by dragging with a mouse button', '用鼠标按键拖动来平移视图', '마우스 버튼 드래그로 화면 이동'),
+('pan.button', 'ボタン :', 'Button:', '按键：', '버튼:'),
+('pan.right', '右ボタン', 'Right button', '右键', '오른쪽 버튼'),
+('pan.middle', '中ボタン（ホイール）', 'Middle button (wheel)', '中键（滚轮）', '가운데 버튼(휠)'),
+('pan.detail', 'Illustratorが前面のとき、選んだボタンでのドラッグをスペース＋ドラッグ（手のひらツール）に置き換えます。動かさずに離すと元のクリックを送ります（右ボタンのコンテキストメニューは離したときに開きます）。修飾キーを押しているとき、文字ツールの使用中、Illustrator以外のウインドウの上ではそのまま通します。', 'While Illustrator is in front, a drag with the chosen button is turned into Space + drag (the Hand tool). Releasing without moving sends the original click (the right-button context menu opens on release). Presses with modifier keys, while a type tool is in use, or over other apps’ windows pass through unchanged.', 'Illustrator 位于前台时，将所选按键的拖动转换为空格键＋拖动（抓手工具）。不移动就松开时发送原来的点按（右键的上下文菜单在松开时打开）。按住修饰键时、使用文字工具时或在其他应用的窗口上时按原样传递。', 'Illustrator가 앞에 있을 때 선택한 버튼의 드래그를 스페이스＋드래그(손 도구)로 바꿉니다. 움직이지 않고 놓으면 원래 클릭을 보냅니다(오른쪽 버튼의 컨텍스트 메뉴는 놓을 때 열립니다). 보조 키를 누르고 있을 때, 문자 도구를 사용하는 중, 다른 앱의 윈도우 위에서는 그대로 전달합니다.'),
 ('shape.menuSwatches', 'シェイプ形成ツールのカラー：スウォッチ', 'Shape Builder Color: Color Swatches', '形状生成器颜色：色板', '도형 구성 색상: 색상 견본'),
 ('shape.menuArtwork', 'シェイプ形成ツールのカラー：オブジェクト', 'Shape Builder Color: Artwork', '形状生成器颜色：图稿', '도형 구성 색상: 아트워크'),
 ('shape.done', '「次のカラーを利用」を「%@」にしました', 'Pick Color From is now %@', '“拾色来源”已设为“%@”', '색상 선택 위치를 %@(으)로 바꿨습니다'),
@@ -657,6 +663,7 @@ Illustratorの［設定］→［ファイル管理］の「バックグラウン
 ［シェイプ形成ツールオプション］の「次のカラーを利用」を「スウォッチ」「オブジェクト」のラジオボタンで切り替えます。シェイプ形成ツールを選んでツールオプションを開き、一覧から選んで［OK］を押します（ドキュメントを開いておいてください。ツールはシェイプ形成ツールに切り替わります）。操作中はキーボードやマウスに触れないでください。
 「修飾キーのダブルタップで選択ツールに切り替える」をオンにすると、Illustratorが前面のとき、選んだキー（control・option・command・shift。初期値は control）だけを2回続けて軽く押すと選択ツールにします（app.selectTool('Adobe Select Tool')。ほかのキーやクリックを挟むと数えません）。
 「アートボードツールを選んだらアートボードパネルを開く」「グラデーションツールを選んだらグラデーションパネルを開く」をオンにすると、クリックやキーの後にツールを読み、ほかのツールから切り替わったときだけ［ウィンドウ］メニューのパネルを開きます（✓ が付いていれば何もしません）。いずれも初期値はオフで、アクセシビリティの許可が必要です。
+「マウスボタンのドラッグで画面をパンする」をオンにすると、Illustratorが前面のとき、選んだボタン（右ボタン・中ボタン。初期値は右ボタン）でのドラッグをスペース＋ドラッグ（手のひらツール）に置き換えます。動かさずに離すと元のクリックを送ります（右ボタンのコンテキストメニューは押したときではなく離したときに開きます）。修飾キーを押しているとき、文字ツールの使用中、Illustrator以外のウインドウ（パレットなど）の上ではそのまま通します。初期値はオフで、アクセシビリティの許可が必要です。
 
 起動・常駐
 見張りを続けるには常駐が必要です（初期値はオン）。「ログイン時に起動」をオンにすると、ログイン時に自動で起動します（初期値はオフ）。手動起動・開き直しではメインウインドウを表示し、ログイン時の自動起動では表示しません。「Dockとアプリケーションスイッチャーに表示しない」をオンにすると、メイン・設定ウインドウがある間はDockと⌘Tabに表示し、すべて閉じると隠します（初期値はオフ）。メニューバーのアイコン、アプリ起動のホットキー、Finderからアプリを開き直すと表示できます。
@@ -742,6 +749,7 @@ Tools tab
 Radio buttons for Pick Color From in the Shape Builder Tool Options (Color Swatches or Artwork). The Shape Builder tool is selected, its options are opened, the item is picked and OK is pressed (a document must be open; the Shape Builder tool stays selected). Do not touch the keyboard or mouse meanwhile.
 Double-tap a modifier key to switch to the Selection tool: while Illustrator is in front, tapping the chosen key (Control, Option, Command or Shift; Control by default) alone twice selects the Selection tool (app.selectTool('Adobe Select Tool'); another key or a click in between cancels it).
 Open the Artboards / Gradient panel with the Artboard / Gradient tool: the tool is read after clicks and keys, and the panel opens from the Window menu only when the tool is switched to from another one (nothing happens when the item already has a checkmark). All are off by default and need the Accessibility permission.
+Pan the view by dragging with a mouse button: while Illustrator is in front, a drag with the chosen button (right or middle; right by default) is turned into Space + drag (the Hand tool). Releasing without moving sends the original click (the right-button context menu opens on release instead of on press). Presses with modifier keys, while a type tool is in use, or over windows of other apps (such as palettes) pass through unchanged. Off by default; needs the Accessibility permission.
 
 Startup and background
 The app must keep running to watch (on by default). Open at login starts it when you log in (off by default). Manual launch and reopening show the main window; automatic login launch does not. Hide from Dock and App Switcher the app appears in the Dock and ⌘Tab while main/settings windows exist, including minimized windows, and hides after all such windows close (off by default); show the app from the menu bar icon, the app launch hotkey, or by opening it again in Finder.
@@ -827,6 +835,7 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 用单选按钮切换“形状生成器工具选项”中的“拾色来源”（色板或图稿）。会选择形状生成器工具、打开其选项、选择项目并按“好”（需要打开文档；工具会保持为形状生成器工具）。操作期间请勿触碰键盘和鼠标。
 打开“连按两下修饰键切换到选择工具”后，Illustrator 位于前台时，单独连按两下所选的键（Control、Option、Command 或 Shift，默认为 Control）会切换到选择工具（app.selectTool('Adobe Select Tool')；中间按其他键或点按则不计）。
 打开“选择画板工具时打开‘画板’面板”“选择渐变工具时打开‘渐变’面板”后，会在点按或按键后读取工具，仅在从其他工具切换过来时从“窗口”菜单打开面板（已有 ✓ 时不执行任何操作）。默认均为关，需要辅助功能权限。
+打开“用鼠标按键拖动来平移视图”后，Illustrator 位于前台时，将所选按键（右键或中键，默认为右键）的拖动转换为空格键＋拖动（抓手工具）。不移动就松开时发送原来的点按（右键的上下文菜单在松开时而不是按下时打开）。按住修饰键时、使用文字工具时或在其他应用的窗口（如面板）上时按原样传递。默认关闭，需要辅助功能权限。
 
 启动与后台
 持续监视需要应用保持运行（默认开启）。“登录时启动”会在登录时自动启动（默认关闭）。手动启动或重新打开时显示主窗口，登录时自动启动不显示主窗口。“不在程序坞和应用程序切换器中显示”会让图标不出现在程序坞和 ⌘Tab 切换器中（默认关闭）；可通过菜单栏图标、启动应用快捷键或在访达中再次打开应用来显示。
@@ -912,6 +921,7 @@ Illustrator 설정 → 파일 처리의 백그라운드 내보내기, 백그라�
 도형 구성 도구 옵션의 색상 선택 위치(색상 견본 또는 아트워크)를 라디오 버튼으로 전환합니다. 도형 구성 도구를 선택하고 옵션을 열어 항목을 고른 뒤 확인을 누릅니다(도큐먼트가 열려 있어야 하며, 도구는 도형 구성 도구로 남습니다). 조작 중에는 키보드와 마우스를 만지지 마세요.
 보조 키를 두 번 탭하면 선택 도구로 전환을 켜면, Illustrator가 앞에 있을 때 선택한 키(Control, Option, Command, Shift. 기본값은 Control)만 두 번 가볍게 누르면 선택 도구로 바꿉니다(app.selectTool('Adobe Select Tool'). 사이에 다른 키나 클릭이 있으면 세지 않습니다).
 대지 도구·그레이디언트 도구를 선택하면 패널 열기를 켜면, 클릭이나 키 입력 뒤에 도구를 읽고 다른 도구에서 전환했을 때만 윈도우 메뉴의 패널을 엽니다(✓가 있으면 아무것도 하지 않습니다). 모두 기본값은 끔이며 손쉬운 사용 권한이 필요합니다.
+마우스 버튼 드래그로 화면 이동을 켜면, Illustrator가 앞에 있을 때 선택한 버튼(오른쪽 또는 가운데, 기본값은 오른쪽)의 드래그를 스페이스＋드래그(손 도구)로 바꿉니다. 움직이지 않고 놓으면 원래 클릭을 보냅니다(오른쪽 버튼의 컨텍스트 메뉴는 누를 때가 아니라 놓을 때 열립니다). 보조 키를 누르고 있을 때, 문자 도구를 사용하는 중, 다른 앱의 윈도우(팔레트 등) 위에서는 그대로 전달합니다. 기본값은 끔이며 손쉬운 사용 권한이 필요합니다.
 
 시작 및 백그라운드
 감시를 계속하려면 앱이 실행 중이어야 합니다(기본값 켬). 로그인 시 실행을 켜면 로그인할 때 자동으로 실행합니다(기본값 끔). 수동 실행 및 다시 열기에서는 메인 윈도우를 표시하고 로그인 시 자동 실행에서는 표시하지 않습니다. Dock 및 앱 전환기에 표시 안 함을 켜면 메인·설정 윈도우가 있는 동안 Dock과 ⌘Tab에 표시하고 모두 닫으면 숨깁니다(기본값 끔). 메뉴 막대 아이콘, 앱 실행 단축키 또는 Finder에서 앱을 다시 열어 표시할 수 있습니다.

@@ -2,6 +2,10 @@
 
 macOS 13以降 / Intel・Apple Silicon対応（Universal）の常駐アプリ（Dock・アプリケーションスイッチャー・メニューバーに表示）。Illustratorの作業を補助します。
 
+## 2.24.0（88）の変更
+
+- 「ツール」タブに「マウスボタンのドラッグで画面をパンする」を追加（初期値オフ、ボタンは右ボタン・中ボタンから選択、設定の共有の対象）。Illustratorが前面のとき、選んだボタンのドラッグをスペース＋左ドラッグ（手のひらツール）に置き換える。動かさずに離すと元のクリックを送る（右ボタンのコンテキストメニューは離したときに開く）。修飾キー付き、文字ツールの使用中、Illustrator以外のウインドウの上ではそのまま通す。
+
 ## 2.20.0（82）の変更
 
 - Illustrator以外へ切り替えると3種類のパレットを非表示にし、Illustratorへ戻ると復元します。パレット自身の操作中は表示を保持します。閉じたパレットは復元しません。
@@ -55,6 +59,16 @@ macOS 13以降 / Intel・Apple Silicon対応（Universal）の常駐アプリ（
 
 - 修飾キーのダブルタップで選択ツール：選んだキー（control・option・command・shift、初期値 control。設定 doubleTapKey）だけを0.3秒以内に押して離し、0.35秒以内にもう一度で `app.selectTool('Adobe Select Tool')`。ほかのキー・クリック・修飾キーを挟むと数えない（flagsChanged のグローバル監視）。
 - アートボードツール → アートボードパネル、グラデーションツール → グラデーションパネル：クリック・キー（⌘以外）の0.35秒後、修飾キーをすべて離した0.35秒後と1秒後（Keyboard Maestro のホットキーはキーが届かず、マクロの selectTool が終わるのを待つ）、Illustratorが前面に来たときに `app.getSelectedToolName()`（非公開。2026で実測、名前は `Adobe Crop Tool`／`Adobe Gradient Vector Tool`）で読み、ほかのツールから切り替わったときだけ `executeMenuCommand('Adobe Artboard Palette'／'Adobe Gradient Palette')`。メニューはパネルの表示・非表示を切り替えるので、［ウィンドウ］の項目に ✓ が無いときだけ実行（AXMenuItemMarkChar）。
+
+### ドラッグでパン
+
+「ツール」タブ。初期値オフ、アクセシビリティの許可が必要（設定 dragPanEnabled・dragPanButton）。
+
+- CGEventTap（cgSessionEventTap・能動）で右ボタン（中ボタンは buttonNumber 2）の押下・ドラッグ・解放を受ける。押下はいったん止め、4pt以上動いたら Space の keyDown → 押した位置で leftMouseDown → 今の位置へ leftMouseDragged を送り、以後のドラッグは leftMouseDragged に、解放は leftMouseUp → Space の keyUp にする。動かさずに離したら元のボタンの押下・解放を押した位置で送る。送るイベントは eventSourceUserData に目印を付け、タップでは素通しする。
+- 対象：Illustrator が前面・対象外アプリでない・修飾キーなし・ポインタの下の最前面のウインドウ（CGWindowListCopyWindowInfo、透明は除く）が Illustrator のもの。
+- 押下と同時に `app.getSelectedToolName()` を別スレッドで読み（0.3秒で打ち切り、答えが無ければ文字入力中とみなす）、文字ツールなら押下を遅れて送り、ドラッグはそのまま通す。答えが来るまでドラッグは待つ。
+- タップが止められたとき・機能をオフにしたとき・終了時は、パン中なら左ボタンと Space を離す。
+- Karabiner-Elements では作れない（`to` の複数イベントは最後の1つしか押し続けられず、`to_if_held_down` は発火前に `to` を離す）。
 
 ### クイック変形
 

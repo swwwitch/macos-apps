@@ -139,6 +139,10 @@ final class Model: ObservableObject {
     @Published var artboardPanel: Bool { didSet { defaults.set(artboardPanel, forKey: "artboardToolPanel"); refreshToolWatcher() } }
     @Published var gradientPanel: Bool { didSet { defaults.set(gradientPanel, forKey: "gradientToolPanel"); refreshToolWatcher() } }
     let toolWatcher = ToolWatcher()
+    /// ツール → ドラッグでパン: dragging with the right (or middle) button pans Illustrator's view. Off by default.
+    @Published var dragPan: Bool { didSet { defaults.set(dragPan, forKey: "dragPanEnabled"); refreshDragPan() } }
+    @Published var dragPanButton: DragPan.Button { didSet { defaults.set(dragPanButton.rawValue, forKey: "dragPanButton"); refreshDragPan() } }
+    let dragPanner = DragPan()
     @Published var failedHotkeys: Set<UInt32> = []
     static let brighterDefault = KeyCombo(code: UInt32(kVK_F2), modifiers: KeyCombo.shift)
     static let darkerDefault = KeyCombo(code: UInt32(kVK_F1), modifiers: KeyCombo.shift)
@@ -194,6 +198,8 @@ final class Model: ObservableObject {
         tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
         artboardPanel = defaults.bool(forKey: "artboardToolPanel")
         gradientPanel = defaults.bool(forKey: "gradientToolPanel")
+        dragPan = defaults.bool(forKey: "dragPanEnabled")
+        dragPanButton = DragPan.Button(rawValue: defaults.string(forKey: "dragPanButton") ?? "") ?? .right
         ExcludedApps.shared.configure(explanation: L("sign.excluded"))
         ExcludedApps.shared.onChange = { [weak self] in self?.refreshHotkeys() }
         signWatcher.allowed = { [weak self] in
@@ -201,6 +207,7 @@ final class Model: ObservableObject {
             return self.hotkeysEnabled && !self.paused && !self.busy && !ExcludedApps.shared.frontAppExcluded
         }
         signWatcher.status = { [weak self] in self?.signStatus = $0 }
+        dragPanner.allowed = { [weak self] in self?.dragPan == true }
         metricsResult = L("metrics.none")
         watcher.onEvent = { [weak self] event in self?.report(event) }
         hotkeys.action = { [weak self] number in
@@ -232,7 +239,13 @@ final class Model: ObservableObject {
         watcher.turnOff = metricsOffEnabled
         refreshWatcher()
         refreshToolWatcher()
+        refreshDragPan()
         refreshHotkeys()
+    }
+
+    func refreshDragPan() {
+        dragPanner.button = dragPanButton
+        if dragPan && trusted { dragPanner.start() } else { dragPanner.stop() }
     }
 
     func refreshToolWatcher() {
@@ -260,6 +273,7 @@ final class Model: ObservableObject {
         trusted = now
         watcher.restart()
         toolWatcher.restart()
+        refreshDragPan()
         refreshHotkeys()
         onChange?()
     }
@@ -742,7 +756,7 @@ final class Model: ObservableObject {
     /// Keys shared by 設定の共有 (export/import and sync). 起動・常駐・メニューバー stay per Mac.
     static let sharedKeys: Set<String> = ["metricsEnabled", "metricsOffEnabled", "notifyApplied", "hotkeysEnabled",
                                           "brighterHotkey", "darkerHotkey", "paletteHotkey", "quickHotkey", "transformHotkey", "closeAllHotkey", "signInversionHotkey", UnitSet.storeKey, "unitPaletteDetail", PrefPreset.storeKey, SyncFolder.storeKey, "shortcutSource", "shortcutSetName", "linkSource.profiles", "linkSource.compositeFonts",
-                                          "guideInTrimView", "controlDoubleTapSelect", "doubleTapKey", "artboardToolPanel", "gradientToolPanel"]
+                                          "guideInTrimView", "controlDoubleTapSelect", "doubleTapKey", "artboardToolPanel", "gradientToolPanel", "dragPanEnabled", "dragPanButton"]
     /// Re-reads the shared settings after SettingsSync applied them, so the next save does not write the old values back.
     func reloadSharedSettings() {
         metricsEnabled = defaults.object(forKey: "metricsEnabled") as? Bool ?? true
@@ -767,10 +781,13 @@ final class Model: ObservableObject {
         tapKey = ToolWatcher.TapKey(rawValue: defaults.string(forKey: "doubleTapKey") ?? "") ?? .control
         artboardPanel = defaults.bool(forKey: "artboardToolPanel")
         gradientPanel = defaults.bool(forKey: "gradientToolPanel")
+        dragPan = defaults.bool(forKey: "dragPanEnabled")
+        dragPanButton = DragPan.Button(rawValue: defaults.string(forKey: "dragPanButton") ?? "") ?? .right
     }
 
     func stop() {
         signWatcher.stop()
+        dragPanner.stop()
         watcher.isActive = false
         hotkeys.unregisterAll()
         if let activation { NSWorkspace.shared.notificationCenter.removeObserver(activation) }
@@ -1027,7 +1044,16 @@ struct MainView: View {
                     Toggle(L("tool.artboardPanel"), isOn: $model.artboardPanel)
                     Toggle(L("tool.gradientPanel"), isOn: $model.gradientPanel)
                     Note(text: L("tool.panelDetail"))
-                    if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel) { Note(text: AccessibilityText.text("blocked")) }
+                    GroupTitle(text: L("pan.title")).padding(.top, 8)
+                    Toggle(L("pan.toggle"), isOn: $model.dragPan)
+                    HStack(spacing: 6) {
+                        Text(L("pan.button"))
+                        Picker("", selection: $model.dragPanButton) {
+                            ForEach(DragPan.Button.allCases, id: \.self) { Text($0.label).tag($0) }
+                        }.labelsHidden().fixedSize()
+                    }.disabled(!model.dragPan).padding(.leading, 20)
+                    Note(text: L("pan.detail"))
+                    if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel || model.dragPan) { Note(text: AccessibilityText.text("blocked")) }
                 })),
                 ("appearance", L("appearance.tab"), AnyView(AppearancePage(model: appearance))),
                 ("prefs", L("prefsets.mainTab"), AnyView(PrefPresetsPage(model: model))),

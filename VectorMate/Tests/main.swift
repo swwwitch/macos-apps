@@ -112,5 +112,42 @@ expect(partial?.value == "-12.5 mm" && partial?.selection == NSRange(location: 0
 expect(SignInversion.replacement(value: "-12 pt", selection: NSRange(location: 3, length: 0))?.value == "12 pt", "no selection uses whole field")
 expect(SignInversion.replacement(value: "12 mm", selection: NSRange(location: 0, length: 999)) == nil, "invalid range unchanged")
 
+// ドラッグでパン: click vs drag, waiting for the typing check, typing, and presses that are not ours.
+do {
+    let a = CGPoint(x: 100, y: 100), near = CGPoint(x: 102, y: 101), far = CGPoint(x: 110, y: 100), farther = CGPoint(x: 120, y: 105)
+    var m = DragPanMachine()
+    expect(m.down(at: a, eligible: true) == .swallow, "pan: press held back")
+    expect(m.dragged(to: near) == .swallow, "pan: small move stays a click")
+    expect(m.typingAnswered(false) == nil, "pan: answer before moving does nothing")
+    expect(m.up(at: near) == .click(a), "pan: release without moving clicks where it was pressed")
+    expect(m.phase == .idle, "pan: idle after click")
+
+    m = DragPanMachine()
+    _ = m.down(at: a, eligible: true); _ = m.typingAnswered(false)
+    expect(m.dragged(to: far) == .startPan(from: a, to: far), "pan: drag past threshold starts the pan")
+    expect(m.dragged(to: farther) == .drag(farther), "pan: later drags follow")
+    expect(m.up(at: farther) == .endPan(farther), "pan: release ends the pan")
+
+    m = DragPanMachine()
+    _ = m.down(at: a, eligible: true)
+    expect(m.dragged(to: far) == .swallow, "pan: drag waits for the typing check")
+    expect(m.dragged(to: farther) == .swallow, "pan: still waiting")
+    expect(m.typingAnswered(false) == .startPan(from: a, to: farther), "pan: answer starts the pan at the latest point")
+
+    m = DragPanMachine()
+    _ = m.down(at: a, eligible: true); _ = m.typingAnswered(true)
+    expect(m.dragged(to: far) == .replay(at: a, to: far), "pan: typing replays the press")
+    expect(m.dragged(to: farther) == .pass && m.up(at: farther) == .pass, "pan: typing drag passes")
+
+    m = DragPanMachine()
+    expect(m.down(at: a, eligible: false) == .pass && m.dragged(to: far) == .pass && m.up(at: far) == .pass, "pan: not ours passes")
+
+    m = DragPanMachine()
+    _ = m.down(at: a, eligible: true); _ = m.typingAnswered(false); _ = m.dragged(to: far)
+    expect(m.abort() == .endPan(far) && m.phase == .idle, "pan: abort releases a pan in progress")
+    expect(m.abort() == nil, "pan: abort when idle does nothing")
+    expect(m.up(at: far) == .pass, "pan: stray release passes")
+}
+
 if failures > 0 { print("\(failures) failure(s)"); exit(1) }
 print("All tests passed")
