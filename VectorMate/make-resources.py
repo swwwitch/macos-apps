@@ -108,6 +108,8 @@ rows = [
 ('units.baselineIncrement', 'ベースラインシフト', 'Baseline Shift', '基线偏移', '기준선 이동'),
 ('units.detail', 'mm・pt：一般 mm／線・文字・東アジア言語 pt（キー入力 0.1mm・角丸の半径 1mm・サイズ/行送り 1pt・ベースラインシフト 0.1pt）。mm・Q/H：一般・線 mm／文字 Q／東アジア言語 H（0.1mm・1mm・1Q・0.5H）。px：すべて px（1px・1px・1px・0.1px）。単位はスクリプトから書いても再起動まで効かないため、環境設定の［単位］を開いて矢印キーで選び、［OK］を押します。操作中はキーボードやマウスに触れないでください。', 'mm / pt: General mm; Stroke, Type and East Asian pt (keyboard 0.1 mm, corner radius 1 mm, size/leading 1 pt, baseline shift 0.1 pt). mm / Q/H: General and Stroke mm, Type Q, East Asian H (0.1 mm, 1 mm, 1 Q, 0.5 H). px: all px (1, 1, 1, 0.1 px). Units written from a script only take effect after a restart, so the Units pane of Settings is opened, the units are picked with the arrow keys and OK is pressed. Do not touch the keyboard or mouse meanwhile.', 'mm・pt：常规 mm，描边、文字、东亚文字 pt（键盘 0.1mm、圆角半径 1mm、大小/行距 1pt、基线偏移 0.1pt）。mm・Q/H：常规与描边 mm，文字 Q，东亚文字 H（0.1mm、1mm、1Q、0.5H）。px：全部 px（1、1、1、0.1px）。用脚本写入的单位要重启后才生效，因此会打开设置的“单位”，用方向键选择后按“好”。操作期间请勿触碰键盘和鼠标。', 'mm·pt: 일반 mm, 선·문자·동아시아 문자 pt(키보드 0.1mm, 모퉁이 반경 1mm, 크기/행간 1pt, 기준선 이동 0.1pt). mm·Q/H: 일반·선 mm, 문자 Q, 동아시아 문자 H(0.1mm, 1mm, 1Q, 0.5H). px: 모두 px(1, 1, 1, 0.1px). 스크립트로 쓴 단위는 재시작해야 적용되므로 설정의 단위를 열어 화살표 키로 고른 뒤 확인을 누릅니다. 조작 중에는 키보드와 마우스를 만지지 마세요.'),
 ('palette.title', '単位パレット', 'Units Palette', '单位面板', '단위 팔레트'),
+('palette.button', '単位変更', 'Units', '单位', '단위'),
+('appearance.button', 'アピアランス', 'Appearance', '外观', '모양'),
 ('palette.menu', '単位パレットを表示', 'Show Units Palette', '显示单位面板', '단위 팔레트 보기'),
 ('palette.open', '単位パレットを開く', 'Open Units Palette', '打开单位面板', '단위 팔레트 열기'),
 ('palette.openHint', '単位の切り替えはパレットで行います。', 'Units are switched in the palette.', '在面板中切换单位。', '단위는 팔레트에서 전환합니다.'),
@@ -115,6 +117,7 @@ rows = [
 ('palette.current', '  — 現在', '  — Current', '  — 当前', '  — 현재'),
 ('palette.hint', 'ダブルクリック・⌘Returnで切り替え。Escで隠す', 'Double-click or ⌘Return to switch. Esc hides', '双击或 ⌘Return 切换。Esc 隐藏', '이중 클릭·⌘Return으로 전환. Esc로 숨기기'),
 ('hotkey.palette', '単位パレットを表示／隠す', 'Show or hide the Units Palette', '显示或隐藏单位面板', '단위 팔레트 보기/숨기기'),
+('hotkey.paletteTitle', '単位パレットを表示するホットキー', 'Units Palette hotkey', '显示单位面板的快捷键', '단위 팔레트 표시 단축키'),
 ('hotkey.paletteHint', '初期値は ⌃⌥⌘U。Illustratorが前面のときだけ使えます。同じキーを使う KageTrimmer は、Illustratorが前面の間はこのキーを譲ります。', 'Default ⌃⌥⌘U. Works only while Illustrator is in front; KageTrimmer, which uses the same key, gives it up while Illustrator is in front.', '默认 ⌃⌥⌘U。仅在 Illustrator 位于前台时可用；使用同一按键的 KageTrimmer 在 Illustrator 位于前台时会让出此键。', '기본값 ⌃⌥⌘U. Illustrator가 앞에 있을 때만 작동하며, 같은 키를 쓰는 KageTrimmer는 Illustrator가 앞에 있는 동안 이 키를 양보합니다.'),
 ('units.preset.presentation', 'プレゼン', 'Presentation', '演示', '프레젠테이션'),
 ('units.doneDetail', '「%@」にしました（詳細）', 'Applied %@ (detailed)', '已应用“%@”（详细）', '%@ 적용(상세)'),
@@ -141,6 +144,8 @@ rows = [
 ('sets.name', 'セット名', 'Set Name', '组名称', '세트 이름'),
 ('sets.detailTitle', '詳細（増減量）', 'Detailed (increments)', '详细（增量）', '상세(증감량)'),
 ('sets.otherTitle', 'その他（カラーモード、プレビュー）', 'Other (color mode, preview)', '其他（颜色模式、预览）', '기타(색상 모드, 미리 보기)'),
+('sets.bleed', '裁ち落とし', 'Bleed', '出血', '도련'),
+('sets.bleedSet', '天地左右', 'All sides', '四边', '네 변 모두'),
 ('sets.colorMode', 'カラーモード', 'Color mode', '颜色模式', '색상 모드'),
 ('sets.overprint', 'オーバープリントプレビュー', 'Overprint Preview', '叠印预览', '중복 인쇄 미리 보기'),
 ('sets.resolution', 'ラスタライズ効果の解像度', 'Raster effects resolution', '栅格效果分辨率', '래스터 효과 해상도'),
@@ -254,6 +259,7 @@ rows = [
 ('palette.gridMatchTop', 'グリッド：上側の色', 'Grid: upper color', '网格：上方颜色', '격자: 위쪽 색'),
 ('palette.gridColor', 'グリッド：#%@', 'Grid: #%@', '网格：#%@', '격자: #%@'),
 ('quick.title', 'クイック環境設定', 'Quick Preferences', '快速偏好设置', '빠른 환경설정'),
+('quick.button', '環境設定', 'Preferences', '偏好设置', '환경설정'),
 ('quick.menu', 'クイック環境設定を表示', 'Show Quick Preferences', '显示快速偏好设置', '빠른 환경설정 보기'),
 ('quick.keyInput', 'キー入力', 'Keyboard Increment', '键盘增量', '키보드 증감'),
 ('quick.keyInputTip', '矢印キーでの移動量（環境設定 > 一般 > キー入力）。∧∨・↑↓で次の整数へ、shift＋で10の倍数へ、option＋で0.1ずつ', 'How far an arrow key moves (Settings > General > Keyboard Increment). ∧∨ / ↑↓ go to the next whole number, with Shift to multiples of 10, with Option by 0.1', '方向键的移动量（设置 > 常规 > 键盘增量）。∧∨・↑↓ 到下一个整数，shift 到 10 的倍数，option 每次 0.1', '화살표 키 이동량(설정 > 일반 > 키보드 증감). ∧∨·↑↓로 다음 정수, shift는 10의 배수, option은 0.1씩'),
@@ -283,8 +289,10 @@ rows = [
 ('quick.refresh', 'プレビュー更新', 'Refresh Preview', '刷新预览', '미리 보기 새로 고침'),
 ('quick.refreshTip', 'GPUプレビューを更新（再描画）', 'Refresh the GPU preview (redraw)', '刷新 GPU 预览（重绘）', 'GPU 미리 보기 새로 고침(다시 그리기)'),
 ('hotkey.quick', 'クイック環境設定を表示／隠す', 'Show or hide Quick Preferences', '显示或隐藏快速偏好设置', '빠른 환경설정 보기/숨기기'),
+('hotkey.quickTitle', 'クイック環境設定を表示するホットキー', 'Quick Preferences hotkey', '显示快速偏好设置的快捷键', '빠른 환경설정 표시 단축키'),
 ('hotkey.quickHint', '初期値は ⌃⌥⌘Q。Illustratorが前面のときだけ使えます。', 'Default ⌃⌥⌘Q. Works only while Illustrator is in front.', '默认 ⌃⌥⌘Q。仅在 Illustrator 位于前台时可用。', '기본값 ⌃⌥⌘Q. Illustrator가 앞에 있을 때만 작동합니다.'),
 ('transform.title', 'クイック変形', 'Quick Transform', '快速变换', '빠른 변형'),
+('transform.button', '変形', 'Transform', '变换', '변형'),
 ('transform.menu', 'クイック変形を表示', 'Show Quick Transform', '显示快速变换', '빠른 변형 보기'),
 ('transform.flip', '反転・回転', 'Flip / Rotate', '翻转・旋转', '반전·회전'),
 ('transform.move', '移動・複製', 'Move / Duplicate', '移动・复制', '이동·복제'),
@@ -308,10 +316,13 @@ rows = [
 ('transform.noSelection', 'オブジェクトを選択してください。', 'Select an object.', '请选择对象。', '오브젝트를 선택하세요.'),
 ('transform.noBounds', '選択したオブジェクトの大きさを測れません（ロック・非表示など）。', 'The size of the selection cannot be measured (locked, hidden, etc.).', '无法测量所选对象的大小（已锁定、隐藏等）。', '선택한 오브젝트의 크기를 측정할 수 없습니다(잠금, 숨김 등).'),
 ('hotkey.transform', 'クイック変形を表示／隠す', 'Show or hide Quick Transform', '显示或隐藏快速变换', '빠른 변형 보기/숨기기'),
+('hotkey.transformTitle', 'クイック変形を表示するホットキー', 'Quick Transform hotkey', '显示快速变换的快捷键', '빠른 변형 표시 단축키'),
 ('hotkey.transformHint', '初期値は ⌃⌥⌘T。Illustratorが前面のときだけ使えます。', 'Default ⌃⌥⌘T. Works only while Illustrator is in front.', '默认 ⌃⌥⌘T。仅在 Illustrator 位于前台时可用。', '기본값 ⌃⌥⌘T. Illustrator가 앞에 있을 때만 작동합니다.'),
 ('closeAll.title', 'パレット', 'Palettes', '面板', '팔레트'),
 ('hotkey.closeAll', 'すべてのパレットを閉じる', 'Close all palettes', '关闭所有面板', '모든 팔레트 닫기'),
-('hotkey.closeAllHint', '単位パレット・クイック環境設定・クイック変形を閉じます。初期値は ⌥W。Illustratorが前面のときだけ使えます。', 'Closes the Units Palette, Quick Preferences and Quick Transform. Default ⌥W. Works only while Illustrator is in front.', '关闭单位面板、快速偏好设置和快速变换。默认 ⌥W。仅在 Illustrator 位于前台时可用。', '단위 팔레트·빠른 환경설정·빠른 변형을 닫습니다. 기본값 ⌥W. Illustrator가 앞에 있을 때만 작동합니다.'),
+('hotkey.closeAllTitle', 'すべてのパレットを閉じるホットキー', 'Close all palettes hotkey', '关闭所有面板的快捷键', '모든 팔레트 닫기 단축키'),
+('hotkey.appearanceTitle', 'アピアランスパレットを表示するホットキー', 'Appearance Palette hotkey', '显示外观面板的快捷键', '모양 팔레트 표시 단축키'),
+('hotkey.closeAllHint', '単位パレット・クイック環境設定・クイック変形・アピアランスパレットを閉じます。初期値は ⌥W。Illustratorが前面のときだけ使えます。', 'Closes the Units Palette, Quick Preferences, Quick Transform and the Appearance Palette. Default ⌥W. Works only while Illustrator is in front.', '关闭单位面板、快速偏好设置、快速变换和外观面板。默认 ⌥W。仅在 Illustrator 位于前台时可用。', '단위 팔레트, 빠른 환경설정, 빠른 변형, 모양 팔레트를 닫습니다. 기본값 ⌥W. Illustrator가 앞에 있을 때만 작동합니다.'),
 ('on', 'オン', 'On', '开', '켬'),
 ('off', 'オフ', 'Off', '关', '끔'),
 ('cancel', 'キャンセル', 'Cancel', '取消', '취소'),
@@ -406,6 +417,180 @@ rows = [
 ('minimize', 'しまう', 'Minimize', '最小化', '최소화'),
 ('zoom', '拡大／縮小', 'Zoom', '缩放', '확대/축소'),
 ('bringAllToFront', 'すべてを手前に移動', 'Bring All to Front', '前置全部窗口', '모두 앞으로 가져오기'),
+('fx.heading', 'アピアランスをパレットから操作', 'Appearance from a Palette', '从面板操作外观', '팔레트에서 모양 조작'),
+('fx.subtitle', '効果・パスファインダー・線端などを、Illustratorのパレットとホットキーで実行します。', 'Run effects, Pathfinder, caps and more in Illustrator from a palette or hotkeys.', '通过面板和快捷键在 Illustrator 中执行效果、路径查找器、端点等操作。', '팔레트와 단축키로 Illustrator에서 효과, 패스파인더, 단면 등을 실행합니다.'),
+('fx.palette.title', 'アピアランス', 'Appearance', '外观', '모양'),
+('fx.palette.show', 'パレットを表示', 'Show Palette', '显示面板', '팔레트 보기'),
+('fx.palette.hide', 'パレットを隠す', 'Hide Palette', '隐藏面板', '팔레트 가리기'),
+('fx.palette.waiting', 'パレットはIllustratorが前面のときに表示されます。', 'The palette appears while Illustrator is in front.', 'Illustrator 位于前台时显示面板。', '팔레트는 Illustrator가 앞에 있을 때 표시됩니다.'),
+('fx.palette.empty', '表示する項目がありません。メインウインドウでチェックを入れてください。', 'No items to show. Check items in the main window.', '没有可显示的项目。请在主窗口中勾选项目。', '표시할 항목이 없습니다. 메인 윈도우에서 체크하세요.'),
+('fx.palette.optionHint', 'クリックで値を指定して適用、Option＋クリックでIllustratorのダイアログボックスを開きます。', "Click to apply with the set values; Option-click opens Illustrator's dialog box.", '单击以设定的数值应用，按住 Option 单击打开 Illustrator 的对话框。', '클릭하면 지정한 값으로 적용하고, Option+클릭하면 Illustrator 대화상자를 엽니다.'),
+('fx.detail.none', '左の一覧から項目を選んでください。', 'Choose an item on the left.', '请从左侧列表选择项目。', '왼쪽 목록에서 항목을 선택하세요.'),
+('fx.detail.run', 'Illustratorで実行', 'Run in Illustrator', '在 Illustrator 中执行', 'Illustrator에서 실행'),
+('fx.detail.runDialog', 'ダイアログボックスを開く', 'Open Dialog Box', '打开对话框', '대화상자 열기'),
+('fx.detail.hotkey', 'ホットキー', 'Hotkey', '快捷键', '단축키'),
+('fx.detail.hotkeyNote', 'パレットを表示していて、Illustratorが前面のときだけ使えます。そのため修飾キーなしのキー（- など）も割り当てられます。', 'Works only while the palette is shown and Illustrator is in front, so keys without modifiers (such as -) can be assigned.', '仅在显示面板且 Illustrator 位于前台时可用，因此也可以分配不带修饰键的按键（如 -）。', '팔레트가 표시되어 있고 Illustrator가 앞에 있을 때만 작동하므로 보조 키 없는 키(- 등)도 지정할 수 있습니다.'),
+('fx.detail.values', '適用する値', 'Values', '应用的数值', '적용할 값'),
+('fx.detail.valuesNote', '長さはドキュメントの単位です。適用後はアピアランスパネルで調整できます。', "Lengths use the document's units. Adjust later in the Appearance panel.", '长度使用文档的单位。应用后可在“外观”面板中调整。', '길이는 문서 단위입니다. 적용 후 모양 패널에서 조정할 수 있습니다.'),
+('fx.detail.resetValues', '初期値に戻す', 'Reset to Default', '恢复默认', '기본값으로 되돌리기'),
+('fx.list.showInPalette', '「%@」をパレットに表示', 'Show “%@” in the palette', '在面板中显示“%@”', '“%@”을(를) 팔레트에 표시'),
+('fx.list.showInPaletteHint', 'チェックを入れた項目をパレットに表示します', 'Checked items appear in the palette', '勾选的项目显示在面板中', '체크한 항목이 팔레트에 표시됩니다'),
+('fx.script.title', 'スクリプトファイル', 'Script File', '脚本文件', '스크립트 파일'),
+('fx.script.missing', 'スクリプトが見つかりません', 'Script not found', '找不到脚本', '스크립트를 찾을 수 없음'),
+('fx.script.missingDetail', 'ファイルがありません。［ファイルを選ぶ…］で指定し直してください。', 'The file is missing. Choose it again with Choose File….', '文件不存在。请用“选择文件…”重新指定。', '파일이 없습니다. [파일 선택…]으로 다시 지정하세요.'),
+('fx.script.choose', 'ファイルを選ぶ…', 'Choose File…', '选择文件…', '파일 선택…'),
+('fx.script.reveal', 'Finderで表示', 'Show in Finder', '在访达中显示', 'Finder에서 보기'),
+('fx.script.reset', '初期値に戻す', 'Reset to Default', '恢复默认', '기본값으로 되돌리기'),
+('fx.kind.dialog', '［効果］メニューの項目を実行し、Illustratorのダイアログボックスを開きます。', "Runs the Effect menu item and opens Illustrator's dialog box.", '执行“效果”菜单项并打开 Illustrator 的对话框。', '[효과] 메뉴 항목을 실행하고 Illustrator 대화상자를 엽니다.'),
+('fx.kind.menu', 'Illustratorのメニュー項目を実行します（ダイアログボックスなし）。', 'Runs the Illustrator menu item (no dialog box).', '执行 Illustrator 菜单项（无对话框）。', 'Illustrator 메뉴 항목을 실행합니다(대화상자 없음).'),
+('fx.kind.effect', '下の値で効果を適用します（ダイアログボックスなし）。パレットではOption＋クリックでダイアログボックスを開きます。', 'Applies the effect with the values below (no dialog box). In the palette, Option-click opens the dialog box.', '以下方数值应用效果（无对话框）。在面板中按住 Option 单击可打开对话框。', '아래 값으로 효과를 적용합니다(대화상자 없음). 팔레트에서 Option+클릭하면 대화상자를 엽니다.'),
+('fx.kind.code.buttCap', '選択したパス（グループ・複合パスの中も含む）の線端を「線端なし」にします。', 'Sets the cap of the selected paths (also inside groups and compound paths) to Butt Cap.', '将所选路径（包括编组和复合路径内）的端点设为平头端点。', '선택한 패스(그룹·컴파운드 패스 안 포함)의 단면을 버트 단면으로 설정합니다.'),
+('fx.kind.code.roundCap', '選択したパス（グループ・複合パスの中も含む）の線端を「丸型線端」にします。', 'Sets the cap of the selected paths (also inside groups and compound paths) to Round Cap.', '将所选路径（包括编组和复合路径内）的端点设为圆头端点。', '선택한 패스(그룹·컴파운드 패스 안 포함)의 단면을 둥근 단면으로 설정합니다.'),
+('fx.kind.code.projectingCap', '選択したパス（グループ・複合パスの中も含む）の線端を「突出線端」にします。', 'Sets the cap of the selected paths (also inside groups and compound paths) to Projecting Cap.', '将所选路径（包括编组和复合路径内）的端点设为方头端点。', '선택한 패스(그룹·컴파운드 패스 안 포함)의 단면을 돌출 단면으로 설정합니다.'),
+('fx.kind.code.openPath', 'グラフィックスタイル「オープンパス化」（アプリに同梱した openpath.ai のもの）を、選択中のオブジェクトに適用します。［変形］で高さを0にして［パスファインダー：アウトライン］で開いた線にし、2 ptの丸型線端の線で描くスタイルです。', 'Applies the graphic style 「オープンパス化」 (from openpath.ai bundled with the app) to the selected objects: Transform flattens to height 0, Pathfinder › Outline makes an open line, drawn with a 2 pt round-cap stroke.', '将图形样式“オープンパス化”（来自随应用提供的 openpath.ai）应用到所选对象：“变换”将高度设为 0，“路径查找器：轮廓”形成开放线条，并以 2 pt 圆头端点描边绘制。', '그래픽 스타일 “オープンパス化”(앱에 포함된 openpath.ai)를 선택한 개체에 적용합니다. [변형]으로 높이를 0으로 만들고 [패스파인더: 윤곽선]으로 열린 선을 만들어 2 pt 둥근 단면 선으로 그리는 스타일입니다.'),
+('fx.kind.code.pasteLastStyle', 'ドキュメントのグラフィックスタイルのうち、一覧の最後にあるものを選択中のオブジェクトに適用します。', "Applies the last graphic style in the document's list to the selected objects.", '将文档图形样式列表中的最后一个样式应用到所选对象。', '문서 그래픽 스타일 목록의 마지막 스타일을 선택한 개체에 적용합니다.'),
+('fx.kind.code.expandUngroup', 'アピアランスを分割し、グループを解除して、選択を解除します。', 'Expands the appearance, ungroups and deselects.', '扩展外观、取消编组并取消选择。', '모양을 확장하고 그룹을 풀고 선택을 해제합니다.'),
+('fx.kind.action', 'Illustratorの操作をアクションとして一時的に読み込んで実行します。', 'Loads the Illustrator operation as a temporary action and plays it.', '将 Illustrator 操作临时载入为动作并执行。', 'Illustrator 작업을 임시 액션으로 불러와 실행합니다.'),
+('fx.kind.namedAction', '［アクション］パネルのセット「%2$@」にあるアクション「%1$@」を実行します。', 'Plays the action “%1$@” in the set “%2$@” of the Actions panel.', '执行“动作”面板中动作集“%2$@”里的动作“%1$@”。', '[액션] 패널의 세트 “%2$@”에 있는 액션 “%1$@”을(를) 실행합니다.'),
+('fx.kind.script', 'スクリプトファイルをIllustratorで実行します。', 'Runs the script file in Illustrator.', '在 Illustrator 中执行脚本文件。', 'Illustrator에서 스크립트 파일을 실행합니다.'),
+('fx.join.miter', 'マイター', 'Miter', '斜接', '각지게'),
+('fx.join.round', 'ラウンド', 'Round', '圆角', '둥글게'),
+('fx.join.bevel', 'ベベル', 'Bevel', '斜角', '경사'),
+('fx.unit.document', 'ドキュメントの単位', 'document units', '文档单位', '문서 단위'),
+('fx.unit.perInch', '/inch', '/inch', '/英寸', '/인치'),
+('fx.unit.perSegment', '/線分', '/segment', '/线段', '/선분'),
+('fx.key.recordingHint', '割り当てるキーを押してください。修飾キーなしでも割り当てられます。Escで取り消します。', 'Press the keys to assign. Keys without modifiers are allowed. Press Esc to cancel.', '请按下要分配的按键，可以不带修饰键。按 Esc 取消。', '지정할 키를 누르세요. 보조 키 없이도 지정할 수 있습니다. Esc로 취소합니다.'),
+('fx.key.failed', 'このキーは使えません。ほかのアプリが使っているか、パレットのホットキーと同じです。', 'This key cannot be used: another app holds it or it is the palette hotkey.', '无法使用此按键：其他应用正在使用，或与面板快捷键相同。', '이 키는 사용할 수 없습니다. 다른 앱이 사용 중이거나 팔레트 단축키와 같습니다.'),
+('fx.key.paletteKey', 'パレットを表示するホットキーと同じキーは割り当てられません。', 'This is the palette hotkey and cannot be assigned.', '不能分配与显示面板快捷键相同的按键。', '팔레트 표시 단축키와 같은 키는 지정할 수 없습니다.'),
+('fx.key.takenFrom', '「%@」から外して割り当てました。', 'Moved from “%@”.', '已从“%@”移除并分配。', '“%@”에서 해제하고 지정했습니다.'),
+('fx.settings.paletteKey', 'アピアランスパレットを表示するホットキー', 'Appearance palette hotkey', '显示外观面板的快捷键', '모양 팔레트 표시 단축키'),
+('fx.settings.itemsSection', 'アピアランスパレットの項目', 'Appearance Palette Items', '外观面板项目', '모양 팔레트 항목'),
+('fx.settings.paletteKeyNote', 'Illustratorが前面のときだけ使えます。押すたびにパレットを表示・非表示にします。', 'Works only while Illustrator is in front. Each press shows or hides the palette.', '仅在 Illustrator 位于前台时可用。每按一次显示或隐藏面板。', 'Illustrator가 앞에 있을 때만 작동합니다. 누를 때마다 팔레트를 표시하거나 가립니다.'),
+('fx.settings.typing', '文字入力中', 'While Typing', '输入文字时', '텍스트 입력 중'),
+('fx.settings.skipWhileTyping', '文字入力中は修飾キーなしのホットキーを実行しない', "Don't run hotkeys without modifiers while typing text", '输入文字时不执行不带修饰键的快捷键', '텍스트 입력 중에는 보조 키 없는 단축키를 실행하지 않음'),
+('fx.settings.skipWhileTypingNote', 'Illustratorで文字ツールを使っているあいだ（文字の編集中を含む）、⌘や⌃を含まないキー（- や ⇧K など）は実行せず、そのまま文字として入力します。ダイアログボックスを開いているときも同じです。キーを押すたびにIllustratorの状態を確かめます。', 'While a type tool is active in Illustrator (including text editing), keys without ⌘ or ⌃ (such as - or ⇧K) are typed instead of running their command. The same applies while a dialog box is open. Illustrator is checked on each press.', '在 Illustrator 中使用文字工具时（包括编辑文字），不含 ⌘ 或 ⌃ 的按键（如 - 或 ⇧K）不会执行命令，而是直接输入文字。打开对话框时也相同。每次按键时都会检查 Illustrator 的状态。', 'Illustrator에서 문자 도구를 사용하는 동안(텍스트 편집 포함) ⌘나 ⌃가 없는 키(- 또는 ⇧K 등)는 명령을 실행하지 않고 그대로 문자로 입력합니다. 대화상자가 열려 있을 때도 같습니다. 키를 누를 때마다 Illustrator의 상태를 확인합니다.'),
+('fx.settings.skipNeedsAccess', 'アクセシビリティの許可が必要です（［起動・常駐］タブ）。許可するまでは、文字入力中もホットキーを実行します。', 'Needs Accessibility permission (Startup & Background tab). Until then, hotkeys also run while typing.', '需要辅助功能权限（“启动与后台”标签）。授权前，输入文字时也会执行快捷键。', '손쉬운 사용 권한이 필요합니다([시작 및 백그라운드] 탭). 허용하기 전까지는 텍스트 입력 중에도 단축키가 실행됩니다.'),
+('fx.logic.title', 'しくみ', 'How It Works', '工作原理', '작동 방식'),
+('fx.logic.source', 'Illustratorに送るExtendScript', 'ExtendScript Sent to Illustrator', '发送到 Illustrator 的 ExtendScript', 'Illustrator로 보내는 ExtendScript'),
+('fx.logic.check', 'ドキュメントが開いていて、オブジェクトが選択されているかを確かめます。文字の編集中（選択がテキスト範囲）のときは何もしません。', 'Checks that a document is open and objects are selected. Nothing happens while text is being edited (the selection is a text range).', '检查是否打开了文档并选择了对象。正在编辑文字（选区为文字范围）时不执行任何操作。', '문서가 열려 있고 개체가 선택되어 있는지 확인합니다. 텍스트 편집 중(선택이 텍스트 범위)일 때는 아무것도 하지 않습니다.'),
+('fx.logic.menu', 'app.executeMenuCommand("%@") でIllustratorのメニュー項目を実行します。', 'Runs the Illustrator menu item with app.executeMenuCommand("%@").', '通过 app.executeMenuCommand("%@") 执行 Illustrator 菜单项。', 'app.executeMenuCommand("%@")로 Illustrator 메뉴 항목을 실행합니다.'),
+('fx.logic.dialogWait', 'Illustratorのダイアログボックスが開きます。閉じるまで次のコマンドは待ちます。', "Illustrator's dialog box opens; the next command waits until it closes.", '打开 Illustrator 的对话框，关闭前后续命令会等待。', 'Illustrator 대화상자가 열립니다. 닫을 때까지 다음 명령은 기다립니다.'),
+('fx.logic.units', '長さの値をドキュメントの単位（doc.rulerUnits）からptに換算します。', "Converts lengths from the document's units (doc.rulerUnits) to points.", '将长度从文档单位（doc.rulerUnits）换算为点。', '길이 값을 문서 단위(doc.rulerUnits)에서 pt로 환산합니다.'),
+('fx.logic.effect', '選択中のオブジェクトそれぞれに、applyEffect() でLiveEffect「%1$@」を付けます（ダイアログボックスなし）。値：%2$@', 'Adds the LiveEffect “%1$@” to each selected object with applyEffect() (no dialog box). Values: %2$@', '使用 applyEffect() 为每个所选对象添加 LiveEffect“%1$@”（无对话框）。数值：%2$@', '선택한 개체마다 applyEffect()로 LiveEffect “%1$@”을(를) 적용합니다(대화상자 없음). 값: %2$@'),
+('fx.logic.effectOption', 'パレットでOption＋クリック、または［ダイアログボックスを開く］のときは、代わりに app.executeMenuCommand("%@") でIllustratorのダイアログボックスを開きます。', 'With Option-click in the palette or Open Dialog Box, app.executeMenuCommand("%@") opens Illustrator\'s dialog box instead.', '在面板中按住 Option 单击或点“打开对话框”时，改为通过 app.executeMenuCommand("%@") 打开 Illustrator 的对话框。', '팔레트에서 Option+클릭하거나 [대화상자 열기]를 누르면 대신 app.executeMenuCommand("%@")로 Illustrator 대화상자를 엽니다.'),
+('fx.logic.tempAction', '1つの操作だけのアクションを一時ファイル（.aia）に書き出し、app.loadAction() で読み込んで app.doScript() で実行し、app.unloadAction() で取り除きます。セット名は「VectorFX Temporary」です。', 'Writes a one-step action to a temporary .aia, loads it with app.loadAction(), plays it with app.doScript() and removes it with app.unloadAction(). The set is named “VectorFX Temporary”.', '将只有一个操作的动作写入临时文件（.aia），用 app.loadAction() 载入、app.doScript() 执行，再用 app.unloadAction() 移除。动作集名为“VectorFX Temporary”。', '작업 하나만 있는 액션을 임시 파일(.aia)로 쓰고 app.loadAction()으로 불러와 app.doScript()로 실행한 뒤 app.unloadAction()으로 제거합니다. 세트 이름은 “VectorFX Temporary”입니다.'),
+('fx.logic.events', 'アクションの内容：%@', 'Action steps: %@', '动作内容：%@', '액션 내용: %@'),
+('fx.logic.namedAction', '［アクション］パネルのセット「%1$@」にあるアクション「%2$@」を app.doScript() で実行します。セットが読み込まれていないと実行できません。', 'Plays the action “%2$@” in the set “%1$@” of the Actions panel with app.doScript(). The set must be loaded.', '通过 app.doScript() 执行“动作”面板中动作集“%1$@”里的动作“%2$@”。必须已载入该动作集。', 'app.doScript()로 [액션] 패널의 세트 “%1$@”에 있는 액션 “%2$@”을(를) 실행합니다. 세트가 불러와져 있어야 합니다.'),
+('fx.logic.script', '下のスクリプトファイルを、do javascript (POSIX file …) でIllustratorに実行させます。選択の確認やダイアログボックスはスクリプト側の処理です。', 'Has Illustrator run the script file below with do javascript (POSIX file …). Selection checks and dialog boxes are up to the script.', '通过 do javascript (POSIX file …) 让 Illustrator 执行下方的脚本文件。选区检查和对话框由脚本自行处理。', '아래 스크립트 파일을 do javascript (POSIX file …)로 Illustrator에서 실행합니다. 선택 확인과 대화상자는 스크립트가 처리합니다.'),
+('fx.logic.send', '前面のIllustratorをアプリのパスで指定し、osascript の do javascript で送ります。結果（OK、または実行しなかった理由）を主画面とパレットの下に表示します。', 'Sends it to the frontmost Illustrator (addressed by its app path) with do javascript through osascript, and shows the result (OK, or why nothing ran) below the main window and the palette.', '按应用路径指定前台的 Illustrator，通过 osascript 的 do javascript 发送，并在主窗口和面板下方显示结果（OK 或未执行的原因）。', '앞에 있는 Illustrator를 앱 경로로 지정해 osascript의 do javascript로 보내고, 결과(OK 또는 실행하지 않은 이유)를 메인 윈도우와 팔레트 아래에 표시합니다.'),
+('fx.logic.sendScript', '前面のIllustratorをアプリのパスで指定し、osascript で送ります。スクリプトが終わると「実行しました」と表示します（スクリプトの中の成否は表示されません）。', "Sends it to the frontmost Illustrator (addressed by its app path) through osascript. When the script ends, “Ran” is shown (the script's own result is not).", '按应用路径指定前台的 Illustrator，通过 osascript 发送。脚本结束后显示“已执行”（不显示脚本内部的成功与否）。', '앞에 있는 Illustrator를 앱 경로로 지정해 osascript로 보냅니다. 스크립트가 끝나면 “실행했습니다”를 표시합니다(스크립트 안의 성공 여부는 표시되지 않음).'),
+('fx.logic.on', 'オン', 'on', '开', '켬'),
+('fx.logic.off', 'オフ', 'off', '关', '끔'),
+('fx.logic.listSeparator', '、', ', ', '，', ', '),
+('fx.logic.code.cap', '選択中のオブジェクトを順にたどり、グループの中・複合パスの中のパスまで降ります。¶線があるパス（stroked）だけ、strokeCap を StrokeCap.%CAP% にします。線のないパスとパス以外は変えません。', 'Walks the selected objects, down into groups and compound paths.¶Sets strokeCap to StrokeCap.%CAP% on paths with a stroke only; unstroked paths and other objects are left as they are.', '依次遍历所选对象，深入到编组和复合路径内的路径。¶仅对有描边的路径（stroked）将 strokeCap 设为 StrokeCap.%CAP%；无描边的路径和其他对象不变。', '선택한 개체를 차례로 살펴 그룹과 컴파운드 패스 안의 패스까지 들어갑니다.¶선이 있는 패스(stroked)만 strokeCap을 StrokeCap.%CAP%로 설정합니다. 선이 없는 패스와 그 밖의 개체는 바꾸지 않습니다.'),
+('fx.logic.code.openPath', 'ドキュメントにグラフィックスタイル「オープンパス化」があるか、doc.graphicStyles.getByName() で確かめます。¶無ければ、アプリに同梱した openpath.ai を一時フォルダーに複製して app.open() で開き、仮の長方形にそのスタイルを適用して、作業中のドキュメントの一時レイヤーへ duplicate() します（スタイルも一緒に入ります）。openpath.ai は保存せずに閉じ、仮の長方形と一時レイヤーを削除します。¶選択中のオブジェクトそれぞれに graphicStyle.applyTo() でスタイルを適用し、選択を元に戻します。スタイルの中身：線（2 pt・丸型線端）に［変形］（垂直方向 0%・基準点 中央）→［パスファインダー：アウトライン］（塗りのないアートワークを残す）、塗り。', 'Checks with doc.graphicStyles.getByName() whether the document has the graphic style 「オープンパス化」.¶If not, copies openpath.ai (bundled with the app) to the temporary folder, opens it with app.open(), applies the style to a scratch rectangle and duplicate()s it to a temporary layer of your document (the style comes along). openpath.ai is closed without saving; the rectangle and the layer are removed.¶Applies the style to each selected object with graphicStyle.applyTo() and restores the selection. The style: a stroke (2 pt, round cap) with Transform (vertical 0%, center) → Pathfinder › Outline (keeping unpainted artwork), and a fill.', '用 doc.graphicStyles.getByName() 检查文档中是否有图形样式“オープンパス化”。¶若没有，将随应用提供的 openpath.ai 复制到临时文件夹并用 app.open() 打开，把该样式应用到临时矩形，再 duplicate() 到当前文档的临时图层（样式会一并带入）。openpath.ai 不存储即关闭，并删除临时矩形和图层。¶用 graphicStyle.applyTo() 将样式应用到每个所选对象并恢复选区。样式内容：描边（2 pt、圆头端点）带“变换”（垂直 0%、中心）→“路径查找器：轮廓”（保留未上色图稿），以及填色。', 'doc.graphicStyles.getByName()으로 문서에 그래픽 스타일 “オープンパス化”가 있는지 확인합니다.¶없으면 앱에 포함된 openpath.ai를 임시 폴더에 복제해 app.open()으로 열고, 임시 사각형에 그 스타일을 적용한 뒤 작업 중인 문서의 임시 레이어로 duplicate()합니다(스타일도 함께 들어옵니다). openpath.ai는 저장하지 않고 닫고, 임시 사각형과 레이어를 삭제합니다.¶선택한 개체마다 graphicStyle.applyTo()로 스타일을 적용하고 선택을 되돌립니다. 스타일 내용: 선(2 pt, 둥근 단면)에 [변형](세로 0%, 기준점 가운데) → [패스파인더: 윤곽선](칠하지 않은 아트워크 유지), 그리고 칠.'),
+('fx.logic.code.pasteLastStyle', 'doc.graphicStyles の数を確かめます。0なら「ドキュメントにグラフィックスタイルがありません」と表示して終わります。¶一覧の最後のグラフィックスタイル（graphicStyles[length - 1]）を、選択中のオブジェクトそれぞれに applyTo() で適用します。', 'Checks doc.graphicStyles; with none, shows “The document has no graphic styles.” and stops.¶Applies the last graphic style in the list (graphicStyles[length - 1]) to each selected object with applyTo().', '检查 doc.graphicStyles 的数量；为 0 时显示“文档中没有图形样式。”并结束。¶使用 applyTo() 将列表中最后一个图形样式（graphicStyles[length - 1]）应用到每个所选对象。', 'doc.graphicStyles 수를 확인합니다. 0이면 “문서에 그래픽 스타일이 없습니다.”를 표시하고 끝냅니다.¶목록의 마지막 그래픽 스타일(graphicStyles[length - 1])을 선택한 개체마다 applyTo()로 적용합니다.'),
+('fx.logic.code.expandUngroup', 'app.executeMenuCommand("expandStyle")：［オブジェクト］＞［アピアランスを分割］。¶app.executeMenuCommand("ungroup")：グループ解除。¶app.executeMenuCommand("deselectall")：選択を解除。', 'app.executeMenuCommand("expandStyle"): Object › Expand Appearance.¶app.executeMenuCommand("ungroup"): Ungroup.¶app.executeMenuCommand("deselectall"): Deselect.', 'app.executeMenuCommand("expandStyle")：“对象”›“扩展外观”。¶app.executeMenuCommand("ungroup")：取消编组。¶app.executeMenuCommand("deselectall")：取消选择。', 'app.executeMenuCommand("expandStyle"): [개체] › [모양 확장].¶app.executeMenuCommand("ungroup"): 그룹 풀기.¶app.executeMenuCommand("deselectall"): 선택 해제.'),
+('fx.settings.itemsNote', '表示する項目・カラー・ホットキー・効果の値はメインウインドウで変えます。下のボタンで、表示・カラー・ホットキー・値をすべて最初の状態に戻します（スクリプトファイルの場所は残ります）。', 'Change items, colors, hotkeys and effect values in the main window. The button below restores items, colors, hotkeys and values (script file locations are kept).', '在主窗口中更改项目、颜色、快捷键和效果数值。下方按钮会恢复项目、颜色、快捷键和数值的初始状态（保留脚本文件位置）。', '항목·색상·단축키·효과 값은 메인 윈도우에서 변경합니다. 아래 버튼으로 항목·색상·단축키·값을 모두 처음 상태로 되돌립니다(스크립트 파일 위치는 유지).'),
+('fx.settings.resetAll', 'すべて初期値に戻す', 'Reset All to Defaults', '全部恢复默认', '모두 기본값으로 되돌리기'),
+('fx.status.done', '「%@」を実行しました。', 'Ran “%@”.', '已执行“%@”。', '“%@”을(를) 실행했습니다.'),
+('fx.status.noIllustrator', 'Illustratorが起動していません。', 'Illustrator is not running.', 'Illustrator 未运行。', 'Illustrator가 실행 중이 아닙니다.'),
+('fx.status.busy', '実行待ちが多いため、今回の操作は見送りました。', 'Too many commands are waiting; this one was skipped.', '等待执行的操作过多，本次操作已跳过。', '대기 중인 실행이 많아 이번 작업은 건너뛰었습니다.'),
+('fx.status.automation', 'Illustratorを操作する許可がありません。システム設定＞プライバシーとセキュリティ＞オートメーションで、VectorMateの「Adobe Illustrator」をオンにしてください。', 'VectorMate may not control Illustrator. Turn on “Adobe Illustrator” for VectorMate in System Settings › Privacy & Security › Automation.', 'VectorMate 无权控制 Illustrator。请在“系统设置”›“隐私与安全性”›“自动化”中为 VectorMate 打开“Adobe Illustrator”。', "VectorMate가 Illustrator를 제어할 권한이 없습니다. 시스템 설정 › 개인정보 보호 및 보안 › 자동화에서 VectorMate의 'Adobe Illustrator'를 켜세요."),
+('fx.status.fileMissing', 'スクリプトが見つかりません：%@', 'Script not found: %@', '找不到脚本：%@', '스크립트를 찾을 수 없음: %@'),
+('fx.status.err.nodoc', 'ドキュメントが開いていません。', 'No document is open.', '没有打开的文档。', '열린 문서가 없습니다.'),
+('fx.status.err.nosel', 'オブジェクトを選択してください。', 'Select objects first.', '请先选择对象。', '먼저 개체를 선택하세요.'),
+('fx.status.err.text', '文字の編集中です。選択ツールでオブジェクトとして選んでください。', 'Text is being edited. Select it as an object with the Selection tool.', '正在编辑文字。请用选择工具将其作为对象选中。', '텍스트를 편집 중입니다. 선택 도구로 개체로 선택하세요.'),
+('fx.status.err.action', 'アクション「%1$@」（セット「%2$@」）を実行できませんでした。［アクション］パネルにあるか確認してください。', 'Could not play the action “%1$@” (set “%2$@”). Check that it is in the Actions panel.', '无法执行动作“%1$@”（动作集“%2$@”）。请确认“动作”面板中存在该动作。', '액션 “%1$@”(세트 “%2$@”)을(를) 실행할 수 없습니다. [액션] 패널에 있는지 확인하세요.'),
+('fx.status.err.nostyle', 'ドキュメントにグラフィックスタイルがありません。', 'The document has no graphic styles.', '文档中没有图形样式。', '문서에 그래픽 스타일이 없습니다.'),
+('fx.status.err.style', 'openpath.ai にグラフィックスタイル「オープンパス化」が見つかりません。', 'The graphic style 「オープンパス化」 was not found in openpath.ai.', '在 openpath.ai 中找不到图形样式“オープンパス化”。', 'openpath.ai에서 그래픽 스타일 “オープンパス化”를 찾을 수 없습니다.'),
+('fx.status.err.file', 'ファイルを読み書きできませんでした。', 'Could not read or write a file.', '无法读写文件。', '파일을 읽거나 쓸 수 없습니다.'),
+('fx.status.failed', '「%1$@」を実行できませんでした：%2$@', 'Could not run “%1$@”: %2$@', '无法执行“%1$@”：%2$@', '“%1$@”을(를) 실행할 수 없습니다: %2$@'),
+('fx.section.stylize', 'スタイライズ・ワープ', 'Stylize & Warp', '风格化与变形', '스타일화·변형'),
+('fx.section.threeD', '3D', '3D', '3D', '3D'),
+('fx.section.path', 'パス', 'Path', '路径', '패스'),
+('fx.section.pathfinder', 'パスファインダー', 'Pathfinder', '路径查找器', '패스파인더'),
+('fx.section.shape', '形状に変換', 'Convert to Shape', '转换为形状', '모양으로 변환'),
+('fx.section.distort', 'パスの変形', 'Distort & Transform', '扭曲和变换', '왜곡과 변형'),
+('fx.section.misc', 'その他', 'Other', '其他', '기타'),
+('fx.section.release', '消去・分割', 'Clear & Expand', '清除与扩展', '지우기·확장'),
+('fx.section.compoundShape', '複合シェイプ', 'Compound Shape', '复合形状', '복합 모양'),
+('fx.section.compoundPath', '複合パス', 'Compound Path', '复合路径', '컴파운드 패스'),
+('fx.section.caps', '線端', 'Caps', '端点', '단면'),
+('fx.cmd.roundCorners', '角を丸くする', 'Round Corners', '圆角', '둥근 모퉁이'),
+('fx.cmd.dropShadow', 'ドロップシャドウ', 'Drop Shadow', '投影', '그림자 만들기'),
+('fx.cmd.warp', 'ワープ（円弧）', 'Warp (Arc)', '变形（弧形）', '변형(부채꼴)'),
+('fx.cmd.extrude3D', '3D 押し出し・ベベル', '3D Extrude & Bevel', '3D 凸出和斜角', '3D 돌출과 경사'),
+('fx.cmd.revolve3D', '3D 回転体', '3D Revolve', '3D 绕转', '3D 회전체'),
+('fx.cmd.rotate3D', '3D 回転', '3D Rotate', '3D 旋转', '3D 회전'),
+('fx.cmd.outlineObject', 'オブジェクトのアウトライン', 'Outline Object', '轮廓化对象', '개체 윤곽선'),
+('fx.cmd.outlineStroke', 'パスのアウトライン', 'Outline Stroke', '轮廓化描边', '윤곽선 획'),
+('fx.cmd.offsetPath', 'パスのオフセット', 'Offset Path', '位移路径', '패스 이동'),
+('fx.cmd.pfAdd', '追加', 'Add', '相加', '추가'),
+('fx.cmd.pfIntersect', '交差', 'Intersect', '交集', '교차'),
+('fx.cmd.pfExclude', '中マド', 'Exclude', '差集', '교차 영역 제외'),
+('fx.cmd.pfSubtract', '前面オブジェクトで型抜き', 'Subtract', '减去顶层', '앞면 개체 제외'),
+('fx.cmd.pfMinusBack', '背面オブジェクトで型抜き', 'Minus Back', '减去后方对象', '이면 개체 제외'),
+('fx.cmd.pfMerge', '合流', 'Merge', '合并', '병합'),
+('fx.cmd.pfDivide', '分割', 'Divide', '分割', '나누기'),
+('fx.cmd.pfOutline', 'アウトライン', 'Outline', '轮廓', '윤곽선'),
+('fx.cmd.pfCrop', '切り抜き', 'Crop', '裁剪', '자르기'),
+('fx.cmd.rectangle', '長方形', 'Rectangle', '矩形', '사각형'),
+('fx.cmd.ellipse', '楕円形', 'Ellipse', '椭圆', '타원'),
+('fx.cmd.roundedRectangle', '角丸長方形', 'Rounded Rectangle', '圆角矩形', '둥근 사각형'),
+('fx.cmd.zigzag', 'ジグザグ（折り返し1）', 'Zig Zag (1 Ridge)', '波纹效果（1 个折点）', '지그재그(1회)'),
+('fx.cmd.zigzagFlat', 'ジグザグ（0-0）', 'Zig Zag (0-0)', '波纹效果（0-0）', '지그재그(0-0)'),
+('fx.cmd.freeDistort', 'パスの自由変形', 'Free Distort', '自由扭曲', '자유 왜곡'),
+('fx.cmd.freeDistortScript', 'パスの自由変形（スクリプト）', 'Free Distort (Script)', '自由扭曲（脚本）', '자유 왜곡(스크립트)'),
+('fx.cmd.puckerBloat', 'パンク・膨張', 'Pucker & Bloat', '收缩和膨胀', '오목과 볼록'),
+('fx.cmd.roughen', 'ラフ', 'Roughen', '粗糙化', '거칠게 하기'),
+('fx.cmd.transform', '変形', 'Transform', '变换', '변형'),
+('fx.cmd.scribbleTweak', 'ランダム・ひねり', 'Tweak', '扭拧', '비틀기'),
+('fx.cmd.twist', '旋回', 'Twist', '扭转', '비틀어 돌리기'),
+('fx.cmd.removeItem', '項目を削除', 'Remove Item', '删除所选项目', '항목 삭제'),
+('fx.cmd.duplicateItem', '項目を複製', 'Duplicate Item', '复制所选项目', '항목 복제'),
+('fx.cmd.pasteLastStyle', 'グラフィックスタイルを適用（最後）', 'Apply Last Graphic Style', '应用最后一个图形样式', '마지막 그래픽 스타일 적용'),
+('fx.cmd.rasterize', 'ラスタライズ', 'Rasterize', '栅格化', '래스터화'),
+('fx.cmd.sketchy', '手書き風（KPTSketchy）', 'Sketchy (KPTSketchy)', '手绘风格（KPTSketchy）', '손그림 스타일(KPTSketchy)'),
+('fx.cmd.strokeScale', 'すべての線幅を変更', 'Scale All Stroke Widths', '更改所有描边粗细', '모든 선 두께 변경'),
+('fx.cmd.clearAppearance', 'アピアランスを消去', 'Clear Appearance', '清除外观', '모양 지우기'),
+('fx.cmd.clearKeepFill', 'アピアランスを消去（塗りを残す）', 'Clear Appearance (Keep Fill)', '清除外观（保留填色）', '모양 지우기(칠 유지)'),
+('fx.cmd.expandAppearance', 'アピアランスを分割', 'Expand Appearance', '扩展外观', '모양 확장'),
+('fx.cmd.expandUngroup', 'アピアランスを分割（グループ解除）', 'Expand Appearance (Ungroup)', '扩展外观（取消编组）', '모양 확장(그룹 풀기)'),
+('fx.cmd.knockout', 'グループの抜き', 'Knockout Group', '挖空组', '그룹 녹아웃'),
+('fx.cmd.makeCompoundShape', '複合シェイプを作成', 'Make Compound Shape', '建立复合形状', '복합 모양 만들기'),
+('fx.cmd.releaseCompoundShape', '複合シェイプを解除', 'Release Compound Shape', '释放复合形状', '복합 모양 풀기'),
+('fx.cmd.makeCompoundPath', '複合パスを作成', 'Make Compound Path', '建立复合路径', '컴파운드 패스 만들기'),
+('fx.cmd.openPath', 'オープンパスにする', 'Make an Open Path', '变为开放路径', '열린 패스로 만들기'),
+('fx.cmd.releaseCompoundPath', '複合パスを解除', 'Release Compound Path', '释放复合路径', '컴파운드 패스 풀기'),
+('fx.cmd.buttCap', '線端なし', 'Butt Cap', '平头端点', '버트 단면'),
+('fx.cmd.roundCap', '丸型線端', 'Round Cap', '圆头端点', '둥근 단면'),
+('fx.cmd.projectingCap', '突出線端', 'Projecting Cap', '方头端点', '돌출 단면'),
+('fx.param.opacity', '不透明度', 'Opacity', '不透明度', '불투명도'),
+('fx.param.offsetX', 'X軸オフセット', 'X Offset', 'X 位移', 'X 오프셋'),
+('fx.param.offsetY', 'Y軸オフセット', 'Y Offset', 'Y 位移', 'Y 오프셋'),
+('fx.param.blur', 'ぼかし', 'Blur', '模糊', '흐림 효과'),
+('fx.param.offset', 'オフセット', 'Offset', '位移', '이동'),
+('fx.param.join', '角の形状', 'Joins', '连接', '연결'),
+('fx.param.extraWidth', '幅に追加', 'Extra Width', '额外宽度', '추가 폭'),
+('fx.param.cornerRadius', '角丸の半径', 'Corner Radius', '圆角半径', '모퉁이 반경'),
+('fx.param.extraHeight', '高さに追加', 'Extra Height', '额外高度', '추가 높이'),
+('fx.param.size', '大きさ', 'Size', '大小', '크기'),
+('fx.param.ridges', '折り返し', 'Ridges', '折点', '능선'),
+('fx.param.detail', '詳細', 'Detail', '细节', '세부'),
+('fx.param.smooth', '滑らかに', 'Smooth', '平滑', '매끄럽게'),
+('fx.item.color', 'カラー', 'Color', '颜色', '색상'),
+('fx.color.none', 'なし', 'None', '无', '없음'),
+('fx.color.selected', '選択中', 'Selected', '已选择', '선택됨'),
+('fx.color.red', 'レッド', 'Red', '红色', '빨간색'),
+('fx.color.orange', 'オレンジ', 'Orange', '橙色', '주황색'),
+('fx.color.yellow', 'イエロー', 'Yellow', '黄色', '노란색'),
+('fx.color.green', 'グリーン', 'Green', '绿色', '초록색'),
+('fx.color.blue', 'ブルー', 'Blue', '蓝色', '파란색'),
+('fx.color.purple', 'パープル', 'Purple', '紫色', '보라색'),
+('fx.color.gray', 'グレイ', 'Gray', '灰色', '회색'),
+('appearance.tab', 'アピアランス', 'Appearance', '外观', '모양'),
+('appearance.menu', 'アピアランスパレットを表示／隠す', 'Show/Hide Appearance Palette', '显示/隐藏外观面板', '모양 팔레트 보기/가리기'),
 ('help', 'ヘルプ', 'Help', '帮助', '도움말'),
 ('helpItem', 'VectorMateヘルプ', 'VectorMate Help', 'VectorMate 帮助', 'VectorMate 도움말'),
 ('support', 'サポート：同梱のREADME.md', 'Support: see the bundled README.md', '支持：请参阅随附的 README.md', '지원: 함께 제공된 README.md 참조'),
@@ -466,6 +651,14 @@ Illustratorの主要な環境設定（一般・選択範囲・アンカー表示
 
 その他（タブ）
 「Illustratorの設定を初期化」の［初期化…］は、確認のうえ起動中のIllustratorを終了し、その版の ~/Library/Application Support/Adobe/Adobe Illustrator <版>・~/Library/Preferences/Adobe Illustrator <版> Settings（「キャッシュも削除」がオンなら ~/Library/Caches/com.adobe.illustrator も）をゴミ箱に入れて、もう一度起動します。Illustratorが終了しなければ何も消しません。同期タブで作ったリンクも消えるので、あとで作り直してください。
+
+アピアランス（タブ・パレット）
+Illustratorの効果・パスファインダー・複合シェイプ・複合パス・線端などを、パレットのボタンとホットキーで実行します。
+- パレット：Illustratorが前面のとき ⌃A（初期値、設定の［ホットキー］で変更）で表示／非表示。メインウインドウの［アピアランス］ボタン・メニューからも。Illustratorが前面のときだけ表示され、クリックしてもIllustratorの選択は変わりません。
+- 名前の後ろに「…」がある項目はダイアログボックスを開きます。ドロップシャドウ・パスのオフセット・長方形・楕円形・角丸長方形・ジグザグ・ラフは、アピアランスタブで決めた値でダイアログボックスなしに効果を付けます（長さはドキュメントの単位）。パレットでOption＋クリックするとIllustratorのダイアログボックスを開きます。
+- アピアランスタブ：左の一覧のチェックでパレットに表示、右で実行・カラー（Finderのタグの7色）・項目ごとのホットキー・効果の値・スクリプトファイルの場所、「しくみ」で実行の手順と送るExtendScriptを確認できます。
+- 項目のホットキーは、パレットを表示していてIllustratorが前面のときだけ使えます（修飾キーなしのキーも可）。文字入力中（文字ツール・ダイアログボックス表示中）は⌘・⌃を含まないキーを実行せず文字として入力させます（アクセシビリティが必要、設定の［ホットキー］で切り替え）。
+- 結果（実行しなかった理由を含む）はタブとパレットの下に表示します。⌥W（すべてのパレットを閉じる）でアピアランスパレットも閉じます。
 
 設定の共有
 設定の「設定の共有」タブで、メトリクスの設定・ホットキー・単位セット・単位パレットのモード・環境設定セットを書き出し・読み込みできます（「書き出す…」「読み込む…」、VectorMate-Settings.plist）。読み込むと確認のうえ設定を置き換えます。「設定の同期」で iCloud Drive や Dropbox などのフォルダーを選ぶと、複数のMacで同じ設定を使えます（後から保存した内容が優先）。ログイン時の起動・常駐・メニューバーのアイコンはMacごとに設定します。
@@ -541,6 +734,14 @@ Document profiles and composite fonts work the same way: choose the source folde
 Other tab
 Reset… under Reset Illustrator Settings asks first, quits the running Illustrator, moves ~/Library/Application Support/Adobe/Adobe Illustrator <version> and ~/Library/Preferences/Adobe Illustrator <version> Settings (and ~/Library/Caches/com.adobe.illustrator when Also delete the cache is on) to the Trash, then launches it again. If Illustrator does not quit, nothing is moved. Links made in the Sync tab go too; make them again afterwards.
 
+Appearance (tab and palette)
+Runs Illustrator effects, Pathfinder, compound shapes, compound paths, caps and more from palette buttons and hotkeys.
+- Palette: press ⌃A (default; change it in Settings › Hotkeys) while Illustrator is in front to show or hide it, or use the Appearance button or menu. It appears only while Illustrator is in front, and clicking it keeps Illustrator's selection.
+- Items ending with “…” open a dialog box. Drop Shadow, Offset Path, Rectangle, Ellipse, Rounded Rectangle, Zig Zag and Roughen are applied without a dialog box using the values set in the Appearance tab (lengths in document units). Option-click in the palette opens Illustrator's dialog box.
+- Appearance tab: check items on the left to show them in the palette; on the right run them and set the color (seven Finder tag colors), each item's hotkey, effect values and script file location. How It Works shows the steps and the ExtendScript sent.
+- Item hotkeys work only while the palette is shown and Illustrator is in front (keys without modifiers are allowed). While typing (a type tool or a dialog box), keys without ⌘ or ⌃ are typed instead (needs Accessibility; switch it in Settings › Hotkeys).
+- Results, including why nothing ran, appear below the tab and the palette. ⌥W (close all palettes) also closes the Appearance palette.
+
 Sharing settings
 In the Sharing tab of Settings, Export… and Import… save and load the Metrics options, hotkeys, unit sets, Units Palette mode and preference sets (VectorMate-Settings.plist). Importing asks first, then replaces the settings. Settings Sync keeps them the same on several Macs through a folder such as iCloud Drive or Dropbox (the most recent save wins). Open at login, staying in the background and the menu bar icon are set on each Mac.
 
@@ -615,6 +816,14 @@ Support: see the bundled README.md (Contents/Resources/README.md inside the app)
 其他（标签页）
 “初始化 Illustrator 设置”中的“初始化…”会先确认，然后退出正在运行的 Illustrator，将 ~/Library/Application Support/Adobe/Adobe Illustrator <版本> 和 ~/Library/Preferences/Adobe Illustrator <版本> Settings（开启“同时删除缓存”时还有 ~/Library/Caches/com.adobe.illustrator）移到废纸篓并重新启动。若 Illustrator 未退出，则不会移动任何内容。在“同步”标签中创建的链接也会消失，之后请重新创建。
 
+外观（标签页与面板）
+通过面板按钮和快捷键执行 Illustrator 的效果、路径查找器、复合形状、复合路径、端点等操作。
+- 面板：Illustrator 位于前台时按 ⌃A（默认，可在设置的“快捷键”中更改）显示或隐藏，也可使用主窗口的“外观”按钮或菜单。仅在 Illustrator 位于前台时显示，单击不会改变 Illustrator 的选择。
+- 名称后带“…”的项目会打开对话框。投影、位移路径、矩形、椭圆、圆角矩形、波纹效果和粗糙化使用外观标签中设定的数值、不显示对话框直接添加效果（长度为文档单位）。在面板中按住 Option 单击会打开 Illustrator 的对话框。
+- 外观标签：左侧列表中勾选的项目显示在面板中；右侧可执行并设置颜色（访达标签的 7 种颜色）、各项目的快捷键、效果数值和脚本文件位置，在“工作原理”中可查看执行步骤和发送的 ExtendScript。
+- 项目快捷键仅在显示面板且 Illustrator 位于前台时可用（可使用不带修饰键的按键）。输入文字时（文字工具或对话框），不含 ⌘ 或 ⌃ 的按键不执行而作为文字输入（需要辅助功能权限，可在设置的“快捷键”中切换）。
+- 结果（包括未执行的原因）显示在标签页和面板下方。⌥W（关闭所有面板）也会关闭外观面板。
+
 设置共享
 在设置的“设置共享”标签中，可以导出和导入度量标准设置、快捷键、单位组合、单位面板的模式和首选项组合（VectorMate-Settings.plist）。导入时会先确认，再替换设置。在“设置同步”中选择 iCloud 云盘或 Dropbox 等文件夹，即可在多台 Mac 上使用相同的设置（以最后保存的为准）。登录时启动、保持运行和菜单栏图标在每台 Mac 上分别设置。
 
@@ -688,6 +897,14 @@ Illustrator가 여러 버전 설치되어 있을 때 체크한 확장자(.ai, .a
 
 기타(탭)
 Illustrator 설정 초기화의 초기화…는 확인한 뒤 실행 중인 Illustrator를 종료하고 ~/Library/Application Support/Adobe/Adobe Illustrator <버전>, ~/Library/Preferences/Adobe Illustrator <버전> Settings(캐시도 삭제가 켜져 있으면 ~/Library/Caches/com.adobe.illustrator도)를 휴지통으로 옮긴 뒤 다시 시작합니다. Illustrator가 종료되지 않으면 아무것도 옮기지 않습니다. 동기화 탭에서 만든 링크도 사라지므로 나중에 다시 만드세요.
+
+모양(탭·팔레트)
+Illustrator의 효과, 패스파인더, 복합 모양, 컴파운드 패스, 단면 등을 팔레트 버튼과 단축키로 실행합니다.
+- 팔레트: Illustrator가 앞에 있을 때 ⌃A(기본값, 설정의 [단축키]에서 변경)로 보기/가리기. 메인 윈도우의 [모양] 버튼이나 메뉴로도 표시할 수 있습니다. Illustrator가 앞에 있을 때만 표시되며 클릭해도 Illustrator의 선택은 바뀌지 않습니다.
+- 이름 뒤에 “…”가 있는 항목은 대화상자를 엽니다. 그림자 만들기, 패스 이동, 사각형, 타원, 둥근 사각형, 지그재그, 거칠게 하기는 모양 탭에서 정한 값으로 대화상자 없이 효과를 적용합니다(길이는 문서 단위). 팔레트에서 Option+클릭하면 Illustrator 대화상자를 엽니다.
+- 모양 탭: 왼쪽 목록에서 체크한 항목이 팔레트에 표시되고, 오른쪽에서 실행·색상(Finder 태그 7색)·항목별 단축키·효과 값·스크립트 파일 위치를 설정하며, “작동 방식”에서 실행 순서와 보내는 ExtendScript를 볼 수 있습니다.
+- 항목 단축키는 팔레트가 표시되어 있고 Illustrator가 앞에 있을 때만 작동합니다(보조 키 없는 키도 가능). 텍스트 입력 중(문자 도구·대화상자)에는 ⌘나 ⌃가 없는 키를 실행하지 않고 문자로 입력합니다(손쉬운 사용 권한 필요, 설정의 [단축키]에서 전환).
+- 결과(실행하지 않은 이유 포함)는 탭과 팔레트 아래에 표시됩니다. ⌥W(모든 팔레트 닫기)로 모양 팔레트도 닫습니다.
 
 설정 공유
 설정의 설정 공유 탭에서 메트릭 설정, 단축키, 단위 세트, 단위 팔레트 모드, 환경설정 세트를 내보내고 가져올 수 있습니다(VectorMate-Settings.plist). 가져올 때는 확인한 뒤 설정을 바꿉니다. 설정 동기화에서 iCloud Drive나 Dropbox 같은 폴더를 선택하면 여러 Mac에서 같은 설정을 사용할 수 있습니다(나중에 저장한 내용이 우선). 로그인 시 실행, 백그라운드 유지, 메뉴 막대 아이콘은 Mac마다 설정합니다.

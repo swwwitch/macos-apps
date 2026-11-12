@@ -171,7 +171,6 @@ struct PrefPresetsEditor: View {
                     Button(L("prefsets.revert")) { model.revertPrefDraft(); keepSelection() }.disabled(model.prefDraft == nil)
                     Button(L("prefsets.save")) { model.savePrefDraft() }.disabled(model.prefDraft == nil)
                 }
-                Text(L("prefsets.hint")).font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
         }
         .onAppear { if selection == nil { selection = model.editingPrefPresets.first?.id } }
