@@ -1050,7 +1050,7 @@ struct MainView: View {
                         Text(L("pan.button"))
                         Picker("", selection: $model.dragPanButton) {
                             ForEach(DragPan.Button.allCases, id: \.self) { Text($0.label).tag($0) }
-                        }.labelsHidden().fixedSize()
+                        }.pickerStyle(.radioGroup).horizontalRadioGroupLayout().labelsHidden().fixedSize()
                     }.disabled(!model.dragPan).padding(.leading, 20)
                     Note(text: L("pan.detail"))
                     if !model.trusted && (model.doubleTap || model.artboardPanel || model.gradientPanel || model.dragPan) { Note(text: AccessibilityText.text("blocked")) }
