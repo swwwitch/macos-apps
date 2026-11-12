@@ -1,0 +1,150 @@
+import Foundation
+
+var failures = 0
+func check(_ condition: Bool, _ label: String) {
+    if condition { print("ok   " + label) } else { failures += 1; print("FAIL " + label) }
+}
+
+let fm = FileManager.default
+let base = fm.temporaryDirectory.appendingPathComponent("LayoutMateTests-\(UUID().uuidString)", isDirectory: true)
+defer { try? fm.removeItem(at: base) }
+
+@discardableResult
+func makeBundle(_ folder: String, _ app: String, id: String, version: String = "21.0") -> URL {
+    let url = base.appendingPathComponent(folder).appendingPathComponent(app + ".app")
+    try! fm.createDirectory(at: url.appendingPathComponent("Contents/MacOS"), withIntermediateDirectories: true)
+    let info: [String: Any] = ["CFBundleIdentifier": id, "CFBundleShortVersionString": version, "CFBundleName": "InDesign", "CFBundlePackageType": "APPL"]
+    try! PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0).write(to: url.appendingPathComponent("Contents/Info.plist"))
+    return url
+}
+
+func sh(_ command: String) -> Int32 {
+    let p = Process(); p.executableURL = URL(fileURLWithPath: "/bin/sh"); p.arguments = ["-c", command]
+    try! p.run(); p.waitUntilExit(); return p.terminationStatus
+}
+
+makeBundle("Adobe InDesign 2025", "Adobe InDesign 2025", id: AsyncExports.bundleID, version: "20.5")
+makeBundle("Adobe InDesign 2026", "Adobe InDesign 2026", id: AsyncExports.bundleID, version: "21.6")
+makeBundle("Adobe InDesign Server 2026", "Adobe InDesign Server 2026", id: "com.adobe.InDesignServer")
+makeBundle("Other", "Adobe InDesign 2026", id: "com.example.fake")
+// Shell-hostile names: quote, dollar, backtick, double quote, Japanese.
+let odd = makeBundle("Adobe InDesign 'q' $HOME `x` \"d\" 日本語", "Adobe InDesign Odd", id: AsyncExports.bundleID)
+
+let apps = AsyncExports.discover(roots: [base], extra: [base.appendingPathComponent("Adobe InDesign 2026/Adobe InDesign 2026.app")])
+check(apps.count == 3, "discovers InDesign only, deduplicated (\(apps.map(\.name)))")
+check(apps.first?.name == "Adobe InDesign Odd" || apps.first?.name == "Adobe InDesign 2026", "newest-first ordering")
+check(!apps.contains { $0.name.contains("Server") }, "InDesign Server excluded")
+check(apps.first { $0.name == "Adobe InDesign 2026" }?.version == "21.6", "version read")
+check(AsyncExports.app(at: base.appendingPathComponent("Other/Adobe InDesign 2026.app")) == nil, "other bundle ID rejected")
+check(AsyncExports.discover(roots: [base], extra: [base.appendingPathComponent(".Trash/Adobe InDesign 2024.app")]).count == 3, "trash extra ignored")
+
+check(apps.allSatisfy { AsyncExports.state(of: $0) == .on }, "initially on")
+check(AsyncExports.targets(apps, turnOff: true).count == 3, "all are turn-off targets")
+check(AsyncExports.targets(apps, turnOff: false).isEmpty, "nothing to restore")
+
+// Privileged command, executed here without privileges against the temp tree.
+let offCommand = AsyncExports.command(for: apps, turnOff: true)!
+check(sh(offCommand) == 0, "turn-off command succeeds")
+check(apps.allSatisfy { AsyncExports.state(of: $0) == .off }, "all off after command")
+check((try? fm.attributesOfItem(atPath: apps[0].markerFile.path)[.size] as? Int) == 0, "marker file is empty")
+check(fm.fileExists(atPath: odd.appendingPathComponent("Contents/MacOS/" + AsyncExports.fileName).path), "hostile path handled literally")
+check(!fm.fileExists(atPath: base.appendingPathComponent("Adobe InDesign 'q' ").path), "no path splitting")
+check(sh(offCommand) == 0 && apps.allSatisfy { AsyncExports.state(of: $0) == .off }, "turn-off is idempotent")
+
+let onCommand = AsyncExports.command(for: apps, turnOff: false)!
+check(sh(onCommand) == 0, "restore command succeeds")
+check(apps.allSatisfy { AsyncExports.state(of: $0) == .on }, "all on after restore")
+check(sh(onCommand) == 0, "restore is idempotent")
+
+// Non-regular items at the marker path are reported and never touched.
+let target = apps[0]
+try! fm.createDirectory(at: target.markerFile, withIntermediateDirectories: false)
+try! Data("keep".utf8).write(to: target.markerFile.appendingPathComponent("inner"))
+check(AsyncExports.state(of: target) == .invalid, "directory at marker path is invalid")
+check(AsyncExports.targets([target], turnOff: false).isEmpty && AsyncExports.targets([target], turnOff: true).isEmpty, "invalid is never a target")
+_ = sh("{ [ ! -f \(AsyncExports.shellQuote(target.markerFile.path)) ] || /bin/rm -f \(AsyncExports.shellQuote(target.markerFile.path)); }")
+check(fm.fileExists(atPath: target.markerFile.appendingPathComponent("inner").path), "rm guard keeps directory")
+try! fm.removeItem(at: target.markerFile)
+let elsewhere = base.appendingPathComponent("elsewhere.txt"); try! Data("x".utf8).write(to: elsewhere)
+try! fm.createSymbolicLink(at: target.markerFile, withDestinationURL: elsewhere)
+check(AsyncExports.state(of: target) == .invalid, "symlink at marker path is invalid")
+_ = sh(AsyncExports.command(for: [target], turnOff: false)!)
+check(fm.fileExists(atPath: elsewhere.path) && (try? fm.destinationOfSymbolicLink(atPath: target.markerFile.path)) != nil, "restore keeps symlink and its target")
+try! fm.removeItem(at: target.markerFile)
+
+// Unprivileged path for a writable copy.
+check(AsyncExports.changeWithoutPrivileges(target, turnOff: true) && AsyncExports.state(of: target) == .off, "writable copy: off without password")
+check(AsyncExports.changeWithoutPrivileges(target, turnOff: false) && AsyncExports.state(of: target) == .on, "writable copy: restore without password")
+
+// Path validation and quoting.
+check(!AsyncExports.isMarkerPath("relative/X.app/Contents/MacOS/DisableAsyncExports.txt"), "relative path rejected")
+check(!AsyncExports.isMarkerPath("/Applications/X.app/Contents/MacOS/../../../etc/DisableAsyncExports.txt"), "parent traversal rejected")
+check(!AsyncExports.isMarkerPath("/Applications/X.app/Contents/MacOS/other.txt"), "other file name rejected")
+check(AsyncExports.command(for: [], turnOff: true) == nil, "empty selection has no command")
+check(AsyncExports.shellQuote("a'b") == "'a'\\''b'", "single quote escaped")
+check(AsyncExports.appleScriptString("a\"b\\c") == "\"a\\\"b\\\\c\"", "AppleScript string escaped")
+let script = AsyncExports.appleScript(command: "echo 'x'", prompt: "p")
+check(script.hasPrefix("do shell script \"echo 'x'\"") && script.hasSuffix("with administrator privileges"), "AppleScript shape")
+
+// Full AppleScript round trip (without the admin clause) against the hostile path.
+let oddApp = AsyncExports.app(at: odd)!
+let viaScript = AsyncExports.appleScript(command: AsyncExports.command(for: [oddApp], turnOff: true)!, prompt: "p \"q\"")
+    .replacingOccurrences(of: " with administrator privileges", with: "")
+let osa = Process(); osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascript"); osa.arguments = ["-e", viaScript]
+try! osa.run(); osa.waitUntilExit()
+check(osa.terminationStatus == 0 && AsyncExports.state(of: oddApp) == .off, "AppleScript round trip creates marker at hostile path")
+
+// Application bar: workspace discovery and the is-closed rewrite.
+let prefs = base.appendingPathComponent("Prefs", isDirectory: true)
+let wsFolder = prefs.appendingPathComponent("Version 21.0-J/ja_JP/Workspaces", isDirectory: true)
+try! fm.createDirectory(at: wsFolder, withIntermediateDirectories: true)
+func workspaceXML(_ closed: Bool) -> String {
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<workspace>\n<palette is-closed=\"false\"/>\n<app-container-control-bar id=\"3\" origin=\"1 25\" size=\"697 37\" is-closed=\"\(closed)\"/>\n</workspace>\n"
+}
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(true).write(to: wsFolder.appendingPathComponent("初期設定_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw_CurrentWorkspace (競合コピー).xml"), atomically: true, encoding: .utf8)
+try! "<workspace/>".write(to: wsFolder.appendingPathComponent("broken.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("sw-left_CurrentWorkspace (masahiro takano の競合コピー 2025-12-03)_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+try! workspaceXML(false).write(to: wsFolder.appendingPathComponent("abc_CurrentWorkspace.xml"), atomically: true, encoding: .utf8)
+let presets = ["ja_JP": Set(["初期設定", "スタート"])]
+let spaces = ApplicationBar.discover(root: prefs, builtIn: presets)
+check(spaces.map(\.name).sorted() == ["abc", "sw", "初期設定"], "workspaces grouped, conflicted copies (also InDesign's own state of one) and files without the bar skipped (\(spaces.map(\.name)))")
+check(spaces.first { $0.name == "sw" }?.kind == .saved && spaces.first { $0.name == "初期設定" }?.kind == .builtIn
+      && spaces.first { $0.name == "abc" }?.kind == .orphan, "saved, preset and orphaned current-state files told apart")
+check(ApplicationBar.discover(root: prefs, builtIn: [:]).allSatisfy { $0.kind != .orphan }, "no presets found: nothing marked as orphan")
+let fakeApps = base.appendingPathComponent("FakeApps", isDirectory: true)
+let presetFolder = fakeApps.appendingPathComponent("Adobe InDesign 2026/Presets/InDesign_Workspaces/ja_JP", isDirectory: true)
+try! fm.createDirectory(at: presetFolder, withIntermediateDirectories: true)
+try! "".write(to: presetFolder.appendingPathComponent("拡張設定.xml"), atomically: true, encoding: .utf8)
+check(ApplicationBar.builtInNames(applications: fakeApps) == ["ja_JP": ["拡張設定"]], "preset names read from installed InDesign")
+let sw = spaces.first { $0.name == "sw" }!
+check(sw.files.count == 2 && sw.version == "21.0-J" && sw.locale == "ja_JP", "saved and current files grouped with version")
+check(ApplicationBar.state(of: sw) == .shown, "shown when is-closed is false")
+check(ApplicationBar.state(of: spaces.first { $0.name == "初期設定" }!) == .hidden, "hidden when is-closed is true")
+check(ApplicationBar.set(sw, hidden: true) && ApplicationBar.state(of: sw) == .hidden, "hide rewrites both files")
+let hiddenText = try! String(contentsOf: wsFolder.appendingPathComponent("sw.xml"), encoding: .utf8)
+check(hiddenText == workspaceXML(true).replacingOccurrences(of: "<palette is-closed=\"true\"/>", with: "<palette is-closed=\"false\"/>"), "only the application bar attribute changes")
+check(ApplicationBar.set(sw, hidden: false) && ApplicationBar.state(of: sw) == .shown, "show restores both files")
+
+// ドラッグでパン (Shared/DragPan/DragPanMachine.swift): click vs drag, waiting for the typing check, typing, not ours.
+do {
+    let a = CGPoint(x: 100, y: 100), near = CGPoint(x: 102, y: 101), far = CGPoint(x: 110, y: 100), farther = CGPoint(x: 120, y: 105)
+    var m = DragPanMachine()
+    check(m.down(at: a, eligible: true) == .swallow && m.dragged(to: near) == .swallow, "pan: press held back, small move")
+    check(m.typingAnswered(false) == nil && m.up(at: near) == .click(a) && m.phase == .idle, "pan: release without moving clicks")
+    m = DragPanMachine(); _ = m.down(at: a, eligible: true); _ = m.typingAnswered(false)
+    check(m.dragged(to: far) == .startPan(from: a, to: far) && m.dragged(to: farther) == .drag(farther) && m.up(at: farther) == .endPan(farther), "pan: drag pans")
+    m = DragPanMachine(); _ = m.down(at: a, eligible: true)
+    check(m.dragged(to: far) == .swallow && m.typingAnswered(false) == .startPan(from: a, to: far), "pan: drag waits for the typing check")
+    m = DragPanMachine(); _ = m.down(at: a, eligible: true); _ = m.typingAnswered(true)
+    check(m.dragged(to: far) == .replay(at: a, to: far) && m.dragged(to: farther) == .pass && m.up(at: farther) == .pass, "pan: typing passes")
+    m = DragPanMachine()
+    check(m.down(at: a, eligible: false) == .pass && m.dragged(to: far) == .pass && m.up(at: far) == .pass, "pan: not ours passes")
+    m = DragPanMachine(); _ = m.down(at: a, eligible: true); _ = m.typingAnswered(false); _ = m.dragged(to: far)
+    check(m.abort() == .endPan(far) && m.abort() == nil, "pan: abort releases a pan once")
+}
+
+print(failures == 0 ? "All tests passed." : "\(failures) failure(s).")
+exit(failures == 0 ? 0 : 1)

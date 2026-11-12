@@ -8,6 +8,10 @@
 
 作業ツリーの現在版は未コミット変更を含む場合があります。ビルド・配置・公証・公開の確認結果は各リリース記録を参照してください。App Store版の履歴は通常版へ混在させず、今後は区分を明記します。
 
+## LayoutMate
+
+- 2026-11-12｜v0.1.0（build 1）｜通常版：新規（Bundle ID jp.dtp-transit.layoutmate）。IdBackgroundOff 1.2.0 の写しから、バックグラウンド書き出し・アプリケーションバー・ドラッグでパン（Shared/DragPan）を引き継ぎ、VectorMate の UIの明るさ（⇧F2/⇧F1・隠しキー⌥⇧F2/⌥⇧F1）、表示（アプリケーションフレーム・コンテキストタスクバー・ツールバー2列）、選択ツールのダブルタップ、関連付け（.indd・.idml）を移植。設定ウインドウ（起動・常駐・ホットキー・情報）、常駐、ログイン起動、アプリ起動のホットキー、4言語ヘルプ。検証用、実機の一部（起動・表示・UIの読み取り）のみ確認、公証・配布未実施。
+
 ## MenuDiff
 
 - 2026-11-11｜v1.3.1（build 6）｜通常版（開発Macの検証用ビルドのみ）：設定の［比較］タブで、外すプラグインの名前の欄が高さを押し広げて［既定に戻す］と説明が切れていたのを修正。公証・配置・公開は未実施。
@@ -68,6 +72,7 @@
 - [KakkoReplace](#kakkoreplace)
 - [KeynoteMaestro](#keynotemaestro)
 - [KeynoteSweeper](#keynotesweeper)
+- [LayoutMate](#layoutmate)
 - [LinkMaker](#linkmaker)
 - [ListMatch](#listmatch)
 - [MarkdownKitchen](#markdownkitchen)

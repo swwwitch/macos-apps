@@ -1,0 +1,37 @@
+LayoutMate — Helpers for InDesign
+
+LayoutMate is a background app that switches InDesign settings and helps with mouse and key operations. Use Background Export, UI, Tools and Associations at the top of the main window.
+
+Background Export
+An empty DisableAsyncExports.txt in Contents/MacOS inside InDesign makes PDF and other exports run in the foreground instead of the background. Turn Off places it, Restore removes it, and Turn Off All turns off every version at once. The inside of InDesign is protected, so macOS asks for an administrator password (it is not stored). Changes apply the next time InDesign starts. Choose InDesign outside /Applications with Add InDesign… (⌘O). Updating InDesign can remove the file and turn background export back on.
+
+UI
+UI Brightness: chooses the color theme in InDesign's Settings → Interface (Dark, Medium Dark, Medium Light, Light). While InDesign is in front, ⇧F2 makes it one step brighter and ⇧F1 one step darker (change or clear the keys in Settings → Hotkeys).
+Display: switches the Application Frame, the Contextual Task Bar and the two-column toolbar in the running InDesign (the one in front, otherwise one that runs) with a script.
+Application Bar: rewrites is-closed of the application bar in the workspace XML of each version in ~/Library/Preferences/Adobe InDesign. InDesign writes its workspace back when it quits, so this cannot be changed while InDesign runs. It has no effect with the Application Frame.
+
+Tools
+Selection Tool: with "Double-tap a modifier key to switch to the Selection tool" on, tapping the chosen key (Control, Option, Command or Shift; Control by default) alone twice while InDesign is in front selects the Selection tool (text editing ends). Another key or a click in between cancels it.
+Drag to Pan: with "Pan the view by dragging with a mouse button" on, a drag with the chosen button (right or middle; right by default) while InDesign is in front is turned into Space + drag (the Hand tool). Releasing without moving sends the original click (the right-button context menu opens on release instead of on press). Presses with modifier keys, while a type tool is in use, or over windows of other apps (such as palettes) pass through unchanged.
+Both are off by default and need the Accessibility permission.
+
+Associations
+When several versions of InDesign are installed, opens the checked extensions (.indd, .idml) with the chosen version. The version is written into macOS's association record and the system process that manages associations (lsd) is restarted. The previous record is saved in ~/Library/Application Support/LayoutMate.
+
+Settings (⌘,)
+Startup & Background: Open at login (off by default; no window when opened at login), Hide from Dock and App Switcher, Keep running after closing the window (on by default), the app hotkey (unset by default), the menu bar icon, and the Accessibility permission state.
+Hotkeys: turn on, change or clear the UI brightness hotkeys (⇧F2, ⇧F1). They are registered only while InDesign is in front, so ⇧F1 and ⇧F2 stay with every other app.
+About: version, build and links.
+
+Permissions
+Accessibility: lets the tools (Selection Tool, Drag to Pan) receive mouse and key events. Check it in Settings → Startup & Background and allow it with Open Accessibility Settings.
+Automation (controlling InDesign): reads and writes InDesign's state for UI and Tools. macOS asks the first time. If it was denied, allow it in System Settings → Privacy & Security → Automation.
+
+Running and quitting
+With Keep running on, closing the window keeps the app running. Open the window from the Dock, the menu bar icon, by opening the app again in the Finder or with the app hotkey. ⌘Q quits. ⌘0 opens the main window, ⌘R reloads and ⌘? opens this help.
+
+Troubleshooting
+The tools do nothing: check that Accessibility is Allowed in Settings → Startup & Background.
+UI values cannot be read: check that InDesign runs and has no dialog box open, then press Reload. If Automation was denied, allow it as described above.
+The association does not switch: macOS may not have saved a recent change yet. Wait a few minutes and try again.
+
