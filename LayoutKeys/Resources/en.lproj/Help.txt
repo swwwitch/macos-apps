@@ -1,0 +1,60 @@
+## Basics
+LayoutKeys runs your scripts (.jsx) with keyboard shortcuts while InDesign is in front.
+- Choose File > Add Scripts… (⌘O), or drag .jsx files onto the window. You can add several at once.
+- Select a script to see its file and shortcut on the right. Click the shortcut field, then press the keys to assign.
+- The checkbox in the list turns each script's shortcut on or off.
+- Run brings InDesign to the front, then runs the script.
+- One run is undone with a single Undo in InDesign (the undo step is named after the script).
+- Turn off "Use hotkeys" at the top right to pause all shortcuts (also from the menu bar icon).
+- Recent Runs shows the latest results. When a script stops with an error, InDesign's message is shown. Not saved; cleared when the app quits.
+
+## Managing scripts
+- You can add .jsx, .js and .jsxbin files. The same file is not added twice.
+- Change the name in its field. The file name stays.
+- Drag to reorder the list (not while searching).
+- A moved or renamed file shows "Missing". Choose Another File… points to it again and keeps the shortcut.
+- Only the file's location is stored. Edit the script and the next run uses the new contents.
+- The list and the detail pane show how many times a script ran and when it last ran. Runs from the shortcut or the Run button that finish without an error are counted.
+
+## Script variables (SW_)
+A script with a "var SW_name = value;" line lists it under Script Variables in the detail pane. Enter a value to change that initial value for this entry only.
+- The file itself is not changed. Each run reads the file and runs a changed copy. Empty fields keep the file's initial values.
+- Supported: a var declaration alone on its line, with a string, number or true/false value. A comment at the end of the line is shown as its description.
+- Shortcuts with other values: in the Hotkey table of the detail pane, click Add Row, then pick the variable values and a key for each row. That key runs the script with those values. Variables left at "—" keep the Script Variables setting (or the file's initial value). The first row, "As set above", is the script's own shortcut.
+- Write the choices in the line's comment, like "[left|right|up]", to pick values from a menu and to make one row per choice with "Add a Row for Each (name)". With two or more such variables, "Add All Combinations" makes one row per combination of values (combinations already in the table are skipped). true/false variables are picked from a menu too.
+- The list shows how many keys are assigned.
+- .jsxbin files and scripts that use $.fileName, $.evalFile or #include cannot be changed (they rely on the file's location).
+- When a variable is gone from the file, its saved value is shown in orange, and runs stop with an error until you click Remove.
+
+## Shortcuts
+- Script shortcuts: registered only while InDesign is in front, so the same keys keep their meaning in other apps. A key that InDesign also uses runs the script instead.
+- App shortcut: assign it in Settings > Launch & Background to show the LayoutKeys window from any app (none by default).
+- ⌘O: Add scripts
+- ⌘0: Open the main window
+- ⌘,: Settings
+- ⌘W: Close the window
+- ⌘?: This help
+When two scripts share a key, only the one higher in the list reacts, and the key is shown in red.
+
+## Sharing settings
+Use the Settings Sharing tab in Settings for export, import and sync.
+- Only whether the hotkeys are used is synced.
+- Export… also writes the script list (names, file locations, variable values, hotkeys and variable hotkeys), for moving to another Mac or keeping a backup.
+- Import… replaces this Mac's list with the file's. File locations stay as on the exporting Mac, so put the scripts in the same places on the other Mac.
+- Open at login, keep running, the menu bar icon, the app hotkey and window positions are set on each Mac.
+
+## Permissions and privacy
+- Automation (Adobe InDesign): used to run the scripts. You are asked the first time.
+The list is saved in ~/Library/Application Support/LayoutKeys/Scripts.json. Script files are only read, never changed. Nothing is sent outside.
+
+## Quitting and staying open
+Closing the window keeps the app running and the shortcuts working. Reopen it from the Dock or the menu bar icon. Quit with LayoutKeys > Quit LayoutKeys (⌘Q).
+
+## Troubleshooting
+- A shortcut does nothing: check that InDesign is in front, "Use hotkeys" is on and the script's checkbox is on. A red key is a duplicate or is used by another app.
+- "Not allowed to control InDesign": turn on Adobe InDesign for LayoutKeys in System Settings > Privacy & Security > Automation.
+- "File not found": use Choose Another File… to point to it again.
+- An earlier run does not finish: a script that shows a dialog box holds the next run until it is closed. Up to 3 runs wait; more are skipped.
+
+## Removing and restoring
+Select a script and click − (or press Delete). The file itself is not deleted. To clear everything, quit the app and delete Scripts.json.
