@@ -1,0 +1,936 @@
+tool	Adobe Select Tool	ツール	選択	Selection Tool
+tool	Super Marquee Tool	ツール	Super Marquee Tool	
+tool	Snap To Collisions Tool	ツール	Snap To Collisions Tool	
+tool	Rotate At Collision Tool	ツール	Rotate At Collision Tool	
+tool	Rotate To Collision Tool	ツール	Rotate To Collision Tool	
+tool	Inflate Deflate Tool	ツール	Inflate Deflate Tool	
+tool	Adobe Direct Select Tool	ツール	ダイレクト選択	Direct Selection Tool
+tool	Adobe Direct Object Select Tool	ツール	グループ選択	Group Selection Tool
+tool	Adobe Magic Wand Tool	ツール	自動選択	Magic Wand Tool
+tool	Adobe Direct Lasso Tool	ツール	なげなわ	Lasso Tool
+tool	Adobe Crop Tool	ツール	アートボード	Artboard Tool
+tool	Adobe Pen Tool	ツール	ペン	Pen Tool
+tool	Adobe Add Anchor Point Tool	ツール	アンカーポイントの追加	Add Anchor Point Tool
+tool	Adobe Delete Anchor Point Tool	ツール	アンカーポイントの削除	Delete Anchor Point Tool
+tool	Adobe Anchor Point Tool	ツール	アンカーポイント	Anchor Point Tool
+tool	Adobe Curvature Tool	ツール	曲線ツール	Curvature Tool
+tool	Adobe Line Tool	ツール	直線	Line Segment Tool
+tool	Adobe Arc Tool	ツール	円弧	Arc Tool
+tool	Adobe Shape Construction Spiral Tool	ツール	スパイラル	Spiral Tool
+tool	Adobe Rectangular Grid Tool	ツール	長方形グリッド	Rectangular Grid Tool
+tool	Adobe Polar Grid Tool	ツール	同心円グリッド	Polar Grid Tool
+tool	Adobe Rectangle Shape Tool	ツール	長方形	Rectangle Tool
+tool	Adobe Rounded Rectangle Tool	ツール	角丸長方形	Rounded Rectangle Tool
+tool	Adobe Ellipse Shape Tool	ツール	楕円形	Ellipse Tool
+tool	Adobe Shape Construction Regular Polygon Tool	ツール	多角形	Polygon Tool
+tool	Adobe Shape Construction Star Tool	ツール	スター	Star Tool
+tool	Adobe Flare Tool	ツール	フレア	Flare Tool
+tool	Adobe Brush Tool	ツール	ブラシ	Paintbrush Tool
+tool	Adobe Blob Brush Tool	ツール	塗りブラシ	Blob Brush Tool
+tool	Dynamic Sketch Tool	ツール	Dynamic Sketch Tool	
+tool	InkFlow Tool	ツール	InkFlow Tool	
+tool	Adobe Shaper Tool	ツール	Shaper ツール	Shaper Tool
+tool	Adobe Freehand Tool	ツール	鉛筆	Pencil Tool
+tool	Adobe Freehand Smooth Tool	ツール	スムーズ	Smooth Tool
+tool	Adobe Freehand Erase Tool	ツール	パス消しゴム	Path Eraser Tool
+tool	Adobe Corner Join Tool	ツール	連結ツール	Join Tool
+tool	Adobe Symbol Sprayer Tool	ツール	シンボルスプレー	Symbol Sprayer Tool
+tool	Adobe Symbol Shifter Tool	ツール	シンボルシフト	Symbol Shifter Tool
+tool	Adobe Symbol Scruncher Tool	ツール	シンボルスクランチ	Symbol Scruncher Tool
+tool	Adobe Symbol Sizer Tool	ツール	シンボルリサイズ	Symbol Sizer Tool
+tool	Adobe Symbol Spinner Tool	ツール	シンボルスピン	Symbol Spinner Tool
+tool	Adobe Symbol Stainer Tool	ツール	シンボルステイン	Symbol Stainer Tool
+tool	Adobe Symbol Screener Tool	ツール	シンボルスクリーン	Symbol Screener Tool
+tool	Adobe Symbol Styler Tool	ツール	シンボルスタイル	Symbol Styler Tool
+tool	Adobe Column Graph Tool	ツール	棒グラフ	Column Graph Tool
+tool	Adobe Stacked Column Graph Tool	ツール	積み上げ棒グラフ	Stacked Column Graph Tool
+tool	Adobe Bar Graph Tool	ツール	横向き棒グラフ	Bar Graph Tool
+tool	Adobe Stacked Bar Graph Tool	ツール	横向き積み上げ棒グラフ	Stacked Bar Graph Tool
+tool	Adobe Line Graph Tool	ツール	折れ線グラフ	Line Graph Tool
+tool	Adobe Area Graph Tool	ツール	階層グラフ	Area Graph Tool
+tool	Adobe Scatter Graph Tool	ツール	散布図	Scatter Graph Tool
+tool	Adobe Pie Graph Tool	ツール	円グラフ	Pie Graph Tool
+tool	Adobe Radar Graph Tool	ツール	レーダーチャート	Radar Graph Tool
+tool	Adobe Slice Tool	ツール	スライス	Slice Tool
+tool	Adobe Slice Select Tool	ツール	スライス選択	Slice Selection Tool
+tool	Perspective Grid Tool	ツール	遠近グリッド	Perspective Grid Tool
+tool	Perspective Selection Tool	ツール	遠近図形選択	Perspective Selection Tool
+tool	Adobe Type Tool	ツール	文字	Type Tool
+tool	Adobe Area Type Tool	ツール	エリア内文字	Area Type Tool
+tool	Adobe Path Type Tool	ツール	パス上文字	Type on a Path Tool
+tool	Adobe Vertical Type Tool	ツール	文字 (縦)	Vertical Type Tool
+tool	Adobe Vertical Area Type Tool	ツール	エリア内文字 (縦)	Vertical Area Type Tool
+tool	Adobe Vertical Path Type Tool	ツール	パス上文字 (縦)	Vertical Type on a Path Tool
+tool	Adobe Touch Type Tool	ツール	文字タッチ	Touch Type Tool
+tool	Adobe Gradient Vector Tool	ツール	グラデーション	Gradient Tool
+tool	Adobe Mesh Editing Tool	ツール	メッシュ	Mesh Tool
+tool	Adobe Shape Builder Tool	ツール	シェイプ形成	Shape Builder Tool
+tool	Adobe Planar Paintbucket Tool	ツール	ライブペイント	Live Paint Bucket Tool
+tool	Adobe Planar Face Select Tool	ツール	ライブペイント選択	Live Paint Selection Tool
+tool	Adobe Rotate Tool	ツール	回転	Rotate Tool
+tool	Adobe Reflect Tool	ツール	リフレクト	Reflect Tool
+tool	Adobe Scale Tool	ツール	拡大・縮小	Scale Tool
+tool	Adobe Shear Tool	ツール	シアー	Shear Tool
+tool	Adobe Reshape Tool	ツール	リシェイプ	Reshape Tool
+tool	Adobe Width Tool	ツール	線幅	Width Tool
+tool	Adobe Warp Tool	ツール	ワープ	Warp Tool
+tool	Adobe New Twirl Tool	ツール	うねり	Twirl Tool
+tool	Adobe Pucker Tool	ツール	収縮	Pucker Tool
+tool	Adobe Bloat Tool	ツール	膨張	Bloat Tool
+tool	Adobe Scallop Tool	ツール	ひだ	Scallop Tool
+tool	Adobe Cyrstallize Tool	ツール	クラウン	Crystallize Tool
+tool	Adobe Wrinkle Tool	ツール	リンクル	Wrinkle Tool
+tool	Adobe Puppet Warp Tool	ツール	パペットワープツール	Puppet Warp Tool
+tool	Adobe Free Transform Tool	ツール	自由変形	Free Transform Tool
+tool	Adobe Measure Tool	ツール	ものさし	Measure Tool
+tool	Adobe Eyedropper Tool	ツール	スポイト	Eyedropper Tool
+tool	Adobe Blend Tool	ツール	ブレンド	Blend Tool
+tool	Adobe Eraser Tool	ツール	消しゴム	Eraser Tool
+tool	Adobe Scissors Tool	ツール	はさみ	Scissors Tool
+tool	AG Trim and Join Tool	ツール	AG Trim and Join Tool	
+tool	Adobe Knife Tool	ツール	ナイフツール	Knife Tool
+tool	Adobe Dimension Tool	ツール	寸法ツール	Dimension Tool
+tool	Adobe Constraints Tool	ツール	パス上オブジェクト	Objects on Path
+tool	Adobe Scroll Tool	ツール	手のひら	Hand Tool
+tool	Adobe Page Tool	ツール	プリント分割	Print Tiling Tool
+tool	Adobe Rotate Canvas Tool	ツール	回転ビューツール	Rotate View Tool
+tool	Adobe Zoom Tool	ツール	ズーム	Zoom Tool
+tool	Adobe Place Gun Tool	ツール	配置	Place Tool
+tool	XtreamPath3: �Z�O�����g�ҏW �c�[��	ツール	XtreamPath3: セグメント編集 ツール	
+tool	XtreamPath3: �Z�O�����g�Ώ̕ҏW �c�[��	ツール	XtreamPath3: セグメント対称編集 ツール	
+tool	XtreamPath3: ���������l�ҏW �c�[��	ツール	XtreamPath3: 方向線数値編集 ツール	
+tool	XtreamPath3: �~�ʋߎ��ҏW �c�[��	ツール	XtreamPath3: 円弧近似編集 ツール	
+tool	XtreamPath3: �������C���� �c�[��	ツール	XtreamPath3: 水平ライン化 ツール	
+tool	XtreamPath3: �X���[�Y�ȉ~�� �c�[��	ツール	XtreamPath3: スムーズ楕円化 ツール	
+tool	XtreamPath3: �G�b�W�ȉ~�� �c�[��	ツール	XtreamPath3: エッジ楕円化 ツール	
+tool	XtreamPath3: ���ȉ~�� �c�[��	ツール	XtreamPath3: 半楕円化 ツール	
+tool	XtreamPath3: ��������ό` �c�[��	ツール	XtreamPath3: 引っ張り変形 ツール	
+tool	XtreamPath3: �~�ʖʎ�� �c�[��	ツール	XtreamPath3: 円弧面取り ツール	
+tool	XtreamPath3: �t�~�ʖʎ�� �c�[��	ツール	XtreamPath3: 逆円弧面取り ツール	
+tool	XtreamPath3: �ȉ~�ʎ�� �c�[��	ツール	XtreamPath3: 楕円面取り ツール	
+tool	XtreamPath3: �t�ȉ~�ʎ�� �c�[��	ツール	XtreamPath3: 逆楕円面取り ツール	
+tool	XtreamPath3: �����ʎ�� �c�[��	ツール	XtreamPath3: 直線面取り ツール	
+tool	XtreamPath3: �k���ʎ�� �c�[��	ツール	XtreamPath3: Ｌ字面取り ツール	
+tool	XtreamPath3: �����P���� �c�[��	ツール	XtreamPath3: 交差単純化 ツール	
+tool	XtreamPath3: �A�����C���`�� �c�[��	ツール	XtreamPath3: 連結ライン描画 ツール	
+tool	XtreamPath3: �A���~�ʁ^�ڐ��`�� �c�[��	ツール	XtreamPath3: 連結円弧／接線描画 ツール	
+tool	XtreamPath3: �A���J�[�u�`�� �c�[��	ツール	XtreamPath3: 連結カーブ描画 ツール	
+tool	XtreamPath3: �ʃA�����b�N �c�[��	ツール	XtreamPath3: 個別アンロック ツール	
+tool	XtreamPath3: �Z�O�����g���� �c�[��	ツール	XtreamPath3: セグメント複製 ツール	
+tool	XtreamPath3: �Z�O�����g���s�� �c�[��	ツール	XtreamPath3: セグメント平行化 ツール	
+tool	XtreamPath3: �Z�O�����g�}�� �c�[��	ツール	XtreamPath3: セグメント挿入 ツール	
+tool	XtreamPath3: �Z�O�����g��Ή�] �c�[��	ツール	XtreamPath3: セグメント絶対回転 ツール	
+tool	XtreamPath3: �Z�O�����g��΃��T�C�Y �c�[��	ツール	XtreamPath3: セグメント絶対リサイズ ツール	
+tool	XtreamPath3: �p�X�}�� �c�[��	ツール	XtreamPath3: パス挿入 ツール	
+tool	XtreamPath3: �p�X��Ή�] �c�[��	ツール	XtreamPath3: パス絶対回転 ツール	
+tool	XtreamPath3: �p�X��΃��T�C�Y �c�[��	ツール	XtreamPath3: パス絶対リサイズ ツール	
+tool	Adobe Pattern Tile Tool	ツール	パターンタイル	Pattern Tile Tool
+tool	Adobe Color Theme Picker Tool	ツール	カラーテーマピッカー	
+tool	Adobe Intertwine Zone Marker Tool	ツール	クロスと重なりを選択	Intertwine Tool
+tool	Adobe Ignore Color Tool	ツール	カラーを透過	
+tool	Adobe Stencil Tool	ツール	ステンシル	Stencil Tool
+tool	Dynamic Shapes Tool	ツール	Dynamic Shapes Tool	
+tool	Dynamic Corners Tool	ツール	Dynamic Corners Tool	
+tool	PathScribe Tool	ツール	PathScribe Tool	
+tool	Extend Path Tool	ツール	Extend Path Tool	
+tool	Smart Remove Brush Tool	ツール	Smart Remove Brush Tool	
+tool	Reposition Point Tool	ツール	Reposition Point Tool	
+tool	Path Zipper Tool	ツール	Path Zipper Tool	
+tool	Dynamic Measure Tool	ツール	Dynamic Measure Tool	
+tool	Rearrange Artboard Tool	ツール	アートボードを再配置	
+tool	Adobe Toggle Fill Stroke	ツール	塗りと線を切り換え	
+tool	Adobe Default Fill Stroke	ツール	初期設定の塗りと線	
+tool	Adobe Swap Fill Stroke	ツール	塗りと線を入れ換え	
+tool	Adobe Paint Color	ツール	カラー	
+tool	Adobe Paint Gradient	ツール	グラデーション	
+tool	Adobe Paint None	ツール	なし	
+tool	Adobe Toggle Screen Mode	ツール	スクリーンモードを切り換え	
+tool	Adobe Toggle Palettes	ツール	すべてのパレットを表示 / 隠す	
+tool	Adobe Toggle Closing Palettes	ツール	ツールバー以外を表示 / 隠す	
+tool	Adobe Tool Inc Diameter	ツール	直径を伸ばす	
+tool	Adobe Tool Dec Diameter	ツール	直径を縮める	
+tool	Adobe Symbolism Inc Intensity	ツール	シンボルツール - 強さを増やす	
+tool	Adobe Symbolism Dec Intensity	ツール	シンボルツール - 強さを減らす	
+tool	Adobe Opacity 0	ツール	不透明度 - 0 %	
+tool	Adobe Opacity 10	ツール	不透明度 - 10 %	
+tool	Adobe Opacity 20	ツール	不透明度 - 20 %	
+tool	Adobe Opacity 30	ツール	不透明度 - 30 %	
+tool	Adobe Opacity 40	ツール	不透明度 - 40 %	
+tool	Adobe Opacity 50	ツール	不透明度 - 50 %	
+tool	Adobe Opacity 60	ツール	不透明度 - 60 %	
+tool	Adobe Opacity 70	ツール	不透明度 - 70 %	
+tool	Adobe Opacity 80	ツール	不透明度 - 80 %	
+tool	Adobe Opacity 90	ツール	不透明度 - 90 %	
+tool	Adobe Opacity 100	ツール	不透明度 - 100 %	
+tool	Adobe Blend Mode Normal	ツール	描画モード - 通常	
+tool	Adobe Blend Mode Darken	ツール	描画モード - 比較 (暗)	
+tool	Adobe Blend Mode Multiply	ツール	描画モード - 乗算	
+tool	Adobe Blend Mode Color Burn	ツール	描画モード - 焼き込みカラー	
+tool	Adobe Blend Mode Lighten	ツール	描画モード - 比較 (明)	
+tool	Adobe Blend Mode Screen	ツール	描画モード - スクリーン	
+tool	Adobe Blend Mode Color Dodge	ツール	描画モード - 覆い焼きカラー	
+tool	Adobe Blend Mode Overlay	ツール	描画モード - オーバーレイ	
+tool	Adobe Blend Mode Soft Light	ツール	描画モード - ソフトライト	
+tool	Adobe Blend Mode Hard Light	ツール	描画モード - ハードライト	
+tool	Adobe Blend Mode Difference	ツール	描画モード - 差の絶対値	
+tool	Adobe Blend Mode Exclusion	ツール	描画モード - 除外	
+tool	Adobe Blend Mode Hue	ツール	描画モード - 色相	
+tool	Adobe Blend Mode Saturation	ツール	描画モード - 彩度	
+tool	Adobe Blend Mode Color	ツール	描画モード - カラー	
+tool	Adobe Blend Mode Luminosity	ツール	描画モード - 輝度	
+tool	Adobe Blend Mode Next Mode	ツール	描画モード - 次のモード	
+tool	Adobe Blend Mode Prev Mode	ツール	描画モード - 前のモード	
+tool	Adobe Toggle Drawing Mode	ツール	描画方法を切り替え	
+tool	Adobe Presentation Mode	ツール	プレゼンテーションモード	
+menu	about	Illustrator	Illustrator について	About Illustrator...
+menu	preference	Illustrator	環境設定 > 一般	Preferences > General...
+menu	selectionPref	Illustrator	環境設定 > 選択範囲・アンカー表示	
+menu	keyboardPref	Illustrator	環境設定 > テキスト	Preferences > Type...
+menu	unitundoPref	Illustrator	環境設定 > 単位	Preferences > Units...
+menu	guidegridPref	Illustrator	環境設定 > ガイド・グリッド	Preferences > Guides & Grid...
+menu	snapPref	Illustrator	環境設定 > スマートガイド	Preferences > Smart Guides...
+menu	slicePref	Illustrator	環境設定 > スライス	Preferences > Slices...
+menu	hyphenPref	Illustrator	環境設定 > ハイフネーション	Preferences > Hyphenation...
+menu	pluginPref	Illustrator	環境設定 > プラグイン・仮想記憶ディスク	Preferences > Plug-ins & Scratch Disks...
+menu	userInterfacePref	Illustrator	環境設定 > ユーザーインターフェイス	
+menu	GPUPerformancePref	Illustrator	環境設定 > パフォーマンス	Preferences > Performance
+menu	FilePref	Illustrator	環境設定 > ファイル管理	Preferences > File Handling...
+menu	ClipboardPref	Illustrator	環境設定 > クリップボードの処理	Preferences > Clipboard Handling
+menu	BlackPref	Illustrator	環境設定 > ブラックのアピアランス	Preferences > Appearance of Black...
+menu	DevicesPref	Illustrator	デバイス	Preferences > Devices
+menu	hideApp	Illustrator	Illustrator を隠す	
+menu	hideOthers	Illustrator	ほかを隠す	
+menu	showAllWindows	Illustrator	すべてを表示	
+menu	quit	Illustrator	Illustrator を終了	File > Exit
+menu	new	ファイル	新規	File > New...
+menu	newFromTemplate	ファイル	テンプレートから新規	File > New from Template...
+menu	open	ファイル	開く	File > Open...
+menu	Adobe Bridge Browse	ファイル	Bridge で参照	File > Browse in Bridge...
+menu	close	ファイル	閉じる	File > Close
+menu	closeAll	ファイル	すべてを閉じる	File > Close All
+menu	save	ファイル	保存	File > Save
+menu	saveas	ファイル	別名で保存	File > Save As...
+menu	saveacopy	ファイル	コピーを保存	File > Save a Copy...
+menu	Adobe AI Save Selected Slices	ファイル	選択したスライスを保存	File > Save Selected Slices...
+menu	saveasTemplate	ファイル	テンプレートとして保存	
+menu	revert	ファイル	復帰	File > Revert
+menu	Search Adobe Stock	ファイル	Adobe Stock を検索	File > Search Adobe Stock...
+menu	AI Place	ファイル	配置	File > Place...
+menu	exportForScreens	ファイル	書き出し > スクリーン用に書き出し	File > Export > Export for Screens...
+menu	export	ファイル	書き出し > 書き出し形式	File > Export > Export As...
+menu	Adobe AI Save For Web	ファイル	書き出し > Web 用に保存 (従来)	File > Export > Save for Web (Legacy)...
+menu	exportSelection	ファイル	選択範囲を書き出し	File > Export Selection...
+menu	openInFFBoards	ファイル	Firefly ボードで編集	
+menu	Package Menu Item	ファイル	パッケージ	File > Package...
+menu	ai_browse_for_script	ファイル	スクリプト > その他のスクリプト	File > Scripts > Other Script...
+menu	document	ファイル	ドキュメント設定	File > Document Setup...
+menu	doc-color-cmyk	ファイル	ドキュメントのカラーモード > CMYK カラー	File > Document Color Mode > CMYK Color
+menu	doc-color-rgb	ファイル	ドキュメントのカラーモード > RGB カラー	File > Document Color Mode > RGB Color
+menu	File Info	ファイル	ファイル情報	File > File Info...
+menu	Print	ファイル	プリント	File > Print...
+menu	undo	編集	取り消し	Edit > Undo
+menu	redo	編集	やり直し	Edit > Redo
+menu	cut	編集	カット	Edit > Cut
+menu	copy	編集	コピー	Edit > Copy
+menu	paste	編集	ペースト	Edit > Paste
+menu	pasteFront	編集	前面へペースト	Edit > Paste in Front
+menu	pasteBack	編集	背面へペースト	Edit > Paste in Back
+menu	pasteInPlace	編集	同じ位置にペースト	Edit > Paste in Place
+menu	pasteInAllArtboard	編集	すべてのアートボードにペースト	Edit > Paste on All Artboards
+menu	pasteWithoutFormatting	編集	書式なしでペースト	Edit > Paste without Formatting
+menu	clear	編集	消去	Edit > Clear
+menu	Find and Replace	編集	検索と置換	Edit > Find and Replace...
+menu	Find Next	編集	次を検索	Edit > Find Next
+menu	Auto Spell Check	編集	スペルチェック > 自動スペルチェック	Edit > Spelling > Auto Spell Check
+menu	Check Spelling	編集	スペルチェック	Edit > Spelling > Check Spelling...
+menu	Edit Custom Dictionary...	編集	カスタム辞書を編集	Edit > Edit Custom Dictionary...
+menu	Recolor Art Dialog	編集	カラーを編集 > オブジェクトを再配色	Edit > Edit Colors > Recolor Artwork...
+menu	Generative Recolor Art Dialog	編集	カラーを編集 > 生成再配色	Edit > Edit Colors > Generative Recolor
+menu	Colors8	編集	カラーを編集 > CMYK に変換	Edit > Edit Colors > Convert to CMYK
+menu	Colors9	編集	カラーを編集 > RGB に変換	Edit > Edit Colors > Convert to RGB
+menu	Overprint2	編集	カラーを編集 > オーバープリントブラック	Edit > Edit Colors > Overprint Black...
+menu	Adjust3	編集	カラーを編集 > カラーバランス調整	Edit > Edit Colors > Adjust Color Balance...
+menu	Colors6	編集	カラーを編集 > カラー反転	Edit > Edit Colors > Invert Colors
+menu	Colors7	編集	カラーを編集 > グレースケールに変換	Edit > Edit Colors > Convert to Grayscale
+menu	Colors5	編集	カラーを編集 > 上下にブレンド	Edit > Edit Colors > Blend Vertically
+menu	Colors3	編集	カラーを編集 > 前後にブレンド	Edit > Edit Colors > Blend Front to Back
+menu	Colors4	編集	カラーを編集 > 左右にブレンド	Edit > Edit Colors > Blend Horizontally
+menu	Saturate3	編集	カラーを編集 > 彩度調整	Edit > Edit Colors > Saturate...
+menu	EditOriginal Menu Item	編集	オリジナルを編集	Edit > Edit Original
+menu	Transparency Presets	編集	透明の分割・統合プリセット	Edit > Transparency Flattener Presets...
+menu	Print Presets	編集	プリントプリセット	Edit > Print Presets...
+menu	PDF Presets	編集	Adobe PDF プリセット	Edit > Adobe PDF Presets...
+menu	PerspectiveGridPresets	編集	遠近グリッドプリセット	Edit > Perspective Grid Presets...
+menu	color	編集	カラー設定	Edit > Color Settings...
+menu	assignprofile	編集	プロファイルの指定	Edit > Assign Profile...
+menu	KBSC Menu Item	編集	キーボードショートカット	Edit > Keyboard Shortcuts...
+menu	ExportSettings	編集	設定の書き出し	
+menu	ImportSettings	編集	設定の読み込み	
+menu	transformagain	オブジェクト	変形 > 変形の繰り返し	Object > Transform > Transform Again
+menu	transformmove	オブジェクト	変形 > 移動	Object > Transform > Move...
+menu	transformrotate	オブジェクト	変形 > 回転	Object > Transform > Rotate...
+menu	transformreflect	オブジェクト	変形 > リフレクト	Object > Transform > Reflect...
+menu	transformscale	オブジェクト	変形 > 拡大・縮小	Object > Transform > Scale...
+menu	transformshear	オブジェクト	変形 > シアー	Object > Transform > Shear...
+menu	Transform v23	オブジェクト	変形 > 個別に変形	Object > Transform > Transform Each...
+menu	AI Reset Bounding Box	オブジェクト	変形 > バウンディングボックスのリセット	Object > Transform > Reset Bounding Box
+menu	sendToFront	オブジェクト	重ね順 > 最前面へ	Object > Arrange > Bring to Front
+menu	sendForward	オブジェクト	重ね順 > 前面へ	Object > Arrange > Bring Forward
+menu	sendBackward	オブジェクト	重ね順 > 背面へ	Object > Arrange > Send Backward
+menu	sendToBack	オブジェクト	重ね順 > 最背面へ	Object > Arrange > Send to Back
+menu	Selection Hat 2	オブジェクト	重ね順 > 選択しているレイヤーに移動	Object > Arrange > Send to Current Layer
+menu	Horizontal Align Left	オブジェクト	整列 > 水平方向左に整列	Object > Align > Horizontal Align Left
+menu	Horizontal Align Center	オブジェクト	整列 > 水平方向中央に整列	Object > Align > Horizontal Align Center
+menu	Horizontal Align Right	オブジェクト	整列 > 水平方向右に整列	Object > Align > Horizontal Align Right
+menu	Horizontal && Vertical Align Center	オブジェクト	整列 > 水平・垂直方向中央に整列	Horizontal & Vertical Align Center
+menu	Vertical Align Top	オブジェクト	整列 > 垂直方向上に整列	Object > Align > Vertical Align Top
+menu	Vertical Align Center	オブジェクト	整列 > 垂直方向中央に整列	Object > Align > Vertical Align Center
+menu	Vertical Align Bottom	オブジェクト	整列 > 垂直方向下に整列	Object > Align > Vertical Align Bottom
+menu	Align To Selection	オブジェクト	整列 > 選択範囲に揃える	Object > Align > Align To Selection
+menu	Align To Key Object	オブジェクト	整列 > キーオブジェクトに整列	Object > Align > Align To Key Object
+menu	Align To Artboard	オブジェクト	整列 > アートボードに整列	Object > Align > Align To Artboard
+menu	Vertical Distribute Top	オブジェクト	分布 > 垂直方向上に分布	Object > Distribute > Vertical Distribute Top
+menu	Vertical Distribute Center	オブジェクト	分布 > 垂直方向中央に分布	Object > Distribute > Vertical Distribute Center
+menu	Vertical Distribute Bottom	オブジェクト	分布 > 垂直方向下に分布	Object > Distribute > Vertical Distribute Bottom
+menu	Horizontal Distribute Left	オブジェクト	分布 > 水平方向左に分布	Object > Distribute > Horizontal Distribute Left
+menu	Horizontal Distribute Center	オブジェクト	分布 > 水平方向中央に分布	Object > Distribute > Horizontal Distribute Center
+menu	Horizontal Distribute Right	オブジェクト	分布 > 水平方向右に分布	Object > Distribute > Horizontal Distribute Right
+menu	Vertical Distribute Space	オブジェクト	分布 > 垂直方向等間隔に分布	Object > Distribute > Vertical Distribute Space
+menu	Horizontal Distribute Space	オブジェクト	分布 > 水平方向等間隔に分布	Object > Distribute > Horizontal Distribute Space
+menu	group	オブジェクト	グループ	Object > Group
+menu	ungroup	オブジェクト	グループ解除	Object > Ungroup
+menu	ungroupAll	オブジェクト	すべてグループ解除	
+menu	lock	オブジェクト	ロック > 選択	Object > Lock > Selection
+menu	Selection Hat 5	オブジェクト	ロック > 前面のすべてのアートワーク	Object > Lock > All Artwork Above
+menu	Selection Hat 7	オブジェクト	ロック > その他のレイヤー	Object > Lock > Other Layers
+menu	unlockAll	オブジェクト	すべてをロック解除	Object > Unlock All
+menu	hide	オブジェクト	隠す > 選択	Object > Hide > Selection
+menu	Selection Hat 4	オブジェクト	隠す > 前面のすべてのアートワーク	Object > Hide > All Artwork Above
+menu	Selection Hat 6	オブジェクト	隠す > その他のレイヤー	Object > Hide > Other Layers
+menu	Apply Last Filter	オブジェクト	前回のフィルターを適用	
+menu	Last Filter	オブジェクト	前回のフィルター	
+menu	NkSD Smart Rounding Filter	オブジェクト	スマートに角丸め	
+menu	NkSD Smart Rounding Filter Selected Corners	オブジェクト	スマートに角丸め（選択角）	
+menu	NkSD Offset Rounding Filter	オブジェクト	強い墨だまり・かすれ	
+menu	NkSD Offset Rounding Filter HSMode	オブジェクト	強い墨だまり・かすれ（高速モード）	
+menu	showAll	オブジェクト	すべてを表示	Object > Show All
+menu	AGCreateRoulette	オブジェクト	Create Roulette	
+menu	Remove Background Object Menu	オブジェクト	背景を削除	Object > Remove Background
+menu	Crop Image	オブジェクト	画像の切り抜き	Object > Crop Image
+menu	Rasterize 8 menu item	オブジェクト	ラスタライズ	Object > Rasterize...
+menu	make mesh	オブジェクト	グラデーションメッシュを作成	Object > Create Gradient Mesh...
+menu	AI Object Mosaic Plug-in4	オブジェクト	モザイクオブジェクトを作成	Object > Create Object Mosaic...
+menu	TrimMark v25	オブジェクト	トリムマークを作成	Object > Create Trim Marks
+menu	Flatten Transparency	オブジェクト	透明部分を分割・統合	Object > Flatten Transparency...
+menu	Make Pixel Perfect	オブジェクト	ピクセルグリッドに最適化	Object > Make Pixel Perfect
+menu	GenAIConsolidatedGenerateVectors	オブジェクト	生成 > ベクターを生成	Object > Generative > Generate Vectors...
+menu	GenAIConsolidatedShapeFill	オブジェクト	生成 > 生成塗りつぶし (シェイプ)	Object > Generative > Generative Shape Fill...
+menu	GenAIConsolidatedTrace	オブジェクト	生成 > コンセプトからベクター生成	
+menu	GenAIConsolidatedTurntable	オブジェクト	生成 > ターンテーブル (20 クレジット)	Object > Generative > Turntable
+menu	GenAIConsolidatedGenerateTextGenerate	オブジェクト	生成 > 書き直し > テキストを生成	Object > Generative > Rewrite > Generate Text...
+menu	GenAIConsolidatedGenerateTextRephraseToFit	オブジェクト	生成 > 書き直し > テキストを調整	Object > Generative > Rewrite > Fit text
+menu	GenAIConsolidatedGenerateTextProofread	オブジェクト	生成 > 書き直し > 校正	Object > Generative > Rewrite > Proofread
+menu	GenAIConsolidatedGenerateTextTranslate	オブジェクト	生成 > 書き直し > 翻訳	Object > Generative > Rewrite > Translate...
+menu	Gen Expand Object Make	オブジェクト	生成 > 生成拡張 > 作成	Object > Generative > Generative Expand > Make
+menu	Gen Expand Object Combine	オブジェクト	生成 > 生成拡張 > 結合	Object > Generative > Generative Expand > Combine
+menu	GenAIConsolidatedBleed	オブジェクト	生成 > 裁ち落としを印刷	Object > Generative > Print Bleed
+menu	GenAIConsolidatedRecolor	オブジェクト	生成 > 生成再配色	Object > Generative > Generative Recolor
+menu	GenAIConsolidatedPatterns	オブジェクト	生成 > パターンを生成	Object > Generative > Generate Patterns
+menu	GenAIConsolidatedVariations	オブジェクト	生成 > 生成履歴	Object > Generative > Generation History
+menu	AISlice Make Slice	オブジェクト	スライス > 作成	Object > Slice > Make
+menu	AISlice Release Slice	オブジェクト	スライス > 解除	Object > Slice > Release
+menu	AISlice Create from Guides	オブジェクト	スライス > ガイドから作成	Object > Slice > Create from Guides
+menu	AISlice Create from Selection	オブジェクト	スライス > 選択範囲から作成	Object > Slice > Create from Selection
+menu	AISlice Duplicate	オブジェクト	スライス > スライスを複製	Object > Slice > Duplicate Slice
+menu	AISlice Combine	オブジェクト	スライス > スライスを結合	Object > Slice > Combine Slices
+menu	AISlice Divide	オブジェクト	スライス > スライスを分割	Object > Slice > Divide Slices...
+menu	AISlice Delete All Slices	オブジェクト	スライス > すべてを削除	Object > Slice > Delete All
+menu	AISlice Slice Options	オブジェクト	スライス > スライスオプション	Object > Slice > Slice Options...
+menu	AISlice Clip to Artboard	オブジェクト	スライス > アートボードサイズでクリップ	Object > Slice > Clip to Artboard
+menu	Expand3	オブジェクト	分割・拡張	Object > Expand...
+menu	expandStyle	オブジェクト	アピアランスを分割	Object > Expand Appearance
+menu	join	オブジェクト	パス > 連結	Object > Path > Join
+menu	average	オブジェクト	パス > 平均	Object > Path > Average...
+menu	VectorScribe Path Intersections	オブジェクト	Path Intersections	
+menu	OffsetPath v22	オブジェクト	パス > パスのアウトライン	Object > Path > Outline Stroke
+menu	OffsetPath v23	オブジェクト	パス > パスのオフセット	Object > Path > Offset Path...
+menu	Reverse Path Direction	オブジェクト	パス > パスの方向反転	Object > Path > Reverse Path Direction
+menu	simplify menu item	オブジェクト	パス > 単純化	Object > Path > Simplify...
+menu	smooth menu item	オブジェクト	パス > スムーズ	Object > Path > Smooth...
+menu	Add Anchor Points2	オブジェクト	パス > アンカーポイントの追加	Object > Path > Add Anchor Points
+menu	Remove Anchor Points menu	オブジェクト	パス > アンカーポイントを削除	Object > Path > Remove Anchor Points
+menu	Knife Tool2	オブジェクト	パス > 背面のオブジェクトを分割	Object > Path > Divide Objects Below
+menu	Rows and Columns....	オブジェクト	パス > グリッドに分割	Object > Path > Split Into Grid...
+menu	cleanup menu item	オブジェクト	パス > パスの削除	Object > Path > Clean Up...
+menu	Convert to Shape	オブジェクト	シェイプ > シェイプに変換	Object > Shape > Convert to Shape
+menu	Expand Shape	オブジェクト	シェイプ > シェイプを拡張	Object > Shape > Expand Shape
+menu	Adobe Make Pattern	オブジェクト	パターン > 作成	Object > Pattern > Make
+menu	Adobe Edit Pattern	オブジェクト	パターン > パターンを編集	Object > Pattern > Edit Pattern
+menu	Adobe Pattern Tile Color	オブジェクト	パターン > タイルの境界線カラー	Object > Pattern > Tile Edge Color...
+menu	Partial Rearrange Make	オブジェクト	クロスと重なり > 作成	Object > Intertwine > Make
+menu	Partial Rearrange Release	オブジェクト	クロスと重なり > 解除	Object > Intertwine > Release
+menu	Partial Rearrange Edit	オブジェクト	クロスと重なり > 編集	Object > Intertwine > Edit
+menu	Make Radial Repeat	オブジェクト	リピート > ラジアル	Object > Repeat > Radial
+menu	Make Grid Repeat	オブジェクト	リピート > グリッド	Object > Repeat > Grid
+menu	Make Symmetry Repeat	オブジェクト	リピート > ミラー	Object > Repeat > Mirror
+menu	Release Repeat Art	オブジェクト	リピート > 解除	Object > Repeat > Release
+menu	Repeat Art Options	オブジェクト	リピート > オプション	Object > Repeat > Options...
+menu	Attach Objects on Path	オブジェクト	パス上オブジェクト > アタッチ	Object > Objects on Path > Attach...
+menu	Options Objects on Path	オブジェクト	パス上オブジェクト > オプション	Object > Objects on Path > Options...
+menu	Expand Objects on Path	オブジェクト	パス上オブジェクト > 拡張	Object > Objects on Path > Expand
+menu	Path Blend Make	オブジェクト	ブレンド > 作成	Object > Blend > Make
+menu	Path Blend Release	オブジェクト	ブレンド > 解除	Object > Blend > Release
+menu	Path Blend Options	オブジェクト	ブレンド > ブレンドオプション	Object > Blend > Blend Options...
+menu	Path Blend Expand	オブジェクト	ブレンド > 拡張	Object > Blend > Expand
+menu	Path Blend Replace Spine	オブジェクト	ブレンド > ブレンド軸を置き換え	Object > Blend > Replace Spine
+menu	Path Blend Reverse Spine	オブジェクト	ブレンド > ブレンド軸を反転	Object > Blend > Reverse Spine
+menu	Path Blend Reverse Stack	オブジェクト	ブレンド > 前後を反転	Object > Blend > Reverse Front to Back
+menu	Make Warp	オブジェクト	エンベロープ > ワープで作成	Object > Envelope Distort > Make with Warp...
+menu	Create Envelope Grid	オブジェクト	エンベロープ > メッシュで作成	Object > Envelope Distort > Make with Mesh...
+menu	Make Envelope	オブジェクト	エンベロープ > 最前面のオブジェクトで作成	Object > Envelope Distort > Make with Top Object
+menu	Release Envelope	オブジェクト	エンベロープ > 解除	Object > Envelope Distort > Release
+menu	Envelope Options	オブジェクト	エンベロープ > エンベロープオプション	Object > Envelope Distort > Envelope Options...
+menu	Expand Envelope	オブジェクト	エンベロープ > 拡張	Object > Envelope Distort > Expand
+menu	Edit Envelope Contents	オブジェクト	エンベロープ > オブジェクトを編集	Object > Envelope Distort > Edit Contents
+menu	Attach to Active Plane	オブジェクト	遠近 > 選択面の図形にする	Object > Perspective > Attach to Active Plane
+menu	Release with Perspective	オブジェクト	遠近 > 遠近グリッド上から解除	Object > Perspective > Release with Perspective
+menu	Show Object Grid Plane	オブジェクト	遠近 > オブジェクトに合わせて面を移動	Object > Perspective > Move Plane to Match Object
+menu	Edit Original Object	オブジェクト	遠近 > テキストを編集	Object > Perspective > Edit Text
+menu	Make Planet X	オブジェクト	ライブペイント > 作成	Object > Live Paint > Make
+menu	Marge Planet X	オブジェクト	ライブペイント > 結合	Object > Live Paint > Merge
+menu	Release Planet X	オブジェクト	ライブペイント > 解除	Object > Live Paint > Release
+menu	Planet X Options	オブジェクト	ライブペイント > 隙間オプション	Object > Live Paint > Gap Options...
+menu	Expand Planet X	オブジェクト	ライブペイント > 拡張	Object > Live Paint > Expand
+menu	Make Vector Edge	オブジェクト	モックアップ > モックアップをプレビュー	Object > Mockup > Make / Preview
+menu	Release Vector Edge	オブジェクト	モックアップ > 解除	Object > Mockup > Release
+menu	Edit Vector Edge	オブジェクト	モックアップ > 編集	Object > Mockup > Edit
+menu	Make Image Tracing	オブジェクト	画像トレース > 作成	Object > Image Trace > Make
+menu	Make and Expand Image Tracing	オブジェクト	画像トレース > 作成して拡張	Object > Image Trace > Make and Expand
+menu	Release Image Tracing	オブジェクト	画像トレース > 解除	Object > Image Trace > Release
+menu	Expand Image Tracing	オブジェクト	画像トレース > 拡張	Object > Image Trace > Expand
+menu	Make Text Wrap	オブジェクト	テキストの回り込み > 作成	Object > Text Wrap > Make
+menu	Release Text Wrap	オブジェクト	テキストの回り込み > 解除	Object > Text Wrap > Release
+menu	Text Wrap Options...	オブジェクト	テキストの回り込み > テキストの回り込みオプション	Object > Text Wrap > Text Wrap Options...
+menu	SFMake	オブジェクト	Space Fill > Make	
+menu	SFRelease	オブジェクト	Space Fill > Release	
+menu	SFExpand	オブジェクト	Space Fill > Expand	
+menu	makeMask	オブジェクト	クリッピングマスク > 作成	Object > Clipping Mask > Make
+menu	releaseMask	オブジェクト	クリッピングマスク > 解除	Object > Clipping Mask > Release
+menu	editMask	オブジェクト	クリッピングマスク > オブジェクトを編集	Object > Clipping Mask > Edit Mask
+menu	compoundPath	オブジェクト	複合パス > 作成	Object > Compound Path > Make
+menu	noCompoundPath	オブジェクト	複合パス > 解除	Object > Compound Path > Release
+menu	setCropMarks	オブジェクト	アートボード > アートボードに変換	Object > Artboards > Convert to Artboards
+menu	ReArrange Artboards	オブジェクト	アートボード > アートボードを再配置	Object > Artboards > Rearrange Artboards
+menu	Fit Artboard to artwork bounds	オブジェクト	アートボード > オブジェクト全体に合わせる	Object > Artboards > Fit to Artwork Bounds
+menu	Switch Orientation	オブジェクト	アートボード > 方向切り替え	Object > Artboards > Switch Orientation
+menu	Fit Artboard to selected Art	オブジェクト	アートボード > 選択オブジェクトに合わせる	Object > Artboards > Fit to Selected Art
+menu	setGraphStyle	オブジェクト	グラフ > 設定	Object > Graph > Type...
+menu	editGraphData	オブジェクト	グラフ > データ	Object > Graph > Data...
+menu	graphDesigns	オブジェクト	グラフ > デザイン	Object > Graph > Design...
+menu	setBarDesign	オブジェクト	グラフ > 棒グラフ	Object > Graph > Column...
+menu	setIconDesign	オブジェクト	グラフ > マーカー	Object > Graph > Marker...
+menu	collectForExportSingleAsset	オブジェクト	単一のアセットとして	
+menu	collectForExportMultipleAsset	オブジェクト	複数のアセットとして	
+menu	Browse Typekit Fonts Menu IllustratorUI	書式	Adobe Fonts から追加	Type > More from Adobe Fonts...
+menu	alternate glyph palette plugin	書式	字形	Type > Glyphs
+menu	point-area	書式	文字の種類を切り換え	Type > Convert to Area Type / Point Type
+menu	areatextoptions	書式	エリア内文字オプション	
+menu	textpathtypeRainbow	書式	パス上文字オプション > 虹	
+menu	textpathtypeSkew	書式	パス上文字オプション > 歪み	
+menu	textpathtype3d	書式	パス上文字オプション > 3D リボン	
+menu	textpathtypestairs	書式	パス上文字オプション > 階段	
+menu	textpathtypeGravity	書式	パス上文字オプション > 引力	
+menu	textpathtypeOptions	書式	パス上文字オプション > パス上文字オプション	
+menu	updateLegacyTOP	書式	パス上文字オプション > パス上文字を更新	Type > Type on a Path > Update Legacy Type on a Path
+menu	Adobe internal composite font plugin	書式	合成フォント	
+menu	Adobe Kinsoku Settings	書式	禁則処理設定	
+menu	Adobe MojiKumi Settings	書式	文字組みアキ量設定	
+menu	threadTextCreate	書式	スレッドテキストオプション > 作成	Type > Threaded Text > Create
+menu	releaseThreadedTextSelection	書式	スレッドテキストオプション > 選択部分をスレッドから除外	Type > Threaded Text > Release Selection
+menu	removeThreading	書式	スレッドテキストオプション > スレッドのリンクを解除	Type > Threaded Text > Remove Threading
+menu	fitHeadline	書式	ヘッドラインを合わせる	Type > Fit Headline
+menu	AG VFA Remove Line Breaks	書式	Remove Line Breaks	
+menu	AG VFA Remove Paragraph Breaks	書式	Remove Paragraph Breaks	
+menu	Adobe IllustratorUI Resolve Missing Font	書式	環境にないフォントを解決する	Type > Resolve Missing Fonts...
+menu	Adobe Illustrator Find Font Menu Item	書式	フォントの検索と置換	Type > Find/Replace Font...
+menu	UpperCase Change Case Item	書式	大文字と小文字の変更 > すべて大文字	Type > Change Case > UPPERCASE
+menu	LowerCase Change Case Item	書式	大文字と小文字の変更 > すべて小文字	Type > Change Case > lowercase
+menu	Title Case Change Case Item	書式	大文字と小文字の変更 > 単語の先頭のみ大文字	Type > Change Case > Title Case
+menu	Sentence case Change Case Item	書式	大文字と小文字の変更 > 文頭のみ大文字	Type > Change Case > Sentence case
+menu	Adobe Illustrator Smart Punctuation Menu Item	書式	欧文用字形の自動置換	Type > Smart Punctuation...
+menu	ReTypeTypeMenu	書式	Retype	Type > Retype
+menu	GenerateTextTypeMenu	書式	書き直し	Object > Generative > Text > Rewrite...
+menu	outline	書式	アウトラインを作成	Type > Create Outlines
+menu	Adobe Optical Alignment Item	書式	最適なマージン揃え	Type > Optical Margin Alignment
+menu	~bullet	書式	特殊文字を挿入 > 記号 > ビュレット	Type > Insert Special Character > Symbols > Bullet
+menu	~copyright	書式	特殊文字を挿入 > 記号 > 著作権記号	Type > Insert Special Character > Symbols > Copyright Symbol
+menu	~ellipsis	書式	特殊文字を挿入 > 記号 > 省略記号	Type > Insert Special Character > Symbols > Ellipsis
+menu	~paragraphSymbol	書式	特殊文字を挿入 > 記号 > 段落記号	Type > Insert Special Character > Symbols > Paragraph Symbol
+menu	~registeredTrademark	書式	特殊文字を挿入 > 記号 > 登録商標記号	Type > Insert Special Character > Symbols > Registered Trademark Symbol
+menu	~sectionSymbol	書式	特殊文字を挿入 > 記号 > セクション記号	Type > Insert Special Character > Symbols > Section Symbol
+menu	~trademarkSymbol	書式	特殊文字を挿入 > 記号 > 商標記号	Type > Insert Special Character > Symbols > Trademark Symbol
+menu	~emDash	書式	特殊文字を挿入 > ハイフンおよびダッシュ > EM ダッシュ	Type > Insert Special Character > Hyphens And Dashes > Em Dash
+menu	~enDash	書式	特殊文字を挿入 > ハイフンおよびダッシュ > EN ダッシュ	Type > Insert Special Character > Hyphens And Dashes > En Dash
+menu	~discretionaryHyphen	書式	特殊文字を挿入 > ハイフンおよびダッシュ > 任意ハイフン	Type > Insert Special Character > Hyphens And Dashes > Discretionary Hyphen
+menu	~doubleLeftQuote	書式	特殊文字を挿入 > 引用符 > 左二重引用符	Type > Insert Special Character > Quotation Marks > Double Left Quotation Marks
+menu	~doubleRightQuote	書式	特殊文字を挿入 > 引用符 > 右二重引用符	Type > Insert Special Character > Quotation Marks > Double Right Quotation Marks
+menu	~singleLeftQuote	書式	特殊文字を挿入 > 引用符 > 左一重引用符	Type > Insert Special Character > Quotation Marks > Single Left Quotation Marks
+menu	~singleRightQuote	書式	特殊文字を挿入 > 引用符 > 右一重引用符	Type > Insert Special Character > Quotation Marks > Single Right Quotation Marks
+menu	~emSpace	書式	空白文字を挿入 > EM スペース	Type > Insert WhiteSpace Character > Em Space
+menu	~enSpace	書式	空白文字を挿入 > EN スペース	Type > Insert WhiteSpace Character > En Space
+menu	~nonBreakingSpace	書式	分散禁止スペース	
+menu	~hairSpace	書式	空白文字を挿入 > 極細スペース	Type > Insert WhiteSpace Character > Hair Space
+menu	~thinSpace	書式	空白文字を挿入 > 細いスペース	Type > Insert WhiteSpace Character > Thin Space
+menu	~forcedLineBreak	書式	分割文字を挿入 > 強制改行	Type > Insert Break Character > Forced Line Break
+menu	~placeHolderText	書式	サンプルテキストの割り付け	
+menu	showHiddenChar	書式	制御文字を表示	Type > Show Hidden Characters
+menu	type-horizontal	書式	組み方向 > 横組み	Type > Type Orientation > Horizontal
+menu	type-vertical	書式	組み方向 > 縦組み	Type > Type Orientation > Vertical
+menu	convertlegacyText	書式	テキストを更新 > すべてのテキストを更新	
+menu	convertlegacyText1	書式	テキストを更新 > 選択したテキストを更新	
+menu	convertlegacyText2	書式	テキストを更新 > コピーを隠す	
+menu	convertlegacyText3	書式	テキストを更新 > コピーを削除	
+menu	convertlegacyText4	書式	テキストを更新 > コピーを選択	
+menu	selectall	選択	すべてを選択	Select > All
+menu	selectallinartboard	選択	作業アートボードのすべてを選択	Select > All on Active Artboard
+menu	deselectall	選択	選択を解除	Select > Deselect
+menu	Find Reselect menu item	選択	再選択	Select > Reselect
+menu	Inverse menu item	選択	選択範囲を反転	Select > Inverse
+menu	Selection Hat 8	選択	前面のオブジェクト	Select > Next Object Above
+menu	Selection Hat 9	選択	背面のオブジェクト	Select > Next Object Below
+menu	Find Appearance menu item	選択	共通 > アピアランス	Select > Same > Appearance
+menu	Find Appearance Attributes menu item	選択	共通 > アピアランス属性	Select > Same > Appearance Attribute
+menu	Find Blending Mode menu item	選択	共通 > 描画モード	Select > Same > Blending Mode
+menu	Find Fill & Stroke menu item	選択	共通 > 塗りと線	Select > Same > Fill & Stroke
+menu	Find Fill Color menu item	選択	共通 > カラー (塗り)	Select > Same > Fill Color
+menu	Find Opacity menu item	選択	共通 > 不透明度	Select > Same > Opacity
+menu	Find Stroke Color menu item	選択	共通 > カラー (線)	Select > Same > Stroke Color
+menu	Find Stroke Weight menu item	選択	共通 > 線幅	Select > Same > Stroke Weight
+menu	Find Style menu item	選択	共通 > グラフィックスタイル	Select > Same > Graphic Style
+menu	Find Live Shape menu item	選択	共通 > シェイプ	Select > Same > Shape
+menu	Find Symbol Instance menu item	選択	共通 > シンボルインスタンス	Select > Same > Symbol Instance
+menu	Find Link Block Series menu item	選択	共通 > 一連のリンクブロック	Select > Same > Link Block Series
+menu	Find Text Font Family menu item	選択	共通 > テキスト > フォントファミリー	Select > Same > Font Family
+menu	Find Text Font Family Style menu item	選択	共通 > テキスト > フォントファミリー (スタイル)	Select > Same > Font Family & Style
+menu	Find Text Font Family Style Size menu item	選択	共通 > テキスト > フォントファミリー (スタイルとサイズ)	Select > Same > Font Family, Style & Size
+menu	Find Text Font Size menu item	選択	共通 > テキスト > フォントサイズ	Select > Same > Font Size
+menu	Find Text Fill Color menu item	選択	共通 > テキスト > テキストカラー (塗り)	Select > Same > Text Fill Color
+menu	Find Text Stroke Color menu item	選択	共通 > テキスト > テキストカラー (線)	Select > Same > Text Stroke Color
+menu	Find Text Fill Stroke Color menu item	選択	共通 > テキスト > テキストカラー (塗りと線)	Select > Same > Text Fill & Stroke Color
+menu	Selection Hat 3	選択	オブジェクト > 同一レイヤー上のすべて	Select > Object > All on Same Layers
+menu	Selection Hat 1	選択	オブジェクト > セグメント	Select > Object > Direction Handles
+menu	Bristle Brush Strokes menu item	選択	オブジェクト > 絵筆ブラシストローク	Select > Object > Bristle Brush Strokes
+menu	Brush Strokes menu item	選択	オブジェクト > ブラシストローク	Select > Object > Brush Strokes
+menu	Clipping Masks menu item	選択	オブジェクト > クリッピングマスク	Select > Object > Clipping Masks
+menu	Stray Points menu item	選択	オブジェクト > 孤立点	Select > Object > Stray Points
+menu	Text Objects menu item	選択	オブジェクト > すべてのテキストオブジェクト	Select > Object > All Text Objects
+menu	Point Text Objects menu item	選択	オブジェクト > ポイント文字オブジェクト	Select > Object > Point Type Objects
+menu	Area Text Objects menu item	選択	オブジェクト > エリア内文字オブジェクト	Select > Object > Area Type Objects
+menu	SmartEdit Menu Item	選択	オブジェクトを一括選択	Select > Start/Stop Global Edit
+menu	Selection Hat 10	選択	選択範囲を保存	Select > Save Selection...
+menu	Selection Hat 11	選択	選択範囲を編集	Select > Edit Selection...
+menu	Selection Hat 14	選択	選択範囲を更新	Select > Update Selection
+menu	DSAll Menu Item	選択	Dynamic Shapes > All	
+menu	DSSquRec Menu Item	選択	Dynamic Shapes > Squares & Rectangles	
+menu	DSCirEll Menu Item	選択	Dynamic Shapes > Circles & Ellipses	
+menu	DSSquares Menu Item	選択	Dynamic Shapes > Squares	
+menu	DSCircles Menu Item	選択	Dynamic Shapes > Circles	
+menu	DSRectangles Menu Item	選択	Dynamic Shapes > Rectangles	
+menu	DSEllipses Menu Item	選択	Dynamic Shapes > Ellipses	
+menu	DSPolygons Menu Item	選択	Dynamic Shapes > Polygons	
+menu	DSStars Menu Item	選択	Dynamic Shapes > Stars	
+menu	DSDonuts Menu Item	選択	Dynamic Shapes > Donuts	
+menu	DSArrows Menu Item	選択	Dynamic Shapes > Arrows	
+menu	DSClouds Menu Item	選択	Dynamic Shapes > Clouds	
+menu	DSCrescents Menu Item	選択	Dynamic Shapes > Crescents	
+menu	DSCrosses Menu Item	選択	Dynamic Shapes > Crosses	
+menu	DSGears Menu Item	選択	Dynamic Shapes > Gears	
+menu	DSHearts Menu Item	選択	Dynamic Shapes > Hearts	
+menu	DSSpeech Bubbles Menu Item	選択	Dynamic Shapes > Speech Bubbles	
+menu	Adobe Apply Last Effect	効果	前回の効果を適用	Effect > Apply Last Effect
+menu	Adobe Last Effect	効果	前回の効果	Effect > Last Effect
+menu	Live Rasterize Effect Setting	効果	ドキュメントのラスタライズ効果設定	Effect > Document Raster Effects Settings...
+menu	Live Adobe Geometry3D Extrude	効果	3D とマテリアル > 押し出しとベベル	Effect > 3D and Materials > Extrude & Bevel...
+menu	Live Adobe Geometry3D Revolve	効果	3D とマテリアル > 回転体	Effect > 3D and Materials > Revolve...
+menu	Live Adobe Geometry3D Inflate	効果	3D とマテリアル > 膨張	Effect > 3D and Materials > Inflate...
+menu	Live Adobe Geometry3D Rotate	効果	3D とマテリアル > 回転	Effect > 3D and Materials > Rotate...
+menu	Live Adobe Geometry3D Materials	効果	3D とマテリアル > マテリアル	Effect > 3D and Materials > Materials...
+menu	Live 3DExtrude	効果	3D (クラシック) > 押し出しとベベル (クラシック)	Effect > 3D and Materials > 3D (Classic) > Extrude & Bevel (Classic)...
+menu	Live 3DRevolve	効果	3D (クラシック) > 回転体 (クラシック)	Effect > 3D and Materials > 3D (Classic) > Revolve (Classic)...
+menu	Live 3DRotate	効果	3D (クラシック) > 回転 (クラシック)	Effect > 3D and Materials > 3D (Classic) > Rotate (Classic)...
+menu	Live SVG Filters	効果	SVG フィルター > SVG フィルターを適用	Effect > SVG Filters > Apply SVG Filter...
+menu	SVG Filter Import	効果	SVG フィルター > SVG フィルターの読み込み	Effect > SVG Filters > Import SVG Filter...
+menu	Live Feather	効果	スタイライズ > ぼかし	Effect > Stylize > Feather...
+menu	Live Adobe Drop Shadow	効果	スタイライズ > ドロップシャドウ	Effect > Stylize > Drop Shadow...
+menu	Live Inner Glow	効果	スタイライズ > 光彩 (内側)	Effect > Stylize > Inner Glow...
+menu	Live Outer Glow	効果	スタイライズ > 光彩 (外側)	Effect > Stylize > Outer Glow...
+menu	Live Scribble Fill	効果	スタイライズ > 落書き	Effect > Stylize > Scribble...
+menu	Live Adobe Round Corners	効果	スタイライズ > 角を丸くする	Effect > Stylize > Round Corners...
+menu	Live Trim Marks	効果	トリムマーク	Effect > Crop Marks
+menu	Live Outline Object	効果	パス > オブジェクトのアウトライン	Effect > Path > Outline Object
+menu	Live Outline Stroke	効果	パス > パスのアウトライン	Effect > Path > Outline Stroke
+menu	Live Offset Path	効果	パス > パスのオフセット	Effect > Path > Offset Path...
+menu	Live Zig Zag	効果	パスの変形 > ジグザグ	Effect > Distort & Transform > Zig Zag...
+menu	Live Free Distort	効果	パスの変形 > パスの自由変形	Effect > Distort & Transform > Free Distort...
+menu	Live Pucker & Bloat	効果	パスの変形 > パンク・膨張	Effect > Distort & Transform > Pucker & Bloat...
+menu	Live Roughen	効果	パスの変形 > ラフ	Effect > Distort & Transform > Roughen...
+menu	Live Scribble and Tweak	効果	パスの変形 > ランダム・ひねり	Effect > Distort & Transform > Tweak...
+menu	Live Transform	効果	パスの変形 > 変形	Effect > Distort & Transform > Transform...
+menu	Live Twist	効果	パスの変形 > 旋回	Effect > Distort & Transform > Twist...
+menu	Live Pathfinder Add	効果	パスファインダー > 合体	Effect > Pathfinder > Add
+menu	Live Pathfinder Intersect	効果	パスファインダー > 交差	Effect > Pathfinder > Intersect
+menu	Live Pathfinder Exclude	効果	パスファインダー > 中マド	Effect > Pathfinder > Exclude
+menu	Live Pathfinder Subtract	効果	パスファインダー > 前面オブジェクトで型抜き	Effect > Pathfinder > Subtract
+menu	Live Pathfinder Minus Back	効果	パスファインダー > 背面オブジェクトで型抜き	Effect > Pathfinder > Minus Back
+menu	Live Pathfinder Divide	効果	パスファインダー > 分割	Effect > Pathfinder > Divide
+menu	Live Pathfinder Trim	効果	パスファインダー > 刈り込み	Effect > Pathfinder > Trim
+menu	Live Pathfinder Merge	効果	パスファインダー > 合流	Effect > Pathfinder > Merge
+menu	Live Pathfinder Crop	効果	パスファインダー > 切り抜き	Effect > Pathfinder > Crop
+menu	Live Pathfinder Outline	効果	パスファインダー > アウトライン	Effect > Pathfinder > Outline
+menu	Live Pathfinder Hard Mix	効果	パスファインダー > 濃い混色	Effect > Pathfinder > Hard Mix
+menu	Live Pathfinder Soft Mix	効果	パスファインダー > 薄い混色	Effect > Pathfinder > Soft Mix...
+menu	Live Pathfinder Trap	効果	パスファインダー > トラップ	Effect > Pathfinder > Trap...
+menu	Live Rasterize	効果	ラスタライズ	Effect > Rasterize...
+menu	Live Deform Arc	効果	ワープ > 円弧	Effect > Warp > Arc...
+menu	Live Deform Arc Lower	効果	ワープ > 上弦	Effect > Warp > Arc Lower...
+menu	Live Deform Arc Upper	効果	ワープ > 下弦	Effect > Warp > Arc Upper...
+menu	Live Deform Arch	効果	ワープ > アーチ	Effect > Warp > Arch...
+menu	Live Deform Bulge	効果	ワープ > でこぼこ	Effect > Warp > Bulge...
+menu	Live Deform Shell Lower	効果	ワープ > 貝殻 (下向き)	Effect > Warp > Shell Lower...
+menu	Live Deform Shell Upper	効果	ワープ > 貝殻 (上向き)	Effect > Warp > Shell Upper...
+menu	Live Deform Flag	効果	ワープ > 旗	Effect > Warp > Flag...
+menu	Live Deform Wave	効果	ワープ > 波形	Effect > Warp > Wave...
+menu	Live Deform Fish	効果	ワープ > 魚形	Effect > Warp > Fish...
+menu	Live Deform Rise	効果	ワープ > 上昇	Effect > Warp > Rise...
+menu	Live Deform Fisheye	効果	ワープ > 魚眼レンズ	Effect > Warp > Fisheye...
+menu	Live Deform Inflate	効果	ワープ > 膨張	Effect > Warp > Inflate...
+menu	Live Deform Squeeze	効果	ワープ > 絞り込み	Effect > Warp > Squeeze...
+menu	Live Deform Twist	効果	ワープ > 旋回	Effect > Warp > Twist...
+menu	Live Rectangle	効果	形状に変換 > 長方形	Effect > Convert to Shape > Rectangle...
+menu	Live Rounded Rectangle	効果	形状に変換 > 角丸長方形	Effect > Convert to Shape > Rounded Rectangle...
+menu	Live Ellipse	効果	形状に変換 > 楕円形	Effect > Convert to Shape > Ellipse...
+menu	Live PSAdapter_plugin_GEfc	効果	効果ギャラリー	Effect > Effect Gallery...
+menu	Live Adobe PSL Gaussian Blur	効果	ぼかし > ぼかし (ガウス)	Effect > Blur > Gaussian Blur...
+menu	Live PSAdapter_plugin_RdlB	効果	ぼかし > ぼかし (放射状)	Effect > Blur > Radial Blur...
+menu	Live PSAdapter_plugin_SmrB	効果	ぼかし > ぼかし (詳細)	Effect > Blur > Smart Blur...
+menu	Live PSAdapter_plugin_SmdS	効果	アーティスティック > こする	Effect > Artistic > Smudge Stick...
+menu	Live PSAdapter_plugin_PstE	効果	アーティスティック > エッジのポスタリゼーション	Effect > Artistic > Poster Edges...
+menu	Live PSAdapter_plugin_Ct  	効果	アーティスティック > カットアウト	
+menu	Live PSAdapter_plugin_Spng	効果	アーティスティック > スポンジ	Effect > Artistic > Sponge...
+menu	Live PSAdapter_plugin_DryB	効果	アーティスティック > ドライブラシ	Effect > Artistic > Dry Brush...
+menu	Live PSAdapter_plugin_NGlw	効果	アーティスティック > ネオン光彩	Effect > Artistic > Neon Glow...
+menu	Live PSAdapter_plugin_PltK	効果	アーティスティック > パレットナイフ	Effect > Artistic > Palette Knife...
+menu	Live PSAdapter_plugin_Frsc	効果	アーティスティック > フレスコ	Effect > Artistic > Fresco...
+menu	Live PSAdapter_plugin_PlsW	効果	アーティスティック > ラップ	Effect > Artistic > Plastic Wrap...
+menu	Live PSAdapter_plugin_PntD	効果	アーティスティック > 塗料	Effect > Artistic > Paint Daubs...
+menu	Live PSAdapter_plugin_Wtrc	効果	アーティスティック > 水彩画	Effect > Artistic > Watercolor...
+menu	Live PSAdapter_plugin_FlmG	効果	アーティスティック > 粒状フィルム	Effect > Artistic > Film Grain...
+menu	Live PSAdapter_plugin_RghP	効果	アーティスティック > 粗いパステル画	Effect > Artistic > Rough Pastels...
+menu	Live PSAdapter_plugin_Undr	効果	アーティスティック > 粗描き	Effect > Artistic > Underpainting...
+menu	Live PSAdapter_plugin_ClrP	効果	アーティスティック > 色鉛筆	Effect > Artistic > Colored Pencil...
+menu	Live PSAdapter_plugin_TrnE	効果	スケッチ > ぎざぎざのエッジ	Effect > Sketch > Torn Edges...
+menu	Live PSAdapter_plugin_Rtcl	効果	スケッチ > ちりめんじわ	Effect > Sketch > Reticulation...
+menu	Live PSAdapter_plugin_WtrP	効果	スケッチ > ウォーターペーパー	Effect > Sketch > Water Paper...
+menu	Live PSAdapter_plugin_CntC	効果	スケッチ > クレヨンのコンテ画	Effect > Sketch > Conté Crayon...
+menu	Live PSAdapter_plugin_Chrm	効果	スケッチ > クロム	Effect > Sketch > Chrome...
+menu	Live PSAdapter_plugin_GraP	効果	スケッチ > グラフィックペン	Effect > Sketch > Graphic Pen...
+menu	Live PSAdapter_plugin_Phtc	効果	スケッチ > コピー	Effect > Sketch > Photocopy...
+menu	Live PSAdapter_plugin_Stmp	効果	スケッチ > スタンプ	Effect > Sketch > Stamp...
+menu	Live PSAdapter_plugin_ChlC	効果	スケッチ > チョーク・木炭画	Effect > Sketch > Chalk & Charcoal...
+menu	Live PSAdapter_plugin_NtPr	効果	スケッチ > ノート用紙	Effect > Sketch > Note Paper...
+menu	Live PSAdapter_plugin_HlfS	効果	スケッチ > ハーフトーンパターン	Effect > Sketch > Halftone Pattern...
+menu	Live PSAdapter_plugin_Plst	効果	スケッチ > プラスター	Effect > Sketch > Plaster...
+menu	Live PSAdapter_plugin_Chrc	効果	スケッチ > 木炭画	Effect > Sketch > Charcoal...
+menu	Live PSAdapter_plugin_BsRl	効果	スケッチ > 浅浮彫り	Effect > Sketch > Bas Relief...
+menu	Live PSAdapter_plugin_Crql	効果	テクスチャ > クラッキング	Effect > Texture > Craquelure...
+menu	Live PSAdapter_plugin_StnG	効果	テクスチャ > ステンドグラス	Effect > Texture > Stained Glass...
+menu	Live PSAdapter_plugin_Txtz	効果	テクスチャ > テクスチャライザー	Effect > Texture > Texturizer...
+menu	Live PSAdapter_plugin_Ptch	効果	テクスチャ > パッチワーク	Effect > Texture > Patchwork...
+menu	Live PSAdapter_plugin_MscT	効果	テクスチャ > モザイクタイル	Effect > Texture > Mosaic Tiles...
+menu	Live PSAdapter_plugin_Grn 	効果	テクスチャ > 粒状	
+menu	Live PSAdapter_plugin_NTSC	効果	ビデオ > NTSC カラー	Effect > Video > NTSC Colors
+menu	Live PSAdapter_plugin_Dntr	効果	ビデオ > インターレース解除	Effect > Video > De-Interlace...
+menu	Live PSAdapter_plugin_ClrH	効果	ピクセレート > カラーハーフトーン	Effect > Pixelate > Color Halftone...
+menu	Live PSAdapter_plugin_Mztn	効果	ピクセレート > メゾティント	Effect > Pixelate > Mezzotint...
+menu	Live PSAdapter_plugin_Crst	効果	ピクセレート > 水晶	Effect > Pixelate > Crystallize...
+menu	Live PSAdapter_plugin_Pntl	効果	ピクセレート > 点描	Effect > Pixelate > Pointillize...
+menu	Live PSAdapter_plugin_Spt 	効果	ブラシストローク > はね	
+menu	Live PSAdapter_plugin_InkO	効果	ブラシストローク > インク画 (外形)	Effect > Brush Strokes > Ink Outlines...
+menu	Live PSAdapter_plugin_AccE	効果	ブラシストローク > エッジの強調	Effect > Brush Strokes > Accented Edges...
+menu	Live PSAdapter_plugin_SprS	効果	ブラシストローク > ストローク (スプレー)	Effect > Brush Strokes > Sprayed Strokes...
+menu	Live PSAdapter_plugin_AngS	効果	ブラシストローク > ストローク (斜め)	Effect > Brush Strokes > Angled Strokes...
+menu	Live PSAdapter_plugin_DrkS	効果	ブラシストローク > ストローク (暗)	Effect > Brush Strokes > Dark Strokes...
+menu	Live PSAdapter_plugin_Smie	効果	ブラシストローク > 墨絵	Effect > Brush Strokes > Sumi-e...
+menu	Live PSAdapter_plugin_Crsh	効果	ブラシストローク > 網目	Effect > Brush Strokes > Crosshatch...
+menu	Live PSAdapter_plugin_Gls 	効果	変形 > ガラス	
+menu	Live PSAdapter_plugin_DfsG	効果	変形 > 光彩拡散	Effect > Distort > Diffuse Glow...
+menu	Live PSAdapter_plugin_OcnR	効果	変形 > 海の波紋	Effect > Distort > Ocean Ripple...
+menu	Live PSAdapter_plugin_GlwE	効果	表現手法 > エッジの光彩	Effect > Stylize > Glowing Edges...
+menu	Live ASTGVSLEAddPoints	効果	AG Utilities > Add Points	
+menu	Live ASTGVSLEAGArray	効果	AG Utilities > AG Array	
+menu	Live ASTGVSLEAGShear	効果	AG Utilities > AG Shear	
+menu	Live ASTGVSLEAGTransform	効果	AG Utilities > AG Transform	
+menu	Live ASTGVSLEAngleCap	効果	AG Utilities > Angle Cap	
+menu	Live ASTGVSLEClosePath	効果	AG Utilities > Close Path	
+menu	Live ASTGVSLEConvertToSmooth	効果	AG Utilities > Convert to Smooth	
+menu	Live ASTGVSLEDashify	効果	AG Utilities > Dashify	
+menu	Live ASTGVSLEExtendPath	効果	AG Utilities > Extend Path	
+menu	Live ASTGVSLEMakeCompoundPath	効果	AG Utilities > Make Compound Path	
+menu	Live ASTGVSLEMakeShape	効果	AG Utilities > Make Shape	
+menu	Live ASTGVSLEPathRemoval	効果	AG Utilities > Path Removal	
+menu	Live ASTGVSLEPathVisualizer	効果	AG Utilities > Path Visualizer	
+menu	Live ASTGVSLEPointRemoval	効果	AG Utilities > Point Removal	
+menu	Live ASTGVSLEReleaseCompoundPath	効果	AG Utilities > Release Compound Path	
+menu	Live ASTGVSLERetractHandles	効果	AG Utilities > Retract Handles	
+menu	Live ASTGVSLEReversePathDirection	効果	AG Utilities > Reverse Path Direction	
+menu	Live ASTGVSLESegmentRemoval	効果	AG Utilities > Segment Removal	
+menu	Live ASTGVSLESmartRemovePoints	効果	AG Utilities > Smart Remove Points	
+menu	Live ASTGVSLESplitPathToSegments	効果	AG Utilities > Split Path to Segments	
+menu	Live ASTGVSLEStrokeAttributes	効果	AG Utilities > Stroke Attributes	
+menu	Live ASTGVSAGCorners	効果	AG Corners	
+menu	Live Xtream Path	効果	スマートに角丸め	
+menu	Live XtreamPath2_Blowing	効果	ブロー	
+menu	Live XtreamPath3_OffsetRounding	効果	強い墨だまり・かすれ	
+menu	preview	表示	プレビュー	View > Outline / Preview
+menu	OpenGLCompositorPreview	表示	GPU でプレビュー	
+menu	ink	表示	オーバープリントプレビュー	View > Overprint Preview
+menu	raster	表示	ピクセルプレビュー	View > Pixel Preview
+menu	TrimView	表示	トリミング表示	
+menu	Adobe Presentation Mode	表示	プレゼンテーションモード	
+menu	proof-document	表示	校正設定 > ドキュメント CMYK :	View > Proof Setup > Working CMYK
+menu	proof-mac-rgb	表示	校正設定 > 以前の Macintosh RGB (ガンマ 1.8)	View > Proof Setup > Legacy Macintosh RGB (Gamma 1.8)
+menu	proof-win-rgb	表示	校正設定 > インターネット標準 RGB (sRGB)	View > Proof Setup > Internet Standard RGB (sRGB)
+menu	proof-monitor-rgb	表示	校正設定 > モニター RGB	View > Proof Setup > Monitor RGB
+menu	proof-colorblindp	表示	校正設定 > P 型 (1 型) 色覚	View > Proof Setup > Color blindness - Protanopia-type
+menu	proof-colorblindd	表示	校正設定 > D 型 (2 型) 色覚	View > Proof Setup > Color blindness - Deuteranopia-type
+menu	proof-custom	表示	校正設定 > カスタム	View > Proof Setup > Customize...
+menu	proofColors	表示	色の校正	View > Proof Colors
+menu	zoomin	表示	ズームイン	View > Zoom In
+menu	zoomout	表示	ズームアウト	View > Zoom Out
+menu	fitin	表示	アートボードを全体表示	View > Fit Artboard in Window
+menu	fitall	表示	すべてのアートボードを全体表示	View > Fit All in Window
+menu	RotateView180	表示	ビューを回転 > 180	
+menu	RotateView150	表示	ビューを回転 > 150	
+menu	RotateView135	表示	ビューを回転 > 135	
+menu	RotateView120	表示	ビューを回転 > 120	
+menu	RotateView90	表示	ビューを回転 > 90	
+menu	RotateView60	表示	ビューを回転 > 60	
+menu	RotateView45	表示	ビューを回転 > 45	
+menu	RotateView30	表示	ビューを回転 > 30	
+menu	RotateView15	表示	ビューを回転 > 15	
+menu	RotateViewZero	表示	ビューを回転 > 0	
+menu	RotateViewNegative15	表示	ビューを回転 > -15	
+menu	RotateViewNegative30	表示	ビューを回転 > -30	
+menu	RotateViewNegative45	表示	ビューを回転 > -45	
+menu	RotateViewNegative60	表示	ビューを回転 > -60	
+menu	RotateViewNegative90	表示	ビューを回転 > -90	
+menu	RotateViewNegative120	表示	ビューを回転 > -120	
+menu	RotateViewNegative135	表示	ビューを回転 > -135	
+menu	RotateViewNegative150	表示	ビューを回転 > -150	
+menu	RotateViewNegative180	表示	ビューを回転 > -180	
+menu	resetRotationView	表示	ビューを回転 > ビューを回転の初期化	
+menu	rotateViewToSelection	表示	ビューを回転 > 選択範囲に合わせてビューを回転	
+menu	AISlice Feedback Menu	表示	スライスを表示	View > Show / Hide Slices
+menu	AISlice Lock Menu	表示	スライスをロック	View > Lock Slices
+menu	AI Bounding Box Toggle	表示	バウンディングボックスを隠す	View > Show / Hide Bounding Box
+menu	TransparencyGrid Menu Item	表示	透明グリッドを表示	View > Show / Hide Transparency Grid
+menu	actualsize	表示	100% 表示	View > Actual Size
+menu	Show Gaps Planet X	表示	ライブペイントの隙間を表示	View > Show / Hide Live Paint Gaps
+menu	Gradient Feedback	表示	グラデーションガイドを隠す	View > Show / Hide Gradient Annotator
+menu	Live Corner Annotator	表示	コーナーウィジェットを隠す	View > Show / Hide Corner Widget
+menu	edge	表示	境界線を隠す	View > Show / Hide Edges
+menu	Show Perspective Grid	表示	遠近グリッド > グリッドを表示	View > Perspective Grid > Show / Hide Grid
+menu	Show Ruler	表示	遠近グリッド > 定規を表示	View > Perspective Grid > Show / Hide Rulers
+menu	Snap to Grid	表示	遠近グリッド > グリッドにスナップ	View > Perspective Grid > Snap to Grid
+menu	Lock Perspective Grid	表示	遠近グリッド > グリッドをロック	View > Perspective Grid > Lock Grid
+menu	Lock Station Point	表示	遠近グリッド > 測点をロック	View > Perspective Grid > Lock Station Point
+menu	Define Perspective Grid	表示	遠近グリッド > グリッドを定義	View > Perspective Grid > Define Grid...
+menu	Save Perspective Grid as Preset	表示	遠近グリッド > グリッドをプリセットとして保存	View > Perspective Grid > Save Grid as Preset...
+menu	artboard	表示	アートボードを隠す	View > Show / Hide Artboards
+menu	pagetiling	表示	プリント分割を隠す	View > Show / Hide Print Tiling
+menu	showtemplate	表示	テンプレートを表示	View > Show / Hide Template
+menu	ruler	表示	定規 > 定規を表示	View > Rulers > Show / Hide Rulers
+menu	rulerCoordinateSystem	表示	定規 > アートボード定規に変更	View > Rulers > Change to Global Rulers
+menu	videoruler	表示	定規 > ビデオ定規を表示	View > Rulers > Show / Hide Video Rulers
+menu	textthreads	表示	テキストのスレッドを表示	View > Show / Hide Text Threads
+menu	showguide	表示	ガイド > ガイドを隠す	View > Guides > Show / Hide Guides
+menu	lockguide	表示	ガイド > ガイドをロック	View > Guides > Lock / Unlock Guides
+menu	makeguide	表示	ガイド > ガイドを作成	View > Guides > Make Guides
+menu	releaseguide	表示	ガイド > ガイドを解除	View > Guides > Release Guides
+menu	clearguide	表示	ガイド > ガイドを消去	View > Guides > Clear Guides
+menu	showgrid	表示	グリッドを表示	View > Show / Hide Grid
+menu	snapgrid	表示	グリッドにスナップ	View > Snap to Grid
+menu	pixelconstraints	表示	ピクセルにスナップ	
+menu	snappoint	表示	ポイントにスナップ	View > Snap to Point
+menu	Snapomatic on-off menu item	表示	スマートガイド	View > Smart Guides
+menu	glyphSnapping	表示	グリフにスナップ	
+menu	newview	表示	新規表示	View > New View...
+menu	editview	表示	表示の編集	View > Edit Views...
+menu	view1	表示	カスタム表示 1	
+menu	view2	表示	カスタム表示 2	
+menu	view3	表示	カスタム表示 3	
+menu	view4	表示	カスタム表示 4	
+menu	view5	表示	カスタム表示 5	
+menu	view6	表示	カスタム表示 6	
+menu	view7	表示	カスタム表示 7	
+menu	view8	表示	カスタム表示 8	
+menu	view9	表示	カスタム表示 9	
+menu	view10	表示	カスタム表示 10	
+menu	newwindow	ウィンドウ	新規ウィンドウ	Window > New Window
+menu	cascade	ウィンドウ	アレンジ > 重ねて表示	Window > Arrange > Cascade
+menu	tile	ウィンドウ	アレンジ > 並べて表示	Window > Arrange > Tile
+menu	floatInWindow	ウィンドウ	アレンジ > ウィンドウを分離	Window > Arrange > Float in Window
+menu	floatAllInWindows	ウィンドウ	アレンジ > すべてのウィンドウを分離	Window > Arrange > Float All in Windows
+menu	consolidateAllWindows	ウィンドウ	アレンジ > すべてのウィンドウを統合	Window > Arrange > Consolidate All Windows
+menu	minimizeWindow	ウィンドウ	ウィンドウを最小化	
+menu	bringAllToFront	ウィンドウ	すべてを前面へ	
+menu	Browse Add-Ons Menu	ウィンドウ	Exchange でエクステンションを検索	Window > Find Extensions on Exchange...
+menu	Adobe Reset Workspace	ウィンドウ	ワークスペース > 「現在のワークスペース」をリセット	Window > Reset Workspace
+menu	Adobe New Workspace	ウィンドウ	ワークスペース > 新規ワークスペース	Window > Workspace > New Workspace...
+menu	Adobe Manage Workspace	ウィンドウ	ワークスペース > ワークスペースの管理	Window > Workspace > Manage Workspaces...
+menu	XtreamPath_Menu_ShowPanel	ウィンドウ	選択Liveオブジェクトの編集	
+menu	XtreamPath3_00	ウィンドウ	Live フチをぼかす	
+menu	XtreamPath3_01	ウィンドウ	Live 回転／反転ミラー	
+menu	XtreamPath3_02	ウィンドウ	Live 壁紙（結晶パターン）	
+menu	XtreamPath_Menu_Prefs	ウィンドウ	環境設定	
+menu	XtreamPath_Menu_Help	ウィンドウ	ヘルプ	
+menu	XtreamPath_Menu_Support	ウィンドウ	製品サポート・ユーザ登録変更	
+menu	XtreamPath_Menu_LicenceAgree	ウィンドウ	ソフトウェアライセンス規約	
+menu	appframe	ウィンドウ	アプリケーションフレーム	
+menu	applicationbar	ウィンドウ	アプリケーションバー	
+menu	drover control palette plugin	ウィンドウ	コントロール	Window > Control
+menu	Adobe Quick Toolbar Menu	ウィンドウ	ツールバー > はじめに	Window > Toolbars > Getting Started
+menu	Adobe Basic Toolbar Menu	ウィンドウ	ツールバー > 基本	Window > Toolbars > Basic
+menu	Adobe Advanced Toolbar Menu	ウィンドウ	ツールバー > 詳細	Window > Toolbars > Advanced
+menu	New Tools Panel	ウィンドウ	ツールバー > 新規ツールバー	Window > Toolbars > New Toolbar...
+menu	Manage Tools Panel	ウィンドウ	ツールバー > ツールバーを管理	Window > Toolbars > Manage Toolbars...
+menu	Adobe 3D Panel	ウィンドウ	3D とマテリアル	Window > 3D and Materials
+menu	DirectPrefs Panel Menu Item	ウィンドウ	DirectPrefs	
+menu	Dynamic Corners Panel Menu Item	ウィンドウ	Dynamic Corners	
+menu	Dynamic Measure Panel Menu Item	ウィンドウ	Dynamic Measure	
+menu	Dynamic Shapes Panel Menu Item	ウィンドウ	Dynamic Shapes	
+menu	Dynamic Sketch Panel Menu Item	ウィンドウ	Dynamic Sketch	
+menu	FindReplace Art Panel Menu Item	ウィンドウ	FindReplace Art	
+menu	InkFlow Panel Menu Item	ウィンドウ	InkFlow	
+menu	PathScribe Panel Menu Item	ウィンドウ	PathScribe	
+menu	Space Fill Panel Menu Item	ウィンドウ	Space Fill	
+menu	VectorFirstAid Panel Menu Item	ウィンドウ	VectorFirstAid	
+menu	Adobe CSXS Extension com.adobe.DesignLibraries.angularCC ライブラリ	ウィンドウ	CC ライブラリ	
+menu	CSS Menu Item	ウィンドウ	CSS プロパティ (非推奨)	Window > CSS Properties (Deprecated)
+menu	ReTypeWindowMenu	ウィンドウ	Retype	Window > Retype
+menu	Adobe SVG Interactivity Palette	ウィンドウ	SVG インタラクティビティ	Window > SVG Interactivity
+menu	Adobe Action Palette	ウィンドウ	アクション	Window > Actions
+menu	Adobe SmartExport Panel Menu Item	ウィンドウ	アセットの書き出し	Window > Asset Export
+menu	Style Palette	ウィンドウ	アピアランス	Window > Appearance
+menu	Adobe Artboard Palette	ウィンドウ	アートボード	Window > Artboards
+menu	Adobe Color Palette	ウィンドウ	カラー	Window > Color
+menu	Adobe Harmony Palette	ウィンドウ	カラーガイド	Window > Color Guide
+menu	Adobe Gradient Palette	ウィンドウ	グラデーション	Window > Gradient
+menu	Adobe Style Palette	ウィンドウ	グラフィックスタイル	Window > Graphic Styles
+menu	SketchToVectorUnified	ウィンドウ	コンセプトからベクター生成	Object > Generative > Concept to Vector
+menu	Adobe Symbol Palette	ウィンドウ	シンボル	Window > Symbols
+menu	Adobe Swatches Menu Item	ウィンドウ	スウォッチ	Window > Swatches
+menu	DocInfo1	ウィンドウ	ドキュメント情報	Window > Document Info
+menu	AdobeNavigator	ウィンドウ	ナビゲーター	Window > Navigator
+menu	Adobe PathfinderUI	ウィンドウ	パスファインダー	Window > Pathfinder
+menu	Adobe Pattern Panel Toggle	ウィンドウ	パターンオプション	Window > Pattern Options
+menu	Adobe History Panel Menu Item	ウィンドウ	ヒストリー	Window > History
+menu	Adobe BrushManager Menu Item	ウィンドウ	ブラシ	Window > Brushes
+menu		ウィンドウ	ブレンド	File > Open in Firefly Boards
+menu	Adobe Property Palette	ウィンドウ	プロパティ	Window > Properties
+menu	Adobe Vector Edge Panel	ウィンドウ	モックアップ	Window > Mockup
+menu	Adobe LinkPalette Menu Item	ウィンドウ	リンク	Window > Links
+menu	AdobeLayerPalette1	ウィンドウ	レイヤー	Window > Layers
+menu	Adobe Flattening Preview	ウィンドウ	分割・統合プレビュー	Window > Flattener Preview
+menu	Adobe Separation Preview Panel	ウィンドウ	分版プレビュー	Window > Separations Preview
+menu	AdobeTransformObjects1	ウィンドウ	変形	Window > Transform
+menu	Adobe Variables Palette Menu Item	ウィンドウ	変数	Window > Variables
+menu	internal palettes posing as plug-in menus-attributes	ウィンドウ	属性	Window > Attributes
+menu	internal palettes posing as plug-in menus-info	ウィンドウ	情報	Window > Info
+menu	AdobeAlignObjects2	ウィンドウ	整列	Window > Align
+menu	internal palettes posing as plug-in menus-opentype	ウィンドウ	書式 > OpenType	Window > Type > OpenType
+menu	internal palettes posing as plug-in menus-tab	ウィンドウ	書式 > タブ	Window > Type > Tabs
+menu	alternate glyph palette plugin 2	ウィンドウ	書式 > 字形	Window > Type > Glyphs
+menu	internal palettes posing as plug-in menus-character	ウィンドウ	書式 > 文字	Window > Type > Character
+menu	Character Styles	ウィンドウ	書式 > 文字スタイル	Window > Type > Character Styles
+menu	ReflowWindowMenu	ウィンドウ	書式 > 文字組み更新	Window > Type > Reflow Viewer
+menu	internal palettes posing as plug-in menus-paragraph	ウィンドウ	書式 > 段落	Window > Type > Paragraph
+menu	Adobe Paragraph Styles Palette	ウィンドウ	書式 > 段落スタイル	Window > Type > Paragraph Styles
+menu	Generate	ウィンドウ	生成履歴	Window > Generated Variations
+menu	Adobe Vectorize Panel	ウィンドウ	画像トレース	Window > Image Trace
+menu	Adobe Stroke Palette	ウィンドウ	線	Window > Stroke
+menu	AI Magic Wand	ウィンドウ	自動選択	Window > Magic Wand
+menu	Adobe Transparency Palette Menu Item	ウィンドウ	透明	Window > Transparency
+menu	Adobe Art Style Plugin Other libraries menu item	ウィンドウ	グラフィックスタイルライブラリ > その他のライブラリ	Window > Graphic Style Libraries > Other Library...
+menu	Adobe Symbol Palette Plugin Other libraries menu item	ウィンドウ	シンボルライブラリ > その他のライブラリ	Window > Symbol Libraries > Other Library...
+menu	AdobeSwatch_ Other libraries menu item	ウィンドウ	スウォッチライブラリ > その他のライブラリ	Window > Swatch Libraries > Other Library...
+menu	AdobeBrushMgrUI Other libraries menu item	ウィンドウ	ブラシライブラリ > その他のライブラリ	Window > Brush Libraries > Other Library...
+menu	helpcontent	ヘルプ	Illustrator ヘルプ	Help > Illustrator Help...
+menu	supportContent	ヘルプ	チュートリアル	
+menu	whatsNewContent	ヘルプ	新機能	Help > Tutorials...
+menu	com.astutegraphics.helpnew	ヘルプ	Astute Graphics Support	
+menu	com.astutegraphics.myaccount	ヘルプ	Astute Graphics My Account	
+menu	supportCommunity	ヘルプ	サポートコミュニティ	Help > Support Community
+menu	wishform	ヘルプ	バグを送信／機能改善のリクエスト	Help > Submit Bug/Feature Request...
+menu	systemInfo	ヘルプ	システム情報	
+menu	switchSelTool	その他の選択	選択ツールを切り換え	Other Select > Switch Selection Tool
+menu	faceSizeUp	その他のテキスト	フォントサイズを大きく (設定値参照)	Other Text > Point Size Up
+menu	faceSizeDown	その他のテキスト	フォントサイズを小さく (設定値参照)	Other Text > Point Size Down
+menu	sizeStepUp	その他のテキスト	フォントサイズを大きく (設定値×5)	Other Text > Font Size Step Up
+menu	sizeStepDown	その他のテキスト	フォントサイズを小さく (設定値×5)	Other Text > Font Size Step Down
+menu	~kernFurther	その他のテキスト	文字間隔を広く	Other Text > Kern Looser
+menu	~kernCloser	その他のテキスト	文字間隔を狭く	Other Text > Kern Tighter
+menu	tracking	その他のテキスト	トラッキング	Other Text > Tracking
+menu	clearTrack	その他のテキスト	トラッキングを解除	Other Text > Clear Tracking
+menu	spacing	その他のテキスト	空白	Other Text > Spacing
+menu	clearTypeScale	その他のテキスト	文字の縦横比をリセット	Other Text > Uniform Type
+menu	highlightFont	その他のテキスト	フォントを強調表示	Other Text > Highlight Font
+menu	highlightFont2	その他のテキスト	フォントを強調表示 (2)	Other Text > Highlight Font (Secondary)
+menu	leftAlign	その他のテキスト	左 / 上揃え	Other Text > Left Align Text
+menu	centerAlign	その他のテキスト	中央揃え	Other Text > Center Text
+menu	rightAlign	その他のテキスト	右 / 下揃え	Other Text > Right Align Text
+menu	justify	その他のテキスト	均等配置 (最終行左 / 上揃え)	Other Text > Justify Text Left
+menu	justifyCenter	その他のテキスト	均等配置 (最終行中央揃え)	Other Text > Justify Text Center
+menu	justifyRight	その他のテキスト	均等配置 (最終行右 / 下揃え)	Other Text > Justify Text Right
+menu	justifyAll	その他のテキスト	両端揃え	Other Text > Justify All Lines
+menu	toggleAutoHyphen	その他のテキスト	自動ハイフネーションを切り換え	Other Text > Toggle Auto Hyphenation
+menu	toggleLineComposer	その他のテキスト	コンポーザーを切り換え	Other Text > Toggle Line Composer
+menu	~subscript	その他のテキスト	下付き文字	Other Text > Subscript
+menu	~superScript	その他のテキスト	上付き文字	Other Text > Superscript
+menu	~textBold	その他のテキスト	太字	Other Text > Bold
+menu	~textItalic	その他のテキスト	斜体	Other Text > Italic
+menu	~textUnderline	その他のテキスト	下線	Other Text > Underline
+menu	lock2	その他のオブジェクト	他をロック	Other Object > Lock Others
+menu	hide2	その他のオブジェクト	他を隠す	Other Object > Hide Others
+menu	repeatPathfinder	その他のオブジェクト	パスファインダーの繰り返し	Other Object > Repeat Pathfinder
+menu	avgAndJoin	その他のオブジェクト	平均・連結	Other Object > Average & Join
+menu	AdobeAlignHorizVertCenterToArtboardOther	その他のオブジェクト	アートボードの中央に整列	
+menu	enterFocus	その他のオブジェクト	選択オブジェクト編集モード	Other Object > Isolate Selected Object
+menu	exitFocus	その他のオブジェクト	編集モードを終了	Other Object > Exit Isolation Mode
+menu	Adobe New Symbol Shortcut	その他のパネル	新規シンボル	Palette > Symbols > New Symbol...
+menu	Adobe Color Palette Secondary	その他のパネル	カラーパネルを表示 (2)	
+menu	Adobe Actions Batch	その他のパネル	アクションバッチ	Palette > Actions > Batch...
+menu	Adobe New Fill Shortcut	その他のパネル	新規塗りを追加	Palette > Appearance > Add New Fill
+menu	Adobe New Stroke Shortcut	その他のパネル	新規線を追加	Palette > Appearance > Add New Stroke
+menu	Adobe New Style Shortcut	その他のパネル	新規グラフィックスタイル	Palette > Graphic Styles > New Graphic Style...
+menu	AdobeLayerPalette2	その他のパネル	新規レイヤー	Palette > Layers > New Layer
+menu	AdobeLayerPalette3	その他のパネル	新規レイヤー (オプション表示)	Palette > Layers > New Layer with Dialog...
+menu	Adobe Update Link Shortcut	その他のパネル	リンクを更新	Palette > Links > Update Link
+menu	Adobe New Swatch Shortcut Menu	その他のパネル	新規スウォッチ	Palette > Swatches > New Swatch...
+menu	Debug Panel	その他のパネル	デバッグパネル	Debug Panel
+menu	switchUnits	その他	単位を切り換え	
+menu	new2	その他	新規ファイル (ダイアログなし)	Other Misc > New File (No Dialog)
+menu	closeAll2	その他	すべてを閉じる (2)	
+menu	helpcontent2	その他	ヘルプ (2)	Other Misc > Help (Secondary)
+menu	undo2	その他	取り消し (2)	Other Misc > Undo (Secondary)
+menu	cut2	その他	カット (2)	Other Misc > Cut (Secondary)
+menu	copy2	その他	コピー (2)	Other Misc > Copy (Secondary)
+menu	paste2	その他	ペースト (2)	Other Misc > Paste (Secondary)
+menu	zoomin2	その他	ズームイン (2)	Other Misc > Zoom In (Secondary)
+menu	navigateToNextDocument	その他	次のドキュメントに移動	Other Misc > Navigate to Next Document
+menu	navigateToPreviousDocument	その他	前のドキュメントに移動	Other Misc > Navigate to Previous Document
+menu	navigateToNextDocumentGroup	その他	次のドキュメントグループに移動	Other Misc > Navigate to Next Document Group
+menu	navigateToPreviousDocumentGroup	その他	前のドキュメントグループに移動	Other Misc > Navigate to Previous Document Group
+menu	~subscript2	その他	下付き文字 (2)	Other Misc > Subscript (Secondary)
+menu	~superScript2	その他	上付き文字 (2)	Other Misc > Superscript (Secondary)
+menu	debugPalette	その他	デバッグパネル (2)	

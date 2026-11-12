@@ -1,0 +1,53 @@
+## Basics
+VectorKeyMap reads Illustrator keyboard shortcut sets (.kys files) and lists them by command. Put the defaults next to a customized set to see the differences. Illustrator does not have to be running, and sets are never changed.
+- Choose the starting point in Baseline and the set to check in Compare with. At launch the baseline is the defaults and the compared set is the one Illustrator uses.
+- The button between them swaps the two.
+- The switch above the list filters by Differences, Changed, Added, Removed, Same, Conflicts, With Keys and All, with counts.
+- Narrow to a menu or tools with the category list, and search names, IDs and keys, such as ⌘E, cmd+e or shift+. ⌘F moves to the search field.
+- Click a column heading to sort. Command uses the menu order; Baseline and Compared use key order.
+## Keyboard
+Keyboard at the top right switches to a picture of the keyboard, with free keys shown as empty slots with a green dashed outline.
+- The switch above it chooses the modifiers (none, ⇧, ⌘, ⇧⌘, ⌥, ⌥⇧, ⌥⌘, ⌥⇧⌘). The numbers are the free keys.
+- A green dashed outline is free and white is in use, with the command name. Purple is used by a macOS keyboard shortcut. Yellow is used only while editing text.
+- Click a key to see its eight combinations below.
+- Choose the set to show with Compared and Baseline, and the keyboard type with JIS and US. The type starts as the connected keyboard.
+- A symbol typed with Shift appears under the Shift combination, because that is how it is pressed.
+- Copy Free Keys copies the free keys of the chosen combination.
+- Free covers only the Illustrator set and macOS shortcuts. Keys used by other apps such as Keyboard Maestro are not included.
+- Return, Delete, Space and the like are not assignable here and do not count as free.
+## What the statuses mean
+- Changed: both have a key, and the keys differ.
+- Added: no key in the baseline, a key in the compared set.
+- Removed: the baseline key has been taken off in the compared set.
+- Same: the same key.
+- Not listed: the compared file does not list the command. This happens with sets saved in older versions.
+- None: no key in either (shown under All).
+- Conflicts: one key is on several commands in the compared set. The row shows ⚠, and selecting it names the others below the list.
+- In text marks a key that works only while editing text.
+## About the defaults
+The "Illustrator Defaults" .kys that ships with Illustrator does not match the real defaults: panel IDs are out of date and new commands are missing. So the app bundles a .kys saved from the default set in Illustrator 30, and uses that as the baseline.
+When a new version changes the defaults, replace the baseline like this.
+- In Illustrator, open Edit > Keyboard Shortcuts…, choose the default set and use Save… to give it a new name.
+- Return to VectorKeyMap, where it appears in the list, and choose it as the Baseline.
+## Adding sets
+- Use Add Set… (⌘O) to choose a .kys file, or drag one onto the window. You can compare someone else's set or one from an older version.
+- File > Remove Added Set from List takes it off the list. The file is not deleted.
+- .kys files in Illustrator's settings folders are listed automatically and read again when you return to the app.
+- Keys changed in Illustrator reach the .kys only after you save the set.
+## Export
+- Copy Table copies the rows on screen as tab-separated text, ready for a spreadsheet.
+- Export saves the rows on screen as CSV (UTF-8, opens in Excel) or Markdown.
+- Select rows and press ⌘C to copy them. Right-click to copy only the IDs, which work with app.executeMenuCommand in scripts.
+## Settings and hotkeys
+In Settings (⌘,), Startup & Background has open at login, keep running after closing the window, the menu bar icon and the hotkey that shows the app. All are off by default and no hotkey is set, so closing the window quits. With keep running on, reopen from the Dock or the menu bar.
+## Permissions and data
+No special permission is needed. The app reads only Illustrator's settings folders and the files you choose, and sends nothing out. It stores only where your chosen sets are.
+## Limitations
+- Names come from a table made from Japanese Illustrator 30. IDs missing from the table appear as they are, under Uncategorized. English names come from the Ai Command Palette table, and Japanese is shown when there is none.
+- The table includes the plug-ins of the author's setup (Astute Graphics, XtreamPath and others).
+- Menu levels are shown as far as they are known.
+## Troubleshooting
+- The set in use is not marked: Illustrator writes its preferences when it quits. You can also pick the .kys with Add Set….
+- "Cannot read": check that the file is a keyboard shortcut .kys.
+- To quit, choose Quit VectorKeyMap or press ⌘Q.
+- To remove the app, move it to the Trash. Its settings are in ~/Library/Preferences/jp.dtp-transit.vectorkeymap.plist.

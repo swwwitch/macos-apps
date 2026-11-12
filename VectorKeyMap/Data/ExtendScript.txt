@@ -1,0 +1,2806 @@
+ファイル > 新規...	new
+ファイル > テンプレートから新規...	newFromTemplate
+ファイル > 開く...	open
+ファイル > Bridge で参照...	Adobe Bridge Browse
+ファイル > 閉じる	close
+ファイル > 保存	save
+ファイル > 別名で保存...	saveas
+ファイル > 複製を保存...	saveacopy
+ファイル > テンプレートとして保存...	saveastemplate	Ai 30 のショートカットファイルでは saveasTemplate（旧 ID が動くかは未確認）
+ファイル > 書き出し > Web 用に保存 (従来)...	Adobe AI Save For Web	廃止：Ai 19.9 まで（Ai 16 から）
+ファイル > 選択したスライスを保存...	Adobe AI Save Selected Slices
+ファイル > 復帰	revert
+ファイル > Adobe Stock を検索...	Search Adobe Stock
+ファイル > 配置...	AI Place
+ファイル > 書き出し > 書き出し形式...	export	廃止：Ai 19.9 まで（Ai 16 から）
+ファイル > 選択範囲を書き出し...	exportSelection
+ファイル > パッケージ...	Package Menu Item
+ファイル > 書き出し > スクリーン用に書き出し...	exportForScreens
+ファイル > スクリプト > その他のスクリプト...	ai_browse_for_script
+ファイル > ドキュメント設定...	document
+ファイル > ドキュメントのカラーモード > CMYK カラー	doc-color-cmyk
+ファイル > ドキュメントのカラーモード > RGB カラー	doc-color-rgb
+ファイル > ファイル情報...	File Info
+ファイル > プリント...	Print
+ファイル > 終了	quit
+Illustrator > Illustrator を終了	quit
+編集 > 取り消し	undo
+編集 > やり直し	redo
+編集 > カット	cut
+編集 > コピー	copy
+編集 > ペースト	paste
+編集 > 前面へペースト	pasteFront
+編集 > 背面へペースト	pasteBack
+編集 > 同じ位置にペースト	pasteInPlace
+編集 > すべてのアートボードにペースト	pasteInAllArtboard
+編集 > 書式なしでペースト	pasteWithoutFormatting
+編集 > 消去	clear
+編集 > 検索と置換...	Find and Replace
+編集 > 次を検索	Find Next
+編集 > スペルチェック	Check Spelling	廃止：Ai 24.9 まで（Ai 16 から）
+編集 > カスタム辞書を編集...	Edit Custom Dictionary...
+編集 > カラーを編集 > オブジェクトを再配色...	Recolor Art Dialog
+編集 > カラーを編集 > カラーバランス調整...	Adjust3
+編集 > カラーを編集 > 前後にブレンド	Colors3
+編集 > カラーを編集 > 左右にブレンド	Colors4
+編集 > カラーを編集 > 上下にブレンド	Colors5
+編集 > カラーを編集 > CMYK に変換	Colors8
+編集 > カラーを編集 > グレースケールに変換	Colors7
+編集 > カラーを編集 > RGB に変換	Colors9
+編集 > カラーを編集 > カラー反転	Colors6
+編集 > カラーを編集 > オーバープリントブラック...	Overprint2
+編集 > カラーを編集 > 彩度調整...	Saturate3
+編集 > オリジナルを編集	EditOriginal Menu Item
+編集 > 透明の分割・統合プリセット...	Transparency Presets
+編集 > プリントプリセット...	Print Presets
+編集 > Adobe PDF プリセット...	PDF Presets
+編集 > 遠近グリッドプリセット...	PerspectiveGridPresets
+編集 > カラー設定...	color
+編集 > プロファイルの指定...	assignprofile
+編集 > キーボードショートカット...	KBSC Menu Item
+編集 > 環境設定 > 一般...	preference
+編集 > 環境設定 > 選択範囲・アンカー表示...	selectPref	Ai 30 のショートカットファイルでは selectionPref（旧 ID が動くかは未確認）
+編集 > 環境設定 > テキスト...	keyboardPref
+編集 > 環境設定 > 単位...	unitundoPref
+編集 > 環境設定 > ガイド・グリッド...	guidegridPref
+編集 > 環境設定 > スマートガイド...	snapPref
+編集 > 環境設定 > スライス...	slicePref
+編集 > 環境設定 > ハイフネーション...	hyphenPref
+編集 > 環境設定 > プラグイン・仮想記憶ディスク...	pluginPref
+編集 > 環境設定 > ユーザーインターフェイス...	UIPref	Ai 30 のショートカットファイルでは userInterfacePref（旧 ID が動くかは未確認）
+編集 > 環境設定 > パフォーマンス...	GPUPerformancePref
+編集 > 環境設定 > ブラックのアピアランス...	BlackPref
+Illustrator > 環境設定 > 一般...	preference
+Illustrator > 環境設定 > 選択範囲・アンカー表示...	selectPref	Ai 30 のショートカットファイルでは selectionPref（旧 ID が動くかは未確認）
+Illustrator > 環境設定 > テキスト...	keyboardPref
+Illustrator > 環境設定 > 単位...	unitundoPref
+Illustrator > 環境設定 > ガイド・グリッド...	guidegridPref
+Illustrator > 環境設定 > スマートガイド...	snapPref
+Illustrator > 環境設定 > スライス...	slicePref
+Illustrator > 環境設定 > ハイフネーション...	hyphenPref
+Illustrator > 環境設定 > プラグイン・仮想記憶ディスク...	pluginPref
+Illustrator > 環境設定 > ユーザーインターフェイス...	UIPref	Ai 30 のショートカットファイルでは userInterfacePref（旧 ID が動くかは未確認）
+Illustrator > 環境設定 > パフォーマンス...	GPUPerformancePref
+Illustrator > 環境設定 > ファイル管理...	FilePref
+Illustrator > 環境設定 > クリップボード...	ClipboardPref
+Illustrator > 環境設定 > ブラックのアピアランス...	BlackPref
+オブジェクト > 変形 > 変形の繰り返し	transformagain
+オブジェクト > 変形 > 移動...	transformmove
+オブジェクト > 変形 > 回転...	transformrotate
+オブジェクト > 変形 > リフレクト...	transformreflect
+オブジェクト > 変形 > 拡大・縮小...	transformscale
+オブジェクト > 変形 > シアー...	transformshear
+オブジェクト > 変形 > 個別に変形...	Transform v23
+オブジェクト > 変形 > バウンディングボックスのリセット	AI Reset Bounding Box
+オブジェクト > 重ね順 > 最前面へ	sendToFront
+オブジェクト > 重ね順 > 前面へ	sendForward
+オブジェクト > 重ね順 > 背面へ	sendBackward
+オブジェクト > 重ね順 > 最背面へ	sendToBack
+オブジェクト > 重ね順 > 選択しているレイヤーに移動	Selection Hat 2
+オブジェクト > 整列 > 水平方向左に整列	Horizontal Align Left
+オブジェクト > 整列 > 水平方向中央に整列	Horizontal Align Center
+オブジェクト > 整列 > 水平方向右に整列	Horizontal Align Right
+オブジェクト > 整列 > 垂直方向上に整列	Vertical Align Top
+オブジェクト > 整列 > 垂直方向中央に整列	Vertical Align Center
+オブジェクト > 整列 > 垂直方向下に整列	Vertical Align Bottom
+オブジェクト > グループ	group
+オブジェクト > グループ解除	ungroup
+オブジェクト > すべてグループ解除	ungroupAll
+オブジェクト > ロック > 選択	lock
+オブジェクト > ロック > 前面のすべてのアートワーク	Selection Hat 5
+オブジェクト > ロック > その他のレイヤー	Selection Hat 7
+オブジェクト > すべてをロック解除	unlockAll
+オブジェクト > 隠す > 選択	hide
+オブジェクト > 隠す > 前面のすべてのアートワーク	Selection Hat 4
+オブジェクト > 隠す > その他のレイヤー	Selection Hat 6
+オブジェクト > すべてを表示	showAll
+オブジェクト > 分割・拡張...	Expand3
+オブジェクト > アピアランスを分割	expandStyle
+オブジェクト > 画像の切り抜き	Crop Image
+オブジェクト > ラスタライズ...	Rasterize 8 menu item
+オブジェクト > グラデーションメッシュを作成...	make mesh
+オブジェクト > モザイクオブジェクトを作成...	AI Object Mosaic Plug-in4
+オブジェクト > 透明部分を分割・統合...	Flatten Transparency
+オブジェクト > ピクセルグリッドに最適化	Make Pixel Perfect
+オブジェクト > スライス > 作成	AISlice Make Slice
+オブジェクト > スライス > 解除	AISlice Release Slice
+オブジェクト > スライス > ガイドから作成	AISlice Create from Guides
+オブジェクト > スライス > 選択範囲から作成	AISlice Create from Selection
+オブジェクト > スライス > スライスを複製	AISlice Duplicate
+オブジェクト > スライス > スライスを結合	AISlice Combine
+オブジェクト > スライス > スライスを分割...	AISlice Divide
+オブジェクト > スライス > すべてを削除	AISlice Delete All Slices
+オブジェクト > スライス > スライスオプション...	AISlice Slice Options
+オブジェクト > スライス > アートボードサイズでクリップ	AISlice Clip to Artboard
+オブジェクト > トリムマークを作成	TrimMark v25
+トンボ	TrimMark v25
+オブジェクト > パス > 連結	join
+オブジェクト > パス > 平均...	average
+オブジェクト > パス > パスのアウトライン	OffsetPath v22
+オブジェクト > パス > パスのオフセット...	OffsetPath v23
+オブジェクト > パス > パスの方向反転	Reverse Path Direction
+オブジェクト > パス > 単純化...	simplify menu item
+オブジェクト > パス > アンカーポイントの追加	Add Anchor Points2
+オブジェクト > パス > アンカーポイントを削除	Remove Anchor Points menu
+オブジェクト > パス > 背面のオブジェクトを分割	Knife Tool2
+オブジェクト > パス > グリッドに分割...	Rows and Columns....
+オブジェクト > パス > パスの削除...	cleanup menu item
+オブジェクト > シェイプ > シェイプに変換	Convert to Shape
+オブジェクト > シェイプ > シェイプを拡張	Expand Shape
+オブジェクト > パターン > 作成	Adobe Make Pattern
+オブジェクト > パターン > パターンを編集	Adobe Edit Pattern
+オブジェクト > パターン > タイルの境界線カラー...	Adobe Pattern Tile Color
+オブジェクト > リピート > ラジアル	Make Radial Repeat
+オブジェクト > リピート > グリッド	Make Grid Repeat
+オブジェクト > リピート > ミラー	Make Symmetry Repeat
+オブジェクト > リピート > 解除	Release Repeat Art
+オブジェクト > リピート > オプション...	Repeat Art Options
+オブジェクト > ブレンド > 作成	Path Blend Make
+オブジェクト > ブレンド > 解除	Path Blend Release
+オブジェクト > ブレンド > 拡張	Path Blend Expand
+オブジェクト > ブレンド > ブレンドオプション...	Path Blend Options
+オブジェクト > ブレンド > ブレンド軸を置き換え	Path Blend Replace Spine
+オブジェクト > ブレンド > ブレンド軸を反転	Path Blend Reverse Spine
+オブジェクト > ブレンド > 前後を反転	Path Blend Reverse Stack
+オブジェクト > エンベロープ > ワープで作成...	Make Warp
+オブジェクト > エンベロープ > メッシュで作成...	Create Envelope Grid
+オブジェクト > エンベロープ > 最前面のオブジェクトで作成	Make Envelope
+オブジェクト > エンベロープ > 解除	Release Envelope
+オブジェクト > エンベロープ > エンベロープオプション...	Envelope Options
+オブジェクト > エンベロープ > 拡張	Expand Envelope
+オブジェクト > エンベロープ > オブジェクトを編集	Edit Envelope Contents
+オブジェクト > 遠近 > 選択面の図形にする	Attach to Active Plane
+オブジェクト > 遠近 > 遠近グリッド上から解除	Release with Perspective
+オブジェクト > 遠近 > オブジェクトに合わせて面を移動	Show Object Grid Plane
+オブジェクト > 遠近 > テキストを編集	Edit Original Object
+オブジェクト > ライブペイント > 作成	Make Planet X
+オブジェクト > ライブペイント > 結合	Marge Planet X
+オブジェクト > ライブペイント > 解除	Release Planet X
+オブジェクト > ライブペイント > 隙間オプション...	Planet X Options
+オブジェクト > ライブペイント > 拡張	Expand Planet X
+オブジェクト > 画像トレース > 作成	Make Image Tracing
+オブジェクト > 画像トレース > 作成して拡張	Make and Expand Image Tracing
+オブジェクト > 画像トレース > 解除	Release Image Tracing
+オブジェクト > 画像トレース > 拡張	Expand Image Tracing
+オブジェクト > テキストの回り込み > 作成	Make Text Wrap
+オブジェクト > テキストの回り込み > 解除	Release Text Wrap
+オブジェクト > テキストの回り込み > テキストの回り込みオプション...	Text Wrap Options...
+オブジェクト > クリッピングマスク > 作成	makeMask
+オブジェクト > クリッピングマスク > 解除	releaseMask
+オブジェクト > クリッピングマスク > マスクを編集	editMask
+オブジェクト > 複合パス > 作成	compoundPath
+オブジェクト > 複合パス > 解除	noCompoundPath
+オブジェクト > アートボード > アートボードに変換	setCropMarks
+オブジェクト > アートボード > すべてのアートボードを再配置	ReArrange Artboards	廃止：Ai 29.5 まで（Ai 16 から）
+オブジェクト > アートボード > オブジェクト全体に合わせる	Fit Artboard to artwork bounds
+オブジェクト > アートボード > 選択オブジェクトに合わせる	Fit Artboard to selected Art
+オブジェクト > グラフ > 設定...	setGraphStyle
+オブジェクト > グラフ > データ...	editGraphData
+オブジェクト > グラフ > デザイン...	graphDesigns
+オブジェクト > グラフ > 棒グラフ...	setBarDesign
+オブジェクト > グラフ > マーカー...	setIconDesign
+書式 > Adobe Fonts のその他のフォント...	Browse Typekit Fonts Menu IllustratorUI
+書式 > 字形	alternate glyph palette plugin
+書式 > エリア内文字オプション...	area-type-options	Ai 30 のショートカットファイルでは areatextoptions（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > 虹	Rainbow	Ai 30 のショートカットファイルでは textpathtypeRainbow（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > 歪み	Skew	Ai 30 のショートカットファイルでは textpathtypeSkew（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > 3D リボン	3D ribbon	Ai 30 のショートカットファイルでは textpathtype3d（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > 階段状	Stair Step	Ai 30 のショートカットファイルでは textpathtypestairs（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > 引力	Gravity	Ai 30 のショートカットファイルでは textpathtypeGravity（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > パス上文字オプション...	typeOnPathOptions	Ai 30 のショートカットファイルでは textpathtypeOptions（旧 ID が動くかは未確認）
+書式 > パス上文字オプション > パス上文字を更新	updateLegacyTOP
+書式 > 合成フォント...	Adobe internal composite font plugin
+書式 > 禁則処理設定...	Adobe Kinsoku Settings
+書式 > 文字組みアキ量設定...	Adobe MojiKumi Settings
+書式 > スレッドテキストオプション > 作成	threadTextCreate
+書式 > スレッドテキストオプション > 選択部分をスレッドから除外	releaseThreadedTextSelection
+書式 > スレッドテキストオプション > スレッドのリンクを解除	removeThreading
+書式 > 箇条書き > テキストに変換	convert list style to text
+書式 > ヘッドラインを合わせる	fitHeadline
+書式 > アウトラインを作成	outline
+書式 > フォント検索...	Adobe Illustrator Find Font Menu Item	廃止：Ai 25.9 まで（Ai 16 から）
+書式 > 環境に無いフォントを解決する...	Adobe IllustratorUI Resolve Missing Font
+書式 > 大文字と小文字の変更 > すべて大文字	UpperCase Change Case Item
+書式 > 大文字と小文字の変更 > すべて小文字	LowerCase Change Case Item
+書式 > 大文字と小文字の変更 > 単語の先頭のみ大文字	Title Case Change Case Item
+書式 > 大文字と小文字の変更 > 文頭のみ大文字	Sentence case Change Case Item
+書式 > 句読点の自動調節...	Adobe Illustrator Smart Punctuation Menu Item
+書式 > 最適なマージン揃え	Adobe Optical Alignment Item
+書式 > 制御文字を表示	showHiddenChar
+書式 > 組み方向 > 横組み	type-horizontal
+書式 > 組み方向 > 縦組み	type-vertical
+選択 > すべてを選択	selectall
+選択 > 作業アートボードのすべてを選択	selectallinartboard
+選択 > 選択を解除	deselectall
+選択 > 再選択	Find Reselect menu item
+選択 > 選択範囲を反転	Inverse menu item
+選択 > 前面のオブジェクト	Selection Hat 8
+選択 > 背面のオブジェクト	Selection Hat 9
+選択 > 共通 > アピアランス	Find Appearance menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > アピアランス属性	Find Appearance Attributes menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > 描画モード	Find Blending Mode menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > 塗りと線	Find Fill & Stroke menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > カラー (塗り)	Find Fill Color menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > 不透明度	Find Opacity menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > カラー (線)	Find Stroke Color menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > 線幅	Find Stroke Weight menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > グラフィックスタイル	Find Style menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプ	Find Live Shape menu item	廃止：Ai 25.9 まで（Ai 17 から）
+選択 > 共通 > シンボルインスタンス	Find Symbol Instance menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > 一連のリンクブロック	Find Link Block Series menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > テキスト > フォントファミリー	Find Text Font Family menu item
+選択 > 共通 > テキスト > フォントファミリー (スタイル)	Find Text Font Family Style menu item
+選択 > 共通 > テキスト > フォントファミリー (スタイルとサイズ)	Find Text Font Family Style Size menu item
+選択 > 共通 > テキスト > フォントサイズ	Find Text Font Size menu item
+選択 > 共通 > テキスト > テキストカラー (塗り)	Find Text Fill Color menu item
+選択 > 共通 > テキスト > テキストカラー (線)	Find Text Stroke Color menu item
+選択 > 共通 > テキスト > テキストカラー (塗りと線)	Find Text Fill Stroke Color menu item
+選択 > オブジェクト > 同一レイヤー上のすべて	Selection Hat 3
+選択 > オブジェクト > セグメント	Selection Hat 1
+選択 > オブジェクト > 絵筆ブラシストローク	Bristle Brush Strokes menu item
+選択 > オブジェクト > ブラシストローク	Brush Strokes menu item
+選択 > オブジェクト > クリッピングマスク	Clipping Masks menu item
+選択 > オブジェクト > 孤立点	Stray Points menu item
+選択 > オブジェクト > すべてのテキストオブジェクト	Text Objects menu item
+選択 > オブジェクト > ポイント文字オブジェクト	Point Text Objects menu item
+選択 > オブジェクト > エリア内文字オブジェクト	Area Text Objects menu item
+選択 > オブジェクトを一括選択|選択解除	SmartEdit Menu Item
+選択 > 選択範囲を保存...	Selection Hat 10
+選択 > 選択範囲を編集...	Selection Hat 11
+効果 > 前回の効果を適用	Adobe Apply Last Effect
+効果 > 前回の効果	Adobe Last Effect
+効果 > ドキュメントのラスタライズ効果設定...	Live Rasterize Effect Setting
+効果 > 3D とマテリアル > 押し出し・ベベル	Live Adobe Geometry3D Extrude
+効果 > 3D とマテリアル > 回転体	Live Adobe Geometry3D Revolve
+効果 > 3D とマテリアル > 膨張	Live Adobe Geometry3D Inflate
+効果 > 3D とマテリアル > 回転	Live Adobe Geometry3D Rotate
+効果 > 3D とマテリアル > マテリアル	Live Adobe Geometry3D Materials
+効果 > 3D > 押し出し・ベベル...	Live 3DExtrude	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > 3D > 回転体...	Live 3DRevolve	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > 3D > 回転...	Live 3DRotate	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > SVG フィルター > SVG フィルターを適用...	Live SVG Filters
+効果 > SVG フィルター > SVG フィルターの読み込み...	SVG Filter Import
+効果 > スタイライズ > ぼかし...	Live Feather
+効果 > スタイライズ > ドロップシャドウ...	Live Adobe Drop Shadow
+効果 > スタイライズ > 光彩 (内側)...	Live Inner Glow
+効果 > スタイライズ > 光彩 (外側)...	Live Outer Glow
+効果 > スタイライズ > 落書き...	Live Scribble Fill
+効果 > スタイライズ > 角を丸くする...	Live Adobe Round Corners
+効果 > トリムマーク	Live Trim Marks
+効果 > パス > オブジェクトのアウトライン	Live Outline Object
+効果 > パス > パスのアウトライン	Live Outline Stroke
+効果 > パス > パスのオフセット...	Live Offset Path
+効果 > パスの変形 > ジグザグ...	Live Zig Zag
+効果 > パスの変形 > パスの自由変形...	Live Free Distort
+効果 > パスの変形 > パンク・膨張...	Live Pucker & Bloat
+効果 > パスの変形 > ラフ...	Live Roughen
+効果 > パスの変形 > ランダム・ひねり...	Live Scribble and Tweak
+効果 > パスの変形 > 変形...	Live Transform
+効果 > パスの変形 > 旋回...	Live Twist
+効果 > パスファインダー > 追加	Live Pathfinder Add	廃止：Ai 28.9 まで（Ai 16 から）
+効果 > パスファインダー > 合体	Live Pathfinder Add	廃止：Ai 28.9 まで（Ai 16 から）
+効果 > パスファインダー > 交差	Live Pathfinder Intersect
+効果 > パスファインダー > 中マド	Live Pathfinder Exclude
+効果 > パスファインダー > 前面オブジェクトで型抜き	Live Pathfinder Subtract
+効果 > パスファインダー > 背面オブジェクトで型抜き	Live Pathfinder Minus Back
+効果 > パスファインダー > 分割	Live Pathfinder Divide
+効果 > パスファインダー > 刈り込み	Live Pathfinder Trim
+効果 > パスファインダー > 合流	Live Pathfinder Merge
+効果 > パスファインダー > 切り抜き	Live Pathfinder Crop
+効果 > パスファインダー > アウトライン	Live Pathfinder Outline
+効果 > パスファインダー > 濃い混色	Live Pathfinder Hard Mix
+効果 > パスファインダー > 薄い混色...	Live Pathfinder Soft Mix
+効果 > パスファインダー > トラップ...	Live Pathfinder Trap
+効果 > ラスタライズ...	Live Rasterize
+効果 > ワープ > 円弧...	Live Deform Arc
+効果 > ワープ > 下弦...	Live Deform Arc Lower
+効果 > ワープ > 上弦...	Live Deform Arc Upper
+効果 > ワープ > アーチ...	Live Deform Arch
+効果 > ワープ > でこぼこ...	Live Deform Bulge
+効果 > ワープ > 貝殻 (下向き)...	Live Deform Shell Lower
+効果 > ワープ > 貝殻 (上向き)...	Live Deform Shell Upper
+効果 > ワープ > 旗...	Live Deform Flag
+効果 > ワープ > 波形...	Live Deform Wave
+効果 > ワープ > 魚形...	Live Deform Fish
+効果 > ワープ > 上昇...	Live Deform Rise
+効果 > ワープ > 魚眼レンズ...	Live Deform Fisheye
+効果 > ワープ > 膨張...	Live Deform Inflate
+効果 > ワープ > 絞り込み...	Live Deform Squeeze
+効果 > ワープ > 旋回...	Live Deform Twist
+効果 > 形状に変換 > 長方形...	Live Rectangle
+効果 > 形状に変換 > 角丸長方形...	Live Rounded Rectangle
+効果 > 形状に変換 > 楕円形...	Live Ellipse
+効果 > 効果ギャラリー...	Live PSAdapter_plugin_GEfc
+効果 > ぼかし > ぼかし (ガウス)...	Live Adobe PSL Gaussian Blur
+効果 > ぼかし > ぼかし (放射状)...	Live PSAdapter_plugin_RdlB
+効果 > ぼかし > ぼかし (詳細)...	Live PSAdapter_plugin_SmrB
+効果 > アーティスティック > こする...	Live PSAdapter_plugin_SmdS
+効果 > アーティスティック > エッジのポスタリゼーション...	Live PSAdapter_plugin_PstE
+効果 > アーティスティック > カットアウト...	Live PSAdapter_plugin_Ct  
+効果 > アーティスティック > スポンジ...	Live PSAdapter_plugin_Spng
+効果 > アーティスティック > ドライブラシ...	Live PSAdapter_plugin_DryB
+効果 > アーティスティック > ネオン光彩...	Live PSAdapter_plugin_NGlw
+効果 > アーティスティック > パレットナイフ...	Live PSAdapter_plugin_PltK
+効果 > アーティスティック > フレスコ...	Live PSAdapter_plugin_Frsc
+効果 > アーティスティック > ラップ...	Live PSAdapter_plugin_PlsW
+効果 > アーティスティック > 塗料...	Live PSAdapter_plugin_PntD
+効果 > アーティスティック > 水彩画...	Live PSAdapter_plugin_Wtrc
+効果 > アーティスティック > 粒状フィルム...	Live PSAdapter_plugin_FlmG
+効果 > アーティスティック > 粗いパステル画...	Live PSAdapter_plugin_RghP
+効果 > アーティスティック > 粗描き...	Live PSAdapter_plugin_Undr
+効果 > アーティスティック > 色鉛筆...	Live PSAdapter_plugin_ClrP
+効果 > スケッチ > ぎざぎざのエッジ...	Live PSAdapter_plugin_TrnE
+効果 > スケッチ > ちりめんじわ...	Live PSAdapter_plugin_Rtcl
+効果 > スケッチ > ウォーターペーパー...	Live PSAdapter_plugin_WtrP
+効果 > スケッチ > クレヨンのコンテ画...	Live PSAdapter_plugin_CntC
+効果 > スケッチ > クロム...	Live PSAdapter_plugin_Chrm
+効果 > スケッチ > グラフィックペン...	Live PSAdapter_plugin_GraP
+効果 > スケッチ > コピー...	Live PSAdapter_plugin_Phtc
+効果 > スケッチ > スタンプ...	Live PSAdapter_plugin_Stmp
+効果 > スケッチ > チョーク・木炭画...	Live PSAdapter_plugin_ChlC
+効果 > スケッチ > ノート用紙...	Live PSAdapter_plugin_NtPr
+効果 > スケッチ > ハーフトーンパターン...	Live PSAdapter_plugin_HlfS
+効果 > スケッチ > プラスター...	Live PSAdapter_plugin_Plst
+効果 > スケッチ > 木炭画...	Live PSAdapter_plugin_Chrc
+効果 > スケッチ > 浅浮彫り...	Live PSAdapter_plugin_BsRl
+効果 > テクスチャ > クラッキング...	Live PSAdapter_plugin_Crql
+効果 > テクスチャ > ステンドグラス...	Live PSAdapter_plugin_StnG
+効果 > テクスチャ > テクスチャライザー...	Live PSAdapter_plugin_Txtz
+効果 > テクスチャ > パッチワーク...	Live PSAdapter_plugin_Ptch
+効果 > テクスチャ > モザイクタイル...	Live PSAdapter_plugin_MscT
+効果 > テクスチャ > 粒状...	Live PSAdapter_plugin_Grn 
+効果 > ビデオ > NTSC カラー	Live PSAdapter_plugin_NTSC
+効果 > ビデオ > インターレース解除...	Live PSAdapter_plugin_Dntr
+効果 > ピクセレート > カラーハーフトーン...	Live PSAdapter_plugin_ClrH
+効果 > ピクセレート > メゾティント...	Live PSAdapter_plugin_Mztn
+効果 > ピクセレート > 水晶...	Live PSAdapter_plugin_Crst
+効果 > ピクセレート > 点描...	Live PSAdapter_plugin_Pntl
+効果 > ブラシストローク > はね...	Live PSAdapter_plugin_Spt 
+効果 > ブラシストローク > インク画 (外形)...	Live PSAdapter_plugin_InkO
+効果 > ブラシストローク > エッジの強調...	Live PSAdapter_plugin_AccE
+効果 > ブラシストローク > ストローク (スプレー)...	Live PSAdapter_plugin_SprS
+効果 > ブラシストローク > ストローク (斜め)...	Live PSAdapter_plugin_AngS
+効果 > ブラシストローク > ストローク (暗)...	Live PSAdapter_plugin_DrkS
+効果 > ブラシストローク > 墨絵...	Live PSAdapter_plugin_Smie
+効果 > ブラシストローク > 網目...	Live PSAdapter_plugin_Crsh
+効果 > 変形 > ガラス...	Live PSAdapter_plugin_Gls 
+効果 > 変形 > 光彩拡散...	Live PSAdapter_plugin_DfsG
+効果 > 変形 > 海の波紋...	Live PSAdapter_plugin_OcnR
+効果 > 表現手法 > エッジの光彩...	Live PSAdapter_plugin_GlwE
+表示 > CPU|GPU で表示	View using GPU
+表示 > アウトライン	preview
+表示 > オーバープリントプレビュー	ink
+表示 > ピクセルプレビュー	raster
+表示 > 校正設定 > 作業用 CMYK : Japan Color 2001 Coated	proof-document
+表示 > 校正設定 > 以前の Macintosh RGB (ガンマ 1.8)	proof-mac-rgb
+表示 > 校正設定 > インターネット標準 RGB (sRGB)	proof-win-rgb
+表示 > 校正設定 > モニター RGB	proof-monitor-rgb
+表示 > 校正設定 > P 型 (1 型) 色覚	proof-colorblindp
+表示 > 校正設定 > D 型 (2 型) 色覚	proof-colorblindd
+表示 > 校正設定 > カスタム...	proof-custom
+表示 > 色の校正	proofColors
+表示 > ズームイン	zoomin
+表示 > ズームアウト	zoomout
+表示 > アートボードを全体表示	fitin
+表示 > すべてのアートボードを全体表示	fitall
+表示 > スライスを表示|隠す	AISlice Feedback Menu
+表示 > スライスをロック	AISlice Lock Menu
+表示 > 100% 表示	actualsize
+表示 > 境界線を表示|隠す	edge
+表示 > アートボードを表示|隠す	artboard
+表示 > プリント分割を表示|隠す	pagetiling
+表示 > バウンディングボックスを表示|隠す	AI Bounding Box Toggle
+表示 > 透明グリッドを表示|隠す	TransparencyGrid Menu Item
+表示 > テンプレートを表示|隠す	showtemplate
+表示 > グラデーションガイドを表示|隠す	Gradient Feedback
+表示 > ライブペイントの隙間を表示|隠す	Show Gaps Planet X
+表示 > コーナーウィジェットを表示|隠す	Live Corner Annotator
+表示 > スマートガイド	Snapomatic on-off menu item
+表示 > 遠近グリッド > グリッドを表示|隠す	Show Perspective Grid
+表示 > 遠近グリッド > 定規を表示|隠す	Show Ruler
+表示 > 遠近グリッド > グリッドにスナップ	Snap to Grid
+表示 > 遠近グリッド > グリッドをロック|ロック解除	Lock Perspective Grid
+表示 > 遠近グリッド > 測点をロック|ロック解除	Lock Station Point
+表示 > 遠近グリッド > グリッドを定義...	Define Perspective Grid
+表示 > 遠近グリッド > グリッドをプリセットとして保存...	Save Perspective Grid as Preset
+表示 > 定規 > 定規を表表示|隠す	ruler
+表示 > 定規 > アートボード定規に変更	rulerCoordinateSystem
+表示 > 定規 > ビデオ定規を表示|隠す	videoruler
+表示 > テキストのスレッドを表示|隠す	textthreads
+表示 > ガイド > ガイドを表示|隠す	showguide
+表示 > ガイド > ガイドをロック|ロック解除	lockguide
+表示 > ガイド > ガイドを作成	makeguide
+表示 > ガイド > ガイドを解除	releaseguide
+表示 > ガイド > ガイドを消去	clearguide
+表示 > グリッドを表示|隠す	showgrid
+表示 > グリッドにスナップ	snapgrid
+表示 > ポイントにスナップ	snappoint
+表示 > 新規表示...	newview
+表示 > 表示の編集...	editview
+ウィンドウ > 新規ウィンドウ	newwindow
+ウィンドウ > アレンジ > 重ねて表示	cascade
+ウィンドウ > アレンジ > 並べて表示	tile
+ウィンドウ > アレンジ > ウィンドウを分離	floatInWindow
+ウィンドウ > アレンジ > すべてのウィンドウを分離	floatAllInWindows
+ウィンドウ > アレンジ > すべてのウィンドウを統合	consolidateAllWindows
+ウィンドウ > Exchange でエクステンションを検索...	Browse Add-Ons Menu
+ウィンドウ > ワークスペース > 「現在のワークスペース」をリセット	Adobe Reset Workspace
+ウィンドウ > ワークスペース > 新規ワークスペース...	Adobe New Workspace
+ウィンドウ > ワークスペース > ワークスペースの管理...	Adobe Manage Workspace
+ウィンドウ > コントロール	drover control palette plugin
+ウィンドウ > ツールバー > 基本	Adobe Basic Toolbar Menu
+ウィンドウ > ツールバー > 詳細	Adobe Advanced Toolbar Menu
+ウィンドウ > ツールバー > 新しいツールバー...	New Tools Panel
+ウィンドウ > ツールバー > ツールバーを管理...	Manage Tools Panel
+ウィンドウ > 3D とマテリアル	Adobe 3D Panel
+ウィンドウ > CC ライブラリ	Adobe CSXS Extension com.adobe.DesignLibraries.angularCC ライブラリ
+ウィンドウ > CSS プロパティ	CSS Menu Item
+ウィンドウ > SVG インタラクティビティ	Adobe SVG Interactivity Palette
+ウィンドウ > アクション	Adobe Action Palette
+ウィンドウ > アセットの書き出し	Adobe SmartExport Panel Menu Item
+ウィンドウ > アピアランス	Style Palette
+ウィンドウ > アートボード	Adobe Artboard Palette
+ウィンドウ > カラー	Adobe Color Palette
+ウィンドウ > カラーガイド	Adobe Harmony Palette
+ウィンドウ > グラデーション	Adobe Gradient Palette
+ウィンドウ > グラフィックスタイル	Adobe Style Palette
+ウィンドウ > コメント	Adobe Commenting Palette
+ウィンドウ > シンボル	Adobe Symbol Palette
+ウィンドウ > スウォッチ	Adobe Swatches Menu Item
+ウィンドウ > ドキュメント情報	DocInfo1
+ウィンドウ > ナビゲーター	AdobeNavigator
+ウィンドウ > パスファインダー	Adobe PathfinderUI
+ウィンドウ > パターンオプション	Adobe Pattern Panel Toggle
+ウィンドウ > ブラシ	Adobe BrushManager Menu Item
+ウィンドウ > プロパティ	Adobe Property Palette
+ウィンドウ > リンク	Adobe LinkPalette Menu Item
+ウィンドウ > レイヤー	AdobeLayerPalette1
+ウィンドウ > 分割・統合プレビュー	Adobe Flattening Preview
+ウィンドウ > 分版プレビュー	Adobe Separation Preview Panel
+ウィンドウ > 変形	AdobeTransformObjects1
+ウィンドウ > 変数	Adobe Variables Palette Menu Item
+ウィンドウ > 属性	internal palettes posing as plug-in menus-attributes
+ウィンドウ > 情報	internal palettes posing as plug-in menus-info
+ウィンドウ > 整列	AdobeAlignObjects2
+ウィンドウ > 書式 > OpenType	internal palettes posing as plug-in menus-opentype
+ウィンドウ > 書式 > タブ	internal palettes posing as plug-in menus-tab
+ウィンドウ > 書式 > 字形	alternate glyph palette plugin 2
+ウィンドウ > 書式 > 文字	internal palettes posing as plug-in menus-character
+ウィンドウ > 書式 > 文字スタイル	Character Styles
+ウィンドウ > 書式 > 段落	internal palettes posing as plug-in menus-paragraph
+ウィンドウ > 書式 > 段落スタイル	Adobe Paragraph Styles Palette
+ウィンドウ > 線	Adobe Stroke Palette
+ウィンドウ > 自動選択	AI Magic Wand
+ウィンドウ > 透明	Adobe Transparency Palette Menu Item
+ウィンドウ > 画像トレース	Adobe Vectorize Panel
+ウィンドウ > グラフィックスタイルライブラリ > その他のライブラリ...	Adobe Art Style Plugin Other libraries menu item
+ウィンドウ > シンボルライブラリ > その他のライブラリ...	Adobe Symbol Palette Plugin Other libraries menu item
+ウィンドウ > ブラシライブラリ > その他のライブラリ...	AdobeBrushMgrUI Other libraries menu item
+ヘルプ > Illustrator ヘルプ...	helpcontent
+ヘルプ > Illustrator について...	about
+Illustrator > Illustrator について...	about
+ヘルプ > システム情報...	System Info	Ai 30 のショートカットファイルでは systemInfo（旧 ID が動くかは未確認）
+その他のパネル > 新規シンボル	Adobe New Symbol Shortcut
+その他のパネル > カラーパネルを表示 (2)	Adobe Color Palette Secondary
+その他のパネル > アクションバッチ	Adobe Actions Batch
+その他のパネル > 新規塗りを追加	Adobe New Fill Shortcut
+その他のパネル > 新規線を追加	Adobe New Stroke Shortcut
+その他のパネル > 新規グラフィックスタイル	Adobe New Style Shortcut
+その他のパネル > 新規レイヤー	AdobeLayerPalette2
+その他のパネル > 新規レイヤー (オプション表示)	AdobeLayerPalette3
+その他のパネル > リンクを更新	Adobe Update Link Shortcut
+その他のパネル > 新規スウォッチ	Adobe New Swatch Shortcut Menu
+その他のパネル > 新規スウォッチ	Find Appearance menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > アピアランス属性	Find Appearance Attributes menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > 描画モード	Find Blending Mode menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > 塗りと線	Find Fill & Stroke menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > カラー (塗り)	Find Fill Color menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > 不透明度	Find Opacity menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > カラー (線)	Find Stroke Color menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > 線幅	Find Stroke Weight menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > グラフィックスタイル	Find Style menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > シェイプ	Find Live Shape menu item	廃止：Ai 25.9 まで（Ai 17 から）
+選択 > 共通 > シェイプとテキスト > シンボルインスタンス	Find Symbol Instance menu item	廃止：Ai 25.9 まで（Ai 16 から）
+選択 > 共通 > シェイプとテキスト > 一連のリンクブロック	Find Link Block Series menu item	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > 3D とマテリアル > 3D (クラシック) > 押し出し・ベベル...	Live 3DExtrude	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > 3D とマテリアル > 3D (クラシック) > 回転体...	Live 3DRevolve	廃止：Ai 25.9 まで（Ai 16 から）
+効果 > 3D とマテリアル > 3D (クラシック) > 回転...	Live 3DRotate	廃止：Ai 25.9 まで（Ai 16 から）
+表示 > トリミング表示	TrimView
+文字ツール	Adobe Type Tool
+エリア内文字ツール	Adobe Area Type Tool
+パス上文字ツール	Adobe Path Type Tool
+文字 (縦)ツール	Adobe Vertical Type Tool
+エリア内文字 (縦)ツール	Adobe Vertical Area Type Tool
+パス上文字 (縦)ツール	Adobe Vertical Path Type Tool
+文字タッチツール	Adobe Touch Type Tool
+	Adobe Right-To-Left Type Tool
+	Adobe Right-To-Left Area Type Tool
+	Adobe Right-To-Left Path Type Tool
+角丸長方形ツール	Adobe Rounded Rectangle Tool
+選択ツール	Adobe Select Tool
+ダイレクト選択ツール	Adobe Direct Select Tool
+グループ選択ツール	Adobe Direct Object Select Tool
+拡大・縮小ツール	Adobe Scale Tool
+回転ツール	Adobe Rotate Tool
+リフレクトツール	Adobe Reflect Tool
+シアーツール	Adobe Shear Tool
+棒グラフツール	Adobe Column Graph Tool
+積み上げ棒グラフツール	Adobe Stacked Column Graph Tool
+折れ線グラフツール	Adobe Line Graph Tool
+円グラフツール	Adobe Pie Graph Tool
+階層グラフツール	Adobe Area Graph Tool
+散布図ツール	Adobe Scatter Graph Tool
+横向き棒グラフツール	Adobe Bar Graph Tool
+横向き積み上げ棒グラフツール	Adobe Stacked Bar Graph Tool
+レーダーチャートツール	Adobe Radar Graph Tool
+手のひらツール	Adobe Scroll Tool
+鉛筆ツール	Adobe Freehand Tool
+スムーズツール	Adobe Freehand Smooth Tool
+パス消しゴムツール	Adobe Freehand Erase Tool
+連結ツール	Adobe Corner Join Tool
+ペンツール	Adobe Pen Tool
+ブレンドツール	Adobe Blend Tool
+はさみツール	Adobe Scissors Tool
+ものさしツール	Adobe Measure Tool
+プリント分割ツール	Adobe Page Tool
+ズームツール	Adobe Zoom Tool
+アンカーポイントの追加ツール	Adobe Add Anchor Point Tool
+アンカーポイントの削除ツール	Adobe Delete Anchor Point Tool
+アンカーポイントツール	Adobe Anchor Point Tool
+グラデーションツール	Adobe Gradient Vector Tool
+ブラシツール	Adobe Brush Tool
+スポイトツール	Adobe Eyedropper Tool
+リシェイプツール	Adobe Reshape Tool
+線幅ツール	Adobe Width Tool
+ナイフツール	Adobe Knife Tool
+多角形ツール	Adobe Shape Construction Regular Polygon Tool
+スターツール	Adobe Shape Construction Star Tool
+スパイラルツール	Adobe Shape Construction Spiral Tool
+メッシュツール	Adobe Mesh Editing Tool
+自由変形ツール	Adobe Free Transform Tool
+なげなわツール	Adobe Direct Lasso Tool
+楕円形ツール	Adobe Ellipse Shape Tool
+長方形ツール	Adobe Rectangle Shape Tool
+自動選択ツール	Adobe Magic Wand Tool
+直線ツール	Adobe Line Tool
+円弧ツール	Adobe Arc Tool
+長方形グリッドツール	Adobe Rectangular Grid Tool
+同心円グリッドツール	Adobe Polar Grid Tool
+フレアツール	Adobe Flare Tool
+ワープツール	Adobe Warp Tool
+うねりツール	Adobe New Twirl Tool
+収縮ツール	Adobe Pucker Tool
+膨張ツール	Adobe Bloat Tool
+ひだツール	Adobe Scallop Tool
+クラウンツール	Adobe Cyrstallize Tool
+リンクルツール	Adobe Wrinkle Tool
+スライスツール	Adobe Slice Tool
+スライス選択ツール	Adobe Slice Select Tool
+シンボルスプレーツール	Adobe Symbol Sprayer Tool
+シンボルシフトツール	Adobe Symbol Shifter Tool
+シンボルスクランチツール	Adobe Symbol Scruncher Tool
+シンボルリサイズツール	Adobe Symbol Sizer Tool
+シンボルスピンツール	Adobe Symbol Spinner Tool
+シンボルステインツール	Adobe Symbol Stainer Tool
+シンボルスクリーンツール	Adobe Symbol Screener Tool
+シンボルスタイルツール	Adobe Symbol Styler Tool
+ライブペイントツール	Adobe Planar Paintbucket Tool
+ライブペイント選択ツール	Adobe Planar Face Select Tool
+消しゴムツール	Adobe Eraser Tool
+アートボードツール	Adobe Crop Tool
+塗りブラシツール	Adobe Blob Brush Tool
+シェイプ形成ツール	Adobe Shape Builder Tool
+遠近グリッドツール	Perspective Grid Tool
+遠近図形選択ツール	Perspective Selection Tool
+	Adobe Pattern Tile Tool
+	Adobe Place Gun Tool
+曲線ツール	Adobe Curvature Tool
+Shaper ツール	Adobe Shaper Tool
+	Adobe Symmetry Tool
+パペットワープツール	Adobe Puppet Warp Tool
+	Adobe Diffusion Coloring Tool
+	Adobe Smart Edit Tool
+カラーテーマピッカーツール	Adobe Color Theme Picker Tool
+回転ビューツール	Adobe Rotate Canvas Tool
+ステンシルツール	Adobe Stencil Tool
+クロスと重なりを選択ツール	Adobe Intertwine Zone Marker Tool
+寸法ツール	Adobe Dimension Tool
+パス上オブジェクトツール	Adobe Constraints Tool
+Objects on Path		Adobe Constraints Tool
+Object > Objects on Path > Attach	Attach Objects on Path	廃止：Ai 29.1 まで（Ai 29 から）
+Object > Objects on Path > Options	Options Objects on Path
+Object > Objects on Path > Expand	Expand Objects on Path
+Window > Type > Reflow Viewer	ReflowWindowMenu
+Window > Contextual Task Bar	_GenericPluginMenuItem 25
+Object > Path > Smooth	smooth menu item
+Object > Mockup (Beta) > Make	Make Vector Edge	廃止：Ai 28.9 まで（Ai 28.6 から）
+Object > Mockup (Beta) > Edit	Edit Vector Edge	廃止：Ai 28.9 まで（Ai 28 から）
+Window > Mockup (Beta)	Adobe Vector Edge Panel	廃止：Ai 28.9 まで（Ai 28 から）
+Window > Text to Vector Graphic (Beta)	Generate	廃止：Ai 28.5 まで（Ai 28 から）
+Edit > Preferences > Touch Workspace	TouchPref
+Select > Update Selection	Selection Hat 14
+Object > Ungroup All	ungroup all
+Window > Toolbars > Getting Started	Adobe Quick Toolbar Menu
+すべて選択 app.executeMenuCommand("selectall");
+// https://community.adobe.com/questions-652/executemenucommand-command-list-797322?postid=2972803#post2972803
+Window > Type > Reflow Viewer	ReflowWindowMenu
+Type > Composite Fonts	Adobe internal composite font plugin
+Type > Kinsoku Shori Settings	Adobe Kinsoku Settings
+Type > Mojikumi Settings	Adobe MojiKumi Settings
+Type > Bullets and Numbering > Convert to text	convert list style to text
+Window > Retype (Beta)	ReTypeWindowMenu	廃止：Ai 29.2 まで（Ai 27.6 から）
+Edit > Edit Colors > Generative Recolor (Beta)	Generative Recolor Art Dialog
+Window > Contextual Task Bar	_GenericPluginMenuItem 25
+Object > Path > Smooth	smooth menu item
+Object > Mockup (Beta) > Make	Make Vector Edge	廃止：Ai 28.9 まで（Ai 28.6 から）
+Object > Mockup (Beta) > Release	Release Vector Edge	廃止：Ai 28.9 まで（Ai 28 から）
+Object > Mockup (Beta) > Edit	Edit Vector Edge	廃止：Ai 28.9 まで（Ai 28 から）
+Window > Mockup (Beta)	Adobe Vector Edge Panel	廃止：Ai 28.9 まで（Ai 28 から）
+Window > Text to Vector Graphic (Beta)	Generate	廃止：Ai 28.5 まで（Ai 28 から）
+Edit > Preferences > Touch Workspace	TouchPref
+Select > Update Selection	Selection Hat 14
+
+一般	preference
+選択範囲・アンカー表示	selectPref	Ai 30 のショートカットファイルでは selectionPref（旧 ID が動くかは未確認）
+テキスト	keyboardPref
+単位	unitundoPref
+ガイド・グリッド	guidegridPref
+スマートガイド	snapPref
+スライス	slicePref
+ハイフネーション	hyphenPref
+プラグイン・仮想記憶ディスク	pluginPref
+ユーザーインターフェイス	UIPref	Ai 30 のショートカットファイルでは userInterfacePref（旧 ID が動くかは未確認）
+パフォーマンス	GPUPerformancePref
+ファイル管理	FilePref
+クリップボードの処理	ClipboardPref
+ブラックのアピアランス	BlackPref
+デバイス	DevicesPref
+
+General	preference
+Selection & Anchor Display	selectPref	Ai 30 のショートカットファイルでは selectionPref（旧 ID が動くかは未確認）
+Type	keyboardPref
+Units	unitundoPref
+Guides & Grid	guidegridPref
+Smart Guides	snapPref
+Slices	slicePref
+Hyphenation	hyphenPref
+Plug-ins & Scratch Disks	pluginPref
+User Interface	UIPref	Ai 30 のショートカットファイルでは userInterfacePref（旧 ID が動くかは未確認）
+Performance	GPUPerformancePref
+File Handling	FilePref
+Clipboard Handling	ClipboardPref
+Appearance of Black	BlackPref
+Devices	DevicesPref
+
+// Adobe Community linked command list additions (checked 2026-08-31)
+Window > Libraries	Adobe CSXS Extension com.adobe.DesignLibraries.angularLibraries
+Window > History	Adobe History Panel Menu Item
+Window > Version History	Adobe Version History File Menu Item
+Window > Swatch Libraries > Other Library...	AdobeSwatch_ Other libraries menu item
+Edit > Spelling > Auto Spell Check	Auto Spell Check
+Debug Panel	Debug Panel
+View > GPU Preview / Preview on CPU	GPU Preview
+Object > Distribute > Horizontal Distribute Center	Horizontal Distribute Center
+Object > Distribute > Horizontal Distribute Left	Horizontal Distribute Left
+Object > Distribute > Horizontal Distribute Right	Horizontal Distribute Right
+Object > Intertwine > Edit	Partial Rearrange Edit
+Object > Intertwine > Make	Partial Rearrange Make
+Object > Intertwine > Release	Partial Rearrange Release
+Help > Support Community	supportCommunity
+Object > Distribute > Vertical Distribute Bottom	Vertical Distribute Bottom
+Object > Distribute > Vertical Distribute Center	Vertical Distribute Center
+Object > Distribute > Vertical Distribute Top	Vertical Distribute Top
+Help > Submit Bug/Feature Request...	wishform
+
+// Adobe Community linked command list additions - Japanese menu names
+ウィンドウ > ライブラリ	Adobe CSXS Extension com.adobe.DesignLibraries.angularLibraries
+ウィンドウ > ヒストリー	Adobe History Panel Menu Item
+ウィンドウ > バージョン履歴	Adobe Version History File Menu Item
+ウィンドウ > スウォッチライブラリ > その他のライブラリ...	AdobeSwatch_ Other libraries menu item
+編集 > スペルチェック > 自動スペルチェック	Auto Spell Check
+デバッグパネル	Debug Panel
+表示 > GPU プレビュー / CPU でプレビュー	GPU Preview
+オブジェクト > 分布 > 水平方向中央に分布	Horizontal Distribute Center
+オブジェクト > 分布 > 水平方向左に分布	Horizontal Distribute Left
+オブジェクト > 分布 > 水平方向右に分布	Horizontal Distribute Right
+オブジェクト > クロスと重なり > 編集	Partial Rearrange Edit
+オブジェクト > クロスと重なり > 作成	Partial Rearrange Make
+オブジェクト > クロスと重なり > 解除	Partial Rearrange Release
+ヘルプ > サポートコミュニティ	supportCommunity
+オブジェクト > 分布 > 垂直方向下に分布	Vertical Distribute Bottom
+オブジェクト > 分布 > 垂直方向中央に分布	Vertical Distribute Center
+オブジェクト > 分布 > 垂直方向上に分布	Vertical Distribute Top
+ヘルプ > バグを報告 / 機能改善をリクエスト...	wishform
+
+// 追加：現行版にあるコマンド（2026-09-27、sttk3 Notion の日本語名で追加。照合元は AiCommandPrefLookup.jsx を参照）
+オブジェクト > 整列 > キーオブジェクトに整列	Align To Key Object
+オブジェクト > 整列 > アートボードに整列	Align To Artboard
+オブジェクト > 分布 > 垂直方向等間隔に分布	Vertical Distribute Space
+オブジェクト > 分布 > 水平方向等間隔に分布	Horizontal Distribute Space
+オブジェクト > 生成 > 書き直し > テキストを生成...	GenAIConsolidatedGenerateTextGenerate
+オブジェクト > 生成 > 書き直し > 翻訳...	GenAIConsolidatedGenerateTextTranslate	廃止：Ai 30.5 まで（Ai 30.5 から）
+オブジェクト > 生成 > 書き直し > 校正	GenAIConsolidatedGenerateTextProofread	廃止：Ai 30.5 まで（Ai 30.5 から）
+オブジェクト > 生成 > 書き直し > テキストを調整	GenAIConsolidatedGenerateTextRephraseToFit	廃止：Ai 30.5 まで（Ai 30.5 から）
+オブジェクト > 整列 > 選択範囲に揃える	Align To Selection
+オブジェクト > 生成 > ターンテーブル (20 クレジット)	GenAIConsolidatedTurntable	廃止：Ai 30.4 まで（Ai 30.3 から）
+ウィンドウ > コンセプトからベクター生成	SketchToVectorUnified
+書式 > 書き直し...	GenerateTextTypeMenu	廃止：Ai 30.5 まで（Ai 30.5 から）
+書式 > Retype	ReTypeTypeMenu
+オブジェクト > 生成 > コンセプトからベクター生成	GenAIConsolidatedTrace
+オブジェクト > 整列 > 水平・垂直方向中央に整列	Horizontal && Vertical Align Center
+編集 > プロンプトで編集	EditGeneratedObjectEditMenu
+書式 > 文字を切り換え | エリア内文字に切り換え | ポイント文字に切り換え	point-area	廃止：Ai 30.4 まで（Ai 30.4 から）
+オブジェクト > 背景を削除	Remove Background Object Menu
+その他 > 前のドキュメントグループに移動	navigateToPreviousDocumentGroup
+その他 > 次のドキュメントグループに移動	navigateToNextDocumentGroup
+その他 > 前のドキュメントに移動	navigateToPreviousDocument
+その他 > 次のドキュメントに移動	navigateToNextDocument
+その他 > 新規ファイル (ダイアログなし)	new2
+その他 > 単位を切り換え	switchSelTool
+その他のオブジェクト > 編集モードを終了	exitFocus
+その他のオブジェクト > 選択オブジェクト編集モード	enterFocus
+その他のオブジェクト > 平均・連結	avgAndJoin
+その他のオブジェクト > パスファインダーの繰り返し	repeatPathfinder
+その他のオブジェクト > 他を隠す	hide2
+その他のオブジェクト > 他をロック	lock2
+その他のテキスト > 下線	~textUnderline
+その他のテキスト > 斜体	~textItalic
+その他のテキスト > 太字	~textBold
+その他のテキスト > 上付き文字	~superScript
+その他のテキスト > 下付き文字	~subscript
+その他のテキスト > コンポーザーを切り換え	toggleLineComposer
+その他のテキスト > 自動ハイフネーションを切り換え	toggleAutoHyphen
+その他のテキスト > 両端揃え	justifyAll
+その他のテキスト > 均等配置 (最終行右 / 下揃え)	justifyRight
+その他のテキスト > 均等配置 (最終行中央揃え)	justifyCenter
+その他のテキスト > 均等配置 (最終行左 / 上揃え)	justify
+その他のテキスト > 右 / 下揃え	rightAlign
+その他のテキスト > 中央揃え	centerAlign
+その他のテキスト > 左 / 上揃え	leftAlign
+その他のテキスト > フォントを強調表示 (2)	highlightFont2
+その他のテキスト > フォントを強調表示	highlightFont
+その他のテキスト > 文字の縦横比をリセット	clearTypeScale
+その他のテキスト > 空白	spacing
+その他のテキスト > トラッキングを解除	clearTrack
+その他のテキスト > トラッキング	tracking
+その他のテキスト > 文字間隔を狭く	~kernCloser
+その他のテキスト > 文字間隔を広く	~kernFurther
+その他のテキスト > フォントサイズを小さく (設定値×5)	sizeStepDown
+その他のテキスト > フォントサイズを大きく (設定値×5)	sizeStepUp
+その他のテキスト > フォントサイズを小さく (設定値参照)	faceSizeDown
+その他のテキスト > フォントサイズを大きく (設定値参照)	faceSizeUp
+書式 > 分割文字を挿入 > 強制改行	~forcedLineBreak
+書式 > 空白文字を挿入 > 細いスペース	~thinSpace
+書式 > 空白文字を挿入 > 極細スペース	~hairSpace
+書式 > 空白文字を挿入 > EN スペース	~enSpace
+書式 > 空白文字を挿入 > EM スペース	~emSpace
+書式 > 特殊文字を挿入 > 引用符 > 右一重引用符	~singleRightQuote
+書式 > 特殊文字を挿入 > 引用符 > 左一重引用符	~singleLeftQuote
+書式 > 特殊文字を挿入 > 引用符 > 右二重引用符	~doubleRightQuote
+書式 > 特殊文字を挿入 > 引用符 > 左二重引用符	~doubleLeftQuote
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > 任意ハイフン	~discretionaryHyphen
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > EN ダッシュ	~enDash
+書式 > 特殊文字を挿入 > ハイフンおよびダッシュ > EM ダッシュ	~emDash
+書式 > 特殊文字を挿入 > 記号 > 商標記号	~trademarkSymbol
+書式 > 特殊文字を挿入 > 記号 > セクション記号	~sectionSymbol
+書式 > 特殊文字を挿入 > 記号 > 登録商標記号	~registeredTrademark
+書式 > 特殊文字を挿入 > 記号 > 段落記号	~paragraphSymbol
+書式 > 特殊文字を挿入 > 記号 > 省略記号	~ellipsis
+書式 > 特殊文字を挿入 > 記号 > 著作権記号	~copyright
+書式 > 特殊文字を挿入 > 記号 > ビュレット	~bullet
+ファイル > すべてを閉じる	closeAll
+オブジェクト > 生成 > 生成塗りつぶし (シェイプ)...	GenAIConsolidatedShapeFill
+オブジェクト > 生成 > 生成拡張 > 作成	Gen Expand Object Make	廃止：Ai 29.8 まで（Ai 29.6 から）
+オブジェクト > 生成 > 生成拡張 > 結合	Gen Expand Object Combine	廃止：Ai 29.8 まで（Ai 29.6 から）
+オブジェクト > 生成 > 裁ち落としを印刷	GenAIConsolidatedBleed
+オブジェクト > 生成 > 生成再配色	GenAIConsolidatedRecolor
+オブジェクト > 生成 > パターンを生成	GenAIConsolidatedPatterns
+オブジェクト > 生成 > 生成履歴	GenAIConsolidatedVariations
+オブジェクト > アートボード > 方向切り替え	Switch Orientation
+オブジェクト > 生成 > ベクターを生成...	GenAIConsolidatedGenerateVectors
+ヘルプ > 新機能...	whatsNewContent
+ファイル > レビュー用に共有...	Share For Review	廃止：Ai 27.3 まで（Ai 27 から）
+ファイル > 編集に招待...	Invite People
+
+// 追加：同上の英語メニュー名
+Object > Align > Align To Key Object	Align To Key Object
+Object > Align > Align To Artboard	Align To Artboard
+Object > Distribute > Vertical Distribute Space	Vertical Distribute Space
+Object > Distribute > Horizontal Distribute Space	Horizontal Distribute Space
+Object > Generative > Rewrite > Generate Text...	GenAIConsolidatedGenerateTextGenerate
+Object > Generative > Rewrite > Translate...	GenAIConsolidatedGenerateTextTranslate	廃止：Ai 30.5 まで（Ai 30.5 から）
+Object > Generative > Rewrite > Proofread	GenAIConsolidatedGenerateTextProofread	廃止：Ai 30.5 まで（Ai 30.5 から）
+Object > Generative > Rewrite > Fit text	GenAIConsolidatedGenerateTextRephraseToFit	廃止：Ai 30.5 まで（Ai 30.5 から）
+Object > Align > Align To Selection	Align To Selection
+Object > Generative > Turntable (20 credits)	GenAIConsolidatedTurntable	廃止：Ai 30.4 まで（Ai 30.3 から）
+Window > Concept to Vector	SketchToVectorUnified
+Type > Rewrite...	GenerateTextTypeMenu	廃止：Ai 30.5 まで（Ai 30.5 から）
+Type > Retype	ReTypeTypeMenu
+Object > Generative > Concept to Vector	GenAIConsolidatedTrace
+Object > Align > Horizontal & Vertical Align Center	Horizontal && Vertical Align Center
+Edit > Prompt to edit	EditGeneratedObjectEditMenu
+Type > Text Type Conversion | Convert To Area Type | Convert To Point Type	point-area	廃止：Ai 30.4 まで（Ai 30.4 から）
+Object > Remove Background	Remove Background Object Menu
+Other Misc > Navigate to Previous Document Group	navigateToPreviousDocumentGroup
+Other Misc > Navigate to Next Document Group	navigateToNextDocumentGroup
+Other Misc > Navigate to Previous Document	navigateToPreviousDocument
+Other Misc > Navigate to Next Document	navigateToNextDocument
+Other Misc > New File (No Dialog)	new2
+Other Misc > Switch Units	switchSelTool
+Other Object > Exit Isolation Mode	exitFocus
+Other Object > Isolate Selected Object	enterFocus
+Other Object > Average & Join	avgAndJoin
+Other Object > Repeat Pathfinder	repeatPathfinder
+Other Object > Hide Others	hide2
+Other Object > Lock Others	lock2
+Other Text > Underline	~textUnderline
+Other Text > Italic	~textItalic
+Other Text > Bold	~textBold
+Other Text > Superscript	~superScript
+Other Text > Subscript	~subscript
+Other Text > Toggle Line Composer	toggleLineComposer
+Other Text > Toggle Auto Hyphenation	toggleAutoHyphen
+Other Text > Justify All Lines	justifyAll
+Other Text > Justify Text Right	justifyRight
+Other Text > Justify Text Center	justifyCenter
+Other Text > Justify Text Left	justify
+Other Text > Right Align Text	rightAlign
+Other Text > Center Text	centerAlign
+Other Text > Left Align Text	leftAlign
+Other Text > Highlight Font (Secondary)	highlightFont2
+Other Text > Highlight Font	highlightFont
+Other Text > Uniform Type	clearTypeScale
+Other Text > Spacing	spacing
+Other Text > Clear Tracking	clearTrack
+Other Text > Tracking	tracking
+Other Text > Kern Tighter	~kernCloser
+Other Text > Kern Looser	~kernFurther
+Other Text > Font Size Step Down	sizeStepDown
+Other Text > Font Size Step Up	sizeStepUp
+Other Text > Point Size Down	faceSizeDown
+Other Text > Point Size Up	faceSizeUp
+Type > Insert Break Character > Forced Line Break	~forcedLineBreak
+Type > Insert WhiteSpace Character > Thin Space	~thinSpace
+Type > Insert WhiteSpace Character > Hair Space	~hairSpace
+Type > Insert WhiteSpace Character > En Space	~enSpace
+Type > Insert WhiteSpace Character > Em Space	~emSpace
+Type > Insert Special Character > Quotation Marks > Single Right Quotation Marks	~singleRightQuote
+Type > Insert Special Character > Quotation Marks > Single Left Quotation Marks	~singleLeftQuote
+Type > Insert Special Character > Quotation Marks > Double Right Quotation Marks	~doubleRightQuote
+Type > Insert Special Character > Quotation Marks > Double Left Quotation Marks	~doubleLeftQuote
+Type > Insert Special Character > Hyphens And Dashes > Discretionary Hyphen	~discretionaryHyphen
+Type > Insert Special Character > Hyphens And Dashes > En Dash	~enDash
+Type > Insert Special Character > Hyphens And Dashes > Em Dash	~emDash
+Type > Insert Special Character > Symbols > Trademark Symbol	~trademarkSymbol
+Type > Insert Special Character > Symbols > Section Symbol	~sectionSymbol
+Type > Insert Special Character > Symbols > Registered Trademark Symbol	~registeredTrademark
+Type > Insert Special Character > Symbols > Paragraph Symbol	~paragraphSymbol
+Type > Insert Special Character > Symbols > Ellipsis	~ellipsis
+Type > Insert Special Character > Symbols > Copyright Symbol	~copyright
+Type > Insert Special Character > Symbols > Bullet	~bullet
+File > Close All	closeAll
+Object > Generative > Gen Shape Fill...	GenAIConsolidatedShapeFill
+Object > Generative > Generative Expand > Make	Gen Expand Object Make	廃止：Ai 29.8 まで（Ai 29.6 から）
+Object > Generative > Generative Expand > Combine	Gen Expand Object Combine	廃止：Ai 29.8 まで（Ai 29.6 から）
+Object > Generative > Print Bleed	GenAIConsolidatedBleed
+Object > Generative > Generative Recolor	GenAIConsolidatedRecolor
+Object > Generative > Generate Patterns	GenAIConsolidatedPatterns
+Object > Generative > Generation History	GenAIConsolidatedVariations
+Object > Artboards > Switch Orientation	Switch Orientation
+Object > Generative > Generate Vectors...	GenAIConsolidatedGenerateVectors
+Help > What's New...	whatsNewContent
+File > Share for Review...	Share For Review	廃止：Ai 27.3 まで（Ai 27 から）
+File > Invite to Edit…	Invite People
+
+// 廃止されたものはメモ（3列目）に「廃止：Ai ○○ まで」と書いて一覧に残す。下の2行はメモ付きで戻したもの以外（誤記・メニューコマンドではないもの）
+編集 > SWF プリセット...	SWFPresets	廃止：Ai 25.9 まで（Ai 16 から）
+編集 > 環境設定 > ファイル管理・クリップボード...	FileClipboardPref	廃止：Ai 24.9 まで（Ai 16 から）。FilePref / ClipboardPref に分割
+ウィンドウ > ツールバー > 初期設定	Default ToolBar	廃止：Ai 22.9 まで（Ai 17 から）
+ウィンドウ > Adobe Color テーマ	Adobe Illustrator Kuler Panel	廃止：Ai 25.9 まで（Ai 16 から）
+ウィンドウ > ライブラリ	Adobe CSXS Extension com.adobe.DesignLibraries.angularライブラリ	廃止：Ai 22.9 まで（Ai 18.1 から）
+ウィンドウ > ラーニング	Adobe Learn Panel Menu Item	廃止：Ai 25.9 まで（Ai 17 から）
+Object > Pattern > Text to Pattern (Beta)	Text To Pattern	廃止：Ai 28.5 まで（Ai 28 から）。Beta
+// Object > Mockup (Beta) > Release	Release Vector	← 誤記（正しくは Release Vector Edge、同じ一覧に既出）
+File > Generate Vectors (Beta)	Generate Modal File Menu 	廃止：Ai 29.8 まで（Beta、GenAIConsolidatedGenerateVectors に移行）。Beta。GenAIConsolidatedGenerateVectors に移行
+Object > Gen Shape Fill (Beta)	Shape Fill Object Menu	廃止：Ai 29.8 まで（Ai 29.5 から）。Beta
+Window > Generate Patterns (Beta)	Adobe Generative Patterns Panel	廃止：Ai 29.8 まで（Ai 29.5 から）。Beta
+Illustrator > Preferences > File Handling & Clipboard	FileClipboardPref	廃止：Ai 24.9 まで（Ai 16 から）。FilePref / ClipboardPref に分割
+Window > History	Adobe HistoryPanel Menu Item	廃止：Ai 26.9 まで（Ai 26.4 から）。Adobe History Panel Menu Item に改名
+// convertPointObjectToAreaObject	app.activeDocument.textFrames[index].convertPointObjectToAreaObject()	← メニューコマンドではない（TextFrame のメソッド）
+// convertAreaObjectToPointObject	app.activeDocument.textFrames[index].convertAreaObjectToPointObject()	← メニューコマンドではない（TextFrame のメソッド）
+
+// 環境設定キー（app.preferences の get/set 用。書式：名前<TAB>キー<TAB>型<TAB>値の例<TAB>メモ（省略可、改行は \n と書く））
+// 元データ：AT-doc/ExtendScript_Menu.xlsx の「環境設定」シート。2026-09-27 に Ai 30 の環境設定ファイル2本と照合し、
+// layers/sheipu → layers/pastePreserve、EnableActualTextSpaceAlign → EnableActualPointTextSpaceAlign に修正、enableBackgroundSave の重複を削除。
+// 型が空欄の行は実ファイルの値から型を補い、補えないものは除外。値の例は実ファイルの現在値（無ければ xlsx の valueExample）
+一般 > キー入力	cursorKeyLength	Real	0.2835
+General > Keyboard Increment	cursorKeyLength	Real	0.2835
+一般 > 角度の制限	constrain/angle	Real	0.0	constrain/sin・constrain/cos も合わせて書かないと拘束に反映されない
+General > Constrain Angle	constrain/angle	Real	0.0	constrain/sin・constrain/cos も合わせて書かないと拘束に反映されない
+	constrain/cos	Real	1.0	constrain/angleの値と矛盾が出ないようセットする必要がある。GUIでセットする限り自動で変更される
+	constrain/sin	Real	0.0	constrain/angleの値と矛盾が出ないようセットする必要がある。GUIでセットする限り自動で変更される
+一般 > 角丸の半径	ovalRadius	Real	2.8346456693
+General > Corner Radius	ovalRadius	Real	2.8346456693
+一般 > ペンツールでパス上にアンカーポイントを自動で追加 / 削除しない	pen/disableAutoAddDelete	Boolean	0
+General > Disable Auto Add/Delete	pen/disableAutoAddDelete	Boolean	0
+一般 > 十字カーソルを使用	usePreciseCursors	Boolean	0
+General > Use Precise Cursors	usePreciseCursors	Boolean	0
+一般 > ツールヒントを表示	showToolTips	Boolean	0
+General > Show Tool Tips	showToolTips	Boolean	0
+一般 > 詳細なツールヒントを表示	showRichToolTips	Boolean	0
+General > Show Rich Tool Tips	showRichToolTips	Boolean	0
+一般 > すべてのドキュメントで定規を表示 / 非表示	useGlobalRulers	Boolean	0
+General > Show/Hide Rulers	useGlobalRulers	Boolean	0
+一般 > アートワークのアンチエイリアス	antialias/graphic	Boolean	1	Read Only?
+General > Anti-aliased Artwork	antialias/graphic	Boolean	1	Read Only?
+	antialias/text	Boolean	1
+	antialias/image	Boolean	1
+一般 > 同じ濃度を選択	selectSameTintPercentage	Boolean	0
+General > Select Same Tint %	selectSameTintPercentage	Boolean	0
+一般 > ドキュメントを開いていないときにホーム画面を表示	Hello/ShowHomeScreenWS	Boolean	0	ドキュメントを開いていないときに「ホーム画面」を表示（PresetManager.jsx）
+General > Show The Home Screen When No Documents Are Open	Hello/ShowHomeScreenWS	Boolean	0	ドキュメントを開いていないときに「ホーム画面」を表示（PresetManager.jsx）
+一般 > 以前の「新規ドキュメント」インターフェイスを使用	Hello/NewDoc	Boolean	1	{true: 以前のUIを使用, false: 新しいUIを使用}\n以前の「新規ドキュメント」インターフェイスを使用（PresetManager.jsx）
+General > Use legacy “File New” interface	Hello/NewDoc	Boolean	1	{true: 以前のUIを使用, false: 新しいUIを使用}\n以前の「新規ドキュメント」インターフェイスを使用（PresetManager.jsx）
+一般 > 100% ズームで印刷サイズを表示	EnableActualViewPreview	Boolean	1
+General > Display Print Size at 100% Zoom	EnableActualViewPreview	Boolean	1
+一般 > 以前のバージョンファイルを開くときに [更新済み] をファイル名に追加	fileFormatGetFile/ConvertedInFilename	Boolean	1
+General > Append [Converted] Upon Opening Legacy Files	fileFormatGetFile/ConvertedInFilename	Boolean	1
+一般 > 起動時にシステム互換性の問題を表示	aiShowSystemCompatibilityIssuesAtStartup	Boolean	1
+General > Show system compatibility issues at startup	aiShowSystemCompatibilityIssuesAtStartup	Boolean	1
+一般 > ダブルクリックして編集モード	doubleClickToIsolate	Boolean	1
+General > Double Click To Isolate	doubleClickToIsolate	Boolean	1
+一般 > 日本式トンボを使用	cropMarkStyle	Boolean	1	{0: 欧文式, 1: 日本式} なので実質的にBoolean
+General > Use Japanese Crop Marks	cropMarkStyle	Boolean	1	{0: 欧文式, 1: 日本式} なので実質的にBoolean
+一般 > パターンを変形	transformPatterns	Boolean	1
+General > Transform Pattern Tiles	transformPatterns	Boolean	1
+一般 > 角を拡大・縮小	policyForPreservingCorners	Boolean	2	{true: ON, false: OFF} なので実質的にBoolean
+General > Scale Corners	policyForPreservingCorners	Boolean	2	{true: ON, false: OFF} なので実質的にBoolean
+一般 > 線幅と効果も拡大・縮小	scaleLineWeight	Boolean	0
+General > Scale Strokes & Effects	scaleLineWeight	Boolean	0
+一般 > コンテンツに応じた初期値を適用	EnableContentAwareDefaults	Boolean	1
+General > Enable Content Aware Defaults	EnableContentAwareDefaults	Boolean	1
+一般 > PDF を読み込むときに元のサイズを維持	plugin/PDFImport/HonourPageScale	Boolean	0
+General > Honor Scale on PDF Import	plugin/PDFImport/HonourPageScale	Boolean	0
+一般 > マウスホイールでズーム	zoomWithMouseWheel	Boolean	0
+General > Zoom with Mouse Wheel	zoomWithMouseWheel	Boolean	0
+一般 > トラックパッドジェスチャーでビューを回転	aiRotateWithTrackpad	Boolean	1
+General > Trackpad Gesture to Rotate View	aiRotateWithTrackpad	Boolean	1
+一般 > プレビュー境界を使用	includeStrokeInBounds	Boolean	0
+General > Use Preview Bounds	includeStrokeInBounds	Boolean	0
+選択範囲・アンカー表示 > 選択範囲 > 許容値	selectionTolerance	Integer	6
+Selection & Anchor Display > Selection > Tolerance	selectionTolerance	Integer	6
+選択範囲・アンカー表示 > 選択範囲 > カンバス上のオブジェクトを選択してロック解除	showLockIcon	Boolean	0	未登録のキーは true を返すことがあるので、ON/OFF 両方で確認すること\nカンバス上のオブジェクトとアートボードを選択してロック解除（PresetManager.jsx）
+Selection & Anchor Display > Selection > Select and Unlock objects on canvas	showLockIcon	Boolean	0	未登録のキーは true を返すことがあるので、ON/OFF 両方で確認すること\nカンバス上のオブジェクトとアートボードを選択してロック解除（PresetManager.jsx）
+選択範囲・アンカー表示 > 選択範囲 > 選択ツールおよびシェイプツールでアンカーポイントを表示	hideAnchorPointsInTools	Boolean	1	{true: OFF, false: ON}
+Selection & Anchor Display > Selection > Show Anchor Points in Selection Tool and Shape Tools	hideAnchorPointsInTools	Boolean	1	{true: OFF, false: ON}
+選択範囲・アンカー表示 > 選択範囲 > セグメントをドラッグしてリシェイプするときにハンドル方向を固定	constrainPathDragging	Boolean	0
+Selection & Anchor Display > Selection > Constrain Path Dragging on Segment Reshape	constrainPathDragging	Boolean	0
+選択範囲・アンカー表示 > 選択範囲 > ロックまたは非表示オブジェクトをアートボードと一緒に移動	moveLockedAndHiddenArt	Boolean	1
+Selection & Anchor Display > Selection > Move Locked and Hidden Artwork with Artboard	moveLockedAndHiddenArt	Boolean	1
+選択範囲・アンカー表示 > 選択範囲 > ポイントにスナップ «真偽値»	snapToPoint	Boolean	1
+Selection & Anchor Display > Selection > Snap to Point «Checked»	snapToPoint	Boolean	1
+選択範囲・アンカー表示 > 選択範囲 > ポイントにスナップ «数値»	snappingTolerance	Integer	1
+Selection & Anchor Display > Selection > Snap to Point «Integer»	snappingTolerance	Integer	1
+選択範囲・アンカー表示 > 選択範囲 > オブジェクトの選択範田をパスに制限	hitShapeOnPreview	Integer	1	値：\n0 ON\n1 OFF\n0＝ON・1＝OFF の反転（オブジェクトの選択範囲をパスに制限）（PresetManager.jsx）
+Selection & Anchor Display > Selection > Object Selection by Path Only	hitShapeOnPreview	Integer	1	値：\n0 ON\n1 OFF\n0＝ON・1＝OFF の反転（オブジェクトの選択範囲をパスに制限）（PresetManager.jsx）
+選択範囲・アンカー表示 > 選択範囲 > Cmd + クリックで背面のオブジェクトを選択	selectBehind	Boolean	1
+Selection & Anchor Display > Selection > Command Click to Select Objects Behind	selectBehind	Boolean	1
+選択範囲・アンカー表示 > 選択範囲 > 選択範囲へズーム	zoomToSelection	Boolean	0
+Selection & Anchor Display > Selection > Zoom to Selection	zoomToSelection	Boolean	0
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > サイズ	anchorSizePref	Integer	7	値：5 / 7 / 9 / 11（［選択範囲・アンカー表示］のスライダー4段階、既定 5）。アンカーポイント・ハンドル・バウンディングボックスの表示サイズ（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Size	anchorSizePref	Integer	7	値：5 / 7 / 9 / 11（［選択範囲・アンカー表示］のスライダー4段階、既定 5）。アンカーポイント・ハンドル・バウンディングボックスの表示サイズ（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > ハンドルスタイル	handleTypePref	Integer	1	値：\n0 ● 塗り (Fill)\n1 ◯ 線 (Stroke)
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Handle Style	handleTypePref	Integer	1	値：\n0 ● 塗り (Fill)\n1 ◯ 線 (Stroke)
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > カーソルを合わせたときにアンカーを強調表示	highlightAnchorOnMouseOver	Boolean	1
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Highlight anchors on mouse over	highlightAnchorOnMouseOver	Boolean	1
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > 複数アンカーを選択時にハンドルを表示	showDirectionHandles	Boolean	0
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Show handles when multiple anchors are selected	showDirectionHandles	Boolean	0
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > 次の角度より大きいときにコーナーウィジェットを隠す «真偽値»	liveCorners/hideCornerWidgetBasedOnAngle	Boolean	1
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Hide Corner Widget for angles greater than «Checked»	liveCorners/hideCornerWidgetBasedOnAngle	Boolean	1
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > 次の角度より大きいときにコーナーウィジェットを隠す «角度»	liveCorners/cornerAngleLimit	Real	177.0
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Hide Corner Widget for angles greater than «Angle»	liveCorners/cornerAngleLimit	Real	177.0
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > ラバーバンドを有効にする対象 > ペンツール	toolPen/rubberBandEnable	Boolean	1
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Enable Rubber Band for > Pen Tool	toolPen/rubberBandEnable	Boolean	1
+選択範囲・アンカー表示 > アンカーポイント、ハンドル、およびバウンディングボックスの表示 > ラバーバンドを有効にする対象 > 曲線ツール	CurvatureTool/rubberBandEnable	Boolean	1
+Selection & Anchor Display > Anchor Points, Handle, and Bounding Box Display > Enable Rubber Band for > Curvature Tool	CurvatureTool/rubberBandEnable	Boolean	1
+テキスト > サイズ / 行送り	text/sizeIncrement	Real	1.0
+Type > Size/Leading	text/sizeIncrement	Real	1.0
+テキスト > トラッキング	text/kernIncrement	Integer	20
+Type > Tracking	text/kernIncrement	Integer	20
+テキスト > ベースラインシフト	text/riseIncrement	Real	0.1
+Type > Baseline Shift	text/riseIncrement	Real	0.1
+テキスト > 言語オプション > 東アジア言語のオプションを表示	showAsianTextOptions	Boolean	1
+Type > Language Options > Show East Asian Options	showAsianTextOptions	Boolean	1
+テキスト > 言語オプション > インド言語のオプションを表示	AI WorldReadiness Dict Key	Boolean	0	テキスト > 言語オプション > 東アジア言語のオプションを表示 と択一
+Type > Language Options > Show Indic Options	AI WorldReadiness Dict Key	Boolean	0	テキスト > 言語オプション > 東アジア言語のオプションを表示 と択一
+テキスト > テキストオブジェクトの選択範囲をパスに制限	hitTypeShapeOnPreview	Integer	1	値：\n0 ON\n1 OFF\n0＝ON・1＝OFF の反転（テキストオブジェクトの選択範囲をパスに制限）（PresetManager.jsx）
+Type > Type Object Selection by Path Only	hitTypeShapeOnPreview	Integer	1	値：\n0 ON\n1 OFF\n0＝ON・1＝OFF の反転（テキストオブジェクトの選択範囲をパスに制限）（PresetManager.jsx）
+テキスト > フォント名を英語表記	text/useEnglishFontNames	Boolean	0
+Type > Show Font Names in English	text/useEnglishFontNames	Boolean	0
+テキスト > 新規エリア内文字の自動サイズ調整	text/autoSizing	Boolean	1
+Type > Auto Size New Area Type	text/autoSizing	Boolean	1
+テキスト > フォントメニュー内のフォントプレビューを表示	text/fontMenu/showInFace	Boolean	1
+Type > Enable in-menu font previews	text/fontMenu/showInFace	Boolean	1
+	text/fontMenu/faceSizeMultiplier	Real	1.0	フォントプレビューの大きさ
+テキスト > 最近使用したフォントの表示数	text/recentFontMenu/showNEntries	Integer	15	最近使用したフォントの表示数。0 で一覧を表示しない（ダイアログでの範囲は 1〜30）（PresetManager.jsx）
+Type > Number of Recent Fonts	text/recentFontMenu/showNEntries	Integer	15	最近使用したフォントの表示数。0 で一覧を表示しない（ダイアログでの範囲は 1〜30）（PresetManager.jsx）
+テキスト > 「さらに検索」で日本語フォントを表示	text/fontMenu/japaneseFontPreview	Boolean	1
+Type > Enable Japanese Font Preview in ‘Find More’	text/fontMenu/japaneseFontPreview	Boolean	1
+テキスト > 見つからない字形の保護を有効にする	text/doFontLocking	Boolean	0
+Type > Enable Missing Glyph Protection	text/doFontLocking	Boolean	0
+テキスト > 代替フォントを強調表示	text/highlightMissingFonts	Boolean	1
+Type > Highlight Substituted Fonts	text/highlightMissingFonts	Boolean	1
+テキスト > 新規テキストオブジェクトにサンプルテキストを割り付け «グローバル»	text/fillWithDefaultText	Boolean	1
+Type > Fill New Type Objects With Placeholder Text	text/fillWithDefaultText	Boolean	1
+テキスト > 新規テキストオブジェクトにサンプルテキストを割り付け «日本語»	text/fillWithDefaultTextJP	Boolean	0
+Type > Fill New Type Objects With Placeholder Text «Japanese»	text/fillWithDefaultTextJP	Boolean	0
+テキスト > 選択された文字の異体字を表示	text/enableAlternateGlyph	Boolean	0
+Type > Show Character Alternates	text/enableAlternateGlyph	Boolean	0
+テキスト > 入力中に箇条書きリストのレベルを自動変更	text/enableListAutoDetection	Boolean	1
+Type > Automatic Bulleted and Numbered lists while typing	text/enableListAutoDetection	Boolean	1
+	text/fontMenu/menuNameLimit	Integer	35
+	text/fontMenu/showSubMenusInFace	Boolean	0
+	text/fontMenu/exploreModeOnbrdngShownCount	Integer	3
+	text/fontMenu/needsExploreModeOnboarding	Boolean	0
+	text/doNonLatinInlineInput	Integer	1
+	text/activateOnbrdngShownCount	Integer	2
+	text/enablePreciseBBox	Boolean	0
+	text/GreekingDisabled	Integer	1
+	text/greekingThreshold	Real	6
+	text/fontflyout/SampleTextOpt	Integer	0
+	text/faceSize	Real	12
+	text/groupTypeMenuByLanguage	Boolean	1	falseにするとPostscriptNameで並ぶ
+	text/debugFontMenu/writeDebugFile	Integer	0
+	text/debugFontMenu/lieAboutNativeScript	Integer	0
+単位 > 一般	rulerType	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n3 パイカ Picas p\n4 センチメートル Centimeters cm\n5 歯 Ha H\n6 ピクセル Pixels px\n7 フィートとインチ Feet & Inches ft in\n8 メートル Meters m\n9 ヤード Yards yd\n10 フィート Feet ft\n単位コード 5 は「歯（H）」
+Units > General	rulerType	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n3 パイカ Picas p\n4 センチメートル Centimeters cm\n5 歯 Ha H\n6 ピクセル Pixels px\n7 フィートとインチ Feet & Inches ft in\n8 メートル Meters m\n9 ヤード Yards yd\n10 フィート Feet ft\n単位コード 5 は「歯（H）」
+単位 > 線	strokeUnits	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n3 パイカ Picas p\n4 センチメートル Centimeters cm\n5 歯 Ha H\n6 ピクセル Pixels px\n単位コード 5 は「歯（H）」
+Units > Stroke	strokeUnits	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n3 パイカ Picas p\n4 センチメートル Centimeters cm\n5 歯 Ha H\n6 ピクセル Pixels px\n単位コード 5 は「歯（H）」
+単位 > 文字	text/units	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n5 級 Qs Q\n6 ピクセル Pixels px\n単位コード 5 は「級（Q）」（文字サイズだけ Q、ほかのキーは H）
+Units > Type	text/units	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n5 級 Qs Q\n6 ピクセル Pixels px\n単位コード 5 は「級（Q）」（文字サイズだけ Q、ほかのキーは H）
+単位 > 東アジア言語のオプション	text/asianunits	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n5 級 Qs Q\n6 ピクセル Pixels px\n単位コード 5 は「歯（H）」
+Units > East Asian Type	text/asianunits	Integer	2	値：\n0インチ Inches in\n1 ミリメートル Millimeters mm\n2 ポイント Points pt\n5 級 Qs Q\n6 ピクセル Pixels px\n単位コード 5 は「歯（H）」
+	numbersArePoints	Integer	0	単位 > 数値のみの入力はポイントを単位とする ?\nUnits > Numbers Without Units Are Points ?\n常にOFFになっている
+単位 > オブジェクトの識別方法	artNamesAreXMLIDs	Integer	0	値：\n0 オブジェクト名 Object Name false\n1 XML ID XML ID true
+Units > Identify Objects By	artNamesAreXMLIDs	Integer	0	値：\n0 オブジェクト名 Object Name false\n1 XML ID XML ID true
+ガイド・グリッド > ガイド > カラー «Red»	Guide/Color/red	Real	0.29	ガイドカラー（RGB 0〜1）。例：シアン 0 / 1 / 1、ライトブルー 0.29 / 0.52 / 1.0。red・green・blue の3キーをそろえて書く（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+Guides & Grid > Guides > Color «Red»	Guide/Color/red	Real	0.29	ガイドカラー（RGB 0〜1）。例：シアン 0 / 1 / 1、ライトブルー 0.29 / 0.52 / 1.0。red・green・blue の3キーをそろえて書く（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+ガイド・グリッド > ガイド > カラー «Green»	Guide/Color/green	Real	0.52	ガイドカラー（RGB 0〜1）。red・green・blue の3キーをそろえて書く（PresetManager.jsx）
+Guides & Grid > Guides > Color «Green»	Guide/Color/green	Real	0.52	ガイドカラー（RGB 0〜1）。red・green・blue の3キーをそろえて書く（PresetManager.jsx）
+ガイド・グリッド > ガイド > カラー «Blue»	Guide/Color/blue	Real	1.0	ガイドカラー（RGB 0〜1）。red・green・blue の3キーをそろえて書く（PresetManager.jsx）
+Guides & Grid > Guides > Color «Blue»	Guide/Color/blue	Real	1.0	ガイドカラー（RGB 0〜1）。red・green・blue の3キーをそろえて書く（PresetManager.jsx）
+ガイド・グリッド > ガイド > スタイル	Guide/Style	Integer	0	値：\n0 ライン Lines\n1 点線　ドット\n値：0 ライン / 1 点線（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+Guides & Grid > Guides > Style	Guide/Style	Integer	0	値：\n0 ライン Lines\n1 点線　ドット\n値：0 ライン / 1 点線（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+ガイド・グリッド > グリッド > カラー «Red»	Grid/Color/Dark/r	Real	0.8000000119
+Guides & Grid > Grid > Color «Red»	Grid/Color/Dark/r	Real	0.8000000119
+ガイド・グリッド > グリッド > カラー «Green»	Grid/Color/Dark/g	Real	0.8000000119
+Guides & Grid > Grid > Color «Green»	Grid/Color/Dark/g	Real	0.8000000119
+ガイド・グリッド > グリッド > カラー «Blue»	Grid/Color/Dark/b	Real	0.8000000119
+Guides & Grid > Grid > Color «Blue»	Grid/Color/Dark/b	Real	0.8000000119
+ガイド・グリッド > グリッド > カラー «Red»	Grid/Color/Lite/r	Real	0.8999999762
+Guides & Grid > Grid > Color «Red»	Grid/Color/Lite/r	Real	0.8999999762
+ガイド・グリッド > グリッド > カラー «Green»	Grid/Color/Lite/g	Real	0.8999999762
+Guides & Grid > Grid > Color «Green»	Grid/Color/Lite/g	Real	0.8999999762
+ガイド・グリッド > グリッド > カラー «Blue»	Grid/Color/Lite/b	Real	0.8999999762
+Guides & Grid > Grid > Color «Blue»	Grid/Color/Lite/b	Real	0.8999999762
+ガイド・グリッド > グリッド > スタイル	Grid/Style	Integer	0	値：\n0 ライン Lines\n1 点線　ドット\n次回起動時に適用
+Guides & Grid > Grid > Style	Grid/Style	Integer	0	値：\n0 ライン Lines\n1 点線　ドット\n次回起動時に適用
+ガイド・グリッド > グリッド > グリッド «横方向»	Grid/Horizontal/Spacing	Real	72.0
+Guides & Grid > Grid > Gridline every «Horizontal»	Grid/Horizontal/Spacing	Real	72.0
+ガイド・グリッド > グリッド > グリッド «縦方向»	Grid/Vertical/Spacing	Real	72.0
+Guides & Grid > Grid > Gridline every «Vertical»	Grid/Vertical/Spacing	Real	72.0
+ガイド・グリッド > グリッド > 分割数 «横方向»	Grid/Horizontal/Ticks	Integer	8
+Guides & Grid > Grid > Subdivisions «Horizontal»	Grid/Horizontal/Ticks	Integer	8
+ガイド・グリッド > グリッド > 分割数 «縦方向»	Grid/Vertical/Ticks	Integer	8
+Guides & Grid > Grid > Subdivisions «Vertical»	Grid/Vertical/Ticks	Integer	8
+ガイド・グリッド > グリッド > 背面にグリッドを表示	Grid/Posn	Boolean	0	次回起動時に適用
+Guides & Grid > Grid > Grids In Back	Grid/Posn	Boolean	0	次回起動時に適用
+ガイド・グリッド > グリッド > ピクセルグリッドを表示 (600% ズーム以上)	Guide/ShowPixelGrid	Boolean	1
+Guides & Grid > Grid > Show Pixel Grid (Above 600% Zoom)	Guide/ShowPixelGrid	Boolean	1
+スマートガイド > 表示オプション > オブジェクトガイド «Red»	snapomatic/Color/red_19_2	Real	1.0
+Smart Guides > Display Options > Object Guides «Red»	snapomatic/Color/red_19_2	Real	1.0
+スマートガイド > 表示オプション > オブジェクトガイド «Green»	snapomatic/Color/green_19_2	Real	0.2899976969
+Smart Guides > Display Options > Object Guides «Green»	snapomatic/Color/green_19_2	Real	0.2899976969
+スマートガイド > 表示オプション > オブジェクトガイド «Blue»	snapomatic/Color/blue_19_2	Real	1.0
+Smart Guides > Display Options > Object Guides «Blue»	snapomatic/Color/blue_19_2	Real	1.0
+スマートガイド > 表示オプション > グリフガイド «Red»	snapomatic/GlyphColor/red	Real	0.4313725531
+Smart Guides > Display Options > Glyph Guides «Red»	snapomatic/GlyphColor/red	Real	0.4313725531
+スマートガイド > 表示オプション > グリフガイド «Green»	snapomatic/GlyphColor/green	Real	0.8039215803
+Smart Guides > Display Options > Glyph Guides «Green»	snapomatic/GlyphColor/green	Real	0.8039215803
+スマートガイド > 表示オプション > グリフガイド «Blue»	snapomatic/GlyphColor/blue	Real	0.2941176593
+Smart Guides > Display Options > Glyph Guides «Blue»	snapomatic/GlyphColor/blue	Real	0.2941176593
+スマートガイド > 表示オプション > 整列ガイド	smartGuides/showAlignmentGuides	Boolean	1
+Smart Guides > Display Options > Alignment Guides	smartGuides/showAlignmentGuides	Boolean	1
+スマートガイド > 表示オプション > オブジェクトのハイライト表示	smartGuides/showObjectHighlighting	Boolean	0
+Smart Guides > Display Options > Object Highlighting	smartGuides/showObjectHighlighting	Boolean	0
+スマートガイド > 表示オプション > 変形ツール	smartGuides/showToolGuides	Boolean	0
+Smart Guides > Display Options > Transform Tools	smartGuides/showToolGuides	Boolean	0
+スマートガイド > 表示オプション > アンカーとパスのヒント表示	smartGuides/showLabels	Boolean	1
+Smart Guides > Display Options > Anchor/Path Labels	smartGuides/showLabels	Boolean	1
+スマートガイド > 表示オプション > 計測のヒント表示	smartGuides/showReadouts	Boolean	0
+Smart Guides > Display Options > Measurement Labels	smartGuides/showReadouts	Boolean	0
+スマートガイド > 表示オプション > 間隔ガイド	smartGuides/showSpacingGuides	Boolean	1
+Smart Guides > Display Options > Spacing Guides	smartGuides/showSpacingGuides	Boolean	1
+スマートガイド > 表示オプション > コンストラクションガイド «真偽値»	smartGuides/showConstructionGuides	Boolean	0
+Smart Guides > Display Options > Construction Guides «Checked»	smartGuides/showConstructionGuides	Boolean	0
+	smartGuides/anglesCount	Integer	4294967295	スマートガイド > 表示オプション > コンストラクションガイドの入力してある角度の数
+	smartGuides/customAnglesCount	Integer	0
+	smartGuides/angles0	Real	0
+	smartGuides/angles1	Real	45
+	smartGuides/angles2	Real	90
+	smartGuides/angles3	Real	135
+	smartGuides/customAngles0	Real	0
+	smartGuides/customAngles1	Real	45
+	smartGuides/customAngles2	Real	90
+	smartGuides/customAngles3	Real	135
+	smartGuides/snapToActiveArtboardContent	Boolean	0
+スマートガイド > スナップの許容値	smartGuides/tolerance	Integer	6
+Smart Guides > Snapping Tolerance	smartGuides/tolerance	Integer	6
+	smartGuides/angularTolerance	Integer	2
+	smartGuides/rotationalSnapArcTolerance	Integer	6
+	smartGuides/showRotationalGuides	Boolean	1
+表示 > スマートガイド	smartGuides/isEnabled	Boolean	1	メニューのチェックマークは更新されない
+View > Smart Guides	smartGuides/isEnabled	Boolean	1	メニューのチェックマークは更新されない
+スライス > スライス番号を表示	plugin/AdobeSlicingPlugin/showSliceNumbers	Boolean	1
+Slices > Show Slice Numbers	plugin/AdobeSlicingPlugin/showSliceNumbers	Boolean	1
+スライス > 線のカラー «Red»	plugin/AdobeSlicingPlugin/feedback/red	Integer	65535
+Slices > Line Color «Red»	plugin/AdobeSlicingPlugin/feedback/red	Integer	65535
+スライス > 線のカラー «Green»	plugin/AdobeSlicingPlugin/feedback/green	Integer	19005
+Slices > Line Color «Green»	plugin/AdobeSlicingPlugin/feedback/green	Integer	19005
+スライス > 線のカラー «Blue»	plugin/AdobeSlicingPlugin/feedback/blue	Integer	19005
+Slices > Line Color «Blue»	plugin/AdobeSlicingPlugin/feedback/blue	Integer	19005
+	plugin/AdobeSlicingPlugin/divideVerticallyPixelCount	Integer	0
+	plugin/AdobeSlicingPlugin/divideVerticallyCount	Integer	1
+	plugin/AdobeSlicingPlugin/divideHorizontallyPixelCount	Integer	0
+	plugin/AdobeSlicingPlugin/divideHorizontallyCount	Integer	1
+	plugin/AdobeSlicingPlugin/dividePreview	Integer	0
+	plugin/AdobeSlicingPlugin/divideEvenVertically	Integer	1
+	plugin/AdobeSlicingPlugin/divideEvenHorizontally	Integer	1
+	plugin/AdobeSlicingPlugin/divideVertically	Integer	1
+	plugin/AdobeSlicingPlugin/divideHorizontally	Integer	1
+	plugin/AdobeSlicingPlugin/addSlicingTools	Integer	1
+	plugin/AdobeSlicingPlugin/lockSlices	Integer	0
+	plugin/AdobeSlicingPlugin/huggableText	Integer	1
+ハイフネーション > 言語	hyphenation/language	Integer	0
+Hyphenation > Default Language	hyphenation/language	Integer	0
+プラグイン・仮想記憶ディスク > 追加プラグインフォルダー «真偽値»	loadAdditionalPlugins	Boolean	0
+Plug-ins & Scratch Disks > Additional Plug-ins Folder «Checked»	loadAdditionalPlugins	Boolean	0
+プラグイン・仮想記憶ディスク > 追加プラグインフォルダー «フォルダ»	plugins	String	/Users/«username»/Desktop/plugins
+Plug-ins & Scratch Disks > Additional Plug-ins Folder «Folder»	plugins	String	/Users/«username»/Desktop/plugins
+プラグイン・仮想記憶ディスク > 仮想記憶ディスク > ディスク 1	rastersys/scratch/primary	String	
+Plug-ins & Scratch Disks > Scratch Disks > Primary	rastersys/scratch/primary	String	
+プラグイン・仮想記憶ディスク > 仮想記憶ディスク > ディスク 2	rastersys/scratch/secondary	String	
+Plug-ins & Scratch Disks > Scratch Disks > Secondary	rastersys/scratch/secondary	String	
+ユーザーインターフェイス > 明るさ	uiBrightness	Real	1.0	0.5 より大きければ明るい UI（スクリプトの明暗判定に使える）\n値（4段階の離散値）：\n0.0 暗\n0.5 やや暗\n0.50999999046326 やや明\n1.0 明\n0.5 と 0.50999999 は別の段階なので、比較は許容値 0.001 程度で（PresetManager.jsx）\nset は値を書き込むだけでは画面に反映されない。書き込んだ後に環境設定（ユーザーインターフェイス、app.executeMenuCommand('UIPref')）を開き、矢印キー＋Return で確定する。環境設定はモーダルダイアログを閉じてから開く（PresetManager.jsx）
+User Interface > Brightness	uiBrightness	Real	1.0	0.5 より大きければ明るい UI（スクリプトの明暗判定に使える）\n値（4段階の離散値）：\n0.0 暗\n0.5 やや暗\n0.50999999046326 やや明\n1.0 明\n0.5 と 0.50999999 は別の段階なので、比較は許容値 0.001 程度で（PresetManager.jsx）\nset は値を書き込むだけでは画面に反映されない。書き込んだ後に環境設定（ユーザーインターフェイス、app.executeMenuCommand('UIPref')）を開き、矢印キー＋Return で確定する。環境設定はモーダルダイアログを閉じてから開く（PresetManager.jsx）
+ユーザーインターフェイス > カンバスカラー	uiCanvasIsWhite	Integer	0	値：\n0 ユーザーインターフェイスの明るさに一致させる Match User Interface Brightness\n1 ホワイト White\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+User Interface > Canvas Color	uiCanvasIsWhite	Integer	0	値：\n0 ユーザーインターフェイスの明るさに一致させる Match User Interface Brightness\n1 ホワイト White\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+ユーザーインターフェイス > 自動的にアイコンパネル化	uiPersistDrawers	Boolean	1	{true: OFF, false: ON} 次回起動時に適用
+User Interface > Auto-Collapse Iconic Panels	uiPersistDrawers	Boolean	1	{true: OFF, false: ON} 次回起動時に適用
+ユーザーインターフェイス > タブでドキュメントを開く	uiOpenDocumentsAsTabs	Boolean	1	次回起動時に適用
+User Interface > Open Documents As Tabs	uiOpenDocumentsAsTabs	Boolean	1	次回起動時に適用
+ユーザーインターフェイス > 大きなタブ	UIPreferences/workspaceTabsSize	Integer	2	値：\n1 Small\n2 Large\n次回起動時に適用
+User Interface > Large Tabs	UIPreferences/workspaceTabsSize	Integer	2	値：\n1 Small\n2 Large\n次回起動時に適用
+ユーザーインターフェイス > UI スケール	UIPreferences/appScaleFactor	Real	1.0
+User Interface > UI Scaling	UIPreferences/appScaleFactor	Real	1.0
+ユーザーインターフェイス > UI スケール > 比率を保持してカーソルを拡大・縮小	UIPreferences/scaleCursor	Boolean	1
+User Interface > UI Scaling > Scale Cursor Proportionately	UIPreferences/scaleCursor	Boolean	1
+	UIPreferences/defaultScaleFactorLaunch	Integer	1
+	UIPreferences/scaleUI	Boolean	1
+	UIPreferences/snapUIScaleFactor	Integer	1
+	uiScrollButtonPosition	Integer	0
+パフォーマンス > GPU パフォーマンス > GPU パフォーマンス	Performance/EnableGPU_Ver19_2	Boolean	1
+Performance > GPU Performance > GPU Performance	Performance/EnableGPU_Ver19_2	Boolean	1
+パフォーマンス > GPU パフォーマンス > GPU パフォーマンス > アニメーションズーム	Performance/AnimZoom	Boolean	0
+Performance > GPU Performance > GPU Performance > Animated Zoom	Performance/AnimZoom	Boolean	0
+	Performance/AutoSwitchEngine	Integer	1
+	Performance/ResponsiveZoom	Integer	1
+	Performance/GPUSupported	Integer	1
+パフォーマンス > その他 > ヒストリー数	maximumUndoDepth	Integer	50	ヒストリー数（ダイアログでの範囲は 1〜1000、既定 100）（PresetManager.jsx）
+Performance > Others > History States	maximumUndoDepth	Integer	50	ヒストリー数（ダイアログでの範囲は 1〜1000、既定 100）（PresetManager.jsx）
+パフォーマンス > その他 > リアルタイムの描画と編集	LiveEdit_State_Machine	Boolean	0
+Performance > Others > Real-Time Drawing and Editing	LiveEdit_State_Machine	Boolean	0
+	LiveEdit_Global_EPF_Limit	Real	5.0
+ファイル管理 > ファイル保存オプション > 復帰データを次の間隔で自動保存 «真偽値»	CrashRecovery/AutomaticallySave	Boolean	0
+File Handling > File Save Options > Automatically Save Recovery Data Every «Checked»	CrashRecovery/AutomaticallySave	Boolean	0
+ファイル管理 > ファイル保存オプション > 復帰データを次の間隔で自動保存 «時間»	CrashRecovery/IdleLoopTimeInterval	Integer	0
+File Handling > File Save Options > Automatically Save Recovery Data Every «Time»	CrashRecovery/IdleLoopTimeInterval	Integer	0
+ファイル管理 > ファイル保存オプション > 復帰データを次の間隔で自動保存 «フォルダ»	CrashRecovery/RecoveryFolderLocation	String		値：\n/Users/«username»/Library/Preferences/Adobe Illustrator 26 Settings/ja_JP/DataRecovery
+File Handling > File Save Options > Automatically Save Recovery Data Every «Folder»	CrashRecovery/RecoveryFolderLocation	String		値：\n/Users/«username»/Library/Preferences/Adobe Illustrator 26 Settings/ja_JP/DataRecovery
+ファイル管理 > ファイル保存オプション > 複雑なドキュメントではデータの復元を無効にする	CrashRecovery/TurnOffForComplexDocument	Boolean	1
+File Handling > File Save Options > Turn off Data Recovery for complex documents	CrashRecovery/TurnOffForComplexDocument	Boolean	1
+ファイル管理 > ファイル保存オプション > バックグラウンドで保存	enableBackgroundSave	Integer	0	値は「Adobe Illustrator Cloud Prefs」にある（0：オフ、1：オン）。app.preferences の get は常に 1 を返し読めない。set の効果は未確認
+File Handling > File Save Options > Save in Background	enableBackgroundSave	Integer	0	値は「Adobe Illustrator Cloud Prefs」にある（0：オフ、1：オン）。app.preferences の get は常に 1 を返し読めない。set の効果は未確認
+ファイル管理 > ファイル保存オプション > バックグラウンドで書き出し	enableBackgroundExport	Integer	0	値は「Adobe Illustrator Cloud Prefs」にある（0：オフ、1：オン）。app.preferences の get は常に 1 を返し読めない。set の効果は未確認
+File Handling > File Save Options > Export in Background	enableBackgroundExport	Integer	0	値は「Adobe Illustrator Cloud Prefs」にある（0：オフ、1：オン）。app.preferences の get は常に 1 を返し読めない。set の効果は未確認
+ファイル管理 > ファイル保存オプション > クラウドドキュメントを次の間隔で自動保存 «真偽値»	cloudAIEnableAutoSave	Integer	0	動作しない?
+File Handling > File Save Options > Automatically Save Cloud Documents Every «Checked»	cloudAIEnableAutoSave	Integer	0	動作しない?
+ファイル管理 > ファイル保存オプション > クラウドドキュメントを次の間隔で自動保存 «時間»	cloudAIAutoSaveTimerInterval	Integer	300	動作しない?
+File Handling > File Save Options > Automatically Save Cloud Documents Every «Time»	cloudAIAutoSaveTimerInterval	Integer	300	動作しない?
+ファイル管理 > ファイル保存オプション > 初期設定のファイルの場所	AdobeSaveAsCloudDocumentPreference	Integer	0	値：\n0 コンピューター Local\n1 Creative Cloud Creative Cloud\n26.3.1のバグで有効になった。実際に動作する\ntrue＝クラウドドキュメント／false＝コンピューターに保存（保存の既定）（PresetManager.jsx）
+	plugin/FileClipboard/defaultCloudSave	Integer	1
+ファイル管理 > ファイル > 最近使用したファイルの表示数 (0 〜 30)	RecentFileNumber	Integer	20
+File Handling > Files > Number of Recent Files to Display (0-30)	RecentFileNumber	Integer	20
+ファイル管理 > ファイル > 低速ネットワーク上のファイルを開くおよび保存する時間を最適化	plugin/FileClipboard/aiOptimizeNetworkOperations	Boolean	1
+File Handling > Files > Optimize File Open and Save Time on Slow Networks	plugin/FileClipboard/aiOptimizeNetworkOperations	Boolean	1
+ファイル管理 > ファイル > リンクされた EPS に低解像度の表示用画像を使用	useLowResProxy	Boolean	0
+File Handling > Files > Use Low Resolution Proxy for Linked EPS	useLowResProxy	Boolean	0
+ファイル管理 > ファイル > ピクセルプレビューでビットマップ画像をアンチエイリアス処理した画像として表示	DisplayBitmapsAsAntiAliasedPixelPreview	Boolean	0
+File Handling > Files > Display Bitmaps as Anti-Aliased images in Pixel Preview	DisplayBitmapsAsAntiAliasedPixelPreview	Boolean	0
+ファイル管理 > ファイル > リンクを更新	plugin/FileClipboard/linkoptions	Integer	0	値：\n0 自動 Automatically\n1 Automatically Manually\n2 修正されるときに確認 Ask When Modified\n初期値：2\n値（リンクを更新）：0 自動 / 1 手動 / 2 変更時に確認（PresetManager.jsx）
+File Handling > Files > Update Links	plugin/FileClipboard/linkoptions	Integer	0	値：\n0 自動 Automatically\n1 Automatically Manually\n2 修正されるときに確認 Ask When Modified\n初期値：2\n値（リンクを更新）：0 自動 / 1 手動 / 2 変更時に確認（PresetManager.jsx）
+ファイル管理 > ファイル > 「オリジナルの編集」にシステムデフォルトを使用	useSysDefEdit	Boolean	1
+File Handling > Files > Use System Defaults for ‘Edit Original’	useSysDefEdit	Boolean	1
+ファイル管理 > フォント > Adobe Fonts を自動アクティベート	AutoActivateMissingFont	Boolean	1
+File Handling > Fonts > Auto-activate Adobe Fonts	AutoActivateMissingFont	Boolean	1
+クリップボードの処理 > クリップボード > コピー時 > SVG コードを含める	plugin/FileClipboard/copySVGCode	Boolean	1
+Clipboard Handling > Clipboard > On Copy > Include SVG Code	plugin/FileClipboard/copySVGCode	Boolean	1
+クリップボードの処理 > クリップボード > 終了時 > PDF	plugin/FileClipboard/copyAsPDF	Boolean	1
+Clipboard Handling > Clipboard > On Quit > PDF	plugin/FileClipboard/copyAsPDF	Boolean	1
+クリップボードの処理 > クリップボード > 終了時 > AICB (透明サポートなし) «真偽値»	plugin/FileClipboard/copyAsAICB	Boolean	0
+Clipboard Handling > Clipboard > On Quit > AICB (no transparency support) «Checked»	plugin/FileClipboard/copyAsAICB	Boolean	0
+クリップボードの処理 > クリップボード > 終了時 > AICB (透明サポートなし) «オプション»	plugin/FileClipboard/AICBOption	Integer	1	値：\n0 パスを保持 Preserve Paths\n1 アピアランスとオーバープリントを保持 Preserve Appearance And Overprints\n初期値：1
+Clipboard Handling > Clipboard > On Quit > AICB (no transparency support) «Option»	plugin/FileClipboard/AICBOption	Integer	1	値：\n0 パスを保持 Preserve Paths\n1 アピアランスとオーバープリントを保持 Preserve Appearance And Overprints\n初期値：1
+	plugin/FileClipboard/flatten	Integer	1
+クリップボードの処理 > ペースト時 > 書式なしでテキストをペースト	plugin/FileClipboard/pasteWithoutFormatting	Boolean	0
+Clipboard Handling > When Pasting > Paste text without Formatting	plugin/FileClipboard/pasteWithoutFormatting	Boolean	0
+	plugin/FileClipboard/retainClipboardData	Integer	0
+	plugin/FileClipboard/copySVGCBFormat	Integer	1
+	plugin/FileClipboard/copySVGForMuseCBFormat	Integer	1
+	plugin/FileClipboard/appendExtension	Integer	0
+	plugin/FileClipboard/lowerCase	Integer	1
+ブラックのアピアランス > RGB およびグレースケールデバイス上のブラックの表示オプション > スクリーン	blackPreservation/Onscreen	Integer	0	値：\n0 すべてのブラックを正確に表示 Display All Blacks Accurately\n1 すべてのブラックをリッチブラックとして表示 Display All Blacks as Rich Black\n初期値：1
+Appearance of Black > Options for Black on RGB and Grayscale Devices > On Screen	blackPreservation/Onscreen	Integer	0	値：\n0 すべてのブラックを正確に表示 Display All Blacks Accurately\n1 すべてのブラックをリッチブラックとして表示 Display All Blacks as Rich Black\n初期値：1
+ブラックのアピアランス > RGB およびグレースケールデバイス上のブラックの表示オプション > プリント / 書き出し	blackPreservation/Export	Integer	0	値：\n0 すべてのブラックを正確に表示 Display All Blacks Accurately\n1 すべてのブラックをリッチブラックとして表示 Display All Blacks as Rich Black\n初期値：1
+Appearance of Black > Options for Black on RGB and Grayscale Devices > Printing / Exporting	blackPreservation/Export	Integer	0	値：\n0 すべてのブラックを正確に表示 Display All Blacks Accurately\n1 すべてのブラックをリッチブラックとして表示 Display All Blacks as Rich Black\n初期値：1
+デバイス > Wacom の有効化	Devices/EnableWacom	Boolean	1
+Devices > Enable Wacom	Devices/EnableWacom	Boolean	1
+書式 > 合成フォント… > サンプルを表示	showSample	Boolean	1	Japanese language features
+書式 > 合成フォント… > ズーム	zoom	Integer	400	Japanese language features
+書式 > 合成フォント… > x ハイト	xHeight	Boolean	0	Japanese language features
+書式 > 合成フォント… > アセンダハイト	maxAscender	Boolean	0	Japanese language features
+書式 > 合成フォント… > 最大のアセント / ディセント	maxAscentDesce	Boolean	0	Japanese language features
+書式 > 合成フォント… > キャップハイト	capHeight	Boolean	0	Japanese language features
+書式 > 合成フォント… > 欧文ベースライン	baseline	Boolean	0	Japanese language features
+書式 > 合成フォント… > 仮想ボディ	emBox	Boolean	0	Japanese language features
+書式 > 合成フォント… > 平均字面	icfBox	Boolean	0	Japanese language features
+文字パネル > グリフにスナップを表示	showSnapToGlyphOpt	Boolean	1
+Character Panel > Show Snap to Glyph Options	showSnapToGlyphOpt	Boolean	1
+文字パネル > フォントの高さを表示	fontHeightOption	Boolean	0	次回起動時に適用
+Character Panel > Show Font Height Options	fontHeightOption	Boolean	0	次回起動時に適用
+文字パネル > 文字タッチツール	text/showTextTouchUpButton	Boolean	1	次回起動時に適用
+Character Panel > Touch Type Tool	text/showTextTouchUpButton	Boolean	1	次回起動時に適用
+	snapToGlyph	Boolean	0	グリフにスナップ機能全体を有効にするかどうか
+文字パネル > グリフにスナップ > 仮想ボディ	japTextEMBoxLineSnapping	Boolean	1	Japanese language features. Em Box
+文字パネル > グリフにスナップ > 仮想ボディの中心	japTextCentreSnapping	Boolean	1	Japanese language features. Em Box Center
+文字パネル > グリフにスナップ > 字形の境界	textLineBoundsSnapping	Boolean	1
+Character Panel > Snap to Glyph > Glyph Bounds	textLineBoundsSnapping	Boolean	1
+文字パネル > グリフにスナップ > ベースライン	textBaselineLineSnapping	Boolean	1
+Character Panel > Snap to Glyph > Baseline	textBaselineLineSnapping	Boolean	1
+文字パネル > グリフにスナップ > 角度ガイド	angularGuides	Boolean	1
+Character Panel > Snap to Glyph > Angular Guides	angularGuides	Boolean	1
+文字パネル > グリフにスナップ > アンカーポイント	textAnchorPointSnapping	Boolean	1
+Character Panel > Snap to Glyph > Anchor Point	textAnchorPointSnapping	Boolean	1
+Character Panel > Snap to Glyph > x-height	textXHeightSnapping	Boolean	1
+Character Panel > Snap to Glyph > Proximity Guides	textImportantVisualLinesSnapping	Boolean	0
+	textAllVisualLinesSnapping	Boolean	0
+	textFirstLineSnapping	Boolean	0
+	textLineSnapping	Boolean	1
+整列パネル > 字形の境界に整列 > ポイント文字	EnableActualPointTextSpaceAlign	Boolean	0
+Align Panel > Align to Glyph Bounds > Point Text	EnableActualPointTextSpaceAlign	Boolean	0
+整列パネル > 字形の境界に整列 > エリア内文字	EnableActualAreaTextSpaceAlign	Boolean	0
+Align Panel > Align to Glyph Bounds > Area Text	EnableActualAreaTextSpaceAlign	Boolean	0
+	Ai_SaveBackupFiles	Integer	1
+	saveTriggeredFromShareForReview	Integer	0
+	DefaultSaveLocation	Integer	0
+	fileHandling/RenderLinksInLowRes	Integer	0	リンク画像を低画質プレビューで表示する。［ファイル管理 > ファイル > リンクされた EPS に低解像度の表示用画像を使用］とは別の概念
+	adaptiveShareButtonClicked	Integer	0
+	AIMacPluginsLoadingErrorDueToWrongArchitectureSHA	String	
+	EPSResolution	Integer	300	動作しない？ 常に0になる
+	print/gradient/useLevel3	Integer	1
+	Ai253_FastExit	Integer	1
+	AIUserCancelledLogOff	Integer	0
+	RotateViewToolForceEjected	Integer	0
+	RotateViewToolForceInjected	Integer	1
+	templatesBrowsed	Integer	1
+	AdobeOpenCloudDocumentPreference	Integer	0
+	CharPara/AddToCCLibraryCheckBox	Integer	0
+	Cloud AI Incremental Save Enabled Pref	Integer	1	動作しない？
+	CloudAIContentTypePref	Integer	1	動作しない？
+	filenaming/style	Integer	1
+	aiOptimizedNetworkOnboardingShown	Integer	1
+	DropLegacyScale9	Integer	0
+	AlignToPixelGridDuringExport	Integer	1
+	useRealDWG	Integer	0
+	defaultPath	String	/Users/«username»/Desktop
+	PlacedObject/DisabledNetworkLinkedObject	Integer	0
+	DesignLibraryFTUEShown	Integer	1
+	isHexInUpperCase	Integer	1
+	GlobalEdit/MaximumSimilarArtsToProcess	Integer	1000	［オブジェクトを一括選択］で選択できる最大個数
+	perspectivegrid/expandAnswer	Integer	0
+変形パネル > 楕円形のプロパティ > 扇形の角度を制限	LiveShapes/constrainPieAngles	Boolean	0
+Transform Panel > Ellipse Properties > Constrain Pie Angles	LiveShapes/constrainPieAngles	Boolean	0
+変形パネル > 長方形のプロパティ > 角丸の半径値をリンク	LiveShapes/constrainRadii	Boolean	1
+Transform Panel > Rectangle Properties > Link Corner Radius Values	LiveShapes/constrainRadii	Boolean	1
+変形パネル > 長方形のプロパティ > 縦横比を固定	LiveShapes/constrainDimensions	Boolean	1	変形パネル > 楕円形のプロパティ > 縦横比を固定\nTransform Panel > Ellipse Properties > Constrain Width and Height Proportions
+Transform Panel > Rectangle Properties > Constrain Width and Height Proportions	LiveShapes/constrainDimensions	Boolean	1	変形パネル > 楕円形のプロパティ > 縦横比を固定\nTransform Panel > Ellipse Properties > Constrain Width and Height Proportions
+	LiveShapes/maxLiveShapesToShowWidgetsOn	Integer	20
+変形パネル > シェイプの作成時に表示	LiveShapes/autoShowPropertiesUIOnCreatingShape	Boolean	0
+Transform Panel > Show on Shape Creation	LiveShapes/autoShowPropertiesUIOnCreatingShape	Boolean	0
+	LiveShapes/createLiveShapes	Boolean	1
+	LiveShapes/hideWidgetsForShapeTools	Boolean	0
+	widthToolIsSelected	Integer	0
+	useSnapomatic	Integer	1
+	DontShowMissingFontDialogPreference	Boolean	0
+	messageIndex	Integer	0
+	FileNewFirstTime	Integer	0
+	enableAGMThreadedRendering	Integer	0
+	QuickPortImpl	Integer	1
+	pageTiling/imageBoundsColor	String	r=0x00, g=0x00, b=0x00	値：\n(r=0x00, g=0x00, b=0x00)\nその他の型。動作不可？
+	pageTiling/mediaBoundsColor	String	r=0x00, g=0x00, b=0x00	値：\n(r=0x00, g=0x00, b=0x00)\nその他の型。動作不可？
+	enableHyperThreadedRendering	Integer	0
+	RenderingTimerEnabled	Integer	0
+	isRulerOriginTopLeft	Integer	1
+	artboard/transform	Integer	0
+	artboard/height	Real	1080.0
+	artboard/width	Real	1920.0
+	xml/UID/autoBaseNameUS	String	
+	aiFileFormat/documentPSLevel	Integer	3
+Illustrator オプション > オプション > PDF 互換ファイルを作成	aiFileFormat/PDFCompatibility	Boolean	1
+Illustrator Options > Options > Create PDF Compatible File	aiFileFormat/PDFCompatibility	Boolean	1
+	aiFileFormat/enableATEWriteRecovery	Integer	0
+	aiFileFormat/enableATEReadRecovery	Integer	0
+	aiFileFormat/dumpPGFwithoutShortcut	Integer	0
+	aiFileFormat/enableContentRecovery	Integer	0
+	aiFileFormat/cmykPostScript	Integer	0
+	aiFileFormat/clipboardPSLevel	Integer	3
+	IgnoreWordWithNumber	Boolean	0
+	IgnoreRomanNumeral	Boolean	0
+	IgnoreWordAllCap	Boolean	0
+	IgnoreUncapSentenceStart	Boolean	0
+	IgnoreRepeatedWord	Boolean	0
+	colorModel	Integer	2	最後に新規で開いた書類のカラーモード。1: RGB, 2: CMYK
+	printerResolution	Real	800.0
+	doSplitPath	Integer	0
+	showPlacedImages	Integer	0
+	open/legacyGradientMeshConversion	Integer	0
+	LegacyArtboardOptions/artworkBounds	Integer	0
+	LegacyArtboardOptions/pageTiles	Integer	0
+	LegacyArtboardOptions/cropAreas	Integer	1
+	LegacyArtboardOptions/artboard	Integer	1
+	LegacyArtboardOptions/ShowDialog	Integer	1
+	warning/legacyTextConversion	Integer	1
+	warning/colorConversion	Integer	1
+	warning/liveTrace	Integer	1
+	warning/fontProblem	Integer	1
+	warning/LegacyDictionaryChange	Integer	0
+	artnewdialog/docppi	Real	72.0
+	artnewdialog/pixelperfectobjects	Integer	0
+	artnewdialog/rasterresolution	Integer	300
+	artnewdialog/pixelaspectratio	Real	1.0
+	artnewdialog/transparencygrid_color2_blue	Integer	43530
+	artnewdialog/transparencygrid_color2_green	Integer	43530
+	artnewdialog/transparencygrid_color2_red	Integer	43529
+	artnewdialog/transparencygrid_color1_blue	Integer	43530
+	artnewdialog/transparencygrid_color1_green	Integer	43530
+	artnewdialog/transparencygrid_color1_red	Integer	43529
+	artnewdialog/transparencygrid	Integer	1
+	artnewdialog/previewmode	Integer	2
+	artnewdialog/bleedsLocked	Integer	1
+	artnewdialog/bottomBleedSize	Real	0.0
+	artnewdialog/topBleedSize	Real	0.0
+	artnewdialog/rightBleedSize	Real	0.0
+	artnewdialog/leftBleedSize	Real	0.0
+	artnewdialog/documentType	Integer	1
+	artnewdialog/fileSize	Integer	84
+	artnewdialog/unit	Integer	2
+	artnewdialog/isArtboardLayoutLeftToRight	Integer	1
+	artnewdialog/artboardLayout	Integer	0
+	artnewdialog/artboardRowsOrCols	Integer	1
+	artnewdialog/artboardSpacing	Real	60.0
+	artnewdialog/numArtboards	Integer	1
+	artnewdialog/advancedOptions	Integer	0
+	artnewdialog/numRecentPresets	Integer	5
+	Workspace/4E4F524F4F4D53Key	Integer	0
+	UserPreferencesMigrated	Integer	0
+	selectedAnchorMarkType	Integer	9
+	unselectedAnchorMarkType	Integer	1
+	directionHandleMarkType	Integer	10
+	dictionary/updateDocumentsToNewDicitonary	Integer	0
+	attributePalette/currentUrlCount	Integer	0
+アピアランスパネル > 新規アートに基本アピアランスを適用	AI New Art Basic Appearance	Boolean	1
+Appearance Panel > New Art Has Basic Appearance	AI New Art Basic Appearance	Boolean	1
+リンクパネル > リンク情報を表示	showLinkInfo	Boolean	1	次回起動時に適用
+Links Panel > Show Link Info	showLinkInfo	Boolean	1	次回起動時に適用
+	AI Container Overrides Object	Integer	1
+	layers/pastePreserveBackup	Boolean	0	Layers Panel > Paste Remembers Layers (2)
+レイヤーパネル > コピー元のレイヤーにペースト	layers/pastePreserve	Boolean	0
+Layers Panel > Paste Remembers Layers	layers/pastePreserve	Boolean	0
+	isRulerIn4thQuad	Boolean	1	第4象限（原点左上）かどうか。falseのときは第1象限（原点左下）
+変形パネル > シンボル基準点を使用	dontUseSymbolRegPoint	Boolean	0	{true: OFF, false: ON}
+Transform Panel > Use Registration Point for Symbol	dontUseSymbolRegPoint	Boolean	0	{true: OFF, false: ON}
+変形パネル > パターンのみ変形	onlyTransformPatterns	Boolean	0
+Transform Panel > Transform Pattern Only	onlyTransformPatterns	Boolean	0
+変形パネル > 縦横比を固定	linkTransform	Boolean	0
+Transform Panel > Constrain Width and Height Proportions	linkTransform	Boolean	0
+	InAppUpdateUI/LaunchSessionCount	Integer	0
+	aiSwapAltControlWithScrollWheel	Integer	0
+	outlineTol	Real	0.0
+	freehandTol	Real	2.0
+	precision/userWithUnits	Integer	4
+	precision/percentageNoUnits	Integer	2
+	precision/angleNoUnits	Integer	3
+	precision/fixedNoUnits	Integer	3
+	precision/millimetersWithUnits	Integer	3
+	precision/centimetersWithUnits	Integer	4
+	precision/inchesWithUnits	Integer	4
+	precision/pixelsWithUnits	Integer	3
+	precision/pointsWithUnits	Integer	3
+	showFindMoreTabV2	Boolean	1
+	shaper/constrainScaling	Boolean	0	タッチワークスペースのShaper ツールで，Constrain Scalingを有効にするかどうか
+	TouchPreferenceUI/SoftMessageDuration	Real	4.0
+	TouchPreferenceUI/PreciseCursor	Boolean	1
+	TouchPreferenceUI/TWSKeyboardDetach	Boolean	1
+	Swatches/linkHtWidthInDlg	Integer	0
+	Swatches/linkHVSpacingInDlg	Integer	0
+	Swatches/moveTileBoundsWithArt	Integer	1
+	Swatches/showTileBoundsInPDM	Integer	1
+	Swatches/showSwatchBoundsInPDM	Integer	0
+	Swatches/autoCloseOptionsPanelOnExitingPDM	Integer	1
+スウォッチパネル > 新規スウォッチ… > カラータイプ > グローバル	Swatches/GlobalProcessCheckBox	Boolean	1
+Swatches Panel > New Swatch… > Color Type > Global	Swatches/GlobalProcessCheckBox	Boolean	1
+	Swatches/AddToCCLibraryCheckBoxNew	Boolean	0	動作しない？
+	DefaultPaintStyle/ActiveGradient/AIColor/Kind	String		その他の型。動作不可？
+	DefaultPaintStyle/ActiveColor/AIColor/RGB/Blue	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/RGB/Green	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/RGB/Red	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/CMYK/Black	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/CMYK/Yellow	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/CMYK/Magenta	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/CMYK/Cyan	Real	0.0
+	DefaultPaintStyle/ActiveColor/AIColor/Kind	String	CMYK	その他の型。動作不可？
+	DefaultPaintStyle/ActiveColor/AIColor/Gray/Gray	Real	1.0
+	DefaultPaintStyle/PathStyle/Stroke/MiterLimit	Real	10.0
+	DefaultPaintStyle/PathStyle/Stroke/Join	String	MiterJoin	その他の型。動作不可？
+	DefaultPaintStyle/PathStyle/Stroke/Cap	String	ButtCap	その他の型。動作不可？
+	DefaultPaintStyle/PathStyle/Stroke/Dash/Offset	Real	0.0
+	DefaultPaintStyle/PathStyle/Stroke/Dash/Length	Integer	0
+	DefaultPaintStyle/PathStyle/Stroke/Width	Real	1.0
+	DefaultPaintStyle/PathStyle/Stroke/Overprint	Integer	0
+	DefaultPaintStyle/PathStyle/Stroke/AIColor/Kind	String		その他の型。動作不可？
+	DefaultPaintStyle/PathStyle/StrokePaint	Integer	0
+	DefaultPaintStyle/PathStyle/Fill/Overprint	Integer	0
+	DefaultPaintStyle/PathStyle/Fill/AIColor/Gray/Gray	Real	1.0
+	DefaultPaintStyle/PathStyle/Fill/AIColor/Kind	String	Gray	その他の型。動作不可？
+	DefaultPaintStyle/PathStyle/FillPaint	Integer	1
+	DefaultPaintStyle/StrokeActive	Integer	0
+	Illustrator version	Integer	24
+	EyedropperTool/graphicsStyleExpanded	Integer	1	［スポイトツールオプション > スポイトの抽出 > アピアランス］を展開しているかどうか。次回起動時に適用
+	EyedropperTool/paint/fillExpanded	Boolean	1	［スポイトツールオプション > スポイトの抽出 > アピアランス > 塗り］を展開しているかどうか。次回起動時に適用
+	EyedropperTool/paint/strokeExpanded	Boolean	1	［スポイトツールオプション > スポイトの抽出 > アピアランス > 線］を展開しているかどうか。次回起動時に適用
+	EyedropperTool/paint/objectExpanded	Boolean	1
+スポイトツールオプション > スポイトの抽出 > アピアランス	EyedropperTool/graphicsStyle	Boolean	0	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance	EyedropperTool/graphicsStyle	Boolean	0	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 透明	EyedropperTool/paint/object/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Transparency	EyedropperTool/paint/object/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 塗り	EyedropperTool/paint/fill	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Fill	EyedropperTool/paint/fill	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 塗り > カラー	EyedropperTool/paint/fill/color	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Fill > Color	EyedropperTool/paint/fill/color	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 塗り > 透明	EyedropperTool/paint/fill/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Fill > Transparency	EyedropperTool/paint/fill/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 塗り > オーバープリント	EyedropperTool/paint/fill/overprint	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Fill > Overprint	EyedropperTool/paint/fill/overprint	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線	EyedropperTool/paint/stroke	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke	EyedropperTool/paint/stroke	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > カラー	EyedropperTool/paint/stroke/color	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Color	EyedropperTool/paint/stroke/color	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 透明	EyedropperTool/paint/stroke/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Transparency	EyedropperTool/paint/stroke/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > オーバープリント	EyedropperTool/paint/stroke/overprint	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Overprint	EyedropperTool/paint/stroke/overprint	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 線幅	EyedropperTool/paint/stroke/weight	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Weight	EyedropperTool/paint/stroke/weight	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 線端の形状	EyedropperTool/paint/stroke/cap	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Cap	EyedropperTool/paint/stroke/cap	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 角の形状	EyedropperTool/paint/stroke/join	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Join	EyedropperTool/paint/stroke/join	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 角の比率	EyedropperTool/paint/stroke/miter	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Miter limit	EyedropperTool/paint/stroke/miter	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > アピアランス > 線 > 破線パターン	EyedropperTool/paint/stroke/dash	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Appearance > Focal Stroke > Dash pattern	EyedropperTool/paint/stroke/dash	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > 文字スタイル	EyedropperTool/text/characterStyle	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Character Style	EyedropperTool/text/characterStyle	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの抽出 > 段落スタイル	EyedropperTool/text/paragraphStyle	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Picks Up > Paragraph Style	EyedropperTool/text/paragraphStyle	Boolean	1	次回起動時に適用
+	EyedropperTool/rasterSampleSize	Boolean	1
+	BucketTool/graphicsStyleExpanded	Boolean	1	［スポイトツールオプション > スポイトの適用 > アピアランス］を展開しているかどうか。次回起動時に適用
+	BucketTool/paint/fillExpanded	Boolean	1	［スポイトツールオプション > スポイトの適用 > アピアランス > 塗り］を展開しているかどうか。次回起動時に適用
+	BucketTool/paint/strokeExpanded	Boolean	1	［スポイトツールオプション > スポイトの適用 > アピアランス > 線］を展開しているかどうか。次回起動時に適用
+	BucketTool/paint/objectExpanded	Integer	1
+スポイトツールオプション > スポイトの適用 > アピアランス	BucketTool/graphicsStyle	Boolean	0	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance	BucketTool/graphicsStyle	Boolean	0	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 透明	BucketTool/paint/object/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Transparency	BucketTool/paint/object/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 塗り	BucketTool/paint/fill	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Fill	BucketTool/paint/fill	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 塗り > カラー	BucketTool/paint/fill/color	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Fill > Color	BucketTool/paint/fill/color	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 塗り > 透明	BucketTool/paint/fill/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Fill > Transparency	BucketTool/paint/fill/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 塗り > オーバープリント	BucketTool/paint/fill/overprint	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Fill > Overprint	BucketTool/paint/fill/overprint	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線	BucketTool/paint/stroke	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke	BucketTool/paint/stroke	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > カラー	BucketTool/paint/stroke/color	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Color	BucketTool/paint/stroke/color	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 透明	BucketTool/paint/stroke/transparency	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Transparency	BucketTool/paint/stroke/transparency	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > オーバープリント	BucketTool/paint/stroke/overprint	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Overprint	BucketTool/paint/stroke/overprint	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 線幅	BucketTool/paint/stroke/weight	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Weight	BucketTool/paint/stroke/weight	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 線端の形状	BucketTool/paint/stroke/cap	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Cap	BucketTool/paint/stroke/cap	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 角の形状	BucketTool/paint/stroke/join	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Join	BucketTool/paint/stroke/join	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 角の比率	BucketTool/paint/stroke/miter	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Miter limit	BucketTool/paint/stroke/miter	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > アピアランス > 線 > 破線パターン	BucketTool/paint/stroke/dash	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Appearance > Focal Stroke > Dash pattern	BucketTool/paint/stroke/dash	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > 文字スタイル	BucketTool/text/characterStyle	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Character Style	BucketTool/text/characterStyle	Boolean	1	次回起動時に適用
+スポイトツールオプション > スポイトの適用 > 段落スタイル	BucketTool/text/paragraphStyle	Boolean	1	次回起動時に適用
+Eyedropper Options > Eyedropper Applies > Paragraph Style	BucketTool/text/paragraphStyle	Boolean	1	次回起動時に適用
+	BucketTool/rasterSampleSize	Integer	1
+編集 > カラーを編集 > オブジェクトを再配色… > 編集 > 起動時に「詳細オブジェクトを再配色」ダイアログを開く	ColorHarmony/AdvanceDialogDefaultOn	Boolean	0
+Edit > Edit Colors > Recolor Artwork… > Edit > Open Advance Recolor Artwork dialog on launch	ColorHarmony/AdvanceDialogDefaultOn	Boolean	0
+	ColorHarmony/VariationTypeColorGuide	Integer	0
+	ColorHarmony/ShowHideColorGuide	Integer	1
+	ColorHarmony/combineTintsOnExtraction	Integer	1
+	ColorHarmony/mapMethodApplyToAll	Integer	1
+	ColorHarmony/mapMethodPreserveSpots	Integer	1
+	ColorHarmony/SliderColorSpace	Integer	3
+	ColorHarmony/ShowAdjustSliders	Integer	0
+	ColorHarmony/ShowStorage	Integer	1
+編集 > カラーを編集 > オブジェクトを再配色… > 編集 > オブジェクトを再配色	ColorHarmony/HarmonyDialogRecolorArtCheckbox	Boolean	1
+Edit > Edit Colors > Recolor Artwork… > Edit > Recolor Art	ColorHarmony/HarmonyDialogRecolorArtCheckbox	Boolean	1
+	Gradient Annotator View Option	Integer	1
+	BBRotateTolerance	Real	-1.0
+	BBScaleTolerance	Real	-1.0
+表示 > バウンディングボックスを表示	showBoundingBox	Boolean	1
+View > Show Bounding Box	showBoundingBox	Boolean	1
+編集 > スペルチェック > 自動スペルチェック	dynamicspelling	Boolean	0
+Edit > Spelling > Auto Spell Check	dynamicspelling	Boolean	0
+表示 > コーナーウィジェットを表示	liveCorners/showWidget	Boolean	1
+View > Show Corner Widget	liveCorners/showWidget	Boolean	1
+シェイプ形成ツールオプション > 隙間の検出	Planar/MergeTool/Gap/Detect	Boolean	0	次回起動時に適用
+Shape Builder Tool Options > Gap Detection	Planar/MergeTool/Gap/Detect	Boolean	0	次回起動時に適用
+シェイプ形成ツールオプション > 隙間の検出 > 隙間の長さ «プリセット»	Planar/MergeTool/Gap/Type	Integer	0	次回起動時に適用
+Shape Builder Tool Options > Gap Detection > Gap Length «Preset»	Planar/MergeTool/Gap/Type	Integer	0	次回起動時に適用
+シェイプ形成ツールオプション > 隙間の検出 > 隙間の長さ «長さ»	Planar/MergeTool/Gap/Length	Real	3.0	次回起動時に適用
+Shape Builder Tool Options > Gap Detection > Gap Length «Length»	Planar/MergeTool/Gap/Length	Real	3.0	次回起動時に適用
+シェイプ形成ツールオプション > オプション > 塗りつぶされたオープンパスをクローズパスとして処理	Planar/MergeTool/ClosedOpenFillPaths	Boolean	1	次回起動時に適用
+Shape Builder Tool Options > Options > Consider Open Filled Path as Closed	Planar/MergeTool/ClosedOpenFillPaths	Boolean	1	次回起動時に適用
+シェイプ形成ツールオプション > オプション > 結合モードで線をクリックしてパスを分割	Planar/MergeTool/BreakEdge	Boolean	0	次回起動時に適用
+Shape Builder Tool Options > Options > In Merge Mode, Clicking Stroke Splits the Path	Planar/MergeTool/BreakEdge	Boolean	0	次回起動時に適用
+シェイプ形成ツールオプション > オプション > 次のカラーを利用	Planar/MergeTool/PaintFills	Integer	0	次回起動時に適用
+Shape Builder Tool Options > Options > Pick Color From	Planar/MergeTool/PaintFills	Integer	0	次回起動時に適用
+シェイプ形成ツールオプション > オプション > カーソルスウォッチプレビュー	Planar/MergeTool/PreviewSwatchCursor	Boolean	0	次回起動時に適用
+Shape Builder Tool Options > Options > Cursor Swatch Preview	Planar/MergeTool/PreviewSwatchCursor	Boolean	0	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > 塗り	Planar/MergeTool/Highlight/Fill	Boolean	1	次回起動時に適用
+Shape Builder Tool Options > Highlight > Fill	Planar/MergeTool/Highlight/Fill	Boolean	1	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > 編集可能なパスを強調表示	Planar/MergeTool/Highlight/Stroke	Boolean	1	次回起動時に適用
+Shape Builder Tool Options > Highlight > Highlight Stroke when Editable	Planar/MergeTool/Highlight/Stroke	Boolean	1	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > カラー	Planar/MergeTool/Highlight/StrokeColorIndex	Integer	3	次回起動時に適用
+Shape Builder Tool Options > Highlight > Color	Planar/MergeTool/Highlight/StrokeColorIndex	Integer	3	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > カラー «Red»	Planar/MergeTool/Highlight/StrokeColor/Red	Integer	65535	次回起動時に適用
+Shape Builder Tool Options > Highlight > Color «Red»	Planar/MergeTool/Highlight/StrokeColor/Red	Integer	65535	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > カラー «Green»	Planar/MergeTool/Highlight/StrokeColor/Green	Integer	20224	次回起動時に適用
+Shape Builder Tool Options > Highlight > Color «Green»	Planar/MergeTool/Highlight/StrokeColor/Green	Integer	20224	次回起動時に適用
+シェイプ形成ツールオプション > 強調表示 > カラー «Blue»	Planar/MergeTool/Highlight/StrokeColor/Blue	Integer	20224	次回起動時に適用
+Shape Builder Tool Options > Highlight > Color «Blue»	Planar/MergeTool/Highlight/StrokeColor/Blue	Integer	20224	次回起動時に適用
+ライブペイントオプション > オプション > 塗りをペイント	Planar/Paintbucket/PaintFills	Boolean	1	次回起動時に適用
+Live Paint Bucket Options > Options > Paint Fills	Planar/Paintbucket/PaintFills	Boolean	1	次回起動時に適用
+ライブペイントオプション > オプション > 線をペイント	Planar/Paintbucket/PaintStrokes	Boolean	0	次回起動時に適用
+Live Paint Bucket Options > Options > Paint Strokes	Planar/Paintbucket/PaintStrokes	Boolean	0	次回起動時に適用
+ライブペイントオプション > オプション > カーソルスウォッチプレビュー	Planar/Paintbucket/CursorSwatchPrevew	Boolean	1	次回起動時に適用
+Live Paint Bucket Options > Cursor Swatch Preview	Planar/Paintbucket/CursorSwatchPrevew	Boolean	1	次回起動時に適用
+ライブペイントオプション > 強調表示	Planar/Paintbucket/Highlight	Boolean	1	次回起動時に適用
+Live Paint Bucket Options > Highlight	Planar/Paintbucket/Highlight	Boolean	1	次回起動時に適用
+ライブペイントオプション > 強調表示 > カラー «Red»	Planar/Paintbucket/Highlight/Color/red	Integer	65535	次回起動時に適用
+Live Paint Bucket Options > Highlight > Color «Red»	Planar/Paintbucket/Highlight/Color/red	Integer	65535	次回起動時に適用
+ライブペイントオプション > 強調表示 > カラー «Green»	Planar/Paintbucket/Highlight/Color/green	Integer	20224	次回起動時に適用
+Live Paint Bucket Options > Highlight > Color «Green»	Planar/Paintbucket/Highlight/Color/green	Integer	20224	次回起動時に適用
+ライブペイントオプション > 強調表示 > カラー «Blue»	Planar/Paintbucket/Highlight/Color/blue	Integer	20224	次回起動時に適用
+Live Paint Bucket Options > Highlight > Color «Blue»	Planar/Paintbucket/Highlight/Color/blue	Integer	20224	次回起動時に適用
+ライブペイントオプション > 強調表示 > 幅	Planar/Paintbucket/Highlight/Stroke	Integer	4	次回起動時に適用
+Live Paint Bucket Options > Highlight > Width	Planar/Paintbucket/Highlight/Stroke	Integer	4	次回起動時に適用
+ライブペイント選択オプション > オプション > 塗りを選択	Planar/FaceSelect/SelectFills	Boolean	1	次回起動時に適用
+Live Paint Selection Options > Options > Select Fills	Planar/FaceSelect/SelectFills	Boolean	1	次回起動時に適用
+ライブペイント選択オプション > オプション > 線を選択	Planar/FaceSelect/SelectStrokes	Boolean	1	次回起動時に適用
+Live Paint Selection Options > Options > Select Strokes	Planar/FaceSelect/SelectStrokes	Boolean	1	次回起動時に適用
+ライブペイント選択オプション > 強調表示	Planar/FaceSelect/Highlight	Boolean	1	次回起動時に適用
+Live Paint Selection Options > Highlight	Planar/FaceSelect/Highlight	Boolean	1	次回起動時に適用
+ライブペイント選択オプション > 強調表示 > カラー «Red»	Planar/FaceSelect/Highlight/Color/red	Integer	65535	次回起動時に適用
+Live Paint Selection Options > Highlight > Color «Red»	Planar/FaceSelect/Highlight/Color/red	Integer	65535	次回起動時に適用
+ライブペイント選択オプション > 強調表示 > カラー «Green»	Planar/FaceSelect/Highlight/Color/green	Integer	20224	次回起動時に適用
+Live Paint Selection Options > Highlight > Color «Green»	Planar/FaceSelect/Highlight/Color/green	Integer	20224	次回起動時に適用
+ライブペイント選択オプション > 強調表示 > カラー «Blue»	Planar/FaceSelect/Highlight/Color/blue	Integer	20224	次回起動時に適用
+Live Paint Selection Options > Highlight > Color «Blue»	Planar/FaceSelect/Highlight/Color/blue	Integer	20224	次回起動時に適用
+ライブペイント選択オプション > 強調表示 > 幅	Planar/FaceSelect/Highlight/Stroke	Integer	4	次回起動時に適用
+Live Paint Selection Options > Highlight > Width	Planar/FaceSelect/Highlight/Stroke	Integer	4	次回起動時に適用
+	Planar/Resolution	Integer	100
+	Planar/ArtboardGapPreview	Integer	0
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出	Planar/GapDetection	Boolean	1	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection	Planar/GapDetection	Boolean	1	次回起動時に取得／適用
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出 > 塗りの許容サイズ > カスタムの隙間	Planar/GapDetection/Custom	Boolean	0	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection > Custom Gaps	Planar/GapDetection/Custom	Boolean	0	次回起動時に取得／適用
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出 > 塗りの許容サイズ «隙間»	Planar/GapDetection/Size	Real	3.0	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection > Paint stops at «Size»	Planar/GapDetection/Size	Real	3.0	次回起動時に取得／適用
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出 > 隙間のプレビューカラー «Red»	Planar/GapDetection/GapColor/red	Integer	65535	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection > Gap Preview Color «Red»	Planar/GapDetection/GapColor/red	Integer	65535	次回起動時に取得／適用
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出 > 隙間のプレビューカラー «Green»	Planar/GapDetection/GapColor/green	Integer	20224	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection > Gap Preview Color «Green»	Planar/GapDetection/GapColor/green	Integer	20224	次回起動時に取得／適用
+オブジェクト > ライブペイント > 隙間オプション… > 隙間の検出 > 隙間のプレビューカラー «Blue»	Planar/GapDetection/GapColor/blue	Integer	20224	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Gap Detection > Gap Preview Color «Blue»	Planar/GapDetection/GapColor/blue	Integer	20224	次回起動時に取得／適用
+	Planar/GapDetection/GapColor/Color/red	Integer	65535
+	Planar/GapDetection/GapColor/Color/green	Integer	20224
+	Planar/GapDetection/GapColor/Color/blue	Integer	20224
+オブジェクト > ライブペイント > 隙間オプション… > プレビュー	Planar/GapDetection/PreviewOn	Boolean	1	次回起動時に取得／適用
+Object > Live Paint > Gap Options… > Preview	Planar/GapDetection/PreviewOn	Boolean	1	次回起動時に取得／適用
+	highlightLockedObjects	Boolean	0
+	checkRequiredPlugins	Integer	1
+	BIBCacheMaxSizeInBytes	Integer	41943040
+	BIBCacheSizeInPercentOfPhysicalRam	Real	2.0
+	pluginCacheCheckCreateDate	Integer	3777586067
+	pluginCacheCheckModDate	Integer	3782419273
+	loadPluginsFromOutsideAppPackage	Integer	1
+	memory/memoryPercentage	Integer	0
+	memory/physicalRAMSize	Integer	131072
+	memory/usePhysicalRAMSize	Integer	0
+	layout/0/ApplicationBarOption	Integer	0
+	layout/0/ApplicationBarVisible	Integer	0
+	useProcessorSpecificCode	Integer	1
+	EnableInternalMemoryPool	Integer	0
+	editableGuides	Integer	0
+	plugin/Cleanup_Preference/Cleanup_EmptyText	Integer	1
+	plugin/Cleanup_Preference/Cleanup_NoPaintObjects	Integer	1
+	plugin/Cleanup_Preference/Cleanup_StrayPoints	Integer	1
+	plugin/PDF File Format UI/PDFImportFTUECount	Integer	3
+アクションパネル > バッチ… > ソース	plugin/BatchAction/sourceMode	Integer	0
+Actions Panel > Batch… > Source	plugin/BatchAction/sourceMode	Integer	0
+アクションパネル > バッチ… > ソース > フォルダー	plugin/BatchAction/openDir	String	/Users/«username»/Desktop
+Actions Panel > Batch… > Source > Folder	plugin/BatchAction/openDir	String	/Users/«username»/Desktop
+アクションパネル > バッチ… > ソース > フォルダー > アクションの「開く」コマンドを無視	plugin/BatchAction/overrideOpen	Boolean	0
+Actions Panel > Batch… > Source > Folder > Override Action “Open” Commands	plugin/BatchAction/overrideOpen	Boolean	0
+アクションパネル > バッチ… > ソース > フォルダー > サブディレクトリをすべて含める	plugin/BatchAction/includeSubDir	Boolean	0
+Actions Panel > Batch… > Source > Folder > Include All Subdirectories	plugin/BatchAction/includeSubDir	Boolean	0
+アクションパネル > バッチ… > ソース > フォルダー > オブジェクトを同じドキュメントに配置	plugin/BatchAction/placeObject	Boolean	0
+Actions Panel > Batch… > Source > Folder > Place Object in Same Document	plugin/BatchAction/placeObject	Boolean	0
+アクションパネル > バッチ… > 保存先	plugin/BatchAction/saveMode	Integer	2
+Actions Panel > Batch… > Destination	plugin/BatchAction/saveMode	Integer	2
+アクションパネル > バッチ… > 保存先 > フォルダー (保存)	plugin/BatchAction/saveDir	String	/Users/«username»/Desktop
+Actions Panel > Batch… > Destination > Folder (Save)	plugin/BatchAction/saveDir	String	/Users/«username»/Desktop
+アクションパネル > バッチ… > 保存先 > アクションの 「保存」コマンドを無視	plugin/BatchAction/overrideSave	Boolean	1
+Actions Panel > Batch… > Destination > Override Action “Save” Commands	plugin/BatchAction/overrideSave	Boolean	1
+アクションパネル > バッチ… > 保存先 > フォルダー (書き出し)	plugin/BatchAction/exportDir	String	/Users/«username»/Desktop
+Actions Panel > Batch… > Destination > Folder (Export)	plugin/BatchAction/exportDir	String	/Users/«username»/Desktop
+アクションパネル > バッチ… > 保存先 > アクションの「書き出し」コマンドを無視	plugin/BatchAction/overrideExport	Boolean	0
+Actions Panel > Batch… > Destination > Override Action “Export” Commands	plugin/BatchAction/overrideExport	Boolean	0
+アクションパネル > バッチ… > 保存先 > ファイル名	plugin/BatchAction/fileNameAlgorithm	Integer	0
+Actions Panel > Batch… > Destination > File Name	plugin/BatchAction/fileNameAlgorithm	Integer	0
+アクションパネル > バッチ… > エラー	plugin/BatchAction/stopForErr	Integer	0
+Actions Panel > Batch… > Errors	plugin/BatchAction/stopForErr	Integer	0
+アクションパネル > バッチ… > エラー > 別名で保存…	plugin/BatchAction/errFile	String	/Users/«username»/Desktop/errorLog.txt
+Actions Panel > Batch… > Errors > Save As…	plugin/BatchAction/errFile	String	/Users/«username»/Desktop/errorLog.txt
+アートボードパネル > すべてのアートボードを再配置… > オブジェクトと一緒に移動	plugin/ArtboardRearrange/MoveArtwork	Boolean	1
+Artboards Panel > Rearrange All Artboards… > Move Artwork with Artboard	plugin/ArtboardRearrange/MoveArtwork	Boolean	1
+アートボードパネル > すべてのアートボードを再配置… > レイアウト	plugin/ArtboardRearrange/LayoutChosen	Integer	2
+Artboards Panel > Rearrange All Artboards… > Layout	plugin/ArtboardRearrange/LayoutChosen	Integer	2
+アートボードパネル > すべてのアートボードを再配置… > レイアウトの順序	plugin/ArtboardRearrange/IsLayoutRToL	Boolean	0	{true: <—RtoL, false: —>LtoR}
+Artboards Panel > Rearrange All Artboards… > Layout order	plugin/ArtboardRearrange/IsLayoutRToL	Boolean	0	{true: <—RtoL, false: —>LtoR}
+アートボードパネル > すべてのアートボードを再配置… > 横列数 | 縦列数	plugin/ArtboardRearrange/RowColumnDivision	Integer	1
+Artboards Panel > Rearrange All Artboards… > Columns | Rows	plugin/ArtboardRearrange/RowColumnDivision	Integer	1
+アートボードパネル > すべてのアートボードを再配置… > 間隔	plugin/ArtboardRearrange/ArtboardSpacing	Real	100
+Artboards Panel > Rearrange All Artboards… > Spacing	plugin/ArtboardRearrange/ArtboardSpacing	Real	100
+	plugin/AlignArtBoard/ArtboardPartialPathSelected	Integer	0
+	plugin/AlignArtBoard/ArtBoardKeyObjectUserSelection	Integer	0
+	plugin/AlignArtBoard/ArtboardToolSelected	Integer	1
+	plugin/AlignArtBoard/ArtBoardDefaultSelection	Integer	2
+	plugin/AlignArtBoard/ArtBoardUserSelection	Integer	0
+カラーピッカー > Web セーフカラーのみに制限	plugin/ColorPickerDlg/WebSafe	Boolean	0
+Color Picker > Only Web Colors	plugin/ColorPickerDlg/WebSafe	Boolean	0
+	plugin/ColorPickerDlg/ItemID	Integer	0
+	plugin/svgOMGOptionDlg/O_MinifySVG	Integer	1
+	plugin/svgOMGOptionDlg/O_ResponsiveSVG	Integer	1
+	plugin/svgOMGOptionDlg/O_IncludeColorSwatch	Integer	0
+	plugin/svgOMGOptionDlg/O_EmbedRasterLoc	Integer	3
+	plugin/svgOMGOptionDlg/O_SVGProfile	Integer	0
+	plugin/svgOMGOptionDlg/O_IdType	Integer	0
+	plugin/svgOMGOptionDlg/O_SVFontType	Integer	1
+	plugin/SVGFormatOMGOptions/StyleType	Integer	3
+	plugin/SVGFormatOMGOptions/CoordinatePrecision	Integer	2
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > 画像 > カラーモード	plugin/JPEGFormat/ColorModel	Integer	2	書類のカラーモードに依存し，セットしても適用されない
+File > Export > Export As… > JPEG Options > Image > Color Model	plugin/JPEGFormat/ColorModel	Integer	2	書類のカラーモードに依存し，セットしても適用されない
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > 画像 > 画質 «数値»	plugin/JPEGFormat/Image Quality	Integer	10
+File > Export > Export As… > JPEG Options > Image > Quality «Integer»	plugin/JPEGFormat/Image Quality	Integer	10
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > 圧縮形式	plugin/JPEGFormat/Compression	Integer	1
+File > Export > Export As… > JPEG Options > Options > Compression Method	plugin/JPEGFormat/Compression	Integer	1
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > 圧縮形式 > プログレッシブ > スキャン	plugin/JPEGFormat/NumScans	Integer	3	3〜5
+File > Export > Export As… > JPEG Options > Options > Compression Method > Progressive > Scans	plugin/JPEGFormat/NumScans	Integer	3	3〜5
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > 解像度	plugin/JPEGFormat/DPI	Real	150
+File > Export > Export As… > JPEG Options > Options > Resolution	plugin/JPEGFormat/DPI	Real	150
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > アンチエイリアス	plugin/JPEGFormat/AntiAlias	Integer	3
+File > Export > Export As… > JPEG Options > Options > Anti-aliasing	plugin/JPEGFormat/AntiAlias	Integer	3
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > イメージマップ «真偽値»	plugin/JPEGFormat/DoImageMap	Boolean	0
+File > Export > Export As… > JPEG Options > Options > Imagemap «Checked»	plugin/JPEGFormat/DoImageMap	Boolean	0
+ファイル > 書き出し > 書き出し形式… > JPEG オプション > オプション > イメージマップ «種類»	plugin/JPEGFormat/ImageMapType	Integer	1
+File > Export > Export As… > JPEG Options > Options > Imagemap «Type»	plugin/JPEGFormat/ImageMapType	Integer	1
+	plugin/JPEGFormat/EmbedState	Integer	0
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 100 > オプション > 圧縮形式	plugin/JPEGFormat100/Compression	Integer	1
+File > Export > Export for Screens… > Format Settings > JPG 100 > Options > Compression Method	plugin/JPEGFormat100/Compression	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 100 > オプション > 圧縮形式 > プログレッシブ > スキャン	plugin/JPEGFormat100/NumScans	Integer	3	3〜5
+File > Export > Export for Screens… > Format Settings > JPG 100 > Options > Compression Method > Progressive > Scans	plugin/JPEGFormat100/NumScans	Integer	3	3〜5
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 100 > オプション > アンチエイリアス	plugin/JPEGFormat100/AntiAlias	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 100 > Options > Anti-aliasing	plugin/JPEGFormat100/AntiAlias	Integer	3
+	plugin/JPEGFormat100/Image Quality	Integer	10
+	plugin/JPEGFormat100/DPI	Real	144
+	plugin/JPEGFormat100/DoImageMap	Integer	0
+	plugin/JPEGFormat100/ImageMapType	Integer	1
+	plugin/JPEGFormat100/EmbedState	Integer	1
+	plugin/JPEGFormat100/ColorModel	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 80 > オプション > 圧縮形式	plugin/JPEGFormat80/Compression	Integer	1
+File > Export > Export for Screens… > Format Settings > JPG 80 > Options > Compression Method	plugin/JPEGFormat80/Compression	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 80 > オプション > 圧縮形式 > プログレッシブ > スキャン	plugin/JPEGFormat80/NumScans	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 80 > Options > Compression Method > Progressive > Scans	plugin/JPEGFormat80/NumScans	Integer	3
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 80 > オプション > アンチエイリアス	plugin/JPEGFormat80/AntiAlias	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 80 > Options > Anti-aliasing	plugin/JPEGFormat80/AntiAlias	Integer	3
+	plugin/JPEGFormat80/Image Quality	Integer	8
+	plugin/JPEGFormat80/DPI	Real	72
+	plugin/JPEGFormat80/DoImageMap	Integer	0
+	plugin/JPEGFormat80/ImageMapType	Integer	1
+	plugin/JPEGFormat80/EmbedState	Integer	1
+	plugin/JPEGFormat80/ColorModel	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 50 > オプション > 圧縮形式	plugin/JPEGFormat50/Compression	Integer	1
+File > Export > Export for Screens… > Format Settings > JPG 50 > Options > Compression Method	plugin/JPEGFormat50/Compression	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 50 > オプション > 圧縮形式 > プログレッシブ > スキャン	plugin/JPEGFormat50/NumScans	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 50 > Options > Compression Method > Progressive > Scans	plugin/JPEGFormat50/NumScans	Integer	3
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 50 > オプション > アンチエイリアス	plugin/JPEGFormat50/AntiAlias	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 50 > Options > Anti-aliasing	plugin/JPEGFormat50/AntiAlias	Integer	3
+	plugin/JPEGFormat50/Image Quality	Integer	5
+	plugin/JPEGFormat50/DPI	Real	72
+	plugin/JPEGFormat50/DoImageMap	Integer	0
+	plugin/JPEGFormat50/ImageMapType	Integer	1
+	plugin/JPEGFormat50/EmbedState	Integer	1
+	plugin/JPEGFormat50/ColorModel	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 20 > オプション > 圧縮形式	plugin/JPEGFormat20/Compression	Integer	1
+File > Export > Export for Screens… > Format Settings > JPG 20 > Options > Compression Method	plugin/JPEGFormat20/Compression	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 20 > オプション > 圧縮形式 > プログレッシブ > スキャン	plugin/JPEGFormat20/NumScans	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 20 > Options > Compression Method > Progressive > Scans	plugin/JPEGFormat20/NumScans	Integer	3
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > JPG 20 > オプション > アンチエイリアス	plugin/JPEGFormat20/AntiAlias	Integer	3
+File > Export > Export for Screens… > Format Settings > JPG 20 > Options > Anti-aliasing	plugin/JPEGFormat20/AntiAlias	Integer	3
+	plugin/JPEGFormat20/Image Quality	Integer	2
+	plugin/JPEGFormat20/DPI	Real	72
+	plugin/JPEGFormat20/DoImageMap	Integer	0
+	plugin/JPEGFormat20/ImageMapType	Integer	1
+	plugin/JPEGFormat20/EmbedState	Integer	1
+	plugin/JPEGFormat20/ColorModel	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > カラー	plugin/PNG8/NumberOfColors	Integer	256
+File > Export > Export for Screens… > Format Settings > PNG 8 > Colors	plugin/PNG8/NumberOfColors	Integer	256
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > 透明度	plugin/PNG8/BackgroundTransparent	Boolean	1
+File > Export > Export for Screens… > Format Settings > PNG 8 > Transparent	plugin/PNG8/BackgroundTransparent	Boolean	1
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > インターレース	plugin/PNG8/Interlaced	Boolean	0
+File > Export > Export for Screens… > Format Settings > PNG 8 > Interlace	plugin/PNG8/Interlaced	Boolean	0
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > アンチエイリアス	plugin/PNG8/AntiAlias	Integer	2
+File > Export > Export for Screens… > Format Settings > PNG 8 > Anti-aliasing	plugin/PNG8/AntiAlias	Integer	2
+	plugin/PNG8/ResolutionR	Real	72
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > マット «Red»	plugin/PNG8/Background/red	Integer	255
+File > Export > Export for Screens… > Format Settings > PNG 8 > Matte «Red»	plugin/PNG8/Background/red	Integer	255
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > マット «Green»	plugin/PNG8/Background/green	Integer	255
+File > Export > Export for Screens… > Format Settings > PNG 8 > Matte «Green»	plugin/PNG8/Background/green	Integer	255
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PNG 8 > マット «Blue»	plugin/PNG8/Background/blue	Integer	255
+File > Export > Export for Screens… > Format Settings > PNG 8 > Matte «Blue»	plugin/PNG8/Background/blue	Integer	255
+	plugin/Adobe Vector Sculpting UI/ToolIntroFTUEShownCount	Integer	3
+	plugin/Adobe Vector Sculpting UI/ToolIntroFTUEShown	Integer	0
+	plugin/OnBoarding/PantoneLibOnBoardingShownCount	Integer	0
+	plugin/OnBoarding/dontShowAgainPantoneLibOnBoarding	Integer	0
+ブラシパネル > ブラシオプション… > アートブラシオプション > プレビュー	plugin/ArtBrushOptions/PreviewChanges	Boolean	0
+Brushes Panel > Brush Options… > Art Brush Options > Preview	plugin/ArtBrushOptions/PreviewChanges	Boolean	0
+ブラシパネル > ブラシオプション… > パターンブラシオプション > プレビュー	plugin/PatternBrushOptions/PreviewChanges	Boolean	0
+Brushes Panel > Brush Options… > Pattern Brush Options > Preview	plugin/PatternBrushOptions/PreviewChanges	Boolean	0
+効果 > 3D とマテリアル > 3D (クラシック) > 回転体 (クラシック)… > プレビュー	plugin/PreviewPref/3DRevolvePreviewPref	Boolean	1
+Effect > 3D and Materials > 3D (Classic) > Revolve (Classic)… > Preview	plugin/PreviewPref/3DRevolvePreviewPref	Boolean	1
+オブジェクト > エンベロープ > エンベロープオプション… > プレビュー	plugin/PreviewPref/EnvelopDistortPreviewPref	Boolean	1
+Object > Envelope Distort > Envelope Options… > Preview	plugin/PreviewPref/EnvelopDistortPreviewPref	Boolean	1
+	plugin/ShaperTool/MinAspectForSquareCircleSnapping	Real	0.75
+	plugin/ShaperTool/snapShaperShapesTo45	Integer	1
+	plugin/shaperTool/alwaysUseShaperDefaults	Integer	1
+	plugin/VariablesPaletteUI/VariablesPaletteCoachOnboardingShown	Integer	0
+	plugin/VariablesPaletteUI/VariablesPaletteCoachShownCount	Integer	1
+効果 > スタイライズ > 光彩 (外側)… > プレビュー	plugin/PreviewPref/DropShadowUIOuterGlowPreviewPref	Boolean	1
+Effect > Stylize > Outer Glow… > Preview	plugin/PreviewPref/DropShadowUIOuterGlowPreviewPref	Boolean	1
+オブジェクト > 変形 > リフレクト… > プレビュー	plugin/PreviewPref/ReflectOptionPreviewPref	Boolean	1
+Object > Transform > Reflect… > Preview	plugin/PreviewPref/ReflectOptionPreviewPref	Boolean	1
+オブジェクト > 変形 > 回転… > プレビュー	plugin/PreviewPref/RotateOptionPreviewPref	Boolean	1
+Object > Transform > Rotate… > Preview	plugin/PreviewPref/RotateOptionPreviewPref	Boolean	1
+オブジェクト > 変形 > 移動… > プレビュー	plugin/PreviewPref/MoveOptionPreviewPref	Boolean	1
+Object > Transform > Move… > Preview	plugin/PreviewPref/MoveOptionPreviewPref	Boolean	1
+効果 > 3D とマテリアル > 3D (クラシック) > 押し出しとベベル (クラシック)… > プレビュー	plugin/PreviewPref/3DExtrude&BevelPreviewPref	Boolean	1
+Effect > 3D and Materials > 3D (Classic) > Extrude & Bevel (Classic)… > Preview	plugin/PreviewPref/3DExtrude&BevelPreviewPref	Boolean	1
+効果 > スタイライズ > 光彩 (内側)… > プレビュー	plugin/PreviewPref/DropShadowUIInnerGlowPreviewPref	Boolean	1
+Effect > Stylize > Inner Glow… > Preview	plugin/PreviewPref/DropShadowUIInnerGlowPreviewPref	Boolean	1
+効果 > 形状に変換 > 長方形… > プレビュー	plugin/PreviewPref/ShapeEffectRectanglePreviewPref	Boolean	1
+Effect > Convert to Shape > Rectangle… > Preview	plugin/PreviewPref/ShapeEffectRectanglePreviewPref	Boolean	1
+効果 > パスの変形 > 変形… > プレビュー	plugin/PreviewPref/TransformPreviewPref	Boolean	1	オブジェクト > 変形 > 個別に変形… > プレビュー\nObject > Transform > Transform Each… > Preview
+Effect > Distort & Transform > Transform… > Preview	plugin/PreviewPref/TransformPreviewPref	Boolean	1	オブジェクト > 変形 > 個別に変形… > プレビュー\nObject > Transform > Transform Each… > Preview
+効果 > パスの変形 > ジグザグ… > プレビュー	plugin/PreviewPref/ZigZagPreviewPref	Boolean	1
+Effect > Distort & Transform > Zig Zag… > Preview	plugin/PreviewPref/ZigZagPreviewPref	Boolean	1
+効果 > ワープ > ワープオプション > プレビュー	plugin/PreviewPref/WarpOptionsPreviewPref	Boolean	1
+Effect > Warp > Warp Options > Preview	plugin/PreviewPref/WarpOptionsPreviewPref	Boolean	1
+効果 > パス > パスのオフセット… > プレビュー	plugin/PreviewPref/OffsetPathPreviewPref	Boolean	1
+Effect > Path > Offset Path… > Preview	plugin/PreviewPref/OffsetPathPreviewPref	Boolean	1
+効果 > スタイライズ > 角を丸くする… > プレビュー	plugin/PreviewPref/RoundCornersPreviewPref	Boolean	1
+Effect > Stylize > Round Corners… > Preview	plugin/PreviewPref/RoundCornersPreviewPref	Boolean	1
+効果 > パスの変形 > ラフ… > プレビュー	plugin/PreviewPref/RoughenPreviewPref	Boolean	1
+Effect > Distort & Transform > Roughen… > Preview	plugin/PreviewPref/RoughenPreviewPref	Boolean	1
+効果 > ぼかし > ぼかし (ガウス)… > プレビュー	plugin/PreviewPref/GaussianBlurPreviewPref	Boolean	1
+Effect > Blur > Gaussian Blur… > Preview	plugin/PreviewPref/GaussianBlurPreviewPref	Boolean	1
+効果 > スタイライズ > ぼかし… > プレビュー	plugin/PreviewPref/FeatherEffectPreviewPref	Boolean	1
+Effect > Stylize > Feather… > Preview	plugin/PreviewPref/FeatherEffectPreviewPref	Boolean	1
+効果 > スタイライズ > ドロップシャドウ… > プレビュー	plugin/PreviewPref/DropShadowUIDropShadowPreviewPref	Boolean	1
+Effect > Stylize > Drop Shadow… > Preview	plugin/PreviewPref/DropShadowUIDropShadowPreviewPref	Boolean	1
+オブジェクト > 変形 > 拡大・縮小… > プレビュー	plugin/PreviewPref/ScaleOptionPreviewPref	Boolean	1
+Object > Transform > Scale… > Preview	plugin/PreviewPref/ScaleOptionPreviewPref	Boolean	1
+オブジェクト > ブレンド > ブレンドオプション… > プレビュー	plugin/PreviewPref/BlendOptionPreviewPref	Boolean	1
+Object > Blend > Blend Options… > Preview	plugin/PreviewPref/BlendOptionPreviewPref	Boolean	1
+効果 > SVG フィルター > SVG フィルターを適用… > プレビュー	plugin/PreviewPref/SVGFilterPreviewPref	Boolean	1
+Effect > SVG Filters > Apply SVG Filter… > Preview	plugin/PreviewPref/SVGFilterPreviewPref	Boolean	1
+効果 > 3D とマテリアル > 3D (クラシック) > 回転 (クラシック)… > プレビュー	plugin/PreviewPref/3DRotatePreviewPref	Boolean	1
+Effect > 3D and Materials > 3D (Classic) > Rotate (Classic)… > Preview	plugin/PreviewPref/3DRotatePreviewPref	Boolean	1
+効果 > 形状に変換 > 角丸長方形… > プレビュー	plugin/PreviewPref/ShapeEffectRoundedRectanglePreviewPref	Boolean	1
+Effect > Convert to Shape > Rounded Rectangle… > Preview	plugin/PreviewPref/ShapeEffectRoundedRectanglePreviewPref	Boolean	1
+書式 > エリア内文字オプション… > プレビュー	AreatypeOptionsPreview	Boolean	1
+Type > Area Type Options… > Preview	AreatypeOptionsPreview	Boolean	1
+効果 > パスファインダー > パスファインダーオプション > プレビュー	plugin/PathfinderEffectOptions/PreviewChanges	Boolean	1
+Effect > Pathfinder > Pathfinder Options > Preview	plugin/PathfinderEffectOptions/PreviewChanges	Boolean	1
+ブラシパネル > ブラシオプション… > カリグラフィブラシオプション > プレビュー	plugin/CalligraphicBrushOptions/PreviewChanges	Boolean	0
+Brushes Panel > Brush Options… > Calligraphic Brush Options > Preview	plugin/CalligraphicBrushOptions/PreviewChanges	Boolean	0
+ブラシパネル > ブラシオプション… > 散布ブラシオプション > プレビュー	plugin/ScatterBrushOptions/PreviewChanges	Boolean	1
+Brushes Panel > Brush Options… > Scatter Brush Options > Preview	plugin/ScatterBrushOptions/PreviewChanges	Boolean	1
+オブジェクト > エンベロープ > ワープで作成… > プレビュー	plugin/EnvelopeOptions/WarpShowPreview	Boolean	1
+Object > Envelope Distort > Make with Warp > Preview	plugin/EnvelopeOptions/WarpShowPreview	Boolean	1
+オブジェクト > エンベロープ > エンベロープオプション… > アピアランスを変形	plugin/EnvelopeOptions/ExpandAppearance	Boolean	1
+Object > Envelope Distort > Envelope Options… > Distort Appearance	plugin/EnvelopeOptions/ExpandAppearance	Boolean	1
+オブジェクト > エンベロープ > エンベロープオプション… > パターンを変形	plugin/EnvelopeOptions/ExpandPattern	Boolean	0
+Object > Envelope Distort > Envelope Options… > Distort Pattern Fills	plugin/EnvelopeOptions/ExpandPattern	Boolean	0
+オブジェクト > エンベロープ > エンベロープオプション… > 線形グラデーションの塗りを変形	plugin/EnvelopeOptions/ExpandGrdient	Boolean	0
+Object > Envelope Distort > Envelope Options… > Distort Linear Gradient Fills	plugin/EnvelopeOptions/ExpandGrdient	Boolean	0
+オブジェクト > エンベロープ > エンベロープオプション… > 精度	plugin/EnvelopeOptions/DeformFidelity	Integer	50
+Object > Envelope Distort > Envelope Options… > Fidelity	plugin/EnvelopeOptions/DeformFidelity	Integer	50
+オブジェクト > エンベロープ > エンベロープオプション… > ラスタライズ > アンチエイリアス	plugin/EnvelopeOptions/AntiAliasRasters	Boolean	1
+Object > Envelope Distort > Envelope Options… > Rasters > Anti-Alias	plugin/EnvelopeOptions/AntiAliasRasters	Boolean	1
+オブジェクト > エンベロープ > エンベロープオプション… > ラスタライズ > シェイプの保持に使用	plugin/EnvelopeOptions/AddAlphaToRasters	Integer	0
+Object > Envelope Distort > Envelope Options… > Rasters > Preserve Shape Using	plugin/EnvelopeOptions/AddAlphaToRasters	Integer	0
+	plugin/ai_navigation_get/tmpl	Integer	0
+	plugin/ai_navigation_get/repl	Integer	0
+	plugin/ai_navigation_get/link	Integer	1
+ブラシツールオプション > 精度	plugin/GlobalBrushOptions/fairnessPreset	Integer	0	0〜4
+Paintbrush Tool Options > Fidelity	plugin/GlobalBrushOptions/fairnessPreset	Integer	0	0〜4
+ブラシツールオプション > オプション > ブラシストロークに塗りを適用	plugin/GlobalBrushOptions/fill	Boolean	1
+Paintbrush Tool Options > Options > Fill new brush strokes	plugin/GlobalBrushOptions/fill	Boolean	1
+ブラシツールオプション > オプション > 選択を解除しない	plugin/GlobalBrushOptions/select	Boolean	1
+Paintbrush Tool Options > Options > Keep Selected	plugin/GlobalBrushOptions/select	Boolean	1
+ブラシツールオプション > オプション > 選択したパスを編集	plugin/BRSPencilTool/edit_selection	Boolean	1
+Paintbrush Tool Options > Options > Edit Selected Paths	plugin/BRSPencilTool/edit_selection	Boolean	1
+ブラシツールオプション > オプション > 範囲	plugin/BRSTool30Mar9816Build/editing_distance	Real	12.0
+Paintbrush Tool Options > Options > Within	plugin/BRSTool30Mar9816Build/editing_distance	Real	12.0
+	plugin/BlobBrushOptions/deselectOtherArts	Integer	1
+塗りブラシツールオプション > 選択を解除しない	plugin/BlobBrushOptions/keepSelected	Boolean	0
+Blob Brush Tool Options > Keep Selected	plugin/BlobBrushOptions/keepSelected	Boolean	0
+塗りブラシツールオプション > 選択範囲のみ結合	plugin/BlobBrushOptions/limitMerge	Boolean	0
+Blob Brush Tool Options > Merge Only with Selection	plugin/BlobBrushOptions/limitMerge	Boolean	0
+塗りブラシツールオプション > 精度	plugin/BlobBrushOptions/fairnessPreset	Integer	2	0〜4
+Blob Brush Tool Options > Fidelity	plugin/BlobBrushOptions/fairnessPreset	Integer	2	0〜4
+塗りブラシツールオプション > サイズ «数値»	plugin/BlobBrushTool/diameter	Real	10.0	Read Only?
+Blob Brush Tool Options > Size «Real»	plugin/BlobBrushTool/diameter	Real	10.0	Read Only?
+塗りブラシツールオプション > サイズ «種類»	plugin/BlobBrushTool/diameterDependsOn	Integer	0	Read Only?
+Blob Brush Tool Options > Size «Type»	plugin/BlobBrushTool/diameterDependsOn	Integer	0	Read Only?
+塗りブラシツールオプション > サイズ > 変位	plugin/BlobBrushTool/diameterVariation	Real	0.0	Read Only?
+Blob Brush Tool Options > Size > Variation	plugin/BlobBrushTool/diameterVariation	Real	0.0	Read Only?
+塗りブラシツールオプション > 角度 «数値»	plugin/BlobBrushTool/angle	Real	0.0	Read Only?
+Blob Brush Tool Options > Angle «Real»	plugin/BlobBrushTool/angle	Real	0.0	Read Only?
+塗りブラシツールオプション > 角度 «種類»	plugin/BlobBrushTool/angleDependsOn	Integer	0	Read Only?
+Blob Brush Tool Options > Angle «Type»	plugin/BlobBrushTool/angleDependsOn	Integer	0	Read Only?
+塗りブラシツールオプション > 角度 > 変位	plugin/BlobBrushTool/angleVariation	Real	0.0	Read Only?
+Blob Brush Tool Options > Angle > Variation	plugin/BlobBrushTool/angleVariation	Real	0.0	Read Only?
+塗りブラシツールオプション > 真円率 «数値»	plugin/BlobBrushTool/roundness	Real	100.0	Read Only?
+Blob Brush Tool Options > Roundness «Real»	plugin/BlobBrushTool/roundness	Real	100.0	Read Only?
+塗りブラシツールオプション > 真円率 «種類»	plugin/BlobBrushTool/roundnessDependsOn	Integer	0	Read Only?
+Blob Brush Tool Options > Roundness «Type»	plugin/BlobBrushTool/roundnessDependsOn	Integer	0	Read Only?
+塗りブラシツールオプション > 真円率 > 変位	plugin/BlobBrushTool/roundnessVariation	Real	0.0	Read Only?
+Blob Brush Tool Options > Roundness > Variation	plugin/BlobBrushTool/roundnessVariation	Real	0.0	Read Only?
+	plugin/BlobBrushTool/angleRelativeTo	Integer	0
+	plugin/BlobBrushTool/angleRnd	Real	0.0
+	plugin/BlobBrushTool/roundnessRnd	Real	0.0
+	plugin/BlobBrushTool/diameterRnd	Real	0.0
+	plugin/PhotoshopFileFormat/SpotOptionApplyToAll	Integer	0
+	plugin/PhotoshopFileFormat/SelectedLayerCompName	String	
+	plugin/PhotoshopFileFormat/SelectedLayerCompID	Integer	4294967295
+	plugin/PhotoshopFileFormat/ShowPreview	Integer	0
+	plugin/PhotoshopFileFormat/PixelAspectRatio	Integer	0
+	plugin/PhotoshopFileFormat/HiddenLayers	Integer	0
+	plugin/PhotoshopFileFormat/ImageMaps	Integer	0
+	plugin/PhotoshopFileFormat/Slices	Integer	0
+	plugin/PhotoshopFileFormat/PSD Import Option	Integer	2
+	plugin/PhotoshopFileFormat/AI Script	Integer	1
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > カラーモード	plugin/PhotoshopFileFormat/ColorModel	Integer	2	書類のカラーモードに依存し，セットしても適用されない
+File > Export > Export As… > Photoshop Export Options > Color Model	plugin/PhotoshopFileFormat/ColorModel	Integer	2	書類のカラーモードに依存し，セットしても適用されない
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > 解像度	plugin/PhotoshopFileFormat/DPI	Real	144
+File > Export > Export As… > Photoshop Export Options > Resolution	plugin/PhotoshopFileFormat/DPI	Real	144
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > オプション > 統合画像 | レイヤーを保持	plugin/PhotoshopFileFormat/WriteLayers	Integer	0
+File > Export > Export As… > Photoshop Export Options > Options > Flat Image | Write Layers	plugin/PhotoshopFileFormat/WriteLayers	Integer	0
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > オプション > テキストの編集機能を保持	plugin/PhotoshopFileFormat/LiveText	Boolean	1
+File > Export > Export As… > Photoshop Export Options > Options > Preserve Text Editability	plugin/PhotoshopFileFormat/LiveText	Boolean	1
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > オプション > 編集機能を最大限に保持	plugin/PhotoshopFileFormat/Maximize Ediability	Boolean	0
+File > Export > Export As… > Photoshop Export Options > Options > Maximum Editability	plugin/PhotoshopFileFormat/Maximize Ediability	Boolean	0
+ファイル > 書き出し > 書き出し形式… > Photoshop 書き出しオプション > オプション > アンチエイリアス	plugin/PhotoshopFileFormat/AntiAlias	Integer	1
+File > Export > Export As… > Photoshop Export Options > Options > Anti-aliasing	plugin/PhotoshopFileFormat/AntiAlias	Integer	1
+	plugin/PhotoshopFileFormat/CustomDpi	Real	144
+	plugin/PhotoshopFileFormat/ExportFormat	Integer	1
+	plugin/PhotoshopFileFormat/WhichProfile	Integer	0
+	plugin/PhotoshopFileFormat/NestedLayers	Integer	0
+	plugin/PhotoshopFileFormat/CompoundShapes	Integer	0
+	plugin/PhotoshopFileFormat/PreserveSpotColors	Integer	0
+	plugin/PhotoshopFileFormat/NoHiddenLayersWarning	Integer	0
+	plugin/PhotoshopFileFormat/No100LayersWarning	Integer	0
+	plugin/PhotoshopFileFormat/NoImageMapsWarning	Integer	0
+	plugin/MultiEveDialogUI/height	Real	326
+	plugin/MultiEveDialogUI/width	Real	645
+	plugin/IllustratorUI/StylisticSetsFTUEShown	Integer	1
+	plugin/IllustratorUI/VariableFontsFTUEShown	Integer	1
+	plugin/AI Toolbox UI Plugin/kToolBarDrawerIntroShown	Integer	1
+ファイル > 別名で保存… > SVG オプション > SVG プロファイル	plugin/svgOptionDlg/O_SVGDTD	Integer	0
+File > Save As… > SVG Options > SVG Profiles	plugin/svgOptionDlg/O_SVGDTD	Integer	0
+ファイル > 別名で保存… > SVG オプション > フォント > 文字	plugin/svgOptionDlg/O_SVFontType	Integer	1
+File > Save As… > SVG Options > Fonts > Type	plugin/svgOptionDlg/O_SVFontType	Integer	1
+ファイル > 別名で保存… > SVG オプション > フォント > サブセット	plugin/SVGFormat/fontSubsetting	Integer	1
+File > Save As… > SVG Options > Fonts > Subsetting	plugin/SVGFormat/fontSubsetting	Integer	1
+ファイル > 別名で保存… > SVG オプション > オプション > 画像の場所	plugin/svgOptionDlg/O_EmbedRasterLoc	Integer	2
+File > Save As… > SVG Options > Options > Image Location	plugin/svgOptionDlg/O_EmbedRasterLoc	Integer	2
+ファイル > 別名で保存… > SVG オプション > オプション > Illustrator の編集機能を保持	plugin/svgOptionDlg/O_IncludePGF	Boolean	0
+File > Save As… > SVG Options > Options > Preserve Illustrator Editing Capabilities	plugin/svgOptionDlg/O_IncludePGF	Boolean	0
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > CSS プロパティ	plugin/SVGFormat/StyleType	Integer	3
+File > Save As… > SVG Options > Advanced Options > CSS Properties	plugin/SVGFormat/StyleType	Integer	3
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > 未使用グラフィックスタイルを含める	plugin/svgOptionDlg/O_IncludeUnusedStyles	Boolean	0
+File > Save As… > SVG Options > Advanced Options > Include Unused Graphic Styles	plugin/svgOptionDlg/O_IncludeUnusedStyles	Boolean	0
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > 小数点以下の桁数	plugin/SVGFormat/CoordinatePrecision2	Integer	3
+File > Save As… > SVG Options > Advanced Options > Decimal Places	plugin/SVGFormat/CoordinatePrecision2	Integer	3
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > エンコーディング	plugin/SVGFormat/Encoding	Integer	2
+File > Save As… > SVG Options > Advanced Options > Encoding	plugin/SVGFormat/Encoding	Integer	2
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > <tspan> エレメントの出力を制御	plugin/svgOptionDlg/O_DisbleAutoKerning	Boolean	1
+File > Save As… > SVG Options > Advanced Options > Output fewer <tspan> elements	plugin/svgOptionDlg/O_DisbleAutoKerning	Boolean	1
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > パス上テキストに <textPath> エレメントを使用	plugin/svgOptionDlg/O_UseSVGTextOnPath	Boolean	1
+File > Save As… > SVG Options > Advanced Options > Use <textPath> element for Text on Path	plugin/svgOptionDlg/O_UseSVGTextOnPath	Boolean	1
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > レスポンシブ	plugin/svgOptionDlg/O_ResponsiveSVG	Boolean	1
+File > Save As… > SVG Options > Advanced Options > Responsive	plugin/svgOptionDlg/O_ResponsiveSVG	Boolean	1
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > スライスデータを含める	plugin/svgOptionDlg/O_IncludeSlices	Boolean	0
+File > Save As… > SVG Options > Advanced Options > Include Slicing Data	plugin/svgOptionDlg/O_IncludeSlices	Boolean	0
+ファイル > 別名で保存… > SVG オプション > 詳細オプション > XMP を含める	plugin/svgOptionDlg/O_IncludeXAP	Boolean	0
+File > Save As… > SVG Options > Advanced Options > Include XMP	plugin/svgOptionDlg/O_IncludeXAP	Boolean	0
+ファイル > 別名で保存… > SVG オプション > 基本オプション | 詳細オプション	plugin/svgOptionDlg/O_DialogExpanded	Boolean	1	{true: 詳細オプションを表示, false: 基本オプションのみ表示}
+File > Save As… > SVG Options > Less Options | More Options	plugin/svgOptionDlg/O_DialogExpanded	Boolean	1	{true: 詳細オプションを表示, false: 基本オプションのみ表示}
+	plugin/svgOptionDlg/O_IncludeTemplate	Boolean	0	DOCTYPEやデータ駆動型グラフィックスの変数を含むSVGになる。何かそういった専門機能で使うのかもしれない
+	plugin/svgOptionDlg/O_IncludeAdobeNameSpace	Boolean	0	xmlns:x="&ns_extend;" xmlns:i="&ns_ai;" xmlns:graph="&ns_graphs;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"\nなどが追加される
+	plugin/svgOptionDlg/O_RoundTrip	Integer	0
+	plugin/svgOptionDlg/O_TextOnPath	Integer	1
+	plugin/svgOptionDlg/O_GradientTolerance	Real	0.25
+	plugin/svgOptionDlg/O_RasterResolution	Integer	72
+	plugin/svgOptionDlg/O_EmbedFontFormats	Integer	2	動作しない？ CEFフォーマットなどの話だろうか
+	plugin/svgOptionDlg/O_Clip_To_Artboard	Integer	0
+	plugin/svgOptionDlg/O_Constrain_Proportions	Integer	1
+	plugin/svgOptionDlg/O_Also_Export_Compressed	Integer	0
+	plugin/svgOptionDlg/O_Export_LayerAsTitle	Integer	0
+	plugin/svgOptionDlg/O_ExportHiddenObjects	Integer	0
+	plugin/svgOptionDlg/O_Anti_Alias_Artwork	Integer	1
+	plugin/svgOptionDlg/O_Resolution_Unit	Integer	0
+	plugin/svgOptionDlg/O_Height_Unit	Integer	2
+	plugin/svgOptionDlg/O_Width_Unit	Integer	2
+	plugin/SVGFormat/CoordinatePrecision	Integer	1
+	plugin/SVGFormat/FontLocation	Integer	1
+	plugin/SVGFormat/RestrictLinksToDocDirectory	Integer	0
+	plugin/SVGFormat/FormatForFonts	Integer	1
+	plugin/SVGFormat/FileCompression	Integer	1
+	plugin/SVGFormat/systemFont	Integer	1
+	plugin/SVGFormat/zoom	Integer	1
+	plugin/SVGFormat/Rendering	Integer	1
+	plugin/SVGFormat/FormatForImages	Integer	1
+	plugin/SVGFormat/allowedSVGLinkingDepth	Integer	1
+	plugin/PDF/CompressPGF	Integer	1
+	plugin/sangam/readers/sTEXT	Integer	0
+	plugin/sangam/readers/RTF	String	
+	plugin/sangam/readers/sRTF	Integer	12
+	plugin/sangam/readers/InPlayMode	Integer	0
+	plugin/Illustrator/WritingStartupFile	Integer	0
+	plugin/Illustrator/IsGB18030	Integer	0
+	plugin/Vector Sculpting/Mesh Visibility	Integer	1
+	plugin/Adobe Smart Edit/SmartEditOnBoardingCount	Integer	3
+	plugin/Adobe Smart Edit/SmartEditOnBoardingShown	Integer	0
+	plugin/com.adobe.illustrator.WorkspaceBasicsOnBoarding.extension/Location and Size/r	Integer	1130
+	plugin/com.adobe.illustrator.WorkspaceBasicsOnBoarding.extension/Location and Size/b	Integer	738
+	plugin/com.adobe.illustrator.WorkspaceBasicsOnBoarding.extension/Location and Size/t	Integer	288
+	plugin/com.adobe.illustrator.WorkspaceBasicsOnBoarding.extension/Location and Size/l	Integer	550
+	plugin/Properties Panel/WorkspaceCardCount	Integer	1
+	plugin/Properties Panel/WorkspaceCardShown	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > アートボード | アセット	plugin/SmartExportUI/SmartExportActiveTab	String	SmartExportActiveTabArtboard
+File > Export > Export for Screens… > Artboards | Assets	plugin/SmartExportUI/SmartExportActiveTab	String	SmartExportActiveTabArtboard
+ファイル > 書き出し > スクリーン用に書き出し… > アートボード > 選択 > すべて | 範囲 | ドキュメント全体	plugin/SmartExportUI/SmartExportContentTypeForArtboard	String	all
+File > Export > Export for Screens… > Artboards > Select > All | Range | Full Document	plugin/SmartExportUI/SmartExportContentTypeForArtboard	String	all
+ファイル > 書き出し > スクリーン用に書き出し… > アートボード > 選択 > 範囲 «文字列»	plugin/SmartExportUI/SmartExportDialogRange	String	45659
+File > Export > Export for Screens… > Artboards > Select > Range «String»	plugin/SmartExportUI/SmartExportDialogRange	String	45659
+ファイル > 書き出し > スクリーン用に書き出し… > アートボード > 選択 > 裁ち落としを含める	plugin/SmartExportUI/IncludeBleedInExport	Boolean	0
+File > Export > Export for Screens… > Artboards > Select > Include Bleed	plugin/SmartExportUI/IncludeBleedInExport	Boolean	0
+ファイル > 書き出し > スクリーン用に書き出し… > アセット > 選択 > すべてのアセット	plugin/SmartExportUI/SmartExportContentTypeForAssets	String	all
+File > Export > Export for Screens… > Assets > Select > All Assets	plugin/SmartExportUI/SmartExportContentTypeForAssets	String	all
+ファイル > 書き出し > スクリーン用に書き出し… > 書き出し先	plugin/SmartExportUI/SmartExportFolderPath	String	/Users/«username»/Desktop
+File > Export > Export for Screens… > Export to	plugin/SmartExportUI/SmartExportFolderPath	String	/Users/«username»/Desktop
+ファイル > 書き出し > スクリーン用に書き出し… > 書き出し後に場所を開く	plugin/SmartExportUI/OpenLocationAfterExportPreference	Boolean	1
+File > Export > Export for Screens… > Open Location after Export	plugin/SmartExportUI/OpenLocationAfterExportPreference	Boolean	1
+ファイル > 書き出し > スクリーン用に書き出し… > サブフォルダーを作成	plugin/SmartExportUI/CreateFoldersPreference	Boolean	0
+File > Export > Export for Screens… > Create Sub-folders	plugin/SmartExportUI/CreateFoldersPreference	Boolean	0
+ファイル > 書き出し > スクリーン用に書き出し… > サブフォルダーを作成 > 拡大・縮小 | 形式	plugin/SmartExportUI/CreateFoldersByScalePreference	Integer	1
+File > Export > Export for Screens… > Create Sub-folders > Scale | Format	plugin/SmartExportUI/CreateFoldersByScalePreference	Integer	1
+ファイル > 書き出し > スクリーン用に書き出し… > プレフィックス	plugin/SmartExportUI/SmartExportFileNamePrefix	String	img_
+File > Export > Export for Screens… > Prefix	plugin/SmartExportUI/SmartExportFileNamePrefix	String	img_
+ファイル > 書き出し > スクリーン用に書き出し… > サムネール (大) を表示 | サムネール (小) を表示	plugin/SmartExportUI/SmartExportPreviewType	String	PreviewTypeGrid
+File > Export > Export for Screens… > Large thumbnail view | Small thumbnail view	plugin/SmartExportUI/SmartExportPreviewType	String	PreviewTypeGrid
+	plugin/SmartExportUI/ExportSelection/ShowExportPanel/Count	Integer	1
+	plugin/SmartExportUI/ExportSelection/Count	Integer	1
+	plugin/SmartExportUI/ExportPanel/AssetAdded/ExcludingExpSelRoute	Integer	1
+	plugin/SmartExportUI/ShowLayersPanelAddAssetFTUE	Integer	0
+	plugin/SmartExportUI/SmartExportDialogBaseWidth	Real	840	サムネールを表示する領域の幅
+	plugin/SmartExportUI/SmartExportDialogBaseHeight	Real	542	サムネールを表示する領域の高さ
+	plugin/SmartExportUI/exportFolderPath	String	
+	plugin/SmartExportUI/OpenLocationAfterExportFromPanelPreference	Integer	0
+	plugin/NamedStylePopupPanel/ThumbnailType	Integer	0
+	plugin/NamedStylePopupPanel/StylesView	Integer	0
+	plugin/StatusBarView/FontSizeReduction	Real	2.0
+	plugin/DontShowWarningAgain/Missing_AutoActivate_Font	Integer	0
+	plugin/DontShowWarningAgain/text/dontshowAutoActivateOnboarding	Integer	1
+	plugin/DontShowWarningAgain/AIMacPluginsLoadingErrorDueToWrongArchitectureDialog	Integer	0
+	plugin/DontShowWarningAgain/AIPluginsLoadingErrorDialog	Integer	0
+	plugin/DontShowWarningAgain/PDFExportDialog.NoPGFBecauseOfPFDX	Integer	0
+	plugin/DontShowWarningAgain/lockedHiddenObjectsNotMoved	Integer	0
+	plugin/DontShowWarningAgain/illegalJoin	Integer	0
+	plugin/DontShowWarningAgain/illegalScissor	Integer	0
+	plugin/DontShowWarningAgain/LegacyReflowWarning	Integer	0
+	plugin/DontShowWarningAgain/legacyCSSaveWarning	Integer	0
+	plugin/DontShowWarningAgain/DropLegacyScale9	Integer	0
+	plugin/DontShowWarningAgain/ShowPathfinderGroupWarning	Integer	1
+	plugin/DontShowWarningAgain/AISpotTransparencyAlertDlg	Integer	0
+	plugin/DontShowWarningAgain/MissingLinkFileDummyKey	Integer	0
+	plugin/DontShowWarningAgain/notOkToInteract	Integer	1
+	plugin/DontShowWarningAgain/showClipboardWarning	Integer	0
+	plugin/DontShowWarningAgain/applyAllLinkOption	Integer	0
+	plugin/DontShowWarningAgain/AI9ClrMgmtNoProfInFile	Integer	0
+	plugin/DontShowWarningAgain/noSelection	Integer	0
+	plugin/DontShowWarningAgain/illegalDeleteKnot	Integer	0
+	plugin/DontShowWarningAgain/Swatches/PDM_ExpansionAlert	Integer	0
+	plugin/DontShowWarningAgain/Swatches/PDM_NewPattern	Integer	0
+	plugin/DontShowWarningAgain/ApplyEffectWarningDlg	Integer	0
+	plugin/DontShowWarningAgain/-Vectorize Warning For Big Image Trace	Integer	0
+	plugin/DontShowWarningAgain/SaveForWebLatinCharacterDontShowAgain	Integer	0
+	plugin/DontShowWarningAgain/illegalAddKnot	Integer	0
+	plugin/DontShowWarningAgain/AttributeOverprintRGBWarning	Integer	0
+	plugin/DontShowWarningAgain/NoHiddenLayersWarning	Integer	0
+	plugin/DontShowWarningAgain/NoImageMapsWarning	Integer	0
+	plugin/DontShowWarningAgain/NoSelectiveMergeWarning	Integer	0
+	plugin/DontShowWarningAgain/illegalAverage	Integer	0
+	plugin/DontShowWarningAgain/VariablesWarning	Integer	0
+	plugin/DontShowWarningAgain/svgSaveWarningSupress	Integer	0
+	plugin/PreferenceUI/dialogHeight	Real	621.0
+	plugin/PreferenceUI/dialogWidth	Real	765.0
+	plugin/PreferenceUI/PrefDialogDimensionVersion	String	30.8.2
+	plugin/AssetManagement/vcLinkStatusUpdateCycleInTicks	Integer	120
+	plugin/AssetManagement/vcReplicaStatusUpdateCycleInTicks	Integer	30
+	plugin/AssetManagement/bridgeTalkPumpCycleInTicks	Integer	30
+	plugin/WorkspacePrefix/Workspace Essentials Handled	Integer	1
+	plugin/WorkspacePrefix/Previous Workspace Name	String	Essentials	前回使ったワークスペース名
+	plugin/WorkspacePrefix/Last Actual Used Workspace Name	String	Essentials	現在のワークスペース名
+	plugin/WorkspacePrefix/Last Used Workspace Mode	Integer	1
+	plugin/WorkspacePrefix/Last Used Workspace Name	String	Essentials	現在のワークスペース名。Last Actual Used Workspace Nameとの違いはわからない
+	plugin/Navigator/Color/blue	Real	0.31
+	plugin/Navigator/Color/green	Real	0.31
+	plugin/Navigator/Color/red	Real	1.0
+	plugin/Navigator/Artboard Mode	Integer	1
+	plugin/Navigator/DontDrawDash	Integer	1
+	plugin/Navigator/Greeking	Real	72.0
+	plugin/Align/StickyAlignOption	Integer	2	次回起動時に適用
+	plugin/KBSCShortcutFile/IsPreset	Boolean	0	キーボードショートカット設定が用意されたプリセットかどうか
+	plugin/KBSCShortcutFile/FileName	String		kysファイルの名前
+	plugin/NamedStyle/ThumbnailType	Integer	0
+	plugin/NamedStyle/StylesView	Integer	0
+	plugin/Symbols/VisibleKind	Integer	0
+変形パネル > 基準点	plugin/Transform/AnchorPoint	Integer	4	パネルの見た目は更新されないので，再表示が必要
+Transform Panel > Reference Point	plugin/Transform/AnchorPoint	Integer	4	パネルの見た目は更新されないので，再表示が必要
+	plugin/AdobeBrush/ThumbnailView	Integer	1
+CSS プロパティパネル > 書き出しオプション… > CSS 単位	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportUnit	Integer	4294967295
+CSS Properties Panel > Export Options… > CSS Units	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportUnit	Integer	4294967295
+CSS プロパティパネル > 書き出しオプション… > オブジェクトのアピアランス > 塗りを含める	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportFill	Boolean	1
+CSS Properties Panel > Export Options… > Object Appearance > Include Fill	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportFill	Boolean	1
+CSS プロパティパネル > 書き出しオプション… > オブジェクトのアピアランス > 線を含める	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportStroke	Boolean	1
+CSS Properties Panel > Export Options… > Object Appearance > Include Stroke	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportStroke	Boolean	1
+CSS プロパティパネル > 書き出しオプション… > オブジェクトのアピアランス > 不透明度を含める	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportOpacity	Boolean	1
+CSS Properties Panel > Export Options… > Object Appearance > Include Opacity	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportOpacity	Boolean	1
+CSS プロパティパネル > 書き出しオプション… > 位置とサイズ > 絶対位置を含める	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportPosition	Boolean	0
+CSS Properties Panel > Export Options… > Position and Size > Include Absolute Position	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportPosition	Boolean	0
+CSS プロパティパネル > 書き出しオプション… > 位置とサイズ > サイズを含める	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportDimension	Boolean	0
+CSS Properties Panel > Export Options… > Position and Size > Include Dimensions	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportDimension	Boolean	0
+CSS プロパティパネル > 書き出しオプション… > オプション > 名称未設定オブジェクト用に CSS を生成	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportUnnamedObjPref	Boolean	0
+CSS Properties Panel > Export Options… > Options > Generate CSS for Unnamed Objects	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportUnnamedObjPref	Boolean	0
+CSS プロパティパネル > 書き出しオプション… > オプション > サポートされていないアートをラスタライズ	plugin/CSSExportPreference/CSSExtract/CSSExport/UnsupportedArt	Boolean	1
+CSS Properties Panel > Export Options… > Options > Rasterize Unsupported Art	plugin/CSSExportPreference/CSSExtract/CSSExport/UnsupportedArt	Boolean	1
+	plugin/CSSExportPreference/CSSExtract/CSSExport/OtherResolution	Real	300.0
+	plugin/CSSExportPreference/CSSExtract/CSSExport/ResolutionOption	Integer	300
+	plugin/CSSExportPreference/CSSExtract/CSSExport/Opera	Boolean	1	CreateCSS.jsx内で，Opera用コードをつけるかどうかを制御する
+	plugin/CSSExportPreference/CSSExtract/CSSExport/IExplorer	Boolean	1	CreateCSS.jsx内で，IE用コードをつけるかどうかを制御する
+	plugin/CSSExportPreference/CSSExtract/CSSExport/FireFox	Boolean	1	CreateCSS.jsx内で，Firefox用コードをつけるかどうかを制御する
+	plugin/CSSExportPreference/CSSExtract/CSSExport/Webkit	Boolean	1	CreateCSS.jsx内で，Webkit用コードをつけるかどうかを制御する
+	plugin/CSSExportPreference/CSSExtract/CSSExport/VendorPref	Boolean	1	CreateCSS.jsx内で，ベンダープレフィックスをつけるかどうかを制御する
+	plugin/CSSExportPreference/CSSExtract/CSSExport/ExportMode	Integer	3	CreateCSS.jsx内で，モードを切り替えるのに使用
+	plugin/AdobeSwatchPopup_Stroke/GroupsListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/PatternListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/GradientListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/ColorListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/ShowAllListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/VisibleKind	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/CurrentListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Stroke/ShowFindField	Integer	0
+	plugin/AdobeSwatchPopup_Fill/GroupsListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/PatternListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/GradientListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/ColorListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/ShowAllListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/VisibleKind	Integer	0
+	plugin/AdobeSwatchPopup_Fill/CurrentListStyle	Integer	0
+	plugin/AdobeSwatchPopup_Fill/ShowFindField	Integer	0
+	plugin/AdobeSwatch_/GroupsListStyle	Integer	0
+	plugin/AdobeSwatch_/PatternListStyle	Integer	0
+	plugin/AdobeSwatch_/GradientListStyle	Integer	0
+	plugin/AdobeSwatch_/ColorListStyle	Integer	0
+	plugin/AdobeSwatch_/ShowAllListStyle	Integer	0
+	plugin/AdobeSwatch_/VisibleKind	Integer	0
+	plugin/AdobeSwatch_/CurrentListStyle	Integer	0
+	plugin/AdobeSwatch_/ShowFindField	Integer	0
+	plugin/ICCColorMgmt3.0/settingsFileValid	Integer	0
+	plugin/ICCColorMgmt3.0/useAdvanced	Integer	0
+	plugin/ICCColorMgmt3.0/useAI6	Integer	0
+	plugin/ICCColorMgmt3.0/settingsFile	String	/Library/Application Support/Adobe/Color/Settings/Recommended/North America General Purpose.csf
+ファイル > 配置… > PDF を配置 > «ドキュメントに配置する PDF のページを選択してください。»	plugin/PDFImport/PageNumber	Integer	0	Read Only?
+File > Place… > Place PDF > «Select a page from the PDF to place into the document.»	plugin/PDFImport/PageNumber	Integer	0	Read Only?
+ファイル > 配置… > PDF を配置 > トリミング	plugin/PDFImport/CropTo	Integer	4	Read Only?
+File > Place… > Place PDF > Crop to	plugin/PDFImport/CropTo	Integer	4	Read Only?
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > PDF > Adobe PDF プリセット	plugin/PDFExport/SmartExportDefaultPDFPresetName	String		値：\n[Smallest File Size (PDF 1.6)]
+File > Export > Export for Screens… > Format Settings > PDF > Adobe PDF Preset	plugin/PDFExport/SmartExportDefaultPDFPresetName	String		値：\n[Smallest File Size (PDF 1.6)]
+	plugin/PDFExport/AI12PDF_RegistryName	String	
+	plugin/PDFExport/AI12PDF_OutputConditionIdentifier	String	
+	plugin/PDFExport/AI12PDF_OutputCondition	String	
+	plugin/PDFExport/AI12PDF_OutputIntentProfileName	String	
+	plugin/PDFExport/AI12PDF_DestinationName	String	
+	plugin/PDFExport/AI12PDF_Description	String	
+	plugin/PDFExport/AI12PDF_Trapped	Integer	0
+	plugin/PDFExport/AI12PDF_ColorConversionPolicy	Integer	1
+	plugin/PDFExport/AI12PDF_OutputIntentProfileNamePolicy	Integer	1
+	plugin/PDFExport/AI12PDF_DestinationPolicy	Integer	1
+	plugin/PDFExport/AI12PDF_ProfileInclusionPolicy	Integer	1
+	plugin/PDFExport/AI12PDF_Standard	Integer	1
+	plugin/PDFExport/AI12PDF_DontShowSecurityWarning	Integer	0
+	plugin/PDFExport/AI11PDF_FlatteningPresetPrinterResolution	Real	800.0
+	plugin/PDFExport/AI11PDF_FlatteningPresetOutlineText	Integer	0
+	plugin/PDFExport/AI11PDF_FlatteningPresetOutlineStroke	Integer	1
+	plugin/PDFExport/AI16PDF_FlatteningPresetAntiAlias	Integer	0
+	plugin/PDFExport/AI11PDF_FlatteningPresetClipComplexRegion	Integer	1
+	plugin/PDFExport/AI11PDF_FlatteningPresetVectorBalance	Integer	75
+	plugin/PDFExport/AI11PDF_FlatteningPresetMinResolution	Real	150.0
+	plugin/PDFExport/AI11PDF_FlatteningPresetMaxResolution	Real	300.0
+	plugin/PDFExport/AI11PDF_FlatteningPresetName	String	
+	plugin/PDFExport/AI11PDF_FlattenTransparency	Integer	0
+	plugin/PDFExport/AI11PDF_PreserveAcrobatLayers	Integer	1
+	plugin/PDFExport/AI11PDF_Overprint	Integer	1
+	plugin/PDFExport/AI11PDF_SubsetFontRatio	Integer	1
+	plugin/PDFExport/AI14PDF_DocBleed	Integer	1
+	plugin/PDFExport/AI11PDF_BleedBottom	Real	0.0
+	plugin/PDFExport/AI11PDF_BleedTop	Real	0.0
+	plugin/PDFExport/AI11PDF_BleedRight	Real	0.0
+	plugin/PDFExport/AI11PDF_BleedLeft	Real	0.0
+	plugin/PDFExport/AI11PDF_BleedLink	Integer	1
+	plugin/PDFExport/AI11PDF_OffsetFromArtworkBottom	Real	6.0
+	plugin/PDFExport/AI11PDF_OffsetFromArtworkTop	Real	6.0
+	plugin/PDFExport/AI11PDF_OffsetFromArtworkRight	Real	6.0
+	plugin/PDFExport/AI11PDF_OffsetFromArtworkLeft	Real	6.0
+	plugin/PDFExport/AI11PDF_TrimMarkWeight	Real	0.25
+	plugin/PDFExport/AI11PDF_PrinterMarkType	Integer	1
+	plugin/PDFExport/AI11PDF_PageInfo	Integer	0
+	plugin/PDFExport/AI11PDF_ColorBars	Integer	0
+	plugin/PDFExport/AI11PDF_RegMarks	Integer	0
+	plugin/PDFExport/AI11PDF_TrimMarks	Integer	0
+	plugin/PDFExport/AI11PDF_CompressArt	Integer	1
+	plugin/PDFExport/AI11PDF_MonoDownsampleImageAbove	Integer	450
+	plugin/PDFExport/AI11PDF_MonochromeDownsampleResolution	Integer	300
+	plugin/PDFExport/AI11PDF_MonochromeDownsampleKind	Integer	1
+	plugin/PDFExport/AI11PDF_MonochromeCompressionKind	Integer	4
+	plugin/PDFExport/AI11PDF_GrayTileSize	Integer	256
+	plugin/PDFExport/AI11PDF_GrayDownsampleImageAbove	Integer	225
+	plugin/PDFExport/AI11PDF_GrayDownsampleResolution	Integer	150
+	plugin/PDFExport/AI11PDF_GrayDownsampleKind	Integer	1
+	plugin/PDFExport/AI11PDF_GrayCompressionQuality	Integer	1
+	plugin/PDFExport/AI11PDF_GrayCompressionKind	Integer	6
+	plugin/PDFExport/AI11PDF_ColorTileSize	Integer	256
+	plugin/PDFExport/AI11PDF_ColorDownsampleImageAbove	Integer	225
+	plugin/PDFExport/AI11PDF_ColorDownsampleResolution	Integer	150
+	plugin/PDFExport/AI11PDF_ColorDownsampleKind	Integer	1
+	plugin/PDFExport/AI11PDF_ColorCompressionQuality	Integer	1
+	plugin/PDFExport/AI11PDF_ColorCompressionKind	Integer	6
+	plugin/PDFExport/AI11PDF_FastWebView	Integer	0
+	plugin/PDFExport/AI11PDF_ViewPDFFile	Integer	0
+	plugin/PDFExport/AI11PDF_GenerateThumbnails	Integer	1
+	plugin/PDFExport/AI11PDF_PreserveIllustratorEditingCapabilities	Integer	1
+	plugin/PDFExport/AI12PDF_UsePrintTiling	Integer	0
+	plugin/PDFExport/AI11PDF_Compatibility	Integer	3
+	plugin/PDFExport/OptionSetNameSE	String	
+	plugin/PDFExport/OptionSetName	String	
+	plugin/PDFExport/OptionSet	Integer	2
+	plugin/PDFExport/FlattenerListEntryExpanded	Integer	0
+	plugin/PDFExport/MonoImageListEntryExpanded	Integer	0
+	plugin/PDFExport/GrayImageListEntryExpanded	Integer	0
+	plugin/PDFExport/ColorImageListEntryExpanded	Integer	0
+	plugin/PDFExport/SecurityListEntryExpanded	Integer	0
+	plugin/PDFExport/AdvancedListEntryExpanded	Integer	0
+	plugin/PDFExport/OutputPDFXExpanded	Integer	0
+	plugin/PDFExport/OutputColorExpanded	Integer	0
+	plugin/PDFExport/OutputListEntryExpanded	Integer	0
+	plugin/PDFExport/MarksBleedsListEntryExpanded	Integer	0
+	plugin/PDFExport/CompressionListEntryExpanded	Integer	0
+	plugin/PDFExport/GeneralListEntryExpanded	Integer	0
+	plugin/PDFExport/DescriptionListEntryExpanded	Integer	0
+消しゴムツールオプション > 角度 «数値»	plugin/EraserTool/angle	Real	0.0	Read Only?
+Eraser Tool Options > Angle «Real»	plugin/EraserTool/angle	Real	0.0	Read Only?
+消しゴムツールオプション > 角度 «種類»	plugin/EraserTool/angleDependsOn	Integer	0	Read Only?
+Eraser Tool Options > Angle «Type»	plugin/EraserTool/angleDependsOn	Integer	0	Read Only?
+消しゴムツールオプション > 角度 > 変位	plugin/EraserTool/angleVariation	Real	0.0	Read Only?
+Eraser Tool Options > Angle > Variation	plugin/EraserTool/angleVariation	Real	0.0	Read Only?
+消しゴムツールオプション > 真円率 «数値»	plugin/EraserTool/roundness	Real	100.0	Read Only?
+Eraser Tool Options > Roundness «Real»	plugin/EraserTool/roundness	Real	100.0	Read Only?
+消しゴムツールオプション > 真円率 «種類»	plugin/EraserTool/roundnessDependsOn	Integer	0	Read Only?
+Eraser Tool Options > Roundness «Type»	plugin/EraserTool/roundnessDependsOn	Integer	0	Read Only?
+消しゴムツールオプション > 真円率 > 変位	plugin/EraserTool/roundnessVariation	Real	0.0	Read Only?
+Eraser Tool Options > Roundness > Variation	plugin/EraserTool/roundnessVariation	Real	0.0	Read Only?
+消しゴムツールオプション > サイズ «数値»	plugin/EraserTool/diameter	Real	10.0	Read Only?
+Eraser Tool Options > Size «Real»	plugin/EraserTool/diameter	Real	10.0	Read Only?
+消しゴムツールオプション > サイズ «種類»	plugin/EraserTool/diameterDependsOn	Integer	0	Read Only?
+Eraser Tool Options > Size «Type»	plugin/EraserTool/diameterDependsOn	Integer	0	Read Only?
+消しゴムツールオプション > サイズ > 変位	plugin/EraserTool/diameterVariation	Real	0.0	Read Only?
+Eraser Tool Options > Size > Variation	plugin/EraserTool/diameterVariation	Real	0.0	Read Only?
+	plugin/EraserTool/angleRelativeTo	Integer	0
+	plugin/EraserTool/angleRnd	Real	0.0
+	plugin/EraserTool/roundnessRnd	Real	0.0
+	plugin/EraserTool/diameterRnd	Real	0.0
+	plugin/dBrush/OptionsDialog/PreviewState	Integer	0
+	plugin/dBrush/ShowCursorAnnotatorForMouse	Integer	0
+	plugin/dBrush/ShowGeneralBrushAnnotation	Integer	0
+	plugin/dBrush/ShowPoseAnnotation	Integer	0
+	plugin/dBrush/CountBeforeSavePrint	Integer	1
+	plugin/dBrush/MousePosePressure	Real	0.5
+	plugin/dBrush/MousePoseTwist	Real	0.0
+	plugin/dBrush/MousePoseAltitude	Real	45.0000012522
+	plugin/dBrush/MousePoseAzimuth	Real	45.0000012522
+	plugin/dBrush/MousePoseFollowPath	Integer	1
+	plugin/dBrush/UseSampledStepping	Integer	1
+	plugin/dBrush/ShowSteppingTrajectories	Integer	0
+	plugin/dBrush/PhysicsThreads	Integer	0
+	plugin/dBrush/UseODEPhysics	Integer	0
+	plugin/dBrush/UseSubSteppingInFeedback	Integer	0
+スムーズツールオプション > 精度	plugin/Adobe Freehand Smooth Tool/fairness_preset	Integer	2	次回起動時に取得／適用
+Smooth Tool Options > Fidelity	plugin/Adobe Freehand Smooth Tool/fairness_preset	Integer	2	次回起動時に取得／適用
+鉛筆ツールオプション > 精度	plugin/Adobe Freehand Tool/fairness_preset	Integer	2	Read Only?
+Pencil Tool Options > Fidelity	plugin/Adobe Freehand Tool/fairness_preset	Integer	2	Read Only?
+鉛筆ツールオプション > オプション > 鉛筆の線に塗りを適用	plugin/Adobe Freehand Tool/fill	Boolean	0	Read Only?
+Pencil Tool Options > Options > Fill new pencil strokes	plugin/Adobe Freehand Tool/fill	Boolean	0	Read Only?
+鉛筆ツールオプション > オプション > 選択を解除しない	plugin/Adobe Freehand Tool/select	Boolean	1	Read Only?
+Pencil Tool Options > Options > Keep selected	plugin/Adobe Freehand Tool/select	Boolean	1	Read Only?
+鉛筆ツールオプション > オプション > Option キーでスムーズツールを使用	plugin/Adobe Freehand Tool/toggle_to_smooth	Boolean	0	Read Only?
+Pencil Tool Options > Options > Option key toggles to Smooth Tool	plugin/Adobe Freehand Tool/toggle_to_smooth	Boolean	0	Read Only?
+鉛筆ツールオプション > オプション > 両端が次の範囲内のときにパスを閉じる «真偽値»	plugin/Adobe Freehand Tool/auto_close	Boolean	1	Read Only?
+Pencil Tool Options > Options > Close paths when ends are within «Checked»	plugin/Adobe Freehand Tool/auto_close	Boolean	1	Read Only?
+鉛筆ツールオプション > オプション > 両端が次の範囲内のときにパスを閉じる «Pixel»	plugin/Adobe Freehand Tool/closing_distance	Real	15.0	Read Only?
+Pencil Tool Options > Options > Close paths when ends are within «Pixel»	plugin/Adobe Freehand Tool/closing_distance	Real	15.0	Read Only?
+鉛筆ツールオプション > オプション > 選択したパスを編集	plugin/Adobe Freehand Tool/edit_selection	Boolean	1	Read Only?
+Pencil Tool Options > Options > Edit selected paths	plugin/Adobe Freehand Tool/edit_selection	Boolean	1	Read Only?
+鉛筆ツールオプション > オプション > 選択したパスを編集 > 範囲	plugin/Adobe Freehand Tool/editing_distance	Real	6.0	Read Only?
+Pencil Tool Options > Options > Edit selected paths > Within	plugin/Adobe Freehand Tool/editing_distance	Real	6.0	Read Only?
+効果 > ドキュメントのラスタライズ効果設定… > カラーモード/背景	plugin/Rasterize/Defaults/Type	Integer	4	Read Only?
+Effect >  Document Raster Effects Settings… > Color Model/Background	plugin/Rasterize/Defaults/Type	Integer	4	Read Only?
+効果 > ドキュメントのラスタライズ効果設定… > 解像度	plugin/Rasterize/Defaults/DPI	Integer	72
+Effect >  Document Raster Effects Settings… > Resolution	plugin/Rasterize/Defaults/DPI	Integer	72
+効果 > ドキュメントのラスタライズ効果設定… > オプション > アンチエイリアス	plugin/Rasterize/Defaults/Alias	Boolean	0	Read Only?
+Effect > Document Raster Effects Settings… > Options > Anti-alias	plugin/Rasterize/Defaults/Alias	Boolean	0	Read Only?
+効果 > ドキュメントのラスタライズ効果設定… > オプション > クリッピングマスクを作成	plugin/Rasterize/Defaults/Mask	Boolean	0	Read Only?
+Effect > Document Raster Effects Settings… > Options > Create Clipping Mask	plugin/Rasterize/Defaults/Mask	Boolean	0	Read Only?
+効果 > ドキュメントのラスタライズ効果設定… > オプション > オブジェクトの周囲に追加	plugin/Rasterize/Defaults/Padding	Real	36.0	Read Only?
+Effect > Document Raster Effects Settings… > Options > Add Around Object	plugin/Rasterize/Defaults/Padding	Real	36.0	Read Only?
+効果 > ドキュメントのラスタライズ効果設定… > オプション > 特色を保持	plugin/Rasterize/Defaults/Spot	Boolean	1	Read Only?
+Effect > Document Raster Effects Settings… > Options > Preserve spot colors	plugin/Rasterize/Defaults/Spot	Boolean	1	Read Only?
+	plugin/Rasterize/rasterizeMemory	Integer	20
+オブジェクト > 分割・拡張… > グラデーションの分割・拡張 > 指定 オブジェクト	plugin/objectExpand/gradientSteps	Integer	255	次回起動時に適用
+Object > Expand… > Expand Gradient To > Specify Objects	plugin/objectExpand/gradientSteps	Integer	255	次回起動時に適用
+	plugin/PG/PlaneSwitcherPosition	Integer	0
+	plugin/PG/PlaneSwitcherVisible	Integer	1
+	plugin/PG/infGridLines	Integer	1
+	plugin/PG/infObjects	Integer	1
+パスファインダーパネル > パスファインダーオプション… > 余分なポイントを削除	plugin/PathFinder/RemoveRedundantPoints	Boolean	1	次回起動時に適用
+Pathfinder Panel > Pathfinder Options… > Remove Redundant Points	plugin/PathFinder/RemoveRedundantPoints	Boolean	1	次回起動時に適用
+	plugin/SmartExport/SVGFormatSmartExport	Integer	0
+	plugin/SmartExport/PDFFormatSmartExport	Integer	0
+	plugin/SmartExport/JPEGFormatToExport	String	JPG File Format	その他の型。動作不可？
+	plugin/AIDefaultPersistentLibraryPrefix/_count	Integer	0
+	plugin/Workspaces/PrefCommentsPanelShowSetInWorkspace	Integer	1
+	plugin/Workspaces/PrefPropertiesPanelShowSetInWorkspace	Integer	1
+	plugin/Workspaces/PrefDLPanelShowSetInWorkspace	Integer	1
+	plugin/AISwatchLibPersistentPrefix/_count	Integer	0
+	plugin/Debug/timeActions	Integer	0
+	plugin/Debug/useDebugMenu	Integer	0
+	plugin/FavoriteFamily/FavoriteFamilyCount	Integer	0	お気に入りに追加したフォントファミリーの数。次回起動時に更新される
+	plugin/FavoriteFamily/0/Name	String	Myriad Pro	お気に入りに追加したフォントファミリーの名前。plugin/FavoriteFamily/1/Nameのように増える。次回起動時に更新される
+	plugin/RecentFont/1/FontTechnology	Integer	100
+	plugin/RecentFont/RecentFontCount	Integer	0
+プロパティパネル > アートボード > 変形 > 基準点	cropareatool/CropAreaControlPalette/9PointRef	Integer	0	次回起動時に適用。\nコントロール > アートボード > 基準点\nControl > Artboard > Reference Point
+Properties Panel > Artboard > Transform > Set the Reference Point	cropareatool/CropAreaControlPalette/9PointRef	Integer	0	次回起動時に適用。\nコントロール > アートボード > 基準点\nControl > Artboard > Reference Point
+プロパティパネル > アートボード > アートボード > オブジェクトと一緒に移動	plugin/CropAreaPrefix/MoveContentWithArtbrd	Boolean	1	コントロール > アートボード > オブジェクトと一緒に移動またはコピー\nControl > Artboard > Move/Copy Artwork with Artboard
+Properties Panel > Artboard > Artboards > Move artwork with Artboard	plugin/CropAreaPrefix/MoveContentWithArtbrd	Boolean	1	コントロール > アートボード > オブジェクトと一緒に移動またはコピー\nControl > Artboard > Move/Copy Artwork with Artboard
+プロパティパネル > アートボード > アートボード > オブジェクトと一緒に拡大・縮小	plugin/CropAreaPrefix/ScaleContentWithArtbrd	Boolean	0	コントロール > アートボード > オブジェクトと一緒に拡大・縮小\nControl > Artboard > Scale Artwork with Artboard
+Properties Panel > Artboard > Artboards > Scale artwork with Artboard	plugin/CropAreaPrefix/ScaleContentWithArtbrd	Boolean	0	コントロール > アートボード > オブジェクトと一緒に拡大・縮小\nControl > Artboard > Scale Artwork with Artboard
+	plugin/CropAreaPrefix/RealTimeFading	Integer	1
+	plugin/CropAreaPrefix/ShowFading	Integer	1
+透明パネル > 新規不透明マスクにクリッピングを適用	plugin/TransparencyPalette/NewMasksClip	Boolean	1	透明パネル > クリップ\nTransparency Panel > Clip
+Transparency Panel > New Opacity Masks Are Clipping	plugin/TransparencyPalette/NewMasksClip	Boolean	1	透明パネル > クリップ\nTransparency Panel > Clip
+透明パネル > 新規不透明マスクに反転を適用	plugin/TransparencyPalette/InvertNewMasks	Boolean	0	透明パネル > マスクを反転\nTransparency Panel > Invert Mask
+Transparency Panel > New Opacity Masks Are Inverted	plugin/TransparencyPalette/InvertNewMasks	Boolean	0	透明パネル > マスクを反転\nTransparency Panel > Invert Mask
+ファイル > 書き出し > 書き出し形式… > PNG オプション > オプション > 解像度	plugin/PNGFileFormat/ResolutionR	Real	72
+File > Export > Export As… > PNG Options > Options > Resolution	plugin/PNGFileFormat/ResolutionR	Real	72
+ファイル > 書き出し > 書き出し形式… > PNG オプション > オプション > アンチエイリアス	plugin/PNGFileFormat/AntiAlias	Integer	1
+File > Export > Export As… > PNG Options > Options > Anti-aliasing	plugin/PNGFileFormat/AntiAlias	Integer	1
+ファイル > 書き出し > 書き出し形式… > PNG オプション > オプション > インターレース	plugin/PNGFileFormat/Interlaced	Boolean	0
+File > Export > Export As… > PNG Options > Options > Interlaced	plugin/PNGFileFormat/Interlaced	Boolean	0
+ファイル > 書き出し > 書き出し形式… > PNG オプション > プレビュー > 背景色 > 透明	plugin/PNGFileFormat/BackgroundTransparent	Boolean	1	{true: 透明, false: それ以外の色}
+File > Export > Export As… > PNG Options > Preview > Background Color > Transparent	plugin/PNGFileFormat/BackgroundTransparent	Boolean	1	{true: 透明, false: それ以外の色}
+ファイル > 書き出し > 書き出し形式… > PNG オプション > プレビュー > 背景色 «Red»	plugin/PNGFileFormat/Background/red	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+File > Export > Export As… > PNG Options > Preview > Background Color «Red»	plugin/PNGFileFormat/Background/red	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+ファイル > 書き出し > 書き出し形式… > PNG オプション > プレビュー > 背景色 «Green»	plugin/PNGFileFormat/Background/green	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+File > Export > Export As… > PNG Options > Preview > Background Color «Green»	plugin/PNGFileFormat/Background/green	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+ファイル > 書き出し > 書き出し形式… > PNG オプション > プレビュー > 背景色 «Blue»	plugin/PNGFileFormat/Background/blue	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+File > Export > Export As… > PNG Options > Preview > Background Color «Blue»	plugin/PNGFileFormat/Background/blue	Integer	65535	plugin/PNGFileFormat/BackgroundTransparentがfalseのとき有効
+	plugin/PNGFileFormat/NumberOfColors	Integer	0
+	plugin/MTRasterize/rasterizeMemory	Integer	30
+	plugin/ai_navigation_put/apnd	Integer	0
+	plugin/ai_navigation_put/lowr	Integer	1
+	plugin/ai_navigation_put/exto	Integer	0
+	plugin/ai_navigation_put/alla	Integer	1
+	plugin/ai_navigation_put/rstr	String	6
+	plugin/Luckyworker Pref/ReadPDFContent	Integer	0
+	plugin/AdobePaintStyle/GradientMeshFTUEShown	Integer	0
+	plugin/AdobePaintStyle/ToolIntroFTUEShown	Integer	0
+	plugin/AdobePaintStyle/ToolIntroFTUEShownCount	Integer	2
+	plugin/3D Plugin Flattener Pref/DontReorderClipGroups	Integer	0
+	plugin/SymbolsPopupPanel/VisibleKind	Integer	0
+	plugin/Character Style/proxy	Integer	0
+プロパティパネル > 切り抜き > 変形 > 基準点	plugin/Adobe Crop UI/CropAnchorPoint	Integer	4	次回起動時に適用。画像の切り抜き発動時に使用。\nコントロール > 切り抜き > 変形 > 基準点\nControl > Cropping > Transform > Reference Point
+Properties Panel > Cropping > Transform > Reference Point	plugin/Adobe Crop UI/CropAnchorPoint	Integer	4	次回起動時に適用。画像の切り抜き発動時に使用。\nコントロール > 切り抜き > 変形 > 基準点\nControl > Cropping > Transform > Reference Point
+パターンオプションパネル > タイルの境界線カラー… > カラー «Red»	plugin/AIPattern_Default_Tile_Color/Red	Integer	0
+Pattern Options Panel > Tile Edge Color… > Color «Red»	plugin/AIPattern_Default_Tile_Color/Red	Integer	0
+パターンオプションパネル > タイルの境界線カラー… > カラー «Green»	plugin/AIPattern_Default_Tile_Color/Green	Integer	0
+Pattern Options Panel > Tile Edge Color… > Color «Green»	plugin/AIPattern_Default_Tile_Color/Green	Integer	0
+パターンオプションパネル > タイルの境界線カラー… > カラー «Blue»	plugin/AIPattern_Default_Tile_Color/Blue	Integer	65535
+Pattern Options Panel > Tile Edge Color… > Color «Blue»	plugin/AIPattern_Default_Tile_Color/Blue	Integer	65535
+効果 > ぼかし > ぼかし (ガウス)… > 半径	plugin/PSLFilterAdapterPlugin/Radius	Real	30
+Effect > Blur > Gaussian Blur… > Radius	plugin/PSLFilterAdapterPlugin/Radius	Real	30
+効果 > スタイライズ > ぼかし… > 半径	plugin/FuzzyMask/Radius	Real	6
+Effect > Stylize > Feather… Radius	plugin/FuzzyMask/Radius	Real	6
+	plugin/FuzzyMask/Preview	Integer	1	廃止？ plugin/PreviewPref/FeatherEffectPreviewPrefで制御できる
+オブジェクト > グラデーションメッシュを作成… > プレビュー	plugin/CreateMesh/Preview	Boolean	0
+Object > Create Gradient Mesh… > Preview	plugin/CreateMesh/Preview	Boolean	0
+オブジェクト > グラデーションメッシュを作成… > 行数	plugin/CreateMesh/Rows	Integer	4
+Object > Create Gradient Mesh… > Rows	plugin/CreateMesh/Rows	Integer	4
+オブジェクト > グラデーションメッシュを作成… > 列数	plugin/CreateMesh/Columns	Integer	4
+Object > Create Gradient Mesh… > Columns	plugin/CreateMesh/Columns	Integer	4
+オブジェクト > グラデーションメッシュを作成… > 種類	plugin/CreateMesh/Shade	Integer	0
+Object > Create Gradient Mesh… > Appearance	plugin/CreateMesh/Shade	Integer	0
+オブジェクト > グラデーションメッシュを作成… > ハイライト	plugin/CreateMesh/Hilite	Real	100
+Object > Create Gradient Mesh… > Highlight	plugin/CreateMesh/Hilite	Real	100
+	plugin/com.adobe.ccx.fnft/Location and Size/l	Integer	305
+	plugin/com.adobe.ccx.fnft/Location and Size/t	Integer	206
+	plugin/com.adobe.ccx.fnft/Location and Size/b	Integer	821
+	plugin/com.adobe.ccx.fnft/Location and Size/r	Integer	1375
+自動選択パネル > すべてのレイヤーを適用	plugin/Magic Wand/UseAllLayers	Boolean	1
+Magic Wand Panel > Use All Layers	plugin/Magic Wand/UseAllLayers	Boolean	1
+	showPDFOptionDialog	Integer	1
+	maxBridgeMRUFiles	Integer	30
+	Threshold/DbrushPath/Print	Integer	30
+	Threshold/DbrushPath/Save	Integer	30
+	Threshold/DbrushPath/Clipboard	Integer	30
+	actionwarning/oldFileFormat	Integer	1
+	printing/PostScript/preserveImageOrMeshFilledText	Integer	0
+	forceExtension	Integer	1
+	enableThreadedRendering	Integer	1
+	NewRenderingEnabled	Integer	1
+	FileFormatGetFile/Link	Integer	1
+	PeriodicCopyDelay	Real	0.5
+	ExperimentalPixelMerge	Integer	0
+	defaultPathShown	Integer	1
+	photoshopFilter/excludeSpots	Integer	0
+	photoshopFilter/separateProcess	Integer	0
+	ImagePerformance/DisableCache	Integer	0
+オブジェクト > パス > 単純化… > 最新の設定を保持し、このダイアログを直接開く	Simplify/skipHUD	Boolean	0
+Object > Path > Simplify… > Retain my latest settings and directly open this dialog	Simplify/skipHUD	Boolean	0
+オブジェクト > パス > 単純化… > アンカーポイントを削減 > 曲線の単純化	Simplify/curvePrecision	Integer	100
+Object > Path > Simplify… > Reduce Anchor Points > Simplify Curve	Simplify/curvePrecision	Integer	100
+オブジェクト > パス > 単純化… > アンカーポイントを削減 > コーナーポイント角度のしきい値	Simplify/angleThreshold	Integer	1
+Object > Path > Simplify… > Reduce Anchor Points > Corner Point Angle Threshold	Simplify/angleThreshold	Integer	1
+	resetPreferencesSet	Integer	0
+	GPPreferences/resetPreferencesSet	Integer	0
+	pattern/automaticBoundingBox	Boolean	1	falseにすると，パターン生成のとき枠になる透明の四角が必須になる。trueのときはアイテムから自動でサイズを取得する
+	GraphDimDialogConstrainPref	Integer	0
+	dontShowAgainOnboarding	Boolean	0
+	savingAsCopy	Boolean	0
+	cloudAIAutoSaveCoachMarkAcknowledged	Integer	1
+	AIPattern_Default_Dimming_On	Integer	1
+	AIPattern_Default_Dim_Percent	Real	30
+	countRecentPPDS	Integer	0
+	Vectorize/WriteToSVgFile	Integer	0
+	mesh/c1Tolerance	Real	3.0000000000000001E-3
+	mesh/Flatness	Real	0.1
+	mesh/c1Filter	Integer	1
+	rulerTyle	Integer	28108440
+	ShowExternalJSXWarning	Boolean	0	外部ExtendScript実行時，警告を表示する
+	SavingFromInviteToEdit	Integer	0
+コントロール > 作成および変形時にアートをピクセルグリッドに整合	snapToPixelOnUserAction	Boolean	0	新規書類のときに切り替わる
+Control > Align art to pixel grid on creation and transformation	snapToPixelOnUserAction	Boolean	0	新規書類のときに切り替わる
+	AdobePlaceCloudDocumentPreference	Integer	0
+	ReplacingLinks	Boolean	0
+	AdobeReplacingLinkWithLocalDocumentPreference	Integer	0
+	ElevatedSaveForCloudDocument	Integer	0
+	ElevatedSaveToCloud	Integer	0
+	SavingBeforeInviteToEdit	Boolean	0
+	SwitchingNativeToCDPDlg	Boolean	0
+	enhanced3DEffectsOnboardingCoachMarkAcknowledged	Integer	0
+	globalRulersVisible	Boolean	1
+	changed	Integer	0
+	AIEnableAnnotationWithAsyncPan	Integer	0
+	AIIsModifiedPreset	Integer	1
+	AILastUsedPDFSaveSettings	String	[Smallest File Size (PDF 1.6)]	値：\n[Smallest File Size (PDF 1.6)]
+	AIShouldSuspendIdleInBackgroud	Integer	1
+	ConsistenFontReccomendation	Integer	0
+ウィンドウ > コンテキストタスクバー	ContextualTaskBarEnabled	Boolean	0	v27.9では再起動時，v28からはリアルタイムで適用される
+Window > Contextual Task Bar	ContextualTaskBarEnabled	Boolean	0	v27.9では再起動時，v28からはリアルタイムで適用される
+	DimensionToolForceInjected	Integer	1
+	EnableJSONForClipboardCopy	Integer	1
+	EnableJSONForClipboardPaste	Integer	1
+	ExportSettings/browselocation	String	
+	GenAI/AILegalTermsAccepted_V2	Integer	1
+	GradientColorStopDialogPref	Integer	0
+	GradientToolUsedOnce	Integer	1
+	HistoryPanelOpenedOnce	Integer	0
+	IntertwineToolUsedOnce	Integer	0
+	NumOfTimesSFROnboardingShownPref	Integer	0
+	Onboarding/OnShapeCreation/FirstCard	Integer	1
+	Onboarding/OnShapeCreation/SecondCard	Integer	0
+	Onboarding/OnShapeCreation/ThirdCard	Integer	0
+	Onboarding/SampleFile/FirstCard	Integer	0
+	Onboarding/UserFile/FirstCard	Integer	0
+	RecolorArtworkBlueDotShownCount	Integer	3
+	Responsive_Zoom_EPF_Limit	Real	6.6666666667
+	S4RSharesheetOnboardingPref	Integer	0
+	SFRDontShowModalIntercepts	Integer	0
+	SFRInterceptExportAsStatePref	Integer	0
+	SFRInterceptRestartCountSuffix	Integer	0
+	SFRInterceptSaveAsPDFStatePref	Integer	0
+	SFRInterceptShownTotalCountPref	Integer	0
+	SFRInterceptStatePref	Integer	0
+	SFRJPGPNGInterceptRandomContentSeqToShow	Integer	0
+	SFRLastInterceptShownTS	Integer	0
+	SFRLastReviewCreatedUpdatedTS	Integer	0
+	SFRLinkCreatedPref	Integer	0
+	SFRPDFInterceptRandomContentSeqToShow	Integer	0
+	SVGWriterCPPSave	Integer	0
+	SettingsToolTip	Integer	1
+	Simplify/smoothingPercentage	Real	0
+オブジェクト > 変形 > 個別に変形… > 縦横比を固定	TransformEachConstrain	Boolean	0
+Object > Transform > Transform Each… > Constrain Width and Height Proportions	TransformEachConstrain	Boolean	0
+	enableConcurrentEditing	Integer	0
+	generateView	Integer	1
+	isCurvatureToolApplied	Integer	0
+	plugin/Adobe ReType/ContextualCoachShownCount	Integer	3
+	plugin/Adobe ReType/OnDemandPopupFirstLaunchFromMode	Integer	1
+	plugin/Adobe ReType/RetypePanelFirstLaunch	Integer	1
+オブジェクト > リピート > リピートオプション… > ラジアル > インスタンス数	plugin/Adobe Repeat Arts UI/RadialInstances	Integer	8
+Object > Repeat > Options… > Radial > Number of instances	plugin/Adobe Repeat Arts UI/RadialInstances	Integer	8
+オブジェクト > リピート > リピートオプション… > ラジアル > 重なりを反転	plugin/Adobe Repeat Arts UI/ReverseOverlapCheckbox	Boolean	0
+Object > Repeat > Options… > Radial > Reverse Overlap	plugin/Adobe Repeat Arts UI/ReverseOverlapCheckbox	Boolean	0
+オブジェクト > リピート > リピートオプション… > グリッド > グリッドの水平方向の間隔	plugin/Adobe Repeat Arts UI/HorizontalSpacing	Real	40
+Object > Repeat > Options… > Grid > Horizontal spacing in grid	plugin/Adobe Repeat Arts UI/HorizontalSpacing	Real	40
+オブジェクト > リピート > リピートオプション… > グリッド > グリッドの垂直方向の間隔	plugin/Adobe Repeat Arts UI/VerticalSpacing	Real	10
+Object > Repeat > Options… > Grid > Vertical spacing in grid	plugin/Adobe Repeat Arts UI/VerticalSpacing	Real	10
+オブジェクト > リピート > リピートオプション… > グリッド > グリッドの種類	plugin/Adobe Repeat Arts UI/GridPatternType	Integer	1
+Object > Repeat > Options… > Grid > Grid Type	plugin/Adobe Repeat Arts UI/GridPatternType	Integer	1
+オブジェクト > リピート > リピートオプション… > グリッド > 行を反転 > 水平方向に反転	plugin/Adobe Repeat Arts UI/FlipRowY	Boolean	0
+Object > Repeat > Options… > Grid > Flip Rows > Flip horizontal	plugin/Adobe Repeat Arts UI/FlipRowY	Boolean	0
+オブジェクト > リピート > リピートオプション… > グリッド > 行を反転 > 垂直方向に反転	plugin/Adobe Repeat Arts UI/FlipRowX	Boolean	0
+Object > Repeat > Options… > Grid > Flip Rows > Flip vertical	plugin/Adobe Repeat Arts UI/FlipRowX	Boolean	0
+オブジェクト > リピート > リピートオプション… > グリッド > 列を反転 > 水平方向に反転	plugin/Adobe Repeat Arts UI/FlipColumnY	Boolean	0
+Object > Repeat > Options… > Grid > Flip Column > Flip horizontal	plugin/Adobe Repeat Arts UI/FlipColumnY	Boolean	0
+オブジェクト > リピート > リピートオプション… > グリッド > 列を反転 > 垂直方向に反転	plugin/Adobe Repeat Arts UI/FlipColumnX	Boolean	0
+Object > Repeat > Options… > Grid > Flip Column > Flip vertical	plugin/Adobe Repeat Arts UI/FlipColumnX	Boolean	0
+オブジェクト > リピート > リピートオプション… > ミラー > ミラー軸の角度	plugin/Adobe Repeat Arts UI/AxisRotationAngle	Real	90
+Object > Repeat > Options… > Mirror > Angle of mirror axis	plugin/Adobe Repeat Arts UI/AxisRotationAngle	Real	90
+	plugin/AdobePaintStyle/Color Dialog Color Space	Integer	3
+	plugin/DimensionUI/AssisstiveCount	Integer	11
+	plugin/DimensionUI/DimensionCount	Integer	16
+	plugin/DimensionUI/DimensionFeedbackShown	Integer	1
+	plugin/DimensionUI/DimensionToolInvokedCount	Integer	1
+	plugin/DimensionUI/ManualCount	Integer	1
+	plugin/DimensionUI/RadialInvokedCount	Integer	1
+	plugin/DimensionUI/ToolOptionsInvoked	Integer	1
+	plugin/ExperimentationPrefix/AILightHandled	Integer	0
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > 画像圧縮 > 可逆圧縮 «真偽値»	plugin/ImageDecoderEncoder/AIWebPEncodeLosslessCompression	Boolean	1	動作しない？ {true: 可逆圧縮, false: 非可逆圧縮}\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Image Compression > Lossless «Boolean»	plugin/ImageDecoderEncoder/AIWebPEncodeLosslessCompression	Boolean	1	動作しない？ {true: 可逆圧縮, false: 非可逆圧縮}\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > 画像圧縮 > 非可逆圧縮 > 画質	plugin/ImageDecoderEncoder/AIWebPEncodeImageQuality	Integer	100	動作しない？ \nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Image Compression > Lossy > Quality	plugin/ImageDecoderEncoder/AIWebPEncodeImageQuality	Integer	100	動作しない？ \nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > オプション > アンチエイリアス	plugin/ImageDecoderEncoder/AIWebPEncodeAntiAlias	Integer	2	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Anti-aliasing	plugin/ImageDecoderEncoder/AIWebPEncodeAntiAlias	Integer	2	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > オプション > 背景色 > 透明 «真偽値»	plugin/ImageDecoderEncoder/AIWebPEncodeIsTransparent	Boolean	1	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Background Color > Transparent «Boolean»	plugin/ImageDecoderEncoder/AIWebPEncodeIsTransparent	Boolean	1	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > オプション > 背景色 «Red»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorRed	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Background Color «Red»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorRed	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > オプション > 背景色 «Green»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorGreen	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Background Color «Green»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorGreen	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > オプション > 背景色 «Blue»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorBlue	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Background Color «Blue»	plugin/ImageDecoderEncoder/AIWebPEncodeMatteColorBlue	Integer	65535	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > ICC プロファイルを埋め込む	plugin/ImageDecoderEncoder/AIWebPEncodeEmbedICCProfile	Boolean	1	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Embed ICC Profile	plugin/ImageDecoderEncoder/AIWebPEncodeEmbedICCProfile	Boolean	1	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > スクリーン用に書き出し… > 形式の設定 > WebP > XMP メタデータを含める	plugin/ImageDecoderEncoder/AIWebPEncodeIncludeXMPMetadata	Boolean	0	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+File > Export > Export for Screens… > Format Settings > WebP > Options > Include XMP Metadata	plugin/ImageDecoderEncoder/AIWebPEncodeIncludeXMPMetadata	Boolean	0	動作しない？\nファイル > 書き出し > 書き出し形式… と設定を共有する
+ファイル > 書き出し > 書き出し形式… > WebP オプション > オプション > 解像度	plugin/ImageDecoderEncoder/AIWebPEncodePPI	Real	72.0	動作しない？
+File > Export > Export As… > WebP Options > Options > Resolution	plugin/ImageDecoderEncoder/AIWebPEncodePPI	Real	72.0	動作しない？
+	plugin/OnBoarding/IntertwineOnBoardingShownCount	Integer	2
+	plugin/OnBoarding/PantoneLibOnBoardingShownCountAugust2023	Integer	0
+	plugin/OnBoarding/PantoneLibOnBoardingShownCountNovember2022	Integer	0
+	plugin/OnBoarding/RecolorArtworkTooltipShownCount	Integer	1
+	plugin/OnBoarding/SelectSaveTooltipShownCount	Integer	1
+	plugin/OnBoarding/VectorEdgeOnBoardingShownCount	Integer	1
+	plugin/OnBoarding/VectorEdgeRichMediaCardShownCount	Integer	1
+	plugin/OnBoarding/dontShowAgainPantoneLibOnBoardingAugust2023	Integer	0
+	plugin/OnBoarding/dontShowAgainPantoneLibOnBoardingNovember2022	Integer	0
+	plugin/PDFExport/AI11PDF_IncludeHyperlinks	Boolean	1
+	plugin/PDFImport/UseInMemoryPDFLRepair	Integer	0
+ファイル > 書き出し > 書き出し形式… > TIFF オプション > カラーモード	plugin/TIFFFileFormat/ColorModel	Integer	1
+File > Export > Export As… > TIFF Options > Color Model	plugin/TIFFFileFormat/ColorModel	Integer	1
+ファイル > 書き出し > 書き出し形式… > TIFF オプション > 解像度	plugin/TIFFFileFormat/DPI	Real	300
+File > Export > Export As… > TIFF Options > Resolution	plugin/TIFFFileFormat/DPI	Real	300
+ファイル > 書き出し > 書き出し形式… > TIFF オプション > アンチエイリアス	plugin/TIFFFileFormat/AntiAlias	Integer	2
+File > Export > Export As… > TIFF Options > Anti-aliasing	plugin/TIFFFileFormat/AntiAlias	Integer	2
+ファイル > 書き出し > 書き出し形式… > TIFF オプション > LZW 圧縮	plugin/TIFFFileFormat/LZWCompression	Boolean	1
+File > Export > Export As… > TIFF Options > LZW Compression	plugin/TIFFFileFormat/LZWCompression	Boolean	1
+	plugin/TIFFFileFormat/ByteOrder	Integer	2	無視される？ 常にTIFFByteOrder.IBMPC。ファイルの先頭がIIならIBMPC、MMならMACINTOSH
+	plugin/TIFFFileFormat/PreserveSpotColors	Integer	0
+	plugin/ai_navigation_put/suffixstr	Integer	0
+	plugin/ai_navigation_put/unembedAll	Integer	0
+	plugin/snapping/disableSelfSnapping	Integer	1
+	typeConversion/NumConversionMessageShown	Integer	1
+一般 > 裁ち落とし部分に「裁ち落としを印刷」生成 AI ボタンを表示	enablePrintBleedWidget	Boolean	0
+General > Show 'Print Bleed' generative AI buttons on Bleed	enablePrintBleedWidget	Boolean	0
+
+// 環境設定キーの追加（2026-09-27、Ai 30 の環境設定ファイルにあって xlsx に無かったもの。名前は未設定）
+	ArtboardBBColorRed	Real	0.0	アートボードの境界線の色（RGB 0〜1）。例：ライトブルー 0.29 / 0.52 / 1.0、ライトレッド 1.0 / 0.29 / 0.29、グリーン 0 / 0.65 / 0.31。Red・Green・Blue の3キーをそろえて書く（PresetManager.jsx）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+	ArtboardBBColorGreen	Real	0.0	アートボードの境界線の色（RGB 0〜1）。Red・Green・Blue の3キーをそろえて書く（PresetManager.jsx）
+	ArtboardBBColorBlue	Real	0.0	アートボードの境界線の色（RGB 0〜1）。Red・Green・Blue の3キーをそろえて書く（PresetManager.jsx）
+	ArtboardBBWidth	Real	1.0	アートボードの境界線の幅（PresetManager.jsx の選択肢は 1 / 2 / 3 / 4）\n書き込み後は app.redraw() だけでは画面に反映されないことがある（PresetManager.jsx は zoomout → zoomin で再描画）
+	showArtboardLabelOnCanvas	Integer	1	アートボード名をカンバスに表示（PresetManager.jsx）
+	enableEnclosedMode	Integer	0
+	excludeEffectRegionsFromHitTest	Integer	0
+	uiShareButtonIsBlue	Integer	0
+	showColorSamplingRing	Integer	1
+	smartGuides/sensitivity	Integer	1
+	smartGuides/cursorSnapping	Integer	0
+	smartGuides/snapToIsolatedObjects	Integer	1
+	smartGuides/invokeDistanceGuides	Integer	1
+	alignmentGuides/showSnapToGuide	Integer	1
+	alignmentGuides/showArtboardGuides	Integer	1
+	alignmentGuides/centerpoint	Integer	1
+	alignmentGuides/midpoint	Integer	1
+	alignmentGuides/endpoint	Integer	1
+	snapomatic/ConstructionGuideColor/red	Real	0.180392161
+	snapomatic/ConstructionGuideColor/green	Real	0.1921568662
+	snapomatic/ConstructionGuideColor/blue	Real	0.5725490451
+	Performance/FlickPan	Integer	0
+	Performance/TurnOffGPUDueToCrash	Integer	0
+	fSnapToGrid	Integer	1
+	AIDisableAsyncRendering	Integer	0
+	plugin/Adobe Constraints UI/PivotPointPreference	Integer	4
+	plugin/Adobe Constraints UI/RotationAnglePreference	Real	0.0
+	plugin/Adobe Constraints UI/CopyPasteToastShown	Integer	0
+	plugin/Magic Wand/BlendModeEnabled	Integer	0
+	plugin/Magic Wand/OpacityEnabled	Integer	0
+	plugin/Magic Wand/StrokeWeightEnabled	Integer	0
+	plugin/Magic Wand/StrokeColorEnabled	Integer	0
+	plugin/Magic Wand/FillColorEnabled	Integer	1
+	plugin/Magic Wand/CMYKStrokeColorTolerance	Integer	20
+	plugin/Magic Wand/CMYKFillColorTolerance	Integer	20
+	plugin/Magic Wand/RGBStrokeColorTolerance	Integer	32
+	plugin/Magic Wand/RGBFillColorTolerance	Integer	32
+	plugin/Magic Wand/OpacityTolerance	Real	0.0500000007
+	plugin/Magic Wand/StrokeWeightTolerance	Real	5.0
+	plugin/Adobe Measure Tool/MeasureTool_Precision	Integer	2
+	plugin/Adobe Measure Tool/MeasureTool_CustomScale_Count	Integer	0
+	plugin/Adobe Measure Tool/MeasureTool_CustomScale_ReplacementIndex	Integer	0
+	plugin/Adobe Measure Tool/MeasureTool_Scale	Integer	0
+	plugin/Adobe Measure Tool/MeasureTool_Units	Integer	0
+
+// 追加：Ai 30.8.2 の再調査（2026-09-27）。ショートカットファイルにあった ID のうち Adobe 純正のもの。名前は sttk3 Notion・Ai Command Palette、改名された ID は旧 ID の名前
+書式 > エリア内文字オプション...	areatextoptions	旧 ID：area-type-options
+その他 > コピー (2)	copy2
+その他 > カット (2)	cut2
+その他 > ヘルプ (2)	helpcontent2
+その他 > ペースト (2)	paste2
+ファイル > テンプレートとして保存...	saveasTemplate	旧 ID：saveastemplate
+編集 > 環境設定 > 選択範囲・アンカー表示...	selectionPref	旧 ID：selectPref
+Illustrator > 環境設定 > 選択範囲・アンカー表示...	selectionPref	旧 ID：selectPref
+選択範囲・アンカー表示	selectionPref	旧 ID：selectPref
+ヘルプ > システム情報...	systemInfo	旧 ID：System Info
+書式 > パス上文字オプション > 3D リボン	textpathtype3d	旧 ID：3D ribbon
+書式 > パス上文字オプション > 引力	textpathtypeGravity	旧 ID：Gravity
+書式 > パス上文字オプション > パス上文字オプション...	textpathtypeOptions	旧 ID：typeOnPathOptions
+書式 > パス上文字オプション > 虹	textpathtypeRainbow	旧 ID：Rainbow
+書式 > パス上文字オプション > 歪み	textpathtypeSkew	旧 ID：Skew
+書式 > パス上文字オプション > 階段状	textpathtypestairs	旧 ID：Stair Step
+その他 > 取り消し (2)	undo2
+編集 > 環境設定 > ユーザーインターフェイス...	userInterfacePref	旧 ID：UIPref
+Illustrator > 環境設定 > ユーザーインターフェイス...	userInterfacePref	旧 ID：UIPref
+ユーザーインターフェイス	userInterfacePref	旧 ID：UIPref
+その他 > ズームイン (2)	zoomin2
+その他 > 下付き文字 (2)	~subscript2
+その他 > 上付き文字 (2)	~superScript2
+Other Misc > Copy (Secondary)	copy2
+Other Misc > Cut (Secondary)	cut2
+Other Misc > Help (Secondary)	helpcontent2
+Other Misc > Paste (Secondary)	paste2
+Selection & Anchor Display	selectionPref	旧 ID：selectPref
+Other Misc > Undo (Secondary)	undo2
+User Interface	userInterfacePref	旧 ID：UIPref
+Other Misc > Zoom In (Secondary)	zoomin2
+Other Misc > Subscript (Secondary)	~subscript2
+Other Misc > Superscript (Secondary)	~superScript2
+
+// 追加：同上。名前が分からないもの（名前は空）
+	Adobe Presentation Mode
+	AdobeAlignHorizVertCenterToArtboardOther
+	Apply Last Filter
+	ExportSettings
+	ImportSettings
+	Last Filter
+	OpenGLCompositorPreview
+	RotateView120
+	RotateView135
+	RotateView15
+	RotateView150
+	RotateView180
+	RotateView30
+	RotateView45
+	RotateView60
+	RotateView90
+	RotateViewNegative120
+	RotateViewNegative135
+	RotateViewNegative15
+	RotateViewNegative150
+	RotateViewNegative180
+	RotateViewNegative30
+	RotateViewNegative45
+	RotateViewNegative60
+	RotateViewNegative90
+	RotateViewZero
+	appframe
+	applicationbar
+	bringAllToFront
+	closeAll2
+	collectForExportMultipleAsset
+	collectForExportSingleAsset
+	convertlegacyText
+	convertlegacyText1
+	convertlegacyText2
+	convertlegacyText3
+	convertlegacyText4
+	debugPalette
+	glyphSnapping
+	hideApp
+	hideOthers
+	minimizeWindow
+	openInFFBoards
+	pixelconstraints
+	resetRotationView
+	rotateViewToSelection
+	showAllWindows
+	supportContent
+	switchUnits
+	view1
+	view10
+	view2
+	view3
+	view4
+	view5
+	view6
+	view7
+	view8
+	view9
+	~nonBreakingSpace
+	~placeHolderText
+	Adobe Ignore Color Tool
+	Rearrange Artboard Tool
+
+// 環境設定キーの追加：Ai 30.8.2 の再調査（2026-09-27）。サードパーティ製プラグイン・履歴・案内の表示済みフラグは除外
+	AutoInstantSave/IdleLoopTimeInterval	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	DisableHoverScrollOnUnfocused	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	forceSnapToGrid	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	highContrastEnabled	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	Show/HideRecentFonts	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	ShapeCoreUI/LiveShape/NumStarPoints	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/Adobe Freehand Tool/round_caps	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/AdobePaintStyle/gradientPresetPopupViewType	Integer	3	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/AdobePaintStyle/gradientPresetViewType	Integer	3	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/AdobeSwatchPopup_Fill/ShowRecentColors	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/AdobeSwatchPopup_Stroke/ShowRecentColors	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/AdobeSwatch_/ShowRecentColors	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/ArtboardColor/Kind	Integer	6	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/ContextualTaskBar/Pinned	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/ContextualTaskBar/PositionH	Real	0.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/ContextualTaskBar/PositionV	Real	0.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SmartExport/AIFormatSmartExport	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/HideBackground	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/LinkDimension	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/ShowColorInfo	Integer	255	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/SwatchChipHeight	Real	100.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/SwatchChipMarginHorizontal	Real	10.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/SwatchChipMarginVertical	Real	10.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SwatchPalettePrefix/SwatchChipWidth	Real	100.0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/SymbolPalette/NewSymbol/SymbolType	Integer	2	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/svgOMGOptionDlg/O_RasterFormat	Integer	4	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	plugin/svgOMGOptionDlg/O_RasterResolution	Integer	72	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	showHelpBar	Integer	0	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	showSnapping	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	showVisualGuidesForSnapToGrid	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	snapToTangentPerpendicularParallel	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	text/enableAutoFontDownloadForGenAI	Integer	1	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+	tolerance	Integer	6	Ai 30.8.2 の再調査で追加（名前・値の意味は未確認）
+
+// 追加：廃止されたコマンド（sttk3 Notion で maxVersion が 99 未満のもの。2026-09-27）
+オブジェクト > 裁ち落としを印刷...	Gen Bleed Object Menu	廃止：Ai 29.8 まで（Ai 29.6 から）
+Object > Print Bleed...	Gen Bleed Object Menu	廃止：Ai 29.8 まで（Ai 29.6 から）
+ファイル > ベクターを生成	Generate Modal File Menu 	廃止：Ai 29.8 まで（Ai 29.5 から）
+File > Generate Vectors	Generate Modal File Menu 	廃止：Ai 29.8 まで（Ai 29.5 から）
