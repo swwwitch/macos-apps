@@ -1,5 +1,19 @@
 # リリースキュー
 
+## 2026-11-12 VectorMate：右ボタン／中ボタンのドラッグで画面をパン
+
+- 受付：2026-11-12（JST）、元チャット：本チャット（Mac の Illustrator で右ドラッグのパン）。受付担当：開発Mac MacBook-Pro-14-2024-sw、ブランチ `codex/filesorter-screenshot-rename-20261101`、参照HEAD `c941043b0c8904f26a869112a64d1b60f7b77cf9`。実装先はユーザーの選択で VectorMate（新規アプリ・使い捨てスクリプトではなく）。
+- 要望：Illustrator が前面のとき、右ボタンのドラッグで画面をパン（手のひらツール）する。
+- 方針：CGEventTap（能動）で右ボタンを受け、数px動いたら「スペース押下＋左ボタン押下」に置き換えてドラッグを左ドラッグとして流し、右ボタンを離したら左ボタン→スペースの順に離す。動かさずに離したら通常の右クリック（コンテキストメニュー）を送る（メニューは押した時でなく離した時に出る）。修飾キー付きの右ボタン、Illustrator 以外、文字入力中（スペースが文字として入るため）はそのまま通す。設定にオン／オフ（初期値OFF）、許可は既存のアクセシビリティを使う。
+- 追加（2026-11-12 JST、同チャット）：パンに使うボタンを「右ボタン」「中ボタン（ミドルクリック）」から設定で切り替えられるようにする。中ボタンでも動かさずに離したら元の中クリックをそのまま送る。
+- 調査済み：Karabiner-Elements では不可。`to` の複数イベントは最後の1つ以外が即座に押して離され（event_sender.hpp の post_events_at_key_down）、`to_if_held_down` は発火前に `to` を離す（to_if_held_down.hpp）ため、スペースと左ボタンを同時に押し続けられない。
+- 状態：受付済み。実装・ビルド・実機確認・配布は未実施。VectorMate 2.23.0（87）の公証引き継ぎ中のため、その完了後、次の「ビルドを更新」の合図または定時処理で着手する。対象SHA・版・buildは未確定。
+- 開発開始：2026-11-12 19:00 JST、ユーザー「検証用ビルドを作成」。開発Mac MacBook-Pro-14-2024-sw、専用worktree `.local/vectormate-pan-20261112`、ブランチ `codex/vectormate-pan-20261112`、基点 `0d28c1db`（2.23.0 build 87。公証引き継ぎ中の対象SHAそのものは変更しない）。通常版 2.24.0（build 88）。
+- 開発検証（2026-11-12 19:31 JST）：Source/DragPanMachine.swift（状態の移り変わり、テスト対象）と Source/DragPan.swift（CGEventTap）を追加、「ツール」タブに設定、4言語の文字列・ヘルプ・README・APP-UPDATE-HISTORY を更新。test.sh PASS（パンの単体テスト追加、Resources OK）、SKIP_DEPLOY=1 で build.sh・証明書署名・codesign --verify --deep --strict 成功（worktree の build/VectorMate.app）。Illustrator での実機確認・起動確認は未実施（/Applications の 2.23.0 が起動中のため置き換えていない）。未コミット・未push。公証・配置は未実施。
+- 修正と実機確認（2026-11-12 20:20 JST、開発Mac、Illustrator 2027、build/VectorMate.app 2.24.0（88））：初回は右・中ボタンとも効かず。押した位置の最前面ウインドウを CGWindowList で探していたが、ポインタ自身（Window Server）と画面全体の Keystroke Pro（クリック透過）が手前にあり Illustrator と判定できなかった。イベントの mouseEventWindowUnderMousePointerThatCanHandleThisEvent の持ち主で判定するよう修正し、診断ログ（pan:）を追加。ユーザー確認：右ボタンのドラッグでパン、動かさない右クリックでコンテキストメニューとも動作。中ボタン、文字ツール使用中の素通し、パネル上の挙動は未確認。版・buildは据え置き（未配布）。
+- 確定（2026-11-12 JST、ユーザー「コミットして」）：対象SHA `4c7110f7`（通常版 2.24.0（88））をブランチ `codex/vectormate-pan-20261112` へ push 済み。公証・配置は 2.23.0（87）の公証完了後に公証Macへ引き継ぐ（未実施）。
+- 工程1・2（2026-11-12 21:05 JST、開発Mac）：ユーザー指示でパンのボタンをラジオボタンに変更し、通常版 2.24.0（build 89）。test.sh PASS、SKIP_DEPLOY=1 で build.sh・証明書署名・codesign --verify --deep --strict 成功。実機（build/VectorMate.app）：起動・二重起動で1プロセス・メインウインドウを閉じても常駐・開き直しで再表示・AppleEventでの終了・dragPanButton の再起動後の保持を確認。右ボタンのパンと右クリックはユーザー確認済み（build 88）。中ボタン・文字ツール使用中・パネル上・⌘Qのキー操作は未確認。**対象SHA `5465cdcb302c46e55ea1febcd97b5632a71360e8`（リモート一致を確認）、通常版 2.24.0（89）、ブランチ `codex/vectormate-pan-20261112`。** 公証・配置は未実施（2.23.0（87）の公証完了後に引き継ぐ）。
+
 ## 2026-11-12 VectorMate：「クラシック表示」の実行順と「コントロールパネル」表記
 
 - 受付：2026-11-12 02:42 JST、元チャット：本チャット（VectorMateの修正）。受付担当：開発Mac MacBook-Pro-14-2024-sw、ブランチ `codex/filesorter-screenshot-rename-20261101`、参照HEAD `c941043b0c8904f26a869112a64d1b60f7b77cf9`。
