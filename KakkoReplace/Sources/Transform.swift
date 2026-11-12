@@ -25,7 +25,7 @@ struct BracketAction: Identifiable {
         .init(id: "html", opening: "<!-- ", closing: " -->"),
         .init(id: "css", opening: "/* ", closing: " */")
     ]
-    static let operations = ["removeOuter", "removeAll", "spaces"]
+    static let operations = ["removeOuter", "removeAll", "spaces", "swapInsideOutside"]
     static let forceIDs = ["round", "square", "corner", "angle", "doubleAngle"].map { "force_" + $0 }
     static let ids = pairs.map(\.id) + forceIDs + operations + ["palette"]
     static func pair(_ id: String) -> BracketAction? { pairs.first { $0.id == id } }
@@ -41,6 +41,9 @@ struct BracketEdit {
         func selected(_ result: String) -> BracketEdit { .init(replacement: result, selection: NSRange(location: location, length: result.utf16.count)) }
         if action == "spaces" {
             return .init(replacement: " " + text + " ", selection: NSRange(location: location + 1, length: text.utf16.count))
+        }
+        if action == "swapInsideOutside" {
+            return selected(swapInsideOutside(text))
         }
         let chars = Array(text)
         let markers = bracketMarkers(chars)
@@ -70,6 +73,32 @@ struct BracketEdit {
         let content = trimSpaces ? text.trimmingCharacters(in: CharacterSet(charactersIn: " ")) : text
         let replacement = pair.opening + content + pair.closing
         return .init(replacement: replacement, selection: NSRange(location: location + replacement.utf16.count, length: 0))
+    }
+    private static func swapInsideOutside(_ text: String) -> String {
+        let closingFor: [Character: Character] = ["（": "）", "(": ")"]
+        let closingBrackets = Set(closingFor.values)
+        guard let openingIndex = text.firstIndex(where: { closingFor[$0] != nil || closingBrackets.contains($0) }),
+              openingIndex != text.startIndex,
+              let closing = closingFor[text[openingIndex]] else { return text }
+        let insideStart = text.index(after: openingIndex)
+        var expectedClosings = [closing]
+        for index in text.indices[insideStart...] {
+            let character = text[index]
+            if let nestedClosing = closingFor[character] {
+                expectedClosings.append(nestedClosing)
+            } else if closingBrackets.contains(character) {
+                guard expectedClosings.last == character else { return text }
+                expectedClosings.removeLast()
+                if expectedClosings.isEmpty {
+                    guard index != insideStart, text.index(after: index) == text.endIndex else { return text }
+                    let outside = text[..<openingIndex]
+                    let inside = text[insideStart..<index]
+                    guard !outside.allSatisfy(\.isWhitespace), !inside.allSatisfy(\.isWhitespace) else { return text }
+                    return "\(inside)\(text[openingIndex])\(outside)\(closing)"
+                }
+            }
+        }
+        return text
     }
     private struct Marker { let index: Int; let open: Bool; let outer: Bool }
     private static func bracketMarkers(_ chars: [Character]) -> [Marker] {

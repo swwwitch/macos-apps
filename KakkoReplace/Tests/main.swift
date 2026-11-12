@@ -34,6 +34,13 @@ test("（外「内」）", 0, "外内", 0, 2, action: "removeAll")
 test("x(a)y[b]z", 0, "xaybz", 0, 5, action: "removeOuter")
 test("don't", 0, "don't", 0, 5, action: "removeAll")
 test("", 0, "", 0, 0, action: "removeOuter")
+test("株式会社スイッチ（鷹野）", 3, "鷹野（株式会社スイッチ）", 3, 12, action: "swapInsideOutside")
+test("🦉(B)", 5, "B(🦉)", 5, 5, action: "swapInsideOutside")
+test("A（B(C)）", 0, "B(C)（A）", 0, 7, action: "swapInsideOutside")
+test("A （ B ）", 0, " B （A ）", 0, 7, action: "swapInsideOutside", force: true, trim: true)
+for source in ["", "AB", "A（）", "A（ ）", "（B）", "A（B)", "A（B）C", "A（B）（C）", "A）B（C）"] {
+    test(source, 0, source, 0, source.utf16.count, action: "swapInsideOutside")
+}
 test("😀", 4, " 😀 ", 5, 2, action: "spaces")
 test("", 0, "  ", 1, 0, action: "spaces")
 test(" a ", 0, "（ a ）", 5, 0)
