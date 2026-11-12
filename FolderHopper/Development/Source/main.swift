@@ -604,10 +604,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         }
     }
     #if !APP_STORE
-    /// Reads the frontmost Finder/Path Finder selection and copies it to /Applications without showing the window,
-    /// then brings /Applications forward in the same browser with the new items selected.
-    /// Never moves: the 「複製」 checkbox is ignored; only 「シンボリックリンクとして作成」 turns it into links.
-    /// The window opens only to show an error; when there is nothing to copy, a short message says why.
+    /// Sends the Finder/Path Finder selection to Applications, suggesting copy or link.
+    /// The transfer chooser appears unless all items belong to Setapp.
     func copySelectionToApplications() {
         guard !busy, window.attachedSheet == nil else {
             NSSound.beep(); MainActor.assumeIsolated { TransientMessage.show(L("FolderHopperは処理中です。完了してからもう一度お試しください。")) }; return
@@ -1248,10 +1246,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
         let copying = chosenOperation.map { $0 == .copy } ?? (!requestedLink && (requestedCopy || copies.state == .on))
         let linking = chosenOperation.map { $0 == .link } ?? (requestedLink || (!copying && symbolicLinks.state == .on))
         let intoApplications = destination.url.resolvingSymlinksInPath().standardizedFileURL.path == "/Applications"
-        // Sending from the window into /Applications asks how; the hotkey names its operation itself.
-        if intoApplications && requestedSource == nil && chosenOperation == nil {
+        // Every entry point asks how, except a selection containing only Setapp items.
+        if intoApplications && chosenOperation == nil {
+            if MoveEngine.onlySetappItems(files) {
+                move(to: destination, source: requestedSource, bringForward: bringForward, operation: .link)
+                return
+            }
+            if requestedSource != nil {
+                window.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+            }
             confirmApplicationsTransfer(files, suggested: linking ? .link : (copying ? .copy : .move)) { [weak self] operation in
-                self?.move(to: destination, bringForward: bringForward, operation: operation)
+                self?.move(to: destination, source: requestedSource, bringForward: bringForward, operation: operation)
             }
             return
         }
@@ -1311,15 +1317,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource,
     enum TransferOperation { case move, copy, link }
     /// Asks how to send items into /Applications. Move is dimmed when an item is on another volume.
     func confirmApplicationsTransfer(_ files: [URL], suggested: TransferOperation, completion: @escaping (TransferOperation) -> Void) {
-        let movable = !MoveEngine.onOtherVolume(files, than: URL(fileURLWithPath: "/Applications", isDirectory: true))
+        let movable = !MoveEngine.onOtherVolume(files.filter { !MoveEngine.isSetappItem($0) }, than: URL(fileURLWithPath: "/Applications", isDirectory: true))
         let alert = NSAlert()
         alert.messageText = L("「アプリケーション」フォルダへの送り方を選んでください")
         alert.informativeText = L("移動：元の場所から「アプリケーション」へ移します。\n複製：元の場所に残し、「アプリケーション」に複製を置きます。\nリンク：元の場所に残し、「アプリケーション」にシンボリックリンクを置きます。")
             + (movable ? "" : "\n\n" + L("別のボリュームにある項目が含まれているため、移動はできません。"))
-        let operations: [TransferOperation] = [.move, .copy, .link]
-        for title in [L("移動"), L("複製"), L("リンクを作成")] { alert.addButton(withTitle: title) }
+        let operations: [TransferOperation] = [.copy, .move, .link]
+        for title in [L("ファイルを複製する"), L("ファイルを移動する"), L("シンボリックリンクを作成する")] { alert.addButton(withTitle: title) }
         alert.addButton(withTitle: L("キャンセル")).keyEquivalent = "\u{1b}"
-        alert.buttons[0].isEnabled = movable
+        alert.buttons[1].isEnabled = movable
         let preferred = suggested == .move && !movable ? TransferOperation.copy : suggested
         for (index, operation) in operations.enumerated() { alert.buttons[index].keyEquivalent = operation == preferred ? "\r" : "" }
         alert.beginSheetModal(for: window) { response in

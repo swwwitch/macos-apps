@@ -59,6 +59,9 @@ enum MoveEngine {
     static func isSetappItem(_ url: URL) -> Bool {
         url.standardizedFileURL.path.hasPrefix("/Applications/Setapp/")
     }
+    static func onlySetappItems(_ sources: [URL]) -> Bool {
+        !sources.isEmpty && sources.allSatisfy { isSetappItem($0) }
+    }
     static func isSymbolicLink(_ url: URL) -> Bool {
         (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
     }

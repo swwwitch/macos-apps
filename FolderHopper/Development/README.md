@@ -2,6 +2,10 @@
 
 Finder／Path Finderで選択したファイルを、一覧で選んだフォルダへ移動・複製・シンボリックリンク作成するmacOSアプリです。Apple Silicon用です。旧称はFolder Moverで、Bundle IDと実行ファイル名は互換性のため`jp.local.FolderMover`／`FolderMover`のままです。
 
+## 2026-10-29：0.2.0（build 126）検証用
+
+/Applicationsへの送り方を複製・移動・シンボリックリンクの順で表示。専用ホットキーも確認を表示し、Setapp配下のみの選択は確認なしでリンクを作成します。混在時はSetapp項目だけリンクに固定します。公証・配布は未実施です。
+
 ## 使い方
 
 1. `FolderHopper.app`をアプリケーションフォルダへ置きます。

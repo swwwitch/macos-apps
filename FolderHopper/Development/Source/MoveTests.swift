@@ -2,6 +2,12 @@ import Foundation
 
 @main struct MoveTests {
  static func main() throws {
+    precondition(!MoveEngine.onlySetappItems([]))
+    let setapp = URL(fileURLWithPath: "/Applications/Setapp/Example.app")
+    precondition(MoveEngine.onlySetappItems([setapp]))
+    precondition(!MoveEngine.onlySetappItems([setapp, URL(fileURLWithPath: "/tmp/Example.app")]))
+    precondition(!MoveEngine.onlySetappItems([URL(fileURLWithPath: "/Applications/Setapp")]))
+    precondition(!MoveEngine.onlySetappItems([URL(fileURLWithPath: "/Applications/Setapp-other/App.app")]))
     let fm = FileManager.default
     let root = fm.temporaryDirectory.appendingPathComponent("FolderMover-tests-\(UUID().uuidString)")
     try fm.createDirectory(at: root, withIntermediateDirectories: true)
