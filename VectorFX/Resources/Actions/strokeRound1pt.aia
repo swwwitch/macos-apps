@@ -1,0 +1,103 @@
+/version 3
+/name [ 18
+	e382a2e38394e382a2e383a9e383b3e382b9
+]
+/isOpen 1
+/actionCount 1
+/action-1 {
+	/name [ 15
+		e4b8b8e59e8be7b79ae7abafe381ab
+	]
+	/keyIndex 0
+	/colorIndex 0
+	/isOpen 1
+	/eventCount 1
+	/event-1 {
+		/useRulersIn1stQuadrant 0
+		/internalName (ai_plugin_setStroke)
+		/localizedName [ 12
+			e7b79ae38292e8a8ade5ae9a
+		]
+		/isOpen 1
+		/isOn 1
+		/hasDialog 0
+		/parameterCount 10
+		/parameter-1 {
+			/key 2003072104
+			/showInPalette 4294967295
+			/type (unit real)
+			/value 1.0
+			/unit 592476268
+		}
+		/parameter-2 {
+			/key 1667330094
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 12
+				e4b8b8e59e8be7b79ae7abaf
+			]
+			/value 1
+		}
+		/parameter-3 {
+			/key 1836344690
+			/showInPalette 4294967295
+			/type (real)
+			/value 10.0
+		}
+		/parameter-4 {
+			/key 1785686382
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 18
+				e3839ee382a4e382bfe383bce7b590e59088
+			]
+			/value 0
+		}
+		/parameter-5 {
+			/key 1684825454
+			/showInPalette 4294967295
+			/type (integer)
+			/value 0
+		}
+		/parameter-6 {
+			/key 1684104298
+			/showInPalette 4294967295
+			/type (boolean)
+			/value 0
+		}
+		/parameter-7 {
+			/key 1634231345
+			/showInPalette 4294967295
+			/type (ustring)
+			/value [ 8
+				5be381aae381975d
+			]
+		}
+		/parameter-8 {
+			/key 1634231346
+			/showInPalette 4294967295
+			/type (ustring)
+			/value [ 8
+				5be381aae381975d
+			]
+		}
+		/parameter-9 {
+			/key 1634230636
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 24
+				e38391e382b9e381aee7b582e782b9e381abe9858de7bdae
+			]
+			/value 0
+		}
+		/parameter-10 {
+			/key 1634494318
+			/showInPalette 4294967295
+			/type (enumerated)
+			/name [ 6
+				e4b8ade5a4ae
+			]
+			/value 0
+		}
+	}
+}
