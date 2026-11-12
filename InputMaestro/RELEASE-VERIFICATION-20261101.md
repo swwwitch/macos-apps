@@ -17,3 +17,7 @@
 - 既存共有ソースの未使用変数・Swift 6 actor分離に関する警告あり。共有ソースは変更していない。
 - 公証、Developer ID署名、DMG、/Applications、Latest Buildsへの配置、GitHub Release、note公開、公証担当Macへの引き継ぎ実行は未実施。
 - 同時進行中のFolderHopper・MarkdownKitchen・ShotSorter等の作業ツリー変更は保持。ShotSorterは文字認識エンジンと整形の既存ソースを参照コピーしただけで、このチャットでは変更していない。
+
+## Git確定
+
+- 確定記録：ソースSHA＝c52669c228f782c65cc0e8c8f6fd868e2597454b、GitHub保存先＝codex/inputmaestro-integration-20261101。開始時mainだった共有作業ツリーが並行作業でcodex/filesorter-screenshot-rename-20261101へ切り替わっていたため、ソースコミット後は専用ブランチを作成してpush。mainへのpushはnon-fast-forwardで拒否され、強制更新していない。main統合・公証担当Macへの実引き継ぎは未実施。
