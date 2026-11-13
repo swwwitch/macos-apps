@@ -353,19 +353,17 @@ struct ApplicationBarView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "rectangle.topthird.inset.filled").font(.largeTitle).foregroundColor(.secondary)
                         Text(L("barNotFound")).font(.system(size: 14, weight: .medium))
-                    }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(30)
+                    }.frame(maxWidth: .infinity, minHeight: 150)
                 } else {
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            ForEach(model.visibleWorkspaces) { workspace in
-                                WorkspaceRow(model: model, workspace: workspace)
-                                if workspace != model.visibleWorkspaces.last { Divider().padding(.leading, 14) }
-                            }
+                    LazyVStack(spacing: 0) {
+                        ForEach(model.visibleWorkspaces) { workspace in
+                            WorkspaceRow(model: model, workspace: workspace)
+                            if workspace != model.visibleWorkspaces.last { Divider().padding(.leading, 14) }
                         }
                     }
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 150, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .textBackgroundColor)))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.secondary.opacity(0.18)))
             if model.orphanCount > 0 {
@@ -461,11 +459,12 @@ struct ContentView: View {
                 ("tools", L("tabTools"), AnyView(ToolsView(model: model))),
                 ("associations", L("version.tab"), AnyView(VersionSwitchView()))
             ])
+            .frame(maxHeight: .infinity)
             HStack {
                 Button(L("settingsButton")) { (NSApp.delegate as? AppDelegate)?.showPreferences() }
                 Spacer()
                 if model.busy { ProgressView().controlSize(.small) }
-                Button(L("reload")) { model.refresh(resetStatus: true); model.ui.read() }.disabled(model.busy)
+                Button(L("reload")) { (NSApp.delegate as? AppDelegate)?.reload() }.disabled(model.busy)
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 22)
@@ -492,7 +491,9 @@ struct MainTabs: NSViewRepresentable {
         for page in pages {
             let item = NSTabViewItem(identifier: page.id)
             item.label = page.title
-            item.view = NSHostingView(rootView: page.content)
+            let hosting = NSHostingView(rootView: page.content)
+            hosting.sizingOptions = []
+            item.view = hosting
             tabs.addTabViewItem(item)
         }
         if let saved = UserDefaults.standard.string(forKey: Self.key), let index = pages.firstIndex(where: { $0.id == saved }) { tabs.selectTabViewItem(at: index) }
@@ -559,12 +560,16 @@ struct UIPage: View {
     @ObservedObject var model: Model
     @ObservedObject var ui: InDesignUI
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            InDesignUIGroups(ui: ui)
-            GroupTitle(text: L("ui.barTitle")).padding(.top, 6)
-            ApplicationBarView(model: model)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                InDesignUIGroups(ui: ui)
+                GroupTitle(text: L("ui.barTitle")).padding(.top, 6)
+                ApplicationBarView(model: model)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
         }
-        .padding(16)
+        .clipped()
     }
 }
 
@@ -675,7 +680,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func showMain() {
         StartupWindow.userRequestedWindow()
         if mainWindow == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 520), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 640), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             // Native title bar unchanged; no app name in it.
             window.title = ""; window.titleVisibility = .hidden; window.isReleasedWhenClosed = false; window.delegate = self
             window.contentView = NSHostingView(rootView: ContentView(model: model)); window.minSize = NSSize(width: 620, height: 460)
@@ -717,7 +722,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         for sub in view.subviews { if let found = tabView(sub) { return found } }
         return nil
     }
-    @objc func reload() { model.refresh(resetStatus: true) }
+    @objc func reload() { model.refresh(resetStatus: true); model.ui.read() }
     @objc func addApp() { showMain(); model.add() }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         StartupWindow.userRequestedWindow(); showMain(); return true }

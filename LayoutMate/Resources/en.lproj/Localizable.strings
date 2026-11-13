@@ -34,6 +34,7 @@
 "ui.doubleColumn" = "Toolbar (two columns)";
 "ui.notRunning" = "InDesign is not running.";
 "ui.noAnswer" = "Could not read the state from InDesign (check for an open dialog box and the Automation permission).";
+"ui.automationDenied" = "Allow LayoutMate to control InDesign in System Settings → Privacy & Security → Automation, then reload.";
 "ui.failed" = "Could not change it in InDesign.";
 "ui.frameOn" = "Turned the Application Frame on.";
 "ui.frameOff" = "Turned the Application Frame off.";

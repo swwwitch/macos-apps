@@ -46,6 +46,7 @@ rows = [
 ('ui.doubleColumn', 'ツールバー（2列）', 'Toolbar (two columns)', '工具栏（双栏）', '도구 막대(2열)'),
 ('ui.notRunning', 'InDesignが起動していません。', 'InDesign is not running.', 'InDesign 未运行。', 'InDesign이 실행 중이 아닙니다.'),
 ('ui.noAnswer', 'InDesignから状態を読めませんでした（ダイアログボックス・オートメーションの許可を確認）。', 'Could not read the state from InDesign (check for an open dialog box and the Automation permission).', '无法从 InDesign 读取状态（请检查是否打开了对话框以及自动化权限）。', 'InDesign에서 상태를 읽지 못했습니다(대화상자와 자동화 권한을 확인).'),
+('ui.automationDenied', 'システム設定の「プライバシーとセキュリティ」→「オートメーション」で、LayoutMateにInDesignの操作を許可してから再読み込みしてください。', 'Allow LayoutMate to control InDesign in System Settings → Privacy & Security → Automation, then reload.', '在系统设置 → 隐私与安全性 → 自动化中允许 LayoutMate 控制 InDesign，然后重新载入。', '시스템 설정 → 개인정보 보호 및 보안 → 자동화에서 LayoutMate의 InDesign 제어를 허용한 다음 다시 불러오세요.'),
 ('ui.failed', 'InDesignで変更できませんでした。', 'Could not change it in InDesign.', '无法在 InDesign 中更改。', 'InDesign에서 변경하지 못했습니다.'),
 ('ui.frameOn', 'アプリケーションフレームをオンにしました。', 'Turned the Application Frame on.', '已打开应用程序框架。', '응용 프로그램 프레임을 켰습니다.'),
 ('ui.frameOff', 'アプリケーションフレームをオフにしました。', 'Turned the Application Frame off.', '已关闭应用程序框架。', '응용 프로그램 프레임을 껐습니다.'),
@@ -158,7 +159,7 @@ for idx, lang in enumerate(LANGS):
     (folder / 'Localizable.strings').write_text('\n'.join(json.dumps(k, ensure_ascii=False) + ' = ' + json.dumps(v, ensure_ascii=False) + ';' for k, v in values.items()) + '\n')
     (folder / 'Help.txt').write_text(helptexts[idx] + '\n')
     (folder / 'InfoPlist.strings').write_text('"NSAppleEventsUsageDescription" = ' + json.dumps(APPLE_EVENTS[idx], ensure_ascii=False) + ';\n')
-info = {'CFBundleName': 'LayoutMate', 'CFBundleDisplayName': 'LayoutMate', 'CFBundleIdentifier': 'jp.dtp-transit.layoutmate', 'CFBundleExecutable': 'LayoutMate', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'LayoutMate.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.utilities', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'NSAppleEventsUsageDescription': APPLE_EVENTS[1], 'CFBundleShortVersionString': '0.1.0', 'CFBundleVersion': '1'}
+info = {'CFBundleName': 'LayoutMate', 'CFBundleDisplayName': 'LayoutMate', 'CFBundleIdentifier': 'jp.dtp-transit.layoutmate', 'CFBundleExecutable': 'LayoutMate', 'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'LayoutMate.icns', 'LSMinimumSystemVersion': '13.0', 'LSMultipleInstancesProhibited': True, 'NSHighResolutionCapable': True, 'CFBundleDevelopmentRegion': 'en', 'CFBundleLocalizations': LANGS, 'NSPrincipalClass': 'NSApplication', 'LSApplicationCategoryType': 'public.app-category.utilities', 'SWAppFamily': 'swwwitch', 'NSHumanReadableCopyright': '© 2026 swwwitch', 'NSAppleEventsUsageDescription': APPLE_EVENTS[1], 'CFBundleShortVersionString': '0.1.1', 'CFBundleVersion': '2'}
 # Version and build come from the existing Info.plist, so regeneration never reverts them.
 plist_path = root / 'Info.plist'; current = plistlib.loads(plist_path.read_bytes()) if plist_path.exists() else {}
 info.update({k: current[k] for k in ('CFBundleShortVersionString', 'CFBundleVersion') if k in current})

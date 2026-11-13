@@ -34,6 +34,7 @@
 "ui.doubleColumn" = "ツールバー（2列）";
 "ui.notRunning" = "InDesignが起動していません。";
 "ui.noAnswer" = "InDesignから状態を読めませんでした（ダイアログボックス・オートメーションの許可を確認）。";
+"ui.automationDenied" = "システム設定の「プライバシーとセキュリティ」→「オートメーション」で、LayoutMateにInDesignの操作を許可してから再読み込みしてください。";
 "ui.failed" = "InDesignで変更できませんでした。";
 "ui.frameOn" = "アプリケーションフレームをオンにしました。";
 "ui.frameOff" = "アプリケーションフレームをオフにしました。";

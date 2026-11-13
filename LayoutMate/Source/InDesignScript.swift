@@ -5,22 +5,42 @@ import AppKit
 enum InDesignScript {
     private static func code(_ text: String) -> UInt32 { text.utf8.reduce(UInt32(0)) { $0 << 8 | UInt32($1) } }
 
-    /// The script's result as text, or nil (no answer within `timeout`, an error, or no Automation permission).
-    /// The first call asks for the Automation consent and returns nil (`.neverInteract` cannot show it).
-    /// Blocks the calling thread: call it off the main thread.
+    enum Failure: Error {
+        case permissionDenied
+        case noReply
+    }
+
     static func run(_ javascript: String, pid: pid_t, timeout: TimeInterval) -> String? {
+        try? send(javascript, pid: pid, timeout: timeout)
+    }
+
+    /// Blocks the calling thread, including while the user responds to the first Automation prompt.
+    static func send(_ javascript: String, pid: pid_t, timeout: TimeInterval) throws -> String {
         let target = NSAppleEventDescriptor(processIdentifier: pid)
-        if let desc = target.aeDesc,
-           AEDeterminePermissionToAutomateTarget(desc, code("K2  "), code("dosc"), false) == errAEEventWouldRequireUserConsent {
-            _ = AEDeterminePermissionToAutomateTarget(desc, code("K2  "), code("dosc"), true)
-            return nil
+        guard let desc = target.aeDesc else { throw Failure.noReply }
+        let eventClass = code("K2  ")
+        let eventID = code("dosc")
+        var permission = AEDeterminePermissionToAutomateTarget(desc, eventClass, eventID, false)
+        if permission == errAEEventWouldRequireUserConsent {
+            permission = AEDeterminePermissionToAutomateTarget(desc, eventClass, eventID, true)
         }
-        let event = NSAppleEventDescriptor(eventClass: code("K2  "), eventID: code("dosc"), targetDescriptor: target,
+        if permission == errAEEventNotPermitted { throw Failure.permissionDenied }
+        let event = NSAppleEventDescriptor(eventClass: eventClass, eventID: eventID, targetDescriptor: target,
                                            returnID: AEReturnID(kAutoGenerateReturnID), transactionID: AETransactionID(kAnyTransactionID))
         event.setParam(NSAppleEventDescriptor(string: javascript), forKeyword: keyDirectObject)
         event.setParam(NSAppleEventDescriptor(enumCode: code("JSLg")), forKeyword: code("doLg"))
-        guard let reply = try? event.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout) else { return nil }
-        return reply.paramDescriptor(forKeyword: keyDirectObject)?.stringValue
+        let reply: NSAppleEventDescriptor
+        do {
+            reply = try event.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout)
+        } catch let error as NSError where error.code == Int(errAEEventNotPermitted) {
+            throw Failure.permissionDenied
+        }
+        let replyError = reply.paramDescriptor(forKeyword: keyErrorNumber)?.int32Value ?? 0
+        if replyError == errAEEventNotPermitted { throw Failure.permissionDenied }
+        guard replyError == 0, let result = reply.paramDescriptor(forKeyword: keyDirectObject)?.stringValue else {
+            throw Failure.noReply
+        }
+        return result
     }
 
     /// UITools TYPE_TOOL, TYPE_ON_PATH_TOOL, VERTICAL_TYPE_TOOL, VERTICAL_TYPE_ON_PATH_TOOL (current while text is edited).

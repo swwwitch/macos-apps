@@ -34,6 +34,7 @@
 "ui.doubleColumn" = "工具栏（双栏）";
 "ui.notRunning" = "InDesign 未运行。";
 "ui.noAnswer" = "无法从 InDesign 读取状态（请检查是否打开了对话框以及自动化权限）。";
+"ui.automationDenied" = "在系统设置 → 隐私与安全性 → 自动化中允许 LayoutMate 控制 InDesign，然后重新载入。";
 "ui.failed" = "无法在 InDesign 中更改。";
 "ui.frameOn" = "已打开应用程序框架。";
 "ui.frameOff" = "已关闭应用程序框架。";

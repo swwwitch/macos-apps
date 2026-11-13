@@ -34,6 +34,7 @@
 "ui.doubleColumn" = "도구 막대(2열)";
 "ui.notRunning" = "InDesign이 실행 중이 아닙니다.";
 "ui.noAnswer" = "InDesign에서 상태를 읽지 못했습니다(대화상자와 자동화 권한을 확인).";
+"ui.automationDenied" = "시스템 설정 → 개인정보 보호 및 보안 → 자동화에서 LayoutMate의 InDesign 제어를 허용한 다음 다시 불러오세요.";
 "ui.failed" = "InDesign에서 변경하지 못했습니다.";
 "ui.frameOn" = "응용 프로그램 프레임을 켰습니다.";
 "ui.frameOff" = "응용 프로그램 프레임을 껐습니다.";

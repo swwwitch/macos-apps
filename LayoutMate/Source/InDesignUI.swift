@@ -30,6 +30,7 @@ final class InDesignUI: ObservableObject {
     private let queue = DispatchQueue(label: "LayoutMate.ui")
     /// Brightness steps pressed while an operation was running; applied together afterwards.
     private var pendingSteps = 0
+    private var readingPID: pid_t?
 
     /// The InDesign in front, otherwise one that is running.
     static var target: NSRunningApplication? {
@@ -52,14 +53,38 @@ final class InDesignUI: ObservableObject {
 
     func read() {
         guard let pid = Self.target?.processIdentifier else { state = nil; status = L("ui.notRunning"); return }
+        guard readingPID != pid else { return }
+        readingPID = pid
         queue.async {
-            let result = Self.parse(InDesignScript.run(Self.script(""), pid: pid, timeout: 3))
+            let result = Result { try Self.readState(pid: pid) }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
-                    self.state = result
-                    if result == nil { self.status = L("ui.noAnswer") } else if self.status == L("ui.notRunning") || self.status == L("ui.noAnswer") { self.status = "" }
+                    guard self.readingPID == pid else { return }
+                    self.readingPID = nil
+                    guard Self.target?.processIdentifier == pid else { self.read(); return }
+                    self.applyRead(result)
                 }
             }
+        }
+    }
+
+    nonisolated private static func readState(pid: pid_t) throws -> State {
+        let text = try InDesignScript.send(script(""), pid: pid, timeout: 5)
+        guard let state = parse(text) else { throw InDesignScript.Failure.noReply }
+        return state
+    }
+
+    private func applyRead(_ result: Result<State, Error>) {
+        switch result {
+        case .success(let current):
+            state = current
+            if [L("ui.notRunning"), L("ui.noAnswer"), L("ui.automationDenied")].contains(status) { status = "" }
+        case .failure(InDesignScript.Failure.permissionDenied):
+            state = nil
+            status = L("ui.automationDenied")
+        case .failure:
+            state = nil
+            status = L("ui.noAnswer")
         }
     }
 
@@ -69,13 +94,17 @@ final class InDesignUI: ObservableObject {
         guard !busy, let pid = Self.target?.processIdentifier else { if Self.target == nil { status = L("ui.notRunning") }; return }
         busy = true
         queue.async {
-            let wrote = InDesignScript.run(Self.script("var g=app.generalPreferences;" + body), pid: pid, timeout: 5)
-            let result = Self.parse(InDesignScript.run(Self.script(""), pid: pid, timeout: 3))
+            let wrote = InDesignScript.run("(function(){var g=app.generalPreferences;" + Self.taskBarJS + body + "return 'ok';})();", pid: pid, timeout: 5)
+            let result = Result { try Self.readState(pid: pid) }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     self.busy = false
-                    self.state = result
-                    self.status = wrote == nil ? L("ui.failed") : L(done)
+                    if Self.target?.processIdentifier == pid {
+                        self.applyRead(result)
+                        if case .success = result { self.status = wrote == "ok" ? L(done) : L("ui.failed") }
+                    } else {
+                        self.read()
+                    }
                     if self.pendingSteps != 0 { let steps = self.pendingSteps; self.pendingSteps = 0; self.step(steps) }
                 }
             }
@@ -92,13 +121,16 @@ final class InDesignUI: ObservableObject {
         guard let pid = Self.target?.processIdentifier else { return }
         busy = true
         queue.async {
-            let current = Self.parse(InDesignScript.run(Self.script(""), pid: pid, timeout: 3))
+            let result = Result { try Self.readState(pid: pid) }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     self.busy = false
-                    guard let current else { self.status = L("ui.noAnswer"); return }
-                    self.state = current
-                    let target = min(max(current.brightness + delta, 0), Self.brightnessValues.count - 1)
+                    let steps = delta + self.pendingSteps
+                    self.pendingSteps = 0
+                    guard Self.target?.processIdentifier == pid else { self.read(); return }
+                    self.applyRead(result)
+                    guard case .success(let current) = result else { return }
+                    let target = min(max(current.brightness + steps, 0), Self.brightnessValues.count - 1)
                     if target != current.brightness { self.setBrightness(target) }
                 }
             }
@@ -134,7 +166,7 @@ struct InDesignUIGroups: View {
                         .disabled(ui.state?.hasTaskBar == false)
                     Toggle(L("ui.doubleColumn"), isOn: Binding(get: { ui.state?.doubleColumn ?? false }, set: { value in if let state = ui.state, state.doubleColumn != value { ui.setDoubleColumn(value) } }))
                 }.disabled(ui.state == nil || ui.busy)
-                Text(ui.status).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(2)
+                Note(text: ui.status)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
