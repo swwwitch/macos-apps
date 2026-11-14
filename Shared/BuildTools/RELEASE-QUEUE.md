@@ -1,5 +1,11 @@
 # リリースキュー
 
+## 2026-11-14 MightyEdit：設定タブのフォーカス枠のずれ
+
+- 受付日：2026-11-14（JST）。元チャット：MightyEdit（本チャット、スクリーンショット添付）。状態：受付・実装待ち。担当・作業ブランチ・対象SHA・開始日時は未確定。
+- 要望：「ホットキー」タブで選択表示の右へはみ出すフォーカス枠を修正する。
+- ソース確認：`MightyEdit/Source/GlobalShortcuts.swift` が設定タブを直接生成しており、共通部品 `SettingsSection.swift` と同じ `focusRingType = .none` の指定がない。次回ビルドでB24の設定を適用し、マウス・キーボードでのタブ切り替え、フォーカス表示、再起動後の選択タブ復元を実機確認する。
+
 ## 2026-11-12 LayoutMate：新規（InDesign版VectorMate、IdBackgroundOffの写しから）
 
 - 受付・開発開始：2026-11-12 JST、元チャット：本チャット（ユーザー「新しいアプリ名にしてほしい」→ LayoutMate・別アプリとして新規を選択、「設定など、基本機能を入れて」ほか）。開発Mac MacBook-Pro-14-2024-sw、専用worktree `.local/layoutmate-20261112`、ブランチ `codex/layoutmate-20261112`、基点 `c941043b`。通常版 0.1.0（build 1）、Bundle ID `jp.dtp-transit.layoutmate`。
