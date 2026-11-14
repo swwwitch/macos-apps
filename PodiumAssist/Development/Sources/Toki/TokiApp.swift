@@ -1584,8 +1584,14 @@ struct ManualControlsView: View {
                                 Label(L("最大拡大率"), systemImage: "arrow.up.left.and.arrow.down.right").fixedSize()
                                 Spacer()
                                 // Applied when the knob is released: System Settings is operated once per change.
-                                Slider(value: $zoomDraft, in: min(zoomMinDraft, 40)...max(8, max(zoomMinDraft, settings.zoomMaxFactor ?? 1))) { editing in
-                                    if !editing { manual { settings.setZoom(maxFactor: zoomDraft) } }
+                                VStack(spacing: 0) {
+                                    Slider(value: Binding(get: { min(max(zoomDraft, 1), 15) }, set: { zoomDraft = $0 }), in: 1...15) { editing in
+                                        if !editing {
+                                            manual { settings.setZoom(maxFactor: zoomDraft, minFactor: zoomDraft < zoomMinDraft ? zoomDraft : nil) }
+                                        }
+                                    }
+                                    HStack { Text("1"); Spacer(); Text("15") }
+                                        .font(.system(size: 10)).foregroundColor(.secondary)
                                 }
                                 .frame(width: 140)
                                 Text(ZoomSettings.text(zoomDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
@@ -1597,8 +1603,14 @@ struct ManualControlsView: View {
                             HStack {
                                 Label(L("最小拡大率"), systemImage: "arrow.down.right.and.arrow.up.left").fixedSize()
                                 Spacer()
-                                Slider(value: $zoomMinDraft, in: 1...max(1, min(zoomDraft, max(4, settings.zoomMinFactor ?? 1)))) { editing in
-                                    if !editing { manual { settings.setZoom(minFactor: zoomMinDraft) } }
+                                VStack(spacing: 0) {
+                                    Slider(value: Binding(get: { min(max(zoomMinDraft, 1), 15) }, set: { zoomMinDraft = $0 }), in: 1...15) { editing in
+                                        if !editing {
+                                            manual { settings.setZoom(maxFactor: zoomMinDraft > zoomDraft ? zoomMinDraft : nil, minFactor: zoomMinDraft) }
+                                        }
+                                    }
+                                    HStack { Text("1"); Spacer(); Text("15") }
+                                        .font(.system(size: 10)).foregroundColor(.secondary)
                                 }
                                 .frame(width: 140)
                                 Text(ZoomSettings.text(zoomMinDraft)).monospacedDigit().frame(width: 40, alignment: .trailing)
